@@ -783,6 +783,7 @@ constant_allocator: runtime.Allocator
 @(init, private)
 initialize_constants :: proc "contextless" () {
 	context = runtime.default_context()
+    context.allocator = runtime.heap_allocator()
 	constant_allocator = context.allocator
 
 	internal_int_set_from_integer(     INT_ZERO,  0);      INT_ZERO.flags = {.Immutable}

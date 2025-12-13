@@ -99,7 +99,8 @@ tag_register_number :: proc "contextless" (impl: Tag_Implementation, nr: Tag_Num
 // Controls initialization of default tag implementations.
 INITIALIZE_DEFAULT_TAGS :: #config(CBOR_INITIALIZE_DEFAULT_TAGS, !ODIN_DEFAULT_TO_PANIC_ALLOCATOR && !ODIN_DEFAULT_TO_NIL_ALLOCATOR)
 
-@(private, init, disabled=!INITIALIZE_DEFAULT_TAGS)
+/* TODO: it was init */
+@(private, disabled=!INITIALIZE_DEFAULT_TAGS)
 tags_initialize_defaults :: proc "contextless" () {
 	tags_register_defaults()
 }
