@@ -9,6 +9,7 @@ package regex_parser
 */
 
 import "base:intrinsics"
+import "core:mem"
 import "core:strconv"
 import "core:strings"
 import "core:text/regex/common"
@@ -193,7 +194,7 @@ expect :: proc(p: ^Parser, kind: Token_Kind) -> (err: Error) {
 	}
 }
 
-null_denotation :: proc(p: ^Parser, token: Token) -> (result: Node, err: Error) {
+null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (result: Node, err: Error) {
 	#partial switch token.kind {
 	case .Rune:
 		r: rune
@@ -207,14 +208,14 @@ null_denotation :: proc(p: ^Parser, token: Token) -> (result: Node, err: Error) 
 			lower := unicode.to_lower(r)
 			upper := unicode.to_upper(r)
 			if lower != upper {
-				node := new(Node_Rune_Class)
+				node := new(Node_Rune_Class, allocator)
 				append(&node.runes, lower)
 				append(&node.runes, upper)
 				return node, nil
 			}
 		}
 
-		node := new(Node_Rune)
+		node := new(Node_Rune, allocator)
 		node ^= { r }
 		return node, nil
 
@@ -223,7 +224,7 @@ null_denotation :: proc(p: ^Parser, token: Token) -> (result: Node, err: Error) 
 			return nil, nil
 		}
 
-		node := new(Node_Rune_Class)
+		node := new(Node_Rune_Class, allocator)
 
 		#no_bounds_check for i := 0; i < len(token.text); /**/ {
 			r, size := utf8.decode_rune(token.text[i:])
@@ -336,7 +337,7 @@ null_denotation :: proc(p: ^Parser, token: Token) -> (result: Node, err: Error) 
 		result = node
 
 	case .Wildcard:
-		node := new(Node_Wildcard)
+		node := new(Node_Wildcard, allocator)
 		result = node
 
 	case .Open_Paren:
@@ -349,41 +350,41 @@ null_denotation :: proc(p: ^Parser, token: Token) -> (result: Node, err: Error) 
 		}
 		this_group := p.groups
 
-		node := new(Node_Group)
+		node := new(Node_Group, allocator)
 		node.capture = true
 		node.capture_id = this_group
 
-		node.inner = parse_expression(p, 0) or_return
+		node.inner = parse_expression(p, 0, allocator) or_return
 		expect(p, .Close_Paren) or_return
 		result = node
 	case .Open_Paren_Non_Capture:
-		node := new(Node_Group)
-		node.inner = parse_expression(p, 0) or_return
+		node := new(Node_Group, allocator)
+		node.inner = parse_expression(p, 0, allocator) or_return
 		expect(p, .Close_Paren) or_return
 		result = node
 	case .Close_Paren:
-		node := new(Node_Rune)
+		node := new(Node_Rune, allocator)
 		node ^= { ')' }
 		return node, nil
 		
 	case .Anchor_Start:
-		node := new(Node_Anchor)
+		node := new(Node_Anchor, allocator)
 		node.start = true
 		result = node
 	case .Anchor_End:
-		node := new(Node_Anchor)
+		node := new(Node_Anchor, allocator)
 		result = node
 	case .Word_Boundary:
-		node := new(Node_Word_Boundary)
+		node := new(Node_Word_Boundary, allocator)
 		result = node
 	case .Non_Word_Boundary:
-		node := new(Node_Word_Boundary)
+		node := new(Node_Word_Boundary, allocator)
 		node.non_word = true
 		result = node
 
 	case .Alternate:
 		// A unary alternation with a left-side empty path, i.e. `|a`.
-		right, right_err := parse_expression(p, left_binding_power(.Alternate))
+		right, right_err := parse_expression(p, left_binding_power(.Alternate), allocator)
 		#partial switch specific in right_err {
 		case Unexpected_EOF:
 			// This token is a NOP, i.e. `|`.
@@ -394,7 +395,7 @@ null_denotation :: proc(p: ^Parser, token: Token) -> (result: Node, err: Error) 
 			return nil, right_err
 		}
 
-		node := new(Node_Alternation)
+		node := new(Node_Alternation, allocator)
 		node.right = right
 		result = node
 
@@ -408,18 +409,18 @@ null_denotation :: proc(p: ^Parser, token: Token) -> (result: Node, err: Error) 
 	return
 }
 
-left_denotation :: proc(p: ^Parser, token: Token, left: Node) -> (result: Node, err: Error) {
+left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.Allocator) -> (result: Node, err: Error) {
 	#partial switch token.kind {
 	case .Alternate:
 		if p.cur_token.kind == .Close_Paren {
 			// `(a|)`
 			// parse_expression will fail, so intervene here.
-			node := new(Node_Alternation)
+			node := new(Node_Alternation, allocator)
 			node.left = left
 			return node, nil
 		}
 
-		right, right_err := parse_expression(p, left_binding_power(.Alternate))
+		right, right_err := parse_expression(p, left_binding_power(.Alternate), allocator)
 
 		#partial switch specific in right_err {
 		case nil:
@@ -432,13 +433,13 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node) -> (result: Node, 
 			return nil, right_err
 		}
 
-		node := new(Node_Alternation)
+		node := new(Node_Alternation, allocator)
 		node.left = left
 		node.right = right
 		result = node
 
 	case .Concatenate:
-		right := parse_expression(p, left_binding_power(.Concatenate)) or_return
+		right := parse_expression(p, left_binding_power(.Concatenate), allocator) or_return
 
 		// There should be no need to check if right is Node_Concatenation, due
 		// to how the parsing direction works.
@@ -447,31 +448,31 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node) -> (result: Node, 
 			append(&specific.nodes, right)
 			result = specific
 		case:
-			node := new(Node_Concatenation)
+			node := new(Node_Concatenation, allocator)
 			append(&node.nodes, left)
 			append(&node.nodes, right)
 			result = node
 		}
 
 	case .Repeat_Zero:
-		node := new(Node_Repeat_Zero)
+		node := new(Node_Repeat_Zero, allocator)
 		node.inner = left
 		result = node
 	case .Repeat_Zero_Non_Greedy:
-		node := new(Node_Repeat_Zero_Non_Greedy)
+		node := new(Node_Repeat_Zero_Non_Greedy, allocator)
 		node.inner = left
 		result = node
 	case .Repeat_One:
-		node := new(Node_Repeat_One)
+		node := new(Node_Repeat_One, allocator)
 		node.inner = left
 		result = node
 	case .Repeat_One_Non_Greedy:
-		node := new(Node_Repeat_One_Non_Greedy)
+		node := new(Node_Repeat_One_Non_Greedy, allocator)
 		node.inner = left
 		result = node
 
 	case .Repeat_N:
-		node := new(Node_Repeat_N)
+		node := new(Node_Repeat_N, allocator)
 		node.inner = left
 
 		comma := strings.index_byte(token.text, ',')
@@ -533,11 +534,11 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node) -> (result: Node, 
 		result = node
 
 	case .Optional:
-		node := new(Node_Optional)
+		node := new(Node_Optional, allocator)
 		node.inner = left
 		result = node
 	case .Optional_Non_Greedy:
-		node := new(Node_Optional_Non_Greedy)
+		node := new(Node_Optional_Non_Greedy, allocator)
 		node.inner = left
 		result = node
 
@@ -551,25 +552,25 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node) -> (result: Node, 
 	return
 }
 
-parse_expression :: proc(p: ^Parser, rbp: int) -> (result: Node, err: Error) {
+parse_expression :: proc(p: ^Parser, rbp: int, allocator: mem.Allocator) -> (result: Node, err: Error) {
 	token := p.cur_token
 
 	advance(p) or_return
-	left := null_denotation(p, token) or_return
+	left := null_denotation(p, token, allocator) or_return
 
 	token = p.cur_token
 	for rbp < left_binding_power(token.kind) {
 		advance(p) or_return
-		left = left_denotation(p, token, left) or_return
+		left = left_denotation(p, token, left, allocator) or_return
 		token = p.cur_token
 	}
 
 	return left, nil
 }
 
-parse :: proc(str: string, flags: common.Flags) -> (result: Node, err: Error) {
+parse :: proc(str: string, flags: common.Flags, allocator: mem.Allocator) -> (result: Node, err: Error) {
 	if len(str) == 0 {
-		node := new(Node_Group)
+		node := new(Node_Group, allocator)
 		return node, nil
 	}
 
@@ -583,7 +584,7 @@ parse :: proc(str: string, flags: common.Flags) -> (result: Node, err: Error) {
 		return nil, Invalid_Unicode { pos = 0 }
 	}
 
-	node := parse_expression(&p, 0) or_return
+	node := parse_expression(&p, 0, allocator) or_return
 	result = node
 
 	return

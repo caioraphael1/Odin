@@ -10,6 +10,7 @@ package regex_vm
 
 import "base:intrinsics"
 @require import "core:io"
+import "core:mem"
 import "core:slice"
 import "core:text/regex/common"
 import "core:text/regex/parser"
@@ -110,7 +111,7 @@ check_busy_map :: #force_inline proc "contextless" (vm: ^Machine, pc: int) -> bo
 	return vm.busy_map[slot] & bit > 0
 }
 
-add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc: int) #no_bounds_check {
+add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc: int, allocator: mem.Allocator) #no_bounds_check {
 	if check_busy_map(vm, pc) {
 		return
 	}
@@ -140,12 +141,12 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 			jmp_x := cast(int)intrinsics.unaligned_load(cast(^u16)&vm.code[pc + size_of(Opcode)])
 			jmp_y := cast(int)intrinsics.unaligned_load(cast(^u16)&vm.code[pc + size_of(Opcode) + size_of(u16)])
 
-			add_thread(vm, saved, jmp_x)
+			add_thread(vm, saved, jmp_x, allocator)
 			pc = jmp_y
 			continue
 
 		case .Save:
-			new_saved := new([2 * common.MAX_CAPTURE_GROUPS]int)
+			new_saved := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
 			new_saved ^= saved^
 			saved = new_saved
 
@@ -230,7 +231,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 		case .Wait_For_Byte:
 			operand := cast(rune)vm.code[pc + size_of(Opcode)]
 			if vm.next_rune == operand {
-				add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8))
+				add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8), allocator)
 			}
 
 			when common.ODIN_DEBUG_REGEX {
@@ -244,7 +245,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 		case .Wait_For_Rune:
 			operand := intrinsics.unaligned_load(cast(^rune)&vm.code[pc + size_of(Opcode)])
 			if vm.next_rune == operand {
-				add_thread(vm, saved, pc + size_of(Opcode) + size_of(rune))
+				add_thread(vm, saved, pc + size_of(Opcode) + size_of(rune), allocator)
 			}
 
 			when common.ODIN_DEBUG_REGEX {
@@ -263,13 +264,13 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 			check: {
 				for r in class_data.runes {
 					if next_rune == r {
-						add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8))
+						add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8), allocator)
 						break check
 					}
 				}
 				for range in class_data.ranges {
 					if range.lower <= next_rune && next_rune <= range.upper {
-						add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8))
+						add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8), allocator)
 						break check
 					}
 				}
@@ -298,7 +299,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 						break check_negated
 					}
 				}
-				add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8))
+				add_thread(vm, saved, pc + size_of(Opcode) + size_of(u8), allocator)
 			}
 			when common.ODIN_DEBUG_REGEX {
 				io.write_string(common.debug_stream, "*** New thread added [PC:")
@@ -324,7 +325,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 	return
 }
 
-run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, ok: bool) #no_bounds_check {
+run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, ok: bool) #no_bounds_check {
 	when UNICODE_MODE {
 		vm.next_rune, vm.next_rune_size = utf8.decode_rune_in_string(vm.memory[vm.string_pointer:])
 	} else {
@@ -339,10 +340,10 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTU
 	}
 
 	{
-		starter_saved := new([2 * common.MAX_CAPTURE_GROUPS]int)
+		starter_saved := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
 		starter_saved ^= -1
 
-		add_thread(vm, starter_saved, 0)
+		add_thread(vm, starter_saved, 0, allocator)
 	}
 
 	// `add_thread` adds to `next_threads` by default, but we need to put this
@@ -411,13 +412,13 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTU
 			case .Byte:
 				operand := cast(rune)vm.code[t.pc + size_of(Opcode)]
 				if current_rune == operand {
-					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 				}
 
 			case .Rune:
 				operand := intrinsics.unaligned_load(cast(^rune)&vm.code[t.pc + size_of(Opcode)])
 				if current_rune == operand {
-					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(rune))
+					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(rune), allocator)
 				}
 
 			case .Rune_Class:
@@ -426,13 +427,13 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTU
 
 				for r in class_data.runes {
 					if current_rune == r {
-						add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+						add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 						break opcode
 					}
 				}
 				for range in class_data.ranges {
 					if range.lower <= current_rune && current_rune <= range.upper {
-						add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+						add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 						break opcode
 					}
 				}
@@ -450,34 +451,34 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTU
 						break opcode
 					}
 				}
-				add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+				add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 
 			case .Wildcard:
-				add_thread(vm, t.saved, t.pc + size_of(Opcode))
+				add_thread(vm, t.saved, t.pc + size_of(Opcode), allocator)
 
 			case .Multiline_Open:
 				if current_rune == '\n' {
 					// UNIX newline.
-					add_thread(vm, t.saved, t.pc + 2 * size_of(Opcode))
+					add_thread(vm, t.saved, t.pc + 2 * size_of(Opcode), allocator)
 				} else if current_rune == '\r' {
 					if vm.next_rune == '\n' {
 						// Windows newline. (1/2)
-						add_thread(vm, t.saved, t.pc + size_of(Opcode))
+						add_thread(vm, t.saved, t.pc + size_of(Opcode), allocator)
 					} else {
 						// Mac newline.
-						add_thread(vm, t.saved, t.pc + 2 * size_of(Opcode))
+						add_thread(vm, t.saved, t.pc + 2 * size_of(Opcode), allocator)
 					}
 				}
 			case .Multiline_Close:
 				if current_rune == '\n' {
 					// Windows newline. (2/2)
-					add_thread(vm, t.saved, t.pc + size_of(Opcode))
+					add_thread(vm, t.saved, t.pc + size_of(Opcode), allocator)
 				}
 
 			case .Wait_For_Byte:
 				operand := cast(rune)vm.code[t.pc + size_of(Opcode)]
 				if vm.next_rune == operand {
-					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 				}
 				when common.ODIN_DEBUG_REGEX {
 					io.write_string(common.debug_stream, "*** New thread added [PC:")
@@ -490,7 +491,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTU
 			case .Wait_For_Rune:
 				operand := intrinsics.unaligned_load(cast(^rune)&vm.code[t.pc + size_of(Opcode)])
 				if vm.next_rune == operand {
-					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(rune))
+					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(rune), allocator)
 				}
 				when common.ODIN_DEBUG_REGEX {
 					io.write_string(common.debug_stream, "*** New thread added [PC:")
@@ -508,13 +509,13 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTU
 				check: {
 					for r in class_data.runes {
 						if next_rune == r {
-							add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+							add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 							break check
 						}
 					}
 					for range in class_data.ranges {
 						if range.lower <= next_rune && next_rune <= range.upper {
-							add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+							add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 							break check
 						}
 					}
@@ -543,7 +544,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool) -> (saved: ^[2 * common.MAX_CAPTU
 							break check_negated
 						}
 					}
-					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8))
+					add_thread(vm, t.saved, t.pc + size_of(Opcode) + size_of(u8), allocator)
 				}
 				when common.ODIN_DEBUG_REGEX {
 					io.write_string(common.debug_stream, "*** New thread added [PC:")
@@ -625,29 +626,26 @@ opcode_count :: proc(code: Program) -> (opcodes: int) {
 	return
 }
 
-create :: proc(code: Program, str: string, allocator := context.allocator) -> (vm: Machine) {
+create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Machine) {
 	assert(len(code) > 0, "RegEx VM has no instructions.")
-	context.allocator = allocator
 
 	vm.memory = str
 	vm.code = code
 
 	sizing := len(code) >> 6 + (1 if len(code) & 0x3F > 0 else 0)
 	assert(sizing > 0)
-	vm.busy_map = make([]u64, sizing)
+	vm.busy_map = make([]u64, sizing, allocator)
 
 	max_possible_threads := max(1, opcode_count(vm.code) - 1)
 
-	vm.threads = make([^]Thread, max_possible_threads)
-	vm.next_threads = make([^]Thread, max_possible_threads)
+	vm.threads = make([^]Thread, max_possible_threads, allocator)
+	vm.next_threads = make([^]Thread, max_possible_threads, allocator)
 
 	return
 }
 
-destroy :: proc(vm: Machine, allocator := context.allocator) {
-	context.allocator = allocator
-
-	delete(vm.busy_map)
-	free(vm.threads)
-	free(vm.next_threads)
+destroy :: proc(vm: Machine, allocator: mem.Allocator) {
+	delete(vm.busy_map, allocator)
+	free(vm.threads, allocator)
+	free(vm.next_threads, allocator)
 }

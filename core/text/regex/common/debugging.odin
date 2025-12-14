@@ -9,6 +9,7 @@ package regex_common
 */
 
 @require import "core:os"
+import "core:mem"
 import "core:io"
 import "core:strings"
 
@@ -18,8 +19,8 @@ when ODIN_DEBUG_REGEX {
 	debug_stream := os.stream_from_handle(os.stderr)
 }
 
-write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int) {
-	sb := strings.builder_make()
+write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
+	sb := strings.builder_make(allocator)
 	defer strings.builder_destroy(&sb)
 
 	sbw := strings.to_writer(&sb)

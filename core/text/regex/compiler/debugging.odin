@@ -9,6 +9,7 @@ package regex_compiler
 */
 
 import "base:intrinsics"
+import "core:mem"
 import "core:io"
 import "core:text/regex/common"
 import "core:text/regex/virtual_machine"
@@ -30,7 +31,7 @@ get_jump_targets :: proc(code: []Opcode) -> (jump_targets: map[int]int) {
 	return
 }
 
-trace :: proc(w: io.Writer, code: []Opcode) {
+trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
 	jump_targets := get_jump_targets(code)
 	defer delete(jump_targets)
 
@@ -38,14 +39,14 @@ trace :: proc(w: io.Writer, code: []Opcode) {
 	for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
 		if src, ok := jump_targets[pc]; ok {
 			io.write_string(w, "--")
-			common.write_padded_hex(w, src, 4)
+			common.write_padded_hex(w, src, 4, allocator)
 			io.write_string(w, "--> ")
 		} else {
 			io.write_string(w, "            ")
 		}
 
 		io.write_string(w, "[PC: ")
-		common.write_padded_hex(w, pc, 4)
+		common.write_padded_hex(w, pc, 4, allocator)
 		io.write_string(w, "] ")
 		io.write_string(w, virtual_machine.opcode_to_name(opcode))
 		io.write_byte(w, ' ')
@@ -59,21 +60,21 @@ trace :: proc(w: io.Writer, code: []Opcode) {
 			io.write_encoded_rune(w, operand)
 		case .Rune_Class, .Rune_Class_Negated:
 			operand := cast(u8)code[pc+1]
-			common.write_padded_hex(w, operand, 2)
+			common.write_padded_hex(w, operand, 2, allocator)
 		case .Jump:
 			jmp   := intrinsics.unaligned_load(cast(^u16)&code[pc+1])
 			io.write_string(w, "-> $")
-			common.write_padded_hex(w, jmp, 4)
+			common.write_padded_hex(w, jmp, 4, allocator)
 		case .Split:
 			jmp_x := intrinsics.unaligned_load(cast(^u16)&code[pc+1])
 			jmp_y := intrinsics.unaligned_load(cast(^u16)&code[pc+3])
 			io.write_string(w, "=> $")
-			common.write_padded_hex(w, jmp_x, 4)
+			common.write_padded_hex(w, jmp_x, 4, allocator)
 			io.write_string(w, ", $")
-			common.write_padded_hex(w, jmp_y, 4)
+			common.write_padded_hex(w, jmp_y, 4, allocator)
 		case .Save:
 			operand := cast(u8)code[pc+1]
-			common.write_padded_hex(w, operand, 2)
+			common.write_padded_hex(w, operand, 2, allocator)
 		case .Wait_For_Byte:
 			operand := cast(rune)code[pc+1]
 			io.write_encoded_rune(w, operand)
@@ -82,10 +83,10 @@ trace :: proc(w: io.Writer, code: []Opcode) {
 			io.write_encoded_rune(w, operand)
 		case .Wait_For_Rune_Class:
 			operand := cast(u8)code[pc+1]
-			common.write_padded_hex(w, operand, 2)
+			common.write_padded_hex(w, operand, 2, allocator)
 		case .Wait_For_Rune_Class_Negated:
 			operand := cast(u8)code[pc+1]
-			common.write_padded_hex(w, operand, 2)
+			common.write_padded_hex(w, operand, 2, allocator)
 		}
 
 		io.write_byte(w, '\n')

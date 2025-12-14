@@ -11,6 +11,7 @@ package regex_optimizer
 import "base:intrinsics"
 @require import "core:io"
 import "core:slice"
+import "core:mem"
 import "core:text/regex/common"
 import "core:text/regex/parser"
 
@@ -39,7 +40,7 @@ class_range_sorter :: proc(i, j: Rune_Class_Range) -> bool {
 	return i.lower < j.lower
 }
 
-optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, changes: int) {
+optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (result: Node, changes: int) {
 	if tree == nil {
 		return nil, 0
 	}
@@ -66,7 +67,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 				_ = subnode.inner.(^Node_Wildcard) or_break wrza
 				next_node := specific.nodes[i+1].(^Node_Anchor) or_break wrza
 				if next_node.start == false {
-					specific.nodes[i] = new(Node_Match_All_And_Escape)
+					specific.nodes[i] = new(Node_Match_All_And_Escape, allocator)
 					ordered_remove(&specific.nodes, i + 1)
 					changes += 1
 					break
@@ -78,7 +79,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 				next_node := specific.nodes[i+1].(^Node_Anchor) or_break wroa
 				if next_node.start == false {
 					specific.nodes[i] = subsubnode
-					specific.nodes[i+1] = new(Node_Match_All_And_Escape)
+					specific.nodes[i+1] = new(Node_Match_All_And_Escape, allocator)
 					changes += 1
 					break
 				}
@@ -87,7 +88,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 
 		// Only recursive optimizations:
 		#no_bounds_check for i := 0; i < len(specific.nodes); i += 1 {
-			subnode, subnode_changes := optimize_subtree(specific.nodes[i], flags)
+			subnode, subnode_changes := optimize_subtree(specific.nodes[i], flags, allocator)
 			changes += subnode_changes
 			if subnode == nil {
 				ordered_remove(&specific.nodes, i)
@@ -106,43 +107,43 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 		}
 
 	case ^Node_Repeat_Zero:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 		if specific.inner == nil {
 			return nil, changes + 1
 		}
 	case ^Node_Repeat_Zero_Non_Greedy:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 		if specific.inner == nil {
 			return nil, changes + 1
 		}
 	case ^Node_Repeat_One:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 		if specific.inner == nil {
 			return nil, changes + 1
 		}
 	case ^Node_Repeat_One_Non_Greedy:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 		if specific.inner == nil {
 			return nil, changes + 1
 		}
 	case ^Node_Repeat_N:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 		if specific.inner == nil {
 			return nil, changes + 1
 		}
 	case ^Node_Optional:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 		if specific.inner == nil {
 			return nil, changes + 1
 		}
 	case ^Node_Optional_Non_Greedy:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 		if specific.inner == nil {
 			return nil, changes + 1
 		}
 
 	case ^Node_Group:
-		specific.inner, changes = optimize_subtree(specific.inner, flags)
+		specific.inner, changes = optimize_subtree(specific.inner, flags, allocator)
 
 		if specific.inner == nil {
 			return nil, changes + 1
@@ -179,7 +180,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 		if !specific.negating && len(specific.runes) == 1 && len(specific.ranges) == 0 {
 			only_rune := specific.runes[0]
 
-			node := new(Node_Rune)
+			node := new(Node_Rune, allocator)
 			node.data = only_rune
 
 			return node, changes + 1
@@ -282,15 +283,15 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 	case ^Node_Alternation:
 		// Perform recursive optimization first.
 		left_changes, right_changes: int
-		specific.left, left_changes = optimize_subtree(specific.left, flags)
-		specific.right, right_changes = optimize_subtree(specific.right, flags)
+		specific.left, left_changes = optimize_subtree(specific.left, flags, allocator)
+		specific.right, right_changes = optimize_subtree(specific.right, flags, allocator)
 		changes += left_changes + right_changes
 
 		// * Alternation to Optional
 		//
 		// DO: `a|` => `a?`
 		if specific.left != nil && specific.right == nil {
-			node := new(Node_Optional)
+			node := new(Node_Optional, allocator)
 			node.inner = specific.left
 			return node, 1
 		}
@@ -299,7 +300,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 		//
 		// DO: `|a` => `a??`
 		if specific.right != nil && specific.left == nil {
-			node := new(Node_Optional_Non_Greedy)
+			node := new(Node_Optional_Non_Greedy, allocator)
 			node.inner = specific.right
 			return node, 1
 		}
@@ -324,7 +325,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 				// * Alternation to Class
 				//
 				// DO: `a|b` => `[ab]`
-				node := new(Node_Rune_Class)
+				node := new(Node_Rune_Class, allocator)
 				append(&node.runes, left_rune.data)
 				append(&node.runes, right_rune.data)
 				return node, 1
@@ -424,8 +425,8 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 
 			if same_len > 0 {
 				// Dissolve this alternation into a concatenation.
-				cat_node := new(Node_Concatenation)
-				group_node := new(Node_Group)
+				cat_node := new(Node_Concatenation, allocator)
+				group_node := new(Node_Group, allocator)
 				append(&cat_node.nodes, group_node)
 
 				// Turn the concatenation into the common suffix.
@@ -475,7 +476,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 			}
 
 			if same_len > 0 {
-				cat_node := new(Node_Concatenation)
+				cat_node := new(Node_Concatenation, allocator)
 				for i := 0; i < same_len; i += 1 {
 					append(&cat_node.nodes, left_concatenation.nodes[i])
 				}
@@ -484,7 +485,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 					ordered_remove(&right_concatenation.nodes, 0)
 				}
 
-				group_node := new(Node_Group)
+				group_node := new(Node_Group, allocator)
 				// (Re-using this alternation node.)
 				alter_node := specific
 				alter_node.left = left_concatenation
@@ -500,7 +501,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags) -> (result: Node, chan
 	return
 }
 
-optimize :: proc(tree: Node, flags: common.Flags) -> (result: Node, changes: int) {
+optimize :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (result: Node, changes: int) {
 	result = tree
 	new_changes := 0
 
@@ -512,7 +513,7 @@ optimize :: proc(tree: Node, flags: common.Flags) -> (result: Node, changes: int
 
 	// Keep optimizing until no more changes are seen.
 	for {
-		result, new_changes = optimize_subtree(result, flags)
+		result, new_changes = optimize_subtree(result, flags, allocator)
 		changes += new_changes
 		if new_changes == 0 {
 			break
