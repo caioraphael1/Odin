@@ -1,6 +1,8 @@
 // Procedures and constants to support text-encoding in the `UTF-8` character encoding.
 package utf8
 
+import "base:runtime"
+
 RUNE_ERROR :: '\ufffd'
 RUNE_SELF  :: 0x80
 RUNE_BOM   :: 0xfeff
@@ -141,7 +143,7 @@ decode_rune_in_bytes :: proc "contextless" (s: []u8) -> (rune, int) {
 	return rune(s0&MASK4)<<18 | rune(b1&MASKX)<<12 | rune(b2&MASKX)<<6 | rune(b3&MASKX), 4
 }
 
-string_to_runes :: proc "odin" (s: string, allocator := context.allocator) -> (runes: []rune) {
+string_to_runes :: proc "odin" (s: string, allocator: runtime.Allocator) -> (runes: []rune) {
 	n := rune_count_in_string(s)
 
 	runes = make([]rune, n, allocator)
@@ -153,7 +155,7 @@ string_to_runes :: proc "odin" (s: string, allocator := context.allocator) -> (r
 	return
 }
 
-runes_to_string :: proc "odin" (runes: []rune, allocator := context.allocator) -> string {
+runes_to_string :: proc "odin" (runes: []rune, allocator: runtime.Allocator) -> string {
 	byte_count := 0
 	for r in runes {
 		_, w := encode_rune(r)

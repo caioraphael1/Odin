@@ -2,7 +2,7 @@
 #+private
 package timezone
 
-import "core:os"
+import os "core:os/os2"
 import "core:strings"
 import "core:path/filepath"
 import "core:time/datetime"
@@ -12,7 +12,7 @@ local_tz_name :: proc(allocator: runtime.Allocator) -> (name: string, success: b
 	local_str, ok := os.lookup_env("TZ", allocator)
 	if !ok {
 		orig_localtime_path := "/etc/localtime"
-		path, err := os.absolute_path_from_relative(orig_localtime_path, allocator)
+		path, err := os.get_absolute_path(orig_localtime_path, allocator)
 		if err != nil {
 			// If we can't find /etc/localtime, fallback to UTC
 			if err == .ENOENT {
@@ -29,7 +29,7 @@ local_tz_name :: proc(allocator: runtime.Allocator) -> (name: string, success: b
 		// This is a hackaround, because FreeBSD copies rather than softlinks their local timezone file,
 		// *sometimes* and then stores the original name of the timezone in /var/db/zoneinfo instead
 		if path == orig_localtime_path {
-			data := os.read_entire_file("/var/db/zoneinfo", allocator) or_return
+			data, _ := os.read_entire_file("/var/db/zoneinfo", allocator) or_return
 			return strings.trim_right_space(string(data)), true
 		}
 

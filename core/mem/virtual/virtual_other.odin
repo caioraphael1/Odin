@@ -7,6 +7,8 @@
 #+build !windows
 package mem_virtual
 
+import os "core:os/os2"
+
 _reserve :: proc "contextless" (size: uint) -> (data: []byte, err: Allocator_Error) {
 	return nil, nil
 }
@@ -28,6 +30,6 @@ _protect :: proc "contextless" (data: rawptr, size: uint, flags: Protect_Flags) 
 _platform_memory_init :: proc "contextless" () {
 }
 
-_map_file :: proc "contextless" (fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+_map_file :: proc "contextless" (fd: ^os.File, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
 	return nil, .Map_Failure
 }

@@ -1,6 +1,6 @@
 package mem_virtual
 
-import "core:os"
+import os "core:os/os2"
 
 Map_File_Error :: enum {
 	None,
@@ -29,11 +29,11 @@ map_file_from_path :: proc(filename: string, flags: Map_File_Flags) -> (data: []
 	}
 	defer os.close(fd)
 
-	return map_file_from_file_descriptor(uintptr(fd), flags)
+	return map_file_from_file_descriptor(fd, flags)
 }
 
-map_file_from_file_descriptor :: proc(fd: uintptr, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
-	size, os_err := os.file_size(os.Handle(fd))
+map_file_from_file_descriptor :: proc(fd: ^os.File, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+	size, os_err := os.file_size(fd)
 	if os_err != nil {
 		return nil, .Stat_Failure
 	}

@@ -3,6 +3,7 @@ package ease
 
 import "base:intrinsics"
 import "core:time"
+import "core:mem"
 
 Flux_Map :: struct($T: typeid) {
 	values: map[^T]Flux_Tween(T),
@@ -33,7 +34,7 @@ Flux_Tween :: struct($T: typeid) {
 
 // init flux map to a float type and a wanted cap
 @(require_results)
-flux_init :: proc($T: typeid, value_capacity := 8, allocator := context.allocator, loc := #caller_location) -> Flux_Map(T) where intrinsics.type_is_float(T) {
+flux_init :: proc($T: typeid, value_capacity := 8, allocator: mem.Allocator, loc := #caller_location) -> Flux_Map(T) where intrinsics.type_is_float(T) {
 	return {
 		values = make(map[^T]Flux_Tween(T), value_capacity, allocator, loc),
 		keys_to_be_deleted = make([dynamic]^T, 0, value_capacity, allocator, loc),
@@ -41,7 +42,7 @@ flux_init :: proc($T: typeid, value_capacity := 8, allocator := context.allocato
 }
 
 // delete map content
-flux_destroy :: proc(flux: Flux_Map($T), allocator := context.allocator, loc := #caller_location) where intrinsics.type_is_float(T) {
+flux_destroy :: proc(flux: Flux_Map($T), allocator: mem.Allocator, loc := #caller_location) where intrinsics.type_is_float(T) {
 	delete(flux.values, loc)
 	delete(flux.keys_to_be_deleted, loc)
 }

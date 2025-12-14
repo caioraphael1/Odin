@@ -123,12 +123,12 @@ register_user_formatter :: proc(id: typeid, formatter: User_Formatter) -> Regist
 // 	Inputs:
 // 	- args: A variadic list of arguments to be formatted.
 // 	- sep: An optional separator string (default is a single space).
-// 	- allocator: (default:  runtime.PANIC_ALLOCATOR)
+// 	- allocator:
 //
 // 	Returns: A formatted string. 
 //
 @(require_results)
-aprint :: proc(args: ..any, sep := " ", allocator: mem.Allocator = runtime.PANIC_ALLOCATOR) -> string {
+aprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
 	str: strings.Builder
 	strings.builder_init(&str, allocator)
 	return sbprint(&str, ..args, sep=sep)

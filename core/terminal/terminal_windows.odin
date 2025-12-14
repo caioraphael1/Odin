@@ -2,17 +2,20 @@
 package terminal
 
 import "base:runtime"
-import "core:os"
+import os "core:os/os2"
 import "core:sys/windows"
 
-_is_terminal :: proc "contextless" (handle: os.Handle) -> bool {
-	is_tty := windows.GetFileType(windows.HANDLE(handle)) == windows.FILE_TYPE_CHAR
+_is_terminal :: proc "contextless" (f: ^os.File) -> bool {
+    context = {}
+	is_tty := windows.GetFileType(windows.HANDLE(os.fd(f))) == windows.FILE_TYPE_CHAR
 	return is_tty
 }
 
+
+
 old_modes: [2]struct{
 	handle: windows.DWORD,
-	mode: windows.DWORD,
+	mode:   windows.DWORD,
 } = {
 	{windows.STD_OUTPUT_HANDLE, 0},
 	{windows.STD_ERROR_HANDLE, 0},

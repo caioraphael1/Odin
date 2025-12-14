@@ -4,7 +4,7 @@ import "base:intrinsics"
 
 import "core:slice"
 import "core:strings"
-import "core:os"
+import os "core:os/os2"
 import "core:strconv"
 import "core:time/datetime"
 import "base:runtime"
@@ -71,7 +71,7 @@ tzif_data_block_size :: proc(hdr: ^TZif_Header, version: TZif_Version) -> (block
 
 
 load_tzif_file :: proc(filename: string, region_name: string, allocator: runtime.Allocator) -> (out: ^datetime.TZ_Region, ok: bool) {
-	tzif_data := os.read_entire_file_from_filename(filename, allocator) or_return
+	tzif_data := os.read_entire_file(filename, allocator) or_return
 	defer delete(tzif_data, allocator)
 	return parse_tzif(tzif_data, region_name, allocator)
 }

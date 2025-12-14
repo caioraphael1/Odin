@@ -1,6 +1,7 @@
 package os
 
 import "core:time"
+import "base:runtime"
 
 File_Info :: struct {
 	fullpath: string, // allocated
@@ -13,14 +14,14 @@ File_Info :: struct {
 	access_time:       time.Time,
 }
 
-file_info_slice_delete :: proc(infos: []File_Info, allocator := context.allocator) {
+file_info_slice_delete :: proc(infos: []File_Info, allocator: runtime.Allocator) {
 	for i := len(infos)-1; i >= 0; i -= 1 {
 		file_info_delete(infos[i], allocator)
 	}
 	delete(infos, allocator)
 }
 
-file_info_delete :: proc(fi: File_Info, allocator := context.allocator) {
+file_info_delete :: proc(fi: File_Info, allocator: runtime.Allocator) {
 	delete(fi.fullpath, allocator)
 }
 

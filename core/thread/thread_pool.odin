@@ -75,7 +75,7 @@ pool_thread_runner :: proc(t: ^Thread) {
 // The thread pool requires an allocator which it either owns, or which is thread safe.
 pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 	pool.allocator = allocator
-	queue.init(&pool.tasks)
+	queue.init(&pool.tasks, allocator = allocator)
 	pool.tasks_done = make([dynamic]Task, allocator)
 	pool.threads    = make([]^Thread, max(thread_count, 1), allocator)
 

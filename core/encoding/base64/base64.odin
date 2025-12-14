@@ -61,7 +61,7 @@ DEC_TABLE := [256]u8 {
      0,  0,  0,  0,  0,  0,  0,  0,
 }
 
-encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator := context.allocator) -> (encoded: string, err: mem.Allocator_Error) #optional_allocator_error {
+encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> (encoded: string, err: mem.Allocator_Error) #optional_allocator_error {
 	out_length := encoded_len(data)
 	if out_length == 0 {
 		return
@@ -112,7 +112,7 @@ encoded_len :: proc(data: []byte) -> int {
 	return ((4 * length / 3) + 3) &~ 3
 }
 
-decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator := context.allocator) -> (decoded: []byte, err: mem.Allocator_Error) #optional_allocator_error {
+decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []byte, err: mem.Allocator_Error) #optional_allocator_error {
 	out_length := decoded_len(data)
 
 	out   := strings.builder_make(0, out_length, allocator) or_return

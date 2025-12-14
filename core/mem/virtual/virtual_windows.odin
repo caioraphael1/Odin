@@ -4,6 +4,8 @@ package mem_virtual
 
 foreign import Kernel32 "system:Kernel32.lib"
 
+import os "core:os/os2"
+
 LPSYSTEM_INFO :: ^SYSTEM_INFO
 SYSTEM_INFO :: struct {
 	using DUMMYUNIONNAME: struct #raw_union {
@@ -157,7 +159,7 @@ _platform_memory_init :: proc "contextless" () {
 
 
 @(no_sanitize_address)
-_map_file :: proc "contextless" (fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+_map_file :: proc "contextless" (fd: ^os.File, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
 	page_flags: u32
 	if flags == {.Read} {
 		page_flags = PAGE_READONLY

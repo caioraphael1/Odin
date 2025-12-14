@@ -2,6 +2,7 @@
 package math_fixed
 
 import "core:math"
+import "base:runtime"
 import "core:strconv"
 import "base:intrinsics"
 _, _, _ :: intrinsics, strconv, math
@@ -154,7 +155,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
 
 
 @(require_results)
-to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator := context.allocator) -> string {
+to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator: runtime.Allocator) -> string {
 	buf: [48]byte
 	s := write(buf[:], x)
 	str := make([]byte, len(s), allocator)

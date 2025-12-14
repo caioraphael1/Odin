@@ -109,7 +109,7 @@ file_size_from_path :: proc(path: string) -> i64 {
 }
 
 @(require_results)
-read_entire_file_from_filename :: proc(name: string, allocator := context.allocator, loc := #caller_location) -> (data: []byte, success: bool) {
+read_entire_file_from_filename :: proc(name: string, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, success: bool) {
 	err: Error
 	data, err = read_entire_file_from_filename_or_err(name, allocator, loc)
 	success = err == nil
@@ -117,7 +117,7 @@ read_entire_file_from_filename :: proc(name: string, allocator := context.alloca
 }
 
 @(require_results)
-read_entire_file_from_handle :: proc(fd: Handle, allocator := context.allocator, loc := #caller_location) -> (data: []byte, success: bool) {
+read_entire_file_from_handle :: proc(fd: Handle, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, success: bool) {
 	err: Error
 	data, err = read_entire_file_from_handle_or_err(fd, allocator, loc)
 	success = err == nil
@@ -130,9 +130,7 @@ read_entire_file :: proc {
 }
 
 @(require_results)
-read_entire_file_from_filename_or_err :: proc(name: string, allocator := context.allocator, loc := #caller_location) -> (data: []byte, err: Error) {
-	context.allocator = allocator
-
+read_entire_file_from_filename_or_err :: proc(name: string, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
 	fd := open(name, O_RDONLY, 0) or_return
 	defer close(fd)
 
@@ -140,9 +138,7 @@ read_entire_file_from_filename_or_err :: proc(name: string, allocator := context
 }
 
 @(require_results)
-read_entire_file_from_handle_or_err :: proc(fd: Handle, allocator := context.allocator, loc := #caller_location) -> (data: []byte, err: Error) {
-	context.allocator = allocator
-
+read_entire_file_from_handle_or_err :: proc(fd: Handle, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
 	length := file_size(fd) or_return
 	if length <= 0 {
 		return nil, nil
@@ -214,7 +210,7 @@ processor_core_count :: proc() -> int {
 }
 
 // Always allocates for consistency.
-replace_environment_placeholders :: proc(path: string, allocator := context.allocator) -> (res: string) {
+replace_environment_placeholders :: proc(path: string, allocator: runtime.Allocator) -> (res: string) {
 	path := path
 
 	sb: strings.Builder

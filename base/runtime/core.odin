@@ -383,7 +383,6 @@ Random_Generator :: struct {
 }
 
 Context :: struct {
-	allocator:              Allocator,
 	temp_allocator:         Allocator,
 	logger:                 Logger,
 	random_generator:       Random_Generator,
@@ -397,7 +396,6 @@ Context :: struct {
 
 
 Assertion_Failure_Proc :: #type proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> !
-
 assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 
 
@@ -763,8 +761,6 @@ __init_context :: proc "contextless" (c: ^Context) {
 	}
 
 	// NOTE(bill): Do not initialize these procedures with a call as they are not defined with the "contextless" calling convention
-	c.allocator = PANIC_ALLOCATOR
-
 	c.temp_allocator.procedure = default_temp_allocator_proc
     c.temp_allocator.data      = &global_default_temp_allocator_data
 

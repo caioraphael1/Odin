@@ -1,5 +1,6 @@
 package utf8
 
+import "base:runtime"
 import "core:unicode"
 
 ZERO_WIDTH_JOINER                 :: unicode.ZERO_WIDTH_JOINER
@@ -84,7 +85,7 @@ Decode the individual graphemes in a UTF-8 string.
 Inputs:
 - str: The input string.
 - track_graphemes: Whether or not to allocate and return `graphemes` with extra data about each grapheme.
-- allocator: (default: context.allocator)
+- allocator: 
 
 Returns:
 - graphemes: Extra data about each grapheme.
@@ -93,18 +94,12 @@ Returns:
 - width: The width of the string in number of monospace cells.
 */
 @(require_results)
-decode_grapheme_clusters :: proc(
-	str: string,
-	track_graphemes := true,
-	allocator       := context.allocator,
-) -> (
+decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator: runtime.Allocator) -> (
 	graphemes:      [dynamic]Grapheme,
 	grapheme_count: int,
 	rune_count:     int,
 	width:          int,
-) {
-	context.allocator = allocator
-
+    ) {
 	it := decode_grapheme_iterator_make(str)
 	for _, grapheme in decode_grapheme_iterate(&it) {
 		if track_graphemes {

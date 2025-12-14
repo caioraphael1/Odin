@@ -3,7 +3,7 @@ package fmt
 
 import "core:bufio"
 import "core:io"
-import "core:os"
+import os "core:os/os2"
 
 foreign import "odin_env"
 
@@ -34,7 +34,7 @@ stderr := io.Writer{
 }
 
 @(private="file")
-fd_to_writer :: proc(fd: os.Handle, loc := #caller_location) -> io.Writer {
+fd_to_writer :: proc(fd: ^os.File, loc := #caller_location) -> io.Writer {
 	switch fd {
 	case 1: return stdout
 	case 2: return stderr
@@ -43,7 +43,7 @@ fd_to_writer :: proc(fd: os.Handle, loc := #caller_location) -> io.Writer {
 }
 
 // fprint formats using the default print settings and writes to fd
-fprint :: proc(fd: os.Handle, args: ..any, sep := " ", flush := true, loc := #caller_location) -> int {
+fprint :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true, loc := #caller_location) -> int {
 	buf: [1024]byte
 	b: bufio.Writer
 	defer bufio.writer_flush(&b)
@@ -54,7 +54,7 @@ fprint :: proc(fd: os.Handle, args: ..any, sep := " ", flush := true, loc := #ca
 }
 
 // fprintln formats using the default print settings and writes to fd
-fprintln :: proc(fd: os.Handle, args: ..any, sep := " ", flush := true, loc := #caller_location) -> int {
+fprintln :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true, loc := #caller_location) -> int {
 	buf: [1024]byte
 	b: bufio.Writer
 	defer bufio.writer_flush(&b)
@@ -66,7 +66,7 @@ fprintln :: proc(fd: os.Handle, args: ..any, sep := " ", flush := true, loc := #
 }
 
 // fprintf formats according to the specified format string and writes to fd
-fprintf :: proc(fd: os.Handle, fmt: string, args: ..any, flush := true, newline := false, loc := #caller_location) -> int {
+fprintf :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true, newline := false, loc := #caller_location) -> int {
 	buf: [1024]byte
 	b: bufio.Writer
 	defer bufio.writer_flush(&b)
@@ -78,7 +78,7 @@ fprintf :: proc(fd: os.Handle, fmt: string, args: ..any, flush := true, newline 
 }
 
 // fprintfln formats according to the specified format string and writes to fd, followed by a newline.
-fprintfln :: proc(fd: os.Handle, fmt: string, args: ..any, flush := true, loc := #caller_location) -> int {
+fprintfln :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true, loc := #caller_location) -> int {
 	return fprintf(fd, fmt, ..args, flush=flush, newline=true, loc=loc)
 }
 

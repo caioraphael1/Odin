@@ -23,7 +23,7 @@ DEFAULT_CAPACITY :: 16
 /*
 Initialize a `Queue` with a starting `capacity` and an `allocator`.
 */
-init :: proc(q: ^$Q/Queue($T), capacity := DEFAULT_CAPACITY, allocator := context.allocator, loc := #caller_location) -> runtime.Allocator_Error {
+init :: proc(q: ^$Q/Queue($T), capacity := DEFAULT_CAPACITY, allocator: runtime.Allocator, loc := #caller_location) -> runtime.Allocator_Error {
 	clear(q)
 	q.data = transmute([dynamic]T)runtime.Raw_Dynamic_Array{
 		data = nil,

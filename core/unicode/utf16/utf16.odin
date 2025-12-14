@@ -2,6 +2,7 @@
 package utf16
 
 import "core:unicode/utf8"
+import "base:runtime"
 
 REPLACEMENT_CHAR :: '\ufffd'
 MAX_RUNE         :: '\U0010ffff'
@@ -127,7 +128,7 @@ decode_rune_in_string :: proc(s: string16) -> (r: rune, width: int) {
 	return
 }
 
-string_to_runes :: proc "odin" (s: string16, allocator := context.allocator) -> (runes: []rune) {
+string_to_runes :: proc "odin" (s: string16, allocator: runtime.Allocator) -> (runes: []rune) {
 	n := rune_count(s)
 
 	runes = make([]rune, n, allocator)

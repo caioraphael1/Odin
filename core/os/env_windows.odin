@@ -8,7 +8,7 @@ import "base:runtime"
 // Otherwise the returned value will be empty and the boolean will be false
 // NOTE: the value will be allocated with the supplied allocator
 @(require_results)
-lookup_env_alloc :: proc(key: string, allocator := context.allocator) -> (value: string, found: bool) {
+lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
 	if key == "" {
 		return
 	}
@@ -64,7 +64,7 @@ lookup_env :: proc{lookup_env_alloc, lookup_env_buffer}
 // To distinguish between an empty value and an unset value, use lookup_env
 // NOTE: the value will be allocated with the supplied allocator
 @(require_results)
-get_env_alloc :: proc(key: string, allocator := context.allocator) -> (value: string) {
+get_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string) {
 	value, _ = lookup_env(key, allocator)
 	return
 }
@@ -100,7 +100,7 @@ unset_env :: proc(key: string) -> Error {
 // environ returns a copy of strings representing the environment, in the form "key=value"
 // NOTE: the slice of strings and the strings with be allocated using the supplied allocator
 @(require_results)
-environ :: proc(allocator := context.allocator) -> []string {
+environ :: proc(allocator: runtime.Allocator) -> []string {
 	envs := ([^]win32.WCHAR)(win32.GetEnvironmentStringsW())
 	if envs == nil {
 		return nil
