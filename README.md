@@ -225,16 +225,6 @@ assert :: proc "contextless" (condition: bool, message := #caller_expression(con
 - The default for `context.assertion_failure_proc` and `runtime.assertion_failure_proc` is the same. If you haven't changed the old `context.assertion_failure_proc` to anything different, the behavior will be the same. 
 
 
-### Logger
-
-- TODO
-
-
-### Removal of Random Number Generator
-
-- TODO
-
-
 ### No uses of `@(init)` and `@(fini)`
 
 - TODO
