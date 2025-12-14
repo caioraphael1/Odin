@@ -21,11 +21,11 @@
 
 ## Odin Language fork, focused on safety
 
-- The goal of this fork is to make Odin a safer language, breaking the implicit patterns from the C language and improving code readability, and making it more enjoyable to work with memory.
-- I love Odin, but I don't like how it hides allocations from the user and tries to handle lots of behavior implicitly. If an allocator is invalid, there should be no fallback. A buggy code is a buggy code and should *crash*. I believe that typing one extra word is an absolute worth trade-off than losing tracking of how your memory is managed. We shouldn't hide when memory is mentioned.
+- The goal of this fork is to make Odin a safer language, breaking the implicit patterns from the C language, improving code readability, and making it more enjoyable to work with memory.
+- I love Odin, but I don't like how it hides allocations from the user and tries to handle lots of behavior implicitly. If an allocator is invalid, there should be no fallback. A buggy code is a buggy code and should *crash*. Typing one extra word is an absolute worth trade-off over losing track of how your memory is managed. We shouldn't hide when memory is mentioned.
 
 
-- Currently, all changes are in `.odin` files. No changes were made to the `.cpp` source code, so the compiler is untouched. I'll maybe change the compiler if this would result in improvements to safety that could not be achieved by the Odin language alone.
+- Currently, all changes are in `.odin` files. No changes were made to the `.cpp` source code, so the compiler is untouched. Maybe I'll change the compiler if this would result in improvements to safety that could not be achieved by the Odin language alone.
 
 
 - This is a **WIP (work-in-progress)**. Changing every single library in Odin is not easy. There will be a lot of broken code in the beginning, but the goal is a complete overhaul of safety in Odin.
