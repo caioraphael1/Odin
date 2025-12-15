@@ -43,7 +43,6 @@ variable.
 * `Context`
 * `Allocator`
 * `Random_Generator`
-* `Logger`
 * `__init_context`
 
 ### Runtime initialization/cleanup

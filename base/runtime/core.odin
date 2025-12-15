@@ -330,36 +330,6 @@ Exabyte  :: 1024 * Petabyte
 
 // Logging stuff
 
-Logger_Level :: enum uint {
-	Debug   = 0,
-	Info    = 10,
-	Warning = 20,
-	Error   = 30,
-	Fatal   = 40,
-}
-
-Logger_Option :: enum {
-	Level,
-	Date,
-	Time,
-	Short_File_Path,
-	Long_File_Path,
-	Line,
-	Procedure,
-	Terminal_Color,
-	Thread_Id,
-}
-
-Logger_Options :: bit_set[Logger_Option]
-Logger_Proc :: #type proc(data: rawptr, level: Logger_Level, text: string, options: Logger_Options, location := #caller_location)
-
-Logger :: struct {
-	procedure:    Logger_Proc,
-	data:         rawptr,
-	lowest_level: Logger_Level,
-	options:      Logger_Options,
-}
-
 
 Random_Generator_Mode :: enum {
 	Read,
@@ -384,7 +354,6 @@ Random_Generator :: struct {
 
 Context :: struct {
 	temp_allocator:         Allocator,
-	logger:                 Logger,
 	random_generator:       Random_Generator,
 
 	user_ptr:   rawptr,
@@ -725,17 +694,6 @@ read_cycle_counter :: intrinsics.read_cycle_counter
 
 
 
-default_logger_proc :: proc(data: rawptr, level: Logger_Level, text: string, options: Logger_Options, location := #caller_location) {
-	// Nothing
-}
-
-// Returns the default logger used by `context.logger`
-@(require_results)
-default_logger :: proc() -> Logger {
-	return Logger{default_logger_proc, nil, Logger_Level.Debug, nil}
-}
-
-
 // Returns the default `context`
 @(require_results)
 default_context :: proc "contextless" () -> Context {
@@ -763,9 +721,6 @@ __init_context :: proc "contextless" (c: ^Context) {
 	// NOTE(bill): Do not initialize these procedures with a call as they are not defined with the "contextless" calling convention
 	c.temp_allocator.procedure = default_temp_allocator_proc
     c.temp_allocator.data      = &global_default_temp_allocator_data
-
-	c.logger.procedure = default_logger_proc
-	c.logger.data = nil
 
 	c.random_generator.procedure = default_random_generator_proc
 	c.random_generator.data = nil

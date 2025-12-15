@@ -6,7 +6,7 @@ import "base:runtime"
 import "core:fmt"
 import "core:strings"
 import os "core:os/os2"
-import "core:terminal"
+
 import "core:terminal/ansi"
 import "core:time"
 import "core:sync"
@@ -40,38 +40,17 @@ File_Console_Logger_Data :: struct {
 	ident: string,
 }
 
-@(private) global_subtract_stdout_options: Options
-@(private) global_subtract_stderr_options: Options
 
-@(init, private)
-init_standard_stream_status :: proc "contextless" () {
-	// NOTE(Feoramund): While it is technically possible for these streams to
-	// be redirected during the runtime of the program, the cost of checking on
-	// every single log message is not worth it to support such an
-	// uncommonly-used feature.
-	if terminal.color_enabled {
-		context = runtime.default_context()
-
-		// This is done this way because it's possible that only one of these
-		// streams could be redirected to a file.
-		if !terminal.is_terminal(os.stdout) {
-			global_subtract_stdout_options = {.Terminal_Color}
-		}
-		if !terminal.is_terminal(os.stderr) {
-			global_subtract_stderr_options = {.Terminal_Color}
-		}
-	} else {
-		// Override any terminal coloring.
-		global_subtract_stdout_options = {.Terminal_Color}
-		global_subtract_stderr_options = {.Terminal_Color}
-	}
-}
-
-create_file_logger :: proc(h: ^os.File, lowest := Level.Debug, opt := Default_File_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
+create_file_logger :: proc(h: ^os.File, lowest_level := Level.Debug, opt := Default_File_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
 	data := new(File_Console_Logger_Data, allocator)
 	data.file_handle = h
 	data.ident = ident
-	return Logger{file_logger_proc, data, lowest, opt}
+	return {
+        procedure    = file_logger_proc,
+        data         = data,
+        lowest_level = lowest_level,
+        options      = opt
+    }
 }
 
 destroy_file_logger :: proc(log: Logger, allocator: runtime.Allocator) {
@@ -82,11 +61,16 @@ destroy_file_logger :: proc(log: Logger, allocator: runtime.Allocator) {
 	free(data, allocator)
 }
 
-create_console_logger :: proc(lowest := Level.Debug, opt := Default_Console_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
+create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Console_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
 	data := new(File_Console_Logger_Data, allocator)
 	data.file_handle = nil
 	data.ident = ident
-	return Logger{console_logger_proc, data, lowest, opt}
+	return {
+        procedure    = console_logger_proc,
+        data         = data,
+        lowest_level = lowest_level,
+        options      = opt
+    }
 }
 
 destroy_console_logger :: proc(log: Logger, allocator: runtime.Allocator) {
