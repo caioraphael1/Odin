@@ -2,6 +2,31 @@ package runtime
 
 import "base:intrinsics"
 
+
+Random_Generator_Mode :: enum {
+	Read,
+	Reset,
+	Query_Info,
+}
+
+Random_Generator_Query_Info_Flag :: enum u32 {
+	Cryptographic,
+	Uniform,
+	External_Entropy,
+	Resettable,
+}
+Random_Generator_Query_Info :: distinct bit_set[Random_Generator_Query_Info_Flag; u32]
+
+Random_Generator_Proc :: #type proc(data: rawptr, mode: Random_Generator_Mode, p: []byte)
+
+Random_Generator :: struct {
+	procedure: Random_Generator_Proc,
+	data:      rawptr,
+}
+
+global_random_generator: Random_Generator
+
+
 @(require_results)
 random_generator_read_bytes :: proc(rg: Random_Generator, p: []byte) -> bool {
 	if rg.procedure != nil {

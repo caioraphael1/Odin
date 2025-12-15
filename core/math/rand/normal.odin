@@ -1,5 +1,6 @@
 package rand
 
+import "base:runtime"
 import "core:math"
 
 
@@ -18,7 +19,7 @@ import "core:math"
 //    https://www.jstatsoft.org/article/view/v005i08 [web page]
 //
 @(require_results)
-norm_float64 :: proc(gen := context.random_generator) -> f64 {
+norm_float64 :: proc(gen: runtime.Random_Generator) -> f64 {
 	rn :: 3.442619855899
 
 	@(static, rodata)

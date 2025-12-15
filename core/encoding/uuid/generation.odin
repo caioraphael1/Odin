@@ -38,7 +38,7 @@ generate_v1 :: proc(clock_seq: u16, node: Maybe([6]u8) = nil, timestamp: Maybe(t
 		mutable_node := realized_node
 		runtime.mem_copy_non_overlapping(&result[10], &mutable_node[0], 6)
 	} else {
-		assert(.Cryptographic in runtime.random_generator_query_info(context.random_generator), NO_CSPRNG_ERROR)
+		assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
 		bytes_generated := rand.read(result[10:])
 		assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
 	}
@@ -61,7 +61,7 @@ Returns:
 - result: The generated UUID.
 */
 generate_v4 :: proc() -> (result: Identifier) {
-	assert(.Cryptographic in runtime.random_generator_query_info(context.random_generator), NO_CSPRNG_ERROR)
+	assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
 	bytes_generated := rand.read(result[:])
 	assert(bytes_generated == 16, "RNG failed to generate 16 bytes for UUID v4.")
 
@@ -102,7 +102,7 @@ generate_v6 :: proc(clock_seq: Maybe(u16) = nil, node: Maybe([6]u8) = nil, times
 		result[8] |= cast(u8)(realized_clock_seq & 0x3F00 >> 8)
 		result[9]  = cast(u8)realized_clock_seq
 	} else {
-		assert(.Cryptographic in runtime.random_generator_query_info(context.random_generator), NO_CSPRNG_ERROR)
+		assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
 		temporary: [2]u8
 		bytes_generated := rand.read(temporary[:])
 		assert(bytes_generated == 2, "RNG failed to generate 2 bytes for UUID v1.")
@@ -114,7 +114,7 @@ generate_v6 :: proc(clock_seq: Maybe(u16) = nil, node: Maybe([6]u8) = nil, times
 		mutable_node := realized_node
 		runtime.mem_copy_non_overlapping(&result[10], &mutable_node[0], 6)
 	} else {
-		assert(.Cryptographic in runtime.random_generator_query_info(context.random_generator), NO_CSPRNG_ERROR)
+		assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
 		bytes_generated := rand.read(result[10:])
 		assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
 	}
@@ -141,7 +141,7 @@ Returns:
 - result: The generated UUID.
 */
 generate_v7_basic :: proc(timestamp: Maybe(time.Time) = nil) -> (result: Identifier) {
-	assert(.Cryptographic in runtime.random_generator_query_info(context.random_generator), NO_CSPRNG_ERROR)
+	assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
 	unix_time_in_milliseconds := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 1e6
 
 	result = transmute(Identifier)(cast(u128be)unix_time_in_milliseconds << VERSION_7_TIME_SHIFT)
@@ -191,7 +191,7 @@ Returns:
 - result: The generated UUID.
 */
 generate_v7_with_counter :: proc(counter: u16, timestamp: Maybe(time.Time) = nil) -> (result: Identifier) {
-	assert(.Cryptographic in runtime.random_generator_query_info(context.random_generator), NO_CSPRNG_ERROR)
+	assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
 	assert(counter <= 0x0fff, VERSION_7_BIG_COUNTER_ERROR)
 	unix_time_in_milliseconds := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 1e6
 

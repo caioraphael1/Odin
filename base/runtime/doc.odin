@@ -41,8 +41,6 @@ variable.
 * `Maybe`
 * `Source_Code_Location`
 * `Context`
-* `Allocator`
-* `Random_Generator`
 * `__init_context`
 
 ### Runtime initialization/cleanup

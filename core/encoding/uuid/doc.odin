@@ -31,7 +31,7 @@ Example:
 
 		{
 			// This scope will have a CSPRNG.
-			context.random_generator = crypto.random_generator()
+			random_generator := crypto.random_generator()
 			my_uuid = uuid.generate_v7()
 		}
 

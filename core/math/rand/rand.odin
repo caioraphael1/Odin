@@ -56,8 +56,6 @@ create :: proc {
 }
 
 /*
-Reset the seed used by the context.random_generator.
-
 Inputs:
 - seed: The seed value
 
@@ -79,15 +77,15 @@ reset :: proc {
 	reset_bytes,
 }
 
-reset_u64 :: proc(seed: u64, gen := context.random_generator) {
+reset_u64 :: proc(seed: u64, gen: runtime.Random_Generator) {
 	runtime.random_generator_reset_u64(gen, seed)
 }
 
-reset_bytes :: proc(bytes: []byte, gen := context.random_generator) {
+reset_bytes :: proc(bytes: []byte, gen: runtime.Random_Generator) {
 	runtime.random_generator_reset_bytes(gen, bytes)
 }
 
-query_info :: proc(gen := context.random_generator) -> Generator_Query_Info {
+query_info :: proc(gen: runtime.Random_Generator) -> Generator_Query_Info {
 	return runtime.random_generator_query_info(gen)
 }
 
@@ -113,7 +111,7 @@ Possible Output:
 
 */
 @(require_results)
-uint32 :: proc(gen := context.random_generator) -> (val: u32) {return u32(uint64(gen))}
+uint32 :: proc(gen: runtime.Random_Generator) -> (val: u32) {return u32(uint64(gen))}
 
 /*
 Generates a random 64 bit value using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -136,9 +134,9 @@ Possible Output:
 
 */
 @(require_results)
-uint64 :: proc(gen := context.random_generator) -> (val: u64) {
+uint64 :: proc(gen: runtime.Random_Generator) -> (val: u64) {
 	ok := runtime.random_generator_read_ptr(gen, &val, size_of(val))
-	assert(ok, "uninitialized gen/context.random_generator")
+	assert(ok, "uninitialized gen/random_generator")
 	return
 }
 
@@ -163,7 +161,7 @@ Possible Output:
 
 */
 @(require_results)
-uint128 :: proc(gen := context.random_generator) -> (val: u128) {
+uint128 :: proc(gen: runtime.Random_Generator) -> (val: u128) {
 	a := u128(uint64(gen))
 	b := u128(uint64(gen))
 	return (a<<64) | b
@@ -190,7 +188,7 @@ Possible Output:
 	389
 
 */
-@(require_results) int31  :: proc(gen := context.random_generator) -> (val: i32)  { return i32(uint32(gen) << 1 >> 1) }
+@(require_results) int31  :: proc(gen: runtime.Random_Generator) -> (val: i32)  { return i32(uint32(gen) << 1 >> 1) }
 
 /*
 Generates a random 63 bit value using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -213,7 +211,7 @@ Possible Output:
 	389
 
 */
-@(require_results) int63  :: proc(gen := context.random_generator) -> (val: i64)  { return i64(uint64(gen) << 1 >> 1) }
+@(require_results) int63  :: proc(gen: runtime.Random_Generator) -> (val: i64)  { return i64(uint64(gen) << 1 >> 1) }
 
 /*
 Generates a random 127 bit value using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -236,7 +234,7 @@ Possible Output:
 	389
 
 */
-@(require_results) int127 :: proc(gen := context.random_generator) -> (val: i128) { return i128(uint128(gen) << 1 >> 1) }
+@(require_results) int127 :: proc(gen: runtime.Random_Generator) -> (val: i128) { return i128(uint128(gen) << 1 >> 1) }
 
 /*
 Generates a random 31 bit value in the range `[0, n)` using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -264,7 +262,7 @@ Possible Output:
 
 */
 @(require_results)
-int31_max :: proc(n: i32, gen := context.random_generator) -> (val: i32) {
+int31_max :: proc(n: i32, gen: runtime.Random_Generator) -> (val: i32) {
 	if n <= 0 {
 		panic("Invalid argument to int31_max")
 	}
@@ -305,7 +303,7 @@ Possible Output:
 
 */
 @(require_results)
-int63_max :: proc(n: i64, gen := context.random_generator) -> (val: i64) {
+int63_max :: proc(n: i64, gen: runtime.Random_Generator) -> (val: i64) {
 	if n <= 0 {
 		panic("Invalid argument to int63_max")
 	}
@@ -346,7 +344,7 @@ Possible Output:
 
 */
 @(require_results)
-int127_max :: proc(n: i128, gen := context.random_generator) -> (val: i128) {
+int127_max :: proc(n: i128, gen: runtime.Random_Generator) -> (val: i128) {
 	if n <= 0 {
 		panic("Invalid argument to int127_max")
 	}
@@ -387,7 +385,7 @@ Possible Output:
 
 */
 @(require_results)
-int_max :: proc(n: int, gen := context.random_generator) -> (val: int) {
+int_max :: proc(n: int, gen: runtime.Random_Generator) -> (val: int) {
 	if n <= 0 {
 		panic("Invalid argument to int_max")
 	}
@@ -424,7 +422,7 @@ Possible Output:
 
 */
 @(require_results)
-uint32_max :: proc(n: u32, gen := context.random_generator) -> (val: u32) {
+uint32_max :: proc(n: u32, gen: runtime.Random_Generator) -> (val: u32) {
 	if n == 0 {
 		panic("Invalid argument to uint32_max")
 	}
@@ -465,7 +463,7 @@ Possible Output:
 
 */
 @(require_results)
-uint64_max :: proc(n: u64, gen := context.random_generator) -> (val: u64) {
+uint64_max :: proc(n: u64, gen: runtime.Random_Generator) -> (val: u64) {
 	if n == 0 {
 		panic("Invalid argument to uint64_max")
 	}
@@ -506,7 +504,7 @@ Possible Output:
 
 */
 @(require_results)
-uint128_max :: proc(n: u128, gen := context.random_generator) -> (val: u128) {
+uint128_max :: proc(n: u128, gen: runtime.Random_Generator) -> (val: u128) {
 	if n == 0 {
 		panic("Invalid argument to uint128_max")
 	}
@@ -547,7 +545,7 @@ Possible Output:
 
 */
 @(require_results)
-uint_max :: proc(n: uint, gen := context.random_generator) -> (val: uint) {
+uint_max :: proc(n: uint, gen: runtime.Random_Generator) -> (val: uint) {
 	if n <= 0 {
 		panic("Invalid argument to uint_max")
 	}
@@ -584,7 +582,7 @@ Possible Output:
 	13
 
 */
-uint32_range :: proc(lo, hi: u32, gen := context.random_generator) -> (val: u32) {
+uint32_range :: proc(lo, hi: u32, gen: runtime.Random_Generator) -> (val: u32) {
 	assert(lo < hi, "Invalid arguments to uint32_range: lo must be less than hi")
 	range := hi - lo
 	if (range & (range - 1)) == 0 {
@@ -624,7 +622,7 @@ Possible Output:
 	13
 
 */
-uint64_range :: proc(lo, hi: u64, gen := context.random_generator) -> (val: u64) {
+uint64_range :: proc(lo, hi: u64, gen: runtime.Random_Generator) -> (val: u64) {
 	assert(lo < hi, "Invalid arguments to uint64_range: lo must be less than hi")
 	range := hi - lo
 	if (range & (range - 1)) == 0 {
@@ -664,7 +662,7 @@ Possible Output:
 	13
 
 */
-uint128_range :: proc(lo, hi: u128, gen := context.random_generator) -> (val: u128) {
+uint128_range :: proc(lo, hi: u128, gen: runtime.Random_Generator) -> (val: u128) {
 	assert(lo < hi, "Invalid arguments to uint128_range: lo must be less than hi")
 	range := hi - lo
 	if (range & (range - 1)) == 0 {
@@ -705,7 +703,7 @@ Possible Output:
 
 */
 @(require_results)
-uint_range :: proc(lo, hi: uint, gen := context.random_generator) -> (val: uint) {
+uint_range :: proc(lo, hi: uint, gen: runtime.Random_Generator) -> (val: uint) {
 	assert(lo < hi, "Invalid arguments to uint_range: lo must be less than hi")
 	when size_of(int) == 4 {
 		return uint(uint32_range(u32(lo), u32(hi), gen))
@@ -740,7 +738,7 @@ Possible Output:
 	-9
 
 */
-int32_range :: proc(lo, hi: i32, gen := context.random_generator) -> (val: i32) {
+int32_range :: proc(lo, hi: i32, gen: runtime.Random_Generator) -> (val: i32) {
 	assert(lo < hi, "Invalid arguments to int32_range: lo must be less than hi")
 	range := u32(hi) - u32(lo)
 	if (range & (range - 1)) == 0 {
@@ -780,7 +778,7 @@ Possible Output:
 	-9
 
 */
-int64_range :: proc(lo, hi: i64, gen := context.random_generator) -> (val: i64) {
+int64_range :: proc(lo, hi: i64, gen: runtime.Random_Generator) -> (val: i64) {
 	assert(lo < hi, "Invalid arguments to int64_range: lo must be less than hi")
 	range := u64(hi) - u64(lo)
 	if (range & (range - 1)) == 0 {
@@ -820,7 +818,7 @@ Possible Output:
 	-9
 
 */
-int128_range :: proc(lo, hi: i128, gen := context.random_generator) -> (val: i128) {
+int128_range :: proc(lo, hi: i128, gen: runtime.Random_Generator) -> (val: i128) {
 	assert(lo < hi, "Invalid arguments to int128_range: lo must be less than hi")
 	range := u128(hi) - u128(lo)
 	if (range & (range - 1)) == 0 {
@@ -861,7 +859,7 @@ Possible Output:
 
 */
 @(require_results)
-int_range :: proc(lo, hi: int, gen := context.random_generator) -> (val: int) {
+int_range :: proc(lo, hi: int, gen: runtime.Random_Generator) -> (val: int) {
 	assert(lo < hi, "Invalid arguments to int_range: lo must be less than hi")
 	when size_of(int) == 4 {
 		return int(int32_range(i32(lo), i32(hi), gen))
@@ -890,7 +888,7 @@ Possible Output:
 	0.511
 
 */
-@(require_results) float64 :: proc(gen := context.random_generator) -> (val: f64) { return f64(int63_max(1<<53, gen)) / (1 << 53) }
+@(require_results) float64 :: proc(gen: runtime.Random_Generator) -> (val: f64) { return f64(int63_max(1<<53, gen)) / (1 << 53) }
 
 /*
 Generates a random single floating point value in the range `[0, 1)` using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -912,7 +910,7 @@ Possible Output:
 	0.511
 
 */
-@(require_results) float32 :: proc(gen := context.random_generator) -> (val: f32) { return f32(int31_max(1<<24, gen)) / (1 << 24) }
+@(require_results) float32 :: proc(gen: runtime.Random_Generator) -> (val: f32) { return f32(int31_max(1<<24, gen)) / (1 << 24) }
 
 /*
 Generates a random double floating point value in the range `[low, high)` using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -940,7 +938,7 @@ Possible Output:
 	273.15
 
 */
-@(require_results) float64_range :: proc(low, high: f64, gen := context.random_generator) -> (val: f64) {
+@(require_results) float64_range :: proc(low, high: f64, gen: runtime.Random_Generator) -> (val: f64) {
 	assert(low <= high, "low must be lower than or equal to high")
 	val = (high-low)*float64(gen) + low
 	if val >= high {
@@ -975,7 +973,7 @@ Possible Output:
 	273.15
 
 */
-@(require_results) float32_range :: proc(low, high: f32, gen := context.random_generator) -> (val: f32) {
+@(require_results) float32_range :: proc(low, high: f32, gen: runtime.Random_Generator) -> (val: f32) {
 	assert(low <= high, "low must be lower than or equal to high")
 	val = (high-low)*float32(gen) + low
 	if val >= high {
@@ -1012,7 +1010,7 @@ Possible Output:
 
 */
 @(require_results)
-read :: proc(p: []byte, gen := context.random_generator) -> (n: int) {
+read :: proc(p: []byte, gen: runtime.Random_Generator) -> (n: int) {
 	if !runtime.random_generator_read_bytes(gen, p) {return 0}
 	return len(p)
 }
@@ -1050,7 +1048,7 @@ Possible Output:
 
 */
 @(require_results)
-perm :: proc(n: int, allocator: mem.Allocator, gen := context.random_generator) -> (res: []int, err: mem.Allocator_Error) #optional_allocator_error {
+perm :: proc(n: int, allocator: mem.Allocator, gen: runtime.Random_Generator) -> (res: []int, err: mem.Allocator_Error) #optional_allocator_error {
 	m := make([]int, n, allocator) or_return
 	for i := 0; i < n; i += 1 {
 		j := int_max(i+1, gen)
@@ -1083,7 +1081,7 @@ Possible Output:
 	[2, 4, 3, 1]
 
 */
-shuffle :: proc(array: $T/[]$E, gen := context.random_generator) {
+shuffle :: proc(array: $T/[]$E, gen: runtime.Random_Generator) {
 	n := i64(len(array))
 	if n < 2 {
 		return
@@ -1131,7 +1129,7 @@ Possible Output:
 
 */
 @(require_results)
-choice :: proc(array: $T/[]$E, gen := context.random_generator) -> (res: E) {
+choice :: proc(array: $T/[]$E, gen: runtime.Random_Generator) -> (res: E) {
 	n := i64(len(array))
 	if n < 1 {
 		return E{}
@@ -1141,7 +1139,7 @@ choice :: proc(array: $T/[]$E, gen := context.random_generator) -> (res: E) {
 
 
 @(require_results)
-choice_enum :: proc($T: typeid, gen := context.random_generator) -> T where intrinsics.type_is_enum(T) {
+choice_enum :: proc($T: typeid, gen: runtime.Random_Generator) -> T where intrinsics.type_is_enum(T) {
 	when size_of(T) <= 8 && len(T) == cap(T) {
 		when intrinsics.type_is_unsigned(intrinsics.type_core_type(T)) &&
 			 u64(max(T)) > u64(max(i64)) {
@@ -1193,7 +1191,7 @@ Possible Output:
 	5 true
 */
 @(require_results)
-choice_bit_set :: proc(set: $T/bit_set[$E], gen := context.random_generator) -> (res: E, ok: bool) {
+choice_bit_set :: proc(set: $T/bit_set[$E], gen: runtime.Random_Generator) -> (res: E, ok: bool) {
 	total_set := card(set)
 	if total_set == 0 {
 		return {}, false

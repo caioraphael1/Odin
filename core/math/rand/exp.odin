@@ -1,6 +1,8 @@
 package rand
 
+import "base:runtime"
 import "core:math"
+
 
 // exp_float64 returns a exponential distribution in the range (0, max(f64)],
 // with an exponential distribution who rate parameter is 1 (lambda) and whose mean
@@ -16,7 +18,7 @@ import "core:math"
 //    https://www.jstatsoft.org/article/view/v005i08 [web page]
 //
 @(require_results)
-exp_float64 :: proc(gen := context.random_generator) -> f64 {
+exp_float64 :: proc(gen: runtime.Random_Generator) -> f64 {
 	re :: 7.69711747013104972
 
 	@(static, rodata)
