@@ -691,7 +691,7 @@ open :: proc(path: string, flags: int = O_RDONLY, mode: int = 0) -> (handle: Han
 	}
 
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	handle = _unix_open(cstr, i32(flags), u16(mode))
 	if handle == INVALID_HANDLE {
 		err = get_last_error()
@@ -886,21 +886,21 @@ is_dir :: proc {is_dir_path, is_dir_handle}
 @(require_results)
 exists :: proc(path: string) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath := strings.clone_to_cstring(path, context.temp_allocator)
+	cpath := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	res := _unix_access(cpath, O_RDONLY)
 	return res == 0
 }
 
 rename :: proc(old: string, new: string) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	old_cstr := strings.clone_to_cstring(old, context.temp_allocator)
-	new_cstr := strings.clone_to_cstring(new, context.temp_allocator)
+	old_cstr := strings.clone_to_cstring(old, runtime.default_temp_allocator())
+	new_cstr := strings.clone_to_cstring(new, runtime.default_temp_allocator())
 	return _unix_rename(old_cstr, new_cstr) != -1
 }
 
 remove :: proc(path: string) -> Error {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	path_cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	path_cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	res := _unix_remove(path_cstr)
 	if res == -1 {
 		return get_last_error()
@@ -911,7 +911,7 @@ remove :: proc(path: string) -> Error {
 @(private, require_results)
 _stat :: proc(path: string) -> (OS_Stat, Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 
 	s: OS_Stat
 	result := _unix_stat(cstr, &s)
@@ -924,7 +924,7 @@ _stat :: proc(path: string) -> (OS_Stat, Error) {
 @(private, require_results)
 _lstat :: proc(path: string) -> (OS_Stat, Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 
 	s: OS_Stat
 	result := _unix_lstat(cstr, &s)
@@ -988,8 +988,8 @@ _readdir :: proc(dirp: Dir) -> (entry: Dirent, err: Error, end_of_stream: bool) 
 
 @(private, require_results)
 _readlink :: proc(path: string) -> (string, Error) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == context.allocator)
-	path_cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == context.allocator)
+	path_cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 
 	bufsz : uint = 256
 	buf := make([]byte, bufsz)
@@ -1032,8 +1032,8 @@ absolute_path_from_relative :: proc(rel: string, allocator := context.allocator)
 		rel = "."
 	}
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == context.allocator)
-	rel_cstr := strings.clone_to_cstring(rel, context.temp_allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == context.allocator)
+	rel_cstr := strings.clone_to_cstring(rel, runtime.default_temp_allocator())
 
 	path_ptr := _unix_realpath(rel_cstr, nil)
 	if path_ptr == nil {
@@ -1046,7 +1046,7 @@ absolute_path_from_relative :: proc(rel: string, allocator := context.allocator)
 
 access :: proc(path: string, mask: int) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	return _unix_access(cstr, c.int(mask)) == 0
 }
 
@@ -1056,8 +1056,8 @@ flush :: proc(fd: Handle) -> Error {
 
 @(require_results)
 lookup_env_alloc :: proc(key: string, allocator := context.allocator) -> (value: string, found: bool) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
-	path_str := strings.clone_to_cstring(key, context.temp_allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
+	path_str := strings.clone_to_cstring(key, runtime.default_temp_allocator())
 	// NOTE(tetra): Lifetime of 'cstr' is unclear, but _unix_free(cstr) segfaults.
 	cstr := _unix_getenv(path_str)
 	if cstr == nil {
@@ -1102,8 +1102,8 @@ get_env :: proc{get_env_alloc, get_env_buf}
 
 set_env :: proc(key, value: string) -> Error {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	key_cstring := strings.clone_to_cstring(key, context.temp_allocator)
-	value_cstring := strings.clone_to_cstring(value, context.temp_allocator)
+	key_cstring := strings.clone_to_cstring(key, runtime.default_temp_allocator())
+	value_cstring := strings.clone_to_cstring(value, runtime.default_temp_allocator())
 	res := _unix_setenv(key_cstring, value_cstring, 1)
 	if res < 0 {
 		return get_last_error()
@@ -1113,7 +1113,7 @@ set_env :: proc(key, value: string) -> Error {
 
 unset_env :: proc(key: string) -> Error {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	s := strings.clone_to_cstring(key, context.temp_allocator)
+	s := strings.clone_to_cstring(key, runtime.default_temp_allocator())
 	res := _unix_unsetenv(s)
 	if res < 0 {
 		return get_last_error()
@@ -1142,7 +1142,7 @@ get_current_directory :: proc(allocator := context.allocator) -> string {
 
 set_current_directory :: proc(path: string) -> (err: Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	res := _unix_chdir(cstr)
 	if res == -1 {
 		return get_last_error()
@@ -1152,7 +1152,7 @@ set_current_directory :: proc(path: string) -> (err: Error) {
 
 make_directory :: proc(path: string, mode: u16 = 0o775) -> Error {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	path_cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	path_cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	res := _unix_mkdir(path_cstr, mode)
 	if res == -1 {
 		return get_last_error()
@@ -1179,7 +1179,7 @@ current_thread_id :: proc "contextless" () -> int {
 @(require_results)
 dlopen :: proc(filename: string, flags: int) -> rawptr {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(filename, context.temp_allocator)
+	cstr := strings.clone_to_cstring(filename, runtime.default_temp_allocator())
 	handle := _unix_dlopen(cstr, c.int(flags))
 	return handle
 }
@@ -1187,7 +1187,7 @@ dlopen :: proc(filename: string, flags: int) -> rawptr {
 dlsym :: proc(handle: rawptr, symbol: string) -> rawptr {
 	assert(handle != nil)
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(symbol, context.temp_allocator)
+	cstr := strings.clone_to_cstring(symbol, runtime.default_temp_allocator())
 	proc_handle := _unix_dlsym(handle, cstr)
 	return proc_handle
 }

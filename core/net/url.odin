@@ -212,7 +212,7 @@ base64url_decode :: proc(s: string, allocator: mem.Allocator) -> []byte {
 		padding += 1;
 	}
 
-	temp := make([]byte, size, context.temp_allocator);
+	temp := make([]byte, size, runtime.default_temp_allocator());
 	copy(temp, transmute([]byte) s);
 
 	for b, i in temp {

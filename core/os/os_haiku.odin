@@ -204,7 +204,7 @@ fork :: proc() -> (Pid, Error) {
 @(require_results)
 open :: proc(path: string, flags: int = O_RDONLY, mode: int = 0) -> (Handle, Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	handle := cast(Handle)_unix_open(cstr, transmute(posix.O_Flags)i32(flags), transmute(posix.mode_t)i32(mode))
 	if handle == -1 {
 		return INVALID_HANDLE, get_last_error()
@@ -335,7 +335,7 @@ _delete_command_line_arguments :: proc "contextless" () {
 @(private, require_results, no_sanitize_memory)
 _stat :: proc(path: string) -> (OS_Stat, Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 
 	// deliberately uninitialized
 	s: OS_Stat = ---
@@ -349,7 +349,7 @@ _stat :: proc(path: string) -> (OS_Stat, Error) {
 @(private, require_results, no_sanitize_memory)
 _lstat :: proc(path: string) -> (OS_Stat, Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 
 	// deliberately uninitialized
 	s: OS_Stat = ---
@@ -414,8 +414,8 @@ _readdir :: proc(dirp: Dir) -> (entry: Dirent, err: Error, end_of_stream: bool) 
 
 @(private, require_results)
 _readlink :: proc(path: string) -> (string, Error) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == context.allocator)
-	path_cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == context.allocator)
+	path_cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 
 	bufsz : uint = MAX_PATH
 	buf := make([]byte, MAX_PATH)
@@ -446,8 +446,8 @@ absolute_path_from_relative :: proc(rel: string, allocator := context.allocator)
 		rel = "."
 	}
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == context.allocator)
-	rel_cstr := strings.clone_to_cstring(rel, context.temp_allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == context.allocator)
+	rel_cstr := strings.clone_to_cstring(rel, runtime.default_temp_allocator())
 
 	path_ptr := _unix_realpath(rel_cstr, nil)
 	if path_ptr == nil {
@@ -461,7 +461,7 @@ absolute_path_from_relative :: proc(rel: string, allocator := context.allocator)
 
 access :: proc(path: string, mask: int) -> (bool, Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cstr := strings.clone_to_cstring(path, context.temp_allocator)
+	cstr := strings.clone_to_cstring(path, runtime.default_temp_allocator())
 	res := _unix_access(cstr, c.int(mask))
 	if res == -1 {
 		return false, get_last_error()
@@ -471,8 +471,8 @@ access :: proc(path: string, mask: int) -> (bool, Error) {
 
 @(require_results)
 lookup_env_alloc :: proc(key: string, allocator := context.allocator) -> (value: string, found: bool) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
-	path_str := strings.clone_to_cstring(key, context.temp_allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
+	path_str := strings.clone_to_cstring(key, runtime.default_temp_allocator())
 	// NOTE(tetra): Lifetime of 'cstr' is unclear, but _unix_free(cstr) segfaults.
 	cstr := _unix_getenv(path_str)
 	if cstr == nil {

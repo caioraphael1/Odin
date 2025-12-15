@@ -128,7 +128,7 @@ sys_open :: proc(path: string, oflag: Open_Flags, mode: Permission) -> (c.int, b
 	
 	cmode: u32 = 0
 	cflags: u32 = 0
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
 
 	cflags = _sys_permission_mode(mode)
 
@@ -146,36 +146,36 @@ sys_open :: proc(path: string, oflag: Open_Flags, mode: Permission) -> (c.int, b
 
 sys_mkdir :: proc(path: string, mode: Permission) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
 	cflags := _sys_permission_mode(mode)
 	return syscall_mkdir(cpath, cflags) != -1
 }
 
 sys_mkdir_at :: proc(fd: c.int, path: string, mode: Permission) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
 	cflags := _sys_permission_mode(mode)
 	return syscall_mkdir_at(fd, cpath, cflags) != -1
 }
 
 sys_rmdir :: proc(path: string, mode: Permission) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
 	cflags := _sys_permission_mode(mode)
 	return syscall_rmdir(cpath, cflags) != -1
 }
 
 sys_rename :: proc(path: string, new_path: string) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
-	cnpath: cstring = clone_to_cstring(new_path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
+	cnpath: cstring = clone_to_cstring(new_path, runtime.default_temp_allocator())
 	return syscall_rename(cpath, cnpath) != -1
 }
 
 sys_rename_at :: proc(fd: c.int, path: string, to_fd: c.int, new_path: string) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
-	cnpath: cstring = clone_to_cstring(new_path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
+	cnpath: cstring = clone_to_cstring(new_path, runtime.default_temp_allocator())
 	return syscall_rename_at(fd, cpath, to_fd, cnpath) != -1
 }
 
@@ -185,14 +185,14 @@ sys_lseek :: proc(fd: c.int, offset: i64, whence: Offset_From) -> i64 {
 
 sys_chmod :: proc(path: string, mode: Permission) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
 	cmode := _sys_permission_mode(mode)
 	return syscall_chmod(cpath, cmode) != -1
 }
 
 sys_lstat :: proc(path: string, status: ^stat) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath: cstring = clone_to_cstring(path, context.temp_allocator)
+	cpath: cstring = clone_to_cstring(path, runtime.default_temp_allocator())
 	return syscall_lstat(cpath, status) != -1
 }
 
@@ -201,7 +201,7 @@ sys_shm_open :: proc(name: string, oflag: Open_Flags, mode: Permission) -> (c.in
 
 	cmode: u32 = 0
 	cflags: u32 = 0
-	cname: cstring = clone_to_cstring(name, context.temp_allocator)
+	cname: cstring = clone_to_cstring(name, runtime.default_temp_allocator())
 
 	cflags = _sys_permission_mode(mode)
 

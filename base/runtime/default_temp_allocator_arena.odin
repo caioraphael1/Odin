@@ -24,11 +24,13 @@ Arena :: struct {
 	temp_count:         uint,
 }
 
+
 @(private, require_results)
 safe_add :: #force_inline proc "contextless" (x, y: uint) -> (uint, bool) {
 	z, did_overflow := intrinsics.overflow_add(x, y)
 	return z, !did_overflow
 }
+
 
 @(require_results)
 memory_block_alloc :: proc(allocator: Allocator, capacity: uint, alignment: uint, loc := #caller_location) -> (block: ^Memory_Block, err: Allocator_Error) {
@@ -52,6 +54,7 @@ memory_block_alloc :: proc(allocator: Allocator, capacity: uint, alignment: uint
 	return
 }
 
+
 memory_block_dealloc :: proc "contextless" (block_to_free: ^Memory_Block, loc := #caller_location) {
 	if block_to_free != nil {
 
@@ -61,6 +64,7 @@ memory_block_dealloc :: proc "contextless" (block_to_free: ^Memory_Block, loc :=
 		mem_free(block_to_free, allocator, loc)
 	}
 }
+
 
 @(require_results)
 alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint) -> (data: []byte, err: Allocator_Error) {
@@ -94,6 +98,7 @@ alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint)
 	return
 }
 
+
 @(require_results)
 arena_alloc :: proc(arena: ^Arena, size, alignment: uint, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
 	align_forward_uint :: proc "contextless" (ptr, align: uint) -> uint {
@@ -122,10 +127,8 @@ arena_alloc :: proc(arena: ^Arena, size, alignment: uint, loc := #caller_locatio
 		needed := align_forward_uint(size, alignment)
 		block_size := max(needed, arena.minimum_block_size)
 
-		if arena.backing_allocator.procedure == nil {
-            arena.backing_allocator = default_allocator()
-            // panic("No backing allocator set for context.temp_allocator. The context.temp_allocator should be initialized manually with init_global_temporary_allocator")
-		}
+        assert(arena.backing_allocator.procedure != nil, 
+            "The runtime.default_temp_allocator() should be initialized manually with runtime.default_temp_allocator_init(size, backing_allocator)")
 
 		new_block := memory_block_alloc(arena.backing_allocator, block_size, alignment, loc) or_return
 		new_block.prev = arena.curr_block
@@ -187,15 +190,25 @@ arena_destroy :: proc "contextless" (arena: ^Arena, loc := #caller_location) {
 	arena.total_capacity = 0
 }
 
+
 @(require_results)
 arena_allocator :: proc(arena: ^Arena) -> Allocator {
-	return Allocator{arena_allocator_proc, arena}
+	return {
+        procedure = arena_allocator_proc, 
+        data      = arena,
+    }
 }
 
-arena_allocator_proc :: proc(allocator_data: rawptr, mode: Allocator_Mode,
-                             size, alignment: int,
-                             old_memory: rawptr, old_size: int,
-                             location := #caller_location) -> (data: []byte, err: Allocator_Error) {
+
+
+arena_allocator_proc :: proc(
+	allocator_data:  rawptr,
+	mode:            Allocator_Mode,
+	size, alignment: int,
+	old_memory:      rawptr,
+	old_size:        int,
+	loc              := #caller_location,
+    ) -> (data: []byte, err: Allocator_Error) {
 	arena := (^Arena)(allocator_data)
 
 	size, alignment := uint(size), uint(alignment)
@@ -203,17 +216,17 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: Allocator_Mode,
 
 	switch mode {
 	case .Alloc, .Alloc_Non_Zeroed:
-		return arena_alloc(arena, size, alignment, location)
+		return arena_alloc(arena, size, alignment, loc)
 	case .Free:
 		err = .Mode_Not_Implemented
 	case .Free_All:
-		arena_free_all(arena, location)
+		arena_free_all(arena, loc)
 	case .Resize, .Resize_Non_Zeroed:
 		old_data := ([^]byte)(old_memory)
 
 		switch {
 		case old_data == nil:
-			return arena_alloc(arena, size, alignment, location)
+			return arena_alloc(arena, size, alignment, loc)
 		case size == old_size:
 			// return old memory
 			data = old_data[:size]
@@ -242,7 +255,7 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: Allocator_Mode,
 			}
 		}
 
-		new_memory := arena_alloc(arena, size, alignment, location) or_return
+		new_memory := arena_alloc(arena, size, alignment, loc) or_return
 		if new_memory == nil {
 			return
 		}
@@ -320,7 +333,6 @@ arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
 	arena.temp_count -= 1
 }
 
-// Ignore the use of a `arena_temp_begin` entirely
 arena_temp_ignore :: proc(temp: Arena_Temp, loc := #caller_location) {
 	assert(temp.arena != nil, "nil arena", loc)
 	arena := temp.arena

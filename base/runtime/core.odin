@@ -353,7 +353,6 @@ Random_Generator :: struct {
 }
 
 Context :: struct {
-	temp_allocator:         Allocator,
 	random_generator:       Random_Generator,
 
 	user_ptr:   rawptr,
@@ -717,11 +716,6 @@ __init_context :: proc "contextless" (c: ^Context) {
 	if c == nil {
 		return
 	}
-
-	// NOTE(bill): Do not initialize these procedures with a call as they are not defined with the "contextless" calling convention
-	c.temp_allocator.procedure = default_temp_allocator_proc
-    c.temp_allocator.data      = &global_default_temp_allocator_data
-
 	c.random_generator.procedure = default_random_generator_proc
 	c.random_generator.data = nil
 }

@@ -32,7 +32,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 		options = {.MULTICAST_ONLY, .MULTICAST_WAIT} // 0x00020500
 	}
 
-	host_cstr := strings.clone_to_cstring(hostname, context.temp_allocator)
+	host_cstr := strings.clone_to_cstring(hostname, runtime.default_temp_allocator())
 	rec: ^win.DNS_RECORD
 	res := win.DnsQuery_UTF8(host_cstr, u16(type), options, nil, &rec, nil)
 

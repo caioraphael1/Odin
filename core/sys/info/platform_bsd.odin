@@ -42,7 +42,7 @@ init_os_version :: proc "contextless" () {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
 	// Parse kernel version
-	triplet := strings.split(version, ".", context.temp_allocator)
+	triplet := strings.split(version, ".", runtime.default_temp_allocator())
 	if len(triplet) == 2 {
 		major, major_ok := strconv.parse_int(triplet[0])
 		minor, minor_ok := strconv.parse_int(triplet[1])

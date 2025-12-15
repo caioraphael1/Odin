@@ -129,7 +129,7 @@ last_write_time :: proc(fd: Handle) -> (File_Time, Error) {
 last_write_time_by_name :: proc(name: string) -> (File_Time, Error) {
 	data: win32.WIN32_FILE_ATTRIBUTE_DATA
 
-	wide_path := win32.utf8_to_wstring(name)
+	wide_path := win32.utf8_to_wstring(name, runtime.default_temp_allocator())
 	if !win32.GetFileAttributesExW(wide_path, win32.GetFileExInfoStandard, &data) {
 		return 0, get_last_error()
 	}
@@ -163,7 +163,7 @@ _processor_core_count :: proc() -> int {
 	thread_count := 0
 	if !result && win32.GetLastError() == 122 && length > 0 {
 		runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-		processors := make([]win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, length, context.temp_allocator)
+		processors := make([]win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, length, runtime.default_temp_allocator())
 
 		result = win32.GetLogicalProcessorInformation(&processors[0], &length)
 		if result {
@@ -336,7 +336,7 @@ open :: proc(path: string, mode: int = O_RDONLY, perm: int = 0) -> (Handle, Erro
 	case:
 		create_mode = win32.OPEN_EXISTING
 	}
-	wide_path := win32.utf8_to_wstring(path)
+	wide_path := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 	handle := Handle(win32.CreateFileW(wide_path, access, share_mode, sa, create_mode, win32.FILE_ATTRIBUTE_NORMAL|win32.FILE_FLAG_BACKUP_SEMANTICS, nil))
 	if handle != INVALID_HANDLE {
 		return handle, nil
@@ -618,7 +618,7 @@ get_std_handle :: proc "contextless" (h: uint) -> Handle {
 
 exists :: proc(path: string) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	wpath := win32.utf8_to_wstring(path, context.temp_allocator)
+	wpath := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 	attribs := win32.GetFileAttributesW(wpath)
 
 	return attribs != win32.INVALID_FILE_ATTRIBUTES
@@ -627,7 +627,7 @@ exists :: proc(path: string) -> bool {
 @(require_results)
 is_file :: proc(path: string) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	wpath := win32.utf8_to_wstring(path, context.temp_allocator)
+	wpath := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 	attribs := win32.GetFileAttributesW(wpath)
 
 	if attribs != win32.INVALID_FILE_ATTRIBUTES {
@@ -639,7 +639,7 @@ is_file :: proc(path: string) -> bool {
 @(require_results)
 is_dir :: proc(path: string) -> bool {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	wpath := win32.utf8_to_wstring(path, context.temp_allocator)
+	wpath := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 	attribs := win32.GetFileAttributesW(wpath)
 
 	if attribs != win32.INVALID_FILE_ATTRIBUTES {
@@ -655,10 +655,10 @@ is_dir :: proc(path: string) -> bool {
 get_current_directory :: proc(allocator: runtime.Allocator) -> string {
 	win32.AcquireSRWLockExclusive(&cwd_lock)
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
 
 	sz_utf16 := win32.GetCurrentDirectoryW(0, nil)
-	dir_buf_wstr, _ := make([]u16, sz_utf16, context.temp_allocator) // the first time, it _includes_ the NUL.
+	dir_buf_wstr, _ := make([]u16, sz_utf16, runtime.default_temp_allocator()) // the first time, it _includes_ the NUL.
 
 	sz_utf16 = win32.GetCurrentDirectoryW(win32.DWORD(len(dir_buf_wstr)), raw_data(dir_buf_wstr))
 	assert(int(sz_utf16)+1 == len(dir_buf_wstr)) // the second time, it _excludes_ the NUL.
@@ -670,7 +670,7 @@ get_current_directory :: proc(allocator: runtime.Allocator) -> string {
 
 set_current_directory :: proc(path: string) -> (err: Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	wstr := win32.utf8_to_wstring(path, context.temp_allocator)
+	wstr := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 
 	win32.AcquireSRWLockExclusive(&cwd_lock)
 
@@ -687,7 +687,7 @@ change_directory :: set_current_directory
 make_directory :: proc(path: string, mode: u32 = 0) -> (err: Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 	// Mode is unused on Windows, but is needed on *nix
-	wpath := win32.utf8_to_wstring(path, context.temp_allocator)
+	wpath := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 
 	if !win32.CreateDirectoryW(wpath, nil) {
 		err = get_last_error()
@@ -698,7 +698,7 @@ make_directory :: proc(path: string, mode: u32 = 0) -> (err: Error) {
 
 remove_directory :: proc(path: string) -> (err: Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	wpath := win32.utf8_to_wstring(path, context.temp_allocator)
+	wpath := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 
 	if !win32.RemoveDirectoryW(wpath) {
 		err = get_last_error()
@@ -739,7 +739,7 @@ fix_long_path :: proc(path: string) -> string {
 
 	prefix :: `\\?`
 
-	path_buf, _ := make([]byte, len(prefix)+len(path)+len(`\`), context.temp_allocator)
+	path_buf, _ := make([]byte, len(prefix)+len(path)+len(`\`), runtime.default_temp_allocator())
 	copy(path_buf, prefix)
 	n := len(path)
 	r, w := 0, len(prefix)
@@ -771,14 +771,14 @@ fix_long_path :: proc(path: string) -> string {
 
 link :: proc(old_name, new_name: string) -> (err: Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	n := win32.utf8_to_wstring(fix_long_path(new_name))
-	o := win32.utf8_to_wstring(fix_long_path(old_name))
+	n := win32.utf8_to_wstring(fix_long_path(new_name), runtime.default_temp_allocator())
+	o := win32.utf8_to_wstring(fix_long_path(old_name), runtime.default_temp_allocator())
 	return Platform_Error(win32.CreateHardLinkW(n, o, nil))
 }
 
 unlink :: proc(path: string) -> (err: Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	wpath := win32.utf8_to_wstring(path, context.temp_allocator)
+	wpath := win32.utf8_to_wstring(path, runtime.default_temp_allocator())
 
 	if !win32.DeleteFileW(wpath) {
 		err = get_last_error()
@@ -790,8 +790,8 @@ unlink :: proc(path: string) -> (err: Error) {
 
 rename :: proc(old_path, new_path: string) -> (err: Error) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	from := win32.utf8_to_wstring(old_path, context.temp_allocator)
-	to := win32.utf8_to_wstring(new_path, context.temp_allocator)
+	from := win32.utf8_to_wstring(old_path, runtime.default_temp_allocator())
+	to := win32.utf8_to_wstring(new_path, runtime.default_temp_allocator())
 
 	if !win32.MoveFileExW(from, to, win32.MOVEFILE_REPLACE_EXISTING) {
 		err = get_last_error()
@@ -819,7 +819,7 @@ truncate :: proc(path: string, length: i64) -> (err: Error) {
 
 
 remove :: proc(name: string) -> Error {
-	p := win32.utf8_to_wstring(fix_long_path(name))
+	p := win32.utf8_to_wstring(fix_long_path(name), runtime.default_temp_allocator())
 	err, err1: win32.DWORD
 	if !win32.DeleteFileW(p) {
 		err = win32.GetLastError()

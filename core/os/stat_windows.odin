@@ -10,8 +10,8 @@ full_path_from_name :: proc(name: string, allocator: runtime.Allocator) -> (path
 	if name == "" {
 		name = "."
 	}
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
-	p := win32.utf8_to_utf16(name, context.temp_allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
+	p := win32.utf8_to_utf16(name, runtime.default_temp_allocator())
 	buf := make([dynamic]u16, 100, allocator)
 	defer delete(buf)
 	for {
@@ -34,9 +34,9 @@ _stat :: proc(name: string, create_file_attributes: u32, allocator: runtime.Allo
 		return {}, ERROR_PATH_NOT_FOUND
 	}
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
 
-	wname := win32.utf8_to_wstring(fix_long_path(name), context.temp_allocator)
+	wname := win32.utf8_to_wstring(fix_long_path(name), runtime.default_temp_allocator())
 	fa: win32.WIN32_FILE_ATTRIBUTE_DATA
 	ok := win32.GetFileAttributesExW(wname, win32.GetFileExInfoStandard, &fa)
 	if ok && fa.dwFileAttributes & win32.FILE_ATTRIBUTE_REPARSE_POINT == 0 {
@@ -132,8 +132,8 @@ cleanpath_strip_prefix :: proc(buf: []u16) -> []u16 {
 
 @(private, require_results)
 cleanpath_from_handle :: proc(fd: Handle, allocator: runtime.Allocator) -> (s: string, err: Errno) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
-	buf := cleanpath_from_handle_u16(fd, context.temp_allocator) or_return
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
+	buf := cleanpath_from_handle_u16(fd, runtime.default_temp_allocator()) or_return
 	return win32.utf16_to_utf8(buf, allocator)
 }
 @(private, require_results)

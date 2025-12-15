@@ -82,7 +82,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
 				for r, i in path[1:] {
 					if r == '%' {
 						env_key := path[1:i+1]
-						env_val := get_env(env_key, context.temp_allocator)
+						env_val := get_env(env_key, runtime.default_temp_allocator())
 						strings.write_string(&sb, env_val)
 						path = path[i+1:] // % is part of key, so skip 1 character extra
 					}
@@ -103,7 +103,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
 					}
 				}
 				if len(env_key) > 0 {
-					env_val := get_env(env_key, context.temp_allocator)
+					env_val := get_env(env_key, runtime.default_temp_allocator())
 					strings.write_string(&sb, env_val)
 					path = path[len(env_key):]
 				}

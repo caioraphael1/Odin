@@ -373,11 +373,11 @@ _parse_header_pam :: proc(data: []byte, allocator := context.allocator) -> (head
 	}
 	length = header_end_index + len(HEADER_END)
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
 
 	// string buffer for the tupltype
 	tupltype: strings.Builder
-	strings.builder_init(&tupltype, context.temp_allocator); defer strings.builder_destroy(&tupltype)
+	strings.builder_init(&tupltype, runtime.default_temp_allocator()); defer strings.builder_destroy(&tupltype)
 	fmt.sbprint(&tupltype, "")
 
 	// PAM uses actual lines, so we can iterate easily

@@ -6427,7 +6427,7 @@ gb_internal CallArgumentError check_call_arguments_internal(CheckerContext *c, A
 			if (e->kind == Entity_Variable) {
 				if (e->Variable.param_value.kind != ParameterValue_Invalid) {
 					if (ast_file_vet_explicit_allocators(c->file) && !checking_proc_group) {
-						// NOTE(lucas): check if we are trying to default to context.allocator or context.temp_allocator
+						// NOTE(lucas): check if we are trying to default to context.allocator or runtime.default_temp_allocator()
 						if (e->Variable.param_value.original_ast_expr->kind == Ast_SelectorExpr) {
 							auto& expr = e->Variable.param_value.original_ast_expr->SelectorExpr.expr;
 							auto& selector = e->Variable.param_value.original_ast_expr->SelectorExpr.selector;

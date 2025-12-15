@@ -9,7 +9,6 @@ foreign import kernel32 "system:Kernel32.lib"
 foreign kernel32 {
 	// NOTE(bill): The types are not using the standard names (e.g. DWORD and LPVOID) to just minimizing the dependency
 
-	// default_allocator
 	GetProcessHeap :: proc() -> rawptr ---
 	HeapAlloc      :: proc(hHeap: rawptr, dwFlags: u32, dwBytes: uint) -> rawptr ---
 	HeapReAlloc    :: proc(hHeap: rawptr, dwFlags: u32, lpMem: rawptr, dwBytes: uint) -> rawptr ---

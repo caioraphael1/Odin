@@ -326,7 +326,7 @@ init_gpu_info :: proc "contextless" () {
 			continue
 		}
 
-		key := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, context.temp_allocator)
+		key := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, runtime.default_temp_allocator())
 
 		if vendor, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "ProviderName"); ok {
 			idx := append(&gpu_list, GPU{vendor_name = vendor})
@@ -355,13 +355,13 @@ read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: string, ok
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, context.temp_allocator)
-	val_name_wide := make([]u16, BUF_SIZE, context.temp_allocator)
+	key_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
+	val_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)
 
-	result_wide := make([]u16, BUF_SIZE, context.temp_allocator)
+	result_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
 	result_size := sys.DWORD(BUF_SIZE * size_of(u16))
 
 	status := sys.RegGetValueW(
@@ -379,7 +379,7 @@ read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: string, ok
 	}
 
 	// Result string will be allocated for the caller.
-	result_utf8 := make([]u8, BUF_SIZE * 4, context.temp_allocator)
+	result_utf8 := make([]u8, BUF_SIZE * 4, runtime.default_temp_allocator())
 	utf16.decode_to_utf8(result_utf8, result_wide[:result_size])
 	return strings.clone_from_cstring(cstring(raw_data(result_utf8))), true
 }
@@ -392,8 +392,8 @@ read_reg_i32 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i32, ok: bool
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, context.temp_allocator)
-	val_name_wide := make([]u16, BUF_SIZE, context.temp_allocator)
+	key_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
+	val_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)
@@ -419,8 +419,8 @@ read_reg_i64 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i64, ok: bool
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, context.temp_allocator)
-	val_name_wide := make([]u16, BUF_SIZE, context.temp_allocator)
+	key_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
+	val_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)

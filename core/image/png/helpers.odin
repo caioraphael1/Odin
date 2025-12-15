@@ -92,14 +92,14 @@ core_time :: proc(c: image.PNG_Chunk) -> (t: coretime.Time, ok: bool) {
 }
 
 text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == context.allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == context.allocator)
 
 	assert(len(c.data) == int(c.header.length))
 	#partial switch c.header.type {
 	case .tEXt:
 		ok = true
 
-		fields := bytes.split(c.data, sep=[]u8{0}, allocator=context.temp_allocator)
+		fields := bytes.split(c.data, sep=[]u8{0}, allocator=runtime.default_temp_allocator())
 		if len(fields) == 2 {
 			res.keyword = strings.clone(string(fields[0]))
 			res.text    = strings.clone(string(fields[1]))
@@ -110,7 +110,7 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 	case .zTXt:
 		ok = true
 
-		fields := bytes.split_n(c.data, sep=[]u8{0}, n=3, allocator=context.temp_allocator)
+		fields := bytes.split_n(c.data, sep=[]u8{0}, n=3, allocator=runtime.default_temp_allocator())
 		if len(fields) != 3 || len(fields[1]) != 0 {
 			// Compression method must be 0=Deflate, which thanks to the split above turns
 			// into an empty slice
@@ -197,9 +197,9 @@ text_destroy :: proc(text: Text) {
 }
 
 iccp :: proc(c: image.PNG_Chunk) -> (res: iCCP, ok: bool) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == context.allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == context.allocator)
 
-	fields := bytes.split_n(c.data, sep=[]u8{0}, n=3, allocator=context.temp_allocator)
+	fields := bytes.split_n(c.data, sep=[]u8{0}, n=3, allocator=runtime.default_temp_allocator())
 
 	if len(fields[0]) < 1 || len(fields[0]) > 79 {
 		// Invalid profile name
@@ -261,9 +261,9 @@ splt :: proc(c: image.PNG_Chunk) -> (res: sPLT, ok: bool) {
 	if c.header.type != .sPLT {
 		return
 	}
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == context.allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == context.allocator)
 
-	fields := bytes.split_n(c.data, sep=[]u8{0}, n=2, allocator=context.temp_allocator)
+	fields := bytes.split_n(c.data, sep=[]u8{0}, n=2, allocator=runtime.default_temp_allocator())
 	if len(fields) != 2 {
 		return
 	}

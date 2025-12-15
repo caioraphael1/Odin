@@ -26,34 +26,23 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 	win32_thread_id: win32.DWORD
 
 	__windows_thread_entry_proc :: proc "system" (t_: rawptr) -> win32.DWORD {
+        context = {}
+        
 		t := (^Thread)(t_)
 
 		for (.Started not_in sync.atomic_load(&t.flags)) {
 			sync.wait(&t.start_ok)
 		}
 
-		{
-			init_context := t.init_context
-
-			// NOTE(tetra, 2023-05-31): Must do this AFTER thread.start() is called, so that the user can set the init_context, etc!
-			// Here on Windows, the thread is created in a suspended state, and so we can select the context anywhere before the call
-			// to t.procedure().
-			context = _select_context_for_thread(init_context)
-			defer {
-				_maybe_destroy_default_temp_allocator(init_context)
-				runtime.run_thread_local_cleaners()
-			}
-
-			t.procedure(t)
-		}
+        t.procedure(t)
+        runtime.default_temp_allocator_destroy()
+        runtime.run_thread_local_cleaners()
 
 		intrinsics.atomic_or(&t.flags, {.Done})
 
 		if .Self_Cleanup in sync.atomic_load(&t.flags) {
 			win32.CloseHandle(t.win32_thread)
 			t.win32_thread = win32.INVALID_HANDLE
-			// NOTE(ftphikari): It doesn't matter which context 'free' received, right?
-			context = {}
 			free(t, t.creation_allocator)
 		}
 

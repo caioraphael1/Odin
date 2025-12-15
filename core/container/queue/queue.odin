@@ -127,15 +127,15 @@ Shrink a queue's dynamically allocated array.
 
 This has no effect if the queue was initialized with a backing slice.
 */
-shrink :: proc(q: ^$Q/Queue($T), temp_allocator := context.temp_allocator, loc := #caller_location) {
+shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
 	if q.data.allocator.procedure == runtime.nil_allocator_proc {
 		return
 	}
 
 	if q.len > 0 && q.offset > 0 {
 		// Make the array contiguous again.
-		buffer := make([]T, q.len, temp_allocator)
-		defer delete(buffer, temp_allocator)
+		buffer := make([]T, q.len, runtime.default_temp_allocator())
+		defer delete(buffer, runtime.default_temp_allocator())
 
 		right := uint(builtin.len(q.data)) - q.offset
 		copy(buffer[:],      q.data[q.offset:])

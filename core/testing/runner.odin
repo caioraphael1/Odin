@@ -158,7 +158,7 @@ run_test_task :: proc(task: thread.Task) {
 	}
 	rand.reset(data.t.seed)
 
-	free_all(context.temp_allocator)
+	free_all(runtime.default_temp_allocator())
 
 	data.it.p(&data.t)
 
@@ -241,7 +241,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 			index_list := TEST_NAMES
 			for selector in strings.split_iterator(&index_list, ",") {
 				// Temp allocator is fine since we just need to identify which test it's referring to.
-				split_selector := strings.split(selector, ".", context.temp_allocator)
+				split_selector := strings.split(selector, ".", runtime.default_temp_allocator())
 
 				found := false
 				switch len(split_selector) {
@@ -921,7 +921,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					fmt.wprintf(clipboard_writer, "%s.%s,", it.pkg, it.name)
 				}
 
-				encoded_names := base64.encode(bytes.buffer_to_bytes(&clipboard_buffer), allocator = context.temp_allocator)
+				encoded_names := base64.encode(bytes.buffer_to_bytes(&clipboard_buffer), allocator = runtime.default_temp_allocator())
 
 				fmt.wprintf(batch_writer,
 					ansi.OSC + ansi.CLIPBOARD + ";c;%s" + ansi.ST + 

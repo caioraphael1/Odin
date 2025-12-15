@@ -12,14 +12,14 @@ lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: s
 	if key == "" {
 		return
 	}
-	wkey := win32.utf8_to_wstring(key)
+	wkey := win32.utf8_to_wstring(key, runtime.default_temp_allocator())
 	n := win32.GetEnvironmentVariableW(wkey, nil, 0)
 	if n == 0 && get_last_error() == ERROR_ENVVAR_NOT_FOUND {
 		return "", false
 	}
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
 
-	b, _ := make([dynamic]u16, n, context.temp_allocator)
+	b, _ := make([dynamic]u16, n, runtime.default_temp_allocator())
 	n = win32.GetEnvironmentVariableW(wkey, raw_data(b), u32(len(b)))
 	if n == 0 && get_last_error() == ERROR_ENVVAR_NOT_FOUND {
 		return "", false
@@ -79,8 +79,8 @@ get_env :: proc{get_env_alloc, get_env_buf}
 
 // set_env sets the value of the environment variable named by the key
 set_env :: proc(key, value: string) -> Error {
-	k := win32.utf8_to_wstring(key)
-	v := win32.utf8_to_wstring(value)
+	k := win32.utf8_to_wstring(key, runtime.default_temp_allocator())
+	v := win32.utf8_to_wstring(value, runtime.default_temp_allocator())
 
 	if !win32.SetEnvironmentVariableW(k, v) {
 		return get_last_error()
@@ -90,7 +90,7 @@ set_env :: proc(key, value: string) -> Error {
 
 // unset_env unsets a single environment variable
 unset_env :: proc(key: string) -> Error {
-	k := win32.utf8_to_wstring(key)
+	k := win32.utf8_to_wstring(key, runtime.default_temp_allocator())
 	if !win32.SetEnvironmentVariableW(k, nil) {
 		return get_last_error()
 	}
@@ -128,7 +128,7 @@ environ :: proc(allocator: runtime.Allocator) -> []string {
 // clear_env deletes all environment variables
 clear_env :: proc() {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-	envs := environ(context.temp_allocator)
+	envs := environ(runtime.default_temp_allocator())
 	for env in envs {
 		for j in 1..<len(env) {
 			if env[j] == '=' {

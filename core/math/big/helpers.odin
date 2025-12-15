@@ -398,7 +398,7 @@ clear_if_uninitialized_single :: proc(arg: ^Int, allocator: runtime.Allocator) -
 	return #force_inline internal_clear_if_uninitialized_single(arg, allocator)
 }
 
-clear_if_uninitialized_multi :: proc(args: ..^Int, allocator: runtime.Allocator = runtime.PANIC_ALLOCATOR) -> (err: Error) {
+clear_if_uninitialized_multi :: proc(args: []^Int, allocator: runtime.Allocator) -> (err: Error) {
 	args := args
 	assert_if_nil(..args)
 
@@ -425,7 +425,7 @@ error_if_immutable :: proc {error_if_immutable_single, error_if_immutable_multi,
 /*
 	Allocates several `Int`s at once.
 */
-int_init_multi :: proc(integers: ..^Int, allocator: runtime.Allocator = runtime.PANIC_ALLOCATOR) -> (err: Error) {
+int_init_multi :: proc(integers: []^Int, allocator: runtime.Allocator) -> (err: Error) {
 	assert_if_nil(..integers)
 
 	integers := integers

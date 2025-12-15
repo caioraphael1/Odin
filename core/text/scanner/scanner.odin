@@ -30,7 +30,7 @@ position_is_valid :: proc(pos: Position) -> bool {
 }
 
 @(require_results)
-position_to_string :: proc(pos: Position, allocator := context.temp_allocator) -> string {
+position_to_string :: proc(pos: Position, allocator := runtime.default_temp_allocator()) -> string {
 	s := pos.filename
 	if s == "" {
 		s = "<input>"
@@ -649,7 +649,7 @@ token_text :: proc(s: ^Scanner) -> string {
 }
 
 // token_string returns a printable string for a token or Unicode character
-// By default, it uses the context.temp_allocator to produce the string
+// By default, it uses the runtime.default_temp_allocator() to produce the string
 @(require_results)
 token_string :: proc(tok: rune, allocator: runtime.Allocator) -> string {
 	context.allocator = allocator

@@ -261,7 +261,7 @@ assert :: proc "contextless" (condition: bool, message := #caller_expression(con
 
 ## Temporary Allocations
 
-- `context.temp_allocator` will be **removed**.
+- `runtime.default_temp_allocator()` will be **removed**.
 - TODO
 
 <br>

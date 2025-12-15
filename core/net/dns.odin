@@ -53,7 +53,7 @@ when ODIN_OS == .Windows {
 init_dns_configuration :: proc() {
 	when ODIN_OS == .Windows {
 		runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
-		val := os.replace_environment_placeholders(dns_configuration.hosts_file, context.temp_allocator)
+		val := os.replace_environment_placeholders(dns_configuration.hosts_file, runtime.default_temp_allocator())
 		copy(dns_configuration.hosts_file_buf[:], val)
 		dns_configuration.hosts_file = string(dns_configuration.hosts_file_buf[:len(val)])
 	}
@@ -115,9 +115,9 @@ resolve_ip4 :: proc(hostname_and_maybe_port: string) -> (ep4: Endpoint, err: Net
 		recs: []DNS_Record
 
 		if ODIN_OS != .Windows && strings.has_suffix(t.hostname, ".local") {
-			recs, _ = get_dns_records_from_nameservers(t.hostname, .IP4, {IP4_mDNS_Broadcast}, nil, context.temp_allocator)
+			recs, _ = get_dns_records_from_nameservers(t.hostname, .IP4, {IP4_mDNS_Broadcast}, nil, runtime.default_temp_allocator())
 		} else {
-			recs, _ = get_dns_records_from_os(t.hostname, .IP4, context.temp_allocator)
+			recs, _ = get_dns_records_from_os(t.hostname, .IP4, runtime.default_temp_allocator())
 		}
 
 		if len(recs) == 0 {
@@ -149,9 +149,9 @@ resolve_ip6 :: proc(hostname_and_maybe_port: string) -> (ep6: Endpoint, err: Net
 		recs: []DNS_Record
 
 		if ODIN_OS != .Windows && strings.has_suffix(t.hostname, ".local") {
-			recs, _ = get_dns_records_from_nameservers(t.hostname, .IP6, {IP6_mDNS_Broadcast}, nil, context.temp_allocator)
+			recs, _ = get_dns_records_from_nameservers(t.hostname, .IP6, {IP6_mDNS_Broadcast}, nil, runtime.default_temp_allocator())
 		} else {
-			recs, _ = get_dns_records_from_os(t.hostname, .IP6, context.temp_allocator)
+			recs, _ = get_dns_records_from_os(t.hostname, .IP6, runtime.default_temp_allocator())
 		}
 
 		if len(recs) == 0 {
@@ -617,7 +617,7 @@ validate_hostname :: proc(hostname: string) -> (ok: bool) {
 parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil, allocator: mem.Allocator) -> (record: DNS_Record, ok: bool) {
 	record_buf := packet[cur_off^:]
 
-	srv_record_name, hn_sz := decode_hostname(packet, cur_off^, context.temp_allocator) or_return
+	srv_record_name, hn_sz := decode_hostname(packet, cur_off^, runtime.default_temp_allocator()) or_return
 	// TODO(tetra): Not sure what we should call this.
 	// Is it really only used in SRVs?
 	// Maybe some refactoring is required?
@@ -720,7 +720,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 			// NOTE(Jeroen): Service Name and Protocol Name can probably just be string slices into the record name.
 			// It's already cloned, after all. I wouldn't put them on the temp allocator like this.
 
-			parts := strings.split_n(srv_record_name, ".", 3, context.temp_allocator)
+			parts := strings.split_n(srv_record_name, ".", 3, runtime.default_temp_allocator())
 			if len(parts) != 3 {
 				return
 			}

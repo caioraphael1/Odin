@@ -24,7 +24,7 @@ abs :: proc(path: string, allocator: mem.Allocator) -> (string, bool) {
 	if rel == "" {
 		rel = "."
 	}
-	rel_cstr := strings.clone_to_cstring(rel, context.temp_allocator)
+	rel_cstr := strings.clone_to_cstring(rel, runtime.default_temp_allocator())
 	path_ptr := posix.realpath(rel_cstr, nil)
 	if path_ptr == nil {
 		return "", posix.errno() == nil
@@ -38,8 +38,8 @@ abs :: proc(path: string, allocator: mem.Allocator) -> (string, bool) {
 join :: proc(elems: []string, allocator: mem.Allocator) -> (joined: string, err: runtime.Allocator_Error) #optional_allocator_error {
 	for e, i in elems {
 		if e != "" {
-			runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
-			p := strings.join(elems[i:], SEPARATOR_STRING, context.temp_allocator) or_return
+			runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
+			p := strings.join(elems[i:], SEPARATOR_STRING, runtime.default_temp_allocator()) or_return
 			return clean(p, allocator)
 		}
 	}

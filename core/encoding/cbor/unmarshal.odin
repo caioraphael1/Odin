@@ -32,7 +32,7 @@ unmarshal :: proc {
 	unmarshal_from_bytes,
 }
 
-unmarshal_from_reader :: proc(r: io.Reader, ptr: ^$T, flags := Decoder_Flags{}, allocator := context.allocator, temp_allocator := context.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
+unmarshal_from_reader :: proc(r: io.Reader, ptr: ^$T, flags := Decoder_Flags{}, allocator := context.allocator, temp_allocator := runtime.default_temp_allocator(), loc := #caller_location) -> (err: Unmarshal_Error) {
 	err = unmarshal_from_decoder(Decoder{ DEFAULT_MAX_PRE_ALLOC, flags, r }, ptr, allocator, temp_allocator, loc)
 
 	// Normal EOF does not exist here, we try to read the exact amount that is said to be provided.
@@ -41,7 +41,7 @@ unmarshal_from_reader :: proc(r: io.Reader, ptr: ^$T, flags := Decoder_Flags{}, 
 }
 
 // Unmarshals from a string, see docs on the proc group `Unmarshal` for more info.
-unmarshal_from_string :: proc(s: string, ptr: ^$T, flags := Decoder_Flags{}, allocator := context.allocator, temp_allocator := context.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
+unmarshal_from_string :: proc(s: string, ptr: ^$T, flags := Decoder_Flags{}, allocator := context.allocator, temp_allocator := runtime.default_temp_allocator(), loc := #caller_location) -> (err: Unmarshal_Error) {
 	sr: strings.Reader
 	r := strings.to_reader(&sr, s)
 
@@ -53,11 +53,11 @@ unmarshal_from_string :: proc(s: string, ptr: ^$T, flags := Decoder_Flags{}, all
 }
 
 // Unmarshals from a slice of bytes, see docs on the proc group `Unmarshal` for more info.
-unmarshal_from_bytes :: proc(bytes: []byte, ptr: ^$T, flags := Decoder_Flags{}, allocator := context.allocator, temp_allocator := context.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
+unmarshal_from_bytes :: proc(bytes: []byte, ptr: ^$T, flags := Decoder_Flags{}, allocator := context.allocator, temp_allocator := runtime.default_temp_allocator(), loc := #caller_location) -> (err: Unmarshal_Error) {
 	return unmarshal_from_string(string(bytes), ptr, flags, allocator, temp_allocator, loc)
 }
 
-unmarshal_from_decoder :: proc(d: Decoder, ptr: ^$T, allocator := context.allocator, temp_allocator := context.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
+unmarshal_from_decoder :: proc(d: Decoder, ptr: ^$T, allocator := context.allocator, temp_allocator := runtime.default_temp_allocator(), loc := #caller_location) -> (err: Unmarshal_Error) {
 	d := d
 
 	err = _unmarshal_any_ptr(d, ptr, nil, allocator, temp_allocator, loc)
@@ -68,9 +68,9 @@ unmarshal_from_decoder :: proc(d: Decoder, ptr: ^$T, allocator := context.alloca
 
 }
 
-_unmarshal_any_ptr :: proc(d: Decoder, v: any, hdr: Maybe(Header) = nil, allocator := context.allocator, temp_allocator := context.temp_allocator, loc := #caller_location) -> Unmarshal_Error {
+_unmarshal_any_ptr :: proc(d: Decoder, v: any, hdr: Maybe(Header) = nil, allocator := context.allocator, temp_allocator := runtime.default_temp_allocator(), loc := #caller_location) -> Unmarshal_Error {
 	context.allocator = allocator
-	context.temp_allocator = temp_allocator
+	runtime.default_temp_allocator() = temp_allocator
 	v := v
 
 	if v == nil || v.id == nil {
@@ -87,7 +87,7 @@ _unmarshal_any_ptr :: proc(d: Decoder, v: any, hdr: Maybe(Header) = nil, allocat
 	return _unmarshal_value(d, data, hdr.? or_else (_decode_header(d.reader) or_return), allocator, temp_allocator, loc)
 }
 
-_unmarshal_value :: proc(d: Decoder, v: any, hdr: Header, allocator := context.allocator, temp_allocator := context.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
+_unmarshal_value :: proc(d: Decoder, v: any, hdr: Header, allocator := context.allocator, temp_allocator := runtime.default_temp_allocator(), loc := #caller_location) -> (err: Unmarshal_Error) {
 	v := v
 	ti := reflect.type_info_base(type_info_of(v.id))
 	r := d.reader
@@ -379,8 +379,8 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
 		if elem_base.id != byte { return _unsupported(v, hdr) }
 
-		bytes := err_conv(_decode_bytes(d, add, allocator=context.temp_allocator)) or_return
-		defer delete(bytes, context.temp_allocator)
+		bytes := err_conv(_decode_bytes(d, add, allocator=runtime.default_temp_allocator())) or_return
+		defer delete(bytes, runtime.default_temp_allocator())
 
 		if len(bytes) > t.count { return _unsupported(v, hdr) }
 		
@@ -394,7 +394,7 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 	return _unsupported(v, hdr)
 }
 
-_unmarshal_string :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, add: Add, allocator := context.allocator, temp_allocator := context.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
+_unmarshal_string :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, add: Add, allocator := context.allocator, temp_allocator := runtime.default_temp_allocator(), loc := #caller_location) -> (err: Unmarshal_Error) {
 	#partial switch t in ti.variant {
 	case reflect.Type_Info_String:
 		text := err_conv(_decode_text(d, add, allocator, loc)) or_return
@@ -665,7 +665,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
 		for ; idx < len(fields) && (unknown || idx < length); idx += 1 {
 			// Decode key, keys can only be strings.
 			key: string
-			if keyv, kerr := decode_key(d, v, context.temp_allocator); unknown && kerr == .Break {
+			if keyv, kerr := decode_key(d, v, runtime.default_temp_allocator()); unknown && kerr == .Break {
 				break
 			} else if kerr != nil {
 				err = kerr
@@ -673,7 +673,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
 			} else {
 				key = keyv
 			}
-			defer delete(key, context.temp_allocator)
+			defer delete(key, runtime.default_temp_allocator())
 
 			// Find matching field.
 			use_field_idx := -1
@@ -697,8 +697,8 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
 				
 				// Skips unused map entries.
 				if use_field_idx < 0 {
-					val := err_conv(_decode_from_decoder(d, allocator=context.temp_allocator)) or_return
-					destroy(val, context.temp_allocator)
+					val := err_conv(_decode_from_decoder(d, allocator=runtime.default_temp_allocator())) or_return
+					destroy(val, runtime.default_temp_allocator())
 					continue
 				}
 			}
@@ -713,10 +713,10 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
 		// If there are fields left in the map that did not get decoded into the struct, decode and discard them.
 		if !unknown {
 			for _ in idx..<length {
-				key := err_conv(_decode_from_decoder(d, allocator=context.temp_allocator)) or_return
-				destroy(key, context.temp_allocator)
-				val := err_conv(_decode_from_decoder(d, allocator=context.temp_allocator)) or_return
-				destroy(val, context.temp_allocator)
+				key := err_conv(_decode_from_decoder(d, allocator=runtime.default_temp_allocator())) or_return
+				destroy(key, runtime.default_temp_allocator())
+				val := err_conv(_decode_from_decoder(d, allocator=runtime.default_temp_allocator())) or_return
+				destroy(val, runtime.default_temp_allocator())
 			}
 		}
 
@@ -741,13 +741,13 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
 		}
 
 		// Temporary memory to unmarshal values into before inserting them into the map.
-		elem_backing := mem.alloc_bytes_non_zeroed(t.value.size, t.value.align, context.temp_allocator) or_return
-		defer delete(elem_backing, context.temp_allocator)
+		elem_backing := mem.alloc_bytes_non_zeroed(t.value.size, t.value.align, runtime.default_temp_allocator()) or_return
+		defer delete(elem_backing, runtime.default_temp_allocator())
 		map_backing_value := any{raw_data(elem_backing), t.value.id}
 
 		// Temporary memory to unmarshal keys into.
-		key_backing := mem.alloc_bytes_non_zeroed(t.key.size, t.key.align, context.temp_allocator) or_return
-		defer delete(key_backing, context.temp_allocator)
+		key_backing := mem.alloc_bytes_non_zeroed(t.key.size, t.key.align, runtime.default_temp_allocator()) or_return
+		defer delete(key_backing, runtime.default_temp_allocator())
 		key_backing_value := any{raw_data(key_backing), t.key.id}
 
 		for idx := 0; unknown || idx < length; idx += 1 {
@@ -805,9 +805,9 @@ _unmarshal_union :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 				return .Bad_Tag_Value
 			}
 
-			target_name = err_conv(_decode_text(d, idadd, context.temp_allocator)) or_return
+			target_name = err_conv(_decode_text(d, idadd, runtime.default_temp_allocator())) or_return
 		}
-		defer delete(target_name, context.temp_allocator)
+		defer delete(target_name, runtime.default_temp_allocator())
 
 		for variant, i in t.variants {
 			tag := i64(i)
@@ -823,7 +823,7 @@ _unmarshal_union :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 				}
 
 			case:
-				builder := strings.builder_make(context.temp_allocator)
+				builder := strings.builder_make(runtime.default_temp_allocator())
 				defer strings.builder_destroy(&builder)
 
 				reflect.write_type(&builder, variant)

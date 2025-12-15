@@ -15,7 +15,7 @@ read_dir :: proc(fd: Handle, n: int, allocator: runtime.Allocator) -> (fi: []Fil
 		if d.cFileName[0] == '.' && d.cFileName[1] == '.' && d.cFileName[2] == 0 {
 			return
 		}
-		path := strings.concatenate({base_path, `\`, win32.utf16_to_utf8(d.cFileName[:]) or_else ""}, allocator)
+		path := strings.concatenate({base_path, `\`, win32.utf16_to_utf8(d.cFileName[:], runtime.default_temp_allocator()) or_else ""}, allocator)
 		fi.fullpath = path
 		fi.name = basename(path)
 		fi.size = i64(d.nFileSizeHigh)<<32 + i64(d.nFileSizeLow)
@@ -66,16 +66,16 @@ read_dir :: proc(fd: Handle, n: int, allocator: runtime.Allocator) -> (fi: []Fil
 		n = -1
 		size = 100
 	}
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = context.temp_allocator == allocator)
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
 
-	wpath := cleanpath_from_handle_u16(fd, context.temp_allocator) or_return
+	wpath := cleanpath_from_handle_u16(fd, runtime.default_temp_allocator()) or_return
 	if len(wpath) == 0 {
 		return
 	}
 
 	dfi := make([dynamic]File_Info, 0, size, allocator) or_return
 
-	wpath_search := make([]u16, len(wpath)+3, context.temp_allocator) or_return
+	wpath_search := make([]u16, len(wpath)+3, runtime.default_temp_allocator()) or_return
 	copy(wpath_search, wpath)
 	wpath_search[len(wpath)+0] = '\\'
 	wpath_search[len(wpath)+1] = '*'

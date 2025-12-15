@@ -65,7 +65,7 @@ parse_package :: proc(pkg: ^ast.Package, p: ^Parser = nil) -> bool {
 
 	ok := true
 
-	files := make([]^ast.File, len(pkg.files), context.temp_allocator)
+	files := make([]^ast.File, len(pkg.files), runtime.default_temp_allocator())
 	i := 0
 	for _, file in pkg.files {
 		files[i] = file

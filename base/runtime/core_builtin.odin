@@ -53,25 +53,6 @@ container_of :: #force_inline proc "contextless" (ptr: $P/^$Field_Type, $T: type
 }
 
 
-when !NO_DEFAULT_TEMP_ALLOCATOR {
-	when ODIN_ARCH == .i386 && ODIN_OS == .Windows {
-		// Thread-local storage is problematic on Windows i386
-		global_default_temp_allocator_data: Default_Temp_Allocator
-	} else {
-		@thread_local global_default_temp_allocator_data: Default_Temp_Allocator
-	}
-}
-
-// Initializes the global temporary allocator used as the default `context.temp_allocator`.
-// This is ignored when `NO_DEFAULT_TEMP_ALLOCATOR` is true.
-@(builtin, disabled=NO_DEFAULT_TEMP_ALLOCATOR)
-init_global_temporary_allocator :: proc(size: int, backup_allocator: Allocator) {
-	when !NO_DEFAULT_TEMP_ALLOCATOR {
-		default_temp_allocator_init(&global_default_temp_allocator_data, size, backup_allocator)
-	}
-}
-
-
 @(require_results)
 copy_slice_raw :: proc "contextless" (dst, src: rawptr, dst_len, src_len, elem_size: int) -> int {
 	n := min(dst_len, src_len)

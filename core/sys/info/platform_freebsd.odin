@@ -53,10 +53,10 @@ init_os_version :: proc "contextless" () {
 
 	// Parse kernel version
 	release := string(cstring(raw_data(kernel_version_buf[:])))
-	version_bits := strings.split_n(release, "-", 2, context.temp_allocator)
+	version_bits := strings.split_n(release, "-", 2, runtime.default_temp_allocator())
 	if len(version_bits) > 1 {
 		// Parse major, minor from KERN_OSRELEASE
-		triplet := strings.split(version_bits[0], ".", context.temp_allocator)
+		triplet := strings.split(version_bits[0], ".", runtime.default_temp_allocator())
 		if len(triplet) == 2 {
 			major, major_ok := strconv.parse_int(triplet[0])
 			minor, minor_ok := strconv.parse_int(triplet[1])

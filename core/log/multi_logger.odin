@@ -8,7 +8,7 @@ Multi_Logger_Data :: struct {
 	loggers: []Logger,
 }
 
-create_multi_logger :: proc(logs: ..Logger, allocator: runtime.Allocator = runtime.PANIC_ALLOCATOR) -> Logger {
+create_multi_logger :: proc(logs: []Logger, allocator: runtime.Allocator) -> Logger {
 	data := new(Multi_Logger_Data, allocator)
 	data.loggers = make([]Logger, len(logs), allocator)
 	copy(data.loggers, logs)

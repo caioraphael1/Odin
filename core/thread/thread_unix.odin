@@ -20,6 +20,8 @@ Thread_Os_Specific :: struct #align(16) {
 //
 _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: runtime.Allocator) -> ^Thread {
 	__unix_thread_entry_proc :: proc "c" (t: rawptr) -> rawptr {
+        context = {}
+
 		t := (^Thread)(t)
 
 		t.id = sync.current_thread_id()
@@ -38,20 +40,9 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 		err = posix.pthread_setcanceltype(.ASYNCHRONOUS, nil)
 		assert(err == nil)
 
-		{
-			init_context := t.init_context
-
-			// NOTE(tetra, 2023-05-31): Must do this AFTER thread.start() is called, so that the user can set the init_context, etc!
-			// Here on Unix, we start the OS thread in a running state, and so we manually have it wait on a condition
-			// variable above. We must perform that waiting BEFORE we select the context!
-			context = _select_context_for_thread(init_context)
-			defer {
-				_maybe_destroy_default_temp_allocator(init_context)
-				runtime.run_thread_local_cleaners()
-			}
-
-			t.procedure(t)
-		}
+        t.procedure(t)
+        runtime.default_temp_allocator_destroy()
+        runtime.run_thread_local_cleaners()
 
 		sync.atomic_or(&t.flags, { .Done })
 
@@ -60,8 +51,6 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 			assert(res == nil)
 
 			t.unix_thread = {}
-			// NOTE(ftphikari): It doesn't matter which context 'free' received, right?
-			context = {}
 			free(t, t.creation_allocator)
 		}
 

@@ -1217,7 +1217,7 @@ defilter_8 :: proc(params: ^Filter_Params) -> (ok: bool) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
 	// Apron so we don't need to special case first rows.
-	up := make([]u8, row_stride, context.temp_allocator)
+	up := make([]u8, row_stride, runtime.default_temp_allocator())
 	ok = true
 
 	for _ in 0..<height {
@@ -1284,7 +1284,7 @@ defilter_less_than_8 :: proc(params: ^Filter_Params) -> bool #no_bounds_check {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
 	// Apron so we don't need to special case first rows.
-	up := make([]u8, row_stride_out, context.temp_allocator)
+	up := make([]u8, row_stride_out, runtime.default_temp_allocator())
 
 	#no_bounds_check for _ in 0..<height {
 		nk := row_stride_in - channels
@@ -1439,7 +1439,7 @@ defilter_16 :: proc(params: ^Filter_Params) -> bool {
 
 	// TODO: See about doing a Duff's #unroll where practicable
 	// Apron so we don't need to special case first rows.
-	up := make([]u8, row_stride, context.temp_allocator)
+	up := make([]u8, row_stride, runtime.default_temp_allocator())
 
 	for y := 0; y < height; y += 1 {
 		nk := row_stride - stride

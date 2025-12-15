@@ -1819,7 +1819,7 @@ internal_root_n :: proc { internal_int_root_n, }
 	Deallocates the backing memory of one or more `Int`s.
 	Asssumes none of the `integers` to be a `nil`.
 */
-internal_int_destroy :: proc(integers: ..^Int, allocator: runtime.Allocator = runtime.PANIC_ALLOCATOR) {
+internal_int_destroy :: proc(integers: []^Int, allocator: runtime.Allocator) {
 	integers := integers
 
 	for &a in integers {
@@ -2836,7 +2836,7 @@ internal_clear_if_uninitialized_single :: proc(arg: ^Int, allocator: mem.Allocat
 	return err
 }
 
-internal_clear_if_uninitialized_multi :: proc(args: ..^Int, allocator: mem.Allocator = runtime.PANIC_ALLOCATOR) -> (err: Error) {
+internal_clear_if_uninitialized_multi :: proc(args: []^Int, allocator: mem.Allocator) -> (err: Error) {
 
 	for i in args {
 		if ! #force_inline internal_is_initialized(i) {
@@ -2864,7 +2864,7 @@ internal_error_if_immutable :: proc {internal_error_if_immutable_single, interna
 /*
 	Allocates several `Int`s at once.
 */
-internal_int_init_multi :: proc(integers: ..^Int, allocator: mem.Allocator = runtime.PANIC_ALLOCATOR) -> (err: Error) {
+internal_int_init_multi :: proc(integers: []^Int, allocator: mem.Allocator) -> (err: Error) {
 
 	integers := integers
 	for a in integers {

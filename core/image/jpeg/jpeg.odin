@@ -235,7 +235,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 		case .SOI:
 			return img, .Duplicate_SOI_Marker
 		case .APP0:
-			ident := make([dynamic]byte, 0, 16, context.temp_allocator) or_return
+			ident := make([dynamic]byte, 0, 16, runtime.default_temp_allocator()) or_return
 			length := cast(int)((compress.read_data(ctx, u16be) or_return) - 2)
 			for {
 				b := compress.read_u8(ctx) or_return
@@ -400,7 +400,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 				info = img.metadata.(^image.JPEG_Info)
 			}
 
-			ident := make([dynamic]byte, 0, 16, context.temp_allocator) or_return
+			ident := make([dynamic]byte, 0, 16, runtime.default_temp_allocator()) or_return
 			for {
 				b := compress.read_u8(ctx) or_return
 				if b == 0x00 {
