@@ -3,6 +3,7 @@ package mem
 import "base:intrinsics"
 import "base:runtime"
 
+
 // NOTE(Feoramund): Sanitizer usage in this package has been temporarily
 // disabled pending a thorough review per allocator, as ASan is particular
 // about the addresses and ranges it receives.
@@ -563,11 +564,8 @@ scratch_alloc_bytes_non_zeroed :: proc(
 			return ptr, err
 		}
 		append(&s.leaked_allocations, ptr)
-		if logger := context.logger; logger.lowest_level <= .Warning {
-			if logger.procedure != nil {
-				logger.procedure(logger.data, .Warning, "mem.Scratch resorted to backup_allocator" , logger.options, loc)
-			}
-		}
+        // fmt.printf("%v:%v mem.Scratch resorted to backup_allocator" , loc.procedure, loc.line)
+            // (Caio): This creates a cyclic reference. I'm also no a fan of logging internally.
 		return ptr, err
 	}
 }

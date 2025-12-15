@@ -284,7 +284,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
 
 	{
 		file_info, ferr := os.fstat(d, allocator)
-		defer os.file_info_delete(file_info)
+		defer os.file_info_delete(file_info, allocator)
 
 		if ferr != nil {
 			return
@@ -301,7 +301,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
 	})
 	defer {
 		for fi in fis {
-			os.file_info_delete(fi)
+			os.file_info_delete(fi, allocator)
 		}
 		delete(fis, allocator)
 	}
