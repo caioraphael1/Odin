@@ -916,7 +916,7 @@ _processor_core_count :: proc() -> int {
 
 @(private, require_results)
 _alloc_command_line_arguments :: proc "contextless" () -> []string {
-	context = runtime.default_context()
+	context = {}
 	res := make([]string, len(runtime.args__))
 	for _, i in res {
 		res[i] = string(runtime.args__[i])
@@ -926,6 +926,6 @@ _alloc_command_line_arguments :: proc "contextless" () -> []string {
 
 @(private, fini)
 _delete_command_line_arguments :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 	delete(args)
 }

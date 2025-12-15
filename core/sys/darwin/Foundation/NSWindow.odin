@@ -613,7 +613,7 @@ window_delegate_register_and_alloc :: proc(template: WindowDelegateTemplate, cla
 	del_internal := cast(^_WindowDelegateInternal)object_getIndexedIvars(del)
 	del_internal^ = {
 		template,
-		delegate_context.(runtime.Context) or_else runtime.default_context(),
+		delegate_context.(runtime.Context) or_else {},
 	}
 
 	return cast(^WindowDelegate)del

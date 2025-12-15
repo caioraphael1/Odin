@@ -29,7 +29,7 @@ args := _alloc_command_line_arguments()
 
 @(private, require_results)
 _alloc_command_line_arguments :: proc "contextless" () -> []string {
-	context = runtime.default_context()
+	context = {}
 	cmd_args := make([]string, len(runtime.args__))
 	for &arg, i in cmd_args {
 		arg = string(runtime.args__[i])
@@ -39,7 +39,7 @@ _alloc_command_line_arguments :: proc "contextless" () -> []string {
 
 @(private, fini)
 _delete_command_line_arguments :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 	delete(args)
 }
 
@@ -77,7 +77,7 @@ init_preopens :: proc "contextless" () {
 		return path
 	}
 
-	context = runtime.default_context()
+	context = {}
 
 	dyn_preopens: [dynamic]Preopen
 	loop: for fd := wasi.fd_t(3); ; fd += 1 {

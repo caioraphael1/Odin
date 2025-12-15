@@ -41,7 +41,6 @@ variable.
 * `Maybe`
 * `Source_Code_Location`
 * `Context`
-* `__init_context`
 
 ### Runtime initialization/cleanup
 

@@ -9,7 +9,7 @@ import "core:strconv"
 
 @(init, private)
 init_cpu_core_count :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 
 	fd, err := linux.open("/proc/cpuinfo", {})
 	if err != .NONE { return }

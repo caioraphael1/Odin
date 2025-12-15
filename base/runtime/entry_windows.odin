@@ -8,7 +8,7 @@ import "base:intrinsics"
 when ODIN_BUILD_MODE == .Dynamic {
 	@(link_name="DllMain", linkage="strong", require)
 	DllMain :: proc "system" (hinstDLL: rawptr, fdwReason: u32, lpReserved: rawptr) -> b32 {
-		context = default_context()
+		context = {}
 
 		// Populate Windows DLL-specific globals
 		dll_forward_reason = DLL_Forward_Reason(fdwReason)
@@ -34,7 +34,7 @@ when ODIN_BUILD_MODE == .Dynamic {
 		@(link_name="main", linkage="strong", require)
 		main :: proc "c" (argc: i32, argv: [^]cstring) -> i32 {
 			args__ = argv[:argc]
-			context = default_context()
+			context = {}
 			#force_no_inline _startup_runtime()
 			intrinsics.__entry_point()
 			#force_no_inline _cleanup_runtime()
@@ -43,7 +43,7 @@ when ODIN_BUILD_MODE == .Dynamic {
 	} else when ODIN_NO_CRT {
 		@(link_name="mainCRTStartup", linkage="strong", require)
 		mainCRTStartup :: proc "system" () -> i32 {
-			context = default_context()
+			context = {}
 			#force_no_inline _startup_runtime()
 			intrinsics.__entry_point()
 			#force_no_inline _cleanup_runtime()
@@ -53,7 +53,7 @@ when ODIN_BUILD_MODE == .Dynamic {
 		@(link_name="main", linkage="strong", require)
 		main :: proc "c" (argc: i32, argv: [^]cstring) -> i32 {
 			args__ = argv[:argc]
-			context = default_context()
+			context = {}
 			#force_no_inline _startup_runtime()
 			intrinsics.__entry_point()
 			#force_no_inline _cleanup_runtime()

@@ -28,7 +28,6 @@ You can do so using `-extra-linker-flags:"--export-table"`.
 Being able to allocate is also required (for some auxiliary APIs but also for mapping/unmapping buffers).
 
 You can set the context that is used for allocations by setting the global variable `wpgu.g_context`.
-It will default to the `runtime.default_context`.
 
 Have a look at the [[example build file; https://github.com/odin-lang/examples/blob/master/wgpu/glfw-triangle/build_web.sh]] and [[html file; https://github.com/odin-lang/examples/blob/master/wgpu/glfw-triangle/web/index.html]]
 to see how it looks when set up, doing the `--import-memory` and the likes

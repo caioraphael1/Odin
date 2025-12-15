@@ -2933,13 +2933,12 @@ gb_internal void generate_minimum_dependency_set(Checker *c, Entity *start) {
 	// required runtime entities
 	FORCE_ADD_RUNTIME_ENTITIES(true,
 		// Odin types
-		str_lit("Source_Code_Location"),
 		str_lit("Context"),
+		str_lit("Source_Code_Location"),
 		str_lit("Allocator"),
-		str_lit("Logger"),
 
 		// Odin internal procedures
-		str_lit("__init_context"),
+        str_lit("__init_context"),
 		// str_lit("cstring_to_string"),
 		str_lit("_cleanup_runtime"),
 

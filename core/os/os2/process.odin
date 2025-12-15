@@ -17,7 +17,7 @@ args := get_args()
 
 @(private="file")
 get_args :: proc "contextless" () -> []string {
-	context = runtime.default_context()
+	context = {}
 	result := make([]string, len(runtime.args__), heap_allocator())
 	for rt_arg, i in runtime.args__ {
 		result[i] = string(rt_arg)
@@ -27,7 +27,7 @@ get_args :: proc "contextless" () -> []string {
 
 @(private="file")
 delete_args :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 	delete(args, heap_allocator())
 }
 

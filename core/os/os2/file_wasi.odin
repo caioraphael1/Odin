@@ -69,7 +69,7 @@ init_preopens :: proc "contextless" () {
 		return path
 	}
 
-	context = runtime.default_context()
+	context = {}
 
 	n: int
 	n_loop: for fd := wasi.fd_t(3); ; fd += 1 {

@@ -60,7 +60,7 @@ memory_block_dealloc :: proc "contextless" (block_to_free: ^Memory_Block, loc :=
 
 		allocator := block_to_free.allocator
 		// sanitizer.address_unpoison(block_to_free.base, block_to_free.capacity)
-		context = default_context()
+		context = {}
 		mem_free(block_to_free, allocator, loc)
 	}
 }

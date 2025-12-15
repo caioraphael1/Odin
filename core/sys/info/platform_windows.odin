@@ -14,7 +14,7 @@ version_string_buf: [1024]u8
 
 @(init, private)
 init_os_version :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 
 	/*
 		NOTE(Jeroen):
@@ -283,7 +283,7 @@ init_ram :: proc "contextless" () {
 init_gpu_info :: proc "contextless" () {
 	GPU_ROOT_KEY :: `SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}`
 
-	context = runtime.default_context()
+	context = {}
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
 	gpu_key: sys.HKEY

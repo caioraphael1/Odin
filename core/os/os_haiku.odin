@@ -318,7 +318,7 @@ args := _alloc_command_line_arguments()
 
 @(private, require_results)
 _alloc_command_line_arguments :: proc "contextless" () -> []string {
-	context = runtime.default_context()
+	context = {}
 	res := make([]string, len(runtime.args__))
 	for arg, i in runtime.args__ {
 		res[i] = string(arg)
@@ -328,7 +328,7 @@ _alloc_command_line_arguments :: proc "contextless" () -> []string {
 
 @(private, fini)
 _delete_command_line_arguments :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 	delete(args)
 }
 

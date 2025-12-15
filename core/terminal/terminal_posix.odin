@@ -11,7 +11,7 @@ _is_terminal :: proc "contextless" (handle: os.Handle) -> bool {
 }
 
 _init_terminal :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 	color_depth = get_environment_color()
 }
 

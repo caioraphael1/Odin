@@ -1,27 +1,87 @@
-// This is the runtime code required by the compiler
-// IMPORTANT NOTE(bill): Do not change the order of any of this data
-// The compiler relies upon this _exact_ order
-//
-// Naming Conventions:
-// In general, Ada_Case for types and snake_case for values
-//
-// Package Name:       snake_case (but prefer single word)
-// Import Name:        snake_case (but prefer single word)
-// Types:              Ada_Case
-// Enum Values:        Ada_Case
-// Procedures:         snake_case
-// Local Variables:    snake_case
-// Constant Variables: SCREAMING_SNAKE_CASE
-//
-// IMPORTANT NOTE(bill): `type_info_of` cannot be used within a
-// #shared_global_scope due to  the internals of the compiler.
-// This could change at a later date if all these data structures are
-// implemented within the compiler rather than in this "preload" file
-//
+/* 
+GingerBill:
+    This is the runtime code required by the compiler
+    Do not change the order of any of this data
+    The compiler relies upon this _exact_ order.
+    It's just a bootstrapping phase.
+    It's in that order because they need to be evaluated very early on to make sure things can use them.
+Caio:
+    (2025-12-15) I changed the order, but I haven't got any errors.
+    src/ckecker.cpp:2941
+    src/llvm_backend.cpp:199
+*/
+
 #+no-instrumentation
 package runtime
 
 import "base:intrinsics"
+
+
+//--------------------------------------------------------------------------------------------------
+// Entry Point
+//--------------------------------------------------------------------------------------------------
+
+// IMPORTANT NOTE(bill): Do not call this unless you want to explicitly set up the entry point and how it gets called
+// This is probably only useful for freestanding targets
+foreign {
+	@(link_name="__$startup_runtime")
+	_startup_runtime :: proc "odin" () ---
+	@(link_name="__$cleanup_runtime")
+	_cleanup_runtime :: proc "odin" () ---
+}
+
+_cleanup_runtime_contextless :: proc "contextless" () {
+	context = {}
+	_cleanup_runtime()
+}
+
+
+args__: []cstring
+
+when ODIN_OS == .Windows {
+	// NOTE(Jeroen): If we're a Windows DLL, fwdReason will be populated.
+	// This tells a DLL if it's first loaded, about to be unloaded, or a thread is joining/exiting.
+
+	DLL_Forward_Reason :: enum u32 {
+		Process_Detach = 0, // About to unload DLL
+		Process_Attach = 1, // Entry point
+		Thread_Attach  = 2,
+		Thread_Detach  = 3,
+	}
+	dll_forward_reason: DLL_Forward_Reason
+
+	dll_instance: rawptr
+}
+
+read_cycle_counter :: intrinsics.read_cycle_counter
+
+/*
+	Used by the built-in directory `#load_directory(path: string) -> []Load_Directory_File`
+*/
+Load_Directory_File :: struct {
+	name: string,
+	data: []byte, // immutable data
+}
+
+
+//--------------------------------------------------------------------------------------------------
+// Context
+//--------------------------------------------------------------------------------------------------
+
+Context :: struct {
+	user_ptr:   rawptr,
+	user_index: int,
+
+	// Internal use only
+	_internal:  rawptr,
+}
+
+
+Source_Code_Location :: struct {
+	file_path:    string,
+	line, column: i32,
+	procedure:    string,
+}
 
 // NOTE(bill): This must match the compiler's
 Calling_Convention :: enum u8 {
@@ -40,6 +100,302 @@ Calling_Convention :: enum u8 {
 	Win64       = 9,
 	SysV        = 10,
 }
+
+/* 
+Caio: I decided to keep this, as removing it gave me a llvm compiler error on game compiling.
+    src/ckecker.cpp:2941
+    src/llvm_backend.cpp:199
+*/
+@private
+__init_context :: proc "contextless" (c: ^Context) {
+	return
+}
+
+
+//--------------------------------------------------------------------------------------------------
+// Allocation
+//--------------------------------------------------------------------------------------------------
+
+Allocator_Mode :: enum byte {
+	Alloc,
+	Free,
+	Free_All,
+	Resize,
+	Query_Features,
+	Query_Info,
+	Alloc_Non_Zeroed,
+	Resize_Non_Zeroed,
+}
+
+Allocator_Mode_Set :: distinct bit_set[Allocator_Mode]
+
+Allocator_Query_Info :: struct {
+	pointer:   rawptr,
+	size:      Maybe(int),
+	alignment: Maybe(int),
+}
+
+Allocator_Error :: enum byte {
+	None                 = 0,
+	Out_Of_Memory        = 1,
+	Invalid_Pointer      = 2,
+	Invalid_Argument     = 3,
+	Mode_Not_Implemented = 4,
+}
+
+Allocator_Proc :: #type proc(allocator_data: rawptr, mode: Allocator_Mode,
+                             size, alignment: int,
+                             old_memory: rawptr, old_size: int,
+                             location: Source_Code_Location = #caller_location) -> ([]byte, Allocator_Error)
+Allocator :: struct {
+	procedure: Allocator_Proc,
+	data:      rawptr,
+}
+
+
+//--------------------------------------------------------------------------------------------------
+// Raw
+//--------------------------------------------------------------------------------------------------
+
+Raw_String :: struct {
+	data: [^]byte,
+	len:  int,
+}
+
+Raw_String16 :: struct {
+	data: [^]u16,
+	len:  int,
+}
+
+Raw_Slice :: struct {
+	data: rawptr,
+	len:  int,
+}
+
+Raw_Dynamic_Array :: struct {
+	data:      rawptr,
+	len:       int,
+	cap:       int,
+	allocator: Allocator,
+}
+
+// The raw, type-erased representation of a map.
+//
+// 32-bytes on 64-bit
+// 16-bytes on 32-bit
+Raw_Map :: struct {
+	// A single allocation spanning all keys, values, and hashes.
+	// {
+	//   k: Map_Cell(K) * (capacity / ks_per_cell)
+	//   v: Map_Cell(V) * (capacity / vs_per_cell)
+	//   h: Map_Cell(H) * (capacity / hs_per_cell)
+	// }
+	//
+	// The data is allocated assuming 64-byte alignment, meaning the address is
+	// always a multiple of 64. This means we have 6 bits of zeros in the pointer
+	// to store the capacity. We can store a value as large as 2^6-1 or 63 in
+	// there. This conveniently is the maximum log2 capacity we can have for a map
+	// as Odin uses signed integers to represent capacity.
+	//
+	// Since the hashes are backed by Map_Hash, which is just a 64-bit unsigned
+	// integer, the cell structure for hashes is unnecessary because 64/8 is 8 and
+	// requires no padding, meaning it can be indexed as a regular array of
+	// Map_Hash directly, though for consistency sake it's written as if it were
+	// an array of Map_Cell(Map_Hash).
+	data:      uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
+	len:       uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
+	allocator: Allocator, // 16-bytes on 64-bits, 8-bytes on 32-bits
+}
+
+Raw_Any :: struct {
+	data: rawptr,
+	id:   typeid,
+}
+when !ODIN_NO_RTTI {
+	#assert(size_of(Raw_Any) == size_of(any))
+}
+
+Raw_Cstring :: struct {
+	data: [^]byte,
+}
+#assert(size_of(Raw_Cstring) == size_of(cstring))
+
+Raw_Cstring16 :: struct {
+	data: [^]u16,
+}
+#assert(size_of(Raw_Cstring16) == size_of(cstring16))
+
+
+Raw_Soa_Pointer :: struct {
+	data:  rawptr,
+	index: int,
+}
+
+Raw_Complex32     :: struct {real, imag: f16}
+Raw_Complex64     :: struct {real, imag: f32}
+Raw_Complex128    :: struct {real, imag: f64}
+Raw_Quaternion64  :: struct {imag, jmag, kmag: f16, real: f16}
+Raw_Quaternion128 :: struct {imag, jmag, kmag: f32, real: f32}
+Raw_Quaternion256 :: struct {imag, jmag, kmag: f64, real: f64}
+Raw_Quaternion64_Vector_Scalar  :: struct {vector: [3]f16, scalar: f16}
+Raw_Quaternion128_Vector_Scalar :: struct {vector: [3]f32, scalar: f32}
+Raw_Quaternion256_Vector_Scalar :: struct {vector: [3]f64, scalar: f64}
+
+
+//--------------------------------------------------------------------------------------------------
+// CONSTANTS
+//--------------------------------------------------------------------------------------------------
+
+Byte     :: 1
+Kilobyte :: 1024 * Byte
+Megabyte :: 1024 * Kilobyte
+Gigabyte :: 1024 * Megabyte
+Terabyte :: 1024 * Gigabyte
+Petabyte :: 1024 * Terabyte
+Exabyte  :: 1024 * Petabyte
+
+/*
+	// Defined internally by the compiler
+	Odin_OS_Type :: enum int {
+		Unknown,
+		Windows,
+		Darwin,
+		Linux,
+		Essence,
+		FreeBSD,
+		OpenBSD,
+		NetBSD,
+		Haiku,
+		WASI,
+		JS,
+		Orca,
+		Freestanding,
+	}
+*/
+Odin_OS_Type :: type_of(ODIN_OS)
+
+/*
+	// Defined internally by the compiler
+	Odin_Arch_Type :: enum int {
+		Unknown,
+		amd64,
+		i386,
+		arm32,
+		arm64,
+		wasm32,
+		wasm64p32,
+		riscv64,
+	}
+*/
+Odin_Arch_Type :: type_of(ODIN_ARCH)
+
+Odin_Arch_Types :: bit_set[Odin_Arch_Type]
+
+ALL_ODIN_ARCH_TYPES :: Odin_Arch_Types{
+	.amd64,
+	.i386,
+	.arm32,
+	.arm64,
+	.wasm32,
+	.wasm64p32,
+	.riscv64,
+}
+
+/*
+	// Defined internally by the compiler
+	Odin_Build_Mode_Type :: enum int {
+		Executable,
+		Dynamic,
+		Static,
+		Object,
+		Assembly,
+		LLVM_IR,
+	}
+*/
+Odin_Build_Mode_Type :: type_of(ODIN_BUILD_MODE)
+
+/*
+	// Defined internally by the compiler
+	Odin_Endian_Type :: enum int {
+		Unknown,
+		Little,
+		Big,
+	}
+*/
+Odin_Endian_Type :: type_of(ODIN_ENDIAN)
+
+Odin_OS_Types :: bit_set[Odin_OS_Type]
+
+ALL_ODIN_OS_TYPES :: Odin_OS_Types{
+	.Windows,
+	.Darwin,
+	.Linux,
+	.Essence,
+	.FreeBSD,
+	.OpenBSD,
+	.NetBSD,
+	.Haiku,
+	.WASI,
+	.JS,
+	.Orca,
+	.Freestanding,
+}
+
+/*
+	// Defined internally by the compiler
+	Odin_Platform_Subtarget_Type :: enum int {
+		Default,
+		iPhone,
+		iPhoneSimulator
+		Android,
+	}
+*/
+Odin_Platform_Subtarget_Type :: type_of(ODIN_PLATFORM_SUBTARGET)
+
+Odin_Platform_Subtarget_Types :: bit_set[Odin_Platform_Subtarget_Type]
+
+@(builtin)
+ODIN_PLATFORM_SUBTARGET_IOS :: ODIN_PLATFORM_SUBTARGET == .iPhone || ODIN_PLATFORM_SUBTARGET == .iPhoneSimulator
+
+/*
+	// Defined internally by the compiler
+	Odin_Sanitizer_Flag :: enum u32 {
+		Address = 0,
+		Memory  = 1,
+		Thread  = 2,
+	}
+	Odin_Sanitizer_Flags :: distinct bit_set[Odin_Sanitizer_Flag; u32]
+
+	ODIN_SANITIZER_FLAGS // is a constant
+*/
+Odin_Sanitizer_Flags :: type_of(ODIN_SANITIZER_FLAGS)
+
+/*
+	// Defined internally by the compiler
+	Odin_Optimization_Mode :: enum int {
+		None       = -1,
+		Minimal    =  0,
+		Size       =  1,
+		Speed      =  2,
+		Aggressive =  3,
+	}
+
+	ODIN_OPTIMIZATION_MODE // is a constant
+*/
+Odin_Optimization_Mode :: type_of(ODIN_OPTIMIZATION_MODE)
+
+
+//--------------------------------------------------------------------------------------------------
+// Type Info
+//--------------------------------------------------------------------------------------------------
+
+// IMPORTANT NOTE(bill): `type_info_of` cannot be used within a
+// #shared_global_scope due to  the internals of the compiler.
+// This could change at a later date if all these data structures are
+// implemented within the compiler rather than in this "preload" file
+
+// NOTE(bill): only the ones that are needed (not all types)
+// This will be set by the compiler
 
 Type_Info_Enum_Value :: distinct i64
 
@@ -247,364 +603,6 @@ Type_Info :: struct {
 // This will be set by the compiler
 type_table: []^Type_Info
 
-args__: []cstring
-
-when ODIN_OS == .Windows {
-	// NOTE(Jeroen): If we're a Windows DLL, fwdReason will be populated.
-	// This tells a DLL if it's first loaded, about to be unloaded, or a thread is joining/exiting.
-
-	DLL_Forward_Reason :: enum u32 {
-		Process_Detach = 0, // About to unload DLL
-		Process_Attach = 1, // Entry point
-		Thread_Attach  = 2,
-		Thread_Detach  = 3,
-	}
-	dll_forward_reason: DLL_Forward_Reason
-
-	dll_instance: rawptr
-}
-
-// IMPORTANT NOTE(bill): Must be in this order (as the compiler relies upon it)
-
-
-Source_Code_Location :: struct {
-	file_path:    string,
-	line, column: i32,
-	procedure:    string,
-}
-
-/*
-	Used by the built-in directory `#load_directory(path: string) -> []Load_Directory_File`
-*/
-Load_Directory_File :: struct {
-	name: string,
-	data: []byte, // immutable data
-}
-
-
-// Allocation Stuff
-Allocator_Mode :: enum byte {
-	Alloc,
-	Free,
-	Free_All,
-	Resize,
-	Query_Features,
-	Query_Info,
-	Alloc_Non_Zeroed,
-	Resize_Non_Zeroed,
-}
-
-Allocator_Mode_Set :: distinct bit_set[Allocator_Mode]
-
-Allocator_Query_Info :: struct {
-	pointer:   rawptr,
-	size:      Maybe(int),
-	alignment: Maybe(int),
-}
-
-Allocator_Error :: enum byte {
-	None                 = 0,
-	Out_Of_Memory        = 1,
-	Invalid_Pointer      = 2,
-	Invalid_Argument     = 3,
-	Mode_Not_Implemented = 4,
-}
-
-Allocator_Proc :: #type proc(allocator_data: rawptr, mode: Allocator_Mode,
-                             size, alignment: int,
-                             old_memory: rawptr, old_size: int,
-                             location: Source_Code_Location = #caller_location) -> ([]byte, Allocator_Error)
-Allocator :: struct {
-	procedure: Allocator_Proc,
-	data:      rawptr,
-}
-
-Byte     :: 1
-Kilobyte :: 1024 * Byte
-Megabyte :: 1024 * Kilobyte
-Gigabyte :: 1024 * Megabyte
-Terabyte :: 1024 * Gigabyte
-Petabyte :: 1024 * Terabyte
-Exabyte  :: 1024 * Petabyte
-
-// Logging stuff
-
-
-Random_Generator_Mode :: enum {
-	Read,
-	Reset,
-	Query_Info,
-}
-
-Random_Generator_Query_Info_Flag :: enum u32 {
-	Cryptographic,
-	Uniform,
-	External_Entropy,
-	Resettable,
-}
-Random_Generator_Query_Info :: distinct bit_set[Random_Generator_Query_Info_Flag; u32]
-
-Random_Generator_Proc :: #type proc(data: rawptr, mode: Random_Generator_Mode, p: []byte)
-
-Random_Generator :: struct {
-	procedure: Random_Generator_Proc,
-	data:      rawptr,
-}
-
-Context :: struct {
-	random_generator:       Random_Generator,
-
-	user_ptr:   rawptr,
-	user_index: int,
-
-	// Internal use only
-	_internal: rawptr,
-}
-
-
-Assertion_Failure_Proc :: #type proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> !
-assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
-
-
-
-Raw_String :: struct {
-	data: [^]byte,
-	len:  int,
-}
-
-Raw_String16 :: struct {
-	data: [^]u16,
-	len:  int,
-}
-
-Raw_Slice :: struct {
-	data: rawptr,
-	len:  int,
-}
-
-Raw_Dynamic_Array :: struct {
-	data:      rawptr,
-	len:       int,
-	cap:       int,
-	allocator: Allocator,
-}
-
-// The raw, type-erased representation of a map.
-//
-// 32-bytes on 64-bit
-// 16-bytes on 32-bit
-Raw_Map :: struct {
-	// A single allocation spanning all keys, values, and hashes.
-	// {
-	//   k: Map_Cell(K) * (capacity / ks_per_cell)
-	//   v: Map_Cell(V) * (capacity / vs_per_cell)
-	//   h: Map_Cell(H) * (capacity / hs_per_cell)
-	// }
-	//
-	// The data is allocated assuming 64-byte alignment, meaning the address is
-	// always a multiple of 64. This means we have 6 bits of zeros in the pointer
-	// to store the capacity. We can store a value as large as 2^6-1 or 63 in
-	// there. This conveniently is the maximum log2 capacity we can have for a map
-	// as Odin uses signed integers to represent capacity.
-	//
-	// Since the hashes are backed by Map_Hash, which is just a 64-bit unsigned
-	// integer, the cell structure for hashes is unnecessary because 64/8 is 8 and
-	// requires no padding, meaning it can be indexed as a regular array of
-	// Map_Hash directly, though for consistency sake it's written as if it were
-	// an array of Map_Cell(Map_Hash).
-	data:      uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
-	len:       uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
-	allocator: Allocator, // 16-bytes on 64-bits, 8-bytes on 32-bits
-}
-
-Raw_Any :: struct {
-	data: rawptr,
-	id:   typeid,
-}
-when !ODIN_NO_RTTI {
-	#assert(size_of(Raw_Any) == size_of(any))
-}
-
-Raw_Cstring :: struct {
-	data: [^]byte,
-}
-#assert(size_of(Raw_Cstring) == size_of(cstring))
-
-Raw_Cstring16 :: struct {
-	data: [^]u16,
-}
-#assert(size_of(Raw_Cstring16) == size_of(cstring16))
-
-
-Raw_Soa_Pointer :: struct {
-	data:  rawptr,
-	index: int,
-}
-
-Raw_Complex32     :: struct {real, imag: f16}
-Raw_Complex64     :: struct {real, imag: f32}
-Raw_Complex128    :: struct {real, imag: f64}
-Raw_Quaternion64  :: struct {imag, jmag, kmag: f16, real: f16}
-Raw_Quaternion128 :: struct {imag, jmag, kmag: f32, real: f32}
-Raw_Quaternion256 :: struct {imag, jmag, kmag: f64, real: f64}
-Raw_Quaternion64_Vector_Scalar  :: struct {vector: [3]f16, scalar: f16}
-Raw_Quaternion128_Vector_Scalar :: struct {vector: [3]f32, scalar: f32}
-Raw_Quaternion256_Vector_Scalar :: struct {vector: [3]f64, scalar: f64}
-
-
-/*
-	// Defined internally by the compiler
-	Odin_OS_Type :: enum int {
-		Unknown,
-		Windows,
-		Darwin,
-		Linux,
-		Essence,
-		FreeBSD,
-		OpenBSD,
-		NetBSD,
-		Haiku,
-		WASI,
-		JS,
-		Orca,
-		Freestanding,
-	}
-*/
-Odin_OS_Type :: type_of(ODIN_OS)
-
-/*
-	// Defined internally by the compiler
-	Odin_Arch_Type :: enum int {
-		Unknown,
-		amd64,
-		i386,
-		arm32,
-		arm64,
-		wasm32,
-		wasm64p32,
-		riscv64,
-	}
-*/
-Odin_Arch_Type :: type_of(ODIN_ARCH)
-
-Odin_Arch_Types :: bit_set[Odin_Arch_Type]
-
-ALL_ODIN_ARCH_TYPES :: Odin_Arch_Types{
-	.amd64,
-	.i386,
-	.arm32,
-	.arm64,
-	.wasm32,
-	.wasm64p32,
-	.riscv64,
-}
-
-/*
-	// Defined internally by the compiler
-	Odin_Build_Mode_Type :: enum int {
-		Executable,
-		Dynamic,
-		Static,
-		Object,
-		Assembly,
-		LLVM_IR,
-	}
-*/
-Odin_Build_Mode_Type :: type_of(ODIN_BUILD_MODE)
-
-/*
-	// Defined internally by the compiler
-	Odin_Endian_Type :: enum int {
-		Unknown,
-		Little,
-		Big,
-	}
-*/
-Odin_Endian_Type :: type_of(ODIN_ENDIAN)
-
-Odin_OS_Types :: bit_set[Odin_OS_Type]
-
-ALL_ODIN_OS_TYPES :: Odin_OS_Types{
-	.Windows,
-	.Darwin,
-	.Linux,
-	.Essence,
-	.FreeBSD,
-	.OpenBSD,
-	.NetBSD,
-	.Haiku,
-	.WASI,
-	.JS,
-	.Orca,
-	.Freestanding,
-}
-
-/*
-	// Defined internally by the compiler
-	Odin_Platform_Subtarget_Type :: enum int {
-		Default,
-		iPhone,
-		iPhoneSimulator
-		Android,
-	}
-*/
-Odin_Platform_Subtarget_Type :: type_of(ODIN_PLATFORM_SUBTARGET)
-
-Odin_Platform_Subtarget_Types :: bit_set[Odin_Platform_Subtarget_Type]
-
-@(builtin)
-ODIN_PLATFORM_SUBTARGET_IOS :: ODIN_PLATFORM_SUBTARGET == .iPhone || ODIN_PLATFORM_SUBTARGET == .iPhoneSimulator
-
-/*
-	// Defined internally by the compiler
-	Odin_Sanitizer_Flag :: enum u32 {
-		Address = 0,
-		Memory  = 1,
-		Thread  = 2,
-	}
-	Odin_Sanitizer_Flags :: distinct bit_set[Odin_Sanitizer_Flag; u32]
-
-	ODIN_SANITIZER_FLAGS // is a constant
-*/
-Odin_Sanitizer_Flags :: type_of(ODIN_SANITIZER_FLAGS)
-
-/*
-	// Defined internally by the compiler
-	Odin_Optimization_Mode :: enum int {
-		None       = -1,
-		Minimal    =  0,
-		Size       =  1,
-		Speed      =  2,
-		Aggressive =  3,
-	}
-
-	ODIN_OPTIMIZATION_MODE // is a constant
-*/
-Odin_Optimization_Mode :: type_of(ODIN_OPTIMIZATION_MODE)
-
-/////////////////////////////
-// Init Startup Procedures //
-/////////////////////////////
-
-// IMPORTANT NOTE(bill): Do not call this unless you want to explicitly set up the entry point and how it gets called
-// This is probably only useful for freestanding targets
-foreign {
-	@(link_name="__$startup_runtime")
-	_startup_runtime :: proc "odin" () ---
-	@(link_name="__$cleanup_runtime")
-	_cleanup_runtime :: proc "odin" () ---
-}
-
-_cleanup_runtime_contextless :: proc "contextless" () {
-	context = default_context()
-	_cleanup_runtime()
-}
-
-
-/////////////////////////////
-/////////////////////////////
-/////////////////////////////
-
 
 // type_info_base returns the base-type of a `^Type_Info` stripping the `distinct`ness from the first level
 @(require_results)
@@ -685,39 +683,16 @@ when !ODIN_NO_RTTI {
 }
 
 
+//--------------------------------------------------------------------------------------------------
+// Assertions
+//--------------------------------------------------------------------------------------------------
 
 debug_trap         :: intrinsics.debug_trap
 trap               :: intrinsics.trap
-read_cycle_counter :: intrinsics.read_cycle_counter
 
+Assertion_Failure_Proc :: #type proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> !
+assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 
-
-// Returns the default `context`
-@(require_results)
-default_context :: proc "contextless" () -> Context {
-	c: Context
-	__init_context(&c)
-	return c
-}
-
-
-@private
-__init_context_from_ptr :: proc "contextless" (c: ^Context, other: ^Context) {
-	if c == nil {
-		return
-	}
-	c^ = other^
-	__init_context(c)
-}
-
-@private
-__init_context :: proc "contextless" (c: ^Context) {
-	if c == nil {
-		return
-	}
-	c.random_generator.procedure = default_random_generator_proc
-	c.random_generator.data = nil
-}
 
 default_assertion_failure_proc :: proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> ! {
 	when ODIN_OS == .Freestanding {

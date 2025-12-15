@@ -381,7 +381,7 @@ AllocatorFromOdinAllocator :: proc "contextless" (allocator: ^runtime.Allocator)
 		if Data == nil {
 			return
 		}
-		context = runtime.default_context()
+		context = {}
 		allocator := (^runtime.Allocator)(Data)^
 
 		switch Op.Kind {

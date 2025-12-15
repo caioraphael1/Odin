@@ -7,7 +7,7 @@ g_context: runtime.Context
 @(private="file", init)
 wgpu_init_allocator :: proc "contextless" () {
 	if g_context.allocator.procedure == nil {
-		g_context = runtime.default_context()
+		g_context = {}
 	}
 }
 

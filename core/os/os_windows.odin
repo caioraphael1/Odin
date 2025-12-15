@@ -195,7 +195,7 @@ current_thread_id :: proc "contextless" () -> int {
 
 @(private, require_results)
 _alloc_command_line_arguments :: proc "contextless" () -> []string {
-	context = runtime.default_context()
+	context = {}
     allocator := runtime.heap_allocator()
 
 	arg_count: i32
@@ -220,7 +220,7 @@ _alloc_command_line_arguments :: proc "contextless" () -> []string {
 
 @(private, fini)
 _delete_command_line_arguments :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
     allocator := runtime.heap_allocator()
 	for s in args {
 		delete(s, allocator)

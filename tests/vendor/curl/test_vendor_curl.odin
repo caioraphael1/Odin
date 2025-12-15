@@ -8,7 +8,7 @@ import "vendor:curl"
 @(test)
 test_curl :: proc(t: ^testing.T) {
 	data_callback :: proc "c" (contents: [^]byte, size: int, nmemb: int, userp: rawptr) -> int {
-		context = runtime.default_context()
+		context = {}
 
 		real_size := size * nmemb
 		memory := (^[dynamic]byte)(userp)

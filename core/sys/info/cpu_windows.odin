@@ -6,7 +6,7 @@ import "base:runtime"
 
 @(init, private)
 init_cpu_core_count :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 
 	infos: []sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION
 	defer delete(infos)

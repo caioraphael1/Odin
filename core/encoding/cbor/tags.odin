@@ -83,7 +83,7 @@ _tag_implementations_type: map[typeid]Tag_Implementation
 
 // Register a custom tag implementation to be used when marshalling that type and unmarshalling that tag number.
 tag_register_type :: proc "contextless" (impl: Tag_Implementation, nr: Tag_Number, type: typeid) {
-	context = runtime.default_context()
+	context = {}
 	_tag_implementations_nr[nr] = impl
 	_tag_implementations_type[type] = impl
 }
@@ -91,7 +91,7 @@ tag_register_type :: proc "contextless" (impl: Tag_Implementation, nr: Tag_Numbe
 // Register a custom tag implementation to be used when marshalling that tag number or marshalling
 // a field with the struct tag `cbor_tag:"nr"`.
 tag_register_number :: proc "contextless" (impl: Tag_Implementation, nr: Tag_Number, id: string) {
-	context = runtime.default_context()
+	context = {}
 	_tag_implementations_nr[nr] = impl
 	_tag_implementations_id[id] = impl
 }

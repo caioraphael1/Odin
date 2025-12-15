@@ -775,9 +775,8 @@ constant_allocator: runtime.Allocator
 
 @(init, private)
 initialize_constants :: proc "contextless" () {
-	context = runtime.default_context()
-    context.allocator = runtime.heap_allocator()
-	constant_allocator = context.allocator
+	context = {}
+	constant_allocator = runtime.heap_allocator()
 
 	internal_int_set_from_integer(     INT_ZERO,  0, constant_allocator);      INT_ZERO.flags = {.Immutable}
 	internal_int_set_from_integer(      INT_ONE,  1, constant_allocator);       INT_ONE.flags = {.Immutable}
@@ -798,7 +797,7 @@ initialize_constants :: proc "contextless" () {
 */
 @(fini, private)
 destroy_constants :: proc "contextless" () {
-	context = runtime.default_context()
+	context = {}
 	context.allocator = constant_allocator
 
 	internal_destroy(INT_ONE, INT_ZERO, INT_MINUS_ONE, INT_INF, INT_MINUS_INF, INT_NAN)

@@ -670,7 +670,7 @@ application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTem
 	del_internal := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(del)
 	del_internal^ = {
 		template,
-		delegate_context.(runtime.Context) or_else runtime.default_context(),
+		delegate_context.(runtime.Context) or_else {},
 	}
 	return cast(^ApplicationDelegate)del
 }
