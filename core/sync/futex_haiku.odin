@@ -34,7 +34,7 @@ waitq_unlock :: proc "contextless" (waitq: ^Wait_Queue) {
 @(private="file")
 g_waitq: Wait_Queue
 
-@(init, private="file")
+// @@init
 g_waitq_init :: proc() {
 	g_waitq = {
 		list = {

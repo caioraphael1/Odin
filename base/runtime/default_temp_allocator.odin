@@ -19,7 +19,8 @@ default_temp_allocator :: proc() -> Allocator {
 }
 
 
-default_temp_allocator_init :: proc(size: int, backing_allocator: Allocator) -> Allocator_Error {
+default_temp_allocator_init :: proc "contextless" (size: int, backing_allocator: Allocator) -> Allocator_Error {
+    context = {}
     return arena_init(&default_temp_allocator_arena, uint(size), backing_allocator)
 }
 

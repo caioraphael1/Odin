@@ -1,4 +1,3 @@
-#+private
 package os2
 
 import "base:runtime"
@@ -8,20 +7,19 @@ file_allocator :: proc() -> runtime.Allocator {
 	return heap_allocator()
 }
 
-@(private="file")
-MAX_TEMP_ARENA_COUNT :: 2
-@(private="file")
-MAX_TEMP_ARENA_COLLISIONS :: MAX_TEMP_ARENA_COUNT - 1
-@(private="file", thread_local)
-global_default_temp_allocator_arenas: [MAX_TEMP_ARENA_COUNT]runtime.Arena
+@(private="file", thread_local) global_default_temp_allocator_arenas: [MAX_TEMP_ARENA_COUNT]runtime.Arena
 
-@(fini, private)
-temp_allocator_fini :: proc "contextless" () {
+// @@fini
+fini_temp_allocators :: proc "contextless" () {
 	for &arena in global_default_temp_allocator_arenas {
 		runtime.arena_destroy(&arena)
 	}
 	global_default_temp_allocator_arenas = {}
 }
+
+
+@(private="file") MAX_TEMP_ARENA_COUNT      :: 2
+@(private="file") MAX_TEMP_ARENA_COLLISIONS :: MAX_TEMP_ARENA_COUNT - 1
 
 Temp_Allocator :: struct {
 	using arena: ^runtime.Arena,
@@ -68,7 +66,3 @@ _temp_allocator_end :: proc(tmp: runtime.Arena_Temp) {
 	temp_allocator_end(tmp)
 }
 
-@(init, private)
-init_thread_local_cleaner :: proc "contextless" () {
-	runtime.add_thread_local_cleaner(temp_allocator_fini)
-}

@@ -42,14 +42,6 @@ variable.
 * `Source_Code_Location`
 * `Context`
 
-### Runtime initialization/cleanup
-
-These are not strictly required for compilation, but if global variables or
-`@(init)`/`@(fini)` blocks are used, these procedures need to be called inside
-the entry point.
-
-* `_startup_runtime`
-* `_cleanup_runtime`
 
 ### Type assertion check
 

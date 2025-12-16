@@ -773,7 +773,7 @@ INT_ONE, INT_ZERO, INT_MINUS_ONE, INT_INF, INT_MINUS_INF, INT_NAN := &Int{}, &In
 @(private)
 constant_allocator: runtime.Allocator
 
-@(init, private)
+// @@init
 initialize_constants :: proc "contextless" () {
 	context = {}
 	constant_allocator = runtime.heap_allocator()
@@ -795,7 +795,7 @@ initialize_constants :: proc "contextless" () {
 	Destroy constants.
 	Optional for an EXE, as this would be called at the very end of a process.
 */
-@(fini, private)
+// @@fini
 destroy_constants :: proc "contextless" () {
 	context = {}
 	context.allocator = constant_allocator

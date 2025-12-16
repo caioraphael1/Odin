@@ -2,7 +2,7 @@ package sysinfo
 
 import "core:sys/unix"
 
-@(init, private)
+// @@init
 init_cpu_features :: proc "contextless" () {
 	@(static) features: CPU_Features
 	defer cpu.features = features

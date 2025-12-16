@@ -1,4 +1,4 @@
-#+private
+// #+private
 package os2
 
 import "base:runtime"
@@ -8,6 +8,36 @@ import win32 "core:sys/windows"
 _Path_Separator        :: '\\'
 _Path_Separator_String :: "\\"
 _Path_List_Separator   :: ';'
+
+// @@init
+init_long_path_support :: proc "contextless" () {
+	can_use_long_paths = false
+
+	key: win32.HKEY
+	res := win32.RegOpenKeyExW(win32.HKEY_LOCAL_MACHINE, win32.L(`SYSTEM\CurrentControlSet\Control\FileSystem`), 0, win32.KEY_READ, &key)
+	defer win32.RegCloseKey(key)
+	if res != 0 {
+		return
+	}
+
+	value: u32
+	size := u32(size_of(value))
+	res = win32.RegGetValueW(
+		key,
+		nil,
+		win32.L("LongPathsEnabled"),
+		win32.RRF_RT_ANY,
+		nil,
+		&value,
+		&size,
+	)
+	if res != 0 {
+		return
+	}
+	if value == 1 {
+		can_use_long_paths = true
+	}
+}
 
 _is_path_separator :: proc(c: byte) -> bool {
 	return c == '\\' || c == '/'
@@ -159,35 +189,6 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
 
 can_use_long_paths: bool
 
-@(init)
-init_long_path_support :: proc "contextless" () {
-	can_use_long_paths = false
-
-	key: win32.HKEY
-	res := win32.RegOpenKeyExW(win32.HKEY_LOCAL_MACHINE, win32.L(`SYSTEM\CurrentControlSet\Control\FileSystem`), 0, win32.KEY_READ, &key)
-	defer win32.RegCloseKey(key)
-	if res != 0 {
-		return
-	}
-
-	value: u32
-	size := u32(size_of(value))
-	res = win32.RegGetValueW(
-		key,
-		nil,
-		win32.L("LongPathsEnabled"),
-		win32.RRF_RT_ANY,
-		nil,
-		&value,
-		&size,
-	)
-	if res != 0 {
-		return
-	}
-	if value == 1 {
-		can_use_long_paths = true
-	}
-}
 
 @(require_results)
 _fix_long_path_slice :: proc(path: string, allocator: runtime.Allocator) -> ([]u16, runtime.Allocator_Error) {

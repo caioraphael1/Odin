@@ -6,7 +6,7 @@ import "base:intrinsics"
 
 import "core:sys/linux"
 
-@(init, private)
+// @@init
 init_cpu_features :: proc "contextless" () {
 	_features: CPU_Features
 	defer cpu.features = _features
@@ -107,7 +107,7 @@ init_cpu_features :: proc "contextless" () {
 	}
 }
 
-@(init, private)
+// @@init
 init_cpu_name :: proc "contextless" () {
 	cpu.name = "RISCV64"
 }

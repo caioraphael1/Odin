@@ -1605,7 +1605,7 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
 	return nil
 }
 
-@(init, private)
+// @@init
 _register :: proc "contextless" () {
 	image.register(.PNG, load_from_bytes, destroy)
 }

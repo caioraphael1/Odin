@@ -1,4 +1,8 @@
+
+#+no-instrumentation
+package runtime
 /* 
+Info:
 GingerBill:
     This is the runtime code required by the compiler
     Do not change the order of any of this data
@@ -10,9 +14,6 @@ Caio:
     src/ckecker.cpp:2941
     src/llvm_backend.cpp:199
 */
-
-#+no-instrumentation
-package runtime
 
 import "base:intrinsics"
 

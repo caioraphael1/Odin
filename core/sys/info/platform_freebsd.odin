@@ -8,7 +8,7 @@ import "base:runtime"
 @(private)
 version_string_buf: [1024]u8
 
-@(init, private)
+// @@init
 init_os_version :: proc "contextless" () {
 	context = {}
 
@@ -69,7 +69,7 @@ init_os_version :: proc "contextless" () {
 	}
 }
 
-@(init, private)
+// @@init
 init_ram :: proc "contextless" () {
 	// Retrieve RAM info using `sysctl`
 	mib := []i32{sys.CTL_HW, sys.HW_PHYSMEM}

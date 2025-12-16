@@ -4,7 +4,7 @@ import sys "core:sys/windows"
 import "base:intrinsics"
 import "base:runtime"
 
-@(init, private)
+// @@init
 init_cpu_core_count :: proc "contextless" () {
 	context = {}
 

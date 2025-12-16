@@ -865,7 +865,7 @@ _reserve_dynamic_array :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_e
 		return nil
 	}
 
-	assert(a.allocator.procedure != nil, loc=loc)
+	assert(a.allocator.procedure != nil, "Allocator not defined", loc=loc)
 
 	old_size  := a.cap * size_of_elem
 	new_size  := capacity * size_of_elem
@@ -922,7 +922,7 @@ _resize_dynamic_array :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_el
 		return nil
 	}
 
-	assert(a.allocator.procedure != nil, loc=loc)
+	assert(a.allocator.procedure != nil, "Allocator not defined", loc=loc)
 
 	old_size  := a.cap  * size_of_elem
 	new_size  := length * size_of_elem
@@ -988,7 +988,7 @@ _shrink_dynamic_array :: proc(a: ^Raw_Dynamic_Array, size_of_elem, align_of_elem
 		return
 	}
 
-	assert(a.allocator.procedure != nil, loc=loc)
+	assert(a.allocator.procedure != nil, "Allocator not defined", loc=loc)
 
 	old_size := a.cap * size_of_elem
 	new_size := new_cap * size_of_elem

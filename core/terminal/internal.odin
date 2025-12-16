@@ -1,7 +1,5 @@
-#+private
 package terminal
 
-import "base:runtime"
 import "core:os"
 import "core:strings"
 
@@ -59,7 +57,7 @@ get_environment_color :: proc() -> Color_Depth {
 	return .None
 }
 
-@(init)
+// @@init
 init_terminal :: proc "contextless" () {
 	_init_terminal()
 
@@ -74,7 +72,7 @@ init_terminal :: proc "contextless" () {
 	}
 }
 
-@(fini)
+// @@fini
 fini_terminal :: proc "contextless" () {
 	_fini_terminal()
 }

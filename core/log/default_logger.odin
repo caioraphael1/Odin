@@ -12,7 +12,7 @@ default_logger: Logger
 @(private) global_subtract_stderr_options: Options
 
 
-// @(init)
+// @@init
 subtract_terminal_options :: proc() {
 	// NOTE(Feoramund): While it is technically possible for these streams to
 	// be redirected during the runtime of the program, the cost of checking on

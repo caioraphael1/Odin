@@ -7,7 +7,7 @@ import "core:sys/linux"
 import "core:strings"
 import "core:strconv"
 
-@(init, private)
+// @@init
 init_cpu_core_count :: proc "contextless" () {
 	context = {}
 

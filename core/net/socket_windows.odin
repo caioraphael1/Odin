@@ -78,7 +78,7 @@ Shutdown_Manner :: enum c.int {
 	Both    = win.SD_BOTH,
 }
 
-@(init, private)
+// @@init
 ensure_winsock_initialized :: proc "contextless" () {
 	win.ensure_winsock_initialized()
 }

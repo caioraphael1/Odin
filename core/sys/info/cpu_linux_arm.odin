@@ -6,7 +6,7 @@ import "base:runtime"
 import "core:sys/linux"
 import "core:strings"
 
-@(init, private)
+// @@init
 init_cpu_features :: proc "contextless" () {
 	context = {}
 	fd, err := linux.open("/proc/cpuinfo", {})

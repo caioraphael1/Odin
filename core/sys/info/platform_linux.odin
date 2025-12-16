@@ -10,7 +10,7 @@ import "core:sys/linux"
 @(private)
 version_string_buf: [1024]u8
 
-@(init, private)
+// @@init
 init_os_version :: proc "contextless" () {
 	context = {}
 
@@ -93,7 +93,7 @@ init_os_version :: proc "contextless" () {
 	}
 }
 
-@(init, private)
+// @@init
 init_ram :: proc "contextless" () {
 	// Retrieve RAM info using `sysinfo`
 	sys_info: linux.Sys_Info

@@ -12,7 +12,7 @@ import "base:runtime"
 @(private)
 version_string_buf: [1024]u8
 
-@(init, private)
+// @@init
 init_os_version :: proc "contextless" () {
 	context = {}
 
@@ -262,7 +262,7 @@ init_os_version :: proc "contextless" () {
 	}
 }
 
-@(init, private)
+// @@init
 init_ram :: proc "contextless" () {
 	state: sys.MEMORYSTATUSEX
 
@@ -279,7 +279,7 @@ init_ram :: proc "contextless" () {
 	}
 }
 
-@(init, private)
+// @@init
 init_gpu_info :: proc "contextless" () {
 	GPU_ROOT_KEY :: `SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}`
 

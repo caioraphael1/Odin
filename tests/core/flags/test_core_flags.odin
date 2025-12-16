@@ -16,7 +16,7 @@ Custom_Data :: struct {
 	a: int,
 }
 
-@(init)
+// @@init don't care
 init_custom_type_setter :: proc "contextless" () {
 	// NOTE: This is done here so it can be out of the flow of the
 	// multi-threaded test runner, to prevent any data races that could be

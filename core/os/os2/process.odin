@@ -4,6 +4,7 @@ import "base:runtime"
 
 import "core:time"
 
+
 /*
 In procedures that explicitly state this as one of the allowed values,
 specifies an infinite timeout.
@@ -13,20 +14,17 @@ TIMEOUT_INFINITE :: time.MIN_DURATION // Note(flysand): Any negative duration wi
 /*
 Arguments to the current process.
 */
-args := get_args()
+args: []string
 
-@(private="file")
-get_args :: proc "contextless" () -> []string {
+init_args :: proc "contextless" () {
 	context = {}
-	result := make([]string, len(runtime.args__), heap_allocator())
+	args = make([]string, len(runtime.args__), heap_allocator())
 	for rt_arg, i in runtime.args__ {
-		result[i] = string(rt_arg)
+		args[i] = string(rt_arg)
 	}
-	return result
 }
 
-@(private="file")
-delete_args :: proc "contextless" () {
+fini_args :: proc "contextless" () {
 	context = {}
 	delete(args, heap_allocator())
 }

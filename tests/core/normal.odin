@@ -2,7 +2,7 @@ package tests_core
 
 import rlibc "core:c/libc"
 
-@(init)
+// @@init don't care
 download_assets :: proc "contextless" () {
 	if rlibc.system("python3 " + ODIN_ROOT + "tests/core/download_assets.py " + ODIN_ROOT + "tests/core/assets") != 0 {
 		panic("downloading test assets failed!")

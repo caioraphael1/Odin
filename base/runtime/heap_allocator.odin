@@ -3,7 +3,7 @@ package runtime
 import "base:intrinsics"
 
 @(require_results)
-heap_allocator :: proc() -> Allocator {
+heap_allocator :: proc "contextless" () -> Allocator {
 	return Allocator{
 		procedure = heap_allocator_proc,
 		data = nil,

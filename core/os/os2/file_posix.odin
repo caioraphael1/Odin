@@ -24,7 +24,7 @@ File_Impl :: struct {
 	allocator: runtime.Allocator,
 }
 
-@(init)
+// @@init
 init_std_files :: proc "contextless" () {
 	new_std :: proc "contextless" (impl: ^File_Impl, fd: posix.FD, name: cstring) -> ^File {
 		impl.file.impl = impl

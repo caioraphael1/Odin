@@ -740,7 +740,8 @@ destroy :: proc(img: ^Image) {
 	free(img)
 }
 
-@(init, private)
+// @@init
+@(private)
 _register :: proc "contextless" () {
 	image.register(.BMP, load_from_bytes, destroy)
 }

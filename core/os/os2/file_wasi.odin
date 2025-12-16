@@ -29,7 +29,7 @@ Preopen :: struct {
 }
 preopens: []Preopen
 
-@(init)
+// @@init
 init_std_files :: proc "contextless" () {
 	new_std :: proc "contextless" (impl: ^File_Impl, fd: wasi.fd_t, name: string) -> ^File {
 		impl.file.impl = impl
@@ -50,7 +50,7 @@ init_std_files :: proc "contextless" () {
 	stderr = new_std(&files[2], 2, "/dev/stderr")
 }
 
-@(init)
+// @@init
 init_preopens :: proc "contextless" () {
 	strip_prefixes :: proc "contextless" (path: string) -> string {
 		path := path

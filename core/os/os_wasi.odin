@@ -58,7 +58,7 @@ Preopen :: struct {
 @(private)
 preopens: []Preopen
 
-@(init, private)
+// @@init
 init_preopens :: proc "contextless" () {
 	strip_prefixes :: proc "contextless"(path: string) -> string {
 		path := path

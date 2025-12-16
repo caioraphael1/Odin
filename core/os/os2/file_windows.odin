@@ -1,4 +1,4 @@
-#+private
+// #+private
 package os2
 
 import "base:runtime"
@@ -41,7 +41,7 @@ File_Impl :: struct {
 	p_mutex:  sync.Mutex, // pread pwrite calls
 }
 
-@(init)
+// @@init
 init_std_files :: proc "contextless" () {
 	new_std :: proc "contextless" (impl: ^File_Impl, code: u32, name: string) -> ^File {
 		impl.file.impl = impl

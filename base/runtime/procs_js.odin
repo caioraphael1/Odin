@@ -2,7 +2,8 @@
 package runtime
 
 init_default_context_for_js: Context
-@(init, private="file")
+// @@init
+@(private="file")
 init_default_context :: proc "contextless" () {
     init_default_context_for_js = {}
 }
