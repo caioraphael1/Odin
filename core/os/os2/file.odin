@@ -148,8 +148,8 @@ stderr: ^File = nil // OS-Specific
 	And error is returned if any is encountered.
 */
 @(require_results)
-create :: proc(name: string) -> (^File, Error) {
-	return open(name, {.Read, .Write, .Create, .Trunc}, Permissions_Default_File)
+create :: proc(name: string, allocator: runtime.Allocator) -> (^File, Error) {
+	return open(name, {.Read, .Write, .Create, .Trunc}, Permissions_Default_File, allocator = allocator)
 }
 
 /*
@@ -160,25 +160,25 @@ create :: proc(name: string) -> (^File, Error) {
 	And error is returned if any is encountered.
 */
 @(require_results)
-open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Default) -> (^File, Error) {
-	return _open(name, flags, perm)
+open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Default, allocator: runtime.Allocator) -> (^File, Error) {
+	return _open(name, flags, perm, allocator)
 }
 
 // @(require_results)
-// open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm := 0o777) -> (^File, Error) {
+// open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm := 0o777, allocator: runtime.Allocator) -> (^File, Error) {
 // 	if buffer_size == 0 {
-// 		return _open(name, flags, perm)
+// 		return _open(name, flags, perm, allocator)
 // 	}
-// 	return _open_buffered(name, buffer_size, flags, perm)
+// 	return _open_buffered(name, buffer_size, flags, perm, allocator)
 // }
 
 /*
-	`new_file` returns a new `^File` with the given file descriptor `handle` and `name`.
+	Returns a new `^File` with the given file descriptor `handle` and `name`.
 	The return value will only be `nil` IF the `handle` is not a valid file descriptor.
 */
 @(require_results)
-new_file :: proc(handle: uintptr, name: string) -> ^File {
-	file, err := _new_file(handle, name, runtime.general_allocator)
+new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> ^File {
+	file, err := _new_file(handle, name, allocator)
 	if err != nil {
 		panic(error_string(err))
 	}
@@ -189,8 +189,8 @@ new_file :: proc(handle: uintptr, name: string) -> ^File {
 	`clone` returns a new `^File` based on the passed file `f` with the same underlying file descriptor.
 */
 @(require_results)
-clone :: proc(f: ^File) -> (^File, Error) {
-	return _clone(f)
+clone :: proc(f: ^File, allocator: runtime.Allocator) -> (^File, Error) {
+	return _clone(f, allocator)
 }
 
 /*
@@ -422,8 +422,8 @@ chmod :: change_mode
 	the file has a read-only attribute. Use `{.Read_User}` for a read-only file and
 	`{.Read_User, .Write_User}` for a readable & writable file.
 */
-change_mode :: proc(name: string, mode: Permissions) -> Error {
-	return _chmod(name, mode)
+change_mode :: proc(name: string, mode: Permissions, allocator: runtime.Allocator) -> Error {
+	return _chmod(name, mode, allocator)
 }
 
 chown :: change_owner
@@ -486,8 +486,8 @@ chtimes :: change_times
 /*
 	Changes the access `atime` and modification `mtime` times of a named file.
 */
-change_times :: proc(name: string, atime, mtime: time.Time) -> Error {
-	return _chtimes(name, atime, mtime)
+change_times :: proc(name: string, atime, mtime: time.Time, allocator: runtime.Allocator) -> Error {
+	return _chtimes(name, atime, mtime, allocator)
 }
 
 fchtimes :: fchange_times
@@ -538,26 +538,26 @@ is_directory :: proc(path: string) -> bool {
 /*
 	`copy_file` copies a file from `src_path` to `dst_path` and returns an error if any was encountered.
 */
-copy_file :: proc(dst_path, src_path: string) -> Error {
+copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> Error {
 	when #defined(_copy_file_native) {
 		return _copy_file_native(dst_path, src_path)
 	} else {
-		return _copy_file(dst_path, src_path)
+		return _copy_file(dst_path, src_path, allocator = allocator)
 	}
 }
 
 @(private)
-_copy_file :: proc(dst_path, src_path: string) -> Error {
-	src := open(src_path) or_return
+_copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> Error {
+	src := open(src_path, allocator = allocator) or_return
 	defer close(src)
 
-	info := fstat(src, runtime.general_allocator) or_return
-	defer file_info_delete(info, runtime.general_allocator)
+	info := fstat(src, allocator) or_return
+	defer file_info_delete(info, allocator)
 	if info.type == .Directory {
 		return .Invalid_File
 	}
 
-	dst := open(dst_path, {.Read, .Write, .Create, .Trunc}, info.mode & Permissions_All) or_return
+	dst := open(dst_path, {.Read, .Write, .Create, .Trunc}, info.mode & Permissions_All, allocator) or_return
 	defer close(dst)
 
 	_, err := io.copy(to_writer(dst), to_reader(src))

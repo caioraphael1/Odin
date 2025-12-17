@@ -148,10 +148,10 @@ _open_internal :: proc(name: string, flags: File_Flags, perm: Permissions) -> (h
 }
 
 
-_open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, err: Error) {
+_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	flags := flags if flags != nil else {.Read}
 	handle := _open_internal(name, flags, perm) or_return
-	return _new_file(handle, name, runtime.general_allocator)
+	return _new_file(handle, name, allocator)
 }
 
 _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
@@ -190,24 +190,24 @@ _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -
 
 
 @(require_results)
-_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions) -> (f: ^File, err: Error) {
+_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	assert(buffer_size > 0)
 	flags := flags if flags != nil else {.Read}
 	handle := _open_internal(name, flags, perm) or_return
-	return _new_file_buffered(handle, name, buffer_size)
+	return _new_file_buffered(handle, name, buffer_size, allocator)
 }
 
-_new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint) -> (f: ^File, err: Error) {
-	f, err = _new_file(handle, name, runtime.general_allocator)
+_new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+	f, err = _new_file(handle, name, allocator)
 	if f != nil && err == nil {
 		impl := (^File_Impl)(f.impl)
-		impl.r_buf = make([]byte, buffer_size, runtime.general_allocator)
-		impl.w_buf = make([]byte, buffer_size, runtime.general_allocator)
+		impl.r_buf = make([]byte, buffer_size, allocator)
+		impl.w_buf = make([]byte, buffer_size, allocator)
 	}
 	return
 }
 
-_clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
+_clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Error) {
 	if f == nil || f.impl == nil {
 		return
 	}
@@ -228,7 +228,7 @@ _clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
 	}
 	defer if err != nil { win32.CloseHandle(clonefd) }
 
-	return _new_file(uintptr(clonefd), name(f), runtime.general_allocator)
+	return _new_file(uintptr(clonefd), name(f), allocator)
 }
 
 _fd :: proc "contextless" (f: ^File) -> uintptr {
@@ -777,8 +777,8 @@ _chdir :: proc(name: string) -> Error {
 	return nil
 }
 
-_chmod :: proc(name: string, mode: Permissions) -> Error {
-	f := open(name, {.Write}) or_return
+_chmod :: proc(name: string, mode: Permissions, allocator: runtime.Allocator) -> Error {
+	f := open(name, {.Write}, allocator = allocator) or_return
 	defer close(f)
 	return _fchmod(f, mode)
 }
@@ -792,8 +792,8 @@ _lchown :: proc(name: string, uid, gid: int) -> Error {
 }
 
 
-_chtimes :: proc(name: string, atime, mtime: time.Time) -> Error {
-	f := open(name, {.Write}) or_return
+_chtimes :: proc(name: string, atime, mtime: time.Time, allocator: runtime.Allocator) -> Error {
+	f := open(name, {.Write}, allocator = allocator) or_return
 	defer close(f)
 	return _fchtimes(f, atime, mtime)
 }

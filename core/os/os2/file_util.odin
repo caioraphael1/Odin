@@ -156,7 +156,7 @@ read_entire_file :: proc{
 */
 @(require_results)
 read_entire_file_from_path :: proc(name: string, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
-	f := open(name) or_return
+	f := open(name, allocator = allocator) or_return
 	defer close(f)
 	return read_entire_file_from_file(f, allocator, loc)
 }
@@ -228,12 +228,12 @@ write_entire_file :: proc{
 	An error is returned if any is encountered.
 */
 @(require_results)
-write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permissions_Read_All + {.Write_User}, truncate := true) -> Error {
+write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: runtime.Allocator) -> Error {
 	flags := O_WRONLY|O_CREATE
 	if truncate {
 		flags |= O_TRUNC
 	}
-	f := open(name, flags, perm) or_return
+	f := open(name, flags, perm, allocator) or_return
 	_, err := write(f, data)
 	if cerr := close(f); cerr != nil && err == nil {
 		err = cerr
@@ -249,6 +249,6 @@ write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permiss
 	An error is returned if any is encountered.
 */
 @(require_results)
-write_entire_file_from_string :: proc(name: string, data: string, perm := Permissions_Read_All + {.Write_User}, truncate := true) -> Error {
-	return write_entire_file(name, transmute([]byte)data, perm, truncate)
+write_entire_file_from_string :: proc(name: string, data: string, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: runtime.Allocator) -> Error {
+	return write_entire_file(name, transmute([]byte)data, perm, truncate, allocator)
 }

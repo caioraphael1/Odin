@@ -45,7 +45,7 @@ init_std_files :: proc() {
 	stderr = new_std(&files[2], posix.STDERR_FILENO, "/dev/stderr")
 }
 
-_open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, err: Error) {
+_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	if name == "" {
 		err = .Invalid_Path
 		return
@@ -77,7 +77,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, 
 		return
 	}
 
-	return _new_file(uintptr(fd), name, runtime.general_allocator)
+	return _new_file(uintptr(fd), name, allocator)
 }
 
 _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
@@ -112,7 +112,7 @@ __new_file :: proc(handle: posix.FD, allocator: runtime.Allocator) -> ^File {
 	return &impl.file
 }
 
-_clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
+_clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Error) {
 	if f == nil || f.impl == nil {
 		err = .Invalid_Pointer
 		return
@@ -127,9 +127,9 @@ _clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
 	}
 	defer if err != nil { posix.close(fd) }
 
-	clone = __new_file(fd, runtime.general_allocator)	
+	clone = __new_file(fd, allocator)	
 	clone_impl := (^File_Impl)(clone.impl)
-	clone_impl.cname = clone_to_cstring(impl.name, runtime.general_allocator) or_return
+	clone_impl.cname = clone_to_cstring(impl.name, allocator) or_return
 	clone_impl.name  = string(clone_impl.cname)
 
 	return

@@ -63,7 +63,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
 	}
 }
 
-_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {
+_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: runtime.Allocator) {
 	// NOTE: Allow calling `init` to target a new directory with the same iterator.
 	it.impl.off = 0
 
@@ -79,7 +79,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {
 	if it.impl.buf != nil {
 		buf = slice.into_dynamic(it.impl.buf)
 	}
-	buf.allocator = runtime.general_allocator
+	buf.allocator = allocator
 
 	defer if it.err.err != nil { delete(buf) }
 
@@ -105,7 +105,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {
 	it.impl.buf = buf[:]
 
 	// NOTE: Allow calling `init` to target a new directory with the same iterator.
-	it.impl.fullpath.allocator = runtime.general_allocator
+	it.impl.fullpath.allocator = allocator
 	clear(&it.impl.fullpath)
 	if err := reserve(&it.impl.fullpath, len(impl.name)+128); err != nil {
 		read_directory_iterator_set_error(it, name(f), err)
@@ -118,7 +118,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {
 	return
 }
 
-_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator) {
-	delete(it.impl.buf, runtime.general_allocator)
+_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
+	delete(it.impl.buf, allocator)
 	delete(it.impl.fullpath)
 }

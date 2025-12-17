@@ -1,5 +1,6 @@
 package mem_virtual
 
+import "base:runtime"
 import os "core:os/os2"
 
 Map_File_Error :: enum {
@@ -22,8 +23,8 @@ map_file :: proc{
 	map_file_from_file_descriptor,
 }
 
-map_file_from_path :: proc(filename: string, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
-	fd, err := os.open(filename, os.O_RDWR)
+map_file_from_path :: proc(filename: string, flags: Map_File_Flags, allocator: runtime.Allocator) -> (data: []byte, error: Map_File_Error) {
+	fd, err := os.open(filename, os.O_RDWR, allocator = allocator)
 	if err != nil {
 		return nil, .Open_Failure
 	}

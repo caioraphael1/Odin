@@ -61,7 +61,7 @@ _standard_stream_init :: proc "contextless" () {
 	stderr = new_std(&files[2], 2, "/proc/self/fd/2")
 }
 
-_open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, err: Error) {
+_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	temp_allocator := TEMP_ALLOCATOR_GUARD({})
 	name_cstr := clone_to_cstring(name, temp_allocator) or_return
 
@@ -89,7 +89,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, 
 		return nil, _get_platform_error(errno)
 	}
 
-	return _new_file(uintptr(fd), name, runtime.general_allocator)
+	return _new_file(uintptr(fd), name, allocator)
 }
 
 _new_file :: proc(fd: uintptr, _: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
@@ -108,7 +108,7 @@ _new_file :: proc(fd: uintptr, _: string, allocator: runtime.Allocator) -> (f: ^
 	return &impl.file, nil
 }
 
-_clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
+_clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Error) {
 	if f == nil || f.impl == nil {
 		return
 	}
@@ -122,17 +122,17 @@ _clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
 	}
 	defer if err != nil { linux.close(clonefd) }
 
-	return _new_file(uintptr(clonefd), "", runtime.general_allocator)
+	return _new_file(uintptr(clonefd), "", allocator)
 }
 
 
 @(require_results)
-_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions) -> (f: ^File, err: Error) {
+_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	assert(buffer_size > 0)
-	f, err = _open(name, flags, perm)
+	f, err = _open(name, flags, perm, allocator)
 	if f != nil && err == nil {
 		impl := (^File_Impl)(f.impl)
-		impl.buffer = make([]byte, buffer_size, runtime.general_allocator)
+		impl.buffer = make([]byte, buffer_size, allocator)
 		f.stream.procedure = _file_stream_buffered_proc
 	}
 	return

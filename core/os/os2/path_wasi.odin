@@ -24,19 +24,6 @@ _mkdir :: proc(name: string, perm: int) -> Error {
 }
 
 _mkdir_all :: proc(path: string, perm: int) -> Error {
-	if path == "" {
-		return .Invalid_Path
-	}
-
-	temp_allocator := TEMP_ALLOCATOR_GUARD({})
-
-	if exists(path) {
-		return .Exist
-	}
-
-	clean_path := clean_path(path, temp_allocator) or_return
-	return internal_mkdir_all(clean_path)
-
 	internal_mkdir_all :: proc(path: string) -> Error {
 		dir, file := split_path(path)
 		if file != path && dir != "/" {
@@ -50,6 +37,19 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 		if err == .Exist { err = nil }
 		return err
 	}
+
+	if path == "" {
+		return .Invalid_Path
+	}
+
+	temp_allocator := TEMP_ALLOCATOR_GUARD({})
+
+	if exists(path) {
+		return .Exist
+	}
+
+	clean_path := clean_path(path, temp_allocator) or_return
+	return internal_mkdir_all(clean_path)
 }
 
 _remove_all :: proc(path: string) -> (err: Error) {
@@ -78,27 +78,32 @@ _remove_all :: proc(path: string) -> (err: Error) {
 	return remove(path)
 }
 
-g_wd: string
-g_wd_mutex: sync.Mutex
-
-_get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	sync.guard(&g_wd_mutex)
-
-	return clone_string(g_wd if g_wd != "" else "/", allocator)
+_working_dir: struct {
+    path:      string,
+    allocator: runtime.Allocator,
+    mutex:     sync.Mutex,
 }
 
-_set_working_directory :: proc(dir: string) -> (err: Error) {
-	sync.guard(&g_wd_mutex)
+_get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+	sync.guard(&_working_dir_mutex)
+    _working_dir.allocator = allocator
+	return clone_string(_working_dir.path if _working_dir.path != "" else "/", _working_dir.allocator)
+}
 
-	if dir == g_wd {
+_set_working_directory :: proc(dir: string, allocator: runtime.Allocator) -> (err: Error) {
+	sync.guard(&_working_dir.mutex)
+
+	if dir == _working_dir.path {
 		return
 	}
 
-	if g_wd != "" {
-		delete(g_wd, runtime.general_allocator)
+	if _working_dir.path != "" {
+		delete(_working_dir.path, _working_dir.allocator)
+        _working_dir.allocator = {}
 	}
 
-	g_wd = clone_string(dir, runtime.general_allocator) or_return
+	_working_dir.path = clone_string(dir, allocator) or_return
+    _working_dir.allocator = allocator
 	return
 }
 

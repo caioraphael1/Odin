@@ -16,15 +16,15 @@ Arguments to the current process.
 */
 args: []string
 
-init_args :: proc() {
-	args = make([]string, len(runtime.args__), runtime.general_allocator)
+init_args :: proc(allocator: runtime.Allocator) {
+	args = make([]string, len(runtime.args__), allocator)
 	for rt_arg, i in runtime.args__ {
 		args[i] = string(rt_arg)
 	}
 }
 
-fini_args :: proc() {
-	delete(args, runtime.general_allocator)
+fini_args :: proc(allocator: runtime.Allocator) {
+	delete(args, allocator)
 }
 
 /*
@@ -379,9 +379,9 @@ process_exec :: proc(
 	assert(desc.stdout == nil, "Cannot redirect stdout when it's being captured", loc)
 	assert(desc.stderr == nil, "Cannot redirect stderr when it's being captured", loc)
 
-	stdout_r, stdout_w := pipe() or_return
+	stdout_r, stdout_w := pipe(allocator) or_return
 	defer close(stdout_r)
-	stderr_r, stderr_w := pipe() or_return
+	stderr_r, stderr_w := pipe(allocator) or_return
 	defer close(stderr_r)
 
 	process: Process

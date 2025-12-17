@@ -13,7 +13,7 @@ g_env_mutex: sync.RW_Mutex
 g_env_error: Error
 g_env_built: bool
 
-build_env :: proc() -> (err: Error) {
+build_env :: proc(allocator: runtime.Allocator) -> (err: Error) {
 	if g_env_built || g_env_error != nil {
 		return g_env_error
 	}
@@ -33,11 +33,11 @@ build_env :: proc() -> (err: Error) {
 		return _get_platform_error(_err)
 	}
 
-	g_env = make(map[string]string, num_envs, runtime.general_allocator) or_return
+	g_env = make(map[string]string, num_envs, allocator) or_return
 	defer if err != nil { delete(g_env) }
 
-	g_env_buf = make([]byte, size_of_envs, runtime.general_allocator) or_return
-	defer if err != nil { delete(g_env_buf, runtime.general_allocator) }
+	g_env_buf = make([]byte, size_of_envs, allocator) or_return
+	defer if err != nil { delete(g_env_buf, allocator) }
 
 	temp_allocator := TEMP_ALLOCATOR_GUARD({})
 
@@ -57,12 +57,12 @@ build_env :: proc() -> (err: Error) {
 	return
 }
 
-delete_string_if_not_original :: proc(str: string) {
+delete_string_if_not_original :: proc(str: string, allocator: runtime.Allocator) {
 	start := uintptr(raw_data(g_env_buf))
 	end   := start + uintptr(len(g_env_buf))
 	ptr   := uintptr(raw_data(str))
 	if ptr < start || ptr > end {
-		delete(str, runtime.general_allocator)
+		delete(str, allocator)
 	}
 }
 
@@ -108,7 +108,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
 _lookup_env :: proc{_lookup_env_alloc, _lookup_env_buf}
 
 @(require_results)
-_set_env :: proc(key, value: string) -> (err: Error) {
+_set_env :: proc(key, value: string, allocator: runtime.Allocator) -> (err: Error) {
 	build_env() or_return
 
 	sync.guard(&g_env_mutex)
@@ -120,17 +120,17 @@ _set_env :: proc(key, value: string) -> (err: Error) {
 	key_ptr, value_ptr, just_inserted := map_entry(&g_env, key) or_return
 
 	if just_inserted {
-		key_ptr^ = clone_string(key, runtime.general_allocator) or_return
+		key_ptr^ = clone_string(key,allocator) or_return
 		defer if err != nil {
-			delete(key_ptr^, runtime.general_allocator)
+			delete(key_ptr^, allocator)
 		}
-		value_ptr^ = clone_string(value, runtime.general_allocator) or_return
+		value_ptr^ = clone_string(value, allocator) or_return
 		return
 	}
 
 	delete_string_if_not_original(value_ptr^)
 
-	value_ptr^ = clone_string(value, runtime.general_allocator) or_return
+	value_ptr^ = clone_string(value, allocator) or_return
 	return
 }
 
@@ -148,7 +148,7 @@ _unset_env :: proc(key: string) -> bool {
 	return true
 }
 
-_clear_env :: proc() {
+_clear_env :: proc(allocator: runtime.Allocator) {
 	sync.guard(&g_env_mutex)
 
 	for k, v in g_env {
@@ -156,7 +156,7 @@ _clear_env :: proc() {
 		delete_string_if_not_original(v)
 	}
 
-	delete(g_env_buf, runtime.general_allocator)
+	delete(g_env_buf, allocator)
 	g_env_buf = {}
 
 	clear(&g_env)

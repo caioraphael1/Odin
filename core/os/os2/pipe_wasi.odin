@@ -1,7 +1,9 @@
 #+private
 package os2
 
-_pipe :: proc() -> (r, w: ^File, err: Error) {
+import "base:runtime"
+
+_pipe :: proc(allocator: runtime.Allocator) -> (r, w: ^File, err: Error) {
 	err = .Unsupported
 	return
 }

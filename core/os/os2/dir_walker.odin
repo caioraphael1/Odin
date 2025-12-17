@@ -18,14 +18,14 @@ Walker :: struct {
 	iter: Read_Directory_Iterator,
 }
 
-walker_init_path :: proc(w: ^Walker, path: string) {
-	cloned_path, err := clone_string(path, runtime.general_allocator)
+walker_init_path :: proc(w: ^Walker, path: string, allocator: runtime.Allocator) {
+	cloned_path, err := clone_string(path, allocator)
 	if err != nil {
 		walker_set_error(w, path, err)
 		return
 	}
 
-	walker_clear(w)
+	walker_clear(w, allocator)
 
 	if _, err = queue.push(&w.todo, cloned_path); err != nil {
 		walker_set_error(w, cloned_path, err)
@@ -33,17 +33,17 @@ walker_init_path :: proc(w: ^Walker, path: string) {
 	}
 }
 
-walker_init_file :: proc(w: ^Walker, f: ^File) {
-	handle, err := clone(f)
+walker_init_file :: proc(w: ^Walker, f: ^File, allocator: runtime.Allocator) {
+	handle, err := clone(f, allocator)
 	if err != nil {
-		path, _ := clone_string(name(f), runtime.general_allocator)
+		path, _ := clone_string(name(f), allocator)
 		walker_set_error(w, path, err)
 		return
 	}
 
-	walker_clear(w)
+	walker_clear(w, allocator)
 
-	read_directory_iterator_init(&w.iter, handle)
+	read_directory_iterator_init(&w.iter, handle, allocator)
 }
 
 /*
@@ -59,14 +59,14 @@ walker_init :: proc {
 }
 
 @(require_results)
-walker_create_path :: proc(path: string) -> (w: Walker) {
-	walker_init_path(&w, path)
+walker_create_path :: proc(path: string, allocator: runtime.Allocator) -> (w: Walker) {
+	walker_init_path(&w, path, allocator)
 	return
 }
 
 @(require_results)
-walker_create_file :: proc(f: ^File) -> (w: Walker) {
-	walker_init_file(&w, f)
+walker_create_file :: proc(f: ^File, allocator: runtime.Allocator) -> (w: Walker) {
+	walker_init_file(&w, f, allocator)
 	return
 }
 
@@ -103,24 +103,24 @@ walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
 }
 
 @(private)
-walker_clear :: proc(w: ^Walker) {
+walker_clear :: proc(w: ^Walker, allocator: runtime.Allocator) {
 	w.iter.f = nil
 	w.skip_dir = false
 
-	w.err.path.allocator = runtime.general_allocator
+	w.err.path.allocator = allocator
 	clear(&w.err.path)
 
-	w.todo.data.allocator = runtime.general_allocator
+	w.todo.data.allocator = allocator
 	for path in queue.pop_front_safe(&w.todo) {
-		delete(path, runtime.general_allocator)
+		delete(path, allocator)
 	}
 }
 
-walker_destroy :: proc(w: ^Walker) {
-	walker_clear(w)
+walker_destroy :: proc(w: ^Walker, allocator: runtime.Allocator) {
+	walker_clear(w, allocator)
 	queue.destroy(&w.todo)
 	delete(w.err.path)
-	read_directory_iterator_destroy(&w.iter)
+	read_directory_iterator_destroy(&w.iter, allocator)
 }
 
 // Marks the current directory to be skipped (not entered into).
@@ -175,11 +175,11 @@ Example:
 	}
 */
 @(require_results)
-walker_walk :: proc(w: ^Walker) -> (fi: File_Info, ok: bool) {
+walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info, ok: bool) {
 	if w.skip_dir {
 		w.skip_dir = false
 		if skip, sok := queue.pop_back_safe(&w.todo); sok {
-			delete(skip, runtime.general_allocator)
+			delete(skip,  allocator)
 		}
 	}
 
@@ -190,18 +190,18 @@ walker_walk :: proc(w: ^Walker) -> (fi: File_Info, ok: bool) {
 
 		next := queue.pop_front(&w.todo)
 
-		handle, err := open(next)
+		handle, err := open(next, allocator = allocator)
 		if err != nil {
 			walker_set_error(w, next, err)
 			return {}, true
 		}
 
-		read_directory_iterator_init(&w.iter, handle)
+		read_directory_iterator_init(&w.iter, handle, allocator)
 
-		delete(next, runtime.general_allocator)
+		delete(next, allocator)
 	}
 
-	info, _, iter_ok := read_directory_iterator(&w.iter)
+	info, _, iter_ok := read_directory_iterator(&w.iter, allocator)
 
 	if path, err := read_directory_iterator_error(&w.iter); err != nil {
 		walker_set_error(w, path, err)
@@ -210,11 +210,11 @@ walker_walk :: proc(w: ^Walker) -> (fi: File_Info, ok: bool) {
 	if !iter_ok {
 		close(w.iter.f)
 		w.iter.f = nil
-		return walker_walk(w)
+		return walker_walk(w, allocator)
 	}
 
 	if info.type == .Directory {
-		path, err := clone_string(info.fullpath, runtime.general_allocator)
+		path, err := clone_string(info.fullpath, allocator)
 		if err != nil {
 			walker_set_error(w, "", err)
 			return

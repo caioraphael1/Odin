@@ -1,5 +1,7 @@
 package os2
 
+import "base:runtime"
+
 /*
 Create an anonymous pipe.
 
@@ -21,8 +23,8 @@ request. The other scenario is when a pipe has no data because the other end
 of the pipe was closed by the child process.
 */
 @(require_results)
-pipe :: proc() -> (r, w: ^File, err: Error) {
-	return _pipe()
+pipe :: proc(allocator: runtime.Allocator) -> (r, w: ^File, err: Error) {
+	return _pipe(allocator)
 }
 
 /*

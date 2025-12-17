@@ -48,7 +48,7 @@ when ODIN_NO_CRT {
 
 	_lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
 		if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
-			_build_env()
+			_build_env(allocator)
 		}
 
 		if v, idx := _lookup(key); idx != -1 {
@@ -58,9 +58,9 @@ when ODIN_NO_CRT {
 		return
 	}
 
-	_lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, err: Error) {
+	_lookup_env_buf :: proc(buf: []u8, key: string, allocator: runtime.Allocator) -> (value: string, err: Error) {
 		if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
-			_build_env()
+			_build_env(allocator)
 		}
 
 		if v, idx := _lookup(key); idx != -1 {
@@ -75,9 +75,9 @@ when ODIN_NO_CRT {
 
 	_lookup_env :: proc{_lookup_env_alloc, _lookup_env_buf}
 
-	_set_env :: proc(key, v_new: string) -> Error {
+	_set_env :: proc(key, v_new: string, allocator: runtime.Allocator) -> Error {
 		if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
-			_build_env()
+			_build_env(allocator)
 		}
 		sync.guard(&_env_mutex)
 
@@ -125,9 +125,9 @@ when ODIN_NO_CRT {
 		return nil
 	}
 
-	_unset_env :: proc(key: string) -> bool {
+	_unset_env :: proc(key: string, allocator: runtime.Allocator) -> bool {
 		if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
-			_build_env()
+			_build_env(allocator)
 		}
 		sync.guard(&_env_mutex)
 
@@ -167,7 +167,7 @@ when ODIN_NO_CRT {
 
 	_environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
 		if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
-			_build_env()
+			_build_env(allocator)
 		}
 		sync.guard(&_env_mutex)
 
@@ -209,13 +209,13 @@ when ODIN_NO_CRT {
 		return env
 	}
 
-	_build_env :: proc() {
+	_build_env :: proc(allocator: runtime.Allocator) {
 		sync.guard(&_env_mutex)
 		if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) != 0 {
 			return
 		}
 
-		_env = make(type_of(_env), runtime.general_allocator)
+		_env = make(type_of(_env), allocator)
 		cstring_env := _get_original_env()
 		intrinsics.atomic_store_explicit(&_org_env_begin, uintptr(rawptr(cstring_env[0])), .Release)
 		for i := 0; cstring_env[i] != nil; i += 1 {

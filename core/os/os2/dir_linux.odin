@@ -11,7 +11,7 @@ Read_Directory_Iterator_Impl :: struct {
 }
 
 @(require_results)
-_read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info, index: int, ok: bool) {
+_read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
 	scan_entries :: proc(it: ^Read_Directory_Iterator, dfd: linux.Fd, entries: []u8, offset: ^int) -> (fd: linux.Fd, file_name: string) {
 		for d in linux.dirent_iterate_buf(entries, offset) {
 			file_name = linux.dirent_name(d)
@@ -41,16 +41,16 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
 
 	for entry_fd == -1 {
 		if len(it.impl.dirent_backing) == 0 {
-			it.impl.dirent_backing = make([]u8, 512, runtime.general_allocator)
+			it.impl.dirent_backing = make([]u8, 512, allocator)
 		}
 
 		loop: for {
 			buflen, errno := linux.getdents(linux.Fd(dfd), it.impl.dirent_backing[:])
 			#partial switch errno {
 			case .EINVAL:
-				delete(it.impl.dirent_backing, runtime.general_allocator)
+				delete(it.impl.dirent_backing, allocator)
 				n := len(it.impl.dirent_backing) * 2
-				it.impl.dirent_backing = make([]u8, n, runtime.general_allocator)
+				it.impl.dirent_backing = make([]u8, n, allocator)
 				continue
 			case .NONE:
 				if buflen == 0 {
@@ -71,10 +71,10 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
 	defer linux.close(entry_fd)
 
 	// PERF: reuse the fullpath string like on posix and wasi.
-	file_info_delete(it.impl.prev_fi, runtime.general_allocator)
+	file_info_delete(it.impl.prev_fi, allocator)
 
 	err: Error
-	fi, err = _fstat_internal(entry_fd, runtime.general_allocator)
+	fi, err = _fstat_internal(entry_fd, allocator)
 	it.impl.prev_fi = fi
 
 	if err != nil {
@@ -110,11 +110,11 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {
 	}
 }
 
-_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator) {
+_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
 	if it == nil {
 		return
 	}
 
-	delete(it.impl.dirent_backing, runtime.general_allocator)
-	file_info_delete(it.impl.prev_fi, runtime.general_allocator)
+	delete(it.impl.dirent_backing, allocator)
+	file_info_delete(it.impl.prev_fi, allocator)
 }

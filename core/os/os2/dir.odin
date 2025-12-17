@@ -25,8 +25,8 @@ read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files
 
 	temp_allocator := TEMP_ALLOCATOR_GUARD({ allocator })
 
-	it := read_directory_iterator_create(f)
-	defer _read_directory_iterator_destroy(&it)
+	it := read_directory_iterator_create(f, allocator)
+	defer _read_directory_iterator_destroy(&it, allocator)
 
 	dfi := make([dynamic]File_Info, 0, size, temp_allocator)
 	defer if err != nil {
@@ -35,7 +35,7 @@ read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files
 		}
 	}
 
-	for fi, index in read_directory_iterator(&it) {
+	for fi, index in read_directory_iterator(&it, allocator) {
 		if n > 0 && index == n {
 			break
 		}
@@ -65,7 +65,7 @@ read_all_directory :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: []Fil
 */
 @(require_results)
 read_directory_by_path :: proc(path: string, n: int, allocator: runtime.Allocator) -> (fi: []File_Info, err: Error) {
-	f := open(path) or_return
+	f := open(path, allocator = allocator) or_return
 	defer close(f)
 	return read_directory(f, n, allocator)
 }
@@ -95,8 +95,8 @@ Creates a directory iterator with the given directory.
 
 For an example on how to use the iterator, see `read_directory_iterator`.
 */
-read_directory_iterator_create :: proc(f: ^File) -> (it: Read_Directory_Iterator) {
-	read_directory_iterator_init(&it, f)
+read_directory_iterator_create :: proc(f: ^File, allocator: runtime.Allocator) -> (it: Read_Directory_Iterator) {
+	read_directory_iterator_init(&it, f, allocator)
 	return
 }
 
@@ -107,28 +107,28 @@ This procedure may be called on an existing iterator to reuse it for another dir
 
 For an example on how to use the iterator, see `read_directory_iterator`.
 */
-read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {
+read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: runtime.Allocator) {
 	it.err.err = nil
-	it.err.path.allocator = runtime.general_allocator
+	it.err.path.allocator = allocator
 	clear(&it.err.path)
 
 	it.f = f
 	it.index = 0
 
-	_read_directory_iterator_init(it, f)
+	_read_directory_iterator_init(it, f, allocator)
 }
 
 /*
 Destroys a directory iterator.
 */
-read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator) {
+read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
 	if it == nil {
 		return
 	}
 
 	delete(it.err.path)
 
-	_read_directory_iterator_destroy(it)
+	_read_directory_iterator_destroy(it, allocator)
 }
 
 /*
@@ -196,7 +196,7 @@ Example:
 	}
 */
 @(require_results)
-read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info, index: int, ok: bool) {
+read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
 	if it.f == nil {
 		return
 	}
@@ -205,20 +205,20 @@ read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info,
 		return
 	}
 
-	return _read_directory_iterator(it)
+	return _read_directory_iterator(it, allocator)
 }
 
 // Recursively copies a directory to `dst` from `src`
-copy_directory_all :: proc(dst, src: string, dst_perm := 0o755) -> Error {
+copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runtime.Allocator) -> Error {
 	when #defined(_copy_directory_all_native) {
 		return _copy_directory_all_native(dst, src, dst_perm)
 	} else {
-		return _copy_directory_all(dst, src, dst_perm)
+		return _copy_directory_all(dst, src, dst_perm, allocator)
 	}
 }
 
 @(private)
-_copy_directory_all :: proc(dst, src: string, dst_perm := 0o755) -> Error {
+_copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runtime.Allocator) -> Error {
 	err := make_directory(dst, dst_perm)
 	if err != nil && err != .Exist {
 		return err
@@ -232,10 +232,10 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := 0o755) -> Error {
 	dst_buf := make([dynamic]byte, 0, len(abs_dst) + 256, temp_allocator) or_return
 
 	w: Walker
-	walker_init_path(&w, src)
-	defer walker_destroy(&w)
+	walker_init_path(&w, src, allocator)
+	defer walker_destroy(&w, allocator)
 
-	for info in walker_walk(&w) {
+	for info in walker_walk(&w, allocator) {
 		_ = walker_error(&w) or_break
 
 		rel := strings.trim_prefix(info.fullpath, abs_src)
@@ -252,7 +252,7 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := 0o755) -> Error {
 				return err
 			}
 		} else {
-			copy_file(string(dst_buf[:]), info.fullpath) or_return
+			copy_file(string(dst_buf[:]), info.fullpath, allocator) or_return
 		}
 	}
 

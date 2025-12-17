@@ -51,7 +51,7 @@ init_std_files :: proc() {
 }
 
 // @@init
-init_preopens :: proc() {
+init_preopens :: proc(allocator: runtime.Allocator) {
 	strip_prefixes :: proc(path: string) -> string {
 		path := path
 		loop: for len(path) > 0 {
@@ -82,7 +82,7 @@ init_preopens :: proc() {
 	}
 
 	alloc_err: runtime.Allocator_Error
-	preopens, alloc_err = make([]Preopen, n, runtime.general_allocator)
+	preopens, alloc_err = make([]Preopen, n, allocator)
 	if alloc_err != nil {
 		print_error(stderr, alloc_err, "could not allocate memory for wasi preopens")
 		return
@@ -97,7 +97,7 @@ init_preopens :: proc() {
 		switch desc.tag {
 		case .DIR:
 			buf: []byte
-			buf, alloc_err = make([]byte, desc.dir.pr_name_len, runtime.general_allocator)
+			buf, alloc_err = make([]byte, desc.dir.pr_name_len, allocator)
 			if alloc_err != nil {
 				print_error(stderr, alloc_err, "could not allocate memory for wasi preopen dir name")
 				continue loop
@@ -171,7 +171,7 @@ match_preopen :: proc(path: string) -> (wasi.fd_t, string, bool) {
 	return match.fd, relative, true
 }
 
-_open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, err: Error) {
+_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	dir_fd, relative, ok := match_preopen(name)
 	if !ok {
 		return nil, .Invalid_Path
@@ -197,7 +197,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, 
 		return
 	}
 
-	return _new_file(uintptr(fd), name, runtime.general_allocator)
+	return _new_file(uintptr(fd), name, allocator)
 }
 
 _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
@@ -223,7 +223,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -
 	return &impl.file, nil
 }
 
-_clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
+_clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Error) {
 	if f == nil || f.impl == nil {
 		return
 	}
@@ -246,7 +246,7 @@ _clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
 		return
 	}
 
-	return _new_file(uintptr(fd), name(f), runtime.general_allocator)
+	return _new_file(uintptr(fd), name(f), allocator)
 }
 
 _close :: proc(f: ^File_Impl) -> (err: Error) {
