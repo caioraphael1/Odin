@@ -95,111 +95,12 @@ create :: proc(procedure: Thread_Proc, priority := Thread_Priority.Normal, alloc
 }
 
 /*
-Wait for the thread to finish and free all data associated with it.
-*/
-destroy :: proc(thread: ^Thread) {
-	_destroy(thread)
-}
-
-/*
 Start a suspended thread.
 */
 start :: proc(thread: ^Thread) {
 	_start(thread)
 }
 
-/*
-Check if the thread has finished work.
-*/
-is_done :: proc(thread: ^Thread) -> bool {
-	return _is_done(thread)
-}
-
-/*
-Wait for the thread to finish work.
-*/
-join :: proc(thread: ^Thread) {
-	_join(thread)
-}
-
-/*
-Wait for all threads to finish work.
-*/
-join_multiple :: proc(threads: ..^Thread) {
-	_join_multiple(..threads)
-}
-
-/*
-Forcibly terminate a running thread.
-*/
-terminate :: proc(thread: ^Thread, exit_code: int) {
-	_terminate(thread, exit_code)
-}
-
-/*
-Yield the execution of the current thread to another OS thread or process.
-*/
-yield :: proc() {
-	_yield()
-}
-
-/*
-Run a procedure on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-*/
-run :: proc(fn: proc(), priority := Thread_Priority.Normal, allocator: mem.Allocator) {
-	create_and_start(fn, priority, true, allocator)
-}
-
-/*
-Run a procedure with one pointer parameter on a different thread.
-
-This procedure runs the given procedure on another thread.  The thread will have priority specified by the `priority` parameter.
-*/
-run_with_data :: proc(data: rawptr, fn: proc(data: rawptr), priority := Thread_Priority.Normal, allocator: mem.Allocator) {
-	create_and_start_with_data(data, fn, priority, true, allocator)
-}
-
-/*
-Run a procedure with one polymorphic parameter on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-*/
-run_with_poly_data :: proc(data: $T, fn: proc(data: T), priority := Thread_Priority.Normal)
-	where size_of(T) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	create_and_start_with_poly_data(data, fn, priority, true)
-}
-
-/*
-Run a procedure with two polymorphic parameters on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-*/
-run_with_poly_data2 :: proc(arg1: $T1, arg2: $T2, fn: proc(T1, T2), priority := Thread_Priority.Normal)
-	where size_of(T1) + size_of(T2) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	create_and_start_with_poly_data2(arg1, arg2, fn, priority, true)
-}
-
-/*
-Run a procedure with three polymorphic parameters on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-*/
-run_with_poly_data3 :: proc(arg1: $T1, arg2: $T2, arg3: $T3, fn: proc(arg1: T1, arg2: T2, arg3: T3), priority := Thread_Priority.Normal)
-	where size_of(T1) + size_of(T2) + size_of(T3) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	create_and_start_with_poly_data3(arg1, arg2, arg3, fn, priority, true)
-}
-
-/*
-Run a procedure with four polymorphic parameters on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-*/
-run_with_poly_data4 :: proc(arg1: $T1, arg2: $T2, arg3: $T3, arg4: $T4, fn: proc(arg1: T1, arg2: T2, arg3: T3, arg4: T4), priority := Thread_Priority.Normal)
-	where size_of(T1) + size_of(T2) + size_of(T3) + size_of(T4) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	create_and_start_with_poly_data4(arg1, arg2, arg3, arg4, fn, priority, true)
-}
 
 /*
 Run a procedure on a different thread.
@@ -229,210 +130,47 @@ create_and_start :: proc(fn: proc(), priority := Thread_Priority.Normal, self_cl
 	return t
 }
 
+
 /*
-Run a procedure with one pointer parameter on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-
-If `self_cleanup` is specified, after the thread finishes the execution of the
-`fn` procedure, the resources associated with the thread are going to be
-automatically freed.
-
-**Do not** dereference the `^Thread` pointer, if this flag is specified.
-That includes calling `join`, which needs to dereference ^Thread`.
+Wait for the thread to finish work.
 */
-create_and_start_with_data :: proc(data: rawptr, fn: proc(data: rawptr), priority := Thread_Priority.Normal, self_cleanup := false, allocator: mem.Allocator) -> (t: ^Thread) {
-	thread_proc :: proc(t: ^Thread) {
-		fn := cast(proc(rawptr))t.data
-		assert(t.user_index >= 1)
-		data := t.user_args[0]
-		fn(data)
-	}
-	if t = create(thread_proc, priority, allocator); t == nil {
-		return
-	}
-	t.data = rawptr(fn)
-	t.user_index = 1
-	t.user_args[0] = data
-	if self_cleanup {
-		intrinsics.atomic_or(&t.flags, {.Self_Cleanup})
-	}
-	start(t)
-	return t
+join :: proc(thread: ^Thread) {
+	_join(thread)
 }
 
 /*
-Run a procedure with one polymorphic parameter on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-
-If `self_cleanup` is specified, after the thread finishes the execution of the
-`fn` procedure, the resources associated with the thread are going to be
-automatically freed.
-
-**Do not** dereference the `^Thread` pointer, if this flag is specified.
-That includes calling `join`, which needs to dereference ^Thread`.
+Wait for all threads to finish work, and closes their handles.
 */
-create_and_start_with_poly_data :: proc(data: $T, fn: proc(data: T), priority := Thread_Priority.Normal, self_cleanup := false) -> (t: ^Thread)
-	where size_of(T) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	thread_proc :: proc(t: ^Thread) {
-		fn := cast(proc(T))t.data
-		assert(t.user_index >= 1)
-		data := (^T)(&t.user_args[0])^
-		fn(data)
-	}
-	if t = create(thread_proc, priority); t == nil {
-		return
-	}
-	t.data = rawptr(fn)
-	t.user_index = 1
-
-	data := data
-
-	mem.copy(&t.user_args[0], &data, size_of(T))
-
-	if self_cleanup {
-		intrinsics.atomic_or(&t.flags, {.Self_Cleanup})
-	}
-
-	start(t)
-	return t
+join_multiple :: proc(threads: ..^Thread) {
+	_join_multiple(..threads)
 }
 
 /*
-Run a procedure with two polymorphic parameters on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-
-If `self_cleanup` is specified, after the thread finishes the execution of the
-`fn` procedure, the resources associated with the thread are going to be
-automatically freed.
-
-**Do not** dereference the `^Thread` pointer, if this flag is specified.
-That includes calling `join`, which needs to dereference ^Thread`.
+Wait for the thread to finish and free all data associated with it.
+join + free.
 */
-create_and_start_with_poly_data2 :: proc(arg1: $T1, arg2: $T2, fn: proc(T1, T2), priority := Thread_Priority.Normal, self_cleanup := false) -> (t: ^Thread)
-	where size_of(T1) + size_of(T2) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	thread_proc :: proc(t: ^Thread) {
-		fn := cast(proc(T1, T2))t.data
-		assert(t.user_index >= 2)
-		
-		user_args := mem.slice_to_bytes(t.user_args[:])
-		arg1 := (^T1)(raw_data(user_args))^
-		arg2 := (^T2)(raw_data(user_args[size_of(T1):]))^
-
-		fn(arg1, arg2)
-	}
-	if t = create(thread_proc, priority); t == nil {
-		return
-	}
-	t.data = rawptr(fn)
-	t.user_index = 2
-
-	arg1, arg2 := arg1, arg2
-	user_args := mem.slice_to_bytes(t.user_args[:])
-
-	n := copy(user_args,     mem.ptr_to_bytes(&arg1))
-	_  = copy(user_args[n:], mem.ptr_to_bytes(&arg2))
-
-	if self_cleanup {
-		intrinsics.atomic_or(&t.flags, {.Self_Cleanup})
-	}
-
-	start(t)
-	return t
+destroy :: proc(thread: ^Thread) {
+	_destroy(thread)
 }
 
 /*
-Run a procedure with three polymorphic parameters on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-
-If `self_cleanup` is specified, after the thread finishes the execution of the
-`fn` procedure, the resources associated with the thread are going to be
-automatically freed.
-
-**Do not** dereference the `^Thread` pointer, if this flag is specified.
-That includes calling `join`, which needs to dereference ^Thread`.
+Forcibly terminate/cancel a running thread.
 */
-create_and_start_with_poly_data3 :: proc(arg1: $T1, arg2: $T2, arg3: $T3, fn: proc(arg1: T1, arg2: T2, arg3: T3),priority := Thread_Priority.Normal, self_cleanup := false) -> (t: ^Thread)
-	where size_of(T1) + size_of(T2) + size_of(T3) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	thread_proc :: proc(t: ^Thread) {
-		fn := cast(proc(T1, T2, T3))t.data
-		assert(t.user_index >= 3)
-
-		user_args := mem.slice_to_bytes(t.user_args[:])
-		arg1 := (^T1)(raw_data(user_args))^
-		arg2 := (^T2)(raw_data(user_args[size_of(T1):]))^
-		arg3 := (^T3)(raw_data(user_args[size_of(T1) + size_of(T2):]))^
-
-		fn(arg1, arg2, arg3)
-	}
-	if t = create(thread_proc, priority); t == nil {
-		return
-	}
-	t.data = rawptr(fn)
-	t.user_index = 3
-
-	arg1, arg2, arg3 := arg1, arg2, arg3
-	user_args := mem.slice_to_bytes(t.user_args[:])
-
-	n := copy(user_args,     mem.ptr_to_bytes(&arg1))
-	n += copy(user_args[n:], mem.ptr_to_bytes(&arg2))
-	_  = copy(user_args[n:], mem.ptr_to_bytes(&arg3))
-
-	if self_cleanup {
-		intrinsics.atomic_or(&t.flags, {.Self_Cleanup})
-	}
-
-	start(t)
-	return t
+terminate :: proc(thread: ^Thread, exit_code: int) {
+	_terminate(thread, exit_code)
 }
 
 /*
-Run a procedure with four polymorphic parameters on a different thread.
-
-This procedure runs the given procedure on another thread. The thread will have priority specified by the `priority` parameter.
-
-If `self_cleanup` is specified, after the thread finishes the execution of the
-`fn` procedure, the resources associated with the thread are going to be
-automatically freed.
-
-**Do not** dereference the `^Thread` pointer, if this flag is specified.
-That includes calling `join`, which needs to dereference ^Thread`.
+Check if the thread has finished work.
 */
-create_and_start_with_poly_data4 :: proc(arg1: $T1, arg2: $T2, arg3: $T3, arg4: $T4, fn: proc(arg1: T1, arg2: T2, arg3: T3, arg4: T4), priority := Thread_Priority.Normal, self_cleanup := false) -> (t: ^Thread)
-	where size_of(T1) + size_of(T2) + size_of(T3) + size_of(T4) <= size_of(rawptr) * MAX_USER_ARGUMENTS {
-	thread_proc :: proc(t: ^Thread) {
-		fn := cast(proc(T1, T2, T3, T4))t.data
-		assert(t.user_index >= 4)
-
-		user_args := mem.slice_to_bytes(t.user_args[:])
-		arg1 := (^T1)(raw_data(user_args))^
-		arg2 := (^T2)(raw_data(user_args[size_of(T1):]))^
-		arg3 := (^T3)(raw_data(user_args[size_of(T1) + size_of(T2):]))^
-		arg4 := (^T4)(raw_data(user_args[size_of(T1) + size_of(T2) + size_of(T3):]))^
-
-		fn(arg1, arg2, arg3, arg4)
-	}
-	if t = create(thread_proc, priority); t == nil {
-		return
-	}
-	t.data = rawptr(fn)
-	t.user_index = 4
-
-	arg1, arg2, arg3, arg4 := arg1, arg2, arg3, arg4
-	user_args := mem.slice_to_bytes(t.user_args[:])
-
-	n := copy(user_args,     mem.ptr_to_bytes(&arg1))
-	n += copy(user_args[n:], mem.ptr_to_bytes(&arg2))
-	n += copy(user_args[n:], mem.ptr_to_bytes(&arg3))
-	_  = copy(user_args[n:], mem.ptr_to_bytes(&arg4))
-
-	if self_cleanup {
-		intrinsics.atomic_or(&t.flags, {.Self_Cleanup})
-	}
-
-	start(t)
-	return t
+is_done :: proc(thread: ^Thread) -> bool {
+	return _is_done(thread)
 }
+
+/*
+Yield the execution of the current thread to another OS thread or process.
+*/
+yield :: proc() {
+	_yield()
+}
+

@@ -5,14 +5,14 @@ import "base:intrinsics"
 import "base:runtime"
 
 // @@init
-init_cpu_core_count :: proc() {
+init_cpu_core_count :: proc(allocator: runtime.Allocator) {
 	infos: []sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION
-	defer delete(infos)
+	defer delete(infos, allocator)
 
 	returned_length: sys.DWORD
 	// Query for the required buffer size.
 	if ok := sys.GetLogicalProcessorInformation(raw_data(infos), &returned_length); !ok {
-		infos = make([]sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, returned_length / size_of(sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION))
+		infos = make([]sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, returned_length / size_of(sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION), allocator)
 	}
 
 	// If it still doesn't work, return

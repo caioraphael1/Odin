@@ -13,7 +13,7 @@ import "base:runtime"
 version_string_buf: [1024]u8
 
 // @@init
-init_os_version :: proc() {
+init_os_version :: proc(allocator: runtime.Allocator) {
 	/*
 		NOTE(Jeroen):
 			`GetVersionEx`  will return 6.2 for Windows 10 unless the program is manifested for Windows 10.
@@ -123,7 +123,7 @@ init_os_version :: proc() {
 	}
 
 	// Grab DisplayVersion
-	os_version.version = format_display_version(&b)
+	os_version.version = format_display_version(&b, allocator)
 
 	// Grab build number and UBR
 	os_version.build[1]  = format_build_number(&b, int(osvi.dwBuildNumber))
@@ -223,13 +223,14 @@ init_os_version :: proc() {
 	}
 
 	// Grab Windows DisplayVersion (like 20H02)
-	format_display_version :: proc (b: ^strings.Builder) -> (version: string) {
+	format_display_version :: proc (b: ^strings.Builder, allocator: runtime.Allocator) -> (version: string) {
 		dv, ok := read_reg_string(
 			sys.HKEY_LOCAL_MACHINE,
 			"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
 			"DisplayVersion",
+            allocator,
 		)
-		defer delete(dv) // It'll be interned into `version_string_buf`
+		defer delete(dv, allocator) // It'll be interned into `version_string_buf`
 
 		if ok {
 			strings.write_string(b, " (version: ")
@@ -278,7 +279,7 @@ init_ram :: proc() {
 }
 
 // @@init
-init_gpu_info :: proc() {
+init_gpu_info :: proc(allocator: runtime.Allocator) {
 	GPU_ROOT_KEY :: `SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}`
 
 	runtime.TEMP_ALLOCATOR_GUARD()
@@ -325,14 +326,14 @@ init_gpu_info :: proc() {
 
 		key := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, runtime.temp_allocator)
 
-		if vendor, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "ProviderName"); ok {
+		if vendor, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "ProviderName", allocator); ok {
 			idx := append(&gpu_list, GPU{vendor_name = vendor})
 			gpu = &gpu_list[idx - 1]
 		} else {
 			continue
 		}
 
-		if desc, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "DriverDesc"); ok {
+		if desc, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "DriverDesc", allocator); ok {
 			gpu.model_name = desc
 		}
 
@@ -344,7 +345,7 @@ init_gpu_info :: proc() {
 }
 
 @(private)
-read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: string, ok: bool) {
+read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string, allocator: runtime.Allocator) -> (res: string, ok: bool) {
 	if len(subkey) == 0 || len(val) == 0 {
 		return
 	}
@@ -378,8 +379,9 @@ read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: string, ok
 	// Result string will be allocated for the caller.
 	result_utf8 := make([]u8, BUF_SIZE * 4, runtime.temp_allocator)
 	utf16.decode_to_utf8(result_utf8, result_wide[:result_size])
-	return strings.clone_from_cstring(cstring(raw_data(result_utf8))), true
+	return strings.clone_from_cstring(cstring(raw_data(result_utf8)), allocator), true
 }
+
 @(private)
 read_reg_i32 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i32, ok: bool) {
 	if len(subkey) == 0 || len(val) == 0 {
@@ -407,6 +409,7 @@ read_reg_i32 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i32, ok: bool
 	)
 	return res, status == 0
 }
+
 @(private)
 read_reg_i64 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i64, ok: bool) {
 	if len(subkey) == 0 || len(val) == 0 {

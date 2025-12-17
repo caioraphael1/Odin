@@ -29,7 +29,6 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
         context = {}
         
 		t := (^Thread)(t_)
-
 		for (.Started not_in sync.atomic_load(&t.flags)) {
 			sync.wait(&t.start_ok)
 		}
@@ -42,7 +41,6 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
             // Fix: this is for os2.
 
 		intrinsics.atomic_or(&t.flags, {.Done})
-
 		if .Self_Cleanup in sync.atomic_load(&t.flags) {
 			win32.CloseHandle(t.win32_thread)
 			t.win32_thread = win32.INVALID_HANDLE
@@ -59,7 +57,14 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 	}
 	thread.creation_allocator = allocator
 
-	win32_thread := win32.CreateThread(nil, 0, __windows_thread_entry_proc, thread, win32.CREATE_SUSPENDED, &win32_thread_id)
+	win32_thread := win32.CreateThread(
+        lpThreadAttributes = nil,
+		dwStackSize        = 0,
+		lpStartAddress     = __windows_thread_entry_proc,
+		lpParameter        = thread,
+		dwCreationFlags    = win32.CREATE_SUSPENDED,
+		lpThreadId         = &win32_thread_id,
+    )
 	if win32_thread == nil {
 		free(thread, thread.creation_allocator)
 		return nil
@@ -135,6 +140,7 @@ _destroy :: proc(thread: ^Thread) {
 	_join(thread)
 	free(thread, thread.creation_allocator)
 }
+
 
 _terminate :: proc(thread: ^Thread, exit_code: int) {
 	win32.TerminateThread(thread.win32_thread, u32(exit_code))
