@@ -5,9 +5,7 @@ import "base:intrinsics"
 import "base:runtime"
 
 // @@init
-init_cpu_core_count :: proc "contextless" () {
-	context = {}
-
+init_cpu_core_count :: proc() {
 	infos: []sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION
 	defer delete(infos)
 

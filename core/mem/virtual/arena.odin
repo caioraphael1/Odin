@@ -8,18 +8,16 @@ import "core:sync"
 Arena_Kind :: enum uint {
 	Growing = 0, // Chained memory blocks (singly linked list).
 	Static  = 1, // Fixed reservation sized.
-	Buffer  = 2, // Uses a fixed sized buffer.
 }
 
 /*
 	Arena is a generalized arena allocator that supports 3 different variants.
-
 	Growing: A linked list of `Memory_Block`s allocated with virtual memory.
 	Static: A single `Memory_Block` allocated with virtual memory.
-	Buffer: A single `Memory_Block` created from a user provided []byte.
 */
 Arena :: struct {
 	kind:                Arena_Kind,
+
 	curr_block:          ^Memory_Block,
 
 	total_used:          uint,
@@ -69,31 +67,6 @@ arena_init_static :: proc(arena: ^Arena, reserved: uint = DEFAULT_ARENA_STATIC_R
 	arena.total_used     = 0
 	arena.total_reserved = arena.curr_block.reserved
 	// sanitizer.address_poison(arena.curr_block.base[:arena.curr_block.committed])
-	return
-}
-
-// Initialization of an `Arena` to be a `.Buffer` variant.
-// A buffer arena contains single `Memory_Block` created from a user provided []byte.
-@(require_results, no_sanitize_address)
-arena_init_buffer :: proc(arena: ^Arena, buffer: []byte) -> (err: Allocator_Error) {
-	if len(buffer) < size_of(Memory_Block) {
-		return .Out_Of_Memory
-	}
-
-	arena.kind = .Buffer
-
-	// sanitizer.address_poison(buffer[:])
-
-	block_base := raw_data(buffer)
-	block := (^Memory_Block)(block_base)
-	block.base      = block_base[size_of(Memory_Block):]
-	block.reserved  = len(buffer) - size_of(Memory_Block)
-	block.committed = block.reserved
-	block.used      = 0
-
-	arena.curr_block = block
-	arena.total_used = 0
-	arena.total_reserved = arena.curr_block.reserved
 	return
 }
 
@@ -164,20 +137,13 @@ arena_alloc_unguarded :: proc(arena: ^Arena, size: uint, alignment: uint, loc :=
 		}
 		data, err = alloc_from_memory_block(arena.curr_block, size, alignment, default_commit_size=arena.default_commit_size)
 		arena.total_used = arena.curr_block.used
-
-	case .Buffer:
-		if arena.curr_block == nil {
-			return nil, .Out_Of_Memory
-		}
-		data, err = alloc_from_memory_block(arena.curr_block, size, alignment, default_commit_size=0)
-		arena.total_used = arena.curr_block.used
 	}
 
 	// sanitizer.address_unpoison(data)
 	return
 }
 
-// Resets the memory of a Static or Buffer arena to a specific `position` (offset) and zeroes the previously used memory.
+// Resets the memory of a Static arena to a specific `position` (offset) and zeroes the previously used memory.
 @(no_sanitize_address)
 arena_static_reset_to :: proc(arena: ^Arena, pos: uint, loc := #caller_location) -> bool {
 	sync.mutex_guard(&arena.mutex)
@@ -234,7 +200,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
 			// sanitizer.address_poison(arena.curr_block.base[:arena.curr_block.committed])
 		}
 		arena.total_used = 0
-	case .Static, .Buffer:
+	case .Static:
 		arena_static_reset_to(arena, 0)
 	}
 	arena.total_used = 0
@@ -252,8 +218,6 @@ arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
 		}
 	case .Static:
 		memory_block_dealloc(arena.curr_block)
-	case .Buffer:
-		// nothing
 	}
 	arena.curr_block     = nil
 	arena.total_used     = 0
@@ -321,7 +285,10 @@ arena_static_bootstrap_new_by_name :: proc($T: typeid, $field_name: string, rese
 // Create an `Allocator` from the provided `Arena`
 @(require_results, no_sanitize_address)
 arena_allocator :: proc(arena: ^Arena) -> mem.Allocator {
-	return mem.Allocator{arena_allocator_proc, arena}
+	return {
+        procedure = arena_allocator_proc, 
+        data      = arena
+    }
 }
 
 // The allocator procedure used by an `Allocator` produced by `arena_allocator`
@@ -414,6 +381,7 @@ Arena_Temp :: struct {
 }
 
 // Begins the section of temporary arena memory.
+// TODO(Caio): This is not easily trackable, I think this should be wrapped just like free_all, destroy.
 @(require_results, no_sanitize_address)
 arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (temp: Arena_Temp) {
 	assert(arena != nil, "nil arena", loc)
@@ -429,6 +397,7 @@ arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (temp: Arena
 }
 
 // Ends the section of temporary arena memory by resetting the memory to the stored position.
+// TODO(Caio): This is not easily trackable, I think this should be wrapped just like free_all, destroy.
 @(no_sanitize_address)
 arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
 	assert(temp.arena != nil, "nil arena", loc)

@@ -19,7 +19,7 @@ log_typed :: proc "contextless" (level: log_level, msg: cstring, loc := #caller_
 }
 
 odin_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location := #caller_location) {
-	cbuf := make([]byte, len(text)+1, runtime.default_temp_allocator())
+	cbuf := make([]byte, len(text)+1, runtime.temp_allocator)
 	copy(cbuf, text)
 	ctext := cstring(raw_data(cbuf))
 

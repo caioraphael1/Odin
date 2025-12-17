@@ -40,9 +40,13 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 		err = posix.pthread_setcanceltype(.ASYNCHRONOUS, nil)
 		assert(err == nil)
 
+        err := runtime.arena_init(&runtime.temp_allocator_arena, 0, runtime.general_allocator)
+        assert(err != nil, "Failure initializing the arena")
         t.procedure(t)
-        runtime.default_temp_allocator_destroy()
+        runtime.arena_destroy(&runtime.temp_allocator_arena)
+
         runtime.run_thread_local_cleaners()
+            // Fix: this is for os2.
 
 		sync.atomic_or(&t.flags, { .Done })
 

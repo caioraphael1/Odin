@@ -6,7 +6,7 @@ import "base:runtime"
 @(private="file", thread_local) global_default_temp_allocator_arenas: [MAX_TEMP_ARENA_COUNT]runtime.Arena
 
 // @@fini
-fini_temp_allocators :: proc "contextless" () {
+fini_temp_allocators :: proc() {
 	for &arena in global_default_temp_allocator_arenas {
 		runtime.arena_destroy(&arena)
 	}
@@ -18,10 +18,10 @@ fini_temp_allocators :: proc "contextless" () {
 @(private="file") MAX_TEMP_ARENA_COLLISIONS :: MAX_TEMP_ARENA_COUNT - 1
 
 Temp_Allocator :: struct {
-	using arena: ^runtime.Arena,
+	using arena:     ^runtime.Arena,
 	using allocator: runtime.Allocator,
-	tmp: runtime.Arena_Temp,
-	loc: runtime.Source_Code_Location,
+	tmp:             runtime.Arena_Temp,
+	loc:             runtime.Source_Code_Location,
 }
 	
 TEMP_ALLOCATOR_GUARD_END :: proc(temp: Temp_Allocator) {
@@ -45,7 +45,7 @@ TEMP_ALLOCATOR_GUARD :: #force_inline proc(collisions: []runtime.Allocator, loc 
 	}
 	assert(good_arena != nil)
 	if good_arena.backing_allocator.procedure == nil {
-		good_arena.backing_allocator = runtime.heap_allocator()
+		good_arena.backing_allocator = runtime.general_allocator
 	}
 	tmp := runtime.arena_temp_begin(good_arena, loc)
 	return { good_arena, runtime.arena_allocator(good_arena), tmp, loc }

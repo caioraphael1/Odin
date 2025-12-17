@@ -52,7 +52,7 @@ cpu: CPU
 cpu_name_buf: [128]byte
 
 // @@init
-init_cpu_name :: proc "contextless" () {
+init_cpu_name :: proc() {
 	generic := true
 
 	when ODIN_OS == .Darwin {

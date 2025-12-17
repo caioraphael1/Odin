@@ -484,7 +484,7 @@ get_field_name :: proc(field: reflect.Struct_Field) -> string {
 		}
 	}
 
-	name, _ := strings.replace_all(field.name, "_", "-", runtime.default_temp_allocator())
+	name, _ := strings.replace_all(field.name, "_", "-", runtime.temp_allocator)
 	return name
 }
 

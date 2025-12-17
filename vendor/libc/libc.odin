@@ -8,8 +8,7 @@ import "core:mem"
 @(private) g_allocator: mem.Compat_Allocator
 
 // @@init don't care
-init_context :: proc "contextless" () {
-    context = {}
+init_context :: proc() {
 	// Wrapping the allocator with the mem.Compat_Allocator so we can
 	// mimic the realloc semantics.
 	mem.compat_allocator_init(&g_allocator, g_ctx.allocator)

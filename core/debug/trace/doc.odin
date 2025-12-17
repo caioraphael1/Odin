@@ -25,7 +25,7 @@ Example:
 			runtime.print_string("Debug Trace:\n")
 			frames := trace.frames(ctx, 1, buf[:])
 			for f, i in frames {
-				fl := trace.resolve(ctx, f, runtime.default_temp_allocator())
+				fl := trace.resolve(ctx, f, runtime.temp_allocator)
 				if fl.loc.file_path == "" && fl.loc.line == 0 {
 					continue
 				}

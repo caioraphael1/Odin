@@ -196,7 +196,7 @@ aprintfln :: proc(fmt: string, args: []any, allocator: mem.Allocator) -> string 
 @(require_results)
 tprint :: proc(args: ..any, sep := " ") -> string {
 	str: strings.Builder
-	strings.builder_init(&str, runtime.default_temp_allocator())
+	strings.builder_init(&str, runtime.temp_allocator)
 	return sbprint(&str, ..args, sep=sep)
 }
 // 	Creates a formatted string with a newline character at the end
@@ -212,7 +212,7 @@ tprint :: proc(args: ..any, sep := " ") -> string {
 @(require_results)
 tprintln :: proc(args: ..any, sep := " ") -> string {
 	str: strings.Builder
-	strings.builder_init(&str, runtime.default_temp_allocator())
+	strings.builder_init(&str, runtime.temp_allocator)
 	return sbprintln(&str, ..args, sep=sep)
 }
 // 	Creates a formatted string using a format string and arguments
@@ -229,7 +229,7 @@ tprintln :: proc(args: ..any, sep := " ") -> string {
 @(require_results)
 tprintf :: proc(fmt: string, args: ..any, newline := false) -> string {
 	str: strings.Builder
-	strings.builder_init(&str, runtime.default_temp_allocator())
+	strings.builder_init(&str, runtime.temp_allocator)
 	return sbprintf(&str, fmt, ..args, newline=newline)
 }
 // 	Creates a formatted string using a format string and arguments, followed by a newline.
@@ -420,7 +420,7 @@ caprintfln :: proc(format: string, args: []any, allocator: mem.Allocator) -> cst
 //
 @(require_results)
 ctprint :: proc(args: ..any, sep := " ") -> cstring {
-	return caprint(args=args, sep=sep, allocator=runtime.default_temp_allocator())
+	return caprint(args=args, sep=sep, allocator=runtime.temp_allocator)
 }
 // Creates a formatted C string
 //
@@ -435,7 +435,7 @@ ctprint :: proc(args: ..any, sep := " ") -> cstring {
 //
 @(require_results)
 ctprintf :: proc(format: string, args: ..any, newline := false) -> cstring {
-	return caprintf(format=format, args=args, allocator=runtime.default_temp_allocator(), newline=newline)
+	return caprintf(format=format, args=args, allocator=runtime.temp_allocator, newline=newline)
 }
 // Creates a formatted C string, followed by a newline.
 //
@@ -449,7 +449,7 @@ ctprintf :: proc(format: string, args: ..any, newline := false) -> cstring {
 //
 @(require_results)
 ctprintfln :: proc(format: string, args: ..any) -> cstring {
-	return caprintf(format=format, args=args, allocator=runtime.default_temp_allocator(), newline=true)
+	return caprintf(format=format, args=args, allocator=runtime.temp_allocator, newline=true)
 }
 // Formats using the default print settings and writes to the given strings.Builder
 //

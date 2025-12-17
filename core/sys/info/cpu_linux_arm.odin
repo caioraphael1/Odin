@@ -7,8 +7,7 @@ import "core:sys/linux"
 import "core:strings"
 
 // @@init
-init_cpu_features :: proc "contextless" () {
-	context = {}
+init_cpu_features :: proc() {
 	fd, err := linux.open("/proc/cpuinfo", {})
 	if err != .NONE { return }
 	defer linux.close(fd)

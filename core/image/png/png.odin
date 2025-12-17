@@ -1214,10 +1214,10 @@ defilter_8 :: proc(params: ^Filter_Params) -> (ok: bool) {
 
 	// TODO: See about doing a Duff's #unroll where practicable
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	// Apron so we don't need to special case first rows.
-	up := make([]u8, row_stride, runtime.default_temp_allocator())
+	up := make([]u8, row_stride, runtime.temp_allocator)
 	ok = true
 
 	for _ in 0..<height {
@@ -1281,10 +1281,10 @@ defilter_less_than_8 :: proc(params: ^Filter_Params) -> bool #no_bounds_check {
 
 	// TODO: See about doing a Duff's #unroll where practicable
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	// Apron so we don't need to special case first rows.
-	up := make([]u8, row_stride_out, runtime.default_temp_allocator())
+	up := make([]u8, row_stride_out, runtime.temp_allocator)
 
 	#no_bounds_check for _ in 0..<height {
 		nk := row_stride_in - channels
@@ -1435,11 +1435,11 @@ defilter_16 :: proc(params: ^Filter_Params) -> bool {
 	stride := channels * 2
 	row_stride := width * stride
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	// TODO: See about doing a Duff's #unroll where practicable
 	// Apron so we don't need to special case first rows.
-	up := make([]u8, row_stride, runtime.default_temp_allocator())
+	up := make([]u8, row_stride, runtime.temp_allocator)
 
 	for y := 0; y < height; y += 1 {
 		nk := row_stride - stride
@@ -1606,6 +1606,6 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
 }
 
 // @@init
-_register :: proc "contextless" () {
+_register :: proc() {
 	image.register(.PNG, load_from_bytes, destroy)
 }

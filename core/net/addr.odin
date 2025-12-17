@@ -506,7 +506,7 @@ map_to_ip6 :: proc(addr: Address) -> Address {
 
 	See RFC 5952 section 4 for IPv6 representation recommendations.
 */
-address_to_string :: proc(addr: Address, allocator := runtime.default_temp_allocator()) -> string {
+address_to_string :: proc(addr: Address, allocator := runtime.temp_allocator) -> string {
 	b := strings.builder_make(allocator)
 	switch v in addr {
 	case IP4_Address:
@@ -592,11 +592,11 @@ address_to_string :: proc(addr: Address, allocator := runtime.default_temp_alloc
 
 // Returns a temporarily-allocated string representation of the endpoint.
 // If there's a port, uses the `ip4address:port` or `[ip6address]:port` format, respectively.
-endpoint_to_string :: proc(ep: Endpoint, allocator := runtime.default_temp_allocator()) -> string {
+endpoint_to_string :: proc(ep: Endpoint, allocator := runtime.temp_allocator) -> string {
 	if ep.port == 0 {
 		return address_to_string(ep.address, allocator)
 	} else {
-		s := address_to_string(ep.address, runtime.default_temp_allocator())
+		s := address_to_string(ep.address, runtime.temp_allocator)
 		b := strings.builder_make(allocator)
 		switch a in ep.address {
 		case IP4_Address:  fmt.sbprintf(&b, "%v:%v",   s, ep.port)

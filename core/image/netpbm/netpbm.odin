@@ -373,11 +373,11 @@ _parse_header_pam :: proc(data: []byte, allocator := context.allocator) -> (head
 	}
 	length = header_end_index + len(HEADER_END)
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = runtime.default_temp_allocator() == allocator)
+	runtime.TEMP_ALLOCATOR_GUARD(runtime.temp_allocator == allocator)
 
 	// string buffer for the tupltype
 	tupltype: strings.Builder
-	strings.builder_init(&tupltype, runtime.default_temp_allocator()); defer strings.builder_destroy(&tupltype)
+	strings.builder_init(&tupltype, runtime.temp_allocator); defer strings.builder_destroy(&tupltype)
 	fmt.sbprint(&tupltype, "")
 
 	// PAM uses actual lines, so we can iterate easily
@@ -720,7 +720,7 @@ autoselect_pbm_format_from_image :: proc(img: ^Image, prefer_binary := true, for
 }
 
 // @@init
-_register :: proc "contextless" () {
+_register :: proc() {
 	loader :: proc(data: []byte, options: image.Options, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
 		return load_from_bytes(data, allocator)
 	}

@@ -17,7 +17,7 @@ Custom_Data :: struct {
 }
 
 // @@init don't care
-init_custom_type_setter :: proc "contextless" () {
+init_custom_type_setter :: proc() {
 	// NOTE: This is done here so it can be out of the flow of the
 	// multi-threaded test runner, to prevent any data races that could be
 	// reported by using `-sanitize:thread`.
@@ -1274,7 +1274,7 @@ test_os_handle :: proc(t: ^testing.T) {
 		return
 	}
 	defer os.close(r.inf)
-	data, read_ok := os.read_entire_file_from_handle(r.inf, context.temp_allocator)
+	data, read_ok := os.read_entire_file_from_handle(r.inf, runtime.temp_allocator)
 	testing.expect_value(t, read_ok, true)
 	file_contents_equal := 0 == bytes.compare(transmute([]u8)test_data, data)
 	testing.expectf(t, file_contents_equal, "expected file contents to be the same, got %v", data)

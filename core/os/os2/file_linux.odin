@@ -89,7 +89,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, 
 		return nil, _get_platform_error(errno)
 	}
 
-	return _new_file(uintptr(fd), name, runtime.heap_allocator())
+	return _new_file(uintptr(fd), name, runtime.general_allocator)
 }
 
 _new_file :: proc(fd: uintptr, _: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
@@ -122,7 +122,7 @@ _clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
 	}
 	defer if err != nil { linux.close(clonefd) }
 
-	return _new_file(uintptr(clonefd), "", runtime.heap_allocator())
+	return _new_file(uintptr(clonefd), "", runtime.general_allocator)
 }
 
 
@@ -132,7 +132,7 @@ _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Rea
 	f, err = _open(name, flags, perm)
 	if f != nil && err == nil {
 		impl := (^File_Impl)(f.impl)
-		impl.buffer = make([]byte, buffer_size, runtime.heap_allocator())
+		impl.buffer = make([]byte, buffer_size, runtime.general_allocator)
 		f.stream.procedure = _file_stream_buffered_proc
 	}
 	return

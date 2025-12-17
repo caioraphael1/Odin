@@ -74,7 +74,7 @@ Decodes both deterministic and non-deterministic CBOR into a `Value` variant.
 `Text` and `Bytes` can safely be cast to cstrings because of an added 0 byte.
 
 Allocations are done using the given allocator,
-*no* allocations are done on the `runtime.default_temp_allocator()`.
+*no* allocations are done on the `runtime.temp_allocator`.
 
 A value can be (fully and recursively) deallocated using the `destroy` proc in this package.
 
@@ -220,7 +220,7 @@ encode_into_builder :: proc(b: ^strings.Builder, v: Value, flags := ENCODE_SMALL
 // Encodes the CBOR value into binary CBOR written to the given writer.
 // See the docs on the proc group `encode_into` for more info.
 encode_into_writer :: proc(w: io.Writer, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
-	return encode_into_encoder(Encoder{flags, w, runtime.default_temp_allocator() }, v, loc=loc)
+	return encode_into_encoder(Encoder{flags, w, runtime.temp_allocator }, v, loc=loc)
 }
 
 // Encodes the CBOR value into binary CBOR written to the given encoder.
@@ -229,7 +229,7 @@ encode_into_encoder :: proc(e: Encoder, v: Value, loc := #caller_location) -> En
 	e := e
 
 	if e.temp_allocator.procedure == nil {
-		e.temp_allocator = runtime.default_temp_allocator()
+		e.temp_allocator = runtime.temp_allocator
 	}
 
 	if .Self_Described_CBOR in e.flags {

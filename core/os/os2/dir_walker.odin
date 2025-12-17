@@ -19,7 +19,7 @@ Walker :: struct {
 }
 
 walker_init_path :: proc(w: ^Walker, path: string) {
-	cloned_path, err := clone_string(path, runtime.heap_allocator())
+	cloned_path, err := clone_string(path, runtime.general_allocator)
 	if err != nil {
 		walker_set_error(w, path, err)
 		return
@@ -36,7 +36,7 @@ walker_init_path :: proc(w: ^Walker, path: string) {
 walker_init_file :: proc(w: ^Walker, f: ^File) {
 	handle, err := clone(f)
 	if err != nil {
-		path, _ := clone_string(name(f), runtime.heap_allocator())
+		path, _ := clone_string(name(f), runtime.general_allocator)
 		walker_set_error(w, path, err)
 		return
 	}
@@ -107,12 +107,12 @@ walker_clear :: proc(w: ^Walker) {
 	w.iter.f = nil
 	w.skip_dir = false
 
-	w.err.path.allocator = runtime.heap_allocator()
+	w.err.path.allocator = runtime.general_allocator
 	clear(&w.err.path)
 
-	w.todo.data.allocator = runtime.heap_allocator()
+	w.todo.data.allocator = runtime.general_allocator
 	for path in queue.pop_front_safe(&w.todo) {
-		delete(path, runtime.heap_allocator())
+		delete(path, runtime.general_allocator)
 	}
 }
 
@@ -179,7 +179,7 @@ walker_walk :: proc(w: ^Walker) -> (fi: File_Info, ok: bool) {
 	if w.skip_dir {
 		w.skip_dir = false
 		if skip, sok := queue.pop_back_safe(&w.todo); sok {
-			delete(skip, runtime.heap_allocator())
+			delete(skip, runtime.general_allocator)
 		}
 	}
 
@@ -198,7 +198,7 @@ walker_walk :: proc(w: ^Walker) -> (fi: File_Info, ok: bool) {
 
 		read_directory_iterator_init(&w.iter, handle)
 
-		delete(next, runtime.heap_allocator())
+		delete(next, runtime.general_allocator)
 	}
 
 	info, _, iter_ok := read_directory_iterator(&w.iter)
@@ -214,7 +214,7 @@ walker_walk :: proc(w: ^Walker) -> (fi: File_Info, ok: bool) {
 	}
 
 	if info.type == .Directory {
-		path, err := clone_string(info.fullpath, runtime.heap_allocator())
+		path, err := clone_string(info.fullpath, runtime.general_allocator)
 		if err != nil {
 			walker_set_error(w, "", err)
 			return

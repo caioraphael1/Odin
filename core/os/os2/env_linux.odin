@@ -215,7 +215,7 @@ when ODIN_NO_CRT {
 			return
 		}
 
-		_env = make(type_of(_env), runtime.heap_allocator())
+		_env = make(type_of(_env), runtime.general_allocator)
 		cstring_env := _get_original_env()
 		intrinsics.atomic_store_explicit(&_org_env_begin, uintptr(rawptr(cstring_env[0])), .Release)
 		for i := 0; cstring_env[i] != nil; i += 1 {

@@ -13,9 +13,7 @@ import "base:runtime"
 version_string_buf: [1024]u8
 
 // @@init
-init_os_version :: proc "contextless" () {
-	context = {}
-
+init_os_version :: proc() {
 	/*
 		NOTE(Jeroen):
 			`GetVersionEx`  will return 6.2 for Windows 10 unless the program is manifested for Windows 10.
@@ -263,7 +261,7 @@ init_os_version :: proc "contextless" () {
 }
 
 // @@init
-init_ram :: proc "contextless" () {
+init_ram :: proc() {
 	state: sys.MEMORYSTATUSEX
 
 	state.dwLength = size_of(state)
@@ -280,11 +278,10 @@ init_ram :: proc "contextless" () {
 }
 
 // @@init
-init_gpu_info :: proc "contextless" () {
+init_gpu_info :: proc() {
 	GPU_ROOT_KEY :: `SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}`
 
-	context = {}
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	gpu_key: sys.HKEY
 	if status := sys.RegOpenKeyExW(
@@ -326,7 +323,7 @@ init_gpu_info :: proc "contextless" () {
 			continue
 		}
 
-		key := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, runtime.default_temp_allocator())
+		key := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, runtime.temp_allocator)
 
 		if vendor, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "ProviderName"); ok {
 			idx := append(&gpu_list, GPU{vendor_name = vendor})
@@ -352,16 +349,16 @@ read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: string, ok
 		return
 	}
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
-	val_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
+	key_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	val_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)
 
-	result_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
+	result_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
 	result_size := sys.DWORD(BUF_SIZE * size_of(u16))
 
 	status := sys.RegGetValueW(
@@ -379,7 +376,7 @@ read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: string, ok
 	}
 
 	// Result string will be allocated for the caller.
-	result_utf8 := make([]u8, BUF_SIZE * 4, runtime.default_temp_allocator())
+	result_utf8 := make([]u8, BUF_SIZE * 4, runtime.temp_allocator)
 	utf16.decode_to_utf8(result_utf8, result_wide[:result_size])
 	return strings.clone_from_cstring(cstring(raw_data(result_utf8))), true
 }
@@ -389,11 +386,11 @@ read_reg_i32 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i32, ok: bool
 		return
 	}
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
-	val_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
+	key_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	val_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)
@@ -416,11 +413,11 @@ read_reg_i64 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i64, ok: bool
 		return
 	}
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
-	val_name_wide := make([]u16, BUF_SIZE, runtime.default_temp_allocator())
+	key_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	val_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)

@@ -16,17 +16,15 @@ Arguments to the current process.
 */
 args: []string
 
-init_args :: proc "contextless" () {
-	context = {}
-	args = make([]string, len(runtime.args__), runtime.heap_allocator())
+init_args :: proc() {
+	args = make([]string, len(runtime.args__), runtime.general_allocator)
 	for rt_arg, i in runtime.args__ {
 		args[i] = string(rt_arg)
 	}
 }
 
-fini_args :: proc "contextless" () {
-	context = {}
-	delete(args, runtime.heap_allocator())
+fini_args :: proc() {
+	delete(args, runtime.general_allocator)
 }
 
 /*

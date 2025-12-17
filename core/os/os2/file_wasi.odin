@@ -30,8 +30,8 @@ Preopen :: struct {
 preopens: []Preopen
 
 // @@init
-init_std_files :: proc "contextless" () {
-	new_std :: proc "contextless" (impl: ^File_Impl, fd: wasi.fd_t, name: string) -> ^File {
+init_std_files :: proc() {
+	new_std :: proc(impl: ^File_Impl, fd: wasi.fd_t, name: string) -> ^File {
 		impl.file.impl = impl
 		impl.allocator = runtime.nil_allocator()
 		impl.fd = fd
@@ -51,8 +51,8 @@ init_std_files :: proc "contextless" () {
 }
 
 // @@init
-init_preopens :: proc "contextless" () {
-	strip_prefixes :: proc "contextless" (path: string) -> string {
+init_preopens :: proc() {
+	strip_prefixes :: proc(path: string) -> string {
 		path := path
 		loop: for len(path) > 0 {
 			switch {
@@ -69,8 +69,6 @@ init_preopens :: proc "contextless" () {
 		return path
 	}
 
-	context = {}
-
 	n: int
 	n_loop: for fd := wasi.fd_t(3); ; fd += 1 {
 		_, err := wasi.fd_prestat_get(fd)
@@ -84,7 +82,7 @@ init_preopens :: proc "contextless" () {
 	}
 
 	alloc_err: runtime.Allocator_Error
-	preopens, alloc_err = make([]Preopen, n, runtime.heap_allocator())
+	preopens, alloc_err = make([]Preopen, n, runtime.general_allocator)
 	if alloc_err != nil {
 		print_error(stderr, alloc_err, "could not allocate memory for wasi preopens")
 		return
@@ -99,7 +97,7 @@ init_preopens :: proc "contextless" () {
 		switch desc.tag {
 		case .DIR:
 			buf: []byte
-			buf, alloc_err = make([]byte, desc.dir.pr_name_len, runtime.heap_allocator())
+			buf, alloc_err = make([]byte, desc.dir.pr_name_len, runtime.general_allocator)
 			if alloc_err != nil {
 				print_error(stderr, alloc_err, "could not allocate memory for wasi preopen dir name")
 				continue loop
@@ -199,7 +197,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, 
 		return
 	}
 
-	return _new_file(uintptr(fd), name, runtime.heap_allocator())
+	return _new_file(uintptr(fd), name, runtime.general_allocator)
 }
 
 _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
@@ -248,7 +246,7 @@ _clone :: proc(f: ^File) -> (clone: ^File, err: Error) {
 		return
 	}
 
-	return _new_file(uintptr(fd), name(f), runtime.heap_allocator())
+	return _new_file(uintptr(fd), name(f), runtime.general_allocator)
 }
 
 _close :: proc(f: ^File_Impl) -> (err: Error) {

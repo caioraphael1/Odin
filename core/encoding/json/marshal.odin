@@ -69,7 +69,7 @@ marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc
 	}
 	
 	// temp guard in case we are sorting map keys, which will use temp allocations
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD(ignore = allocator == runtime.default_temp_allocator())
+	runtime.TEMP_ALLOCATOR_GUARD(allocator == runtime.temp_allocator)
 
 	opt := opt
 	marshal_to_builder(&b, v, &opt) or_return
@@ -307,7 +307,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
 				// If we are sorting the map by key, then we temp alloc an array
 				// and sort it, then output the result.
-				sorted := make([dynamic]Entry, 0, map_cap, runtime.default_temp_allocator())
+				sorted := make([dynamic]Entry, 0, map_cap, runtime.temp_allocator)
 				for bucket_index in 0..<map_cap {
 					runtime.map_hash_is_valid(hs[bucket_index]) or_continue
 

@@ -8,9 +8,7 @@ import "core:strings"
 import "core:strconv"
 
 // @@init
-init_cpu_core_count :: proc "contextless" () {
-	context = {}
-
+init_cpu_core_count :: proc() {
 	fd, err := linux.open("/proc/cpuinfo", {})
 	if err != .NONE { return }
 	defer linux.close(fd)

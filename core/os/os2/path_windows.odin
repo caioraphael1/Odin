@@ -10,7 +10,7 @@ _Path_Separator_String :: "\\"
 _Path_List_Separator   :: ';'
 
 // @@init
-init_long_path_support :: proc "contextless" () {
+init_long_path_support :: proc() {
 	can_use_long_paths = false
 
 	key: win32.HKEY
@@ -55,7 +55,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 	fix_root_directory :: proc(p: string) -> (s: string, allocated: bool, err: runtime.Allocator_Error) {
 		if len(p) == len(`\\?\c:`) {
 			if is_path_separator(p[0]) && is_path_separator(p[1]) && p[2] == '?' && is_path_separator(p[3]) && p[5] == ':' {
-				s = concatenate({p, `\`}, runtime.heap_allocator()) or_return
+				s = concatenate({p, `\`}, runtime.general_allocator) or_return
 				allocated = true
 				return
 			}
@@ -86,7 +86,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 	if j > 1 {
 		new_path, allocated := fix_root_directory(path[:j-1]) or_return
 		defer if allocated {
-			delete(new_path, runtime.heap_allocator())
+			delete(new_path, runtime.general_allocator)
 		}
 		mkdir_all(new_path, perm) or_return
 	}

@@ -75,7 +75,7 @@ unicode_width_proc :: proc(str: string) -> (width: int) {
 
 init :: proc{init_with_allocator, init_with_virtual_arena, init_with_mem_arena}
 
-init_with_allocator :: proc(tbl: ^Table, format_allocator := runtime.default_temp_allocator(), table_allocator := context.allocator) -> ^Table {
+init_with_allocator :: proc(tbl: ^Table, format_allocator := runtime.temp_allocator, table_allocator := context.allocator) -> ^Table {
 	tbl.table_allocator = table_allocator
 	tbl.cells = make([dynamic]Cell, tbl.table_allocator)
 	tbl.colw = make([dynamic]int, tbl.table_allocator)

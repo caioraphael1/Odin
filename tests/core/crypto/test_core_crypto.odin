@@ -29,7 +29,7 @@ _PLAINTEXT_SUNSCREEN_STR := "Ladies and Gentlemen of the class of '99: If I coul
 
 @(test)
 test_chacha20 :: proc(t: ^testing.T) {
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	impls := supported_chacha_impls()
 

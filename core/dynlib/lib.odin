@@ -42,7 +42,7 @@ Example:
 		fmt.println("The library %q was successfully loaded", LIBRARY_PATH)
 	}
 */
-load_library :: proc(path: string, global_symbols := false, allocator := runtime.default_temp_allocator()) -> (library: Library, did_load: bool) {
+load_library :: proc(path: string, global_symbols := false, allocator := runtime.temp_allocator) -> (library: Library, did_load: bool) {
 	return _load_library(path, global_symbols, allocator)
 }
 
@@ -103,7 +103,7 @@ Example:
 		}
 	}
 */
-symbol_address :: proc(library: Library, symbol: string, allocator := runtime.default_temp_allocator()) -> (ptr: rawptr, found: bool) #optional_ok {
+symbol_address :: proc(library: Library, symbol: string, allocator := runtime.temp_allocator) -> (ptr: rawptr, found: bool) #optional_ok {
 	return _symbol_address(library, symbol, allocator)
 }
 

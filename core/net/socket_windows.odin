@@ -79,7 +79,7 @@ Shutdown_Manner :: enum c.int {
 }
 
 // @@init
-ensure_winsock_initialized :: proc "contextless" () {
+ensure_winsock_initialized :: proc() {
 	win.ensure_winsock_initialized()
 }
 

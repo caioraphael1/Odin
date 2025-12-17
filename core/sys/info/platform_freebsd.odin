@@ -9,9 +9,7 @@ import "base:runtime"
 version_string_buf: [1024]u8
 
 // @@init
-init_os_version :: proc "contextless" () {
-	context = {}
-
+init_os_version :: proc() {
 	os_version.platform = .FreeBSD
 
 	kernel_version_buf: [1024]u8
@@ -49,14 +47,14 @@ init_os_version :: proc "contextless" () {
 		return
 	}
 
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	// Parse kernel version
 	release := string(cstring(raw_data(kernel_version_buf[:])))
-	version_bits := strings.split_n(release, "-", 2, runtime.default_temp_allocator())
+	version_bits := strings.split_n(release, "-", 2, runtime.temp_allocator)
 	if len(version_bits) > 1 {
 		// Parse major, minor from KERN_OSRELEASE
-		triplet := strings.split(version_bits[0], ".", runtime.default_temp_allocator())
+		triplet := strings.split(version_bits[0], ".", runtime.temp_allocator)
 		if len(triplet) == 2 {
 			major, major_ok := strconv.parse_int(triplet[0])
 			minor, minor_ok := strconv.parse_int(triplet[1])
@@ -70,7 +68,7 @@ init_os_version :: proc "contextless" () {
 }
 
 // @@init
-init_ram :: proc "contextless" () {
+init_ram :: proc() {
 	// Retrieve RAM info using `sysctl`
 	mib := []i32{sys.CTL_HW, sys.HW_PHYSMEM}
 	mem_size: u64

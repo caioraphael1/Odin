@@ -25,7 +25,7 @@ BINDINGS_VERSION          :: [3]u32{BINDINGS_VERSION_MAJOR, BINDINGS_VERSION_MIN
 BINDINGS_VERSION_STRING   :: "0.11.22"
 
 // @@init don't care
-version_check :: proc "contextless" () {
+version_check :: proc() {
 	v: [3]u32
 	version(&v.x, &v.y, &v.z)
 	if v != BINDINGS_VERSION {

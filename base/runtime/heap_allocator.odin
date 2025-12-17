@@ -2,6 +2,7 @@ package runtime
 
 import "base:intrinsics"
 
+
 @(require_results)
 heap_allocator :: proc "contextless" () -> Allocator {
 	return {

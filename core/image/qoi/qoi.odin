@@ -370,6 +370,6 @@ qoi_hash :: #force_inline proc(pixel: RGBA_Pixel) -> (index: u8) {
 }
 
 // @@init
-_register :: proc "contextless" () {
+_register :: proc() {
 	image.register(.QOI, load_from_bytes, destroy)
 }

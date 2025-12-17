@@ -796,7 +796,6 @@ initialize_constants :: proc(allocator: runtime.Allocator) {
 */
 // @@fini
 destroy_constants :: proc() {
-	context = {}
 	// context.allocator = constant_allocator
 
 	internal_destroy(INT_ONE, INT_ZERO, INT_MINUS_ONE, INT_INF, INT_MINUS_INF, INT_NAN)

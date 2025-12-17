@@ -3,7 +3,7 @@ package runtime
 import "base:intrinsics"
 // import "base:sanitizer"
 
-DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE :: uint(DEFAULT_TEMP_ALLOCATOR_BACKING_SIZE)
+DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE: uint : #config(DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE, 4 * Megabyte)
 
 Memory_Block :: struct {
 	prev:      ^Memory_Block,
@@ -13,14 +13,18 @@ Memory_Block :: struct {
 	capacity:  uint,
 }
 
-// NOTE: This is a growing arena that is only used for the default temp allocator.
+// NOTE: This is a growing arena that is only used for the default arena_temp allocator.
 // For your own growing arena needs, prefer `Arena` from `core:mem/virtual`.
 Arena :: struct {
 	backing_allocator:  Allocator,
+
 	curr_block:         ^Memory_Block,
+
 	total_used:         uint,
 	total_capacity:     uint,
+
 	minimum_block_size: uint,
+
 	temp_count:         uint,
 }
 
@@ -55,12 +59,11 @@ memory_block_alloc :: proc(allocator: Allocator, capacity: uint, alignment: uint
 }
 
 
-memory_block_dealloc :: proc "contextless" (block_to_free: ^Memory_Block, loc := #caller_location) {
+memory_block_dealloc :: proc(block_to_free: ^Memory_Block, loc := #caller_location) {
 	if block_to_free != nil {
 
 		allocator := block_to_free.allocator
 		// sanitizer.address_unpoison(block_to_free.base, block_to_free.capacity)
-		context = {}
 		mem_free(block_to_free, allocator, loc)
 	}
 }
@@ -128,7 +131,7 @@ arena_alloc :: proc(arena: ^Arena, size, alignment: uint, loc := #caller_locatio
 		block_size := max(needed, arena.minimum_block_size)
 
         assert(arena.backing_allocator.procedure != nil, 
-            "The runtime.default_temp_allocator() should be initialized manually with runtime.default_temp_allocator_init(size, backing_allocator)")
+            "Allocator not initialized. Use runtime.arena_init(arena, size, backing_allocator)")
 
 		new_block := memory_block_alloc(arena.backing_allocator, block_size, alignment, loc) or_return
 		new_block.prev = arena.curr_block
@@ -178,7 +181,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
 	arena.total_used = 0
 }
 
-arena_destroy :: proc "contextless" (arena: ^Arena, loc := #caller_location) {
+arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
 	for arena.curr_block != nil {
 		free_block := arena.curr_block
 		arena.curr_block = free_block.prev
@@ -198,7 +201,6 @@ arena_allocator :: proc(arena: ^Arena) -> Allocator {
         data      = arena,
     }
 }
-
 
 
 arena_allocator_proc :: proc(
@@ -275,56 +277,63 @@ arena_allocator_proc :: proc(
 
 
 
-
 Arena_Temp :: struct {
 	arena: ^Arena,
 	block: ^Memory_Block,
 	used:  uint,
 }
 
+@(deferred_out=arena_temp_end)
+ARENA_TEMP_GUARD :: #force_inline proc(arena: ^Arena, ignore := false, loc := #caller_location) -> (Arena_Temp, Source_Code_Location) {
+	if ignore {
+		return {}, loc
+	}
+    return arena_temp_begin(arena, loc), loc
+}
+
 @(require_results)
-arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (temp: Arena_Temp) {
+arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (arena_temp: Arena_Temp) {
 	assert(arena != nil, "nil arena", loc)
 
-	temp.arena = arena
-	temp.block = arena.curr_block
+	arena_temp.arena = arena
+	arena_temp.block = arena.curr_block
 	if arena.curr_block != nil {
-		temp.used = arena.curr_block.used
+		arena_temp.used = arena.curr_block.used
 	}
 	arena.temp_count += 1
 	return
 }
 
-arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
-	if temp.arena == nil {
-		assert(temp.block == nil)
-		assert(temp.used == 0)
+arena_temp_end :: proc(arena_temp: Arena_Temp, loc := #caller_location) {
+	if arena_temp.arena == nil {
+		assert(arena_temp.block == nil)
+		assert(arena_temp.used == 0)
 		return
 	}
-	arena := temp.arena
+	arena := arena_temp.arena
 
-	if temp.block != nil {
+	if arena_temp.block != nil {
 		memory_block_found := false
 		for block := arena.curr_block; block != nil; block = block.prev {
-			if block == temp.block {
+			if block == arena_temp.block {
 				memory_block_found = true
 				break
 			}
 		}
 		if !memory_block_found {
-			assert(arena.curr_block == temp.block, "memory block stored within Arena_Temp not owned by Arena", loc)
+			assert(arena.curr_block == arena_temp.block, "memory block stored within Arena_Temp not owned by Arena", loc)
 		}
 
-		for arena.curr_block != temp.block {
+		for arena.curr_block != arena_temp.block {
 			arena_free_last_memory_block(arena)
 		}
 
 		if block := arena.curr_block; block != nil {
-			assert(block.used >= temp.used, "out of order use of arena_temp_end", loc)
-			amount_to_zero := block.used-temp.used
-			intrinsics.mem_zero(block.base[temp.used:], amount_to_zero)
-			// sanitizer.address_poison(block.base[temp.used:block.capacity])
-			block.used = temp.used
+			assert(block.used >= arena_temp.used, "out of order use of arena_temp_end", loc)
+			amount_to_zero := block.used-arena_temp.used
+			intrinsics.mem_zero(block.base[arena_temp.used:], amount_to_zero)
+			// sanitizer.address_poison(block.base[arena_temp.used:block.capacity])
+			block.used = arena_temp.used
 			arena.total_used -= amount_to_zero
 		}
 	}
@@ -333,9 +342,9 @@ arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
 	arena.temp_count -= 1
 }
 
-arena_temp_ignore :: proc(temp: Arena_Temp, loc := #caller_location) {
-	assert(temp.arena != nil, "nil arena", loc)
-	arena := temp.arena
+arena_temp_ignore :: proc(arena_temp: Arena_Temp, loc := #caller_location) {
+	assert(arena_temp.arena != nil, "nil arena", loc)
+	arena := arena_temp.arena
 
 	assert(arena.temp_count > 0, "double-use of arena_temp_end", loc)
 	arena.temp_count -= 1

@@ -25,10 +25,10 @@ Walk_Proc :: #type proc(info: os.File_Info, in_err: os.Error, user_data: rawptr)
 // The files are walked in lexical order to make the output deterministic
 // NOTE: Walking large directories can be inefficient due to the lexical sort
 // NOTE: walk does not follow symbolic links
-// NOTE: os.File_Info uses the 'runtime.default_temp_allocator()' to allocate, and will delete when it is done
+// NOTE: os.File_Info uses the 'runtime.temp_allocator' to allocate, and will delete when it is done
 walk :: proc(root: string, walk_proc: Walk_Proc, user_data: rawptr) -> os.Error {
-	info, err := os.lstat(root, runtime.default_temp_allocator())
-	defer os.file_info_delete(info, runtime.default_temp_allocator())
+	info, err := os.lstat(root, runtime.temp_allocator)
+	defer os.file_info_delete(info, runtime.temp_allocator)
 
 	skip_dir: bool
 	if err != nil {
@@ -52,8 +52,8 @@ _walk :: proc(info: os.File_Info, walk_proc: Walk_Proc, user_data: rawptr) -> (e
 
 	fis: []os.File_Info
 	err1: os.Error
-	fis, err = read_dir(info.fullpath, runtime.default_temp_allocator())
-	defer os.file_info_slice_delete(fis, runtime.default_temp_allocator())
+	fis, err = read_dir(info.fullpath, runtime.temp_allocator)
+	defer os.file_info_slice_delete(fis, runtime.temp_allocator)
 
 	err1, skip_dir = walk_proc(info, err, user_data)
 	if err != nil || err1 != nil || skip_dir {

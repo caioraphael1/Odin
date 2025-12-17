@@ -134,8 +134,8 @@ shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
 
 	if q.len > 0 && q.offset > 0 {
 		// Make the array contiguous again.
-		buffer := make([]T, q.len, runtime.default_temp_allocator())
-		defer delete(buffer, runtime.default_temp_allocator())
+		buffer := make([]T, q.len, runtime.temp_allocator)
+		defer delete(buffer, runtime.temp_allocator)
 
 		right := uint(builtin.len(q.data)) - q.offset
 		copy(buffer[:],      q.data[q.offset:])

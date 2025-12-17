@@ -128,7 +128,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 	options := options
 
 	// For compress.read_slice(), until that's rewritten to not use temp allocator
-	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	runtime.TEMP_ALLOCATOR_GUARD()
 
 	if .info in options {
 		options += {.return_metadata, .do_not_decompress_image}
@@ -742,6 +742,6 @@ destroy :: proc(img: ^Image) {
 
 // @@init
 @(private)
-_register :: proc "contextless" () {
+_register :: proc() {
 	image.register(.BMP, load_from_bytes, destroy)
 }

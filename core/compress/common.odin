@@ -201,7 +201,7 @@ read_slice_from_memory :: #force_inline proc(z: ^Context_Memory_Input, size: int
 
 @(optimization_mode="favor_size")
 read_slice_from_stream :: #force_inline proc(z: ^Context_Stream_Input, size: int) -> (res: []u8, err: io.Error) {
-	b := make([]u8, size, runtime.default_temp_allocator())
+	b := make([]u8, size, runtime.temp_allocator)
 	_ = io.read(z.input, b[:]) or_return
 	return b, nil
 }
@@ -300,7 +300,7 @@ peek_data_from_stream :: #force_inline proc(z: ^Context_Stream_Input, $T: typeid
 	when size <= 128 {
 		b: [size]u8
 	} else {
-		b := make([]u8, size, runtime.default_temp_allocator())
+		b := make([]u8, size, runtime.temp_allocator)
 	}
 	_, e2 := io.read_at(r, b[:], curr)
 	if e2 != .None {
@@ -327,7 +327,7 @@ peek_data_at_offset_from_stream :: #force_inline proc(z: ^Context_Stream_Input, 
 	when size <= 128 {
 		b: [size]u8
 	} else {
-		b := make([]u8, size, runtime.default_temp_allocator())
+		b := make([]u8, size, runtime.temp_allocator)
 	}
 	_, e4 := io.read_at(r, b[:], pos)
 	if e4 != .None {

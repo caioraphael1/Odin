@@ -3,7 +3,7 @@ package sysinfo
 import "core:sys/unix"
 
 // @@init
-init_cpu_core_count :: proc "contextless" () {
+init_cpu_core_count :: proc() {
 	physical, logical: i64
 	unix.sysctlbyname("hw.physicalcpu", &physical)
 	unix.sysctlbyname("hw.logicalcpu", &logical)

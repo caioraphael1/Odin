@@ -11,9 +11,7 @@ import "core:sys/linux"
 version_string_buf: [1024]u8
 
 // @@init
-init_os_version :: proc "contextless" () {
-	context = {}
-
+init_os_version :: proc() {
 	os_version.platform = .Linux
 
 	b := strings.builder_from_bytes(version_string_buf[:])
@@ -94,7 +92,7 @@ init_os_version :: proc "contextless" () {
 }
 
 // @@init
-init_ram :: proc "contextless" () {
+init_ram :: proc() {
 	// Retrieve RAM info using `sysinfo`
 	sys_info: linux.Sys_Info
 	errno := linux.sysinfo(&sys_info)
