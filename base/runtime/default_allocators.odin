@@ -1,7 +1,8 @@
 package runtime
 
 /*
-Both allocators here should be manually initialized.
+Note:
+Both allocators need to be manually initialized by the user.
 */
 
 
@@ -39,10 +40,3 @@ TEMP_ALLOCATOR_TEMP_GUARD :: #force_inline proc(collision: Allocator = {}, loc :
 	}
     return arena_temp_begin(&temp_allocator_arena, loc), loc
 }
-
-
-@(deferred_out=arena_temp_end)
-TEMP_ALLOCATOR_TEMP_SCOPE :: proc(arena_temp: Arena_Temp, loc := #caller_location) -> (Arena_Temp, Source_Code_Location) {
-	return arena_temp_begin(arena_temp.arena), loc
-}
-
