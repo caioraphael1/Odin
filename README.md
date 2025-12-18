@@ -192,9 +192,10 @@ msg := aprint({1, 2, 3, 4}, allocator = my_allocator)
 - `_startup_runtime` and `_cleanup_runtime` were **removed**.
 - This means that `@init` and `@fini` no longer work and have to be manually called.
 - Patterns like `a: T = b()` no longer work as well; I've only found this pattern inside the `core:os/os2/process.odin` for `args := get_args()` in the global scope.
-- I wish the using these annotations or calling a function in the global scope would be a compiler error, but for now this is not the case and you have to unsure this doesn't happen. If it does, the operation will simply be ignored by the compiler.
+- I wish using these annotations or calling a function in the global scope would be a compiler error, but for now this is not the case, and you have to ensure this doesn't happen. If it does, the operation will be ignored by the compiler.
 - Check this [Proposal](https://github.com/odin-lang/Odin/discussions/5524) to know more.
 - Check [Odin#Entry Point](https://caioraphael1.github.io/studies/Low-Level%20Systems/Odin/Odin.html#entry-point) to know more.
+- Worth noticing that after the removal of `@init` and `@fini`, there are a lot fewer procedures in the engine that require the `"contextless"` signature, as a lot of them were made this way just as a way to ensure compatibility between the `@init`/`@fini` procedures, since they were required to be `"contextless"`.
 
 
 <br>
