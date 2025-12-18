@@ -2,7 +2,6 @@
 #+build linux
 package sysinfo
 
-import "base:runtime"
 import "core:sys/linux"
 import "core:strings"
 import "core:strconv"

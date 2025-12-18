@@ -2,12 +2,8 @@ package runtime
 
 /*
 Note:
-Both allocators need to be manually initialized by the user.
+This allocator needs to be manually initialized by the user.
 */
-
-
-// General Allocator
-general_allocator: Allocator
 
 
 // Temp Allocator
