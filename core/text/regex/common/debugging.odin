@@ -8,7 +8,7 @@ package regex_common
 		Feoramund: Initial implementation.
 */
 
-@require import "core:os"
+@require import os "core:os/os2"
 import "core:mem"
 import "core:io"
 import "core:strings"
@@ -16,7 +16,7 @@ import "core:strings"
 ODIN_DEBUG_REGEX :: #config(ODIN_DEBUG_REGEX, false)
 
 when ODIN_DEBUG_REGEX {
-	debug_stream := os.stream_from_handle(os.stderr)
+	debug_stream := os.to_stream(os.stderr)
 }
 
 write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
