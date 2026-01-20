@@ -225,7 +225,11 @@ msg := aprint({1, 2, 3, 4}, allocator = my_allocator)
 
 ## Optional Returns
 
-- `@(require_results)` was removed from the source code.
+- `@(require_results)` was removed from the source code, replaced by `@(optional_results)`.
+    - The whole dynamic was inverted. Now a procedure requires result handling by default, unless specified by the the new `@(optional_results)` directive.
+    - This means that by default it is enforced to handle errors in all Odin libraries. 
+    - You can always use `_ = ` to explicitly discard the procedure's return.
+    - Error handling is now the norm, instead of being "opt-in" as it was previously in the language.
 - `#optional_allocator_error` was removed from the source code.
 - `#optional_ok` is no longer used in the Odin libraries.
 
