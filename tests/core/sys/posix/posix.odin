@@ -225,7 +225,7 @@ test_pthreads :: proc(t: ^testing.T) {
 	NTHREADS :: 3
 	thread_ids: [NTHREADS]posix.pthread_t
 
-	@static counter: int
+	@(static) counter: int
 
 	for &tid in thread_ids {
 		posix.pthread_create(&tid, nil, thread_function, nil)

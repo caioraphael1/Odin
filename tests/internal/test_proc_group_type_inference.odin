@@ -4,7 +4,7 @@ package test_internal
 
 import "core:testing"
 
-@test
+@(test)
 test_type_inference_on_literals_for_various_parameters_combinations :: proc(t: ^testing.T) {
 	Bit_Set :: bit_set[enum{A, B, C}]
 	group :: proc{proc_0, proc_1, proc_2, proc_3, proc_4, proc_5}
@@ -22,7 +22,7 @@ test_type_inference_on_literals_for_various_parameters_combinations :: proc(t: ^
 	testing.expect_value(t, group({.A}, 9, 9, 9), 5)
 }
 
-@test
+@(test)
 test_type_inference_on_literals_with_default_args :: proc(t: ^testing.T) {
 	{
 		Bit_Set :: bit_set[enum{A, B, C}]
@@ -46,7 +46,7 @@ test_type_inference_on_literals_with_default_args :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_type_inference_on_literals_for_various_types :: proc(t: ^testing.T) {
 	proc_nil :: proc() { }
 

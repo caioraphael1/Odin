@@ -16,7 +16,7 @@ test_issue_5699_increment_union :: proc(counter: ^i32) -> Issue5699_Result {
     return Issue5699_Value{0}
 }
 
-@test
+@(test)
 test_issue_5699_union :: proc(t: ^testing.T) {
     counter: i32 = 0
     _ = test_issue_5699_increment_union(&counter).(Issue5699_Value).value
@@ -28,7 +28,7 @@ test_issue_5699_increment_any :: proc(counter: ^i32) -> any {
     return Issue5699_Value{0}
 }
 
-@test
+@(test)
 test_issue_5699_any :: proc(t: ^testing.T) {
     counter: i32 = 0
     _ = test_issue_5699_increment_any(&counter).(Issue5699_Value).value

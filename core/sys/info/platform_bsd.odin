@@ -9,7 +9,7 @@ import "base:runtime"
 @(private)
 version_string_buf: [1024]u8
 
-// @@init
+// @(init)
 init_os_version :: proc() {
 	when ODIN_OS == .NetBSD {
 		os_version.platform = .NetBSD
@@ -65,7 +65,7 @@ init_os_version :: proc() {
 	os_version.as_string = strings.to_string(b)
 }
 
-// @@init
+// @(init)
 init_ram :: proc() {
 	// Retrieve RAM info using `sysctl`
 	mib := []i32{sys.CTL_HW, sys.HW_PHYSMEM64}

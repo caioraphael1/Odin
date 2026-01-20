@@ -4,7 +4,7 @@
 //    if y = ease_fn(x), then x = ease_fn_inverse(y) + some_imprecision
 package ease
 
-@require import "core:math"
+@(require) import "core:math"
 import "base:intrinsics"
 
 // Helper for handling negative bases with fractional exponents

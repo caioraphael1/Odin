@@ -44,10 +44,10 @@ WCOREDUMP :: #force_inline proc(s: u32) -> bool {
 	return s & 0x80 == 0x80
 }
 
-@private _sigmask :: proc(sig: Signal) -> (uint) {
+@(private) _sigmask :: proc(sig: Signal) -> (uint) {
 	return 1 << ((cast(uint)(sig) - 1) % (8*size_of(uint)))
 }
-@private _sigword :: proc(sig: Signal) -> (uint) {
+@(private) _sigword :: proc(sig: Signal) -> (uint) {
 	return (cast(uint)sig - 1) / (8*size_of(uint))
 }
 

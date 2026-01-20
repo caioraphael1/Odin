@@ -369,7 +369,7 @@ qoi_hash :: #force_inline proc(pixel: RGBA_Pixel) -> (index: u8) {
 	return u8((i1 + i2 + i3 + i4) & 63)
 }
 
-// @@init
+// @(init)
 _register :: proc() {
 	image.register(.QOI, load_from_bytes, destroy)
 }

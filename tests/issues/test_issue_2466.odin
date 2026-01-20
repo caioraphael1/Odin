@@ -8,7 +8,7 @@ Bug :: struct  {
 	arr: []int,
 }
 
-@test
+@(test)
 test_compound_literal_local_reuse :: proc(t: ^testing.T) {
 	v: int = 123
 	bug := Bug {

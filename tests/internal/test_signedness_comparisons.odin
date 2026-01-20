@@ -2,7 +2,7 @@ package test_internal
 
 import "core:testing"
 
-@test
+@(test)
 test_comparisons_5408 :: proc(t: ^testing.T) {
 	// See: https://github.com/odin-lang/Odin/pull/5408
 	test_proc :: proc(lhs: $T, rhs: T) -> bool {

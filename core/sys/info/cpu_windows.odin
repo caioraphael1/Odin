@@ -4,7 +4,7 @@ import sys "core:sys/windows"
 import "base:intrinsics"
 import "base:runtime"
 
-// @@init
+// @(init)
 init_cpu_core_count :: proc(allocator: runtime.Allocator) {
 	infos: []sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION
 	defer _ = delete(infos, allocator)

@@ -3,7 +3,7 @@ package linalg
 import "core:math"
 import "base:builtin"
 import "base:intrinsics"
-@require import "base:runtime"
+@(require) import "base:runtime"
 
 // Generic
 
@@ -31,12 +31,12 @@ DEG_PER_RAD :: 360.0/TAU
 
 
 
-@private IS_NUMERIC :: intrinsics.type_is_numeric
-@private IS_QUATERNION :: intrinsics.type_is_quaternion
-@private IS_ARRAY :: intrinsics.type_is_array
-@private IS_FLOAT :: intrinsics.type_is_float
-@private BASE_TYPE :: intrinsics.type_base_type
-@private ELEM_TYPE :: intrinsics.type_elem_type
+@(private) IS_NUMERIC :: intrinsics.type_is_numeric
+@(private) IS_QUATERNION :: intrinsics.type_is_quaternion
+@(private) IS_ARRAY :: intrinsics.type_is_array
+@(private) IS_FLOAT :: intrinsics.type_is_float
+@(private) BASE_TYPE :: intrinsics.type_base_type
+@(private) ELEM_TYPE :: intrinsics.type_elem_type
 
 
 

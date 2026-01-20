@@ -9,7 +9,7 @@ _Path_Separator        :: '\\'
 _Path_Separator_String :: "\\"
 _Path_List_Separator   :: ';'
 
-// @@init
+// @(init)
 init_long_path_support :: proc() {
 	can_use_long_paths = false
 
@@ -130,7 +130,7 @@ _remove_all :: proc(path: string) -> Error {
 	return nil
 }
 
-@private cwd_lock: win32.SRWLOCK // zero is initialized
+@(private) cwd_lock: win32.SRWLOCK // zero is initialized
 
 _get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	win32.AcquireSRWLockExclusive(&cwd_lock)

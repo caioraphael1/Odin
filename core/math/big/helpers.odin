@@ -773,7 +773,7 @@ INT_ONE, INT_ZERO, INT_MINUS_ONE, INT_INF, INT_MINUS_INF, INT_NAN := &Int{}, &In
 @(private)
 constant_allocator: runtime.Allocator
 
-// @@init
+// @(init)
 initialize_constants :: proc(allocator: runtime.Allocator) {
 	constant_allocator = allocator
 
@@ -794,7 +794,7 @@ initialize_constants :: proc(allocator: runtime.Allocator) {
 	Destroy constants.
 	Optional for an EXE, as this would be called at the very end of a process.
 */
-// @@fini
+// @(fini)
 destroy_constants :: proc() {
 	// context.allocator = constant_allocator
 

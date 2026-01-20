@@ -43,50 +43,50 @@ Rot_identity       :: Rot{1, 0}
 Transform_identity :: Transform{{0, 0}, {1, 0}}
 Mat22_zero         :: Mat22{0, 0, 0, 0}
 
-// @return the minimum of two integers
+// the minimum of two integers
 @(deprecated="Prefer the built-in 'min(a, b)'")
 MinInt :: proc "c" (a, b: c.int) -> c.int {
 	return min(a, b)
 }
 
-// @return the maximum of two integers
+// the maximum of two integers
 @(deprecated="Prefer the built-in 'max(a, b)'")
 MaxInt :: proc "c" (a, b: c.int) -> c.int {
 	return max(a, b)
 }
 
-// @return the absolute value of an integer
+// the absolute value of an integer
 @(deprecated="Prefer the built-in 'abs(a)'")
 AbsInt :: proc "c" (a: c.int) -> c.int {
 	return abs(a)
 }
 
-// @return an integer clamped between a lower and upper bound
+// an integer clamped between a lower and upper bound
 @(deprecated="Prefer the built-in 'clamp(a, lower, upper)'")
 ClampInt :: proc "c" (a, lower, upper: c.int) -> c.int {
 	return clamp(a, lower, upper)
 }
 
 
-// @return the minimum of two floats
+// the minimum of two floats
 @(deprecated="Prefer the built-in 'min(a, b)'")
 MinFloat :: proc "c" (a, b: f32) -> f32 {
 	return min(a, b)
 }
 
-// @return the maximum of two floats
+// the maximum of two floats
 @(deprecated="Prefer the built-in 'max(a, b)'")
 MaxFloat :: proc "c" (a, b: f32) -> f32 {
 	return max(a, b)
 }
 
-// @return the absolute value of a float
+// the absolute value of a float
 @(deprecated="Prefer the built-in 'abs(a)'")
 AbsFloat :: proc "c" (a: f32) -> f32 {
 	return abs(a)
 }
 
-// @return a f32 clamped between a lower and upper bound
+// a f32 clamped between a lower and upper bound
 @(deprecated="Prefer the built-in 'clamp(a, lower, upper)'")
 ClampFloat :: proc "c" (a, lower, upper: f32) -> f32 {
 	return clamp(a, lower, upper)
@@ -272,8 +272,8 @@ GetLengthAndNormalize :: proc "c" (v: Vec2) -> (length: f32, vn: Vec2) {
 }
 
 // Integration rotation from angular velocity
-//	@param q1 initial rotation
-//	@param deltaAngle the angular displacement in radians
+//	q1 initial rotation
+//	deltaAngle the angular displacement in radians
 
 IntegrateRotation :: proc "c" (q1: Rot, deltaAngle: f32) -> Rot {
 	// dc/dt = -omega * sin(t)
@@ -344,9 +344,9 @@ NLerp :: proc "c" (q1: Rot, q2: Rot, t: f32) -> Rot {
 }
 
 // Compute the angular velocity necessary to rotate between two rotations over a give time
-//	@param q1 initial rotation
-//	@param q2 final rotation
-//	@param inv_h inverse time step
+//	q1 initial rotation
+//	q2 final rotation
+//	inv_h inverse time step
 
 ComputeAngularVelocity :: proc "c" (q1: Rot, q2: Rot, inv_h: f32) -> f32 {
 	// ds/dt = omega * cos(t)

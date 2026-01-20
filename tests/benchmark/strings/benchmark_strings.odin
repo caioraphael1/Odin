@@ -124,7 +124,7 @@ bench_table_size :: proc(algo_name: string, plain, simd: $P, suffix := "") {
 	log.info(my_table_string)
 }
 
-@test
+@(test)
 benchmark_memory_procs :: proc(t: ^testing.T) {
 	bench_table_size("prefix_length ascii",   plain_prefix_length, strings.prefix_length)
 	bench_table_size("prefix_length unicode", plain_prefix_length, strings.prefix_length, "🦉")

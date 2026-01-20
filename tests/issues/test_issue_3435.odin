@@ -5,7 +5,7 @@ import "core:mem"
 import "core:testing"
 import "core:time"
 
-@test
+@(test)
 test_issue_3435 :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, time.Second)
 	allocator: mem.Buddy_Allocator

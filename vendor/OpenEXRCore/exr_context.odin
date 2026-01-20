@@ -10,14 +10,14 @@ const_context_t :: context_t
 /**
  * @defgroup ContextFunctions OpenEXR Context Stream/File Functions
  *
- * @brief These are a group of function interfaces used to customize
+ * These are a group of function interfaces used to customize
  * the error handling, memory allocations, or I/O behavior of an
  * OpenEXR context.
  *
  * @{
  */
 
-/** @brief Stream error notifier
+/** Stream error notifier
  *
  *  This function pointer is provided to the stream functions by the
  *  library such that they can provide a nice error message to the
@@ -25,7 +25,7 @@ const_context_t :: context_t
  */
 stream_error_func_ptr_t :: proc "c" (ctxt: const_context_t, code: result_t, fmt: cstring, #c_vararg args: ..any) -> result_t
 
-/** @brief Error callback function
+/** Error callback function
  *
  *  Because a file can be read from using many threads at once, it is
  *  difficult to store an error message for later retrieval. As such,
@@ -42,7 +42,7 @@ error_handler_cb_t :: proc "c" (ctxt: const_context_t, code: result_t, msg: cstr
  *  This is called when the file is closed and expected not to
  *  error.
  *
- *  @param failed Indicates the write operation failed, the
+ *  failed Indicates the write operation failed, the
  *                implementor may wish to cleanup temporary files
  */
 destroy_stream_func_ptr_t :: proc "c" (ctxt: const_context_t, userdata: rawptr, failed: c.int)
@@ -59,7 +59,7 @@ destroy_stream_func_ptr_t :: proc "c" (ctxt: const_context_t, userdata: rawptr, 
  */
 query_size_func_ptr_t :: proc "c" (ctxt: const_context_t, userdata: rawptr) -> i64
 
-/** @brief Read custom function pointer
+/** Read custom function pointer
  *
  * Used to read data from a custom output. Expects similar semantics to
  * pread or ReadFile with overlapped data under win32.
@@ -124,7 +124,7 @@ write_func_ptr_t :: proc "c" (
 	offset:       u64,
 	error_cb:     stream_error_func_ptr_t) -> i64
 
-/** @brief Struct used to pass function pointers into the context
+/** Struct used to pass function pointers into the context
  * initialization routines.
  *
  * This partly exists to avoid the chicken and egg issue around
@@ -146,7 +146,7 @@ write_func_ptr_t :: proc "c" (
  *
  */
 context_initializer_t :: struct {
-	/** @brief Size member to tag initializer for version stability.
+	/** Size member to tag initializer for version stability.
 	 *
 	 * This should be initialized to the size of the current
 	 * structure. This allows EXR to add functions or other
@@ -154,7 +154,7 @@ context_initializer_t :: struct {
 	 */
 	size: c.size_t,
 
-	/** @brief Error callback function pointer
+	/** Error callback function pointer
 	 *
 	 * The error callback is allowed to be `NULL`, and will use a
 	 * default print which outputs to \c stderr.
@@ -174,7 +174,7 @@ context_initializer_t :: struct {
 	 */
 	user_data: rawptr,
 
-	/** @brief Custom read routine.
+	/** Custom read routine.
 	 *
 	 * This is only used during read or update contexts. If this is
 	 * provided, it is expected that the caller has previously made
@@ -196,7 +196,7 @@ context_initializer_t :: struct {
 	 */
 	read_fn: read_func_ptr_t,
 
-	/** @brief Custom size query routine.
+	/** Custom size query routine.
 	 *
 	 * Used to provide validation when reading header values. If this
 	 * is not provided, but a custom read routine is provided, this
@@ -210,7 +210,7 @@ context_initializer_t :: struct {
 	 */
 	size_fn: query_size_func_ptr_t,
 
-	/** @brief Custom write routine.
+	/** Custom write routine.
 	 *
 	 * This is only used during write or update contexts. If this is
 	 * provided, it is expected that the caller has previously made
@@ -229,7 +229,7 @@ context_initializer_t :: struct {
 	 */
 	write_fn: write_func_ptr_t,
 
-	/** @brief Optional function to destroy the user data block of a custom stream.
+	/** Optional function to destroy the user data block of a custom stream.
 	 *
 	 * Allows one to free any user allocated data, and close any handles.
 	 *
@@ -280,20 +280,20 @@ context_initializer_t :: struct {
 	pad: [4]u8,
 }
 
-/** @brief context flag which will enforce strict header validation
+/** context flag which will enforce strict header validation
  * checks and may prevent reading of files which could otherwise be
  * processed.
  */
 CONTEXT_FLAG_STRICT_HEADER :: (1 << 0)
 
-/** @brief Disables error messages while parsing headers
+/** Disables error messages while parsing headers
  *
  * The return values will remain the same, but error reporting will be
  * skipped. This is only valid for reading contexts
  */
 CONTEXT_FLAG_SILENT_HEADER_PARSE :: (1 << 1)
 
-/** @brief Disables reconstruction logic upon corrupt / missing data chunks
+/** Disables reconstruction logic upon corrupt / missing data chunks
  *
  * This will disable the reconstruction logic that searches through an
  * incomplete file, and will instead just return errors at read
@@ -301,13 +301,13 @@ CONTEXT_FLAG_SILENT_HEADER_PARSE :: (1 << 1)
  */
 CONTEXT_FLAG_DISABLE_CHUNK_RECONSTRUCTION :: (1 << 2)
 
-/** @brief Simple macro to initialize the context initializer with default values. */
+/** Simple macro to initialize the context initializer with default values. */
 DEFAULT_CONTEXT_INITIALIZER :: context_initializer_t{zip_level = -2, dwa_quality = -1}
 
 /** @} */ /* context function pointer declarations */
 
 
-/** @brief Enum describing how default files are handled during write. */
+/** Enum describing how default files are handled during write. */
 default_write_mode_t :: enum c.int {
 	WRITE_FILE_DIRECTLY = 0, /**< Overwrite filename provided directly, deleted upon error. */
 	INTERMEDIATE_TEMP_FILE = 1, /**< Create a temporary file, renaming it upon successful write, leaving original upon error */
@@ -316,13 +316,13 @@ default_write_mode_t :: enum c.int {
 
 @(link_prefix="exr_", default_calling_convention="c")
 foreign lib {
-	/** @brief Check the magic number of the file and report
+	/** Check the magic number of the file and report
 	 * `EXR_ERR_SUCCESS` if the file appears to be a valid file (or at least
 	 * has the correct magic number and can be read).
 	 */
 	test_file_header :: proc(filename: cstring, ctxtdata: ^context_initializer_t) -> result_t ---
 
-	/** @brief Close and free any internally allocated memory,
+	/** Close and free any internally allocated memory,
 	 * calling any provided destroy function for custom streams.
 	 *
 	 * If the file was opened for write, first save the chunk offsets
@@ -330,7 +330,7 @@ foreign lib {
 	 */
 	finish :: proc(ctxt: ^context_t) -> result_t ---
 
-	/** @brief Create and initialize a read-only exr read context.
+	/** Create and initialize a read-only exr read context.
 	 *
 	 * If a custom read function is provided, the filename is for
 	 * informational purposes only, the system assumes the user has
@@ -355,7 +355,7 @@ foreign lib {
 		filename: cstring,
 		ctxtdata: ^context_initializer_t) -> result_t ---
 
-	/** @brief Create and initialize a write-only context.
+	/** Create and initialize a write-only context.
 	 *
 	 * If a custom write function is provided, the filename is for
 	 * informational purposes only, and the @p default_mode parameter will be
@@ -399,7 +399,7 @@ foreign lib {
 		default_mode: default_write_mode_t,
 		ctxtdata:     ^context_initializer_t) -> result_t ---
 
-	/** @brief Create a new context for updating an exr file in place.
+	/** Create a new context for updating an exr file in place.
 	 *
 	 * This is a custom mode that allows one to modify the value of a
 	 * metadata entry, although not to change the size of the header, or
@@ -414,7 +414,7 @@ foreign lib {
 		filename: cstring,
 		ctxtdata: ^context_initializer_t) -> result_t ---
 
-	/** @brief Create a new context for temporary use in memory.
+	/** Create a new context for temporary use in memory.
 	*
 	* This is a custom mode that does not supporting writing actual image
 	* data, but one can create one of these, manipulate attributes,
@@ -434,19 +434,19 @@ foreign lib {
 		context_name: [^]c.char,
 		ctxtdata:     ^context_initializer_t) -> result_t ---
 
-	/** @brief Retrieve the file name the context is for as provided
+	/** Retrieve the file name the context is for as provided
 	 * during the start routine.
 	 *
 	 * Do not free the resulting string.
 	 */
 	get_file_name :: proc(ctxt: const_context_t, name: ^cstring) -> result_t ---
 
-	/** @brief Retrieve the file version and flags the context is for as
+	/** Retrieve the file version and flags the context is for as
 	 * parsed during the start routine.
 	 */
 	get_file_version_and_flags :: proc(ctxt: const_context_t, ver: ^u32) -> result_t ---
 
-	/** @brief Query the user data the context was constructed with. This
+	/** Query the user data the context was constructed with. This
 	 * is perhaps useful in the error handler callback to jump back into
 	 * an object the user controls.
 	 */
@@ -486,11 +486,11 @@ foreign lib {
 			ctxt: context_t, data: rawptr, datasize: i32),
 	) -> result_t ---
 
-	/** @brief Enable long name support in the output context */
+	/** Enable long name support in the output context */
 
 	set_longname_support :: proc(ctxt: context_t, onoff: b32) -> result_t ---
 
-	/** @brief Write the header data.
+	/** Write the header data.
 	 *
 	 * Opening a new output file has a small initialization state problem
 	 * compared to opening for read/update: we need to enable the user

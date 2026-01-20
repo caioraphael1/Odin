@@ -10,7 +10,7 @@ example_usage :: proc(#any_int x: int) -> intrinsics.type_integer_to_unsigned(ty
 }
 */
 
-@test
+@(test)
 test_intrinsic_integer_to :: proc(t: ^testing.T) {
 	testing.expect_value(t, typeid_of(intrinsics.type_integer_to_unsigned(i16le)), typeid_of(u16le))
 	testing.expect_value(t, typeid_of(intrinsics.type_integer_to_unsigned(i32le)), typeid_of(u32le))

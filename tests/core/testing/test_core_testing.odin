@@ -4,14 +4,14 @@ import "core:c/libc"
 import "core:math/rand"
 import "core:testing"
 
-@test
+@(test)
 test_expected_assert :: proc(t: ^testing.T) {
 	target := #location(); target.line += 2; target.column = 2
 	testing.expect_assert_from(t, target)
 	assert(false)
 }
 
-@test
+@(test)
 test_expected_two_assert :: proc(t: ^testing.T) {
 	target1 := #location(); target1.line += 5; target1.column = 3
 	target2 := #location(); target2.line += 6; target2.column = 3
@@ -28,7 +28,7 @@ some_proc :: proc() {
 	assert(false)
 }
 
-@test
+@(test)
 test_expected_assert_in_proc :: proc(t: ^testing.T) {
 	target := #location(some_proc)
 	target.line += 1
@@ -39,13 +39,13 @@ test_expected_assert_in_proc :: proc(t: ^testing.T) {
 	some_proc()
 }
 
-@test
+@(test)
 test_expected_assert_message :: proc(t: ^testing.T) {
 	testing.expect_assert(t, "failure")
 	assert(false, "failure")
 }
 
-@test
+@(test)
 test_expected_signal :: proc(t: ^testing.T) {
 	testing.expect_signal(t, libc.SIGILL)
 	libc.raise(libc.SIGILL)

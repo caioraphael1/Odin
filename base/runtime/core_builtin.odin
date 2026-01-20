@@ -2,13 +2,13 @@ package runtime
 
 import "base:intrinsics"
 
-@builtin
+@(builtin)
 Maybe :: union($T: typeid) {T}
 
 /*
 Represents an Objective-C block with a given procedure signature T
 */
-@builtin
+@(builtin)
 Objc_Block :: struct($T: typeid) where intrinsics.type_is_proc(T) { using _: intrinsics.objc_object }
 
 /*
@@ -106,7 +106,7 @@ copy :: proc{copy_slice, copy_from_string, copy_from_string16}
 // Note: This is an O(1) operation.
 // Note: If you want the elements to remain in their order, use `ordered_remove`.
 // Note: If the index is out of bounds, this procedure will panic.
-@builtin
+@(builtin)
 unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #caller_location) #no_bounds_check {
 	bounds_check_error_loc(loc, index, len(array))
 	n := len(array) - 1
@@ -120,7 +120,7 @@ unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #ca
 // Note: This is an O(N) operation.
 // Note: If the elements do not have to remain in their order, prefer `unordered_remove`.
 // Note: If the index is out of bounds, this procedure will panic.
-@builtin
+@(builtin)
 ordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #caller_location) #no_bounds_check {
 	bounds_check_error_loc(loc, index, len(array))
 	if index+1 < len(array) {
@@ -133,7 +133,7 @@ ordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #call
 //
 // Note: This is an O(N) operation.
 // Note: If the range is out of bounds, this procedure will panic.
-@builtin
+@(builtin)
 remove_range :: proc(array: ^$D/[dynamic]$T, #any_int lo, hi: int, loc := #caller_location) #no_bounds_check {
 	slice_expr_error_lo_hi_loc(loc, lo, hi, len(array))
 	n := max(hi-lo, 0)
@@ -166,7 +166,7 @@ _pop_type_erased :: proc(res: rawptr, array: ^Raw_Dynamic_Array, elem_size: int,
 
 // `pop_safe` trys to remove and return the end value of dynamic array `array` and reduces the length of `array` by 1.
 // If the operation is not possible, it will return false.
-@builtin
+@(builtin)
 pop_safe :: proc "contextless" (array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_check {
 	if len(array) == 0 {
 		return
@@ -179,7 +179,7 @@ pop_safe :: proc "contextless" (array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #n
 // `pop_front` will remove and return the first value of dynamic array `array` and reduces the length of `array` by 1.
 //
 // Note: If the dynamic array as no elements (`len(array) == 0`), this procedure will panic.
-@builtin
+@(builtin)
 pop_front :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #no_bounds_check {
 	assert(len(array) > 0, loc=loc)
 	res = array[0]
@@ -192,7 +192,7 @@ pop_front :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #
 
 // `pop_front_safe` trys to return and remove the first value of dynamic array `array` and reduces the length of `array` by 1.
 // If the operation is not possible, it will return false.
-@builtin
+@(builtin)
 pop_front_safe :: proc "contextless" (array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_check {
 	if len(array) == 0 {
 		return
@@ -207,7 +207,7 @@ pop_front_safe :: proc "contextless" (array: ^$T/[dynamic]$E) -> (res: E, ok: bo
 
 
 // `clear` will set the length of a passed dynamic array or map to `0`
-@builtin
+@(builtin)
 clear :: proc{
 	clear_dynamic_array,
 	clear_map,
@@ -216,7 +216,7 @@ clear :: proc{
 }
 
 // `reserve` will try to reserve memory of a passed dynamic array or map to the requested element count (setting the `cap`).
-@builtin
+@(builtin)
 reserve :: proc{
 	reserve_dynamic_array,
 	reserve_map,
@@ -224,7 +224,7 @@ reserve :: proc{
 	reserve_soa,
 }
 
-@builtin
+@(builtin)
 non_zero_reserve :: proc{
 	non_zero_reserve_dynamic_array,
 
@@ -232,14 +232,14 @@ non_zero_reserve :: proc{
 }
 
 // `resize` will try to resize memory of a passed dynamic array to the requested element count (setting the `len`, and possibly `cap`).
-@builtin
+@(builtin)
 resize :: proc{
 	resize_dynamic_array,
 
 	resize_soa,
 }
 
-@builtin
+@(builtin)
 non_zero_resize :: proc{
 	non_zero_resize_dynamic_array,
 
@@ -247,15 +247,15 @@ non_zero_resize :: proc{
 }
 
 // Shrinks the capacity of a dynamic array or map down to the current length, or the given capacity.
-@builtin
+@(builtin)
 shrink :: proc{shrink_dynamic_array, shrink_map}
 
 // `free` will try to free the passed pointer, with the given `allocator` if the allocator supports this operation.
-@builtin
+@(builtin)
 free :: proc{mem_free}
 
 // `_ = free_all` will try to free/reset all of the memory of the given `allocator` if the allocator supports this operation.
-@builtin
+@(builtin)
 free_all :: proc{mem_free_all}
 
 
@@ -263,45 +263,45 @@ free_all :: proc{mem_free_all}
 // `delete_string` will try to free the underlying data of the passed string, with the given `allocator` if the allocator supports this operation.
 //
 // Note: Prefer the procedure group `_ = delete`.
-@builtin
+@(builtin)
 delete_string :: proc(str: string, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
 	return mem_free_with_size(raw_data(str), len(str), allocator, loc)
 }
 // `delete_cstring` will try to free the underlying data of the passed string, with the given `allocator` if the allocator supports this operation.
 //
 // Note: Prefer the procedure group `_ = delete`.
-@builtin
+@(builtin)
 delete_cstring :: proc(str: cstring, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
 	return mem_free((^byte)(str), allocator, loc)
 }
 // `delete_dynamic_array` will try to free the underlying data of the passed dynamic array, with the given `allocator` if the allocator supports this operation.
 //
 // Note: Prefer the procedure group `_ = delete`.
-@builtin
+@(builtin)
 delete_dynamic_array :: proc(array: $T/[dynamic]$E, loc := #caller_location) -> Allocator_Error {
 	return mem_free_with_size(raw_data(array), cap(array)*size_of(E), array.allocator, loc)
 }
 // `delete_slice` will try to free the underlying data of the passed sliced, with the given `allocator` if the allocator supports this operation.
 //
 // Note: Prefer the procedure group `_ = delete`.
-@builtin
+@(builtin)
 delete_slice :: proc(array: $T/[]$E, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
 	return mem_free_with_size(raw_data(array), len(array)*size_of(E), allocator, loc)
 }
 // `delete_map` will try to free the underlying data of the passed map, with the given `allocator` if the allocator supports this operation.
 //
 // Note: Prefer the procedure group `_ = delete`.
-@builtin
+@(builtin)
 delete_map :: proc(m: $T/map[$K]$V, loc := #caller_location) -> Allocator_Error {
 	return map_free_dynamic(transmute(Raw_Map)m, map_info(T), loc)
 }
 
 
-@builtin
+@(builtin)
 delete_string16 :: proc(str: string16, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
 	return mem_free_with_size(raw_data(str), len(str)*size_of(u16), allocator, loc)
 }
-@builtin
+@(builtin)
 delete_cstring16 :: proc(str: cstring16, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
 	return mem_free((^u16)(str), allocator, loc)
 }
@@ -309,7 +309,7 @@ delete_cstring16 :: proc(str: cstring16, allocator: Allocator, loc := #caller_lo
 // `_ = delete` will try to free the underlying data of the passed built-in data structure (string, cstring, dynamic array, slice, or map), with the given `allocator` if the allocator supports this operation.
 //
 // Note: Prefer `_ = delete` over the specific `delete_*` procedures where possible.
-@builtin
+@(builtin)
 delete :: proc{
 	delete_string,
 	delete_cstring,
@@ -460,7 +460,7 @@ make_multi_pointer :: proc($T: typeid/[^]$E, #any_int len: int, allocator: Alloc
 // Similar to `new`, the first argument is a type, not a value. Unlike new, make's return type is the same as the
 // type of its argument, not a pointer to it.
 // Make uses the specified allocator.
-@builtin
+@(builtin)
 make :: proc{
 	make_slice,
 	make_dynamic_array,
@@ -481,7 +481,7 @@ make :: proc{
 // `clear_map` will set the length of a passed map to `0`
 //
 // Note: Prefer the procedure group `clear`
-@builtin
+@(builtin)
 clear_map :: proc "contextless" (m: ^$T/map[$K]$V) {
 	if m == nil {
 		return
@@ -492,7 +492,7 @@ clear_map :: proc "contextless" (m: ^$T/map[$K]$V) {
 // `reserve_map` will try to reserve memory of a passed map to the requested element count (setting the `cap`).
 //
 // Note: Prefer the procedure group `reserve`
-@builtin
+@(builtin)
 reserve_map :: proc(m: ^$T/map[$K]$V, #any_int capacity: int, loc := #caller_location) -> Allocator_Error {
 	return __dynamic_map_reserve((^Raw_Map)(m), map_info(T), uint(capacity), loc)
 }
@@ -500,7 +500,7 @@ reserve_map :: proc(m: ^$T/map[$K]$V, #any_int capacity: int, loc := #caller_loc
 // Shrinks the capacity of a map down to the current length.
 //
 // Note: Prefer the procedure group `shrink`
-@builtin
+@(builtin)
 shrink_map :: proc(m: ^$T/map[$K]$V, loc := #caller_location) -> (did_shrink: bool, err: Allocator_Error) {
 	if m != nil {
 		return map_shrink_dynamic((^Raw_Map)(m), map_info(T), loc)
@@ -546,7 +546,7 @@ _append_elem :: #force_no_inline proc(array: ^Raw_Dynamic_Array, size_of_elem, a
 }
 
 // `append_elem` appends an element to the end of a dynamic array.
-@builtin
+@(builtin)
 append_elem :: proc(array: ^$T/[dynamic]$E, #no_broadcast arg: E, loc := #caller_location) -> (err: Allocator_Error) {
 	when size_of(E) == 0 {
 		(^Raw_Dynamic_Array)(array).len += 1
@@ -560,7 +560,7 @@ append_elem :: proc(array: ^$T/[dynamic]$E, #no_broadcast arg: E, loc := #caller
 // `non_zero_append_elem` appends an element to the end of a dynamic array, without zeroing any reserved memory
 //
 // Note: Prefer using the procedure group `non_zero_append
-@builtin
+@(builtin)
 non_zero_append_elem :: proc(array: ^$T/[dynamic]$E, #no_broadcast arg: E, loc := #caller_location) -> (err: Allocator_Error) {
 	when size_of(E) == 0 {
 		(^Raw_Dynamic_Array)(array).len += 1
@@ -601,7 +601,7 @@ _append_elems :: #force_no_inline proc(array: ^Raw_Dynamic_Array, size_of_elem, 
 // `append_elems` appends `args` to the end of a dynamic array.
 //
 // Note: Prefer using the procedure group `append`.
-@builtin
+@(builtin)
 append_elems :: proc(array: ^$T/[dynamic]$E, #no_broadcast args: ..E, loc := #caller_location) -> (err: Allocator_Error) {
 	when size_of(E) == 0 {
 		a := (^Raw_Dynamic_Array)(array)
@@ -615,7 +615,7 @@ append_elems :: proc(array: ^$T/[dynamic]$E, #no_broadcast args: ..E, loc := #ca
 // `non_zero_append_elems` appends `args` to the end of a dynamic array, without zeroing any reserved memory
 //
 // Note: Prefer using the procedure group `non_zero_append
-@builtin
+@(builtin)
 non_zero_append_elems :: proc(array: ^$T/[dynamic]$E, #no_broadcast args: ..E, loc := #caller_location) -> (err: Allocator_Error) {
 	when size_of(E) == 0 {
 		a := (^Raw_Dynamic_Array)(array)
@@ -634,14 +634,14 @@ _append_elem_string :: proc(array: ^$T/[dynamic]$E/u8, arg: $A/string, should_ze
 // `append_elem_string` appends a string to the end of a dynamic array of bytes
 //
 // Note: Prefer using the procedure group `append`.
-@builtin
+@(builtin)
 append_elem_string :: proc(array: ^$T/[dynamic]$E/u8, arg: $A/string, loc := #caller_location) -> (err: Allocator_Error) {
 	return _append_elem_string(array, arg, true, loc)
 }
 // `non_zero_append_elem_string` appends a string to the end of a dynamic array of bytes, without zeroing any reserved memory
 //
 // Note: Prefer using the procedure group `non_zero_append`.
-@builtin
+@(builtin)
 non_zero_append_elem_string :: proc(array: ^$T/[dynamic]$E/u8, arg: $A/string, loc := #caller_location) -> (err: Allocator_Error) {
 	return _append_elem_string(array, arg, false, loc)
 }
@@ -650,7 +650,7 @@ non_zero_append_elem_string :: proc(array: ^$T/[dynamic]$E/u8, arg: $A/string, l
 // The append_string built-in procedure appends multiple strings to the end of a [dynamic]u8 like type
 //
 // Note: Prefer using the procedure group `append`.
-@builtin
+@(builtin)
 append_string :: proc(array: ^$T/[dynamic]$E/u8, args: ..string, loc := #caller_location) -> (err: Allocator_Error) {
 	for arg in args {
 		append(array, ..transmute([]E)(arg), loc=loc) or_return
@@ -659,7 +659,7 @@ append_string :: proc(array: ^$T/[dynamic]$E/u8, args: ..string, loc := #caller_
 }
 
 // The append built-in procedure appends elements to the end of a dynamic array
-@builtin
+@(builtin)
 append :: proc{
 	append_elem,
 	append_elems,
@@ -669,7 +669,7 @@ append :: proc{
 	append_soa_elems,
 }
 
-@builtin
+@(builtin)
 non_zero_append :: proc{
 	non_zero_append_elem,
 	non_zero_append_elems,
@@ -682,7 +682,7 @@ non_zero_append :: proc{
 
 // `append_nothing` appends an empty value to a dynamic array. It returns `1, nil` if successful, and `0, err` when it was not possible,
 // whatever `err` happens to be.
-@builtin
+@(builtin)
 append_nothing :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	if array == nil {
 		return 0, nil
@@ -694,7 +694,7 @@ append_nothing :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (n: i
 
 
 // `inject_at_elem` injects an element in a dynamic array at a specified index and moves the previous elements after that index "across"
-@builtin
+@(builtin)
 inject_at_elem :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcast arg: E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	when !ODIN_NO_BOUNDS_CHECK {
 		ensure(index >= 0, "Index must be positive.", loc)
@@ -716,7 +716,7 @@ inject_at_elem :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcas
 }
 
 // `inject_at_elems` injects multiple elements in a dynamic array at a specified index and moves the previous elements after that index "across"
-@builtin
+@(builtin)
 inject_at_elems :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcast args: ..E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	when !ODIN_NO_BOUNDS_CHECK {
 		ensure(index >= 0, "Index must be positive.", loc)
@@ -743,7 +743,7 @@ inject_at_elems :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadca
 }
 
 // `inject_at_elem_string` injects a string into a dynamic array at a specified index and moves the previous elements after that index "across"
-@builtin
+@(builtin)
 inject_at_elem_string :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: string, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	when !ODIN_NO_BOUNDS_CHECK {
 		ensure(index >= 0, "Index must be positive.", loc)
@@ -768,13 +768,13 @@ inject_at_elem_string :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, ar
 }
 
 // `inject_at` injects something into a dynamic array at a specified index and moves the previous elements after that index "across"
-@builtin inject_at :: proc{inject_at_elem, inject_at_elems, inject_at_elem_string}
+@(builtin) inject_at :: proc{inject_at_elem, inject_at_elems, inject_at_elem_string}
 
 
 
 // `assign_at_elem` assigns a value at a given index. If the requested index is smaller than the current
 // size of the dynamic array, it will attempt to `resize` the a new length of `index+1` and then assign as `index`.
-@builtin
+@(builtin)
 assign_at_elem :: proc(array: ^$T/[dynamic]$E, #any_int index: int, arg: E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	if index < len(array) {
 		array[index] = arg
@@ -790,7 +790,7 @@ assign_at_elem :: proc(array: ^$T/[dynamic]$E, #any_int index: int, arg: E, loc 
 
 // `assign_at_elems` assigns a values at a given index. If the requested index is smaller than the current
 // size of the dynamic array, it will attempt to `resize` the a new length of `index+len(args)` and then assign as `index`.
-@builtin
+@(builtin)
 assign_at_elems :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcast args: ..E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	new_size := index + len(args)
 	if len(args) == 0 {
@@ -808,7 +808,7 @@ assign_at_elems :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadca
 
 // `assign_at_elem_string` assigns a string at a given index. If the requested index is smaller than the current
 // size of the dynamic array, it will attempt to `resize` the a new length of `index+len(arg)` and then assign as `index`.
-@builtin
+@(builtin)
 assign_at_elem_string :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: string, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	new_size := index + len(arg)
 	if len(arg) == 0 {
@@ -826,7 +826,7 @@ assign_at_elem_string :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, ar
 
 // `assign_at` assigns a value at a given index. If the requested index is smaller than the current
 // size of the dynamic array, it will attempt to `resize` the a new length of `index+size_needed` and then assign as `index`.
-@builtin
+@(builtin)
 assign_at :: proc{
 	assign_at_elem,
 	assign_at_elems,
@@ -839,7 +839,7 @@ assign_at :: proc{
 // `clear_dynamic_array` will set the length of a passed dynamic array to `0`
 //
 // Note: Prefer the procedure group `clear`.
-@builtin
+@(builtin)
 clear_dynamic_array :: proc "contextless" (array: ^$T/[dynamic]$E) {
 	if array != nil {
 		(^Raw_Dynamic_Array)(array).len = 0
@@ -886,7 +886,7 @@ _reserve_dynamic_array :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_e
 // When a memory resize allocation is required, the memory will be asked to be zeroed (i.e. it calls `mem_resize`).
 //
 // Note: Prefer the procedure group `reserve`.
-@builtin
+@(builtin)
 reserve_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int capacity: int, loc := #caller_location) -> Allocator_Error {
 	return _reserve_dynamic_array((^Raw_Dynamic_Array)(array), size_of(E), align_of(E), capacity, true, loc)
 }
@@ -896,7 +896,7 @@ reserve_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int capacity: int, lo
 // When a memory resize allocation is required, the memory will be asked to not be zeroed (i.e. it calls `non_zero_mem_resize`).
 //
 // Note: Prefer the procedure group `non_zero_reserve`.
-@builtin
+@(builtin)
 non_zero_reserve_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int capacity: int, loc := #caller_location) -> Allocator_Error {
 	return _reserve_dynamic_array((^Raw_Dynamic_Array)(array), size_of(E), align_of(E), capacity, false, loc)
 }
@@ -946,7 +946,7 @@ _resize_dynamic_array :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_el
 // When a memory resize allocation is required, the memory will be asked to be zeroed (i.e. it calls `mem_resize`).
 //
 // Note: Prefer the procedure group `resize`
-@builtin
+@(builtin)
 resize_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int length: int, loc := #caller_location) -> Allocator_Error {
 	return _resize_dynamic_array((^Raw_Dynamic_Array)(array), size_of(E), align_of(E), length, true, loc=loc)
 }
@@ -956,7 +956,7 @@ resize_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int length: int, loc :
 // When a memory resize allocation is required, the memory will be asked to not be zeroed (i.e. it calls `non_zero_mem_resize`).
 //
 // Note: Prefer the procedure group `non_zero_resize`
-@builtin
+@(builtin)
 non_zero_resize_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int length: int, loc := #caller_location) -> Allocator_Error {
 	return _resize_dynamic_array((^Raw_Dynamic_Array)(array), size_of(E), align_of(E), length, false, loc=loc)
 }
@@ -1050,7 +1050,7 @@ map_entry :: proc(m: ^$T/map[$K]$V, key: K, loc := #caller_location) -> (key_ptr
 
 
 // `card` returns the number of bits that are set in a bit_set—its cardinality
-@builtin
+@(builtin)
 card :: proc "contextless" (s: $S/bit_set[$E; $U]) -> int {
 	return int(intrinsics.count_ones(transmute(intrinsics.type_bit_set_underlying_type(S))s))
 }
@@ -1061,7 +1061,7 @@ card :: proc "contextless" (s: $S/bit_set[$E; $U]) -> int {
 // This uses the `assertion_failure_proc` to assert.
 //
 // This routine will be ignored when `ODIN_DISABLE_ASSERT` is true.
-@builtin
+@(builtin)
 @(disabled=ODIN_DISABLE_ASSERT)
 assert :: proc "contextless" (condition: bool, message := #caller_expression(condition), loc := #caller_location) {
 	if !condition {
@@ -1080,7 +1080,7 @@ assert :: proc "contextless" (condition: bool, message := #caller_expression(con
 // Evaluates the condition and panics the program iff the condition is false.
 // This uses the `assertion_failure_proc` to assert.
 // This routine ignores `ODIN_DISABLE_ASSERT`, and will always execute.
-@builtin
+@(builtin)
 ensure :: proc "contextless" (condition: bool, message := #caller_expression(condition), loc := #caller_location) {
 	if !condition {
 		@(cold)
@@ -1093,14 +1093,14 @@ ensure :: proc "contextless" (condition: bool, message := #caller_expression(con
 
 // Panics the program with a message.
 // This uses the `assertion_failure_proc` to panic.
-@builtin
+@(builtin)
 panic :: proc "contextless" (message: string, loc := #caller_location) -> ! {
 	assertion_failure_proc("panic", message, loc)
 }
 
 // Panics the program with a message to indicate something has yet to be implemented.
 // This uses the `assertion_failure_proc` to assert.
-@builtin
+@(builtin)
 unimplemented :: proc "contextless" (message := "", loc := #caller_location) -> ! {
 	assertion_failure_proc("not yet implemented", message, loc)
 }

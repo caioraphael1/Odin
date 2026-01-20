@@ -47,7 +47,7 @@ foreign lib {
 	 *  In which case, 'dst' content is undefined (invalid).
 	 *      srcSize : max supported value is LZ4_MAX_INPUT_SIZE.
 	 *      dstCapacity : size of buffer 'dst' (which must be already allocated)
-	 *     @return  : the number of bytes written into buffer 'dst' (necessarily <= dstCapacity)
+	 *      : the number of bytes written into buffer 'dst' (necessarily <= dstCapacity)
 	 *                or 0 if compression fails
 	 * Note : This function is protected against buffer overflow scenarios (never writes outside 'dst' buffer, nor read outside 'source' buffer).
 	 */
@@ -57,7 +57,7 @@ foreign lib {
 	 * @compressedSize : is the exact complete size of the compressed block.
 	 * @dstCapacity : is the size of destination buffer (which must be already allocated),
 	 *                presumed an upper bound of decompressed size.
-	 * @return : the number of bytes decompressed into destination buffer (necessarily <= dstCapacity)
+	 * : the number of bytes decompressed into destination buffer (necessarily <= dstCapacity)
 	 *           If destination buffer is not large enough, decoding will stop and output an error code (negative value).
 	 *           If the source stream is detected malformed, the function will stop decoding and return a negative result.
 	 * Note 1 : This function is protected against malicious data packets :
@@ -113,7 +113,7 @@ foreign lib {
 	 * *srcSizePtr : in+out parameter. Initially contains size of input.
 	 *               Will be modified to indicate how many bytes where read from 'src' to fill 'dst'.
 	 *               New value is necessarily <= input value.
-	 * @return : Nb bytes written into 'dst' (necessarily <= dstCapacity)
+	 * : Nb bytes written into 'dst' (necessarily <= dstCapacity)
 	 *           or 0 if compression fails.
 	 *
 	 * Note : from v1.8.2 to v1.9.1, this function had a bug (fixed in v1.9.2+):
@@ -138,10 +138,10 @@ foreign lib {
 	 *  This can be useful to boost performance
 	 *  whenever only the beginning of a block is required.
 	 *
-	 * @return : the number of bytes decoded in `dst` (necessarily <= targetOutputSize)
+	 * : the number of bytes decoded in `dst` (necessarily <= targetOutputSize)
 	 *           If source stream is detected malformed, function returns a negative result.
 	 *
-	 *  Note 1 : @return can be < targetOutputSize, if compressed block contains less data.
+	 *  Note 1 : can be < targetOutputSize, if compressed block contains less data.
 	 *
 	 *  Note 2 : targetOutputSize must be <= dstCapacity
 	 *
@@ -204,7 +204,7 @@ foreign lib {
 	 *  While LZ4 itself accepts any input as dictionary, dictionary efficiency is also a topic.
 	 *  When in doubt, employ the Zstandard's Dictionary Builder.
 	 *  Loading a size of 0 is allowed, and is the same as reset.
-	 * @return : loaded dictionary size, in bytes (note: only the last 64 KB are loaded)
+	 * : loaded dictionary size, in bytes (note: only the last 64 KB are loaded)
 	 */
 	loadDict :: proc(streamPtr: ^stream_t, dictionary: [^]byte, dictSize: c.int) -> c.int ---
 
@@ -213,7 +213,7 @@ foreign lib {
 	 *  but uses a bit more cpu to reference the dictionary content more thoroughly.
 	 *  This is expected to slightly improve compression ratio.
 	 *  The extra-cpu cost is likely worth it if the dictionary is re-used across multiple sessions.
-	 * @return : loaded dictionary size, in bytes (note: only the last 64 KB are loaded)
+	 * : loaded dictionary size, in bytes (note: only the last 64 KB are loaded)
 	 */
 	loadDictSlow :: proc(streamPtr: ^stream_t, dictionary: [^]byte, dictSize: c.int) -> c.int ---
 
@@ -256,7 +256,7 @@ foreign lib {
 	 * 'dst' buffer must be already allocated.
 	 *  If dstCapacity >= LZ4_compressBound(srcSize), compression is guaranteed to succeed, and runs faster.
 	 *
-	 * @return : size of compressed block
+	 * : size of compressed block
 	 *           or 0 if there is an error (typically, cannot fit into 'dst').
 	 *
 	 *  Note 1 : Each invocation to LZ4_compress_fast_continue() generates a new block.
@@ -281,7 +281,7 @@ foreign lib {
 	 *  save it into a safer place (char* safeBuffer).
 	 *  This is schematically equivalent to a memcpy() followed by LZ4_loadDict(),
 	 *  but is much faster, because LZ4_saveDict() doesn't need to rebuild tables.
-	 * @return : saved dictionary size in bytes (necessarily <= maxDictSize), or 0 if error.
+	 * : saved dictionary size in bytes (necessarily <= maxDictSize), or 0 if error.
 	 */
 	saveDict :: proc(streamPtr: ^stream_t, safeBuffer: [^]byte, maxDictSize: c.int) -> c.int ---
 
@@ -294,7 +294,7 @@ foreign lib {
 	 *  Use this function to start decompression of a new stream of blocks.
 	 *  A dictionary can optionally be set. Use NULL or size 0 for a reset order.
 	 *  Dictionary is presumed stable : it must remain accessible and unmodified during next decompression.
-	 * @return : 1 if OK, 0 if error
+	 * : 1 if OK, 0 if error
 	 */
 	setStreamDecode :: proc(LZ4_streamDecode: ^streamDecode_t, dictionary: [^]byte, dictSize: c.int) -> c.int ---
 
@@ -306,7 +306,7 @@ foreign lib {
 	 *  When setting such a ring buffer for streaming decompression,
 	 *  provides the minimum size of this ring buffer
 	 *  to be compatible with any source respecting maxBlockSize condition.
-	 * @return : minimum ring buffer size,
+	 * : minimum ring buffer size,
 	 *           or 0 if there is an error (invalid maxBlockSize).
 	 */
 	decoderRingBufferSize :: proc(maxBlockSize: c.int) -> c.int ---
@@ -323,7 +323,7 @@ foreign lib {
 	 * @compressedSize : exact complete size of one compressed block.
 	 * @dstCapacity : size of destination buffer (which must be already allocated),
 	 *                must be an upper bound of decompressed size.
-	 * @return : number of bytes decompressed into destination buffer (necessarily <= dstCapacity)
+	 * : number of bytes decompressed into destination buffer (necessarily <= dstCapacity)
 	 *           If destination buffer is not large enough, decoding will stop and output an error code (negative value).
 	 *           If the source stream is detected malformed, the function will stop decoding and return a negative result.
 	 *
@@ -429,7 +429,7 @@ foreign lib {
 	 *  Max supported `srcSize` value is LZ4_MAX_INPUT_SIZE (see "lz4.h")
 	 * `compressionLevel` : any value between 1 and LZ4HC_CLEVEL_MAX will work.
 	 *                      Values > LZ4HC_CLEVEL_MAX behave the same as LZ4HC_CLEVEL_MAX.
-	 * @return : the number of bytes written into 'dst'
+	 * : the number of bytes written into 'dst'
 	 *           or 0 if compression fails.
 	 */
 	compress_HC :: proc(src, dst: [^]byte, srcSize, dstCapacity, compressionLevel: c.int) -> c.int ---
@@ -448,7 +448,7 @@ foreign lib {
 	 *  Will compress as much data as possible from `src`
 	 *  to fit into `targetDstSize` budget.
 	 *  Result is provided in 2 parts :
-	 * @return : the number of bytes written into 'dst' (necessarily <= targetDstSize)
+	 * : the number of bytes written into 'dst' (necessarily <= targetDstSize)
 	 *           or 0 if compression fails.
 	 * `srcSizePtr` : on success, *srcSizePtr is updated to indicate how much bytes were read from `src`
 	 */
@@ -473,7 +473,7 @@ foreign lib {
 	 *  but will read as much data as possible from `src`
 	 *  to fit into `targetDstSize` budget.
 	 *  Result is provided into 2 parts :
-	 * @return : the number of bytes written into 'dst' (necessarily <= targetDstSize)
+	 * : the number of bytes written into 'dst' (necessarily <= targetDstSize)
 	 *           or 0 if compression fails.
 	 * `srcSizePtr` : on success, *srcSizePtr will be updated to indicate how much bytes were read from `src`.
 	 *           Note that this function may not consume the entire input.

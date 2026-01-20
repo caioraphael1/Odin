@@ -11,7 +11,7 @@ TEAPOT_PATH :: ODIN_ROOT + "tests/core/assets/HXA/teapot.hxa"
 
 import "core:os"
 
-@test
+@(test)
 test_read :: proc(t: ^testing.T) {
 	data, _ := os.read_entire_file(TEAPOT_PATH)
 	// file, err := hxa.read_from_file(TEAPOT_PATH)
@@ -101,7 +101,7 @@ test_read :: proc(t: ^testing.T) {
 	testing.expectf(t, len(v.face_stack) == 0, "len(v.face_stack) %v != %v", len(v.face_stack), 0)
 }
 
-@test
+@(test)
 test_write :: proc(t: ^testing.T) {
 	n1: hxa.Node
 

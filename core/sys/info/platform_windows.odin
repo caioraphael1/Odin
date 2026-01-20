@@ -12,7 +12,7 @@ import "base:runtime"
 @(private)
 version_string_buf: [1024]u8
 
-// @@init
+// @(init)
 init_os_version :: proc(allocator: runtime.Allocator) {
 	/*
 		NOTE(Jeroen):
@@ -261,7 +261,7 @@ init_os_version :: proc(allocator: runtime.Allocator) {
 	}
 }
 
-// @@init
+// @(init)
 init_ram :: proc() {
 	state: sys.MEMORYSTATUSEX
 
@@ -278,7 +278,7 @@ init_ram :: proc() {
 	}
 }
 
-// @@init
+// @(init)
 init_gpu_info :: proc(allocator: runtime.Allocator) {
 	GPU_ROOT_KEY :: `SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}`
 

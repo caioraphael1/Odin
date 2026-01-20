@@ -9,7 +9,7 @@ package regex_vm
 */
 
 import "base:intrinsics"
-@require import "core:io"
+@(require) import "core:io"
 import "core:mem"
 import "core:slice"
 import "core:text/regex/common"

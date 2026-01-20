@@ -560,7 +560,7 @@ where
 	return errno_unwrap(ret, int)
 }
 
-@private
+@(private)
 recv_noaddr :: proc(sock: Fd, buf: []u8, flags: Socket_Msg) -> (int, Errno) {
 	ret := syscall(SYS_recvfrom, sock, raw_data(buf), len(buf), transmute(i32) flags, cast(rawptr) nil, cast(uintptr) 0)
 	return errno_unwrap(ret, int)
@@ -577,7 +577,7 @@ where
 	return errno_unwrap(ret, int)
 }
 
-@private
+@(private)
 send_noaddr :: proc(sock: Fd, buf: []u8, flags: Socket_Msg) -> (int, Errno) {
 	ret := syscall(SYS_sendto, sock, raw_data(buf), len(buf), transmute(i32) flags, cast(rawptr) nil, cast(uintptr) 0)
 	return errno_unwrap(ret, int)

@@ -2,7 +2,7 @@ package test_internal
 
 import "core:testing"
 
-@test
+@(test)
 test_128_align :: proc(t: ^testing.T) {
 	Danger_Struct :: struct {
 		x: u128,

@@ -103,6 +103,6 @@ Higher-level allocation procedures follow the following naming scheme:
 - `new`: Allocates a single object
 - `free`: Free a single object (opposite of `new`)
 - `make`: Allocate a group of objects
-- `_ = delete`: Free a group of objects (opposite of `make`)
+- `delete`: Free a group of objects (opposite of `make`)
 */
 package mem

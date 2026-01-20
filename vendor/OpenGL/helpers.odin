@@ -50,7 +50,7 @@ get_last_error_message :: proc() -> (compile_message: string, compile_type: Shad
 // except for calling differently named GL functions
 // it's a bit ugly looking, but meh
 when GL_DEBUG {
-	@private
+	@(private)
 	check_error :: proc(
 		id: u32, type: Shader_Type, status: u32,
 		iv_func: proc "c" (u32, u32, [^]i32, runtime.Source_Code_Location),
@@ -85,7 +85,7 @@ when GL_DEBUG {
 		return true
 	}
 } else {
-	@private
+	@(private)
 	check_error :: proc(
 		id: u32, type: Shader_Type, status: u32,
 		iv_func: proc "c" (u32, u32, [^]i32),

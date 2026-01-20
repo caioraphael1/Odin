@@ -219,7 +219,7 @@ bench_table :: proc(algo_name: string, plain, simd: $P) {
 	log.info(my_table_string)
 }
 
-@test
+@(test)
 benchmark_memory_procs :: proc(t: ^testing.T) {
 	bench_table("memory_equal", plain_memory_equal, runtime.memory_equal)
 	bench_table("memory_compare", plain_memory_compare, runtime.memory_compare)

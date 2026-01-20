@@ -812,7 +812,7 @@ Returns:
 - res: The slice of substrings
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-@private
+@(private)
 _split :: proc(s_, sep: string, sep_save, n_: int, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
 	s, n := s_, n_
 
@@ -1021,7 +1021,7 @@ Returns:
 - res: The resulting substring
 - ok: `true` if an iteration result was returned, `false` if the iterator has reached the end
 */
-@private
+@(private)
 _split_iterator :: proc(s: ^string, sep: string, sep_save: int) -> (res: string, ok: bool) {
 	m: int
 	if sep == "" {
@@ -1553,7 +1553,7 @@ index_rune :: proc(s: string, r: rune) -> (res: int) {
 	return index(s, string(b[:w]))
 }
 
-@private PRIME_RABIN_KARP :: 16777619
+@(private) PRIME_RABIN_KARP :: 16777619
 /*
 Returns the byte offset of the string `substr` in the string `s`, -1 when not found.
 
@@ -3143,7 +3143,7 @@ Inputs:
 - pad_len: The length of the pad string, in runes
 - remains: The number of times to write the pad string, in runes
 */
-@private
+@(private)
 write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: int) {
 	repeats := remains / pad_len
 

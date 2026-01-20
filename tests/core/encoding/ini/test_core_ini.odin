@@ -6,7 +6,7 @@ import "core:mem/virtual"
 import "core:strings"
 import "core:testing"
 
-@test
+@(test)
 parse_ini :: proc(t: ^testing.T) {
 	ini_data := `
 		[LOG]
@@ -49,7 +49,7 @@ parse_ini :: proc(t: ^testing.T) {
 	testing.expectf(t, err == nil, "Expected `ini.load_map_from_string` to return a nil error, got %v", err)
 }
 
-@test
+@(test)
 ini_to_string :: proc(t: ^testing.T) {
 	m := ini.Map{
 		"LEVEL" = {
@@ -70,7 +70,7 @@ ini_to_string :: proc(t: ^testing.T) {
 	)
 }
 
-@test
+@(test)
 ini_iterator :: proc(t: ^testing.T) {
 	ini_data := `
 		[LOG]

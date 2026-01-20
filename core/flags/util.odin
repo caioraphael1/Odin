@@ -1,8 +1,8 @@
 package flags
 
 import "core:fmt"
-@require import "core:os"
-@require import "core:path/filepath"
+@(require) import "core:os"
+@(require) import "core:path/filepath"
 import "core:strings"
 
 /*

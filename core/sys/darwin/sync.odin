@@ -74,18 +74,18 @@ foreign system {
 	// primitives such as os_unfair_lock API family / pthread mutex or
 	// std::mutex.
 	//
-	// @param addr
+	// addr
 	// The userspace address to be used for atomic compare-and-wait.
 	// This address must be aligned to @size.
 	//
-	// @param value
+	// value
 	// The value expected at @addr.
 	//
-	// @param size
+	// size
 	// The size of @value, in bytes. This can be either 4 or 8 today.
 	// For @value of @size 4 bytes, the upper 4 bytes of @value are ignored.
 	//
-	// @param flags
+	// flags
 	// Flags to alter behavior of os_sync_wait_on_address.
 	// See os_sync_wait_on_address_flags_t.
 	//
@@ -144,26 +144,26 @@ foreign system {
 	// allows the calling thread to specify a deadline
 	// until which it is willing to block.
 	//
-	// @param addr
+	// addr
 	// The userspace address to be used for atomic compare-and-wait.
 	// This address must be aligned to @size.
 	//
-	// @param value
+	// value
 	// The value expected at @addr.
 	//
-	// @param size
+	// size
 	// The size of @value, in bytes. This can be either 4 or 8 today.
 	// For @value of @size 4 bytes, the upper 4 bytes of @value are ignored.
 	//
-	// @param flags
+	// flags
 	// Flags to alter behavior of os_sync_wait_on_address_with_deadline.
 	// See os_sync_wait_on_address_flags_t.
 	//
-	// @param clockid
+	// clockid
 	// This value anchors @deadline argument to a specific clock id.
 	// See os_clockid_t.
 	//
-	// @param deadline
+	// deadline
 	// This value is used to specify a deadline until which the calling
 	// thread is willing to block.
 	// Passing zero for the @deadline results in an error being returned.
@@ -197,26 +197,26 @@ foreign system {
 	// allows the calling thread to specify a timeout
 	// until which it is willing to block.
 	//
-	// @param addr
+	// addr
 	// The userspace address to be used for atomic compare-and-wait.
 	// This address must be aligned to @size.
 	//
-	// @param value
+	// value
 	// The value expected at @addr.
 	//
-	// @param size
+	// size
 	// The size of @value, in bytes. This can be either 4 or 8 today.
 	// For @value of @size 4 bytes, the upper 4 bytes of @value are ignored.
 	//
-	// @param flags
+	// flags
 	// Flags to alter behavior of os_sync_wait_on_address_with_timeout.
 	// See os_sync_wait_on_address_flags_t.
 	//
-	// @param clockid
+	// clockid
 	// This value anchors @timeout_ns argument to a specific clock id.
 	// See os_clockid_t.
 	//
-	// @param timeout_ns
+	// timeout_ns
 	// This value is used to specify a timeout in nanoseconds until which
 	// the calling thread is willing to block.
 	// Passing zero for the @timeout_ns results in an error being returned.
@@ -250,15 +250,15 @@ foreign system {
 	// or its variants on the @addr. No guarantee is provided about which
 	// specific waiter is woken up.
 	//
-	// @param addr
+	// addr
 	// The userspace address to be used for waking up the blocked waiter.
 	// It should be same as what is passed to os_sync_wait_on_address or its variants.
 	//
-	// @param size
+	// size
 	// The size of lock value, in bytes. This can be either 4 or 8 today.
 	// It should be same as what is passed to os_sync_wait_on_address or its variants.
 	//
-	// @param flags
+	// flags
 	// Flags to alter behavior of os_sync_wake_by_address_any.
 	// See os_sync_wake_by_address_flags_t.
 	//
@@ -281,15 +281,15 @@ foreign system {
 	// This function is a variant of os_sync_wake_by_address_any that wakes up all waiters
 	// blocked in os_sync_wait_on_address or its variants.
 	//
-	// @param addr
+	// addr
 	// The userspace address to be used for waking up the blocked waiters.
 	// It should be same as what is passed to os_sync_wait_on_address or its variants.
 	//
-	// @param size
+	// size
 	// The size of lock value, in bytes. This can be either 4 or 8 today.
 	// It should be same as what is passed to os_sync_wait_on_address or its variants.
 	//
-	// @param flags
+	// flags
 	// Flags to alter behavior of os_sync_wake_by_address_all.
 	// See os_sync_wake_by_address_flags_t.
 	//

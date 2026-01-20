@@ -6,7 +6,7 @@ import "core:hash/xxhash"
 import "core:testing"
 import "core:math/rand"
 
-@test
+@(test)
 test_xxhash_zero_fixed :: proc(t: ^testing.T) {
 	many_zeroes := make([]u8, 16 * 1024 * 1024)
 	defer _ = delete(many_zeroes)
@@ -82,7 +82,7 @@ test_xxhash_zero_streamed_random_updates :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_xxhash_seeded :: proc(t: ^testing.T) {
 	buf := make([]u8, 256)
 	defer _ = delete(buf)
@@ -120,7 +120,7 @@ test_xxhash_seeded :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_xxhash_secret :: proc(t: ^testing.T) {
 	buf := make([]u8, 256)
 	defer _ = delete(buf)

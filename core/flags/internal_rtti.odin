@@ -9,8 +9,8 @@ import "core:os"
 import "core:reflect"
 import "core:strconv"
 import "core:strings"
-@require import "core:time"
-@require import "core:time/datetime"
+@(require) import "core:time"
+@(require) import "core:time/datetime"
 import "core:unicode/utf8"
 
 @(optimization_mode="favor_size")

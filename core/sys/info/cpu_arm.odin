@@ -51,7 +51,7 @@ cpu: CPU
 @(private)
 cpu_name_buf: [128]byte
 
-// @@init
+// @(init)
 init_cpu_name :: proc() {
 	generic := true
 

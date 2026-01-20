@@ -6,7 +6,7 @@ import "core:sys/linux"
 import "core:strings"
 import "core:strconv"
 
-// @@init
+// @(init)
 init_cpu_core_count :: proc() {
 	fd, err := linux.open("/proc/cpuinfo", {})
 	if err != .NONE { return }

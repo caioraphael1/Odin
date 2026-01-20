@@ -86,12 +86,12 @@ check_capture :: proc(t: ^testing.T, got, expected: regex.Capture, loc := #calle
 	return true
 }
 
-@test
+@(test)
 test_concatenation :: proc(t: ^testing.T) {
 	check_expression(t, "abc", "abc", "abc")
 }
 
-@test
+@(test)
 test_rune_class :: proc(t: ^testing.T) {
 	EXPR :: "[abc]"
 	check_expression(t, EXPR, "a", "a")
@@ -99,13 +99,13 @@ test_rune_class :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "c", "c")
 }
 
-@test
+@(test)
 test_rune_ranges :: proc(t: ^testing.T) {
 	EXPR :: "0x[0-9A-Fa-f]+"
 	check_expression(t, EXPR, "0x0065c816", "0x0065c816")
 }
 
-@test
+@(test)
 test_rune_range_terminal_dash :: proc(t: ^testing.T) {
 	{
 		EXPR :: "[a-]"
@@ -136,7 +136,7 @@ test_rune_range_terminal_dash :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_rune_range_escaping_class :: proc(t: ^testing.T) {
 	{
 		EXPR :: `[\]a\[\.]`
@@ -152,7 +152,7 @@ test_rune_range_escaping_class :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_negated_rune_class :: proc(t: ^testing.T) {
 	EXPR :: "[^ac-d]"
 	check_expression(t, EXPR, "a")
@@ -162,7 +162,7 @@ test_negated_rune_class :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "d")
 }
 
-@test
+@(test)
 test_shorthand_classes :: proc(t: ^testing.T) {
 	EXPR_P :: `\d\w\s`
 	check_expression(t, EXPR_P, "1a ", "1a ")
@@ -172,7 +172,7 @@ test_shorthand_classes :: proc(t: ^testing.T) {
 	check_expression(t, EXPR_N, "1a ")
 }
 
-@test
+@(test)
 test_shorthand_classes_in_classes :: proc(t: ^testing.T) {
 	EXPR_P :: `[\d][\w][\s]`
 	check_expression(t, EXPR_P, "1a ", "1a ")
@@ -188,7 +188,7 @@ test_shorthand_classes_in_classes :: proc(t: ^testing.T) {
 	check_expression(t, EXPR_NN, "a!1")
 }
 
-@test
+@(test)
 test_mixed_shorthand_class :: proc(t: ^testing.T) {
 	EXPR_P :: `[\d\s]+`
 	check_expression(t, EXPR_P, "0123456789 98", "0123456789 98")
@@ -198,14 +198,14 @@ test_mixed_shorthand_class :: proc(t: ^testing.T) {
 	check_expression(t, EXPR_NP, "0123456789 98")
 }
 
-@test
+@(test)
 test_wildcard :: proc(t: ^testing.T) {
 	EXPR :: "."
 	check_expression(t, EXPR, "a", "a")
 	check_expression(t, EXPR, ".", ".")
 }
 
-@test
+@(test)
 test_alternation :: proc(t: ^testing.T) {
 	EXPR :: "aa|bb|cc"
 	check_expression(t, EXPR, "aa", "aa")
@@ -213,31 +213,31 @@ test_alternation :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "cc", "cc")
 }
 
-@test
+@(test)
 test_alternation_order :: proc(t: ^testing.T) {
 	check_expression(t, "a|ab", "ab", "a")
 	check_expression(t, "ab|a", "ab", "ab")
 }
 
-@test
+@(test)
 test_optional :: proc(t: ^testing.T) {
 	EXPR :: "a?a?a?aaa"
 	check_expression(t, EXPR, "aaa", "aaa")
 }
 
-@test
+@(test)
 test_repeat_zero :: proc(t: ^testing.T) {
 	EXPR :: "a*b"
 	check_expression(t, EXPR, "aaab", "aaab")
 }
 
-@test
+@(test)
 test_repeat_one :: proc(t: ^testing.T) {
 	EXPR :: "a+b"
 	check_expression(t, EXPR, "aaab", "aaab")
 }
 
-@test
+@(test)
 test_greedy :: proc(t: ^testing.T) {
 	HTML :: "<html></html>"
 
@@ -247,7 +247,7 @@ test_greedy :: proc(t: ^testing.T) {
 	check_expression(t, "aaa?", "aaa", "aaa")
 }
 
-@test
+@(test)
 test_non_greedy :: proc(t: ^testing.T) {
 	HTML :: "<html></html>"
 
@@ -258,7 +258,7 @@ test_non_greedy :: proc(t: ^testing.T) {
 	check_expression(t, "aaa??", "aaa", "aa")
 }
 
-@test
+@(test)
 test_groups :: proc(t: ^testing.T) {
 	check_expression(t, "a(b)",   "ab", /*|*/ "ab",  "b")
 	check_expression(t, "(a)b",   "ab", /*|*/ "ab",  "a")
@@ -272,7 +272,7 @@ test_groups :: proc(t: ^testing.T) {
 	check_expression(t, "((ab)+)", "ababababab", /*|*/ "ababababab", "ababababab", "ab")
 }
 
-@test
+@(test)
 test_class_group_repeat :: proc(t: ^testing.T) {
 	EXPR_1 :: "([0-9]:?)+"
 	EXPR_2 :: "([0-9]+:?)+"
@@ -280,7 +280,7 @@ test_class_group_repeat :: proc(t: ^testing.T) {
 	check_expression(t, EXPR_2, "123:456:789", "123:456:789", "789")
 }
 
-@test
+@(test)
 test_non_capture_group :: proc(t: ^testing.T) {
 	EXPR :: "(?:a|b)c"
 	check_expression(t, EXPR, "ac", "ac")
@@ -288,7 +288,7 @@ test_non_capture_group :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "cc")
 }
 
-@test
+@(test)
 test_optional_capture_group :: proc(t: ^testing.T) {
 	EXPR :: "^(blue|straw)?berry"
 	check_expression(t, EXPR, "berry", "berry")
@@ -297,7 +297,7 @@ test_optional_capture_group :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "cranberry")
 }
 
-@test
+@(test)
 test_max_capture_groups :: proc(t: ^testing.T) {
 	sb_pattern := strings.builder_make()
 	sb_haystack := strings.builder_make()
@@ -353,7 +353,7 @@ test_max_capture_groups :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_repetition :: proc(t: ^testing.T) {
 	{
 		EXPR :: "^a{3}$"
@@ -397,7 +397,7 @@ test_repetition :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_repeated_groups :: proc(t: ^testing.T) {
 	{
 		EXPR :: "(ab){3}"
@@ -409,13 +409,13 @@ test_repeated_groups :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_escaped_newline :: proc(t: ^testing.T) {
 	EXPR :: `\n[\n]`
 	check_expression(t, EXPR, "\n\n", "\n\n")
 }
 
-@test
+@(test)
 test_anchors :: proc(t: ^testing.T) {
 	{
 		EXPR :: "^ab"
@@ -434,7 +434,7 @@ test_anchors :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_grouped_anchors :: proc(t: ^testing.T) {
 	{
 		EXPR :: "^a|b"
@@ -453,7 +453,7 @@ test_grouped_anchors :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_empty_alternation :: proc(t: ^testing.T) {
 	{
 		EXPR :: "(?:a|)b"
@@ -482,13 +482,13 @@ test_empty_alternation :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_empty_class :: proc(t: ^testing.T) {
 	EXPR :: "a[]b"
 	check_expression(t, EXPR, "ab", "ab")
 }
 
-@test
+@(test)
 test_dot_in_class :: proc(t: ^testing.T) {
 	EXPR :: `[a\..]`
 	check_expression(t, EXPR, "a", "a")
@@ -497,7 +497,7 @@ test_dot_in_class :: proc(t: ^testing.T) {
 }
 
 
-@test
+@(test)
 test_word_boundaries :: proc(t: ^testing.T) {
 	STR :: "This is an island."
 	{
@@ -518,7 +518,7 @@ test_word_boundaries :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_pos_index_explicitly :: proc(t: ^testing.T) {
 	STR :: "This is an island."
 	EXPR :: `\bis\b`
@@ -542,7 +542,7 @@ test_pos_index_explicitly :: proc(t: ^testing.T) {
 	testing.expect_value(t, capture.pos[0][1], 7)
 }
 
-@test
+@(test)
 test_non_word_boundaries :: proc(t: ^testing.T) {
 	{
 		EXPR :: `.\B.`
@@ -566,7 +566,7 @@ test_non_word_boundaries :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_empty_patterns :: proc(t: ^testing.T) {
 	{
 		EXPR :: ""
@@ -579,13 +579,13 @@ test_empty_patterns :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_unanchored :: proc(t: ^testing.T) {
 	EXPR :: "ab"
 	check_expression(t, EXPR, "cab", "ab")
 }
 
-@test
+@(test)
 test_affixes :: proc(t: ^testing.T) {
 	// This test is for the optimizer.
 	EXPR :: "^(?:samples|ample|sample)$"
@@ -595,7 +595,7 @@ test_affixes :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "amples")
 }
 
-@test
+@(test)
 test_anchored_capture_until_end :: proc(t: ^testing.T) {
 	// This test is for the optimizer.
 	{
@@ -638,7 +638,7 @@ test_anchored_capture_until_end :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_unicode_explicitly :: proc(t: ^testing.T) {
 	{
 		EXPR :: "^....!$"
@@ -656,7 +656,7 @@ test_unicode_explicitly :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_no_capture_match :: proc(t: ^testing.T) {
 	EXPR :: "^abc$"
 
@@ -670,7 +670,7 @@ test_no_capture_match :: proc(t: ^testing.T) {
 	testing.expect(t, matched)
 }
 
-@test
+@(test)
 test_comments :: proc(t: ^testing.T) {
 	EXPR :: `^[abc]# This is a comment.
 [def]# This is another comment.
@@ -678,7 +678,7 @@ test_comments :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "ad#", "ad#")
 }
 
-@test
+@(test)
 test_ignore_whitespace :: proc(t: ^testing.T) {
 	EXPR :: "\f" + `
 \ H    e     l   # Note that the first space on this line is escaped, thus it is not ignored.
@@ -689,13 +689,13 @@ o    p     e [ ]   w   o  rld (?: [ ]) ! # Spaces in classes are fine, too.
 	check_expression(t, EXPR, " Hellope world !", " Hellope world !", extra_flags = { .Ignore_Whitespace })
 }
 
-@test
+@(test)
 test_case_insensitive :: proc(t: ^testing.T) {
 	EXPR :: `hElLoPe [w!][o-P]+rLd!`
 	check_expression(t, EXPR, "HeLlOpE WoRlD!", "HeLlOpE WoRlD!", extra_flags = { .Case_Insensitive })
 }
 
-@test
+@(test)
 test_multiline :: proc(t: ^testing.T) {
 	{
 		EXPR :: `^hellope$world$`
@@ -721,7 +721,7 @@ test_multiline :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_optional_inside_optional :: proc(t: ^testing.T) {
 	EXPR :: `(?:a?)?`
 	check_expression(t, EXPR, "a", "a")
@@ -730,7 +730,7 @@ test_optional_inside_optional :: proc(t: ^testing.T) {
 
 
 
-@test
+@(test)
 test_error_bad_repetitions :: proc(t: ^testing.T) {
 	expect_error(t, "a{-1,2}", parser.Invalid_Repetition)
 	expect_error(t, "a{2,1}",  parser.Invalid_Repetition)
@@ -751,12 +751,12 @@ test_error_bad_repetitions :: proc(t: ^testing.T) {
 	expect_error(t, "a{,",   parser.Unexpected_EOF)
 }
 
-@test
+@(test)
 test_error_invalid_unicode_in_pattern :: proc(t: ^testing.T) {
 	expect_error(t, "\xC0", parser.Invalid_Unicode)
 }
 
-@test
+@(test)
 test_error_invalid_unicode_in_string :: proc(t: ^testing.T) {
 	EXPR :: "^...$"
 	// NOTE: Matching on invalid Unicode is currently safe.
@@ -764,7 +764,7 @@ test_error_invalid_unicode_in_string :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "\xC0\xFF\xFE", "\xC0\xFF\xFE")
 }
 
-@test
+@(test)
 test_error_too_many_capture_groups :: proc(t: ^testing.T) {
 	sb := strings.builder_make()
 	defer strings.builder_destroy(&sb)
@@ -780,12 +780,12 @@ test_error_too_many_capture_groups :: proc(t: ^testing.T) {
 	expect_error(t, pattern, parser.Too_Many_Capture_Groups)
 }
 
-@test
+@(test)
 test_error_unclosed_paren :: proc(t: ^testing.T) {
 	expect_error(t, "(Hellope", parser.Expected_Token)
 }
 
-@test
+@(test)
 test_error_unclosed_class :: proc(t: ^testing.T) {
 	expect_error(t, "[helope", parser.Unexpected_EOF)
 	expect_error(t, `a[\]b`,   parser.Unexpected_EOF)
@@ -794,12 +794,12 @@ test_error_unclosed_class :: proc(t: ^testing.T) {
 	expect_error(t, `a[`,      parser.Unexpected_EOF)
 }
 
-@test
+@(test)
 test_error_invalid_unicode_in_unclosed_class :: proc(t: ^testing.T) {
 	expect_error(t, "[\xC0", parser.Invalid_Unicode, { .Unicode })
 }
 
-@test
+@(test)
 test_program_too_big :: proc(t: ^testing.T) {
 	sb := strings.builder_make()
 	w := strings.to_writer(&sb)
@@ -820,7 +820,7 @@ test_program_too_big :: proc(t: ^testing.T) {
 	testing.expect_value(t, compile_err, regex.Compiler_Error.Program_Too_Big)
 }
 
-@test
+@(test)
 test_too_many_classes :: proc(t: ^testing.T) {
 	sb := strings.builder_make()
 	w := strings.to_writer(&sb)
@@ -841,7 +841,7 @@ test_too_many_classes :: proc(t: ^testing.T) {
 	testing.expect_value(t, compile_err, regex.Compiler_Error.Too_Many_Classes)
 }
 
-@test
+@(test)
 test_empty_captures :: proc(t: ^testing.T) {
 	rex, err := regex.create("(?:)()")
 	regex.destroy(rex)
@@ -855,13 +855,13 @@ test_empty_captures :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_lone_enders :: proc(t: ^testing.T) {
 	check_expression(t, `)`, ")", ")")
 	check_expression(t, `]`, "]", "]")
 }
 
-@test
+@(test)
 test_invalid_unary_tokens :: proc(t: ^testing.T) {
 	expect_error(t, `*`,     parser.Invalid_Token)
 	expect_error(t, `*?`,    parser.Invalid_Token)
@@ -877,7 +877,7 @@ test_invalid_unary_tokens :: proc(t: ^testing.T) {
 	expect_error(t, `\`, parser.Unexpected_EOF)
 }
 
-@test
+@(test)
 test_everything_at_once :: proc(t: ^testing.T) {
 	EXPR :: `# Comment up here.
 	^
@@ -905,7 +905,7 @@ test_everything_at_once :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "a_bcffhjkkklllln9oo#p", "a_bcffhjkkklllln9oo#p", "p", extra_flags = { .Ignore_Whitespace })
 }
 
-@test
+@(test)
 test_creation_from_user_string :: proc(t: ^testing.T) {
 	{
 		USER_EXPR :: `/^hellope$/mixun-`
@@ -1000,7 +1000,7 @@ test_creation_from_user_string :: proc(t: ^testing.T) {
 // NOTE(Feoramund): The following are patterns I found out in the wild to test
 // coverage of how people might use RegEx.
 
-@test
+@(test)
 test_email_simple :: proc(t: ^testing.T) {
 	// Source: https://stackoverflow.com/a/50343015
 	EXPR :: `^[^@]+@[^@]+\.[^@]+$`
@@ -1008,7 +1008,7 @@ test_email_simple :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "@not-an-email.com")
 }
 
-@test
+@(test)
 test_email_absurd :: proc(t: ^testing.T) {
 	// This is why you shouldn't use RegEx to parse rule-laden text.
 	// Source: https://emailregex.com/
@@ -1016,7 +1016,7 @@ test_email_absurd :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "bill@gingerbill.org", "bill@gingerbill.org")
 	check_expression(t, EXPR, "@not-their own- typeemail.com") }
 
-@test
+@(test)
 test_uri_partition :: proc(t: ^testing.T) {
 	// Source: https://www.rfc-editor.org/rfc/rfc3986#appendix-B
 	EXPR :: `^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?`
@@ -1029,7 +1029,7 @@ test_uri_partition :: proc(t: ^testing.T) {
 		"/")
 }
 
-@test
+@(test)
 test_ipv4 :: proc(t: ^testing.T) {
 	// Source: https://www.regular-expressions.info/ip.html
 	EXPR :: `\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.
@@ -1040,7 +1040,7 @@ test_ipv4 :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "9.9.9.9", "9.9.9.9", "9", "9", "9", "9", extra_flags = { .Ignore_Whitespace })
 }
 
-@test
+@(test)
 test_floating_point :: proc(t: ^testing.T) {
 	// Source: https://www.regular-expressions.info/floatingpoint.html
 	EXPR :: `[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?`
@@ -1049,21 +1049,21 @@ test_floating_point :: proc(t: ^testing.T) {
 	check_expression(t, EXPR, "1e9", "1e9", "e9")
 }
 
-@test
+@(test)
 test_uk_postal_code :: proc(t: ^testing.T) {
 	// Source: https://www.html5pattern.com/Postal_Codes
 	EXPR :: `[A-Za-z]{1,2}[0-9Rr][0-9A-Za-z]? [0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}`
 	check_expression(t, EXPR, "EC1A 1BB", "EC1A 1BB")
 }
 
-@test
+@(test)
 test_us_phone_number :: proc(t: ^testing.T) {
 	// Source: https://regexlib.com/REDetails.aspx?regexp_id=22
 	EXPR :: `^[2-9]\d{2}-\d{3}-\d{4}$`
 	check_expression(t, EXPR, "650-253-0001", "650-253-0001")
 }
 
-@test
+@(test)
 test_preallocated_capture :: proc(t: ^testing.T) {
 	capture := regex.preallocate_capture()
 	defer regex.destroy(capture)
@@ -1272,7 +1272,7 @@ iterator_vectors := []Iterator_Test{
 	},
 }
 
-@test
+@(test)
 test_match_iterator :: proc(t: ^testing.T) {
 	vector: for test in iterator_vectors {
 		it, err := regex.create_iterator(test.haystack, test.pattern, test.flags)
@@ -1294,7 +1294,7 @@ test_match_iterator :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_iterator_reset :: proc(t: ^testing.T) {
 	test := Iterator_Test{
 		`aaa`, `a`, {},

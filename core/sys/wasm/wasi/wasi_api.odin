@@ -1303,7 +1303,7 @@ foreign wasi {
 
 /**
  * Return command-line argument data sizes.
- * @return
+
  * Returns the number of arguments and the size of the argument string
  * data, or an error.
  */
@@ -1313,7 +1313,7 @@ args_sizes_get :: proc() -> (num_args, size_of_args: size_t, err: errno_t) {
 }
 /**
  * Return environment variable data sizes.
- * @return
+
  * Returns the number of environment variable arguments and the size of the
  * environment variable data.
  */
@@ -1326,7 +1326,7 @@ environ_sizes_get :: proc() -> (num_envs, size_of_envs: size_t, err: errno_t) {
  * Implementations are required to provide a non-zero value for supported clocks. For unsupported clocks,
  * return `errno::inval`.
  * Note: This is similar to `clock_getres` in POSIX.
- * @return
+
  * The resolution of the clock, or an error if one happened.
  */
 clock_res_get :: proc(
@@ -1341,7 +1341,7 @@ clock_res_get :: proc(
 /**
  * Return the time value of a clock.
  * Note: This is similar to `clock_gettime` in POSIX.
- * @return
+
  * The time value of the clock.
  */
 clock_time_get :: proc(
@@ -1360,7 +1360,7 @@ clock_time_get :: proc(
 /**
  * Get the attributes of a file descriptor.
  * Note: This returns similar flags to `fsync(fd, F_GETFL)` in POSIX, as well as additional fields.
- * @return
+
  * The buffer where the file descriptor's attributes are stored.
  */
 fd_fdstat_get :: proc(
@@ -1371,7 +1371,7 @@ fd_fdstat_get :: proc(
 }
 /**
  * Return the attributes of an open file.
- * @return
+
  * The buffer where the file's attributes are stored.
  */
 fd_filestat_get :: proc(
@@ -1387,7 +1387,7 @@ fd_filestat_get :: proc(
 /**
  * Read from a file descriptor, without using and updating the file descriptor's offset.
  * Note: This is similar to `preadv` in POSIX.
- * @return
+
  * The number of bytes read.
  */
 fd_pread :: proc(
@@ -1406,7 +1406,7 @@ fd_pread :: proc(
 }
 /**
  * Return a description of the given preopened file descriptor.
- * @return
+
  * The buffer where the description is stored.
  */
 fd_prestat_get :: proc(
@@ -1418,7 +1418,7 @@ fd_prestat_get :: proc(
 /**
  * Write to a file descriptor, without using and updating the file descriptor's offset.
  * Note: This is similar to `pwritev` in POSIX.
- * @return
+
  * The number of bytes written.
  */
 fd_pwrite :: proc(
@@ -1438,7 +1438,7 @@ fd_pwrite :: proc(
 /**
  * Read from a file descriptor.
  * Note: This is similar to `readv` in POSIX.
- * @return
+
  * The number of bytes read.
  */
 fd_read :: proc(
@@ -1461,7 +1461,7 @@ fd_read :: proc(
  * truncating the last directory entry. This allows the caller to grow its
  * read buffer size in case it's too small to fit a single large directory
  * entry, or skip the oversized directory entry.
- * @return
+
  * The number of bytes stored in the read buffer. If less than the size of the read buffer, the end of the directory has been reached.
  */
 fd_readdir :: proc(
@@ -1481,7 +1481,7 @@ fd_readdir :: proc(
 /**
  * Move the offset of a file descriptor.
  * Note: This is similar to `lseek` in POSIX.
- * @return
+
  * The new offset of the file descriptor, relative to the start of the file.
  */
 fd_seek :: proc(
@@ -1501,7 +1501,7 @@ fd_seek :: proc(
 /**
  * Return the current offset of a file descriptor.
  * Note: This is similar to `lseek(fd, 0, SEEK_CUR)` in POSIX.
- * @return
+
  * The current offset of the file descriptor, relative to the start of the file.
  */
 fd_tell :: proc(
@@ -1527,7 +1527,7 @@ fd_write :: proc(
 /**
  * Return the attributes of a file or directory.
  * Note: This is similar to `stat` in POSIX.
- * @return
+
  * The buffer where the file's attributes are stored.
  */
 path_filestat_get :: proc(
@@ -1552,7 +1552,7 @@ path_filestat_get :: proc(
  * is error-prone in multi-threaded contexts. The returned file descriptor is
  * guaranteed to be less than 2**31.
  * Note: This is similar to `openat` in POSIX.
- * @return
+
  * The file descriptor of the file that has been opened.
  */
 path_open :: proc(
@@ -1589,7 +1589,7 @@ path_open :: proc(
 /**
  * Read the contents of a symbolic link.
  * Note: This is similar to `readlinkat` in POSIX.
- * @return
+
  * The number of bytes placed in the buffer.
  */
 path_readlink :: proc(
@@ -1608,7 +1608,7 @@ path_readlink :: proc(
 }
 /**
  * Concurrently poll for the occurrence of a set of events.
- * @return
+
  * The number of events stored.
  */
 poll_oneoff :: proc(
@@ -1632,7 +1632,7 @@ poll_oneoff :: proc(
  * Receive a message from a socket.
  * Note: This is similar to `recv` in POSIX, though it also supports reading
  * the data into multiple buffers in the manner of `readv`.
- * @return
+
  * Number of bytes stored in ri_data and message flags.
  */
 sock_recv :: proc(
@@ -1653,7 +1653,7 @@ sock_recv :: proc(
  * Send a message on a socket.
  * Note: This is similar to `send` in POSIX, though it also supports writing
  * the data from multiple buffers in the manner of `writev`.
- * @return
+
  * Number of bytes transmitted.
  */
 sock_send :: proc(

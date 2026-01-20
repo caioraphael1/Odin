@@ -132,7 +132,7 @@ reset :: proc(ctx: ^$T) {
 */
 
 /*
-    @note(zh): F, G, H and I, as mentioned in the RFC, have been inlined into FF, GG, HH
+    Note(zh): F, G, H and I, as mentioned in the RFC, have been inlined into FF, GG, HH
     and II respectively, instead of declaring them separately.
 */
 

@@ -4,7 +4,7 @@ import "base:runtime"
 import "core:container/queue"
 import "core:testing"
 
-@test
+@(test)
 test_queue :: proc(t: ^testing.T) {
 	buf := [?]int{99, 99, 99, 99, 99}
 	q: queue.Queue(int)
@@ -75,7 +75,7 @@ test_queue :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_queue_grow_edge_case :: proc(t: ^testing.T) {
 	// Create a situation in which we trigger `q.offset + q.len > n` inside
 	// `_grow` to evaluate the `copy` behavior.
@@ -106,7 +106,7 @@ test_queue_grow_edge_case :: proc(t: ^testing.T) {
 	// copied the data into the right place after resizing the backing array.
 }
 
-@test
+@(test)
 test_queue_grow_edge_case_2 :: proc(t: ^testing.T) {
 	// Create a situation in which we trigger `insert_from + insert_to > sz` inside `push_back_elems`
 	// to evaluate the modified `insert_to` behavior.
@@ -130,7 +130,7 @@ test_queue_grow_edge_case_2 :: proc(t: ^testing.T) {
 	testing.expect_value(t, queue.len(qq), 0)
 }
 
-@test
+@(test)
 test_queue_shrink :: proc(t: ^testing.T) {
 	qq: queue.Queue(int)
 	queue.init(&qq, 8)

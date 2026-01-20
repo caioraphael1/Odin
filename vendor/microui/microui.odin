@@ -309,7 +309,7 @@ rect_overlaps_vec2 :: proc(r: Rect, p: Vec2) -> bool {
 	return p.x >= r.x && p.x < r.x + r.w && p.y >= r.y && p.y < r.y + r.h
 }
 
-@private 
+@(private) 
 default_draw_frame :: proc(ctx: ^Context, rect: Rect, colorid: Color_Type) {
 	draw_rect(ctx, rect, ctx.style.colors[colorid])
 	if colorid == .SCROLL_BASE || colorid == .SCROLL_THUMB || colorid == .TITLE_BG {
@@ -483,7 +483,7 @@ get_layout :: proc(ctx: ^Context) -> ^Layout {
 	return &ctx.layout_stack.items[ctx.layout_stack.idx - 1]
 }
 
-@private 
+@(private) 
 push_layout :: proc(ctx: ^Context, body: Rect, scroll: Vec2) {
 	layout: Layout
 	layout.body = Rect{body.x - scroll.x, body.y - scroll.y, body.w, body.h}
@@ -492,7 +492,7 @@ push_layout :: proc(ctx: ^Context, body: Rect, scroll: Vec2) {
 	layout_row(ctx, {0})
 }
 
-@private 
+@(private) 
 pop_container :: proc(ctx: ^Context) {
 	cnt := get_current_container(ctx)
 	layout := get_layout(ctx)
@@ -509,7 +509,7 @@ get_current_container :: proc(ctx: ^Context) -> ^Container {
 	return ctx.container_stack.items[ctx.container_stack.idx - 1]
 }
 
-@private
+@(private)
 internal_get_container :: proc(ctx: ^Context, id: Id, opt: Options) -> ^Container {
 	/* try to get existing container from pool */
 	idx, ok := pool_get(ctx, ctx.container_pool[:], id)
@@ -651,7 +651,7 @@ next_command_iterator :: proc(ctx: ^Context, pcm: ^^Command) -> (Command_Variant
 	return nil, false
 }
 
-@private push_jump :: proc(ctx: ^Context, dst: ^Command) -> ^Command {
+@(private) push_jump :: proc(ctx: ^Context, dst: ^Command) -> ^Command {
 	cmd := push_command(ctx, Command_Jump)
 	cmd.dst = dst
 	return cmd
@@ -833,7 +833,7 @@ layout_next :: proc(ctx: ^Context) -> (res: Rect) {
 ** controls
 **============================================================================*/
 
-@private 
+@(private) 
 in_hover_root :: proc(ctx: ^Context) -> bool {
 	for i := ctx.container_stack.idx - 1; i >= 0; i -= 1 {
 		if ctx.container_stack.items[i] == ctx.hover_root {
@@ -1136,7 +1136,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
 	return
 }
 
-@private 
+@(private) 
 parse_real :: #force_inline proc(s: string) -> (Real, bool) {
 	f, ok := strconv.parse_f64(s)
 	return Real(f), ok
@@ -1238,7 +1238,7 @@ number :: proc(ctx: ^Context, value: ^Real, step: Real, fmt_string: string = SLI
 	return
 }
 
-@private 
+@(private) 
 _header :: proc(ctx: ^Context, label: string, is_treenode: bool, opt := Options{}) -> Result_Set {
 	id := get_id(ctx, label)
 	idx, active := pool_get(ctx, ctx.treenode_pool[:], id)
@@ -1308,7 +1308,7 @@ treenode :: proc(ctx: ^Context, label: string, opt := Options{}) -> Result_Set {
 }
 
 
-@private 
+@(private) 
 scrollbar :: proc(ctx: ^Context, cnt: ^Container, _b: ^Rect, cs: Vec2, id_string: string, i: int) {
 	b := (^struct{ pos, size: [2]i32 })(_b)
 	#assert(size_of(b^) == size_of(_b^))
@@ -1349,7 +1349,7 @@ scrollbar :: proc(ctx: ^Context, cnt: ^Container, _b: ^Rect, cs: Vec2, id_string
 	}
 }
 
-@private 
+@(private) 
 scrollbars :: proc(ctx: ^Context, cnt: ^Container, body: ^Rect) {
 	sz := ctx.style.scrollbar_size
 	cs := cnt.content_size
@@ -1366,7 +1366,7 @@ scrollbars :: proc(ctx: ^Context, cnt: ^Container, body: ^Rect) {
 	pop_clip_rect(ctx)
 }
 
-@private 
+@(private) 
 push_container_body :: proc(ctx: ^Context, cnt: ^Container, body: Rect, opt := Options{}) {
 	body := body
 	if .NO_SCROLL not_in opt {
@@ -1376,7 +1376,7 @@ push_container_body :: proc(ctx: ^Context, cnt: ^Container, body: Rect, opt := O
 	cnt.body = body
 }
 
-@private 
+@(private) 
 begin_root_container :: proc(ctx: ^Context, cnt: ^Container) {
 	push(&ctx.container_stack, cnt)
 	/* push container to roots list and push head command */
@@ -1394,7 +1394,7 @@ begin_root_container :: proc(ctx: ^Context, cnt: ^Container) {
 	push(&ctx.clip_stack, unclipped_rect)
 }
 
-@private 
+@(private) 
 end_root_container :: proc(ctx: ^Context) {
 	/* push tail 'goto' jump command and set head 'skip' command. the final steps
 	** on initing these are done in end() */
@@ -1561,6 +1561,6 @@ end_panel :: proc(ctx: ^Context) {
 	pop_container(ctx)
 }
 
-@private mouse_released :: #force_inline proc(ctx: ^Context) -> bool { return ctx.mouse_released_bits != nil }
-@private mouse_pressed  :: #force_inline proc(ctx: ^Context) -> bool { return ctx.mouse_pressed_bits  != nil }
-@private mouse_down     :: #force_inline proc(ctx: ^Context) -> bool { return ctx.mouse_down_bits     != nil }
+@(private) mouse_released :: #force_inline proc(ctx: ^Context) -> bool { return ctx.mouse_released_bits != nil }
+@(private) mouse_pressed  :: #force_inline proc(ctx: ^Context) -> bool { return ctx.mouse_pressed_bits  != nil }
+@(private) mouse_down     :: #force_inline proc(ctx: ^Context) -> bool { return ctx.mouse_down_bits     != nil }

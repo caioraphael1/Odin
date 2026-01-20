@@ -52,7 +52,7 @@ wait_for :: proc(threads: []^thread.Thread) {
 // core:sync/primitives.odin
 //
 
-@test
+@(test)
 test_mutex :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -87,7 +87,7 @@ test_mutex :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_rw_mutex :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -130,7 +130,7 @@ test_rw_mutex :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number2, THREADS)
 }
 
-@test
+@(test)
 test_recursive_mutex :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -174,7 +174,7 @@ test_recursive_mutex :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_cond :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -222,7 +222,7 @@ test_cond :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_cond_with_timeout :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -232,7 +232,7 @@ test_cond_with_timeout :: proc(t: ^testing.T) {
 	sync.cond_wait_with_timeout(&c, &m, SLEEP_TIME)
 }
 
-@test
+@(test)
 test_semaphore :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -268,7 +268,7 @@ test_semaphore :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_semaphore_with_timeout :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -276,7 +276,7 @@ test_semaphore_with_timeout :: proc(t: ^testing.T) {
 	sync.sema_wait_with_timeout(&s, SLEEP_TIME)
 }
 
-@test
+@(test)
 test_futex :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -319,7 +319,7 @@ test_futex :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_futex_with_timeout :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -331,7 +331,7 @@ test_futex_with_timeout :: proc(t: ^testing.T) {
 // core:sync/extended.odin
 //
 
-@test
+@(test)
 test_wait_group :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -380,7 +380,7 @@ test_wait_group :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_wait_group_with_timeout :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -388,7 +388,7 @@ test_wait_group_with_timeout :: proc(t: ^testing.T) {
 	sync.wait_group_wait_with_timeout(&wg, SLEEP_TIME)
 }
 
-@test
+@(test)
 test_barrier :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -431,7 +431,7 @@ test_barrier :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_auto_reset :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -487,7 +487,7 @@ test_auto_reset :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_auto_reset_already_signalled :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -497,7 +497,7 @@ test_auto_reset_already_signalled :: proc(t: ^testing.T) {
 	testing.expect_value(t, a.status, 0)
 }
 
-@test
+@(test)
 test_ticket_mutex :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -536,7 +536,7 @@ test_ticket_mutex :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_benaphore :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -568,7 +568,7 @@ test_benaphore :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_recursive_benaphore :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -615,7 +615,7 @@ test_recursive_benaphore :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, THREADS)
 }
 
-@test
+@(test)
 test_once :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -652,7 +652,7 @@ test_once :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, 1)
 }
 
-@test
+@(test)
 test_park :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -679,7 +679,7 @@ test_park :: proc(t: ^testing.T) {
 	testing.expect_value(t, data.number, 1)
 }
 
-@test
+@(test)
 test_park_with_timeout :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -687,7 +687,7 @@ test_park_with_timeout :: proc(t: ^testing.T) {
 	sync.park_with_timeout(&car, SLEEP_TIME)
 }
 
-@test
+@(test)
 test_one_shot_event :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 

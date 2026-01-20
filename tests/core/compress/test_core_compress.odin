@@ -17,7 +17,7 @@ import "core:compress/gzip"
 import "core:compress/shoco"
 import "core:bytes"
 
-@test
+@(test)
 zlib_test :: proc(t: ^testing.T) {
 	ODIN_DEMO := []u8{
 		120, 156, 101, 144,  77, 110, 131,  48,  16, 133, 215, 204,  41, 158,  44,
@@ -50,7 +50,7 @@ zlib_test :: proc(t: ^testing.T) {
 	bytes.buffer_destroy(&buf)
 }
 
-@test
+@(test)
 gzip_test :: proc(t: ^testing.T) {
 	// Small GZIP file with fextra, fname and fcomment present.
 	TEST: []u8 = {
@@ -73,7 +73,7 @@ gzip_test :: proc(t: ^testing.T) {
 	bytes.buffer_destroy(&buf)
 }
 
-@test
+@(test)
 shoco_test :: proc(t: ^testing.T) {
 
 	Shoco_Tests :: []struct{

@@ -24,17 +24,17 @@ run_test_cases :: proc(t: ^testing.T, test_cases: []Test_Case, loc := #caller_lo
 	log.logf(.Error if failed > 0 else .Info, "% 4i/% 4i test cases failed.", failed, len(test_cases), location = loc)
 }
 
-@test
+@(test)
 test_official_gcb_cases :: proc(t: ^testing.T) {
 	run_test_cases(t, official_grapheme_break_test_cases)
 }
 
-@test
+@(test)
 test_official_emoji_cases :: proc(t: ^testing.T) {
 	run_test_cases(t, official_emoji_test_cases)
 }
 
-@test
+@(test)
 test_grapheme_byte_index_segmentation :: proc(t: ^testing.T) {
 	SAMPLE_1 :: "\U0001F600"
 	SAMPLE_2 :: "\U0001F3F4\U000E0067\U000E0062\U000E0065\U000E006E\U000E0067\U000E007F"
@@ -71,7 +71,7 @@ test_grapheme_byte_index_segmentation :: proc(t: ^testing.T) {
 	testing.expectf(t, grapheme_5 == SAMPLE_1, "expected %q, got %q", SAMPLE_1, grapheme_1)
 }
 
-@test
+@(test)
 test_width :: proc(t: ^testing.T) {
 	{
 		str := "He\u200dllo"

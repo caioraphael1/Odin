@@ -102,7 +102,7 @@ Caio: I decided to keep this, as removing it gave me a llvm compiler error on ga
     src/ckecker.cpp:2941
     src/llvm_backend.cpp:199
 */
-@private
+@(private)
 __init_context :: proc "contextless" (c: ^Context) {
 	return
 }

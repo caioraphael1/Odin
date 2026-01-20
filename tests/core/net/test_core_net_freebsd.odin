@@ -17,7 +17,7 @@ import "core:net"
 import "core:time"
 import "core:testing"
 
-@test
+@(test)
 test_duplicate_binding :: proc(t: ^testing.T) {
 	// FreeBSD has the capacity to permit multiple processes and sockets to
 	// bind on the same port with the right option.
@@ -58,7 +58,7 @@ test_duplicate_binding :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_sigpipe_bypass :: proc(t: ^testing.T) {
 	// If the internals aren't working as expected, this test will fail by raising SIGPIPE.
 

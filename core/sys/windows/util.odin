@@ -627,8 +627,8 @@ run_as_user :: proc(username, password, application, commandline: string, pi: ^P
 }
 
 ensure_winsock_initialized :: proc() {
-	@static gate := false
-	@static initted := false
+	@(static) gate := false
+	@(static) initted := false
 
 	if initted {
 		return

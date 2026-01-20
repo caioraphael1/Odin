@@ -4,9 +4,9 @@ import "base:runtime"
 import "core:bytes"
 import "core:flags"
 import "core:fmt"
-@require import "core:log"
+@(require) import "core:log"
 import "core:math"
-@require import "core:net"
+@(require) import "core:net"
 import "core:os"
 import "core:strings"
 import "core:testing"
@@ -16,7 +16,7 @@ Custom_Data :: struct {
 	a: int,
 }
 
-// @@init don't care
+// @(init) don't care
 init_custom_type_setter :: proc() {
 	// NOTE: This is done here so it can be out of the flow of the
 	// multi-threaded test runner, to prevent any data races that could be

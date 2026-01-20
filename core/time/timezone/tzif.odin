@@ -48,7 +48,7 @@ Leapsecond_Record :: struct #packed {
 	corr:  i32be,
 }
 
-@private
+@(private)
 tzif_data_block_size :: proc(hdr: ^TZif_Header, version: TZif_Version) -> (block_size: int, ok: bool) {
 	time_size : int
 
@@ -76,29 +76,29 @@ load_tzif_file :: proc(filename: string, region_name: string, allocator: runtime
 	return parse_tzif(tzif_data, region_name, allocator)
 }
 
-@private
+@(private)
 is_alphabetic :: proc(ch: u8) -> bool {
 	//     ('A' -> 'Z')             || ('a' -> 'z')
 	return (ch > 0x40 && ch < 0x5B) || (ch > 0x60 && ch < 0x7B)
 }
 
-@private
+@(private)
 is_numeric :: proc(ch: u8) -> bool {
 	//     ('0' -> '9')
 	return (ch > 0x2F && ch < 0x3A)
 }
 
-@private
+@(private)
 is_alphanumeric :: proc(ch: u8) -> bool {
 	return is_alphabetic(ch) || is_numeric(ch)
 }
 
-@private
+@(private)
 is_valid_quoted_char :: proc(ch: u8) -> bool {
 	return is_alphabetic(ch) || is_numeric(ch) || ch == '+' || ch == '-'
 }
 
-@private
+@(private)
 parse_posix_tz_shortname :: proc(str: string) -> (out: string, idx: int, ok: bool) {
 	was_quoted := false
 	quoted := false
@@ -144,7 +144,7 @@ parse_posix_tz_shortname :: proc(str: string) -> (out: string, idx: int, ok: boo
 	return out_str, end_idx, true
 }
 
-@private
+@(private)
 parse_posix_tz_offset :: proc(str: string) -> (out_sec: i64, idx: int, ok: bool) {
 	str := str
 
@@ -237,7 +237,7 @@ parse_posix_tz_offset :: proc(str: string) -> (out_sec: i64, idx: int, ok: bool)
 	return ret_sec * sign, i, true
 }
 
-@private
+@(private)
 skim_digits :: proc(str: string) -> (out: string, idx: int, ok: bool) {
 	i := 0
 	for ; i < len(str); i += 1 {

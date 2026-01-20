@@ -9,7 +9,7 @@ import "core:odin/parser"
 import "core:odin/tokenizer"
 import "core:testing"
 
-@test
+@(test)
 test_parse_demo :: proc(t: ^testing.T) {
 	context.allocator = context.temp_allocator
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
@@ -23,7 +23,7 @@ test_parse_demo :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_parse_bitfield :: proc(t: ^testing.T) {
 	context.allocator = context.temp_allocator
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
@@ -67,7 +67,7 @@ Foo :: bit_field uint {
 	testing.expect(t, ok, "bad parse")
 }
 
-@test
+@(test)
 test_parse_parser :: proc(t: ^testing.T) {
 	context.allocator = context.temp_allocator
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
@@ -81,7 +81,7 @@ test_parse_parser :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_parse_stb_image :: proc(t: ^testing.T) {
 	context.allocator = context.temp_allocator
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()

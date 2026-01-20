@@ -34,7 +34,7 @@ waitq_unlock :: proc(waitq: ^Wait_Queue) {
 @(private="file")
 g_waitq: Wait_Queue
 
-// @@init
+// @(init)
 g_waitq_init :: proc() {
 	g_waitq = {
 		list = {

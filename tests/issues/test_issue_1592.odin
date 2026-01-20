@@ -27,7 +27,7 @@ true_result :: proc() -> bool {
 	return true
 }
 
-@test
+@(test)
 test_simple_const_false :: proc(t: ^testing.T) {
 	if CONSTANT_FALSE {
 		testing.expect(t, false, "!false")
@@ -81,7 +81,7 @@ test_simple_const_false :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_simple_const_true :: proc(t: ^testing.T) {
 	if CONSTANT_TRUE {
 		testing.expect(t, true, "!true")
@@ -140,7 +140,7 @@ test_simple_const_true :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_simple_proc_false :: proc(t: ^testing.T) {
 	if false_result() {
 		testing.expect(t, false, "!false")
@@ -154,7 +154,7 @@ test_simple_proc_false :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_simple_proc_true :: proc(t: ^testing.T) {
 	if true_result() {
 		testing.expect(t, true, "!true")
@@ -168,7 +168,7 @@ test_simple_proc_true :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_const_false_const_false :: proc(t: ^testing.T) {
 	if CONSTANT_FALSE || CONSTANT_FALSE {
 		testing.expect(t, false, "!false")
@@ -215,7 +215,7 @@ test_const_false_const_false :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_const_false_const_true :: proc(t: ^testing.T) {
 	if CONSTANT_FALSE || CONSTANT_TRUE {
 		testing.expect(t, true, "!true")
@@ -262,7 +262,7 @@ test_const_false_const_true :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_const_true_const_false :: proc(t: ^testing.T) {
 	if CONSTANT_TRUE || CONSTANT_FALSE {
 		testing.expect(t, true, "!true")
@@ -309,7 +309,7 @@ test_const_true_const_false :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_const_true_const_true :: proc(t: ^testing.T) {
 	if CONSTANT_TRUE || CONSTANT_TRUE {
 		testing.expect(t, true, "!true")
@@ -356,7 +356,7 @@ test_const_true_const_true :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_proc_false_const_false :: proc(t: ^testing.T) {
 	if false_result() || CONSTANT_FALSE {
 		testing.expect(t, false, "!false")
@@ -381,7 +381,7 @@ test_proc_false_const_false :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_proc_false_const_true :: proc(t: ^testing.T) {
 	if false_result() || CONSTANT_TRUE {
 		testing.expect(t, true, "!true")
@@ -406,7 +406,7 @@ test_proc_false_const_true :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_proc_true_const_false :: proc(t: ^testing.T) {
 	if true_result() || CONSTANT_FALSE {
 		testing.expect(t, true, "!true")
@@ -431,7 +431,7 @@ test_proc_true_const_false :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_proc_true_const_true :: proc(t: ^testing.T) {
 	if true_result() || CONSTANT_TRUE {
 		testing.expect(t, true, "!true")

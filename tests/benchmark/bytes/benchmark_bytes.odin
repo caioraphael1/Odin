@@ -106,14 +106,14 @@ bench_table :: proc(algo_name: string, forward: bool, plain: proc([]u8, byte) ->
 	log.info(my_table_string)
 }
 
-@test
+@(test)
 benchmark_index_byte :: proc(t: ^testing.T) {
 	bench_table("index_byte",      true,  plain_index_byte,      bytes.index_byte)
 	// bench_table("last_index_byte", false, plain_last_index_byte, bytes.last_index_byte)
 }
 
 /*
-@test
+@(test)
 benchmark_simd_index_hot :: proc(t: ^testing.T) {
 	report: string
 	for size in sizes {

@@ -24,7 +24,7 @@ import "core:thread"
 import "core:fmt"
 import "core:log"
 
-@test
+@(test)
 address_parsing_test :: proc(t: ^testing.T) {
 	for vector in IP_Address_Parsing_Test_Vectors {
 		kind := ""
@@ -240,7 +240,7 @@ client_sends_server_data :: proc(t: ^testing.T) {
 	SEND_TIMEOUT :: time.Duration(1 * time.Second)
 	RECV_TIMEOUT :: time.Duration(1 * time.Second)
 
-	@static endpoint: net.Endpoint
+	@(static) endpoint: net.Endpoint
 	endpoint.address = net.IP4_Address{127, 0, 0, 1}
 
 	Thread_Data :: struct {
@@ -341,7 +341,7 @@ URL_Test :: struct {
 	url: []string,
 }
 
-@test
+@(test)
 split_url_test :: proc(t: ^testing.T) {
 	test_cases := []URL_Test{
 		{
@@ -436,7 +436,7 @@ split_url_test :: proc(t: ^testing.T) {
 }
 
 
-@test
+@(test)
 join_url_test :: proc(t: ^testing.T) {
 	test_cases := []URL_Test{
 		{
@@ -520,7 +520,7 @@ join_url_test :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_udp_echo :: proc(t: ^testing.T) {
 	endpoint := net.Endpoint{address=net.IP4_Address{127, 0, 0, 1}, port=0}
 
@@ -569,7 +569,7 @@ test_udp_echo :: proc(t: ^testing.T) {
 	testing.expect_value(t, msg, transmute(string)buf[:bytes_read])
 }
 
-@test
+@(test)
 test_dns_resolve :: proc(t: ^testing.T) {
 	// NOTE: This test depends on external factors, so if it fails, an IP
 	// address may have changed or become unavailable.
@@ -604,7 +604,7 @@ test_dns_resolve :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_nonblocking_option :: proc(t: ^testing.T) {
 	server, listen_err := net.listen_tcp({address=net.IP4_Address{127, 0, 0, 1}, port=0})
 	if !testing.expect_value(t, listen_err, nil) {

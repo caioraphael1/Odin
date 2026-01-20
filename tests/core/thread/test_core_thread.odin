@@ -8,7 +8,7 @@ import "base:intrinsics"
 poly_data_test :: proc(_t: ^testing.T) {
 	MAX :: size_of(rawptr) * thread.MAX_USER_ARGUMENTS
 
-	@static poly_data_test_t: ^testing.T
+	@(static) poly_data_test_t: ^testing.T
 	poly_data_test_t = _t
 
 	b: [MAX]byte = 8

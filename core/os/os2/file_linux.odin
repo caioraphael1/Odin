@@ -41,7 +41,7 @@ _stderr := File{
 	},
 }
 
-@init
+// @(init)
 _standard_stream_init :: proc() {
 	new_std :: proc(impl: ^File_Impl, fd: linux.Fd, name: string) -> ^File {
 		impl.file.impl = impl

@@ -6,7 +6,7 @@ import "core:mem/virtual"
 import "core:testing"
 import "core:slice"
 
-@test
+@(test)
 test_tlsf_bitscan :: proc(t: ^testing.T) {
 	Vector :: struct {
 		op:  enum{ffs, fls, fls_uint},
@@ -236,7 +236,7 @@ basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, l
 	return true
 }
 
-@test
+@(test)
 test_scratch :: proc(t: ^testing.T) {
 	N :: 4096
 	sa: mem.Scratch_Allocator
@@ -246,7 +246,7 @@ test_scratch :: proc(t: ^testing.T) {
 	basic_sanity_test(t, mem.scratch_allocator(&sa), N / 4)
 }
 
-@test
+@(test)
 test_stack :: proc(t: ^testing.T) {
 	N :: 4096
 	buf: [N]u8
@@ -257,7 +257,7 @@ test_stack :: proc(t: ^testing.T) {
 	basic_sanity_test(t, mem.stack_allocator(&sa), N / 4)
 }
 
-@test
+@(test)
 test_small_stack :: proc(t: ^testing.T) {
 	N :: 4096
 	buf: [N]u8
@@ -271,7 +271,7 @@ test_small_stack :: proc(t: ^testing.T) {
 	basic_sanity_test(t, mem.small_stack_allocator(&ss), N / 8)
 }
 
-@test
+@(test)
 test_dynamic_arena :: proc(t: ^testing.T) {
 	da: mem.Dynamic_Arena
 	mem.dynamic_arena_init(&da)
@@ -280,7 +280,7 @@ test_dynamic_arena :: proc(t: ^testing.T) {
 	basic_sanity_test(t, mem.dynamic_arena_allocator(&da), da.block_size / 4)
 }
 
-@test
+@(test)
 test_buddy :: proc(t: ^testing.T) {
 	N :: 8192
 	buf: [N]u8
@@ -296,7 +296,7 @@ test_buddy :: proc(t: ^testing.T) {
 	basic_sanity_test(t, mem.buddy_allocator(&ba), N / 16)
 }
 
-@test
+@(test)
 test_rollback :: proc(t: ^testing.T) {
 	N :: 4096
 	buf: [N]u8

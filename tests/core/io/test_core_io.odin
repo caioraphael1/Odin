@@ -400,7 +400,7 @@ _test_stream :: proc(
 
 
 
-@test
+@(test)
 test_bytes_reader :: proc(t: ^testing.T) {
 	buf: [32]u8
 	for i in 0..<u8(len(buf)) {
@@ -423,7 +423,7 @@ test_bytes_reader :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_bytes_buffer_stream :: proc(t: ^testing.T) {
 	buf: [32]u8
 	for i in 0..<u8(len(buf)) {
@@ -452,7 +452,7 @@ test_bytes_buffer_stream :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_limited_reader :: proc(t: ^testing.T) {
 	buf: [32]u8
 	for i in 0..<u8(len(buf)) {
@@ -484,7 +484,7 @@ test_limited_reader :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_section_reader :: proc(t: ^testing.T) {
 	buf: [32]u8
 	for i in 0..<u8(len(buf)) {
@@ -512,7 +512,7 @@ test_section_reader :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_string_builder_stream :: proc(t: ^testing.T) {
 	sb := strings.builder_make()
 	defer strings.builder_destroy(&sb)
@@ -539,7 +539,7 @@ test_string_builder_stream :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_os_file_stream :: proc(t: ^testing.T) {
 	defer if !testing.failed(t) {
 		testing.expect_value(t, os.remove(TEMPORARY_FILENAME), nil)
@@ -576,7 +576,7 @@ test_os_file_stream :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_os2_file_stream :: proc(t: ^testing.T) {
 	defer if !testing.failed(t) {
 		testing.expect_value(t, os2.remove(TEMPORARY_FILENAME), nil)
@@ -614,7 +614,7 @@ test_os2_file_stream :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_bufio_buffered_writer :: proc(t: ^testing.T) {
 	// Using a strings.Builder as the backing stream.
 
@@ -644,7 +644,7 @@ test_bufio_buffered_writer :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_bufio_buffered_reader :: proc(t: ^testing.T) {
 	// Using a bytes.Reader as the backing stream.
 
@@ -674,7 +674,7 @@ test_bufio_buffered_reader :: proc(t: ^testing.T) {
 	log.debugf("%#v", results)
 }
 
-@test
+@(test)
 test_bufio_buffered_read_writer :: proc(t: ^testing.T) {
 	// Using an os2.File as the backing stream for both reader & writer.
 

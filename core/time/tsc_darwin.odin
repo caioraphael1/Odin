@@ -2,7 +2,7 @@
 package time
 
 import "base:intrinsics"
-@require import "core:sys/unix"
+@(require) import "core:sys/unix"
 
 _get_tsc_frequency :: proc() -> (freq: u64, ok: bool) {
 	when ODIN_ARCH == .amd64 {

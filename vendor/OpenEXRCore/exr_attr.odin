@@ -37,20 +37,20 @@ storage_t :: enum c.int {
 	DEEP_TILED,    // Corresponds to type of \c deeptile.
 }
 
-// @brief Enum representing what type of tile information is contained.
+// Enum representing what type of tile information is contained.
 tile_level_mode_t :: enum c.int {
 	ONE_LEVEL     = 0, // Single level of image data.
 	MIPMAP_LEVELS = 1, // Mipmapped image data.
 	RIPMAP_LEVELS = 2, // Ripmapped image data.
 }
 
-/** @brief Enum representing how to scale positions between levels. */
+/** Enum representing how to scale positions between levels. */
 tile_round_mode_t :: enum c.int {
 	DOWN = 0,
 	UP   = 1,
 }
 
-/** @brief Enum capturing the underlying data type on a channel. */
+/** Enum capturing the underlying data type on a channel. */
 pixel_type_t :: enum c.int {
 	UINT  = 0,
 	HALF  = 1,
@@ -60,7 +60,7 @@ pixel_type_t :: enum c.int {
 /* /////////////////////////////////////// */
 /* First set of structs are data where we can read directly with no allocation needed... */
 
-/** @brief Struct to hold color chromaticities to interpret the tristimulus color values in the image data. */
+/** Struct to hold color chromaticities to interpret the tristimulus color values in the image data. */
 attr_chromaticities_t :: struct #packed {
 	red_x:   f32,
 	red_y:   f32,
@@ -72,7 +72,7 @@ attr_chromaticities_t :: struct #packed {
 	white_y: f32,
 }
 
-/** @brief Struct to hold keycode information. */
+/** Struct to hold keycode information. */
 attr_keycode_t :: struct #packed {
 	film_mfc_code:   i32,
 	film_type:       i32,
@@ -83,69 +83,69 @@ attr_keycode_t :: struct #packed {
 	perfs_per_count: i32,
 }
 
-/** @brief struct to hold a 32-bit floating-point 3x3 matrix. */
+/** struct to hold a 32-bit floating-point 3x3 matrix. */
 attr_m33f_t :: struct #packed {
 	m: [9]f32,
 }
 
-/** @brief struct to hold a 64-bit floating-point 3x3 matrix. */
+/** struct to hold a 64-bit floating-point 3x3 matrix. */
 attr_m33d_t :: struct #packed {
 	m: [9]f64,
 }
 
-/** @brief Struct to hold a 32-bit floating-point 4x4 matrix. */
+/** Struct to hold a 32-bit floating-point 4x4 matrix. */
 attr_m44f_t :: struct #packed {
 	m: [16]f32,
 }
 
-/** @brief Struct to hold a 64-bit floating-point 4x4 matrix. */
+/** Struct to hold a 64-bit floating-point 4x4 matrix. */
 attr_m44d_t :: struct #packed {
 	m: [16]f64,
 }
 
-/** @brief Struct to hold an integer ratio value. */
+/** Struct to hold an integer ratio value. */
 attr_rational_t :: struct #packed {
 	num: i32,
 	denom: u32,
 }
 
-/** @brief Struct to hold timecode information. */
+/** Struct to hold timecode information. */
 attr_timecode_t :: struct #packed {
 	time_and_flags: u32,
 	user_data:      u32,
 }
 
-/** @brief Struct to hold a 2-element integer vector. */
+/** Struct to hold a 2-element integer vector. */
 attr_v2i_t :: distinct [2]i32
 
-/** @brief Struct to hold a 2-element 32-bit float vector. */
+/** Struct to hold a 2-element 32-bit float vector. */
 attr_v2f_t :: distinct [2]f32
 
-/** @brief Struct to hold a 2-element 64-bit float vector. */
+/** Struct to hold a 2-element 64-bit float vector. */
 attr_v2d_t :: distinct [2]f64
 
-/** @brief Struct to hold a 3-element integer vector. */
+/** Struct to hold a 3-element integer vector. */
 attr_v3i_t :: distinct [3]i32
 
-/** @brief Struct to hold a 3-element 32-bit float vector. */
+/** Struct to hold a 3-element 32-bit float vector. */
 attr_v3f_t :: distinct [3]f32
 
-/** @brief Struct to hold a 3-element 64-bit float vector. */
+/** Struct to hold a 3-element 64-bit float vector. */
 attr_v3d_t :: distinct [3]f64
 
-/** @brief Struct to hold an integer box/region definition. */
+/** Struct to hold an integer box/region definition. */
 attr_box2i_t :: struct #packed {
 	min: attr_v2i_t,
 	max: attr_v2i_t,
 }
 
-/** @brief Struct to hold a floating-point box/region definition. */
+/** Struct to hold a floating-point box/region definition. */
 attr_box2f_t:: struct #packed {
 	min: attr_v2f_t,
 	max: attr_v2f_t,
 }
 
-/** @brief Struct holding base tiledesc attribute type defined in spec
+/** Struct holding base tiledesc attribute type defined in spec
  *
  * NB: This is in a tightly packed area so it can be read directly, be
  * careful it doesn't become padded to the next \c uint32_t boundary.
@@ -156,15 +156,15 @@ attr_tiledesc_t :: struct #packed {
 	level_and_round: u8,
 }
 
-/** @brief Macro to access type of tiling from packed structure. */
+/** Macro to access type of tiling from packed structure. */
 GET_TILE_LEVEL_MODE :: #force_inline proc "c" (tiledesc: attr_tiledesc_t) -> tile_level_mode_t {
 	return tile_level_mode_t(tiledesc.level_and_round & 0xf)
 }
-/** @brief Macro to access the rounding mode of tiling from packed structure. */
+/** Macro to access the rounding mode of tiling from packed structure. */
 GET_TILE_ROUND_MODE :: #force_inline proc "c" (tiledesc: attr_tiledesc_t) -> tile_round_mode_t {
 	return tile_round_mode_t((tiledesc.level_and_round >> 4) & 0xf)
 }
-/** @brief Macro to pack the tiling type and rounding mode into packed structure. */
+/** Macro to pack the tiling type and rounding mode into packed structure. */
 PACK_TILE_LEVEL_ROUND :: #force_inline proc "c" (lvl: tile_level_mode_t, mode: tile_round_mode_t) -> u8 {
 	return ((u8(mode) & 0xf) << 4) | (u8(lvl) & 0xf)
 }
@@ -231,7 +231,7 @@ attr_chlist_t :: struct {
 	entries: [^]attr_chlist_entry_t,
 }
 
-/** @brief Struct to define attributes of an embedded preview image. */
+/** Struct to define attributes of an embedded preview image. */
 attr_preview_t :: struct {
 	width: u32,
 	height: u32,
@@ -287,7 +287,7 @@ attr_opaquedata_t :: struct {
 
 /* /////////////////////////////////////// */
 
-/** @brief Built-in/native attribute type enum.
+/** Built-in/native attribute type enum.
  *
  * This will enable us to do a tagged type struct to generically store
  * attributes.
@@ -326,7 +326,7 @@ attribute_type_t :: enum c.int {
 	OPAQUE,           // User/unknown provided type.
 }
 
-/** @brief Storage, name and type information for an attribute.
+/** Storage, name and type information for an attribute.
  *
  * Attributes (metadata) for the file cause a surprising amount of
  * overhead. It is not uncommon for a production-grade EXR to have

@@ -7,7 +7,7 @@ import "core:testing"
 
 ENTRY_COUNTS := []int{11, 101, 1_001, 10_001, 100_001, 1_000_001}
 
-@test
+@(test)
 map_insert_random_key_value :: proc(t: ^testing.T) {
 	seed_incr := u64(0)
 	for entries in ENTRY_COUNTS {
@@ -57,7 +57,7 @@ map_insert_random_key_value :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 map_update_random_key_value :: proc(t: ^testing.T) {
 	seed_incr := u64(0)
 	for entries in ENTRY_COUNTS {
@@ -121,7 +121,7 @@ map_update_random_key_value :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 map_delete_random_key_value :: proc(t: ^testing.T) {
 	seed_incr := u64(0)
 	for entries in ENTRY_COUNTS {
@@ -201,7 +201,7 @@ map_delete_random_key_value :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 set_insert_random_key_value :: proc(t: ^testing.T) {
 	seed_incr := u64(0)
 	for entries in ENTRY_COUNTS {
@@ -249,7 +249,7 @@ set_insert_random_key_value :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 set_delete_random_key_value :: proc(t: ^testing.T) {
 	seed_incr := u64(0)
 	for entries in ENTRY_COUNTS {
@@ -318,7 +318,7 @@ set_delete_random_key_value :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_union_key_should_not_be_hashing_specifc_variant :: proc(t: ^testing.T) {
 	Vec2 :: [2]f32
 	BoneId :: distinct int

@@ -740,7 +740,7 @@ destroy :: proc(img: ^Image) {
 	_ = free(img)
 }
 
-// @@init
+// @(init)
 @(private)
 _register :: proc() {
 	image.register(.BMP, load_from_bytes, destroy)

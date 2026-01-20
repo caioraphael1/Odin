@@ -2,7 +2,7 @@
 #+no-instrumentation
 package runtime
 
-@require foreign import "system:int64.lib"
+@(require) foreign import "system:int64.lib"
 
 foreign import kernel32 "system:Kernel32.lib"
 

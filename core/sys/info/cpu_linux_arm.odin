@@ -6,7 +6,7 @@ import "base:runtime"
 import "core:sys/linux"
 import "core:strings"
 
-// @@init
+// @(init)
 init_cpu_features :: proc() {
 	fd, err := linux.open("/proc/cpuinfo", {})
 	if err != .NONE { return }

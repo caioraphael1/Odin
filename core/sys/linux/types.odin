@@ -515,12 +515,12 @@ Pid_FD_Flags :: bit_set[Pid_FD_Flags_Bits; i32]
 //  1. Odin's bitfields start from 0, whereas signals start from 1
 //  2. It's unclear how bitfields act in terms of ABI (are they an array of ints or an array of longs?).
 //     it makes a difference because ARM is big endian.
-@private _SIGSET_NWORDS :: (8 / size_of(uint))
+@(private) _SIGSET_NWORDS :: (8 / size_of(uint))
 Sig_Set :: [_SIGSET_NWORDS]uint
 
-@private SI_MAX_SIZE       :: 128
-@private SI_ARCH_PREAMBLE  :: 4 * size_of(i32) when size_of(rawptr) == 8 else 3 * size_of(i32)
-@private SI_PAD_SIZE       :: SI_MAX_SIZE - SI_ARCH_PREAMBLE
+@(private) SI_MAX_SIZE       :: 128
+@(private) SI_ARCH_PREAMBLE  :: 4 * size_of(i32) when size_of(rawptr) == 8 else 3 * size_of(i32)
+@(private) SI_PAD_SIZE       :: SI_MAX_SIZE - SI_ARCH_PREAMBLE
 
 Sig_Handler_Fn :: #type proc "c" (sig: Signal)
 Sig_Restore_Fn :: #type proc "c" () -> !

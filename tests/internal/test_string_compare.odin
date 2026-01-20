@@ -18,7 +18,7 @@ CASES := []Test{
 	{"Hellopf",  "Hellope", {.Eq=false, .Lt=false, .Gt=true }},
 }
 
-@test
+@(test)
 string_compare :: proc(t: ^testing.T) {
 	for v in CASES {
 		s_a := string(v.a)

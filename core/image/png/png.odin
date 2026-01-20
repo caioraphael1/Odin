@@ -1605,7 +1605,7 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
 	return nil
 }
 
-// @@init
+// @(init)
 _register :: proc() {
 	image.register(.PNG, load_from_bytes, destroy)
 }

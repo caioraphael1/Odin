@@ -4,7 +4,7 @@ package test_issues
 import "core:testing"
 import "base:intrinsics"
 
-@test
+@(test)
 test_row_major_matrix :: proc(t: ^testing.T) {
 	row_major34: #row_major matrix[3,4]int = {
 		11,12,13,14,
@@ -44,7 +44,7 @@ test_row_major_matrix :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_row_minor_matrix :: proc(t: ^testing.T) {
 	row_minor34: matrix[3,4]int = {
 		11,12,13,14,

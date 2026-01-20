@@ -4,7 +4,7 @@ package test_internal
 import "core:math"
 import "core:testing"
 
-@test
+@(test)
 pow_test :: proc(t: ^testing.T) {
 	for exp in -2000..=2000 {
 		{

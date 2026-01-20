@@ -1,8 +1,8 @@
 package container_small_array
 
 import "base:builtin"
-@require import "base:intrinsics"
-@require import "base:runtime"
+@(require) import "base:intrinsics"
+@(require) import "base:runtime"
 
 /*
 A fixed-size stack-allocated array operated on in a dynamic fashion.

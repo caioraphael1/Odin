@@ -26,16 +26,16 @@ when ODIN_BUILD_MODE == .Dynamic {
 		// NOTE(flysand): We need to start from assembly because we need
 		// to retrieve argc and argv from the stack
 		when ODIN_ARCH == .amd64 {
-			@require foreign import entry "entry_unix_no_crt_amd64.asm"
+			@(require) foreign import entry "entry_unix_no_crt_amd64.asm"
 			SYS_exit :: 60
 		} else when ODIN_ARCH == .i386 {
-			@require foreign import entry "entry_unix_no_crt_i386.asm"
+			@(require) foreign import entry "entry_unix_no_crt_i386.asm"
 			SYS_exit :: 1
 		} else when ODIN_OS == .Darwin && ODIN_ARCH == .arm64 {
-			@require foreign import entry "entry_unix_no_crt_darwin_arm64.asm"
+			@(require) foreign import entry "entry_unix_no_crt_darwin_arm64.asm"
 			SYS_exit :: 1
 		} else when ODIN_ARCH == .riscv64 {
-			@require foreign import entry "entry_unix_no_crt_riscv64.asm"
+			@(require) foreign import entry "entry_unix_no_crt_riscv64.asm"
 			SYS_exit :: 93
 		}
 		@(link_name="_start_odin", linkage="strong", require)

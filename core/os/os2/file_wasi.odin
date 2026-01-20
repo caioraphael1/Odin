@@ -29,7 +29,7 @@ Preopen :: struct {
 }
 preopens: []Preopen
 
-// @@init
+// @(init)
 init_std_files :: proc() {
 	new_std :: proc(impl: ^File_Impl, fd: wasi.fd_t, name: string) -> ^File {
 		impl.file.impl = impl
@@ -50,7 +50,7 @@ init_std_files :: proc() {
 	stderr = new_std(&files[2], 2, "/dev/stderr")
 }
 
-// @@init
+// @(init)
 init_preopens :: proc(allocator: runtime.Allocator) {
 	strip_prefixes :: proc(path: string) -> string {
 		path := path

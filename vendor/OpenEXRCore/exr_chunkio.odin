@@ -35,7 +35,7 @@ chunk_info_t :: struct {
 
 @(link_prefix="exr_", default_calling_convention="c")
 foreign lib {
-	/** @brief Retrieve the chunk table offset for the part in question.
+	/** Retrieve the chunk table offset for the part in question.
 	*/
 	get_chunk_table_offset :: proc(ctxt: const_context_t , part_index: c.int, chunk_offset_out: ^c.uint64_t) -> result_t ---
 

@@ -4,7 +4,7 @@ import "core:math/bits"
 import "core:math/rand"
 import "core:testing"
 
-@test
+@(test)
 test_log2 :: proc(t: ^testing.T) {
 	dumb_log2 :: proc(x: $T) -> (res: T) {
 		N :: T(size_of(T) * 8)
@@ -43,7 +43,7 @@ test_log2 :: proc(t: ^testing.T) {
 	// Takes too long to run this with 32+ integers, and if it works with u8 and u16, it'll work with u32, u64, etc. as well.
 }
 
-@test
+@(test)
 test_rotate :: proc(t: ^testing.T) {
 	testing.expect_value(t, bits.rotate_left8(0b0000_1101, 0), 0b0000_1101)
 	testing.expect_value(t, bits.rotate_left8(0b0000_1101, 1), 0b0001_1010)
@@ -148,7 +148,7 @@ test_rotate :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_insert_extract :: proc(t: ^testing.T) {
 	// replace 1..=8 bits in a random 64-bit number at all possible offsets
 	// extract them again, and compare to the original insert

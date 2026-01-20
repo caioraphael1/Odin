@@ -24,7 +24,7 @@ Error :: enum {
 
 Validate_Proc :: #type proc(c: byte) -> bool
 
-@private
+@(private)
 _validate_default :: proc(c: byte) -> bool {
 	return (c >= 'A' && c <= 'Z') || (c >= '2' && c <= '7')
 }
@@ -66,7 +66,7 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator := context.allocato
 	return string(out[:])
 }
 
-@private
+@(private)
 _encode :: proc(out, data: []byte, ENC_TBL := ENC_TABLE, allocator := context.allocator) {
 	out := out
 	data := data

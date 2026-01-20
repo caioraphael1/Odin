@@ -151,17 +151,17 @@ do_level_header :: proc(opts: Options, str: ^strings.Builder, level: Level) {
 do_time_header :: proc(opts: Options, buf: ^strings.Builder, t: time.Time) {
 	when time.IS_SUPPORTED {
 		if Full_Timestamp_Opts & opts != nil {
-			_ = fmt.sbprint(buf, "[")
+			fmt.sbprint(buf, "[")
 			y, m, d := time.date(t)
 			h, min, s := time.clock(t)
 			if .Date in opts {
-				_ = fmt.sbprintf(buf, "%d-%02d-%02d", y, m, d)
+				fmt.sbprintf(buf, "%d-%02d-%02d", y, m, d)
 				if .Time in opts {
-					_ = fmt.sbprint(buf, " ")
+					fmt.sbprint(buf, " ")
 				}
 			}
-			if .Time in opts { _ = fmt.sbprintf(buf, "%02d:%02d:%02d", h, min, s) }
-			_ = fmt.sbprint(buf, "] ")
+			if .Time in opts { fmt.sbprintf(buf, "%02d:%02d:%02d", h, min, s) }
+			fmt.sbprint(buf, "] ")
 		}
 	}
 }
@@ -170,7 +170,7 @@ do_location_header :: proc(opts: Options, buf: ^strings.Builder, location := #ca
 	if Location_Header_Opts & opts == nil {
 		return
 	}
-	_ = fmt.sbprint(buf, "[")
+	fmt.sbprint(buf, "[")
 
 	file := location.file_path
 	if .Short_File_Path in opts {
@@ -184,21 +184,21 @@ do_location_header :: proc(opts: Options, buf: ^strings.Builder, location := #ca
 	}
 
 	if Location_File_Opts & opts != nil {
-		_ = fmt.sbprint(buf, file)
+		fmt.sbprint(buf, file)
 	}
 	if .Line in opts {
 		if Location_File_Opts & opts != nil {
-			_ = fmt.sbprint(buf, ":")
+			fmt.sbprint(buf, ":")
 		}
-		_ = fmt.sbprint(buf, location.line)
+		fmt.sbprint(buf, location.line)
 	}
 
 	if .Procedure in opts {
 		if (Location_File_Opts | {.Line}) & opts != nil {
-			_ = fmt.sbprint(buf, ":")
+			fmt.sbprint(buf, ":")
 		}
-		_ = fmt.sbprintf(buf, "%s()", location.procedure)
+		fmt.sbprintf(buf, "%s()", location.procedure)
 	}
 
-	_ = fmt.sbprint(buf, "] ")
+	fmt.sbprint(buf, "] ")
 }

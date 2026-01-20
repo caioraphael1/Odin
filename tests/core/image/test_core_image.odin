@@ -1396,62 +1396,62 @@ Expected_Text := map[string]map[string]png.Text {
 	},
 }
 
-@test
+@(test)
 png_test_basic :: proc(t: ^testing.T) {
 	run_png_suite(t, Basic_PNG_Tests)
 }
 
-@test
+@(test)
 png_test_interlaced :: proc(t: ^testing.T) {
 	run_png_suite(t, Interlaced_PNG_Tests)
 }
 
-@test
+@(test)
 png_test_odd_sized :: proc(t: ^testing.T) {
 	run_png_suite(t, Odd_Sized_PNG_Tests)
 }
 
-@test
+@(test)
 png_test_bKGD :: proc(t: ^testing.T) {
 	run_png_suite(t, PNG_bKGD_Tests)
 }
 
-@test
+@(test)
 png_test_tRNS :: proc(t: ^testing.T) {
 	run_png_suite(t, PNG_tRNS_Tests)
 }
 
-@test
+@(test)
 png_test_sPAL :: proc(t: ^testing.T) {
 	run_png_suite(t, PNG_sPAL_Tests)
 }
 
-@test
+@(test)
 png_test_filter :: proc(t: ^testing.T) {
 	run_png_suite(t, PNG_Filter_Tests)
 }
 
-@test
+@(test)
 png_test_varied_idat :: proc(t: ^testing.T) {
 	run_png_suite(t, PNG_Varied_IDAT_Tests)
 }
 
-@test
+@(test)
 png_test_zlib_levels :: proc(t: ^testing.T) {
 	run_png_suite(t, PNG_ZLIB_Levels_Tests)
 }
 
-@test
+@(test)
 png_test_ancillary :: proc(t: ^testing.T) {
 	run_png_suite(t, PNG_Ancillary_Tests)
 }
 
-@test
+@(test)
 png_test_corrupt :: proc(t: ^testing.T) {
 	run_png_suite(t, Corrupt_PNG_Tests)
 }
 
-@test
+@(test)
 png_test_no_postproc :: proc(t: ^testing.T) {
 	run_png_suite(t, No_Postprocesing_Tests)
 }
@@ -2292,27 +2292,27 @@ Known_Bad_BMP_Tests := []Test{
 	},
 }
 
-@test
+@(test)
 bmp_test_basic :: proc(t: ^testing.T) {
 	run_bmp_suite(t, Basic_BMP_Tests)
 }
 
-@test
+@(test)
 bmp_test_os2 :: proc(t: ^testing.T) {
 	run_bmp_suite(t, OS2_Tests)
 }
 
-@test
+@(test)
 bmp_test_questionable :: proc(t: ^testing.T) {
 	run_bmp_suite(t, Questionable_BMP_Tests)
 }
 
-@test
+@(test)
 bmp_test_unsupported :: proc(t: ^testing.T) {
 	run_bmp_suite(t, Unsupported_BMP_Tests)
 }
 
-@test
+@(test)
 bmp_test_known_bad :: proc(t: ^testing.T) {
 	run_bmp_suite(t, Known_Bad_BMP_Tests)
 }
@@ -2385,7 +2385,7 @@ Basic_JPG_Tests := []Test{
 	},
 }
 
-@test
+@(test)
 jpeg_test_basic :: proc(t: ^testing.T) {
 	run_jpg_suite(t, Basic_JPG_Tests)
 }
@@ -2423,7 +2423,7 @@ run_jpg_suite :: proc(t: ^testing.T, suite: []Test) {
 	return
 }
 
-@test
+@(test)
 will_it_blend :: proc(t: ^testing.T) {
 	Pixel    :: image.RGB_Pixel
 	Pixel_16 :: image.RGB_Pixel_16

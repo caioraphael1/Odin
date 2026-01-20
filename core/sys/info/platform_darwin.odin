@@ -10,7 +10,7 @@ import NS "core:sys/darwin/Foundation"
 @(private)
 version_string_buf: [1024]u8
 
-// @@init
+// @(init)
 init_platform :: proc() {
 	ws :: strings.write_string
 	wi :: strings.write_int

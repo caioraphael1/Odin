@@ -9,27 +9,27 @@ attr_list_access_mode_t :: enum c.int {
 
 @(link_prefix="exr_", default_calling_convention="c")
 foreign lib {
-	/** @brief Query how many parts are in the file. */
+	/** Query how many parts are in the file. */
 	get_count :: proc (ctxt: const_context_t, count: ^c.int) -> result_t ---
 
-	/** @brief Query the part name for the specified part.
+	/** Query the part name for the specified part.
 	 *
 	 * NB: If this file is a single part file and name has not been set, this
 	 * will return `NULL`.
 	 */
 	get_name :: proc(ctxt: const_context_t, part_index: c.int, out: ^cstring) -> result_t ---
 
-	/** @brief Query the storage type for the specified part. */
+	/** Query the storage type for the specified part. */
 	get_storage :: proc(ctxt: const_context_t, part_index: c.int, out: ^storage_t) -> result_t ---
 
-	/** @brief Define a new part in the file. */
+	/** Define a new part in the file. */
 	add_part :: proc(
 		ctxt:      context_t,
 		partname:  rawptr,
 		type:      storage_t,
 		new_index: ^c.int) -> result_t ---
 
-	/** @brief Query how many levels are in the specified part.
+	/** Query how many levels are in the specified part.
 	 *
 	 * If the part is a tiled part, fill in how many tile levels are present.
 	 *
@@ -47,7 +47,7 @@ foreign lib {
 		levelsx:    ^i32,
 		levelsy:    ^i32) -> result_t ---
 
-	/** @brief Query the tile size for a particular level in the specified part.
+	/** Query the tile size for a particular level in the specified part.
 	 *
 	 * If the part is a tiled part, fill in the tile size for the
 	 * specified part/level.
@@ -67,7 +67,7 @@ foreign lib {
 		levely:     c.int,
 		tilew:      ^i32,
 		tileh:      ^i32) -> result_t ---
-	/** @brief Query the tile count for a particular level in the specified part.
+	/** Query the tile count for a particular level in the specified part.
 	 *
 	 * If the part is a tiled part, fills in the count for the
 	 * specified levels.
@@ -87,7 +87,7 @@ foreign lib {
 		countx:     ^i32,
 		county:     ^i32) -> result_t ---
 
-	/** @brief Query the data sizes for a particular level in the specified part.
+	/** Query the data sizes for a particular level in the specified part.
 	 *
 	 * If the part is a tiled part, fill in the width/height for the
 	 * specified levels.
@@ -152,7 +152,7 @@ foreign lib {
 	 */
 	get_chunk_unpacked_size :: proc(ctxt: const_context_t, part_index: c.int, out: ^u64) -> result_t ---
 
-	/** @brief Retrieve the zip compression level used for the specified part.
+	/** Retrieve the zip compression level used for the specified part.
 	 *
 	 * This only applies when the compression method involves using zip
 	 * compression (zip, zips, some modes of DWAA/DWAB).
@@ -163,7 +163,7 @@ foreign lib {
 	 */
 	get_zip_compression_level :: proc(ctxt: const_context_t, part_index: c.int, level: ^c.int) -> result_t ---
 
-	/** @brief Set the zip compression method used for the specified part.
+	/** Set the zip compression method used for the specified part.
 	 *
 	 * This only applies when the compression method involves using zip
 	 * compression (zip, zips, some modes of DWAA/DWAB).
@@ -174,7 +174,7 @@ foreign lib {
 	 */
 	set_zip_compression_level :: proc(ctxt: context_t, part_index: c.int, level: c.int) -> result_t ---
 
-	/** @brief Retrieve the dwa compression level used for the specified part.
+	/** Retrieve the dwa compression level used for the specified part.
 	 *
 	 * This only applies when the compression method is DWAA/DWAB.
 	 *
@@ -184,7 +184,7 @@ foreign lib {
 	 */
 	get_dwa_compression_level :: proc(ctxt: const_context_t, part_index: c.int, level: ^f32) -> result_t ---
 
-	/** @brief Set the dwa compression method used for the specified part.
+	/** Set the dwa compression method used for the specified part.
 	 *
 	 * This only applies when the compression method is DWAA/DWAB.
 	 *
@@ -201,10 +201,10 @@ foreign lib {
 	 *
 	 */
 
-	/** @brief Query the count of attributes in a part. */
+	/** Query the count of attributes in a part. */
 	get_attribute_count :: proc(ctxt: const_context_t, part_index: c.int, count: ^i32) -> result_t ---
 
-	/** @brief Query a particular attribute by index. */
+	/** Query a particular attribute by index. */
 	get_attribute_by_index :: proc(
 		ctxt:       const_context_t,
 		part_index: c.int,
@@ -212,14 +212,14 @@ foreign lib {
 		idx:        i32,
 		outattr:    ^^attribute_t) -> result_t ---
 
-	/** @brief Query a particular attribute by name. */
+	/** Query a particular attribute by name. */
 	get_attribute_by_name :: proc(
 		ctxt:       const_context_t,
 		part_index: c.int,
 		name:       cstring,
 		outattr:    ^^attribute_t) -> result_t ---
 
-	/** @brief Query the list of attributes in a part.
+	/** Query the list of attributes in a part.
 	 *
 	 * This retrieves a list of attributes currently defined in a part.
 	 *
@@ -245,7 +245,7 @@ foreign lib {
 		type:       cstring,
 		newattr:    ^^attribute_t) -> result_t ---
 
-	/** @brief Declare an attribute within the specified part.
+	/** Declare an attribute within the specified part.
 	 *
 	 * Only valid when a file is opened for write.
 	 */
@@ -259,13 +259,13 @@ foreign lib {
 	/**
 	 * @defgroup RequiredAttributeHelpers Required Attribute Utililities
 	 *
-	 * @brief These are a group of functions for attributes that are
+	 * These are a group of functions for attributes that are
 	 * required to be in every part of every file.
 	 *
 	 * @{
 	 */
 
-	/** @brief Initialize all required attributes for all files.
+	/** Initialize all required attributes for all files.
 	 *
 	 * NB: other file types do require other attributes, such as the tile
 	 * description for a tiled file.
@@ -281,7 +281,7 @@ foreign lib {
 		lineorder:          lineorder_t,
 		ctype:              compression_t) -> result_t ---
 
-	/** @brief Initialize all required attributes to default values:
+	/** Initialize all required attributes to default values:
 	 *
 	 * - `displayWindow` is set to (0, 0 -> @p width - 1, @p height - 1)
 	 * - `dataWindow` is set to (0, 0 -> @p width - 1, @p height - 1)
@@ -298,7 +298,7 @@ foreign lib {
 		height:     i32,
 		ctype:      compression_t) -> result_t ---
 
-	/** @brief Copy the attributes from one part to another.
+	/** Copy the attributes from one part to another.
 	 *
 	 * This allows one to quickly unassigned attributes from one source to another.
 	 *
@@ -317,10 +317,10 @@ foreign lib {
 		source:         const_context_t,
 		src_part_index: c.int) -> result_t ---
 
-	/** @brief Retrieve the list of channels. */
+	/** Retrieve the list of channels. */
 	get_channels :: proc(ctxt: const_context_t, part_index: c.int, chlist: ^^attr_chlist_t) -> result_t ---
 
-	/** @brief Define a new channel to the output file part.
+	/** Define a new channel to the output file part.
 	 *
 	 * The @p percept parameter is used for lossy compression techniques
 	 * to indicate that the value represented is closer to linear (1) or
@@ -336,49 +336,49 @@ foreign lib {
 		xsamp:      i32,
 		ysamp:      i32) -> result_t ---
 
-	/** @brief Copy the channels from another source.
+	/** Copy the channels from another source.
 	 *
 	 * Useful if you are manually constructing the list or simply copying
 	 * from an input file.
 	 */
 	set_channels :: proc(ctxt: context_t, part_index: c.int, channels: ^attr_chlist_t) -> result_t ---
 
-	/** @brief Retrieve the compression method used for the specified part. */
+	/** Retrieve the compression method used for the specified part. */
 	get_compression :: proc(ctxt: const_context_t, part_index: c.int, compression: ^compression_t) -> result_t ---
-	/** @brief Set the compression method used for the specified part. */
+	/** Set the compression method used for the specified part. */
 	set_compression :: proc(ctxt: context_t, part_index: c.int, ctype: compression_t) -> result_t ---
 
-	/** @brief Retrieve the data window for the specified part. */
+	/** Retrieve the data window for the specified part. */
 	get_data_window :: proc(ctxt: const_context_t, part_index: c.int, out: ^attr_box2i_t) -> result_t ---
-	/** @brief Set the data window for the specified part. */
+	/** Set the data window for the specified part. */
 	set_data_window :: proc(ctxt: context_t, part_index: c.int, dw: ^attr_box2i_t) -> c.int ---
 
-	/** @brief Retrieve the display window for the specified part. */
+	/** Retrieve the display window for the specified part. */
 	get_display_window :: proc(ctxt: const_context_t, part_index: c.int, out: ^attr_box2i_t) -> result_t ---
-	/** @brief Set the display window for the specified part. */
+	/** Set the display window for the specified part. */
 	set_display_window :: proc(ctxt: context_t, part_index: c.int, dw: ^attr_box2i_t) -> c.int ---
 
-	/** @brief Retrieve the line order for storing data in the specified part (use 0 for single part images). */
+	/** Retrieve the line order for storing data in the specified part (use 0 for single part images). */
 	get_lineorder :: proc(ctxt: const_context_t, part_index: c.int, out: ^lineorder_t) -> result_t ---
-	/** @brief Set the line order for storing data in the specified part (use 0 for single part images). */
+	/** Set the line order for storing data in the specified part (use 0 for single part images). */
 	set_lineorder :: proc(ctxt: context_t, part_index: c.int, lo: lineorder_t) -> result_t ---
 
-	/** @brief Retrieve the pixel aspect ratio for the specified part (use 0 for single part images). */
+	/** Retrieve the pixel aspect ratio for the specified part (use 0 for single part images). */
 	get_pixel_aspect_ratio :: proc(ctxt: const_context_t, part_index: c.int, par: ^f32) -> result_t ---
-	/** @brief Set the pixel aspect ratio for the specified part (use 0 for single part images). */
+	/** Set the pixel aspect ratio for the specified part (use 0 for single part images). */
 	set_pixel_aspect_ratio :: proc(ctxt: context_t, part_index: c.int, par: f32) -> result_t ---
 
-	/** @brief Retrieve the screen oriented window center for the specified part (use 0 for single part images). */
+	/** Retrieve the screen oriented window center for the specified part (use 0 for single part images). */
 	get_screen_window_center :: proc(ctxt: const_context_t, part_index: c.int, wc: ^attr_v2f_t) -> result_t ---
-	/** @brief Set the screen oriented window center for the specified part (use 0 for single part images). */
+	/** Set the screen oriented window center for the specified part (use 0 for single part images). */
 	set_screen_window_center :: proc(ctxt: context_t, part_index: c.int, wc: ^attr_v2f_t) -> c.int ---
 
-	/** @brief Retrieve the screen oriented window width for the specified part (use 0 for single part images). */
+	/** Retrieve the screen oriented window width for the specified part (use 0 for single part images). */
 	get_screen_window_width :: proc(ctxt: const_context_t, part_index: c.int, out: ^f32) -> result_t ---
-	/** @brief Set the screen oriented window width for the specified part (use 0 for single part images). */
+	/** Set the screen oriented window width for the specified part (use 0 for single part images). */
 	set_screen_window_width :: proc(ctxt: context_t, part_index: c.int, ssw: f32) -> result_t ---
 
-	/** @brief Retrieve the tiling info for a tiled part (use 0 for single part images). */
+	/** Retrieve the tiling info for a tiled part (use 0 for single part images). */
 	get_tile_descriptor :: proc(
 		ctxt:       const_context_t,
 		part_index: c.int,
@@ -387,7 +387,7 @@ foreign lib {
 		level:      ^tile_level_mode_t,
 		round:      ^tile_round_mode_t) -> result_t ---
 
-	/** @brief Set the tiling info for a tiled part (use 0 for single part images). */
+	/** Set the tiling info for a tiled part (use 0 for single part images). */
 	set_tile_descriptor :: proc(
 		ctxt:       context_t,
 		part_index: c.int,
@@ -409,7 +409,7 @@ foreign lib {
 	/**
 	 * @defgroup BuiltinAttributeHelpers Attribute utilities for builtin types
 	 *
-	 * @brief These are a group of functions for attributes that use the builtin types.
+	 * These are a group of functions for attributes that use the builtin types.
 	 *
 	 * @{
 	 */
@@ -438,7 +438,7 @@ foreign lib {
 		name:       cstring,
 		val:        ^attr_box2f_t) -> result_t ---
 
-	/** @brief Zero-copy query of channel data.
+	/** Zero-copy query of channel data.
 	 *
 	 * Do not free or manipulate the @p chlist data, or use
 	 * after the lifetime of the context.
@@ -449,7 +449,7 @@ foreign lib {
 		name:       cstring,
 		chlist:     ^^attr_chlist_t) -> result_t ---
 
-	/** @brief This allows one to quickly copy the channels from one file
+	/** This allows one to quickly copy the channels from one file
 	 * to another.
 	 */
 	attr_set_channels :: proc(
@@ -498,7 +498,7 @@ foreign lib {
 
 	attr_set_float :: proc(ctxt: context_t, part_index: c.int, name: cstring, val: f32) -> result_t ---
 
-	/** @brief Zero-copy query of float data.
+	/** Zero-copy query of float data.
 	 *
 	 * Do not free or manipulate the @p out data, or use after the
 	 * lifetime of the context.
@@ -613,7 +613,7 @@ foreign lib {
 		name:       cstring,
 		r:          ^attr_rational_t) -> result_t ---
 
-	/** @brief Zero-copy query of string value.
+	/** Zero-copy query of string value.
 	 *
 	 * Do not modify the string pointed to by @p out, and do not use
 	 * after the lifetime of the context.
@@ -627,7 +627,7 @@ foreign lib {
 
 	attr_set_string :: proc(ctxt: context_t, part_index: c.int, name: cstring, s: cstring) -> result_t ---
 
-	/** @brief Zero-copy query of string data.
+	/** Zero-copy query of string data.
 	 *
 	 * Do not free the strings pointed to by the array.
 	 *

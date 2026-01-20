@@ -117,7 +117,7 @@ internal_powmod :: proc { internal_int_power_modulo, }
 	Straightforward implementation of algorithm 1.4.10 in
 	Henri Cohen: "A Course in Computational Algebraic Number Theory"
 
-	@book{cohen2013course,
+	book{cohen2013course,
 		title={A course in computational algebraic number theory},
 		author={Cohen, Henri},
 		volume={138},

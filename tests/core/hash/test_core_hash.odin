@@ -16,7 +16,7 @@ V16 :: struct{s: string, h: u16}
 V32 :: struct{s: string, h: u32}
 V64 :: struct{s: string, h: u64}
 
-@test
+@(test)
 test_adler32_vectors :: proc(t: ^testing.T) {
 	vectors :: []V32{
 		{""             , 0x00000001},
@@ -41,7 +41,7 @@ test_adler32_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, #hash(vectors[5].s, "adler32"), int(vectors[5].h))
 }
 
-@test
+@(test)
 test_djb2_vectors :: proc(t: ^testing.T) {
 	vectors :: []V32{
 		{""             , 5381}, // Initial seed
@@ -59,7 +59,7 @@ test_djb2_vectors :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_fnv32_vectors :: proc(t: ^testing.T) {
 	vectors :: []V32{
 		{""             , 0x811c9dc5},
@@ -84,7 +84,7 @@ test_fnv32_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, #hash(vectors[5].s, "fnv32"), int(vectors[5].h))
 }
 
-@test
+@(test)
 test_fnv64_vectors :: proc(t: ^testing.T) {
 	vectors :: []V64{
 		{""             , 0xcbf29ce484222325},
@@ -109,7 +109,7 @@ test_fnv64_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, i128(#hash(vectors[5].s, "fnv64")), i128(vectors[5].h))
 }
 
-@test
+@(test)
 test_fnv32a_vectors :: proc(t: ^testing.T) {
 	vectors :: []V32{
 		{""             , 0x811c9dc5},
@@ -134,7 +134,7 @@ test_fnv32a_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, #hash(vectors[5].s, "fnv32a"), int(vectors[5].h))
 }
 
-@test
+@(test)
 test_fnv64a_vectors :: proc(t: ^testing.T) {
 	vectors :: []V64{
 		{""             , 0xcbf29ce484222325},
@@ -159,7 +159,7 @@ test_fnv64a_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, i128(#hash(vectors[5].s, "fnv64a")), i128(vectors[5].h))
 }
 
-@test
+@(test)
 test_crc32_vectors :: proc(t: ^testing.T) {
 	vectors :: []V32{
 		{""             , 0x00000000},
@@ -184,7 +184,7 @@ test_crc32_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, #hash(vectors[5].s, "crc32"), int(vectors[5].h))
 }
 
-@test
+@(test)
 test_crc64_vectors :: proc(t: ^testing.T) {
 	vectors := map[string][4]u64 {
 		"123456789" = {
@@ -216,7 +216,7 @@ test_crc64_vectors :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_murmur32_vectors :: proc(t: ^testing.T) {
 	vectors :: []V32{
 		{""             , 0xebb6c228},
@@ -241,7 +241,7 @@ test_murmur32_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, #hash(vectors[5].s, "murmur32"), int(vectors[5].h))
 }
 
-@test
+@(test)
 test_murmur64_vectors :: proc(t: ^testing.T) {
 	vectors :: []V64{
 		{""             , 0x8397626cd6895052},
@@ -266,7 +266,7 @@ test_murmur64_vectors :: proc(t: ^testing.T) {
 	testing.expect_value(t, i128(#hash(vectors[5].s, "murmur64")), i128(vectors[5].h))
 }
 
-@test
+@(test)
 test_crc16_ccitt_0x1021_vectors :: proc(t: ^testing.T) {
 	vectors :: []V16{
 		{""             , 0x0000},

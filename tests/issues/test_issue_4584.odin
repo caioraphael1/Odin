@@ -7,7 +7,7 @@ import "core:math/linalg"
 import glm "core:math/linalg/glsl"
 import hlm "core:math/linalg/hlsl"
 
-@test
+@(test)
 test_adjugate_2x2 :: proc(t: ^testing.T) {
 	I := linalg.identity(matrix[2,2]int)
 	m := matrix[2,2]int {
@@ -34,7 +34,7 @@ test_adjugate_2x2 :: proc(t: ^testing.T) {
 	testing.expect_value(t, m * hlm.adjugate(m), 2 * I)
 }
 
-@test
+@(test)
 test_adjugate_3x3 :: proc(t: ^testing.T) {
 	I := linalg.identity(matrix[3,3]int)
 	m := matrix[3,3]int {
@@ -63,7 +63,7 @@ test_adjugate_3x3 :: proc(t: ^testing.T) {
 	testing.expect_value(t, m * hlm.adjugate(m), -6 * I)
 }
 
-@test
+@(test)
 test_adjugate_4x4 :: proc(t: ^testing.T) {
 	I := linalg.identity(matrix[4,4]int)
 	m := matrix[4,4]int {
@@ -94,7 +94,7 @@ test_adjugate_4x4 :: proc(t: ^testing.T) {
 	testing.expect_value(t, m * hlm.adjugate(m), -174 * I)
 }
 
-@test
+@(test)
 test_inverse_regression_2x2 :: proc(t: ^testing.T) {
 	I := linalg.identity(matrix[2,2]f32)
 	m := matrix[2,2]f32 {
@@ -121,7 +121,7 @@ test_inverse_regression_2x2 :: proc(t: ^testing.T) {
 	expect_float_matrix_value(t, m * hlm.inverse(m), I)
 }
 
-@test
+@(test)
 test_inverse_regression_3x3 :: proc(t: ^testing.T) {
 	I := linalg.identity(matrix[3,3]f32)
 	m := matrix[3,3]f32 {
@@ -150,7 +150,7 @@ test_inverse_regression_3x3 :: proc(t: ^testing.T) {
 	expect_float_matrix_value(t, m * hlm.inverse(m), I)
 }
 
-@test
+@(test)
 test_inverse_regression_4x4 :: proc(t: ^testing.T) {
 	I := linalg.identity(matrix[4,4]f32)
 	m := matrix[4,4]f32 {

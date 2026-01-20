@@ -8,7 +8,7 @@ _ :: runtime
 
 DEFAULT_PAGE_SIZE := uint(4096)
 
-// @@init
+// @(init)
 platform_memory_init :: proc() {
 	_platform_memory_init()
 }

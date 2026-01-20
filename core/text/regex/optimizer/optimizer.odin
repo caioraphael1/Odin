@@ -9,7 +9,7 @@ package regex_optimizer
 */
 
 import "base:intrinsics"
-@require import "core:io"
+@(require) import "core:io"
 import "core:slice"
 import "core:mem"
 import "core:text/regex/common"

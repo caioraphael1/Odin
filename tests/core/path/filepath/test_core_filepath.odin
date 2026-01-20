@@ -20,7 +20,7 @@ test_split_list_windows :: proc(t: ^testing.T) {
 		v: string,
 		e: [3]string,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, "C:\\Odin;C:\\Visual Studio;\"C:\\Some Other\"",
 			[3]string{"C:\\Odin", "C:\\Visual Studio", "C:\\Some Other"} }, // Issue #1537
 		{ 1, "a;;b", [3]string{"a", "", "b"} },
@@ -65,7 +65,7 @@ test_split_list_unix :: proc(t: ^testing.T) {
 		v: string,
 		e: [3]string,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ "/opt/butler:/home/fancykillerpanda/Projects/Odin/Odin:/usr/local/sbin",
 			[3]string{"/opt/butler", "/home/fancykillerpanda/Projects/Odin/Odin", "/usr/local/sbin"} }, // Issue #1537
 		{ "a::b", [3]string{"a", "", "b"} },

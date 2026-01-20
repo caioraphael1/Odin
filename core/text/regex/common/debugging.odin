@@ -8,7 +8,7 @@ package regex_common
 		Feoramund: Initial implementation.
 */
 
-@require import os "core:os/os2"
+@(require) import os "core:os/os2"
 import "core:mem"
 import "core:io"
 import "core:strings"

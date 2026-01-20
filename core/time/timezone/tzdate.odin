@@ -40,7 +40,7 @@ region_destroy :: proc(region: ^datetime.TZ_Region, allocator: runtime.Allocator
 }
 
 
-@private
+@(private)
 region_get_nearest :: proc(region: ^datetime.TZ_Region, tm: time.Time) -> (out: datetime.TZ_Record, success: bool) {
 	if len(region.records) == 0 {
 		return process_rrule(region.rrule, tm)
@@ -68,7 +68,7 @@ region_get_nearest :: proc(region: ^datetime.TZ_Region, tm: time.Time) -> (out: 
 	return region.records[idx], true
 }
 
-@private
+@(private)
 month_to_seconds :: proc(month: int, is_leap: bool) -> i64 {
 	month_seconds := []i64{
 		0,             31 * 86_400,  59 * 86_400,  90 * 86_400,
@@ -83,7 +83,7 @@ month_to_seconds :: proc(month: int, is_leap: bool) -> i64 {
 	return t
 }
 
-@private
+@(private)
 trans_date_to_seconds :: proc(year: i64, td: datetime.TZ_Transition_Date) -> (secs: i64, ok: bool) {
 	is_leap := datetime.is_leap_year(year)
 	DAY_SEC :: 86_400
@@ -140,7 +140,7 @@ trans_date_to_seconds :: proc(year: i64, td: datetime.TZ_Transition_Date) -> (se
 	return
 }
  
-@private
+@(private)
 process_rrule :: proc(rrule: datetime.TZ_RRule, tm: time.Time) -> (out: datetime.TZ_Record, success: bool) {
 	if !rrule.has_dst {
 		return datetime.TZ_Record{

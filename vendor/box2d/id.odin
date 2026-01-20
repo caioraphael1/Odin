@@ -17,8 +17,8 @@ import "base:intrinsics"
  *
  * This is considered null.
  *
- * @warning Do not use the internals of these ids. They are subject to change. Ids should be treated as opaque objects.
- * @warning You should use ids to access objects in Box2D. Do not access files within the src folder. Such usage is unsupported.
+ * Do not use the internals of these ids. They are subject to change. Ids should be treated as opaque objects.
+ * You should use ids to access objects in Box2D. Do not access files within the src folder. Such usage is unsupported.
  */
 
 /// World id references a world instance. This should be treated as an opaque handle.

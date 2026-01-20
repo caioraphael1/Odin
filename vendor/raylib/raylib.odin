@@ -1728,8 +1728,8 @@ IsGestureDetected :: proc "c" (gesture: Gesture) -> bool {
 
 // Text formatting with variables (sprintf style)
 TextFormat :: proc(text: cstring, args: ..any) -> cstring {
-	@static buffers: [MAX_TEXTFORMAT_BUFFERS][MAX_TEXT_BUFFER_LENGTH]byte
-	@static index: u32
+	@(static) buffers: [MAX_TEXTFORMAT_BUFFERS][MAX_TEXT_BUFFER_LENGTH]byte
+	@(static) index: u32
 	
 	buffer := buffers[index][:]
 	mem.zero_slice(buffer)

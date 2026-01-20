@@ -57,7 +57,7 @@ get_environment_color :: proc() -> Color_Depth {
 	return .None
 }
 
-// @@init
+// @(init)
 init_terminal :: proc() {
 	_init_terminal()
 
@@ -70,7 +70,7 @@ init_terminal :: proc() {
 	}
 }
 
-// @@fini
+// @(fini)
 fini_terminal :: proc() {
 	_fini_terminal()
 }

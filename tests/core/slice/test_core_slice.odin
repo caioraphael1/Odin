@@ -6,7 +6,7 @@ import "core:testing"
 import "core:math/rand"
 import "core:log"
 
-@test
+@(test)
 test_sort_with_indices :: proc(t: ^testing.T) {
 	// Test sizes are all prime.
 	test_sizes :: []int{7, 13, 347, 1031, 10111, 100003}
@@ -57,7 +57,7 @@ test_sort_with_indices :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_sort_by_indices :: proc(t: ^testing.T) {
 	// Test sizes are all prime.
 	test_sizes :: []int{7, 13, 347, 1031, 10111, 100003}
@@ -140,7 +140,7 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_binary_search :: proc(t: ^testing.T) {
 	index: int
 	found: bool
@@ -188,7 +188,7 @@ test_binary_search :: proc(t: ^testing.T) {
 	testing.expect(t, found == false, "Expected found to be false.")
 }
 
-@test
+@(test)
 test_permutation_iterator :: proc(t: ^testing.T) {
 	// Big enough to do some sanity checking but not overly large.
 	FAC_5 :: 120
@@ -225,7 +225,7 @@ UNIQUE_TEST_VECTORS :: [][2][]int{
 	{{1,2,4,4,5},         {1,2,4,5}},
 }
 
-@test
+@(test)
 test_unique :: proc(t: ^testing.T) {
 	for v in UNIQUE_TEST_VECTORS {
 		assorted := v[0]
@@ -278,7 +278,7 @@ test_unique :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_compare_empty :: proc(t: ^testing.T) {
 	a := []int{}
 	b := []int{}
@@ -308,7 +308,7 @@ test_compare_empty :: proc(t: ^testing.T) {
 		"Expected two separate empty slices of two dynamic arrays to be equal")
 }
 
-@test
+@(test)
 test_linear_search_reverse :: proc(t: ^testing.T) {
 	index: int
 	found: bool

@@ -815,10 +815,10 @@ File_Status_Flags :: bit_set[File_Status_Index; c.int]
 // #include <sys/_sockaddr_storage.h>
 //
 
-@private _SS_MAXSIZE   :: 128
-@private _SS_ALIGNSIZE :: size_of(i64)
-@private _SS_PAD1SIZE  :: _SS_ALIGNSIZE - size_of(c.uchar) - size_of(Address_Family)
-@private _SS_PAD2SIZE  :: _SS_MAXSIZE - size_of(c.uchar) - size_of(Address_Family) - _SS_PAD1SIZE - _SS_ALIGNSIZE
+@(private) _SS_MAXSIZE   :: 128
+@(private) _SS_ALIGNSIZE :: size_of(i64)
+@(private) _SS_PAD1SIZE  :: _SS_ALIGNSIZE - size_of(c.uchar) - size_of(Address_Family)
+@(private) _SS_PAD2SIZE  :: _SS_MAXSIZE - size_of(c.uchar) - size_of(Address_Family) - _SS_PAD1SIZE - _SS_ALIGNSIZE
 
 /*
  * RFC 2553: protocol-independent placeholder for socket addresses

@@ -111,7 +111,7 @@ get_cell :: proc(tbl: ^Table, row, col: int, loc := #caller_location) -> ^Cell {
 	return &tbl.cells[row*tbl.nr_cols + col]
 }
 
-@private
+@(private)
 to_string :: #force_inline proc(tbl: ^Table, value: any, loc := #caller_location) -> (result: string) {
 	switch val in value {
 	case nil:

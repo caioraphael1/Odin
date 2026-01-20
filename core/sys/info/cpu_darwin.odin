@@ -2,7 +2,7 @@ package sysinfo
 
 import "core:sys/unix"
 
-// @@init
+// @(init)
 init_cpu_core_count :: proc() {
 	physical, logical: i64
 	unix.sysctlbyname("hw.physicalcpu", &physical)

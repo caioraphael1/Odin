@@ -155,7 +155,7 @@ block :: proc(ctx: ^Context, buf: []byte) {
 		}
 		for i := 16; i < 68; i += 1 {
 			p1v := w[i - 16] ~ w[i - 9] ~ bits.rotate_left32(w[i - 3], 15)
-			// @note(zh): inlined P1
+			// note(zh): inlined P1
 			w[i] =
 				p1v ~
 				bits.rotate_left32(p1v, 15) ~
@@ -175,13 +175,13 @@ block :: proc(ctx: ^Context, buf: []byte) {
 			ss1 := bits.rotate_left32(v1 + u32(e) + bits.rotate_left32(0x79cc4519, i), 7)
 			ss2 := ss1 ~ v1
 
-			// @note(zh): inlined FF1
+			// note(zh): inlined FF1
 			tt1 := u32(a ~ b ~ c) + u32(d) + ss2 + wp[i]
-			// @note(zh): inlined GG1
+			// note(zh): inlined GG1
 			tt2 := u32(e ~ f ~ g) + u32(h) + ss1 + w[i]
 
 			a, b, c, d = tt1, a, bits.rotate_left32(u32(b), 9), c
-			// @note(zh): inlined P0
+			// note(zh): inlined P0
 			e, f, g, h =
 				(tt2 ~ bits.rotate_left32(tt2, 9) ~ bits.rotate_left32(tt2, 17)),
 				e,
@@ -194,13 +194,13 @@ block :: proc(ctx: ^Context, buf: []byte) {
 			ss1 := bits.rotate_left32(v + u32(e) + bits.rotate_left32(0x7a879d8a, i % 32), 7)
 			ss2 := ss1 ~ v
 
-			// @note(zh): inlined FF2
+			// note(zh): inlined FF2
 			tt1 := u32(((a & b) | (a & c) | (b & c)) + d) + ss2 + wp[i]
-			// @note(zh): inlined GG2
+			// note(zh): inlined GG2
 			tt2 := u32(((e & f) | ((~e) & g)) + h) + ss1 + w[i]
 
 			a, b, c, d = tt1, a, bits.rotate_left32(u32(b), 9), c
-			// @note(zh): inlined P0
+			// note(zh): inlined P0
 			e, f, g, h =
 				(tt2 ~ bits.rotate_left32(tt2, 9) ~ bits.rotate_left32(tt2, 17)),
 				e,

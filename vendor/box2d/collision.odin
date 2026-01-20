@@ -105,7 +105,7 @@ Capsule :: struct {
 // the left of each edge.
 // Polygons have a maximum number of vertices equal to MAX_POLYGON_VERTICES.
 // In most cases you should not need many vertices for a convex polygon.
-// @warning DO NOT fill this out manually, instead use a helper function like
+// DO NOT fill this out manually, instead use a helper function like
 // b2MakePolygon or b2MakeBox.
 Polygon :: struct {
 	// The polygon vertices
@@ -152,7 +152,7 @@ ChainSegment :: struct {
 
 
 // A convex hull. Used to create convex polygons.
-//	@warning Do not modify these values directly, instead use b2ComputeHull()
+//	Do not modify these values directly, instead use b2ComputeHull()
 Hull :: struct {
 	// The final points of the hull
 	points: [MAX_POLYGON_VERTICES]Vec2 `fmt:"v,count"`,
@@ -300,7 +300,7 @@ TOIOutput :: struct {
 
 /**
  * @defgroup collision Collision
- * @brief Functions for colliding pairs of shapes
+ * Functions for colliding pairs of shapes
  */
 
 // A manifold point is a contact point belonging to a contact manifold.
@@ -428,7 +428,7 @@ TreeStats :: struct {
 }
 
 // This function receives proxies found in the AABB query.
-// @return true if the query should continue
+// true if the query should continue
 TreeQueryCallbackFcn     :: #type proc "c" (proxyId: i32, userData: u64, ctx: rawptr) -> bool
 
 // This function receives clipped ray cast input for a proxy. The function

@@ -48,13 +48,13 @@ error_code_t :: result_t
 
 @(link_prefix="exr_", default_calling_convention="c")
 foreign lib {
-	/** @brief Return a static string corresponding to the specified error code.
+	/** Return a static string corresponding to the specified error code.
 	 *
 	 * The string should not be freed (it is compiled into the binary).
 	 */
 	get_default_error_message :: proc(code: result_t) -> cstring ---
 
-	/** @brief Return a static string corresponding to the specified error code.
+	/** Return a static string corresponding to the specified error code.
 	 *
 	 * The string should not be freed (it is compiled into the binary).
 	 */

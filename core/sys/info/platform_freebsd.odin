@@ -8,7 +8,7 @@ import "base:runtime"
 @(private)
 version_string_buf: [1024]u8
 
-// @@init
+// @(init)
 init_os_version :: proc() {
 	os_version.platform = .FreeBSD
 
@@ -67,7 +67,7 @@ init_os_version :: proc() {
 	}
 }
 
-// @@init
+// @(init)
 init_ram :: proc() {
 	// Retrieve RAM info using `sysctl`
 	mib := []i32{sys.CTL_HW, sys.HW_PHYSMEM}

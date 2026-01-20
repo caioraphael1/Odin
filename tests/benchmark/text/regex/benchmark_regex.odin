@@ -47,7 +47,7 @@ sizes := [?]int {
 	2.00 * mem.Megabyte,
 }
 
-@test
+@(test)
 expensive_for_backtrackers :: proc(t: ^testing.T) {
 	counts := [?]int {
 		8,
@@ -101,7 +101,7 @@ expensive_for_backtrackers :: proc(t: ^testing.T) {
 	log.info(report)
 }
 
-@test
+@(test)
 global_capture_end_word :: proc(t: ^testing.T) {
 	// NOTE: The previous behavior of `.Global`, which was to automatically
 	// insert `.*?` at the start of the pattern, is now default.
@@ -142,7 +142,7 @@ global_capture_end_word :: proc(t: ^testing.T) {
 	log.info(report)
 }
 
-@test
+@(test)
 global_capture_end_word_unicode :: proc(t: ^testing.T) {
 	EXPR :: `こにちは`
 	needle := string(EXPR)
@@ -183,7 +183,7 @@ global_capture_end_word_unicode :: proc(t: ^testing.T) {
 }
 
 
-@test
+@(test)
 alternations :: proc(t: ^testing.T) {
 	EXPR :: `a(?:bb|cc|dd|ee|ff)`
 
@@ -216,7 +216,7 @@ alternations :: proc(t: ^testing.T) {
 	log.info(report)
 }
 
-@test
+@(test)
 classes :: proc(t: ^testing.T) {
 	EXPR :: `[\w\d]+`
 	NEEDLE :: "0123456789abcdef"

@@ -8,7 +8,7 @@ import "core:testing"
 //
 // Right now, I am manually checking LLVM ir
 
-@test
+@(test)
 test_4553_matrix_align :: proc(t: ^testing.T) {
 	test_mat :: proc($T: typeid, $R: u32, $C: u32) {
 		when R * C <= 16 {

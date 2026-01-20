@@ -8,7 +8,7 @@ import "core:testing"
 
 ELEM_BIT_SIZE :: 8 * size_of(u64)
 
-@test
+@(test)
 test_bit_array_bias :: proc(t: ^testing.T) {
 	for bias in -ELEM_BIT_SIZE..=ELEM_BIT_SIZE {
 		M :: 19
@@ -42,7 +42,7 @@ test_bit_array_bias :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_bit_array_empty_iteration :: proc(t: ^testing.T) {
 	ba: ^bit_array.Bit_Array = &{}
 	defer bit_array.destroy(ba)
@@ -65,7 +65,7 @@ test_bit_array_empty_iteration :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_bit_array_biased_max_index :: proc(t: ^testing.T) {
 	for bias in -ELEM_BIT_SIZE..=ELEM_BIT_SIZE {
 		for max_index in 1+bias..<ELEM_BIT_SIZE {
@@ -100,7 +100,7 @@ test_bit_array_biased_max_index :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_bit_array_shrink :: proc(t: ^testing.T) {
 	for bias in -ELEM_BIT_SIZE..=ELEM_BIT_SIZE {
 		ba := bit_array.create(bias, bias)
@@ -154,7 +154,7 @@ test_bit_array_shrink :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_bit_array :: proc(t: ^testing.T) {
 	ba := bit_array.create(0, 0)
 	defer bit_array.destroy(ba)

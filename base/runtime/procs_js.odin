@@ -2,7 +2,7 @@
 package runtime
 
 init_default_context_for_js: Context
-// @@init
+// @(init)
 @(private="file")
 init_default_context :: proc() {
     init_default_context_for_js = {}

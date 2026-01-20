@@ -5,7 +5,7 @@ import "core:testing"
 import "core:mem/virtual"
 import "base:runtime"
 
-@test
+@(test)
 parse_json :: proc(t: ^testing.T) {
    
 	json_data := `
@@ -40,7 +40,7 @@ parse_json :: proc(t: ^testing.T) {
 	testing.expectf(t, err == nil, "Expected `json.parse` to return nil, got %v", err)
 }
 
-@test
+@(test)
 out_of_memory_in_parse_json :: proc(t: ^testing.T) {
 	arena: virtual.Arena
 	arena_buffer: [256]byte
@@ -83,7 +83,7 @@ out_of_memory_in_parse_json :: proc(t: ^testing.T) {
 	testing.expectf(t, err == json.Error.Out_Of_Memory, "Expected `json.parse` to fail with %v, got %v", expected_error, err)
 }
 
-@test
+@(test)
 out_of_memory_in_unmarshal :: proc(t: ^testing.T) {
 	arena: virtual.Arena
 	arena_buffer: [128]byte
@@ -122,7 +122,7 @@ out_of_memory_in_unmarshal :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 marshal_json :: proc(t: ^testing.T) {
    
 	My_Struct :: struct {
@@ -373,7 +373,7 @@ cleanup :: proc(g: Game_Marshal) {
 	_ = delete(g.cash)
 }
 
-@test
+@(test)
 unmarshal_json :: proc(t: ^testing.T) {
 	g: Game_Marshal
 	err := json.unmarshal(transmute([]u8)PRODUCTS, &g, json.DEFAULT_SPECIFICATION)
@@ -388,7 +388,7 @@ unmarshal_json :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 unmarshal_empty_struct :: proc(t: ^testing.T) {
 	TestStruct :: struct {}
 	test := make(map[string]TestStruct)
@@ -406,7 +406,7 @@ unmarshal_empty_struct :: proc(t: ^testing.T) {
 	testing.expect(t, err == nil, "Expected empty struct to unmarshal without error")
 }
 
-@test
+@(test)
 surrogate :: proc(t: ^testing.T) {
 	input := `+ + * 😃 - /`
 
@@ -421,14 +421,14 @@ surrogate :: proc(t: ^testing.T) {
 	testing.expectf(t, back == input, "Expected `json.unmarshal(%q)` to return %q, got %v", string(out), input, uerr)
 }
 
-@test
+@(test)
 utf8_string_of_multibyte_characters :: proc(t: ^testing.T) {
 	val, err := json.parse_string(`"🐛✅"`)
 	defer json.destroy_value(val)
 	testing.expectf(t, err == nil, "Expected `json.parse` to return nil, got %v", err)
 }
 
-@test
+@(test)
 struct_with_ignore_tags :: proc(t: ^testing.T) {
 	My_Struct :: struct {
 		a: string `json:"-"`,
@@ -449,7 +449,7 @@ struct_with_ignore_tags :: proc(t: ^testing.T) {
 	testing.expectf(t, expected_json == my_struct_json, "Expected `json.marshal` to return %s, got %s", expected_json, my_struct_json)
 }
 
-@test
+@(test)
 map_with_integer_keys :: proc(t: ^testing.T) {
 	my_map := make(map[i32]string)
 	defer delete_map(my_map)
@@ -484,7 +484,7 @@ map_with_integer_keys :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 enumerated_array :: proc(t: ^testing.T) {
 	Fruit :: enum { Apple, Banana, Pear }
 	Fruit_Stock :: [Fruit]uint {

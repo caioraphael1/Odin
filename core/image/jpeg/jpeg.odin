@@ -1091,7 +1091,7 @@ destroy :: proc(img: ^Image) {
 	_ = free(img)
 }
 
-// @@init
+// @(init)
 _register :: proc() {
 	image.register(.JPEG, load_from_bytes, destroy)
 }

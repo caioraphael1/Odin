@@ -6,56 +6,56 @@ import "core:strings"
 import "core:testing"
 import "core:unicode/utf8"
 
-@test
+@(test)
 test_index_any_small_string_not_found :: proc(t: ^testing.T) {
 	index := strings.index_any(".", "/:\"")
 	testing.expect(t, index == -1, "index_any should be negative")
 }
 
-@test
+@(test)
 test_index_any_larger_string_not_found :: proc(t: ^testing.T) {
 	index := strings.index_any("aaaaaaaa.aaaaaaaa", "/:\"")
 	testing.expect(t, index == -1, "index_any should be negative")
 }
 
-@test
+@(test)
 test_index_any_small_string_found :: proc(t: ^testing.T) {
 	index := strings.index_any(".", "/:.\"")
 	testing.expect(t, index == 0, "index_any should be 0")
 }
 
-@test
+@(test)
 test_index_any_larger_string_found :: proc(t: ^testing.T) {
 	index := strings.index_any("aaaaaaaa:aaaaaaaa", "/:\"")
 	testing.expect(t, index == 8, "index_any should be 8")
 }
 
-@test
+@(test)
 test_last_index_any_small_string_found :: proc(t: ^testing.T) {
 	index := strings.last_index_any(".", "/:.\"")
 	testing.expect(t, index == 0, "last_index_any should be 0")
 }
 
-@test
+@(test)
 test_last_index_any_small_string_not_found :: proc(t: ^testing.T) {
 	index := strings.last_index_any(".", "/:\"")
 	testing.expect(t, index == -1, "last_index_any should be -1")
 }
 
-@test
+@(test)
 test_index_multi_overlapping_substrs :: proc(t: ^testing.T) {
 	index, width := strings.index_multi("some example text", {"ample", "exam"})
 	testing.expect_value(t, index, 5)
 	testing.expect_value(t, width, 4)
 }
 
-@test
+@(test)
 test_index_multi_not_found :: proc(t: ^testing.T) {
 	index, _ := strings.index_multi("some example text", {"ey", "tey"})
 	testing.expect_value(t, index, -1)
 }
 
-@test
+@(test)
 test_index_multi_with_empty_string :: proc(t: ^testing.T) {
 	index, _ := strings.index_multi("some example text", {"ex", ""})
 	testing.expect_value(t, index, -1)
@@ -78,7 +78,7 @@ cut_tests :: []Cut_Test{
 	{"恥ずべきフクロウ",        4, 0, "フクロウ"             },
 }
 
-@test
+@(test)
 test_cut :: proc(t: ^testing.T) {
 	for test in cut_tests {
 		res := strings.cut(test.input, test.offset, test.length)
@@ -134,7 +134,7 @@ to_camel_case :: proc(r: string, allocator: runtime.Allocator) -> (string, runti
 to_pascal_case :: proc(r: string, allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) { return strings.to_pascal_case(r, allocator) }
 to_ada_case :: proc(r: string, allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) { return strings.to_ada_case(r, allocator) }
 
-@test
+@(test)
 test_case_conversion :: proc(t: ^testing.T) {
 	for entry in test_cases {
 		for test_case, case_kind in test_cases {
@@ -178,7 +178,7 @@ test_substring :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_builder_to_cstring_with_nil_allocator :: proc(t: ^testing.T) {
 	b := strings.builder_make_none(mem.nil_allocator())
 
@@ -187,7 +187,7 @@ test_builder_to_cstring_with_nil_allocator :: proc(t: ^testing.T) {
 	testing.expect_value(t, err, mem.Allocator_Error.Out_Of_Memory)
 }
 
-@test
+@(test)
 test_builder_to_cstring :: proc(t: ^testing.T) {
 	buf: [8]byte
 	a: mem.Arena
@@ -220,7 +220,7 @@ test_builder_to_cstring :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_prefix_length :: proc(t: ^testing.T) {
 	prefix_length :: proc(a, b: string) -> (n: int) {
 		_len := min(len(a), len(b))

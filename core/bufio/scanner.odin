@@ -269,7 +269,7 @@ scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
 		return
 	}
 
-	@thread_local ERROR_RUNE := []byte{0xef, 0xbf, 0xbd}
+	@(thread_local) ERROR_RUNE := []byte{0xef, 0xbf, 0xbd}
 
 	advance = 1
 	token = ERROR_RUNE

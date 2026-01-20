@@ -7,7 +7,7 @@ import "core:mem"
 g_ctx:       runtime.Context
 g_allocator: mem.Compat_Allocator
 
-// @@init don't care
+// @(init) don't care
 init_context :: proc() {
 	// Wrapping the allocator with the mem.Compat_Allocator so we can
 	// mimic the realloc semantics.

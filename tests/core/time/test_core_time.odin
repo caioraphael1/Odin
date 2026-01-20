@@ -7,7 +7,7 @@ import tz "core:time/timezone"
 
 is_leap_year :: time.is_leap_year
 
-@test
+@(test)
 test_time_and_date_formatting :: proc(t: ^testing.T) {
 	buf: [64]u8
 	{
@@ -44,7 +44,7 @@ test_time_and_date_formatting :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_ordinal_date_roundtrip :: proc(t: ^testing.T) {
 	testing.expect(t, dt.unsafe_ordinal_to_date(dt.unsafe_date_to_ordinal(dt.MIN_DATE)) == dt.MIN_DATE, "Roundtripping MIN_DATE failed.")
 	testing.expect(t, dt.unsafe_date_to_ordinal(dt.unsafe_ordinal_to_date(dt.MIN_ORD))  == dt.MIN_ORD,  "Roundtripping MIN_ORD failed.")
@@ -141,7 +141,7 @@ iso8601_tests :: []ISO8601_Test{
 	{"1937-01-01 12:00:27.87+00:20", {-1041337172130000000}, true,  0,   28, false},
 }
 
-@test
+@(test)
 test_parse_rfc3339_string :: proc(t: ^testing.T) {
 	for test in rfc3339_tests {
 		is_leap := false
@@ -197,7 +197,7 @@ test_parse_rfc3339_string :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_print_rfc3339 :: proc(t: ^testing.T) {
 	TestCase :: struct {
 		printed: string,
@@ -227,7 +227,7 @@ test_print_rfc3339 :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_parse_iso8601_string :: proc(t: ^testing.T) {
 	for test in iso8601_tests {
 		is_leap := false
@@ -284,7 +284,7 @@ test_parse_iso8601_string :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_time_to_datetime_roundtrip :: proc(t: ^testing.T) {
 	// Roundtrip a time through `time_to_datetime` to `DateTime` and back.
 	// Select `N` evenly-distributed points throughout the positive signed 64-bit number line.
@@ -313,7 +313,7 @@ MONTH_DAYS := []int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 YEAR_START :: 1900
 YEAR_END   :: 2024
 
-@test
+@(test)
 test_component_to_time_roundtrip :: proc(t: ^testing.T) {
 	// Roundtrip a datetime through `datetime_to_time` to `Time` and back to its components.
 	for year in YEAR_START..=YEAR_END {
@@ -358,7 +358,7 @@ datetime_eq :: proc(dt1: dt.DateTime, dt2: dt.DateTime) -> bool {
 	)
 }
 
-@test
+@(test)
 test_convert_timezone_roundtrip :: proc(t: ^testing.T) {
 	dst_dt, _ := dt.components_to_datetime(2024, 10, 4, 23, 47, 0)
 	std_dt, _ := dt.components_to_datetime(2024, 11, 4, 23, 47, 0)
@@ -383,7 +383,7 @@ test_convert_timezone_roundtrip :: proc(t: ^testing.T) {
 	testing.expectf(t, datetime_eq(std_dt, shuffle_tz(std_dt, edm_tz)), "Failed to convert to/from Edmonton std timezone")
 }
 
-@test
+@(test)
 test_check_timezone_metadata :: proc(t: ^testing.T) {
 	dst_dt, _ := dt.components_to_datetime(2024, 10, 4, 23, 47, 0)
 	std_dt, _ := dt.components_to_datetime(2024, 11, 4, 23, 47, 0)
@@ -430,7 +430,7 @@ rrule_eq :: proc(r1, r2: dt.TZ_RRule) -> (eq: bool) {
 	return true
 }
 
-@test
+@(test)
 test_check_timezone_posix_tz :: proc(t: ^testing.T) {
 	correct_simple_rrule := dt.TZ_RRule{
 		has_dst    = false,
@@ -562,7 +562,7 @@ test_check_timezone_posix_tz :: proc(t: ^testing.T) {
 	testing.expectf(t, rrule_eq(wgt_rrule, correct_wgt_rrule), "POSIX TZ parsed incorrectly")
 }
 
-@test
+@(test)
 test_check_timezone_edgecases :: proc(t: ^testing.T) {
 	utc_dt, _ := dt.components_to_datetime(2024, 10, 4, 0, 47, 0)
 

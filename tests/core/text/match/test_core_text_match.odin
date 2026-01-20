@@ -4,7 +4,7 @@ import "core:text/match"
 import "core:testing"
 
 // find correct byte offsets 
-@test
+@(test)
 test_find :: proc(t: ^testing.T) {
 	Entry :: struct {
 		s, p: string,
@@ -50,7 +50,7 @@ test_find :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_match :: proc(t: ^testing.T) {
 	Entry :: struct {
 		s, p: string,
@@ -166,7 +166,7 @@ test_match :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_captures :: proc(t: ^testing.T) {
 	Temp :: struct {
 		pattern: string,
@@ -237,7 +237,7 @@ test_captures :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_gmatch :: proc(t: ^testing.T) {
 	{
 		matcher := match.matcher_init("testing this out 123", "%w+")
@@ -267,7 +267,7 @@ test_gmatch :: proc(t: ^testing.T) {
 	}		
 }
 
-@test
+@(test)
 test_gsub :: proc(t: ^testing.T) {
 	result := match.gsub("testing123testing", "%d+", " sup ", context.temp_allocator)
 	testing.expect(t, result == "testing sup testing", "GSUB 0: failed")
@@ -275,7 +275,7 @@ test_gsub :: proc(t: ^testing.T) {
 	testing.expect(t, result == "345123345", "GSUB 1: failed")
 }
 
-@test
+@(test)
 test_gfind :: proc(t: ^testing.T) {
 	haystack := "test1 123 test2 123 test3"
 	pattern := "%w+" 
@@ -295,7 +295,7 @@ test_gfind :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_frontier :: proc(t: ^testing.T) {
 	Temp :: struct {
 		t: ^testing.T,
@@ -328,7 +328,7 @@ test_frontier :: proc(t: ^testing.T) {
 	match.gsub_with("THE (QUICK) brOWN FOx JUMPS", "%f[%a]%u+%f[%A]", &temp, call)
 }
 
-@test
+@(test)
 test_utf8 :: proc(t: ^testing.T) {
 	matcher := match.matcher_init("恥ず べき恥 フク恥ロ", "%w+")
 	output := [?]string { "恥ず", "べき恥", "フク恥ロ" }
@@ -338,7 +338,7 @@ test_utf8 :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_case_insensitive :: proc(t: ^testing.T) {
 	{
 		pattern := match.pattern_case_insensitive("test", 256, context.temp_allocator)

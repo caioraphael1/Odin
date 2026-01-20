@@ -3,7 +3,7 @@ package test_issues
 
 import "core:testing"
 
-@test
+@(test)
 test_scalar_matrix_conversion :: proc(t: ^testing.T) {
 	l := f32(1.0)
 	m := (matrix[4,4]f32)(l)

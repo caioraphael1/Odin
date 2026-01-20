@@ -31,7 +31,7 @@ Example:
 
 		// Variant that takes a destination buffer, instead of returning
 		// the digest.
-		digest := make([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // @note: Destination buffer has to be at least as big as the digest size of the hash.
+		digest := make([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // note: Destination buffer has to be at least as big as the digest size of the hash.
 		defer _ = delete(digest)
 		hash.hash(hash.Algorithm.BLAKE2B, input, digest)
 	}

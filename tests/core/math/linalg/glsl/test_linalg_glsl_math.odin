@@ -6,7 +6,7 @@ import glsl "core:math/linalg/glsl"
 import "core:math"
 import "core:testing"
 
-@test
+@(test)
 test_fract_f32 :: proc(t: ^testing.T) {
 	r: f32
 
@@ -15,7 +15,7 @@ test_fract_f32 :: proc(t: ^testing.T) {
 		v: f32,
 		e: f32,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 10.5, 0.5 }, // Issue #1574 fract in linalg/glm is broken
 		{ 1, -10.5, -0.5 },
 		{ 2, math.F32_MIN, math.F32_MIN }, // 0x1p-126
@@ -35,7 +35,7 @@ test_fract_f32 :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_fract_f64 :: proc(t: ^testing.T) {
 	r: f64
 
@@ -44,7 +44,7 @@ test_fract_f64 :: proc(t: ^testing.T) {
 		v: f64,
 		e: f64,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 10.5, 0.5 }, // Issue #1574 fract in linalg/glm is broken
 		{ 1, -10.5, -0.5 },
 		{ 2, math.F64_MIN, math.F64_MIN }, // 0x1p-1022

@@ -84,7 +84,7 @@ MAX_ITERATIONS_RANDOM_PRIME  := 1_000_000
 /*
 	How many iterations we used for the last random prime.
 */
-@thread_local RANDOM_PRIME_ITERATIONS_USED: int
+@(thread_local) RANDOM_PRIME_ITERATIONS_USED: int
 
 /*
 	We don't allow these to be switched at runtime for two reasons:

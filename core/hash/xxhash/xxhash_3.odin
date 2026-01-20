@@ -111,8 +111,8 @@ XXH128_canonical :: struct {
 	The reason for the separate function is to prevent passing too many structs
 	around by value. This will hopefully inline the multiply, but we don't force it.
 
-	@param lhs, rhs The 64-bit integers to multiply
-	@return The low 64 bits of the product XOR'd by the high 64 bits.
+	lhs, rhs: The 64-bit integers to multiply
+	res: The low 64 bits of the product XOR'd by the high 64 bits.
 */
 @(optimization_mode="favor_size")
 XXH_mul_64_to_128_fold_64 :: #force_inline proc(lhs, rhs: xxh_u64) -> (res: xxh_u64) {

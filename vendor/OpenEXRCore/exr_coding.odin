@@ -16,7 +16,7 @@ transcoding_pipeline_buffer_id_t :: enum c.int {
 	SAMPLES,
 }
 
-/** @brief Struct for negotiating buffers when decoding/encoding
+/** Struct for negotiating buffers when decoding/encoding
  * chunks of data.
  *
  * This is generic and meant to negotiate exr data bi-directionally,

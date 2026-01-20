@@ -4,9 +4,9 @@ import "core:bytes"
 import "core:slice"
 import "core:testing"
 
-@private SIMD_SCAN_WIDTH :: 8 * size_of(uintptr)
+@(private) SIMD_SCAN_WIDTH :: 8 * size_of(uintptr)
 
-@test
+@(test)
 test_index_byte_sanity :: proc(t: ^testing.T) {
 	// We must be able to find the byte at the correct index.
 	data := make([]u8, 2 * SIMD_SCAN_WIDTH)
@@ -30,14 +30,14 @@ test_index_byte_sanity :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_index_byte_empty :: proc(t: ^testing.T) {
 	a: [1]u8
 	testing.expect_value(t, bytes.index_byte(a[0:0], 'o'), -1)
 	testing.expect_value(t, bytes.last_index_byte(a[0:0], 'o'), -1)
 }
 
-@test
+@(test)
 test_index_byte_multiple_hits :: proc(t: ^testing.T) {
 	for n in 5..<256 {
 		data := make([]u8, n)
@@ -60,7 +60,7 @@ test_index_byte_multiple_hits :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_index_byte_zero :: proc(t: ^testing.T) {
 	// This test protects against false positives in uninitialized memory.
 	for n in 1..<256 {
@@ -88,7 +88,7 @@ test_index_byte_zero :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_last_index_byte_bounds :: proc(t: ^testing.T) {
 	input := "helloworld.odin."
 	assert(len(input) == 16)

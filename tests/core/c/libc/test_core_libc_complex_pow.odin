@@ -37,7 +37,7 @@ libc_powf :: proc(x, y: libc.complex_float) -> libc.complex_float {
 	return libc.pow(x,y)
 }
 
-@test
+@(test)
 test_libc_complex :: proc(t: ^testing.T) {
 	test_libc_pow_binding(t, libc.complex_double, f64, libc_pow, 1e-12, 1e-12)
 	// f32 needs more atol for comparing values close to zero

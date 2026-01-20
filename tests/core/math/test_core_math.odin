@@ -5,7 +5,7 @@ import "core:math"
 import "core:strconv"
 import "core:testing"
 
-@test
+@(test)
 test_classify_f16 :: proc(t: ^testing.T) {
 	r: math.Float_Class
 
@@ -14,7 +14,7 @@ test_classify_f16 :: proc(t: ^testing.T) {
 		v: f16,
 		e: math.Float_Class,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 1.2, .Normal },
 		{ 1, 0h0001, .Subnormal },
 		{ 2, 0.0, .Zero },
@@ -40,7 +40,7 @@ test_classify_f16 :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_classify_f32 :: proc(t: ^testing.T) {
 	r: math.Float_Class
 
@@ -49,7 +49,7 @@ test_classify_f32 :: proc(t: ^testing.T) {
 		v: f32,
 		e: math.Float_Class,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 1.2, .Normal },
 		{ 1, 0h0000_0001, .Subnormal },
 		{ 2, 0.0, .Zero },
@@ -67,7 +67,7 @@ test_classify_f32 :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_classify_f64 :: proc(t: ^testing.T) {
 	r: math.Float_Class
 
@@ -76,7 +76,7 @@ test_classify_f64 :: proc(t: ^testing.T) {
 		v: f64,
 		e: math.Float_Class,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 1.2, .Normal },
 		{ 1, 0h0000_0000_0000_0001, .Subnormal },
 		{ 2, 0.0, .Zero },
@@ -94,7 +94,7 @@ test_classify_f64 :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_trunc_f16 :: proc(t: ^testing.T) {
 	r, v: f16
 
@@ -103,7 +103,7 @@ test_trunc_f16 :: proc(t: ^testing.T) {
 		v: f16,
 		e: f16,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 10.5, 10 }, // Issue #1574 fract in linalg/glm is broken
 		{ 1, -10.5, -10 },
 
@@ -147,7 +147,7 @@ test_trunc_f16 :: proc(t: ^testing.T) {
 	testing.expectf(t, math.is_nan_f16(r), "%f != NaN", v, r)
 }
 
-@test
+@(test)
 test_trunc_f32 :: proc(t: ^testing.T) {
 	r, v: f32
 
@@ -156,7 +156,7 @@ test_trunc_f32 :: proc(t: ^testing.T) {
 		v: f32,
 		e: f32,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 10.5, 10 }, // Issue #1574 fract in linalg/glm is broken
 		{ 1, -10.5, -10 },
 
@@ -209,7 +209,7 @@ test_trunc_f32 :: proc(t: ^testing.T) {
 	testing.expectf(t, math.is_nan_f32(r), "%f -> %f != NaN", v, r)
 }
 
-@test
+@(test)
 test_trunc_f64 :: proc(t: ^testing.T) {
 	r, v: f64
 
@@ -271,7 +271,7 @@ test_trunc_f64 :: proc(t: ^testing.T) {
 	testing.expectf(t, math.is_nan_f64(r), "%f -> %f != NaN", v, r)
 }
 
-@test
+@(test)
 test_round_f16 :: proc(t: ^testing.T) {
 	r, v: f16
 
@@ -280,7 +280,7 @@ test_round_f16 :: proc(t: ^testing.T) {
 		v: f16,
 		e: f16,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 10.5, 11 },
 		{ 1, -10.5, -11 },
 
@@ -324,7 +324,7 @@ test_round_f16 :: proc(t: ^testing.T) {
 	testing.expectf(t, math.is_nan_f16(r), "%f -> %f != NaN", v, r)
 }
 
-@test
+@(test)
 test_round_f32 :: proc(t: ^testing.T) {
 	r, v: f32
 
@@ -333,7 +333,7 @@ test_round_f32 :: proc(t: ^testing.T) {
 		v: f32,
 		e: f32,
 	}
-	@static data := []Datum{
+	@(static) data := []Datum{
 		{ 0, 10.5, 11 },
 		{ 1, -10.5, -11 },
 
@@ -386,7 +386,7 @@ test_round_f32 :: proc(t: ^testing.T) {
 	testing.expectf(t, math.is_nan_f32(r), "%f -> %f != NaN", v, r)
 }
 
-@test
+@(test)
 test_round_f64 :: proc(t: ^testing.T) {
 	r, v: f64
 
@@ -1018,21 +1018,21 @@ alike :: proc(t: ^testing.T, a, b: f64, loc := #caller_location) -> bool {
 	return ok
 }
 
-@test
+@(test)
 test_nan32 :: proc(t: ^testing.T) {
 	float32 := f32(NaN)
 	equal := float32 == float32
 	testing.expectf(t, !equal, "float32(NaN) is %.15g, expected NaN", float32)
 }
 
-@test
+@(test)
 test_nan64 :: proc(t: ^testing.T) {
 	float64 := NaN
 	equal := float64 == float64
 	testing.expectf(t, !equal, "NaN returns %.15g, expected NaN", float64)
 }
 
-@test
+@(test)
 test_acos :: proc(t: ^testing.T) {
 	for _, i in vf {
 		a := vf[i] / 10
@@ -1045,7 +1045,7 @@ test_acos :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_acosh :: proc(t: ^testing.T) {
 	for _, i in vf {
 		a := 1 + abs(vf[i])
@@ -1058,7 +1058,7 @@ test_acosh :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_asin :: proc(t: ^testing.T) {
 	for _, i in vf {
 		a := vf[i] / 10
@@ -1071,7 +1071,7 @@ test_asin :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_asinh :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.asinh(vf[i])
@@ -1083,7 +1083,7 @@ test_asinh :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_atan :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.atan(vf[i])
@@ -1095,7 +1095,7 @@ test_atan :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_atanh :: proc(t: ^testing.T) {
 	for _, i in vf {
 		a := vf[i] / 10
@@ -1108,7 +1108,7 @@ test_atanh :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_atan2 :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.atan2(10, vf[i])
@@ -1120,7 +1120,7 @@ test_atan2 :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_cos :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.cos(vf[i])
@@ -1132,7 +1132,7 @@ test_cos :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_cosh :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.cosh(vf[i])
@@ -1144,7 +1144,7 @@ test_cosh :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_sin :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.sin(vf[i])
@@ -1156,7 +1156,7 @@ test_sin :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_sinh :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.sinh(vf[i])
@@ -1168,7 +1168,7 @@ test_sinh :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_sqrt :: proc(t: ^testing.T) {
 	for _, i in vf {
 		a := abs(vf[i])
@@ -1177,7 +1177,7 @@ test_sqrt :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_tan :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.tan(vf[i])
@@ -1190,7 +1190,7 @@ test_tan :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_tanh :: proc(t: ^testing.T) {
 	for _, i in vf {
 		f := math.tanh(vf[i])
@@ -1202,7 +1202,7 @@ test_tanh :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_large_cos :: proc(t: ^testing.T) {
 	large := f64(1e5 * Pi)
 	for _, i in vf {
@@ -1212,7 +1212,7 @@ test_large_cos :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_large_sin :: proc(t: ^testing.T) {
 	large := f64(1e5 * Pi)
 	for _, i in vf {
@@ -1222,7 +1222,7 @@ test_large_sin :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_large_tan :: proc(t: ^testing.T) {
 	large := f64(1e5 * Pi)
 	for _, i in vf {
@@ -1232,7 +1232,7 @@ test_large_tan :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_count_digits :: proc(t: ^testing.T) {
 	_run_test :: proc(t: ^testing.T, $base: int) {
 		buf: [64]u8
@@ -1265,13 +1265,13 @@ test_count_digits :: proc(t: ^testing.T) {
 	_run_test(t, 16)
 }
 
-@test
+@(test)
 test_nextafter :: proc(t: ^testing.T) {
 	Datum :: struct($F: typeid) {
 		x, y, r: F,
 	}
 
-	@static f16_data := [?]Datum(f16) {
+	@(static) f16_data := [?]Datum(f16) {
 		{0h3c00, 0h7c42, 0h7e00}, // +1 -> +NaN = +canonical NaN
 		{0h3c00, 0hfc42, 0h7e00}, // +1 -> -NaN = +canonical NaN
 		{0hbc00, 0h7c42, 0h7e00}, // -1 -> +NaN = +canonical NaN

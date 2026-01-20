@@ -230,7 +230,7 @@ concatenate_safe :: proc(a: [][]byte, allocator: mem.Allocator) -> (data: []byte
 }
 
 
-@private
+@(private)
 _split :: proc(s, sep: []byte, sep_save, n: int, allocator: mem.Allocator) -> [][]byte {
 	s, n := s, n
 
@@ -296,7 +296,7 @@ split_after_n :: proc(s, sep: []byte, n: int, allocator: mem.Allocator) -> [][]b
 
 
 
-@private
+@(private)
 _split_iterator :: proc(s: ^[]byte, sep: []byte, sep_save: int) -> (res: []byte, ok: bool) {
 	if len(sep) == 0 {
 		res = s[:]
@@ -599,7 +599,7 @@ last_index_byte :: proc(s: []byte, c: byte) -> int #no_bounds_check {
 }
 
 
-@private PRIME_RABIN_KARP :: 16777619
+@(private) PRIME_RABIN_KARP :: 16777619
 
 index :: proc(s, substr: []byte) -> int {
 	hash_str_rabin_karp :: proc(s: []byte) -> (hash: u32 = 0, pow: u32 = 1) {
@@ -1348,7 +1348,7 @@ right_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.Allo
 
 
 
-@private
+@(private)
 write_pad_string :: proc(b: ^Buffer, pad: []byte, pad_len, remains: int) {
 	repeats := remains / pad_len
 

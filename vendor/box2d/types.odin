@@ -39,13 +39,13 @@ FinishTaskCallback :: #type proc "c" (userTask: rawptr, userContext: rawptr)
 
 // Optional friction mixing callback. This intentionally provides no context objects because this is called
 // from a worker thread.
-// @warning This function should not attempt to modify Box2D state or user application state.
+// This function should not attempt to modify Box2D state or user application state.
 // @ingroup world
 FrictionCallback :: #type proc "c" (frictionA: f32, userMaterialIdA: i32, frictionB: f32, userMaterialIdB: i32) -> f32
 
 // Optional restitution mixing callback. This intentionally provides no context objects because this is called
 // from a worker thread.
-// @warning This function should not attempt to modify Box2D state or user application state.
+// This function should not attempt to modify Box2D state or user application state.
 // @ingroup world
 RestitutionCallback :: #type proc "c" (restitutionA: f32, userMaterialIdA: i32, restitutionB: f32, userMaterialIdB: i32) -> f32
 
@@ -108,7 +108,7 @@ WorldDef :: struct {
 	// little benefit and may even harm performance.
 	// @note Box2D does not create threads. This is the number of threads your applications has created
 	// that you are allocating to b2World_Step.
-	// @warning Do not modify the default value unless you are also providing a task system and providing
+	// Do not modify the default value unless you are also providing a task system and providing
 	// task callbacks (enqueueTask and finishTask).
 	workerCount: i32,
 
@@ -208,7 +208,7 @@ BodyDef :: struct {
 
 	// Treat this body as high speed object that performs continuous collision detection
 	// against dynamic and kinematic bodies, but not other bullet bodies.
-	//	@warning Bullets should be used sparingly. They are not a solution for general dynamic-versus-dynamic
+	//	Bullets should be used sparingly. They are not a solution for general dynamic-versus-dynamic
 	//	continuous collision. They may interfere with joint constraints.
 	isBullet: bool,
 
@@ -387,7 +387,7 @@ ShapeDef :: struct {
 //	- a chain shape creates multiple line segment shapes on the body
 // https://en.wikipedia.org/wiki/Polygonal_chain
 // Must be initialized using b2DefaultChainDef().
-//	@warning Do not use chain shapes unless you understand the limitations. This is an advanced feature.
+//	Do not use chain shapes unless you understand the limitations. This is an advanced feature.
 // @ingroup shape
 ChainDef :: struct {
 	// Use this to store application specific shape data.
@@ -930,12 +930,12 @@ SensorBeginTouchEvent :: struct {
 // Therefore you should always confirm the shape id is valid using b2Shape_IsValid.
 SensorEndTouchEvent :: struct {
 	// The id of the sensor shape
-	// @warning this shape may have been destroyed
+	// this shape may have been destroyed
 	// @see b2Shape_IsValid
 	sensorShapeId: ShapeId,
 
 	// The id of the dynamic shape that stopped touching the sensor shape
-	// @warning this shape may have been destroyed
+	// this shape may have been destroyed
 	// @see b2Shape_IsValid
 	visitorShapeId: ShapeId,
 }
@@ -976,12 +976,12 @@ ContactBeginTouchEvent :: struct {
 // or shape, or changing a filter or body type.
 ContactEndTouchEvent :: struct {
 	// Id of the first shape
-	// @warning this shape may have been destroyed
+	// this shape may have been destroyed
 	// @see b2Shape_IsValid
 	shapeIdA: ShapeId,
 
 	// Id of the second shape
-	// @warning this shape may have been destroyed
+	// this shape may have been destroyed
 	// @see b2Shape_IsValid
 	shapeIdB: ShapeId,
 }
@@ -1079,7 +1079,7 @@ ContactData :: struct {
 //	- this is only called if one of the two shapes has enabled custom filtering
 // - this is called only for awake dynamic bodies
 //	Return false if you want to disable the collision
-//	@warning Do not attempt to modify the world inside this callback
+//	Do not attempt to modify the world inside this callback
 //	@ingroup world
 CustomFilterFcn :: #type proc "c" (shapeIdA, shapeIdB: ShapeId, ctx: rawptr) -> bool
 
@@ -1094,14 +1094,14 @@ CustomFilterFcn :: #type proc "c" (shapeIdA, shapeIdB: ShapeId, ctx: rawptr) -> 
 // - this is not called for sensors
 // - the supplied manifold has impulse values from the previous step
 //	Return false if you want to disable the contact this step
-//	@warning Do not attempt to modify the world inside this callback
+//	Do not attempt to modify the world inside this callback
 //	@ingroup world
 PreSolveFcn :: #type proc "c" (shapeIdA, shapeIdB: ShapeId, manifold: ^Manifold, ctx: rawptr) -> bool
 
 // Prototype callback for overlap queries.
 // Called for each shape found in the query.
 // @see b2World_QueryAABB
-// @return false to terminate the query.
+// false to terminate the query.
 //	@ingroup world
 OverlapResultFcn :: #type proc "c" (shapeId: ShapeId, ctx: rawptr) -> bool
 
@@ -1113,12 +1113,12 @@ OverlapResultFcn :: #type proc "c" (shapeId: ShapeId, ctx: rawptr) -> bool
 // return fraction: clip the ray to this point
 // return 1: don't clip the ray and continue
 // A cast with initial overlap will return a zero fraction and a zero normal.
-// @param shapeId the shape hit by the ray
-// @param point the point of initial intersection
-// @param normal the normal vector at the point of intersection, zero for a shape cast with initial overlap
-// @param fraction the fraction along the ray at the point of intersection, zero for a shape cast with initial overlap
-//	@param context the user context
-// @return -1 to filter, 0 to terminate, fraction to clip the ray for closest hit, 1 to continue
+// shapeId the shape hit by the ray
+// point the point of initial intersection
+// normal the normal vector at the point of intersection, zero for a shape cast with initial overlap
+// fraction the fraction along the ray at the point of intersection, zero for a shape cast with initial overlap
+//	context the user context
+// -1 to filter, 0 to terminate, fraction to clip the ray for closest hit, 1 to continue
 // @see b2World_CastRay
 //	@ingroup world
 CastResultFcn :: #type proc "c" (shapeId: ShapeId, point: Vec2, normal: Vec2, fraction: f32, ctx: rawptr) -> f32

@@ -18,7 +18,7 @@ SAMPLE_JSON :: `
 }
 `
 
-@test
+@(test)
 test_issue_2694 :: proc(t: ^testing.T) {
 	into: struct {
 		foo: int,

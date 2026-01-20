@@ -1029,7 +1029,7 @@ is_power_of_two :: proc{
 }
 
 
-@private
+@(private)
 len_u8_table := [256]u8{
 	0         = 0,
 	1         = 1,

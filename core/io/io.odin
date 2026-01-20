@@ -210,7 +210,7 @@ size :: proc(s: Stream) -> (n: i64, err: Error) {
 			n = 0
 			curr := seek(s, 0, .Current) or_return
 			end  := seek(s, 0, .End)     or_return
-			_ = seek(s, curr, .Start)     or_return
+			_ = seek(s, curr, .Start)    or_return
 			n = end
 		}
 	} else {

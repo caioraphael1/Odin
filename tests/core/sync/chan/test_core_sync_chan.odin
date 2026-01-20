@@ -99,7 +99,7 @@ send_messages :: proc(t: ^testing.T, host: chan.Chan(Message), manual_buffering:
 	return
 }
 
-@test
+@(test)
 test_chan_buffered :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -154,7 +154,7 @@ test_chan_buffered :: proc(t: ^testing.T) {
 	thread.join(reckoner)
 }
 
-@test
+@(test)
 test_chan_unbuffered :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -214,7 +214,7 @@ test_chan_unbuffered :: proc(t: ^testing.T) {
 	thread.join(reckoner)
 }
 
-@test
+@(test)
 test_full_buffered_closed_chan_deadlock :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -230,7 +230,7 @@ test_full_buffered_closed_chan_deadlock :: proc(t: ^testing.T) {
 
 // Ensures that if a thread is doing a blocking send and the channel
 // is closed, it will report false to indicate a failure to complete.
-@test
+@(test)
 test_fail_blocking_send_on_close :: proc(t: ^testing.T) {
 	ch, ch_alloc_err := chan.create(chan.Chan(int), context.allocator)
 	assert(ch_alloc_err == nil, "allocation failed")
@@ -251,7 +251,7 @@ test_fail_blocking_send_on_close :: proc(t: ^testing.T) {
 
 // Ensures that if a thread is doing a blocking read and the channel
 // is closed, it will report false to indicate a failure to complete.
-@test
+@(test)
 test_fail_blocking_recv_on_close :: proc(t: ^testing.T) {
 	ch, ch_alloc_err := chan.create(chan.Chan(int), context.allocator)
 	assert(ch_alloc_err == nil, "allocation failed")
@@ -275,7 +275,7 @@ test_fail_blocking_recv_on_close :: proc(t: ^testing.T) {
 // Ensures that try_send for unbuffered channels works as expected.
 // If 1 reader of a channel, and 3 try_senders, only one of the senders
 // will succeed and none of them will block.
-@test
+@(test)
 test_unbuffered_try_send_chan_contention :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -423,7 +423,7 @@ test_unbuffered_try_send_chan_contention :: proc(t: ^testing.T) {
 // This test guarantees a buffered channel's messages can still be received
 // even after closing. This is currently how the API works. If that changes,
 // this test will need to change.
-@test
+@(test)
 test_accept_message_from_closed_buffered_chan :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, FAIL_TIME)
 
@@ -445,7 +445,7 @@ test_accept_message_from_closed_buffered_chan :: proc(t: ^testing.T) {
 
 // Ensures that if any input channel is eligible to receive or send, the try_select_raw
 // operation will process it.
-@test
+@(test)
 test_try_select_raw_happy :: proc(t: ^testing.T) {
 	sync.guard(&test_lock)
 	testing.set_fail_timeout(t, FAIL_TIME)
@@ -517,7 +517,7 @@ test_try_select_raw_happy :: proc(t: ^testing.T) {
 
 // Ensures that if no input channels are eligible to receive or send, the
 // try_select_raw operation does not block.
-@test
+@(test)
 test_try_select_raw_default_state :: proc(t: ^testing.T) {
 	sync.guard(&test_lock)
 	testing.set_fail_timeout(t, FAIL_TIME)
@@ -544,7 +544,7 @@ test_try_select_raw_default_state :: proc(t: ^testing.T) {
 // Ensures that the operation will not block even if the input channels are
 // consumed by a competing thread; that is, a value is received from another
 // thread between calls to can_{send,recv} and try_{send,recv}_raw.
-@test
+@(test)
 test_try_select_raw_no_toctou :: proc(t: ^testing.T) {
 	sync.guard(&test_lock)
 	testing.set_fail_timeout(t, FAIL_TIME)
@@ -629,7 +629,7 @@ test_try_select_raw_no_toctou :: proc(t: ^testing.T) {
 //
 // We know if recv won by whether it sends us the original value on the results channel.
 // This test is non-deterministic.
-@test
+@(test)
 test_send_close_read :: proc(t: ^testing.T) {
 	trigger, trigger_err := chan.create(chan.Chan(int), context.allocator)
 	assert(trigger_err == nil, "allocation failed")

@@ -3,7 +3,7 @@ package test_core_math_fixed
 import "core:math/fixed"
 import "core:testing"
 
-@test
+@(test)
 test_fixed_4_4_unsigned :: proc(t: ^testing.T) {
 	I_SHIFT :: 4
 	F_MASK  :: 15
@@ -22,7 +22,7 @@ test_fixed_4_4_unsigned :: proc(t: ^testing.T) {
 	}
 }
 
-@test
+@(test)
 test_fixed_4_4_signed :: proc(t: ^testing.T) {
 	I_SHIFT :: 4
 	F_MASK  :: 15

@@ -17,7 +17,7 @@ lib :: lib_
 
 import "core:c"
 
-/** @brief Function pointer used to hold a malloc-like routine.
+/** Function pointer used to hold a malloc-like routine.
  *
  * Providing these to a context will override what memory is used to
  * allocate the context itself, as well as any allocations which
@@ -34,7 +34,7 @@ import "core:c"
  */
 memory_allocation_func_t :: proc "c" (bytes: c.size_t) -> rawptr
 
-/** @brief Function pointer used to hold a free-like routine.
+/** Function pointer used to hold a free-like routine.
  *
  * Providing these to a context will override what memory is used to
  * allocate the context itself, as well as any allocations which
@@ -52,13 +52,13 @@ memory_free_func_t :: proc "c" (ptr: rawptr)
 
 @(link_prefix="exr_", default_calling_convention="c")
 foreign lib {
-	/** @brief Retrieve the current library version. The @p extra string is for
+	/** Retrieve the current library version. The @p extra string is for
 	 * custom installs, and is a static string, do not free the returned
 	 * pointer.
 	 */
 	get_library_version :: proc(maj, min, patch: ^c.int, extra: ^cstring) ---
 
-	/** @brief Limit the size of image allowed to be parsed or created by
+	/** Limit the size of image allowed to be parsed or created by
 	 * the library.
 	 *
 	 * This is used as a safety check against corrupt files, but can also
@@ -90,13 +90,13 @@ foreign lib {
 	 */
 	set_default_maximum_image_size :: proc(w, h: c.int) ---
 
-	/** @brief Retrieve the global default maximum image size.
+	/** Retrieve the global default maximum image size.
 	 *
 	 * This function does not fail.
 	 */
 	get_default_maximum_image_size :: proc(w, h: ^c.int) ---
 
-	/** @brief Limit the size of an image tile allowed to be parsed or
+	/** Limit the size of an image tile allowed to be parsed or
 	 * created by the library.
 	 *
 	 * Similar to image size, this places constraints on the maximum tile
@@ -131,7 +131,7 @@ foreign lib {
 	 */
 	set_default_maximum_tile_size :: proc(w, h: c.int) ---
 
-	/** @brief Retrieve the global maximum tile size.
+	/** Retrieve the global maximum tile size.
 	 *
 	 * This function does not fail.
 	 */
@@ -144,29 +144,29 @@ foreign lib {
 	 * @{
 	 */
 
-	/** @brief Assigns a default zip compression level.
+	/** Assigns a default zip compression level.
 	 *
 	 * This value may be controlled separately on each part, but this
 	 * global control determines the initial value.
 	 */
 	set_default_zip_compression_level :: proc(l: c.int) ---
 
-	/** @brief Retrieve the global default zip compression value
+	/** Retrieve the global default zip compression value
 	 */
 	get_default_zip_compression_level :: proc(l: ^c.int) ---
 
-	/** @brief Assigns a default DWA compression quality level.
+	/** Assigns a default DWA compression quality level.
 	 *
 	 * This value may be controlled separately on each part, but this
 	 * global control determines the initial value.
 	 */
 	set_default_dwa_compression_quality :: proc(q: f32) ---
 
-	/** @brief Retrieve the global default dwa compression quality
+	/** Retrieve the global default dwa compression quality
 	 */
 	get_default_dwa_compression_quality :: proc(q: ^f32) ---
 
-	/** @brief Allow the user to override default allocator used internal
+	/** Allow the user to override default allocator used internal
 	 * allocations necessary for files, attributes, and other temporary
 	 * memory.
 	 *

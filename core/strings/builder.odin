@@ -33,7 +33,9 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_make_none :: proc(allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
-	return Builder{buf=make([dynamic]byte, allocator, loc) or_return }, nil
+	return Builder{ 
+        buf = make([dynamic]byte, allocator, loc) or_return
+    }, nil
 }
 /*
 Produces a Builder with specified length and capacity `len`.
@@ -48,7 +50,9 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_make_len :: proc(len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
-	return Builder{buf=make([dynamic]byte, len, allocator, loc) or_return }, nil
+	return Builder{ 
+        buf = make([dynamic]byte, len, allocator, loc) or_return
+    }, nil
 }
 /*
 Produces a Builder with specified length `len` and capacity `cap`.
@@ -65,7 +69,9 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_make_len_cap :: proc(len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
-	return Builder{buf=make([dynamic]byte, len, cap, allocator, loc) or_return }, nil
+	return Builder{ 
+        buf = make([dynamic]byte, len, cap, allocator, loc) or_return
+    }, nil
 }
 /*
 Produces a String Builder

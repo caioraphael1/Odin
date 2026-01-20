@@ -41,7 +41,7 @@ File_Impl :: struct {
 	p_mutex:  sync.Mutex, // pread pwrite calls
 }
 
-// @@init
+// @(init)
 init_std_files :: proc() {
 	new_std :: proc(impl: ^File_Impl, code: u32, name: string) -> ^File {
 		impl.file.impl = impl
@@ -689,7 +689,7 @@ _normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: st
 _read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, err: Error) {
 	MAXIMUM_REPARSE_DATA_BUFFER_SIZE :: 16 * 1024
 
-	@thread_local
+	@(thread_local)
 	rdb_buf: [MAXIMUM_REPARSE_DATA_BUFFER_SIZE]byte
 
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
