@@ -246,7 +246,7 @@ long_ext :: proc(path: string) -> string {
 	If the result of the path is an empty string, the returned path with be `"."`.
 
 */
-clean :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, err: runtime.Allocator_Error) #optional_allocator_error {
+clean :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, err: runtime.Allocator_Error) {
 	path := path
 	original_path := path
 	vol_len := volume_name_len(path)
@@ -453,7 +453,7 @@ dir :: proc(path: string, allocator: mem.Allocator) -> string {
 // An empty string returns nil. A non-empty string with no separators returns a 1-element array.
 // Any empty components will be included, e.g. `a::b` will return a 3-element array, as will `::`.
 // Separators within pairs of double-quotes will be ignored and stripped, e.g. `"a:b"c:d` will return []{`a:bc`, `d`}.
-split_list :: proc(path: string, allocator: mem.Allocator) -> (list: []string, err: runtime.Allocator_Error) #optional_allocator_error {
+split_list :: proc(path: string, allocator: mem.Allocator) -> (list: []string, err: runtime.Allocator_Error) {
 	if path == "" {
 		return nil, nil
 	}

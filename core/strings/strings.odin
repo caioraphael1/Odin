@@ -23,7 +23,7 @@ Returns:
 - res: The cloned string
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	c := make([]byte, len(s), allocator, loc) or_return
 	copy(c, s)
 	return string(c), nil
@@ -43,7 +43,7 @@ Returns:
 - res: A cloned cstring with an appended null-byte
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-clone_to_cstring :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) #optional_allocator_error {
+clone_to_cstring :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
 	c := make([]byte, len(s)+1, allocator, loc) or_return
 	copy(c, s)
 	c[len(s)] = 0
@@ -153,7 +153,7 @@ Returns:
 - res: The cloned string from the byte array with a null-byte
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-clone_from_bytes :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+clone_from_bytes :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	c := make([]byte, len(s)+1, allocator, loc) or_return
 	copy(c, s)
 	c[len(s)] = 0
@@ -174,7 +174,7 @@ Returns:
 - res: The cloned string from the cstring
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-clone_from_cstring :: proc(s: cstring, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+clone_from_cstring :: proc(s: cstring, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	return clone(string(s), allocator, loc)
 }
 
@@ -195,7 +195,7 @@ Returns:
 - res: The cloned string from the byte pointer and length
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-clone_from_ptr :: proc(ptr: ^byte, len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+clone_from_ptr :: proc(ptr: ^byte, len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	s := string_from_ptr(ptr, len)
 	return clone(s, allocator, loc)
 }
@@ -225,7 +225,7 @@ Returns:
 - res: The cloned string from the null-terminated cstring and byte length
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-clone_from_cstring_bounded :: proc(ptr: cstring, len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+clone_from_cstring_bounded :: proc(ptr: cstring, len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	s := string_from_ptr((^u8)(ptr), len)
 	s = truncate_to_byte(s, 0)
 	return clone(s, allocator, loc)
@@ -634,7 +634,7 @@ Output:
 	a...b...c
 
 */
-join :: proc(a: []string, sep: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+join :: proc(a: []string, sep: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	if len(a) == 0 {
 		return "", nil
 	}
@@ -681,7 +681,7 @@ Output:
 	abc
 
 */
-concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	if len(a) == 0 {
 		return "", nil
 	}
@@ -787,7 +787,7 @@ Output:
 	example
 
 */
-cut_clone :: proc(s: string, rune_offset := int(0), rune_length := int(0), allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+cut_clone :: proc(s: string, rune_offset := int(0), rune_length := int(0), allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	res = cut(s, rune_offset, rune_length)
 	return clone(res, allocator, loc)
 }
@@ -892,7 +892,7 @@ Output:
 	["aaa", "bbb", "ccc", "ddd", "eee"]
 
 */
-split :: proc(s, sep: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split :: proc(s, sep: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
 	return _split(s, sep, 0, -1, allocator, loc)
 }
 
@@ -929,7 +929,7 @@ Output:
 	["aaa", "bbb", "ccc.ddd.eee"]
 
 */
-split_n :: proc(s, sep: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split_n :: proc(s, sep: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
 	return _split(s, sep, 0, n, allocator)
 }
 
@@ -965,7 +965,7 @@ Output:
 	["aaa.", "bbb.", "ccc.", "ddd.", "eee"]
 
 */
-split_after :: proc(s, sep: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split_after :: proc(s, sep: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
 	return _split(s, sep, len(sep), -1, allocator)
 }
 
@@ -1002,7 +1002,7 @@ Output:
 	["aaa.", "bbb.", "ccc.ddd.eee"]
 
 */
-split_after_n :: proc(s, sep: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split_after_n :: proc(s, sep: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
 	return _split(s, sep, len(sep), n, allocator)
 }
 
@@ -1217,7 +1217,7 @@ Output:
 	["a", "b", "c", "d", "e"]
 
 */
-split_lines :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split_lines :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
 	sep :: "\n"
 	lines := _split(s, sep, 0, -1, allocator) or_return
 	for &line in lines {
@@ -1258,7 +1258,7 @@ Output:
 	["a", "b", "c\nd\ne"]
 
 */
-split_lines_n :: proc(s: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split_lines_n :: proc(s: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
 	sep :: "\n"
 	lines := _split(s, sep, 0, n, allocator) or_return
 	for &line in lines {
@@ -1298,7 +1298,7 @@ Output:
 	["a\n", "b\n", "c\n", "d\n", "e"]
 
 */
-split_lines_after :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split_lines_after :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
 	sep :: "\n"
 	lines := _split(s, sep, len(sep), -1, allocator) or_return
 	for &line in lines {
@@ -1340,7 +1340,7 @@ Output:
 	["a\n", "b\n", "c\nd\ne"]
 
 */
-split_lines_after_n :: proc(s: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error {
+split_lines_after_n :: proc(s: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
 	sep :: "\n"
 	lines := _split(s, sep, len(sep), n, allocator) or_return
 	for &line in lines {
@@ -1997,7 +1997,7 @@ Output:
 	abcabc
 
 */
-repeat :: proc(s: string, count: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+repeat :: proc(s: string, count: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	if count < 0 {
 		panic("strings: negative repeat count")
 	} else if count > 0 && (len(s)*count)/count != len(s) {
@@ -2695,7 +2695,7 @@ Output:
 	["testing", "this", "out", "nice", "done", "last"]
 
 */
-split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error #no_bounds_check {
+split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
 	if s == "" || len(substrs) <= 0 {
 		return nil, nil
 	}
@@ -2825,7 +2825,7 @@ Output:
 	Hello?
 
 */
-scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
 	str := s
 	b: Builder
 	builder_init(&b, 0, len(s), allocator) or_return
@@ -2886,7 +2886,7 @@ Output:
 	abcxyz zyxcba
 
 */
-reverse :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+reverse :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
 	str := s
 	n := len(str)
 	buf := make([]byte, n, allocator, loc) or_return
@@ -2932,7 +2932,7 @@ Output:
 	abc1    abc2    abc3
 
 */
-expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
 	if tab_size <= 0 {
 		panic("tab size must be positive")
 	}
@@ -3043,7 +3043,7 @@ Returns:
 - res: A new string centered within a field of the specified length
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-centre_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+centre_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
 	n := rune_count(str)
 	if n >= length || pad == "" {
 		return clone(str, allocator)
@@ -3079,7 +3079,7 @@ Returns:
 - res: A new string left-justified within a field of the specified length
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-left_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+left_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
 	n := rune_count(str)
 	if n >= length || pad == "" {
 		return clone(str, allocator)
@@ -3114,7 +3114,7 @@ Returns:
 - res: A new string right-justified within a field of the specified length
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-right_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) #optional_allocator_error {
+right_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
 	n := rune_count(str)
 	if n >= length || pad == "" {
 		return clone(str, allocator)
@@ -3174,7 +3174,7 @@ Returns:
 - res: A slice of substrings of the input string, or an empty slice if the input string only contains white space
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-fields :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error #no_bounds_check {
+fields :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
 	n := 0
 	was_space := 1
 	set_bits := u8(0)
@@ -3239,7 +3239,7 @@ Returns:
 - res: A slice of substrings of the input string, or an empty slice if all code points in the input string satisfy the predicate or if the input string is empty
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #optional_allocator_error #no_bounds_check {
+fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
 	substrings := make([dynamic]string, 0, 32, allocator, loc) or_return
 
 	start, end := -1, -1
@@ -3322,7 +3322,7 @@ Returns:
 
 NOTE: This implementation is a single-row-version of the Wagner–Fischer algorithm, based on C code by Martin Ettl.
 */
-levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #caller_location) -> (res: int, err: mem.Allocator_Error) #optional_allocator_error {
+levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #caller_location) -> (res: int, err: mem.Allocator_Error) {
 	LEVENSHTEIN_DEFAULT_COSTS: []int : {
 		0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
 		10,  11,  12,  13,  14,  15,  16,  17,  18,  19,

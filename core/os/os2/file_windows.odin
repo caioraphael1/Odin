@@ -201,8 +201,8 @@ _new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint, all
 	f, err = _new_file(handle, name, allocator)
 	if f != nil && err == nil {
 		impl := (^File_Impl)(f.impl)
-		impl.r_buf = make([]byte, buffer_size, allocator)
-		impl.w_buf = make([]byte, buffer_size, allocator)
+		impl.r_buf, _ = make([]byte, buffer_size, allocator)
+		impl.w_buf, _ = make([]byte, buffer_size, allocator)
 	}
 	return
 }
@@ -668,7 +668,7 @@ _normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: st
 
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-	buf := make([]u16, n+1, runtime.temp_allocator)
+	buf, _ := make([]u16, n+1, runtime.temp_allocator)
 	n = win32.GetFinalPathNameByHandleW(handle, cstring16(raw_data(buf)), u32(len(buf)), win32.VOLUME_NAME_DOS)
 	if n == 0 {
 		return "", _get_platform_error()

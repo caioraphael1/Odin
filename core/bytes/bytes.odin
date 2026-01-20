@@ -35,7 +35,7 @@ SCANNER_SENTINEL_MIN_128: simd.u8x16 : u8(0xff)
 SIMD_REG_SIZE_128 :: 16
 
 clone :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
-	c := make([]byte, len(s), allocator, loc)
+	c, _ := make([]byte, len(s), allocator, loc)
 	copy(c, s)
 	return c[:len(s)]
 }
@@ -167,7 +167,7 @@ join :: proc(a: [][]byte, sep: []byte, allocator: mem.Allocator) -> []byte {
 		n += len(s)
 	}
 
-	b := make([]byte, n, allocator)
+	b, _ := make([]byte, n, allocator)
 	i := copy(b, a[0])
 	for s in a[1:] {
 		i += copy(b[i:], sep)
@@ -204,7 +204,7 @@ concatenate :: proc(a: [][]byte, allocator: mem.Allocator) -> []byte {
 	for s in a {
 		n += len(s)
 	}
-	b := make([]byte, n, allocator)
+	b, _ := make([]byte, n, allocator)
 	i := 0
 	for s in a {
 		i += copy(b[i:], s)
@@ -244,7 +244,7 @@ _split :: proc(s, sep: []byte, sep_save, n: int, allocator: mem.Allocator) -> []
 			n = l
 		}
 
-		res := make([dynamic][]byte, n, allocator)
+		res, _ := make([dynamic][]byte, n, allocator)
 		for i := 0; i < n-1; i += 1 {
 			_, w := utf8.decode_rune(s)
 			res[i] = s[:w]
@@ -260,7 +260,7 @@ _split :: proc(s, sep: []byte, sep_save, n: int, allocator: mem.Allocator) -> []
 		n = count(s, sep) + 1
 	}
 
-	res := make([dynamic][]byte, n, allocator)
+	res, _ := make([dynamic][]byte, n, allocator)
 
 	n -= 1
 
@@ -775,7 +775,7 @@ repeat :: proc(s: []byte, count: int, allocator: mem.Allocator) -> []byte {
 		panic("bytes: repeat count will cause an overflow")
 	}
 
-	b := make([]byte, len(s)*count, allocator)
+	b, _ := make([]byte, len(s)*count, allocator)
 	i := copy(b, s)
 	for i < len(b) { // 2^N trick to reduce the need to copy
 		copy(b[i:], b[:i])
@@ -805,7 +805,7 @@ replace :: proc(s, old, new: []byte, n: int, allocator: mem.Allocator) -> (outpu
 	}
 
 
-	t := make([]byte, len(s) + byte_count*(len(new) - len(old)), allocator)
+	t, _ := make([]byte, len(s) + byte_count*(len(new) - len(old)), allocator)
 	was_allocation = true
 
 	w := 0
@@ -1094,7 +1094,7 @@ split_multi :: proc(s: []byte, substrs: [][]byte, skip_empty := false, allocator
 		return nil
 	}
 
-	buf := make([][]byte, n, allocator)
+	buf, _ := make([][]byte, n, allocator)
 
 	n, i, l = 0, 0, 0
 
@@ -1217,7 +1217,7 @@ scrub :: proc(s: []byte, replacement: []byte, allocator: mem.Allocator) -> []byt
 reverse :: proc(s: []byte, allocator: mem.Allocator) -> []byte {
 	str := s
 	n := len(str)
-	buf := make([]byte, n, allocator)
+	buf, _ := make([]byte, n, allocator)
 	i := n
 
 	for len(str) > 0 {
@@ -1391,7 +1391,7 @@ fields :: proc(s: []byte, allocator: mem.Allocator) -> [][]byte #no_bounds_check
 		return nil
 	}
 
-	a := make([][]byte, n, allocator)
+	a, _ := make([][]byte, n, allocator)
 	na := 0
 	field_start := 0
 	i := 0
@@ -1426,7 +1426,7 @@ fields :: proc(s: []byte, allocator: mem.Allocator) -> [][]byte #no_bounds_check
 // fields_proc makes no guarantee about the order in which it calls f(ch)
 // it assumes that `f` always returns the same value for a given ch
 fields_proc :: proc(s: []byte, f: proc(rune) -> bool, allocator: mem.Allocator) -> [][]byte #no_bounds_check {
-	subslices := make([dynamic][]byte, 0, 32, allocator)
+	subslices, _ := make([dynamic][]byte, 0, 32, allocator)
 
 	start, end := -1, -1
 	for r, offset in string(s) {

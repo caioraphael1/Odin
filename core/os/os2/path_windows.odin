@@ -221,7 +221,7 @@ _fix_long_path_internal :: proc(path: string) -> string {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
 	PREFIX :: `\\?`
-	path_buf := make([]byte, len(PREFIX)+len(path)+1, runtime.temp_allocator)
+	path_buf, _ := make([]byte, len(PREFIX)+len(path)+1, runtime.temp_allocator)
 	copy(path_buf, PREFIX)
 	n := len(path)
 	r, w := 0, len(PREFIX)

@@ -1936,7 +1936,7 @@ unquote_string :: proc(lit: string, allocator: runtime.Allocator) -> (res: strin
 	}
 
 	buf_len := 3*len(s) / 2
-	buf := make([]byte, buf_len, allocator)
+	buf, _ := make([]byte, buf_len, allocator)
 	offset := 0
 	for len(s) > 0 {
 		r, multiple_bytes, tail_string, ok := unquote_char(s, byte(quote))

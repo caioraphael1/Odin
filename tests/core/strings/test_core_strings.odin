@@ -125,7 +125,7 @@ to_upper_space_case :: proc(r: string, allocator: runtime.Allocator) -> (string,
 	return strings.to_delimiter_case(r, ' ', true, allocator)
 }
 
-// NOTE: we have these wrappers as having #optional_allocator_error changes the type to not be equivalent
+// NOTE: we have these wrappers as having changes the type to not be equivalent
 to_snake_case :: proc(r: string, allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) { return strings.to_snake_case(r, allocator) }
 to_upper_snake_case :: proc(r: string, allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) { return strings.to_upper_snake_case(r, allocator) }
 to_kebab_case :: proc(r: string, allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) { return strings.to_kebab_case(r, allocator) }

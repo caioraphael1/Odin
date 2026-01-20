@@ -76,14 +76,14 @@ pool_thread_runner :: proc(t: ^Thread) {
 pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 	pool.allocator = allocator
 	queue.init(&pool.tasks, allocator = allocator)
-	pool.tasks_done = make([dynamic]Task, allocator)
-	pool.threads    = make([]^Thread, max(thread_count, 1), allocator)
+	pool.tasks_done, _ = make([dynamic]Task, allocator)
+	pool.threads, _    = make([]^Thread, max(thread_count, 1), allocator)
 
 	pool.is_running = true
 
 	for _, i in pool.threads {
 		t := create(pool_thread_runner, allocator = allocator)
-		data := new(Pool_Thread_Data, allocator)
+		data, _ := new(Pool_Thread_Data, allocator)
 		data.pool = pool
 		t.user_index = i
 		t.data = data

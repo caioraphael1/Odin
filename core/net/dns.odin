@@ -369,7 +369,7 @@ load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> 
 	id_str := "nameserver"
 	id_len := len(id_str)
 
-	_name_servers := make([dynamic]Endpoint, 0, allocator)
+	_name_servers, _ := make([dynamic]Endpoint, 0, allocator)
 	for line in strings.split_lines_iterator(&resolv_str) {
 		if len(line) == 0 || line[0] == '#' {
 			continue
@@ -403,14 +403,14 @@ load_hosts :: proc(hosts_file_path: string, allocator: mem.Allocator) -> (hosts:
 	res := os.read_entire_file(hosts_file_path, allocator) or_return
 	defer delete(res, allocator)
 
-	_hosts := make([dynamic]DNS_Host_Entry, 0, allocator)
+	_hosts, _ := make([dynamic]DNS_Host_Entry, 0, allocator)
 	hosts_str := string(res)
 	for line in strings.split_lines_iterator(&hosts_str) {
 		if len(line) == 0 || line[0] == '#' {
 			continue
 		}
 
-		splits := strings.fields(line, allocator)
+		splits, _ := strings.fields(line, allocator)
 		defer delete(splits, allocator)
 
 		(len(splits) >= 2) or_continue
@@ -582,7 +582,8 @@ decode_hostname :: proc(packet: []u8, start_idx: int, allocator: mem.Allocator) 
 		return
 	}
 
-	return strings.clone(strings.to_string(b), allocator), out_size, true
+    b_clone, _ := strings.clone(strings.to_string(b), allocator)
+	return b_clone, out_size, true
 }
 
 // Uses RFC 952 & RFC 1123
@@ -647,10 +648,12 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 			}
 
 			addr := (^IP4_Address)(raw_data(data))^
+            
+            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
 
 			_record = DNS_Record_IP4{
 				base = DNS_Record_Base{
-					record_name = strings.clone(srv_record_name, allocator),
+					record_name = srv_record_name_clone,
 					ttl_seconds = u32(record_hdr.ttl),
 				},
 				address = addr,
@@ -663,9 +666,11 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 
 			addr := (^IP6_Address)(raw_data(data))^
 
+            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+
 			_record = DNS_Record_IP6{
 				base = DNS_Record_Base{
-					record_name = strings.clone(srv_record_name, allocator),
+					record_name = srv_record_name_clone,
 					ttl_seconds = u32(record_hdr.ttl),
 				},
 				address = addr,
@@ -674,29 +679,36 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 		case .CNAME:
 			hostname, _ := decode_hostname(packet, data_off, allocator) or_return
 
+            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+
 			_record = DNS_Record_CNAME{
 				base = DNS_Record_Base{
-					record_name = strings.clone(srv_record_name, allocator),
+					record_name = srv_record_name_clone,
 					ttl_seconds = u32(record_hdr.ttl),
 				},
 				host_name = hostname,
 			}
 
 		case .TXT:
+            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+
+            data_clone, _ := strings.clone(string(data), allocator)
+
 			_record = DNS_Record_TXT{
 				base = DNS_Record_Base{
-					record_name = strings.clone(srv_record_name, allocator),
+					record_name = srv_record_name_clone,
 					ttl_seconds = u32(record_hdr.ttl),
 				},
-				value = strings.clone(string(data), allocator),
+				value = data_clone,
 			}
 
 		case .NS:
 			name, _ := decode_hostname(packet, data_off, allocator) or_return
+            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
 
 			_record = DNS_Record_NS{
 				base = DNS_Record_Base{
-					record_name = strings.clone(srv_record_name, allocator),
+					record_name = srv_record_name_clone,
 					ttl_seconds = u32(record_hdr.ttl),
 				},
 				host_name = name,
@@ -720,15 +732,17 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 			// NOTE(Jeroen): Service Name and Protocol Name can probably just be string slices into the record name.
 			// It's already cloned, after all. I wouldn't put them on the temp allocator like this.
 
-			parts := strings.split_n(srv_record_name, ".", 3, runtime.temp_allocator)
+			parts, _ := strings.split_n(srv_record_name, ".", 3, runtime.temp_allocator)
 			if len(parts) != 3 {
 				return
 			}
 			service_name, protocol_name := parts[0], parts[1]
 
+            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+
 			_record = DNS_Record_SRV{
 				base = DNS_Record_Base{
-					record_name = strings.clone(srv_record_name, allocator),
+					record_name = srv_record_name_clone,
 					ttl_seconds = u32(record_hdr.ttl),
 				},
 				target        = target,
@@ -747,9 +761,11 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 			preference: u16be = mem.slice_data_cast([]u16be, data)[0]
 			hostname, _ := decode_hostname(packet, data_off + size_of(u16be), allocator) or_return
 
+            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+
 			_record = DNS_Record_MX{
 				base = DNS_Record_Base{
-					record_name = strings.clone(srv_record_name, allocator),
+					record_name = srv_record_name_clone,
 					ttl_seconds = u32(record_hdr.ttl),
 				},
 				host_name  = hostname,
@@ -793,7 +809,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 		return
 	}
 
-	_records := make([dynamic]DNS_Record, 0, allocator)
+	_records, _ := make([dynamic]DNS_Record, 0, allocator)
 
 	dns_hdr_chunks := mem.slice_data_cast([]u16be, response[:HEADER_SIZE_BYTES])
 	hdr := unpack_dns_header(dns_hdr_chunks[0], dns_hdr_chunks[1])

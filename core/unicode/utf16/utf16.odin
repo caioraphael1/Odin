@@ -131,7 +131,7 @@ decode_rune_in_string :: proc(s: string16) -> (r: rune, width: int) {
 string_to_runes :: proc "odin" (s: string16, allocator: runtime.Allocator) -> (runes: []rune) {
 	n := rune_count(s)
 
-	runes = make([]rune, n, allocator)
+	runes, _ = make([]rune, n, allocator)
 	i := 0
 	for r in s {
 		runes[i] = r

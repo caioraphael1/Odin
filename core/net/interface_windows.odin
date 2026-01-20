@@ -47,7 +47,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 		switch res {
 		case 111: // ERROR_BUFFER_OVERFLOW:
 			delete(buf, allocator)
-			buf = make([]u8, buf_size, allocator)
+			buf, _ = make([]u8, buf_size, allocator)
 		case 0:
 			break gaa
 		case:
@@ -60,7 +60,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 		return {}, .Unable_To_Enumerate_Network_Interfaces
 	}
 
-	_interfaces := make([dynamic]Network_Interface, 0, allocator)
+	_interfaces, _ := make([dynamic]Network_Interface, 0, allocator)
 	for adapter := (^sys.IP_Adapter_Addresses)(raw_data(buf)); adapter != nil; adapter = adapter.Next {
 		friendly_name, err1 := sys.wstring_to_utf8(sys.wstring(adapter.FriendlyName), 256, allocator)
 		if err1 != nil { return {}, .Allocation_Failure }
@@ -71,8 +71,10 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 		dns_suffix, err3  :=  sys.wstring_to_utf8(sys.wstring(adapter.DnsSuffix), 256, allocator)
 		if err3 != nil { return {}, .Allocation_Failure }
 
+        adapter_name_clone, _ := strings.clone(string(adapter.AdapterName), allocator)
+
 		interface := Network_Interface{
-			adapter_name  = strings.clone(string(adapter.AdapterName), allocator),
+			adapter_name  = adapter_name_clone,
 			friendly_name = friendly_name,
 			description   = description,
 			dns_suffix    = dns_suffix,

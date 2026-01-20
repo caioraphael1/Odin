@@ -76,7 +76,7 @@ raw_soa_footer :: proc{
 
 
 @(builtin, require_results)
-make_soa_aligned :: proc($T: typeid/#soa[]$E, #any_int length, alignment: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) #optional_allocator_error {
+make_soa_aligned :: proc($T: typeid/#soa[]$E, #any_int length, alignment: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) {
 	if length <= 0 {
 		return
 	}
@@ -131,26 +131,26 @@ make_soa_aligned :: proc($T: typeid/#soa[]$E, #any_int length, alignment: int, a
 }
 
 @(builtin, require_results)
-make_soa_slice :: proc($T: typeid/#soa[]$E, #any_int length: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) #optional_allocator_error {
+make_soa_slice :: proc($T: typeid/#soa[]$E, #any_int length: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) {
 	return make_soa_aligned(T, length, align_of(E), allocator, loc)
 }
 
 @(builtin, require_results)
-make_soa_dynamic_array :: proc($T: typeid/#soa[dynamic]$E, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) #optional_allocator_error {
+make_soa_dynamic_array :: proc($T: typeid/#soa[dynamic]$E, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) {
 	array.allocator = allocator
 	reserve_soa(&array, 0, loc) or_return
 	return array, nil
 }
 
 @(builtin, require_results)
-make_soa_dynamic_array_len :: proc($T: typeid/#soa[dynamic]$E, #any_int length: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) #optional_allocator_error {
+make_soa_dynamic_array_len :: proc($T: typeid/#soa[dynamic]$E, #any_int length: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) {
 	array.allocator = allocator
 	resize_soa(&array, length, loc) or_return
 	return array, nil
 }
 
 @(builtin, require_results)
-make_soa_dynamic_array_len_cap :: proc($T: typeid/#soa[dynamic]$E, #any_int length, capacity: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) #optional_allocator_error {
+make_soa_dynamic_array_len_cap :: proc($T: typeid/#soa[dynamic]$E, #any_int length, capacity: int, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) {
 	reserve_soa(&array, capacity, loc) or_return
 	resize_soa(&array, length, loc) or_return
 	return array, nil
@@ -362,16 +362,16 @@ _reserve_soa :: proc(array: ^$T/#soa[dynamic]$E, capacity: int, zero_memory: boo
 
 
 @builtin
-append_soa_elem :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast arg: E, loc := #caller_location) -> (n: int, err: Allocator_Error) #optional_allocator_error {
+append_soa_elem :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast arg: E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	return _append_soa_elem(array, true, arg, loc)
 }
 
 @builtin
-non_zero_append_soa_elem :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast arg: E, loc := #caller_location) -> (n: int, err: Allocator_Error) #optional_allocator_error {
+non_zero_append_soa_elem :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast arg: E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	return _append_soa_elem(array, false, arg, loc)
 }
 
-_append_soa_elem :: proc(array: ^$T/#soa[dynamic]$E, zero_memory: bool, #no_broadcast arg: E, loc := #caller_location) -> (n: int, err: Allocator_Error) #optional_allocator_error {
+_append_soa_elem :: proc(array: ^$T/#soa[dynamic]$E, zero_memory: bool, #no_broadcast arg: E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	if array == nil {
 		return 0, nil
 	}
@@ -419,17 +419,17 @@ _append_soa_elem :: proc(array: ^$T/#soa[dynamic]$E, zero_memory: bool, #no_broa
 }
 
 @builtin
-append_soa_elems :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast args: ..E, loc := #caller_location) -> (n: int, err: Allocator_Error) #optional_allocator_error {
+append_soa_elems :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast args: ..E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	return _append_soa_elems(array, true, args=args, loc=loc)
 }
 
 @builtin
-non_zero_append_soa_elems :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast args: ..E, loc := #caller_location) -> (n: int, err: Allocator_Error) #optional_allocator_error {
+non_zero_append_soa_elems :: proc(array: ^$T/#soa[dynamic]$E, #no_broadcast args: ..E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	return _append_soa_elems(array, false, args=args, loc=loc)
 }
 
 
-_append_soa_elems :: proc(array: ^$T/#soa[dynamic]$E, zero_memory: bool, #no_broadcast args: []E, loc := #caller_location) -> (n: int, err: Allocator_Error) #optional_allocator_error {
+_append_soa_elems :: proc(array: ^$T/#soa[dynamic]$E, zero_memory: bool, #no_broadcast args: []E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	if array == nil {
 		return
 	}
@@ -494,7 +494,7 @@ append_soa :: proc{
 // `append_nothing_soa` appends an empty value to a dynamic SOA array. It returns `1, nil` if successful, and `0, err` when it was not possible,
 // whatever `err` happens to be.
 @builtin
-append_nothing_soa :: proc(array: ^$T/#soa[dynamic]$E, loc := #caller_location) -> (n: int, err: Allocator_Error) #optional_allocator_error {
+append_nothing_soa :: proc(array: ^$T/#soa[dynamic]$E, loc := #caller_location) -> (n: int, err: Allocator_Error) {
 	if array == nil {
 		return 0, nil
 	}
@@ -506,7 +506,7 @@ append_nothing_soa :: proc(array: ^$T/#soa[dynamic]$E, loc := #caller_location) 
 
 // `inject_at_elem_soa` injects an element in a dynamic SOA array at a specified index and moves the previous elements after that index "across"
 @builtin
-inject_at_elem_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_broadcast arg: E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check #optional_allocator_error {
+inject_at_elem_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_broadcast arg: E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	when !ODIN_NO_BOUNDS_CHECK {
 		ensure(index >= 0, "Index must be positive.", loc)
 	}
@@ -551,7 +551,7 @@ inject_at_elem_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_
 
 // `inject_at_elems_soa` injects multiple elements in a dynamic SOA array at a specified index and moves the previous elements after that index "across"
 @builtin
-inject_at_elems_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_broadcast args: ..E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check #optional_allocator_error {
+inject_at_elems_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_broadcast args: ..E, loc := #caller_location) -> (ok: bool, err: Allocator_Error) #no_bounds_check {
 	when !ODIN_NO_BOUNDS_CHECK {
 		ensure(index >= 0, "Index must be positive.", loc)
 	}

@@ -292,7 +292,7 @@ year_range :: proc (#any_int year: i64, allocator: runtime.Allocator) -> (range:
 	is_leap := is_leap_year(year)
 
 	days := 366 if is_leap else 365
-	range = make([]Date, days, allocator)
+	range, _ = make([]Date, days, allocator)
 
 	month_days := MONTH_DAYS
 	if is_leap {

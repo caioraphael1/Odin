@@ -324,10 +324,10 @@ init_gpu_info :: proc(allocator: runtime.Allocator) {
 			continue
 		}
 
-		key := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, runtime.temp_allocator)
+		key, _ := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, runtime.temp_allocator)
 
 		if vendor, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "ProviderName", allocator); ok {
-			idx := append(&gpu_list, GPU{vendor_name = vendor})
+			idx, _ := append(&gpu_list, GPU{vendor_name = vendor})
 			gpu = &gpu_list[idx - 1]
 		} else {
 			continue
@@ -353,13 +353,13 @@ read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string, allocator: runtime.
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
-	val_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	key_name_wide, _ := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	val_name_wide, _ := make([]u16, BUF_SIZE, runtime.temp_allocator)
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)
 
-	result_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	result_wide, _ := make([]u16, BUF_SIZE, runtime.temp_allocator)
 	result_size := sys.DWORD(BUF_SIZE * size_of(u16))
 
 	status := sys.RegGetValueW(
@@ -377,9 +377,11 @@ read_reg_string :: proc(hkey: sys.HKEY, subkey, val: string, allocator: runtime.
 	}
 
 	// Result string will be allocated for the caller.
-	result_utf8 := make([]u8, BUF_SIZE * 4, runtime.temp_allocator)
+	result_utf8, _ := make([]u8, BUF_SIZE * 4, runtime.temp_allocator)
 	utf16.decode_to_utf8(result_utf8, result_wide[:result_size])
-	return strings.clone_from_cstring(cstring(raw_data(result_utf8)), allocator), true
+
+    result_utf8_clone, _ := strings.clone_from_cstring(cstring(raw_data(result_utf8)), allocator)
+	return result_utf8_clone, true
 }
 
 @(private)
@@ -391,8 +393,8 @@ read_reg_i32 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i32, ok: bool
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
-	val_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	key_name_wide, _ := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	val_name_wide, _ := make([]u16, BUF_SIZE, runtime.temp_allocator)
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)
@@ -419,8 +421,8 @@ read_reg_i64 :: proc(hkey: sys.HKEY, subkey, val: string) -> (res: i64, ok: bool
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
 	BUF_SIZE :: 1024
-	key_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
-	val_name_wide := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	key_name_wide, _ := make([]u16, BUF_SIZE, runtime.temp_allocator)
+	val_name_wide, _ := make([]u16, BUF_SIZE, runtime.temp_allocator)
 
 	utf16.encode_string(key_name_wide, subkey)
 	utf16.encode_string(val_name_wide, val)

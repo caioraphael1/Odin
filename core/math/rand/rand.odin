@@ -1047,7 +1047,7 @@ Possible Output:
 
 */
 @(require_results)
-perm :: proc(n: int, allocator: mem.Allocator, gen: runtime.Random_Generator) -> (res: []int, err: mem.Allocator_Error) #optional_allocator_error {
+perm :: proc(n: int, allocator: mem.Allocator, gen: runtime.Random_Generator) -> (res: []int, err: mem.Allocator_Error) {
 	m := make([]int, n, allocator) or_return
 	for i := 0; i < n; i += 1 {
 		j := int_max(i+1, gen)

@@ -6,7 +6,7 @@ import "core:strings"
 import "base:runtime"
 
 encode :: proc(src: []byte, allocator: runtime.Allocator, loc := #caller_location) -> []byte #no_bounds_check {
-	dst := make([]byte, len(src) * 2, allocator, loc)
+	dst, _ := make([]byte, len(src) * 2, allocator, loc)
 	for i, j := 0, 0; i < len(src); i += 1 {
 		v := src[i]
 		dst[j]   = HEXTABLE[v>>4]
@@ -29,7 +29,7 @@ decode :: proc(src: []byte, allocator: runtime.Allocator, loc := #caller_locatio
 		return
 	}
 
-	dst = make([]byte, len(src) / 2, allocator, loc)
+	dst, _ = make([]byte, len(src) / 2, allocator, loc)
 	for i, j := 0, 1; j < len(src); j += 2 {
 		p := src[j-1]
 		q := src[j]

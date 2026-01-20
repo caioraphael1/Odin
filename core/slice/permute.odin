@@ -32,7 +32,7 @@ make_permutation_iterator :: proc(
 ) -> (
 	iter: Permutation_Iterator(T),
 	error: runtime.Allocator_Error,
-) #optional_allocator_error {
+) {
 	iter.slice = slice
 	iter.counters = make([]int, len(iter.slice), allocator) or_return
 

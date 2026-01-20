@@ -454,7 +454,7 @@ swap_with_slice :: proc(a, b: $T/[]$E, loc := #caller_location) {
 }
 
 @(require_results)
-concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err: runtime.Allocator_Error) #optional_allocator_error {
+concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err: runtime.Allocator_Error) {
 	if len(a) == 0 {
 		return
 	}
@@ -472,7 +472,7 @@ concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err:
 
 // copies a slice into a new slice
 @(require_results)
-clone :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([]E, runtime.Allocator_Error) #optional_allocator_error {
+clone :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([]E, runtime.Allocator_Error) {
 	d, err := make([]E, len(a), allocator, loc)
 	copy(d[:], a)
 	return d, err
@@ -481,7 +481,7 @@ clone :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location)
 
 // copies slice into a new dynamic array
 @(require_results)
-clone_to_dynamic :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([dynamic]E, runtime.Allocator_Error) #optional_allocator_error {
+clone_to_dynamic :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([dynamic]E, runtime.Allocator_Error) {
 	d, err := make([dynamic]E, len(a), allocator, loc)
 	copy(d[:], a)
 	return d, err
@@ -584,7 +584,7 @@ as_ptr :: proc(array: $T/[]$E) -> [^]E {
 
 
 @(require_results)
-mapper :: proc(s: $S/[]$U, f: proc(U) -> $V, allocator: runtime.Allocator) -> (r: []V, err: runtime.Allocator_Error) #optional_allocator_error {
+mapper :: proc(s: $S/[]$U, f: proc(U) -> $V, allocator: runtime.Allocator) -> (r: []V, err: runtime.Allocator_Error) {
 	r = make([]V, len(s), allocator) or_return
 	for v, i in s {
 		r[i] = f(v)
@@ -611,7 +611,7 @@ reduce_reverse :: proc(s: $S/[]$U, initializer: $V, f: proc(V, U) -> V) -> V {
 }
 
 @(require_results)
-filter :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) #optional_allocator_error {
+filter :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) {
 	r := make([dynamic]U, 0, 0, allocator) or_return
 	for v in s {
 		if f(v) {
@@ -622,7 +622,7 @@ filter :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> 
 }
 
 @(require_results)
-filter_reverse :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) #optional_allocator_error {
+filter_reverse :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) {
 	r := make([dynamic]U, 0, 0, allocator) or_return
 	for i := len(s)-1; i >= 0; i -= 1 {
 		#no_bounds_check v := s[i]
@@ -634,7 +634,7 @@ filter_reverse :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Alloca
 }
 
 @(require_results)
-scanner :: proc (s: $S/[]$U, initializer: $V, f: proc(V, U) -> V, allocator: runtime.Allocator) -> (res: []V, err: runtime.Allocator_Error) #optional_allocator_error {
+scanner :: proc (s: $S/[]$U, initializer: $V, f: proc(V, U) -> V, allocator: runtime.Allocator) -> (res: []V, err: runtime.Allocator_Error) {
 	if len(s) == 0 { return }
 
 	res = make([]V, len(s), allocator) or_return
@@ -654,7 +654,7 @@ scanner :: proc (s: $S/[]$U, initializer: $V, f: proc(V, U) -> V, allocator: run
 
 
 @(require_results)
-repeat :: proc(s: $S/[]$U, count: int, allocator: runtime.Allocator) -> (b: S, err: runtime.Allocator_Error) #optional_allocator_error {
+repeat :: proc(s: $S/[]$U, count: int, allocator: runtime.Allocator) -> (b: S, err: runtime.Allocator_Error) {
 	if count < 0 {
 		panic("slice: negative repeat count")
 	} else if count > 0 && (len(s)*count)/count != len(s) {

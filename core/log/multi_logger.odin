@@ -9,8 +9,8 @@ Multi_Logger_Data :: struct {
 }
 
 create_multi_logger :: proc(logs: []Logger, allocator: runtime.Allocator) -> Logger {
-	data := new(Multi_Logger_Data, allocator)
-	data.loggers = make([]Logger, len(logs), allocator)
+	data, _ := new(Multi_Logger_Data, allocator)
+	data.loggers, _ = make([]Logger, len(logs), allocator)
 	copy(data.loggers, logs)
 	return Logger{multi_logger_proc, data, Level.Debug, nil}
 }

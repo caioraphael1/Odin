@@ -8,7 +8,7 @@ import "core:mem"
 Block :: struct {using _: Object}
 
 @(objc_type=Block, objc_name="createGlobal", objc_is_class_method=true)
-Block_createGlobal :: proc (user_data: rawptr, user_proc: proc "c" (user_data: rawptr), allocator := context.allocator) -> (^Block, mem.Allocator_Error) #optional_allocator_error {
+Block_createGlobal :: proc (user_data: rawptr, user_proc: proc "c" (user_data: rawptr), allocator := context.allocator) -> (^Block, mem.Allocator_Error) {
 	return Block_createInternal(true, user_data, user_proc, allocator)
 }
 @(objc_type=Block, objc_name="createLocal", objc_is_class_method=true)
@@ -17,7 +17,7 @@ Block_createLocal :: proc (user_data: rawptr, user_proc: proc "c" (user_data: ra
 	return b
 }
 @(objc_type=Block, objc_name="createGlobalWithParam", objc_is_class_method=true)
-Block_createGlobalWithParam :: proc (user_data: rawptr, user_proc: proc "c" (user_data: rawptr, t: $T), allocator := context.allocator) -> (^Block, mem.Allocator_Error) #optional_allocator_error {
+Block_createGlobalWithParam :: proc (user_data: rawptr, user_proc: proc "c" (user_data: rawptr, t: $T), allocator := context.allocator) -> (^Block, mem.Allocator_Error) {
 	return Block_createInternalWithParam(true, user_data, user_proc, allocator)
 }
 @(objc_type=Block, objc_name="createLocalWithParam", objc_is_class_method=true)

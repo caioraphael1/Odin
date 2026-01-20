@@ -44,11 +44,11 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
 		query_str := s[i+1:]
 		s = s[:i]
 		if query_str != "" {
-			queries_parts := strings.split(query_str, "&", allocator)
+			queries_parts, _ := strings.split(query_str, "&", allocator)
 			defer delete(queries_parts, allocator)
-			queries = make(map[string]string, len(queries_parts), allocator)
+			queries, _ = make(map[string]string, len(queries_parts), allocator)
 			for q in queries_parts {
-				parts := strings.split(q, "=", allocator)
+				parts, _ := strings.split(q, "=", allocator)
 				defer delete(parts, allocator)
 				switch len(parts) {
 				case 1:  queries[parts[0]] = ""        // NOTE(tetra): Query not set to anything, was but present.
@@ -72,7 +72,7 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
 }
 
 join_url :: proc(scheme, host, path: string, queries: map[string]string, fragment: string, allocator: mem.Allocator) -> string {
-	b := strings.builder_make(allocator)
+	b, _ := strings.builder_make(allocator)
 	strings.builder_grow(&b, len(scheme) + 3 + len(host) + 1 + len(path))
 
 	strings.write_string(&b, scheme)
@@ -115,7 +115,7 @@ join_url :: proc(scheme, host, path: string, queries: map[string]string, fragmen
 }
 
 percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
-	b := strings.builder_make(allocator)
+	b, _ := strings.builder_make(allocator)
 	strings.builder_grow(&b, len(s) + 16) // NOTE(tetra): A reasonable number to allow for the number of things we need to escape.
 
 	for ch in s {
@@ -137,7 +137,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
 }
 
 percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (decoded_string: string, ok: bool) {
-	b := strings.builder_make(allocator)
+	b, _ := strings.builder_make(allocator)
 	strings.builder_grow(&b, len(encoded_string))
 	defer if !ok {
 		strings.builder_destroy(&b)

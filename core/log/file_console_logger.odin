@@ -42,7 +42,7 @@ File_Console_Logger_Data :: struct {
 
 
 create_file_logger :: proc(h: ^os.File, lowest_level := Level.Debug, opt := Default_File_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
-	data := new(File_Console_Logger_Data, allocator)
+	data, _ := new(File_Console_Logger_Data, allocator)
 	data.file_handle = h
 	data.ident = ident
 	return {
@@ -62,7 +62,7 @@ destroy_file_logger :: proc(log: Logger, allocator: runtime.Allocator) {
 }
 
 create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Console_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
-	data := new(File_Console_Logger_Data, allocator)
+	data, _ := new(File_Console_Logger_Data, allocator)
 	data.file_handle = nil
 	data.ident = ident
 	return {

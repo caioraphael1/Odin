@@ -114,19 +114,21 @@ destroy_value :: proc(value: Value, allocator: runtime.Allocator, loc := #caller
 clone_value :: proc(value: Value, allocator: runtime.Allocator) -> Value {
 	#partial switch &v in value {
 	case Object:
-		new_o := make(Object, len(v), allocator)
+		new_o, _ := make(Object, len(v), allocator)
 		for key, elem in v {
-			new_o[strings.clone(key, allocator)] = clone_value(elem, allocator)
+            k_clone,    _ := strings.clone(key, allocator)
+			new_o[k_clone] = clone_value(elem, allocator)
 		}
 		return new_o
 	case Array:
-		new_a := make(Array, len(v), allocator)
+		new_a, _ := make(Array, len(v), allocator)
 		for elem, idx in v {
 			new_a[idx] = clone_value(elem, allocator)
 		}
 		return new_a
 	case String:
-		return strings.clone(v, allocator)
+        v_clone, _ := strings.clone(v, allocator)
+		return v_clone
 	}
 
 	return value

@@ -12,7 +12,7 @@ init_cpu_core_count :: proc(allocator: runtime.Allocator) {
 	returned_length: sys.DWORD
 	// Query for the required buffer size.
 	if ok := sys.GetLogicalProcessorInformation(raw_data(infos), &returned_length); !ok {
-		infos = make([]sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, returned_length / size_of(sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION), allocator)
+		infos, _ = make([]sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, returned_length / size_of(sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION), allocator)
 	}
 
 	// If it still doesn't work, return

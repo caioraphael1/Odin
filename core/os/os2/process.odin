@@ -17,7 +17,7 @@ Arguments to the current process.
 args: []string
 
 init_args :: proc(allocator: runtime.Allocator) {
-	args = make([]string, len(runtime.args__), allocator)
+	args, _ = make([]string, len(runtime.args__), allocator)
 	for rt_arg, i in runtime.args__ {
 		args[i] = string(rt_arg)
 	}

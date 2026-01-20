@@ -84,7 +84,7 @@ abs :: proc(path: string, allocator: mem.Allocator) -> (string, bool) {
 	return p, true
 }
  */
-join :: proc(elems: []string, allocator: mem.Allocator) -> (string, runtime.Allocator_Error) #optional_allocator_error {
+join :: proc(elems: []string, allocator: mem.Allocator) -> (string, runtime.Allocator_Error) {
 	for e, i in elems {
 		if e != "" {
 			return join_non_empty(elems[i:], allocator)

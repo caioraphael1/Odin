@@ -22,7 +22,7 @@ _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: 
 		return "", true
 	}
 
-	b := make([]u16, n+1, runtime.temp_allocator)
+	b, _ := make([]u16, n+1, runtime.temp_allocator)
 
 	n = win32.GetEnvironmentVariableW(wkey, raw_data(b), u32(len(b)))
 	if n == 0 {

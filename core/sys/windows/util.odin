@@ -87,7 +87,7 @@ utf8_to_utf16_alloc :: proc(s: string, allocator: runtime.Allocator) -> []u16 {
 		return nil
 	}
 
-	text := make([]u16, n+1, allocator)
+	text, _ := make([]u16, n+1, allocator)
 
 	n1 := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cstr, i32(len(s)), raw_data(text), n)
 	if n1 == 0 {
@@ -358,7 +358,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
 		return "", {}, false
 	}
 
-	cname_w := make([]u16, min(computer_name_size, 1), runtime.temp_allocator)
+	cname_w, _ := make([]u16, min(computer_name_size, 1), runtime.temp_allocator)
 
 	res = LookupAccountNameW(
 		nil,
@@ -400,7 +400,7 @@ get_sid :: proc(username: string, sid: ^SID) -> (ok: bool) {
 		return false
 	}
 
-	cname_w := make([]u16, min(computer_name_size, 1), runtime.temp_allocator)
+	cname_w, _ := make([]u16, min(computer_name_size, 1), runtime.temp_allocator)
 
 	res = LookupAccountNameW(
 		nil,
@@ -465,7 +465,7 @@ add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
 	}
 	defer LocalFree(rawptr(sb))
 
-	pszProfilePath := make([]u16, 257, runtime.temp_allocator)
+	pszProfilePath, _ := make([]u16, 257, runtime.temp_allocator)
 	res2 := CreateProfile(
 		sb,
 		cstring16(&username_w[0]),

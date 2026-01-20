@@ -46,7 +46,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 	}
 
 
-	thread := new(Thread, allocator)
+	thread, _ := new(Thread, allocator)
 	if thread == nil {
 		return nil
 	}

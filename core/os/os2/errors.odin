@@ -123,7 +123,7 @@ print_error :: proc(f: ^File, ferr: Error, msg: string) {
 
 	// msg + ": " + err_str + '\n'
 	length := len(msg) + 2 + len(err_str) + 1
-	buf := make([]u8, length, runtime.temp_allocator)
+	buf, _ := make([]u8, length, runtime.temp_allocator)
 
 	copy(buf, msg)
 	buf[len(msg)] = ':'

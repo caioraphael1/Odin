@@ -63,7 +63,7 @@ Marshal_Options :: struct {
 }
 
 marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Marshal_Error) {
-	b := strings.builder_make(allocator, loc)
+	b, _ := strings.builder_make(allocator, loc)
 	defer if err != nil {
 		strings.builder_destroy(&b)
 	}
@@ -307,7 +307,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
 				// If we are sorting the map by key, then we temp alloc an array
 				// and sort it, then output the result.
-				sorted := make([dynamic]Entry, 0, map_cap, runtime.temp_allocator)
+				sorted, _ := make([dynamic]Entry, 0, map_cap, runtime.temp_allocator)
 				for bucket_index in 0..<map_cap {
 					runtime.map_hash_is_valid(hs[bucket_index]) or_continue
 

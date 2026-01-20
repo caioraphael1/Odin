@@ -33,7 +33,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 		options = {.MULTICAST_ONLY, .MULTICAST_WAIT} // 0x00020500
 	}
 
-	host_cstr := strings.clone_to_cstring(hostname, runtime.temp_allocator)
+	host_cstr, _ := strings.clone_to_cstring(hostname, runtime.temp_allocator)
 	rec: ^win.DNS_RECORD
 	res := win.DnsQuery_UTF8(host_cstr, u16(type), options, nil, &rec, nil)
 
@@ -58,7 +58,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 		count += 1
 	}
 
-	recs := make([dynamic]DNS_Record, 0, count, allocator)
+	recs, _ := make([dynamic]DNS_Record, 0, count, allocator)
 	if recs == nil {
 		return nil, .System_Error // return no results if OOM.
 	}
@@ -68,8 +68,9 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 			continue // NOTE(tetra): Should never happen, but...
 		}
 
+        name_clone, _ := strings.clone(string(r.pName), allocator)
 		base_record := DNS_Record_Base{
-			record_name = strings.clone(string(r.pName), allocator),
+			record_name = name_clone,
 			ttl_seconds = r.dwTtl,
 		}
 
@@ -91,9 +92,10 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 			append(&recs, record)
 
 		case .CNAME:
+            cname_clone, _ := strings.clone(string(r.Data.CNAME), allocator)
 			record := DNS_Record_CNAME{
 				base      = base_record,
-				host_name = strings.clone(string(r.Data.CNAME), allocator),
+				host_name = cname_clone,
 			}
 			append(&recs, record)
 
@@ -103,17 +105,19 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 			c_strs := mem.slice_ptr(ptr, int(n))
 
 			for cstr in c_strs {
+                cstr_clone, _ := strings.clone(string(cstr), allocator)
 				record := DNS_Record_TXT{
 					base  = base_record,
-					value = strings.clone(string(cstr), allocator),
+					value = cstr_clone,
 				}
 				append(&recs, record)
 			}
 
 		case .NS:
+            ns_clone, _ := strings.clone(string(r.Data.NS), allocator)
 			record := DNS_Record_NS{
 				base      = base_record,
-				host_name = strings.clone(string(r.Data.NS), allocator),
+				host_name = ns_clone,
 			}
 			append(&recs, record)
 
@@ -124,9 +128,10 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 				and which order they're in changes every few calls.
 			*/
 
+            name_exchange_clone, _ := strings.clone(string(r.Data.MX.pNameExchange), allocator)
 			record := DNS_Record_MX{
 				base       = base_record,
-				host_name  = strings.clone(string(r.Data.MX.pNameExchange), allocator),
+				host_name  = name_exchange_clone,
 				preference = int(r.Data.MX.wPreference),
 			}
 			append(&recs, record)
@@ -155,9 +160,10 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 				continue
 			}
 
+            name_target_clone, _ := strings.clone(string(r.Data.SRV.pNameTarget), allocator)
 			append(&recs, DNS_Record_SRV {
 				base          = base_record,
-				target        = strings.clone(string(r.Data.SRV.pNameTarget), allocator), // The target hostname/address that the service can be found on
+				target        = name_target_clone, // The target hostname/address that the service can be found on
 				port          = int(r.Data.SRV.wPort),
 				service_name  = service_name,
 				protocol_name = protocol_name,

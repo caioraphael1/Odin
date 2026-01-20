@@ -28,7 +28,7 @@ read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files
 	it := read_directory_iterator_create(f, allocator)
 	defer _read_directory_iterator_destroy(&it, allocator)
 
-	dfi := make([dynamic]File_Info, 0, size, runtime.temp_allocator)
+	dfi, _ := make([dynamic]File_Info, 0, size, runtime.temp_allocator)
 	defer if err != nil {
 		for fi in dfi {
 			file_info_delete(fi, allocator)

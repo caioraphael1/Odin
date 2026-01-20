@@ -94,7 +94,7 @@ to_string_allocated :: proc(
 ) -> (
 	str: string,
 	error: runtime.Allocator_Error,
-) #optional_allocator_error {
+) {
 	buf := make([]byte, EXPECTED_LENGTH, allocator, loc) or_return
 	builder := strings.builder_from_bytes(buf[:])
 	unsafe_write(strings.to_writer(&builder), id)
