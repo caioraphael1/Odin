@@ -2083,8 +2083,7 @@ gb_internal void parse_proc_tags(AstFile *f, u64 *tags) {
 
 		if (false) {}
 		ELSE_IF_ADD_TAG(optional_ok)
-		ELSE_IF_ADD_TAG(optional_allocator_error)
-		ELSE_IF_ADD_TAG(require_results)
+        ELSE_IF_ADD_TAG(optional_results)
 		ELSE_IF_ADD_TAG(bounds_check)
 		ELSE_IF_ADD_TAG(no_bounds_check)
 		ELSE_IF_ADD_TAG(type_assert)
@@ -2559,10 +2558,6 @@ gb_internal Ast *parse_operand(AstFile *f, bool lhs) {
 		}
 
 		parse_proc_tags(f, &tags);
-		if ((tags & ProcTag_require_results) != 0) {
-			syntax_error(f->curr_token, "#require_results has now been replaced as an attribute @(require_results) on the declaration");
-			tags &= ~ProcTag_require_results;
-		}
 		GB_ASSERT(type->kind == Ast_ProcType);
 		type->ProcType.tags = tags;
 

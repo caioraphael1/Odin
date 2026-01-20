@@ -33,15 +33,15 @@ _tick_now :: proc() -> Tick {
 	@thread_local qpc_frequency: win32.LARGE_INTEGER
 
 	if qpc_frequency == 0 {
-		win32.QueryPerformanceFrequency(&qpc_frequency)
+		_ = win32.QueryPerformanceFrequency(&qpc_frequency)
 	}
 	now: win32.LARGE_INTEGER
-	win32.QueryPerformanceCounter(&now)
+	_ = win32.QueryPerformanceCounter(&now)
 
 	_nsec := mul_div_u64(i64(now), 1e9, i64(qpc_frequency))
 	return Tick{_nsec = _nsec}
 }
 
 _yield :: proc() {
-	win32.SwitchToThread()
+	_ = win32.SwitchToThread()
 }

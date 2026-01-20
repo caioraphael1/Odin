@@ -29,7 +29,7 @@ temp_allocator_destroy :: proc() {
     arena_destroy(&temp_allocator_arena)
 }
 
-@(deferred_out=arena_temp_end)
+@(deferred_out=arena_temp_end, optional_results)
 TEMP_ALLOCATOR_TEMP_GUARD :: #force_inline proc(collision: Allocator = {}, loc := #caller_location) -> (Arena_Temp, Source_Code_Location) {
 	if collision == temp_allocator {
 		return {}, loc

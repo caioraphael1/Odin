@@ -69,7 +69,7 @@ Returns:
 - runes: The number of runes in the string.
 - width: The width of the string in number of monospace cells.
 */
-@(require_results)
+
 grapheme_count :: proc(str: string) -> (graphemes, runes, width: int) {
 	it := decode_grapheme_iterator_make(str)
 	for _, _ in decode_grapheme_iterate(&it) {/**/}
@@ -93,7 +93,7 @@ Returns:
 - rune_count: The number of runes in the string.
 - width: The width of the string in number of monospace cells.
 */
-@(require_results)
+
 decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator: runtime.Allocator) -> (
 	graphemes:      [dynamic]Grapheme,
 	grapheme_count: int,
@@ -103,7 +103,7 @@ decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator
 	it := decode_grapheme_iterator_make(str)
 	for _, grapheme in decode_grapheme_iterate(&it) {
 		if track_graphemes {
-			append(&graphemes, grapheme)
+			_ = append(&graphemes, grapheme)
 		}
 	}
 
@@ -113,13 +113,13 @@ decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator
 	return
 }
 
-@(require_results)
+
 decode_grapheme_iterator_make :: proc(str: string) -> (it: Grapheme_Iterator) {
 	it.str = str
 	return
 }
 
-@(require_results)
+
 decode_grapheme_iterate :: proc(it: ^Grapheme_Iterator) -> (text: string, grapheme: Grapheme, ok: bool) {
 	for it.curr_offset < len(it.str) {
 		if ok {

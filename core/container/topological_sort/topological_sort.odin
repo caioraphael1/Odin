@@ -32,9 +32,9 @@ init :: proc(sorter: ^$S/Sorter($K)) {
 
 destroy :: proc(sorter: ^$S/Sorter($K)) {
 	for _, v in sorter.relations {
-		delete(v.dependents)
+		_ = delete(v.dependents)
 	}
-	delete(sorter.relations)
+	_ = delete(sorter.relations)
 }
 
 add_key :: proc(sorter: ^$S/Sorter($K), key: K) -> bool {
@@ -75,7 +75,7 @@ sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: [dynamic]K) {
 
 	for k, v in relations {
 		if v.dependencies == 0 {
-			append(&sorted, k)
+			_ = append(&sorted, k)
 		}
 	}
 
@@ -84,14 +84,14 @@ sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: [dynamic]K) {
 			relation := &relations[k]
 			relation.dependencies -= 1
 			if relation.dependencies == 0 {
-				append(&sorted, k)
+				_ = append(&sorted, k)
 			}
 		}
 	}
 
 	for k, v in relations {
 		if v.dependencies != 0 {
-			append(&cycled, k)
+			_ = append(&cycled, k)
 		}
 	}
 

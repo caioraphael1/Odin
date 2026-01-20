@@ -29,11 +29,11 @@ test_bit_array_bias :: proc(t: ^testing.T) {
 		}
 
 		seen: [dynamic]int
-		defer delete(seen)
+		defer _ = delete(seen)
 
 		iter := bit_array.make_iterator(ba)
 		for i in bit_array.iterate_by_set(&iter) {
-			append(&seen, i)
+			_ = append(&seen, i)
 		}
 
 		testing.expectf(t, slice.equal(list, seen[:]),
@@ -81,17 +81,17 @@ test_bit_array_biased_max_index :: proc(t: ^testing.T) {
 				max_index, bias, expected, ba.length)
 
 			list := make([]int, length)
-			defer delete(list)
+			defer _ = delete(list)
 			for i in 0..<len(list) {
 				list[i] = i + bias
 			}
 
 			seen: [dynamic]int
-			defer delete(seen)
+			defer _ = delete(seen)
 
 			iter := bit_array.make_iterator(ba)
 			for _, i in bit_array.iterate_by_all(&iter) {
-				append(&seen, i)
+				_ = append(&seen, i)
 			}
 			testing.expectf(t, slice.equal(list[:], seen[:]),
 				"Expected bit_array<max_index: %i, bias: %i> to contain: %v, got %v",
@@ -164,22 +164,22 @@ test_bit_array :: proc(t: ^testing.T) {
 	list_unset: [dynamic]int
 	seen_unset: [dynamic]int
 	defer {
-		delete(list_set)
-		delete(seen_set)
-		delete(list_unset)
-		delete(seen_unset)
+		_ = delete(list_set)
+		_ = delete(seen_set)
+		_ = delete(list_unset)
+		_ = delete(seen_unset)
 	}
 
 	// Setup bits.
 	MAX_INDEX :: 1+16*ELEM_BIT_SIZE
 	for i in 0..=MAX_INDEX {
-		append(&list_unset, i)
+		_ = append(&list_unset, i)
 	}
 	for i in 1..=16 {
 		for j in -1..=1 {
 			n := ELEM_BIT_SIZE * i + j
 			bit_array.set(ba, n)
-			append(&list_set, n)
+			_ = append(&list_set, n)
 		}
 	}
 	#reverse for i in list_set {
@@ -189,7 +189,7 @@ test_bit_array :: proc(t: ^testing.T) {
 	// Test iteration.
 	iter := bit_array.make_iterator(ba)
 	for i in bit_array.iterate_by_set(&iter) {
-		append(&seen_set, i)
+		_ = append(&seen_set, i)
 	}
 	testing.expectf(t, slice.equal(list_set[:], seen_set[:]),
 		"Expected set bit_array to be: %v, got %v",
@@ -197,7 +197,7 @@ test_bit_array :: proc(t: ^testing.T) {
 
 	iter = bit_array.make_iterator(ba)
 	for i in bit_array.iterate_by_unset(&iter) {
-		append(&seen_unset, i)
+		_ = append(&seen_unset, i)
 	}
 	testing.expectf(t, slice.equal(list_unset[:], seen_unset[:]),
 		"Expected unset bit_array to be: %v, got %v",

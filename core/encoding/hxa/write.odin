@@ -15,7 +15,7 @@ write_to_file :: proc(filepath: string, file: File) -> (err: Write_Error) {
 	if alloc_err == .Out_Of_Memory {
 		return .Failed_File_Write
 	}
-	defer delete(buf)
+	defer _ = delete(buf)
 
 	write_internal(&Writer{data = buf}, file)
 	if !os.write_entire_file(filepath, buf) {

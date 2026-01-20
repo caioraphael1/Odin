@@ -428,6 +428,6 @@ walk :: proc(v: ^Visitor, node: ^Node) {
 		fmt.panicf("ast.walk: unexpected node type %T", n)
 	}
 
-	v->visit(nil)
+	_ = v->visit(nil)
 }
 

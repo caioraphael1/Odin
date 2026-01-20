@@ -34,6 +34,7 @@ encode_surrogate_pair :: proc(c: rune) -> (r1, r2: rune) {
 	return _surr1 + (r>>10)&0x3ff, _surr2 + r&0x3ff
 }
 
+@(optional_results)
 encode :: proc(d: []u16, s: []rune) -> int {
 	n, m := 0, len(d)
 	loop: for r in s {
@@ -59,7 +60,7 @@ encode :: proc(d: []u16, s: []rune) -> int {
 	return n
 }
 
-
+@(optional_results)
 encode_string :: proc(d: []u16, s: string) -> int {
 	n, m := 0, len(d)
 	loop: for r in s {
@@ -85,6 +86,7 @@ encode_string :: proc(d: []u16, s: string) -> int {
 	return n
 }
 
+@(optional_results)
 decode :: proc(d: []rune, s: []u16) -> (n: int) {
 	for i := 0; i < len(s); i += 1 {
 		if n >= len(d) {
@@ -170,7 +172,7 @@ rune_count_in_slice :: proc(s: []u16) -> (n: int) {
 	return
 }
 
-
+@(optional_results)
 decode_to_utf8 :: proc(d: []byte, s: []u16) -> (n: int) {
 	for i := 0; i < len(s); i += 1 {
 		if n >= len(d) {

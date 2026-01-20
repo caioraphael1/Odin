@@ -44,152 +44,152 @@ Transform_identity :: Transform{{0, 0}, {1, 0}}
 Mat22_zero         :: Mat22{0, 0, 0, 0}
 
 // @return the minimum of two integers
-@(deprecated="Prefer the built-in 'min(a, b)'", require_results)
+@(deprecated="Prefer the built-in 'min(a, b)'")
 MinInt :: proc "c" (a, b: c.int) -> c.int {
 	return min(a, b)
 }
 
 // @return the maximum of two integers
-@(deprecated="Prefer the built-in 'max(a, b)'", require_results)
+@(deprecated="Prefer the built-in 'max(a, b)'")
 MaxInt :: proc "c" (a, b: c.int) -> c.int {
 	return max(a, b)
 }
 
 // @return the absolute value of an integer
-@(deprecated="Prefer the built-in 'abs(a)'", require_results)
+@(deprecated="Prefer the built-in 'abs(a)'")
 AbsInt :: proc "c" (a: c.int) -> c.int {
 	return abs(a)
 }
 
 // @return an integer clamped between a lower and upper bound
-@(deprecated="Prefer the built-in 'clamp(a, lower, upper)'", require_results)
+@(deprecated="Prefer the built-in 'clamp(a, lower, upper)'")
 ClampInt :: proc "c" (a, lower, upper: c.int) -> c.int {
 	return clamp(a, lower, upper)
 }
 
 
 // @return the minimum of two floats
-@(deprecated="Prefer the built-in 'min(a, b)'", require_results)
+@(deprecated="Prefer the built-in 'min(a, b)'")
 MinFloat :: proc "c" (a, b: f32) -> f32 {
 	return min(a, b)
 }
 
 // @return the maximum of two floats
-@(deprecated="Prefer the built-in 'max(a, b)'", require_results)
+@(deprecated="Prefer the built-in 'max(a, b)'")
 MaxFloat :: proc "c" (a, b: f32) -> f32 {
 	return max(a, b)
 }
 
 // @return the absolute value of a float
-@(deprecated="Prefer the built-in 'abs(a)'", require_results)
+@(deprecated="Prefer the built-in 'abs(a)'")
 AbsFloat :: proc "c" (a: f32) -> f32 {
 	return abs(a)
 }
 
 // @return a f32 clamped between a lower and upper bound
-@(deprecated="Prefer the built-in 'clamp(a, lower, upper)'", require_results)
+@(deprecated="Prefer the built-in 'clamp(a, lower, upper)'")
 ClampFloat :: proc "c" (a, lower, upper: f32) -> f32 {
 	return clamp(a, lower, upper)
 }
 
-@(require_results)
+
 Atan2 :: proc "c" (y, x: f32) -> f32 {
 	return math.atan2(y, x)
 }
 
-@(require_results)
+
 ComputeCosSin :: proc "c" (radians: f32) -> (res: CosSin) {
 	res.sine, res.cosine = math.sincos(radians)
 	return
 }
 
 // Vector dot product
-@(require_results)
+
 Dot :: proc "c" (a, b: Vec2) -> f32 {
 	return a.x * b.x + a.y * b.y
 }
 
 // Vector cross product. In 2D this yields a scalar.
-@(require_results)
+
 Cross :: proc "c" (a, b: Vec2) -> f32 {
 	return a.x * b.y - a.y * b.x
 }
 
 // Perform the cross product on a vector and a scalar. In 2D this produces a vector.
-@(require_results)
+
 CrossVS :: proc "c" (v: Vec2, s: f32) -> Vec2 {
 	return {s * v.y, -s * v.x}
 }
 
 // Perform the cross product on a scalar and a vector. In 2D this produces a vector.
-@(require_results)
+
 CrossSV :: proc "c" (s: f32, v: Vec2) -> Vec2 {
 	return {-s * v.y, s * v.x}
 }
 
 // Get a left pointing perpendicular vector. Equivalent to b2CrossSV(1, v)
-@(require_results)
+
 LeftPerp :: proc "c" (v: Vec2) -> Vec2 {
 	return {-v.y, v.x}
 }
 
 // Get a right pointing perpendicular vector. Equivalent to b2CrossVS(v, 1)
-@(require_results)
+
 RightPerp :: proc "c" (v: Vec2) -> Vec2 {
 	return {v.y, -v.x}
 }
 
 // Vector addition
-@(deprecated="Prefer 'a + b'", require_results)
+@(deprecated="Prefer 'a + b'")
 Add :: proc "c" (a, b: Vec2) -> Vec2 {
 	return a + b
 }
 
 // Vector subtraction
-@(deprecated="Prefer 'a - b'", require_results)
+@(deprecated="Prefer 'a - b'")
 Sub :: proc "c" (a, b: Vec2) -> Vec2 {
 	return a - b
 }
 
 // Vector negation
-@(deprecated="Prefer '-a'", require_results)
+@(deprecated="Prefer '-a'")
 Neg :: proc "c" (a: Vec2) -> Vec2 {
 	return -a
 }
 
 // Vector linear interpolation
 // https://fgiesen.wordpress.com/2012/08/15/linear-interpolation-past-present-and-future/
-@(require_results)
+
 Lerp :: proc "c" (a, b: Vec2, t: f32) -> Vec2 {
 	return {(1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y}
 }
 
 // Component-wise multiplication
-@(deprecated="Prefer 'a * b'", require_results)
+@(deprecated="Prefer 'a * b'")
 Mul :: proc "c" (a, b: Vec2) -> Vec2 {
 	return a * b
 }
 
 // Multiply a scalar and vector
-@(deprecated="Prefer 's * v'", require_results)
+@(deprecated="Prefer 's * v'")
 MulSV :: proc "c" (s: f32, v: Vec2) -> Vec2 {
 	return s * v
 }
 
 // a + s * b
-@(deprecated="Prefer 'a + s * b'", require_results)
+@(deprecated="Prefer 'a + s * b'")
 MulAdd :: proc "c" (a: Vec2, s: f32, b: Vec2) -> Vec2 {
 	return a + s * b
 }
 
 // a - s * b
-@(deprecated="Prefer 'a - s * b'", require_results)
+@(deprecated="Prefer 'a - s * b'")
 MulSub :: proc "c" (a: Vec2, s: f32, b: Vec2) -> Vec2 {
 	return a - s * b
 }
 
 // Component-wise absolute vector
-@(require_results)
+
 Abs :: proc "c" (a: Vec2) -> (b: Vec2) {
 	b.x = abs(a.x)
 	b.y = abs(a.y)
@@ -197,7 +197,7 @@ Abs :: proc "c" (a: Vec2) -> (b: Vec2) {
 }
 
 // Component-wise minimum vector
-@(require_results)
+
 Min :: proc "c" (a, b: Vec2) -> (c: Vec2) {
 	c.x = min(a.x, b.x)
 	c.y = min(a.y, b.y)
@@ -205,7 +205,7 @@ Min :: proc "c" (a, b: Vec2) -> (c: Vec2) {
 }
 
 // Component-wise maximum vector
-@(require_results)
+
 Max :: proc "c" (a, b: Vec2) -> (c: Vec2) {
 	c.x = max(a.x, b.x)
 	c.y = max(a.y, b.y)
@@ -213,7 +213,7 @@ Max :: proc "c" (a, b: Vec2) -> (c: Vec2) {
 }
 
 // Component-wise clamp vector v into the range [a, b]
-@(require_results)
+
 Clamp :: proc "c" (v: Vec2, a, b: Vec2) -> (c: Vec2) {
 	c.x = clamp(v.x, a.x, b.x)
 	c.y = clamp(v.y, a.y, b.y)
@@ -221,20 +221,20 @@ Clamp :: proc "c" (v: Vec2, a, b: Vec2) -> (c: Vec2) {
 }
 
 // Get the length of this vector (the norm)
-@(require_results)
+
 Length :: proc "c" (v: Vec2) -> f32 {
 	return math.sqrt(v.x * v.x + v.y * v.y)
 }
 
 // Get the distance between two points
-@(require_results)
+
 Distance :: proc "c" (a, b: Vec2) -> f32 {
 	dx := b.x - a.x
 	dy := b.y - a.y
 	return math.sqrt(dx * dx + dy * dy)
 }
 
-@(require_results)
+
 Normalize :: proc "c" (v: Vec2) -> Vec2 {
 	length := Length(v)
 	if length < EPSILON {
@@ -244,13 +244,13 @@ Normalize :: proc "c" (v: Vec2) -> Vec2 {
 	return invLength * v
 }
 
-@(require_results)
+
 IsNormalized :: proc "c" (v: Vec2) -> bool {
 	aa := Dot(v, v)
 	return abs(1. - aa) < 100. * EPSILON
 }
 
-@(require_results)
+
 NormalizeChecked :: proc "odin" (v: Vec2) -> Vec2 {
 	length := Length(v)
 	if length < 1e-23 {
@@ -260,7 +260,7 @@ NormalizeChecked :: proc "odin" (v: Vec2) -> Vec2 {
 	return invLength * v
 }
 
-@(require_results)
+
 GetLengthAndNormalize :: proc "c" (v: Vec2) -> (length: f32, vn: Vec2) {
 	length = Length(v)
 	if length < 1e-23 {
@@ -274,7 +274,7 @@ GetLengthAndNormalize :: proc "c" (v: Vec2) -> (length: f32, vn: Vec2) {
 // Integration rotation from angular velocity
 //	@param q1 initial rotation
 //	@param deltaAngle the angular displacement in radians
-@(require_results)
+
 IntegrateRotation :: proc "c" (q1: Rot, deltaAngle: f32) -> Rot {
 	// dc/dt = -omega * sin(t)
 	// ds/dt = omega * cos(t)
@@ -287,27 +287,27 @@ IntegrateRotation :: proc "c" (q1: Rot, deltaAngle: f32) -> Rot {
 }
 
 // Get the length squared of this vector
-@(require_results)
+
 LengthSquared :: proc "c" (v: Vec2) -> f32 {
 	return v.x * v.x + v.y * v.y
 }
 
 // Get the distance squared between points
-@(require_results)
+
 DistanceSquared :: proc "c" (a, b: Vec2) -> f32 {
 	c := Vec2{b.x - a.x, b.y - a.y}
 	return c.x * c.x + c.y * c.y
 }
 
 // Make a rotation using an angle in radians
-@(require_results)
+
 MakeRot :: proc "c" (angle: f32) -> Rot {
 	cs := ComputeCosSin(angle)
 	return Rot{c=cs.cosine, s=cs.sine}
 }
 
 // Compute the rotation between two unit vectors
-@(require_results)
+
 ComputeRotationBetweenUnitVectors :: proc(v1, v2: Vec2) -> Rot {
 	return NormalizeRot({
 		c = Dot(v1, v2),
@@ -316,7 +316,7 @@ ComputeRotationBetweenUnitVectors :: proc(v1, v2: Vec2) -> Rot {
 }
 
 // Is this rotation normalized?
-@(require_results)
+
 IsNormalizedRot :: proc "c" (q: Rot) -> bool {
 	// larger tolerance due to failure on mingw 32-bit
 	qq := q.s * q.s + q.c * q.c
@@ -324,7 +324,7 @@ IsNormalizedRot :: proc "c" (q: Rot) -> bool {
 }
 
 // Normalize rotation
-@(require_results)
+
 NormalizeRot :: proc "c" (q: Rot) -> Rot {
 	mag := math.sqrt(q.s * q.s + q.c * q.c)
 	invMag := f32(mag > 0.0 ? 1.0 / mag : 0.0)
@@ -334,7 +334,7 @@ NormalizeRot :: proc "c" (q: Rot) -> Rot {
 // Normalized linear interpolation
 // https://fgiesen.wordpress.com/2012/08/15/linear-interpolation-past-present-and-future/
 // https://web.archive.org/web/20170825184056/http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
-@(require_results)
+
 NLerp :: proc "c" (q1: Rot, q2: Rot, t: f32) -> Rot {
 	omt := 1 - t
 	return NormalizeRot({
@@ -347,7 +347,7 @@ NLerp :: proc "c" (q1: Rot, q2: Rot, t: f32) -> Rot {
 //	@param q1 initial rotation
 //	@param q2 final rotation
 //	@param inv_h inverse time step
-@(require_results)
+
 ComputeAngularVelocity :: proc "c" (q1: Rot, q2: Rot, inv_h: f32) -> f32 {
 	// ds/dt = omega * cos(t)
 	// dc/dt = -omega * sin(t)
@@ -364,25 +364,25 @@ ComputeAngularVelocity :: proc "c" (q1: Rot, q2: Rot, inv_h: f32) -> f32 {
 }
 
 // Get the angle in radians in the range [-pi, pi]
-@(require_results)
+
 Rot_GetAngle :: proc "c" (q: Rot) -> f32 {
 	return Atan2(q.s, q.c)
 }
 
 // Get the x-axis
-@(require_results)
+
 Rot_GetXAxis :: proc "c" (q: Rot) -> Vec2 {
 	return {q.c, q.s}
 }
 
 // Get the y-axis
-@(require_results)
+
 Rot_GetYAxis :: proc "c" (q: Rot) -> Vec2 {
 	return {-q.s, q.c}
 }
 
 // Multiply two rotations: q * r
-@(require_results)
+
 MulRot :: proc "c" (q, r: Rot) -> (qr: Rot) {
 	// [qc -qs] * [rc -rs] = [qc*rc-qs*rs -qc*rs-qs*rc]
 	// [qs  qc]   [rs  rc]   [qs*rc+qc*rs -qs*rs+qc*rc]
@@ -394,7 +394,7 @@ MulRot :: proc "c" (q, r: Rot) -> (qr: Rot) {
 }
 
 // Transpose multiply two rotations: qT * r
-@(require_results)
+
 InvMulRot :: proc "c" (q, r: Rot) -> (qr: Rot) {
 	// [ qc qs] * [rc -rs] = [qc*rc+qs*rs -qc*rs+qs*rc]
 	// [-qs qc]   [rs  rc]   [-qs*rc+qc*rs qs*rs+qc*rc]
@@ -406,7 +406,7 @@ InvMulRot :: proc "c" (q, r: Rot) -> (qr: Rot) {
 }
 
 // relative angle between b and a (rot_b * inv(rot_a))
-@(require_results)
+
 RelativeAngle :: proc "c" (b, a: Rot) -> f32 {
 	// sin(b - a) = bs * ac - bc * as
 	// cos(b - a) = bc * ac + bs * as
@@ -416,25 +416,25 @@ RelativeAngle :: proc "c" (b, a: Rot) -> f32 {
 }
 
 // Convert any angle into the range [-pi, pi]
-@(require_results)
+
 UnwindAngle :: proc "c" (radians: f32) -> f32 {
 	return math.remainder(radians, 2. * PI)
 }
 
 // Rotate a vector
-@(require_results)
+
 RotateVector :: proc "c" (q: Rot, v: Vec2) -> Vec2 {
 	return {q.c * v.x - q.s * v.y, q.s * v.x + q.c * v.y}
 }
 
 // Inverse rotate a vector
-@(require_results)
+
 InvRotateVector :: proc "c" (q: Rot, v: Vec2) -> Vec2 {
 	return {q.c * v.x + q.s * v.y, -q.s * v.x + q.c * v.y}
 }
 
 // Transform a point (e.g. local space to world space)
-@(require_results)
+
 TransformPoint :: proc "c" (t: Transform, p: Vec2) -> Vec2 {
 	x := (t.q.c * p.x - t.q.s * p.y) + t.p.x
 	y := (t.q.s * p.x + t.q.c * p.y) + t.p.y
@@ -442,7 +442,7 @@ TransformPoint :: proc "c" (t: Transform, p: Vec2) -> Vec2 {
 }
 
 // Inverse transform a point (e.g. world space to local space)
-@(require_results)
+
 InvTransformPoint :: proc "c" (t: Transform, p: Vec2) -> Vec2 {
 	vx := p.x - t.p.x
 	vy := p.y - t.p.y
@@ -454,7 +454,7 @@ InvTransformPoint :: proc "c" (t: Transform, p: Vec2) -> Vec2 {
 // in the world frame.
 // v2 = A.q.Rot(B.q.Rot(v1) + B.p) + A.p
 //    = (A.q * B.q).Rot(v1) + A.q.Rot(B.p) + A.p
-@(require_results)
+
 MulTransforms :: proc "c" (A, B: Transform) -> (C: Transform) {
 	C.q = MulRot(A.q, B.q)
 	C.p = RotateVector(A.q, B.p) + A.p
@@ -464,7 +464,7 @@ MulTransforms :: proc "c" (A, B: Transform) -> (C: Transform) {
 // Creates a transform that converts a local point in frame B to a local point in frame A.
 // v2 = A.q' * (B.q * v1 + B.p - A.p)
 //    = A.q' * B.q * v1 + A.q' * (B.p - A.p)
-@(require_results)
+
 InvMulTransforms :: proc "c" (A, B: Transform) -> (C: Transform) {
 	C.q = InvMulRot(A.q, B.q)
 	C.p = InvRotateVector(A.q, B.p-A.p)
@@ -472,13 +472,13 @@ InvMulTransforms :: proc "c" (A, B: Transform) -> (C: Transform) {
 }
 
 // Multiply a 2-by-2 matrix times a 2D vector
-@(deprecated="Prefer 'A * v'", require_results)
+@(deprecated="Prefer 'A * v'")
 MulMV :: proc "c" (A: Mat22, v: Vec2) -> Vec2 {
 	return A * v
 }
 
 // Get the inverse of a 2-by-2 matrix
-@(require_results)
+
 GetInverse22 :: proc "c" (A: Mat22) -> Mat22 {
 	a := A[0, 0]
 	b := A[0, 1]
@@ -497,7 +497,7 @@ GetInverse22 :: proc "c" (A: Mat22) -> Mat22 {
 
 // Solve A * x = b, where b is a column vector. This is more efficient
 // than computing the inverse in one-shot cases.
-@(require_results)
+
 Solve22 :: proc "c" (A: Mat22, b: Vec2) -> Vec2 {
 	a11 := A[0, 0]
 	a12 := A[0, 1]
@@ -511,7 +511,7 @@ Solve22 :: proc "c" (A: Mat22, b: Vec2) -> Vec2 {
 }
 
 // Does a fully contain b
-@(require_results)
+
 AABB_Contains :: proc "c" (a, b: AABB) -> bool {
 	(a.lowerBound.x <= b.lowerBound.x) or_return
 	(a.lowerBound.y <= b.lowerBound.y) or_return
@@ -521,19 +521,19 @@ AABB_Contains :: proc "c" (a, b: AABB) -> bool {
 }
 
 // Get the center of the AABB.
-@(require_results)
+
 AABB_Center :: proc "c" (a: AABB) -> Vec2 {
 	return {0.5 * (a.lowerBound.x + a.upperBound.x), 0.5 * (a.lowerBound.y + a.upperBound.y)}
 }
 
 // Get the extents of the AABB (half-widths).
-@(require_results)
+
 AABB_Extents :: proc "c" (a: AABB) -> Vec2 {
 	return {0.5 * (a.upperBound.x - a.lowerBound.x), 0.5 * (a.upperBound.y - a.lowerBound.y)}
 }
 
 // Union of two AABBs
-@(require_results)
+
 AABB_Union :: proc "c" (a, b: AABB) -> (c: AABB) {
 	c.lowerBound.x = min(a.lowerBound.x, b.lowerBound.x)
 	c.lowerBound.y = min(a.lowerBound.y, b.lowerBound.y)
@@ -543,7 +543,7 @@ AABB_Union :: proc "c" (a, b: AABB) -> (c: AABB) {
 }
 
 // Do a and b overlap
-@(require_results)
+
 AABB_Overlaps :: proc "c" (a, b: AABB) -> bool {
 	return !(
 		b.lowerBound.x > a.upperBound.x ||
@@ -554,7 +554,7 @@ AABB_Overlaps :: proc "c" (a, b: AABB) -> bool {
 }
 
 // Compute the bounding box of an array of circles
-@(require_results)
+
 MakeAABB :: proc "c" (points: []Vec2, radius: f32) -> AABB {
 	a := AABB{points[0], points[0]}
 	for point in points {
@@ -570,12 +570,12 @@ MakeAABB :: proc "c" (points: []Vec2, radius: f32) -> AABB {
 }
 
 // Signed separation of a point from a plane
-@(require_results)
+
 PlaneSeparation :: proc "c" (plane: Plane, point: Vec2) -> f32 {
 	return Dot(plane.normal, point) - plane.offset
 }
 
-@(require_results)
+
 IsValidFloat :: proc "c" (a: f32) -> bool {
 	#partial switch math.classify(a) {
 	case .NaN, .Inf, .Neg_Inf: return false
@@ -583,14 +583,14 @@ IsValidFloat :: proc "c" (a: f32) -> bool {
 	}
 }
 
-@(require_results)
+
 IsValidVec2 :: proc "c" (v: Vec2) -> bool {
 	IsValidFloat(v.x) or_return
 	IsValidFloat(v.y) or_return
 	return true
 }
 
-@(require_results)
+
 IsValidRotation :: proc "c" (q: Rot) -> bool {
 	IsValidFloat(q.s) or_return
 	IsValidFloat(q.c) or_return
@@ -598,7 +598,7 @@ IsValidRotation :: proc "c" (q: Rot) -> bool {
 }
 
 // Is this a valid bounding box? Not Nan or infinity. Upper bound greater than or equal to lower bound.
-@(require_results)
+
 IsValidAABB :: proc "c" (aabb: AABB) -> bool {
 	IsValidVec2(aabb.lowerBound) or_return
 	IsValidVec2(aabb.upperBound) or_return
@@ -608,7 +608,7 @@ IsValidAABB :: proc "c" (aabb: AABB) -> bool {
 }
 
 // Is this a valid plane? Normal is a unit vector. Not Nan or infinity.
-@(require_results)
+
 IsValidPlane :: proc "c" (plane: Plane) -> bool {
 	IsValidFloat(plane.offset) or_return
 	IsValidVec2(plane.normal)  or_return
@@ -621,7 +621,7 @@ IsValidPlane :: proc "c" (plane: Plane) -> bool {
 // position += timeStep * newVelocity
 // This drives towards a zero position. By using implicit integration we get a stable solution
 // that doesn't require transcendental functions.
-@(require_results)
+
 b2SpringDamper :: proc "c" (hertz, dampingRatio, position, velocity, timeStep: f32) -> f32 {
 	omega  := 2. * PI * hertz
 	omegaH := omega * timeStep

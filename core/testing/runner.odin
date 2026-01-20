@@ -99,7 +99,7 @@ end_t :: proc(t: ^T) {
 		c.procedure(c.user_data)
 	}
 
-	delete(t.cleanups)
+	_ = delete(t.cleanups)
 	t.cleanups = {}
 }
 
@@ -158,7 +158,7 @@ run_test_task :: proc(task: thread.Task) {
 	}
 	rand.reset(data.t.seed)
 
-	free_all(runtime.temp_allocator)
+	_ = free_all(runtime.temp_allocator)
 
 	data.it.p(&data.t)
 
@@ -215,7 +215,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		case raw_data(ERROR_STRING_TIMEOUT), raw_data(ERROR_STRING_UNKNOWN):
 			return
 		case:
-			delete(s, allocator)
+			_ = delete(s, allocator)
 		}
 	}
 
@@ -235,7 +235,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 
 	when TEST_NAMES != "" {
 		select_internal_tests: [dynamic]Internal_Test
-		defer delete(select_internal_tests)
+		defer _ = delete(select_internal_tests)
 
 		{
 			index_list := TEST_NAMES
@@ -251,7 +251,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					find_test_by_name: for it in internal_tests {
 						if it.name == name {
 							found = true
-							_, alloc_error = append(&select_internal_tests, it)
+							alloc_error = append(&select_internal_tests, it)
 							fmt.assertf(alloc_error == nil, "Error appending to select internal tests: %v", alloc_error)
 							break find_test_by_name
 						}
@@ -262,7 +262,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					find_test_by_pkg_and_name: for it in internal_tests {
 						if it.pkg == pkg && it.name == name {
 							found = true
-							_, alloc_error = append(&select_internal_tests, it)
+							alloc_error = append(&select_internal_tests, it)
 							fmt.assertf(alloc_error == nil, "Error appending to select internal tests: %v", alloc_error)
 							break find_test_by_pkg_and_name
 						}
@@ -338,7 +338,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	task_channels: []Task_Channel = ---
 	task_channels, alloc_error = make([]Task_Channel, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for update channels: %v", alloc_error)
-	defer delete(task_channels)
+	defer _ = delete(task_channels)
 
 	for &task_channel, index in task_channels {
 		task_channel.channel, alloc_error = chan.create_buffered(Update_Channel, BUFFERED_EVENTS_PER_CHANNEL, context.allocator)
@@ -373,7 +373,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		// 1 extra line for the status bar.
 		1 + len(report.packages), OSC_WINDOW_TITLE)
 	assert(len(ansi_redraw_string) > 0, "Error allocating ANSI redraw string.")
-	defer delete(ansi_redraw_string)
+	defer _ = delete(ansi_redraw_string)
 
 	thread_count_status_string: string = ---
 	{
@@ -383,25 +383,25 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		thread_count_status_string = fmt.aprintf("%- *[1]s", unpadded, report.pkg_column_len + PADDING)
 		assert(len(thread_count_status_string) > 0, "Error allocating thread count status string.")
 	}
-	defer delete(thread_count_status_string)
+	defer _ = delete(thread_count_status_string)
 
 
 	task_data_slots: []Task_Data = ---
 	task_data_slots, alloc_error = make([]Task_Data, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task data slots: %v", alloc_error)
-	defer delete(task_data_slots)
+	defer _ = delete(task_data_slots)
 
 	// Tests rotate through these allocators as they finish.
 	task_allocators: []mem.Rollback_Stack = ---
 	task_allocators, alloc_error = make([]mem.Rollback_Stack, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task allocators: %v", alloc_error)
-	defer delete(task_allocators)
+	defer _ = delete(task_allocators)
 
 	when TRACKING_MEMORY {
 		task_memory_trackers: []mem.Tracking_Allocator = ---
 		task_memory_trackers, alloc_error = make([]mem.Tracking_Allocator, thread_count)
 		fmt.assertf(alloc_error == nil, "Error allocating memory for memory trackers: %v", alloc_error)
-		defer delete(task_memory_trackers)
+		defer _ = delete(task_memory_trackers)
 	}
 
 	#no_bounds_check for i in 0 ..< thread_count {
@@ -423,22 +423,22 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	task_timeouts: [dynamic]Task_Timeout = ---
 	task_timeouts, alloc_error = make([dynamic]Task_Timeout, 0, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task timeouts: %v", alloc_error)
-	defer delete(task_timeouts)
+	defer _ = delete(task_timeouts)
 
 	failed_test_reason_map: map[int]string = ---
 	failed_test_reason_map, alloc_error = make(map[int]string, RESERVED_TEST_FAILURES)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for failed test reasons: %v", alloc_error)
-	defer delete(failed_test_reason_map)
+	defer _ = delete(failed_test_reason_map)
 
 	log_messages: [dynamic]Log_Message = ---
 	log_messages, alloc_error = make([dynamic]Log_Message, 0, RESERVED_LOG_MESSAGES)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for log message queue: %v", alloc_error)
-	defer delete(log_messages)
+	defer _ = delete(log_messages)
 
 	sorted_failed_test_reasons: [dynamic]int = ---
 	sorted_failed_test_reasons, alloc_error = make([dynamic]int, 0, RESERVED_TEST_FAILURES)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for sorted failed test reasons: %v", alloc_error)
-	defer delete(sorted_failed_test_reasons)
+	defer _ = delete(sorted_failed_test_reasons)
 
 	when USE_CLIPBOARD {
 		clipboard_buffer: bytes.Buffer
@@ -597,7 +597,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 				mem.tracking_allocator_reset(tracker)
 			}
 
-			free_all(task.allocator)
+			_ = free_all(task.allocator)
 
 			if run_index < total_test_count {
 				#no_bounds_check it := internal_tests[run_index]
@@ -645,7 +645,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					pkg.frame_ready = false
 
 				case Event_Set_Fail_Timeout:
-					_, alloc_error = append(&task_timeouts, Task_Timeout {
+					alloc_error = append(&task_timeouts, Task_Timeout {
 						test_index = task_channel.test_index,
 						at_time = event.at_time,
 						location = event.location,
@@ -653,7 +653,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					fmt.assertf(alloc_error == nil, "Error appending to task timeouts: %v", alloc_error)
 
 				case Event_Log_Message:
-					_, alloc_error = append(&log_messages, Log_Message {
+					alloc_error = append(&log_messages, Log_Message {
 						level = event.level,
 						text = event.formatted_text,
 						time = event.time,
@@ -668,7 +668,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 						}
 						failed_test_reason_map[task_channel.test_index] = event.text
 					} else {
-						delete(event.text, shared_log_allocator)
+						_ = delete(event.text, shared_log_allocator)
 					}
 				}
 			}
@@ -706,7 +706,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 			total_done_count += 1
 
 			now := time.now()
-			_, alloc_error = append(&log_messages, Log_Message {
+			alloc_error = append(&log_messages, Log_Message {
 				level = .Error,
 				text = format_log_text(.Error, ERROR_STRING_TIMEOUT, Default_Test_Logger_Opts, timeout.location, now),
 				time = now,
@@ -826,7 +826,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 
 		for message in log_messages {
 			fmt.wprintln(batch_writer, message.text)
-			delete(message.text, message.allocator)
+			_ = delete(message.text, message.allocator)
 		}
 
 		fmt.wprint(stderr, bytes.buffer_to_string(&batch_buffer))
@@ -895,7 +895,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		}
 
 		for test_index in failed_test_reason_map {
-			_, alloc_error = append(&sorted_failed_test_reasons, test_index)
+			alloc_error = append(&sorted_failed_test_reasons, test_index)
 			fmt.assertf(alloc_error == nil, "Error appending to sorted failed test reasons: %v", alloc_error)
 		}
 
@@ -976,7 +976,7 @@ To partly mitigate this, redirect STDERR to a file or use the -define:ODIN_TEST_
 			}
 
 			tests := &json_report.packages[test.pkg]
-			append(tests, JSON_Test{name = test.name, success = state == .Successful})
+			_ = append(tests, JSON_Test{name = test.name, success = state == .Successful})
 		}
 
 		json_report.total    = len(internal_tests)

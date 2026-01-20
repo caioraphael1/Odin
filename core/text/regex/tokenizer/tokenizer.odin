@@ -117,7 +117,7 @@ advance_rune :: proc(t: ^Tokenizer) -> (err: Error) {
 	return
 }
 
-@require_results
+
 scan_class :: proc(t: ^Tokenizer) -> (str: string, ok: bool) {
 	start := t.read_offset
 
@@ -140,7 +140,7 @@ scan_class :: proc(t: ^Tokenizer) -> (str: string, ok: bool) {
 	unreachable()
 }
 
-@require_results
+
 scan_repeat :: proc(t: ^Tokenizer) -> (str: string, ok: bool) {
 	start := t.read_offset
 
@@ -157,7 +157,7 @@ scan_repeat :: proc(t: ^Tokenizer) -> (str: string, ok: bool) {
 	unreachable()
 }
 
-@require_results
+
 scan_non_greedy :: proc(t: ^Tokenizer) -> bool {
 	if peek_byte(t) == '?' {
 		advance_rune(t)
@@ -189,7 +189,7 @@ scan_comment :: proc(t: ^Tokenizer) {
 	}
 }
 
-@require_results
+
 scan_non_capture_group :: proc(t: ^Tokenizer) -> bool {
 	if peek_byte(t) == '?' && peek_byte(t, 1) == ':' {
 		advance_rune(t)
@@ -200,7 +200,7 @@ scan_non_capture_group :: proc(t: ^Tokenizer) -> bool {
 	return false
 }
 
-@require_results
+
 scan :: proc(t: ^Tokenizer) -> (token: Token) {
 	kind: Token_Kind
 	lit: string

@@ -14,7 +14,7 @@ destroy :: proc(img: ^image.Image) -> bool {
 	info := img.metadata.(^image.Netpbm_Info) or_return
 
 	header_destroy(&info.header)
-	free(info)
+	_ = free(info)
 	img.metadata = nil
 
 	return true
@@ -22,7 +22,7 @@ destroy :: proc(img: ^image.Image) -> bool {
 
 header_destroy :: proc(header: ^Header) {
 	if header.format == .P7 && header.tupltype != "" {
-		delete(header.tupltype)
+		_ = delete(header.tupltype)
 		header.tupltype = ""
 	}
 }

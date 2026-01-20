@@ -405,7 +405,7 @@ internal_int_read_from_ascii_file :: proc(a: ^Int, filename: string, radix := i8
 	*/
 
 	res, ok := os.read_entire_file(filename, allocator)
-	defer delete(res, allocator)
+	defer _ = delete(res, allocator)
 
 	if !ok {
 		return .Cannot_Read_File
@@ -426,7 +426,7 @@ internal_int_write_to_ascii_file :: proc(a: ^Int, filename: string, radix := i8(
 	*/
 
 	as := itoa(a, radix) or_return
-	defer delete(as)
+	defer _ = delete(as)
 
 	l := len(as)
 	assert(l > 0)

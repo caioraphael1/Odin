@@ -12,7 +12,7 @@ Example:
 	iterate_csv_from_string :: proc(filename: string) {
 		r: csv.Reader
 		r.trim_leading_space  = true
-		r.reuse_record        = true // Without it you have to delete(record)
+		r.reuse_record        = true // Without it you have to _ = delete(record)
 		r.reuse_record_buffer = true // Without it you have to each of the fields within it
 		defer csv.reader_destroy(&r)
 
@@ -23,7 +23,7 @@ Example:
 			fmt.printfln("Unable to open file: %v", filename)
 			return
 		}
-		defer delete(csv_data)
+		defer _ = delete(csv_data)
 
 		for r, i, err in csv.iterator_next(&r) {
 			if err != nil { /* Do something with error */ }
@@ -38,7 +38,7 @@ Example:
 		fmt.printfln("Hellope from %v", filename)
 		r: csv.Reader
 		r.trim_leading_space  = true
-		r.reuse_record        = true // Without it you have to delete(record)
+		r.reuse_record        = true // Without it you have to _ = delete(record)
 		r.reuse_record_buffer = true // Without it you have to each of the fields within it
 		defer csv.reader_destroy(&r)
 
@@ -71,16 +71,16 @@ Example:
 			fmt.printfln("Unable to open file: %v", filename)
 			return
 		}
-		defer delete(csv_data)
+		defer _ = delete(csv_data)
 
 		records, err := csv.read_all(&r)
 		if err != nil { /* Do something with CSV parse error */ }
 
 		defer {
 			for rec in records {
-				delete(rec)
+				_ = delete(rec)
 			}
-			delete(records)
+			_ = delete(records)
 		}
 
 		for r, i in records {

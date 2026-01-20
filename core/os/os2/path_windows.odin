@@ -15,7 +15,7 @@ init_long_path_support :: proc() {
 
 	key: win32.HKEY
 	res := win32.RegOpenKeyExW(win32.HKEY_LOCAL_MACHINE, win32.L(`SYSTEM\CurrentControlSet\Control\FileSystem`), 0, win32.KEY_READ, &key)
-	defer win32.RegCloseKey(key)
+	defer _ = win32.RegCloseKey(key)
 	if res != 0 {
 		return
 	}
@@ -186,17 +186,17 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
 can_use_long_paths: bool
 
 
-@(require_results)
+
 _fix_long_path_slice :: proc(path: string, allocator: runtime.Allocator) -> ([]u16, runtime.Allocator_Error) {
 	return win32_utf8_to_utf16(_fix_long_path_internal(path), allocator)
 }
 
-@(require_results)
+
 _fix_long_path :: proc(path: string, allocator: runtime.Allocator) -> (win32.wstring, runtime.Allocator_Error) {
 	return win32_utf8_to_wstring(_fix_long_path_internal(path), allocator)
 }
 
-@(require_results)
+
 _fix_long_path_internal :: proc(path: string) -> string {
 	if can_use_long_paths {
 		return path

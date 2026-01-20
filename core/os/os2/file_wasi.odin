@@ -114,9 +114,9 @@ init_preopens :: proc(allocator: runtime.Allocator) {
 	}
 }
 
-@(require_results)
+
 match_preopen :: proc(path: string) -> (wasi.fd_t, string, bool) {
-	@(require_results)
+	
 	prefix_matches :: proc(prefix, path: string) -> bool {
 		// Empty is valid for any relative path.
 		if len(prefix) == 0 && len(path) > 0 && path[0] != '/' {
@@ -254,8 +254,8 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
 		err = _get_platform_error(errno)
 	}
 
-	delete(f.name, f.allocator)
-	free(f, f.allocator)
+	_ = delete(f.name, f.allocator)
+	_ = free(f, f.allocator)
 	return
 }
 

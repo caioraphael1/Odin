@@ -48,14 +48,14 @@ Rollback_Stack :: struct {
 	block_allocator: Allocator,
 }
 
-@(private="file", require_results, no_sanitize_address)
+@(private="file", no_sanitize_address)
 rb_ptr_in_bounds :: proc(block: ^Rollback_Stack_Block, ptr: rawptr) -> bool {
 	start := raw_data(block.buffer)
 	end   := start[block.offset:]
 	return start < ptr && ptr <= end
 }
 
-@(private="file", require_results, no_sanitize_address)
+@(private="file", no_sanitize_address)
 rb_find_ptr :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> (
 	parent: ^Rollback_Stack_Block,
 	block:  ^Rollback_Stack_Block,
@@ -72,7 +72,7 @@ rb_find_ptr :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> (
 	return nil, nil, nil, .Invalid_Pointer
 }
 
-@(private="file", require_results, no_sanitize_address)
+@(private="file", no_sanitize_address)
 rb_find_last_alloc :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> (
 	block: ^Rollback_Stack_Block,
 	header: ^Rollback_Stack_Header,
@@ -101,7 +101,7 @@ rb_rollback_block :: proc(block: ^Rollback_Stack_Block, header: ^Rollback_Stack_
 /*
 Free memory to a rollback stack allocator.
 */
-@(private="file", require_results, no_sanitize_address)
+@(private="file", no_sanitize_address)
 rb_free :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> Allocator_Error {
 	parent, block, header := rb_find_ptr(stack, ptr) or_return
 
@@ -115,7 +115,7 @@ rb_free :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> Allocator_Error {
 	}
 	if parent != nil && block.offset == 0 {
 		parent.next_block = block.next_block
-		runtime.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator)
+		runtime.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator) or_return
 	}
 	return nil
 }
@@ -127,7 +127,7 @@ Free all memory owned by the rollback stack allocator.
 rb_free_all :: proc(stack: ^Rollback_Stack) {
 	for block := stack.head.next_block; block != nil; /**/ {
 		next_block := block.next_block
-		runtime.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator)
+		_ = runtime.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator)
 		block = next_block
 	}
 
@@ -140,7 +140,7 @@ rb_free_all :: proc(stack: ^Rollback_Stack) {
 /*
 Allocate memory using the rollback stack allocator.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_alloc :: proc(
 	stack: ^Rollback_Stack,
 	size: int,
@@ -157,7 +157,7 @@ rb_alloc :: proc(
 /*
 Allocate memory using the rollback stack allocator.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_alloc_bytes :: proc(
 	stack: ^Rollback_Stack,
 	size: int,
@@ -174,7 +174,7 @@ rb_alloc_bytes :: proc(
 /*
 Allocate non-initialized memory using the rollback stack allocator.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_alloc_non_zeroed :: proc(
 	stack: ^Rollback_Stack,
 	size: int,
@@ -188,7 +188,7 @@ rb_alloc_non_zeroed :: proc(
 /*
 Allocate non-initialized memory using the rollback stack allocator.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_alloc_bytes_non_zeroed :: proc(
 	stack: ^Rollback_Stack,
 	size: int,
@@ -250,7 +250,7 @@ rb_alloc_bytes_non_zeroed :: proc(
 /*
 Resize an allocation owned by rollback stack allocator.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_resize :: proc(
 	stack: ^Rollback_Stack,
 	old_ptr: rawptr,
@@ -273,7 +273,7 @@ rb_resize :: proc(
 /*
 Resize an allocation owned by rollback stack allocator.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_resize_bytes :: proc(
 	stack: ^Rollback_Stack,
 	old_memory: []byte,
@@ -296,7 +296,7 @@ rb_resize_bytes :: proc(
 Resize an allocation owned by rollback stack allocator without explicit
 zero-initialization.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_resize_non_zeroed :: proc(
 	stack: ^Rollback_Stack,
 	old_ptr: rawptr,
@@ -313,7 +313,7 @@ rb_resize_non_zeroed :: proc(
 Resize an allocation owned by rollback stack allocator without explicit
 zero-initialization.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rb_resize_bytes_non_zeroed :: proc(
 	stack: ^Rollback_Stack,
 	old_memory: []byte,
@@ -349,7 +349,7 @@ rb_resize_bytes_non_zeroed :: proc(
 	return
 }
 
-@(private="file", require_results, no_sanitize_address)
+@(private="file", no_sanitize_address)
 rb_make_block :: proc(size: int, allocator: Allocator) -> (block: ^Rollback_Stack_Block, err: Allocator_Error) {
 	buffer := runtime.mem_alloc(size_of(Rollback_Stack_Block) + size, align_of(Rollback_Stack_Block), allocator) or_return
 	block = cast(^Rollback_Stack_Block)raw_data(buffer)
@@ -411,7 +411,7 @@ Destroy a rollback stack.
 rollback_stack_destroy :: proc(stack: ^Rollback_Stack) {
 	if stack.block_allocator.procedure != nil {
 		rb_free_all(stack)
-		free(stack.head, stack.block_allocator)
+		_ = free(stack.head, stack.block_allocator)
 	}
 	stack^ = {}
 }
@@ -447,7 +447,7 @@ from the last allocation backwards.
 Each allocation has an overhead of 8 bytes and any extra bytes to satisfy
 the requested alignment.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rollback_stack_allocator :: proc(stack: ^Rollback_Stack) -> Allocator {
 	return Allocator {
 		data = stack,
@@ -455,7 +455,7 @@ rollback_stack_allocator :: proc(stack: ^Rollback_Stack) -> Allocator {
 	}
 }
 
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 rollback_stack_allocator_proc :: proc(
 	allocator_data: rawptr,
 	mode: Allocator_Mode,

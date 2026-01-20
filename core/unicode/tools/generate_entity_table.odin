@@ -24,10 +24,10 @@ Entity :: struct {
 
 generate_encoding_entity_table :: proc() {
 	filename := path.join({ODIN_ROOT, "tests", "core", "assets", "XML", "unicode.xml"})
-	defer delete(filename)
+	defer _ = delete(filename)
 
 	generated_filename := path.join({ODIN_ROOT, "core", "encoding", "entity", "generated.odin"})
-	defer delete(generated_filename)
+	defer _ = delete(generated_filename)
 
 	doc, err := xml.load_from_file(filename, OPTIONS, Error_Handler)
 	defer xml.destroy(doc)
@@ -124,7 +124,7 @@ generate_encoding_entity_table :: proc() {
 				}
 
 				entity_map[name] = e
-				append(&names, name)
+				_ = append(&names, name)
 				count += 1
 			}
 		}
@@ -222,10 +222,10 @@ named_xml_entity_to_rune :: proc(name: string) -> (decoded: rune, ok: bool) {
 		fmt.printf("Failed to write generated \"%v\".\n", generated_filename)
 	}
 
-	delete(entity_map)
-	delete(names)
+	_ = delete(entity_map)
+	_ = delete(names)
 	for &name in names {
-		free(&name)
+		_ = free(&name)
 	}
 }
 

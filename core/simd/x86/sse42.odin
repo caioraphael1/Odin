@@ -24,81 +24,81 @@ _SIDD_MOST_SIGNIFICANT         :: 0b0100_0000
 _SIDD_BIT_MASK                 :: 0b0000_0000
 _SIDD_UNIT_MASK                :: 0b0100_0000
 
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpistrm :: #force_inline proc "c" (a: __m128i, b: __m128i, $IMM8: i8) -> __m128i {
 	return transmute(__m128i)pcmpistrm128(transmute(i8x16)a, transmute(i8x16)b, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpistri :: #force_inline proc "c" (a: __m128i, b: __m128i, $IMM8: i8) -> i32 {
 	return pcmpistri128(transmute(i8x16)a, transmute(i8x16)b, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpistrz :: #force_inline proc "c" (a: __m128i, b: __m128i, $IMM8: i8) -> i32 {
 	return pcmpistriz128(transmute(i8x16)a, transmute(i8x16)b, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpistrc :: #force_inline proc "c" (a: __m128i, b: __m128i, $IMM8: i8) -> i32 {
 	return pcmpistric128(transmute(i8x16)a, transmute(i8x16)b, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpistrs :: #force_inline proc "c" (a: __m128i, b: __m128i, $IMM8: i8) -> i32 {
 	return pcmpistris128(transmute(i8x16)a, transmute(i8x16)b, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpistro :: #force_inline proc "c" (a: __m128i, b: __m128i, $IMM8: i8) -> i32 {
 	return pcmpistrio128(transmute(i8x16)a, transmute(i8x16)b, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpistra :: #force_inline proc "c" (a: __m128i, b: __m128i, $IMM8: i8) -> i32 {
 	return pcmpistria128(transmute(i8x16)a, transmute(i8x16)b, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpestrm :: #force_inline proc "c" (a: __m128i, la: i32, b: __m128i, lb: i32, $IMM8: i8) -> __m128i {
 	return transmute(__m128i)pcmpestrm128(transmute(i8x16)a, la, transmute(i8x16)b, lb, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpestri :: #force_inline proc "c" (a: __m128i, la: i32, b: __m128i, lb: i32, $IMM8: i8) -> i32 {
 	return pcmpestri128(transmute(i8x16)a, la, transmute(i8x16)b, lb, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpestrz :: #force_inline proc "c" (a: __m128i, la: i32, b: __m128i, lb: i32, $IMM8: i8) -> i32 {
 	return pcmpestriz128(transmute(i8x16)a, la, transmute(i8x16)b, lb, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpestrc :: #force_inline proc "c" (a: __m128i, la: i32, b: __m128i, lb: i32, $IMM8: i8) -> i32 {
 	return pcmpestric128(transmute(i8x16)a, la, transmute(i8x16)b, lb, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpestrs :: #force_inline proc "c" (a: __m128i, la: i32, b: __m128i, lb: i32, $IMM8: i8) -> i32 {
 	return pcmpestris128(transmute(i8x16)a, la, transmute(i8x16)b, lb, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpestro :: #force_inline proc "c" (a: __m128i, la: i32, b: __m128i, lb: i32, $IMM8: i8) -> i32 {
 	return pcmpestrio128(transmute(i8x16)a, la, transmute(i8x16)b, lb, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpestra :: #force_inline proc "c" (a: __m128i, la: i32, b: __m128i, lb: i32, $IMM8: i8) -> i32 {
 	return pcmpestria128(transmute(i8x16)a, la, transmute(i8x16)b, lb, IMM8)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_crc32_u8 :: #force_inline proc "c" (crc: u32, v: u8) -> u32 {
 	return crc32_32_8(crc, v)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_crc32_u16 :: #force_inline proc "c" (crc: u32, v: u16) -> u32 {
 	return crc32_32_16(crc, v)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_crc32_u32 :: #force_inline proc "c" (crc: u32, v: u32) -> u32 {
 	return crc32_32_32(crc, v)
 }
-@(require_results, enable_target_feature="sse4.2")
+@(enable_target_feature="sse4.2")
 _mm_cmpgt_epi64 :: #force_inline proc "c" (a: __m128i, b: __m128i) -> __m128i {
 	return transmute(__m128i)simd.lanes_gt(a, b)
 }
 
 when ODIN_ARCH == .amd64 {
-	@(require_results, enable_target_feature="sse4.2")
+	@(enable_target_feature="sse4.2")
 	_mm_crc32_u64 :: #force_inline proc "c" (crc: u64, v: u64) -> u64 {
 		return crc32_64_64(crc, v)
 	}

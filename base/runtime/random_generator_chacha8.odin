@@ -48,7 +48,7 @@ Default_Random_State :: struct {
 	_seeded: bool,
 }
 
-@(require_results)
+
 default_random_generator :: proc(state: ^Default_Random_State = nil) -> Random_Generator {
 	return {
 		procedure = default_random_generator_proc,

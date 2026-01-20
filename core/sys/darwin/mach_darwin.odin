@@ -688,7 +688,7 @@ VM_Flag :: enum c.int {
 	// the bit set
 
 	TPRO                = LOG2(0x1000),
-	Overwrite           = LOG2(0x4000),/* delete any existing mappings first */
+	Overwrite           = LOG2(0x4000),/* _ = delete any existing mappings first */
 
 	Superpage_Size_Any  = LOG2(0x10000),
 	Superpage_Size_2MB  = LOG2(0x20000),

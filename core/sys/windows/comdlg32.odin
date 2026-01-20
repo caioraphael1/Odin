@@ -61,7 +61,7 @@ _open_file_dialog :: proc(title: string, dir: string,
 	context.allocator = allocator
 	file_buf := make([]u16, MAX_PATH_WIDE)
 	defer if !ok {
-		delete(file_buf)
+		_ = delete(file_buf)
 	}
 
 	// Filters need to be passed as a pair of strings (title, filter)

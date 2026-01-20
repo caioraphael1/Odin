@@ -106,7 +106,7 @@ test_split_list_unix :: proc(t: ^testing.T) {
 @(private)
 delete_split :: proc(s: []string) {
 	for part in s {
-		delete(part)
+		_ = delete(part)
 	}
-	delete(s)
+	_ = delete(s)
 }

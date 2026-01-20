@@ -31,7 +31,7 @@ nil_allocator_proc :: proc(allocator_data: rawptr, mode: Allocator_Mode,
 //
 // This is extremely useful for creating a dynamic array from a buffer which does not nothing
 // on a resize/reserve beyond the originally allocated memory.
-@(require_results)
+
 nil_allocator :: proc() -> Allocator {
 	return Allocator{
 		procedure = nil_allocator_proc,
@@ -85,7 +85,7 @@ panic_allocator_proc :: proc(allocator_data: rawptr, mode: Allocator_Mode,
 // Returns an allocator which will panic for any non-zero-sized allocation or `query_info`
 //
 // This is extremely useful for to check when something does a memory operation when it should not, and thus panic.
-@(require_results)
+
 panic_allocator :: proc() -> Allocator {
 	return Allocator{
 		procedure = panic_allocator_proc,

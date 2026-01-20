@@ -89,11 +89,11 @@ test_intentional_leaks :: proc(t: ^testing.T) {
 intentionally_leaky_test :: proc(t: ^testing.T) {
 	a: [dynamic]int
 	// Intentional leak
-	append(&a, 42)
+	_ = append(&a, 42)
 
 	// Intentional bad free
 	b := uintptr(&a[0]) + 42
-	free(rawptr(b))
+	_ = free(rawptr(b))
 }
 
 leak_verifier :: proc(t: ^testing.T, ta: ^mem.Tracking_Allocator) {

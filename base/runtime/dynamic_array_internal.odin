@@ -5,7 +5,7 @@ __dynamic_array_make :: proc(array_: rawptr, elem_size, elem_align: int, len, ca
 	assert(array.allocator.procedure != nil)
 
 	if cap > 0 {
-		__dynamic_array_reserve(array_, elem_size, elem_align, cap, loc)
+		_ = __dynamic_array_reserve(array_, elem_size, elem_align, cap, loc)
 		array.len = len
 	}
 }
@@ -108,7 +108,7 @@ __dynamic_array_append :: proc(array_: rawptr, elem_size, elem_align: int,
 	assert(array.data != nil)
 	data := uintptr(array.data) + uintptr(elem_size*array.len)
 
-	mem_copy(rawptr(data), items, elem_size * item_count)
+	_ = mem_copy(rawptr(data), items, elem_size * item_count)
 	array.len += item_count
 	return array.len
 }

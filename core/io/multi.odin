@@ -37,9 +37,9 @@ multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: runti
 	for w in readers {
 		if w.procedure == _multi_reader_proc {
 			other := (^Multi_Reader)(w.data)
-			append(&all_readers, ..other.readers[:])
+			_ = append(&all_readers, ..other.readers[:])
 		} else {
-			append(&all_readers, w)
+			_ = append(&all_readers, w)
 		}
 	}
 
@@ -51,7 +51,7 @@ multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: runti
 }
 
 multi_reader_destroy :: proc(mr: ^Multi_Reader) {
-	delete(mr.readers)
+	_ = delete(mr.readers)
 }
 
 
@@ -87,9 +87,9 @@ multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: runti
 	for w in writers {
 		if w.procedure == _multi_writer_proc {
 			other := (^Multi_Writer)(w.data)
-			append(&mw.writers, ..other.writers[:])
+			_ = append(&mw.writers, ..other.writers[:])
 		} else {
-			append(&mw.writers, w)
+			_ = append(&mw.writers, w)
 		}
 	}
 
@@ -99,5 +99,5 @@ multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: runti
 }
 
 multi_writer_destroy :: proc(mw: ^Multi_Writer) {
-	delete(mw.writers)
+	_ = delete(mw.writers)
 }

@@ -41,6 +41,6 @@ _heap_free :: proc(ptr: rawptr) {
 	if ptr == nil {
 		return
 	}
-	HeapFree(GetProcessHeap(), 0, ptr)
+	_ = HeapFree(GetProcessHeap(), 0, ptr)
 }
 

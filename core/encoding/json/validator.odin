@@ -88,13 +88,13 @@ validate_value :: proc(p: ^Parser) -> bool {
 
 	#partial switch token.kind {
 	case .Null, .False, .True:
-		advance_token(p)
+		_, _ = advance_token(p)
 		return true
 	case .Integer, .Float:
-		advance_token(p)
+		_, _ = advance_token(p)
 		return true
 	case .String:
-		advance_token(p)
+		_, _ = advance_token(p)
 		return is_valid_string_literal(token.text, p.spec)
 
 	case .Open_Brace:
@@ -105,7 +105,7 @@ validate_value :: proc(p: ^Parser) -> bool {
 		
 	case .Ident:
 		if p.spec == .MJSON {
-			advance_token(p)
+			_, _ = advance_token(p)
 			return true
 		}
 		return false
@@ -114,7 +114,7 @@ validate_value :: proc(p: ^Parser) -> bool {
 		if p.spec != .JSON {
 			#partial switch token.kind {
 			case .Infinity, .NaN:
-				advance_token(p)
+				_, _ = advance_token(p)
 				return true
 			}
 		}

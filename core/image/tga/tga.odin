@@ -239,7 +239,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 	}
 
 	color_map := make([]RGBA_Pixel, header.color_map_length)
-	defer delete(color_map)
+	defer _ = delete(color_map)
 
 	if color_mapped {
 		switch header.color_map_depth {
@@ -390,14 +390,14 @@ destroy :: proc(img: ^Image) {
 
 	bytes.buffer_destroy(&img.pixels)
 	if v, ok := img.metadata.(^image.TGA_Info); ok {
-		delete(v.image_id)
-		free(v)
+		_ = delete(v.image_id)
+		_ = free(v)
 	}
 
 	// Make destroy idempotent
 	img.width  = 0
 	img.height = 0
-	free(img)
+	_ = free(img)
 }
 
 IMAGE_DESCRIPTOR_INTERLEAVING_MASK :: (1<<6) | (1<<7)

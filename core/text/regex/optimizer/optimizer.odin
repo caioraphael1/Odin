@@ -170,7 +170,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 		if len(runes_seen) != len(specific.runes) {
 			clear(&specific.runes)
 			for key in runes_seen {
-				append(&specific.runes, key)
+				_ = append(&specific.runes, key)
 			}
 			changes += 1
 		}
@@ -214,14 +214,14 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 					i -= 1
 					changes += 1
 				} else if new_range.lower != new_range.upper {
-					append(&specific.ranges, new_range)
+					_ = append(&specific.ranges, new_range)
 					new_range = { -1, -1 }
 					changes += 1
 				}
 			}
 
 			if new_range.lower != new_range.upper {
-				append(&specific.ranges, new_range)
+				_ = append(&specific.ranges, new_range)
 				changes += 1
 			}
 		}
@@ -327,8 +327,8 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 				//
 				// DO: `a|b` => `[ab]`
 				node := new(Node_Rune_Class, allocator)
-				append(&node.runes, left_rune.data)
-				append(&node.runes, right_rune.data)
+				_ = append(&node.runes, left_rune.data)
+				_ = append(&node.runes, right_rune.data)
 				return node, 1
 			}
 		}
@@ -343,10 +343,10 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 		right_class, right_is_class := specific.right.(^Node_Rune_Class)
 		if left_is_class && right_is_class {
 			for r in right_class.runes {
-				append(&left_class.runes, r)
+				_ = append(&left_class.runes, r)
 			}
 			for range in right_class.ranges {
-				append(&left_class.ranges, range)
+				_ = append(&left_class.ranges, range)
 			}
 			return left_class, 1
 		}
@@ -355,7 +355,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 		//
 		// DO: `[a-b]|c` => `[a-bc]`
 		if left_is_class && right_is_rune {
-			append(&left_class.runes, right_rune.data)
+			_ = append(&left_class.runes, right_rune.data)
 			return left_class, 1
 		}
 
@@ -363,7 +363,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 		//
 		// DO: `a|[b-c]` => `[b-ca]`
 		if left_is_rune && right_is_class {
-			append(&right_class.runes, left_rune.data)
+			_ = append(&right_class.runes, left_rune.data)
 			return right_class, 1
 		}
 
@@ -428,11 +428,11 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 				// Dissolve this alternation into a concatenation.
 				cat_node := new(Node_Concatenation, allocator)
 				group_node := new(Node_Group, allocator)
-				append(&cat_node.nodes, group_node)
+				_ = append(&cat_node.nodes, group_node)
 
 				// Turn the concatenation into the common suffix.
 				for i := left_len - same_len; i < left_len; i += 1 {
-					append(&cat_node.nodes, left_concatenation.nodes[i])
+					_ = append(&cat_node.nodes, left_concatenation.nodes[i])
 				}
 
 				// Construct the group of alternating prefixes.
@@ -479,7 +479,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 			if same_len > 0 {
 				cat_node := new(Node_Concatenation, allocator)
 				for i := 0; i < same_len; i += 1 {
-					append(&cat_node.nodes, left_concatenation.nodes[i])
+					_ = append(&cat_node.nodes, left_concatenation.nodes[i])
 				}
 				for i := same_len; i > 0; i -= 1 {
 					ordered_remove(&left_concatenation.nodes, 0)
@@ -493,7 +493,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 				alter_node.right = right_concatenation
 				group_node.inner = alter_node
 
-				append(&cat_node.nodes, group_node)
+				_ = append(&cat_node.nodes, group_node)
 				return cat_node, 1
 			}
 		}

@@ -93,13 +93,13 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
 	r := make([dynamic]string, 0, n, allocator) or_return
 	defer if err != nil {
 		for e in r {
-			delete(e, allocator)
+			_ = delete(e, allocator)
 		}
-		delete(r)
+		_ = delete(r)
 	}
 
 	for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-		append(&r, strings.clone(string(entry), allocator) or_return)
+		_ = append(&r, strings.clone(string(entry), allocator) or_return)
 	}
 
 	environ = r[:]

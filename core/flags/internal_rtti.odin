@@ -133,7 +133,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
 			cstr_ptr := (^cstring)(ptr)
 			if cstr_ptr != nil {
 				// Prevent memory leaks from us setting this value multiple times.
-				delete(cstr_ptr^)
+				_ = delete(cstr_ptr^)
 			}
 			cstr_ptr^ = strings.clone_to_cstring(str)
 		} else {
@@ -433,7 +433,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^runt
 				"Failed to allocate element backing for dynamic array.",
 			}
 		}
-		defer delete(elem_backing)
+		defer _ = delete(elem_backing)
 		parse_and_set_pointer_by_type(raw_data(elem_backing), str, specific_type_info.elem, arg_tag) or_return
 
 		if !runtime.__dynamic_array_resize(ptr, specific_type_info.elem.size, specific_type_info.elem.align, ptr.len + 1) {

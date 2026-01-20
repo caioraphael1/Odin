@@ -24,12 +24,12 @@ Position :: struct {
 }
 
 // position_is_valid reports where the position is valid
-@(require_results)
+
 position_is_valid :: proc(pos: Position) -> bool {
 	return pos.line > 0
 }
 
-@(require_results)
+
 position_to_string :: proc(pos: Position, allocator := runtime.temp_allocator) -> string {
 	s := pos.filename
 	if s == "" {
@@ -143,7 +143,7 @@ init :: proc(s: ^Scanner, src: string, filename := "") -> ^Scanner {
 }
 
 
-@(private, require_results)
+@(private)
 advance :: proc(s: ^Scanner) -> rune {
 	if s.src_pos >= len(s.src) {
 		s.prev_char_len = 0
@@ -193,7 +193,7 @@ next :: proc(s: ^Scanner) -> rune {
 // peek returns the next Unicode character in the source without advancing the scanner
 // It returns EOF if the scanner's position is at least the last character of the source
 // if n > 0, it call next n times and return the nth Unicode character and then restore the Scanner's state
-@(require_results)
+
 peek :: proc(s: ^Scanner, n := 0) -> (ch: rune) {
 	if s.ch == -2 {
 		s.ch = advance(s)
@@ -215,7 +215,7 @@ peek :: proc(s: ^Scanner, n := 0) -> (ch: rune) {
 // peek returns the next token in the source
 // It returns EOF if the scanner's position is at least the last character of the source
 // if n > 0, it call next n times and return the nth token and then restore the Scanner's state
-@(require_results)
+
 peek_token :: proc(s: ^Scanner, n := 0) -> (tok: rune) {
 	assert(n >= 0)
 	prev_s := s^
@@ -254,7 +254,7 @@ errorf :: proc(s: ^Scanner, format: string, args: ..any) {
 	error(s, fmt.tprintf(format, ..args))
 }
 
-@(private, require_results)
+@(private)
 is_ident_rune :: proc(s: ^Scanner, ch: rune, i: int) -> bool {
 	if s.is_ident_rune != nil {
 		return s.is_ident_rune(ch, i)
@@ -262,7 +262,7 @@ is_ident_rune :: proc(s: ^Scanner, ch: rune, i: int) -> bool {
 	return ch == '_' || unicode.is_letter(ch) || unicode.is_digit(ch) && i > 0
 }
 
-@(private, require_results)
+@(private)
 scan_identifier :: proc(s: ^Scanner) -> rune {
 	ch := advance(s)
 	for i := 1; is_ident_rune(s, ch, i); i += 1 {
@@ -271,13 +271,13 @@ scan_identifier :: proc(s: ^Scanner) -> rune {
 	return ch
 }
 
-@(private, require_results) lower      :: proc(ch: rune) -> rune { return ('a' - 'A') | ch }
-@(private, require_results) is_decimal :: proc(ch: rune) -> bool { return '0' <= ch && ch <= '9' }
-@(private, require_results) is_hex     :: proc(ch: rune) -> bool { return '0' <= ch && ch <= '9' || 'a' <= lower(ch) && lower(ch) <= 'f' }
+@(private) lower      :: proc(ch: rune) -> rune { return ('a' - 'A') | ch }
+@(private) is_decimal :: proc(ch: rune) -> bool { return '0' <= ch && ch <= '9' }
+@(private) is_hex     :: proc(ch: rune) -> bool { return '0' <= ch && ch <= '9' || 'a' <= lower(ch) && lower(ch) <= 'f' }
 
 
 
-@(private, require_results)
+@(private)
 scan_number :: proc(s: ^Scanner, ch: rune, seen_dot: bool) -> (rune, rune) {
 	lit_name :: proc(prefix: rune) -> string {
 		switch prefix {
@@ -426,7 +426,7 @@ scan_number :: proc(s: ^Scanner, ch: rune, seen_dot: bool) -> (rune, rune) {
 	return tok, ch
 }
 
-@(private, require_results)
+@(private)
 scan_string :: proc(s: ^Scanner, quote: rune) -> (n: int) {
 	digit_val :: proc(ch: rune) -> int {
 		switch v := lower(ch); v {
@@ -493,7 +493,7 @@ scan_char :: proc(s: ^Scanner) {
 	}
 }
 
-@(private, require_results)
+@(private)
 scan_comment :: proc(s: ^Scanner, ch: rune) -> rune {
 	ch := ch
 	if ch == '/' { // line comment
@@ -620,7 +620,7 @@ scan :: proc(s: ^Scanner) -> (tok: rune) {
 
 // position returns the position of the character immediately after the character or token returns by the previous call to next or scan
 // Use the Scanner's position field for the most recently scanned token position
-@(require_results)
+
 position :: proc(s: ^Scanner) -> Position {
 	pos: Position
 	pos.filename = s.pos.filename
@@ -640,7 +640,7 @@ position :: proc(s: ^Scanner) -> Position {
 }
 
 // token_text returns the string of the most recently scanned token
-@(require_results)
+
 token_text :: proc(s: ^Scanner) -> string {
 	if s.tok_pos < 0 {
 		return ""
@@ -650,7 +650,7 @@ token_text :: proc(s: ^Scanner) -> string {
 
 // token_string returns a printable string for a token or Unicode character
 // By default, it uses the runtime.temp_allocator to produce the string
-@(require_results)
+
 token_string :: proc(tok: rune, allocator: runtime.Allocator) -> string {
 	context.allocator = allocator
 	switch tok {

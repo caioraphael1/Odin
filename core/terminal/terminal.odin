@@ -20,7 +20,7 @@ Returns true if the file `handle` is attached to a terminal.
 This is normally true for `os.stdout` and `os.stderr` unless they are
 redirected to a file.
 */
-@(require_results)
+
 is_terminal :: proc(handle: ^os.File) -> bool {
 	return _is_terminal(handle)
 }

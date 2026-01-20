@@ -120,7 +120,7 @@ foreign libc {
 
 	// 7.22.3 Memory management functions
 	calloc        :: proc(nmemb, size: size_t) -> rawptr ---
-	free          :: proc(ptr: rawptr) ---
+	_ = free          :: proc(ptr: rawptr) ---
 	malloc        :: proc(size: size_t) -> rawptr ---
 	realloc       :: proc(ptr: rawptr, size: size_t) -> rawptr ---
 
@@ -186,6 +186,6 @@ aligned_free :: #force_inline proc "c" (ptr: rawptr) {
 		context = {}
 		runtime.mem_free(ptr)
 	} else {
-		free(ptr)
+		_ = free(ptr)
 	}
 }

@@ -43,7 +43,7 @@ test_grapheme_byte_index_segmentation :: proc(t: ^testing.T) {
 	str := SAMPLE_1 + SAMPLE_2 + SAMPLE_3 + SAMPLE_2 + SAMPLE_1
 
 	graphemes, _, _, _ := utf8.decode_grapheme_clusters(str)
-	defer delete(graphemes)
+	defer _ = delete(graphemes)
 
 	defer if testing.failed(t) {
 		log.infof("%#v\n%q\n%v", graphemes, str, transmute([]u8)str)
@@ -106,7 +106,7 @@ test_width :: proc(t: ^testing.T) {
 	{
 		str := "aカ.ヒフ"
 		graphemes, grapheme_count, _, width := utf8.decode_grapheme_clusters(str)
-		defer delete(graphemes)
+		defer _ = delete(graphemes)
 		testing.expect_value(t, grapheme_count, 5)
 		testing.expect_value(t, width, 8)
 		if grapheme_count == 5 {

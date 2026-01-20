@@ -287,34 +287,34 @@ destroy_dns_records :: proc(records: []DNS_Record, allocator: mem.Allocator) {
 	for rec in records {
 		switch r in rec {
 		case DNS_Record_IP4:
-			delete(r.base.record_name, allocator)
+			_ = delete(r.base.record_name, allocator)
 
 		case DNS_Record_IP6:
-			delete(r.base.record_name, allocator)
+			_ = delete(r.base.record_name, allocator)
 
 		case DNS_Record_CNAME:
-			delete(r.base.record_name, allocator)
-			delete(r.host_name, allocator)
+			_ = delete(r.base.record_name, allocator)
+			_ = delete(r.host_name, allocator)
 
 		case DNS_Record_TXT:
-			delete(r.base.record_name, allocator)
-			delete(r.value, allocator)
+			_ = delete(r.base.record_name, allocator)
+			_ = delete(r.value, allocator)
 
 		case DNS_Record_NS:
-			delete(r.base.record_name, allocator)
-			delete(r.host_name, allocator)
+			_ = delete(r.base.record_name, allocator)
+			_ = delete(r.host_name, allocator)
 
 		case DNS_Record_MX:
-			delete(r.base.record_name, allocator)
-			delete(r.host_name, allocator)
+			_ = delete(r.base.record_name, allocator)
+			_ = delete(r.host_name, allocator)
 
 		case DNS_Record_SRV:
-			delete(r.record_name, allocator)
-			delete(r.target, allocator)
+			_ = delete(r.record_name, allocator)
+			_ = delete(r.target, allocator)
 		}
 	}
 
-	delete(records, allocator)
+	_ = delete(records, allocator)
 }
 
 /*
@@ -363,7 +363,7 @@ unpack_dns_header :: proc(id: u16be, bits: u16be) -> (hdr: DNS_Header) {
 
 load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> (name_servers: []Endpoint, err: os.Error) {
 	res := os.read_entire_file(resolv_conf_path, allocator) or_return
-	defer delete(res, allocator)
+	defer _ = delete(res, allocator)
 	resolv_str := string(res)
 
 	id_str := "nameserver"
@@ -393,7 +393,7 @@ load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> 
 			addr,
 			53,
 		}
-		append(&_name_servers, endpoint)
+		_ = append(&_name_servers, endpoint)
 	}
 
 	return _name_servers[:], nil
@@ -401,7 +401,7 @@ load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> 
 
 load_hosts :: proc(hosts_file_path: string, allocator: mem.Allocator) -> (hosts: []DNS_Host_Entry, err: os.Error) {
 	res := os.read_entire_file(hosts_file_path, allocator) or_return
-	defer delete(res, allocator)
+	defer _ = delete(res, allocator)
 
 	_hosts, _ := make([dynamic]DNS_Host_Entry, 0, allocator)
 	hosts_str := string(res)
@@ -411,7 +411,7 @@ load_hosts :: proc(hosts_file_path: string, allocator: mem.Allocator) -> (hosts:
 		}
 
 		splits, _ := strings.fields(line, allocator)
-		defer delete(splits, allocator)
+		defer _ = delete(splits, allocator)
 
 		(len(splits) >= 2) or_continue
 
@@ -423,7 +423,7 @@ load_hosts :: proc(hosts_file_path: string, allocator: mem.Allocator) -> (hosts:
 
 		for hostname in splits[1:] {
 			if len(hostname) != 0 {
-				append(&_hosts, DNS_Host_Entry{hostname, addr})
+				_ = append(&_hosts, DNS_Host_Entry{hostname, addr})
 			}
 		}
 	}
@@ -814,13 +814,13 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 	dns_hdr_chunks := mem.slice_data_cast([]u16be, response[:HEADER_SIZE_BYTES])
 	hdr := unpack_dns_header(dns_hdr_chunks[0], dns_hdr_chunks[1])
 	if !hdr.is_response {
-		delete(_records)
+		_ = delete(_records)
 		return
 	}
 
 	question_count := int(dns_hdr_chunks[2])
 	if question_count != 1 {
-		delete(_records)
+		_ = delete(_records)
 		return
 	}
 	answer_count := int(dns_hdr_chunks[3])
@@ -847,7 +847,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
 		rec := parse_record(response, &cur_idx, filter, allocator) or_return
 		if rec != nil {
-			append(&_records, rec)
+			_ = append(&_records, rec)
 		}
 	}
 
@@ -858,7 +858,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
 		rec := parse_record(response, &cur_idx, filter, allocator) or_return
 		if rec != nil {
-			append(&_records, rec)
+			_ = append(&_records, rec)
 		}
 	}
 
@@ -869,7 +869,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
 		rec := parse_record(response, &cur_idx, filter, allocator) or_return
 		if rec != nil {
-			append(&_records, rec)
+			_ = append(&_records, rec)
 		}
 	}
 	xid = hdr.id

@@ -335,7 +335,7 @@ foreign xlib {
 		property:    Atom,
 		long_offs:   int,
 		long_len:    int,
-		delete:      b32,
+		_ = delete:      b32,
 		req_type:    Atom,
 		act_type:    [^]Atom,
 		act_format:  [^]i32,

@@ -321,7 +321,7 @@ clean :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, err: 
 	new_allocation: bool
 	cleaned, new_allocation = from_slash(s, allocator)
 	if new_allocation {
-		delete(s, allocator)
+		_ = delete(s, allocator)
 	}
 	return
 }
@@ -359,8 +359,8 @@ Relative_Error :: enum {
 rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string, Relative_Error) {
 	base_clean   := clean(base_path,   allocator)
 	target_clean := clean(target_path, allocator)
-	defer delete(base_clean,   allocator)
-	defer delete(target_clean, allocator)
+	defer _ = delete(base_clean,   allocator)
+	defer _ = delete(target_clean, allocator)
 
 	if strings.equal_fold(target_clean, base_clean) {
 		return strings.clone(".", allocator), .None
@@ -439,7 +439,7 @@ dir :: proc(path: string, allocator: mem.Allocator) -> string {
 		i -= 1
 	}
 	dir := clean(path[len(vol) : i+1], allocator)
-	defer delete(dir, allocator)
+	defer _ = delete(dir, allocator)
 	if dir == "." && len(vol) > 2 {
 		return strings.clone(vol, allocator)
 	}
@@ -448,7 +448,7 @@ dir :: proc(path: string, allocator: mem.Allocator) -> string {
 
 
 
-// Splits the PATH-like `path` string, returning an array of its separated components (delete after use).
+// Splits the PATH-like `path` string, returning an array of its separated components (_ = delete after use).
 // For Windows the separator is `;`, for Unix it's  `:`.
 // An empty string returns nil. A non-empty string with no separators returns a 1-element array.
 // Any empty components will be included, e.g. `a::b` will return a 3-element array, as will `::`.

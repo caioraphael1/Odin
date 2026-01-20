@@ -19,7 +19,7 @@ find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, al
 	path := concatenate({base_path, `\`, win32_wstring_to_utf8(cstring16(raw_data(d.cFileName[:])), runtime.temp_allocator) or_else ""}, allocator) or_return
 
 	handle := win32.HANDLE(_open_internal(path, {.Read}, Permissions_Read_Write_All) or_else 0)
-	defer win32.CloseHandle(handle)
+	defer _ = win32.CloseHandle(handle)
 
 	fi.fullpath = path
 	fi.name = basename(path)
@@ -49,7 +49,7 @@ Read_Directory_Iterator_Impl :: struct {
 }
 
 
-@(require_results)
+
 _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
 	for !it.impl.no_more_files {
 		err: Error
@@ -96,10 +96,10 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 
 	// NOTE: Allow calling `init` to target a new directory with the same iterator - reset idx.
 	if it.impl.find_handle != nil {
-		win32.FindClose(it.impl.find_handle)
+		_ = win32.FindClose(it.impl.find_handle)
 	}
 	if it.impl.path != "" {
-		delete(it.impl.path, allocator)
+		_ = delete(it.impl.path, allocator)
 	}
 
 	if !is_directory(impl.name) {
@@ -122,7 +122,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 		return
 	}
 	defer if it.err.err != nil {
-		win32.FindClose(it.impl.find_handle)
+		_ = win32.FindClose(it.impl.find_handle)
 	}
 
 	err: Error
@@ -139,6 +139,6 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator
 		return
 	}
 	file_info_delete(it.impl.prev_fi, allocator)
-	delete(it.impl.path, allocator)
-	win32.FindClose(it.impl.find_handle)
+	_ = delete(it.impl.path, allocator)
+	_ = win32.FindClose(it.impl.find_handle)
 }

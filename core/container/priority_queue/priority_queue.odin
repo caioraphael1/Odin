@@ -23,7 +23,7 @@ init :: proc(pq: ^$Q/Priority_Queue($T), less: proc(a, b: T) -> bool, swap: proc
 	if pq.queue.allocator.procedure == nil {
 		pq.queue.allocator = allocator
 	}
-	reserve(pq, capacity) or_return
+	_ = reserve(pq, capacity) or_return
 	pq.less = less
 	pq.swap = swap
 	return .None
@@ -41,10 +41,10 @@ init_from_dynamic_array :: proc(pq: ^$Q/Priority_Queue($T), queue: [dynamic]T, l
 
 destroy :: proc(pq: ^$Q/Priority_Queue($T)) {
 	clear(pq)
-	delete(pq.queue)
+	_ = delete(pq.queue)
 }
 
-reserve :: proc(pq: ^$Q/Priority_Queue($T), capacity: int) -> (err: runtime.Allocator_Error) {
+_ = reserve :: proc(pq: ^$Q/Priority_Queue($T), capacity: int) -> (err: runtime.Allocator_Error) {
 	return builtin.reserve(&pq.queue, capacity)
 }
 clear :: proc(pq: ^$Q/Priority_Queue($T)) {

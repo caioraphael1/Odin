@@ -47,9 +47,9 @@ Inputs:
 */
 intern_destroy :: proc(m: ^Intern) {
 	for _, value in m.entries {
-		free(value, m.allocator)
+		_ = free(value, m.allocator)
 	}
-	delete(m.entries)
+	_ = delete(m.entries)
 }
 /*
 Returns an interned copy of the given text, adding it to the map if not already present.

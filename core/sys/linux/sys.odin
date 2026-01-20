@@ -1668,7 +1668,7 @@ getgid :: proc() -> Gid {
 	Available since Linux 1.0.
 	On 32-bit platforms available since Linux 2.4.
 */
-@(require_results)
+
 setuid :: proc(uid: Uid) -> (Errno) {
 	when size_of(int) == 8 {
 		ret := syscall(SYS_setuid, uid)
@@ -1685,7 +1685,7 @@ setuid :: proc(uid: Uid) -> (Errno) {
 	Available since Linux 1.0.
 	On 32-bit platforms available since Linux 2.4.
 */
-@(require_results)
+
 setgid :: proc(gid: Gid) -> (Errno) {
 	when size_of(int) == 8 {
 		ret := syscall(SYS_setgid, gid)
@@ -1768,7 +1768,7 @@ setsid :: proc() -> (Pid, Errno) {
 	Available since Linux 1.0.
 	On 32-bit platforms available since Linux 2.4.
 */
-@(require_results)
+
 setreuid :: proc(real: Uid, effective: Uid) -> (Errno) {
 	when size_of(int) == 8 {
 		ret := syscall(SYS_setreuid, real, effective)
@@ -1785,7 +1785,7 @@ setreuid :: proc(real: Uid, effective: Uid) -> (Errno) {
 	Available since Linux 1.0.
 	On 32-bit platforms available since Linux 2.4.
 */
-@(require_results)
+
 setregid :: proc(real: Gid, effective: Gid) -> (Errno) {
 	when size_of(int) == 8 {
 		ret := syscall(SYS_setregid, real, effective)
@@ -1832,7 +1832,7 @@ setgroups :: proc(gids: []Gid) -> (Errno) {
 	Available since Linux 2.2.
 	On 32-bit platforms available since Linux 2.4.
 */
-@(require_results)
+
 setresuid :: proc(real: Uid, effective: Uid, saved: Uid) -> (Errno) {
 	when size_of(int) == 8 {
 		ret := syscall(SYS_setresuid, real, effective, saved)
@@ -1864,7 +1864,7 @@ getresuid :: proc(real: ^Uid, effective: ^Uid, saved: ^Uid) -> (Errno) {
 	Available since Linux 2.2.
 	On 32-bit platforms available since Linux 2.4.
 */
-@(require_results)
+
 setresgid :: proc(real: Gid, effective: Gid, saved: Uid) -> (Errno) {
 	when size_of(int) == 8 {
 		ret := syscall(SYS_setresgid, real, effective, saved)

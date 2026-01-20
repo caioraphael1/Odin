@@ -9,7 +9,7 @@ import "core:math/rand"
 @test
 test_xxhash_zero_fixed :: proc(t: ^testing.T) {
 	many_zeroes := make([]u8, 16 * 1024 * 1024)
-	defer delete(many_zeroes)
+	defer _ = delete(many_zeroes)
 
 	// All at once.
 	for i, v in ZERO_VECTORS {
@@ -30,7 +30,7 @@ test_xxhash_zero_fixed :: proc(t: ^testing.T) {
 @(test)
 test_xxhash_zero_streamed_random_updates :: proc(t: ^testing.T) {
 	many_zeroes := make([]u8, 16 * 1024 * 1024)
-	defer delete(many_zeroes)
+	defer _ = delete(many_zeroes)
 
 	// Streamed
 	for i, v in ZERO_VECTORS {
@@ -85,7 +85,7 @@ test_xxhash_zero_streamed_random_updates :: proc(t: ^testing.T) {
 @test
 test_xxhash_seeded :: proc(t: ^testing.T) {
 	buf := make([]u8, 256)
-	defer delete(buf)
+	defer _ = delete(buf)
 
 	for seed, table in XXHASH_TEST_VECTOR_SEEDED {
 		for v, i in table {
@@ -123,7 +123,7 @@ test_xxhash_seeded :: proc(t: ^testing.T) {
 @test
 test_xxhash_secret :: proc(t: ^testing.T) {
 	buf := make([]u8, 256)
-	defer delete(buf)
+	defer _ = delete(buf)
 
 	for secret, table in XXHASH_TEST_VECTOR_SECRET {
 		secret_bytes := transmute([]u8)secret

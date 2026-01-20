@@ -65,7 +65,7 @@ test_rbtree_integer :: proc(t: ^testing.T, $Key: typeid, $Value: typeid) {
 	// Test the forward/backward iterators.
 	inserted_keys: [dynamic]Key
 	for k in inserted_map {
-		append(&inserted_keys, k)
+		_ = append(&inserted_keys, k)
 	}
 	slice.sort(inserted_keys[:])
 
@@ -146,8 +146,8 @@ test_rbtree_integer :: proc(t: ^testing.T, $Key: typeid, $Value: typeid) {
 	testing.expectf(t, callback_count == 0, "remove: on_remove should've been called %v times, it was %v", entry_count, callback_count)
 
 	// print_tree_node(tree._root)
-	delete(inserted_map)
-	delete(inserted_keys)
+	_ = delete(inserted_map)
+	_ = delete(inserted_keys)
 	testing.expectf(t, len(track.allocation_map) == 0, "Expected 0 leaks, have %v",     len(track.allocation_map))
 	testing.expectf(t, len(track.bad_free_array) == 0, "Expected 0 bad frees, have %v", len(track.bad_free_array))
 	return

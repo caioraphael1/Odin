@@ -17,7 +17,7 @@ import "core:math"
 //    https://www.jstatsoft.org/index.php/jss/article/view/v005i08/ziggurat.pdf [pdf]
 //    https://www.jstatsoft.org/article/view/v005i08 [web page]
 //
-@(require_results)
+
 exp_float64 :: proc(gen: runtime.Random_Generator) -> f64 {
 	re :: 7.69711747013104972
 

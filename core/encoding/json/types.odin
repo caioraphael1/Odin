@@ -97,17 +97,17 @@ destroy_value :: proc(value: Value, allocator: runtime.Allocator, loc := #caller
 	#partial switch v in value {
 	case Object:
 		for key, elem in v {
-			delete_string(key, allocator, loc)
+			_ = delete_string(key, allocator, loc)
 			destroy_value(elem, allocator, loc)
 		}
-		delete_map(v, loc)
+		_ = delete_map(v, loc)
 	case Array:
 		for elem in v {
 			destroy_value(elem, allocator, loc)
 		}
-		delete_dynamic_array(v, loc)
+		_ = delete_dynamic_array(v, loc)
 	case String:
-		delete_string(v, allocator, loc)
+		_ = delete_string(v, allocator, loc)
 	}
 }
 

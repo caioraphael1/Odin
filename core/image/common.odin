@@ -730,7 +730,7 @@ Channel :: enum u8 {
 }
 
 // Take a slice of pixels (`[]RGBA_Pixel`, etc), and return an `Image`
-// Don't call `destroy` on the resulting `Image`. Instead, delete the original `pixels` slice.
+// Don't call `destroy` on the resulting `Image`. Instead, _ = delete the original `pixels` slice.
 pixels_to_image :: proc(pixels: [][$N]$E, width: int, height: int) -> (img: Image, ok: bool) where E == u8 || E == u16, N >= 1, N <= 4 {
 	if len(pixels) != width * height {
 		return {}, false
@@ -780,7 +780,7 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
 	case 8:
 		buffer_size := compute_buffer_size(img.width, img.height, 1, 8)
 		t = bytes.Buffer{}
-		resize(&t.buf, buffer_size)
+		_ = resize(&t.buf, buffer_size)
 
 		i := bytes.buffer_to_bytes(&img.pixels)
 		o := bytes.buffer_to_bytes(&t)
@@ -793,7 +793,7 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
 	case 16:
 		buffer_size := compute_buffer_size(img.width, img.height, 1, 16)
 		t = bytes.Buffer{}
-		resize(&t.buf, buffer_size)
+		_ = resize(&t.buf, buffer_size)
 
 		i := mem.slice_data_cast([]u16, img.pixels.buf[:])
 		o := mem.slice_data_cast([]u16, t.buf[:])
@@ -929,7 +929,7 @@ alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator :=
 
 	// Can we allocate the return buffer?
 	if resize(&buf.buf, bytes_wanted) != nil {
-		delete(buf.buf)
+		_ = delete(buf.buf)
 		return false
 	}
 
@@ -1121,7 +1121,7 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
 
 	// Can we allocate the return buffer?
 	if resize(&buf.buf, bytes_wanted) != nil {
-		delete(buf.buf)
+		_ = delete(buf.buf)
 		return false
 	}
 
@@ -1370,7 +1370,7 @@ apply_palette_rgb :: proc(img: ^Image, palette: [256]RGB_Pixel, allocator := con
 	buf := bytes.Buffer{}
 	bytes_wanted := compute_buffer_size(img.width, img.height, 3, 8)
 	if resize(&buf.buf, bytes_wanted) != nil {
-		delete(buf.buf)
+		_ = delete(buf.buf)
 		return false
 	}
 
@@ -1407,7 +1407,7 @@ apply_palette_rgba :: proc(img: ^Image, palette: [256]RGBA_Pixel, allocator := c
 	buf := bytes.Buffer{}
 	bytes_wanted := compute_buffer_size(img.width, img.height, 4, 8)
 	if resize(&buf.buf, bytes_wanted) != nil {
-		delete(buf.buf)
+		_ = delete(buf.buf)
 		return false
 	}
 
@@ -1512,7 +1512,7 @@ expand_grayscale :: proc(img: ^Image, allocator := context.allocator) -> (ok: bo
 	buf := bytes.Buffer{}
 	bytes_wanted := compute_buffer_size(img.width, img.height, img.channels + 2, img.depth)
 	if resize(&buf.buf, bytes_wanted) != nil {
-		delete(buf.buf)
+		_ = delete(buf.buf)
 		return false
 	}
 

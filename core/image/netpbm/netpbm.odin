@@ -126,7 +126,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator := context
 		pixels := img.pixels.buf[:]
 
 		p4_buffer_size := (img.width / 8 + 1) * img.height
-		reserve(&data.buf, len(header_buf) + p4_buffer_size)
+		_ = reserve(&data.buf, len(header_buf) + p4_buffer_size)
 
 		// we build up a byte value until it is completely filled
 		// or we reach the end the row
@@ -140,13 +140,13 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator := context
 				b |= (v << bit)
 
 				if bit == 0 {
-					append(&data.buf, b)
+					_ = append(&data.buf, b)
 					b = 0
 				}
 			}
 
 			if b != 0 {
-				append(&data.buf, b)
+				_ = append(&data.buf, b)
 				b = 0
 			}
 		}
@@ -156,7 +156,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator := context
 		header_buf := data.buf[:]
 		pixels := img.pixels.buf[:]
 
-		resize(&data.buf, len(header_buf) + len(pixels))
+		_ = resize(&data.buf, len(header_buf) + len(pixels))
 		mem.copy(raw_data(data.buf[len(header_buf):]), raw_data(pixels), len(pixels))
 
 		// convert from native endianness
@@ -185,9 +185,9 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator := context
 		for y in 0 ..< img.height {
 			for x in 0 ..< img.width {
 				i := y * img.width + x
-				append(&data.buf, '0' if pixels[i] == 0 else '1')
+				_ = append(&data.buf, '0' if pixels[i] == 0 else '1')
 			}
-			append(&data.buf, '\n')
+			_ = append(&data.buf, '\n')
 		}
 
 	// Token ASCII
@@ -560,7 +560,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator := con
 			for b in 1 ..= 8 {
 				bit := byte(8 - b)
 				pix := (d >> bit) & 1
-				bytes.buffer_write_byte(&img.pixels, pix)
+				_ = bytes.buffer_write_byte(&img.pixels, pix)
 				if len(img.pixels.buf) % img.width == 0 {
 					break
 				}
@@ -601,7 +601,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator := con
 		for c in data {
 			switch c {
 			case '0', '1':
-				bytes.buffer_write_byte(&img.pixels, c - '0')
+				_ = bytes.buffer_write_byte(&img.pixels, c - '0')
 			}
 
 			if len(img.pixels.buf) == cap(img.pixels.buf) {
@@ -632,10 +632,10 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator := con
 
 			switch img.depth {
 			case 8:
-				bytes.buffer_write_byte(&img.pixels, u8(value))
+				_ = bytes.buffer_write_byte(&img.pixels, u8(value))
 			case 16:
 				vb := transmute([2]u8) u16(value)
-				bytes.buffer_write(&img.pixels, vb[:])
+				_, _ = bytes.buffer_write(&img.pixels, vb[:])
 			}
 
 			if len(img.pixels.buf) == cap(img.pixels.buf) {

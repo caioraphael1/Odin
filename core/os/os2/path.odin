@@ -14,7 +14,7 @@ Path_List_Separator   :: _Path_List_Separator   // OS-Specific
 Return true if `c` is a character used to separate paths into directory and
 file hierarchies on the current system.
 */
-@(require_results)
+
 is_path_separator :: proc(c: byte) -> bool {
 	return _is_path_separator(c)
 }
@@ -57,7 +57,7 @@ Get the working directory of the current process.
 
 *Allocates Using Provided Allocator*
 */
-@(require_results)
+
 get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _get_working_directory(allocator)
 }
@@ -78,7 +78,7 @@ Get the path for the currently running executable.
 
 *Allocates Using Provided Allocator*
 */
-@(require_results)
+
 get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
 	return _get_executable_path(allocator)
 }
@@ -88,7 +88,7 @@ Get the directory for the currently running executable.
 
 *Allocates Using Provided Allocator*
 */
-@(require_results)
+
 get_executable_directory :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
 	path = _get_executable_path(allocator) or_return
 	path, _ = split_path(path)
@@ -100,7 +100,7 @@ Compare two paths for exactness without normalization.
 
 This procedure takes into account case-sensitivity on differing systems.
 */
-@(require_results)
+
 are_paths_identical :: proc(a, b: string) -> (identical: bool) {
 	return _are_paths_identical(a, b)
 }
@@ -113,7 +113,7 @@ Normalize a path.
 This will remove duplicate separators and unneeded references to the current or
 parent directory.
 */
-@(require_results)
+
 clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: string, err: Error) {
 	if path == "" || path == "." {
 		return strings.clone(".", allocator)
@@ -188,7 +188,7 @@ clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: stri
 /*
 Return true if `path` is an absolute path as opposed to a relative one.
 */
-@(require_results)
+
 is_absolute_path :: proc(path: string) -> bool {
 	return _is_absolute_path(path)
 }
@@ -198,7 +198,7 @@ Get the absolute path to `path` with respect to the process's current directory.
 
 *Allocates Using Provided Allocator*
 */
-@(require_results)
+
 get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absolute_path: string, err: Error) {
 	return _get_absolute_path(path, allocator)
 }
@@ -217,7 +217,7 @@ This procedure will return an `Invalid_Path` error if `base` begins with a
 reference to the parent directory (`".."`). Use `get_working_directory` with
 `join_path` to construct absolute paths for both arguments instead.
 */
-@(require_results)
+
 get_relative_path :: proc(base, target: string, allocator: runtime.Allocator) -> (path: string, err: Error) {
 	if _are_paths_identical(base, target) {
 		return strings.clone(".", allocator)
@@ -310,7 +310,7 @@ Split a path into a directory hierarchy and a filename.
 
 For example, `split_path("/home/foo/bar.tar.gz")` will return `"/home/foo"` and `"bar.tar.gz"`.
 */
-@(require_results)
+
 split_path :: proc(path: string) -> (dir, filename: string) {
 	return _split_path(path)
 }
@@ -322,7 +322,7 @@ Join all `elems` with the system's path separator and normalize the result.
 
 For example, `join_path({"/home", "foo", "bar.txt"})` will result in `"/home/foo/bar.txt"`.
 */
-@(require_results)
+
 join_path :: proc(elems: []string, allocator: runtime.Allocator) -> (joined: string, err: Error) {
 	for e, i in elems {
 		if e != "" {
@@ -344,7 +344,7 @@ will be included in the filename, resulting in `".readme"` and `"txt"`.
 
 For example, `split_filename("foo.tar.gz")` will return `"foo.tar"` and `"gz"`.
 */
-@(require_results)
+
 split_filename :: proc(filename: string) -> (base, ext: string) {
 	i := strings.last_index_byte(filename, '.')
 	if i <= 0 {
@@ -363,7 +363,7 @@ will be included in the filename, resulting in `".readme"` and `"txt.gz"`.
 
 For example, `split_filename_all("foo.tar.gz")` will return `"foo"` and `"tar.gz"`.
 */
-@(require_results)
+
 split_filename_all :: proc(filename: string) -> (base, ext: string) {
 	i := strings.index_byte(filename, '.')
 	if i == 0 {
@@ -386,7 +386,7 @@ Join `base` and `ext` with the system's filename extension separator.
 
 For example, `join_filename("foo", "tar.gz")` will result in `"foo.tar.gz"`.
 */
-@(require_results)
+
 join_filename :: proc(base: string, ext: string, allocator: runtime.Allocator) -> (joined: string, err: Error) {
 	if len(base) == 0 {
 		return strings.clone(ext, allocator)
@@ -411,7 +411,7 @@ for environment variables specifying multiple directories.
 For example, there is the "PATH" environment variable on POSIX systems which
 this procedure can split into separate entries.
 */
-@(require_results)
+
 split_path_list :: proc(path: string, allocator: runtime.Allocator) -> (list: []string, err: Error) {
 	if path == "" {
 		return nil, nil

@@ -11,7 +11,7 @@ load :: proc{
 
 load_from_file :: proc(filename: string, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
 	data, ok := os.read_entire_file(filename, allocator)
-	defer delete(data, allocator)
+	defer _ = delete(data, allocator)
 	if ok {
 		return load_from_bytes(data, options, allocator)
 	} else {

@@ -22,7 +22,7 @@ the communication channel, the data may not be present at the time of a read
 request. The other scenario is when a pipe has no data because the other end
 of the pipe was closed by the child process.
 */
-@(require_results)
+
 pipe :: proc(allocator: runtime.Allocator) -> (r, w: ^File, err: Error) {
 	return _pipe(allocator)
 }
@@ -39,7 +39,7 @@ thread.
 `.Broken_Pipe`
 can be returned by this procedure. Handle these errors accordingly.
 */
-@(require_results)
+
 pipe_has_data :: proc(r: ^File) -> (ok: bool, err: Error) {
 	return _pipe_has_data(r)
 }

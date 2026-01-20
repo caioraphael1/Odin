@@ -40,12 +40,12 @@ test_chacha20 :: proc(t: ^testing.T) {
 
 supported_chacha_impls :: proc() -> [dynamic]chacha20.Implementation {
 	impls := make([dynamic]chacha20.Implementation, 0, 3, context.temp_allocator)
-	append(&impls, chacha20.Implementation.Portable)
+	_ = append(&impls, chacha20.Implementation.Portable)
 	if chacha_simd128.is_performant() {
-		append(&impls, chacha20.Implementation.Simd128)
+		_ = append(&impls, chacha20.Implementation.Simd128)
 	}
 	if chacha_simd256.is_performant() {
-		append(&impls, chacha20.Implementation.Simd256)
+		_ = append(&impls, chacha20.Implementation.Simd256)
 	}
 
 	return impls
@@ -190,7 +190,7 @@ test_rand_bytes :: proc(t: ^testing.T) {
 	}
 
 	buf := make([]byte, 1 << 25, context.allocator)
-	defer delete(buf)
+	defer _ = delete(buf)
 
 	// Testing a CSPRNG for correctness is incredibly involved and
 	// beyond the scope of an implementation that offloads

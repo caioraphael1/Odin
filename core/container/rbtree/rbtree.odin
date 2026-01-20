@@ -182,7 +182,7 @@ remove_node :: proc(t: ^$T/Tree($Key, $Value), node: ^$N/Node(Key, Value), call_
 	}
 	node := node
 	if node._left != nil && node._right != nil {
-		// Copy key + value from predecessor and delete it instead
+		// Copy key + value from predecessor and _ = delete it instead
 		predecessor := maximum_node(node._left)
 		node.key   = predecessor.key
 		node.value = predecessor.value
@@ -202,7 +202,7 @@ remove_node :: proc(t: ^$T/Tree($Key, $Value), node: ^$N/Node(Key, Value), call_
 	if call_on_remove && t.on_remove != nil {
 		t.on_remove(node.key, node.value, t.user_data)
 	}
-	free(node, t._node_allocator)
+	_ = free(node, t._node_allocator)
 	t._size -= 1
 	return true
 }

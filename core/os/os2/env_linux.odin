@@ -105,7 +105,7 @@ when ODIN_NO_CRT {
 				intrinsics.mem_copy_non_overlapping(v_addr, raw_data(v_new), len(v_new))
 				v_addr[len(v_new)] = 0
 
-				append(&_env, string(k_addr[:kv_size]))
+				_ = append(&_env, string(k_addr[:kv_size]))
 				return nil
 			}
 		}
@@ -121,7 +121,7 @@ when ODIN_NO_CRT {
 		intrinsics.mem_copy_non_overlapping(&val_slice[0], raw_data(v_new), len(v_new))
 		val_slice[len(v_new)] = 0
 
-		append(&_env, string(k_addr[:kv_size - 1]))
+		_ = append(&_env, string(k_addr[:kv_size - 1]))
 		return nil
 	}
 
@@ -174,14 +174,14 @@ when ODIN_NO_CRT {
 		env := make([dynamic]string, 0, len(_env), allocator) or_return
 		defer if err != nil {
 			for e in env {
-				delete(e, allocator)
+				_ = delete(e, allocator)
 			}
-			delete(env)
+			_ = delete(env)
 		}
 
 		for entry in _env {
 			s := clone_string(entry, allocator) or_return
-			append(&env, s)
+			_ = append(&env, s)
 		}
 		environ = env[:]
 		return
@@ -222,7 +222,7 @@ when ODIN_NO_CRT {
 			bytes := ([^]u8)(cstring_env[i])
 			n := len(cstring_env[i])
 			_org_env_end = uintptr(&bytes[n])
-			append(&_env, string(bytes[:n]))
+			_ = append(&_env, string(bytes[:n]))
 		}
 	}
 
@@ -342,13 +342,13 @@ when ODIN_NO_CRT {
 		r := make([dynamic]string, 0, n, allocator) or_return
 		defer if err != nil {
 			for e in r {
-				delete(e, allocator)
+				_ = delete(e, allocator)
 			}
-			delete(r)
+			_ = delete(r)
 		}
 
 		for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-			append(&r, strings.clone(string(entry), allocator) or_return)
+			_ = append(&r, strings.clone(string(entry), allocator) or_return)
 		}
 
 		environ = r[:]
@@ -360,9 +360,9 @@ when ODIN_NO_CRT {
 	export_cstring_environment :: proc(allocator: runtime.Allocator) -> []cstring {
 		env := make([dynamic]cstring, allocator)
 		for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-			append(&env, entry)
+			_ = append(&env, entry)
 		}
-		append(&env, nil)
+		_ = append(&env, nil)
 		return env[:]
 	}
 }

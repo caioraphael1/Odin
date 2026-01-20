@@ -71,7 +71,7 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
 		buflen, errno = linux.getdents(dir_fd, buf[:])
 		#partial switch errno {
 		case .EINVAL:
-			resize(&buf, len(buf) * 2)
+			_ = resize(&buf, len(buf) * 2)
 			continue loop
 		case .NONE:
 			if buflen == 0 { break loop }
@@ -84,7 +84,7 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
 			d_name_str := linux.dirent_name(d)
 
 			if pid, ok := strconv.parse_int(d_name_str); ok {
-				append(&dynamic_list, pid)
+				_ = append(&dynamic_list, pid)
 			}
 		}
 	}

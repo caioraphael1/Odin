@@ -558,7 +558,7 @@ gb_internal bool find_or_generate_polymorphic_procedure(CheckerContext *old_c, E
 	final_proc_type->Proc.is_polymorphic = true;
 
 	final_proc_type->Proc.variadic               = src->Proc.variadic;
-	final_proc_type->Proc.require_results        = src->Proc.require_results;
+	final_proc_type->Proc.optional_results       = src->Proc.optional_results;
 	final_proc_type->Proc.c_vararg               = src->Proc.c_vararg;
 	final_proc_type->Proc.has_named_results      = src->Proc.has_named_results;
 	final_proc_type->Proc.diverging              = src->Proc.diverging;

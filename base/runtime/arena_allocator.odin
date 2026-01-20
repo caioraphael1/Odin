@@ -29,14 +29,13 @@ Arena :: struct {
 }
 
 
-@(private, require_results)
+@(private)
 safe_add :: #force_inline proc(x, y: uint) -> (uint, bool) {
 	z, did_overflow := intrinsics.overflow_add(x, y)
 	return z, !did_overflow
 }
 
 
-@(require_results)
 memory_block_alloc :: proc(allocator: Allocator, capacity: uint, alignment: uint, loc := #caller_location) -> (block: ^Memory_Block, err: Allocator_Error) {
 	total_size  := uint(capacity + max(alignment, size_of(Memory_Block)))
 	base_offset := uintptr(max(alignment, size_of(Memory_Block)))
@@ -64,12 +63,11 @@ memory_block_dealloc :: proc(block_to_free: ^Memory_Block, loc := #caller_locati
 
 		allocator := block_to_free.allocator
 		// sanitizer.address_unpoison(block_to_free.base, block_to_free.capacity)
-		mem_free(block_to_free, allocator, loc)
+		_ = mem_free(block_to_free, allocator, loc)
 	}
 }
 
 
-@(require_results)
 alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint) -> (data: []byte, err: Allocator_Error) {
 	calc_alignment_offset :: proc(block: ^Memory_Block, alignment: uintptr) -> uint {
 		alignment_offset := uint(0)
@@ -102,7 +100,6 @@ alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint)
 }
 
 
-@(require_results)
 arena_alloc :: proc(arena: ^Arena, size, alignment: uint, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
 	align_forward_uint :: proc(ptr, align: uint) -> uint {
 		p := ptr
@@ -146,7 +143,6 @@ arena_alloc :: proc(arena: ^Arena, size, alignment: uint, loc := #caller_locatio
 
 // `arena_init` will initialize the arena with a usable block.
 // This procedure is not necessary to use the Arena as the default zero as `arena_alloc` will set things up if necessary
-@(require_results)
 arena_init :: proc(arena: ^Arena, size: uint, backing_allocator: Allocator, loc := #caller_location) -> Allocator_Error {
 	arena^ = {}
 	arena.backing_allocator = backing_allocator
@@ -194,7 +190,6 @@ arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
 }
 
 
-@(require_results)
 arena_allocator :: proc(arena: ^Arena) -> Allocator {
 	return {
         procedure = arena_allocator_proc, 
@@ -283,7 +278,7 @@ Arena_Temp :: struct {
 	used:  uint,
 }
 
-@(deferred_out=arena_temp_end)
+@(deferred_out=arena_temp_end, optional_results)
 ARENA_TEMP_GUARD :: #force_inline proc(arena: ^Arena, ignore := false, loc := #caller_location) -> (Arena_Temp, Source_Code_Location) {
 	if ignore {
 		return {}, loc
@@ -291,7 +286,7 @@ ARENA_TEMP_GUARD :: #force_inline proc(arena: ^Arena, ignore := false, loc := #c
     return arena_temp_begin(arena, loc), loc
 }
 
-@(require_results)
+
 arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (arena_temp: Arena_Temp) {
 	assert(arena != nil, "nil arena", loc)
 

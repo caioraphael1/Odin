@@ -14,7 +14,7 @@ _ :: runtime
 /*
 	Turn a pointer and a length into a slice.
 */
-@(require_results)
+
 from_ptr :: proc(ptr: ^$T, count: int) -> []T {
 	return ([^]T)(ptr)[:count]
 }
@@ -22,7 +22,7 @@ from_ptr :: proc(ptr: ^$T, count: int) -> []T {
 /*
 	Turn a pointer and a length into a byte slice.
 */
-@(require_results)
+
 bytes_from_ptr :: proc(ptr: rawptr, byte_count: int) -> []byte {
 	return ([^]byte)(ptr)[:byte_count]
 }
@@ -32,7 +32,7 @@ bytes_from_ptr :: proc(ptr: rawptr, byte_count: int) -> []byte {
 
 	See `slice.reinterpret` to go the other way.
 */
-@(require_results)
+
 to_bytes :: proc(s: []$T) -> []byte {
 	return ([^]byte)(raw_data(s))[:len(s) * size_of(T)]
 }
@@ -40,7 +40,7 @@ to_bytes :: proc(s: []$T) -> []byte {
 /*
 	Turns a byte slice into a type.
 */
-@(require_results)
+
 to_type :: proc(buf: []u8, $T: typeid) -> (T, bool) {
 	if len(buf) < size_of(T) {
 		return {}, false
@@ -85,7 +85,7 @@ Output:
 	[1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0] -> [1]
 
 */
-@(require_results)
+
 reinterpret :: proc($T: typeid/[]$U, s: []$V) -> []U {
 	when size_of(U) == 0 || size_of(V) == 0 {
 		return nil
@@ -121,7 +121,7 @@ reverse :: proc(array: $T/[]$E) {
 }
 
 
-@(require_results)
+
 contains :: proc(array: $T/[]$E, value: E) -> bool where intrinsics.type_is_comparable(E) {
 	_, found := linear_search(array, value)
 	return found
@@ -155,7 +155,7 @@ Example:
 	index, found = linear_search_reverse(a[2:], 20)
 	assert(index == 1 && found == true)
 */
-@(require_results)
+
 linear_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool)
 	where intrinsics.type_is_comparable(T) {
 	for x, i in array {
@@ -176,7 +176,7 @@ Inputs:
 Returns:
 - index: The index `i`, such that `array[i]` is the first `x` in `array` for which `f(x) == true`, or -1 if such `x` does not exist.
 */
-@(require_results)
+
 linear_search_proc :: proc(array: $A/[]$T, f: proc(T) -> bool) -> (index: int, found: bool) {
 	for x, i in array {
 		if f(x) {
@@ -218,7 +218,7 @@ Example:
 	index, found = linear_search_reverse(a[2:], 20)
 	assert(index == 1 && found == true)
 */
-@(require_results)
+
 linear_search_reverse :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool)
 	where intrinsics.type_is_comparable(T) {
 	#reverse for x, i in array {
@@ -240,7 +240,7 @@ Inputs:
 Returns:
 - index: The index `i`, such that `array[i]` is the last `x` in `array` for which `f(x) == true`, or -1 if such `x` does not exist.
 */
-@(require_results)
+
 linear_search_reverse_proc :: proc(array: $A/[]$T, f: proc(T) -> bool) -> (index: int, found: bool) {
 	#reverse for x, i in array {
 		if f(x) {
@@ -286,7 +286,7 @@ Example:
 	index, found = slice.binary_search(s, 1)
 	assert(index >= 1 && index <= 4 && found == true)
 */
-@(require_results)
+
 binary_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool)
 	where intrinsics.type_is_ordered(T) #no_bounds_check {
 	return binary_search_by(array, key, cmp_proc(T))
@@ -310,7 +310,7 @@ Returns:
 - found: bool
 
 */
-@(require_results)
+
 binary_search_by :: proc(array: $A/[]$T, key: $K, f: proc(T, K) -> Ordering) -> (index: int, found: bool) #no_bounds_check {
 	n := len(array)
 	left, right := 0, n
@@ -326,7 +326,7 @@ binary_search_by :: proc(array: $A/[]$T, key: $K, f: proc(T, K) -> Ordering) -> 
 	return left, left < n && f(array[left], key) == .Equal
 }
 
-@(require_results)
+
 equal :: proc(a, b: $T/[]$E) -> bool where intrinsics.type_is_comparable(E) #no_bounds_check {
 	if len(a) != len(b) {
 		return false
@@ -354,7 +354,7 @@ equal :: proc(a, b: $T/[]$E) -> bool where intrinsics.type_is_comparable(E) #no_
 	}
 }
 
-@(require_results)
+
 simple_equal :: proc(a, b: $T/[]$E) -> bool where intrinsics.type_is_simple_compare(E) {
 	if len(a) != len(b) {
 		return false
@@ -369,7 +369,7 @@ simple_equal :: proc(a, b: $T/[]$E) -> bool where intrinsics.type_is_simple_comp
 	slice.prefix_length([]u8{1, 2, 3, 4}, []u8{1, 2, 3}) -> 3
 	slice.prefix_length([]u8{1, 2, 3, 4}, []u8{2, 3, 4}) -> 0
 */
-@(require_results)
+
 prefix_length :: proc(a, b: $T/[]$E) -> (n: int) where intrinsics.type_is_comparable(E) {
 	_len := builtin.min(len(a), len(b))
 
@@ -379,7 +379,7 @@ prefix_length :: proc(a, b: $T/[]$E) -> (n: int) where intrinsics.type_is_compar
 	return
 }
 
-@(require_results)
+
 has_prefix :: proc(array: $T/[]$E, needle: T) -> bool where intrinsics.type_is_comparable(E) {
 	n := len(needle)
 	if len(array) >= n {
@@ -397,7 +397,7 @@ has_prefix :: proc(array: $T/[]$E, needle: T) -> bool where intrinsics.type_is_c
 	slice.suffix_length([]u8{1, 2, 3, 4}, []u8{1, 3, 5}) -> 0
 	slice.suffix_length([]u8{3, 4, 5}, []u8{3, 5}) -> 1
 */
-@(require_results)
+
 suffix_length :: proc(a, b: $T/[]$E) -> (n: int) where intrinsics.type_is_comparable(E) {
 	len_a, len_b := len(a), len(b)
 	_len := builtin.min(len_a, len_b)
@@ -408,7 +408,7 @@ suffix_length :: proc(a, b: $T/[]$E) -> (n: int) where intrinsics.type_is_compar
 	return
 }
 
-@(require_results)
+
 has_suffix :: proc(array: $T/[]$E, needle: T) -> bool where intrinsics.type_is_comparable(E) {
 	array := array
 	m, n := len(array), len(needle)
@@ -453,7 +453,7 @@ swap_with_slice :: proc(a, b: $T/[]$E, loc := #caller_location) {
 	ptr_swap_non_overlapping(raw_data(a), raw_data(b), len(a)*size_of(E))
 }
 
-@(require_results)
+
 concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err: runtime.Allocator_Error) {
 	if len(a) == 0 {
 		return
@@ -471,7 +471,7 @@ concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err:
 }
 
 // copies a slice into a new slice
-@(require_results)
+
 clone :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([]E, runtime.Allocator_Error) {
 	d, err := make([]E, len(a), allocator, loc)
 	copy(d[:], a)
@@ -480,7 +480,7 @@ clone :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location)
 
 
 // copies slice into a new dynamic array
-@(require_results)
+
 clone_to_dynamic :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([dynamic]E, runtime.Allocator_Error) {
 	d, err := make([dynamic]E, len(a), allocator, loc)
 	copy(d[:], a)
@@ -489,7 +489,7 @@ clone_to_dynamic :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #calle
 to_dynamic :: clone_to_dynamic
 
 // Converts slice into a dynamic array without cloning or allocating memory
-@(require_results)
+
 into_dynamic :: proc(a: $T/[]$E) -> [dynamic]E {
 	s := transmute(runtime.Raw_Slice)a
 	d := runtime.Raw_Dynamic_Array{
@@ -502,57 +502,57 @@ into_dynamic :: proc(a: $T/[]$E) -> [dynamic]E {
 }
 
 
-@(require_results)
+
 length :: proc(a: $T/[]$E) -> int {
 	return len(a)
 }
-@(require_results)
+
 is_empty :: proc(a: $T/[]$E) -> bool {
 	return len(a) == 0
 }
 
 // Gets the byte size of the backing data
-@(require_results)
+
 size :: proc(a: $T/[]$E) -> int {
 	return len(a) * size_of(E)
 }
 
 
 
-@(require_results)
+
 split_at :: proc(array: $T/[]$E, index: int) -> (a, b: T) {
 	return array[:index], array[index:]
 }
 
 
-@(require_results)
+
 split_first :: proc(array: $T/[]$E) -> (first: E, rest: T) {
 	return array[0], array[1:]
 }
-@(require_results)
+
 split_last :: proc(array: $T/[]$E) -> (rest: T, last: E) {
 	n := len(array)-1
 	return array[:n], array[n]
 }
 
-@(require_results)
+
 first :: proc(array: $T/[]$E) -> E {
 	return array[0]
 }
-@(require_results)
+
 last :: proc(array: $T/[]$E) -> E {
 	return array[len(array)-1]
 }
 
 
-@(require_results)
+
 first_ptr :: proc(array: $T/[]$E) -> ^E {
 	if len(array) != 0 {
 		return &array[0]
 	}
 	return nil
 }
-@(require_results)
+
 last_ptr :: proc(array: $T/[]$E) -> ^E {
 	if len(array) != 0 {
 		return &array[len(array)-1]
@@ -560,7 +560,7 @@ last_ptr :: proc(array: $T/[]$E) -> ^E {
 	return nil
 }
 
-@(require_results)
+
 get :: proc(array: $T/[]$E, index: int) -> (value: E, ok: bool) {
 	#bounds_check if uint(index) < len(array) {
 		value = array[index]
@@ -568,7 +568,7 @@ get :: proc(array: $T/[]$E, index: int) -> (value: E, ok: bool) {
 	}
 	return
 }
-@(require_results)
+
 get_ptr :: proc(array: $T/[]$E, index: int) -> (value: ^E, ok: bool) {
 	#no_bounds_check if uint(index) < len(array) {
 		value = &array[index]
@@ -577,13 +577,13 @@ get_ptr :: proc(array: $T/[]$E, index: int) -> (value: ^E, ok: bool) {
 	return
 }
 
-@(require_results)
+
 as_ptr :: proc(array: $T/[]$E) -> [^]E {
 	return raw_data(array)
 }
 
 
-@(require_results)
+
 mapper :: proc(s: $S/[]$U, f: proc(U) -> $V, allocator: runtime.Allocator) -> (r: []V, err: runtime.Allocator_Error) {
 	r = make([]V, len(s), allocator) or_return
 	for v, i in s {
@@ -592,7 +592,7 @@ mapper :: proc(s: $S/[]$U, f: proc(U) -> $V, allocator: runtime.Allocator) -> (r
 	return
 }
 
-@(require_results)
+
 reduce :: proc(s: $S/[]$U, initializer: $V, f: proc(V, U) -> V) -> V {
 	r := initializer
 	for v in s {
@@ -601,7 +601,7 @@ reduce :: proc(s: $S/[]$U, initializer: $V, f: proc(V, U) -> V) -> V {
 	return r
 }
 
-@(require_results)
+
 reduce_reverse :: proc(s: $S/[]$U, initializer: $V, f: proc(V, U) -> V) -> V {
 	r := initializer
 	for i := len(s)-1; i >= 0; i -= 1 {
@@ -610,30 +610,30 @@ reduce_reverse :: proc(s: $S/[]$U, initializer: $V, f: proc(V, U) -> V) -> V {
 	return r
 }
 
-@(require_results)
+
 filter :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) {
 	r := make([dynamic]U, 0, 0, allocator) or_return
 	for v in s {
 		if f(v) {
-			append(&r, v)
+			_ = append(&r, v)
 		}
 	}
 	return r[:], nil
 }
 
-@(require_results)
+
 filter_reverse :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) {
 	r := make([dynamic]U, 0, 0, allocator) or_return
 	for i := len(s)-1; i >= 0; i -= 1 {
 		#no_bounds_check v := s[i]
 		if f(v) {
-			append(&r, v)
+			_ = append(&r, v)
 		}
 	}
 	return r[:], nil
 }
 
-@(require_results)
+
 scanner :: proc (s: $S/[]$U, initializer: $V, f: proc(V, U) -> V, allocator: runtime.Allocator) -> (res: []V, err: runtime.Allocator_Error) {
 	if len(s) == 0 { return }
 
@@ -653,7 +653,7 @@ scanner :: proc (s: $S/[]$U, initializer: $V, f: proc(V, U) -> V, allocator: run
 }
 
 
-@(require_results)
+
 repeat :: proc(s: $S/[]$U, count: int, allocator: runtime.Allocator) -> (b: S, err: runtime.Allocator_Error) {
 	if count < 0 {
 		panic("slice: negative repeat count")
@@ -672,7 +672,7 @@ repeat :: proc(s: $S/[]$U, count: int, allocator: runtime.Allocator) -> (b: S, e
 
 // 'unique' replaces consecutive runs of equal elements with a single copy.
 // The procedures modifies the slice in-place and returns the modified slice.
-@(require_results)
+
 unique :: proc(s: $S/[]$T) -> S where intrinsics.type_is_comparable(T) #no_bounds_check {
 	if len(s) < 2 {
 		return s
@@ -692,7 +692,7 @@ unique :: proc(s: $S/[]$T) -> S where intrinsics.type_is_comparable(T) #no_bound
 
 // 'unique_proc' replaces consecutive runs of equal elements with a single copy using a comparison procedure
 // The procedures modifies the slice in-place and returns the modified slice.
-@(require_results)
+
 unique_proc :: proc(s: $S/[]$T, eq: proc(T, T) -> bool) -> S #no_bounds_check {
 	if len(s) < 2 {
 		return s
@@ -711,7 +711,7 @@ unique_proc :: proc(s: $S/[]$T, eq: proc(T, T) -> bool) -> S #no_bounds_check {
 }
 
 
-@(require_results)
+
 min :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) != 0 {
 		res = s[0]
@@ -722,7 +722,7 @@ min :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T
 	}
 	return
 }
-@(require_results)
+
 max :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) != 0 {
 		res = s[0]
@@ -734,7 +734,7 @@ max :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T
 	return
 }
 
-@(require_results)
+
 min_max :: proc(s: $S/[]$T) -> (min, max: T, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) != 0 {
 		min, max = s[0], s[0]
@@ -748,7 +748,7 @@ min_max :: proc(s: $S/[]$T) -> (min, max: T, ok: bool) where intrinsics.type_is_
 }
 
 // Find the index of the (first) minimum element in a slice.
-@(require_results)
+
 min_index :: proc(s: $S/[]$T) -> (min_index: int, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) == 0 {
 		return -1, false
@@ -765,7 +765,7 @@ min_index :: proc(s: $S/[]$T) -> (min_index: int, ok: bool) where intrinsics.typ
 }
 
 // Find the index of the (first) maximum element in a slice.
-@(require_results)
+
 max_index :: proc(s: $S/[]$T) -> (max_index: int, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) == 0 {
 		return -1, false
@@ -781,7 +781,7 @@ max_index :: proc(s: $S/[]$T) -> (max_index: int, ok: bool) where intrinsics.typ
 	return max_index, true
 }
 
-@(require_results)
+
 any_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable(T) {
 	for v in s {
 		if v == value {
@@ -791,7 +791,7 @@ any_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable
 	return false
 }
 
-@(require_results)
+
 none_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable(T) {
 	for v in s {
 		if v == value {
@@ -801,7 +801,7 @@ none_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparabl
 	return true
 }
 
-@(require_results)
+
 all_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable(T) {
 	if len(s) == 0 {
 		return false
@@ -815,7 +815,7 @@ all_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable
 }
 
 
-@(require_results)
+
 any_of_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> bool {
 	for v in s {
 		if f(v) {
@@ -825,7 +825,7 @@ any_of_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> bool {
 	return false
 }
 
-@(require_results)
+
 none_of_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> bool {
 	for v in s {
 		if f(v) {
@@ -835,7 +835,7 @@ none_of_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> bool {
 	return true
 }
 
-@(require_results)
+
 all_of_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> bool {
 	if len(s) == 0 {
 		return false
@@ -849,7 +849,7 @@ all_of_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> bool {
 }
 
 
-@(require_results)
+
 count :: proc(s: $S/[]$T, value: T) -> (n: int) where intrinsics.type_is_comparable(T) {
 	for v in s {
 		if v == value {
@@ -859,7 +859,7 @@ count :: proc(s: $S/[]$T, value: T) -> (n: int) where intrinsics.type_is_compara
 	return
 }
 
-@(require_results)
+
 count_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> (n: int) {
 	for v in s {
 		if f(v) {
@@ -870,7 +870,7 @@ count_proc :: proc(s: $S/[]$T, f: proc(T) -> bool) -> (n: int) {
 }
 
 
-@(require_results)
+
 dot_product :: proc(a, b: $S/[]$T) -> (r: T, ok: bool)
 	where intrinsics.type_is_numeric(T) {
 	if len(a) != len(b) {
@@ -884,7 +884,7 @@ dot_product :: proc(a, b: $S/[]$T) -> (r: T, ok: bool)
 
 
 // Convert a pointer to an enumerated array to a slice of the element type
-@(require_results)
+
 enumerated_array :: proc(ptr: ^$T) -> []intrinsics.type_elem_type(T)
 	where intrinsics.type_is_enumerated_array(T) {
 	return ([^]intrinsics.type_elem_type(T))(ptr)[:len(T)]
@@ -893,7 +893,7 @@ enumerated_array :: proc(ptr: ^$T) -> []intrinsics.type_elem_type(T)
 // Turn a `[]E` into `bit_set[E]`
 // e.g.:
 //    bs := slice.enum_slice_to_bitset(my_flag_slice, rl.ConfigFlags)
-@(require_results)
+
 enum_slice_to_bitset :: proc(enums: []$E, $T: typeid/bit_set[E]) -> (bits: T) where intrinsics.type_is_enum(E), intrinsics.type_bit_set_elem_type(T) == E {
 	for v in enums {
 		bits += {v}
@@ -904,7 +904,7 @@ enum_slice_to_bitset :: proc(enums: []$E, $T: typeid/bit_set[E]) -> (bits: T) wh
 // Turn a `bit_set[E]` into a `[]E`
 // e.g.:
 //    sl := slice.bitset_to_enum_slice(flag_buf[:], bs)
-@(require_results)
+
 bitset_to_enum_slice_with_buffer :: proc(buf: []$E, bs: $T) -> (slice: []E) where intrinsics.type_is_enum(E), intrinsics.type_bit_set_elem_type(T) == E {
 	count := 0
 	for v in bs {
@@ -917,7 +917,7 @@ bitset_to_enum_slice_with_buffer :: proc(buf: []$E, bs: $T) -> (slice: []E) wher
 // Turn a `bit_set[E]` into a `[]E`, allocates
 // e.g.:
 //    sl := slice.bitset_to_enum_slice(bs)
-@(require_results)
+
 bitset_to_enum_slice_with_make :: proc(bs: $T, $E: typeid, allocator: runtime.Allocator) -> (slice: []E) where intrinsics.type_is_enum(E), intrinsics.type_bit_set_elem_type(T) == E {
 	buf := make([]E, card(bs), allocator)
 	return bitset_to_enum_slice(buf, bs)

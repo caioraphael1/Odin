@@ -62,7 +62,7 @@ The `nil` allocator returns `nil` on every allocation attempt. This type of
 allocator can be used in scenarios where memory doesn't need to be allocated,
 but an attempt to allocate memory is not an error.
 */
-@(require_results)
+
 nil_allocator :: proc() -> Allocator {
 	return Allocator{
 		procedure = nil_allocator_proc,
@@ -89,7 +89,7 @@ The panic allocator is a type of allocator that panics on any allocation
 attempt. This type of allocator can be used in scenarios where memory should
 not be allocated, and an attempt to allocate memory is an error.
 */
-@(require_results)
+
 panic_allocator :: proc() -> Allocator {
 	return Allocator{
 		procedure = panic_allocator_proc,
@@ -170,7 +170,7 @@ used for any temporary memory allocations, and at the end of each frame all
 temporary allocations are freed. Since no temporary object is going to live
 longer than a frame, no lifetimes are violated.
 */
-@(require_results)
+
 arena_allocator :: proc(arena: ^Arena) -> Allocator {
 	return Allocator{
 		procedure = arena_allocator_proc,
@@ -199,7 +199,7 @@ This procedure allocates `size` bytes of memory aligned on a boundary specified
 by `alignment` from an arena `a`. The allocated memory is zero-initialized.
 This procedure returns a pointer to the newly allocated memory region.
 */
-@(require_results)
+
 arena_alloc :: proc(
 	a:    ^Arena,
 	size: int,
@@ -217,7 +217,7 @@ This procedure allocates `size` bytes of memory aligned on a boundary specified
 by `alignment` from an arena `a`. The allocated memory is zero-initialized.
 This procedure returns a slice of the newly allocated memory region.
 */
-@(require_results)
+
 arena_alloc_bytes :: proc(
 	a:    ^Arena,
 	size: int,
@@ -239,7 +239,7 @@ by `alignment` from an arena `a`. The allocated memory is not explicitly
 zero-initialized. This procedure returns a pointer to the newly allocated
 memory region.
 */
-@(require_results)
+
 arena_alloc_non_zeroed :: proc(
 	a:    ^Arena,
 	size: int,
@@ -258,7 +258,7 @@ by `alignment` from an arena `a`. The allocated memory is not explicitly
 zero-initialized. This procedure returns a slice of the newly allocated
 memory region.
 */
-@(require_results)
+
 arena_alloc_bytes_non_zeroed :: proc(
 	a:    ^Arena,
 	size: int,
@@ -347,7 +347,7 @@ This procedure creates a temporary memory region. After a temporary memory
 region is created, all allocations are said to be *inside* the temporary memory
 region, until `end_arena_temp_memory` is called.
 */
-@(require_results)
+
 begin_arena_temp_memory :: proc(a: ^Arena) -> Arena_Temp_Memory {
 	tmp: Arena_Temp_Memory
 	tmp.arena = a
@@ -411,7 +411,7 @@ allocations.
 The `leaked_allocations` array is managed by the `context` allocator if no
 `backup_allocator` is specified in `scratch_init`.
 */
-@(require_results)
+
 scratch_allocator :: proc(allocator: ^Scratch) -> Allocator {
 	return Allocator{
 		procedure = scratch_allocator_proc,
@@ -444,11 +444,11 @@ scratch_destroy :: proc(s: ^Scratch) {
 		return
 	}
 	for ptr in s.leaked_allocations {
-		free_bytes(ptr, s.backup_allocator)
+		_ = free_bytes(ptr, s.backup_allocator)
 	}
-	delete(s.leaked_allocations)
+	_ = delete(s.leaked_allocations)
 	// sanitizer.address_unpoison(s.data)
-	delete(s.data, s.backup_allocator)
+	_ = delete(s.data, s.backup_allocator)
 	s^ = {}
 }
 
@@ -459,7 +459,7 @@ This procedure allocates `size` bytes of memory aligned on a boundary specified
 by `alignment`. The allocated memory region is zero-initialized. This procedure
 returns a pointer to the allocated memory region.
 */
-@(require_results)
+
 scratch_alloc :: proc(
 	s:    ^Scratch,
 	size: int,
@@ -477,7 +477,7 @@ This procedure allocates `size` bytes of memory aligned on a boundary specified
 by `alignment`. The allocated memory region is zero-initialized. This procedure
 returns a slice of the allocated memory region.
 */
-@(require_results)
+
 scratch_alloc_bytes :: proc(
 	s:    ^Scratch,
 	size: int,
@@ -498,7 +498,7 @@ This procedure allocates `size` bytes of memory aligned on a boundary specified
 by `alignment`. The allocated memory region is not explicitly zero-initialized.
 This procedure returns a pointer to the allocated memory region.
 */
-@(require_results)
+
 scratch_alloc_non_zeroed :: proc(
 	s:    ^Scratch,
 	size: int,
@@ -516,7 +516,7 @@ This procedure allocates `size` bytes of memory aligned on a boundary specified
 by `alignment`. The allocated memory region is not explicitly zero-initialized.
 This procedure returns a slice of the allocated memory region.
 */
-@(require_results)
+
 scratch_alloc_bytes_non_zeroed :: proc(
 	s:   ^Scratch,
 	size: int,
@@ -563,7 +563,7 @@ scratch_alloc_bytes_non_zeroed :: proc(
 		if err != nil {
 			return ptr, err
 		}
-		append(&s.leaked_allocations, ptr)
+		_ = append(&s.leaked_allocations, ptr)
         // fmt.printf("%v:%v mem.Scratch resorted to backup_allocator" , loc.procedure, loc.line)
             // (Caio): This creates a cyclic reference. I'm also no a fan of logging internally.
 		return ptr, err
@@ -603,7 +603,7 @@ scratch_free :: proc(s: ^Scratch, ptr: rawptr, loc := #caller_location) -> Alloc
 		for data, i in s.leaked_allocations {
 			ptr := raw_data(data)
 			if ptr == ptr {
-				free_bytes(data, s.backup_allocator, loc)
+				_ = free_bytes(data, s.backup_allocator, loc)
 				ordered_remove(&s.leaked_allocations, i, loc)
 				return nil
 			}
@@ -619,7 +619,7 @@ scratch_free_all :: proc(s: ^Scratch, loc := #caller_location) {
 	s.curr_offset = 0
 	s.prev_allocation = nil
 	for ptr in s.leaked_allocations {
-		free_bytes(ptr, s.backup_allocator, loc)
+		_ = free_bytes(ptr, s.backup_allocator, loc)
 	}
 	clear(&s.leaked_allocations)
 	// sanitizer.address_poison(s.data)
@@ -641,7 +641,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 scratch_resize :: proc(
 	s:          ^Scratch,
 	old_memory: rawptr,
@@ -670,7 +670,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 scratch_resize_bytes :: proc(
 	s:        ^Scratch,
 	old_data: []byte,
@@ -701,7 +701,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 scratch_resize_non_zeroed :: proc(
 	s:          ^Scratch,
 	old_memory: rawptr,
@@ -730,7 +730,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 scratch_resize_bytes_non_zeroed :: proc(
 	s:        ^Scratch,
 	old_data: []byte,
@@ -839,7 +839,7 @@ The metadata is stored in the allocation headers, that are located before the
 start of each allocated memory region. Each header points to the start of the
 previous allocation header.
 */
-@(require_results)
+
 stack_allocator :: proc(stack: ^Stack) -> Allocator {
 	return Allocator{
 		procedure = stack_allocator_proc,
@@ -868,7 +868,7 @@ This procedure allocates `size` bytes of memory, aligned to the boundary
 specified by `alignment`. The allocated memory is zero-initialized. This
 procedure returns the pointer to the allocated memory.
 */
-@(require_results)
+
 stack_alloc :: proc(
 	s:    ^Stack,
 	size: int,
@@ -886,7 +886,7 @@ This procedure allocates `size` bytes of memory, aligned to the boundary
 specified by `alignment`. The allocated memory is zero-initialized. This
 procedure returns the slice of the allocated memory.
 */
-@(require_results)
+
 stack_alloc_bytes :: proc(
 	s:    ^Stack,
 	size: int,
@@ -907,7 +907,7 @@ This procedure allocates `size` bytes of memory, aligned to the boundary
 specified by `alignment`. The allocated memory is not explicitly
 zero-initialized. This procedure returns the pointer to the allocated memory.
 */
-@(require_results)
+
 stack_alloc_non_zeroed :: proc(
 	s:    ^Stack,
 	size: int,
@@ -925,7 +925,7 @@ This procedure allocates `size` bytes of memory, aligned to the boundary
 specified by `alignment`. The allocated memory is not explicitly
 zero-initialized. This procedure returns the slice of the allocated memory.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 stack_alloc_bytes_non_zeroed :: proc(
 	s:    ^Stack,
 	size: int,
@@ -1025,7 +1025,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 stack_resize :: proc(
 	s:          ^Stack,
 	old_memory: rawptr,
@@ -1054,7 +1054,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 stack_resize_bytes :: proc(
 	s:        ^Stack,
 	old_data: []byte,
@@ -1089,7 +1089,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 stack_resize_non_zeroed :: proc(
 	s:          ^Stack,
 	old_memory: rawptr,
@@ -1118,7 +1118,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 stack_resize_bytes_non_zeroed :: proc(
 	s:        ^Stack,
 	old_data: []byte,
@@ -1270,7 +1270,7 @@ The metadata is stored in the allocation headers, that are located before the
 start of each allocated memory region. Each header contains the amount of
 padding bytes between that header and end of the previous allocation.
 */
-@(require_results)
+
 small_stack_allocator :: proc(stack: ^Small_Stack) -> Allocator {
 	return Allocator{
 		procedure = small_stack_allocator_proc,
@@ -1285,7 +1285,7 @@ This procedure allocates `size` bytes of memory aligned to a boundary specified
 by `alignment`. The allocated memory is zero-initialized. This procedure
 returns a pointer to the allocated memory region.
 */
-@(require_results)
+
 small_stack_alloc :: proc(
 	s:    ^Small_Stack,
 	size: int,
@@ -1303,7 +1303,7 @@ This procedure allocates `size` bytes of memory aligned to a boundary specified
 by `alignment`. The allocated memory is zero-initialized. This procedure
 returns a slice of the allocated memory region.
 */
-@(require_results)
+
 small_stack_alloc_bytes :: proc(
 	s:    ^Small_Stack,
 	size: int,
@@ -1324,7 +1324,7 @@ This procedure allocates `size` bytes of memory aligned to a boundary specified
 by `alignment`. The allocated memory is not explicitly zero-initialized. This
 procedure returns a pointer to the allocated memory region.
 */
-@(require_results)
+
 small_stack_alloc_non_zeroed :: proc(
 	s:    ^Small_Stack,
 	size: int,
@@ -1342,7 +1342,7 @@ This procedure allocates `size` bytes of memory aligned to a boundary specified
 by `alignment`. The allocated memory is not explicitly zero-initialized. This
 procedure returns a slice of the allocated memory region.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 small_stack_alloc_bytes_non_zeroed :: proc(
 	s:    ^Small_Stack,
 	size: int,
@@ -1434,7 +1434,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 small_stack_resize :: proc(
 	s:          ^Small_Stack,
 	old_memory: rawptr,
@@ -1463,7 +1463,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 small_stack_resize_bytes :: proc(
 	s:        ^Small_Stack,
 	old_data: []byte,
@@ -1498,7 +1498,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 small_stack_resize_non_zeroed :: proc(
 	s:          ^Small_Stack,
 	old_memory: rawptr,
@@ -1527,7 +1527,7 @@ memory region located at an address specified by `old_memory`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 small_stack_resize_bytes_non_zeroed :: proc(
 	s:        ^Small_Stack,
 	old_data: []byte,
@@ -1702,7 +1702,7 @@ normal blocks.
 Just like `Arena`, the dynamic arena does not support freeing of individual
 objects.
 */
-@(require_results)
+
 dynamic_arena_allocator :: proc(a: ^Dynamic_Arena) -> Allocator {
 	return Allocator{
 		procedure = dynamic_arena_allocator_proc,
@@ -1718,9 +1718,9 @@ unused blocks, as well as the arrays for storing blocks.
 */
 dynamic_arena_destroy :: proc(a: ^Dynamic_Arena) {
 	dynamic_arena_free_all(a)
-	delete(a.unused_blocks)
-	delete(a.used_blocks)
-	delete(a.out_band_allocations)
+	_ = delete(a.unused_blocks)
+	_ = delete(a.used_blocks)
+	_ = delete(a.out_band_allocations)
 	zero(a, size_of(a^))
 }
 
@@ -1730,7 +1730,7 @@ _dynamic_arena_cycle_new_block :: proc(a: ^Dynamic_Arena, loc := #caller_locatio
 		panic("You must call `dynamic_arena_init` on a Dynamic Arena before using it.", loc)
 	}
 	if a.current_block != nil {
-		append(&a.used_blocks, a.current_block, loc=loc)
+		_ = append(&a.used_blocks, a.current_block, loc=loc)
 	}
 	new_block: rawptr
 	if len(a.unused_blocks) > 0 {
@@ -1762,7 +1762,7 @@ by `alignment` from a dynamic arena `a`. The allocated memory is
 zero-initialized. This procedure returns a pointer to the newly allocated memory
 region.
 */
-@(require_results)
+
 dynamic_arena_alloc :: proc(a: ^Dynamic_Arena, size: int, loc := #caller_location) -> (rawptr, Allocator_Error) {
 	data, err := dynamic_arena_alloc_bytes(a, size, loc)
 	return raw_data(data), err
@@ -1776,7 +1776,7 @@ by `alignment` from a dynamic arena `a`. The allocated memory is
 zero-initialized. This procedure returns a slice of the newly allocated memory
 region.
 */
-@(require_results)
+
 dynamic_arena_alloc_bytes :: proc(a: ^Dynamic_Arena, size: int, loc := #caller_location) -> ([]byte, Allocator_Error) {
 	bytes, err := dynamic_arena_alloc_bytes_non_zeroed(a, size, loc)
 	if bytes != nil {
@@ -1793,7 +1793,7 @@ by `alignment` from a dynamic arena `a`. The allocated memory is not explicitly
 zero-initialized. This procedure returns a pointer to the newly allocated
 memory region.
 */
-@(require_results)
+
 dynamic_arena_alloc_non_zeroed :: proc(a: ^Dynamic_Arena, size: int, loc := #caller_location) -> (rawptr, Allocator_Error) {
 	data, err := dynamic_arena_alloc_bytes_non_zeroed(a, size, loc)
 	return raw_data(data), err
@@ -1807,13 +1807,13 @@ by `alignment` from a dynamic arena `a`. The allocated memory is not explicitly
 zero-initialized. This procedure returns a slice of the newly allocated
 memory region.
 */
-@(require_results)
+
 dynamic_arena_alloc_bytes_non_zeroed :: proc(a: ^Dynamic_Arena, size: int, loc := #caller_location) -> ([]byte, Allocator_Error) {
 	if size >= a.out_band_size {
 		assert(a.out_band_allocations.allocator.procedure != nil, "Backing array allocator must be initialized", loc=loc)
 		memory, err := alloc_bytes_non_zeroed(size, a.alignment, a.out_band_allocations.allocator, loc)
 		if memory != nil {
-			append(&a.out_band_allocations, raw_data(memory), loc = loc)
+			_ = append(&a.out_band_allocations, raw_data(memory), loc = loc)
 		}
 		return memory, err
 	}
@@ -1848,16 +1848,16 @@ the unused blocks.
 dynamic_arena_reset :: proc(a: ^Dynamic_Arena, loc := #caller_location) {
 	if a.current_block != nil {
 		// sanitizer.address_poison(a.current_block, a.block_size)
-		append(&a.unused_blocks, a.current_block, loc=loc)
+		_ = append(&a.unused_blocks, a.current_block, loc=loc)
 		a.current_block = nil
 	}
 	for block in a.used_blocks {
 		// sanitizer.address_poison(block, a.block_size)
-		append(&a.unused_blocks, block, loc=loc)
+		_ = append(&a.unused_blocks, block, loc=loc)
 	}
 	clear(&a.used_blocks)
 	for allocation in a.out_band_allocations {
-		free(allocation, a.out_band_allocations.allocator, loc=loc)
+		_ = free(allocation, a.out_band_allocations.allocator, loc=loc)
 	}
 	clear(&a.out_band_allocations)
 	a.bytes_left = 0 // Make new allocations call `_dynamic_arena_cycle_new_block` again.
@@ -1873,7 +1873,7 @@ dynamic_arena_free_all :: proc(a: ^Dynamic_Arena, loc := #caller_location) {
 	dynamic_arena_reset(a)
 	for block in a.unused_blocks {
 		// sanitizer.address_unpoison(block, a.block_size)
-		free(block, a.block_allocator, loc)
+		_ = free(block, a.block_allocator, loc)
 	}
 	clear(&a.unused_blocks)
 }
@@ -1891,7 +1891,7 @@ by `alignment`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 dynamic_arena_resize :: proc(
 	a:          ^Dynamic_Arena,
 	old_memory: rawptr,
@@ -1916,7 +1916,7 @@ by `alignment`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 dynamic_arena_resize_bytes :: proc(
 	a:        ^Dynamic_Arena,
 	old_data: []byte,
@@ -1951,7 +1951,7 @@ by `alignment`.
 
 This procedure returns the pointer to the resized memory region.
 */
-@(require_results)
+
 dynamic_arena_resize_non_zeroed :: proc(
 	a:          ^Dynamic_Arena,
 	old_memory: rawptr,
@@ -1976,7 +1976,7 @@ by `alignment`.
 
 This procedure returns the slice of the resized memory region.
 */
-@(require_results)
+
 dynamic_arena_resize_bytes_non_zeroed :: proc(
 	a:        ^Dynamic_Arena,
 	old_data: []byte,
@@ -2055,7 +2055,7 @@ Buddy_Block :: struct #align(align_of(uint)) {
 /*
 Obtain the next buddy block.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 buddy_block_next :: proc(block: ^Buddy_Block) -> ^Buddy_Block {
 	return (^Buddy_Block)(([^]byte)(block)[block.size:])
 }
@@ -2063,7 +2063,7 @@ buddy_block_next :: proc(block: ^Buddy_Block) -> ^Buddy_Block {
 /*
 Split the block into two, by truncating the given block to a given size.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 buddy_block_split :: proc(block: ^Buddy_Block, size: uint) -> ^Buddy_Block {
 	block := block
 	if block != nil && size != 0 {
@@ -2123,7 +2123,7 @@ buddy_block_coalescence :: proc(head, tail: ^Buddy_Block) {
 /*
 Find the best block for storing a given size in a range of blocks.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 buddy_block_find_best :: proc(head, tail: ^Buddy_Block, size: uint) -> ^Buddy_Block {
 	assert(size != 0)
 	best_block: ^Buddy_Block
@@ -2200,7 +2200,7 @@ finds the smallest block that can fit the size of requested memory region, and
 splits the block according to the allocation size. If no block can be found,
 the contiguous free blocks are coalesced and the search is performed again.
 */
-@(require_results)
+
 buddy_allocator :: proc(b: ^Buddy_Allocator) -> Allocator {
 	return Allocator{
 		procedure = buddy_allocator_proc,
@@ -2239,7 +2239,7 @@ buddy_allocator_init :: proc(b: ^Buddy_Allocator, data: []byte, alignment: uint,
 /*
 Get required block size to fit in the allocation as well as the alignment padding.
 */
-@(require_results)
+
 buddy_block_size_required :: proc(b: ^Buddy_Allocator, size: uint) -> uint {
 	assert(size > 0)
 	// NOTE: `size_of(Buddy_Block)` will be accounted for in `b.alignment`.
@@ -2261,7 +2261,7 @@ fixed to the `alignment` specified at initialization. The allocated memory
 region is zero-initialized. This procedure returns a pointer to the allocated
 memory region.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 buddy_allocator_alloc :: proc(b: ^Buddy_Allocator, size: uint) -> (rawptr, Allocator_Error) {
 	bytes, err := buddy_allocator_alloc_bytes(b, size)
 	return raw_data(bytes), err
@@ -2275,7 +2275,7 @@ fixed to the `alignment` specified at initialization. The allocated memory
 region is zero-initialized. This procedure returns a slice of the allocated
 memory region.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 buddy_allocator_alloc_bytes :: proc(b: ^Buddy_Allocator, size: uint) -> ([]byte, Allocator_Error) {
 	bytes, err := buddy_allocator_alloc_bytes_non_zeroed(b, size)
 	if bytes != nil {
@@ -2292,7 +2292,7 @@ fixed to the `alignment` specified at initialization. The allocated memory
 region is not explicitly zero-initialized. This procedure returns a pointer to
 the allocated memory region.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 buddy_allocator_alloc_non_zeroed :: proc(b: ^Buddy_Allocator, size: uint) -> (rawptr, Allocator_Error) {
 	bytes, err := buddy_allocator_alloc_bytes_non_zeroed(b, size)
 	return raw_data(bytes), err
@@ -2306,7 +2306,7 @@ fixed to the `alignment` specified at initialization. The allocated memory
 region is not explicitly zero-initialized. This procedure returns a slice of
 the allocated memory region.
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 buddy_allocator_alloc_bytes_non_zeroed :: proc(b: ^Buddy_Allocator, size: uint) -> ([]byte, Allocator_Error) {
 	if size != 0 {
 		actual_size := buddy_block_size_required(b, size)
@@ -2426,7 +2426,7 @@ compat_allocator_init :: proc(rra: ^Compat_Allocator, allocator: Allocator) {
 	rra.parent = allocator
 }
 
-@(require_results)
+
 compat_allocator :: proc(rra: ^Compat_Allocator) -> Allocator {
 	return Allocator{
 		data      = rra,

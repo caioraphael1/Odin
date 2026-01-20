@@ -122,7 +122,7 @@ test_write :: proc(t: ^testing.T) {
 
 	required_size := hxa.required_write_size(w_file)
 	buf := make([]u8, required_size)
-	defer delete(buf)
+	defer _ = delete(buf)
 
 	n, write_err := hxa.write(buf, w_file)
 	write_e :: hxa.Write_Error.None

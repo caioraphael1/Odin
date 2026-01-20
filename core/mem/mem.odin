@@ -66,6 +66,7 @@ This procedure copies value specified by the `value` parameter into each of the
 
 This procedure returns the pointer to `data`.
 */
+@(optional_results)
 set :: proc(data: rawptr, value: byte, len: int) -> rawptr {
 	return runtime.memset(data, i32(value), len)
 }
@@ -78,6 +79,7 @@ starting at address `data`.
 
 This procedure returns the pointer to `data`.
 */
+@(optional_results)
 zero :: proc(data: rawptr, len: int) -> rawptr {
 	intrinsics.mem_zero(data, len)
 	return data
@@ -96,6 +98,7 @@ compiler under certain circumstances, `zero_explicit()` procedure can not be
 optimized away or reordered with other memory access operations, and the
 compiler assumes volatile semantics of the memory.
 */
+@(optional_results)
 zero_explicit :: proc(data: rawptr, len: int) -> rawptr {
 	// This routine tries to avoid the compiler optimizing away the call,
 	// so that it is always executed.  It is intended to provide
@@ -123,6 +126,7 @@ Zero-fill the memory of the slice.
 This procedure sets each byte of the slice pointed to by the slice `data`
 to zero, and returns the slice `data`.
 */
+@(optional_results)
 zero_slice :: proc(data: $T/[]$E) -> T {
 	zero(raw_data(data), size_of(E)*len(data))
 	return data
@@ -135,6 +139,7 @@ This procedure copies `len` bytes of data, from the memory range pointed to by
 the `src` pointer into the memory range pointed to by the `dst` pointer, and
 returns the `dst` pointer.
 */
+@(optional_results)
 copy :: proc(dst, src: rawptr, len: int) -> rawptr {
 	intrinsics.mem_copy(dst, src, len)
 	return dst
@@ -152,6 +157,7 @@ that memory ranges specified by the parameters to this procedure are not
 overlapping. If the memory ranges specified by `dst` and `src` pointers overlap,
 the behavior of this function may be unpredictable.
 */
+@(optional_results)
 copy_non_overlapping :: proc(dst, src: rawptr, len: int) -> rawptr {
 	intrinsics.mem_copy_non_overlapping(dst, src, len)
 	return dst
@@ -181,7 +187,7 @@ The comparison is performed as follows:
 	- If the length of slice `b` is smaller than the length of slice `b`, then `+1` is returned.
 	- Otherwise `0` is returned.
 */
-@(require_results)
+
 compare :: proc(a, b: []byte) -> int {
 	res := compare_byte_ptrs(raw_data(a), raw_data(b), min(len(a), len(b)))
 	if res == 0 && len(a) != len(b) {
@@ -213,7 +219,7 @@ The comparison is performed as follows:
 	- Otherwise the comparison continues until `n` bytes are compared.
 2. If all the bytes in the range are equal, this procedure returns `0`.
 */
-@(require_results)
+
 compare_byte_ptrs :: proc(a, b: ^byte, n: int) -> int #no_bounds_check {
 	return runtime.memory_compare(a, b, n)
 }
@@ -239,7 +245,7 @@ The comparison is performed as follows:
 	- Otherwise the comparison continues until `n` bytes are compared.
 2. If all the bytes in the range are equal, this procedure returns `0`.
 */
-@(require_results)
+
 compare_ptrs :: proc(a, b: rawptr, n: int) -> int {
 	return compare_byte_ptrs((^byte)(a), (^byte)(b), n)
 }
@@ -250,7 +256,7 @@ Check whether two objects are equal on binary level.
 This procedure checks whether the memory ranges occupied by objects `a` and
 `b` are equal. See `compare_byte_ptrs()` for how this comparison is done.
 */
-@(require_results)
+
 simple_equal :: proc(a, b: $T) -> bool where intrinsics.type_is_simple_compare(T) {
 	a, b := a, b
 	return compare_byte_ptrs((^byte)(&a), (^byte)(&b), size_of(T)) == 0
@@ -263,7 +269,7 @@ This procedure checks whether every byte, pointed to by the slice, specified
 by the parameter `data`, is zero. If all bytes of the slice are zero, this
 procedure returns `true`. Otherwise this procedure returns `false`.
 */
-@(require_results)
+
 check_zero :: proc(data: []byte) -> bool {
 	return check_zero_ptr(raw_data(data), len(data))
 }
@@ -275,7 +281,7 @@ This procedure checks whether each of the `len` bytes, starting at address
 `ptr` is zero. If all bytes of this range are zero, this procedure returns
 `true`. Otherwise this procedure returns `false`.
 */
-@(require_results)
+
 check_zero_ptr :: proc(ptr: rawptr, len: int) -> bool {
 	switch {
 	case len <= 0:
@@ -356,7 +362,7 @@ Construct a slice from pointer and length.
 This procedure creates a slice, that points to `len` amount of objects located
 at an address, specified by `ptr`.
 */
-@(require_results)
+
 slice_ptr :: proc(ptr: ^$T, len: int) -> []T {
 	return ([^]T)(ptr)[:len]
 }
@@ -367,7 +373,7 @@ Construct a byte slice from raw pointer and length.
 This procedure creates a byte slice, that points to `len` amount of bytes
 located at an address specified by `data`.
 */
-@(require_results)
+
 byte_slice :: #force_inline proc(data: rawptr, #any_int len: int) -> []byte {
 	return ([^]u8)(data)[:max(len, 0)]
 }
@@ -378,7 +384,7 @@ Create a byte slice from pointer and length.
 This procedure creates a byte slice, pointing to `len` objects, starting from
 the address specified by `ptr`.
 */
-@(require_results)
+
 ptr_to_bytes :: proc(ptr: ^$T, len := 1) -> []byte {
 	return transmute([]byte)Raw_Slice{ptr, len*size_of(T)}
 }
@@ -389,7 +395,7 @@ Obtain the slice, pointing to the contents of `any`.
 This procedure returns the slice, pointing to the contents of the specified
 value of the `any` type.
 */
-@(require_results)
+
 any_to_bytes :: proc(val: any) -> []byte {
 	ti := type_info_of(val.id)
 	size := ti != nil ? ti.size : 0
@@ -402,7 +408,7 @@ Obtain a byte slice from any slice.
 This procedure returns a slice, that points to the same bytes as the slice,
 specified by `slice` and returns the resulting byte slice.
 */
-@(require_results)
+
 slice_to_bytes :: proc(slice: $E/[]$T) -> []byte {
 	s := transmute(Raw_Slice)slice
 	s.len *= size_of(T)
@@ -418,7 +424,7 @@ parameter. Unlike plain transmute operation, this procedure adjusts the length
 of the resulting slice, such that the resulting slice points to the correct
 amount of objects to cover the memory region pointed to by `slice`.
 */
-@(require_results)
+
 slice_data_cast :: proc($T: typeid/[]$A, slice: $S/[]$B) -> T {
 	when size_of(A) == 0 || size_of(B) == 0 {
 		return nil
@@ -435,7 +441,7 @@ Obtain data and length of a slice.
 This procedure returns the pointer to the start of the memory region pointed to
 by slice `slice` and the length of the slice.
 */
-@(require_results)
+
 slice_to_components :: proc(slice: $E/[]$T) -> (data: ^T, len: int) {
 	s := transmute(Raw_Slice)slice
 	return (^T)(s.data), s.len
@@ -448,7 +454,7 @@ This procedure creates a dynamic array, using slice `backing` as the backing
 buffer for the dynamic array. The resulting dynamic array can not grow beyond
 the size of the specified slice.
 */
-@(require_results)
+
 buffer_from_slice :: proc(backing: $T/[]$E) -> [dynamic]E {
 	return transmute([dynamic]E)Raw_Dynamic_Array{
 		data      = raw_data(backing),
@@ -467,7 +473,7 @@ Check whether a number is a power of two.
 This procedure checks whether a given pointer-sized unsigned integer contains
 a power-of-two value.
 */
-@(require_results)
+
 is_power_of_two :: proc(x: uintptr) -> bool {
 	if x <= 0 {
 		return false
@@ -497,7 +503,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_forward_uintptr :: proc(ptr, align: uintptr) -> uintptr {
 	assert(is_power_of_two(align))
 	return (ptr + align-1) & ~(align-1)
@@ -512,7 +518,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_forward :: proc(ptr: rawptr, align: uintptr) -> rawptr {
 	return rawptr(align_forward_uintptr(uintptr(ptr), align))
 }
@@ -526,7 +532,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_forward_int :: proc(ptr, align: int) -> int {
 	return int(align_forward_uintptr(uintptr(ptr), uintptr(align)))
 }
@@ -540,7 +546,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_forward_uint :: proc(ptr, align: uint) -> uint {
 	return uint(align_forward_uintptr(uintptr(ptr), uintptr(align)))
 }
@@ -554,7 +560,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_backward_uintptr :: proc(ptr, align: uintptr) -> uintptr {
 	assert(is_power_of_two(align))
 	return ptr & ~(align-1)
@@ -569,7 +575,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_backward :: proc(ptr: rawptr, align: uintptr) -> rawptr {
 	return rawptr(align_backward_uintptr(uintptr(ptr), align))
 }
@@ -583,7 +589,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_backward_int :: proc(ptr, align: int) -> int {
 	return int(align_backward_uintptr(uintptr(ptr), uintptr(align)))
 }
@@ -597,7 +603,7 @@ bytes, `ptr` is returned.
 
 The specified alignment must be a power of 2.
 */
-@(require_results)
+
 align_backward_uint :: proc(ptr, align: uint) -> uint {
 	return uint(align_backward_uintptr(uintptr(ptr), uintptr(align)))
 }
@@ -609,7 +615,7 @@ Copy the value from a pointer into a value.
 This procedure copies the object of type `T` pointed to by the pointer `ptr`
 into a new stack-allocated value and returns that value.
 */
-@(require_results)
+
 reinterpret_copy :: proc($T: typeid, ptr: rawptr) -> (value: T) {
 	copy(&value, ptr, size_of(T))
 	return
@@ -627,7 +633,7 @@ Fixed_Byte_Buffer :: distinct [dynamic]byte
 /*
 Create a fixed byte buffer from a slice.
 */
-@(require_results)
+
 make_fixed_byte_buffer :: proc(backing: []byte) -> Fixed_Byte_Buffer {
 	s := transmute(Raw_Slice)backing
 	d: Raw_Dynamic_Array
@@ -647,7 +653,7 @@ General-purpose align formula.
 This procedure is equivalent to `align_forward`, but it does not require the
 alignment to be a power of two.
 */
-@(require_results)
+
 align_formula :: proc(size, align: int) -> int {
 	result := size + align-1
 	return result - result%align
@@ -675,7 +681,7 @@ The function takes in `ptr` and `header_size`, as well as the required
 alignment for `DATA`. The return value of the function is the padding between
 `ptr` and `aligned_ptr` that will be able to fit the header.
 */
-@(require_results)
+
 calc_padding_with_header :: proc(ptr: uintptr, align: uintptr, header_size: int) -> int {
 	p, a := ptr, align
 	modulo := p & (a-1)

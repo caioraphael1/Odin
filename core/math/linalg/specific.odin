@@ -130,12 +130,12 @@ VECTOR3F64_Y_AXIS :: Vector3f64{0, 1, 0}
 VECTOR3F64_Z_AXIS :: Vector3f64{0, 0, 1}
 
 
-@(require_results)
+
 vector2_orthogonal :: proc(v: $V/[2]$E) -> V where !IS_ARRAY(E), IS_FLOAT(E) {
 	return {-v.y, v.x}
 }
 
-@(require_results)
+
 vector3_orthogonal :: proc(v: $V/[3]$E) -> V where !IS_ARRAY(E), IS_FLOAT(E) {
 	x := abs(v.x)
 	y := abs(v.y)
@@ -162,7 +162,7 @@ orthogonal :: proc{vector2_orthogonal, vector3_orthogonal}
 
 
 
-@(require_results)
+
 vector4_srgb_to_linear_f16 :: proc(col: Vector4f16) -> Vector4f16 {
 	r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
 	g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
@@ -170,7 +170,7 @@ vector4_srgb_to_linear_f16 :: proc(col: Vector4f16) -> Vector4f16 {
 	a := col.w
 	return {r, g, b, a}
 }
-@(require_results)
+
 vector4_srgb_to_linear_f32 :: proc(col: Vector4f32) -> Vector4f32 {
 	r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
 	g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
@@ -178,7 +178,7 @@ vector4_srgb_to_linear_f32 :: proc(col: Vector4f32) -> Vector4f32 {
 	a := col.w
 	return {r, g, b, a}
 }
-@(require_results)
+
 vector4_srgb_to_linear_f64 :: proc(col: Vector4f64) -> Vector4f64 {
 	r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
 	g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
@@ -192,21 +192,21 @@ vector4_srgb_to_linear :: proc{
 	vector4_srgb_to_linear_f64,
 }
 
-@(require_results)
+
 vector3_srgb_to_linear_f16 :: proc(col: Vector3f16) -> Vector3f16 {
 	r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
 	g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
 	b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
 	return {r, g, b}
 }
-@(require_results)
+
 vector3_srgb_to_linear_f32 :: proc(col: Vector3f32) -> Vector3f32 {
 	r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
 	g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
 	b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
 	return {r, g, b}
 }
-@(require_results)
+
 vector3_srgb_to_linear_f64 :: proc(col: Vector3f64) -> Vector3f64 {
 	r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
 	g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
@@ -220,7 +220,7 @@ vector3_srgb_to_linear :: proc{
 }
 
 
-@(require_results)
+
 vector4_linear_to_srgb_f16 :: proc(col: Vector4f16) -> Vector4f16 {
 	x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
 	y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
@@ -228,7 +228,7 @@ vector4_linear_to_srgb_f16 :: proc(col: Vector4f16) -> Vector4f16 {
 
 	return {x, y, z, col.w}
 }
-@(require_results)
+
 vector4_linear_to_srgb_f32 :: proc(col: Vector4f32) -> Vector4f32 {
 	x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
 	y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
@@ -236,7 +236,7 @@ vector4_linear_to_srgb_f32 :: proc(col: Vector4f32) -> Vector4f32 {
 
 	return {x, y, z, col.w}
 }
-@(require_results)
+
 vector4_linear_to_srgb_f64 :: proc(col: Vector4f64) -> Vector4f64 {
 	x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
 	y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
@@ -250,7 +250,7 @@ vector4_linear_to_srgb :: proc{
 	vector4_linear_to_srgb_f64,
 }
 
-@(require_results)
+
 vector3_linear_to_srgb_f16 :: proc(col: Vector3f16) -> Vector3f16 {
 	x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
 	y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
@@ -258,7 +258,7 @@ vector3_linear_to_srgb_f16 :: proc(col: Vector3f16) -> Vector3f16 {
 
 	return {x, y, z}
 }
-@(require_results)
+
 vector3_linear_to_srgb_f32 :: proc(col: Vector3f32) -> Vector3f32 {
 	x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
 	y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
@@ -266,7 +266,7 @@ vector3_linear_to_srgb_f32 :: proc(col: Vector3f32) -> Vector3f32 {
 
 	return {x, y, z}
 }
-@(require_results)
+
 vector3_linear_to_srgb_f64 :: proc(col: Vector3f64) -> Vector3f64 {
 	x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
 	y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
@@ -281,9 +281,9 @@ vector3_linear_to_srgb :: proc{
 }
 
 
-@(require_results)
+
 vector4_hsl_to_rgb_f16 :: proc(h, s, l: f16, a: f16 = 1) -> Vector4f16 {
-	@(require_results)
+	
 	hue_to_rgb :: proc(p, q, t: f16) -> f16 {
 		t := t
 		if t < 0 { t += 1 }
@@ -310,9 +310,9 @@ vector4_hsl_to_rgb_f16 :: proc(h, s, l: f16, a: f16 = 1) -> Vector4f16 {
 	}
 	return {r, g, b, a}
 }
-@(require_results)
+
 vector4_hsl_to_rgb_f32 :: proc(h, s, l: f32, a: f32 = 1) -> Vector4f32 {
-	@(require_results)
+	
 	hue_to_rgb :: proc(p, q, t: f32) -> f32 {
 		t := t
 		if t < 0 { t += 1 }
@@ -339,9 +339,9 @@ vector4_hsl_to_rgb_f32 :: proc(h, s, l: f32, a: f32 = 1) -> Vector4f32 {
 	}
 	return {r, g, b, a}
 }
-@(require_results)
+
 vector4_hsl_to_rgb_f64 :: proc(h, s, l: f64, a: f64 = 1) -> Vector4f64 {
-	@(require_results)
+	
 	hue_to_rgb :: proc(p, q, t: f64) -> f64 {
 		t := t
 		if t < 0 { t += 1 }
@@ -375,7 +375,7 @@ vector4_hsl_to_rgb :: proc{
 }
 
 
-@(require_results)
+
 vector4_rgb_to_hsl_f16 :: proc(col: Vector4f16) -> Vector4f16 {
 	r := col.x
 	g := col.y
@@ -405,7 +405,7 @@ vector4_rgb_to_hsl_f16 :: proc(col: Vector4f16) -> Vector4f16 {
 
 	return {h, s, l, a}
 }
-@(require_results)
+
 vector4_rgb_to_hsl_f32 :: proc(col: Vector4f32) -> Vector4f32 {
 	r := col.x
 	g := col.y
@@ -435,7 +435,7 @@ vector4_rgb_to_hsl_f32 :: proc(col: Vector4f32) -> Vector4f32 {
 
 	return {h, s, l, a}
 }
-@(require_results)
+
 vector4_rgb_to_hsl_f64 :: proc(col: Vector4f64) -> Vector4f64 {
 	r := col.x
 	g := col.y
@@ -473,7 +473,7 @@ vector4_rgb_to_hsl :: proc{
 
 
 
-@(require_results)
+
 quaternion_angle_axis_f16 :: proc(angle_radians: f16, axis: Vector3f16) -> (q: Quaternionf16) {
 	t := angle_radians*0.5
 	v := normalize(axis) * math.sin(t)
@@ -483,7 +483,7 @@ quaternion_angle_axis_f16 :: proc(angle_radians: f16, axis: Vector3f16) -> (q: Q
 	q.w = math.cos(t)
 	return
 }
-@(require_results)
+
 quaternion_angle_axis_f32 :: proc(angle_radians: f32, axis: Vector3f32) -> (q: Quaternionf32) {
 	t := angle_radians*0.5
 	v := normalize(axis) * math.sin(t)
@@ -493,7 +493,7 @@ quaternion_angle_axis_f32 :: proc(angle_radians: f32, axis: Vector3f32) -> (q: Q
 	q.w = math.cos(t)
 	return
 }
-@(require_results)
+
 quaternion_angle_axis_f64 :: proc(angle_radians: f64, axis: Vector3f64) -> (q: Quaternionf64) {
 	t := angle_radians*0.5
 	v := normalize(axis) * math.sin(t)
@@ -509,7 +509,7 @@ quaternion_angle_axis :: proc{
 	quaternion_angle_axis_f64,
 }
 
-@(require_results)
+
 angle_from_quaternion_f16 :: proc(q: Quaternionf16) -> f16 {
 	if abs(q.w) > math.SQRT_THREE*0.5 {
 		return math.asin(math.sqrt(q.x*q.x + q.y*q.y + q.z*q.z)) * 2
@@ -517,7 +517,7 @@ angle_from_quaternion_f16 :: proc(q: Quaternionf16) -> f16 {
 
 	return math.acos(q.w) * 2
 }
-@(require_results)
+
 angle_from_quaternion_f32 :: proc(q: Quaternionf32) -> f32 {
 	if abs(q.w) > math.SQRT_THREE*0.5 {
 		return math.asin(math.sqrt(q.x*q.x + q.y*q.y + q.z*q.z)) * 2
@@ -525,7 +525,7 @@ angle_from_quaternion_f32 :: proc(q: Quaternionf32) -> f32 {
 
 	return math.acos(q.w) * 2
 }
-@(require_results)
+
 angle_from_quaternion_f64 :: proc(q: Quaternionf64) -> f64 {
 	if abs(q.w) > math.SQRT_THREE*0.5 {
 		return math.asin(math.sqrt(q.x*q.x + q.y*q.y + q.z*q.z)) * 2
@@ -539,7 +539,7 @@ angle_from_quaternion :: proc{
 	angle_from_quaternion_f64,
 }
 
-@(require_results)
+
 axis_from_quaternion_f16 :: proc(q: Quaternionf16) -> Vector3f16 {
 	t1 := 1 - q.w*q.w
 	if t1 <= 0 {
@@ -548,7 +548,7 @@ axis_from_quaternion_f16 :: proc(q: Quaternionf16) -> Vector3f16 {
 	t2 := 1.0 / math.sqrt(t1)
 	return {q.x*t2, q.y*t2, q.z*t2}
 }
-@(require_results)
+
 axis_from_quaternion_f32 :: proc(q: Quaternionf32) -> Vector3f32 {
 	t1 := 1 - q.w*q.w
 	if t1 <= 0 {
@@ -557,7 +557,7 @@ axis_from_quaternion_f32 :: proc(q: Quaternionf32) -> Vector3f32 {
 	t2 := 1.0 / math.sqrt(t1)
 	return {q.x*t2, q.y*t2, q.z*t2}
 }
-@(require_results)
+
 axis_from_quaternion_f64 :: proc(q: Quaternionf64) -> Vector3f64 {
 	t1 := 1 - q.w*q.w
 	if t1 <= 0 {
@@ -573,19 +573,19 @@ axis_from_quaternion :: proc{
 }
 
 
-@(require_results)
+
 angle_axis_from_quaternion_f16 :: proc(q: Quaternionf16) -> (angle: f16, axis: Vector3f16) {
 	angle = angle_from_quaternion(q)
 	axis  = axis_from_quaternion(q)
 	return
 }
-@(require_results)
+
 angle_axis_from_quaternion_f32 :: proc(q: Quaternionf32) -> (angle: f32, axis: Vector3f32) {
 	angle = angle_from_quaternion(q)
 	axis  = axis_from_quaternion(q)
 	return
 }
-@(require_results)
+
 angle_axis_from_quaternion_f64 :: proc(q: Quaternionf64) -> (angle: f64, axis: Vector3f64) {
 	angle = angle_from_quaternion(q)
 	axis  = axis_from_quaternion(q)
@@ -598,7 +598,7 @@ angle_axis_from_quaternion :: proc {
 }
 
 
-@(require_results)
+
 quaternion_from_forward_and_up_f16 :: proc(forward, up: Vector3f16) -> Quaternionf16 #no_bounds_check {
 	f := normalize(forward)
 	s := normalize(cross(f, up))
@@ -642,7 +642,7 @@ quaternion_from_forward_and_up_f16 :: proc(forward, up: Vector3f16) -> Quaternio
 
 	return normalize(q)
 }
-@(require_results)
+
 quaternion_from_forward_and_up_f32 :: proc(forward, up: Vector3f32) -> Quaternionf32 #no_bounds_check {
 	f := normalize(forward)
 	s := normalize(cross(f, up))
@@ -686,7 +686,7 @@ quaternion_from_forward_and_up_f32 :: proc(forward, up: Vector3f32) -> Quaternio
 
 	return normalize(q)
 }
-@(require_results)
+
 quaternion_from_forward_and_up_f64 :: proc(forward, up: Vector3f64) -> Quaternionf64 #no_bounds_check {
 	f := normalize(forward)
 	s := normalize(cross(f, up))
@@ -736,15 +736,15 @@ quaternion_from_forward_and_up :: proc{
 	quaternion_from_forward_and_up_f64,
 }
 
-@(require_results)
+
 quaternion_look_at_f16 :: proc(eye, centre: Vector3f16, up: Vector3f16) -> Quaternionf16 {
 	return quaternion_from_matrix3(matrix3_look_at(eye, centre, up))
 }
-@(require_results)
+
 quaternion_look_at_f32 :: proc(eye, centre: Vector3f32, up: Vector3f32) -> Quaternionf32 {
 	return quaternion_from_matrix3(matrix3_look_at(eye, centre, up))
 }
-@(require_results)
+
 quaternion_look_at_f64 :: proc(eye, centre: Vector3f64, up: Vector3f64) -> Quaternionf64 {
 	return quaternion_from_matrix3(matrix3_look_at(eye, centre, up))
 }
@@ -756,7 +756,7 @@ quaternion_look_at :: proc{
 
 
 
-@(require_results)
+
 quaternion_nlerp_f16 :: proc(a, b: Quaternionf16, t: f16) -> (c: Quaternionf16) {
 	c.x = a.x + (b.x-a.x)*t
 	c.y = a.y + (b.y-a.y)*t
@@ -764,7 +764,7 @@ quaternion_nlerp_f16 :: proc(a, b: Quaternionf16, t: f16) -> (c: Quaternionf16) 
 	c.w = a.w + (b.w-a.w)*t
 	return normalize(c)
 }
-@(require_results)
+
 quaternion_nlerp_f32 :: proc(a, b: Quaternionf32, t: f32) -> (c: Quaternionf32) {
 	c.x = a.x + (b.x-a.x)*t
 	c.y = a.y + (b.y-a.y)*t
@@ -772,7 +772,7 @@ quaternion_nlerp_f32 :: proc(a, b: Quaternionf32, t: f32) -> (c: Quaternionf32) 
 	c.w = a.w + (b.w-a.w)*t
 	return normalize(c)
 }
-@(require_results)
+
 quaternion_nlerp_f64 :: proc(a, b: Quaternionf64, t: f64) -> (c: Quaternionf64) {
 	c.x = a.x + (b.x-a.x)*t
 	c.y = a.y + (b.y-a.y)*t
@@ -787,7 +787,7 @@ quaternion_nlerp :: proc{
 }
 
 
-@(require_results)
+
 quaternion_slerp_f16 :: proc(x, y: Quaternionf16, t: f16) -> (q: Quaternionf16) {
 	a, b := x, y
 	cos_angle := dot(a, b)
@@ -815,7 +815,7 @@ quaternion_slerp_f16 :: proc(x, y: Quaternionf16, t: f16) -> (q: Quaternionf16) 
 	q.w = factor_a * a.w + factor_b * b.w
 	return
 }
-@(require_results)
+
 quaternion_slerp_f32 :: proc(x, y: Quaternionf32, t: f32) -> (q: Quaternionf32) {
 	a, b := x, y
 	cos_angle := dot(a, b)
@@ -843,7 +843,7 @@ quaternion_slerp_f32 :: proc(x, y: Quaternionf32, t: f32) -> (q: Quaternionf32) 
 	q.w = factor_a * a.w + factor_b * b.w
 	return
 }
-@(require_results)
+
 quaternion_slerp_f64 :: proc(x, y: Quaternionf64, t: f64) -> (q: Quaternionf64) {
 	a, b := x, y
 	cos_angle := dot(a, b)
@@ -878,17 +878,17 @@ quaternion_slerp :: proc{
 }
 
 
-@(require_results)
+
 quaternion_squad_f16 :: proc(q1, q2, s1, s2: Quaternionf16, h: f16) -> Quaternionf16 {
 	slerp :: quaternion_slerp
 	return slerp(slerp(q1, q2, h), slerp(s1, s2, h), 2 * (1 - h) * h)
 }
-@(require_results)
+
 quaternion_squad_f32 :: proc(q1, q2, s1, s2: Quaternionf32, h: f32) -> Quaternionf32 {
 	slerp :: quaternion_slerp
 	return slerp(slerp(q1, q2, h), slerp(s1, s2, h), 2 * (1 - h) * h)
 }
-@(require_results)
+
 quaternion_squad_f64 :: proc(q1, q2, s1, s2: Quaternionf64, h: f64) -> Quaternionf64 {
 	slerp :: quaternion_slerp
 	return slerp(slerp(q1, q2, h), slerp(s1, s2, h), 2 * (1 - h) * h)
@@ -900,7 +900,7 @@ quaternion_squad :: proc{
 }
 
 
-@(require_results)
+
 quaternion_from_matrix4_f16 :: proc(m: Matrix4f16) -> (q: Quaternionf16) #no_bounds_check {
 	m3: Matrix3f16 = ---
 	m3[0, 0], m3[1, 0], m3[2, 0] = m[0, 0], m[1, 0], m[2, 0]
@@ -908,7 +908,7 @@ quaternion_from_matrix4_f16 :: proc(m: Matrix4f16) -> (q: Quaternionf16) #no_bou
 	m3[0, 2], m3[1, 2], m3[2, 2] = m[0, 2], m[1, 2], m[2, 2]
 	return quaternion_from_matrix3(m3)
 }
-@(require_results)
+
 quaternion_from_matrix4_f32 :: proc(m: Matrix4f32) -> (q: Quaternionf32) #no_bounds_check {
 	m3: Matrix3f32 = ---
 	m3[0, 0], m3[1, 0], m3[2, 0] = m[0, 0], m[1, 0], m[2, 0]
@@ -916,7 +916,7 @@ quaternion_from_matrix4_f32 :: proc(m: Matrix4f32) -> (q: Quaternionf32) #no_bou
 	m3[0, 2], m3[1, 2], m3[2, 2] = m[0, 2], m[1, 2], m[2, 2]
 	return quaternion_from_matrix3(m3)
 }
-@(require_results)
+
 quaternion_from_matrix4_f64 :: proc(m: Matrix4f64) -> (q: Quaternionf64) #no_bounds_check {
 	m3: Matrix3f64 = ---
 	m3[0, 0], m3[1, 0], m3[2, 0] = m[0, 0], m[1, 0], m[2, 0]
@@ -931,7 +931,7 @@ quaternion_from_matrix4 :: proc{
 }
 
 
-@(require_results)
+
 quaternion_from_matrix3_f16 :: proc(m: Matrix3f16) -> (q: Quaternionf16) #no_bounds_check {
 	four_x_squared_minus_1 := m[0, 0] - m[1, 1] - m[2, 2]
 	four_y_squared_minus_1 := m[1, 1] - m[0, 0] - m[2, 2]
@@ -981,7 +981,7 @@ quaternion_from_matrix3_f16 :: proc(m: Matrix3f16) -> (q: Quaternionf16) #no_bou
 	}
 	return
 }
-@(require_results)
+
 quaternion_from_matrix3_f32 :: proc(m: Matrix3f32) -> (q: Quaternionf32) #no_bounds_check {
 	four_x_squared_minus_1 := m[0, 0] - m[1, 1] - m[2, 2]
 	four_y_squared_minus_1 := m[1, 1] - m[0, 0] - m[2, 2]
@@ -1031,7 +1031,7 @@ quaternion_from_matrix3_f32 :: proc(m: Matrix3f32) -> (q: Quaternionf32) #no_bou
 	}
 	return
 }
-@(require_results)
+
 quaternion_from_matrix3_f64 :: proc(m: Matrix3f64) -> (q: Quaternionf64) #no_bounds_check {
 	four_x_squared_minus_1 := m[0, 0] - m[1, 1] - m[2, 2]
 	four_y_squared_minus_1 := m[1, 1] - m[0, 0] - m[2, 2]
@@ -1088,7 +1088,7 @@ quaternion_from_matrix3 :: proc{
 }
 
 
-@(require_results)
+
 quaternion_between_two_vector3_f16 :: proc(from, to: Vector3f16) -> (q: Quaternionf16) {
 	x := normalize(from)
 	y := normalize(to)
@@ -1110,7 +1110,7 @@ quaternion_between_two_vector3_f16 :: proc(from, to: Vector3f16) -> (q: Quaterni
 	q.z = v.z
 	return normalize(q)
 }
-@(require_results)
+
 quaternion_between_two_vector3_f32 :: proc(from, to: Vector3f32) -> (q: Quaternionf32) {
 	x := normalize(from)
 	y := normalize(to)
@@ -1132,7 +1132,7 @@ quaternion_between_two_vector3_f32 :: proc(from, to: Vector3f32) -> (q: Quaterni
 	q.z = v.z
 	return normalize(q)
 }
-@(require_results)
+
 quaternion_between_two_vector3_f64 :: proc(from, to: Vector3f64) -> (q: Quaternionf64) {
 	x := normalize(from)
 	y := normalize(to)
@@ -1161,7 +1161,7 @@ quaternion_between_two_vector3 :: proc{
 }
 
 
-@(require_results)
+
 matrix2_inverse_transpose_f16 :: proc(m: Matrix2f16) -> (c: Matrix2f16) #no_bounds_check {
 	d := m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 	id := 1.0/d
@@ -1171,7 +1171,7 @@ matrix2_inverse_transpose_f16 :: proc(m: Matrix2f16) -> (c: Matrix2f16) #no_boun
 	c[1, 1] = +m[0, 0] * id
 	return c
 }
-@(require_results)
+
 matrix2_inverse_transpose_f32 :: proc(m: Matrix2f32) -> (c: Matrix2f32) #no_bounds_check {
 	d := m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 	id := 1.0/d
@@ -1181,7 +1181,7 @@ matrix2_inverse_transpose_f32 :: proc(m: Matrix2f32) -> (c: Matrix2f32) #no_boun
 	c[1, 1] = +m[0, 0] * id
 	return c
 }
-@(require_results)
+
 matrix2_inverse_transpose_f64 :: proc(m: Matrix2f64) -> (c: Matrix2f64) #no_bounds_check {
 	d := m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 	id := 1.0/d
@@ -1198,15 +1198,15 @@ matrix2_inverse_transpose :: proc{
 }
 
 
-@(require_results)
+
 matrix2_determinant_f16 :: proc(m: Matrix2f16) -> f16 #no_bounds_check {
 	return m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 }
-@(require_results)
+
 matrix2_determinant_f32 :: proc(m: Matrix2f32) -> f32 #no_bounds_check {
 	return m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 }
-@(require_results)
+
 matrix2_determinant_f64 :: proc(m: Matrix2f64) -> f64 #no_bounds_check {
 	return m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 }
@@ -1217,7 +1217,7 @@ matrix2_determinant :: proc{
 }
 
 
-@(require_results)
+
 matrix2_inverse_f16 :: proc(m: Matrix2f16) -> (c: Matrix2f16) #no_bounds_check {
 	d := m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 	id := 1.0/d
@@ -1227,7 +1227,7 @@ matrix2_inverse_f16 :: proc(m: Matrix2f16) -> (c: Matrix2f16) #no_bounds_check {
 	c[1, 1] = +m[0, 0] * id
 	return c
 }
-@(require_results)
+
 matrix2_inverse_f32 :: proc(m: Matrix2f32) -> (c: Matrix2f32) #no_bounds_check {
 	d := m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 	id := 1.0/d
@@ -1237,7 +1237,7 @@ matrix2_inverse_f32 :: proc(m: Matrix2f32) -> (c: Matrix2f32) #no_bounds_check {
 	c[1, 1] = +m[0, 0] * id
 	return c
 }
-@(require_results)
+
 matrix2_inverse_f64 :: proc(m: Matrix2f64) -> (c: Matrix2f64) #no_bounds_check {
 	d := m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 	id := 1.0/d
@@ -1254,7 +1254,7 @@ matrix2_inverse :: proc{
 }
 
 
-@(require_results)
+
 matrix2_adjoint_f16 :: proc(m: Matrix2f16) -> (c: Matrix2f16) #no_bounds_check {
 	c[0, 0] = +m[1, 1]
 	c[1, 0] = -m[0, 1]
@@ -1262,7 +1262,7 @@ matrix2_adjoint_f16 :: proc(m: Matrix2f16) -> (c: Matrix2f16) #no_bounds_check {
 	c[1, 1] = +m[0, 0]
 	return c
 }
-@(require_results)
+
 matrix2_adjoint_f32 :: proc(m: Matrix2f32) -> (c: Matrix2f32) #no_bounds_check {
 	c[0, 0] = +m[1, 1]
 	c[1, 0] = -m[0, 1]
@@ -1270,7 +1270,7 @@ matrix2_adjoint_f32 :: proc(m: Matrix2f32) -> (c: Matrix2f32) #no_bounds_check {
 	c[1, 1] = +m[0, 0]
 	return c
 }
-@(require_results)
+
 matrix2_adjoint_f64 :: proc(m: Matrix2f64) -> (c: Matrix2f64) #no_bounds_check {
 	c[0, 0] = +m[1, 1]
 	c[1, 0] = -m[0, 1]
@@ -1285,7 +1285,7 @@ matrix2_adjoint :: proc{
 }
 
 
-@(require_results)
+
 matrix2_rotate_f16 :: proc(angle_radians: f16) -> Matrix2f16 {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -1295,7 +1295,7 @@ matrix2_rotate_f16 :: proc(angle_radians: f16) -> Matrix2f16 {
 		s,  c,
 	}
 }
-@(require_results)
+
 matrix2_rotate_f32 :: proc(angle_radians: f32) -> Matrix2f32 {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -1305,7 +1305,7 @@ matrix2_rotate_f32 :: proc(angle_radians: f32) -> Matrix2f32 {
 		s,  c,
 	}
 }
-@(require_results)
+
 matrix2_rotate_f64 :: proc(angle_radians: f64) -> Matrix2f64 {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -1322,7 +1322,7 @@ matrix2_rotate :: proc{
 }
 
 
-@(require_results)
+
 matrix3_from_quaternion_f16 :: proc(q: Quaternionf16) -> (m: Matrix3f16) #no_bounds_check {
 	qxx := q.x * q.x
 	qyy := q.y * q.y
@@ -1347,7 +1347,7 @@ matrix3_from_quaternion_f16 :: proc(q: Quaternionf16) -> (m: Matrix3f16) #no_bou
 	m[2, 2] = 1 - 2 * (qxx + qyy)
 	return m
 }
-@(require_results)
+
 matrix3_from_quaternion_f32 :: proc(q: Quaternionf32) -> (m: Matrix3f32) #no_bounds_check {
 	qxx := q.x * q.x
 	qyy := q.y * q.y
@@ -1372,7 +1372,7 @@ matrix3_from_quaternion_f32 :: proc(q: Quaternionf32) -> (m: Matrix3f32) #no_bou
 	m[2, 2] = 1 - 2 * (qxx + qyy)
 	return m
 }
-@(require_results)
+
 matrix3_from_quaternion_f64 :: proc(q: Quaternionf64) -> (m: Matrix3f64) #no_bounds_check {
 	qxx := q.x * q.x
 	qyy := q.y * q.y
@@ -1404,15 +1404,15 @@ matrix3_from_quaternion :: proc{
 }
 
 
-@(require_results)
+
 matrix3_inverse_f16 :: proc(m: Matrix3f16) -> Matrix3f16 {
 	return transpose(matrix3_inverse_transpose(m))
 }
-@(require_results)
+
 matrix3_inverse_f32 :: proc(m: Matrix3f32) -> Matrix3f32 {
 	return transpose(matrix3_inverse_transpose(m))
 }
-@(require_results)
+
 matrix3_inverse_f64 :: proc(m: Matrix3f64) -> Matrix3f64 {
 	return transpose(matrix3_inverse_transpose(m))
 }
@@ -1423,21 +1423,21 @@ matrix3_inverse :: proc{
 }
 
 
-@(require_results)
+
 matrix3_determinant_f16 :: proc(m: Matrix3f16) -> f16 #no_bounds_check {
 	a := +m[0, 0] * (m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1])
 	b := -m[0, 1] * (m[1, 0] * m[2, 2] - m[1, 2] * m[2, 0])
 	c := +m[0, 2] * (m[1, 0] * m[2, 1] - m[1, 1] * m[2, 0])
 	return a + b + c
 }
-@(require_results)
+
 matrix3_determinant_f32 :: proc(m: Matrix3f32) -> f32 #no_bounds_check {
 	a := +m[0, 0] * (m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1])
 	b := -m[0, 1] * (m[1, 0] * m[2, 2] - m[1, 2] * m[2, 0])
 	c := +m[0, 2] * (m[1, 0] * m[2, 1] - m[1, 1] * m[2, 0])
 	return a + b + c
 }
-@(require_results)
+
 matrix3_determinant_f64 :: proc(m: Matrix3f64) -> f64 #no_bounds_check {
 	a := +m[0, 0] * (m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1])
 	b := -m[0, 1] * (m[1, 0] * m[2, 2] - m[1, 2] * m[2, 0])
@@ -1451,7 +1451,7 @@ matrix3_determinant :: proc{
 }
 
 
-@(require_results)
+
 matrix3_adjoint_f16 :: proc(m: Matrix3f16) -> (adjoint: Matrix3f16) #no_bounds_check {
 	adjoint[0, 0] = +(m[1, 1] * m[2, 2] - m[2, 1] * m[1, 2])
 	adjoint[0, 1] = -(m[1, 0] * m[2, 2] - m[2, 0] * m[1, 2])
@@ -1464,7 +1464,7 @@ matrix3_adjoint_f16 :: proc(m: Matrix3f16) -> (adjoint: Matrix3f16) #no_bounds_c
 	adjoint[2, 2] = +(m[0, 0] * m[1, 1] - m[1, 0] * m[0, 1])
 	return adjoint
 }
-@(require_results)
+
 matrix3_adjoint_f32 :: proc(m: Matrix3f32) -> (adjoint: Matrix3f32) #no_bounds_check {
 	adjoint[0, 0] = +(m[1, 1] * m[2, 2] - m[2, 1] * m[1, 2])
 	adjoint[0, 1] = -(m[1, 0] * m[2, 2] - m[2, 0] * m[1, 2])
@@ -1477,7 +1477,7 @@ matrix3_adjoint_f32 :: proc(m: Matrix3f32) -> (adjoint: Matrix3f32) #no_bounds_c
 	adjoint[2, 2] = +(m[0, 0] * m[1, 1] - m[1, 0] * m[0, 1])
 	return adjoint
 }
-@(require_results)
+
 matrix3_adjoint_f64 :: proc(m: Matrix3f64) -> (adjoint: Matrix3f64) #no_bounds_check {
 	adjoint[0, 0] = +(m[1, 1] * m[2, 2] - m[2, 1] * m[1, 2])
 	adjoint[0, 1] = -(m[1, 0] * m[2, 2] - m[2, 0] * m[1, 2])
@@ -1498,15 +1498,15 @@ matrix3_adjoint :: proc{
 
 
 
-@(require_results)
+
 matrix3_inverse_transpose_f16 :: proc(m: Matrix3f16) -> (p: Matrix3f16) {
 	return inverse_transpose(m)
 }
-@(require_results)
+
 matrix3_inverse_transpose_f32 :: proc(m: Matrix3f32) -> (p: Matrix3f32) {
 	return inverse_transpose(m)
 }
-@(require_results)
+
 matrix3_inverse_transpose_f64 :: proc(m: Matrix3f64) -> (p: Matrix3f64) {
 	return inverse_transpose(m)
 }
@@ -1517,21 +1517,21 @@ matrix3_inverse_transpose :: proc{
 }
 
 
-@(require_results)
+
 matrix3_scale_f16 :: proc(s: Vector3f16) -> (m: Matrix3f16) #no_bounds_check {
 	m[0, 0] = s[0]
 	m[1, 1] = s[1]
 	m[2, 2] = s[2]
 	return m
 }
-@(require_results)
+
 matrix3_scale_f32 :: proc(s: Vector3f32) -> (m: Matrix3f32) #no_bounds_check {
 	m[0, 0] = s[0]
 	m[1, 1] = s[1]
 	m[2, 2] = s[2]
 	return m
 }
-@(require_results)
+
 matrix3_scale_f64 :: proc(s: Vector3f64) -> (m: Matrix3f64) #no_bounds_check {
 	m[0, 0] = s[0]
 	m[1, 1] = s[1]
@@ -1545,7 +1545,7 @@ matrix3_scale :: proc{
 }
 
 
-@(require_results)
+
 matrix3_rotate_f16 :: proc(angle_radians: f16, v: Vector3f16) -> (rot: Matrix3f16) #no_bounds_check {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -1567,7 +1567,7 @@ matrix3_rotate_f16 :: proc(angle_radians: f16, v: Vector3f16) -> (rot: Matrix3f1
 
 	return rot
 }
-@(require_results)
+
 matrix3_rotate_f32 :: proc(angle_radians: f32, v: Vector3f32) -> (rot: Matrix3f32) #no_bounds_check {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -1589,7 +1589,7 @@ matrix3_rotate_f32 :: proc(angle_radians: f32, v: Vector3f32) -> (rot: Matrix3f3
 
 	return rot
 }
-@(require_results)
+
 matrix3_rotate_f64 :: proc(angle_radians: f64, v: Vector3f64) -> (rot: Matrix3f64) {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -1618,7 +1618,7 @@ matrix3_rotate :: proc{
 }
 
 
-@(require_results)
+
 matrix3_look_at_f16 :: proc(eye, centre, up: Vector3f16) -> Matrix3f16 {
 	f := normalize(centre - eye)
 	s := normalize(cross(f, up))
@@ -1629,7 +1629,7 @@ matrix3_look_at_f16 :: proc(eye, centre, up: Vector3f16) -> Matrix3f16 {
 		-f.x, -f.y, -f.z,
 	}
 }
-@(require_results)
+
 matrix3_look_at_f32 :: proc(eye, centre, up: Vector3f32) -> Matrix3f32 {
 	f := normalize(centre - eye)
 	s := normalize(cross(f, up))
@@ -1640,7 +1640,7 @@ matrix3_look_at_f32 :: proc(eye, centre, up: Vector3f32) -> Matrix3f32 {
 		-f.x, -f.y, -f.z,
 	}
 }
-@(require_results)
+
 matrix3_look_at_f64 :: proc(eye, centre, up: Vector3f64) -> Matrix3f64 {
 	f := normalize(centre - eye)
 	s := normalize(cross(f, up))
@@ -1658,7 +1658,7 @@ matrix3_look_at :: proc{
 }
 
 
-@(require_results)
+
 matrix4_from_quaternion_f16 :: proc(q: Quaternionf16) -> (m: Matrix4f16) #no_bounds_check {
 	qxx := q.x * q.x
 	qyy := q.y * q.y
@@ -1686,7 +1686,7 @@ matrix4_from_quaternion_f16 :: proc(q: Quaternionf16) -> (m: Matrix4f16) #no_bou
 
 	return m
 }
-@(require_results)
+
 matrix4_from_quaternion_f32 :: proc(q: Quaternionf32) -> (m: Matrix4f32) #no_bounds_check {
 	qxx := q.x * q.x
 	qyy := q.y * q.y
@@ -1714,7 +1714,7 @@ matrix4_from_quaternion_f32 :: proc(q: Quaternionf32) -> (m: Matrix4f32) #no_bou
 
 	return m
 }
-@(require_results)
+
 matrix4_from_quaternion_f64 :: proc(q: Quaternionf64) -> (m: Matrix4f64) #no_bounds_check {
 	qxx := q.x * q.x
 	qyy := q.y * q.y
@@ -1749,21 +1749,21 @@ matrix4_from_quaternion :: proc{
 }
 
 
-@(require_results)
+
 matrix4_from_trs_f16 :: proc(t: Vector3f16, r: Quaternionf16, s: Vector3f16) -> Matrix4f16 {
 	translation := matrix4_translate(t)
 	rotation := matrix4_from_quaternion(r)
 	scale := matrix4_scale(s)
 	return mul(translation, mul(rotation, scale))
 }
-@(require_results)
+
 matrix4_from_trs_f32 :: proc(t: Vector3f32, r: Quaternionf32, s: Vector3f32) -> Matrix4f32 {
 	translation := matrix4_translate(t)
 	rotation := matrix4_from_quaternion(r)
 	scale := matrix4_scale(s)
 	return mul(translation, mul(rotation, scale))
 }
-@(require_results)
+
 matrix4_from_trs_f64 :: proc(t: Vector3f64, r: Quaternionf64, s: Vector3f64) -> Matrix4f64 {
 	translation := matrix4_translate(t)
 	rotation := matrix4_from_quaternion(r)
@@ -1778,15 +1778,15 @@ matrix4_from_trs :: proc{
 
 
 
-@(require_results)
+
 matrix4_inverse_f16 :: proc(m: Matrix4f16) -> Matrix4f16 {
 	return transpose(matrix4_inverse_transpose(m))
 }
-@(require_results)
+
 matrix4_inverse_f32 :: proc(m: Matrix4f32) -> Matrix4f32 {
 	return transpose(matrix4_inverse_transpose(m))
 }
-@(require_results)
+
 matrix4_inverse_f64 :: proc(m: Matrix4f64) -> Matrix4f64 {
 	return transpose(matrix4_inverse_transpose(m))
 }
@@ -1797,7 +1797,7 @@ matrix4_inverse :: proc{
 }
 
 
-@(require_results)
+
 matrix4_minor_f16 :: proc(m: Matrix4f16, c, r: int) -> f16 #no_bounds_check {
 	cut_down: Matrix3f16
 	for i in 0..<3 {
@@ -1809,7 +1809,7 @@ matrix4_minor_f16 :: proc(m: Matrix4f16, c, r: int) -> f16 #no_bounds_check {
 	}
 	return matrix3_determinant(cut_down)
 }
-@(require_results)
+
 matrix4_minor_f32 :: proc(m: Matrix4f32, c, r: int) -> f32 #no_bounds_check {
 	cut_down: Matrix3f32
 	for i in 0..<3 {
@@ -1821,7 +1821,7 @@ matrix4_minor_f32 :: proc(m: Matrix4f32, c, r: int) -> f32 #no_bounds_check {
 	}
 	return matrix3_determinant(cut_down)
 }
-@(require_results)
+
 matrix4_minor_f64 :: proc(m: Matrix4f64, c, r: int) -> f64 #no_bounds_check {
 	cut_down: Matrix3f64
 	for i in 0..<3 {
@@ -1840,21 +1840,21 @@ matrix4_minor :: proc{
 }
 
 
-@(require_results)
+
 matrix4_cofactor_f16 :: proc(m: Matrix4f16, c, r: int) -> f16 {
 	sign, minor: f16
 	sign = 1 if (c + r) % 2 == 0 else -1
 	minor = matrix4_minor(m, c, r)
 	return sign * minor
 }
-@(require_results)
+
 matrix4_cofactor_f32 :: proc(m: Matrix4f32, c, r: int) -> f32 {
 	sign, minor: f32
 	sign = 1 if (c + r) % 2 == 0 else -1
 	minor = matrix4_minor(m, c, r)
 	return sign * minor
 }
-@(require_results)
+
 matrix4_cofactor_f64 :: proc(m: Matrix4f64, c, r: int) -> f64 {
 	sign, minor: f64
 	sign = 1 if (c + r) % 2 == 0 else -1
@@ -1868,7 +1868,7 @@ matrix4_cofactor :: proc{
 }
 
 
-@(require_results)
+
 matrix4_adjoint_f16 :: proc(m: Matrix4f16) -> (adjoint: Matrix4f16) #no_bounds_check {
 	for i in 0..<4 {
 		for j in 0..<4 {
@@ -1877,7 +1877,7 @@ matrix4_adjoint_f16 :: proc(m: Matrix4f16) -> (adjoint: Matrix4f16) #no_bounds_c
 	}
 	return
 }
-@(require_results)
+
 matrix4_adjoint_f32 :: proc(m: Matrix4f32) -> (adjoint: Matrix4f32) #no_bounds_check {
 	for i in 0..<4 {
 		for j in 0..<4 {
@@ -1886,7 +1886,7 @@ matrix4_adjoint_f32 :: proc(m: Matrix4f32) -> (adjoint: Matrix4f32) #no_bounds_c
 	}
 	return
 }
-@(require_results)
+
 matrix4_adjoint_f64 :: proc(m: Matrix4f64) -> (adjoint: Matrix4f64) #no_bounds_check {
 	for i in 0..<4 {
 		for j in 0..<4 {
@@ -1902,7 +1902,7 @@ matrix4_adjoint :: proc{
 }
 
 
-@(require_results)
+
 matrix4_determinant_f16 :: proc(m: Matrix4f16) -> (determinant: f16) #no_bounds_check {
 	adjoint := matrix4_adjoint(m)
 	for i in 0..<4 {
@@ -1910,7 +1910,7 @@ matrix4_determinant_f16 :: proc(m: Matrix4f16) -> (determinant: f16) #no_bounds_
 	}
 	return
 }
-@(require_results)
+
 matrix4_determinant_f32 :: proc(m: Matrix4f32) -> (determinant: f32) #no_bounds_check {
 	adjoint := matrix4_adjoint(m)
 	for i in 0..<4 {
@@ -1918,7 +1918,7 @@ matrix4_determinant_f32 :: proc(m: Matrix4f32) -> (determinant: f32) #no_bounds_
 	}
 	return
 }
-@(require_results)
+
 matrix4_determinant_f64 :: proc(m: Matrix4f64) -> (determinant: f64) #no_bounds_check {
 	adjoint := matrix4_adjoint(m)
 	for i in 0..<4 {
@@ -1933,7 +1933,7 @@ matrix4_determinant :: proc{
 }
 
 
-@(require_results)
+
 matrix4_inverse_transpose_f16 :: proc(m: Matrix4f16) -> (inverse_transpose: Matrix4f16) #no_bounds_check {
 	adjoint := matrix4_adjoint(m)
 	determinant: f16 = 0
@@ -1948,7 +1948,7 @@ matrix4_inverse_transpose_f16 :: proc(m: Matrix4f16) -> (inverse_transpose: Matr
 	}
 	return
 }
-@(require_results)
+
 matrix4_inverse_transpose_f32 :: proc(m: Matrix4f32) -> (inverse_transpose: Matrix4f32) #no_bounds_check {
 	adjoint := matrix4_adjoint(m)
 	determinant: f32 = 0
@@ -1963,7 +1963,7 @@ matrix4_inverse_transpose_f32 :: proc(m: Matrix4f32) -> (inverse_transpose: Matr
 	}
 	return
 }
-@(require_results)
+
 matrix4_inverse_transpose_f64 :: proc(m: Matrix4f64) -> (inverse_transpose: Matrix4f64) #no_bounds_check {
 	adjoint := matrix4_adjoint(m)
 	determinant: f64 = 0
@@ -1985,7 +1985,7 @@ matrix4_inverse_transpose :: proc{
 }
 
 
-@(require_results)
+
 matrix4_translate_f16 :: proc(v: Vector3f16) -> Matrix4f16 #no_bounds_check {
 	m := MATRIX4F16_IDENTITY
 	m[3][0] = v[0]
@@ -1993,7 +1993,7 @@ matrix4_translate_f16 :: proc(v: Vector3f16) -> Matrix4f16 #no_bounds_check {
 	m[3][2] = v[2]
 	return m
 }
-@(require_results)
+
 matrix4_translate_f32 :: proc(v: Vector3f32) -> Matrix4f32 #no_bounds_check {
 	m := MATRIX4F32_IDENTITY
 	m[3][0] = v[0]
@@ -2001,7 +2001,7 @@ matrix4_translate_f32 :: proc(v: Vector3f32) -> Matrix4f32 #no_bounds_check {
 	m[3][2] = v[2]
 	return m
 }
-@(require_results)
+
 matrix4_translate_f64 :: proc(v: Vector3f64) -> Matrix4f64 #no_bounds_check {
 	m := MATRIX4F64_IDENTITY
 	m[3][0] = v[0]
@@ -2016,7 +2016,7 @@ matrix4_translate :: proc{
 }
 
 
-@(require_results)
+
 matrix4_rotate_f16 :: proc(angle_radians: f16, v: Vector3f16) -> Matrix4f16 #no_bounds_check {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -2043,7 +2043,7 @@ matrix4_rotate_f16 :: proc(angle_radians: f16, v: Vector3f16) -> Matrix4f16 #no_
 
 	return rot
 }
-@(require_results)
+
 matrix4_rotate_f32 :: proc(angle_radians: f32, v: Vector3f32) -> Matrix4f32 #no_bounds_check {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -2070,7 +2070,7 @@ matrix4_rotate_f32 :: proc(angle_radians: f32, v: Vector3f32) -> Matrix4f32 #no_
 
 	return rot
 }
-@(require_results)
+
 matrix4_rotate_f64 :: proc(angle_radians: f64, v: Vector3f64) -> Matrix4f64 #no_bounds_check {
 	c := math.cos(angle_radians)
 	s := math.sin(angle_radians)
@@ -2104,7 +2104,7 @@ matrix4_rotate :: proc{
 }
 
 
-@(require_results)
+
 matrix4_scale_f16 :: proc(v: Vector3f16) -> (m: Matrix4f16) #no_bounds_check {
 	m[0][0] = v[0]
 	m[1][1] = v[1]
@@ -2112,7 +2112,7 @@ matrix4_scale_f16 :: proc(v: Vector3f16) -> (m: Matrix4f16) #no_bounds_check {
 	m[3][3] = 1
 	return
 }
-@(require_results)
+
 matrix4_scale_f32 :: proc(v: Vector3f32) -> (m: Matrix4f32) #no_bounds_check {
 	m[0][0] = v[0]
 	m[1][1] = v[1]
@@ -2120,7 +2120,7 @@ matrix4_scale_f32 :: proc(v: Vector3f32) -> (m: Matrix4f32) #no_bounds_check {
 	m[3][3] = 1
 	return
 }
-@(require_results)
+
 matrix4_scale_f64 :: proc(v: Vector3f64) -> (m: Matrix4f64) #no_bounds_check {
 	m[0][0] = v[0]
 	m[1][1] = v[1]
@@ -2135,7 +2135,7 @@ matrix4_scale :: proc{
 }
 
 
-@(require_results)
+
 matrix4_look_at_f16 :: proc(eye, centre, up: Vector3f16, flip_z_axis := true) -> (m: Matrix4f16) {
 	f := normalize(centre - eye)
 	s := normalize(cross(f, up))
@@ -2150,7 +2150,7 @@ matrix4_look_at_f16 :: proc(eye, centre, up: Vector3f16, flip_z_axis := true) ->
 		   0,    0,    0, 1,
 	}
 }
-@(require_results)
+
 matrix4_look_at_f32 :: proc(eye, centre, up: Vector3f32, flip_z_axis := true) -> (m: Matrix4f32) {
 	f := normalize(centre - eye)
 	s := normalize(cross(f, up))
@@ -2165,7 +2165,7 @@ matrix4_look_at_f32 :: proc(eye, centre, up: Vector3f32, flip_z_axis := true) ->
 		   0,    0,    0, 1,
 	}
 }
-@(require_results)
+
 matrix4_look_at_f64 :: proc(eye, centre, up: Vector3f64, flip_z_axis := true) -> (m: Matrix4f64) {
 	f := normalize(centre - eye)
 	s := normalize(cross(f, up))
@@ -2187,7 +2187,7 @@ matrix4_look_at :: proc{
 }
 
 
-@(require_results)
+
 matrix4_look_at_from_fru_f16 :: proc(eye, f, r, u: Vector3f16, flip_z_axis := true) -> (m: Matrix4f16) {
 	f, s, u := f, r, u
 	f = normalize(f)
@@ -2202,7 +2202,7 @@ matrix4_look_at_from_fru_f16 :: proc(eye, f, r, u: Vector3f16, flip_z_axis := tr
 		   0,    0,    0, 1,
 	}
 }
-@(require_results)
+
 matrix4_look_at_from_fru_f32 :: proc(eye, f, r, u: Vector3f32, flip_z_axis := true) -> (m: Matrix4f32) {
 	f, s, u := f, r, u
 	f = normalize(f)
@@ -2217,7 +2217,7 @@ matrix4_look_at_from_fru_f32 :: proc(eye, f, r, u: Vector3f32, flip_z_axis := tr
 		   0,    0,    0, 1,
 	}
 }
-@(require_results)
+
 matrix4_look_at_from_fru_f64 :: proc(eye, f, r, u: Vector3f64, flip_z_axis := true) -> (m: Matrix4f64) {
 	f, s, u := f, r, u
 	f = normalize(f)
@@ -2239,7 +2239,7 @@ matrix4_look_at_from_fru :: proc{
 }
 
 
-@(require_results)
+
 matrix4_perspective_f16 :: proc(fovy, aspect, near, far: f16, flip_z_axis := true) -> (m: Matrix4f16) #no_bounds_check {
 	tan_half_fovy := math.tan(0.5 * fovy)
 	m[0, 0] = 1 / (aspect*tan_half_fovy)
@@ -2254,7 +2254,7 @@ matrix4_perspective_f16 :: proc(fovy, aspect, near, far: f16, flip_z_axis := tru
 
 	return
 }
-@(require_results)
+
 matrix4_perspective_f32 :: proc(fovy, aspect, near, far: f32, flip_z_axis := true) -> (m: Matrix4f32) #no_bounds_check {
 	tan_half_fovy := math.tan(0.5 * fovy)
 	m[0, 0] = 1 / (aspect*tan_half_fovy)
@@ -2269,7 +2269,7 @@ matrix4_perspective_f32 :: proc(fovy, aspect, near, far: f32, flip_z_axis := tru
 
 	return
 }
-@(require_results)
+
 matrix4_perspective_f64 :: proc(fovy, aspect, near, far: f64, flip_z_axis := true) -> (m: Matrix4f64) #no_bounds_check {
 	tan_half_fovy := math.tan(0.5 * fovy)
 	m[0, 0] = 1 / (aspect*tan_half_fovy)
@@ -2292,7 +2292,7 @@ matrix4_perspective :: proc{
 
 
 
-@(require_results)
+
 matrix_ortho3d_f16 :: proc(left, right, bottom, top, near, far: f16, flip_z_axis := true) -> (m: Matrix4f16) #no_bounds_check {
 	m[0, 0] = +2 / (right - left)
 	m[1, 1] = +2 / (top - bottom)
@@ -2308,7 +2308,7 @@ matrix_ortho3d_f16 :: proc(left, right, bottom, top, near, far: f16, flip_z_axis
 
 	return
 }
-@(require_results)
+
 matrix_ortho3d_f32 :: proc(left, right, bottom, top, near, far: f32, flip_z_axis := true) -> (m: Matrix4f32) #no_bounds_check {
 	m[0, 0] = +2 / (right - left)
 	m[1, 1] = +2 / (top - bottom)
@@ -2324,7 +2324,7 @@ matrix_ortho3d_f32 :: proc(left, right, bottom, top, near, far: f32, flip_z_axis
 
 	return
 }
-@(require_results)
+
 matrix_ortho3d_f64 :: proc(left, right, bottom, top, near, far: f64, flip_z_axis := true) -> (m: Matrix4f64) #no_bounds_check {
 	m[0, 0] = +2 / (right - left)
 	m[1, 1] = +2 / (top - bottom)
@@ -2348,7 +2348,7 @@ matrix_ortho3d :: proc{
 
 
 
-@(require_results)
+
 matrix4_infinite_perspective_f16 :: proc(fovy, aspect, near: f16, flip_z_axis := true) -> (m: Matrix4f16) #no_bounds_check {
 	tan_half_fovy := math.tan(0.5 * fovy)
 	m[0, 0] = 1 / (aspect*tan_half_fovy)
@@ -2363,7 +2363,7 @@ matrix4_infinite_perspective_f16 :: proc(fovy, aspect, near: f16, flip_z_axis :=
 
 	return
 }
-@(require_results)
+
 matrix4_infinite_perspective_f32 :: proc(fovy, aspect, near: f32, flip_z_axis := true) -> (m: Matrix4f32) #no_bounds_check {
 	tan_half_fovy := math.tan(0.5 * fovy)
 	m[0, 0] = 1 / (aspect*tan_half_fovy)
@@ -2378,7 +2378,7 @@ matrix4_infinite_perspective_f32 :: proc(fovy, aspect, near: f32, flip_z_axis :=
 
 	return
 }
-@(require_results)
+
 matrix4_infinite_perspective_f64 :: proc(fovy, aspect, near: f64, flip_z_axis := true) -> (m: Matrix4f64) #no_bounds_check {
 	tan_half_fovy := math.tan(0.5 * fovy)
 	m[0, 0] = 1 / (aspect*tan_half_fovy)
@@ -2401,19 +2401,19 @@ matrix4_infinite_perspective :: proc{
 
 
 
-@(require_results)
+
 matrix2_from_scalar_f16 :: proc(f: f16) -> (m: Matrix2f16) #no_bounds_check {
 	m[0, 0], m[1, 0] = f, 0
 	m[0, 1], m[1, 1] = 0, f
 	return
 }
-@(require_results)
+
 matrix2_from_scalar_f32 :: proc(f: f32) -> (m: Matrix2f32) #no_bounds_check {
 	m[0, 0], m[1, 0] = f, 0
 	m[0, 1], m[1, 1] = 0, f
 	return
 }
-@(require_results)
+
 matrix2_from_scalar_f64 :: proc(f: f64) -> (m: Matrix2f64) #no_bounds_check {
 	m[0, 0], m[1, 0] = f, 0
 	m[0, 1], m[1, 1] = 0, f
@@ -2426,21 +2426,21 @@ matrix2_from_scalar :: proc{
 }
 
 
-@(require_results)
+
 matrix3_from_scalar_f16 :: proc(f: f16) -> (m: Matrix3f16) #no_bounds_check {
 	m[0, 0], m[1, 0], m[2, 0] = f, 0, 0
 	m[0, 1], m[1, 1], m[2, 1] = 0, f, 0
 	m[0, 2], m[1, 2], m[2, 2] = 0, 0, f
 	return
 }
-@(require_results)
+
 matrix3_from_scalar_f32 :: proc(f: f32) -> (m: Matrix3f32) #no_bounds_check {
 	m[0, 0], m[1, 0], m[2, 0] = f, 0, 0
 	m[0, 1], m[1, 1], m[2, 1] = 0, f, 0
 	m[0, 2], m[1, 2], m[2, 2] = 0, 0, f
 	return
 }
-@(require_results)
+
 matrix3_from_scalar_f64 :: proc(f: f64) -> (m: Matrix3f64) #no_bounds_check {
 	m[0, 0], m[1, 0], m[2, 0] = f, 0, 0
 	m[0, 1], m[1, 1], m[2, 1] = 0, f, 0
@@ -2454,7 +2454,7 @@ matrix3_from_scalar :: proc{
 }
 
 
-@(require_results)
+
 matrix4_from_scalar_f16 :: proc(f: f16) -> (m: Matrix4f16) #no_bounds_check {
 	m[0, 0], m[1, 0], m[2, 0], m[3, 0] = f, 0, 0, 0
 	m[0, 1], m[1, 1], m[2, 1], m[3, 1] = 0, f, 0, 0
@@ -2462,7 +2462,7 @@ matrix4_from_scalar_f16 :: proc(f: f16) -> (m: Matrix4f16) #no_bounds_check {
 	m[0, 3], m[1, 3], m[2, 3], m[3, 3] = 0, 0, 0, f
 	return
 }
-@(require_results)
+
 matrix4_from_scalar_f32 :: proc(f: f32) -> (m: Matrix4f32) #no_bounds_check {
 	m[0, 0], m[1, 0], m[2, 0], m[3, 0] = f, 0, 0, 0
 	m[0, 1], m[1, 1], m[2, 1], m[3, 1] = 0, f, 0, 0
@@ -2470,7 +2470,7 @@ matrix4_from_scalar_f32 :: proc(f: f32) -> (m: Matrix4f32) #no_bounds_check {
 	m[0, 3], m[1, 3], m[2, 3], m[3, 3] = 0, 0, 0, f
 	return
 }
-@(require_results)
+
 matrix4_from_scalar_f64 :: proc(f: f64) -> (m: Matrix4f64) #no_bounds_check {
 	m[0, 0], m[1, 0], m[2, 0], m[3, 0] = f, 0, 0, 0
 	m[0, 1], m[1, 1], m[2, 1], m[3, 1] = 0, f, 0, 0
@@ -2485,19 +2485,19 @@ matrix4_from_scalar :: proc{
 }
 
 
-@(require_results)
+
 matrix2_from_matrix3_f16 :: proc(m: Matrix3f16) -> (r: Matrix2f16) #no_bounds_check {
 	r[0, 0], r[1, 0] = m[0, 0], m[1, 0]
 	r[0, 1], r[1, 1] = m[0, 1], m[1, 1]
 	return
 }
-@(require_results)
+
 matrix2_from_matrix3_f32 :: proc(m: Matrix3f32) -> (r: Matrix2f32) #no_bounds_check {
 	r[0, 0], r[1, 0] = m[0, 0], m[1, 0]
 	r[0, 1], r[1, 1] = m[0, 1], m[1, 1]
 	return
 }
-@(require_results)
+
 matrix2_from_matrix3_f64 :: proc(m: Matrix3f64) -> (r: Matrix2f64) #no_bounds_check {
 	r[0, 0], r[1, 0] = m[0, 0], m[1, 0]
 	r[0, 1], r[1, 1] = m[0, 1], m[1, 1]
@@ -2510,19 +2510,19 @@ matrix2_from_matrix3 :: proc{
 }
 
 
-@(require_results)
+
 matrix2_from_matrix4_f16 :: proc(m: Matrix4f16) -> (r: Matrix2f16) #no_bounds_check {
 	r[0, 0], r[1, 0] = m[0, 0], m[1, 0]
 	r[0, 1], r[1, 1] = m[0, 1], m[1, 1]
 	return
 }
-@(require_results)
+
 matrix2_from_matrix4_f32 :: proc(m: Matrix4f32) -> (r: Matrix2f32) #no_bounds_check {
 	r[0, 0], r[1, 0] = m[0, 0], m[1, 0]
 	r[0, 1], r[1, 1] = m[0, 1], m[1, 1]
 	return
 }
-@(require_results)
+
 matrix2_from_matrix4_f64 :: proc(m: Matrix4f64) -> (r: Matrix2f64) #no_bounds_check {
 	r[0, 0], r[1, 0] = m[0, 0], m[1, 0]
 	r[0, 1], r[1, 1] = m[0, 1], m[1, 1]
@@ -2535,21 +2535,21 @@ matrix2_from_matrix4 :: proc{
 }
 
 
-@(require_results)
+
 matrix3_from_matrix2_f16 :: proc(m: Matrix2f16) -> (r: Matrix3f16) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0] = m[0, 0], m[1, 0], 0
 	r[0, 1], r[1, 1], r[2, 1] = m[0, 1], m[1, 1], 0
 	r[0, 2], r[1, 2], r[2, 2] =       0,       0, 1
 	return
 }
-@(require_results)
+
 matrix3_from_matrix2_f32 :: proc(m: Matrix2f32) -> (r: Matrix3f32) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0] = m[0, 0], m[1, 0], 0
 	r[0, 1], r[1, 1], r[2, 1] = m[0, 1], m[1, 1], 0
 	r[0, 2], r[1, 2], r[2, 2] =       0,       0, 1
 	return
 }
-@(require_results)
+
 matrix3_from_matrix2_f64 :: proc(m: Matrix2f64) -> (r: Matrix3f64) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0] = m[0, 0], m[1, 0], 0
 	r[0, 1], r[1, 1], r[2, 1] = m[0, 1], m[1, 1], 0
@@ -2563,21 +2563,21 @@ matrix3_from_matrix2 :: proc{
 }
 
 
-@(require_results)
+
 matrix3_from_matrix4_f16 :: proc(m: Matrix4f16) -> (r: Matrix3f16) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0] = m[0, 0], m[1, 0], m[2, 0]
 	r[0, 1], r[1, 1], r[2, 1] = m[0, 1], m[1, 1], m[2, 1]
 	r[0, 2], r[1, 2], r[2, 2] = m[0, 2], m[1, 2], m[2, 2]
 	return
 }
-@(require_results)
+
 matrix3_from_matrix4_f32 :: proc(m: Matrix4f32) -> (r: Matrix3f32) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0] = m[0, 0], m[1, 0], m[2, 0]
 	r[0, 1], r[1, 1], r[2, 1] = m[0, 1], m[1, 1], m[2, 1]
 	r[0, 2], r[1, 2], r[2, 2] = m[0, 2], m[1, 2], m[2, 2]
 	return
 }
-@(require_results)
+
 matrix3_from_matrix4_f64 :: proc(m: Matrix4f64) -> (r: Matrix3f64) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0] = m[0, 0], m[1, 0], m[2, 0]
 	r[0, 1], r[1, 1], r[2, 1] = m[0, 1], m[1, 1], m[2, 1]
@@ -2591,7 +2591,7 @@ matrix3_from_matrix4 :: proc{
 }
 
 
-@(require_results)
+
 matrix4_from_matrix2_f16 :: proc(m: Matrix2f16) -> (r: Matrix4f16) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0], r[3, 0] = m[0, 0], m[1, 0], 0, 0
 	r[0, 1], r[1, 1], r[2, 1], r[3, 1] = m[0, 1], m[1, 1], 0, 0
@@ -2599,7 +2599,7 @@ matrix4_from_matrix2_f16 :: proc(m: Matrix2f16) -> (r: Matrix4f16) #no_bounds_ch
 	r[0, 3], r[1, 3], r[2, 3], r[3, 3] =       0,       0, 0, 1
 	return
 }
-@(require_results)
+
 matrix4_from_matrix2_f32 :: proc(m: Matrix2f32) -> (r: Matrix4f32) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0], r[3, 0] = m[0, 0], m[1, 0], 0, 0
 	r[0, 1], r[1, 1], r[2, 1], r[3, 1] = m[0, 1], m[1, 1], 0, 0
@@ -2607,7 +2607,7 @@ matrix4_from_matrix2_f32 :: proc(m: Matrix2f32) -> (r: Matrix4f32) #no_bounds_ch
 	r[0, 3], r[1, 3], r[2, 3], r[3, 3] =       0,       0, 0, 1
 	return
 }
-@(require_results)
+
 matrix4_from_matrix2_f64 :: proc(m: Matrix2f64) -> (r: Matrix4f64) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0], r[3, 0] = m[0, 0], m[1, 0], 0, 0
 	r[0, 1], r[1, 1], r[2, 1], r[3, 1] = m[0, 1], m[1, 1], 0, 0
@@ -2622,7 +2622,7 @@ matrix4_from_matrix2 :: proc{
 }
 
 
-@(require_results)
+
 matrix4_from_matrix3_f16 :: proc(m: Matrix3f16) -> (r: Matrix4f16) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0], r[3, 0] = m[0, 0], m[1, 0], m[2, 0], 0
 	r[0, 1], r[1, 1], r[2, 1], r[3, 1] = m[0, 1], m[1, 1], m[2, 1], 0
@@ -2630,7 +2630,7 @@ matrix4_from_matrix3_f16 :: proc(m: Matrix3f16) -> (r: Matrix4f16) #no_bounds_ch
 	r[0, 3], r[1, 3], r[2, 3], r[3, 3] =       0,       0,       0, 1
 	return
 }
-@(require_results)
+
 matrix4_from_matrix3_f32 :: proc(m: Matrix3f32) -> (r: Matrix4f32) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0], r[3, 0] = m[0, 0], m[1, 0], m[2, 0], 0
 	r[0, 1], r[1, 1], r[2, 1], r[3, 1] = m[0, 1], m[1, 1], m[2, 1], 0
@@ -2638,7 +2638,7 @@ matrix4_from_matrix3_f32 :: proc(m: Matrix3f32) -> (r: Matrix4f32) #no_bounds_ch
 	r[0, 3], r[1, 3], r[2, 3], r[3, 3] =       0,       0,       0, 1
 	return
 }
-@(require_results)
+
 matrix4_from_matrix3_f64 :: proc(m: Matrix3f64) -> (r: Matrix4f64) #no_bounds_check {
 	r[0, 0], r[1, 0], r[2, 0], r[3, 0] = m[0, 0], m[1, 0], m[2, 0], 0
 	r[0, 1], r[1, 1], r[2, 1], r[3, 1] = m[0, 1], m[1, 1], m[2, 1], 0
@@ -2653,17 +2653,17 @@ matrix4_from_matrix3 :: proc{
 }
 
 
-@(require_results)
+
 quaternion_from_scalar_f16 :: proc(f: f16) -> (q: Quaternionf16) {
 	q.w = f
 	return
 }
-@(require_results)
+
 quaternion_from_scalar_f32 :: proc(f: f32) -> (q: Quaternionf32) {
 	q.w = f
 	return
 }
-@(require_results)
+
 quaternion_from_scalar_f64 :: proc(f: f64) -> (q: Quaternionf64) {
 	q.w = f
 	return
@@ -2724,7 +2724,7 @@ to_quaternion :: proc{
 
 
 
-@(require_results)
+
 matrix2_orthonormalize_f16 :: proc(m: Matrix2f16) -> (r: Matrix2f16) #no_bounds_check {
 	r = m
 	r[0] = normalize(m[0])
@@ -2735,7 +2735,7 @@ matrix2_orthonormalize_f16 :: proc(m: Matrix2f16) -> (r: Matrix2f16) #no_bounds_
 
 	return
 }
-@(require_results)
+
 matrix2_orthonormalize_f32 :: proc(m: Matrix2f32) -> (r: Matrix2f32) #no_bounds_check {
 	r = m
 	r[0] = normalize(m[0])
@@ -2746,7 +2746,7 @@ matrix2_orthonormalize_f32 :: proc(m: Matrix2f32) -> (r: Matrix2f32) #no_bounds_
 
 	return
 }
-@(require_results)
+
 matrix2_orthonormalize_f64 :: proc(m: Matrix2f64) -> (r: Matrix2f64) #no_bounds_check {
 	r = m
 	r[0] = normalize(m[0])
@@ -2764,7 +2764,7 @@ matrix2_orthonormalize :: proc{
 }
 
 
-@(require_results)
+
 matrix3_orthonormalize_f16 :: proc(m: Matrix3f16) -> (r: Matrix3f16) #no_bounds_check {
 	r = m
 	r[0] = normalize(m[0])
@@ -2780,7 +2780,7 @@ matrix3_orthonormalize_f16 :: proc(m: Matrix3f16) -> (r: Matrix3f16) #no_bounds_
 
 	return
 }
-@(require_results)
+
 matrix3_orthonormalize_f32 :: proc(m: Matrix3f32) -> (r: Matrix3f32) #no_bounds_check {
 	r = m
 	r[0] = normalize(m[0])
@@ -2796,7 +2796,7 @@ matrix3_orthonormalize_f32 :: proc(m: Matrix3f32) -> (r: Matrix3f32) #no_bounds_
 
 	return
 }
-@(require_results)
+
 matrix3_orthonormalize_f64 :: proc(m: Matrix3f64) -> (r: Matrix3f64) #no_bounds_check {
 	r = m
 	r[0] = normalize(m[0])
@@ -2819,15 +2819,15 @@ matrix3_orthonormalize :: proc{
 }
 
 
-@(require_results)
+
 vector3_orthonormalize_f16 :: proc(x, y: Vector3f16) -> (z: Vector3f16) {
 	return normalize(x - y * dot(y, x))
 }
-@(require_results)
+
 vector3_orthonormalize_f32 :: proc(x, y: Vector3f32) -> (z: Vector3f32) {
 	return normalize(x - y * dot(y, x))
 }
-@(require_results)
+
 vector3_orthonormalize_f64 :: proc(x, y: Vector3f64) -> (z: Vector3f64) {
 	return normalize(x - y * dot(y, x))
 }
@@ -2845,7 +2845,7 @@ orthonormalize :: proc{
 }
 
 
-@(require_results)
+
 matrix4_orientation_f16 :: proc(normal, up: Vector3f16) -> Matrix4f16 {
 	if all(equal(normal, up)) {
 		return MATRIX4F16_IDENTITY
@@ -2856,7 +2856,7 @@ matrix4_orientation_f16 :: proc(normal, up: Vector3f16) -> Matrix4f16 {
 
 	return matrix4_rotate(angle, rotation_axis)
 }
-@(require_results)
+
 matrix4_orientation_f32 :: proc(normal, up: Vector3f32) -> Matrix4f32 {
 	if all(equal(normal, up)) {
 		return MATRIX4F32_IDENTITY
@@ -2867,7 +2867,7 @@ matrix4_orientation_f32 :: proc(normal, up: Vector3f32) -> Matrix4f32 {
 
 	return matrix4_rotate(angle, rotation_axis)
 }
-@(require_results)
+
 matrix4_orientation_f64 :: proc(normal, up: Vector3f64) -> Matrix4f64 {
 	if all(equal(normal, up)) {
 		return MATRIX4F64_IDENTITY
@@ -2885,7 +2885,7 @@ matrix4_orientation :: proc{
 }
 
 
-@(require_results)
+
 euclidean_from_polar_f16 :: proc(polar: Vector2f16) -> Vector3f16 {
 	latitude, longitude := polar.x, polar.y
 	cx, sx := math.cos(latitude), math.sin(latitude)
@@ -2897,7 +2897,7 @@ euclidean_from_polar_f16 :: proc(polar: Vector2f16) -> Vector3f16 {
 		cx*cy,
 	}
 }
-@(require_results)
+
 euclidean_from_polar_f32 :: proc(polar: Vector2f32) -> Vector3f32 {
 	latitude, longitude := polar.x, polar.y
 	cx, sx := math.cos(latitude), math.sin(latitude)
@@ -2909,7 +2909,7 @@ euclidean_from_polar_f32 :: proc(polar: Vector2f32) -> Vector3f32 {
 		cx*cy,
 	}
 }
-@(require_results)
+
 euclidean_from_polar_f64 :: proc(polar: Vector2f64) -> Vector3f64 {
 	latitude, longitude := polar.x, polar.y
 	cx, sx := math.cos(latitude), math.sin(latitude)
@@ -2928,7 +2928,7 @@ euclidean_from_polar :: proc{
 }
 
 
-@(require_results)
+
 polar_from_euclidean_f16 :: proc(euclidean: Vector3f16) -> Vector3f16 {
 	n := length(euclidean)
 	tmp := euclidean / n
@@ -2941,7 +2941,7 @@ polar_from_euclidean_f16 :: proc(euclidean: Vector3f16) -> Vector3f16 {
 		xz_dist,
 	}
 }
-@(require_results)
+
 polar_from_euclidean_f32 :: proc(euclidean: Vector3f32) -> Vector3f32 {
 	n := length(euclidean)
 	tmp := euclidean / n
@@ -2954,7 +2954,7 @@ polar_from_euclidean_f32 :: proc(euclidean: Vector3f32) -> Vector3f32 {
 		xz_dist,
 	}
 }
-@(require_results)
+
 polar_from_euclidean_f64 :: proc(euclidean: Vector3f64) -> Vector3f64 {
 	n := length(euclidean)
 	tmp := euclidean / n

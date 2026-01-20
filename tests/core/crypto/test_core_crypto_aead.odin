@@ -14,19 +14,19 @@ test_aead :: proc(t: ^testing.T) {
 
 	aes_impls := make([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_aes_impls() {
-		append(&aes_impls, impl)
+		_ = append(&aes_impls, impl)
 	}
 	chacha_impls := make([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_chacha_impls() {
-		append(&chacha_impls, impl)
+		_ = append(&chacha_impls, impl)
 	}
 	aegis_impls := make([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_aegis_impls() {
-		append(&aegis_impls, impl)
+		_ = append(&aegis_impls, impl)
 	}
 	deoxysii_impls := make([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_deoxysii_impls() {
-		append(&deoxysii_impls, impl)
+		_ = append(&deoxysii_impls, impl)
 	}
 	impls := [aead.Algorithm][dynamic]aead.Implementation{
 		.Invalid           = nil,
@@ -613,9 +613,9 @@ test_aead :: proc(t: ^testing.T) {
 
 supported_aegis_impls :: proc() -> [dynamic]aes.Implementation {
 	impls := make([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
-	append(&impls, aes.Implementation.Portable)
+	_ = append(&impls, aes.Implementation.Portable)
 	if aegis.is_hardware_accelerated() {
-		append(&impls, aes.Implementation.Hardware)
+		_ = append(&impls, aes.Implementation.Hardware)
 	}
 
 	return impls
@@ -623,9 +623,9 @@ supported_aegis_impls :: proc() -> [dynamic]aes.Implementation {
 
 supported_deoxysii_impls :: proc() -> [dynamic]aes.Implementation {
 	impls := make([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
-	append(&impls, aes.Implementation.Portable)
+	_ = append(&impls, aes.Implementation.Portable)
 	if deoxysii.is_hardware_accelerated() {
-		append(&impls, aes.Implementation.Hardware)
+		_ = append(&impls, aes.Implementation.Hardware)
 	}
 
 	return impls

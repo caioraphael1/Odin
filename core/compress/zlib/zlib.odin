@@ -497,8 +497,8 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
 		/*
 			Try to pre-allocate the output buffer.
 		*/
-		reserve(&z.output.buf, expected_output_size) or_return
-		resize (&z.output.buf, expected_output_size) or_return
+		_ = reserve(&z.output.buf, expected_output_size) or_return
+		_ = resize (&z.output.buf, expected_output_size) or_return
 	}
 
 	if len(z.output.buf) != expected_output_size {
@@ -641,7 +641,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
 	}
 
 	if int(z.bytes_written) != len(z.output.buf) {
-		resize(&z.output.buf, int(z.bytes_written)) or_return
+		_ = resize(&z.output.buf, int(z.bytes_written)) or_return
 	}
 
 	return nil

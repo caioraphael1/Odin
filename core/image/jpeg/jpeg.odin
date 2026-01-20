@@ -217,7 +217,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 	block_width: int
 	block_height: int
 	blocks: []Block
-	defer delete(blocks)
+	defer _ = delete(blocks)
 
 	loop: for {
 		// Loop until we find 0xFF.
@@ -1070,25 +1070,25 @@ destroy :: proc(img: ^Image) {
 
 	if v, ok := img.metadata.(^image.JPEG_Info); ok {
 		if jfxx, jfxx_ok := v.jfxx_app0.?; jfxx_ok {
-			delete(jfxx.thumbnail)
+			_ = delete(jfxx.thumbnail)
 		}
 		if jfif, jfif_ok := v.jfif_app0.?; jfif_ok {
-			delete(jfif.thumbnail)
+			_ = delete(jfif.thumbnail)
 		}
 
 		for comment in v.comments {
-			delete(comment)
+			_ = delete(comment)
 		}
-		delete(v.comments)
+		_ = delete(v.comments)
 
 		for exif in v.exif {
-			delete(exif.data)
+			_ = delete(exif.data)
 		}
-		delete(v.exif)
+		_ = delete(v.exif)
 
-		free(v)
+		_ = free(v)
 	}
-	free(img)
+	_ = free(img)
 }
 
 // @@init

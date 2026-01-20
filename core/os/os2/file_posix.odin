@@ -144,8 +144,8 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
 
 	allocator := f.allocator
 
-	delete(f.cname, allocator)
-	free(f, allocator)
+	_ = delete(f.cname, allocator)
+	_ = free(f, allocator)
 	return
 }
 
@@ -226,7 +226,7 @@ _read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, er
 
 	buf: [dynamic]byte
 	buf.allocator = allocator
-	defer if err != nil { delete(buf) }
+	defer if err != nil { _ = delete(buf) }
 
 	// Loop this because the file might've grown between lstat() and readlink().
 	for {
@@ -248,7 +248,7 @@ _read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, er
 			return
 		}
 
-		resize(&buf, bufsiz) or_return
+		_ = resize(&buf, bufsiz) or_return
 
 		size := posix.readlink(cname, raw_data(buf), uint(bufsiz))
 		if size < 0 {

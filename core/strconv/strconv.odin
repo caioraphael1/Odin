@@ -1177,7 +1177,7 @@ parse_f64_prefix :: proc(str: string) -> (value: f64, nr: int, ok: bool) {
 		}
 	}
 	d: decimal.Decimal
-	decimal.set(&d, str[:nr])
+	_ = decimal.set(&d, str[:nr])
 	b, overflow := decimal_to_float_bits(&d, &_f64_info)
 	value = transmute(f64)b
 	ok = !overflow
@@ -1941,7 +1941,7 @@ unquote_string :: proc(lit: string, allocator: runtime.Allocator) -> (res: strin
 	for len(s) > 0 {
 		r, multiple_bytes, tail_string, ok := unquote_char(s, byte(quote))
 		if !ok {
-			delete(buf, allocator)
+			_ = delete(buf, allocator)
 			return s, false, false
 		}
 		s = tail_string

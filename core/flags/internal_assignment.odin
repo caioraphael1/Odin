@@ -192,7 +192,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
 			key_ptr = &key_cstr
 		}
 		defer if key_cstr != nil {
-			delete(key_cstr)
+			_ = delete(key_cstr)
 		}
 
 		raw_map := (^runtime.Raw_Map)(cast(uintptr)model + field.offset)
@@ -248,7 +248,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
 				value_ptr,
 			)
 
-			delete(elem_backing)
+			_ = delete(elem_backing)
 		}
 
 		register_field(parser, field, index)

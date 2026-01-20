@@ -105,7 +105,7 @@ failed :: proc(t: ^T) -> bool {
 //
 // For almost every usual case, `defer` should be preferable and sufficient.
 cleanup :: proc(t: ^T, procedure: proc(rawptr), user_data: rawptr) {
-	append(&t.cleanups, Internal_Cleanup{procedure, user_data, context})
+	_ = append(&t.cleanups, Internal_Cleanup{procedure, user_data, context})
 }
 
 expect :: proc(t: ^T, ok: bool, msg := "", expr := #caller_expression(ok), loc := #caller_location) -> bool {
@@ -148,7 +148,7 @@ expect_leaks :: proc(t: ^T, client_test: proc(t: ^T), verifier: Memory_Verifier_
 		sync.mutex_unlock(&ta.mutex)
 
 		clear(&ta.bad_free_array)
-		free_all(context.allocator)
+		_ = free_all(context.allocator)
 	}
 }
 

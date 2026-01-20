@@ -3,7 +3,7 @@ package linalg
 import "base:builtin"
 import "core:math"
 
-@(require_results)
+
 to_radians :: proc(degrees: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -15,7 +15,7 @@ to_radians :: proc(degrees: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 to_degrees :: proc(radians: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -27,7 +27,7 @@ to_degrees :: proc(radians: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 min_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -39,7 +39,7 @@ min_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 min_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		N :: len(T)
@@ -60,14 +60,14 @@ min_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) 
 	return
 }
 
-@(require_results)
+
 min_triple :: proc(a, b, c: $T) -> T where IS_NUMERIC(ELEM_TYPE(T)) {
 	return min_double(a, min_double(b, c))
 }
 
 min :: proc{min_single, min_double, min_triple}
 
-@(require_results)
+
 max_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -79,7 +79,7 @@ max_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 max_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		N :: len(T)
@@ -102,14 +102,14 @@ max_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) 
 	return
 }
 
-@(require_results)
+
 max_triple :: proc(a, b, c: $T) -> T where IS_NUMERIC(ELEM_TYPE(T)) {
 	return max_double(a, max_double(b, c))
 }
 
 max :: proc{max_single, max_double, max_triple}
 
-@(require_results)
+
 abs :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -121,7 +121,7 @@ abs :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 sign :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -133,7 +133,7 @@ sign :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 clamp :: proc(x, a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -146,12 +146,12 @@ clamp :: proc(x, a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 }
 
 
-@(require_results)
+
 saturate :: proc(x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
 	return clamp(x, 0.0, 1.0)
 }
 
-@(require_results)
+
 lerp :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -162,7 +162,7 @@ lerp :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	}
 	return
 }
-@(require_results)
+
 mix :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -174,12 +174,12 @@ mix :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 unlerp :: proc(a, b, x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
 	return (x - a) / (b - a)
 }
 
-@(require_results)
+
 step :: proc(e, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -191,20 +191,20 @@ step :: proc(e, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 smoothstep :: proc(e0, e1, x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
 	t := saturate(unlerp(e0, e1, x))
 	return t * t * (3.0 - 2.0 * t)
 }
 
-@(require_results)
+
 smootherstep :: proc(e0, e1, x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
 	t := saturate(unlerp(e0, e1, x))
 	return t * t * t * (t * (6*t - 15) + 10)
 }
 
 
-@(require_results)
+
 sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -216,7 +216,7 @@ sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 inverse_sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -228,7 +228,7 @@ inverse_sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 cos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -240,7 +240,7 @@ cos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 sin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -252,7 +252,7 @@ sin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 tan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -264,7 +264,7 @@ tan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 acos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -276,7 +276,7 @@ acos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 asin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -288,7 +288,7 @@ asin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 atan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -299,7 +299,7 @@ atan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	}
 	return
 }
-@(require_results)
+
 atan2 :: proc(y, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -312,7 +312,7 @@ atan2 :: proc(y, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-@(require_results)
+
 ln :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -324,7 +324,7 @@ ln :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 log2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	INVLN2 :: 1.4426950408889634073599246810018921374266459541529859341354494069
 	when IS_ARRAY(T) {
@@ -337,7 +337,7 @@ log2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 log10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	INVLN10 :: 0.4342944819032518276511289189166050822943970058036665661144537831
 	when IS_ARRAY(T) {
@@ -350,7 +350,7 @@ log10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 log :: proc(x, b: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -362,7 +362,7 @@ log :: proc(x, b: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 exp :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -374,7 +374,7 @@ exp :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 exp2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -386,7 +386,7 @@ exp2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 exp10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -398,7 +398,7 @@ exp10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 pow :: proc(x, e: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -411,7 +411,7 @@ pow :: proc(x, e: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-@(require_results)
+
 ceil :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -423,7 +423,7 @@ ceil :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 floor :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -435,7 +435,7 @@ floor :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 round :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	when IS_ARRAY(T) {
 		for i in 0..<len(T) {
@@ -447,35 +447,35 @@ round :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 	return
 }
 
-@(require_results)
+
 fract :: proc(x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
 	f := #force_inline floor(x)
 	return x - f
 }
 
-@(require_results)
+
 mod :: proc(x, m: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
 	f := #force_inline floor(x / m)
 	return x - f * m
 }
 
 
-@(require_results)
+
 face_forward :: proc(N, I, N_ref: $T) -> (out: T) where IS_ARRAY(T), IS_FLOAT(ELEM_TYPE(T)) {
 	return dot(N_ref, I) < 0 ? N : -N
 }
 
-@(require_results)
+
 distance :: proc(p0, p1: $V/[$N]$E) -> E where IS_NUMERIC(E) {
 	return length(p1 - p0)
 }
 
-@(require_results)
+
 reflect :: proc(I, N: $T) -> (out: T) where IS_ARRAY(T), IS_FLOAT(ELEM_TYPE(T)) {
 	b := N * (2 * dot(N, I))
 	return I - b
 }
-@(require_results)
+
 refract :: proc(I, Normal: $V/[$N]$E, eta: E) -> (out: V) where IS_ARRAY(V), IS_FLOAT(ELEM_TYPE(V)) {
 	dv := dot(Normal, I)
 	k := 1 - eta*eta * (1 - dv*dv)
@@ -487,12 +487,12 @@ refract :: proc(I, Normal: $V/[$N]$E, eta: E) -> (out: V) where IS_ARRAY(V), IS_
 
 
 
-@(require_results)
+
 is_nan_single :: proc(x: $T) -> bool where IS_FLOAT(T) {
 	return #force_inline math.is_nan(x)
 }
 
-@(require_results)
+
 is_nan_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
 	for i in 0..<N {
 		out[i] = #force_inline is_nan(x[i])
@@ -500,12 +500,12 @@ is_nan_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
 	return
 }
 
-@(require_results)
+
 is_inf_single :: proc(x: $T) -> bool where IS_FLOAT(T) {
 	return #force_inline math.is_inf(x)
 }
 
-@(require_results)
+
 is_inf_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
 	for i in 0..<N {
 		out[i] = #force_inline is_inf(x[i])
@@ -513,12 +513,12 @@ is_inf_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
 	return
 }
 
-@(require_results)
+
 classify_single :: proc(x: $T) -> math.Float_Class where IS_FLOAT(T) {
 	return #force_inline math.classify(x)
 }
 
-@(require_results)
+
 classify_array :: proc(x: $A/[$N]$T) -> (out: [N]math.Float_Class) where IS_FLOAT(T) {
 	for i in 0..<N {
 		out[i] = #force_inline classify_single(x[i])
@@ -531,49 +531,49 @@ is_inf :: proc{is_inf_single, is_inf_array}
 classify :: proc{classify_single, classify_array}
 
 
-@(require_results) less_than_single          :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x < y }
-@(require_results) less_than_equal_single    :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x <= y }
-@(require_results) greater_than_single       :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x > y }
-@(require_results) greater_than_equal_single :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x >= y }
-@(require_results) equal_single              :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x == y }
-@(require_results) not_equal_single          :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x != y }
+ less_than_single          :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x < y }
+ less_than_equal_single    :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x <= y }
+ greater_than_single       :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x > y }
+ greater_than_equal_single :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x >= y }
+ equal_single              :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x == y }
+ not_equal_single          :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x != y }
 
-@(require_results)
+
 less_than_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
 	for i in 0..<N {
 		out[i] = x[i] < y[i]
 	}
 	return
 }
-@(require_results)
+
 less_than_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
 	for i in 0..<N {
 		out[i] = x[i] <= y[i]
 	}
 	return
 }
-@(require_results)
+
 greater_than_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
 	for i in 0..<N {
 		out[i] = x[i] > y[i]
 	}
 	return
 }
-@(require_results)
+
 greater_than_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
 	for i in 0..<N {
 		out[i] = x[i] >= y[i]
 	}
 	return
 }
-@(require_results)
+
 equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
 	for i in 0..<N {
 		out[i] = x[i] == y[i]
 	}
 	return
 }
-@(require_results)
+
 not_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
 	for i in 0..<N {
 		out[i] = x[i] != y[i]
@@ -588,7 +588,7 @@ greater_than_equal :: proc{greater_than_equal_single, greater_than_equal_array}
 equal              :: proc{equal_single, equal_array}
 not_equal          :: proc{not_equal_single, not_equal_array}
 
-@(require_results)
+
 any :: proc(x: $A/[$N]bool) -> (out: bool) {
 	for e in x {
 		if e {
@@ -597,7 +597,7 @@ any :: proc(x: $A/[$N]bool) -> (out: bool) {
 	}
 	return false
 }
-@(require_results)
+
 all :: proc(x: $A/[$N]bool) -> (out: bool) {
 	for e in x {
 		if !e {
@@ -606,7 +606,7 @@ all :: proc(x: $A/[$N]bool) -> (out: bool) {
 	}
 	return true
 }
-@(require_results)
+
 not :: proc(x: $A/[$N]bool) -> (out: A) {
 	for e, i in x {
 		out[i] = !e

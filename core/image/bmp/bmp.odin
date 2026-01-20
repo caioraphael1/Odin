@@ -574,7 +574,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := c
 		}
 
 		data := make([]u8, int(pixel_size) + 4)
-		defer delete(data)
+		defer _ = delete(data)
 
 		for i in 0..<pixel_size {
 			data[i] = image.read_u8(ctx) or_return
@@ -648,7 +648,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := c
 		}
 
 		data := make([]u8, int(pixel_size) + 4)
-		defer delete(data)
+		defer _ = delete(data)
 
 		for i in 0..<pixel_size {
 			data[i] = image.read_u8(ctx) or_return
@@ -735,9 +735,9 @@ destroy :: proc(img: ^Image) {
 
 	bytes.buffer_destroy(&img.pixels)
 	if v, ok := img.metadata.(^image.BMP_Info); ok {
-		free(v)
+		_ = free(v)
 	}
-	free(img)
+	_ = free(img)
 }
 
 // @@init

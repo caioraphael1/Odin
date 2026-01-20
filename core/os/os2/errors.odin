@@ -47,7 +47,7 @@ ERROR_NONE :: Error{}
 
 
 // Attempts to convert an `Error` into a platform specific error as an integer. `ok` is false if not possible
-@(require_results)
+
 is_platform_error :: proc(ferr: Error) -> (err: i32, ok: bool) {
 	v := ferr.(Platform_Error) or_else {}
 	return i32(v), i32(v) != 0
@@ -55,7 +55,7 @@ is_platform_error :: proc(ferr: Error) -> (err: i32, ok: bool) {
 
 
 // Attempts to return the error `ferr` as a string without any allocation
-@(require_results)
+
 error_string :: proc(ferr: Error) -> string {
 	if ferr == nil {
 		return ""
@@ -130,7 +130,7 @@ print_error :: proc(f: ^File, ferr: Error, msg: string) {
 	buf[len(msg) + 1] = ' '
 	copy(buf[len(msg) + 2:], err_str)
 	buf[length - 1] = '\n'
-	write(f, buf)
+	_, _ = write(f, buf)
 }
 
 

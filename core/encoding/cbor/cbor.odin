@@ -283,27 +283,27 @@ destroy :: proc(val: Value, allocator := context.allocator) {
 			destroy(entry.key)
 			destroy(entry.value)
 		}
-		delete(v^)
-		free(v)
+		_ = delete(v^)
+		_ = free(v)
 	case ^Array:
 		if v == nil { return }
 		for entry in v {
 			destroy(entry)
 		}
-		delete(v^)
-		free(v)
+		_ = delete(v^)
+		_ = free(v)
 	case ^Text:
 		if v == nil { return }
-		delete(v^)
-		free(v)
+		_ = delete(v^)
+		_ = free(v)
 	case ^Bytes:
 		if v == nil { return }
-		delete(v^)
-		free(v)
+		_ = delete(v^)
+		_ = free(v)
 	case ^Tag:
 		if v == nil { return }
 		destroy(v.value)
-		free(v)
+		_ = free(v)
 	}
 }
 
@@ -337,7 +337,7 @@ to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator := conte
 // Writes the given CBOR value into the writer as human-readable text.
 // See docs on the proc group `diagnose` for more info.
 to_diagnostic_format_writer :: proc(w: io.Writer, val: Value, padding := 0) -> io.Error {
-	@(require_results)
+	
 	indent :: proc(padding: int) -> int {
 		padding := padding
 		if padding != -1 {
@@ -346,7 +346,7 @@ to_diagnostic_format_writer :: proc(w: io.Writer, val: Value, padding := 0) -> i
 		return padding
 	}
 
-	@(require_results)
+	
 	dedent :: proc(padding: int) -> int {
 		padding := padding
 		if padding != -1 {
@@ -362,9 +362,9 @@ to_diagnostic_format_writer :: proc(w: io.Writer, val: Value, padding := 0) -> i
 
 	newline :: proc(w: io.Writer, padding: int) -> io.Error {
 		if padding != -1 {
-			io.write_string(w, "\n") or_return
+			_ = io.write_string(w, "\n") or_return
 			for _ in 0..<padding {
-				io.write_string(w, "\t") or_return
+				_ = io.write_string(w, "\t") or_return
 			}
 		}
 		return nil
@@ -387,36 +387,36 @@ to_diagnostic_format_writer :: proc(w: io.Writer, val: Value, padding := 0) -> i
 		buf: [64]byte
 		str := strconv.write_float(buf[:], f64(v), 'f', 2*size_of(f16), 8*size_of(f16))
 		if str[0] == '+' && str != "+Inf" { str = str[1:] }
-		io.write_string(w, str) or_return
+		_ = io.write_string(w, str) or_return
 	case f32:
 		buf: [128]byte
 		str := strconv.write_float(buf[:], f64(v), 'f', 2*size_of(f32), 8*size_of(f32))
 		if str[0] == '+' && str != "+Inf" { str = str[1:] }
-		io.write_string(w, str) or_return
+		_ = io.write_string(w, str) or_return
 	case f64:
 		buf: [256]byte
 		str := strconv.write_float(buf[:], f64(v), 'f', 2*size_of(f64), 8*size_of(f64))
 		if str[0] == '+' && str != "+Inf" { str = str[1:] }
-		io.write_string(w, str) or_return
+		_ = io.write_string(w, str) or_return
 
-	case bool: io.write_string(w, "true" if v else "false") or_return
-	case Nil: io.write_string(w, "null") or_return
-	case Undefined: io.write_string(w, "undefined") or_return
+	case bool: _ = io.write_string(w, "true" if v else "false") or_return
+	case Nil: _ = io.write_string(w, "null") or_return
+	case Undefined: _ = io.write_string(w, "undefined") or_return
 	case ^Bytes:
-		io.write_string(w, "h'") or_return
+		_ = io.write_string(w, "h'") or_return
 		hex.encode_into_writer(w, v^) or_return
-		io.write_string(w, "'") or_return
+		_ = io.write_string(w, "'") or_return
 	case ^Text:
-		io.write_string(w, `"`) or_return
-		io.write_string(w, v^) or_return
-		io.write_string(w, `"`) or_return
+		_ = io.write_string(w, `"`) or_return
+		_ = io.write_string(w, v^) or_return
+		_ = o.write_string(w, `"`) or_return
 	case ^Array:
 		if v == nil || len(v) == 0 {
-			io.write_string(w, "[]") or_return
+			_ = io.write_string(w, "[]") or_return
 			return nil
 		}
 
-		io.write_string(w, "[") or_return
+		_ = io.write_string(w, "[") or_return
 
 		padding = indent(padding)
 		newline(w, padding) or_return
@@ -432,21 +432,21 @@ to_diagnostic_format_writer :: proc(w: io.Writer, val: Value, padding := 0) -> i
 		padding = dedent(padding)
 		newline(w, padding) or_return
 
-		io.write_string(w, "]") or_return
+		_ = io.write_string(w, "]") or_return
 	case ^Map:
 		if v == nil || len(v) == 0 {
-			io.write_string(w, "{}") or_return
+			_ = io.write_string(w, "{}") or_return
 			return nil
 		}
 
-		io.write_string(w, "{") or_return
+		_ = io.write_string(w, "{") or_return
 
 		padding = indent(padding)
 		newline(w, padding) or_return
 
 		for entry, i in v {
 			to_diagnostic_format(w, entry.key, padding) or_return
-			io.write_string(w, ": ") or_return
+			_ = io.write_string(w, ": ") or_return
 			to_diagnostic_format(w, entry.value, padding) or_return
 			if i != len(v)-1 {
 				comma(w, padding) or_return
@@ -457,16 +457,16 @@ to_diagnostic_format_writer :: proc(w: io.Writer, val: Value, padding := 0) -> i
 		padding = dedent(padding)
 		newline(w, padding) or_return
 
-		io.write_string(w, "}") or_return
+		_ = io.write_string(w, "}") or_return
 	case ^Tag:
 		io.write_u64(w, v.number) or_return
-		io.write_string(w, "(") or_return
+		_ = io.write_string(w, "(") or_return
 		to_diagnostic_format(w, v.value, padding) or_return
-		io.write_string(w, ")") or_return
+		_ = io.write_string(w, ")") or_return
 	case Simple:
-		io.write_string(w, "simple(") or_return
+		_ = io.write_string(w, "simple(") or_return
 		io.write_uint(w, uint(v)) or_return
-		io.write_string(w, ")") or_return
+		_ = io.write_string(w, ")") or_return
 	}
 	return nil
 }
@@ -506,7 +506,7 @@ from_json :: proc(val: json.Value, allocator := context.allocator) -> (Value, me
 			m  := new(Map) or_return
 			dm := make([dynamic]Map_Entry, 0, len(v)) or_return
 			for mkey, mval in v {
-				append(&dm, Map_Entry{from_json(mkey) or_return, from_json(mval) or_return})
+				append(&dm, Map_Entry{from_json(mkey) or_return, from_json(mval) or_return}) or_return
 			}
 			m^ = dm[:]
 			return m, nil

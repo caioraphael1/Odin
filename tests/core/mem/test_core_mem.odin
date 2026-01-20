@@ -72,14 +72,14 @@ tlsf_test_overlap_and_zero :: proc(t: ^testing.T) {
 	context.allocator = tlsf.allocator(&alloc)
 
 	allocations := make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator)
-	defer delete(allocations)
+	defer _ = delete(allocations)
 
 	err: mem.Allocator_Error
 	s:   []byte
 
 	for size := 1; err == .None && size <= NUM_ALLOCATIONS; size += 1 {
 		s, err = make([]byte, size)
-		append(&allocations, s)
+		_ = append(&allocations, s)
 	}
 
 	slice.sort_by(allocations[:], proc(a, b: []byte) -> bool {
@@ -104,7 +104,7 @@ tlsf_test_grow_pools :: proc(t: ^testing.T) {
 	BACKING_SIZE_GROW  := tlsf.estimate_pool_size(1, ALLOC_SIZE, 64)
 
 	allocations := make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator)
-	defer delete(allocations)
+	defer _ = delete(allocations)
 
 	if err := tlsf.init_from_allocator(&alloc, default_allocator, BACKING_SIZE_INIT, BACKING_SIZE_GROW); err != .None {
 		testing.fail_now(t, "TLSF init error")
@@ -114,7 +114,7 @@ tlsf_test_grow_pools :: proc(t: ^testing.T) {
 	for len(allocations) < NUM_ALLOCATIONS {
 		s := make([]byte, ALLOC_SIZE) or_break
 		testing.expect_value(t, len(s), ALLOC_SIZE)
-		append(&allocations, s)
+		_ = append(&allocations, s)
 	}
 
 	testing.expect_value(t, len(allocations), NUM_ALLOCATIONS)
@@ -148,21 +148,21 @@ tlsf_test_free_all :: proc(t: ^testing.T) {
 	allocations[0] = make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator) // After `init`
 	allocations[1] = make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator) // After `free_all`
 	defer {
-		delete(allocations[0])
-		delete(allocations[1])
+		_ = delete(allocations[0])
+		_ = delete(allocations[1])
 	}
 
 	for {
 		s := make([]byte, ALLOCATION_SIZE) or_break
-		append(&allocations[0], s)
+		_ = append(&allocations[0], s)
 	}
 	testing.expect(t, len(allocations[0]) >= 10)
 
-	free_all(tlsf.allocator(&alloc))
+	_ = free_all(tlsf.allocator(&alloc))
 
 	for {
 		s := make([]byte, ALLOCATION_SIZE) or_break
-		append(&allocations[1], s)
+		_ = append(&allocations[1], s)
 	}
 	testing.expect(t, len(allocations[1]) >= 10)
 
@@ -205,13 +205,13 @@ basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, l
 	{
 		a := make([dynamic]u8)
 		for i in 0..<limit {
-			append(&a, u8(i))
+			_ = append(&a, u8(i))
 		}
 		testing.expect_value(t, len(a), limit, loc) or_return
 		for i in 0..<limit {
 			testing.expect_value(t, a[i], u8(i), loc) or_return
 		}
-		delete(a)
+		_ = delete(a)
 	}
 
 	{
@@ -221,7 +221,7 @@ basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, l
 			v[i] = u8(i)
 			testing.expect_value(t, v[i], u8(i), loc) or_return
 		}
-		delete(v)
+		_ = delete(v)
 	}
 
 	{
@@ -229,7 +229,7 @@ basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, l
 			v := make([]u8, 1)
 			v[0] = u8(i)
 			testing.expect_value(t, v[0], u8(i), loc) or_return
-			delete(v)
+			_ = delete(v)
 		}
 	}
 

@@ -173,7 +173,7 @@ Parser :: struct {
 }
 
 
-@require_results
+
 advance :: proc(p: ^Parser) -> Error {
 	p.cur_token = tokenizer.scan(&p.t)
 	if p.cur_token.kind == .Invalid {
@@ -209,8 +209,8 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 			upper := unicode.to_upper(r)
 			if lower != upper {
 				node := new(Node_Rune_Class, allocator)
-				append(&node.runes, lower)
-				append(&node.runes, upper)
+				_ = append(&node.runes, lower)
+				_ = append(&node.runes, upper)
 				return node, nil
 			}
 		}
@@ -247,41 +247,41 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 				// @MetaCharacter
 				// NOTE: These must be kept in sync with the tokenizer.
 				switch next_r {
-				case 'f': append(&node.runes, '\f')
-				case 'n': append(&node.runes, '\n')
-				case 'r': append(&node.runes, '\r')
-				case 't': append(&node.runes, '\t')
+				case 'f': _ = append(&node.runes, '\f')
+				case 'n': _ = append(&node.runes, '\n')
+				case 'r': _ = append(&node.runes, '\r')
+				case 't': _ = append(&node.runes, '\t')
 
 				case 'd':
-					append(&node.ranges, Rune_Class_Range{ '0', '9' })
+					_ = append(&node.ranges, Rune_Class_Range{ '0', '9' })
 				case 's':
-					append(&node.runes, '\t')
-					append(&node.runes, '\n')
-					append(&node.runes, '\f')
-					append(&node.runes, '\r')
-					append(&node.runes, ' ')
+					_ = append(&node.runes, '\t')
+					_ = append(&node.runes, '\n')
+					_ = append(&node.runes, '\f')
+					_ = append(&node.runes, '\r')
+					_ = append(&node.runes, ' ')
 				case 'w':
-					append(&node.ranges, Rune_Class_Range{ '0', '9' })
-					append(&node.ranges, Rune_Class_Range{ 'A', 'Z' })
-					append(&node.runes, '_')
-					append(&node.ranges, Rune_Class_Range{ 'a', 'z' })
+					_ = append(&node.ranges, Rune_Class_Range{ '0', '9' })
+					_ = append(&node.ranges, Rune_Class_Range{ 'A', 'Z' })
+					_ = append(&node.runes, '_')
+					_ = append(&node.ranges, Rune_Class_Range{ 'a', 'z' })
 				case 'D':
-					append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
-					append(&node.ranges, Rune_Class_Range{  '9' + 1, max(rune) })
+					_ = append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
+					_ = append(&node.ranges, Rune_Class_Range{  '9' + 1, max(rune) })
 				case 'S':
-					append(&node.ranges, Rune_Class_Range{        0, '\t' - 1  })
+					_ = append(&node.ranges, Rune_Class_Range{        0, '\t' - 1  })
 					// \t and \n are adjacent.
-					append(&node.runes, '\x0b') // Vertical Tab
-					append(&node.ranges, Rune_Class_Range{ '\r' + 1,  ' ' - 1  })
-					append(&node.ranges, Rune_Class_Range{  ' ' + 1, max(rune) })
+					_ = append(&node.runes, '\x0b') // Vertical Tab
+					_ = append(&node.ranges, Rune_Class_Range{ '\r' + 1,  ' ' - 1  })
+					_ = append(&node.ranges, Rune_Class_Range{  ' ' + 1, max(rune) })
 				case 'W':
-					append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
-					append(&node.ranges, Rune_Class_Range{  '9' + 1,  'A' - 1  })
-					append(&node.ranges, Rune_Class_Range{  'Z' + 1,  '_' - 1  })
-					append(&node.ranges, Rune_Class_Range{  '_' + 1,  'a' - 1  })
-					append(&node.ranges, Rune_Class_Range{  'z' + 1, max(rune) })
+					_ = append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
+					_ = append(&node.ranges, Rune_Class_Range{  '9' + 1,  'A' - 1  })
+					_ = append(&node.ranges, Rune_Class_Range{  'Z' + 1,  '_' - 1  })
+					_ = append(&node.ranges, Rune_Class_Range{  '_' + 1,  'a' - 1  })
+					_ = append(&node.ranges, Rune_Class_Range{  'z' + 1, max(rune) })
 				case:
-					append(&node.runes, next_r)
+					_ = append(&node.runes, next_r)
 				}
 				continue
 			}
@@ -292,17 +292,17 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 					last := pop(&node.runes)
 					i += next_size
 
-					append(&node.ranges, Rune_Class_Range{ last, next_r })
+					_ = append(&node.ranges, Rune_Class_Range{ last, next_r })
 					continue
 				}
 			}
 
-			append(&node.runes, r)
+			_ = append(&node.runes, r)
 		}
 
 		if .Case_Insensitive in p.flags {
 			// These two loops cannot be in the form of `for x in y` because
-			// they append to the data that they iterate over.
+			// they _ = append to the data that they iterate over.
 			length := len(node.runes)
 			#no_bounds_check for i := 0; i < length; i += 1 {
 				r := node.runes[i]
@@ -311,9 +311,9 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 
 				if lower != upper {
 					if lower != r {
-						append(&node.runes, lower)
+						_ = append(&node.runes, lower)
 					} else {
-						append(&node.runes, upper)
+						_ = append(&node.runes, upper)
 					}
 				}
 			}
@@ -331,7 +331,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 				if min_lower != min_upper && max_lower != max_upper {
 					range.lower = min_lower
 					range.upper = max_lower
-					append(&node.ranges, Rune_Class_Range{ min_upper, max_upper })
+					_ = append(&node.ranges, Rune_Class_Range{ min_upper, max_upper })
 				}
 			}
 		}
@@ -447,13 +447,13 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
 		// to how the parsing direction works.
 		#partial switch specific in left {
 		case ^Node_Concatenation:
-			append(&specific.nodes, right)
+			_ = append(&specific.nodes, right)
 			result = specific
 		case:
 			node := new(Node_Concatenation, allocator)
             node.nodes.allocator = allocator
-			append(&node.nodes, left)
-			append(&node.nodes, right)
+			_ = append(&node.nodes, left)
+			_ = append(&node.nodes, right)
 			result = node
 		}
 

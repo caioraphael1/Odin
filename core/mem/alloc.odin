@@ -289,7 +289,7 @@ If the `size` parameter is `0`, the operation is a no-op.
 - `Invalid_Argument`: If the supplied `size` is negative, alignment is not a
 	power of two.
 */
-@(require_results)
+
 alloc :: proc(
 	size: int,
 	alignment: int = DEFAULT_ALIGNMENT,
@@ -323,7 +323,7 @@ by `alignment` using the allocator specified by `allocator`.
 - `Invalid_Argument`: If the supplied `size` is negative, alignment is not a
 	power of two.
 */
-@(require_results)
+
 alloc_bytes :: proc(
 	size: int,
 	alignment: int = DEFAULT_ALIGNMENT,
@@ -357,7 +357,7 @@ does not explicitly zero-initialize allocated memory region.
 - `Invalid_Argument`: If the supplied `size` is negative, alignment is not a
 	power of two.
 */
-@(require_results)
+
 alloc_bytes_non_zeroed :: proc(
 	size: int,
 	alignment: int = DEFAULT_ALIGNMENT,
@@ -520,7 +520,7 @@ buffer is aligned to the boundary specified by `alignment`.
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
 no-op, and should not return errors.
 */
-@(require_results)
+
 resize :: proc(
 	ptr: rawptr,
 	old_size: int,
@@ -580,7 +580,7 @@ memory.
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
 no-op, and should not return errors.
 */
-@(require_results)
+
 resize_non_zeroed :: proc(
 	ptr: rawptr,
 	old_size: int,
@@ -636,7 +636,7 @@ buffer is aligned to the boundary specified by `alignment`.
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
 no-op, and should not return errors.
 */
-@(require_results)
+
 resize_bytes :: proc(
 	old_data: []byte,
 	new_size: int,
@@ -693,7 +693,7 @@ any new memory.
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
 no-op, and should not return errors.
 */
-@(require_results)
+
 resize_bytes_non_zeroed :: proc(
 	old_data: []byte,
 	new_size: int,
@@ -707,10 +707,10 @@ resize_bytes_non_zeroed :: proc(
 /*
 Query allocator features.
 */
-@(require_results)
+
 query_features :: proc(allocator: Allocator, loc := #caller_location) -> (set: Allocator_Mode_Set) {
 	if allocator.procedure != nil {
-		allocator.procedure(allocator.data, .Query_Features, 0, 0, &set, 0, loc)
+		_, _ = allocator.procedure(allocator.data, .Query_Features, 0, 0, &set, 0, loc)
 		return set
 	}
 	return nil
@@ -719,7 +719,7 @@ query_features :: proc(allocator: Allocator, loc := #caller_location) -> (set: A
 /*
 Query allocator information.
 */
-@(require_results)
+
 query_info :: proc(
 	pointer: rawptr,
 	allocator: Allocator,
@@ -727,7 +727,7 @@ query_info :: proc(
 ) -> (props: Allocator_Query_Info) {
 	props.pointer = pointer
 	if allocator.procedure != nil {
-		allocator.procedure(allocator.data, .Query_Info, 0, 0, &props, 0, loc)
+		_, _ = allocator.procedure(allocator.data, .Query_Info, 0, 0, &props, 0, loc)
 	}
 	return
 }
@@ -826,7 +826,7 @@ This procedure allocates a new object of type `T` using an allocator specified
 by `allocator`, and returns a pointer to the allocated object, if allocated
 successfully, or `nil` otherwise.
 */
-@(require_results)
+
 new :: proc(
 	$T: typeid,
 	allocator: Allocator,
@@ -843,7 +843,7 @@ by `allocator`, and returns a pointer, aligned on a boundary specified by
 `alignment`  to the allocated object, if allocated successfully, or `nil`
 otherwise.
 */
-@(require_results)
+
 new_aligned :: proc(
 	$T: typeid,
 	alignment: int,
@@ -861,7 +861,7 @@ by `allocator`, and returns a pointer, aligned on a boundary specified by
 `alignment`  to the allocated object, if allocated successfully, or `nil`
 otherwise. The allocated object is initialized with `data`.
 */
-@(require_results)
+
 new_clone :: proc(
 	data: $T,
 	allocator: Allocator,
@@ -877,7 +877,7 @@ This procedure allocates a new slice of type `T` with length `len`, aligned
 on a boundary specified by `alignment` from an allocator specified by
 `allocator`, and returns the allocated slice.
 */
-@(require_results)
+
 make_aligned :: proc(
 	$T: typeid/[]$E,
 	#any_int len: int,
@@ -897,9 +897,9 @@ This procedure allocates a new slice of type `T` with length `len`, aligned
 on a boundary specified by `alignment` from an allocator specified by
 `allocator`, and returns the allocated slice.
 
-The user should `delete` the return `original_data` slice not the typed `slice`.
+The user should `_ = delete` the return `original_data` slice not the typed `slice`.
 */
-@(require_results)
+
 make_over_aligned :: proc(
 	$T: typeid/[]$E,
 	#any_int len: int,
@@ -922,7 +922,7 @@ Allocate a new slice.
 This procedure allocates a new slice of type `T` with length `len`, from an
 allocator specified by `allocator`, and returns the allocated slice.
 */
-@(require_results)
+
 make_slice :: proc(
 	$T: typeid/[]$E,
 	#any_int len: int,
@@ -938,7 +938,7 @@ Allocate a dynamic array.
 This procedure creates a dynamic array of type `T`, with `allocator` as its
 backing allocator, and initial length and capacity of `0`.
 */
-@(require_results)
+
 make_dynamic_array :: proc(
 	$T: typeid/[dynamic]$E,
 	allocator: Allocator,
@@ -953,7 +953,7 @@ Allocate a dynamic array with initial length.
 This procedure creates a dynamic array of type `T`, with `allocator` as its
 backing allocator, and initial capacity and length specified by `len`.
 */
-@(require_results)
+
 make_dynamic_array_len :: proc(
 	$T: typeid/[dynamic]$E,
 	#any_int len: int,
@@ -970,7 +970,7 @@ This procedure creates a dynamic array of type `T`, with `allocator` as its
 backing allocator, and initial capacity specified by `cap`, and initial length
 specified by `len`.
 */
-@(require_results)
+
 make_dynamic_array_len_cap :: proc(
 	$T: typeid/[dynamic]$E,
 	#any_int len: int,
@@ -988,7 +988,7 @@ This procedure creates a map of type `T` with no initial allocation, which will
 use the allocator specified by `allocator` as its backing allocator when it
 allocates.
 */
-@(require_results)
+
 make_map :: proc(
 	$T: typeid/map[$K]$E,
 	allocator: Allocator,
@@ -1004,7 +1004,7 @@ This procedure creates a map of type `T` with initial capacity specified by
 `cap`, that is using an allocator specified by `allocator` as its backing
 allocator.
 */
-@(require_results)
+
 make_map_cap :: proc(
 	$T: typeid/map[$K]$E,
 	#any_int cap: int,
@@ -1020,7 +1020,7 @@ Allocate a multi pointer.
 This procedure allocates a multipointer of type `T` pointing to `len` elements,
 from an allocator specified by `allocator`.
 */
-@(require_results)
+
 make_multi_pointer :: proc(
 	$T: typeid/[^]$E,
 	#any_int len: int,
@@ -1036,7 +1036,7 @@ Allocate an SoA slice.
 This procedure allocates an SoA slice of type `T` with length `len`, from an
 allocator specified by `allocator`, and returns the allocated SoA slice.
 */
-@(require_results)
+
 make_soa_slice :: proc(
 	$T: typeid/#soa[]$E,
 	#any_int len: int,
@@ -1052,7 +1052,7 @@ Allocate an SoA dynamic array.
 This procedure creates an SoA dynamic array of type `T`, with `allocator` as
 its backing allocator, and initial length and capacity of `0`.
 */
-@(require_results)
+
 make_soa_dynamic_array :: proc(
 	$T: typeid/#soa[dynamic]$E,
 	allocator: Allocator,
@@ -1067,7 +1067,7 @@ Allocate an SoA dynamic array with initial length.
 This procedure creates an SoA dynamic array of type `T`, with `allocator` as its
 backing allocator, and initial capacity and length specified by `len`.
 */
-@(require_results)
+
 make_soa_dynamic_array_len :: proc(
 	$T: typeid/#soa[dynamic]$E,
 	#any_int len: int,
@@ -1084,7 +1084,7 @@ This procedure creates an SoA dynamic array of type `T`, with `allocator` as its
 backing allocator, and initial capacity specified by `cap`, and initial length
 specified by `len`.
 */
-@(require_results)
+
 make_soa_dynamic_array_len_cap :: proc(
 	$T: typeid/#soa[dynamic]$E,
 	#any_int len: int,
@@ -1117,7 +1117,7 @@ Default resize procedure.
 
 When allocator does not support resize operation, but supports `.Alloc` and
 `.Free`, this procedure is used to implement allocator's default behavior on
-resize.
+_ = resize.
 
 The behavior of the function is as follows:
 
@@ -1129,7 +1129,7 @@ The behavior of the function is as follows:
 	data from the old memory region is copied and the old memory region is
 	freed.
 */
-@(require_results)
+
 default_resize_align :: proc(
 	old_memory: rawptr,
 	old_size: int,
@@ -1170,7 +1170,7 @@ The behavior of the function is as follows:
 	data from the old memory region is copied and the old memory region is
 	freed.
 */
-@(require_results)
+
 default_resize_bytes_align_non_zeroed :: proc(
 	old_data: []byte,
 	new_size: int,
@@ -1186,7 +1186,7 @@ Default resize procedure.
 
 When allocator does not support resize operation, but supports `.Alloc` and
 `.Free`, this procedure is used to implement allocator's default behavior on
-resize.
+_ = resize.
 
 The behavior of the function is as follows:
 
@@ -1198,7 +1198,7 @@ The behavior of the function is as follows:
 	data from the old memory region is copied and the old memory region is
 	freed.
 */
-@(require_results)
+
 default_resize_bytes_align :: proc(
 	old_data: []byte,
 	new_size: int,
@@ -1209,7 +1209,7 @@ default_resize_bytes_align :: proc(
 	return _default_resize_bytes_align(old_data, new_size, alignment, true, allocator, loc)
 }
 
-@(require_results)
+
 _default_resize_bytes_align :: #force_inline proc(
 	old_data: []byte,
 	new_size: int,
@@ -1245,6 +1245,6 @@ _default_resize_bytes_align :: #force_inline proc(
 		return nil, err
 	}
 	runtime.copy(new_memory, old_data)
-	free_bytes(old_data, allocator, loc)
+	_ = free_bytes(old_data, allocator, loc)
 	return new_memory, err
 }

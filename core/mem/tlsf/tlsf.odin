@@ -46,7 +46,7 @@ Allocator :: struct {
 }
 #assert(size_of(Allocator) % ALIGN_SIZE == 0)
 
-@(require_results)
+
 allocator :: proc(t: ^Allocator) -> runtime.Allocator {
 	return runtime.Allocator{
 		procedure = allocator_proc,
@@ -69,7 +69,7 @@ estimate_pool_from_typeid :: proc(count: int, type: typeid) -> (pool_size: int) 
 estimate_pool_size :: proc{estimate_pool_from_size_alignment, estimate_pool_from_typeid}
 
 
-@(require_results)
+
 init_from_buffer :: proc(control: ^Allocator, buf: []byte) -> Error {
 	assert(control != nil)
 	if uintptr(raw_data(buf)) % ALIGN_SIZE != 0 {
@@ -91,7 +91,7 @@ init_from_buffer :: proc(control: ^Allocator, buf: []byte) -> Error {
 	return free_all(control)
 }
 
-@(require_results)
+
 init_from_allocator :: proc(control: ^Allocator, backing: runtime.Allocator, initial_pool_size: int, new_pool_size := 0) -> Error {
 	assert(control != nil)
 	pool_bytes := uint(estimate_pool_size(1, initial_pool_size, ALIGN_SIZE))
@@ -121,7 +121,7 @@ destroy :: proc(control: ^Allocator) {
 	if control == nil { return }
 
 	if control.pool.allocator.procedure != nil {
-		runtime.delete(control.pool.data, control.pool.allocator)
+		_ = runtime.delete(control.pool.data, control.pool.allocator)
 	}
 
 	// No need to call `pool_remove` or anything, as they're they're embedded in the backing memory.
@@ -130,8 +130,8 @@ destroy :: proc(control: ^Allocator) {
 		next := p.next
 
 		// Free the allocation on the backing allocator
-		runtime.delete(p.data, p.allocator)
-		free(p, p.allocator)
+		_ = runtime.delete(p.data, p.allocator)
+		_ = free(p, p.allocator)
 
 		p = next
 	}
@@ -157,7 +157,7 @@ allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
 		return nil, nil
 
 	case .Free_All:
-		free_all(control)
+		_ = free_all(control)
 		return nil, nil
 
 	case .Resize:
@@ -181,20 +181,20 @@ allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
 }
 
 // Exported solely to facilitate testing
-@(require_results)
+
 ffs :: proc(word: u32) -> (bit: i32) {
 	return -1 if word == 0 else i32(intrinsics.count_trailing_zeros(word))
 }
 
 // Exported solely to facilitate testing
-@(require_results)
+
 fls :: proc(word: u32) -> (bit: i32) {
 	N :: (size_of(u32) * 8) - 1
 	return i32(N - intrinsics.count_leading_zeros(word))
 }
 
 // Exported solely to facilitate testing
-@(require_results)
+
 fls_uint :: proc(size: uint) -> (bit: i32) {
 	N :: (size_of(uint) * 8) - 1
 	return i32(N - intrinsics.count_leading_zeros(size))

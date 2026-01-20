@@ -93,7 +93,7 @@ Returns:
 - result: The regular expression.
 - err: An error, if one occurred.
 */
-@require_results
+
 create :: proc(
 	pattern:       string,
 	flags:         Flags = {},
@@ -177,7 +177,7 @@ Returns:
 - result: The regular expression.
 - err: An error, if one occurred.
 */
-@require_results
+
 create_by_user :: proc(
 	pattern: string,
 	allocator: runtime.Allocator,
@@ -295,7 +295,7 @@ Returns:
 - capture: The capture groups found in the string.
 - success: True if the regex matched the string.
 */
-@require_results
+
 match_and_allocate_capture :: proc(
 	regex:         Regular_Expression,
 	str:           string,
@@ -362,7 +362,7 @@ Returns:
 - num_groups: The number of capture groups set into `capture`.
 - success: True if the regex matched the string.
 */
-@require_results
+
 match_with_preallocated_capture :: proc(
 	regex:         Regular_Expression,
 	str:           string,
@@ -536,7 +536,7 @@ Inputs:
 Returns:
 - result: The `Capture` with the maximum number of groups allocated.
 */
-@require_results
+
 preallocate_capture :: proc(allocator: runtime.Allocator) -> (result: Capture) {
 	result.pos    = make([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
 	result.groups = make([]string, common.MAX_CAPTURE_GROUPS, allocator)
@@ -553,12 +553,12 @@ Inputs:
 - allocator: 
 */
 destroy_regex :: proc(regex: Regular_Expression, allocator: runtime.Allocator) {
-	delete(regex.program, allocator)
+	_ = delete(regex.program, allocator)
 	for data in regex.class_data {
-		delete(data.runes, allocator)
-		delete(data.ranges, allocator)
+		_ = delete(data.runes, allocator)
+		_ = delete(data.ranges, allocator)
 	}
-	delete(regex.class_data, allocator)
+	_ = delete(regex.class_data, allocator)
 }
 
 /*
@@ -571,8 +571,8 @@ Inputs:
 - allocator:
 */
 destroy_capture :: proc(capture: Capture, allocator: runtime.Allocator) {
-	delete(capture.groups, allocator)
-	delete(capture.pos, allocator)
+	_ = delete(capture.groups, allocator)
+	_ = delete(capture.pos, allocator)
 }
 
 /*

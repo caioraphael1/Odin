@@ -107,7 +107,7 @@ bc_x4 :: proc(
 	}
 }
 
-@(private = "file", require_results)
+@(private = "file")
 bc_absorb :: proc(
 	st:           ^State_SW,
 	dst:          []byte,
@@ -172,7 +172,7 @@ bc_final :: proc(
 	bc_x4(st.ctx, dst, &tweaks, &st.q_stk, &st.q_b, 1)
 }
 
-@(private = "file", require_results)
+@(private = "file")
 bc_encrypt :: proc(
 	st:           ^State_SW,
 	dst:          []byte,
@@ -304,7 +304,7 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 	mem.zero_explicit(&st.q_b, size_of(st.q_b))
 }
 
-@(private, require_results)
+@(private)
 d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	st: State_SW = ---
 	st.ctx = ctx

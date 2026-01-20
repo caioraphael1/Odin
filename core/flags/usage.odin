@@ -98,7 +98,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
 	}
 
 	visible_flags: [dynamic]Flag
-	defer delete(visible_flags)
+	defer _ = delete(visible_flags)
 
 	longest_flag_length: int
 
@@ -187,7 +187,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
 
 		longest_flag_length = max(longest_flag_length, flag.full_length)
 
-		append(&visible_flags, flag)
+		_ = append(&visible_flags, flag)
 	}
 
 	slice.sort_by_cmp(visible_flags[:], sort_flags)

@@ -24,7 +24,7 @@ init_args :: proc(allocator: runtime.Allocator) {
 }
 
 fini_args :: proc(allocator: runtime.Allocator) {
-	delete(args, allocator)
+	_ = delete(args, allocator)
 }
 
 /*
@@ -40,7 +40,7 @@ Obtain the UID of the current process.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-@(require_results)
+
 get_uid :: proc() -> int {
 	return _get_uid()
 }
@@ -56,7 +56,7 @@ the real UID of the process and the effective UID are different.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-@(require_results)
+
 get_euid :: proc() -> int {
 	return _get_euid()
 }
@@ -67,7 +67,7 @@ Obtain the GID of the current process.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-@(require_results)
+
 get_gid :: proc() -> int {
 	return _get_gid()
 }
@@ -83,7 +83,7 @@ the real GID of the process and the effective GID are different.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-@(require_results)
+
 get_egid :: proc() -> int {
 	return _get_egid()
 }
@@ -91,7 +91,7 @@ get_egid :: proc() -> int {
 /*
 Obtain the ID of the current process.
 */
-@(require_results)
+
 get_pid :: proc() -> int {
 	return _get_pid()
 }
@@ -105,7 +105,7 @@ that has created the current process. In case the parent has died, the ID
 returned by this function can identify a non-existent or a different
 process.
 */
-@(require_results)
+
 get_ppid :: proc() -> int {
 	return _get_ppid()
 }
@@ -113,7 +113,7 @@ get_ppid :: proc() -> int {
 /*
 Obtain ID's of all processes running in the system.
 */
-@(require_results)
+
 process_list :: proc(allocator: runtime.Allocator) -> ([]int, Error) {
 	return _process_list(allocator)
 }
@@ -180,7 +180,7 @@ by the `selection` parameter. Always check whether the returned
 `Process_Info` struct has the required fields before checking the error code
 returned by this procedure.
 */
-@(require_results)
+
 process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
 	return _process_info_by_pid(pid, selection, allocator)
 }
@@ -201,7 +201,7 @@ by the `selection` parameter. Always check whether the returned
 `Process_Info` struct has the required fields before checking the error code
 returned by this procedure.
 */
-@(require_results)
+
 process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
 	return _process_info_by_handle(process, selection, allocator)
 }
@@ -221,7 +221,7 @@ by the `selection` parameter. Always check whether the returned
 `Process_Info` struct has the required fields before checking the error code
 returned by this procedure.
 */
-@(require_results)
+
 current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
 	return _current_process_info(selection, allocator)
 }
@@ -243,18 +243,18 @@ allocator. The allocator needs to be the same allocator that was supplied
 to the `process_info` function.
 */
 free_process_info :: proc(pi: Process_Info, allocator: runtime.Allocator) {
-	delete(pi.executable_path, allocator)
-	delete(pi.command_line, allocator)
+	_ = delete(pi.executable_path, allocator)
+	_ = delete(pi.command_line, allocator)
 	for a in pi.command_args {
-		delete(a, allocator)
+		_ = delete(a, allocator)
 	}
-	delete(pi.command_args, allocator)
+	_ = delete(pi.command_args, allocator)
 	for s in pi.environment {
-		delete(s, allocator)
+		_ = delete(s, allocator)
 	}
-	delete(pi.environment, allocator)
-	delete(pi.working_dir, allocator)
-	delete(pi.username, allocator)
+	_ = delete(pi.environment, allocator)
+	_ = delete(pi.working_dir, allocator)
+	_ = delete(pi.username, allocator)
 }
 
 /*
@@ -288,7 +288,7 @@ This procedure can be subject to race conditions. See the description of
 
 Use `process_close()` function to close the process handle.
 */
-@(require_results)
+
 process_open :: proc(pid: int, flags := Process_Open_Flags {}) -> (Process, Error) {
 	return _process_open(pid, flags)
 }
@@ -344,7 +344,7 @@ This procedure is not thread-safe. It may alter the inheritance properties
 of file handles in an unpredictable manner. In case multiple threads change
 handle inheritance properties, make sure to serialize all those calls.
 */
-@(require_results)
+
 process_start :: proc(desc: Process_Desc) -> (Process, Error) {
 	return _process_start(desc)
 }
@@ -363,9 +363,9 @@ are left at default, i.e. a `nil` value. You can not capture stdout/stderr and
 redirect it to a file at the same time.
 
 This procedure does not free `stdout` and `stderr` slices before an error is
-returned. Make sure to call `delete` on these slices.
+returned. Make sure to call `_ = delete` on these slices.
 */
-@(require_results)
+
 process_exec :: proc(
 	desc: Process_Desc,
 	allocator: runtime.Allocator,
@@ -380,16 +380,16 @@ process_exec :: proc(
 	assert(desc.stderr == nil, "Cannot redirect stderr when it's being captured", loc)
 
 	stdout_r, stdout_w := pipe(allocator) or_return
-	defer close(stdout_r)
+	defer _ = close(stdout_r)
 	stderr_r, stderr_w := pipe(allocator) or_return
-	defer close(stderr_r)
+	defer _ = close(stderr_r)
 
 	process: Process
 	{
 		// NOTE(flysand): Make sure the write-ends are closed, regardless
 		// of the outcome. This makes read-ends readable on our side.
-		defer close(stdout_w)
-		defer close(stderr_w)
+		defer _ = close(stdout_w)
+		defer _ = close(stderr_w)
 		desc := desc
 		desc.stdout = stdout_w
 		desc.stderr = stderr_w
@@ -417,7 +417,7 @@ process_exec :: proc(
 
 				switch err {
 				case nil:
-					_, err = append(&stdout_b, ..buf[:n])
+					err = append(&stdout_b, ..buf[:n])
 				case .EOF, .Broken_Pipe:
 					stdout_done = true
 					err = nil
@@ -433,7 +433,7 @@ process_exec :: proc(
 
 				switch err {
 				case nil:
-					_, err = append(&stderr_b, ..buf[:n])
+					err = append(&stderr_b, ..buf[:n])
 				case .EOF, .Broken_Pipe:
 					stderr_done = true
 					err = nil
@@ -494,7 +494,7 @@ the error.
 If an error is returned for any other reason, other than timeout, the
 process state is considered undetermined.
 */
-@(require_results)
+
 process_wait :: proc(process: Process, timeout := TIMEOUT_INFINITE) -> (Process_State, Error) {
 	return _process_wait(process, timeout)
 }
@@ -507,7 +507,7 @@ terminate a process, in case it was running. In case a termination is
 desired, kill the process first, wait for the process to finish,
 then close the handle.
 */
-@(require_results)
+
 process_close :: proc(process: Process) -> (Error) {
 	return _process_close(process)
 }
@@ -517,7 +517,7 @@ Terminate a process.
 
 This procedure terminates a process, specified by it's handle, `process`.
 */
-@(require_results)
+
 process_kill :: proc(process: Process) -> (Error) {
 	return _process_kill(process)
 }

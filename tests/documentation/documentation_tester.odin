@@ -86,10 +86,10 @@ main :: proc() {
 	path_prefix: string
 	{
 		fullpaths: [dynamic]string
-		defer delete(fullpaths)
+		defer _ = delete(fullpaths)
 
 		for pkg in pkgs[1:] {
-			append(&fullpaths, str(pkg.fullpath))
+			_ = append(&fullpaths, str(pkg.fullpath))
 		}
 		path_prefix = common_prefix(fullpaths[:])
 	}
@@ -244,7 +244,7 @@ find_and_add_examples :: proc(docs: string, package_name: string, entity_name: s
 		for &line in output_block.lines {
 			line = strings.trim_prefix(line, "\t")
 		}
-		append(&g_examples_to_verify, Example_Test {
+		_ = append(&g_examples_to_verify, Example_Test {
 			entity_name = entity_name,
 			package_name = package_name,
 			example_code = example_block.lines,
@@ -383,7 +383,7 @@ main :: proc() {
 			proc_lit, is_proc_lit := value_decl.values[0].derived_expr.(^ast.Proc_Lit); if ! is_proc_lit {
 				continue
 			}
-			append(&found_procedures_for_error_msg, Found_Proc {
+			_ = append(&found_procedures_for_error_msg, Found_Proc {
 				name = code_string[value_decl.names[0].pos.offset:value_decl.names[0].end.offset],
 				type = code_string[proc_lit.type.pos.offset:proc_lit.type.end.offset],
 			})

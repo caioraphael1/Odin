@@ -128,7 +128,7 @@ struct AttributeContext {
 	DeferredProcedure deferred_procedure;
 	bool    is_export             : 1;
 	bool    is_static             : 1;
-	bool    require_results       : 1;
+	bool    optional_results      : 1;
 	bool    require_declaration   : 1;
 	bool    has_disabled_proc     : 1;
 	bool    disabled_proc         : 1;
@@ -222,7 +222,7 @@ struct DeclInfo {
 
 	bool          is_using;
 	bool          where_clauses_evaluated;
-	bool          foreign_require_results;
+	bool          foreign_optional_results;
 	std::atomic<ProcCheckedState> proc_checked_state;
 
 	BlockingMutex proc_checked_mutex;
@@ -347,7 +347,7 @@ struct ForeignContext {
 	String                link_prefix;
 	String                link_suffix;
 	EntityVisiblityKind   visibility_kind;
-	bool                  require_results;
+	bool                  optional_results;
 };
 
 typedef Array<Entity *> CheckerTypePath;

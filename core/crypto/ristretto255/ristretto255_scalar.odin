@@ -29,7 +29,7 @@ sc_set_u64 :: proc(sc: ^Scalar, i: u64) {
 
 // sc_set_bytes sets sc to the result of decoding b as a ristretto255
 // scalar, and returns true on success.
-@(require_results)
+
 sc_set_bytes :: proc(sc: ^Scalar, b: []byte) -> bool {
 	if len(b) != SCALAR_SIZE {
 		return false
@@ -87,7 +87,7 @@ sc_cond_assign :: proc(sc, a: ^Scalar, ctrl: int) {
 }
 
 // sc_equal returns 1 iff `a == b`, and 0 otherwise.
-@(require_results)
+
 sc_equal :: proc(a, b: ^Scalar) -> int {
 	return grp.sc_equal(a, b)
 }

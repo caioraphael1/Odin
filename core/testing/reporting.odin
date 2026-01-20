@@ -136,12 +136,12 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 
 destroy_report :: proc(report: ^Report) {
 	for pkg in report.packages {
-		delete(pkg.header)
+		_ = delete(pkg.header)
 	}
 
-	delete(report.packages)
-	delete(report.packages_by_name)
-	delete(report.all_test_states)
+	_ = delete(report.packages)
+	_ = delete(report.packages_by_name)
+	_ = delete(report.all_test_states)
 }
 
 redraw_package :: proc(w: io.Writer, report: Report, pkg: ^Package_Run) {

@@ -34,7 +34,7 @@ init_os_version :: proc(allocator: runtime.Allocator) {
 	}
 
 	product_type: sys.Windows_Product_Type
-	sys.GetProductInfo(
+	_ = sys.GetProductInfo(
 		osvi.dwMajorVersion,         osvi.dwMinorVersion,
 		u32(osvi.wServicePackMajor), u32(osvi.wServicePackMinor),
 		&product_type,
@@ -230,14 +230,14 @@ init_os_version :: proc(allocator: runtime.Allocator) {
 			"DisplayVersion",
             allocator,
 		)
-		defer delete(dv, allocator) // It'll be interned into `version_string_buf`
+		defer _ = delete(dv, allocator) // It'll be interned into `version_string_buf`
 
 		if ok {
 			strings.write_string(b, " (version: ")
 			l := strings.builder_len(b^)
 			strings.write_string(b, dv)
 			version = strings.to_string(b^)[l:][:len(dv)]
-			strings.write_rune(b, ')')
+			_, _ = strings.write_rune(b, ')')
 		}
 		return
 	}
@@ -254,7 +254,7 @@ init_os_version :: proc(allocator: runtime.Allocator) {
 			ubr = int(res)
 			strings.write_string(b, ", build: ")
 			strings.write_int(b, major_build)
-			strings.write_rune(b, '.')
+			_, _ = strings.write_rune(b, '.')
 			strings.write_int(b, ubr)
 		}
 		return
@@ -294,7 +294,7 @@ init_gpu_info :: proc(allocator: runtime.Allocator) {
 	); status != i32(sys.ERROR_SUCCESS) {
 		return
 	}
-	defer sys.RegCloseKey(gpu_key)
+	defer _ = sys.RegCloseKey(gpu_key)
 
 	gpu_list: [dynamic]GPU
 	gpu: ^GPU
@@ -316,7 +316,7 @@ init_gpu_info :: proc(allocator: runtime.Allocator) {
 			break
 		}
 
-		utf16.decode_to_utf8(buf_utf8[:], buf_wstring[:])
+		_ = utf16.decode_to_utf8(buf_utf8[:], buf_wstring[:])
 		leaf := string(cstring(&buf_utf8[0]))
 
 		// Skip leafs that are not of the form 000x
@@ -327,7 +327,9 @@ init_gpu_info :: proc(allocator: runtime.Allocator) {
 		key, _ := strings.concatenate({GPU_ROOT_KEY, "\\", leaf}, runtime.temp_allocator)
 
 		if vendor, ok := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "ProviderName", allocator); ok {
-			idx, _ := append(&gpu_list, GPU{vendor_name = vendor})
+            len_before := len(gpu_list)
+			_ = append(&gpu_list, GPU{vendor_name = vendor})
+            idx := len(gpu_list) - len_before
 			gpu = &gpu_list[idx - 1]
 		} else {
 			continue

@@ -150,7 +150,7 @@ setup_xxhash :: proc(options: ^time.Benchmark_Options, allocator := context.allo
 teardown_xxhash :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
 	assert(options != nil)
 
-	delete(options.input)
+	_ = delete(options.input)
 	return nil
 }
 

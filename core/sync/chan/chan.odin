@@ -152,7 +152,7 @@ Example:
 		defer chan.destroy(c)
 	}
 */
-@(require_results)
+
 create_unbuffered :: proc($C: typeid/Chan($T), allocator: runtime.Allocator) -> (c: C, err: runtime.Allocator_Error)
 	where size_of(T) <= int(max(u16)) {
 	c.impl, err = create_raw_unbuffered(size_of(T), align_of(T), allocator)
@@ -183,7 +183,7 @@ Example:
 		defer chan.destroy(c)
 	}
 */
-@(require_results)
+
 create_buffered :: proc($C: typeid/Chan($T), #any_int cap: int, allocator: runtime.Allocator) -> (c: C, err: runtime.Allocator_Error)
 	where size_of(T) <= int(max(u16)) {
 	c.impl, err = create_raw_buffered(size_of(T), align_of(T), cap, allocator)
@@ -254,7 +254,7 @@ Example:
 		defer chan.destroy(unbuffered)
 	}
 */
-@(require_results)
+
 create_raw_unbuffered :: proc(#any_int msg_size, msg_alignment: int, allocator: runtime.Allocator) -> (c: ^Raw_Chan, err: runtime.Allocator_Error) {
 	assert(msg_size <= int(max(u16)))
 	align := max(align_of(Raw_Chan), msg_alignment)
@@ -299,7 +299,7 @@ Example:
 		defer chan.destroy(c)
 	}
 */
-@(require_results)
+
 create_raw_buffered :: proc(#any_int msg_size, msg_alignment: int, #any_int cap: int, allocator: runtime.Allocator) -> (c: ^Raw_Chan, err: runtime.Allocator_Error) {
 	assert(msg_size <= int(max(u16)))
 	if cap <= 0 {
@@ -378,7 +378,7 @@ Example:
 		producer(chan.as_send(c))
 	}
 */
-@(require_results)
+
 as_send :: #force_inline proc(c: $C/Chan($T, $D)) -> (s: Chan(T, .Send)) where C.D <= .Both {
 	return transmute(type_of(s))c
 }
@@ -413,7 +413,7 @@ Example:
 		consumer(chan.as_recv(c))
 	}
 */
-@(require_results)
+
 as_recv :: #force_inline proc(c: $C/Chan($T, $D)) -> (r: Chan(T, .Recv)) where C.D >= .Both {
 	return transmute(type_of(r))c
 }
@@ -483,7 +483,7 @@ Example:
 		assert(!chan.try_send(c, 2), "the buffer is already full")
 	}
 */
-@(require_results)
+
 try_send :: proc(c: $C/Chan($T, $D), data: T) -> (ok: bool) where C.D <= .Both {
 	data := data
 	ok = try_send_raw(c, &data)
@@ -528,7 +528,7 @@ Example:
 		assert(!ok, "the channel is closed")
 	}
 */
-@(require_results)
+
 recv :: proc(c: $C/Chan($T)) -> (data: T, ok: bool) where C.D >= .Both {
 	ok = recv_raw(c, &data)
 	return
@@ -558,7 +558,7 @@ Example:
 		assert(!ok, "there is not value to read")
 	}
 */
-@(require_results)
+
 try_recv :: proc(c: $C/Chan($T)) -> (data: T, ok: bool) where C.D >= .Both {
 	ok = try_recv_raw(c, &data)
 	return
@@ -602,7 +602,7 @@ Example:
 		assert(! chan.send_raw(c, &value))
 	}
 */
-@(require_results)
+
 send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
 	if c == nil {
 		return
@@ -692,7 +692,7 @@ Example:
 		assert(! chan.recv_raw(c, &value))
 	}
 */
-@(require_results)
+
 recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
 	if c == nil {
 		return
@@ -772,7 +772,7 @@ Example:
 		assert(!chan.try_send_raw(c, &value), "the buffer is already full")
 	}
 */
-@(require_results)
+
 try_send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
 	if c == nil {
 		return false
@@ -835,7 +835,7 @@ Example:
 		assert(!chan.try_recv_raw(c, &value))
 	}
 */
-@(require_results)
+
 try_recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> bool {
 	if c == nil {
 		return false
@@ -892,7 +892,7 @@ Example:
 		assert(chan.is_buffered(c))
 	}
 */
-@(require_results)
+
 is_buffered :: proc(c: ^Raw_Chan) -> bool {
 	return c != nil && c.queue != nil
 }
@@ -916,7 +916,7 @@ Example:
 		assert(chan.is_unbuffered(c))
 	}
 */
-@(require_results)
+
 is_unbuffered :: proc(c: ^Raw_Chan) -> bool {
 	return c != nil && c.unbuffered_data != nil
 }
@@ -952,7 +952,7 @@ Output:
 	0
 	1
 */
-@(require_results)
+
 len :: proc(c: ^Raw_Chan) -> int {
 	if c != nil && c.queue != nil {
 		sync.guard(&c.mutex)
@@ -989,7 +989,7 @@ Output:
 
 	2
 */
-@(require_results)
+
 cap :: proc(c: ^Raw_Chan) -> int {
 	if c != nil && c.queue != nil {
 		sync.guard(&c.mutex)
@@ -1051,7 +1051,7 @@ Returns if the channel is closed or not
 **Returns**:
 - `true` if the channel is closed, `false` otherwise
 */
-@(require_results)
+
 is_closed :: proc(c: ^Raw_Chan) -> bool {
 	if c == nil {
 		return true
@@ -1085,7 +1085,7 @@ Example:
 		assert(chan.can_recv(c), "there is message to read")
 	}
 */
-@(require_results)
+
 can_recv :: proc(c: ^Raw_Chan) -> bool {
 	sync.guard(&c.mutex)
 	if is_buffered(c) {
@@ -1120,7 +1120,7 @@ Example:
 		assert(!chan.can_send(c), "the channel's buffer is full")
 	}
 */
-@(require_results)
+
 can_send :: proc(c: ^Raw_Chan) -> bool {
 	sync.guard(&c.mutex)
 	if is_buffered(c) {
@@ -1205,7 +1205,7 @@ Output:
 	SELECT:         0 false
 
 */
-@(require_results)
+
 try_select_raw :: proc "odin" (recvs: []^Raw_Chan, sends: []^Raw_Chan, send_msgs: []rawptr, recv_out: rawptr) -> (select_idx: int, status: Select_Status) #no_bounds_check {
 	Select_Op :: struct {
 		idx:     int, // local to the slice that was given
@@ -1270,7 +1270,7 @@ try_select_raw :: proc "odin" (recvs: []^Raw_Chan, sends: []^Raw_Chan, send_msgs
 	}
 }
 
-@(require_results, deprecated = "use try_select_raw")
+@(deprecated = "use try_select_raw")
 select_raw :: proc "odin" (recvs: []^Raw_Chan, sends: []^Raw_Chan, send_msgs: []rawptr, recv_out: rawptr) -> (select_idx: int, status: Select_Status) #no_bounds_check {
 	return try_select_raw(recvs, sends, send_msgs, recv_out)
 }
@@ -1348,7 +1348,7 @@ Example:
 		assert(chan.raw_queue_push(&rq, &value), "there was enough space")
 	}
 */
-@(private, require_results)
+@(private)
 raw_queue_push :: proc(q: ^Raw_Queue, data: rawptr) -> bool {
 	if q.len == q.cap {
 		return false
@@ -1395,7 +1395,7 @@ Example:
 		assert((cast(^int)chan.raw_queue_pop(&rq))^ == 2, "retrieved the element")
 	}
 */
-@(private, require_results)
+@(private)
 raw_queue_pop :: proc(q: ^Raw_Queue) -> (data: rawptr) {
 	if q.len > 0 {
 		data = q.data[q.next*q.size:]

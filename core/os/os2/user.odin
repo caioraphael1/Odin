@@ -7,7 +7,7 @@ import "base:runtime"
 // macOS:    /Users/Alice
 // Linux:    /home/alice
 // ```
-@(require_results)
+
 user_home_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_home_dir(allocator)
 }
@@ -21,7 +21,7 @@ user_home_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error)
 // macOS:    /Users/Alice/Library/Caches
 // Linux:    /home/alice/.cache
 // ```
-@(require_results)
+
 user_cache_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_cache_dir(allocator)
 }
@@ -35,7 +35,7 @@ user_cache_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error
 // ```
 //
 // NOTE: (Windows only) `roaming` is for syncing across multiple devices within a *domain network*
-@(require_results)
+
 user_data_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir: string, err: Error) {
 	return _user_data_dir(allocator, roaming)
 }
@@ -47,7 +47,7 @@ user_data_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir: s
 // macOS:    /Users/Alice/Library/Application Support
 // Linux:    /home/alice/.local/state
 // ```
-@(require_results)
+
 user_state_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_state_dir(allocator)
 }
@@ -59,7 +59,7 @@ user_state_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error
 // macOS:    /Users/Alice/Library/Logs
 // Linux:    /home/alice/.local/state
 // ```
-@(require_results)
+
 user_log_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_log_dir(allocator)
 }
@@ -73,7 +73,7 @@ user_log_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) 
 // ```
 //
 // NOTE: (Windows only) `roaming` is for syncing across multiple devices within a *domain network*
-@(require_results)
+
 user_config_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir: string, err: Error) {
 	return _user_config_dir(allocator, roaming)
 }
@@ -83,7 +83,7 @@ user_config_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir:
 // macOS:    /Users/Alice/Music
 // Linux:    /home/alice/Music
 // ```
-@(require_results)
+
 user_music_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_music_dir(allocator)
 }
@@ -93,7 +93,7 @@ user_music_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error
 // macOS:    /Users/Alice/Desktop
 // Linux:    /home/alice/Desktop
 // ```
-@(require_results)
+
 user_desktop_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_desktop_dir(allocator)
 }
@@ -103,7 +103,7 @@ user_desktop_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Err
 // macOS:    /Users/Alice/Documents
 // Linux:    /home/alice/Documents
 // ```
-@(require_results)
+
 user_documents_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_documents_dir(allocator)
 }
@@ -113,7 +113,7 @@ user_documents_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: E
 // macOS:    /Users/Alice/Downloads
 // Linux:    /home/alice/Downloads
 // ```
-@(require_results)
+
 user_downloads_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_downloads_dir(allocator)
 }
@@ -123,7 +123,7 @@ user_downloads_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: E
 // macOS:    /Users/Alice/Pictures
 // Linux:    /home/alice/Pictures
 // ```
-@(require_results)
+
 user_pictures_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_pictures_dir(allocator)
 }
@@ -133,7 +133,7 @@ user_pictures_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Er
 // macOS:    /Users/Alice/Public
 // Linux:    /home/alice/Public
 // ```
-@(require_results)
+
 user_public_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_public_dir(allocator)
 }
@@ -143,7 +143,7 @@ user_public_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Erro
 // macOS:    /Users/Alice/Movies
 // Linux:    /home/alice/Videos
 // ```
-@(require_results)
+
 user_videos_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
 	return _user_videos_dir(allocator)
 }

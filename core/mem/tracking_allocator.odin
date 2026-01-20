@@ -80,8 +80,8 @@ Destroy the tracking allocator.
 */
 @(no_sanitize_address)
 tracking_allocator_destroy :: proc(t: ^Tracking_Allocator) {
-	delete(t.allocation_map)
-	delete(t.bad_free_array)
+	_ = delete(t.allocation_map)
+	_ = delete(t.bad_free_array)
 }
 
 /*
@@ -143,7 +143,7 @@ then you must make sure to check Tracking_Allocator.bad_free_array at some point
 */
 @(no_sanitize_address)
 tracking_allocator_bad_free_callback_add_to_array :: proc(t: ^Tracking_Allocator, memory: rawptr, location: runtime.Source_Code_Location) {
-	append(&t.bad_free_array, Tracking_Allocator_Bad_Free_Entry {
+	_ = append(&t.bad_free_array, Tracking_Allocator_Bad_Free_Entry {
 		memory = memory,
 		location = location,
 	})
@@ -181,7 +181,7 @@ Example:
 		}
 	}
 */
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 tracking_allocator :: proc(data: ^Tracking_Allocator) -> Allocator {
 	return Allocator{
 		data = data,

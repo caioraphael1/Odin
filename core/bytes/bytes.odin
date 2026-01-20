@@ -1196,11 +1196,11 @@ scrub :: proc(s: []byte, replacement: []byte, allocator: mem.Allocator) -> []byt
 		if r == utf8.RUNE_ERROR {
 			if !has_error {
 				has_error = true
-				buffer_write(&b, origin[:cursor])
+				_, _ = buffer_write(&b, origin[:cursor])
 			}
 		} else if has_error {
 			has_error = false
-			buffer_write(&b, replacement)
+			_, _ = buffer_write(&b, replacement)
 
 			origin = origin[cursor:]
 			cursor = 0
@@ -1252,7 +1252,7 @@ expand_tabs :: proc(s: []byte, tab_size: int, allocator: mem.Allocator) -> []byt
 			expand := tab_size - column%tab_size
 
 			for i := 0; i < expand; i += 1 {
-				buffer_write_byte(&b, ' ')
+				_ = buffer_write_byte(&b, ' ')
 			}
 
 			column += expand
@@ -1263,7 +1263,7 @@ expand_tabs :: proc(s: []byte, tab_size: int, allocator: mem.Allocator) -> []byt
 				column += w
 			}
 
-			buffer_write_rune(&b, r)
+			_, _ = buffer_write_rune(&b, r)
 		}
 
 		str = str[w:]
@@ -1301,7 +1301,7 @@ centre_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.All
 	buffer_init_allocator(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator)
 
 	write_pad_string(&b, pad, pad_len, remains/2)
-	buffer_write(&b, str)
+	_, _ = buffer_write(&b, str)
 	write_pad_string(&b, pad, pad_len, (remains+1)/2)
 
 	return buffer_to_bytes(&b)
@@ -1320,7 +1320,7 @@ left_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.Alloc
 	b: Buffer
 	buffer_init_allocator(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator)
 
-	buffer_write(&b, str)
+	_, _ = buffer_write(&b, str)
 	write_pad_string(&b, pad, pad_len, remains)
 
 	return buffer_to_bytes(&b)
@@ -1340,7 +1340,7 @@ right_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.Allo
 	buffer_init_allocator(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator)
 
 	write_pad_string(&b, pad, pad_len, remains)
-	buffer_write(&b, str)
+	_, _ = buffer_write(&b, str)
 
 	return buffer_to_bytes(&b)
 }
@@ -1353,7 +1353,7 @@ write_pad_string :: proc(b: ^Buffer, pad: []byte, pad_len, remains: int) {
 	repeats := remains / pad_len
 
 	for i := 0; i < repeats; i += 1 {
-		buffer_write(b, pad)
+		_, _ = buffer_write(b, pad)
 	}
 
 	n := remains % pad_len
@@ -1361,7 +1361,7 @@ write_pad_string :: proc(b: ^Buffer, pad: []byte, pad_len, remains: int) {
 
 	for i := 0; i < n; i += 1 {
 		r, width := utf8.decode_rune(p)
-		buffer_write_rune(b, r)
+		_, _ = buffer_write_rune(b, r)
 		p = p[width:]
 	}
 }
@@ -1433,7 +1433,7 @@ fields_proc :: proc(s: []byte, f: proc(rune) -> bool, allocator: mem.Allocator) 
 		end = offset
 		if f(r) {
 			if start >= 0 {
-				append(&subslices, s[start : end])
+				_ = append(&subslices, s[start : end])
 				// -1 could be used, but just speed it up through bitwise not
 				// gotta love 2's complement
 				start = ~start
@@ -1446,7 +1446,7 @@ fields_proc :: proc(s: []byte, f: proc(rune) -> bool, allocator: mem.Allocator) 
 	}
 
 	if start >= 0 {
-		append(&subslices, s[start : len(s)])
+		_ = append(&subslices, s[start : len(s)])
 	}
 
 	return subslices[:]

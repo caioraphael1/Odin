@@ -15,7 +15,7 @@ platform_memory_init :: proc() {
 
 Allocator_Error :: mem.Allocator_Error
 
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
 	return _reserve(size)
 }
@@ -26,7 +26,7 @@ commit :: proc(data: rawptr, size: uint) -> Allocator_Error {
 	return _commit(data, size)
 }
 
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 reserve_and_commit :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
 	data = reserve(size) or_return
 	commit(raw_data(data), size) or_return
@@ -71,13 +71,13 @@ Memory_Block_Flag :: enum u32 {
 Memory_Block_Flags :: distinct bit_set[Memory_Block_Flag; u32]
 
 
-@(private="file", require_results, no_sanitize_address)
+@(private="file", no_sanitize_address)
 align_formula :: #force_inline proc(size, align: uint) -> uint {
 	result := size + align-1
 	return result - result%align
 }
 
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags: Memory_Block_Flags = {}) -> (block: ^Memory_Block, err: Allocator_Error) {
 	page_size := DEFAULT_PAGE_SIZE
 	assert(mem.is_power_of_two(uintptr(page_size)))
@@ -111,7 +111,7 @@ memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags
 	assert(pmblock.block.used == 0)
 	assert(pmblock.block.prev == nil)	
 	if do_protection {
-		protect(([^]byte)(pmblock)[protect_offset:], page_size, Protect_No_Access)
+		_ = protect(([^]byte)(pmblock)[protect_offset:], page_size, Protect_No_Access)
 	}
 	
 	pmblock.block.committed = committed
@@ -121,7 +121,7 @@ memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags
 	return &pmblock.block, nil
 }
 
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint, default_commit_size: uint = 0) -> (data: []byte, err: Allocator_Error) {
 	@(no_sanitize_address)
 	calc_alignment_offset :: proc(block: ^Memory_Block, alignment: uintptr) -> uint {
@@ -193,7 +193,7 @@ memory_block_dealloc :: proc(block_to_free: ^Memory_Block) {
 
 
 
-@(private, require_results)
+@(private)
 safe_add :: #force_inline proc(x, y: uint) -> (uint, bool) {
 	z, did_overflow := intrinsics.overflow_add(x, y)
 	return z, !did_overflow

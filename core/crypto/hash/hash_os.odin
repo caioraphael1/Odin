@@ -23,7 +23,7 @@ hash_file :: proc(
 	if !ok {
 		return nil, io.Error.Unknown
 	}
-	defer delete(buf, allocator)
+	defer _ = delete(buf, allocator)
 
 	return hash_bytes(algorithm, buf, allocator), io.Error.None
 }

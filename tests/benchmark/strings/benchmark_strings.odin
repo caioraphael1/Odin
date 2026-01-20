@@ -54,8 +54,8 @@ run_trial_size_prefix :: proc(p: proc(string, string) -> $R, suffix: string, siz
 	left  := make([]u8, size)
 	right := make([]u8, size)
 	defer {
-		delete(left)
-		delete(right)
+		_ = delete(left)
+		_ = delete(right)
 	}
 
 	if len(suffix) > 0 {

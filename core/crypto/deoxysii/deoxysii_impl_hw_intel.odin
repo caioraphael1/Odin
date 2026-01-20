@@ -28,7 +28,7 @@ is_hardware_accelerated :: proc() -> bool {
 	return aes.is_hardware_accelerated()
 }
 
-@(private = "file", enable_target_feature = "sse4.1", require_results)
+@(private = "file", enable_target_feature = "sse4.1")
 auth_tweak :: #force_inline proc(
 	prefix:   x86.__m128i,
 	block_nr: int,
@@ -36,7 +36,7 @@ auth_tweak :: #force_inline proc(
 	return x86._mm_insert_epi64(prefix, i64(intrinsics.byte_swap(u64(block_nr))), 1)
 }
 
-@(private = "file", enable_target_feature = "sse2", require_results)
+@(private = "file", enable_target_feature = "sse2")
 enc_tweak :: #force_inline proc(
 	tag:      x86.__m128i,
 	block_nr: int,
@@ -47,12 +47,12 @@ enc_tweak :: #force_inline proc(
 	)
 }
 
-@(private = "file", enable_target_feature = "ssse3", require_results)
+@(private = "file", enable_target_feature = "ssse3")
 h_ :: #force_inline proc(tk1: x86.__m128i) -> x86.__m128i {
 	return transmute(x86.__m128i)h(transmute(simd.u8x16)tk1)
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
+@(private = "file", enable_target_feature = "sse2,ssse3,aes")
 bc_x4 :: #force_inline proc(
 	ctx: ^Context,
 	s_0, s_1, s_2, s_3:                 x86.__m128i,
@@ -94,7 +94,7 @@ bc_x4 :: #force_inline proc(
 	return s_0, s_1, s_2, s_3
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
+@(private = "file", enable_target_feature = "sse2,ssse3,aes")
 bc_x1 :: #force_inline proc(
 	ctx:   ^Context,
 	s:     x86.__m128i,
@@ -120,7 +120,7 @@ bc_x1 :: #force_inline proc(
 	return s
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,sse4.1,aes", require_results)
+@(private = "file", enable_target_feature = "sse2,ssse3,sse4.1,aes")
 bc_absorb :: proc(
 	ctx:          ^Context,
 	tag:          x86.__m128i,
@@ -171,7 +171,7 @@ bc_absorb :: proc(
 	return tag, stk_block_nr
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
+@(private = "file", enable_target_feature = "sse2,ssse3,aes")
 bc_final :: proc(
 	ctx: ^Context,
 	tag: x86.__m128i,
@@ -187,7 +187,7 @@ bc_final :: proc(
 	return bc_x1(ctx, tag, tweak)
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
+@(private = "file", enable_target_feature = "sse2,ssse3,aes")
 bc_encrypt :: proc(
 	ctx:          ^Context,
 	dst:          []byte,
@@ -345,7 +345,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	intrinsics.unaligned_store((^x86.__m128i)(raw_data(tag)), auth)
 }
 
-@(private, require_results)
+@(private)
 d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	tmp: [BLOCK_SIZE]byte
 	copy(tmp[1:], iv)

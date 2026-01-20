@@ -94,6 +94,7 @@ align_forward :: proc {
 	align_forward_uintptr,
 }
 
+@(optional_results)
 mem_zero :: proc "contextless" (data: rawptr, len: int) -> rawptr {
 	if data == nil {
 		return nil
@@ -105,6 +106,7 @@ mem_zero :: proc "contextless" (data: rawptr, len: int) -> rawptr {
 	return data
 }
 
+@(optional_results)
 mem_copy :: proc "contextless" (dst, src: rawptr, len: int) -> rawptr {
 	if src != nil && dst != src && len > 0 {
 		// NOTE(bill): This _must_ be implemented like C's memmove
@@ -113,6 +115,7 @@ mem_copy :: proc "contextless" (dst, src: rawptr, len: int) -> rawptr {
 	return dst
 }
 
+@(optional_results)
 mem_copy_non_overlapping :: proc "contextless" (dst, src: rawptr, len: int) -> rawptr {
 	if src != nil && dst != src && len > 0 {
 		// NOTE(bill): This _must_ be implemented like C's memcpy

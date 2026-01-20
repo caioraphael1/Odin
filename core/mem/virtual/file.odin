@@ -28,7 +28,7 @@ map_file_from_path :: proc(filename: string, flags: Map_File_Flags, allocator: r
 	if err != nil {
 		return nil, .Open_Failure
 	}
-	defer os.close(fd)
+	defer _ = os.close(fd)
 
 	return map_file_from_file_descriptor(fd, flags)
 }

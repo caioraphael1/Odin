@@ -1,29 +1,29 @@
 #+build i386, amd64
 package simd_x86
 
-@(require_results, enable_target_feature = "bmi2")
+@(enable_target_feature = "bmi2")
 _bzhi_u32 :: #force_inline proc "c" (a, index: u32) -> u32 {
 	return bzhi_u32(a, index)
 }
-@(require_results, enable_target_feature = "bmi2")
+@(enable_target_feature = "bmi2")
 _bzhi_u64 :: #force_inline proc "c" (a, index: u64) -> u64 {
 	return bzhi_u64(a, index)
 }
 
-@(require_results, enable_target_feature = "bmi2")
+@(enable_target_feature = "bmi2")
 _pdep_u32 :: #force_inline proc "c" (a, mask: u32) -> u32 {
 	return pdep_u32(a, mask)
 }
-@(require_results, enable_target_feature = "bmi2")
+@(enable_target_feature = "bmi2")
 _pdep_u64 :: #force_inline proc "c" (a, mask: u64) -> u64 {
 	return pdep_u64(a, mask)
 }
 
-@(require_results, enable_target_feature = "bmi2")
+@(enable_target_feature = "bmi2")
 _pext_u32 :: #force_inline proc "c" (a, mask: u32) -> u32 {
 	return pext_u32(a, mask)
 }
-@(require_results, enable_target_feature = "bmi2")
+@(enable_target_feature = "bmi2")
 _pext_u64 :: #force_inline proc "c" (a, mask: u64) -> u64 {
 	return pext_u64(a, mask)
 }

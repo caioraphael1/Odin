@@ -314,7 +314,7 @@ section by putting the function inside the `if` statement.
 		...
 	}
 */
-@(deferred_in=ticket_mutex_unlock)
+@(deferred_in=ticket_mutex_unlock, optional_results)
 ticket_mutex_guard :: proc(m: ^Ticket_Mutex) -> bool {
 	ticket_mutex_lock(m)
 	return true
@@ -403,7 +403,7 @@ section by putting the function inside the `if` statement.
 		...
 	}
 */
-@(deferred_in=benaphore_unlock)
+@(deferred_in=benaphore_unlock, optional_results)
 benaphore_guard :: proc(m: ^Benaphore) -> bool {
 	benaphore_lock(m)
 	return true
@@ -524,7 +524,7 @@ section by calling this procedure inside an `if` statement.
 		...
 	}
 */
-@(deferred_in=recursive_benaphore_unlock)
+@(deferred_in=recursive_benaphore_unlock, optional_results)
 recursive_benaphore_guard :: proc(m: ^Recursive_Benaphore) -> bool {
 	recursive_benaphore_lock(m)
 	return true

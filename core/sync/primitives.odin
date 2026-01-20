@@ -108,7 +108,7 @@ section by putting the function inside the `if` statement.
 		...
 	}
 */
-@(deferred_in=mutex_unlock)
+@(deferred_in=mutex_unlock, optional_results)
 mutex_guard :: proc(m: ^Mutex) -> bool {
 	mutex_lock(m)
 	return true
@@ -257,7 +257,7 @@ section by running this procedure inside an `if` statement.
 		...
 	}
 */
-@(deferred_in=rw_mutex_unlock)
+@(deferred_in=rw_mutex_unlock, optional_results)
 rw_mutex_guard :: proc(m: ^RW_Mutex) -> bool {
 	rw_mutex_lock(m)
 	return true
@@ -284,7 +284,7 @@ section by running this procedure inside an `if` statement.
 		...
 	}
 */
-@(deferred_in=rw_mutex_shared_unlock)
+@(deferred_in=rw_mutex_shared_unlock, optional_results)
 rw_mutex_shared_guard :: proc(m: ^RW_Mutex) -> bool {
 	rw_mutex_shared_lock(m)
 	return true
@@ -379,7 +379,7 @@ section by calling this procedure inside an `if` statement.
 		...
 	}
 */
-@(deferred_in=recursive_mutex_unlock)
+@(deferred_in=recursive_mutex_unlock, optional_results)
 recursive_mutex_guard :: proc(m: ^Recursive_Mutex) -> bool {
 	recursive_mutex_lock(m)
 	return true

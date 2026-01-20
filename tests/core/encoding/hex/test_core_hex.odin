@@ -13,7 +13,7 @@ CASES :: [][2]string{
 hex_encode :: proc(t: ^testing.T) {
 	for test in CASES {
 		encoded := string(hex.encode(transmute([]byte)test[0]))
-		defer delete(encoded)
+		defer _ = delete(encoded)
 		testing.expectf(
 			t,
 			encoded == test[1],
@@ -29,7 +29,7 @@ hex_encode :: proc(t: ^testing.T) {
 hex_decode :: proc(t: ^testing.T) {
 	for test in CASES {
 		decoded, ok := hex.decode(transmute([]byte)test[1])
-		defer delete(decoded)
+		defer _ = delete(decoded)
 		testing.expectf(
 			t,
 			ok,

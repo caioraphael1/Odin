@@ -3,7 +3,7 @@ package aes_ct64
 import "core:crypto/_aes"
 import "core:encoding/endian"
 
-@(require_results)
+
 load_interleaved :: proc(src: []byte) -> (u64, u64) #no_bounds_check {
 	w0 := endian.unchecked_get_u32le(src[0:])
 	w1 := endian.unchecked_get_u32le(src[4:])
@@ -20,12 +20,12 @@ store_interleaved :: proc(dst: []byte, a0, a1: u64) #no_bounds_check {
 	endian.unchecked_put_u32le(dst[12:], w3)
 }
 
-@(require_results)
+
 xor_interleaved :: #force_inline proc(a0, a1, b0, b1: u64) -> (u64, u64) {
 	return a0 ~ b0, a1 ~ b1
 }
 
-@(require_results)
+
 and_interleaved :: #force_inline proc(a0, a1, b0, b1: u64) -> (u64, u64) {
 	return a0 & b0, a1 & b1
 }

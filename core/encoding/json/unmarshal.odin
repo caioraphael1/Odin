@@ -81,7 +81,8 @@ assign_bool :: proc(val: any, b: bool) -> bool {
 	}
 	return true
 }
-@(private)
+
+@(private, optional_results)
 assign_int :: proc(val: any, i: $T) -> bool {
 	v := reflect.any_core(val)
 	switch &dst in v {
@@ -195,7 +196,7 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
 		str = clone_string(token.text, p.allocator) or_return
 	}
 	defer if !ok || (val.id != string && val.id != cstring) {
-		delete(str, p.allocator)
+		_ = delete(str, p.allocator)
 	}
 
 	switch &dst in val {
@@ -309,17 +310,17 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 	#partial switch token.kind {
 	case .Null:
 		mem.zero(v.data, ti.size)
-		advance_token(p)
+		_, _ = advance_token(p)
 		return
 	case .False, .True:
-		advance_token(p)
+		_, _ = advance_token(p)
 		if assign_bool(v, token.kind == .True) {
 			return
 		}
 		return UNSUPPORTED_TYPE
 
 	case .Integer:
-		advance_token(p)
+		_, _ = advance_token(p)
 		i, _ := strconv.parse_i128(token.text)
 		if assign_int(v, i) {
 			return
@@ -329,7 +330,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 		}
 		return UNSUPPORTED_TYPE
 	case .Float:
-		advance_token(p)
+		_, _ = advance_token(p)
 		f, _ := strconv.parse_f64(token.text)
 		if assign_float(v, f) {
 			return
@@ -345,7 +346,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 		return UNSUPPORTED_TYPE
 		
 	case .Ident:
-		advance_token(p)
+		_, _ = advance_token(p)
 		if p.spec == .MJSON {
 			if unmarshal_string_token(p, any{v.data, ti.id}, token, ti) or_return {
 				return nil
@@ -354,7 +355,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 		return UNSUPPORTED_TYPE
 		
 	case .String:
-		advance_token(p)
+		_, _ = advance_token(p)
 		if unmarshal_string_token(p, any{v.data, ti.id}, token, ti) or_return {
 			return nil
 		}
@@ -370,7 +371,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 		if p.spec != .JSON {
 			#partial switch token.kind {
 			case .Infinity:
-				advance_token(p)
+				_, _ = advance_token(p)
 				f: f64 = 0h7ff0000000000000
 				if token.text[0] == '-' {
 					f = 0hfff0000000000000
@@ -380,7 +381,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 				}
 				return UNSUPPORTED_TYPE
 			case .NaN:
-				advance_token(p)
+				_, _ = advance_token(p)
 				f: f64 = 0h7ff7ffffffffffff
 				if token.text[0] == '-' {
 					f = 0hfff7ffffffffffff
@@ -393,12 +394,12 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 		}
 	}
 
-	advance_token(p)
+	_, _ = advance_token(p)
 	return UNSUPPORTED_TYPE
 }
 
 
-@(private)
+@(private, optional_results)
 unmarshal_expect_token :: proc(p: ^Parser, kind: Token_Kind, loc := #caller_location) -> Token {
 	prev := p.curr_token
 	err := expect_token(p, kind)
@@ -441,7 +442,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 		
 		struct_loop: for p.curr_token.kind != end_token {
 			key := parse_object_key(p, p.allocator) or_return
-			defer delete(key, p.allocator)
+			defer _ = delete(key, p.allocator)
 			
 			unmarshal_expect_token(p, .Colon)						
 
@@ -534,7 +535,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 				defer p.allocator = allocator
 				p.allocator = mem.nil_allocator()
 
-				parse_value(p) or_return
+				_ = parse_value(p) or_return
 				if parse_comma(p) {
 					break struct_loop
 				}
@@ -552,7 +553,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 		}
 		
 		elem_backing := bytes_make(t.value.size, t.value.align, p.allocator) or_return
-		defer delete(elem_backing, p.allocator)
+		defer _ = delete(elem_backing, p.allocator)
 		
 		map_backing_value := any{raw_data(elem_backing), t.value.id}
 		
@@ -563,7 +564,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
 			mem.zero_slice(elem_backing)
 			if uerr := unmarshal_value(p, map_backing_value); uerr != nil {
-				delete(key, p.allocator)
+				_ = delete(key, p.allocator)
 				return uerr
 			}
 
@@ -588,12 +589,12 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
 			set_ptr := runtime.__dynamic_map_set_without_hash(raw_map, t.map_info, key_ptr, map_backing_value.data)
 			if set_ptr == nil {
-				delete(key, p.allocator)
+				_ = delete(key, p.allocator)
 			} 
 
 			// there's no need to keep string value on the heap, since it was copied into map 
 			if reflect.is_integer(t.key) {
-				delete(key, p.allocator)
+				_ = delete(key, p.allocator)
 			}
 			
 			if parse_comma(p) {
@@ -608,7 +609,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 		enumerated_array_loop: for p.curr_token.kind != end_token {
 			key, _ := parse_object_key(p, p.allocator)
 			unmarshal_expect_token(p, .Colon)
-			defer delete(key, p.allocator)
+			defer _ = delete(key, p.allocator)
 
 			index := -1
 			for name, i in enum_type.names {

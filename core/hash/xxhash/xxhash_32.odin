@@ -203,7 +203,7 @@ XXH32_create_state :: proc(allocator := context.allocator) -> (res: ^XXH32_state
 }
 
 XXH32_destroy_state :: proc(state: ^XXH32_state, allocator := context.allocator) -> (err: Error) {
-	free(state, allocator)
+	_ = free(state, allocator)
 	return .None
 }
 

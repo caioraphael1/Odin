@@ -38,7 +38,7 @@ _stderr_write :: proc "contextless" (data: []byte) -> (n: int, err: _OS_Errno) #
 
 	h := GetStdHandle(STD_ERROR_HANDLE)
 	when size_of(uintptr) == 8 {
-		SetHandleInformation(h, HANDLE_FLAG_INHERIT, 0)
+		_ = SetHandleInformation(h, HANDLE_FLAG_INHERIT, 0)
 	}
 
 	single_write_length: u32

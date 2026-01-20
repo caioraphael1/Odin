@@ -37,9 +37,9 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 
 		intrinsics.atomic_or(&t.flags, {.Done})
 		if .Self_Cleanup in sync.atomic_load(&t.flags) {
-			win32.CloseHandle(t.win32_thread)
+			_ = win32.CloseHandle(t.win32_thread)
 			t.win32_thread = win32.INVALID_HANDLE
-			free(t, t.creation_allocator)
+			_ = free(t, t.creation_allocator)
 		}
 
 		return 0
@@ -61,7 +61,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 		lpThreadId         = &win32_thread_id,
     )
 	if win32_thread == nil {
-		free(thread, thread.creation_allocator)
+		_ = free(thread, thread.creation_allocator)
 		return nil
 	}
 	thread.procedure       = procedure
@@ -78,7 +78,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: ru
 _start :: proc(t: ^Thread) {
 	sync.guard(&t.mutex)
 	t.flags += {.Started}
-	win32.ResumeThread(t.win32_thread)
+	_ = win32.ResumeThread(t.win32_thread)
 }
 
 _is_done :: proc(t: ^Thread) -> bool {
@@ -99,8 +99,8 @@ _join :: proc(t: ^Thread) {
 		_start(t)
 	}
 
-	win32.WaitForSingleObject(t.win32_thread, win32.INFINITE)
-	win32.CloseHandle(t.win32_thread)
+	_ = win32.WaitForSingleObject(t.win32_thread, win32.INFINITE)
+	_ = win32.CloseHandle(t.win32_thread)
 	t.win32_thread = win32.INVALID_HANDLE
 
 	t.flags += {.Joined}
@@ -121,11 +121,11 @@ _join_multiple :: proc(threads: ..^Thread) {
 				j += 1
 			}
 		}
-		win32.WaitForMultipleObjects(u32(j), &handles[0], true, win32.INFINITE)
+		_ = win32.WaitForMultipleObjects(u32(j), &handles[0], true, win32.INFINITE)
 	}
 
 	for t in threads {
-		win32.CloseHandle(t.win32_thread)
+		_ = win32.CloseHandle(t.win32_thread)
 		t.win32_thread = win32.INVALID_HANDLE
 		t.flags += {.Joined}
 	}
@@ -133,15 +133,15 @@ _join_multiple :: proc(threads: ..^Thread) {
 
 _destroy :: proc(thread: ^Thread) {
 	_join(thread)
-	free(thread, thread.creation_allocator)
+	_ = free(thread, thread.creation_allocator)
 }
 
 
 _terminate :: proc(thread: ^Thread, exit_code: int) {
-	win32.TerminateThread(thread.win32_thread, u32(exit_code))
+	_ = win32.TerminateThread(thread.win32_thread, u32(exit_code))
 }
 
 _yield :: proc() {
-	win32.SwitchToThread()
+	_ = win32.SwitchToThread()
 }
 

@@ -225,7 +225,8 @@ msg := aprint({1, 2, 3, 4}, allocator = my_allocator)
 
 ## Optional Returns
 
-- `#optional_allocator_error` is no longer used in the Odin libraries.
+- `@(require_results)` was removed from the source code.
+- `#optional_allocator_error` was removed from the source code.
 - `#optional_ok` is no longer used in the Odin libraries.
 
 <br>

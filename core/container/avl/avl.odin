@@ -199,7 +199,7 @@ remove_node :: proc(t: ^$T/Tree($Value), node: ^Node(Value), call_on_remove: boo
 		if call_on_remove && t.on_remove != nil {
 			t.on_remove(node.value, t.user_data)
 		}
-		free(node, t._node_allocator)
+		_ = free(node, t._node_allocator)
 	}
 
 	parent: ^Node(Value)

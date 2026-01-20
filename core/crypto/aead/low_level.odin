@@ -187,7 +187,7 @@ seal_ctx :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 // fails, the destination buffer will be zeroed.
 //
 // dst and plaintext MUST alias exactly or not at all.
-@(require_results)
+
 open_ctx :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	ensure(len(tag) == TAG_SIZES[ctx._algo], "crypto/aead: invalid tag size")
 

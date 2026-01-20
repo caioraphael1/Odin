@@ -9,7 +9,7 @@ Platforms specific returns:
 - FreeBSD: `freebsd.Errno`        (`core:sys/freebsd`)
 - Windows: `windows.System_Error` (`core:sys/windows`)
 */
-@(require_results)
+
 last_platform_error :: proc() -> i32 {
 	return _last_platform_error()
 }
@@ -17,7 +17,7 @@ last_platform_error :: proc() -> i32 {
 /*
 Retrieve a stringified version of the last platform error.
 */
-@(require_results)
+
 last_platform_error_string :: proc() -> string {
 	return _last_platform_error_string()
 }

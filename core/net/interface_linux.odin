@@ -43,7 +43,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 	// 	We're going to have to iterate over a list and coalesce information as we go.
 	// */
 	// ifaces: map[string]^Network_Interface
-	// defer delete(ifaces)
+	// defer _ = delete(ifaces)
 
 	// for ifaddr := head; ifaddr != nil; ifaddr = ifaddr.next {
 	// 	adapter_name := string(ifaddr.name)
@@ -95,7 +95,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 	// 		switch int(ifaddr.broadcast_or_dest.sa_family) {
 	// 		case os.AF_INET, os.AF_INET6:
 	// 		 	broadcast := _sockaddr_basic_to_endpoint(ifaddr.broadcast_or_dest).address
-	// 		 	append(&iface.multicast, broadcast)
+	// 		 	_ = append(&iface.multicast, broadcast)
 	// 		case:
 	// 		}
 	// 	}
@@ -105,7 +105,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 	// 			address = address,
 	// 			netmask = netmask,
 	// 		}
-	// 		append(&iface.unicast, lease)
+	// 		_ = append(&iface.unicast, lease)
 	// 	}
 
 	// 	/*
@@ -137,7 +137,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 	// */
 	// _interfaces := make([dynamic]Network_Interface, 0, allocator)
 	// for _, iface in ifaces {
-	// 	append(&_interfaces, iface^)
+	// 	_ = append(&_interfaces, iface^)
 	// 	free(iface)
 	// }
 	// return _interfaces[:], {}

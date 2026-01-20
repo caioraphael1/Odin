@@ -6,7 +6,7 @@ import "base:runtime"
 // Example:
 // 	it: int // used as a tracking value
 // 	for elem, idx in iterate_array(any_array_val, &it) { ... }
-@(require_results)
+
 iterate_array :: proc(val: any, it: ^int) -> (elem: any, index: int, ok: bool) {
 	if val == nil || it == nil {
 		return
@@ -53,7 +53,7 @@ iterate_array :: proc(val: any, it: ^int) -> (elem: any, index: int, ok: bool) {
 // Example:
 // 	it: int // used as a tracking value
 // 	for key, val in iterate_map(any_map_val, &it) { ... }
-@(require_results)
+
 iterate_map :: proc(val: any, it: ^int) -> (key, value: any, ok: bool) {
 	if val == nil || it == nil {
 		return

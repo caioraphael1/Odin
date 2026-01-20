@@ -34,10 +34,10 @@ build_env :: proc(allocator: runtime.Allocator) -> (err: Error) {
 	}
 
 	g_env = make(map[string]string, num_envs, allocator) or_return
-	defer if err != nil { delete(g_env) }
+	defer if err != nil { _ = delete(g_env) }
 
 	g_env_buf = make([]byte, size_of_envs, allocator) or_return
-	defer if err != nil { delete(g_env_buf, allocator) }
+	defer if err != nil { _ = delete(g_env_buf, allocator) }
 
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
@@ -62,11 +62,11 @@ delete_string_if_not_original :: proc(str: string, allocator: runtime.Allocator)
 	end   := start + uintptr(len(g_env_buf))
 	ptr   := uintptr(raw_data(str))
 	if ptr < start || ptr > end {
-		delete(str, allocator)
+		_ = delete(str, allocator)
 	}
 }
 
-@(require_results)
+
 _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
 	if err := build_env(); err != nil {
 		return
@@ -107,7 +107,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
 }
 _lookup_env :: proc{_lookup_env_alloc, _lookup_env_buf}
 
-@(require_results)
+
 _set_env :: proc(key, value: string, allocator: runtime.Allocator) -> (err: Error) {
 	build_env() or_return
 
@@ -122,7 +122,7 @@ _set_env :: proc(key, value: string, allocator: runtime.Allocator) -> (err: Erro
 	if just_inserted {
 		key_ptr^ = clone_string(key,allocator) or_return
 		defer if err != nil {
-			delete(key_ptr^, allocator)
+			_ = delete(key_ptr^, allocator)
 		}
 		value_ptr^ = clone_string(value, allocator) or_return
 		return
@@ -134,7 +134,7 @@ _set_env :: proc(key, value: string, allocator: runtime.Allocator) -> (err: Erro
 	return
 }
 
-@(require_results)
+
 _unset_env :: proc(key: string) -> bool {
 	if err := build_env(); err != nil {
 		return false
@@ -156,7 +156,7 @@ _clear_env :: proc(allocator: runtime.Allocator) {
 		delete_string_if_not_original(v)
 	}
 
-	delete(g_env_buf, allocator)
+	_ = delete(g_env_buf, allocator)
 	g_env_buf = {}
 
 	clear(&g_env)
@@ -164,7 +164,7 @@ _clear_env :: proc(allocator: runtime.Allocator) {
 	g_env_built = true
 }
 
-@(require_results)
+
 _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
 	build_env() or_return
 
@@ -173,13 +173,13 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
 	envs := make([dynamic]string, 0, len(g_env), allocator) or_return
 	defer if err != nil {
 		for env in envs {
-			delete(env, allocator)
+			_ = delete(env, allocator)
 		}
-		delete(envs)
+		_ = delete(envs)
 	}
 
 	for k, v in g_env {
-		append(&envs, concatenate({k, "=", v}, allocator) or_return)
+		_ = append(&envs, concatenate({k, "=", v}, allocator) or_return)
 	}
 
 	environ = envs[:]

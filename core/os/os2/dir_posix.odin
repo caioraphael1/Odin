@@ -9,7 +9,7 @@ Read_Directory_Iterator_Impl :: struct {
 	fullpath: [dynamic]byte,
 }
 
-@(require_results)
+
 _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info, index: int, ok: bool) {
 	fimpl := (^File_Impl)(it.f.impl)
 
@@ -69,8 +69,8 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 		return
 	}
 
-	append(&it.impl.fullpath, impl.name)
-	append(&it.impl.fullpath, "/")
+	_ = append(&it.impl.fullpath, impl.name)
+	_ = append(&it.impl.fullpath, "/")
 
 	// `fdopendir` consumes the file descriptor so we need to `dup` it.
 	dupfd := posix.dup(impl.fd)
@@ -100,5 +100,5 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator) {
 	}
 
 	posix.closedir(it.impl.dir)
-	delete(it.impl.fullpath)
+	_ = delete(it.impl.fullpath)
 }

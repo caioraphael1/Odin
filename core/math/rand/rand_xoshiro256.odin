@@ -13,7 +13,7 @@ Xoshiro256_Random_State :: struct {
 }
 
 xoshiro256_random_generator_proc :: proc(data: rawptr, mode: runtime.Random_Generator_Mode, p: []byte) {
-	@(require_results)
+	
 	read_u64 :: proc(r: ^Xoshiro256_Random_State) -> u64 {
 		// xoshiro256** output function and state transition
 
@@ -114,7 +114,7 @@ Inputs:
 Returns:
 - A `Generator` instance.
 */
-@(require_results)
+
 xoshiro256_random_generator :: proc(state: ^Xoshiro256_Random_State = nil) -> Generator {
 	return {
 		procedure = xoshiro256_random_generator_proc,

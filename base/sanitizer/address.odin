@@ -482,7 +482,7 @@ When asan is not enabled this procedure returns a zero initialised value.
 address_get_alloc_stack_trace :: proc "contextless" (addr: rawptr, data: []rawptr) -> ([]rawptr, int) {
 	when ASAN_ENABLED {
 		out_thread: i32
-		__asan_get_alloc_stack(addr, raw_data(data), len(data), &out_thread)
+		_ = __asan_get_alloc_stack(addr, raw_data(data), len(data), &out_thread)
 		return data, int(out_thread)
 	} else {
 		return {}, 0
@@ -500,7 +500,7 @@ When asan is not enabled this procedure returns zero initialised values.
 address_get_free_stack_trace :: proc "contextless" (addr: rawptr, data: []rawptr) -> ([]rawptr, int) {
 	when ASAN_ENABLED {
 		out_thread: i32
-		__asan_get_free_stack(addr, raw_data(data), len(data), &out_thread)
+		_ = __asan_get_free_stack(addr, raw_data(data), len(data), &out_thread)
 		return data, int(out_thread)
 	} else {
 		return {}, 0
@@ -516,7 +516,7 @@ When asan is not enabled this procedure returns a zero initialised value.
 address_get_shadow_mapping :: proc "contextless" () -> Address_Shadow_Mapping {
 	when ASAN_ENABLED {
 		result: Address_Shadow_Mapping
-		__asan_get_shadow_mapping(&result.scale, &result.offset)
+        __asan_get_shadow_mapping(&result.scale, &result.offset)
 		return result
 	} else {
 		return {}

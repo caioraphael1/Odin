@@ -180,7 +180,7 @@ Example:
 
 	for i: u16 = 0; i < 1000; i += 1 {
 		my_uuid := uuid.generate_v7_counter(i)
-		append(&batch, my_uuid)
+		_ = append(&batch, my_uuid)
 	}
 
 Inputs:

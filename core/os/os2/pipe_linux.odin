@@ -17,7 +17,7 @@ _pipe :: proc(allocator: runtime.Allocator) -> (r, w: ^File, err: Error) {
 	return
 }
 
-@(require_results)
+
 _pipe_has_data :: proc(r: ^File) -> (ok: bool, err: Error) {
 	if r == nil || r.impl == nil {
 		return false, nil

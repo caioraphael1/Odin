@@ -95,7 +95,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: run
 _new_file :: proc(fd: uintptr, _: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	impl := new(File_Impl, allocator) or_return
 	defer if err != nil {
-		free(impl, allocator)
+		_ = free(impl, allocator)
 	}
 	impl.file.impl = impl
 	impl.fd = linux.Fd(fd)
@@ -126,7 +126,7 @@ _clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Er
 }
 
 
-@(require_results)
+
 _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	assert(buffer_size > 0)
 	f, err = _open(name, flags, perm, allocator)
@@ -143,8 +143,8 @@ _destroy :: proc(f: ^File_Impl) -> Error {
 		return nil
 	}
 	a := f.allocator
-	err0 := delete(f.name, a)
-	err1 := delete(f.buffer, a)
+	err0 := _ = delete(f.name, a)
+	err1 := _ = delete(f.buffer, a)
 	err2 := free(f, a)
 	err0 or_return
 	err1 or_return
@@ -335,11 +335,11 @@ _read_link_cstr :: proc(name_cstr: cstring, allocator: runtime.Allocator) -> (st
 	for {
 		sz, errno := linux.readlink(name_cstr, buf[:])
 		if errno != .NONE {
-			delete(buf, allocator)
+			_ = delete(buf, allocator)
 			return "", _get_platform_error(errno)
 		} else if sz == int(bufsz) {
 			bufsz *= 2
-			delete(buf, allocator)
+			_ = delete(buf, allocator)
 			buf = make([]byte, bufsz, allocator)
 		} else {
 			return string(buf[:sz]), nil
@@ -454,10 +454,10 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Alloc
 	n: int
 	i: int
 	for {
-		resize(&contents, i + BUF_SIZE_STEP)
+		_ = resize(&contents, i + BUF_SIZE_STEP)
 		n, errno = linux.read(fd, contents[i:i+BUF_SIZE_STEP])
 		if errno != .NONE {
-			delete(contents)
+			_ = delete(contents)
 			return nil, _get_platform_error(errno)
 		}
 		if n < BUF_SIZE_STEP {
@@ -466,7 +466,7 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Alloc
 		i += BUF_SIZE_STEP
 	}
 
-	resize(&contents, i + n)
+	_ = resize(&contents, i + n)
 	return contents[:], nil
 }
 

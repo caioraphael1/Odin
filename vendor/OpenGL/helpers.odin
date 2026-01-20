@@ -63,7 +63,7 @@ when GL_DEBUG {
 
 		if result == 0 {
 			if log_func == GetShaderInfoLog {
-				delete(last_compile_error_message)
+				_ = delete(last_compile_error_message)
 				last_compile_error_message = make([]byte, info_log_length)
 				last_compile_error_type = type
 
@@ -71,7 +71,7 @@ when GL_DEBUG {
 				//fmt.printf_err("Error in %v:\n%s", type, string(last_compile_error_message[0:len(last_compile_error_message)-1]));
 			} else {
 
-				delete(last_link_error_message)
+				_ = delete(last_link_error_message)
 				last_link_error_message = make([]byte, info_log_length)
 				last_compile_error_type = type
 
@@ -97,14 +97,14 @@ when GL_DEBUG {
 
 		if result == 0 {
 			if log_func == GetShaderInfoLog {
-				delete(last_compile_error_message)
+				_ = delete(last_compile_error_message)
 				last_compile_error_message = make([]u8, info_log_length)
 				last_link_error_type = type
 
 				log_func(id, i32(info_log_length), nil, raw_data(last_compile_error_message))
 				fmt.eprintf("Error in %v:\n%s", type, string(last_compile_error_message[0:len(last_compile_error_message)-1]))
 			} else {
-				delete(last_link_error_message)
+				_ = delete(last_link_error_message)
 				last_link_error_message = make([]u8, info_log_length)
 				last_link_error_type = type
 
@@ -151,7 +151,7 @@ create_and_link_program :: proc(shader_ids: []u32, binary_retrievable := false) 
 
 load_compute_file :: proc(filename: string, binary_retrievable := false) -> (program_id: u32, ok: bool) {
 	cs_data := os.read_entire_file(filename) or_return
-	defer delete(cs_data)
+	defer _ = delete(cs_data)
 
 	// Create the shaders
 	compute_shader_id := compile_shader_from_source(string(cs_data), Shader_Type(COMPUTE_SHADER)) or_return
@@ -166,10 +166,10 @@ load_compute_source :: proc(cs_data: string, binary_retrievable := false) -> (pr
 
 load_shaders_file :: proc(vs_filename, fs_filename: string, binary_retrievable := false) -> (program_id: u32, ok: bool) {
 	vs_data := os.read_entire_file(vs_filename) or_return
-	defer delete(vs_data)
+	defer _ = delete(vs_data)
 	
 	fs_data := os.read_entire_file(fs_filename) or_return
-	defer delete(fs_data)
+	defer _ = delete(fs_data)
 
 	return load_shaders_source(string(vs_data), string(fs_data), binary_retrievable)
 }
@@ -381,9 +381,9 @@ Uniforms :: map[string]Uniform_Info
 
 destroy_uniforms :: proc(u: Uniforms) {
 	for _, v in u {
-		delete(v.name)
+		_ = delete(v.name)
 	}
-	delete(u)
+	_ = delete(u)
 }
 
 get_uniforms_from_program :: proc(program: u32) -> (uniforms: Uniforms) {
@@ -391,7 +391,7 @@ get_uniforms_from_program :: proc(program: u32) -> (uniforms: Uniforms) {
 	GetProgramiv(program, ACTIVE_UNIFORMS, &uniform_count)
 
 	if uniform_count > 0 {
-		reserve(&uniforms, int(uniform_count))
+		_ = reserve(&uniforms, int(uniform_count))
 	}
 
 	for i in 0..<uniform_count {

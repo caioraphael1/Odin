@@ -58,9 +58,9 @@ ini_to_string :: proc(t: ^testing.T) {
 	}
 
 	str := ini.save_map_to_string(m, context.allocator)
-	defer delete(str)
-	delete(m["LEVEL"])
-	delete(m)
+	defer _ = delete(str)
+	_ = delete(m["LEVEL"])
+	_ = delete(m)
 
 	testing.expectf(
 		t,

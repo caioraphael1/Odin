@@ -37,19 +37,19 @@ enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network
 */
 destroy_interfaces :: proc(interfaces: []Network_Interface, allocator: mem.Allocator) {
 	for i in interfaces {
-		delete(i.adapter_name, allocator)
-		delete(i.friendly_name, allocator)
-		delete(i.description, allocator)
-		delete(i.dns_suffix, allocator)
+		_ = delete(i.adapter_name, allocator)
+		_ = delete(i.friendly_name, allocator)
+		_ = delete(i.description, allocator)
+		_ = delete(i.dns_suffix, allocator)
 
-		delete(i.physical_address, allocator)
+		_ = delete(i.physical_address, allocator)
 
-		delete(i.unicast)
-		delete(i.multicast)
-		delete(i.anycast)
-		delete(i.gateways)
+		_ = delete(i.unicast)
+		_ = delete(i.multicast)
+		_ = delete(i.anycast)
+		_ = delete(i.gateways)
 	}
-	delete(interfaces, allocator)
+	_ = delete(interfaces, allocator)
 }
 
 /*
@@ -66,13 +66,13 @@ physical_address_to_string :: proc(phy_addr: []u8, allocator: mem.Allocator) -> 
 
 	for b, i in phy_addr {
 		if i > 0 {
-			strings.write_rune(&buf, ':')
+			_, _ = strings.write_rune(&buf, ':')
 		}
 
 		hi := rune(MAC_HEX[b >> 4])
 		lo := rune(MAC_HEX[b & 15])
-		strings.write_rune(&buf, hi)
-		strings.write_rune(&buf, lo)
+		_, _ = strings.write_rune(&buf, hi)
+		_, _ = strings.write_rune(&buf, lo)
 	}
 	return strings.to_string(buf)
 }

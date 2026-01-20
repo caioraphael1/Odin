@@ -7,7 +7,7 @@ import "base:runtime"
 // @@init
 init_cpu_core_count :: proc(allocator: runtime.Allocator) {
 	infos: []sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION
-	defer delete(infos, allocator)
+	defer _ = delete(infos, allocator)
 
 	returned_length: sys.DWORD
 	// Query for the required buffer size.

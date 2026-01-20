@@ -26,7 +26,7 @@ is_abs :: proc(path: string) -> bool {
 // If the path is all slashes, it returns "/"
 base :: proc(path: string, new := false, allocator: mem.Allocator) -> (last_element: string) {
 	defer if new {
-		last_element = strings.clone(last_element, allocator)
+		last_element, _ = strings.clone(last_element, allocator)
 	}
 
 	if path == "" {
@@ -74,7 +74,8 @@ split :: proc(path: string) -> (dir, file: string) {
 
 // split_elements splits the path elements into slices of the original path string
 split_elements :: proc(path: string, allocator: mem.Allocator) -> []string {
-	return strings.split(path, "/", allocator)
+    splitted, _ := strings.split(path, "/", allocator)
+	return splitted
 }
 
 // clean returns the shortest path name equivalent to path through lexical analysis only
@@ -87,7 +88,8 @@ split_elements :: proc(path: string, allocator: mem.Allocator) -> []string {
 //
 clean :: proc(path: string, allocator: mem.Allocator) -> string {
 	if path == "" {
-		return strings.clone(".", allocator)
+        clone, _ := strings.clone(".", allocator)
+		return clone
 	}
 
 	// NOTE(bill): do not use is_separator because window paths do not follow this convention
@@ -137,8 +139,9 @@ clean :: proc(path: string, allocator: mem.Allocator) -> string {
 	}
 
 	if out.w == 0 {
-		delete(out.b, allocator)
-		return strings.clone(".", allocator)
+		_ = delete(out.b, allocator)
+        clone, _ := strings.clone(".", allocator)
+		return clone
 	}
 
 	return lazy_buffer_string(out, allocator)
@@ -149,7 +152,7 @@ join :: proc(elems: []string, allocator: mem.Allocator) -> string {
 	for elem, i in elems {
 		if elem != "" {
 			runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-			s := strings.join(elems[i:], "/", runtime.temp_allocator)
+			s, _ := strings.join(elems[i:], "/", runtime.temp_allocator)
 			return clean(s, allocator)
 		}
 	}
@@ -164,7 +167,7 @@ ext :: proc(path: string, new := false, allocator: mem.Allocator) -> string {
 		if path[i] == '.' {
 			res := path[i:]
 			if new {
-				res = strings.clone(res, allocator)
+				res, _ = strings.clone(res, allocator)
 			}
 			return res
 		}
@@ -178,7 +181,7 @@ name :: proc(path: string, new := false, allocator: mem.Allocator) -> (name: str
 	name = file
 
 	defer if new {
-		name = strings.clone(name, allocator)
+		name, _ = strings.clone(name, allocator)
 	}
 
 	for i := len(file)-1; i >= 0 && !is_separator(file[i]); i -= 1 {
@@ -217,7 +220,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: runtime.Allocat
 			lb.w += 1
 			return
 		}
-		lb.b = make([]byte, len(lb.s), allocator)
+		lb.b, _ = make([]byte, len(lb.s), allocator)
 		copy(lb.b, lb.s[:lb.w])
 	}
 	lb.b[lb.w] = c
@@ -226,7 +229,8 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: runtime.Allocat
 @(private)
 lazy_buffer_string :: proc(lb: ^Lazy_Buffer, allocator: runtime.Allocator) -> string {
 	if lb.b == nil {
-		return strings.clone(lb.s[:lb.w], allocator)
+        clone, _ := strings.clone(lb.s[:lb.w], allocator)
+		return clone
 	}
 	return string(lb.b[:lb.w])
 }

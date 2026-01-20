@@ -137,7 +137,7 @@ chacha8rand_refill_ref :: proc(r: ^Default_Random_State) {
 
 // This replicates `rotate_left32` from `core:math/bits`, under the
 // assumption that this will live in `base:runtime`.
-@(require_results, private = "file")
+@(private = "file")
 rotl :: #force_inline proc(x: u32, k: int) -> u32 {
 	n :: 32
 	s := uint(k) & (n-1)

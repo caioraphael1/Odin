@@ -49,7 +49,7 @@ destroy_permutation_iterator :: proc(
 	iter: Permutation_Iterator($T),
 	allocator: runtime.Allocator,
 ) {
-	delete(iter.counters, allocator = allocator)
+	_ = delete(iter.counters, allocator = allocator)
 }
 /*
 Permute a slice in-place.

@@ -140,7 +140,7 @@ test_case_conversion :: proc(t: ^testing.T) {
 		for test_case, case_kind in test_cases {
 			result, err := entry.p(test_case.s, context.allocator)
 			testing.expectf(t, err == nil, "ERROR: We got the allocation error '{}'\n", err)
-			defer delete(result)
+			defer _ = delete(result)
 
 			testing.expectf(t, result == entry.s, "ERROR: Input `{}` to converter {} does not match `{}`, got `{}`.\n", test_case.s, case_kind, entry.s, result)
 		}

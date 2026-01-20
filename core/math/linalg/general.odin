@@ -39,27 +39,27 @@ DEG_PER_RAD :: 360.0/TAU
 @private ELEM_TYPE :: intrinsics.type_elem_type
 
 
-@(require_results)
+
 scalar_dot :: proc(a, b: $T) -> T where IS_FLOAT(T), !IS_ARRAY(T) {
 	return a * b
 }
 
-@(require_results)
+
 vector_dot :: proc(a, b: $T/[$N]$E) -> (c: E) where IS_NUMERIC(E) #no_bounds_check {
 	for i in 0..<N {
 		c += a[i] * b[i]
 	}
 	return
 }
-@(require_results)
+
 quaternion64_dot :: proc(a, b: $T/quaternion64) -> (c: f16) {
 	return a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z
 }
-@(require_results)
+
 quaternion128_dot :: proc(a, b: $T/quaternion128) -> (c: f32) {
 	return a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z
 }
-@(require_results)
+
 quaternion256_dot :: proc(a, b: $T/quaternion256) -> (c: f64) {
 	return a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z
 }
@@ -69,23 +69,23 @@ dot :: proc{scalar_dot, vector_dot, quaternion64_dot, quaternion128_dot, quatern
 inner_product :: dot
 outer_product :: intrinsics.outer_product
 
-@(require_results)
+
 quaternion_inverse :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
 	return conj(q) * quaternion(w=1.0/dot(q, q), x=0, y=0, z=0)
 }
 
 
-@(require_results)
+
 scalar_cross :: proc(a, b: $T) -> T where IS_FLOAT(T), !IS_ARRAY(T) {
 	return a * b
 }
 
-@(require_results)
+
 vector_cross2 :: proc(a, b: $T/[2]$E) -> E where IS_NUMERIC(E) {
 	return a[0]*b[1] - b[0]*a[1]
 }
 
-@(require_results)
+
 vector_cross3 :: proc(a, b: $T/[3]$E) -> (c: T) where IS_NUMERIC(E) {
 	c[0] = a[1]*b[2] - b[1]*a[2]
 	c[1] = a[2]*b[0] - b[2]*a[0]
@@ -93,7 +93,7 @@ vector_cross3 :: proc(a, b: $T/[3]$E) -> (c: T) where IS_NUMERIC(E) {
 	return
 }
 
-@(require_results)
+
 quaternion_cross :: proc(q1, q2: $Q) -> (q3: Q) where IS_QUATERNION(Q) {
 	q3.x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
 	q3.y = q1.w * q2.y + q1.y * q2.w + q1.z * q2.x - q1.x * q2.z
@@ -105,22 +105,22 @@ quaternion_cross :: proc(q1, q2: $Q) -> (q3: Q) where IS_QUATERNION(Q) {
 vector_cross :: proc{scalar_cross, vector_cross2, vector_cross3}
 cross :: proc{scalar_cross, vector_cross2, vector_cross3, quaternion_cross}
 
-@(require_results)
+
 vector_normalize :: proc(v: $T/[$N]$E) -> T where IS_FLOAT(E) {
 	return v / length(v)
 }
-@(require_results)
+
 quaternion_normalize :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
 	return q/abs(q)
 }
 normalize :: proc{vector_normalize, quaternion_normalize}
 
-@(require_results)
+
 vector_normalize0 :: proc(v: $T/[$N]$E) -> T where IS_FLOAT(E) {
 	m := length(v)
 	return 0 if m == 0 else v/m
 }
-@(require_results)
+
 quaternion_normalize0 :: proc(q: $Q) -> Q  where IS_QUATERNION(Q) {
 	m := abs(q)
 	return 0 if m == 0 else q/m
@@ -128,27 +128,27 @@ quaternion_normalize0 :: proc(q: $Q) -> Q  where IS_QUATERNION(Q) {
 normalize0 :: proc{vector_normalize0, quaternion_normalize0}
 
 
-@(require_results)
+
 vector_length :: proc(v: $T/[$N]$E) -> E where IS_FLOAT(E) {
 	return math.sqrt(dot(v, v))
 }
 
-@(require_results)
+
 vector_length2 :: proc(v: $T/[$N]$E) -> E where IS_NUMERIC(E) {
 	return dot(v, v)
 }
 
-@(require_results)
+
 quaternion_length :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
 	return abs(q)
 }
 
-@(require_results)
+
 quaternion_length2 :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
 	return dot(q, q)
 }
 
-@(require_results)
+
 scalar_triple_product :: proc(a, b, c: $T/[$N]$E) -> E where IS_NUMERIC(E) {
 	// a . (b x c)
 	// b . (c x a)
@@ -156,7 +156,7 @@ scalar_triple_product :: proc(a, b, c: $T/[$N]$E) -> E where IS_NUMERIC(E) {
 	return dot(a, cross(b, c))
 }
 
-@(require_results)
+
 vector_triple_product :: proc(a, b, c: $T/[$N]$E) -> T where IS_NUMERIC(E) {
 	// a x (b x c)
 	// (a . c)b - (a . b)c
@@ -168,7 +168,7 @@ length :: proc{vector_length, quaternion_length}
 length2 :: proc{vector_length2, quaternion_length2}
 
 
-@(require_results)
+
 clamp_length :: proc(v: $T/[$N]$E, a: E) -> T where IS_FLOAT(E) {
 	if a <= 0 {
 		return 0
@@ -179,12 +179,12 @@ clamp_length :: proc(v: $T/[$N]$E, a: E) -> T where IS_FLOAT(E) {
 }
 
 
-@(require_results)
+
 projection :: proc(x, normal: $T/[$N]$E) -> T where IS_NUMERIC(E) {
 	return dot(x, normal) / dot(normal, normal) * normal
 }
 
-@(require_results)
+
 identity_array_based_matrix :: proc($T: typeid/[$N][N]$E) -> (m: T) #no_bounds_check {
 	for i in 0..<N {
 		m[i][i] = E(1)
@@ -192,7 +192,7 @@ identity_array_based_matrix :: proc($T: typeid/[$N][N]$E) -> (m: T) #no_bounds_c
 	return m
 }
 
-@(require_results)
+
 identity_matrix :: proc($T: typeid/matrix[$N, N]$E) -> T #no_bounds_check {
 	return 1
 }
@@ -204,37 +204,37 @@ identity :: proc{
 
 transpose :: intrinsics.transpose
 
-@(require_results)
+
 matrix_mul :: proc(a, b: $M/matrix[$N, N]$E) -> (c: M)
 	where !IS_ARRAY(E), IS_NUMERIC(E) #no_bounds_check {
 	return a * b
 }
 
-@(require_results)
+
 matrix_comp_mul :: proc(a, b: $M/matrix[$I, $J]$E) -> (c: M)
 	where !IS_ARRAY(E), IS_NUMERIC(E) #no_bounds_check {
 	return hadamard_product(a, b)
 }
 
-@(require_results)
+
 matrix_mul_differ :: proc(a: $A/matrix[$I, $J]$E, b: $B/matrix[J, $K]E) -> (c: matrix[I, K]E)
 	where !IS_ARRAY(E), IS_NUMERIC(E), I != K #no_bounds_check {
 	return a * b
 }
 
 
-@(require_results)
+
 matrix_mul_vector :: proc(a: $A/matrix[$I, $J]$E, b: $B/[J]E) -> (c: B)
 	where !IS_ARRAY(E), IS_NUMERIC(E) #no_bounds_check {
 	return a * b
 }
 
-@(require_results)
+
 quaternion_mul_quaternion :: proc(q1, q2: $Q) -> Q where IS_QUATERNION(Q) {
 	return q1 * q2
 }
 
-@(require_results)
+
 quaternion64_mul_vector3 :: proc(q: $Q/quaternion64, v: $V/[3]$F/f16) -> V {
 	q := transmute(runtime.Raw_Quaternion64_Vector_Scalar)q
 	v := v
@@ -242,7 +242,7 @@ quaternion64_mul_vector3 :: proc(q: $Q/quaternion64, v: $V/[3]$F/f16) -> V {
 	t := cross(2*q.vector, v)
 	return V(v + q.scalar*t + cross(q.vector, t))
 }
-@(require_results)
+
 quaternion128_mul_vector3 :: proc(q: $Q/quaternion128, v: $V/[3]$F/f32) -> V {
 	q := transmute(runtime.Raw_Quaternion128_Vector_Scalar)q
 	v := v
@@ -250,7 +250,7 @@ quaternion128_mul_vector3 :: proc(q: $Q/quaternion128, v: $V/[3]$F/f32) -> V {
 	t := cross(2*q.vector, v)
 	return V(v + q.scalar*t + cross(q.vector, t))
 }
-@(require_results)
+
 quaternion256_mul_vector3 :: proc(q: $Q/quaternion256, v: $V/[3]$F/f64) -> V {
 	q := transmute(runtime.Raw_Quaternion256_Vector_Scalar)q
 	v := v
@@ -270,11 +270,11 @@ mul :: proc{
 	quaternion_mul_quaternion,
 }
 
-@(require_results)
+
 vector_to_ptr :: proc(v: ^$V/[$N]$E) -> ^E where IS_NUMERIC(E), N > 0 #no_bounds_check {
 	return &v[0]
 }
-@(require_results)
+
 matrix_to_ptr :: proc(m: ^$A/matrix[$I, $J]$E) -> ^E where IS_NUMERIC(E), I > 0, J > 0 #no_bounds_check {
 	return &m[0, 0]
 }
@@ -313,7 +313,7 @@ angle_between :: proc{
 
 // Splines
 
-@(require_results)
+
 vector_slerp :: proc(x, y: $T/[$N]$E, a: E) -> T #no_bounds_check {
 	cos_alpha := dot(x, y)
 	alpha := math.acos(cos_alpha)
@@ -325,7 +325,7 @@ vector_slerp :: proc(x, y: $T/[$N]$E, a: E) -> T #no_bounds_check {
 	return x * t1 + y * t2
 }
 
-@(require_results)
+
 catmull_rom :: proc(v1, v2, v3, v4: $T/[$N]$E, s: E) -> T #no_bounds_check {
 	s2 := s*s
 	s3 := s2*s
@@ -338,7 +338,7 @@ catmull_rom :: proc(v1, v2, v3, v4: $T/[$N]$E, s: E) -> T #no_bounds_check {
 	return (f1 * v1 + f2 * v2 + f3 * v3 + f4 * v4) * 0.5
 }
 
-@(require_results)
+
 hermite :: proc(v1, t1, v2, t2: $T/[$N]$E, s: E) -> T #no_bounds_check {
 	s2 := s*s
 	s3 := s2*s
@@ -351,14 +351,14 @@ hermite :: proc(v1, t1, v2, t2: $T/[$N]$E, s: E) -> T #no_bounds_check {
 	return f1 * v1 + f2 * v2 + f3 * t1 + f4 * t2
 }
 
-@(require_results)
+
 cubic :: proc(v1, v2, v3, v4: $T/[$N]$E, s: E) -> T #no_bounds_check {
 	return ((v1 * s + v2) * s + v3) * s + v4
 }
 
 
 
-@(require_results)
+
 array_cast :: proc(v: $A/[$N]$T, $Elem_Type: typeid) -> (w: [N]Elem_Type) #no_bounds_check {
 	for i in 0..<N {
 		w[i] = Elem_Type(v[i])
@@ -366,7 +366,7 @@ array_cast :: proc(v: $A/[$N]$T, $Elem_Type: typeid) -> (w: [N]Elem_Type) #no_bo
 	return
 }
 
-@(require_results)
+
 matrix_cast :: proc(v: $A/matrix[$M, $N]$T, $Elem_Type: typeid) -> (w: matrix[M, N]Elem_Type) #no_bounds_check {
 	for j in 0..<N {
 		for i in 0..<M {
@@ -376,27 +376,27 @@ matrix_cast :: proc(v: $A/matrix[$M, $N]$T, $Elem_Type: typeid) -> (w: matrix[M,
 	return
 }
 
-@(require_results) to_f32  :: #force_inline proc(v: $A/[$N]$T) -> [N]f32  { return array_cast(v, f32)  }
-@(require_results) to_f64  :: #force_inline proc(v: $A/[$N]$T) -> [N]f64  { return array_cast(v, f64)  }
+ to_f32  :: #force_inline proc(v: $A/[$N]$T) -> [N]f32  { return array_cast(v, f32)  }
+ to_f64  :: #force_inline proc(v: $A/[$N]$T) -> [N]f64  { return array_cast(v, f64)  }
 
-@(require_results) to_i8   :: #force_inline proc(v: $A/[$N]$T) -> [N]i8   { return array_cast(v, i8)   }
-@(require_results) to_i16  :: #force_inline proc(v: $A/[$N]$T) -> [N]i16  { return array_cast(v, i16)  }
-@(require_results) to_i32  :: #force_inline proc(v: $A/[$N]$T) -> [N]i32  { return array_cast(v, i32)  }
-@(require_results) to_i64  :: #force_inline proc(v: $A/[$N]$T) -> [N]i64  { return array_cast(v, i64)  }
-@(require_results) to_int  :: #force_inline proc(v: $A/[$N]$T) -> [N]int  { return array_cast(v, int)  }
+ to_i8   :: #force_inline proc(v: $A/[$N]$T) -> [N]i8   { return array_cast(v, i8)   }
+ to_i16  :: #force_inline proc(v: $A/[$N]$T) -> [N]i16  { return array_cast(v, i16)  }
+ to_i32  :: #force_inline proc(v: $A/[$N]$T) -> [N]i32  { return array_cast(v, i32)  }
+ to_i64  :: #force_inline proc(v: $A/[$N]$T) -> [N]i64  { return array_cast(v, i64)  }
+ to_int  :: #force_inline proc(v: $A/[$N]$T) -> [N]int  { return array_cast(v, int)  }
 
-@(require_results) to_u8   :: #force_inline proc(v: $A/[$N]$T) -> [N]u8   { return array_cast(v, u8)   }
-@(require_results) to_u16  :: #force_inline proc(v: $A/[$N]$T) -> [N]u16  { return array_cast(v, u16)  }
-@(require_results) to_u32  :: #force_inline proc(v: $A/[$N]$T) -> [N]u32  { return array_cast(v, u32)  }
-@(require_results) to_u64  :: #force_inline proc(v: $A/[$N]$T) -> [N]u64  { return array_cast(v, u64)  }
-@(require_results) to_uint :: #force_inline proc(v: $A/[$N]$T) -> [N]uint { return array_cast(v, uint) }
+ to_u8   :: #force_inline proc(v: $A/[$N]$T) -> [N]u8   { return array_cast(v, u8)   }
+ to_u16  :: #force_inline proc(v: $A/[$N]$T) -> [N]u16  { return array_cast(v, u16)  }
+ to_u32  :: #force_inline proc(v: $A/[$N]$T) -> [N]u32  { return array_cast(v, u32)  }
+ to_u64  :: #force_inline proc(v: $A/[$N]$T) -> [N]u64  { return array_cast(v, u64)  }
+ to_uint :: #force_inline proc(v: $A/[$N]$T) -> [N]uint { return array_cast(v, uint) }
 
-@(require_results) to_complex32     :: #force_inline proc(v: $A/[$N]$T) -> [N]complex32     { return array_cast(v, complex32)     }
-@(require_results) to_complex64     :: #force_inline proc(v: $A/[$N]$T) -> [N]complex64     { return array_cast(v, complex64)     }
-@(require_results) to_complex128    :: #force_inline proc(v: $A/[$N]$T) -> [N]complex128    { return array_cast(v, complex128)    }
-@(require_results) to_quaternion64  :: #force_inline proc(v: $A/[$N]$T) -> [N]quaternion64  { return array_cast(v, quaternion64)  }
-@(require_results) to_quaternion128 :: #force_inline proc(v: $A/[$N]$T) -> [N]quaternion128 { return array_cast(v, quaternion128) }
-@(require_results) to_quaternion256 :: #force_inline proc(v: $A/[$N]$T) -> [N]quaternion256 { return array_cast(v, quaternion256) }
+ to_complex32     :: #force_inline proc(v: $A/[$N]$T) -> [N]complex32     { return array_cast(v, complex32)     }
+ to_complex64     :: #force_inline proc(v: $A/[$N]$T) -> [N]complex64     { return array_cast(v, complex64)     }
+ to_complex128    :: #force_inline proc(v: $A/[$N]$T) -> [N]complex128    { return array_cast(v, complex128)    }
+ to_quaternion64  :: #force_inline proc(v: $A/[$N]$T) -> [N]quaternion64  { return array_cast(v, quaternion64)  }
+ to_quaternion128 :: #force_inline proc(v: $A/[$N]$T) -> [N]quaternion128 { return array_cast(v, quaternion128) }
+ to_quaternion256 :: #force_inline proc(v: $A/[$N]$T) -> [N]quaternion256 { return array_cast(v, quaternion256) }
 
 
 hadamard_product :: intrinsics.hadamard_product
@@ -439,12 +439,12 @@ inverse :: proc{
 	matrix4x4_inverse,
 }
 
-@(require_results)
+
 hermitian_adjoint :: proc(m: $M/matrix[$N, N]$T) -> M where intrinsics.type_is_complex(T), N >= 1 #no_bounds_check {
 	return conj(transpose(m))
 }
 
-@(require_results)
+
 trace :: proc(m: $M/matrix[$N, N]$T) -> (trace: T) #no_bounds_check {
 	for i in 0..<N {
 		trace += m[i, i]
@@ -452,7 +452,7 @@ trace :: proc(m: $M/matrix[$N, N]$T) -> (trace: T) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 matrix_minor :: proc(m: $M/matrix[$N, N]$T, #any_int row, column: int) -> (minor: T) where N > 1 #no_bounds_check {
 	K :: int(N-1)
 	cut_down: matrix[K, K]T
@@ -468,23 +468,23 @@ matrix_minor :: proc(m: $M/matrix[$N, N]$T, #any_int row, column: int) -> (minor
 
 
 
-@(require_results)
+
 matrix1x1_determinant :: proc(m: $M/matrix[1, 1]$T) -> (det: T) #no_bounds_check {
 	return m[0, 0]
 }
 
-@(require_results)
+
 matrix2x2_determinant :: proc(m: $M/matrix[2, 2]$T) -> (det: T) #no_bounds_check {
 	return m[0, 0]*m[1, 1] - m[0, 1]*m[1, 0]
 }
-@(require_results)
+
 matrix3x3_determinant :: proc(m: $M/matrix[3, 3]$T) -> (det: T) #no_bounds_check {
 	a := +m[0, 0] * (m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1])
 	b := -m[0, 1] * (m[1, 0] * m[2, 2] - m[1, 2] * m[2, 0])
 	c := +m[0, 2] * (m[1, 0] * m[2, 1] - m[1, 1] * m[2, 0])
 	return a + b + c
 }
-@(require_results)
+
 matrix4x4_determinant :: proc(m: $M/matrix[4, 4]$T) -> (det: T) #no_bounds_check {
 	c := cofactor(m)
 	for i in 0..<4 {
@@ -496,13 +496,13 @@ matrix4x4_determinant :: proc(m: $M/matrix[4, 4]$T) -> (det: T) #no_bounds_check
 
 
 
-@(require_results)
+
 matrix1x1_adjugate :: proc(x: $M/matrix[1, 1]$T) -> (y: M) #no_bounds_check {
 	y = x
 	return
 }
 
-@(require_results)
+
 matrix2x2_adjugate :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_check {
 	y[0, 0] = +x[1, 1]
 	y[0, 1] = -x[0, 1]
@@ -511,7 +511,7 @@ matrix2x2_adjugate :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 matrix3x3_adjugate :: proc(m: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 	y[0, 0] = +(m[1, 1] * m[2, 2] - m[2, 1] * m[1, 2])
 	y[1, 0] = -(m[1, 0] * m[2, 2] - m[2, 0] * m[1, 2])
@@ -525,7 +525,7 @@ matrix3x3_adjugate :: proc(m: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 matrix4x4_adjugate :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_check {
 	for i in 0..<4 {
 		for j in 0..<4 {
@@ -537,13 +537,13 @@ matrix4x4_adjugate :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_check {
 }
 
 
-@(require_results)
+
 matrix1x1_cofactor :: proc(x: $M/matrix[1, 1]$T) -> (y: M) #no_bounds_check {
 	y = x
 	return
 }
 
-@(require_results)
+
 matrix2x2_cofactor :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_check {
 	y[0, 0] = +x[1, 1]
 	y[0, 1] = -x[1, 0]
@@ -552,7 +552,7 @@ matrix2x2_cofactor :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 matrix3x3_cofactor :: proc(m: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 	y[0, 0] = +(m[1, 1] * m[2, 2] - m[2, 1] * m[1, 2])
 	y[0, 1] = -(m[1, 0] * m[2, 2] - m[2, 0] * m[1, 2])
@@ -567,7 +567,7 @@ matrix3x3_cofactor :: proc(m: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 }
 
 
-@(require_results)
+
 matrix4x4_cofactor :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_check {
 	for i in 0..<4 {
 		for j in 0..<4 {
@@ -578,13 +578,13 @@ matrix4x4_cofactor :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 matrix1x1_inverse_transpose :: proc(x: $M/matrix[1, 1]$T) -> (y: M) #no_bounds_check {
 	y[0, 0] = 1/x[0, 0]
 	return
 }
 
-@(require_results)
+
 matrix2x2_inverse_transpose :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_check {
 	d := x[0, 0]*x[1, 1] - x[0, 1]*x[1, 0]
 	when intrinsics.type_is_integer(T) {
@@ -602,7 +602,7 @@ matrix2x2_inverse_transpose :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_c
 	return
 }
 
-@(require_results)
+
 matrix3x3_inverse_transpose :: proc(x: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 	c := cofactor(x)
 	d := determinant(x)
@@ -623,7 +623,7 @@ matrix3x3_inverse_transpose :: proc(x: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_c
 	return
 }
 
-@(require_results)
+
 matrix4x4_inverse_transpose :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_check {
 	c := cofactor(x)
 	d: T
@@ -647,13 +647,13 @@ matrix4x4_inverse_transpose :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_c
 	return
 }
 
-@(require_results)
+
 matrix1x1_inverse :: proc(x: $M/matrix[1, 1]$T) -> (y: M) #no_bounds_check {
 	y[0, 0] = 1/x[0, 0]
 	return
 }
 
-@(require_results)
+
 matrix2x2_inverse :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_check {
 	d := x[0, 0]*x[1, 1] - x[0, 1]*x[1, 0]
 	when intrinsics.type_is_integer(T) {
@@ -671,7 +671,7 @@ matrix2x2_inverse :: proc(x: $M/matrix[2, 2]$T) -> (y: M) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 matrix3x3_inverse :: proc(x: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 	c := cofactor(x)
 	d := determinant(x)
@@ -692,7 +692,7 @@ matrix3x3_inverse :: proc(x: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 matrix4x4_inverse :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_check {
 	c := cofactor(x)
 	d: T

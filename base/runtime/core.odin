@@ -601,7 +601,7 @@ type_table: []^Type_Info
 
 
 // type_info_base returns the base-type of a `^Type_Info` stripping the `distinct`ness from the first level
-@(require_results)
+
 type_info_base :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
 	if info == nil {
 		return nil
@@ -621,7 +621,7 @@ type_info_base :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
 // type_info_core returns the core-type of a `^Type_Info` stripping the `distinct`ness from the first level AND/OR
 // returns the backing integer type of an enum or bit_set `^Type_Info`.
 // This is also aliased as `type_info_base_without_enum`
-@(require_results)
+
 type_info_core :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
 	if info == nil {
 		return nil

@@ -121,11 +121,13 @@ encode_rune :: proc "contextless" (c: rune) -> ([4]u8, int) {
 	return buf, 4
 }
 
+@(optional_results)
 print_string :: #force_no_inline proc "contextless" (str: string) -> (n: int) {
 	n, _ = stderr_write(transmute([]byte)str)
 	return
 }
 
+@(optional_results)
 print_strings :: #force_no_inline proc "contextless" (args: ..string) -> (n: int) {
 	for str in args {
 		m, err := stderr_write(transmute([]byte)str)
@@ -137,6 +139,7 @@ print_strings :: #force_no_inline proc "contextless" (args: ..string) -> (n: int
 	return
 }
 
+@(optional_results)
 print_byte :: #force_no_inline proc "contextless" (b: byte) -> (n: int) {
 	n, _ = stderr_write([]byte{b})
 	return
@@ -169,6 +172,7 @@ print_encoded_rune :: #force_no_inline proc "contextless" (r: rune) {
 	print_byte('\'')
 }
 
+@(optional_results)
 print_rune :: #force_no_inline proc "contextless" (r: rune) -> int #no_bounds_check {
 	RUNE_SELF :: 0x80
 
@@ -181,7 +185,6 @@ print_rune :: #force_no_inline proc "contextless" (r: rune) -> int #no_bounds_ch
 	return m
 }
 
-
 print_u64 :: #force_no_inline proc "contextless" (x: u64) #no_bounds_check {
 	a: [129]byte
 	i := len(a)
@@ -193,9 +196,8 @@ print_u64 :: #force_no_inline proc "contextless" (x: u64) #no_bounds_check {
 	}
 	i -= 1; a[i] = _INTEGER_DIGITS_VAR[u % b]
 
-	stderr_write(a[i:])
+	_, _ = stderr_write(a[i:])
 }
-
 
 print_i64 :: #force_no_inline proc "contextless" (x: i64) #no_bounds_check {
 	b :: i64(10)
@@ -215,7 +217,7 @@ print_i64 :: #force_no_inline proc "contextless" (x: i64) #no_bounds_check {
 		i -= 1; a[i] = '-'
 	}
 
-	stderr_write(a[i:])
+	_, _ = stderr_write(a[i:])
 }
 
 print_uint    :: proc "contextless" (x: uint)    { print_u64(u64(x)) }

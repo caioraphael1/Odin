@@ -72,7 +72,7 @@ tzif_data_block_size :: proc(hdr: ^TZif_Header, version: TZif_Version) -> (block
 
 load_tzif_file :: proc(filename: string, region_name: string, allocator: runtime.Allocator) -> (out: ^datetime.TZ_Region, ok: bool) {
 	tzif_data := os.read_entire_file(filename, allocator) or_return
-	defer delete(tzif_data, allocator)
+	defer _ = delete(tzif_data, allocator)
 	return parse_tzif(tzif_data, region_name, allocator)
 }
 
@@ -379,7 +379,7 @@ parse_posix_tz :: proc(posix_tz: string, allocator: runtime.Allocator) -> (out: 
 
 	std_name_str, err := strings.clone(std_name, allocator)
 	if err != nil { return }
-	defer if !ok { delete(std_name_str, allocator) }
+	defer if !ok { _ = delete(std_name_str, allocator) }
 
 	if len(str) == 0 {
 		return datetime.TZ_RRule{
@@ -586,9 +586,9 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: runtime.Alloca
 	if err != nil { return }
 	defer if err != nil {
 		for name in ltt_names {
-			delete(name, allocator)
+			_ = delete(name, allocator)
 		}
-		delete(ltt_names) 
+		_ = delete(ltt_names) 
 	}
 
 	for ltt in local_time_types {
@@ -598,13 +598,13 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: runtime.Alloca
 		ltt_name, err = strings.clone_from_cstring_bounded(name, len(timezone_string_table), allocator)
 		if err != nil { return }
 
-		append(&ltt_names, ltt_name)
+		_ = append(&ltt_names, ltt_name)
 	}
 
 	records: []datetime.TZ_Record
 	records, err = make([]datetime.TZ_Record, len(transition_times), allocator)
 	if err != nil { return }
-	defer if err != nil { delete(records, allocator) }
+	defer if err != nil { _ = delete(records, allocator) }
 
 	for trans_time, idx in transition_times {
 		trans_idx := transition_types[idx]
@@ -621,14 +621,14 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: runtime.Alloca
 	rrule, ok2 := parse_posix_tz(footer_str, allocator)
 	if !ok2 { return }
 	defer if err != nil {
-		delete(rrule.std_name, allocator)
-		delete(rrule.dst_name, allocator)
+		_ = delete(rrule.std_name, allocator)
+		_ = delete(rrule.dst_name, allocator)
 	}
 
 	region_name_out: string
 	region_name_out, err = strings.clone(region_name, allocator)
 	if err != nil { return }
-	defer if err != nil { delete(region_name_out, allocator) }
+	defer if err != nil { _ = delete(region_name_out, allocator) }
 
 	region: ^datetime.TZ_Region
 	region, err = new_clone(datetime.TZ_Region{

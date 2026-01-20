@@ -138,7 +138,7 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
 	ctx.states = make([]State, MAX_STATES)
 
 	// NOTE NECESSARY
-	append(&ctx.nodes, AtlasNode{
+	_ = append(&ctx.nodes, AtlasNode{
 		width = i16(w),
 	})
 
@@ -151,17 +151,17 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
 Destroy :: proc(ctx: ^FontContext) {
 	for font in ctx.fonts {
 		if font.freeLoadedData {
-			delete(font.loadedData)
+			_ = delete(font.loadedData)
 		}
 
-		delete(font.name)
-		delete(font.glyphs)
+		_ = delete(font.name)
+		_ = delete(font.glyphs)
 	}
 
-	delete(ctx.states)
-	delete(ctx.textureData)
-	delete(ctx.fonts)
-	delete(ctx.nodes)
+	_ = delete(ctx.states)
+	_ = delete(ctx.textureData)
+	_ = delete(ctx.fonts)
+	_ = delete(ctx.nodes)
 }
 
 Reset :: proc(ctx: ^FontContext) {
@@ -207,7 +207,7 @@ __atlasReset :: proc(ctx: ^FontContext, w, h: int) {
 	clear(&ctx.nodes)
 
 	// init root node
-	append(&ctx.nodes, AtlasNode{
+	_ = append(&ctx.nodes, AtlasNode{
 		width = i16(w),
 	})
 }
@@ -334,7 +334,7 @@ AddFontMem :: proc(
 	freeLoadedData: bool,
 	fontIndex:      int = 0,
 ) -> int {
-	append(&ctx.fonts, Font{})
+	_ = append(&ctx.fonts, Font{})
 	res := &ctx.fonts[len(ctx.fonts) - 1]
 	res.loadedData     = data
 	res.freeLoadedData = freeLoadedData
@@ -491,7 +491,7 @@ __getGlyph :: proc(
 	}
 	
 	// Init glyph.
-	append(&font.glyphs, Glyph{
+	_ = append(&font.glyphs, Glyph{
 		codepoint = codepoint,
 		isize     = isize,
 		blurSize  = blurSize,
@@ -649,7 +649,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.
 		mem.set(&data[ctx.height * w], 0, (h - ctx.height) * w)
 	}
 
-	delete(ctx.textureData)
+	_ = delete(ctx.textureData)
 	ctx.textureData = data
 
 	// increase atlas size
@@ -679,7 +679,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.a
 		slice.zero(ctx.textureData)
 	} else {
 		// realloc
-		delete(ctx.textureData, allocator)
+		_ = delete(ctx.textureData, allocator)
 		ctx.textureData = make([]byte, width * height, allocator)
 	}
 

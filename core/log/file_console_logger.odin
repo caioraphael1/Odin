@@ -56,9 +56,9 @@ create_file_logger :: proc(h: ^os.File, lowest_level := Level.Debug, opt := Defa
 destroy_file_logger :: proc(log: Logger, allocator: runtime.Allocator) {
 	data := cast(^File_Console_Logger_Data)log.data
 	if data.file_handle != nil {
-		os.close(data.file_handle)
+		_ = os.close(data.file_handle)
 	}
-	free(data, allocator)
+	_ = free(data, allocator)
 }
 
 create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Console_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
@@ -74,7 +74,7 @@ create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Consol
 }
 
 destroy_console_logger :: proc(log: Logger, allocator: runtime.Allocator) {
-	free(log.data, allocator)
+	_ = free(log.data, allocator)
 }
 
 @(private)
@@ -151,17 +151,17 @@ do_level_header :: proc(opts: Options, str: ^strings.Builder, level: Level) {
 do_time_header :: proc(opts: Options, buf: ^strings.Builder, t: time.Time) {
 	when time.IS_SUPPORTED {
 		if Full_Timestamp_Opts & opts != nil {
-			fmt.sbprint(buf, "[")
+			_ = fmt.sbprint(buf, "[")
 			y, m, d := time.date(t)
 			h, min, s := time.clock(t)
 			if .Date in opts {
-				fmt.sbprintf(buf, "%d-%02d-%02d", y, m, d)
+				_ = fmt.sbprintf(buf, "%d-%02d-%02d", y, m, d)
 				if .Time in opts {
-					fmt.sbprint(buf, " ")
+					_ = fmt.sbprint(buf, " ")
 				}
 			}
-			if .Time in opts { fmt.sbprintf(buf, "%02d:%02d:%02d", h, min, s) }
-			fmt.sbprint(buf, "] ")
+			if .Time in opts { _ = fmt.sbprintf(buf, "%02d:%02d:%02d", h, min, s) }
+			_ = fmt.sbprint(buf, "] ")
 		}
 	}
 }
@@ -170,7 +170,7 @@ do_location_header :: proc(opts: Options, buf: ^strings.Builder, location := #ca
 	if Location_Header_Opts & opts == nil {
 		return
 	}
-	fmt.sbprint(buf, "[")
+	_ = fmt.sbprint(buf, "[")
 
 	file := location.file_path
 	if .Short_File_Path in opts {
@@ -184,21 +184,21 @@ do_location_header :: proc(opts: Options, buf: ^strings.Builder, location := #ca
 	}
 
 	if Location_File_Opts & opts != nil {
-		fmt.sbprint(buf, file)
+		_ = fmt.sbprint(buf, file)
 	}
 	if .Line in opts {
 		if Location_File_Opts & opts != nil {
-			fmt.sbprint(buf, ":")
+			_ = fmt.sbprint(buf, ":")
 		}
-		fmt.sbprint(buf, location.line)
+		_ = fmt.sbprint(buf, location.line)
 	}
 
 	if .Procedure in opts {
 		if (Location_File_Opts | {.Line}) & opts != nil {
-			fmt.sbprint(buf, ":")
+			_ = fmt.sbprint(buf, ":")
 		}
-		fmt.sbprintf(buf, "%s()", location.procedure)
+		_ = fmt.sbprintf(buf, "%s()", location.procedure)
 	}
 
-	fmt.sbprint(buf, "] ")
+	_ = fmt.sbprint(buf, "] ")
 }

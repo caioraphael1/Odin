@@ -305,7 +305,7 @@ test_max_capture_groups :: proc(t: ^testing.T) {
 	defer {
 		strings.builder_destroy(&sb_pattern)
 		strings.builder_destroy(&sb_haystack)
-		delete(expected_captures)
+		_ = delete(expected_captures)
 	}
 
 	w_pattern := strings.to_writer(&sb_pattern)
@@ -315,7 +315,7 @@ test_max_capture_groups :: proc(t: ^testing.T) {
 	for i in 1..<common.MAX_CAPTURE_GROUPS {
 		io.write_int(w_pattern, i)
 	}
-	append(&expected_captures, fmt.tprint(strings.to_string(sb_pattern)))
+	_ = append(&expected_captures, fmt.tprint(strings.to_string(sb_pattern)))
 	strings.builder_reset(&sb_pattern)
 
 	// The individual captures:
@@ -326,7 +326,7 @@ test_max_capture_groups :: proc(t: ^testing.T) {
 
 		io.write_int(w_haystack, i)
 
-		append(&expected_captures, fmt.tprint(i))
+		_ = append(&expected_captures, fmt.tprint(i))
 	}
 
 	pattern := strings.to_string(sb_pattern)
@@ -829,8 +829,8 @@ test_too_many_classes :: proc(t: ^testing.T) {
 	N :: common.MAX_CLASSES
 	for i in 0..<rune(N) {
 		io.write_byte(w, '[')
-		io.write_rune(w, 'a' + i)
-		io.write_rune(w, 'b' + i)
+		_, _ = io.write_rune(w, 'a' + i)
+		_, _ = io.write_rune(w, 'b' + i)
 		io.write_byte(w, ']')
 	}
 

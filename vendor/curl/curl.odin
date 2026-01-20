@@ -2392,7 +2392,7 @@ foreign lib {
 	 * Provided for de-allocation in the same translation unit that did the
 	 * allocation. Added in libcurl 7.10
 	 */
-	free :: proc(p: rawptr) ---
+	_ = free :: proc(p: rawptr) ---
 
 	/*
 	 * NAME curl_global_init()

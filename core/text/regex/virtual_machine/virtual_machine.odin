@@ -125,11 +125,11 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 		}
 
 		when common.ODIN_DEBUG_REGEX {
-			io.write_string(common.debug_stream, "Thread [PC:")
+			_, _ = io.write_string(common.debug_stream, "Thread [PC:")
 			common.write_padded_hex(common.debug_stream, pc, 4)
-			io.write_string(common.debug_stream, "] thinking about ")
-			io.write_string(common.debug_stream, opcode_to_name(vm.code[pc]))
-			io.write_rune(common.debug_stream, '\n')
+			_, _ = io.write_string(common.debug_stream, "] thinking about ")
+			_, _ = io.write_string(common.debug_stream, opcode_to_name(vm.code[pc]))
+			_, _ = io.write_rune(common.debug_stream, '\n')
 		}
 
 		#partial switch vm.code[pc] {
@@ -377,7 +377,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
 
 		when common.ODIN_DEBUG_REGEX {
 			io.write_string(common.debug_stream, ">>> Dispatching rune: ")
-			io.write_encoded_rune(common.debug_stream, current_rune)
+			_, _ = io.write_encoded_rune(common.debug_stream, current_rune)
 			io.write_byte(common.debug_stream, '\n')
 		}
 
@@ -645,7 +645,7 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 }
 
 destroy :: proc(vm: Machine, allocator: mem.Allocator) {
-	delete(vm.busy_map, allocator)
-	free(vm.threads, allocator)
-	free(vm.next_threads, allocator)
+	_ = delete(vm.busy_map, allocator)
+	_ = free(vm.threads, allocator)
+	_ = free(vm.next_threads, allocator)
 }

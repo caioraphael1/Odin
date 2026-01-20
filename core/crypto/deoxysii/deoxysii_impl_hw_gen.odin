@@ -15,7 +15,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	panic(ERR_HW_NOT_SUPPORTED)
 }
 
-@(private, require_results)
+@(private)
 d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	panic(ERR_HW_NOT_SUPPORTED)
 }

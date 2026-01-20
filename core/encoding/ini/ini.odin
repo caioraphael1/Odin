@@ -113,7 +113,7 @@ load_map_from_string :: proc(src: string, allocator: runtime.Allocator, options 
 		if options.key_lower_case {
 			old_key := new_key
 			new_key = strings.to_lower(key) or_return
-			delete(old_key) or_return
+			_ = delete(old_key) or_return
 		}
 		pairs[new_key] = unquote(value) or_return
 	}
@@ -122,7 +122,7 @@ load_map_from_string :: proc(src: string, allocator: runtime.Allocator, options 
 
 load_map_from_path :: proc(path: string, allocator: runtime.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: runtime.Allocator_Error, ok: bool) {
 	data := os.read_entire_file(path, allocator) or_return
-	defer delete(data, allocator)
+	defer _ = delete(data, allocator)
 	m, err = load_map_from_string(string(data), allocator, options)
 	ok = err == nil
 	defer if !ok {
@@ -141,19 +141,19 @@ delete_map :: proc(m: Map) {
 	allocator := m.allocator
 	for section, pairs in m {
 		for key, value in pairs {
-			delete(key, allocator)
-			delete(value, allocator)
+			_ = delete(key, allocator)
+			_ = delete(value, allocator)
 		}
-		delete(section)
-		delete(pairs)
+		_ = delete(section)
+		_ = delete(pairs)
 	}
-	delete(m)
+	_ = delete(m)
 }
 
 write_section :: proc(w: io.Writer, name: string, n_written: ^int = nil) -> (n: int, err: io.Error) {
 	defer if n_written != nil { n_written^ += n }
 	io.write_byte  (w, '[',  &n) or_return
-	io.write_string(w, name, &n) or_return
+	_ = io.write_string(w, name, &n) or_return
 	io.write_byte  (w, ']',  &n) or_return
 	io.write_byte  (w, '\n',  &n) or_return
 	return
@@ -161,14 +161,14 @@ write_section :: proc(w: io.Writer, name: string, n_written: ^int = nil) -> (n: 
 
 write_pair :: proc(w: io.Writer, key: string, value: $T, n_written: ^int = nil) -> (n: int, err: io.Error) {
 	defer if n_written != nil { n_written^ += n }
-	io.write_string(w, key,   &n) or_return
-	io.write_string(w, " = ", &n) or_return
+	_ = io.write_string(w, key,   &n) or_return
+	_ = io.write_string(w, " = ", &n) or_return
 	when intrinsics.type_is_string(T) {
 		val := string(value)
 		if len(val) > 0 && (val[0] == ' ' || val[len(val)-1] == ' ') {
 			io.write_quoted_string(w, val, n_written=&n) or_return
 		} else {
-			io.write_string(w, val, &n) or_return
+			_ = io.write_string(w, val, &n) or_return
 		}
 	} else {
 		n += fmt.wprint(w, value)

@@ -996,7 +996,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
 	if ctx.focus_id == id {
 		/* create a builder backed by the user's buffer */
 		builder := strings.builder_from_bytes(textbuf)
-		non_zero_resize(&builder.buf, textlen^)
+		_ = non_zero_resize(&builder.buf, textlen^)
 		ctx.textbox_state.builder = &builder
 		if ctx.textbox_state.id != u64(id) {
 			ctx.textbox_state.id = u64(id)
@@ -1069,7 +1069,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
 				textedit.move_to(&ctx.textbox_state, .End)
 			}
 		}
-		/* handle backspace/delete */
+		/* handle backspace/_ = delete */
 		if .BACKSPACE in ctx.key_pressed_bits && textlen^ > 0 {
 			move: textedit.Translation = .Word_Left if .CTRL in ctx.key_down_bits else .Left
 			textedit.delete_to(&ctx.textbox_state, move)

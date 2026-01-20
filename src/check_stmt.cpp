@@ -2349,18 +2349,28 @@ gb_internal void check_expr_stmt(CheckerContext *ctx, Ast *node) {
 
 	Ast *expr = strip_or_return_expr(operand.expr);
 	if (expr && expr->kind == Ast_CallExpr) {
+        // Caio: I added this to avoid getting an error for every #assert or #panic
+            Ast *p = unparen_expr(expr->CallExpr.proc);
+            if (p->kind == Ast_BasicDirective) {
+                String tag = p->BasicDirective.name.string;
+                if (tag == "panic" ||
+                    tag == "assert") {
+                    return;
+                }
+            }
+
 		BuiltinProcId builtin_id = BuiltinProc_Invalid;
-		bool do_require = false;
+		bool results_are_optional = false;
 
 		AstCallExpr *ce = &expr->CallExpr;
 		Type *t = base_type(type_of_expr(ce->proc));
 		if (t && t->kind == Type_Proc) {
-			do_require = t->Proc.require_results;
+			results_are_optional = t->Proc.optional_results;
 		} else if (check_stmt_internal_builtin_proc_id(ce->proc, &builtin_id)) {
 			auto const &bp = builtin_procs[builtin_id];
-			do_require = bp.kind == Expr_Expr && !bp.ignore_results;
+			results_are_optional = bp.kind != Expr_Expr || bp.ignore_results;
 		}
-		if (do_require) {
+		if (!results_are_optional) {
 			gbString expr_str = expr_to_string(ce->proc);
 			defer (gb_string_free(expr_str));
 			if (builtin_id) {
@@ -2376,7 +2386,7 @@ gb_internal void check_expr_stmt(CheckerContext *ctx, Ast *node) {
 		return;
 	} else if (expr && expr->kind == Ast_SelectorCallExpr) {
 		BuiltinProcId builtin_id = BuiltinProc_Invalid;
-		bool do_require = false;
+		bool results_are_optional = false;
 
 		AstSelectorCallExpr *se = &expr->SelectorCallExpr;
 		ast_node(ce, CallExpr, se->call);
@@ -2388,12 +2398,12 @@ gb_internal void check_expr_stmt(CheckerContext *ctx, Ast *node) {
 			return;
 		}
 		if (t->kind == Type_Proc) {
-			do_require = t->Proc.require_results;
+			results_are_optional = t->Proc.optional_results;
 		} else if (check_stmt_internal_builtin_proc_id(ce->proc, &builtin_id)) {
 			auto const &bp = builtin_procs[builtin_id];
-			do_require = bp.kind == Expr_Expr && !bp.ignore_results;
+			results_are_optional = bp.kind != Expr_Expr || bp.ignore_results;
 		}
-		if (do_require) {
+		if (!results_are_optional) {
 			gbString expr_str = expr_to_string(ce->proc);
 			error(node, "'%s' requires that its results must be handled", expr_str);
 			gb_string_free(expr_str);

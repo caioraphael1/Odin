@@ -77,12 +77,12 @@ init :: proc(s: ^State, undo_text_allocator, undo_state_allocator: runtime.Alloc
 	s.redo.allocator = undo_state_allocator
 }
 
-// clear undo|redo strings and delete their stacks
+// clear undo|redo strings and _ = delete their stacks
 destroy :: proc(s: ^State) {
 	undo_clear(s, &s.undo)
 	undo_clear(s, &s.redo)
-	delete(s.undo)
-	delete(s.redo)
+	_ = delete(s.undo)
+	_ = delete(s.redo)
 	s.builder = nil
 }
 
@@ -162,7 +162,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 			strings.builder_reset(s.builder)
 			strings.write_string(s.builder, string(item.text[:item.len]))
 		}
-		free(item, s.undo_text_allocator)
+		_ = free(item, s.undo_text_allocator)
 	}
 }
 
@@ -170,7 +170,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 undo_clear :: proc(s: ^State, undo: ^[dynamic]^Undo_State) {
 	for len(undo) > 0 {
 		item := pop(undo)
-		free(item, s.undo_text_allocator)
+		_ = free(item, s.undo_text_allocator)
 	}
 }
 
@@ -273,7 +273,7 @@ sorted_selection :: proc(s: ^State) -> (lo, hi: int) {
 	return
 }
 
-// delete the current selection range and set the proper selection afterwards
+// _ = delete the current selection range and set the proper selection afterwards
 selection_delete :: proc(s: ^State) {
 	lo, hi := sorted_selection(s)
 	remove(s, lo, hi)
@@ -386,7 +386,7 @@ current_selected_text :: proc(s: ^State) -> string {
 	return ""
 }
 
-// copy & delete the current selection when copy() succeeds
+// copy & _ = delete the current selection when copy() succeeds
 cut :: proc(s: ^State) -> bool {
 	if copy(s) {
 		selection_delete(s)

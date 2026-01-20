@@ -19,7 +19,7 @@ encode :: proc(src: []byte, allocator: runtime.Allocator, loc := #caller_locatio
 
 encode_into_writer :: proc(dst: io.Writer, src: []byte) -> io.Error {
 	for v in src {
-		io.write(dst, {HEXTABLE[v>>4], HEXTABLE[v&0x0f]}) or_return
+		_ = io.write(dst, {HEXTABLE[v>>4], HEXTABLE[v&0x0f]}) or_return
 	}
 	return nil
 }

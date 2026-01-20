@@ -235,7 +235,7 @@ System_Call_Number :: enum uintptr {
 	exchangedata = 223,
 	/* 224  old checkuseraccess or fsgetpath */
 	searchfs = 225,
-	delete = 226,
+	_ = delete = 226,
 	copyfile = 227,
 	fgetattrlist = 228,
 	fsetattrlist = 229,

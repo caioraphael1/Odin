@@ -270,14 +270,13 @@ enum ProcInlining {
 };
 
 enum ProcTag {
-	ProcTag_bounds_check    = 1<<0,
-	ProcTag_no_bounds_check = 1<<1,
-	ProcTag_type_assert     = 1<<2,
-	ProcTag_no_type_assert  = 1<<3,
+	ProcTag_bounds_check     = 1<<0,
+	ProcTag_no_bounds_check  = 1<<1,
+	ProcTag_type_assert      = 1<<2,
+	ProcTag_no_type_assert   = 1<<3,
 
-	ProcTag_require_results = 1<<4,
-	ProcTag_optional_ok     = 1<<5,
-	ProcTag_optional_allocator_error = 1<<6,
+	ProcTag_optional_results = 1<<4,
+	ProcTag_optional_ok      = 1<<5,
 };
 
 enum ProcCallingConvention : i32 {

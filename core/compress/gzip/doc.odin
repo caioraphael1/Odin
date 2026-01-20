@@ -25,10 +25,10 @@ Example:
 		buf := bytes.Buffer{}
 
 		stdout :: proc(s: string) {
-			os.write_string(os.stdout, s)
+			_, _ = os.write_string(os.stdout, s)
 		}
 		stderr :: proc(s: string) {
-			os.write_string(os.stderr, s)
+			_, _ = os.write_string(os.stderr, s)
 		}
 
 		args := os.args

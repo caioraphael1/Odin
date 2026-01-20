@@ -9,7 +9,7 @@ import    "core:strings"
 @(test)
 test_read_dir :: proc(t: ^testing.T) {
 	path, err_join := os.join_path({#directory, "../dir"}, context.allocator)
-	defer delete(path)
+	defer _ = delete(path)
 
 	fis, err_read := os.read_all_directory_by_path(path, context.allocator)
 	defer os.file_info_slice_delete(fis, context.allocator)
@@ -35,7 +35,7 @@ test_read_dir :: proc(t: ^testing.T) {
 @(test)
 test_walker :: proc(t: ^testing.T) {
 	path, err := os.join_path({#directory, "../dir"}, context.allocator)
-	defer delete(path)
+	defer _ = delete(path)
 	testing.expect_value(t, err, nil)
 
 	w := os.walker_create(path)
@@ -47,7 +47,7 @@ test_walker :: proc(t: ^testing.T) {
 @(test)
 test_walker_file :: proc(t: ^testing.T) {
 	path, err_join := os.join_path({#directory, "../dir"}, context.allocator)
-	defer delete(path)
+	defer _ = delete(path)
 	testing.expect_value(t, err_join, nil)
 
 	f, err_open := os.open(path)
@@ -81,14 +81,14 @@ test_walker_internal :: proc(t: ^testing.T, w: ^os.Walker) {
 	}
 
 	seen: [dynamic]Seen
-	defer delete(seen)
+	defer _ = delete(seen)
 
 	for info in os.walker_walk(w) {
 
 		errpath, err := os.walker_error(w)
 		testing.expectf(t, err == nil, "walker error for %q: %v", errpath, err)
 
-		append(&seen, Seen{
+		_ = append(&seen, Seen{
 			info.type,
 			strings.clone(info.fullpath),
 		})
@@ -107,10 +107,10 @@ test_walker_internal :: proc(t: ^testing.T, w: ^os.Walker) {
 			if strings.has_suffix(entry.path, expectation.path) {
 				found = true
 				testing.expect_value(t, entry.type, expectation.type)
-				delete(entry.path)
+				_ = delete(entry.path)
 			}
 		}
 		testing.expectf(t, found, "%q not found in %v", expectation, seen)
-		delete(expectation.path)
+		_ = delete(expectation.path)
 	}
 } 

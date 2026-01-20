@@ -153,7 +153,7 @@ parse_file :: proc(p: ^Parser, file: ^ast.File) -> bool {
 	}
 
 
-	advance_token(p)
+	_, _ = advance_token(p)
 	consume_comment_groups(p, p.prev_tok)
 
 	docs := p.lead_comment
@@ -164,14 +164,14 @@ parse_file :: proc(p: ^Parser, file: ^ast.File) -> bool {
 		if p.curr_tok.kind == .Comment {
 			consume_comment_groups(p, p.prev_tok)
 		} else if p.curr_tok.kind == .File_Tag {
-			append(&p.file.tags, p.curr_tok)
-			advance_token(p)
+			_ = append(&p.file.tags, p.curr_tok)
+			_, _ = advance_token(p)
 		} else {
 			if invalid_pre_package_token == nil {
 				invalid_pre_package_token = p.curr_tok
 			}
 
-			advance_token(p)
+			_, _ = advance_token(p)
 		}
 	}
 
@@ -219,7 +219,7 @@ parse_file :: proc(p: ^Parser, file: ^ast.File) -> bool {
 		stmt := parse_stmt(p)
 		if stmt != nil {
 			if _, ok := stmt.derived.(^ast.Empty_Stmt); !ok {
-				append(&p.file.decls, stmt)
+				_ = append(&p.file.decls, stmt)
 				if es, es_ok := stmt.derived.(^ast.Expr_Stmt); es_ok && es.expr != nil {
 					if _, pl_ok := es.expr.derived.(^ast.Proc_Lit); pl_ok {
 						error(p, stmt.pos, "procedure literal evaluated but not used")
@@ -243,7 +243,7 @@ peek_token_kind :: proc(p: ^Parser, kind: tokenizer.Token_Kind, lookahead := 0) 
 
 	p.tok.err = nil
 	for i := 0; i <= lookahead; i += 1 {
-		advance_token(p)
+		_, _ = advance_token(p)
 	}
 	ok = p.curr_tok.kind == kind
 
@@ -261,14 +261,14 @@ peek_token :: proc(p: ^Parser, lookahead := 0) -> (tok: tokenizer.Token) {
 
 	p.tok.err = nil
 	for i := 0; i <= lookahead; i += 1 {
-		advance_token(p)
+		_, _ = advance_token(p)
 	}
 	tok = p.curr_tok
 	return
 }
 skip_possible_newline :: proc(p: ^Parser) -> bool {
 	if tokenizer.is_newline(p.curr_tok) {
-		advance_token(p)
+		_, _ = advance_token(p)
 		return true
 	}
 	return false
@@ -285,7 +285,7 @@ skip_possible_newline_for_literal :: proc(p: ^Parser) -> bool {
 		if curr_pos.line+1 >= next.pos.line {
 			#partial switch next.kind {
 			case .Open_Brace, .Else, .Where:
-				advance_token(p)
+				_, _ = advance_token(p)
 				return true
 			}
 		}
@@ -332,13 +332,13 @@ consume_comment_group :: proc(p: ^Parser, n: int) -> (comments: ^ast.Comment_Gro
 	    p.curr_tok.pos.line <= end_line+n {
 		comment: tokenizer.Token
 		comment, end_line = consume_comment(p)
-		append(&list, comment)
+		_ = append(&list, comment)
 	}
 
 	if len(list) > 0 && !p.peeking {
 		comments = ast.new(ast.Comment_Group, list[0].pos, end_pos(list[len(list)-1]))
 		comments.list = list[:]
-		append(&p.file.comments, comments)
+		_ = append(&p.file.comments, comments)
 	}
 
 	return
@@ -390,7 +390,7 @@ expect_token :: proc(p: ^Parser, kind: tokenizer.Token_Kind) -> tokenizer.Token 
 		g := tokenizer.token_to_string(prev)
 		error(p, prev.pos, "expected '%s', got '%s'", e, g)
 	}
-	advance_token(p)
+	_, _ = advance_token(p)
 	return prev
 }
 
@@ -401,7 +401,7 @@ expect_token_after :: proc(p: ^Parser, kind: tokenizer.Token_Kind, msg: string) 
 		g := tokenizer.token_to_string(prev)
 		error(p, prev.pos, "expected '%s' after %s, got '%s'", e, msg, g)
 	}
-	advance_token(p)
+	_, _ = advance_token(p)
 	return prev
 }
 
@@ -416,13 +416,13 @@ expect_operator :: proc(p: ^Parser) -> tokenizer.Token {
 			error(p, prev.pos, "expected an operator, got '%s'", g)
 		}
 	}
-	advance_token(p)
+	_, _ = advance_token(p)
 	return prev
 }
 
 allow_token :: proc(p: ^Parser, kind: tokenizer.Token_Kind) -> bool {
 	if p.curr_tok.kind == kind {
-		advance_token(p)
+		_, _ = advance_token(p)
 		return true
 	}
 	return false
@@ -457,7 +457,7 @@ expect_closing_token_of_field_list :: proc(p: ^Parser, closing_kind: tokenizer.T
 
 	if expect_closing.kind != closing_kind {
 		for p.curr_tok.kind != closing_kind && p.curr_tok.kind != .EOF && !is_non_inserted_semicolon(p.curr_tok) {
-			advance_token(p)
+			_, _ = advance_token(p)
 		}
 		return p.curr_tok
 	} 
@@ -477,7 +477,7 @@ expect_closing_parentheses_of_field_list :: proc(p: ^Parser) -> tokenizer.Token 
 	}
 
 	for p.curr_tok.kind != .Close_Paren && p.curr_tok.kind != .EOF && !is_non_inserted_semicolon(p.curr_tok) {
-		advance_token(p)
+		_, _ = advance_token(p)
 	}
 
 	return expect_token(p, .Close_Paren)
@@ -531,7 +531,7 @@ fix_advance_to_next_stmt :: proc(p: ^Parser) {
 				return
 			}
 		}
-		advance_token(p)
+		_, _ = advance_token(p)
 	}
 }
 
@@ -668,7 +668,7 @@ parse_ident :: proc(p: ^Parser) -> ^ast.Ident {
 	name := "_"
 	if tok.kind == .Ident {
 		name = tok.text
-		advance_token(p)
+		_, _ = advance_token(p)
 	} else {
 		expect_token(p, .Ident)
 	}
@@ -685,7 +685,7 @@ parse_stmt_list :: proc(p: ^Parser) -> []^ast.Stmt {
 		stmt := parse_stmt(p)
 		if stmt != nil {
 			if _, ok := stmt.derived.(^ast.Empty_Stmt); !ok {
-				append(&list, stmt)
+				_ = append(&list, stmt)
 				if es, es_ok := stmt.derived.(^ast.Expr_Stmt); es_ok && es.expr != nil {
 					if _, pl_ok := es.expr.derived.(^ast.Proc_Lit); pl_ok {
 						error(p, stmt.pos, "procedure literal evaluated but not used")
@@ -1056,7 +1056,7 @@ parse_switch_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 
 	for p.curr_tok.kind == .Case {
 		clause := parse_case_clause(p, is_type_switch)
-		append(&clauses, clause)
+		_ = append(&clauses, clause)
 	}
 
 	close := expect_token(p, .Close_Brace)
@@ -1088,7 +1088,7 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
 
 	if p.curr_tok.kind == .Ident {
 		elem := parse_ident(p)
-		append(&elems, elem)
+		_ = append(&elems, elem)
 	} else {
 		open = expect_token(p, open_kind)
 		p.expr_level += 1
@@ -1106,7 +1106,7 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
 
 				elem = fv
 			}
-			append(&elems, elem)
+			_ = append(&elems, elem)
 
 			allow_token(p, .Comma) or_break
 		}
@@ -1126,20 +1126,20 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
 	#partial switch d in decl.derived_stmt {
 	case ^ast.Value_Decl:
 		if d.docs == nil { d.docs = docs }
-		append(&d.attributes, attribute)
+		_ = append(&d.attributes, attribute)
 	case ^ast.Foreign_Block_Decl:
 		if d.docs == nil { d.docs = docs }
-		append(&d.attributes, attribute)
+		_ = append(&d.attributes, attribute)
 	case ^ast.Foreign_Import_Decl:
 		if d.docs == nil { d.docs = docs }
-		append(&d.attributes, attribute)
+		_ = append(&d.attributes, attribute)
 	case ^ast.Import_Decl:
 		if d.docs == nil { d.docs = docs }
-		append(&d.attributes, attribute)
+		_ = append(&d.attributes, attribute)
 	case:
 		error(p, decl.pos, "expected a value or foreign declaration after an attribute")
-		free(attribute)
-		delete(elems)
+		_ = free(attribute)
+		_ = delete(elems)
 	}
 	return decl
 
@@ -1185,7 +1185,7 @@ parse_foreign_block :: proc(p: ^Parser, tok: tokenizer.Token) -> ^ast.Foreign_Bl
 	for p.curr_tok.kind != .Close_Brace && p.curr_tok.kind != .EOF {
 		decl := parse_foreign_block_decl(p)
 		if decl != nil {
-			append(&decls, decl)
+			_ = append(&decls, decl)
 		}
 	}
 	close := expect_token(p, .Close_Brace)
@@ -1228,17 +1228,17 @@ parse_foreign_decl :: proc(p: ^Parser) -> ^ast.Decl {
 			for p.curr_tok.kind != .Close_Brace &&
 				p.curr_tok.kind != .EOF {
 				path := parse_expr(p, false)
-				append(&fullpaths, path)
+				_ = append(&fullpaths, path)
 
 				allow_token(p, .Comma) or_break
 			}
 			expect_token(p, .Close_Brace)
 		} else {
 			path := expect_token(p, .String)
-			reserve(&fullpaths, 1)
+			_ = reserve(&fullpaths, 1)
 			bl := ast.new(ast.Basic_Lit, path.pos, end_pos(path))
 			bl.tok = path
-			append(&fullpaths, bl)
+			_ = append(&fullpaths, bl)
 		}
 
 		if len(fullpaths) == 0 {
@@ -1294,7 +1294,7 @@ parse_unrolled_for_loop :: proc(p: ^Parser, inline_tok: tokenizer.Token) -> ^ast
 					arg = fv
 				}
 
-				append(&args, arg)
+				_ = append(&args, arg)
 
 				allow_token(p, .Comma) or_break
 			}
@@ -1392,7 +1392,7 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 	case .Switch:  return parse_switch_stmt(p)
 
 	case .Defer:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		stmt := parse_stmt(p)
 		#partial switch s in stmt.derived_stmt {
 		case ^ast.Empty_Stmt:
@@ -1408,7 +1408,7 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 		return ds
 
 	case .Return:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 
 		if p.expr_level > 0 {
 			error(p, tok.pos, "you cannot use a return statement within an expression")
@@ -1417,12 +1417,12 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 		results: [dynamic]^ast.Expr
 		for p.curr_tok.kind != .Semicolon && p.curr_tok.kind != .Close_Brace {
 			result := parse_expr(p, false)
-			append(&results, result)
+			_ = append(&results, result)
 			if p.curr_tok.kind != .Comma ||
 			   p.curr_tok.kind == .EOF {
 				break
 			}
-			advance_token(p)
+			_, _ = advance_token(p)
 		}
 
 		end := end_pos(tok)
@@ -1436,7 +1436,7 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 		return rs
 
 	case .Break, .Continue, .Fallthrough:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		label: ^ast.Ident
 		if tok.kind != .Fallthrough && p.curr_tok.kind == .Ident {
 			label = parse_ident(p)
@@ -1484,7 +1484,7 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 
 	case .At:
 		docs := p.lead_comment
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		return parse_attribute(p, tok, .Open_Paren, .Close_Paren, docs)
 
 	case .Hash:
@@ -1565,7 +1565,7 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 		return parse_block_stmt(p, false)
 
 	case .Semicolon:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		s := ast.new(ast.Empty_Stmt, tok.pos, end_pos(tok))
 		return s
 	}
@@ -1592,7 +1592,7 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
 	}
 
 
-	tok := advance_token(p)
+	tok, _ := advance_token(p)
 	error(p, tok.pos, "expected a statement, got %s", tokenizer.token_to_string(tok))
 	fix_advance_to_next_stmt(p)
 	s := ast.new(ast.Bad_Stmt, tok.pos, end_pos(tok))
@@ -1758,7 +1758,7 @@ convert_to_ident_list :: proc(p: ^Parser, list: []Expr_And_Flags, ignore_flags, 
 			id = ast.new(ast.Ident, ident.expr.pos, ident.expr.end)
 		}
 
-		append(&idents, id)
+		_ = append(&idents, id)
 	}
 
 	return idents[:]
@@ -1769,13 +1769,13 @@ is_token_field_prefix :: proc(p: ^Parser) -> ast.Field_Flag {
 	case .EOF:
 		return .Invalid
 	case .Using:
-		advance_token(p)
+		_, _ = advance_token(p)
 		return .Using
 	case .Hash:
 		tok: tokenizer.Token
-		advance_token(p)
+		_, _ = advance_token(p)
 		tok = p.curr_tok
-		advance_token(p)
+		_, _ = advance_token(p)
 		if tok.kind == .Ident {
 			for kf in ast.field_hash_flag_strings {
 				if kf.key == tok.text {
@@ -1844,7 +1844,7 @@ check_field_flag_prefixes :: proc(p: ^Parser, name_count: int, allowed_flags, se
 
 parse_var_type :: proc(p: ^Parser, flags: ast.Field_Flags) -> ^ast.Expr {
 	if .Ellipsis in flags && p.curr_tok.kind == .Ellipsis {
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		type := parse_type_or_ident(p)
 		if type == nil {
 			error(p, tok.pos, "variadic field missing type after '..'")
@@ -1920,10 +1920,10 @@ parse_ident_list :: proc(p: ^Parser, allow_poly_names: bool) -> []^ast.Expr {
 			}
 			poly_name := ast.new(ast.Poly_Type, tok.pos, ident)
 			poly_name.type = ident
-			append(&list, poly_name)
+			_ = append(&list, poly_name)
 		} else {
 			ident := parse_ident(p)
-			append(&list, ident)
+			_ = append(&list, ident)
 		}
 		if p.curr_tok.kind != .Comma ||
 		   p.curr_tok.kind == .EOF {
@@ -2031,7 +2031,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
 		field.docs    = docs
 		field.flags   = flags
 		field.comment = p.line_comment
-		append(fields, field)
+		_ = append(fields, field)
 
 		return ok
 	}
@@ -2044,7 +2044,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
 	fields: [dynamic]^ast.Field
 
 	list: [dynamic]Expr_And_Flags
-	defer delete(list)
+	defer _ = delete(list)
 
 	seen_ellipsis := false
 
@@ -2066,7 +2066,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
 		}
 
 		eaf := Expr_And_Flags{param, prefix_flags}
-		append(&list, eaf)
+		_ = append(&list, eaf)
 		allow_token(p, .Comma) or_break
 	}
 
@@ -2094,7 +2094,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
 			field.docs    = docs
 			field.flags   = flags
 			field.comment = p.line_comment
-			append(&fields, field)
+			_ = append(&fields, field)
 		}
 	} else {
 		names := convert_to_ident_list(p, list[:], true, allow_poly_names)
@@ -2293,7 +2293,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 
 	case .Integer, .Float, .Imag,
 	     .Rune, .String:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		bl := ast.new(ast.Basic_Lit, tok.pos, end_pos(tok))
 		bl.tok = tok
 		return bl
@@ -2318,7 +2318,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		return pe
 
 	case .Distinct:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		type := parse_type(p)
 		dt := ast.new(ast.Distinct_Type, tok.pos, type)
 		dt.tok  = tok.kind
@@ -2463,7 +2463,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		}
 
 	case .Inline, .No_Inline:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		return parse_inlining_operand(p, lhs, tok)
 
 	case .Proc:
@@ -2477,7 +2477,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 			for p.curr_tok.kind != .Close_Brace &&
 			    p.curr_tok.kind != .EOF {
 				elem := parse_expr(p, false)
-				append(&args, elem)
+				_ = append(&args, elem)
 
 				allow_token(p, .Comma) or_break
 			}
@@ -2554,7 +2554,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		return pl
 
 	case .Dollar:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		type := parse_ident(p)
 		end := type.end
 
@@ -2574,7 +2574,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		return pt
 
 	case .Typeid:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		ti := ast.new(ast.Typeid_Type, tok.pos, end_pos(tok))
 		ti.tok = tok.kind
 		ti.specialization = nil
@@ -2842,7 +2842,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		for p.curr_tok.kind != .Close_Brace && p.curr_tok.kind != .EOF {
 			type := parse_type(p)
 			if _, ok := type.derived.(^ast.Bad_Expr); !ok {
-				append(&variants, type)
+				_ = append(&variants, type)
 			}
 			allow_token(p, .Comma) or_break
 		}
@@ -2958,7 +2958,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 			field.docs     = docs
 			field.comments = p.line_comment
 
-			append(&fields, field)
+			_ = append(&fields, field)
 
 			if !ok {
 				break
@@ -2984,12 +2984,12 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		if allow_token(p, .Open_Paren) {
 			for p.curr_tok.kind != .Close_Paren && p.curr_tok.kind != .EOF {
 				t := parse_type(p)
-				append(&param_types, t)
+				_ = append(&param_types, t)
 				if p.curr_tok.kind != .Comma ||
 				   p.curr_tok.kind == .EOF {
 					break
 				}
-				advance_token(p)
+				_, _ = advance_token(p)
 			}
 			expect_token(p, .Close_Paren)
 
@@ -3003,7 +3003,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		dialect := ast.Inline_Asm_Dialect.Default
 		for allow_token(p, .Hash) {
 			if p.curr_tok.kind == .Ident {
-				name := advance_token(p)
+				name, _ := advance_token(p)
 				switch name.text {
 				case "side_effects":
 					if has_side_effects {
@@ -3116,7 +3116,7 @@ parse_elem_list :: proc(p: ^Parser) -> []^ast.Expr {
 			elem = fv
 		}
 
-		append(&elems, elem)
+		_ = append(&elems, elem)
 
 		allow_token(p, .Comma) or_break
 	}
@@ -3188,7 +3188,7 @@ parse_call_expr :: proc(p: ^Parser, operand: ^ast.Expr) -> ^ast.Expr {
 			error(p, arg.pos, "Positional arguments are not allowed after '..'")
 		}
 
-		append(&args, arg)
+		_ = append(&args, arg)
 
 		if ellipsis.pos.line != 0 {
 			seen_ellipsis = true
@@ -3277,7 +3277,7 @@ parse_atom_expr :: proc(p: ^Parser, value: ^ast.Expr, lhs: bool) -> (operand: ^a
 				error(p, p.curr_tok.pos, "expected a colon, not a range")
 				fallthrough
 			case .Colon, .Comma/*matrix index*/:
-				interval = advance_token(p)
+				interval, _ = advance_token(p)
 				is_slice_op = true
 				if p.curr_tok.kind != .Close_Bracket && p.curr_tok.kind != .EOF {
 					indices[1] = parse_expr(p, false)
@@ -3399,7 +3399,7 @@ parse_atom_expr :: proc(p: ^Parser, value: ^ast.Expr, lhs: bool) -> (operand: ^a
 			operand = oe
 
 		case .Or_Break, .Or_Continue:
-			token := advance_token(p)
+			token, _ := advance_token(p)
 			label: ^ast.Ident
 
 			end := end_pos(token)
@@ -3424,7 +3424,7 @@ parse_atom_expr :: proc(p: ^Parser, value: ^ast.Expr, lhs: bool) -> (operand: ^a
 
 		case .Increment, .Decrement:
 			if !lhs {
-				tok := advance_token(p)
+				tok, _ := advance_token(p)
 				error(p, tok.pos, "postfix '%s' operator is not supported", tok.text)
 			} else {
 				loop = false
@@ -3444,7 +3444,7 @@ parse_expr :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 parse_unary_expr :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 	#partial switch p.curr_tok.kind {
 	case .Transmute, .Cast:
-		tok := advance_token(p)
+		tok, _ := advance_token(p)
 		open := expect_token(p, .Open_Paren)
 		type := parse_type(p)
 		close := expect_token(p, .Close_Paren)
@@ -3459,7 +3459,7 @@ parse_unary_expr :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		return tc
 
 	case .Auto_Cast:
-		op := advance_token(p)
+		op, _ := advance_token(p)
 		expr := parse_unary_expr(p, lhs)
 
 		ac := ast.new(ast.Auto_Cast, op.pos, expr)
@@ -3470,7 +3470,7 @@ parse_unary_expr :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 	case .Add, .Sub,
 	     .Not, .Xor,
 	     .And:
-		op := advance_token(p)
+		op, _ := advance_token(p)
 		expr := parse_unary_expr(p, lhs)
 		
 		ue := ast.new(ast.Unary_Expr, op.pos, expr)
@@ -3479,7 +3479,7 @@ parse_unary_expr :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		return ue
 
 	case .Increment, .Decrement:
-		op := advance_token(p)
+		op, _ := advance_token(p)
 		error(p, op.pos, "unary '%s' operator is not supported", op.text)
 		expr := parse_unary_expr(p, lhs)
 
@@ -3489,7 +3489,7 @@ parse_unary_expr :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
 		return ue
 
 	case .Period:
-		op := advance_token(p)
+		op, _ := advance_token(p)
 		field := parse_ident(p)
 		ise := ast.new(ast.Implicit_Selector_Expr, op.pos, field)
 		ise.field = field
@@ -3599,11 +3599,11 @@ parse_expr_list :: proc(p: ^Parser, lhs: bool) -> ([]^ast.Expr) {
 	list: [dynamic]^ast.Expr
 	for {
 		expr := parse_expr(p, lhs)
-		append(&list, expr)
+		_ = append(&list, expr)
 		if p.curr_tok.kind != .Comma || p.curr_tok.kind == .EOF {
 			break
 		}
-		advance_token(p)
+		_, _ = advance_token(p)
 	}
 
 	return list[:]
@@ -3627,7 +3627,7 @@ parse_simple_stmt :: proc(p: ^Parser, flags: Stmt_Allow_Flags) -> ^ast.Stmt {
 		// 	error(p, p.curr_tok.pos, "simple statements are not allowed at the file scope");
 		// 	return ast.new(ast.Bad_Stmt, start_tok.pos, end_pos(p.curr_tok));
 		// }
-		advance_token(p)
+		_, _ = advance_token(p)
 		rhs := parse_rhs_expr_list(p)
 		if len(rhs) == 0 {
 			error(p, p.curr_tok.pos, "no right-hand side in assignment statement")
@@ -3723,7 +3723,7 @@ parse_simple_stmt :: proc(p: ^Parser, flags: Stmt_Allow_Flags) -> ^ast.Stmt {
 
 	#partial switch op.kind {
 	case .Increment, .Decrement:
-		advance_token(p)
+		_, _ = advance_token(p)
 		error(p, op.pos, "postfix '%s' statement is not supported", op.text)
 	}
 
@@ -3740,7 +3740,7 @@ parse_value_decl :: proc(p: ^Parser, names: []^ast.Expr, docs: ^ast.Comment_Grou
 
 	#partial switch p.curr_tok.kind {
 	case .Eq, .Colon:
-		sep := advance_token(p)
+		sep, _ := advance_token(p)
 		is_mutable = sep.kind != .Colon
 
 		values = parse_rhs_expr_list(p)
@@ -3805,7 +3805,7 @@ parse_import_decl :: proc(p: ^Parser, kind := Import_Decl_Kind.Standard) -> ^ast
 
 	#partial switch p.curr_tok.kind {
 	case .Ident:
-		import_name = advance_token(p)
+		import_name, _ = advance_token(p)
 	case:
 		import_name.pos = p.curr_tok.pos
 	}
@@ -3823,7 +3823,7 @@ parse_import_decl :: proc(p: ^Parser, kind := Import_Decl_Kind.Standard) -> ^ast
 	if p.curr_proc != nil {
 		error(p, decl.pos, "import declarations cannot be used within a procedure, it must be done at the file scope")
 	} else {
-		append(&p.file.imports, decl)
+		_ = append(&p.file.imports, decl)
 	}
 	expect_semicolon(p, decl)
 	decl.comment = p.line_comment

@@ -45,7 +45,7 @@ plain_last_index_byte :: proc(s: []u8, c: byte) -> (res: int) #no_bounds_check {
 
 run_trial_size :: proc(p: proc([]u8, byte) -> int, size: int, idx: int, runs: int) -> (timing: time.Duration) {
 	data := make([]u8, size)
-	defer delete(data)
+	defer _ = delete(data)
 
 	for i in 0..<size {
 		data[i] = u8('0' + i % 10)

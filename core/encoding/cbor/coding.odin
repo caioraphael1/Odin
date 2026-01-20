@@ -191,7 +191,7 @@ have to be precomputed, sorted and only then written to the output.
 Empty flags will do nothing extra to the value.
 
 The allocations for the `.Deterministic_Map_Sorting` flag are done using the given temp_allocator.
-but are followed by the necessary `delete` and `free` calls if the allocator supports them.
+but are followed by the necessary `_ = delete` and `free` calls if the allocator supports them.
 This is helpful when the CBOR size is so big that you don't want to collect all the temporary
 allocations until the end.
 */
@@ -397,7 +397,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
 				if iter_n == -1 {
 					return nil, .Nested_Indefinite_Length
 				}
-				reserve(&buf.buf, len(buf.buf) + iter_cap) or_return
+				_ = reserve(&buf.buf, len(buf.buf) + iter_cap) or_return
 				io.copy_n(buf_stream, d.reader, i64(iter_n)) or_return
 
 			case .Other:
@@ -457,7 +457,7 @@ _decode_array :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #ca
 	array := make([dynamic]Value, 0, scap, allocator, loc) or_return
 	defer if err != nil {
 		for entry in array { destroy(entry, allocator) }
-		delete(array, loc)
+		_ = delete(array, loc)
 	}
 	
 	for i := 0; n == -1 || i < n; i += 1 {
@@ -503,7 +503,7 @@ _decode_map :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #call
 			destroy(entry.key)
 			destroy(entry.value)
 		}
-		delete(items, loc)
+		_ = delete(items, loc)
 	}
 
 	for i := 0; n == -1 || i < n; i += 1 {
@@ -551,7 +551,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
 	}
 
 	entries := make([]Map_Entry_With_Key, len(m), e.temp_allocator) or_return
-	defer delete(entries, e.temp_allocator)
+	defer _ = delete(entries, e.temp_allocator)
 
 	for &entry, i in entries {
 		entry.entry = m[i]
@@ -571,8 +571,8 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
 	})
 
 	for entry in entries {
-		io.write_full(e.writer, entry.encoded_key) or_return
-		delete(entry.encoded_key, e.temp_allocator)
+		_ = io.write_full(e.writer, entry.encoded_key) or_return
+		_ = delete(entry.encoded_key, e.temp_allocator)
 
 		encode(e, entry.entry.value) or_return
 	}

@@ -210,7 +210,7 @@ size :: proc(s: Stream) -> (n: i64, err: Error) {
 			n = 0
 			curr := seek(s, 0, .Current) or_return
 			end  := seek(s, 0, .End)     or_return
-			seek(s, curr, .Start)        or_return
+			_ = seek(s, curr, .Start)     or_return
 			n = end
 		}
 	} else {
@@ -285,7 +285,7 @@ read_byte :: proc(r: Reader, n_read: ^int = nil) -> (b: byte, err: Error) {
 write_byte :: proc(w: Writer, c: byte, n_written: ^int = nil, loc := #caller_location) -> Error {
 	buf: [1]byte
 	buf[0] = c
-	write(w, buf[:], n_written, loc) or_return
+	_ = write(w, buf[:], n_written, loc) or_return
 	return nil
 }
 

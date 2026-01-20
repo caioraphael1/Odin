@@ -105,7 +105,7 @@ test_v8_hash_implementation :: proc(t: ^testing.T) {
 
 	id := uuid.generate_v8_hash(uuid.Namespace_DNS, "www.example.com", .SHA256)
 	id_str := uuid.to_string(id)
-	defer delete(id_str)
+	defer _ = delete(id_str)
 	testing.expect_value(t, id_str, "5c146b14-3c52-8afd-938a-375d0df1fbf6")
 }
 
@@ -130,10 +130,10 @@ test_legacy_namespaced_uuids :: proc(t: ^testing.T) {
 		v5 := uuid_legacy.generate_v5(exp.namespace, TEST_NAME)
 
 		v3_str := uuid.to_string(v3)
-		defer delete(v3_str)
+		defer _ = delete(v3_str)
 
 		v5_str := uuid.to_string(v5)
-		defer delete(v5_str)
+		defer _ = delete(v5_str)
 
 		testing.expect_value(t, v3_str, exp.v3)
 		testing.expect_value(t, v5_str, exp.v5)
@@ -375,7 +375,7 @@ test_writing :: proc(t: ^testing.T) {
 	buf: [uuid.EXPECTED_LENGTH]u8
 
 	s_alloc := uuid.to_string(id)
-	defer delete(s_alloc)
+	defer _ = delete(s_alloc)
 
 	s_buf := uuid.to_string(id, buf[:])
 

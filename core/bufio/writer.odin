@@ -37,7 +37,7 @@ writer_init_with_buf :: proc(b: ^Writer, wr: io.Writer, buf: []byte) {
 
 // writer_destroy destroys the underlying buffer with its associated allocator IFF that allocator has been set
 writer_destroy :: proc(b: ^Writer) {
-	delete(b.buf, b.buf_allocator)
+	_ = delete(b.buf, b.buf_allocator)
 	b^ = {}
 }
 
@@ -104,7 +104,7 @@ writer_write :: proc(b: ^Writer, p: []byte) -> (n: int, err: io.Error) {
 		} else {
 			m = copy(b.buf[b.n:], p)
 			b.n += m
-			writer_flush(b)
+			_ = writer_flush(b)
 		}
 		n += m
 		p = p[m:]
@@ -146,7 +146,7 @@ writer_write_rune :: proc(b: ^Writer, r: rune) -> (size: int, err: io.Error) {
 
 	n := writer_available(b)
 	if n < utf8.UTF_MAX {
-		writer_flush(b)
+		_ = writer_flush(b)
 		if b.err != nil {
 			return 0, b.err
 		}

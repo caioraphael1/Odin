@@ -124,8 +124,8 @@ run_trial_size_cmp :: proc(p: proc(rawptr, rawptr, int) -> $R, size: int, idx: i
 	left  := make([]u8, size)
 	right := make([]u8, size)
 	defer {
-		delete(left)
-		delete(right)
+		_ = delete(left)
+		_ = delete(right)
 	}
 
 	right[idx] = 0x01
@@ -154,7 +154,7 @@ run_trial_size_cmp :: proc(p: proc(rawptr, rawptr, int) -> $R, size: int, idx: i
 
 run_trial_size_zero :: proc(p: proc(rawptr, int) -> int, size: int, idx: int, runs: int, loc := #caller_location) -> (timing: time.Duration) {
 	data := make([]u8, size)
-	defer delete(data)
+	defer _ = delete(data)
 
 	data[idx] = 0x01
 

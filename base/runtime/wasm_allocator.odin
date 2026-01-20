@@ -89,12 +89,12 @@ wasm_allocator_init :: proc(a: ^WASM_Allocator, alignment: uint = 8) {
 
 global_default_wasm_allocator_data: WASM_Allocator
 
-@(require_results)
+
 default_wasm_allocator :: proc() -> Allocator {
 	return wasm_allocator(&global_default_wasm_allocator_data)
 }
 
-@(require_results)
+
 wasm_allocator :: proc(a: ^WASM_Allocator) -> Allocator {
 	return {
 		data      = a,
@@ -151,7 +151,7 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: in
 		return ([^]byte)(ptr)[:size], nil
 
 	case .Free:
-		free(a, old_memory, loc)
+		_ = free(a, old_memory, loc)
 		return nil, nil
 
 	case .Free_All, .Query_Info:
@@ -209,13 +209,13 @@ wasm_allocator_free_space :: proc(a: ^WASM_Allocator = nil) -> (free: uint) {
 		bucket_index += index_add
 		bucket_mask >>= index_add
 		for free_region := a.free_region_buckets[bucket_index].next; free_region != &a.free_region_buckets[bucket_index]; free_region = free_region.next {
-			free += free_region.size - REGION_HEADER_SIZE
+			_ = free += free_region.size - REGION_HEADER_SIZE
 		}
 		bucket_index += 1
 		bucket_mask >>= 1
 	}
 
-	free += len(a.spill)
+	_ = free += len(a.spill)
 
 	return
 }
@@ -750,7 +750,7 @@ aligned_alloc :: proc(a: ^WASM_Allocator, alignment, size: uint, loc := #caller_
 }
 
 @(private="file")
-free :: proc(a: ^WASM_Allocator, ptr: rawptr, loc := #caller_location) {
+_ = free :: proc(a: ^WASM_Allocator, ptr: rawptr, loc := #caller_location) {
 	if ptr == nil {
 		return
 	}
@@ -841,7 +841,7 @@ aligned_realloc :: proc(a: ^WASM_Allocator, ptr: rawptr, alignment, size: uint, 
 	}
 
 	if size == 0 {
-		free(a, ptr, loc)
+		_ = free(a, ptr, loc)
 		return nil
 	}
 
@@ -866,7 +866,7 @@ aligned_realloc :: proc(a: ^WASM_Allocator, ptr: rawptr, alignment, size: uint, 
 	newptr := aligned_alloc(a, alignment, size, loc)
 	if newptr != nil {
 		intrinsics.mem_copy(newptr, ptr, min(size, region.size - REGION_HEADER_SIZE))
-		free(a, ptr, loc=loc)
+		_ = free(a, ptr, loc=loc)
 	}
 
 	return newptr

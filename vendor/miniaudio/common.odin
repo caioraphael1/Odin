@@ -357,9 +357,9 @@ foreign lib {
 	realloc :: proc(p: rawptr, sz: c.size_t, pAllocationCallbacks: ^allocation_callbacks) -> rawptr ---
 
 	/*
-	free()
+	_ = free()
 	*/
-	free :: proc(p: rawptr, pAllocationCallbacks: ^allocation_callbacks) ---
+	_ = free :: proc(p: rawptr, pAllocationCallbacks: ^allocation_callbacks) ---
 
 	/*
 	Performs an aligned malloc, with the assumption that the alignment is a power of 2.

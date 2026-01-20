@@ -89,7 +89,7 @@ foreign lib {
 		e: posix.Errno
 
 		buffer: [dynamic]byte
-		defer delete(buffer)
+		defer _ = delete(buffer)
 
 		for {
 			mem_err := resize(&buffer, length)

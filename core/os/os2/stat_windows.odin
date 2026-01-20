@@ -88,7 +88,7 @@ internal_stat :: proc(name: string, create_file_attributes: u32, allocator: runt
 			e = _get_platform_error()
 			return
 		}
-		win32.FindClose(sh)
+		_ = win32.FindClose(sh)
 
 		fi = _file_info_from_win32_find_data(&fd, name, allocator) or_return
 		if fi.type == .Undetermined {
@@ -102,7 +102,7 @@ internal_stat :: proc(name: string, create_file_attributes: u32, allocator: runt
 		e = _get_platform_error()
 		return
 	}
-	defer win32.CloseHandle(h)
+	defer _ = win32.CloseHandle(h)
 	return _file_info_from_get_file_information_by_handle(name, h, allocator)
 }
 
@@ -207,7 +207,7 @@ _file_type_from_create_file :: proc(wname: win32.wstring, create_file_attributes
 	if h == win32.INVALID_HANDLE_VALUE {
 		return .Undetermined
 	}
-	defer win32.CloseHandle(h)
+	defer _ = win32.CloseHandle(h)
 	return file_type(h)
 }
 

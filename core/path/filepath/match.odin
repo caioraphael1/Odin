@@ -249,9 +249,9 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
 	}
 	defer {
 		for s in m {
-			delete(s, allocator)
+			_ = delete(s, allocator)
 		}
-		delete(m, allocator)
+		_ = delete(m, allocator)
 	}
 
 	dmatches := make([dynamic]string, 0, 0, allocator)
@@ -303,14 +303,14 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
 		for fi in fis {
 			os.file_info_delete(fi, allocator)
 		}
-		delete(fis, allocator)
+		_ = delete(fis, allocator)
 	}
 
 	for fi in fis {
 		n := fi.name
 		matched := match(pattern, n) or_return
 		if matched {
-			append(&m, join({dir, n}, allocator))
+			_ = append(&m, join({dir, n}, allocator))
 		}
 	}
 	return

@@ -28,7 +28,7 @@ Mutex allocator.
 The mutex allocator is a wrapper for allocators that is used to serialize all
 allocator requests across multiple threads.
 */
-@(require_results)
+
 mutex_allocator :: proc(m: ^Mutex_Allocator) -> Allocator {
 	return Allocator{
 		procedure = mutex_allocator_proc,

@@ -86,8 +86,8 @@ parse_mo_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, plur
 			Could be a pluralized string.
 		*/
 		zero := []byte{0}
-		keys := bytes.split(key_data, zero); defer delete(keys)
-		vals := bytes.split(val_data, zero); defer delete(vals)
+		keys := bytes.split(key_data, zero); defer _ = delete(keys)
+		vals := bytes.split(val_data, zero); defer _ = delete(vals)
 
 		if (len(keys) != 1 && len(keys) != 2) || len(vals) > MAX_PLURALS {
 			return translation, .MO_File_Incorrect_Plural_Count
@@ -141,7 +141,7 @@ parse_mo_file :: proc(filename: string, options := DEFAULT_PARSE_OPTIONS, plural
 	context.allocator = allocator
 
 	data, data_ok := os.read_entire_file(filename)
-	defer delete(data)
+	defer _ = delete(data)
 
 	if !data_ok { return {}, .File_Error }
 

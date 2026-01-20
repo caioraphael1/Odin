@@ -29,12 +29,12 @@ Read_Op :: enum i8 {
 
 
 buffer_init :: proc(b: ^Buffer, buf: []byte, loc := #caller_location) {
-	resize(&b.buf, len(buf), loc=loc)
+	_ = resize(&b.buf, len(buf), loc=loc)
 	copy(b.buf[:], buf)
 }
 
 buffer_init_string :: proc(b: ^Buffer, s: string, loc := #caller_location) {
-	resize(&b.buf, len(s), loc=loc)
+	_ = resize(&b.buf, len(s), loc=loc)
 	copy(b.buf[:], s)
 }
 
@@ -45,12 +45,12 @@ buffer_init_allocator :: proc(b: ^Buffer, len, cap: int, allocator: mem.Allocato
 	}
 
 	b.buf.allocator = allocator
-	reserve(&b.buf, cap)
-	resize(&b.buf, len)
+	_ = reserve(&b.buf, cap)
+	_ = resize(&b.buf, len)
 }
 
 buffer_destroy :: proc(b: ^Buffer) {
-	delete(b.buf)
+	_ = delete(b.buf)
 	buffer_reset(b)
 }
 
@@ -93,13 +93,13 @@ buffer_truncate :: proc(b: ^Buffer, n: int) {
 	if n < 0 || n > buffer_length(b) {
 		panic("bytes.truncate: truncation out of range")
 	}
-	resize(&b.buf, b.off+n)
+	_ = resize(&b.buf, b.off+n)
 }
 
 @(private)
 _buffer_try_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> (int, bool) {
 	if l := len(b.buf); n <= cap(b.buf)-l {
-		resize(&b.buf, l+n, loc=loc)
+		_ = resize(&b.buf, l+n, loc=loc)
 		return l, true
 	}
 	return 0, false
@@ -117,8 +117,8 @@ _buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> int {
 
 	if b.buf == nil && n <= SMALL_BUFFER_SIZE {
 		// Fixes #2756 by preserving allocator if already set on Buffer via init_buffer_allocator
-		reserve(&b.buf, SMALL_BUFFER_SIZE, loc=loc)
-		resize(&b.buf, n, loc=loc)
+		_ = reserve(&b.buf, SMALL_BUFFER_SIZE, loc=loc)
+		_ = resize(&b.buf, n, loc=loc)
 		return 0
 	}
 
@@ -128,11 +128,11 @@ _buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> int {
 	} else if c > max(int) - c - n {
 		panic("bytes.Buffer: too large")
 	} else {
-		resize(&b.buf, 2*c + n, loc=loc)
+		_ = resize(&b.buf, 2*c + n, loc=loc)
 		copy(b.buf[:], b.buf[b.off:])
 	}
 	b.off = 0
-	resize(&b.buf, m+n, loc=loc)
+	_ = resize(&b.buf, m+n, loc=loc)
 	return m
 }
 
@@ -141,7 +141,7 @@ buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) {
 		panic("bytes.buffer_grow: negative count")
 	}
 	m := _buffer_grow(b, n, loc=loc)
-	resize(&b.buf, m, loc=loc)
+	_ = resize(&b.buf, m, loc=loc)
 }
 
 buffer_write_at :: proc(b: ^Buffer, p: []byte, offset: int, loc := #caller_location) -> (n: int, err: io.Error) {
@@ -198,7 +198,7 @@ buffer_write_byte :: proc(b: ^Buffer, c: byte, loc := #caller_location) -> io.Er
 
 buffer_write_rune :: proc(b: ^Buffer, r: rune, loc := #caller_location) -> (n: int, err: io.Error) {
 	if r < utf8.RUNE_SELF {
-		buffer_write_byte(b, byte(r), loc=loc)
+		buffer_write_byte(b, byte(r), loc=loc) or_return
 		return 1, nil
 	}
 	b.last_read = .Invalid
@@ -209,7 +209,7 @@ buffer_write_rune :: proc(b: ^Buffer, r: rune, loc := #caller_location) -> (n: i
 	res: [4]byte
 	res, n = utf8.encode_rune(r)
 	copy(b.buf[m:][:utf8.UTF_MAX], res[:n])
-	resize(&b.buf, m+n)
+	_ = resize(&b.buf, m+n)
 	return
 }
 
@@ -384,14 +384,14 @@ buffer_read_from :: proc(b: ^Buffer, r: io.Reader) -> (n: i64, err: io.Error) #n
 	b.last_read = .Invalid
 	for {
 		i := _buffer_grow(b, MIN_READ)
-		resize(&b.buf, i)
+		_ = resize(&b.buf, i)
 		m, e := io.read(r, b.buf[i:cap(b.buf)])
 		if m < 0 {
 			err = e if e != nil else .Negative_Read
 			return
 		}
 
-		resize(&b.buf, i+m)
+		_ = resize(&b.buf, i+m)
 		n += i64(m)
 		if e == .EOF {
 			return

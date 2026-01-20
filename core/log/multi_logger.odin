@@ -17,8 +17,8 @@ create_multi_logger :: proc(logs: []Logger, allocator: runtime.Allocator) -> Log
 
 destroy_multi_logger :: proc(log: Logger, allocator: runtime.Allocator) {
 	data := (^Multi_Logger_Data)(log.data)
-	delete(data.loggers, allocator)
-	free(data, allocator)
+	_ = delete(data.loggers, allocator)
+	_ = free(data, allocator)
 }
 
 multi_logger_proc :: proc(logger_data: rawptr, level: Level, text: string,

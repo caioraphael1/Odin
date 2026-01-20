@@ -112,9 +112,9 @@ Returns:
 - res: A pointer to the initialized Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_init_none :: proc(b: ^Builder, allocator: mem.Allocator, loc := #caller_location) -> (res: ^Builder, err: mem.Allocator_Error) {
+builder_init_none :: proc(b: ^Builder, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
 	b.buf = make([dynamic]byte, allocator, loc) or_return
-	return b, nil
+	return nil
 }
 /*
 Initializes a Builder with specified length and capacity `len`.
@@ -131,9 +131,9 @@ Returns:
 - res: A pointer to the initialized Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_init_len :: proc(b: ^Builder, len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: ^Builder, err: mem.Allocator_Error) {
+builder_init_len :: proc(b: ^Builder, len: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
 	b.buf = make([dynamic]byte, len, allocator, loc) or_return
-	return b, nil
+	return nil
 }
 /*
 Initializes a Builder with specified length `len` and capacity `cap`.
@@ -149,9 +149,9 @@ Returns:
 - res: A pointer to the initialized Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_init_len_cap :: proc(b: ^Builder, len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (res: ^Builder, err: mem.Allocator_Error) {
+builder_init_len_cap :: proc(b: ^Builder, len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
 	b.buf = make([dynamic]byte, len, cap, allocator, loc) or_return
-	return b, nil
+	return nil
 }
 // Overload simple `builder_init_*` with or without len / ap parameters
 builder_init :: proc{
@@ -213,7 +213,7 @@ Inputs:
 - b: A pointer to the Builder
 */
 builder_destroy :: proc(b: ^Builder) {
-	delete(b.buf)
+	_ = delete(b.buf)
 	b.buf = nil
 }
 /*
@@ -224,7 +224,7 @@ Inputs:
 - cap: The desired capacity for the Builder's buffer
 */
 builder_grow :: proc(b: ^Builder, cap: int) {
-	reserve(&b.buf, cap)
+	_ = reserve(&b.buf, cap)
 }
 /*
 Clears the Builder byte buffer content (sets len to zero)
@@ -294,7 +294,7 @@ Returns:
 - res: A cstring of the Builder's buffer
 */
 unsafe_to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring) {
-	append(&b.buf, 0, loc)
+	_ = append(&b.buf, 0, loc)
 	pop(&b.buf)
 	return cstring(raw_data(b.buf))
 }
@@ -309,8 +309,9 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
-	n := append(&b.buf, 0, loc) or_return
-	if n != 1 {
+    len_before := len(b.buf)
+	append(&b.buf, 0, loc) or_return
+	if len(b.buf) - len_before != 1 {
 		return nil, .Out_Of_Memory
 	}
 	pop(&b.buf)
@@ -384,9 +385,10 @@ Output:
 	ab
 
 */
+@(optional_results)
 write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: int) {
 	n0 := len(b.buf)
-	append(&b.buf, x, loc)
+	_ = append(&b.buf, x, loc)
 	n1 := len(b.buf)
 	return n1-n0
 }
@@ -414,9 +416,10 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 Returns:
 - n: The number of bytes appended
 */
+@(optional_results)
 write_bytes :: proc(b: ^Builder, x: []byte, loc := #caller_location) -> (n: int) {
 	n0 := len(b.buf)
-	append(&b.buf, ..x, loc=loc)
+	_ = append(&b.buf, ..x, loc=loc)
 	n1 := len(b.buf)
 	return n1-n0
 }
@@ -515,9 +518,10 @@ Output:
 	abc
 
 */
+@(optional_results)
 write_string :: proc(b: ^Builder, s: string, loc := #caller_location) -> (n: int) {
 	n0 := len(b.buf)
-	append(&b.buf, s, loc)
+	_ = append(&b.buf, s, loc)
 	n1 := len(b.buf)
 	return n1-n0
 }
@@ -615,9 +619,9 @@ Example:
 
 	write_encoded_rune_example :: proc() {
 		builder := strings.builder_make()
-		strings.write_encoded_rune(&builder, 'a', false) // 1
-		strings.write_encoded_rune(&builder, '\"', true) // 3
-		strings.write_encoded_rune(&builder, 'x', false) // 1
+		_, _ = strings.write_encoded_rune(&builder, 'a', false) // 1
+		_, _ = strings.write_encoded_rune(&builder, '\"', true) // 3
+		_, _ = strings.write_encoded_rune(&builder, 'x', false) // 1
 		fmt.println(strings.to_string(builder))
 	}
 
@@ -829,6 +833,7 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 Returns:
 - n: The number of characters written
 */
+@(optional_results)
 write_int :: proc(b: ^Builder, i: int, base: int = 10) -> (n: int) {
 	return write_i64(b, i64(i), base)
 }

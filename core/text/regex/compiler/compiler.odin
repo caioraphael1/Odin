@@ -135,7 +135,7 @@ map_all_classes :: proc(tree: Node, collection: ^[dynamic]Rune_Class_Data) {
 		}
 
 		if unseen {
-			append(collection, specific.data)
+			_ = append(collection, specific.data)
 		}
 	}
 }
@@ -143,7 +143,7 @@ map_all_classes :: proc(tree: Node, collection: ^[dynamic]Rune_Class_Data) {
 append_raw :: #force_inline proc(code: ^Program, data: $T) {
 	// NOTE: This is system-dependent endian.
 	for b in transmute([size_of(T)]byte)data {
-		append(code, cast(Opcode)b)
+		_ = append(code, cast(Opcode)b)
 	}
 }
 inject_raw :: #force_inline proc(code: ^Program, start: int, data: $T) {
@@ -153,7 +153,7 @@ inject_raw :: #force_inline proc(code: ^Program, start: int, data: $T) {
 	}
 }
 
-@require_results
+
 generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (code: Program) {
 	if node == nil {
 		return
@@ -168,18 +168,18 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 	// Atomic Nodes:
 	case ^Node_Rune:
 		if .Unicode not_in c.flags || specific.data < unicode.MAX_LATIN1 {
-			append(&code, Opcode.Byte)
-			append(&code, cast(Opcode)specific.data)
+			_ = append(&code, Opcode.Byte)
+			_ = append(&code, cast(Opcode)specific.data)
 		} else {
-			append(&code, Opcode.Rune)
+			_ = append(&code, Opcode.Rune)
 			append_raw(&code, specific.data)
 		}
 
 	case ^Node_Rune_Class:
 		if specific.negating {
-			append(&code, Opcode.Rune_Class_Negated)
+			_ = append(&code, Opcode.Rune_Class_Negated)
 		} else {
-			append(&code, Opcode.Rune_Class)
+			_ = append(&code, Opcode.Rune_Class)
 		}
 
 		index := -1
@@ -191,31 +191,31 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		}
 		assert(index != -1, "Unable to find collected Rune_Class_Data index.")
 
-		append(&code, Opcode(index))
+		_ = append(&code, Opcode(index))
 
 	case ^Node_Wildcard:
-		append(&code, Opcode.Wildcard)
+		_ = append(&code, Opcode.Wildcard)
 
 	case ^Node_Anchor:
 		if .Multiline in c.flags {
 			if specific.start {
-				append(&code, Opcode.Assert_Start_Multiline)
+				_ = append(&code, Opcode.Assert_Start_Multiline)
 			} else {
-				append(&code, Opcode.Multiline_Open)
-				append(&code, Opcode.Multiline_Close)
+				_ = append(&code, Opcode.Multiline_Open)
+				_ = append(&code, Opcode.Multiline_Close)
 			}
 		} else {
 			if specific.start {
-				append(&code, Opcode.Assert_Start)
+				_ = append(&code, Opcode.Assert_Start)
 			} else {
-				append(&code, Opcode.Assert_End)
+				_ = append(&code, Opcode.Assert_End)
 			}
 		}
 	case ^Node_Word_Boundary:
 		if specific.non_word {
-			append(&code, Opcode.Assert_Non_Word_Boundary)
+			_ = append(&code, Opcode.Assert_Non_Word_Boundary)
 		} else {
-			append(&code, Opcode.Assert_Word_Boundary)
+			_ = append(&code, Opcode.Assert_Word_Boundary)
 		}
 
 	// Compound Nodes:
@@ -226,8 +226,8 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 			inject_at(&code, 0, Opcode.Save)
 			inject_at(&code, 1, Opcode(2 * specific.capture_id))
 
-			append(&code, Opcode.Save)
-			append(&code, Opcode(2 * specific.capture_id + 1))
+			_ = append(&code, Opcode.Save)
+			_ = append(&code, Opcode(2 * specific.capture_id + 1))
 		}
 
 	case ^Node_Alternation:
@@ -243,18 +243,18 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + left_len + JUMP_SIZE))
 
-		append(&code, Opcode.Jump)
+		_ = append(&code, Opcode.Jump)
 		append_raw(&code, i16(len(right) + JUMP_SIZE))
 
 		for opcode in right {
-			append(&code, opcode)
+			_ = append(&code, opcode)
 		}
 
 	case ^Node_Concatenation:
 		for subnode in specific.nodes {
 			subnode_code := generate_code(c, subnode, allocator)
 			for opcode in subnode_code {
-				append(&code, opcode)
+				_ = append(&code, opcode)
 			}
 		}
 
@@ -266,7 +266,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + original_len + JUMP_SIZE))
 
-		append(&code, Opcode.Jump)
+		_ = append(&code, Opcode.Jump)
 		append_raw(&code, i16(-original_len - SPLIT_SIZE))
 
 	case ^Node_Repeat_Zero_Non_Greedy:
@@ -277,14 +277,14 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE + original_len + JUMP_SIZE))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE))
 
-		append(&code, Opcode.Jump)
+		_ = append(&code, Opcode.Jump)
 		append_raw(&code, i16(-original_len - SPLIT_SIZE))
 
 	case ^Node_Repeat_One:
 		code = generate_code(c, specific.inner, allocator)
 		original_len := len(code)
 
-		append(&code, Opcode.Split)
+		_ = append(&code, Opcode.Split)
 		append_raw(&code, i16(-original_len))
 		append_raw(&code, i16(SPLIT_SIZE))
 
@@ -292,7 +292,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		code = generate_code(c, specific.inner, allocator)
 		original_len := len(code)
 
-		append(&code, Opcode.Split)
+		_ = append(&code, Opcode.Split)
 		append_raw(&code, i16(SPLIT_SIZE))
 		append_raw(&code, i16(-original_len))
 
@@ -304,18 +304,18 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 			// e{N} ... evaluates to ... e^N
 			for i := 0; i < specific.upper; i += 1 {
 				for opcode in inside {
-					append(&code, opcode)
+					_ = append(&code, opcode)
 				}
 			}
 
 		} else if specific.lower == -1 && specific.upper > 0 { // {,M}
 			// e{,M} ... evaluates to ... e?^M
 			for i := 0; i < specific.upper; i += 1 {
-				append(&code, Opcode.Split)
+				_ = append(&code, Opcode.Split)
 				append_raw(&code, i16(SPLIT_SIZE))
 				append_raw(&code, i16(SPLIT_SIZE + original_len))
 				for opcode in inside {
-					append(&code, opcode)
+					_ = append(&code, opcode)
 				}
 			}
 
@@ -323,34 +323,34 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 			// e{N,} ... evaluates to ... e^N e*
 			for i := 0; i < specific.lower; i += 1 {
 				for opcode in inside {
-					append(&code, opcode)
+					_ = append(&code, opcode)
 				}
 			}
 
-			append(&code, Opcode.Split)
+			_ = append(&code, Opcode.Split)
 			append_raw(&code, i16(SPLIT_SIZE))
 			append_raw(&code, i16(SPLIT_SIZE + original_len + JUMP_SIZE))
 
 			for opcode in inside {
-				append(&code, opcode)
+				_ = append(&code, opcode)
 			}
 
-			append(&code, Opcode.Jump)
+			_ = append(&code, Opcode.Jump)
 			append_raw(&code, i16(-original_len - SPLIT_SIZE))
 
 		} else if specific.lower >= 0 && specific.upper > 0 {
 			// e{N,M}  evaluates to ... e^N e?^(M-N)
 			for i := 0; i < specific.lower; i += 1 {
 				for opcode in inside {
-					append(&code, opcode)
+					_ = append(&code, opcode)
 				}
 			}
 			for i := 0; i < specific.upper - specific.lower; i += 1 {
-				append(&code, Opcode.Split)
+				_ = append(&code, Opcode.Split)
 				append_raw(&code, i16(SPLIT_SIZE + original_len))
 				append_raw(&code, i16(SPLIT_SIZE))
 				for opcode in inside {
-					append(&code, opcode)
+					_ = append(&code, opcode)
 				}
 			}
 
@@ -375,21 +375,21 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE))
 
 	case ^Node_Match_All_And_Escape:
-		append(&code, Opcode.Match_All_And_Escape)
+		_ = append(&code, Opcode.Match_All_And_Escape)
 	}
 
 	return
 }
 
-@require_results
+
 compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (code: Program, class_data: [dynamic]Rune_Class_Data, err: Error) {
 	if tree == nil {
 		if .No_Capture not_in flags {
-			append(&code, Opcode.Save); append(&code, Opcode(0x00))
-			append(&code, Opcode.Save); append(&code, Opcode(0x01))
-			append(&code, Opcode.Match)
+			_ = append(&code, Opcode.Save); _ = append(&code, Opcode(0x00))
+			_ = append(&code, Opcode.Save); _ = append(&code, Opcode(0x01))
+			_ = append(&code, Opcode.Match)
 		} else {
-			append(&code, Opcode.Match_And_Exit)
+			_ = append(&code, Opcode.Match_And_Exit)
 		}
 		return
 	}
@@ -479,11 +479,11 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 		inject_at(&code, pc_open + size_of(byte), Opcode(0x00))
 
 		// `)`
-		append(&code, Opcode.Save); append(&code, Opcode(0x01))
+		_ = append(&code, Opcode.Save); _ = append(&code, Opcode(0x01))
 
-		append(&code, Opcode.Match)
+		_ = append(&code, Opcode.Match)
 	} else {
-		append(&code, Opcode.Match_And_Exit)
+		_ = append(&code, Opcode.Match_And_Exit)
 	}
 
 	if len(code) >= common.MAX_PROGRAM_SIZE {

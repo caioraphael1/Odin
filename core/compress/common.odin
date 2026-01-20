@@ -201,7 +201,7 @@ read_slice_from_memory :: #force_inline proc(z: ^Context_Memory_Input, size: int
 
 @(optimization_mode="favor_size")
 read_slice_from_stream :: #force_inline proc(z: ^Context_Stream_Input, size: int) -> (res: []u8, err: io.Error) {
-	b := make([]u8, size, runtime.temp_allocator)
+	b, _ := make([]u8, size, runtime.temp_allocator)
 	_ = io.read(z.input, b[:]) or_return
 	return b, nil
 }

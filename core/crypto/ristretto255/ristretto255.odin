@@ -96,7 +96,7 @@ ge_generator :: proc(ge: ^Group_Element) {
 
 // ge_set_bytes sets ge to the result of decoding b as a ristretto255
 // group element, and returns true on success.
-@(require_results)
+
 ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
 	// 1.  Interpret the string as an unsigned integer s in little-endian
 	//     representation.  If the length of the string is not 32 bytes or
@@ -387,7 +387,7 @@ ge_cond_select :: proc(ge, a, b: ^Group_Element, ctrl: int) {
 }
 
 // ge_equal returns 1 iff `a == b`, and 0 otherwise.
-@(require_results)
+
 ge_equal :: proc(a, b: ^Group_Element) -> int {
 	_ge_ensure_initialized([]^Group_Element{a, b})
 
@@ -406,7 +406,7 @@ ge_equal :: proc(a, b: ^Group_Element) -> int {
 }
 
 // ge_is_identity returns 1 iff `ge` is the identity element, and 0 otherwise.
-@(require_results)
+
 ge_is_identity :: proc(ge: ^Group_Element) -> int {
 	return ge_equal(ge, &GE_IDENTITY)
 }

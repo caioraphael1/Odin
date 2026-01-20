@@ -118,7 +118,7 @@ join_non_empty :: proc(elems: []string, allocator: mem.Allocator) -> (joined: st
 	if is_UNC(head) {
 		return p, nil
 	}
-	delete(p, allocator) // It is not needed now
+	_ = delete(p, allocator) // It is not needed now
 
 	tail := strings.join(elems[1:], SEPARATOR_STRING, runtime.temp_allocator) or_return
 	tail = clean(tail, runtime.temp_allocator) or_return

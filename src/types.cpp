@@ -200,7 +200,7 @@ struct TypeProc {
 	String   enable_target_feature;
 	// TODO(bill): Make this a flag set rather than bools
 	bool     variadic;
-	bool     require_results;
+	bool     optional_results;
 	bool     c_vararg;
 	bool     is_polymorphic;
 	bool     is_poly_specialized;

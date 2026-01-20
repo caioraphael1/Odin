@@ -156,7 +156,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	copy(output.buf[written:], trailer[:])
 	written += len(trailer)
 
-	resize(&output.buf, written)
+	_ = resize(&output.buf, written)
 	return nil
 }
 
@@ -340,9 +340,9 @@ destroy :: proc(img: ^Image) {
 	bytes.buffer_destroy(&img.pixels)
 
 	if v, ok := img.metadata.(^image.QOI_Info); ok {
-		free(v)
+		_ = free(v)
 	}
-	free(img)
+	_ = free(img)
 }
 
 QOI_Opcode_Tag :: enum u8 {

@@ -370,7 +370,7 @@ shrink :: proc(ba: ^Bit_Array) #no_bounds_check {
 		}
 		ba.length += NUM_BITS - int(intrinsics.count_leading_zeros(ba.bits[legs_needed - 1]))
 	}
-	resize(&ba.bits, legs_needed)
+	_ = resize(&ba.bits, legs_needed)
 	builtin.shrink(&ba.bits)
 }
 /*
@@ -381,9 +381,9 @@ Inputs:
 */
 destroy :: proc(ba: ^Bit_Array) {
 	if ba == nil { return }
-	delete(ba.bits)
+	_ = delete(ba.bits)
 	if ba.free_pointer { // Only free if this Bit_Array was created using `create`, not when on the stack.
-		free(ba)
+		_ = free(ba)
 	}
 }
 /*
@@ -397,7 +397,7 @@ resize_if_needed :: proc(ba: ^Bit_Array, legs: int, allocator: mem.Allocator) ->
 	context.allocator = allocator
 
 	if legs + 1 > builtin.len(ba.bits) {
-		resize(&ba.bits, legs + 1)
+		_ = resize(&ba.bits, legs + 1)
 	}
 	return builtin.len(ba.bits) > legs
 }

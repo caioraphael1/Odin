@@ -12,7 +12,7 @@ Callgrind_Client_Request :: enum uintptr {
 	Stop_Instrumentation,
 }
 
-@(require_results)
+
 callgrind_client_request_expr :: #force_inline proc "c" (default: uintptr, request: Callgrind_Client_Request, a0, a1, a2, a3, a4: uintptr) -> uintptr {
 	return intrinsics.valgrind_client_request(default, uintptr(request), a0, a1, a2, a3, a4)
 }

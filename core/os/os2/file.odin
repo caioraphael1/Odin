@@ -124,7 +124,7 @@ perm :: proc{
 /*
 	`perm_number` converts an integer value `perm` to the bit set `Permissions`
 */
-@(require_results)
+
 perm_number :: proc(perm: int) -> Permissions {
 	return transmute(Permissions)u32(perm & 0o777)
 }
@@ -147,7 +147,7 @@ stderr: ^File = nil // OS-Specific
 	If successful, a `^File` is return which can be used for I/O.
 	And error is returned if any is encountered.
 */
-@(require_results)
+
 create :: proc(name: string, allocator: runtime.Allocator) -> (^File, Error) {
 	return open(name, {.Read, .Write, .Create, .Trunc}, Permissions_Default_File, allocator = allocator)
 }
@@ -159,12 +159,12 @@ create :: proc(name: string, allocator: runtime.Allocator) -> (^File, Error) {
 	If successful, a `^File` is return which can be used for I/O.
 	And error is returned if any is encountered.
 */
-@(require_results)
+
 open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Default, allocator: runtime.Allocator) -> (^File, Error) {
 	return _open(name, flags, perm, allocator)
 }
 
-// @(require_results)
+// 
 // open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm := 0o777, allocator: runtime.Allocator) -> (^File, Error) {
 // 	if buffer_size == 0 {
 // 		return _open(name, flags, perm, allocator)
@@ -176,7 +176,7 @@ open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Defau
 	Returns a new `^File` with the given file descriptor `handle` and `name`.
 	The return value will only be `nil` IF the `handle` is not a valid file descriptor.
 */
-@(require_results)
+
 new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> ^File {
 	file, err := _new_file(handle, name, allocator)
 	if err != nil {
@@ -188,7 +188,7 @@ new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) ->
 /*
 	`clone` returns a new `^File` based on the passed file `f` with the same underlying file descriptor.
 */
-@(require_results)
+
 clone :: proc(f: ^File, allocator: runtime.Allocator) -> (^File, Error) {
 	return _clone(f, allocator)
 }
@@ -196,7 +196,7 @@ clone :: proc(f: ^File, allocator: runtime.Allocator) -> (^File, Error) {
 /*
 	`fd` returns the file descriptor of the file `f` passed. If the file is not valid, an invalid handle will be returned.
 */
-@(require_results)
+
 fd :: proc(f: ^File) -> uintptr {
 	return _fd(f)
 }
@@ -204,7 +204,7 @@ fd :: proc(f: ^File) -> uintptr {
 /*
 	`name` returns the name of the file. The lifetime of this string lasts as long as the file handle itself.
 */
-@(require_results)
+
 name :: proc(f: ^File) -> string {
 	return _name(f)
 }
@@ -328,7 +328,7 @@ file_size :: proc(f: ^File) -> (n: i64, err: Error) {
 			n = 0
 			curr := seek(f, 0, .Current) or_return
 			end  := seek(f, 0, .End)     or_return
-			seek(f, curr, .Start)        or_return
+			_ = seek(f, curr, .Start)    or_return
 			n = end
 		}
 		return
@@ -502,7 +502,7 @@ fchange_times :: proc(f: ^File, atime, mtime: time.Time) -> Error {
 /*
 	`exists` returns whether or not a named file exists.
 */
-@(require_results)
+
 exists :: proc(path: string) -> bool {
 	return _exists(path)
 }
@@ -510,7 +510,7 @@ exists :: proc(path: string) -> bool {
 /*
 	`is_file` returns whether or not the type of a named file is a `File_Type.Regular` file.
 */
-@(require_results)
+
 is_file :: proc(path: string) -> bool {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 	fi, err := stat(path, runtime.temp_allocator)
@@ -525,7 +525,7 @@ is_dir :: is_directory
 /*
 	Returns whether or not the type of a named file is a `File_Type.Directory` file.
 */
-@(require_results)
+
 is_directory :: proc(path: string) -> bool {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 	fi, err := stat(path, runtime.temp_allocator)
@@ -549,7 +549,7 @@ copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> E
 @(private)
 _copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> Error {
 	src := open(src_path, allocator = allocator) or_return
-	defer close(src)
+	defer _ = close(src)
 
 	info := fstat(src, allocator) or_return
 	defer file_info_delete(info, allocator)
@@ -558,7 +558,7 @@ _copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> 
 	}
 
 	dst := open(dst_path, {.Read, .Write, .Create, .Trunc}, info.mode & Permissions_All, allocator) or_return
-	defer close(dst)
+	defer _ = close(dst)
 
 	_, err := io.copy(to_writer(dst), to_reader(src))
 	return err

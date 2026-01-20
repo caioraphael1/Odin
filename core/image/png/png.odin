@@ -223,7 +223,7 @@ append_chunk :: proc(list: ^[dynamic]image.PNG_Chunk, src: image.PNG_Chunk, allo
 
 	c := copy_chunk(src, allocator) or_return
 	length := len(list)
-	append(list, c)
+	_ = append(list, c)
 	if len(list) != length + 1 {
 		// Resize during append failed.
 		return .Unable_To_Allocate_Or_Resize
@@ -494,7 +494,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 			for next == .IDAT {
 				c = read_chunk(ctx) or_return
 
-				bytes.buffer_write(&idat_b, c.data)
+				_, _ = bytes.buffer_write(&idat_b, c.data)
 				idat_length += u64(c.header.length)
 
 				if idat_length > MAX_IDAT_SIZE {

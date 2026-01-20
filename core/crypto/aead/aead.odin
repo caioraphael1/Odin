@@ -17,7 +17,7 @@ seal_oneshot :: proc(algo: Algorithm, dst, tag, key, iv, aad, plaintext: []byte,
 // fails, the destination buffer will be zeroed.
 //
 // dst and ciphertext MUST alias exactly or not at all.
-@(require_results)
+
 open_oneshot :: proc(algo: Algorithm, dst, key, iv, aad, ciphertext, tag: []byte, impl: Implementation = nil) -> bool {
 	ctx: Context
 	init(&ctx, algo, key, impl)

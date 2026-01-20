@@ -17,17 +17,17 @@ Class_VTable_Info :: struct {
 	protocol_vtable: rawptr,
 }
 
-@(require_results)
+
 class_get_metaclass :: #force_inline proc(cls: Class) -> Class {
 	return (^Class)(cls)^
 }
 
-@(require_results)
+
 object_get_vtable_info :: proc(obj: id) -> ^Class_VTable_Info {
 	return (^Class_VTable_Info)(object_getIndexedIvars(obj))
 }
 
-@(require_results)
+
 make_subclasser :: #force_inline proc(vtable: ^$T, impl: proc(cls: Class, vt: ^T)) -> Object_VTable_Info {
 	return Object_VTable_Info{
 		vtable = vtable,
@@ -36,7 +36,7 @@ make_subclasser :: #force_inline proc(vtable: ^$T, impl: proc(cls: Class, vt: ^T
 	}
 }
 
-@(require_results)
+
 register_subclass :: proc(
 	class_name:           cstring,
 	superclass:           Class,
@@ -108,7 +108,7 @@ register_subclass :: proc(
 	return cls
 }
 
-@(require_results)
+
 class_get_vtable_info :: proc(cls: Class) -> ^Class_VTable_Info {
 	meta_cls  := class_get_metaclass(cls)
 	meta_size := uint(class_getInstanceSize(meta_cls))
@@ -121,7 +121,7 @@ class_get_vtable_info :: proc(cls: Class) -> ^Class_VTable_Info {
 	return ctx
 }
 
-@(require_results)
+
 alloc_user_object :: proc(cls: Class, _context: Maybe(runtime.Context) = nil) -> id {
 	info := class_get_vtable_info(cls)
 

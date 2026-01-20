@@ -11,7 +11,7 @@ Read_Directory_Iterator_Impl :: struct {
 	dirent_off:     int,
 }
 
-@(require_results)
+
 _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
 	scan_entries :: proc(it: ^Read_Directory_Iterator, dfd: linux.Fd, entries: []u8, offset: ^int) -> (fd: linux.Fd, file_name: string) {
 		for d in linux.dirent_iterate_buf(entries, offset) {
@@ -49,7 +49,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtim
 			buflen, errno := linux.getdents(linux.Fd(dfd), it.impl.dirent_backing[:])
 			#partial switch errno {
 			case .EINVAL:
-				delete(it.impl.dirent_backing, allocator)
+				_ = delete(it.impl.dirent_backing, allocator)
 				n := len(it.impl.dirent_backing) * 2
 				it.impl.dirent_backing = make([]u8, n, allocator)
 				continue
@@ -116,6 +116,6 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator
 		return
 	}
 
-	delete(it.impl.dirent_backing, allocator)
+	_ = delete(it.impl.dirent_backing, allocator)
 	file_info_delete(it.impl.prev_fi, allocator)
 }

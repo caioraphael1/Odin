@@ -22,7 +22,7 @@ sc_set_u64 :: proc(sc: ^Scalar, i: u64) {
 	mem.zero_explicit(&tmp, size_of(tmp))
 }
 
-@(require_results)
+
 sc_set_bytes :: proc(sc: ^Scalar, b: []byte) -> bool {
 	ensure(len(b) == 32, "edwards25519: invalid scalar size")
 	b_ := (^[32]byte)(raw_data(b))

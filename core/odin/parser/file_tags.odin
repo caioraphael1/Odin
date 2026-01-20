@@ -29,7 +29,7 @@ File_Tags :: struct {
 	no_instrumentation: bool,
 }
 
-@require_results
+
 get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type, found_subtarget: runtime.Odin_Platform_Subtarget_Type) {
 	str_os, _, str_subtarget := strings.partition(str, ":")
 
@@ -52,7 +52,7 @@ get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type
 
 	return
 }
-@require_results
+
 get_build_arch_from_string :: proc(str: string) -> runtime.Odin_Arch_Type {
 	fields := reflect.enum_fields_zipped(runtime.Odin_Arch_Type)
 	for os in fields {
@@ -63,7 +63,7 @@ get_build_arch_from_string :: proc(str: string) -> runtime.Odin_Arch_Type {
 	return .Unknown
 }
 
-@require_results
+
 parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags: File_Tags) {
 	next_char :: proc(src: string, i: ^int) -> (ch: u8) {
 		if i^ < len(src) {
@@ -123,7 +123,7 @@ parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags
 				groups_loop: for {
 					index_start := len(build_project_name_strings)
 
-					defer append(build_project_names, build_project_name_strings[index_start:])
+					defer _ = append(build_project_names, build_project_name_strings[index_start:])
 
 					for {
 						skip_whitespace(text, &i)
@@ -142,15 +142,15 @@ parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags
 						}
 
 						scan_value(text, &i)
-						append(build_project_name_strings, text[name_start:i])
+						_ = append(build_project_name_strings, text[name_start:i])
 					}
 
-					append(build_project_names, build_project_name_strings[index_start:])
+					_ = append(build_project_names, build_project_name_strings[index_start:])
 				}
 			case "build":
 
 				if len(build_kinds) > 0 {
-					append(build_kinds, BUILD_KIND_NEWLINE_MARKER)
+					_ = append(build_kinds, BUILD_KIND_NEWLINE_MARKER)
 				}
 
 				kinds_loop: for {
@@ -160,7 +160,7 @@ parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags
 					arch_positive: runtime.Odin_Arch_Types
 					arch_negative: runtime.Odin_Arch_Types
 
-					defer append(build_kinds, Build_Kind{
+					defer _ = append(build_kinds, Build_Kind{
 						os   = (os_positive   == {} ? runtime.ALL_ODIN_OS_TYPES   : os_positive)  -os_negative,
 						arch = (arch_positive == {} ? runtime.ALL_ODIN_ARCH_TYPES : arch_positive)-arch_negative,
 					})
@@ -240,7 +240,7 @@ parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags
 
 	shrink(&build_kinds)
 	shrink(&build_project_names)
-	delete(build_project_name_strings)
+	_ = delete(build_project_name_strings)
 
 	tags.build = build_kinds[:]
 	tags.build_project_name = build_project_names[:]
@@ -254,7 +254,7 @@ Build_Target :: struct {
 	project_name: string,
 }
 
-@require_results
+
 match_build_tags :: proc(file_tags: File_Tags, target: Build_Target) -> bool {
 
 	project_name_correct := len(target.project_name) == 0 || len(file_tags.build_project_name) == 0

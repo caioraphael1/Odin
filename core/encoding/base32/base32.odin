@@ -192,7 +192,7 @@ decode :: proc(
 	out_len := input_chars * 5 / 8
 	out = make([]byte, out_len, allocator)
 	defer if err != .None {
-		delete(out)
+		_ = delete(out)
 	}
 
 	// Process input in 8-byte blocks

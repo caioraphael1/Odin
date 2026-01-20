@@ -160,7 +160,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -
 	}
 	impl := new(File_Impl, allocator) or_return
 	defer if err != nil {
-		free(impl, allocator)
+		_ = free(impl, allocator)
 	}
 
 	impl.file.impl = impl
@@ -189,7 +189,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -
 }
 
 
-@(require_results)
+
 _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
 	assert(buffer_size > 0)
 	flags := flags if flags != nil else {.Read}
@@ -226,7 +226,7 @@ _clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Er
 		err = _get_platform_error()
 		return
 	}
-	defer if err != nil { win32.CloseHandle(clonefd) }
+	defer if err != nil { _ = win32.CloseHandle(clonefd) }
 
 	return _new_file(uintptr(clonefd), name(f), allocator)
 }
@@ -404,7 +404,7 @@ _read_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (n: i64, err: Error) 
 
 		}
 		curr_offset := _seek(f, 0, .Current) or_return
-		defer _seek(f, curr_offset, .Start)
+		defer _, _ = _seek(f, curr_offset, .Start)
 
 		o := win32.OVERLAPPED{
 			OffsetHigh = u32(offset>>32),
@@ -473,7 +473,7 @@ _write_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (n: i64, err: Error)
 
 		}
 		curr_offset := _seek(f, 0, .Current) or_return
-		defer _seek(f, curr_offset, .Start)
+		defer _, _ = _seek(f, curr_offset, .Start)
 
 		o := win32.OVERLAPPED{
 			OffsetHigh = u32(offset>>32),
@@ -544,8 +544,8 @@ _truncate :: proc(f: ^File, size: i64) -> Error {
 		return nil
 	}
 	curr_off := seek(f, 0, .Current) or_return
-	defer seek(f, curr_off, .Start)
-	seek(f, size, .Start) or_return
+	defer _, _ = seek(f, curr_off, .Start)
+	_ = seek(f, size, .Start) or_return
 	handle := _handle(f)
 	if !win32.SetEndOfFile(handle) {
 		return _get_platform_error()
@@ -659,7 +659,7 @@ _normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: st
 
 
 	handle := _open_sym_link(cstring16(raw_data(p))) or_return
-	defer win32.CloseHandle(handle)
+	defer _ = win32.CloseHandle(handle)
 
 	n := win32.GetFinalPathNameByHandleW(handle, nil, 0, win32.VOLUME_NAME_DOS)
 	if n == 0 {
@@ -696,7 +696,7 @@ _read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, er
 
 	p      := _fix_long_path(name, runtime.temp_allocator) or_return
 	handle := _open_sym_link(p) or_return
-	defer win32.CloseHandle(handle)
+	defer _ = win32.CloseHandle(handle)
 
 	bytes_returned: u32
 	if !win32.DeviceIoControl(handle, win32.FSCTL_GET_REPARSE_POINT, nil, 0, &rdb_buf[0], len(rdb_buf)-1, &bytes_returned, nil) {
@@ -779,7 +779,7 @@ _chdir :: proc(name: string) -> Error {
 
 _chmod :: proc(name: string, mode: Permissions, allocator: runtime.Allocator) -> Error {
 	f := open(name, {.Write}, allocator = allocator) or_return
-	defer close(f)
+	defer _ = close(f)
 	return _fchmod(f, mode)
 }
 
@@ -794,7 +794,7 @@ _lchown :: proc(name: string, uid, gid: int) -> Error {
 
 _chtimes :: proc(name: string, atime, mtime: time.Time, allocator: runtime.Allocator) -> Error {
 	f := open(name, {.Write}, allocator = allocator) or_return
-	defer close(f)
+	defer _ = close(f)
 	return _fchtimes(f, atime, mtime)
 }
 
@@ -864,13 +864,13 @@ _file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte
 
 
 
-@(private="package", require_results)
+@(private="package")
 win32_utf8_to_wstring :: proc(s: string, allocator: runtime.Allocator) -> (ws: cstring16, err: runtime.Allocator_Error) {
 	ws = cstring16(raw_data(win32_utf8_to_utf16(s, allocator) or_return))
 	return
 }
 
-@(private="package", require_results)
+@(private="package")
 win32_utf8_to_utf16 :: proc(s: string, allocator: runtime.Allocator) -> (ws: []u16, err: runtime.Allocator_Error) {
 	if len(s) < 1 {
 		return
@@ -887,7 +887,7 @@ win32_utf8_to_utf16 :: proc(s: string, allocator: runtime.Allocator) -> (ws: []u
 
 	n1 := win32.MultiByteToWideChar(win32.CP_UTF8, win32.MB_ERR_INVALID_CHARS, cstr, i32(len(s)), raw_data(text), n)
 	if n1 == 0 {
-		delete(text, allocator)
+		_ = delete(text, allocator)
 		return
 	}
 
@@ -899,7 +899,7 @@ win32_utf8_to_utf16 :: proc(s: string, allocator: runtime.Allocator) -> (ws: []u
 	return
 }
 
-@(private="package", require_results)
+@(private="package")
 win32_wstring_to_utf8 :: proc(s: cstring16, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
 	if s == nil || s == "" {
 		return "", nil
@@ -913,7 +913,7 @@ win32_utf16_to_utf8 :: proc{
 	win32_utf16_u16_to_utf8,
 }
 
-@(private="package", require_results)
+@(private="package")
 win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
 	if len(s) == 0 {
 		return
@@ -933,7 +933,7 @@ win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: runtime.Allocator) 
 
 	n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
 	if n1 == 0 {
-		delete(text, allocator)
+		_ = delete(text, allocator)
 		return
 	}
 
@@ -947,7 +947,7 @@ win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: runtime.Allocator) 
 	return
 }
 
-@(private="package", require_results)
+@(private="package")
 win32_utf16_u16_to_utf8 :: proc(s: []u16, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
 	if len(s) == 0 {
 		return
@@ -967,7 +967,7 @@ win32_utf16_u16_to_utf8 :: proc(s: []u16, allocator: runtime.Allocator) -> (res:
 
 	n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
 	if n1 == 0 {
-		delete(text, allocator)
+		_ = delete(text, allocator)
 		return
 	}
 

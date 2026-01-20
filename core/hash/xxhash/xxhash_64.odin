@@ -169,7 +169,7 @@ XXH64_create_state :: proc(allocator := context.allocator) -> (res: ^XXH64_state
 }
 
 XXH64_destroy_state :: proc(state: ^XXH64_state, allocator := context.allocator) -> (err: Error) {
-	free(state, allocator)
+	_ = free(state, allocator)
 	return .None
 }
 

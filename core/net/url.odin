@@ -45,11 +45,11 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
 		s = s[:i]
 		if query_str != "" {
 			queries_parts, _ := strings.split(query_str, "&", allocator)
-			defer delete(queries_parts, allocator)
+			defer _ = delete(queries_parts, allocator)
 			queries, _ = make(map[string]string, len(queries_parts), allocator)
 			for q in queries_parts {
 				parts, _ := strings.split(q, "=", allocator)
-				defer delete(parts, allocator)
+				defer _ = delete(parts, allocator)
 				switch len(parts) {
 				case 1:  queries[parts[0]] = ""        // NOTE(tetra): Query not set to anything, was but present.
 				case 2:  queries[parts[0]] = parts[1]  // NOTE(tetra): Query set to something.
@@ -121,13 +121,13 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
 	for ch in s {
 		switch ch {
 		case 'A'..='Z', 'a'..='z', '0'..='9', '-', '_', '.', '~':
-			strings.write_rune(&b, ch)
+			_, _ = strings.write_rune(&b, ch)
 		case:
 			bytes, n := utf8.encode_rune(ch)
 			for byte in bytes[:n] {
 				buf: [2]u8 = ---
 				t := strconv.write_int(buf[:], i64(byte), 16)
-				strings.write_rune(&b, '%')
+				_, _ = strings.write_rune(&b, '%')
 				strings.write_string(&b, t)
 			}
 		}

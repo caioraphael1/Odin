@@ -23,7 +23,7 @@ File_Info :: struct {
 	access_time:       time.Time,
 }
 
-@(require_results)
+
 file_info_clone :: proc(fi: File_Info, allocator: runtime.Allocator) -> (cloned: File_Info, err: runtime.Allocator_Error) {
 	cloned = fi
 	cloned.fullpath = strings.clone(fi.fullpath, allocator) or_return
@@ -35,14 +35,14 @@ file_info_slice_delete :: proc(infos: []File_Info, allocator: runtime.Allocator)
 	#reverse for info in infos {
 		file_info_delete(info, allocator)
 	}
-	delete(infos, allocator)
+	_ = delete(infos, allocator)
 }
 
 file_info_delete :: proc(fi: File_Info, allocator: runtime.Allocator) {
-	delete(fi.fullpath, allocator)
+	_ = delete(fi.fullpath, allocator)
 }
 
-@(require_results)
+
 fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (File_Info, Error) {
 	if f == nil {
 		return {}, nil
@@ -59,7 +59,7 @@ fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (File_Info, Error) {
 	`stat` returns a `File_Info` describing the named file from the file system.
 	The resulting `File_Info` must be deleted with `file_info_delete`.
 */
-@(require_results)
+
 stat :: proc(name: string, allocator: runtime.Allocator) -> (File_Info, Error) {
 	return _stat(name, allocator)
 }
@@ -72,7 +72,7 @@ lstat :: stat_do_not_follow_links
 	rather than following the link.
 	The resulting `File_Info` must be deleted with `file_info_delete`.
 */
-@(require_results)
+
 stat_do_not_follow_links :: proc(name: string, allocator: runtime.Allocator) -> (File_Info, Error) {
 	return _lstat(name, allocator)
 }
@@ -81,7 +81,7 @@ stat_do_not_follow_links :: proc(name: string, allocator: runtime.Allocator) -> 
 /*
 	Returns true if two `File_Info`s are equivalent.
 */
-@(require_results)
+
 same_file :: proc(fi1, fi2: File_Info) -> bool {
 	return _same_file(fi1, fi2)
 }
@@ -94,7 +94,7 @@ last_write_time_by_name :: modification_time_by_path
 	Returns the modification time of the file `f`.
 	The resolution of the timestamp is system-dependent.
 */
-@(require_results)
+
 modification_time :: proc(f: ^File) -> (time.Time, Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 	fi, err := fstat(f, runtime.temp_allocator)
@@ -105,7 +105,7 @@ modification_time :: proc(f: ^File) -> (time.Time, Error) {
 	Returns the modification time of the named file `path`.
 	The resolution of the timestamp is system-dependent.
 */
-@(require_results)
+
 modification_time_by_path :: proc(path: string) -> (time.Time, Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 	fi, err := stat(path, runtime.temp_allocator)

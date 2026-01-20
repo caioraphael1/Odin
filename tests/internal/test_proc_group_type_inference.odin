@@ -71,7 +71,7 @@ test_type_inference_on_literals_for_various_types :: proc(t: ^testing.T) {
 		} else {
 			testing.expect_value(t, len(array), expected_len)
 		}
-		delete(array)
+		_ = delete(array)
 	}
 	group_dynamic_array :: proc{proc_nil, proc_dynamic_array}
 	group_dynamic_array(t, [dynamic]u8{1, 2, 3}, 3)
@@ -124,7 +124,7 @@ test_type_inference_on_literals_for_various_types :: proc(t: ^testing.T) {
 		} else {
 			testing.expect_value(t, len(map_), expected_len)
 		}
-		delete(map_)
+		_ = delete(map_)
 	}
 	group_map :: proc{proc_nil, proc_map}
 	group_map(t, map[u8]u8{1=1, 2=2}, 2)

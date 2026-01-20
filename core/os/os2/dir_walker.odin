@@ -58,13 +58,13 @@ walker_init :: proc {
 	walker_init_file,
 }
 
-@(require_results)
+
 walker_create_path :: proc(path: string, allocator: runtime.Allocator) -> (w: Walker) {
 	walker_init_path(&w, path, allocator)
 	return
 }
 
-@(require_results)
+
 walker_create_file :: proc(f: ^File, allocator: runtime.Allocator) -> (w: Walker) {
 	walker_init_file(&w, f, allocator)
 	return
@@ -85,7 +85,7 @@ Returns the last error that occurred during the walker's operations.
 
 Can be called while iterating, or only at the end to check if anything failed.
 */
-@(require_results)
+
 walker_error :: proc(w: ^Walker) -> (path: string, err: Error) {
 	return string(w.err.path[:]), w.err.err
 }
@@ -96,7 +96,7 @@ walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
 		return
 	}
 
-	resize(&w.err.path, len(path))
+	_ = resize(&w.err.path, len(path))
 	copy(w.err.path[:], path)
 
 	w.err.err = err
@@ -112,14 +112,14 @@ walker_clear :: proc(w: ^Walker, allocator: runtime.Allocator) {
 
 	w.todo.data.allocator = allocator
 	for path in queue.pop_front_safe(&w.todo) {
-		delete(path, allocator)
+		_ = delete(path, allocator)
 	}
 }
 
 walker_destroy :: proc(w: ^Walker, allocator: runtime.Allocator) {
 	walker_clear(w, allocator)
 	queue.destroy(&w.todo)
-	delete(w.err.path)
+	_ = delete(w.err.path)
 	read_directory_iterator_destroy(&w.iter, allocator)
 }
 
@@ -174,12 +174,12 @@ Example:
 		}
 	}
 */
-@(require_results)
+
 walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info, ok: bool) {
 	if w.skip_dir {
 		w.skip_dir = false
 		if skip, sok := queue.pop_back_safe(&w.todo); sok {
-			delete(skip,  allocator)
+			_ = delete(skip,  allocator)
 		}
 	}
 
@@ -198,7 +198,7 @@ walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info,
 
 		read_directory_iterator_init(&w.iter, handle, allocator)
 
-		delete(next, allocator)
+		_ = delete(next, allocator)
 	}
 
 	info, _, iter_ok := read_directory_iterator(&w.iter, allocator)
@@ -208,7 +208,7 @@ walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info,
 	}
 
 	if !iter_ok {
-		close(w.iter.f)
+		_ = close(w.iter.f)
 		w.iter.f = nil
 		return walker_walk(w, allocator)
 	}

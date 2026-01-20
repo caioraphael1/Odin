@@ -130,7 +130,7 @@ XXH3_create_state :: proc(allocator := context.allocator) -> (res: ^XXH3_state, 
 }
 
 XXH3_destroy_state :: proc(state: ^XXH3_state, allocator := context.allocator) -> (err: Error) {
-	free(state, allocator)
+	_ = free(state, allocator)
 	return .None
 }
 

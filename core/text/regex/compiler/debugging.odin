@@ -33,7 +33,7 @@ get_jump_targets :: proc(code: []Opcode) -> (jump_targets: map[int]int) {
 
 trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
 	jump_targets := get_jump_targets(code)
-	defer delete(jump_targets)
+	defer _ = delete(jump_targets)
 
 	iter := virtual_machine.Opcode_Iterator{ code, 0 }
 	for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
@@ -54,10 +54,10 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
 		#partial switch opcode {
 		case .Byte:
 			operand := cast(rune)code[pc+1]
-			io.write_encoded_rune(w, operand)
+			_, _ = io.write_encoded_rune(w, operand)
 		case .Rune:
 			operand := intrinsics.unaligned_load(cast(^rune)&code[pc+1])
-			io.write_encoded_rune(w, operand)
+			_, _ = io.write_encoded_rune(w, operand)
 		case .Rune_Class, .Rune_Class_Negated:
 			operand := cast(u8)code[pc+1]
 			common.write_padded_hex(w, operand, 2, allocator)
@@ -77,10 +77,10 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
 			common.write_padded_hex(w, operand, 2, allocator)
 		case .Wait_For_Byte:
 			operand := cast(rune)code[pc+1]
-			io.write_encoded_rune(w, operand)
+			_, _ = io.write_encoded_rune(w, operand)
 		case .Wait_For_Rune:
 			operand := (cast(^rune)&code[pc+1])^
-			io.write_encoded_rune(w, operand)
+			_, _ = io.write_encoded_rune(w, operand)
 		case .Wait_For_Rune_Class:
 			operand := cast(u8)code[pc+1]
 			common.write_padded_hex(w, operand, 2, allocator)

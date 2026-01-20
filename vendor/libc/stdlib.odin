@@ -28,7 +28,7 @@ aligned_alloc :: proc "c" (alignment: uint, size: uint) -> rawptr {
 }
 
 @(require, linkage="strong", link_name="free")
-free :: proc "c" (ptr: rawptr) {
+_ = free :: proc "c" (ptr: rawptr) {
 	context = g_ctx
 	runtime.mem_free(ptr)
 }

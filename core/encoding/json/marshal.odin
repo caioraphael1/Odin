@@ -87,7 +87,7 @@ marshal_to_builder :: proc(b: ^strings.Builder, v: any, opt: ^Marshal_Options) -
 
 marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: Marshal_Error) {
 	if v == nil {
-		io.write_string(w, "null") or_return
+		_ = io.write_string(w, "null") or_return
 		return
 	}
 
@@ -117,20 +117,20 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 			s = strconv.write_bits_128(buf[:], u, 10, info.signed, 8*ti.size, "0123456789", nil)
 		}
 
-		io.write_string(w, s) or_return
+		_ = io.write_string(w, s) or_return
 
 
 	case runtime.Type_Info_Rune:
 		r := a.(rune)
-		io.write_byte(w, '"')                  or_return
-		io.write_escaped_rune(w, r, '"', true) or_return
-		io.write_byte(w, '"')                  or_return
+		io.write_byte(w, '"')                      or_return
+		_ = io.write_escaped_rune(w, r, '"', true) or_return
+		io.write_byte(w, '"')                      or_return
 
 	case runtime.Type_Info_Float:
 		switch f in a {
-		case f16: io.write_f16(w, f) or_return
-		case f32: io.write_f32(w, f) or_return
-		case f64: io.write_f64(w, f) or_return
+		case f16: _ = io.write_f16(w, f) or_return
+		case f32: _ = io.write_f32(w, f) or_return
+		case f64: _ = io.write_f64(w, f) or_return
 		case: return .Unsupported_Type
 		}
 
@@ -144,9 +144,9 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 		}
 
 		io.write_byte(w, '[')    or_return
-		io.write_f64(w, r)       or_return
-		io.write_string(w, ", ") or_return
-		io.write_f64(w, i)       or_return
+		_ = io.write_f64(w, r)       or_return
+		_ = io.write_string(w, ", ") or_return
+		_ = io.write_f64(w, i)       or_return
 		io.write_byte(w, ']')    or_return
 
 	case runtime.Type_Info_Quaternion:
@@ -154,8 +154,8 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
 	case runtime.Type_Info_String:
 		switch s in a {
-		case string:  io.write_quoted_string(w, s, '"', nil, true)         or_return
-		case cstring: io.write_quoted_string(w, string(s), '"', nil, true) or_return
+		case string:  _ = io.write_quoted_string(w, s, '"', nil, true)         or_return
+		case cstring: _ = io.write_quoted_string(w, string(s), '"', nil, true) or_return
 		}
 
 	case runtime.Type_Info_Boolean:
@@ -167,7 +167,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 		case b32:  val = bool(b)
 		case b64:  val = bool(b)
 		}
-		io.write_string(w, val ? "true" : "false") or_return
+		_ = io.write_string(w, val ? "true" : "false") or_return
 
 	case runtime.Type_Info_Any:
 		return .Unsupported_Type
@@ -177,7 +177,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
 	case runtime.Type_Info_Pointer:
 		if v.id == typeid_of(Null) {
-			io.write_string(w, "null") or_return
+			_ = io.write_string(w, "null") or_return
 		} else {
 			return .Unsupported_Type
 		}
@@ -332,7 +332,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 						}
 					}
 
-					append(&sorted, Entry { key = name, value = any{value, info.value.id}})
+					_ = append(&sorted, Entry { key = name, value = any{value, info.value.id}})
 				}
 
 				slice.sort_by(sorted[:], proc(i, j: Entry) -> bool { return i.key < j.key })
@@ -438,7 +438,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
 	case runtime.Type_Info_Union:
 		if len(info.variants) == 0 || v.data == nil {
-			io.write_string(w, "null") or_return
+			_ = io.write_string(w, "null") or_return
 			return nil
 		}
 
@@ -460,7 +460,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
 		if !info.no_nil {
 			if tag == 0 {
-				io.write_string(w, "null") or_return
+				_ = io.write_string(w, "null") or_return
 				return nil
 			}
 			tag -= 1
@@ -527,7 +527,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 			bit_data = u64(x)
 		case: panic("unknown bit_size size")
 		}
-		io.write_u64(w, bit_data) or_return
+		_ = io.write_u64(w, bit_data) or_return
 	}
 
 	return
@@ -537,20 +537,20 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 opt_write_key :: proc(w: io.Writer, opt: ^Marshal_Options, name: string) -> (err: io.Error)  {
 	switch opt.spec {
 	case .JSON, .JSON5:
-		io.write_quoted_string(w, name) or_return
-		io.write_string(w, ": " if opt.pretty else ":") or_return
+		_ = io.write_quoted_string(w, name) or_return
+		_ = io.write_string(w, ": " if opt.pretty else ":") or_return
 
 	case .MJSON:
 		if opt.mjson_keys_use_quotes {
-			io.write_quoted_string(w, name) or_return
+			_ = io.write_quoted_string(w, name) or_return
 		} else {
-			io.write_string(w, name) or_return
+			_ = io.write_string(w, name) or_return
 		}
 
 		if opt.mjson_keys_use_equal_sign {
-			io.write_string(w, " = " if opt.pretty else "=") or_return
+			_ = io.write_string(w, " = " if opt.pretty else "=") or_return
 		} else {
-			io.write_string(w, ": " if opt.pretty else ":") or_return
+			_ = io.write_string(w, ": " if opt.pretty else ":") or_return
 		}
 	}	
 

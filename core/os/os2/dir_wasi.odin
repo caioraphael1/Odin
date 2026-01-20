@@ -12,7 +12,7 @@ Read_Directory_Iterator_Impl :: struct {
 	off:      int,
 }
 
-@(require_results)
+
 _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info, index: int, ok: bool) {
 	fimpl := (^File_Impl)(it.f.impl)
 
@@ -81,7 +81,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 	}
 	buf.allocator = allocator
 
-	defer if it.err.err != nil { delete(buf) }
+	defer if it.err.err != nil { _ = delete(buf) }
 
 	for {
 		if err := non_zero_resize(&buf, 512 if len(buf) == 0 else len(buf)*2); err != nil {
@@ -96,7 +96,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 		}
 
 		if n < len(buf) {
-			non_zero_resize(&buf, n)
+			_ = non_zero_resize(&buf, n)
 			break
 		}
 
@@ -112,13 +112,13 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 		return
 	}
 
-	append(&it.impl.fullpath, impl.name)
-	append(&it.impl.fullpath, "/")
+	_ = append(&it.impl.fullpath, impl.name)
+	_ = append(&it.impl.fullpath, "/")
 
 	return
 }
 
 _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
-	delete(it.impl.buf, allocator)
-	delete(it.impl.fullpath)
+	_ = delete(it.impl.buf, allocator)
+	_ = delete(it.impl.fullpath)
 }

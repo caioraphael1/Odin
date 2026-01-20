@@ -12,7 +12,7 @@ load :: proc {
 load_from_file :: proc(filename: string, allocator := context.allocator) -> (img: ^Image, err: Error) {
 	context.allocator = allocator
 
-	data, ok := os.read_entire_file(filename); defer delete(data)
+	data, ok := os.read_entire_file(filename); defer _ = delete(data)
 	if !ok {
 		err = .Unable_To_Read_File
 		return
@@ -30,7 +30,7 @@ save :: proc {
 save_to_file :: proc(filename: string, img: ^Image, custom_info: Info = {}, allocator := context.allocator) -> (err: Error) {
 	context.allocator = allocator
 
-	data: []byte; defer delete(data)
+	data: []byte; defer _ = delete(data)
 	data = save_to_buffer(img, custom_info) or_return
 
 	if ok := os.write_entire_file(filename, data); !ok {

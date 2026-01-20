@@ -13,7 +13,7 @@ package unicode
 // 	simple_fold('k')      == '\u212a' (Kelvin symbol, K)
 // 	simple_fold('\u212a') == 'k'
 // 	simple_fold(-3)       == -3
-@(require_results)
+
 simple_fold :: proc(r: rune) -> rune #no_bounds_check {
 	Fold_Pair :: struct {
 		from: u16,

@@ -34,7 +34,7 @@ import "core:simd/x86"
 // anything resembling performat otherwise, LLVM will not elide a massive
 // number of redundant loads/stores it generates for every intrinsic call.
 
-@(private = "file", require_results, enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2")
 expand_step128 :: #force_inline proc(k1, k2: x86.__m128i) -> x86.__m128i {
 	k1, k2 := k1, k2
 
@@ -45,7 +45,7 @@ expand_step128 :: #force_inline proc(k1, k2: x86.__m128i) -> x86.__m128i {
 	return x86._mm_xor_si128(k1, k2)
 }
 
-@(private = "file", require_results, enable_target_feature = "sse,sse2")
+@(private = "file", enable_target_feature = "sse,sse2")
 expand_step192a :: #force_inline proc (k1_, k2_: ^x86.__m128i, k3: x86.__m128i) -> (x86.__m128i, x86.__m128i) {
 	k1, k2, k3 := k1_^, k2_^, k3
 
@@ -68,7 +68,7 @@ expand_step192a :: #force_inline proc (k1_, k2_: ^x86.__m128i, k3: x86.__m128i) 
 	return r1, r2
 }
 
-@(private = "file", require_results, enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2")
 expand_step192b :: #force_inline proc (k1_, k2_: ^x86.__m128i, k3: x86.__m128i) -> x86.__m128i {
 	k1, k2, k3 := k1_^, k2_^, k3
 
@@ -87,7 +87,7 @@ expand_step192b :: #force_inline proc (k1_, k2_: ^x86.__m128i, k3: x86.__m128i) 
 	return k1
 }
 
-@(private = "file", require_results, enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2")
 expand_step256b :: #force_inline proc(k1, k2: x86.__m128i) -> x86.__m128i {
 	k1, k2 := k1, k2
 

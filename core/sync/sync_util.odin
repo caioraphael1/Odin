@@ -6,6 +6,7 @@ Example:
 		...
 	}
 */
+@(optional_results)
 guard :: proc{
 	mutex_guard,
 	rw_mutex_guard,
@@ -23,6 +24,7 @@ Example:
 		...
 	}
 */
+@(optional_results)
 shared_guard :: proc{
 	rw_mutex_shared_guard,
 	atomic_rw_mutex_shared_guard,

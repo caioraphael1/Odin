@@ -115,12 +115,12 @@ _commit :: proc(data: rawptr, size: uint) -> Allocator_Error {
 
 @(no_sanitize_address)
 _decommit :: proc(data: rawptr, size: uint) {
-	VirtualFree(data, size, MEM_DECOMMIT)
+	_ = VirtualFree(data, size, MEM_DECOMMIT)
 }
 
 @(no_sanitize_address)
 _release :: proc(data: rawptr, size: uint) {
-	VirtualFree(data, 0, MEM_RELEASE)
+	_ = VirtualFree(data, 0, MEM_RELEASE)
 }
 
 @(no_sanitize_address)

@@ -16,7 +16,7 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
 	assert(size > 0)
 
 	buf := make([]byte, size, allocator) or_return
-	defer if err != nil { delete(buf, allocator) }
+	defer if err != nil { _ = delete(buf, allocator) }
 
 	assert(uint(len(buf)) == size)
 

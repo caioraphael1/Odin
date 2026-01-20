@@ -47,7 +47,7 @@ reader_init_with_buf :: proc(b: ^Reader, rd: io.Reader, buf: []byte) {
 
 // reader_destroy destroys the underlying buffer with its associated allocator IFF that allocator has been set
 reader_destroy :: proc(b: ^Reader) {
-	delete(b.buf, b.buf_allocator)
+	_ = delete(b.buf, b.buf_allocator)
 	b^ = {}
 }
 
@@ -420,9 +420,9 @@ reader_read_bytes :: proc(b: ^Reader, delim: byte, allocator: mem.Allocator) -> 
 			break
 		}
 
-		append(&full, ..frag)
+		_ = append(&full, ..frag)
 	}
-	append(&full, ..frag)
+	_ = append(&full, ..frag)
 	return full[:], err
 }
 

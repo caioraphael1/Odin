@@ -32,7 +32,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 	}
 
 	name_servers, resolve_ok := load_resolv_conf(dns_configuration.resolv_conf, allocator)
-	defer delete(name_servers, allocator)
+	defer _ = delete(name_servers, allocator)
 	if !resolve_ok {
 		return nil, .Invalid_Resolv_Config_Error
 	}
@@ -41,7 +41,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 	}
 
 	hosts, hosts_ok := load_hosts(dns_configuration.hosts_file, allocator)
-	defer delete(hosts, allocator)
+	defer _ = delete(hosts, allocator)
 	if !hosts_ok {
 		return nil, .Invalid_Hosts_Config_Error
 	}
@@ -60,7 +60,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 				},
 				address = host.addr.(IP4_Address),
 			}
-			append(&host_overrides, record)
+			_ = append(&host_overrides, record)
 		} else if type == .IP6 && family_from_address(host.addr) == .IP6 {
 			record := DNS_Record_IP6{
 				base = {
@@ -69,7 +69,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 				},
 				address = host.addr.(IP6_Address),
 			}
-			append(&host_overrides, record)
+			_ = append(&host_overrides, record)
 		}
 	}
 

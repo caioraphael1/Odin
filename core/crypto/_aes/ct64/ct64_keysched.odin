@@ -26,7 +26,7 @@ import "core:crypto/_aes"
 import "core:encoding/endian"
 import "core:mem"
 
-@(private, require_results)
+@(private)
 sub_word :: proc(x: u32) -> u32 {
 	q := [8]u64{u64(x), 0, 0, 0, 0, 0, 0, 0}
 
@@ -40,7 +40,7 @@ sub_word :: proc(x: u32) -> u32 {
 	return ret
 }
 
-@(private, require_results)
+@(private)
 keysched :: proc(comp_skey: []u64, key: []byte) -> int {
 	num_rounds, key_len := 0, len(key)
 	switch key_len {

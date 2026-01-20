@@ -12,7 +12,7 @@ PCG_Random_State :: struct {
 }
 
 pcg_random_generator_proc :: proc(data: rawptr, mode: runtime.Random_Generator_Mode, p: []byte) {
-	@(require_results)
+	
 	read_u64 :: proc(r: ^PCG_Random_State) -> u64 {
 		old_state := r.state
 		r.state = old_state * 6364136223846793005 + (r.inc|1)
@@ -98,7 +98,7 @@ Inputs:
 Returns:
 - A `Generator` instance.
 */
-@(require_results)
+
 pcg_random_generator :: proc(state: ^PCG_Random_State = nil) -> Generator {
 	return {
 		procedure = pcg_random_generator_proc,

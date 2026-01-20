@@ -98,7 +98,7 @@ encode_into :: proc(w: io.Writer, data: []byte, ENC_TBL := ENC_TABLE) -> io.Erro
 			out[2] = c1 == -1 ? PADDING : ENC_TBL[block >> 6 & 63]
 			out[3] = c2 == -1 ? PADDING : ENC_TBL[block & 63]
 		}
-		io.write_full(w, out[:]) or_return
+		_ = io.write_full(w, out[:]) or_return
 	}
 	return nil
 }
@@ -150,7 +150,7 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
 			buf[2] = byte(b2)
 		}
 
-		io.write_full(w, buf[:]) or_return
+		_ = io.write_full(w, buf[:]) or_return
 	}
 
 	rest := length - j
@@ -165,8 +165,8 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
 		}
 
 		switch rest {
-		case 1: io.write_byte(w, byte(b0))             or_return
-		case 2: io.write_full(w, {byte(b0), byte(b1)}) or_return
+		case 1: io.write_byte(w, byte(b0))                 or_return
+		case 2: _ = io.write_full(w, {byte(b0), byte(b1)}) or_return
 		}
 	}
 

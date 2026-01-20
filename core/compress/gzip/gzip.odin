@@ -109,7 +109,7 @@ load_from_file :: proc(filename: string, buf: ^bytes.Buffer, expected_output_siz
 	context.allocator = allocator
 
 	data, ok := os.read_entire_file(filename)
-	defer delete(data)
+	defer _ = delete(data)
 
 	err = E_General.File_Not_Found
 	if ok {

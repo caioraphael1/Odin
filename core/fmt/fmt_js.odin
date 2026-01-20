@@ -46,7 +46,7 @@ fd_to_writer :: proc(fd: ^os.File, loc := #caller_location) -> io.Writer {
 fprint :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true, loc := #caller_location) -> int {
 	buf: [1024]byte
 	b: bufio.Writer
-	defer bufio.writer_flush(&b)
+	defer _ = bufio.writer_flush(&b)
 
 	bufio.writer_init_with_buf(&b, fd_to_writer(fd, loc), buf[:])
 	w := bufio.writer_to_writer(&b)
@@ -57,7 +57,7 @@ fprint :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true, loc := #cal
 fprintln :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true, loc := #caller_location) -> int {
 	buf: [1024]byte
 	b: bufio.Writer
-	defer bufio.writer_flush(&b)
+	defer _ = bufio.writer_flush(&b)
 
 	bufio.writer_init_with_buf(&b, fd_to_writer(fd, loc), buf[:])
 
@@ -69,7 +69,7 @@ fprintln :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true, loc := #c
 fprintf :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true, newline := false, loc := #caller_location) -> int {
 	buf: [1024]byte
 	b: bufio.Writer
-	defer bufio.writer_flush(&b)
+	defer _ = bufio.writer_flush(&b)
 
 	bufio.writer_init_with_buf(&b, fd_to_writer(fd, loc), buf[:])
 

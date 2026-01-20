@@ -66,7 +66,7 @@ foreign lib {
 		length  = length == -1 ? 1024 : length
 
 		buffer: [dynamic]byte
-		defer delete(buffer)
+		defer _ = delete(buffer)
 
 		result:  posix.passwd
 		resultp: ^posix.passwd

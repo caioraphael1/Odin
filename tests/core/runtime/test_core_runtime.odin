@@ -61,23 +61,23 @@ test_temp_allocator_returns_correct_size :: proc(t: ^testing.T) {
 @(test)
 test_init_cap_map_dynarray :: proc(t: ^testing.T) {
 	m1 := make(map[int]string)
-	defer delete(m1)
+	defer _ = delete(m1)
 	testing.expect(t, cap(m1) == 0)
 	testing.expect(t, m1.allocator.procedure == context.allocator.procedure)
 
 	ally := context.temp_allocator
 	m2 := make(map[int]string, ally)
-	defer delete(m2)
+	defer _ = delete(m2)
 	testing.expect(t, cap(m2) == 0)
 	testing.expect(t, m2.allocator.procedure == ally.procedure)
 
 	d1 := make([dynamic]string)
-	defer delete(d1)
+	defer _ = delete(d1)
 	testing.expect(t, cap(d1) == 0)
 	testing.expect(t, d1.allocator.procedure == context.allocator.procedure)
 
 	d2 := make([dynamic]string, ally)
-	defer delete(d2)
+	defer _ = delete(d2)
 	testing.expect(t, cap(d2) == 0)
 	testing.expect(t, d2.allocator.procedure == ally.procedure)
 }
@@ -100,7 +100,7 @@ test_map_get :: proc(t: ^testing.T) {
 			2 = 20,
 			3 = 30,
 		}
-		defer delete(m)
+		defer _ = delete(m)
 		check(t, m)
 	}
 
@@ -111,7 +111,7 @@ test_map_get :: proc(t: ^testing.T) {
 			2 = [3]int{20, 200, 2000},
 			3 = [3]int{30, 300, 3000},
 		}
-		defer delete(m)
+		defer _ = delete(m)
 		check(t, m)
 	}
 
@@ -122,7 +122,7 @@ test_map_get :: proc(t: ^testing.T) {
 			[3]int{20, 200, 2000} = 2,
 			[3]int{30, 300, 3000} = 3,
 		}
-		defer delete(m)
+		defer _ = delete(m)
 		check(t, m)
 	}
 
@@ -138,7 +138,7 @@ test_map_get :: proc(t: ^testing.T) {
 			2 = val{20, 200, 2000},
 			3 = val{30, 300, 3000},
 		}
-		defer delete(m)
+		defer _ = delete(m)
 		check(t, m)
 	}
 
@@ -153,7 +153,7 @@ test_map_get :: proc(t: ^testing.T) {
 			key{20, 200, 2000} = 2,
 			key{30, 300, 3000} = 3,
 		}
-		defer delete(m)
+		defer _ = delete(m)
 		check(t, m)
 	}
 
@@ -164,7 +164,7 @@ test_map_get :: proc(t: ^testing.T) {
 			2 = [9]int{20, 200, 2000, 20000, 200000, 2000000, 20000000, 200000000, 2000000000},
 			3 = [9]int{30, 300, 3000, 30000, 300000, 3000000, 30000000, 300000000, 3000000000},
 		}
-		defer delete(m)
+		defer _ = delete(m)
 		check(t, m)
 	}
 	// keys bigger than a chacheline; small values
@@ -174,7 +174,7 @@ test_map_get :: proc(t: ^testing.T) {
 			[9]int{20, 200, 2000, 20000, 200000, 2000000, 20000000, 200000000, 2000000000} = 2,
 			[9]int{30, 300, 3000, 30000, 300000, 3000000, 30000000, 300000000, 3000000000} = 3,
 		}
-		defer delete(m)
+		defer _ = delete(m)
 		check(t, m)
 	}
 }
@@ -185,27 +185,27 @@ test_soa_array_resize :: proc(t: ^testing.T) {
 	V :: struct {x: int, y: u8}
 
 	array := make(#soa[dynamic]V, 0, 2)
-	defer delete(array)
+	defer _ = delete(array)
 
-	append(&array, V{1, 2}, V{3, 4})
+	_ = append(&array, V{1, 2}, V{3, 4})
 
 	testing.expect_value(t, len(array), 2)
 	testing.expect_value(t, array[0], V{1, 2})
 	testing.expect_value(t, array[1], V{3, 4})
 
-	resize(&array, 1)
+	_ = resize(&array, 1)
 
 	testing.expect_value(t, len(array), 1)
 	testing.expect_value(t, array[0], V{1, 2})
 
-	resize(&array, 2)
+	_ = resize(&array, 2)
 
 	testing.expect_value(t, len(array), 2)
 	testing.expect_value(t, array[0], V{1, 2})
 	testing.expect_value(t, array[1], V{0, 0})
 
-	resize(&array, 0)
-	resize(&array, 3)
+	_ = resize(&array, 0)
+	_ = resize(&array, 3)
 
 	testing.expect_value(t, len(array), 3)
 	testing.expect_value(t, array[0], V{0, 0})
@@ -217,7 +217,7 @@ test_soa_array_resize :: proc(t: ^testing.T) {
 test_soa_make_len :: proc(t: ^testing.T) {
 
 	array, err := make(#soa[dynamic][2]int, 2)
-	defer delete(array)
+	defer _ = delete(array)
 	array[0] = [2]int{1, 2}
 	array[1] = [2]int{3, 4}
 
@@ -240,7 +240,7 @@ test_soa_array_allocator_resize :: proc(t: ^testing.T) {
 	// |1 3 _ _ 2 4 _ _|
 
 	array, err := make(#soa[dynamic][2]int, 2, 3)
-	defer delete(array)
+	defer _ = delete(array)
 	array[0] = [2]int{1, 2}
 	array[1] = [2]int{3, 4}
 
@@ -272,7 +272,7 @@ test_soa_array_allocator_resize_overlapping :: proc(t: ^testing.T) {
 	// |1 4 _ _ 2 5 _ _ 3 6 _ _|
 
 	array, err := make(#soa[dynamic][3]int, 2, 2)
-	defer delete(array)
+	defer _ = delete(array)
 	array[0] = [3]int{1, 2, 3}
 	array[1] = [3]int{4, 5, 6}
 
@@ -298,9 +298,9 @@ test_soa_array_inject_at_elem :: proc(t: ^testing.T) {
 	V :: struct {a: u8, b: f32}
 
 	array := make(#soa[dynamic]V, 0, 2)
-	defer delete(array)
+	defer _ = delete(array)
 
-	append(&array, V{1, 1.5}, V{2, 2.5}, V{3, 3.5})
+	_ = append(&array, V{1, 1.5}, V{2, 2.5}, V{3, 3.5})
 
 	expect_inject(t, &array, 0, {0, 0.5}, {{0, 0.5}, {1, 1.5}, {2, 2.5}, {3, 3.5}})
 	expect_inject(t, &array, 2, {5, 5.5}, {{0, 0.5}, {1, 1.5}, {5, 5.5}, {2, 2.5}, {3, 3.5}})
@@ -327,9 +327,9 @@ test_soa_array_inject_at_elems :: proc(t: ^testing.T) {
 	V :: struct {a: u8, b: f32}
 
 	array := make(#soa[dynamic]V, 0, 2)
-	defer delete(array)
+	defer _ = delete(array)
 
-	append(&array, V{1, 1.5}, V{2, 2.5}, V{3, 3.5})
+	_ = append(&array, V{1, 1.5}, V{2, 2.5}, V{3, 3.5})
 
 	expect_inject(t, &array, 0, {{0, 0.5}}, {{0, 0.5}, {1, 1.5}, {2, 2.5}, {3, 3.5}})
 	expect_inject(t, &array, 2, {{5, 5.5}, {6, 6.5}}, {{0, 0.5}, {1, 1.5}, {5, 5.5}, {6, 6.5}, {2, 2.5}, {3, 3.5}})

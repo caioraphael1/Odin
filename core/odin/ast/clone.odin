@@ -45,7 +45,7 @@ clone_array :: proc(array: $A/[]^$T) -> A {
 	if len(array) == 0 {
 		return nil
 	}
-	res := make(A, len(array))
+	res, _ := make(A, len(array))
 	for elem, i in array {
 		res[i] = (^T)(clone(elem))
 	}
@@ -56,7 +56,7 @@ clone_dynamic_array :: proc(array: $A/[dynamic]^$T) -> A {
 	if len(array) == 0 {
 		return nil
 	}
-	res := make(A, len(array))
+	res, _ := make(A, len(array))
 	for elem, i in array {
 		res[i] = (^T)(clone(elem))
 	}

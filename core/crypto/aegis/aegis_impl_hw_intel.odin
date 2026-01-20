@@ -140,7 +140,7 @@ absorb_hw :: proc(st: ^State_HW, aad: []byte) #no_bounds_check {
 	}
 }
 
-@(private = "file", enable_target_feature = "sse2", require_results)
+@(private = "file", enable_target_feature = "sse2")
 z_hw_128l :: #force_inline proc(st: ^State_HW) -> (x86.__m128i, x86.__m128i) {
 	z0 := x86._mm_xor_si128(
 		st.s6,
@@ -159,7 +159,7 @@ z_hw_128l :: #force_inline proc(st: ^State_HW) -> (x86.__m128i, x86.__m128i) {
 	return z0, z1
 }
 
-@(private = "file", enable_target_feature = "sse2", require_results)
+@(private = "file", enable_target_feature = "sse2")
 z_hw_256 :: #force_inline proc(st: ^State_HW) -> x86.__m128i {
 	return x86._mm_xor_si128(
 		st.s1,

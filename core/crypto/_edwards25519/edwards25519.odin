@@ -106,7 +106,7 @@ ge_set :: proc(ge, a: ^Group_Element) {
 	field.fe_set(&ge.t, &a.t)
 }
 
-@(require_results)
+
 ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
 	ensure(len(b) == 32, "edwards25519: invalid group element size")
 	b_ := (^[32]byte)(raw_data(b))
@@ -387,7 +387,7 @@ ge_cond_select :: proc(ge, a, b: ^Group_Element, ctrl: int) {
 	field.fe_cond_select(&ge.t, &a.t, &b.t, ctrl)
 }
 
-@(require_results)
+
 ge_equal :: proc(a, b: ^Group_Element) -> int {
 	// (x, y) ?= (x', y') -> (X/Z, Y/Z) ?= (X'/Z', Y'/Z')
 	// X/Z ?= X'/Z', Y/Z ?= Y'/Z' -> X*Z' ?= X'*Z, Y*Z' ?= Y'*Z
@@ -404,7 +404,7 @@ ge_equal :: proc(a, b: ^Group_Element) -> int {
 	return ret
 }
 
-@(require_results)
+
 ge_is_small_order :: proc(ge: ^Group_Element) -> bool {
 	tmp: Group_Element = ---
 	ge_double(&tmp, ge)
@@ -413,7 +413,7 @@ ge_is_small_order :: proc(ge: ^Group_Element) -> bool {
 	return ge_equal(&tmp, &GE_IDENTITY) == 1
 }
 
-@(require_results)
+
 ge_in_prime_order_subgroup_vartime :: proc(ge: ^Group_Element) -> bool {
 	// This is currently *very* expensive.  The faster method would be
 	// something like (https://eprint.iacr.org/2022/1164.pdf), however

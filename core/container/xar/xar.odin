@@ -114,13 +114,13 @@ clear :: proc(x: ^$X/Xar($T, $SHIFT)) {
 }
 
 // Returns the length of the exponential-array
-@(require_results)
+
 len :: proc(x: $X/Xar($T, $SHIFT)) -> int {
 	return x.len
 }
 
 // Returns the number of allocated elements
-@(require_results)
+
 cap :: proc(x: $X/Xar($T, $SHIFT)) -> int {
 	#reverse for c, i in x.chunks {
 		if c != nil {
@@ -131,7 +131,7 @@ cap :: proc(x: $X/Xar($T, $SHIFT)) -> int {
 }
 
 // Internal: computes chunk index, element index within chunk, and chunk capacity for a given index.
-@(require_results)
+
 _meta_get :: #force_inline proc($SHIFT: uint, index: uint) -> (chunk_idx, elem_idx, chunk_cap: uint) {
 	elem_idx = index
 	chunk_cap = uint(1) << SHIFT
@@ -160,7 +160,7 @@ Get a copy of the element at the specified index.
 **Returns**
 - a copy of the element
 */
-@(require_results)
+
 get :: proc(x: ^$X/Xar($T, $SHIFT), #any_int index: int, loc := #caller_location) -> (val: T) #no_bounds_check {
 	runtime.bounds_check_error_loc(loc, index, x.len)
 	chunk_idx, elem_idx, _ := _meta_get(SHIFT, uint(index))
@@ -199,7 +199,7 @@ Example:
 		fmt.println(ptr^)  // Still prints 100
 	}
 */
-@(require_results)
+
 get_ptr :: proc(x: ^$X/Xar($T, $SHIFT), #any_int index: int, loc := #caller_location) -> (val: ^T) #no_bounds_check {
 	runtime.bounds_check_error_loc(loc, index, x.len)
 	chunk_idx, elem_idx, _ := _meta_get(SHIFT, uint(index))
@@ -310,7 +310,7 @@ Example:
 		ptr.field = 42  // Initialize in-place
 	}
 */
-@(require_results)
+
 push_back_elem_and_get_ptr :: proc(x: ^$X/Xar($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, err: mem.Allocator_Error) {
 	if x.allocator.procedure == nil {
 		// to minic `[dynamic]T` behaviour
@@ -341,7 +341,7 @@ pop :: proc(x: ^$X/Xar($T, $SHIFT), loc := #caller_location) -> (val: T) {
 
 // `pop_safe` trys to remove and return the end value of dynamic array `x` and reduces the length of the array by 1.
 // If the operation is not possible, it will return false.
-@(require_results)
+
 pop_safe :: proc(x: ^$X/Xar($T, $SHIFT)) -> (val: T, ok: bool) {
 	if x.len == 0 {
 		return

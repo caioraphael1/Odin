@@ -39,7 +39,7 @@ _get_ppid :: proc() -> int {
 	if snap == win32.INVALID_HANDLE_VALUE {
 		return -1
 	}
-	defer win32.CloseHandle(snap)
+	defer _ = win32.CloseHandle(snap)
 	entry := win32.PROCESSENTRY32W { dwSize = size_of(win32.PROCESSENTRY32W) }
 	for status := win32.Process32FirstW(snap, &entry); status; /**/ {
 		if entry.th32ProcessID == our_pid {
@@ -63,21 +63,21 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
 	entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
 	status := win32.Process32FirstW(snap, &entry)
 	for status {
-		append(&list_d, int(entry.th32ProcessID))
+		_ = append(&list_d, int(entry.th32ProcessID))
 		status = win32.Process32NextW(snap, &entry)
 	}
 	list = list_d[:]
 	return
 }
 
-@(require_results)
+
 read_memory_as_struct :: proc(h: win32.HANDLE, addr: rawptr, dest: ^$T) -> (bytes_read: uint, err: Error) {
 	if !win32.ReadProcessMemory(h, addr, dest, size_of(T), &bytes_read) {
 		err = _get_platform_error()
 	}
 	return
 }
-@(require_results)
+
 read_memory_as_slice :: proc(h: win32.HANDLE, addr: rawptr, dest: []$T) -> (bytes_read: uint, err: Error) {
 	if !win32.ReadProcessMemory(h, addr, raw_data(dest), len(dest)*size_of(T), &bytes_read) {
 		err = _get_platform_error()
@@ -104,7 +104,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 		}
 	}
 	defer if ph != win32.INVALID_HANDLE_VALUE {
-		win32.CloseHandle(ph)
+		_ = win32.CloseHandle(ph)
 	}
 	snapshot_process: if selection >= {.PPid, .Priority} {
 		entry, entry_err := _process_entry_by_pid(info.pid)
@@ -450,7 +450,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
 	// NOTE(laytan): I believe it is fine to close this handle right after CreateProcess,
 	// and we don't have to hold onto this until the process exits.
 	defer if null_handle != nil {
-		win32.CloseHandle(null_handle)
+		_ = win32.CloseHandle(null_handle)
 	}
 
 	if desc.stdout == nil {
@@ -568,7 +568,7 @@ _process_entry_by_pid :: proc(pid: int) -> (entry: win32.PROCESSENTRY32W, err: E
 		err = _get_platform_error()
 		return
 	}
-	defer win32.CloseHandle(snap)
+	defer _ = win32.CloseHandle(snap)
 
 	entry = win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
 	status := win32.Process32FirstW(snap, &entry)
@@ -597,7 +597,7 @@ _process_exe_by_pid :: proc(pid: int, allocator: runtime.Allocator) -> (exe_path
 		err =_get_platform_error()
 		return
 	}
-	defer win32.CloseHandle(snap)
+	defer _ = win32.CloseHandle(snap)
 
 	entry := win32.MODULEENTRY32W { dwSize = size_of(win32.MODULEENTRY32W) }
 	status := win32.Module32FirstW(snap, &entry)
@@ -654,9 +654,9 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: runtime.Allocator)
 	argv = make([]string, argc, allocator) or_return
 	defer if err != nil {
 		for arg in argv {
-			delete(arg, allocator)
+			_ = delete(arg, allocator)
 		}
-		delete(argv, allocator)
+		_ = delete(argv, allocator)
 	}
 	for arg_w, i in argv_w[:argc] {
 		argv[i] = win32_wstring_to_utf8(arg_w, allocator) or_return
@@ -726,9 +726,9 @@ _parse_environment_block :: proc(block: [^]u16, allocator: runtime.Allocator) ->
 	envs = make([]string, env_count, allocator) or_return
 	defer if err != nil {
 		for env in envs {
-			delete(env, allocator)
+			_ = delete(env, allocator)
 		}
-		delete(envs, allocator)
+		_ = delete(envs, allocator)
 	}
 
 	env_idx := 0

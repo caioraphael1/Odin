@@ -59,7 +59,7 @@ GHASH_STRIDE_BYTES_HW :: GHASH_STRIDE_HW * _aes.GHASH_BLOCK_SIZE
 @(private = "file")
 _BYTESWAP_INDEX: x86.__m128i : { 0x08090a0b0c0d0e0f, 0x0001020304050607 }
 
-@(private = "file", require_results, enable_target_feature = "sse2,ssse3")
+@(private = "file", enable_target_feature = "sse2,ssse3")
 byteswap :: #force_inline proc(x: x86.__m128i) -> x86.__m128i {
 	return x86._mm_shuffle_epi8(x, _BYTESWAP_INDEX)
 }
@@ -67,7 +67,7 @@ byteswap :: #force_inline proc(x: x86.__m128i) -> x86.__m128i {
 // From a 128-bit value kw, compute kx as the XOR of the two 64-bit
 // halves of kw (into the right half of kx; left half is unspecified),
 // and return kx.
-@(private = "file", require_results, enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2")
 bk :: #force_inline proc(kw: x86.__m128i) -> x86.__m128i {
 	return x86._mm_xor_si128(kw, x86._mm_shuffle_epi32(kw, 0x0e))
 }
@@ -82,7 +82,7 @@ pbk :: #force_inline proc(k0, k1: x86.__m128i) -> (x86.__m128i, x86.__m128i) {
 }
 
 // Left-shift by 1 bit a 256-bit value (in four 64-bit words).
-@(private = "file", require_results, enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2")
 sl_256 :: #force_inline proc(x0, x1, x2, x3: x86.__m128i) -> (x86.__m128i, x86.__m128i, x86.__m128i, x86.__m128i) {
 	x0, x1, x2, x3 := x0, x1, x2, x3
 
@@ -95,7 +95,7 @@ sl_256 :: #force_inline proc(x0, x1, x2, x3: x86.__m128i) -> (x86.__m128i, x86._
 }
 
 // Perform reduction in GF(2^128).
-@(private = "file", require_results, enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2")
 reduce_f128 :: #force_inline proc(x0, x1, x2, x3: x86.__m128i) -> (x86.__m128i, x86.__m128i) {
 	x0, x1, x2 := x0, x1, x2
 
@@ -136,7 +136,7 @@ reduce_f128 :: #force_inline proc(x0, x1, x2, x3: x86.__m128i) -> (x86.__m128i, 
 }
 
 // Square value kw in GF(2^128) into (dw,dx).
-@(private = "file", require_results, enable_target_feature = "sse2,pclmul")
+@(private = "file", enable_target_feature = "sse2,pclmul")
 square_f128 :: #force_inline proc(kw: x86.__m128i) -> (x86.__m128i, x86.__m128i) {
 	z1 := x86._mm_clmulepi64_si128(kw, kw, 0x11)
 	z3 := x86._mm_clmulepi64_si128(kw, kw, 0x00)

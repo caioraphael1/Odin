@@ -17,8 +17,8 @@ test_sort_with_indices :: proc(t: ^testing.T) {
 		vals  := make([]u64, test_size)
 		r_idx := make([]int, test_size) // Reverse index
 		defer {
-			delete(vals)
-			delete(r_idx)
+			_ = delete(vals)
+			_ = delete(r_idx)
 		}
 
 		// Set up test values
@@ -28,7 +28,7 @@ test_sort_with_indices :: proc(t: ^testing.T) {
 
 		// Sort
 		f_idx := slice.sort_with_indices(vals)
-		defer delete(f_idx)
+		defer _ = delete(f_idx)
 
 		// Verify sorted test values
 		rand.reset(t.seed)
@@ -68,8 +68,8 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 		vals  := make([]u64, test_size)
 		r_idx := make([]int, test_size) // Reverse index
 		defer {
-			delete(vals)
-			delete(r_idx)
+			_ = delete(vals)
+			_ = delete(r_idx)
 		}
 
 		// Set up test values
@@ -79,20 +79,20 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 
 		// Sort
 		f_idx := slice.sort_with_indices(vals)
-		defer delete(f_idx)
+		defer _ = delete(f_idx)
 
 		// Verify sorted test values
 		rand.reset(t.seed)
 
 		{
 			indices := make([]int, test_size)
-			defer delete(indices)
+			defer _ = delete(indices)
 			for _, i in indices {
 				indices[i] = i
 			}
 
 			sorted_indices := slice.sort_by_indices(indices, f_idx)
-			defer delete(sorted_indices)
+			defer _ = delete(sorted_indices)
 			for v, i in sorted_indices {
 				idx_pass := v == f_idx[i]
 				testing.expect(t, idx_pass, "Expected the sorted index to be the same as the result from sort_with_indices")
@@ -103,7 +103,7 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 		}
 		{
 			indices := make([]int, test_size)
-			defer delete(indices)
+			defer _ = delete(indices)
 			for _, i in indices {
 				indices[i] = i
 			}
@@ -121,8 +121,8 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 			indices := make([]int, test_size)
 			swap := make([]int, test_size)
 			defer {
-				delete(indices)
-				delete(swap)
+				_ = delete(indices)
+				_ = delete(swap)
 			}
 			for _, i in indices {
 				indices[i] = i
@@ -194,7 +194,7 @@ test_permutation_iterator :: proc(t: ^testing.T) {
 	FAC_5 :: 120
 	s := []int{1, 2, 3, 4, 5}
 	seen: map[int]bool
-	defer delete(seen)
+	defer _ = delete(seen)
 
 	iter := slice.make_permutation_iterator(s)
 	defer slice.destroy_permutation_iterator(iter)
@@ -255,15 +255,15 @@ test_unique :: proc(t: ^testing.T) {
 
 		// Prime with 1 value
 		old := rand.int63()
-		append(&assorted, old)
-		append(&expected, old)
+		_ = append(&assorted, old)
+		_ = append(&expected, old)
 
 		// Add 99 additional random values
 		for _ in 1..<100 {
 			new := rand.int63()
-			append(&assorted, new)
+			_ = append(&assorted, new)
 			if old != new {
-				append(&expected, new)
+				_ = append(&expected, new)
 			}
 			old = new
 		}
@@ -272,9 +272,9 @@ test_unique :: proc(t: ^testing.T) {
 		uniq := slice.unique(assorted[:])
 		testing.expectf(t, slice.equal(uniq, expected[:]), "Expected slice.uniq(%v) == %v, got %v", original, expected, uniq)
 
-		delete(assorted)
-		delete(original)
-		delete(expected)
+		_ = delete(assorted)
+		_ = delete(original)
+		_ = delete(expected)
 	}
 }
 
@@ -287,8 +287,8 @@ test_compare_empty :: proc(t: ^testing.T) {
 	clear(&c)
 	clear(&d)
 	defer {
-		delete(c)
-		delete(d)
+		_ = delete(c)
+		_ = delete(d)
 	}
 
 	testing.expectf(t, len(a) == 0,

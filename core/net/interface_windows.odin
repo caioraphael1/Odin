@@ -26,7 +26,7 @@ import "core:mem"
 
 _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network_Interface, err: Interfaces_Error) {
 	buf: []u8
-	defer delete(buf, allocator)
+	defer _ = delete(buf, allocator)
 
 	buf_size: u32
 	res:      u32
@@ -46,7 +46,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
 		switch res {
 		case 111: // ERROR_BUFFER_OVERFLOW:
-			delete(buf, allocator)
+			_ = delete(buf, allocator)
 			buf, _ = make([]u8, buf_size, allocator)
 		case 0:
 			break gaa
@@ -107,22 +107,22 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 				},
 				address_duplication = Address_Duplication(u_addr.DadState),
 			}
-			append(&interface.unicast, lease)
+			_ = append(&interface.unicast, lease)
 		}
 
 		for a_addr := (^sys.IP_ADAPTER_ANYCAST_ADDRESS_XP)(adapter.FirstAnycastAddress); a_addr != nil; a_addr = a_addr.Next {
 			addr := parse_socket_address(a_addr.Address)
-			append(&interface.anycast, addr.address)
+			_ = append(&interface.anycast, addr.address)
 		}
 
 		for m_addr := (^sys.IP_ADAPTER_MULTICAST_ADDRESS_XP)(adapter.FirstMulticastAddress); m_addr != nil; m_addr = m_addr.Next {
 			addr := parse_socket_address(m_addr.Address)
-			append(&interface.multicast, addr.address)
+			_ = append(&interface.multicast, addr.address)
 		}
 
 		for g_addr := (^sys.IP_ADAPTER_GATEWAY_ADDRESS_LH)(adapter.FirstGatewayAddress); g_addr != nil; g_addr = g_addr.Next {
 			addr := parse_socket_address(g_addr.Address)
-			append(&interface.gateways, addr.address)
+			_ = append(&interface.gateways, addr.address)
 		}
 
 		interface.dhcp_v4 = parse_socket_address(adapter.Dhcpv4Server).address
@@ -141,7 +141,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
 		interface.tunnel_type = Tunnel_Type(adapter.TunnelType)
 
-		append(&_interfaces, interface)
+		_ = append(&_interfaces, interface)
 	}
 
 	return _interfaces[:], {}

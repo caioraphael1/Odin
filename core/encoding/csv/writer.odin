@@ -67,11 +67,11 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
 		field := record[field_idx]
 
 		if field_idx > 0 {
-			io.write_rune(w.w, w.comma) or_return
+			_ = io.write_rune(w.w, w.comma) or_return
 		}
 
 		if !field_needs_quoting(w, field) {
-			io.write_string(w.w, field) or_return
+			_ = io.write_string(w.w, field) or_return
 			continue
 		}
 
@@ -83,7 +83,7 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
 				i = len(field)
 			}
 
-			io.write_string(w.w, field[:i]) or_return
+			_ = io.write_string(w.w, field[:i]) or_return
 			field = field[i:]
 
 			if len(field) > 0 {
@@ -94,12 +94,12 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
 					}
 				case '\n':
 					if w.use_crlf {
-						io.write_string(w.w, "\r\n") or_return
+						_ = io.write_string(w.w, "\r\n") or_return
 					} else {
 						io.write_byte(w.w, '\n') or_return
 					}
 				case '"':
-					io.write_string(w.w, `""`) or_return
+					_ = io.write_string(w.w, `""`) or_return
 				}
 				field = field[1:]
 			}

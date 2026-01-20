@@ -23,7 +23,7 @@ make_parser_from_string :: proc(data: string, spec := DEFAULT_SPECIFICATION, par
 	p.spec = spec
 	p.allocator = allocator
 	assert(p.allocator.procedure != nil)
-	advance_token(&p)
+	_, _ = advance_token(&p)
 	return p
 }
 
@@ -66,7 +66,7 @@ advance_token :: proc(p: ^Parser) -> (Token, Error) {
 
 allow_token :: proc(p: ^Parser, kind: Token_Kind) -> bool {
 	if p.curr_token.kind == kind {
-		advance_token(p)
+		_, _ = advance_token(p)
 		return true
 	}
 	return false
@@ -74,7 +74,7 @@ allow_token :: proc(p: ^Parser, kind: Token_Kind) -> bool {
 
 expect_token :: proc(p: ^Parser, kind: Token_Kind) -> Error {
 	prev := p.curr_token
-	advance_token(p)
+	_, _ = advance_token(p)
 	if prev.kind == kind {
 		return nil
 	}
@@ -110,37 +110,37 @@ parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
 	token := p.curr_token
 	#partial switch token.kind {
 	case .Null:
-		advance_token(p)
+		_, _ = advance_token(p)
 		value = Null{}
 		return
 	case .False:
-		advance_token(p)
+		_, _ = advance_token(p)
 		value = Boolean(false)
 		return
 	case .True:
-		advance_token(p)
+		_, _ = advance_token(p)
 		value = Boolean(true)
 		return
 
 	case .Integer:
-		advance_token(p)
+		_, _ = advance_token(p)
 		i, _ := strconv.parse_i64(token.text)
 		value = Integer(i)
 		return
 	case .Float:
-		advance_token(p)
+		_, _ = advance_token(p)
 		f, _ := strconv.parse_f64(token.text)
 		value = Float(f)
 		return
 		
 	case .Ident:
 		if p.spec == .MJSON {
-			advance_token(p)
+			_, _ = advance_token(p)
 			return clone_string(token.text, p.allocator, loc)
 		}
 		
 	case .String:
-		advance_token(p)
+		_, _ = advance_token(p)
 		return unquote_string(token, p.spec, p.allocator, loc)
 
 	case .Open_Brace:
@@ -171,7 +171,7 @@ parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
 	}
 
 	err = .Unexpected_Token
-	advance_token(p)
+	_, _ = advance_token(p)
 	return
 }
 
@@ -185,12 +185,12 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
 		for elem in array {
 			destroy_value(elem, array.allocator, loc=loc)
 		}
-		delete(array, loc)
+		_ = delete(array, loc)
 	}
 
 	for p.curr_token.kind != .Close_Bracket {
 		elem := parse_value(p, loc) or_return
-		append(&array, elem, loc)
+		_ = append(&array, elem, loc)
 		
 		if parse_comma(p) {
 			break
@@ -246,10 +246,10 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
 
 	defer if err != nil {
 		for key, elem in obj {
-			delete(key, p.allocator, loc)
+			_ = delete(key, p.allocator, loc)
 			destroy_value(elem, p.allocator, loc=loc)
 		}
-		delete(obj, loc)
+		_ = delete(obj, loc)
 	}
 
 	for p.curr_token.kind != end_token {
@@ -259,7 +259,7 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
 
 		if key in obj {
 			err = .Duplicate_Object_Key
-			delete(key, p.allocator, loc)
+			_ = delete(key, p.allocator, loc)
 			return
 		}
 

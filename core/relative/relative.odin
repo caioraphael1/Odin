@@ -20,7 +20,7 @@ Slice :: struct($Type: typeid, $Backing: typeid)
 
 
 
-@(require_results)
+
 pointer_get :: proc(p: ^$P/Pointer($T, $B)) -> T {
 	if p.offset == 0 {
 		return nil
@@ -37,7 +37,7 @@ pointer_set :: proc(p: ^$P/Pointer($T, $B), ptr: T) {
 	}
 }
 
-@(require_results)
+
 slice_get :: proc(p: ^$S/Slice($T/[]$E, $B)) -> (slice: T) {
 	if p.offset == 0 {
 		when size_of(E) == 0 {
@@ -79,7 +79,7 @@ Set_Safe_Error :: enum {
 }
 
 
-@(require_results)
+
 pointer_set_safe :: proc(p: ^$P/Pointer($T, $B), ptr: T) -> Set_Safe_Error {
 	if ptr == nil {
 		p.offset = 0
@@ -112,7 +112,7 @@ pointer_set_safe :: proc(p: ^$P/Pointer($T, $B), ptr: T) -> Set_Safe_Error {
 	return .None
 }
 
-@(require_results)
+
 slice_set_safe :: proc(p: ^$S/Slice($T, $B), slice: T) -> Set_Safe_Error {
 	if slice == nil {
 		p.offset, p.len = 0, 0

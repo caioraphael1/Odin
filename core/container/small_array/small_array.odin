@@ -711,7 +711,7 @@ Output:
 
 */
 clear :: proc(a: ^$A/Small_Array($N, $T)) {
-	resize(a, 0)
+	_ = resize(a, 0)
 }
 
 /*

@@ -63,6 +63,7 @@ make_tokenizer :: proc(data: string, spec := DEFAULT_SPECIFICATION, parse_intege
 	return t
 }
 
+@(optional_results)
 next_rune :: proc(t: ^Tokenizer) -> rune #no_bounds_check {
 	if t.offset >= len(t.data) {
 		t.r = utf8.RUNE_EOF
@@ -174,7 +175,7 @@ get_token :: proc(t: ^Tokenizer) -> (token: Token, err: Error) {
 		}
 	}
 
-	skip_whitespace(t, t.insert_comma)
+	_ = skip_whitespace(t, t.insert_comma)
 
 	token.pos = t.pos
 
@@ -311,7 +312,7 @@ get_token :: proc(t: ^Tokenizer) -> (token: Token, err: Error) {
 				break
 			}
 			if r == '\\' {
-				scan_escape(t)
+				_ = scan_escape(t)
 			}
 		}
 

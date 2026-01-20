@@ -130,7 +130,7 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
 		}
 	}
 	defer if len(buf) > MAX_STACK {
-		delete(buf)
+		_ = delete(buf)
 	}
 
 	_, err := io.write_full(os.stream_from_handle(handle), buf)
@@ -509,7 +509,7 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
 
 	if match_fail {
 		if alloc {
-			free(s)
+			_ = free(s)
 			// free(wcs)
 		}
 	}

@@ -165,9 +165,9 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 			argv.allocator = allocator
 
 			defer if err != nil {
-				for arg in argv { delete(arg, allocator) }
-				delete(argv)
-				delete(command_line)
+				for arg in argv { _ = delete(arg, allocator) }
+				_ = delete(argv)
+				_ = delete(command_line)
 			}
 
 			_, _ = bytes.split_iterator(&buf, {0})
@@ -209,8 +209,8 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 			environment.allocator = allocator
 
 			defer if err != nil {
-				for entry in environment { delete(entry, allocator) }
-				delete(environment)
+				for entry in environment { _ = delete(entry, allocator) }
+				_ = delete(environment)
 			}
 
 			for entry in bytes.split_iterator(&buf, {0}) {

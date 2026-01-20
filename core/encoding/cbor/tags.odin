@@ -199,7 +199,7 @@ tag_big_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, tnr: Tag_Number, v
 	switch &dst in v {
 	case big.Int:
 		bytes := err_conv(_decode_bytes(d, add)) or_return
-		defer delete(bytes)
+		defer _ = delete(bytes)
 
 		if err := big.int_from_bytes_big(&dst, bytes); err != nil {
 			return .Bad_Tag_Value
@@ -243,7 +243,7 @@ tag_big_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_E
 			bits, derr := big.int_bitfield_extract(&vv, offset, 8, mem.panic_allocator())
 			assert(derr == nil, "should only error if not initialized or invalid argument (offset and count), which won't happen")
 
-			io.write_full(e.writer, {u8(bits & 255)}) or_return
+			_ = io.write_full(e.writer, {u8(bits & 255)}) or_return
 		}
 		return nil
 
@@ -299,7 +299,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
 	}
 
 	bytes := string(err_conv(_decode_bytes(d, add, allocator=runtime.temp_allocator)) or_return)
-	defer delete(bytes, runtime.temp_allocator)
+	defer _ = delete(bytes, runtime.temp_allocator)
 
 	#partial switch t in ti.variant {
 	case reflect.Type_Info_String:

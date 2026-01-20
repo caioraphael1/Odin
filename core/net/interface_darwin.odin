@@ -35,7 +35,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 	defer freeifaddrs(head)
 
 	ifaces: map[string]Network_Interface
-	defer delete(ifaces)
+	defer _ = delete(ifaces)
 
 	for ifaddr := head; ifaddr != nil; ifaddr = ifaddr.next {
 		adapter_name := string(ifaddr.name)
@@ -70,7 +70,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 			#partial switch ifaddr.dstaddr.sa_family {
 			case .INET, .INET6:
 				broadcast := _sockaddr_basic_to_endpoint(ifaddr.dstaddr).address
-				append(&iface.multicast, broadcast)
+				_ = append(&iface.multicast, broadcast)
 			}
 		}
 
@@ -79,7 +79,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 				address = address,
 				netmask = netmask,
 			}
-			append(&iface.unicast, lease)
+			_ = append(&iface.unicast, lease)
 		}
 
 		/*

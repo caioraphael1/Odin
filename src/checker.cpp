@@ -3506,11 +3506,11 @@ gb_internal DECL_ATTRIBUTE_PROC(foreign_block_decl_attribute) {
 		}
 		c->foreign_context.visibility_kind = kind;
 		return true;
-	} else if (name == "require_results") {
+	} else if (name == "optional_results") {
 		if (value != nullptr) {
 			error(elem, "Expected no value for '%.*s'", LIT(name));
 		}
-		c->foreign_context.require_results = true;
+		c->foreign_context.optional_results = true;
 		return true;
 	}
 
@@ -3560,11 +3560,11 @@ gb_internal DECL_ATTRIBUTE_PROC(proc_group_attribute) {
 			}
 		}
 		return true;
-	} else if (name == "require_results") {
+	} else if (name == "optional_results") {
 		if (value != nullptr) {
 			error(elem, "Expected no value for '%.*s'", LIT(name));
 		}
-		ac->require_results = true;
+		ac->optional_results = true;
 		return true;
 	}
 	return false;
@@ -3814,11 +3814,11 @@ gb_internal DECL_ATTRIBUTE_PROC(proc_decl_attribute) {
 			error(elem, "Expected a string value for '%.*s'", LIT(name));
 		}
 		return true;
-	} else if (name == "require_results") {
+	} else if (name == "optional_results") {
 		if (value != nullptr) {
 			error(elem, "Expected no value for '%.*s'", LIT(name));
 		}
-		ac->require_results = true;
+		ac->optional_results = true;
 		return true;
 	} else if (name == "disabled") {
 		ExactValue ev = check_decl_attribute_value(c, value);
@@ -4700,7 +4700,7 @@ gb_internal void check_collect_value_decl(CheckerContext *c, Ast *decl) {
 				}
 				ast_node(pl, ProcLit, init);
 				e = alloc_entity_procedure(d->scope, token, nullptr, pl->tags);
-				d->foreign_require_results = c->foreign_context.require_results;
+				d->foreign_optional_results = c->foreign_context.optional_results;
 				if (fl != nullptr) {
 					GB_ASSERT(fl->kind == Ast_Ident);
 					e->Procedure.foreign_library_ident = fl;

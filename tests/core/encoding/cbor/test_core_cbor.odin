@@ -105,15 +105,15 @@ test_marshalling :: proc(t: ^testing.T) {
 		big.atoi(&f.smallest, "-1234567891011121314151617181920")
 
 		defer {
-			delete(f.child.dyn)
-			delete(f.child.mappy)
+			_ = delete(f.child.dyn)
+			_ = delete(f.child.mappy)
 			big.destroy(&f.biggest)
 			big.destroy(&f.smallest)
 		}
 		
 		data, err := cbor.marshal(f, cbor.ENCODE_FULLY_DETERMINISTIC)
 		testing.expect_value(t, err, nil)
-		defer delete(data)
+		defer _ = delete(data)
 
 		decoded, derr := cbor.decode(string(data))
 		testing.expect_value(t, derr, nil)
@@ -121,7 +121,7 @@ test_marshalling :: proc(t: ^testing.T) {
 
 		diagnosis, eerr := cbor.to_diagnostic_format(decoded)
 		testing.expect_value(t, eerr, nil)
-		defer delete(diagnosis)
+		defer _ = delete(diagnosis)
 		testing.expect_value(t, diagnosis, `{
 	"no": null,
 	"mat": [
@@ -217,18 +217,18 @@ test_marshalling :: proc(t: ^testing.T) {
 		uerr := cbor.unmarshal(string(data), &backf)
 		testing.expect_value(t, uerr, nil)
 		defer {
-			delete(backf.str)
-			delete(backf.cstr)
+			_ = delete(backf.str)
+			_ = delete(backf.cstr)
 			cbor.destroy(backf.value)
-			delete(backf.base64)
+			_ = delete(backf.base64)
 
-			for e in backf.child.dyn { delete(e) }
-			delete(backf.child.dyn)
+			for e in backf.child.dyn { _ = delete(e) }
+			_ = delete(backf.child.dyn)
 
-			for k in backf.child.mappy { delete(k) }
-			delete(backf.child.mappy)
+			for k in backf.child.mappy { _ = delete(k) }
+			_ = delete(backf.child.mappy)
 
-			delete(backf.my_bytes)
+			_ = delete(backf.my_bytes)
 
 			big.destroy(&backf.biggest)
 			big.destroy(&backf.smallest)
@@ -296,7 +296,7 @@ test_marshalling :: proc(t: ^testing.T) {
 test_marshalling_maybe :: proc(t: ^testing.T) {
 	maybe_test: Maybe(int) = 1
 	data, err := cbor.marshal(maybe_test)
-	defer delete(data)
+	defer _ = delete(data)
 	testing.expect_value(t, err, nil)
 
 	val, derr := cbor.decode(string(data))
@@ -304,7 +304,7 @@ test_marshalling_maybe :: proc(t: ^testing.T) {
 
 	diag := cbor.to_diagnostic_format(val)
 	testing.expect_value(t, diag, "1")
-	delete(diag)
+	_ = delete(diag)
 	
 	maybe_dest: Maybe(int)
 	uerr := cbor.unmarshal(string(data), &maybe_dest)
@@ -316,7 +316,7 @@ test_marshalling_maybe :: proc(t: ^testing.T) {
 test_marshalling_nil_maybe :: proc(t: ^testing.T) {
 	maybe_test: Maybe(int)
 	data, err := cbor.marshal(maybe_test)
-	defer delete(data)
+	defer _ = delete(data)
 	testing.expect_value(t, err, nil)
 
 	val, derr := cbor.decode(string(data))
@@ -324,7 +324,7 @@ test_marshalling_nil_maybe :: proc(t: ^testing.T) {
 
 	diag := cbor.to_diagnostic_format(val)
 	testing.expect_value(t, diag, "null")
-	delete(diag)
+	_ = delete(diag)
 	
 	maybe_dest: Maybe(int)
 	uerr := cbor.unmarshal(string(data), &maybe_dest)
@@ -355,7 +355,7 @@ test_marshalling_union :: proc(t: ^testing.T) {
 	{
 		test: My_Union = My_Distinct("Hello, World!")
 		data, err := cbor.marshal(test)
-		defer delete(data)
+		defer _ = delete(data)
 		testing.expect_value(t, err, nil)
 
 		val, derr := cbor.decode(string(data))
@@ -363,7 +363,7 @@ test_marshalling_union :: proc(t: ^testing.T) {
 		testing.expect_value(t, derr, nil)
 
 		diag := cbor.to_diagnostic_format(val, -1)
-		defer delete(diag)
+		defer _ = delete(diag)
 		testing.expect_value(t, diag, `1010(["My_Distinct", "Hello, World!"])`)
 
 		dest: My_Union
@@ -371,7 +371,7 @@ test_marshalling_union :: proc(t: ^testing.T) {
 		testing.expect_value(t, uerr, nil)
 		testing.expect_value(t, dest, My_Distinct("Hello, World!"))
 		if str, ok := dest.(My_Distinct); ok {
-			delete(string(str))
+			_ = delete(string(str))
 		}
 	}
 
@@ -385,7 +385,7 @@ test_marshalling_union :: proc(t: ^testing.T) {
 	{
 		test: My_Union_No_Nil = My_Struct{.Two}
 		data, err := cbor.marshal(test)
-		defer delete(data)
+		defer _ = delete(data)
 		testing.expect_value(t, err, nil)
 
 		val, derr := cbor.decode(string(data))
@@ -393,7 +393,7 @@ test_marshalling_union :: proc(t: ^testing.T) {
 		testing.expect_value(t, derr, nil)
 
 		diag := cbor.to_diagnostic_format(val, -1)
-		defer delete(diag)
+		defer _ = delete(diag)
 		testing.expect_value(t, diag, `1010(["My_Struct", {"my_enum": 1}])`)
 
 		dest: My_Union_No_Nil
@@ -460,9 +460,9 @@ test_unmarshal_map_into_struct_partially :: proc(t: ^testing.T) {
 	testing.expect_value(t, uerr, nil)
 	testing.expect_value(t, less_out, less)
 
-	delete(more_bin)
-	delete(less_out.bar.hello)
-	delete(less_out.bar.world)
+	_ = delete(more_bin)
+	_ = delete(less_out.bar.hello)
+	_ = delete(less_out.bar.world)
 }
 
 @(test)
@@ -812,7 +812,7 @@ expect_decoding :: proc(t: ^testing.T, encoded: string, decoded: string, type: t
 	testing.expect_value(t, err, nil, loc)
 
 	str := cbor.to_diagnostic_format(res, padding=-1)
-	defer delete(str)
+	defer _ = delete(str)
 
 	testing.expect_value(t, str, decoded, loc)
 }
@@ -827,7 +827,7 @@ expect_tag :: proc(t: ^testing.T, encoded: string, nr: cbor.Tag_Number, value_de
 		testing.expect_value(t, tag.number, nr, loc)
 
 		str := cbor.to_diagnostic_format(tag, padding=-1)
-		defer delete(str)
+		defer _ = delete(str)
 
 		testing.expect_value(t, str, value_decoded, loc)
 	} else {

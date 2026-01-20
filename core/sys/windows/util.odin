@@ -91,7 +91,7 @@ utf8_to_utf16_alloc :: proc(s: string, allocator: runtime.Allocator) -> []u16 {
 
 	n1 := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cstr, i32(len(s)), raw_data(text), n)
 	if n1 == 0 {
-		delete(text, allocator)
+		_ = delete(text, allocator)
 		return nil
 	}
 
@@ -155,7 +155,7 @@ wstring_to_utf8_alloc :: proc(s: wstring, N: int, allocator: runtime.Allocator) 
 
 	n1 := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, i32(N), raw_data(text), n, nil, nil)
 	if n1 == 0 {
-		delete(text, allocator)
+		_ = delete(text, allocator)
 		return
 	}
 
@@ -463,7 +463,7 @@ add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
 	if res == false {
 		return false, ""
 	}
-	defer LocalFree(rawptr(sb))
+	defer _ = LocalFree(rawptr(sb))
 
 	pszProfilePath, _ := make([]u16, 257, runtime.temp_allocator)
 	res2 := CreateProfile(
@@ -493,7 +493,7 @@ delete_user_profile :: proc(username: string) -> (ok: bool) {
 	if res == false {
 		return false
 	}
-	defer LocalFree(rawptr(sb))
+	defer _ = LocalFree(rawptr(sb))
 
 	res2 := DeleteProfileW(
 		sb,
@@ -508,7 +508,7 @@ add_user :: proc(servername: string, username: string, password: string) -> (ok:
 		Convenience function that creates a new user, adds it to the group Users and creates a profile directory for it.
 		Requires elevated privileges (run as administrator).
 
-		TODO: Add a bool that governs whether to delete the user if adding to group and/or creating profile fail?
+		TODO: Add a bool that governs whether to _ = delete the user if adding to group and/or creating profile fail?
 		TODO: SecureZeroMemory the password after use.
 	*/
 
@@ -537,7 +537,7 @@ delete_user :: proc(servername: string, username: string) -> (ok: bool) {
 		Convenience function that deletes a user.
 		Requires elevated privileges (run as administrator).
 
-		TODO: Add a bool that governs whether to delete the profile from this wrapper?
+		TODO: Add a bool that governs whether to _ = delete the profile from this wrapper?
 	*/
 
 	servername_w: wstring
@@ -616,9 +616,9 @@ run_as_user :: proc(username, password, application, commandline: string, pi: ^P
 	))
 	if ok {
 		if wait {
-			WaitForSingleObject(pi.hProcess, INFINITE)
-			CloseHandle(pi.hProcess)
-			CloseHandle(pi.hThread)
+			_ = WaitForSingleObject(pi.hProcess, INFINITE)
+			_ = CloseHandle(pi.hProcess)
+			_ = CloseHandle(pi.hThread)
 		}
 		return true
 	} else {

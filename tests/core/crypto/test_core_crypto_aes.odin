@@ -22,9 +22,9 @@ test_aes :: proc(t: ^testing.T) {
 
 supported_aes_impls :: proc() -> [dynamic]aes.Implementation {
 	impls := make([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
-	append(&impls, aes.Implementation.Portable)
+	_ = append(&impls, aes.Implementation.Portable)
 	if aes.is_hardware_accelerated() {
-		append(&impls, aes.Implementation.Hardware)
+		_ = append(&impls, aes.Implementation.Hardware)
 	}
 
 	return impls

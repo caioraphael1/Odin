@@ -10,7 +10,7 @@ read_dir :: read_directory
 	Reads the file `f` (assuming it is a directory) and returns the unsorted directory entries.
 	This returns up to `n` entries OR all of them if `n <= 0`.
 */
-@(require_results)
+
 read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files: []File_Info, err: Error) {
 	if f == nil {
 		return nil, .Invalid_File
@@ -42,7 +42,7 @@ read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files
 
 		_ = read_directory_iterator_error(&it) or_break
 
-		append(&dfi, file_info_clone(fi, allocator) or_return)
+		_ = append(&dfi, file_info_clone(fi, allocator) or_return)
 	}
 
 	_ = read_directory_iterator_error(&it) or_return
@@ -54,7 +54,7 @@ read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files
 /*
 	Reads the file `f` (assuming it is a directory) and returns all of the unsorted directory entries.
 */
-@(require_results)
+
 read_all_directory :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: []File_Info, err: Error) {
 	return read_directory(f, -1, allocator)
 }
@@ -63,17 +63,17 @@ read_all_directory :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: []Fil
 	Reads the named directory by path (assuming it is a directory) and returns the unsorted directory entries.
 	This returns up to `n` entries OR all of them if `n <= 0`.
 */
-@(require_results)
+
 read_directory_by_path :: proc(path: string, n: int, allocator: runtime.Allocator) -> (fi: []File_Info, err: Error) {
 	f := open(path, allocator = allocator) or_return
-	defer close(f)
+	defer _ = close(f)
 	return read_directory(f, n, allocator)
 }
 
 /*
 	Reads the named directory by path (assuming it is a directory) and returns all of the unsorted directory entries.
 */
-@(require_results)
+
 read_all_directory_by_path :: proc(path: string, allocator: runtime.Allocator) -> (fi: []File_Info, err: Error) {
 	return read_directory_by_path(path, -1, allocator)
 }
@@ -126,7 +126,7 @@ read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator:
 		return
 	}
 
-	delete(it.err.path)
+	_ = delete(it.err.path)
 
 	_read_directory_iterator_destroy(it, allocator)
 }
@@ -134,7 +134,7 @@ read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator:
 /*
 Retrieve the last error that happened during iteration.
 */
-@(require_results)
+
 read_directory_iterator_error :: proc(it: ^Read_Directory_Iterator) -> (path: string, err: Error) {
 	return string(it.err.path[:]), it.err.err
 }
@@ -145,7 +145,7 @@ read_directory_iterator_set_error :: proc(it: ^Read_Directory_Iterator, path: st
 		return
 	}
 
-	resize(&it.err.path, len(path))
+	_ = resize(&it.err.path, len(path))
 	copy(it.err.path[:], path)
 
 	it.err.err = err
@@ -195,7 +195,7 @@ Example:
 		}
 	}
 */
-@(require_results)
+
 read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
 	if it.f == nil {
 		return
@@ -240,11 +240,11 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runt
 
 		rel := strings.trim_prefix(info.fullpath, abs_src)
 
-		non_zero_resize(&dst_buf, 0)
+		non_zero_resize(&dst_buf, 0) or_return
 		reserve(&dst_buf, len(abs_dst) + len(Path_Separator_String) + len(rel)) or_return
-		append(&dst_buf, abs_dst)
-		append(&dst_buf, Path_Separator_String)
-		append(&dst_buf, rel)
+		append(&dst_buf, abs_dst) or_return
+		append(&dst_buf, Path_Separator_String) or_return
+		append(&dst_buf, rel) or_return
 
 		if info.type == .Directory {
 			err = make_directory(string(dst_buf[:]), dst_perm)

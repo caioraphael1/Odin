@@ -620,17 +620,17 @@ Edit_HideBalloonTip :: #force_inline proc "system" (hwnd: HWND) -> BOOL {
 }
 
 Edit_SetHilite :: #force_inline proc "system" (hwndCtl: HWND, ichStart: c_int, ichEnd: c_int) {
-	SendMessageW(hwndCtl, EM_SETHILITE, cast(WPARAM)ichStart, cast(LPARAM)ichEnd)
+	_ = SendMessageW(hwndCtl, EM_SETHILITE, cast(WPARAM)ichStart, cast(LPARAM)ichEnd)
 }
 Edit_GetHilite :: #force_inline proc "system" (hwndCtl: HWND) -> DWORD {
 	return cast(DWORD)SendMessageW(hwndCtl, EM_GETHILITE, 0, 0)
 }
 
 Edit_NoSetFocus :: #force_inline proc "system" (hwndCtl: HWND) {
-	SendMessageW(hwndCtl, EM_NOSETFOCUS, 0, 0)
+	_ = SendMessageW(hwndCtl, EM_NOSETFOCUS, 0, 0)
 }
 Edit_TakeFocus :: #force_inline proc "system" (hwndCtl: HWND) {
-	SendMessageW(hwndCtl, EM_TAKEFOCUS, 0, 0)
+	_ = SendMessageW(hwndCtl, EM_TAKEFOCUS, 0, 0)
 }
 
 // Up Down Control
@@ -1276,7 +1276,7 @@ ListView_SetItemState :: #force_inline proc "system" (hwndLV: HWND, i: c_int, da
 		stateMask = mask,
 		state     = data,
 	}
-	SendMessageW(hwndLV, LVM_SETITEMSTATE, cast(WPARAM)i, cast(LPARAM)uintptr(&item))
+	_ = SendMessageW(hwndLV, LVM_SETITEMSTATE, cast(WPARAM)i, cast(LPARAM)uintptr(&item))
 }
 ListView_SetCheckState :: #force_inline proc "system" (hwndLV: HWND, i: c_int, fCheck: BOOL) {
 	ListView_SetItemState(hwndLV, i, INDEXTOSTATEIMAGEMASK(2 if fCheck else 1), LVIS_STATEIMAGEMASK)
@@ -1293,20 +1293,20 @@ ListView_GetItemText :: #force_inline proc "system" (hwndLV: HWND, i: c_int, iSu
 		cchTextMax = cchTextMax,
 		pszText    = pszText,
 	}
-	SendMessageW(hwndLV, LVM_GETITEMTEXTW, cast(WPARAM)i, cast(LPARAM)uintptr(&item))
+	_ = SendMessageW(hwndLV, LVM_GETITEMTEXTW, cast(WPARAM)i, cast(LPARAM)uintptr(&item))
 }
 ListView_SetItemText :: #force_inline proc "system" (hwndLV: HWND, i: c_int, iSubItem: c_int, pszText: LPWSTR) {
 	item := LV_ITEMW {
 		iSubItem = iSubItem,
 		pszText  = pszText,
 	}
-	SendMessageW(hwndLV, LVM_SETITEMTEXTW, cast(WPARAM)i, cast(LPARAM)uintptr(&item))
+	_ = SendMessageW(hwndLV, LVM_SETITEMTEXTW, cast(WPARAM)i, cast(LPARAM)uintptr(&item))
 }
 ListView_SetItemCount :: #force_inline proc "system" (hwndLV: HWND, cItems: c_int) {
-	SendMessageW(hwndLV, LVM_SETITEMCOUNT, cast(WPARAM)cItems, 0)
+	_ = SendMessageW(hwndLV, LVM_SETITEMCOUNT, cast(WPARAM)cItems, 0)
 }
 ListView_SetItemCountEx :: #force_inline proc "system" (hwndLV: HWND, cItems: c_int, dwFlags: DWORD) {
-	SendMessageW(hwndLV, LVM_SETITEMCOUNT, cast(WPARAM)cItems, cast(LPARAM)dwFlags)
+	_ = SendMessageW(hwndLV, LVM_SETITEMCOUNT, cast(WPARAM)cItems, cast(LPARAM)dwFlags)
 }
 ListView_SortItems :: #force_inline proc "system" (hwndLV: HWND, pfnCompare: PFNLVCOMPARE, lpUser: LPARAM) -> BOOL {
 	return cast(BOOL)SendMessageW(hwndLV, LVM_SORTITEMS, cast(WPARAM)lpUser, cast(LPARAM)transmute(uintptr)(pfnCompare))
@@ -1316,7 +1316,7 @@ ListView_SetItemPosition32 :: #force_inline proc "system" (hwndLV: HWND, i: c_in
 		x = x0,
 		y = y0,
 	}
-	SendMessageW(hwndLV, LVM_SETITEMPOSITION32, cast(WPARAM)i, cast(LPARAM)uintptr(&ptNewPos))
+	_ = SendMessageW(hwndLV, LVM_SETITEMPOSITION32, cast(WPARAM)i, cast(LPARAM)uintptr(&ptNewPos))
 }
 ListView_GetSelectedCount :: #force_inline proc "system" (hwndLV: HWND) -> UINT {
 	return cast(UINT)SendMessageW(hwndLV, LVM_GETSELECTEDCOUNT, 0, 0)
@@ -1398,7 +1398,7 @@ ListView_SortItemsEx :: #force_inline proc "system" (hwndLV: HWND, pfnCompare: P
 	return cast(BOOL)SendMessageW(hwndLV, LVM_SORTITEMSEX, cast(WPARAM)lpUser, cast(LPARAM)transmute(uintptr)(pfnCompare))
 }
 ListView_SetSelectedColumn :: #force_inline proc "system" (hwnd: HWND, iCol: c_int) {
-	SendMessageW(hwnd, LVM_SETSELECTEDCOLUMN, cast(WPARAM)iCol, 0)
+	_ = SendMessageW(hwnd, LVM_SETSELECTEDCOLUMN, cast(WPARAM)iCol, 0)
 }
 ListView_SetView :: #force_inline proc "system" (hwnd: HWND, iView: DWORD) -> c_int {
 	return cast(c_int)SendMessageW(hwnd, LVM_SETVIEW, cast(WPARAM)iView, 0)
@@ -1419,16 +1419,16 @@ ListView_RemoveGroup :: #force_inline proc "system" (hwnd: HWND, iGroupId: c_int
 	return cast(c_int)SendMessageW(hwnd, LVM_REMOVEGROUP, cast(WPARAM)iGroupId, 0)
 }
 ListView_MoveGroup :: #force_inline proc "system" (hwnd: HWND, iGroupId: c_int, toIndex: c_int) {
-	SendMessageW(hwnd, LVM_MOVEGROUP, cast(WPARAM)iGroupId, cast(LPARAM)toIndex)
+	_ = SendMessageW(hwnd, LVM_MOVEGROUP, cast(WPARAM)iGroupId, cast(LPARAM)toIndex)
 }
 ListView_MoveItemToGroup :: #force_inline proc "system" (hwnd: HWND, idItemFrom: c_int, idGroupTo: c_int) {
-	SendMessageW(hwnd, LVM_MOVEITEMTOGROUP, cast(WPARAM)idItemFrom, cast(LPARAM)idGroupTo)
+	_ = SendMessageW(hwnd, LVM_MOVEITEMTOGROUP, cast(WPARAM)idItemFrom, cast(LPARAM)idGroupTo)
 }
 ListView_SetGroupMetrics :: #force_inline proc "system" (hwnd: HWND, pGroupMetrics: PLVGROUPMETRICS) {
-	SendMessageW(hwnd, LVM_SETGROUPMETRICS, 0, cast(LPARAM)uintptr(pGroupMetrics))
+	_ = SendMessageW(hwnd, LVM_SETGROUPMETRICS, 0, cast(LPARAM)uintptr(pGroupMetrics))
 }
 ListView_GetGroupMetrics :: #force_inline proc "system" (hwnd: HWND, pGroupMetrics: PLVGROUPMETRICS) {
-	SendMessageW(hwnd, LVM_GETGROUPMETRICS, 0, cast(LPARAM)uintptr(pGroupMetrics))
+	_ = SendMessageW(hwnd, LVM_GETGROUPMETRICS, 0, cast(LPARAM)uintptr(pGroupMetrics))
 }
 ListView_EnableGroupView :: #force_inline proc "system" (hwnd: HWND, fEnable: BOOL) -> c_int {
 	return cast(c_int)SendMessageW(hwnd, LVM_ENABLEGROUPVIEW, cast(WPARAM)fEnable, 0)
@@ -1437,10 +1437,10 @@ ListView_SortGroups :: #force_inline proc "system" (hwnd: HWND, pfnGroupCompare:
 	return cast(c_int)SendMessageW(hwnd, LVM_SORTGROUPS, transmute(uintptr)(pfnGroupCompare), cast(LPARAM)uintptr(pUser))
 }
 ListView_InsertGroupSorted :: #force_inline proc "system" (hwnd: HWND, structInsert: PLVINSERTGROUPSORTED) {
-	SendMessageW(hwnd, LVM_INSERTGROUPSORTED, uintptr(structInsert), 0)
+	_ = SendMessageW(hwnd, LVM_INSERTGROUPSORTED, uintptr(structInsert), 0)
 }
 ListView_RemoveAllGroups :: #force_inline proc "system" (hwnd: HWND) {
-	SendMessageW(hwnd, LVM_REMOVEALLGROUPS, 0, 0)
+	_ = SendMessageW(hwnd, LVM_REMOVEALLGROUPS, 0, 0)
 }
 ListView_HasGroup :: #force_inline proc "system" (hwnd: HWND, dwGroupId: c_int) -> BOOL {
 	return cast(BOOL)SendMessageW(hwnd, LVM_HASGROUP, cast(WPARAM)dwGroupId, 0)
@@ -1449,13 +1449,13 @@ ListView_SetTileViewInfo :: #force_inline proc "system" (hwnd: HWND, ptvi: PLVTI
 	return cast(BOOL)SendMessageW(hwnd, LVM_SETTILEVIEWINFO, 0, cast(LPARAM)uintptr(ptvi))
 }
 ListView_GetTileViewInfo :: #force_inline proc "system" (hwnd: HWND, ptvi: PLVTILEVIEWINFO) {
-	SendMessageW(hwnd, LVM_GETTILEVIEWINFO, 0, cast(LPARAM)uintptr(ptvi))
+	_ = SendMessageW(hwnd, LVM_GETTILEVIEWINFO, 0, cast(LPARAM)uintptr(ptvi))
 }
 ListView_SetTileInfo :: #force_inline proc "system" (hwnd: HWND, pti: PLVTILEINFO) -> BOOL {
 	return cast(BOOL)SendMessageW(hwnd, LVM_SETTILEINFO, 0, cast(LPARAM)uintptr(pti))
 }
 ListView_GetTileInfo :: #force_inline proc "system" (hwnd: HWND, pti: PLVTILEINFO) {
-	SendMessageW(hwnd, LVM_GETTILEINFO, 0, cast(LPARAM)uintptr(pti))
+	_ = SendMessageW(hwnd, LVM_GETTILEINFO, 0, cast(LPARAM)uintptr(pti))
 }
 ListView_SetInsertMark :: #force_inline proc "system" (hwnd: HWND, lvim: LPLVINSERTMARK) -> BOOL {
 	return cast(BOOL)SendMessageW(hwnd, LVM_SETINSERTMARK, 0, cast(LPARAM)uintptr(lvim))
@@ -1491,7 +1491,7 @@ ListView_SetOutlineColor :: #force_inline proc "system" (hwnd: HWND, color: COLO
 	return cast(COLORREF)SendMessageW(hwnd, LVM_SETOUTLINECOLOR, 0, cast(LPARAM)color)
 }
 ListView_CancelEditLabel :: #force_inline proc "system" (hwnd: HWND) {
-	SendMessageW(hwnd, LVM_CANCELEDITLABEL, 0, 0)
+	_ = SendMessageW(hwnd, LVM_CANCELEDITLABEL, 0, 0)
 }
 ListView_MapIndexToID :: #force_inline proc "system" (hwnd: HWND, index: UINT) -> UINT {
 	return cast(UINT)SendMessageW(hwnd, LVM_MAPINDEXTOID, cast(WPARAM)index, 0)
@@ -1863,7 +1863,7 @@ TreeView_SetItemState :: #force_inline proc "system" (hwndTV: HWND, hti: HTREEIT
 		stateMask = mask,
 		state     = data,
 	}
-	SendMessageW(hwndTV, TVM_SETITEMW, 0, cast(LPARAM)uintptr(&item))
+	_ = SendMessageW(hwndTV, TVM_SETITEMW, 0, cast(LPARAM)uintptr(&item))
 }
 TreeView_SetCheckState :: #force_inline proc "system" (hwndTV: HWND, hti: HTREEITEM, fCheck: BOOL) {
 	TreeView_SetItemState(hwndTV, hti, INDEXTOSTATEIMAGEMASK(2 if fCheck else 1), TVIS_STATEIMAGEMASK)
@@ -2054,10 +2054,10 @@ TabCtrl_SetItemSize :: #force_inline proc "system" (hwnd: HWND, x,y: c_int) -> D
 	return cast(DWORD)SendMessageW(hwnd, TCM_SETITEMSIZE, 0, MAKELPARAM(x,y))
 }
 TabCtrl_RemoveImage :: #force_inline proc "system" (hwnd: HWND, i: c_int) {
-	SendMessageW(hwnd, TCM_REMOVEIMAGE, cast(WPARAM)i, 0)
+	_ = SendMessageW(hwnd, TCM_REMOVEIMAGE, cast(WPARAM)i, 0)
 }
 TabCtrl_SetPadding :: #force_inline proc "system" (hwnd: HWND, cx,cy: c_int) {
-	SendMessageW(hwnd, TCM_SETPADDING, 0, MAKELPARAM(cx,cy))
+	_ = SendMessageW(hwnd, TCM_SETPADDING, 0, MAKELPARAM(cx,cy))
 }
 TabCtrl_GetRowCount :: #force_inline proc "system" (hwnd: HWND) -> c_int {
 	return cast(c_int)SendMessageW(hwnd, TCM_GETROWCOUNT, 0, 0)
@@ -2066,19 +2066,19 @@ TabCtrl_GetToolTips :: #force_inline proc "system" (hwnd: HWND) -> HWND {
 	return cast(HWND)uintptr(SendMessageW(hwnd, TCM_GETTOOLTIPS, 0, 0))
 }
 TabCtrl_SetToolTips :: #force_inline proc "system" (hwnd: HWND, hwndTT: HWND) {
-	SendMessageW(hwnd, TCM_SETTOOLTIPS, uintptr(hwndTT), 0)
+	_ = SendMessageW(hwnd, TCM_SETTOOLTIPS, uintptr(hwndTT), 0)
 }
 TabCtrl_GetCurFocus :: #force_inline proc "system" (hwnd: HWND) -> c_int {
 	return cast(c_int)SendMessageW(hwnd, TCM_GETCURFOCUS, 0, 0)
 }
 TabCtrl_SetCurFocus :: #force_inline proc "system" (hwnd: HWND, i: c_int) {
-	SendMessageW(hwnd, TCM_SETCURFOCUS, cast(WPARAM)i, 0)
+	_ = SendMessageW(hwnd, TCM_SETCURFOCUS, cast(WPARAM)i, 0)
 }
 TabCtrl_SetMinTabWidth :: #force_inline proc "system" (hwnd: HWND, x: c_int) -> c_int {
 	return cast(c_int)SendMessageW(hwnd, TCM_SETMINTABWIDTH, 0, cast(LPARAM)x)
 }
 TabCtrl_DeselectAll :: #force_inline proc "system" (hwnd: HWND, fExcludeFocus: BOOL) {
-	SendMessageW(hwnd, TCM_DESELECTALL, cast(WPARAM)fExcludeFocus, 0)
+	_ = SendMessageW(hwnd, TCM_DESELECTALL, cast(WPARAM)fExcludeFocus, 0)
 }
 TabCtrl_HighlightItem :: #force_inline proc "system" (hwnd: HWND, i: c_int, fHighlight: BOOL) -> BOOL {
 	return cast(BOOL)SendMessageW(hwnd, TCM_HIGHLIGHTITEM, cast(WPARAM)i, cast(LPARAM)MAKELONG(fHighlight,0))

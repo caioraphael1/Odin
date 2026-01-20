@@ -14,7 +14,7 @@ test_curl :: proc(t: ^testing.T) {
 		memory := (^[dynamic]byte)(userp)
 
 		n := len(memory^)
-		resize(memory, n + real_size)
+		_ = resize(memory, n + real_size)
 		copy(memory[n:], contents[:real_size])
 
 		return real_size
@@ -30,7 +30,7 @@ test_curl :: proc(t: ^testing.T) {
 
 	memory, memory_err := make([dynamic]byte)
 	testing.expectf(t, memory_err == nil, "make failed: %v", memory_err)
-	defer delete(memory)
+	defer _ = delete(memory)
 
 	curl.easy_setopt(c, .URL, cstring("https://odin-lang.org"))
 	curl.easy_setopt(c, .WRITEFUNCTION, data_callback)

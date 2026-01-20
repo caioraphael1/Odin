@@ -1389,7 +1389,7 @@ internal_int_is_square :: proc(a: ^Int, allocator: mem.Allocator) -> (square: bo
 
 	/*
 		Check for other prime modules, note it's not an ERROR but we must
-		free "t" so the easiest way is to goto LBL_ERR.  We know that err
+		_ = free "t" so the easiest way is to goto LBL_ERR.  We know that err
 		is already equal to MP_OKAY from the mp_mod call
 	*/
 	if (1 << (r % 11) &      0x5C4) != 0                             { return }
@@ -1825,7 +1825,7 @@ internal_int_destroy :: proc(integers: []^Int, allocator: runtime.Allocator) {
 	for &a in integers {
 		if internal_int_allocated_cap(a) > 0 {
 			mem.zero_slice(a.digit[:])
-			free(&a.digit[0], allocator)
+			_ = free(&a.digit[0], allocator)
 		}
 		a = &Int{}
 	}
@@ -2160,7 +2160,7 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
 		/*
 			`[dynamic]DIGIT` already knows what allocator was used for it, so resize will do the right thing.
 		*/
-		resize(&a.digit, needed)
+		_ = resize(&a.digit, needed)
 	} else if cap > needed {
 		/*
 			Same applies to builtin.shrink here as resize above

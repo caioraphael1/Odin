@@ -215,7 +215,7 @@ absorb_sw :: proc(st: ^State_SW, aad: []byte) #no_bounds_check {
 	}
 }
 
-@(private = "file", require_results)
+@(private = "file")
 z_sw_128l :: proc(st: ^State_SW) -> (u64, u64, u64, u64) {
 	z0_0, z0_1 := aes.and_interleaved(st.s2_0, st.s2_1, st.s3_0, st.s3_1)
 	z0_0, z0_1 = aes.xor_interleaved(st.s1_0, st.s1_1, z0_0, z0_1)
@@ -228,7 +228,7 @@ z_sw_128l :: proc(st: ^State_SW) -> (u64, u64, u64, u64) {
 	return z0_0, z0_1, z1_0, z1_1
 }
 
-@(private = "file", require_results)
+@(private = "file")
 z_sw_256 :: proc(st: ^State_SW) -> (u64, u64) {
 	z_0, z_1 := aes.and_interleaved(st.s2_0, st.s2_1, st.s3_0, st.s3_1)
 	z_0, z_1 = aes.xor_interleaved(st.s5_0, st.s5_1, z_0, z_1)

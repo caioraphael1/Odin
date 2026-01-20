@@ -43,7 +43,7 @@ DEFAULT_ARENA_STATIC_RESERVE_SIZE :: mem.Gigabyte when size_of(uintptr) == 8 els
 
 // Initialization of an `Arena` to be a `.Growing` variant.
 // A growing arena is a linked list of `Memory_Block`s allocated with virtual memory.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_init_growing :: proc(arena: ^Arena, reserved: uint = DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE) -> (err: Allocator_Error) {
 	arena.kind           = .Growing
 	arena.curr_block     = memory_block_alloc(0, reserved, {}) or_return
@@ -60,7 +60,7 @@ arena_init_growing :: proc(arena: ^Arena, reserved: uint = DEFAULT_ARENA_GROWING
 
 // Initialization of an `Arena` to be a `.Static` variant.
 // A static arena contains a single `Memory_Block` allocated with virtual memory.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_init_static :: proc(arena: ^Arena, reserved: uint = DEFAULT_ARENA_STATIC_RESERVE_SIZE, commit_size: uint = DEFAULT_ARENA_STATIC_COMMIT_SIZE) -> (err: Allocator_Error) {
 	arena.kind           = .Static
 	arena.curr_block     = memory_block_alloc(commit_size, reserved, {}) or_return
@@ -71,7 +71,7 @@ arena_init_static :: proc(arena: ^Arena, reserved: uint = DEFAULT_ARENA_STATIC_R
 }
 
 // Allocates memory from the provided arena.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_alloc :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
 	assert(alignment & (alignment-1) == 0, "non-power of two alignment", loc)
 
@@ -85,7 +85,7 @@ arena_alloc :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_l
 }
 
 // Allocates memory from the provided arena.
-@(require_results, no_sanitize_address, private)
+@(no_sanitize_address, private)
 arena_alloc_unguarded :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
 	size := size
 	if size == 0 {
@@ -201,13 +201,13 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
 		}
 		arena.total_used = 0
 	case .Static:
-		arena_static_reset_to(arena, 0)
+		_ = arena_static_reset_to(arena, 0)
 	}
 	arena.total_used = 0
 }
 
 // Frees all of the memory allocated by the arena and zeros all of the values of an arena.
-// A buffer based arena does not `delete` the provided `[]byte` bufffer.
+// A buffer based arena does not `_ = delete` the provided `[]byte` bufffer.
 @(no_sanitize_address)
 arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
 	sync.mutex_guard(&arena.mutex)
@@ -238,7 +238,7 @@ arena_static_bootstrap_new :: proc{
 }
 
 // Ability to bootstrap allocate a struct with an arena within the struct itself using the growing variant strategy.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_growing_bootstrap_new_by_offset :: proc($T: typeid, offset_to_arena: uintptr, minimum_block_size: uint = DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE) -> (ptr: ^T, err: Allocator_Error) {
 	bootstrap: Arena
 	bootstrap.kind = .Growing
@@ -254,13 +254,13 @@ arena_growing_bootstrap_new_by_offset :: proc($T: typeid, offset_to_arena: uintp
 }
 
 // Ability to bootstrap allocate a struct with an arena within the struct itself using the growing variant strategy.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_growing_bootstrap_new_by_name :: proc($T: typeid, $field_name: string, minimum_block_size: uint = DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE) -> (ptr: ^T, err: Allocator_Error) {
 	return arena_growing_bootstrap_new_by_offset(T, offset_of_by_string(T, field_name), minimum_block_size)
 }
 
 // Ability to bootstrap allocate a struct with an arena within the struct itself using the static variant strategy.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_static_bootstrap_new_by_offset :: proc($T: typeid, offset_to_arena: uintptr, reserved: uint) -> (ptr: ^T, err: Allocator_Error) {
 	bootstrap: Arena
 	bootstrap.kind = .Static
@@ -276,14 +276,14 @@ arena_static_bootstrap_new_by_offset :: proc($T: typeid, offset_to_arena: uintpt
 }
 
 // Ability to bootstrap allocate a struct with an arena within the struct itself using the static variant strategy.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_static_bootstrap_new_by_name :: proc($T: typeid, $field_name: string, reserved: uint) -> (ptr: ^T, err: Allocator_Error) {
 	return arena_static_bootstrap_new_by_offset(T, offset_of_by_string(T, field_name), reserved)
 }
 
 
 // Create an `Allocator` from the provided `Arena`
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_allocator :: proc(arena: ^Arena) -> mem.Allocator {
 	return {
         procedure = arena_allocator_proc, 
@@ -382,7 +382,7 @@ Arena_Temp :: struct {
 
 // Begins the section of temporary arena memory.
 // TODO(Caio): This is not easily trackable, I think this should be wrapped just like free_all, destroy.
-@(require_results, no_sanitize_address)
+@(no_sanitize_address)
 arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (temp: Arena_Temp) {
 	assert(arena != nil, "nil arena", loc)
 	sync.mutex_guard(&arena.mutex)

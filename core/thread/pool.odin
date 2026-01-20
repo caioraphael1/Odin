@@ -75,7 +75,7 @@ pool_thread_runner :: proc(t: ^Thread) {
 // The thread pool requires an allocator which it either owns, or which is thread safe.
 pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 	pool.allocator = allocator
-	queue.init(&pool.tasks, allocator = allocator)
+	_ = queue.init(&pool.tasks, allocator = allocator)
 	pool.tasks_done, _ = make([dynamic]Task, allocator)
 	pool.threads, _    = make([]^Thread, max(thread_count, 1), allocator)
 
@@ -93,15 +93,15 @@ pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 
 pool_destroy :: proc(pool: ^Pool) {
 	queue.destroy(&pool.tasks)
-	delete(pool.tasks_done)
+	_ = delete(pool.tasks_done)
 
 	for &t in pool.threads {
 		data := cast(^Pool_Thread_Data)t.data
-		free(data, pool.allocator)
+		_ = free(data, pool.allocator)
 		destroy(t)
 	}
 
-	delete(pool.threads, pool.allocator)
+	_ = delete(pool.threads, pool.allocator)
 }
 
 pool_start :: proc(pool: ^Pool) {
@@ -158,7 +158,7 @@ pool_join :: proc(pool: ^Pool) {
 pool_add_task :: proc(pool: ^Pool, allocator: mem.Allocator, procedure: Task_Proc, data: rawptr, user_index: int = 0) {
 	sync.guard(&pool.mutex)
 
-	queue.push_back(&pool.tasks, Task{
+	_, _ = queue.push_back(&pool.tasks, Task{
 		procedure  = procedure,
 		data       = data,
 		user_index = user_index,
@@ -186,7 +186,7 @@ pool_stop_task :: proc(pool: ^Pool, user_index: int, exit_code: int = 1, allocat
 		if data.task.user_index == user_index && data.task.procedure != nil {
 			terminate(t, exit_code)
 
-			append(&pool.tasks_done, data.task)
+			_ = append(&pool.tasks_done, data.task)
 			intrinsics.atomic_add(&pool.num_done, 1)
 			intrinsics.atomic_sub(&pool.num_outstanding, 1)
 			intrinsics.atomic_sub(&pool.num_in_processing, 1)
@@ -220,7 +220,7 @@ pool_stop_all_tasks :: proc(pool: ^Pool, exit_code: int = 1, allocator: mem.Allo
 		if data.task.procedure != nil {
 			terminate(t, exit_code)
 
-			append(&pool.tasks_done, data.task)
+			_ = append(&pool.tasks_done, data.task)
 			intrinsics.atomic_add(&pool.num_done, 1)
 			intrinsics.atomic_sub(&pool.num_outstanding, 1)
 			intrinsics.atomic_sub(&pool.num_in_processing, 1)
@@ -253,7 +253,7 @@ pool_shutdown :: proc(pool: ^Pool, exit_code: int = 1) {
 
 		data := cast(^Pool_Thread_Data)t.data
 		if data.task.procedure != nil {
-			append(&pool.tasks_done, data.task)
+			_ = append(&pool.tasks_done, data.task)
 			intrinsics.atomic_add(&pool.num_done, 1)
 			intrinsics.atomic_sub(&pool.num_outstanding, 1)
 			intrinsics.atomic_sub(&pool.num_in_processing, 1)
@@ -331,7 +331,7 @@ pool_do_work :: proc(pool: ^Pool, task: Task) {
 
 	sync.guard(&pool.mutex)
 
-	append(&pool.tasks_done, task)
+	_ = append(&pool.tasks_done, task)
 	intrinsics.atomic_add(&pool.num_done, 1)
 	intrinsics.atomic_sub(&pool.num_outstanding, 1)
 	intrinsics.atomic_sub(&pool.num_in_processing, 1)

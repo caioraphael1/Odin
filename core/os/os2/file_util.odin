@@ -154,10 +154,10 @@ read_entire_file :: proc{
 	`read_entire_file_from_path` reads the entire named file `name` into memory allocated with `allocator`.
 	A slice of bytes and an error is returned, if any error is encountered.
 */
-@(require_results)
+
 read_entire_file_from_path :: proc(name: string, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
 	f := open(name, allocator = allocator) or_return
-	defer close(f)
+	defer _ = close(f)
 	return read_entire_file_from_file(f, allocator, loc)
 }
 
@@ -165,7 +165,7 @@ read_entire_file_from_path :: proc(name: string, allocator: runtime.Allocator, l
 	`read_entire_file_from_file` reads the entire file `f` into memory allocated with `allocator`.
 	A slice of bytes and an error is returned, if any error is encountered.
 */
-@(require_results)
+
 read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
 	size: int
 	has_size := false
@@ -227,7 +227,7 @@ write_entire_file :: proc{
 	It defaults with the permssions `perm := Permissions_Read_All + {.Write_User}`, and `truncate`s by default.
 	An error is returned if any is encountered.
 */
-@(require_results)
+
 write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: runtime.Allocator) -> Error {
 	flags := O_WRONLY|O_CREATE
 	if truncate {
@@ -248,7 +248,7 @@ write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permiss
 	It defaults with the permssions `perm := Permissions_Read_All + {.Write_User}`, and `truncate`s by default.
 	An error is returned if any is encountered.
 */
-@(require_results)
+
 write_entire_file_from_string :: proc(name: string, data: string, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: runtime.Allocator) -> Error {
 	return write_entire_file(name, transmute([]byte)data, perm, truncate, allocator)
 }

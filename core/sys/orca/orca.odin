@@ -300,7 +300,7 @@ mem_modify_proc :: proc "c" (_context: ^base_allocator, ptr: rawptr, size: u64)
 // A structure that defines how to allocate memory from the system.
 base_allocator :: struct {
 	// A procedure to reserve memory from the system.
-	reserve: mem_reserve_proc,
+	_ = reserve: mem_reserve_proc,
 	// A procedure to commit memory from the system.
 	commit: mem_modify_proc,
 	// A procedure to decommit memory from the system.
@@ -343,7 +343,7 @@ arena_options :: struct {
 	// The base allocator to use with this arena
 	base: ^base_allocator,
 	// The amount of memory to reserve up-front when creating the arena.
-	reserve: u64,
+	_ = reserve: u64,
 }
 
 @(default_calling_convention="c", link_prefix="oc_")

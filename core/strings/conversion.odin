@@ -105,7 +105,7 @@ to_lower :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.
 	b: Builder
 	builder_init(&b, 0, len(s), allocator) or_return
 	for r in s {
-		write_rune(&b, unicode.to_lower(r))
+		_, _ = write_rune(&b, unicode.to_lower(r))
 	}
 	return to_string(b), nil
 }
@@ -140,7 +140,7 @@ to_upper :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.
 	b: Builder
 	builder_init(&b, 0, len(s), allocator) or_return
 	for r in s {
-		write_rune(&b, unicode.to_upper(r))
+		_, _ = write_rune(&b, unicode.to_upper(r))
 	}
 	return to_string(b), nil
 }
@@ -270,11 +270,11 @@ to_camel_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err:
 	string_case_iterator(w, s, proc(w: io.Writer, prev, curr, next: rune) {
 		if !is_delimiter(curr) {
 			if is_delimiter(prev) {
-				io.write_rune(w, unicode.to_upper(curr))
+				_, _ = io.write_rune(w, unicode.to_upper(curr))
 			} else if unicode.is_lower(prev) {
-				io.write_rune(w, curr)
+				_, _ = io.write_rune(w, curr)
 			} else {
-				io.write_rune(w, unicode.to_lower(curr))
+				_, _ = io.write_rune(w, unicode.to_lower(curr))
 			}
 		}
 	})
@@ -306,11 +306,11 @@ to_pascal_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err
 	string_case_iterator(w, s, proc(w: io.Writer, prev, curr, next: rune) {
 		if !is_delimiter(curr) {
 			if is_delimiter(prev) || prev == 0 {
-				io.write_rune(w, unicode.to_upper(curr))
+				_, _ = io.write_rune(w, unicode.to_upper(curr))
 			} else if unicode.is_lower(prev) {
-				io.write_rune(w, curr)
+				_, _ = io.write_rune(w, curr)
 			} else {
-				io.write_rune(w, unicode.to_lower(curr))
+				_, _ = io.write_rune(w, unicode.to_lower(curr))
 			}
 		}
 	})
@@ -369,15 +369,15 @@ to_delimiter_case :: proc(
 	for next in s {
 		if is_delimiter(curr) {
 			if !is_delimiter(prev) {
-				io.write_rune(w, delimiter)
+				_, _ = io.write_rune(w, delimiter)
 			}
 		} else if unicode.is_upper(curr) {
 			if unicode.is_lower(prev) || (unicode.is_upper(prev) && unicode.is_lower(next)) {
-				io.write_rune(w, delimiter)
+				_, _ = io.write_rune(w, delimiter)
 			}
-			io.write_rune(w, adjust_case(curr))
+			_, _ = io.write_rune(w, adjust_case(curr))
 		} else if curr != 0 {
-			io.write_rune(w, adjust_case(curr))
+			_, _ = io.write_rune(w, adjust_case(curr))
 		}
 
 		prev = curr
@@ -386,9 +386,9 @@ to_delimiter_case :: proc(
 
 	if len(s) > 0 {
 		if unicode.is_upper(curr) && unicode.is_lower(prev) && prev != 0 {
-			io.write_rune(w, delimiter)
+			_, _ = io.write_rune(w, delimiter)
 		}
-		io.write_rune(w, adjust_case(curr))
+		_, _ = io.write_rune(w, adjust_case(curr))
 	}
 
 	return to_string(b), nil
@@ -555,11 +555,11 @@ to_ada_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: m
 		if !is_delimiter(curr) {
 			if is_delimiter(prev) || prev == 0 || (unicode.is_lower(prev) && unicode.is_upper(curr)) {
 				if prev != 0 {
-					io.write_rune(w, '_')
+					_, _ = io.write_rune(w, '_')
 				}
-				io.write_rune(w, unicode.to_upper(curr))
+				_, _ = io.write_rune(w, unicode.to_upper(curr))
 			} else {
-				io.write_rune(w, unicode.to_lower(curr))
+				_, _ = io.write_rune(w, unicode.to_lower(curr))
 			}
 		}
 	})

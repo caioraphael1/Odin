@@ -233,7 +233,7 @@ _accept_tcp :: proc(sock: TCP_Socket, options := DEFAULT_TCP_OPTIONS) -> (client
 @(private)
 _close :: proc(socket: Any_Socket) {
 	if s := any_socket_to_socket(socket); s != {} {
-		win.closesocket(win.SOCKET(s))
+		_ = win.closesocket(win.SOCKET(s))
 	}
 }
 

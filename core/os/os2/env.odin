@@ -7,7 +7,7 @@ import "core:strings"
 // It returns the value, which will be empty if the variable is not present
 // To distinguish between an empty value and an unset value, use lookup_env
 // NOTE: the value will be allocated with the supplied allocator
-@(require_results)
+
 get_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> string {
 	value, _ := lookup_env(key, allocator)
 	return value
@@ -17,7 +17,7 @@ get_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> string {
 // It returns the value, which will be empty if the variable is not present
 // To distinguish between an empty value and an unset value, use lookup_env
 // NOTE: this version takes a backing buffer for the string value
-@(require_results)
+
 get_env_buf :: proc(buf: []u8, key: string) -> string {
 	value, _ := lookup_env(buf, key)
 	return value
@@ -29,7 +29,7 @@ get_env :: proc{get_env_alloc, get_env_buf}
 // If the variable is found in the environment the value (which can be empty) is returned and the boolean is true
 // Otherwise the returned value will be empty and the boolean will be false
 // NOTE: the value will be allocated with the supplied allocator
-@(require_results)
+
 lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
 	return _lookup_env_alloc(key, allocator)
 }
@@ -37,7 +37,7 @@ lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: s
 // This version of `lookup_env` doesn't allocate and instead requires the user to provide a buffer.
 // Note that it is limited to environment names and values of 512 utf-16 values each
 // due to the necessary utf-8 <> utf-16 conversion.
-@(require_results)
+
 lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, err: Error) {
 	return _lookup_env_buf(buf, key)
 }
@@ -63,7 +63,7 @@ clear_env :: proc() {
 
 // environ returns a copy of strings representing the environment, in the form "key=value"
 // NOTE: the slice of strings and the strings with be allocated using the supplied allocator
-@(require_results)
+
 environ :: proc(allocator: runtime.Allocator) -> ([]string, Error) {
 	return _environ(allocator)
 }
@@ -73,7 +73,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
 	path := path
 
 	sb: strings.Builder
-	strings.builder_init_none(&sb, allocator)
+	_ = strings.builder_init_none(&sb, allocator)
 
 	for len(path) > 0 {
 		switch path[0] {
@@ -109,11 +109,11 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
 				}
 
 			} else {
-				strings.write_rune(&sb, rune(path[0]))
+				_, _ = strings.write_rune(&sb, rune(path[0]))
 			}
 
 		case:
-			strings.write_rune(&sb, rune(path[0]))
+			_, _ = strings.write_rune(&sb, rune(path[0]))
 		}
 
 		path = path[1:]

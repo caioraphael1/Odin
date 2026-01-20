@@ -209,7 +209,7 @@ orthogonalize :: proc(q: ^[8]u64) {
 	q[3], q[7] = (q[3] & CL8) | ((q[7] & CL8) << 4), ((q[3] & CH8) >> 4) | (q[7] & CH8)
 }
 
-@(require_results)
+
 interleave_in :: proc(w0, w1, w2, w3: u32) -> (q0, q1: u64) #no_bounds_check {
 	x0, x1, x2, x3 := u64(w0), u64(w1), u64(w2), u64(w3)
 	x0 |= (x0 << 16)
@@ -233,7 +233,7 @@ interleave_in :: proc(w0, w1, w2, w3: u32) -> (q0, q1: u64) #no_bounds_check {
 	return
 }
 
-@(require_results)
+
 interleave_out :: proc(q0, q1: u64) -> (w0, w1, w2, w3: u32) {
 	x0 := q0 & 0x00FF00FF00FF00FF
 	x1 := q1 & 0x00FF00FF00FF00FF

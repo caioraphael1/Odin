@@ -2504,24 +2504,6 @@ gb_internal bool check_procedure_type(CheckerContext *ctx, Type *type, Ast *proc
 			}
 		}
 	}
-	if (pt->tags & ProcTag_optional_allocator_error) {
-		if (optional_ok) {
-			error(proc_type_node, "A procedure type cannot have both an #optional_ok tag and #optional_allocator_error");
-		}
-		optional_ok = true;
-		if (result_count != 2) {
-			error(proc_type_node, "A procedure type with the #optional_allocator_error tag requires 2 return values, got %td", result_count);
-		} else {
-			init_mem_allocator(c->checker);
-
-			Type *type = results->Tuple.variables[1]->type;
-			if (!are_types_identical(type, t_allocator_error)) {
-				gbString t = type_to_string(type);
-				error(proc_type_node, "A procedure type with the #optional_allocator_error expects a `runtime.Allocator_Error`, got '%s'", t);
-				gb_string_free(t);
-			}
-		}
-	}
 
 	type->Proc.node                 = proc_type_node;
 	type->Proc.scope                = c->scope;

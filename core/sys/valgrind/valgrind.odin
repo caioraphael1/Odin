@@ -37,7 +37,7 @@ Client_Request :: enum uintptr {
 	Inner_Threads                  = 6402,
 }
 
-@(require_results)
+
 client_request_expr :: #force_inline proc "c" (default: uintptr, request: Client_Request, a0, a1, a2, a3, a4: uintptr) -> uintptr {
 	return intrinsics.valgrind_client_request(default, uintptr(request), a0, a1, a2, a3, a4)
 }

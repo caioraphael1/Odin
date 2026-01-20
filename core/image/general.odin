@@ -48,7 +48,7 @@ destroy :: proc(img: ^Image, allocator := context.allocator) {
 	} else {
 		assert(img.metadata == nil)
 		bytes.buffer_destroy(&img.pixels)
-		free(img)
+		_ = free(img)
 	}
 }
 

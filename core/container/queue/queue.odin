@@ -84,7 +84,7 @@ Note that this procedure should not be used on queues setup with
 track of the allocator state of the underlying `backing` slice.
 */
 destroy :: proc(q: ^$Q/Queue($T)) {
-	delete(q.data)
+	_ = delete(q.data)
 }
 
 /*
@@ -135,7 +135,7 @@ shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
 	if q.len > 0 && q.offset > 0 {
 		// Make the array contiguous again.
 		buffer := make([]T, q.len, runtime.temp_allocator)
-		defer delete(buffer, runtime.temp_allocator)
+		defer _ = delete(buffer, runtime.temp_allocator)
 
 		right := uint(builtin.len(q.data)) - q.offset
 		copy(buffer[:],      q.data[q.offset:])

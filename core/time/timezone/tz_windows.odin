@@ -203,7 +203,7 @@ REG_TZI_FORMAT :: struct #packed {
 generate_rrule_from_tzi :: proc(tzi: ^REG_TZI_FORMAT, abbrevs: TZ_Abbrev, allocator: runtime.Allocator) -> (rrule: datetime.TZ_RRule, ok: bool) {
 	std_name, err := strings.clone(abbrevs.std, allocator)
 	if err != nil { return }
-	defer if err != nil { delete(std_name, allocator) }
+	defer if err != nil { _ = delete(std_name, allocator) }
 
 	if (tzi.std_date.month == 0) {
 		return datetime.TZ_RRule{
@@ -224,7 +224,7 @@ generate_rrule_from_tzi :: proc(tzi: ^REG_TZI_FORMAT, abbrevs: TZ_Abbrev, alloca
 	dst_name: string
 	dst_name, err = strings.clone(abbrevs.dst, allocator)
 	if err != nil { return }
-	defer if err != nil { delete(dst_name, allocator) }
+	defer if err != nil { _ = delete(dst_name, allocator) }
 
 	return datetime.TZ_RRule{
 		has_dst = true,
@@ -261,15 +261,15 @@ _region_load :: proc(reg_str: string, allocator: runtime.Allocator) -> (out_reg:
 		iana_name = local_tz_name(allocator) or_return
 		wintz_name, ok = iana_to_windows_tz(iana_name, allocator)
 		if !ok {
-			delete(iana_name, allocator)
+			_ = delete(iana_name, allocator)
 			return
 		}
 	} else {
 		wintz_name = iana_to_windows_tz(reg_str, allocator) or_return
 		iana_name = strings.clone(reg_str, allocator)
 	}
-	defer delete(wintz_name, allocator)
-	defer delete(iana_name, allocator)
+	defer _ = delete(wintz_name, allocator)
+	defer _ = delete(iana_name, allocator)
 
 	abbrevs: TZ_Abbrev
 	abbrevs_ok: bool
@@ -289,7 +289,7 @@ _region_load :: proc(reg_str: string, allocator: runtime.Allocator) -> (out_reg:
 
 	key_base := `SOFTWARE\Microsoft\Windows NT\CurrentVersion\Time Zones`
 	tz_key := strings.join({key_base, wintz_name}, "\\", allocator = allocator)
-	defer delete(tz_key, allocator)
+	defer _ = delete(tz_key, allocator)
 
 	tz_key_wstr := windows.utf8_to_wstring(tz_key, allocator)
 	defer free(rawptr(tz_key_wstr), allocator)
@@ -311,7 +311,7 @@ _region_load :: proc(reg_str: string, allocator: runtime.Allocator) -> (out_reg:
 
 	region_name, err := strings.clone(iana_name, allocator)
 	if err != nil { return }
-	defer if err != nil { delete(region_name, allocator) }
+	defer if err != nil { _ = delete(region_name, allocator) }
 
 	region: ^datetime.TZ_Region
 	region, err = new_clone(datetime.TZ_Region{

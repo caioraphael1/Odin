@@ -81,13 +81,13 @@ _remove_all :: proc(path: string) -> Error {
 	remove_all_dir :: proc(dfd: linux.Fd) -> Error {
 		n := 64
 		buf := make([]u8, n)
-		defer delete(buf)
+		defer _ = delete(buf)
 
 		loop: for {
 			buflen, errno := linux.getdents(dfd, buf[:])
 			#partial switch errno {
 			case .EINVAL:
-				delete(buf)
+				_ = delete(buf)
 				n *= 2
 				buf = make([]u8, n)
 				continue loop
@@ -162,7 +162,7 @@ _get_working_directory :: proc(allocator: runtime.Allocator) -> (string, Error) 
 		if errno != .ERANGE {
 			return "", _get_platform_error(errno)
 		}
-		resize(&buf, len(buf)+PATH_MAX)
+		_ = resize(&buf, len(buf)+PATH_MAX)
 	}
 	unreachable()
 }
@@ -189,7 +189,7 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
 			return clone_string(string(buf[:n]), allocator)
 		}
 
-		resize(&buf, len(buf)*2) or_return
+		_ = resize(&buf, len(buf)*2) or_return
 	}
 }
 
@@ -202,7 +202,7 @@ _get_full_path :: proc(fd: linux.Fd, allocator: runtime.Allocator) -> (fullpath:
 	strconv.write_int(buf[len(PROC_FD_PATH):], i64(fd), 10)
 
 	if fullpath, err = _read_link_cstr(cstring(&buf[0]), allocator); err != nil || fullpath[0] != '/' {
-		delete(fullpath, allocator)
+		_ = delete(fullpath, allocator)
 		fullpath = ""
 	}
 	return

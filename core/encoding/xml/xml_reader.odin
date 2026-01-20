@@ -208,7 +208,7 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 				if element == 0 { // First Element
 					parent = element
 				} else {
-					append(&doc.elements[parent].value, element)
+					_ = append(&doc.elements[parent].value, element)
 				}
 
 				doc.elements[element].parent = parent
@@ -295,13 +295,13 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 
 					if .Intern_Comments in opts.flags {
 						if len(doc.elements) == 0 {
-							append(&doc.comments, comment)
+							_ = append(&doc.comments, comment)
 						} else {
 							el := new_element(doc)
 							doc.elements[el].parent = element
 							doc.elements[el].kind   = .Comment
-							append(&doc.elements[el].value, comment)
-							append(&doc.elements[element].value, el)
+							_ = append(&doc.elements[el].value, comment)
+							_ = append(&doc.elements[element].value, el)
 						}
 					}
 
@@ -360,7 +360,7 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 		return doc, .No_DocType
 	}
 
-	resize(&doc.elements, int(doc.element_count))
+	_ = resize(&doc.elements, int(doc.element_count))
 	return doc, .None
 }
 
@@ -389,22 +389,22 @@ destroy :: proc(doc: ^Document) {
 	if doc == nil { return }
 
 	for el in doc.elements {
-		delete(el.attribs)
-		delete(el.value)
+		_ = delete(el.attribs)
+		_ = delete(el.value)
 	}
-	delete(doc.elements)
+	_ = delete(doc.elements)
 
-	delete(doc.prologue)
-	delete(doc.comments)
-	delete(doc.input)
+	_ = delete(doc.prologue)
+	_ = delete(doc.comments)
+	_ = delete(doc.input)
 
 	for s in doc.strings_to_free {
-		delete(s)
+		_ = delete(s)
 	}
-	delete(doc.strings_to_free)
+	_ = delete(doc.strings_to_free)
 
-	free(doc.tokenizer)
-	free(doc)
+	_ = free(doc.tokenizer)
+	_ = free(doc)
 }
 
 /*
@@ -439,7 +439,7 @@ parse_attribute :: proc(doc: ^Document) -> (attr: Attribute, offset: int, err: E
 
 	normalized, normalize_err := entity.decode_xml(value.text, {.Normalize_Whitespace}, doc.allocator)
 	if normalize_err == .None {
-		append(&doc.strings_to_free, normalized)
+		_ = append(&doc.strings_to_free, normalized)
 		value.text = normalized
 	}
 
@@ -468,7 +468,7 @@ parse_attributes :: proc(doc: ^Document, attribs: ^Attributes) -> (err: Error) {
 	for peek(t).kind == .Ident {
 		attr, offset := parse_attribute(doc)                  or_return
 		check_duplicate_attributes(t, attribs^, attr, offset) or_return
-		append(attribs, attr)
+		_ = append(attribs, attr)
 	}
 	skip_whitespace(t)
 	return .None
@@ -576,7 +576,7 @@ parse_body :: proc(doc: ^Document, element: Element_ID, opts: Options) -> (err: 
 	needs_processing |= .Decode_SGML_Entities in opts.flags
 
 	if !needs_processing {
-		append(&doc.elements[element].value, body_text)
+		_ = append(&doc.elements[element].value, body_text)
 		return
 	}
 
@@ -598,10 +598,10 @@ parse_body :: proc(doc: ^Document, element: Element_ID, opts: Options) -> (err: 
 
 	decoded, decode_err := entity.decode_xml(body_text, decode_opts)
 	if decode_err == .None {
-		append(&doc.elements[element].value, decoded)
-		append(&doc.strings_to_free, decoded)
+		_ = append(&doc.elements[element].value, decoded)
+		_ = append(&doc.strings_to_free, decoded)
 	} else {
-		append(&doc.elements[element].value, body_text)
+		_ = append(&doc.elements[element].value, body_text)
 	}
 
 	return
@@ -619,7 +619,7 @@ new_element :: proc(doc: ^Document) -> (id: Element_ID) {
 		} else {
 			element_space += 65536
 		}
-		resize(&doc.elements, element_space)
+		_ = resize(&doc.elements, element_space)
 	}
 
 	cur := doc.element_count

@@ -2727,10 +2727,10 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
 				break
 			}
 			part := it[:i]
-			append(&results, part)
+			_ = append(&results, part)
 			it = it[i+w:]
 		}
-		append(&results, it)
+		_ = append(&results, it)
 	}
 	assert(len(results) == n)
 	return results[:], nil
@@ -2954,7 +2954,7 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
 			expand := tab_size - column%tab_size
 
 			for i := 0; i < expand; i += 1 {
-				io.write_byte(writer, ' ')
+				_ = io.write_byte(writer, ' ')
 			}
 
 			column += expand
@@ -2965,7 +2965,7 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
 				column += w
 			}
 
-			io.write_rune(writer, r)
+			_, _ = io.write_rune(writer, r)
 		}
 
 		str = str[w:]
@@ -3058,7 +3058,7 @@ centre_justify :: proc(str: string, length: int, pad: string, allocator: mem.All
 	w := to_writer(&b)
 
 	write_pad_string(w, pad, pad_len, remains/2)
-	io.write_string(w, str)
+	_, _ = io.write_string(w, str)
 	write_pad_string(w, pad, pad_len, (remains+1)/2)
 
 	return to_string(b), nil
@@ -3093,7 +3093,7 @@ left_justify :: proc(str: string, length: int, pad: string, allocator: mem.Alloc
 
 	w := to_writer(&b)
 
-	io.write_string(w, str)
+	_, _ = io.write_string(w, str)
 	write_pad_string(w, pad, pad_len, remains)
 
 	return to_string(b), nil
@@ -3129,7 +3129,7 @@ right_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allo
 	w := to_writer(&b)
 
 	write_pad_string(w, pad, pad_len, remains)
-	io.write_string(w, str)
+	_, _ = io.write_string(w, str)
 
 	return to_string(b), nil
 }
@@ -3148,7 +3148,7 @@ write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: int) {
 	repeats := remains / pad_len
 
 	for i := 0; i < repeats; i += 1 {
-		io.write_string(w, pad)
+		_, _ = io.write_string(w, pad)
 	}
 
 	n := remains % pad_len
@@ -3156,7 +3156,7 @@ write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: int) {
 
 	for i := 0; i < n; i += 1 {
 		r, width := utf8.decode_rune_in_string(p)
-		io.write_rune(w, r)
+		_, _ = io.write_rune(w, r)
 		p = p[width:]
 	}
 }
@@ -3247,7 +3247,7 @@ fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, 
 		end = offset
 		if f(r) {
 			if start >= 0 {
-				append(&substrings, s[start : end])
+				_ = append(&substrings, s[start : end])
 				// -1 could be used, but just speed it up through bitwise not
 				// gotta love 2's complement
 				start = ~start
@@ -3260,7 +3260,7 @@ fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, 
 	}
 
 	if start >= 0 {
-		append(&substrings, s[start : len(s)])
+		_ = append(&substrings, s[start : len(s)])
 	}
 
 	return substrings[:], nil
@@ -3354,7 +3354,7 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
 	}
 
 	defer if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-		delete(costs, allocator)
+		_ = delete(costs, allocator)
 	}
 
 	i: int

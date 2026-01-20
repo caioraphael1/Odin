@@ -61,11 +61,11 @@ scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []byte) -> ^Sca
 	s.split = scan_lines
 	s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
 	s.buf = mem.buffer_from_slice(buf)
-	resize(&s.buf, cap(s.buf))
+	_ = resize(&s.buf, cap(s.buf))
 	return s
 }
 scanner_destroy :: proc(s: ^Scanner) {
-	delete(s.buf)
+	_ = delete(s.buf)
 }
 
 
@@ -193,7 +193,7 @@ scan :: proc(s: ^Scanner) -> bool {
 
 			old_size := len(s.buf)
 			new_size = min(new_size, s.max_token_size)
-			resize(&s.buf, new_size)
+			_ = resize(&s.buf, new_size)
 			s.end -= s.start
 			s.start = 0
 

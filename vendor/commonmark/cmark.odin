@@ -120,7 +120,7 @@ markdown_to_html_from_string :: proc(text: string, options: Options) -> (html: s
 Allocator :: struct {
 	calloc:  proc "c" (num: c.size_t, size: c.size_t)  -> rawptr,
 	realloc: proc "c" (ptr: rawptr, new_size: c.size_t) -> rawptr,
-	free:    proc "c" (ptr: rawptr),
+	_ = free:    proc "c" (ptr: rawptr),
 }
 
 @(default_calling_convention="c", link_prefix="cmark_")
@@ -489,7 +489,7 @@ free_cstring :: proc "c" (str: cstring) {
 free_string :: proc "c" (s: string) {
 	free_rawptr(raw_data(s))
 }
-free :: proc{free_rawptr, free_cstring}
+_ = free :: proc{free_rawptr, free_cstring}
 
 // Wrap CMark allocator as Odin allocator
 @(private)

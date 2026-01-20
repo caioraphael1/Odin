@@ -13,7 +13,7 @@ map_insert_random_key_value :: proc(t: ^testing.T) {
 	for entries in ENTRY_COUNTS {
 		log.infof("Testing %v entries", entries)
 		m: map[i64]i64
-		defer delete(m)
+		defer _ = delete(m)
 
 		unique_keys := 0
 		rand.reset(t.seed + seed_incr)
@@ -63,7 +63,7 @@ map_update_random_key_value :: proc(t: ^testing.T) {
 	for entries in ENTRY_COUNTS {
 		log.infof("Testing %v entries", entries)
 		m: map[i64]i64
-		defer delete(m)
+		defer _ = delete(m)
 
 		unique_keys := 0
 		rand.reset(t.seed + seed_incr)
@@ -127,7 +127,7 @@ map_delete_random_key_value :: proc(t: ^testing.T) {
 	for entries in ENTRY_COUNTS {
 		log.infof("Testing %v entries", entries)
 		m: map[i64]i64
-		defer delete(m)
+		defer _ = delete(m)
 
 		unique_keys := 0
 		rand.reset(t.seed + seed_incr)
@@ -152,7 +152,7 @@ map_delete_random_key_value :: proc(t: ^testing.T) {
 
 		half_entries := entries / 2
 
-		// Reset randomizer and delete half the entries
+		// Reset randomizer and _ = delete half the entries
 		rand.reset(t.seed + seed_incr)
 
 		for _ in 0..<half_entries {
@@ -207,7 +207,7 @@ set_insert_random_key_value :: proc(t: ^testing.T) {
 	for entries in ENTRY_COUNTS {
 		log.infof("Testing %v entries", entries)
 		m: map[i64]struct{}
-		defer delete(m)
+		defer _ = delete(m)
 
 		unique_keys := 0
 		rand.reset(t.seed + seed_incr)
@@ -255,7 +255,7 @@ set_delete_random_key_value :: proc(t: ^testing.T) {
 	for entries in ENTRY_COUNTS {
 		log.infof("Testing %v entries", entries)
 		m: map[i64]struct{}
-		defer delete(m)
+		defer _ = delete(m)
 
 		unique_keys := 0
 		rand.reset(t.seed + seed_incr)
@@ -279,7 +279,7 @@ set_delete_random_key_value :: proc(t: ^testing.T) {
 
 		half_entries := entries / 2
 
-		// Reset randomizer and delete half the entries
+		// Reset randomizer and _ = delete half the entries
 		rand.reset(t.seed + seed_incr)
 
 		for _ in 0..<half_entries {
@@ -329,7 +329,7 @@ test_union_key_should_not_be_hashing_specifc_variant :: proc(t: ^testing.T) {
 	}
 
 	m: map[Id]Vec2
-	defer delete(m)
+	defer _ = delete(m)
 
 	bone_1: BoneId = 69
 	m[bone_1] = {4, 20}
