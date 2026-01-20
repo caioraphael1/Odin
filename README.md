@@ -223,6 +223,13 @@ msg := aprint({1, 2, 3, 4}, allocator = my_allocator)
 
 <br>
 
+## Optional Returns
+
+- `#optional_allocator_error` is no longer used in the Odin libraries.
+- `#optional_ok` is no longer used in the Odin libraries.
+
+<br>
+
 ## Library `core:thread`
 
 - As for the removal of `@init` and `@fini`, as well as an overhaul of temporary allocations, I decided to remove the responsibility of the `core:thread` library to manage temporary allocations.
