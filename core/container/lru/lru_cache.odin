@@ -85,7 +85,7 @@ set :: proc(c: ^$C/Cache($Key, $Value), key: Key, value: Value) -> runtime.Alloc
 }
 
 // get a value from the cache from a given key. This operation updates the usage of the item.
-get :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: Value, ok: bool) #optional_ok {
+get :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: Value, ok: bool) {
 	e: ^Node(Key, Value)
 	e, ok = c.entries[key]
 	if !ok {
@@ -97,7 +97,7 @@ get :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: Value, ok: bool) #o
 }
 
 // get_ptr gets the pointer to a value the cache from a given key. This operation updates the usage of the item.
-get_ptr :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: ^Value, ok: bool) #optional_ok {
+get_ptr :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: ^Value, ok: bool) {
 	e: ^Node(Key, Value)
 	e, ok = c.entries[key]
 	if !ok {
@@ -109,7 +109,7 @@ get_ptr :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: ^Value, ok: boo
 }
 
 // peek gets the value from the cache from a given key without updating the recent usage.
-peek :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: Value, ok: bool) #optional_ok {
+peek :: proc(c: ^$C/Cache($Key, $Value), key: Key) -> (value: Value, ok: bool) {
 	e: ^Node(Key, Value)
 	e, ok = c.entries[key]
 	if !ok {

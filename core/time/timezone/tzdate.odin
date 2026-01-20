@@ -184,7 +184,7 @@ process_rrule :: proc(rrule: datetime.TZ_RRule, tm: time.Time) -> (out: datetime
 	return records[0], true
 }
 
-datetime_to_utc :: proc(dt: datetime.DateTime) -> (out: datetime.DateTime, success: bool) #optional_ok {
+datetime_to_utc :: proc(dt: datetime.DateTime) -> (out: datetime.DateTime, success: bool) {
 	if dt.tz == nil {
 		return dt, true
 	}
@@ -210,7 +210,7 @@ Returns:
 - out: The converted datetime
 - success: `false` if the datetime was invalid
 */
-datetime_to_tz :: proc(dt: datetime.DateTime, tz: ^datetime.TZ_Region) -> (out: datetime.DateTime, success: bool) #optional_ok {
+datetime_to_tz :: proc(dt: datetime.DateTime, tz: ^datetime.TZ_Region) -> (out: datetime.DateTime, success: bool) {
 	dt := dt
 	if dt.tz == tz {
 		return dt, true
@@ -245,7 +245,7 @@ Returns:
 - name: The timezone abbreviation
 - success: returns `false` if the passed datetime is invalid
 */
-shortname :: proc(dt: datetime.DateTime) -> (name: string, success: bool) #optional_ok {
+shortname :: proc(dt: datetime.DateTime) -> (name: string, success: bool) {
 	tm := time.datetime_to_time(dt) or_return
 	if dt.tz == nil { return "UTC", true }
 
@@ -284,7 +284,7 @@ Returns:
 - is_dst: returns `true` if dt is in daylight savings time, `false` if not
 - success: returns `false` if the passed datetime is invalid
 */
-dst :: proc(dt: datetime.DateTime) -> (is_dst: bool, success: bool) #optional_ok {
+dst :: proc(dt: datetime.DateTime) -> (is_dst: bool, success: bool) {
 	tm := time.datetime_to_time(dt) or_return
 	if dt.tz == nil { return false, true }
 

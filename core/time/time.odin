@@ -956,7 +956,7 @@ arguments to this procedure. If the datetime components don't represent a valid
 datetime, the function returns `false` in the second argument.
 */
 @(require_results)
-components_to_time :: proc(#any_int year, #any_int month, #any_int day, #any_int hour, #any_int minute, #any_int second: i64, #any_int nsec := i64(0)) -> (t: Time, ok: bool) #optional_ok {
+components_to_time :: proc(#any_int year, #any_int month, #any_int day, #any_int hour, #any_int minute, #any_int second: i64, #any_int nsec := i64(0)) -> (t: Time, ok: bool) {
 	this_date, err := dt.components_to_datetime(year, month, day, hour, minute, second, nsec)
 	if err != .None {
 		return

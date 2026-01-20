@@ -41,9 +41,9 @@ count_leading_zeros  :: proc(x: $T) -> T where type_is_integer(T) || type_is_sim
 reverse_bits         :: proc(x: $T) -> T where type_is_integer(T) || type_is_simd_vector(T) ---
 byte_swap            :: proc(x: $T) -> T where type_is_integer(T) || type_is_float(T) ---
 
-overflow_add :: proc(lhs, rhs: $T) -> (T, bool) where type_is_integer(T) #optional_ok ---
-overflow_sub :: proc(lhs, rhs: $T) -> (T, bool) where type_is_integer(T) #optional_ok ---
-overflow_mul :: proc(lhs, rhs: $T) -> (T, bool) where type_is_integer(T) #optional_ok ---
+overflow_add :: proc(lhs, rhs: $T) -> (T, bool) where type_is_integer(T) ---
+overflow_sub :: proc(lhs, rhs: $T) -> (T, bool) where type_is_integer(T) ---
+overflow_mul :: proc(lhs, rhs: $T) -> (T, bool) where type_is_integer(T) ---
 
 saturating_add :: proc(lhs, rhs: $T) -> T where type_is_integer(T) ---
 saturating_sub :: proc(lhs, rhs: $T) -> T where type_is_integer(T) ---
@@ -120,10 +120,10 @@ atomic_xor_explicit      :: proc(dst: ^$T, val: T, order: Atomic_Memory_Order) -
 atomic_exchange          :: proc(dst: ^$T, val: T) -> T ---
 atomic_exchange_explicit :: proc(dst: ^$T, val: T, order: Atomic_Memory_Order) -> T ---
 
-atomic_compare_exchange_strong          :: proc(dst: ^$T, old, new: T) -> (T, bool) #optional_ok ---
-atomic_compare_exchange_strong_explicit :: proc(dst: ^$T, old, new: T, success, failure: Atomic_Memory_Order) -> (T, bool) #optional_ok ---
-atomic_compare_exchange_weak            :: proc(dst: ^$T, old, new: T) -> (T, bool) #optional_ok ---
-atomic_compare_exchange_weak_explicit   :: proc(dst: ^$T, old, new: T, success, failure: Atomic_Memory_Order) -> (T, bool) #optional_ok ---
+atomic_compare_exchange_strong          :: proc(dst: ^$T, old, new: T) -> (T, bool) ---
+atomic_compare_exchange_strong_explicit :: proc(dst: ^$T, old, new: T, success, failure: Atomic_Memory_Order) -> (T, bool) ---
+atomic_compare_exchange_weak            :: proc(dst: ^$T, old, new: T) -> (T, bool) ---
+atomic_compare_exchange_weak_explicit   :: proc(dst: ^$T, old, new: T, success, failure: Atomic_Memory_Order) -> (T, bool) ---
 
 
 // Constant type tests

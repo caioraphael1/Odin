@@ -182,7 +182,7 @@ foreign CoreFoundation {
 
 STR :: StringMakeConstantString
 
-StringCopyToOdinString :: proc(theString: String, allocator: mem.Allocator) -> (str: string, ok: bool) #optional_ok {
+StringCopyToOdinString :: proc(theString: String, allocator: mem.Allocator) -> (str: string, ok: bool) {
 	length := StringGetLength(theString)
 	max := StringGetMaximumSizeForEncoding(length, StringEncoding(StringBuiltInEncodings.UTF8))
 

@@ -41,7 +41,7 @@ to_bytes :: proc(s: []$T) -> []byte {
 	Turns a byte slice into a type.
 */
 @(require_results)
-to_type :: proc(buf: []u8, $T: typeid) -> (T, bool) #optional_ok {
+to_type :: proc(buf: []u8, $T: typeid) -> (T, bool) {
 	if len(buf) < size_of(T) {
 		return {}, false
 	}
@@ -712,7 +712,7 @@ unique_proc :: proc(s: $S/[]$T, eq: proc(T, T) -> bool) -> S #no_bounds_check {
 
 
 @(require_results)
-min :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T) #optional_ok {
+min :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) != 0 {
 		res = s[0]
 		ok = true
@@ -723,7 +723,7 @@ min :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T
 	return
 }
 @(require_results)
-max :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T) #optional_ok {
+max :: proc(s: $S/[]$T) -> (res: T, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) != 0 {
 		res = s[0]
 		ok = true
@@ -749,7 +749,7 @@ min_max :: proc(s: $S/[]$T) -> (min, max: T, ok: bool) where intrinsics.type_is_
 
 // Find the index of the (first) minimum element in a slice.
 @(require_results)
-min_index :: proc(s: $S/[]$T) -> (min_index: int, ok: bool) where intrinsics.type_is_ordered(T) #optional_ok {
+min_index :: proc(s: $S/[]$T) -> (min_index: int, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) == 0 {
 		return -1, false
 	}
@@ -766,7 +766,7 @@ min_index :: proc(s: $S/[]$T) -> (min_index: int, ok: bool) where intrinsics.typ
 
 // Find the index of the (first) maximum element in a slice.
 @(require_results)
-max_index :: proc(s: $S/[]$T) -> (max_index: int, ok: bool) where intrinsics.type_is_ordered(T) #optional_ok {
+max_index :: proc(s: $S/[]$T) -> (max_index: int, ok: bool) where intrinsics.type_is_ordered(T) {
 	if len(s) == 0 {
 		return -1, false
 	}

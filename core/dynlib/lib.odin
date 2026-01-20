@@ -103,7 +103,7 @@ Example:
 		}
 	}
 */
-symbol_address :: proc(library: Library, symbol: string, allocator := runtime.temp_allocator) -> (ptr: rawptr, found: bool) #optional_ok {
+symbol_address :: proc(library: Library, symbol: string, allocator := runtime.temp_allocator) -> (ptr: rawptr, found: bool) {
 	return _symbol_address(library, symbol, allocator)
 }
 

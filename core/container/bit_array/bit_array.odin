@@ -149,7 +149,7 @@ Returns:
 - res: `true` if the bit at `index` is set.
 - ok: Whether the index was valid. Returns `false` if the index is smaller than the bias.
 */
-get :: proc(ba: ^Bit_Array, #any_int index: uint) -> (res: bool, ok: bool) #optional_ok {
+get :: proc(ba: ^Bit_Array, #any_int index: uint) -> (res: bool, ok: bool) {
 	idx := int(index) - ba.bias
 
 	if ba == nil || int(index) < ba.bias { return false, false }
@@ -276,7 +276,7 @@ Inputs:
 Returns:
 - ba: Allocates a bit_Array, backing data is set to `max-min / 64` indices, rounded up (eg 65 - 0 allocates for [2]u64).
 */
-create :: proc(max_index: int, min_index: int = 0, allocator: mem.Allocator) -> (res: ^Bit_Array, ok: bool) #optional_ok {
+create :: proc(max_index: int, min_index: int = 0, allocator: mem.Allocator) -> (res: ^Bit_Array, ok: bool) {
 	size_in_bits := max_index - min_index
 
 	if size_in_bits < 0 { return {}, false }

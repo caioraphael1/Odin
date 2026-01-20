@@ -203,7 +203,8 @@ Returns:
 - res: The io.Writer
 */
 to_writer :: proc(b: ^Builder) -> (res: io.Writer) {
-	return io.to_writer(to_stream(b))
+    res, _ = io.to_writer(to_stream(b))
+	return 
 }
 /*
 Deletes the Builder byte buffer content

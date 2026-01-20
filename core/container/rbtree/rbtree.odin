@@ -121,7 +121,7 @@ find :: proc(t: ^$T/Tree($Key, $Value), key: Key) -> (node: ^Node(Key, Value)) {
 }
 
 // find_value finds the key in the tree, and returns the corresponding value, or nil iff the value is not present.
-find_value :: proc(t: ^$T/Tree($Key, $Value), key: Key) -> (value: Value, ok: bool) #optional_ok {
+find_value :: proc(t: ^$T/Tree($Key, $Value), key: Key) -> (value: Value, ok: bool) {
 	if n := find(t, key); n != nil {
 		return n.value, true
 	}
