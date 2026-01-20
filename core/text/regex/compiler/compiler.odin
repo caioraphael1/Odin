@@ -149,7 +149,7 @@ append_raw :: #force_inline proc(code: ^Program, data: $T) {
 inject_raw :: #force_inline proc(code: ^Program, start: int, data: $T) {
 	// NOTE: This is system-dependent endian.
 	for b, i in transmute([size_of(T)]byte)data {
-		inject_at(code, start + i, cast(Opcode)b)
+		_, _ = inject_at(code, start + i, cast(Opcode)b)
 	}
 }
 
@@ -223,8 +223,8 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		code = generate_code(c, specific.inner, allocator)
 
 		if specific.capture && .No_Capture not_in c.flags {
-			inject_at(&code, 0, Opcode.Save)
-			inject_at(&code, 1, Opcode(2 * specific.capture_id))
+			_, _ = inject_at(&code, 0, Opcode.Save)
+			_, _ = inject_at(&code, 1, Opcode(2 * specific.capture_id))
 
 			_ = append(&code, Opcode.Save)
 			_ = append(&code, Opcode(2 * specific.capture_id + 1))
@@ -239,7 +239,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		// Avoiding duplicate allocation by reusing `left`.
 		code = left
 
-		inject_at(&code, 0, Opcode.Split)
+		_, _ = inject_at(&code, 0, Opcode.Split)
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + left_len + JUMP_SIZE))
 
@@ -262,7 +262,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		code = generate_code(c, specific.inner, allocator)
 		original_len := len(code)
 
-		inject_at(&code, 0, Opcode.Split)
+		_, _ = inject_at(&code, 0, Opcode.Split)
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + original_len + JUMP_SIZE))
 
@@ -273,7 +273,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		code = generate_code(c, specific.inner, allocator)
 		original_len := len(code)
 
-		inject_at(&code, 0, Opcode.Split)
+		_, _ = inject_at(&code, 0, Opcode.Split)
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE + original_len + JUMP_SIZE))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE))
 
@@ -362,7 +362,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		code = generate_code(c, specific.inner, allocator)
 		original_len := len(code)
 
-		inject_at(&code, 0, Opcode.Split)
+		_, _ = inject_at(&code, 0, Opcode.Split)
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + original_len))
 
@@ -370,7 +370,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 		code = generate_code(c, specific.inner, allocator)
 		original_len := len(code)
 
-		inject_at(&code, 0, Opcode.Split)
+		_, _ = inject_at(&code, 0, Opcode.Split)
 		inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE + original_len))
 		inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE))
 
@@ -416,31 +416,31 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 		seek_loop: for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
 			#partial switch opcode {
 			case .Byte:
-				inject_at(&code, pc_open, Opcode.Wait_For_Byte)
+				_, _ = inject_at(&code, pc_open, Opcode.Wait_For_Byte)
 				pc_open += size_of(Opcode)
-				inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
+				_, _ = inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
 				pc_open += size_of(u8)
 				break optimize_opening
 
 			case .Rune:
 				operand := intrinsics.unaligned_load(cast(^rune)&code[pc+1])
-				inject_at(&code, pc_open, Opcode.Wait_For_Rune)
+				_, _ = inject_at(&code, pc_open, Opcode.Wait_For_Rune)
 				pc_open += size_of(Opcode)
 				inject_raw(&code, pc_open, operand)
 				pc_open += size_of(rune)
 				break optimize_opening
 
 			case .Rune_Class:
-				inject_at(&code, pc_open, Opcode.Wait_For_Rune_Class)
+				_, _ = inject_at(&code, pc_open, Opcode.Wait_For_Rune_Class)
 				pc_open += size_of(Opcode)
-				inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
+				_, _ = inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
 				pc_open += size_of(u8)
 				break optimize_opening
 
 			case .Rune_Class_Negated:
-				inject_at(&code, pc_open, Opcode.Wait_For_Rune_Class_Negated)
+				_, _ = inject_at(&code, pc_open, Opcode.Wait_For_Rune_Class_Negated)
 				pc_open += size_of(Opcode)
-				inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
+				_, _ = inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
 				pc_open += size_of(u8)
 				break optimize_opening
 
@@ -456,17 +456,17 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 		}
 
 		// `.*?`
-		inject_at(&code, pc_open, Opcode.Split)
+		_, _ = inject_at(&code, pc_open, Opcode.Split)
 		pc_open += size_of(byte)
 		inject_raw(&code, pc_open, i16(SPLIT_SIZE + size_of(byte) + JUMP_SIZE))
 		pc_open += size_of(i16)
 		inject_raw(&code, pc_open, i16(SPLIT_SIZE))
 		pc_open += size_of(i16)
 
-		inject_at(&code, pc_open, Opcode.Wildcard)
+		_, _ = inject_at(&code, pc_open, Opcode.Wildcard)
 		pc_open += size_of(byte)
 
-		inject_at(&code, pc_open, Opcode.Jump)
+		_, _ = inject_at(&code, pc_open, Opcode.Jump)
 		pc_open += size_of(byte)
 		inject_raw(&code, pc_open, i16(-size_of(byte) - SPLIT_SIZE))
 		pc_open += size_of(i16)
@@ -475,8 +475,8 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 
 	if .No_Capture not_in flags {
 		// `(` <generated code>
-		inject_at(&code, pc_open, Opcode.Save)
-		inject_at(&code, pc_open + size_of(byte), Opcode(0x00))
+		_, _ = inject_at(&code, pc_open, Opcode.Save)
+		_, _ = inject_at(&code, pc_open + size_of(byte), Opcode(0x00))
 
 		// `)`
 		_ = append(&code, Opcode.Save); _ = append(&code, Opcode(0x01))

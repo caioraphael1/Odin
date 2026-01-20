@@ -38,18 +38,18 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
 	iter := virtual_machine.Opcode_Iterator{ code, 0 }
 	for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
 		if src, ok := jump_targets[pc]; ok {
-			io.write_string(w, "--")
+			_, _ = io.write_string(w, "--")
 			common.write_padded_hex(w, src, 4, allocator)
-			io.write_string(w, "--> ")
+			_, _ = io.write_string(w, "--> ")
 		} else {
-			io.write_string(w, "            ")
+			_, _ = io.write_string(w, "            ")
 		}
 
-		io.write_string(w, "[PC: ")
+		_, _ = io.write_string(w, "[PC: ")
 		common.write_padded_hex(w, pc, 4, allocator)
-		io.write_string(w, "] ")
-		io.write_string(w, virtual_machine.opcode_to_name(opcode))
-		io.write_byte(w, ' ')
+		_, _ = io.write_string(w, "] ")
+		_, _ = io.write_string(w, virtual_machine.opcode_to_name(opcode))
+		_ = io.write_byte(w, ' ')
 
 		#partial switch opcode {
 		case .Byte:
@@ -63,14 +63,14 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
 			common.write_padded_hex(w, operand, 2, allocator)
 		case .Jump:
 			jmp   := intrinsics.unaligned_load(cast(^u16)&code[pc+1])
-			io.write_string(w, "-> $")
+			_, _ = io.write_string(w, "-> $")
 			common.write_padded_hex(w, jmp, 4, allocator)
 		case .Split:
 			jmp_x := intrinsics.unaligned_load(cast(^u16)&code[pc+1])
 			jmp_y := intrinsics.unaligned_load(cast(^u16)&code[pc+3])
-			io.write_string(w, "=> $")
+			_, _ = io.write_string(w, "=> $")
 			common.write_padded_hex(w, jmp_x, 4, allocator)
-			io.write_string(w, ", $")
+			_, _ = io.write_string(w, ", $")
 			common.write_padded_hex(w, jmp_y, 4, allocator)
 		case .Save:
 			operand := cast(u8)code[pc+1]
@@ -89,6 +89,6 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
 			common.write_padded_hex(w, operand, 2, allocator)
 		}
 
-		io.write_byte(w, '\n')
+		_ = io.write_byte(w, '\n')
 	}
 }

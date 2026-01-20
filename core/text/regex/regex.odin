@@ -118,20 +118,20 @@ create :: proc(
 	result.flags = flags
 
 	if len(class_data) > 0 {
-		result.class_data = make([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
+		result.class_data, _ = make([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
 	}
 	for data, i in class_data {
 		if len(data.runes) > 0 {
-			result.class_data[i].runes = make([]rune, len(data.runes), allocator)
+			result.class_data[i].runes, _ = make([]rune, len(data.runes), allocator)
 			copy(result.class_data[i].runes, data.runes[:])
 		}
 		if len(data.ranges) > 0 {
-			result.class_data[i].ranges = make([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
+			result.class_data[i].ranges, _ = make([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
 			copy(result.class_data[i].ranges, data.ranges[:])
 		}
 	}
 
-	result.program = make([]virtual_machine.Opcode, len(program), allocator)
+	result.program, _ = make([]virtual_machine.Opcode, len(program), allocator)
 	copy(result.program, program[:])
 
 	return
@@ -324,8 +324,8 @@ match_and_allocate_capture :: proc(
 		}
 
 		if num_groups > 0 {
-			capture.groups = make([]string, num_groups, allocator)
-			capture.pos = make([][2]int, num_groups, allocator)
+			capture.groups, _ = make([]string, num_groups, allocator)
+			capture.pos, _ = make([][2]int, num_groups, allocator)
 			n := 0
 
 			#no_bounds_check for i := 0; i < len(saved); i += 2 {
@@ -538,8 +538,8 @@ Returns:
 */
 
 preallocate_capture :: proc(allocator: runtime.Allocator) -> (result: Capture) {
-	result.pos    = make([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
-	result.groups = make([]string, common.MAX_CAPTURE_GROUPS, allocator)
+	result.pos   , _ = make([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
+	result.groups, _ = make([]string, common.MAX_CAPTURE_GROUPS, allocator)
 	return
 }
 

@@ -120,7 +120,7 @@ foreign libc {
 
 	// 7.22.3 Memory management functions
 	calloc        :: proc(nmemb, size: size_t) -> rawptr ---
-	_ = free          :: proc(ptr: rawptr) ---
+	free          :: proc(ptr: rawptr) ---
 	malloc        :: proc(size: size_t) -> rawptr ---
 	realloc       :: proc(ptr: rawptr, size: size_t) -> rawptr ---
 

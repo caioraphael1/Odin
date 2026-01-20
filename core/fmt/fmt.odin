@@ -501,6 +501,7 @@ sbprintf :: proc(buf: ^strings.Builder, fmt: string, args: ..any, newline := fal
 //
 // Returns: A formatted string
 //
+@(optional_results)
 sbprintfln :: proc(buf: ^strings.Builder, format: string, args: ..any) -> string {
 	return sbprintf(buf, format, ..args, newline=true)
 }

@@ -340,7 +340,7 @@ to_stream :: proc(file: ^FILE) -> io.Stream {
 				return 0, unknown_or_eof(file)
 			}
 
-			defer fseek(file, long(curr), .SET)
+			defer _ = fseek(file, long(curr), .SET)
 
 			n = i64(fread(raw_data(p), size_of(byte), len(p), file))
 			if n == 0 { err = unknown_or_eof(file) }
@@ -359,7 +359,7 @@ to_stream :: proc(file: ^FILE) -> io.Stream {
 				return 0, unknown_or_eof(file)
 			}
 
-			defer fseek(file, long(curr), .SET)
+			defer _ = fseek(file, long(curr), .SET)
 
 			n = i64(fwrite(raw_data(p), size_of(byte), len(p), file))
 			if n == 0 { err = unknown_or_eof(file) }
@@ -378,7 +378,7 @@ to_stream :: proc(file: ^FILE) -> io.Stream {
 			if curr == -1 {
 				return 0, unknown_or_eof(file)
 			}
-			defer fseek(file, curr, .SET)
+			defer _ = fseek(file, curr, .SET)
 
 			if fseek(file, 0, .END) != 0 {
 				return 0, unknown_or_eof(file)

@@ -122,13 +122,13 @@ scan_class :: proc(t: ^Tokenizer) -> (str: string, ok: bool) {
 	start := t.read_offset
 
 	for {
-		advance_rune(t)
+		_ = advance_rune(t)
 		if t.ch == -1 || t.error_state != nil {
 			return "", false
 		}
 
 		if t.ch == '\\' {
-			advance_rune(t)
+			_ = advance_rune(t)
 			continue
 		}
 
@@ -145,7 +145,7 @@ scan_repeat :: proc(t: ^Tokenizer) -> (str: string, ok: bool) {
 	start := t.read_offset
 
 	for {
-		advance_rune(t)
+		_ = advance_rune(t)
 		if t.ch == -1 {
 			return "", false
 		}
@@ -160,7 +160,7 @@ scan_repeat :: proc(t: ^Tokenizer) -> (str: string, ok: bool) {
 
 scan_non_greedy :: proc(t: ^Tokenizer) -> bool {
 	if peek_byte(t) == '?' {
-		advance_rune(t)
+		_ = advance_rune(t)
 		return true
 	}
 
@@ -169,20 +169,20 @@ scan_non_greedy :: proc(t: ^Tokenizer) -> bool {
 
 scan_comment :: proc(t: ^Tokenizer) {
 	for {
-		advance_rune(t)
+		_ = advance_rune(t)
 		switch t.ch {
 		case -1:
 			return
 		case '\n':
 			// UNIX newline.
-			advance_rune(t)
+			_ = advance_rune(t)
 			return
 		case '\r':
 			// Mac newline.
-			advance_rune(t)
+			_ = advance_rune(t)
 			if t.ch == '\n' {
 				// Windows newline.
-				advance_rune(t)
+				_ = advance_rune(t)
 			}
 			return
 		}
@@ -192,8 +192,8 @@ scan_comment :: proc(t: ^Tokenizer) {
 
 scan_non_capture_group :: proc(t: ^Tokenizer) -> bool {
 	if peek_byte(t) == '?' && peek_byte(t, 1) == ':' {
-		advance_rune(t)
-		advance_rune(t)
+		_ = advance_rune(t)
+		_ = advance_rune(t)
 		return true
 	}
 
@@ -228,7 +228,7 @@ scan :: proc(t: ^Tokenizer) -> (token: Token) {
 			return { .EOF, "", pos }
 
 		case '\\':
-			advance_rune(t)
+			_ = advance_rune(t)
 
 			if t.ch == -1 {
 				return { .EOF, "", pos }
@@ -302,7 +302,7 @@ scan :: proc(t: ^Tokenizer) -> (token: Token) {
 			if .Ignore_Whitespace in t.flags {
 				switch t.ch {
 				case ' ', '\r', '\n', '\t', '\f':
-					advance_rune(t)
+					_ = advance_rune(t)
 					continue ch_loop
 				case:
 					break
@@ -325,7 +325,7 @@ scan :: proc(t: ^Tokenizer) -> (token: Token) {
 		return { .Invalid, "", pos }
 	}
 
-	advance_rune(t)
+	_ = advance_rune(t)
 
 	// The following set of rules dictate where Concatenate tokens are
 	// automatically inserted.

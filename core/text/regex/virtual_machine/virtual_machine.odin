@@ -146,7 +146,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 			continue
 
 		case .Save:
-			new_saved := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
+			new_saved, _ := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
 			new_saved ^= saved^
 			saved = new_saved
 
@@ -340,7 +340,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
 	}
 
 	{
-		starter_saved := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
+		starter_saved, _ := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
 		starter_saved ^= -1
 
 		add_thread(vm, starter_saved, 0, allocator)
@@ -634,12 +634,12 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 
 	sizing := len(code) >> 6 + (1 if len(code) & 0x3F > 0 else 0)
 	assert(sizing > 0)
-	vm.busy_map = make([]u64, sizing, allocator)
+	vm.busy_map, _ = make([]u64, sizing, allocator)
 
 	max_possible_threads := max(1, opcode_count(vm.code) - 1)
 
-	vm.threads = make([^]Thread, max_possible_threads, allocator)
-	vm.next_threads = make([^]Thread, max_possible_threads, allocator)
+	vm.threads, _ = make([^]Thread, max_possible_threads, allocator)
+	vm.next_threads, _ = make([^]Thread, max_possible_threads, allocator)
 
 	return
 }
