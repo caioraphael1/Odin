@@ -109,7 +109,7 @@ copy :: proc{copy_slice, copy_from_string, copy_from_string16}
 @builtin
 unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #caller_location) #no_bounds_check {
 	bounds_check_error_loc(loc, index, len(array))
-	n := len(array)-1
+	n := len(array) - 1
 	if index != n {
 		array[index] = array[n]
 	}
@@ -909,9 +909,12 @@ non_zero_reserve_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int capacity
 
 
 _resize_dynamic_array :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_elem, align_of_elem: int, length: int, should_zero: bool, loc := #caller_location) -> Allocator_Error {
+    // Invalid pointer
 	if a == nil {
 		return nil
 	}
+    
+	assert(a.allocator.procedure != nil, "Allocator not defined", loc=loc)
 
 	if should_zero && a.len < length {
 		num_reused := min(a.cap, length) - a.len
@@ -923,7 +926,6 @@ _resize_dynamic_array :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_el
 		return nil
 	}
 
-	assert(a.allocator.procedure != nil, "Allocator not defined", loc=loc)
 
 	old_size  := a.cap  * size_of_elem
 	new_size  := length * size_of_elem
@@ -979,17 +981,19 @@ shrink_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int new_cap := -1, loc
 }
 
 _shrink_dynamic_array :: proc(a: ^Raw_Dynamic_Array, size_of_elem, align_of_elem: int, new_cap := -1, loc := #caller_location) -> (did_shrink: bool, err: Allocator_Error) {
+    // Invalid pointer
 	if a == nil {
 		return
 	}
 
+	assert(a.allocator.procedure != nil, "Allocator not defined", loc=loc)
+
 	new_cap := new_cap if new_cap >= 0 else a.len
 
+    // It's not a shrink
 	if new_cap > a.cap {
 		return
 	}
-
-	assert(a.allocator.procedure != nil, "Allocator not defined", loc=loc)
 
 	old_size := a.cap * size_of_elem
 	new_size := new_cap * size_of_elem

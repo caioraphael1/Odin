@@ -227,9 +227,9 @@ tprintln :: proc(args: ..any, sep := " ") -> string {
 // 	Returns: A formatted string.
 //
 @(require_results)
-tprintf :: proc(fmt: string, args: ..any, newline := false) -> string {
+tprintf :: proc(fmt: string, args: ..any, newline := false, loc := #caller_location) -> string {
 	str: strings.Builder
-	strings.builder_init(&str, runtime.temp_allocator)
+	strings.builder_init(&str, runtime.temp_allocator, loc = loc)
 	return sbprintf(&str, fmt, ..args, newline=newline)
 }
 // 	Creates a formatted string using a format string and arguments, followed by a newline.
