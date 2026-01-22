@@ -213,15 +213,13 @@ msg := aprint({1, 2, 3, 4}, allocator = my_allocator)
 
 <br>
 
-## Optional Returns
+## Temporary Allocations
 
-- `@(require_results)` was removed from the source code, replaced by `@(optional_results)`.
-    - The whole dynamic was inverted. Now a procedure requires result handling by default, unless specified by the the new `@(optional_results)` directive.
-    - This means that by default it is enforced to handle errors in all Odin libraries. 
-    - You can always use `_ = ` to explicitly discard the procedure's return.
-    - Error handling is now the norm, instead of being "opt-in" as it was previously in the language.
-- `#optional_allocator_error` was removed from the source code.
-- `#optional_ok` is no longer used in the Odin libraries.
+- `runtime.default_temp_allocator()` was **removed**, replaced by `runtime.temp_allocator`.
+- The `context.temp_allocator` *already was a thread-local variable* in Odin, but now this behavior is clear.
+- The `runtime.temp_allocator` has to be initialized manually.
+- There was an overhaul in the default allocators section inside the runtime.
+
 
 <br>
 
@@ -278,12 +276,15 @@ TEMP_ALLOCATOR_TEMP_GUARD :: #force_inline proc(collision: Allocator = {}, loc :
 
 <br>
 
-## Temporary Allocations
+## Optional Returns
 
-- `runtime.default_temp_allocator()` was **removed**, replaced by `runtime.temp_allocator`.
-- The `context.temp_allocator` *already was a thread-local variable* in Odin, but now this behavior is clear.
-- The `runtime.temp_allocator` has to be initialized manually.
-- There was an overhaul in the default allocators section inside the runtime.
+- `@(require_results)` was removed from the source code, replaced by `@(optional_results)`.
+    - The whole dynamic was inverted. Now a procedure requires result handling by default, unless specified by the the new `@(optional_results)` directive.
+    - This means that by default it is enforced to handle errors in all Odin libraries. 
+    - You can always use `_ = ` to explicitly discard the procedure's return.
+    - Error handling is now the norm, instead of being "opt-in" as it was previously in the language.
+- `#optional_allocator_error` was removed from the source code.
+- `#optional_ok` is no longer used in the Odin libraries.
 
 
 <br>
