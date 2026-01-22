@@ -10,7 +10,7 @@ import "core:time"
 @(test)
 benchmark_hash :: proc(t: ^testing.T) {
 	str: strings.Builder
-	strings.builder_init(&str, context.allocator)
+	_ = strings.builder_init(&str, context.allocator)
 	defer {
 		fmt.println(strings.to_string(str))
 		strings.builder_destroy(&str)

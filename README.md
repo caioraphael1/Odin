@@ -213,16 +213,6 @@ msg := aprint({1, 2, 3, 4}, allocator = my_allocator)
 
 <br>
 
-## Temporary Allocations
-
-- `runtime.default_temp_allocator()` was **removed**, replaced by `runtime.temp_allocator`.
-- The `context.temp_allocator` *already was a thread-local variable* in Odin, but now this behavior is clear.
-- The `runtime.temp_allocator` has to be initialized manually.
-- There was an overhaul in the default allocators section inside the runtime.
-
-
-<br>
-
 ## Optional Returns
 
 - `@(require_results)` was removed from the source code, replaced by `@(optional_results)`.
@@ -285,6 +275,16 @@ TEMP_ALLOCATOR_TEMP_GUARD :: #force_inline proc(collision: Allocator = {}, loc :
     return arena_temp_begin(&temp_allocator_arena, loc), loc
 }
 ```
+
+<br>
+
+## Temporary Allocations
+
+- `runtime.default_temp_allocator()` was **removed**, replaced by `runtime.temp_allocator`.
+- The `context.temp_allocator` *already was a thread-local variable* in Odin, but now this behavior is clear.
+- The `runtime.temp_allocator` has to be initialized manually.
+- There was an overhaul in the default allocators section inside the runtime.
+
 
 <br>
 

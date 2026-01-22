@@ -325,8 +325,8 @@ read_rune :: proc(br: Reader, n_read: ^int = nil) -> (ch: rune, size: int, err: 
 }
 
 // write_string writes the contents of the string s to w.
-write_string :: proc(s: Writer, str: string, n_written: ^int = nil) -> (n: int, err: Error) {
-	return write(s, transmute([]byte)str, n_written)
+write_string :: proc(s: Writer, str: string, n_written: ^int = nil, loc := #caller_location) -> (n: int, err: Error) {
+	return write(s, transmute([]byte)str, n_written, loc)
 }
 
 // write_string16 writes the contents of the string16 s to w reencoded as utf-8
