@@ -19,14 +19,14 @@
     </a>
 </p>
 
-# Odin Language fork focused on exploring language design, memory safety, and other completely subjective things
+# Odin Language fork focused on exploring language design, memory safety, explicitness, and other completely subjective things
 
 - One of the goals of this fork is to make Odin a safer language, breaking the implicit patterns from the C language, improving code readability, and making it more enjoyable to work with memory.
 - I love Odin, but I don't like how it hides allocations from the user and tries to handle lots of behavior implicitly. If an allocator is invalid, there should be no fallback. A buggy code is a buggy code and should *crash*. Typing one extra word is an absolute worth trade-off over losing track of how your memory is managed. We shouldn't hide when memory is mentioned.
 - Besides that, I also changed a lot of things I consider subjective. I'm taking this as an experiment around language design, as I think it's fun.
 - Feel free to use at your own discretion. That might be a **LOT** of things you don't agree with. I went far enough to remove libraries I won't use, so this is not really for public use, but I decided to keep this as a public fork so I could share a little bit of some of my design choices. 
 
-- Currently, all changes are in `.odin` files. No changes were made to the `.cpp` source code, so the compiler is untouched. Maybe I'll change the compiler if this would result in improvements that could not be achieved by the Odin language alone.
+- Most of the changes are in `.odin` files (std). Few changes were made to the `.cpp` source code, so the compiler is mostly untouched.
 
 <br>
 
