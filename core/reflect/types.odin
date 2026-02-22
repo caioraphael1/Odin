@@ -540,7 +540,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         case uintptr: _ = io.write_string(w, "uintptr", &n) or_return
         case:
             io.write_byte(w, 'i' if info.signed else 'u', &n) or_return
-            _ = io.write_i64(w, i64(8*ti.size), 10,           &n) or_return
+            _ = io.write_i64(w, i64(8*ti.size), 10,       &n) or_return
             switch info.endianness {
             case .Platform: // Okay
             case .Little: _ = io.write_string(w, "le", &n) or_return
@@ -590,14 +590,14 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
             _ = io.write_string(w, "rawptr", &n) or_return
         } else {
             _ = io.write_string(w, "^", &n) or_return
-            _ = write_type(w, info.elem, &n) or_return
+            _ = write_type_writer(w, info.elem, &n) or_return
         }
     case Type_Info_Multi_Pointer:
         _ = io.write_string(w, "[^]", &n) or_return
-        _ = write_type(w, info.elem, &n) or_return
+        _ = write_type_writer(w, info.elem, &n) or_return
     case Type_Info_Soa_Pointer:
         _ = io.write_string(w, "#soa ^", &n) or_return
-        _ = write_type(w, info.elem, &n) or_return
+        _ = write_type_writer(w, info.elem, &n) or_return
     case Type_Info_Procedure:
         _ = io.write_string(w, "proc", &n) or_return
         if info.params == nil {
@@ -609,13 +609,13 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
                 if i > 0 {
                     _ = io.write_string(w, ", ", &n) or_return
                 }
-                _ = write_type(w, t, &n) or_return
+                _ = write_type_writer(w, t, &n) or_return
             }
             _ = io.write_string(w, ")", &n) or_return
         }
         if info.results != nil {
             _ = io.write_string(w, " -> ", &n)  or_return
-            _ = write_type(w, info.results, &n) or_return
+            _ = write_type_writer(w, info.results, &n) or_return
         }
     case Type_Info_Parameters:
         count := len(info.names)
@@ -631,7 +631,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
                 _ = io.write_string(w, name, &n) or_return
                 _ = io.write_string(w, ": ", &n) or_return
             }
-            _ = write_type(w, t, &n) or_return
+            _ = write_type_writer(w, t, &n) or_return
         }
         if count != 1 { 
             _ = io.write_string(w, ")", &n) or_return 
@@ -641,29 +641,29 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         _ = io.write_string(w, "[",              &n) or_return
         _ = io.write_i64(w, i64(info.count), 10, &n) or_return
         _ = io.write_string(w, "]",              &n) or_return
-        _ = write_type(w, info.elem,             &n) or_return
+        _ = write_type_writer(w, info.elem,      &n) or_return
 
     case Type_Info_Enumerated_Array:
         if info.is_sparse {
             _ = io.write_string(w, "#sparse", &n) or_return
         }
         _ = io.write_string(w, "[",   &n) or_return
-        _ = write_type(w, info.index, &n) or_return
+        _ = write_type_writer(w, info.index, &n) or_return
         _ = io.write_string(w, "]",   &n) or_return
-        _ = write_type(w, info.elem,  &n) or_return
+        _ = write_type_writer(w, info.elem,  &n) or_return
 
     case Type_Info_Dynamic_Array:
         _ = io.write_string(w, "[dynamic]", &n) or_return
-        _ = write_type(w, info.elem,        &n) or_return
+        _ = write_type_writer(w, info.elem,        &n) or_return
     case Type_Info_Slice:
         _ = io.write_string(w, "[]", &n) or_return
-        _ = write_type(w, info.elem, &n) or_return
+        _ = write_type_writer(w, info.elem, &n) or_return
 
     case Type_Info_Map:
         _ = io.write_string(w, "map[", &n) or_return
-        _ = write_type(w, info.key,    &n) or_return
+        _ = write_type_writer(w, info.key,    &n) or_return
         io.write_byte(w, ']',      &n) or_return
-        _ = write_type(w, info.value,  &n) or_return
+        _ = write_type_writer(w, info.value,  &n) or_return
 
     case Type_Info_Struct:
         switch info.soa_kind {
@@ -672,15 +672,15 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
             _ = io.write_string(w, "#soa[",           &n) or_return
             _ = io.write_i64(w, i64(info.soa_len),    10) or_return
             io.write_byte(w, ']',                 &n) or_return
-            _ = write_type(w, info.soa_base_type,     &n) or_return
+            _ = write_type_writer(w, info.soa_base_type,     &n) or_return
             return
         case .Slice:
             _ = io.write_string(w, "#soa[]",      &n) or_return
-            _ = write_type(w, info.soa_base_type, &n) or_return
+            _ = write_type_writer(w, info.soa_base_type, &n) or_return
             return
         case .Dynamic:
             _ = io.write_string(w, "#soa[dynamic]", &n) or_return
-            _ = write_type(w, info.soa_base_type,   &n) or_return
+            _ = write_type_writer(w, info.soa_base_type,   &n) or_return
             return
         }
 
@@ -698,7 +698,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
             if i > 0 { _ = io.write_string(w, ", ", &n) or_return }
             _ = io.write_string(w, name,     &n) or_return
             _ = io.write_string(w, ": ",     &n) or_return
-            _ = write_type(w, info.types[i], &n) or_return
+            _ = write_type_writer(w, info.types[i], &n) or_return
         }
         io.write_byte(w, '}', &n) or_return
 
@@ -714,13 +714,13 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         io.write_byte(w, '{', &n) or_return
         for variant, i in info.variants {
             if i > 0 { _ = io.write_string(w, ", ", &n) or_return }
-            _ = write_type(w, variant, &n) or_return
+            _ = write_type_writer(w, variant, &n) or_return
         }
         io.write_byte(w, '}', &n) or_return
 
     case Type_Info_Enum:
         _ = io.write_string(w, "enum ", &n) or_return
-        _ = write_type(w, info.base, &n) or_return
+        _ = write_type_writer(w, info.base, &n) or_return
         _ = io.write_string(w, " {", &n) or_return
         for name, i in info.names {
             if i > 0 { _ = io.write_string(w, ", ", &n) or_return }
@@ -732,7 +732,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         _ = io.write_string(w, "bit_set[", &n) or_return
         switch {
         case is_enum(info.elem):
-            _ = write_type(w, info.elem, &n) or_return
+            _ = write_type_writer(w, info.elem, &n) or_return
         case is_rune(info.elem):
             _ = io.write_encoded_rune(w, rune(info.lower), true, &n) or_return
             _ = io.write_string(w, "..=",                        &n) or_return
@@ -744,19 +744,19 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         }
         if info.underlying != nil {
             _ = io.write_string(w, "; ",       &n) or_return
-            _ = write_type(w, info.underlying, &n) or_return
+            _ = write_type_writer(w, info.underlying, &n) or_return
         }
         io.write_byte(w, ']', &n) or_return
 
     case Type_Info_Bit_Field:
         _ = io.write_string(w, "bit_field ", &n) or_return
-        _ = write_type(w, info.backing_type, &n) or_return
+        _ = write_type_writer(w, info.backing_type, &n) or_return
         _ = io.write_string(w, " {",         &n) or_return
         for name, i in info.names[:info.field_count] {
             if i > 0 { _ = io.write_string(w, ", ", &n) or_return }
             _ = io.write_string(w, name,     &n) or_return
             _ = io.write_string(w, ": ",     &n) or_return
-            _ = write_type(w, info.types[i], &n) or_return
+            _ = write_type_writer(w, info.types[i], &n) or_return
             _ = io.write_string(w, " | ",    &n) or_return
             _ = io.write_u64(w, u64(info.bit_sizes[i]), 10, &n) or_return
         }
@@ -766,7 +766,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         _ = io.write_string(w, "#simd[",         &n) or_return
         _ = io.write_i64(w, i64(info.count), 10, &n) or_return
         io.write_byte(w, ']',                &n)     or_return
-        _ = write_type(w, info.elem,             &n) or_return
+        _ = write_type_writer(w, info.elem,      &n) or_return
         
     case Type_Info_Matrix:
         if info.layout == .Row_Major {
@@ -777,7 +777,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         _ = io.write_string(w, ", ",                    &n) or_return
         _ = io.write_i64(w, i64(info.column_count), 10, &n) or_return
         _ = io.write_string(w, "]",                     &n) or_return
-        _ = write_type(w, info.elem,                    &n) or_return
+        _ = write_type_writer(w, info.elem,             &n) or_return
     }
 
     return

@@ -645,7 +645,7 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 }
 
 destroy :: proc(vm: Machine, allocator: mem.Allocator) {
-    _ = delete(vm.busy_map, allocator)
+    _ = delete_slice(vm.busy_map, allocator)
     _ = free(vm.threads, allocator)
     _ = free(vm.next_threads, allocator)
 }

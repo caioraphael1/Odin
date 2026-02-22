@@ -130,7 +130,7 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
         }
     }
     defer if len(buf) > MAX_STACK {
-        _ = delete(buf)
+        _ = delete_slice(buf)
     }
 
     _, err := io.write_full(os.stream_from_handle(handle), buf)

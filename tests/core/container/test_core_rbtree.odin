@@ -27,7 +27,7 @@ test_rbtree_integer :: proc(t: ^testing.T, $Key: typeid, $Value: typeid) {
 
 	// Test insertion.
 	NR_INSERTS :: 32 + 1 // Ensure at least 1 collision.
-	inserted_map := make(map[Key]^rb.Node(Key, Value))
+	inserted_map := make_map(map[Key]^rb.Node(Key, Value))
 
 	min_key := max(Key)
 	max_key := min(Key)
@@ -146,8 +146,8 @@ test_rbtree_integer :: proc(t: ^testing.T, $Key: typeid, $Value: typeid) {
 	testing.expectf(t, callback_count == 0, "remove: on_remove should've been called %v times, it was %v", entry_count, callback_count)
 
 	// print_tree_node(tree._root)
-	_ = delete(inserted_map)
-	_ = delete(inserted_keys)
+	_ = delete_slice(inserted_map)
+	_ = delete_slice(inserted_keys)
 	testing.expectf(t, len(track.allocation_map) == 0, "Expected 0 leaks, have %v",     len(track.allocation_map))
 	testing.expectf(t, len(track.bad_free_array) == 0, "Expected 0 bad frees, have %v", len(track.bad_free_array))
 	return

@@ -23,7 +23,7 @@ foreign userenv {
 	) -> u32 ---
 
 	// https://docs.microsoft.com/en-us/windows/win32/api/userenv/nf-userenv-deleteprofilew
-	// The caller must have administrative privileges to _ = delete a user's profile.
+	// The caller must have administrative privileges to _ = delete_slice a user's profile.
 	DeleteProfileW :: proc(
 		lpSidString: LPCWSTR,
 		lpProfilePath: LPCWSTR,

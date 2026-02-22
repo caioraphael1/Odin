@@ -193,14 +193,14 @@ xml_test_unicode :: proc(t: ^testing.T) {
 @(private)
 run_test :: proc(t: ^testing.T, test: TEST, loc := #caller_location) {
 	path := strings.concatenate({TEST_SUITE_PATH, test.filename})
-	defer _ = delete(path)
+	defer _ = delete_slice(path)
 
 	doc, err := xml.load_from_file(path, test.options, Silent)
 	defer xml.destroy(doc)
 
 	tree_string := doc_to_string(doc)
 	tree_bytes  := transmute([]u8)tree_string
-	defer _ = delete(tree_bytes)
+	defer _ = delete_slice(tree_bytes)
 
 	crc32 := hash.crc32(tree_bytes)
 

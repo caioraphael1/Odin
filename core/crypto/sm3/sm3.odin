@@ -59,7 +59,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 	ctx.length += u64(len(data))
 
 	if ctx.bitlength > 0 {
-		n := copy(ctx.x[ctx.bitlength:], data[:])
+		n := copy_slice(ctx.x[ctx.bitlength:], data[:])
 		ctx.bitlength += u64(n)
 		if ctx.bitlength == BLOCK_SIZE {
 			block(ctx, ctx.x[:])
@@ -73,7 +73,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 		data = data[n:]
 	}
 	if len(data) > 0 {
-		ctx.bitlength = u64(copy(ctx.x[:], data[:]))
+		ctx.bitlength = u64(copy_slice(ctx.x[:], data[:]))
 	}
 }
 

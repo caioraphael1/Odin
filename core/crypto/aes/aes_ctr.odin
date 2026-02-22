@@ -103,7 +103,7 @@ keystream_bytes_ctr :: proc(ctx: ^Context_CTR, dst: []byte) {
 		// Process partial blocks from the buffered keystream.
 		to_copy := min(BLOCK_SIZE - ctx._off, remaining)
 		buffered_keystream := ctx._buffer[ctx._off:]
-		copy(dst[:to_copy], buffered_keystream[:to_copy])
+		copy_slice(dst[:to_copy], buffered_keystream[:to_copy])
 		ctx._off += to_copy
 		dst = dst[to_copy:]
 		remaining -= to_copy
@@ -191,7 +191,7 @@ xor_blocks :: #force_inline proc(dst, src: []byte, blocks: [][]byte) {
 				}
 		}
 		for i in 0 ..< len(blocks) {
-			copy(dst[i * BLOCK_SIZE:], blocks[i])
+			copy_slice(dst[i * BLOCK_SIZE:], blocks[i])
 		}
 	}
 }

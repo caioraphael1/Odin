@@ -305,7 +305,7 @@ test_max_capture_groups :: proc(t: ^testing.T) {
 	defer {
 		strings.builder_destroy(&sb_pattern)
 		strings.builder_destroy(&sb_haystack)
-		_ = delete(expected_captures)
+		_ = delete_slice(expected_captures)
 	}
 
 	w_pattern := strings.to_writer(&sb_pattern)
@@ -760,7 +760,7 @@ test_error_invalid_unicode_in_pattern :: proc(t: ^testing.T) {
 test_error_invalid_unicode_in_string :: proc(t: ^testing.T) {
 	EXPR :: "^...$"
 	// NOTE: Matching on invalid Unicode is currently safe.
-	// If `utf8.decode_rune` ever changes, this test may fail.
+	// If `utf8.decode_rune_in_bytes` ever changes, this test may fail.
 	check_expression(t, EXPR, "\xC0\xFF\xFE", "\xC0\xFF\xFE")
 }
 

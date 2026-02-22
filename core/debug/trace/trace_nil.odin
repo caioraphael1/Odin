@@ -9,14 +9,14 @@ _Context :: struct {
 }
 
 _init :: proc(ctx: ^Context) -> (ok: bool) {
-	return true
+    return true
 }
 _destroy :: proc(ctx: ^Context) -> bool {
-	return true
+    return true
 }
 _frames :: proc(ctx: ^Context, skip: uint, frames_buffer: []Frame) -> []Frame {
-	return nil
+    return nil
 }
 _resolve :: proc(ctx: ^Context, frame: Frame, allocator: runtime.Allocator) -> (result: Frame_Location) {
-	return
+    return
 }

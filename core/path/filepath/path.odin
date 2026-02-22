@@ -321,7 +321,7 @@ clean :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, err: 
     new_allocation: bool
     cleaned, new_allocation = from_slash(s, allocator)
     if new_allocation {
-        _ = delete(s, allocator)
+        _ = delete_slice(s, allocator)
     }
     return
 }
@@ -359,8 +359,8 @@ Relative_Error :: enum {
 rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string, Relative_Error) {
     base_clean   := clean(base_path,   allocator)
     target_clean := clean(target_path, allocator)
-    defer _ = delete(base_clean,   allocator)
-    defer _ = delete(target_clean, allocator)
+    defer _ = delete_string(base_clean,   allocator)
+    defer _ = delete_string(target_clean, allocator)
 
     if strings.equal_fold(target_clean, base_clean) {
         return strings.clone(".", allocator), .None
@@ -411,15 +411,15 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
             size += 1 + tl - t0
         }
         buf := make_slice([]byte, size, allocator)
-        n := copy(buf, "..")
+        n := copy_slice(buf, "..")
         for _ in 0..<seps {
             buf[n] = SEPARATOR
-            copy(buf[n+1:], "..")
+            copy_slice(buf[n+1:], "..")
             n += 3
         }
         if t0 != tl {
             buf[n] = SEPARATOR
-            copy(buf[n+1:], target[t0:])
+            copy_slice(buf[n+1:], target[t0:])
         }
         return string(buf), .None
     }
@@ -439,7 +439,7 @@ dir :: proc(path: string, allocator: mem.Allocator) -> string {
         i -= 1
     }
     dir := clean(path[len(vol) : i+1], allocator)
-    defer _ = delete(dir, allocator)
+    defer _ = delete_string(dir, allocator)
     if dir == "." && len(vol) > 2 {
         return strings.clone(vol, allocator)
     }
@@ -448,7 +448,7 @@ dir :: proc(path: string, allocator: mem.Allocator) -> string {
 
 
 
-// Splits the PATH-like `path` string, returning an array of its separated components (_ = delete after use).
+// Splits the PATH-like `path` string, returning an array of its separated components (_ = delete_slice after use).
 // For Windows the separator is `;`, for Unix it's  `:`.
 // An empty string returns nil. A non-empty string with no separators returns a 1-element array.
 // Any empty components will be included, e.g. `a::b` will return a 3-element array, as will `::`.
@@ -532,7 +532,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: runtime.Allocat
             return
         }
         lb.b = make_slice([]byte, len(lb.s), allocator) or_return
-        copy(lb.b, lb.s[:lb.w])
+        copy_slice(lb.b, lb.s[:lb.w])
     }
     lb.b[lb.w] = c
     lb.w += 1
@@ -547,13 +547,13 @@ lazy_buffer_string :: proc(lb: ^Lazy_Buffer, allocator: runtime.Allocator) -> (s
     x := lb.vol_and_path[:lb.vol_len]
     y := string(lb.b[:lb.w])
     z := make_slice([]byte, len(x)+len(y), allocator) or_return
-    copy(z, x)
-    copy(z[len(x):], y)
+    copy_from_string(z, x)
+    copy_from_string(z[len(x):], y)
     return string(z), nil
 }
 @(private)
 lazy_buffer_destroy :: proc(lb: ^Lazy_Buffer, allocator: runtime.Allocator) -> runtime.Allocator_Error {
-    err := delete(lb.b, allocator)
+    err := delete_slice(lb.b, allocator)
     lb^ = {}
     return err
 }

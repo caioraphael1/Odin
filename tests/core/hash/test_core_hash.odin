@@ -200,7 +200,7 @@ test_crc64_vectors :: proc(t: ^testing.T) {
 			0xe7fcf1006b503b61, // ISO 3306, input and output inverted
 		},
 	}
-	defer _ = delete(vectors)
+	defer _ = delete_slice(vectors)
 
 	for vector, expected in vectors {
 		b := transmute([]u8)vector

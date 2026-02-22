@@ -25,7 +25,7 @@ test_base32_decode_valid :: proc(t: ^testing.T) {
 	for c in cases {
 		output, err := base32.decode(c.input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.None)
 		expected := transmute([]u8)c.expected
@@ -54,7 +54,7 @@ test_base32_encode :: proc(t: ^testing.T) {
 
 	for c in cases {
 		output := base32.encode(transmute([]byte)c.input)
-		defer _ = delete(output)
+		defer _ = delete_slice(output)
 		testing.expect(t, output == c.expected)
 	}
 }
@@ -67,7 +67,7 @@ test_base32_decode_invalid :: proc(t: ^testing.T) {
 		input := "MZ1W6YTB" // '1' not in alphabet (A-Z, 2-7)
 		output, err := base32.decode(input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Invalid_Character)
 	}
@@ -76,7 +76,7 @@ test_base32_decode_invalid :: proc(t: ^testing.T) {
 		input := "mzxq===="
 		output, err := base32.decode(input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Invalid_Character)
 	}
@@ -87,7 +87,7 @@ test_base32_decode_invalid :: proc(t: ^testing.T) {
 		input := "MZ=Q===="
 		output, err := base32.decode(input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Malformed_Input)
 	}
@@ -96,7 +96,7 @@ test_base32_decode_invalid :: proc(t: ^testing.T) {
 		input := "MZXQ" // Should be MZXQ====
 		output, err := base32.decode(input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Malformed_Input)
 	}
@@ -105,7 +105,7 @@ test_base32_decode_invalid :: proc(t: ^testing.T) {
 		input := "MZXQ=" // Needs 4 padding chars
 		output, err := base32.decode(input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Malformed_Input)
 	}
@@ -114,7 +114,7 @@ test_base32_decode_invalid :: proc(t: ^testing.T) {
 		input := "MY=========" // Extra padding chars
 		output, err := base32.decode(input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Malformed_Input)
 	}
@@ -125,7 +125,7 @@ test_base32_decode_invalid :: proc(t: ^testing.T) {
 		input := "M"
 		output, err := base32.decode(input)
 		if output != nil {
-			defer _ = delete(output)
+			defer _ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Invalid_Length)
 	}
@@ -145,10 +145,10 @@ test_base32_roundtrip :: proc(t: ^testing.T) {
 
 	for input in cases {
 		encoded := base32.encode(transmute([]byte)input)
-		defer _ = delete(encoded)
+		defer _ = delete_slice(encoded)
 		decoded, err := base32.decode(encoded)
 		if decoded != nil {
-			defer _ = delete(decoded)
+			defer _ = delete_slice(decoded)
 		}
 		testing.expect_value(t, err, Error.None)
 		testing.expect(t, bytes.equal(decoded, transmute([]byte)input))
@@ -206,13 +206,13 @@ test_base32_custom_alphabet :: proc(t: ^testing.T) {
 	for c in cases {
 		// Test encoding
 		encoded := base32.encode(transmute([]byte)c.input, custom_enc_table)
-		defer _ = delete(encoded)
+		defer _ = delete_slice(encoded)
 		testing.expect(t, encoded == c.enc_expected)
 
 		// Test decoding
 		decoded, err := base32.decode(encoded, custom_dec_table, custom_validate)
 		defer if decoded != nil {
-			_ = delete(decoded)
+			_ = delete_slice(decoded)
 		}
 
 		testing.expect_value(t, err, Error.None)
@@ -224,7 +224,7 @@ test_base32_custom_alphabet :: proc(t: ^testing.T) {
 		input := "WXY=====" // Contains chars not in our alphabet
 		output, err := base32.decode(input, custom_dec_table, custom_validate)
 		if output != nil {
-			_ = delete(output)
+			_ = delete_slice(output)
 		}
 		testing.expect_value(t, err, Error.Invalid_Character)
 	}

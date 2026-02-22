@@ -74,7 +74,7 @@ derive :: proc(
 		defer mem.zero_explicit(raw_data(blk), h_len)
 
 		_F(&base, salt, iterations, u32(l + 1), blk)
-		copy(dst_blk, blk)
+		copy_slice(dst_blk, blk)
 	}
 }
 
@@ -106,7 +106,7 @@ _F :: proc(base: ^hmac.Context, salt: []byte, c: u32, i: u32, dst_blk: []byte) {
 	endian.unchecked_put_u32be(u, i) // Use u as scratch space.
 	hmac.update(&prf, u[:4])
 	hmac.final(&prf, u)
-	copy(dst_blk, u)
+	copy_slice(dst_blk, u)
 
 	// U_2 ... U_c: U_n = PRF (P, U_(n-1))
 	for _ in 1 ..< c {

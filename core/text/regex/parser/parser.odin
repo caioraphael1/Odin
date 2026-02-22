@@ -229,7 +229,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
         node.ranges.allocator = allocator
 
 		#no_bounds_check for i := 0; i < len(token.text); /**/ {
-			r, size := utf8.decode_rune(token.text[i:])
+			r, size := utf8.decode_rune_in_bytes(token.text[i:])
 			if i == 0 && r == '^' {
 				node.negating = true
 				i += size
@@ -240,7 +240,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 			assert(size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
 
 			if r == '\\' {
-				next_r, next_size := utf8.decode_rune(token.text[i:])
+				next_r, next_size := utf8.decode_rune_in_bytes(token.text[i:])
 				i += next_size
 				assert(next_size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
 
@@ -287,7 +287,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 			}
 
 			if r == '-' && len(node.runes) > 0 {
-				next_r, next_size := utf8.decode_rune(token.text[i:])
+				next_r, next_size := utf8.decode_rune_in_bytes(token.text[i:])
 				if next_size > 0 {
 					last := pop(&node.runes)
 					i += next_size

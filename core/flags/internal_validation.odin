@@ -72,7 +72,7 @@ validate_structure :: proc(model_type: $T, style: Parsing_Style, loc := #caller_
                 model_type, field.name, SUBTAG_POS, pos_str, loc = loc)
             fmt.assertf(!bit_array.get(&positionals_assigned_so_far, pos_value), "%T.%s has `%s` set to #%i, but that position has already been assigned to another flag.",
                 model_type, field.name, SUBTAG_POS, pos_value, loc = loc)
-            bit_array.set(&positionals_assigned_so_far, pos_value)
+            _ = bit_array.set(&positionals_assigned_so_far, pos_value, true, allocator)
         }
 
         required_min, required_max: int

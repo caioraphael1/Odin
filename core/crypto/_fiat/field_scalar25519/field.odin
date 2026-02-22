@@ -57,7 +57,7 @@ fe_from_bytes_rfc8032 :: proc(
 	arg1: ^[32]byte,
 ) {
 	tmp: [64]byte
-	copy(tmp[:], arg1[:])
+	copy_slice(tmp[:], arg1[:])
 
 	// Apply "clamping" as in RFC 8032.
 	tmp[0] &= 248
@@ -97,7 +97,7 @@ _fe_from_bytes_short :: proc(out1: ^Montgomery_Domain_Field_Element, arg1: []byt
 	ensure(len(arg1) < 32, "edwards25519: oversized short scalar")
 
 	tmp: [32]byte
-	copy(tmp[:], arg1)
+	copy_slice(tmp[:], arg1)
 
 	_ = fe_from_bytes(out1, &tmp, true)
 	mem.zero_explicit(&tmp, size_of(tmp))

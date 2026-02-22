@@ -34,7 +34,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
     if len(key) + 1 > len(buf) {
         return "", .Buffer_Full
     } else {
-        copy(buf, key)
+        copy_slice(buf, key)
     }
 
     cval := posix.getenv(cstring(raw_data(buf)))
@@ -48,7 +48,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
         if len(value) > len(buf) {
             return "", .Buffer_Full
         } else {
-            copy(buf, value)
+            copy_slice(buf, value)
             return string(buf[:len(value)]), nil
         }
     }
@@ -91,9 +91,9 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
     r := make_dynamic_array([dynamic]string, 0, n, allocator) or_return
     defer if err != nil {
         for e in r {
-            _ = delete(e, allocator)
+            _ = delete_slice(e, allocator)
         }
-        _ = delete(r)
+        _ = delete_slice(r)
     }
 
     for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {

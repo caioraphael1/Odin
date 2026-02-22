@@ -118,7 +118,7 @@ unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #ca
 ordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #caller_location) #no_bounds_check {
     bounds_check_error_loc(loc, index, len(array))
     if index+1 < len(array) {
-        copy(array[index:], array[index+1:])
+        copy_slice(array[index:], array[index+1:])
     }
     (^Raw_Dynamic_Array)(array).len -= 1
 }
@@ -133,7 +133,7 @@ remove_range :: proc(array: ^$D/[dynamic]$T, #any_int lo, hi: int, loc := #calle
     n := max(hi-lo, 0)
     if n > 0 {
         if hi != len(array) {
-            copy(array[lo:], array[hi:])
+            copy_slice(array[lo:], array[hi:])
         }
         (^Raw_Dynamic_Array)(array).len -= n
     }
@@ -178,7 +178,7 @@ pop_front :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #
     assert(len(array) > 0, loc=loc)
     res = array[0]
     if len(array) > 1 {
-        copy(array[0:], array[1:])
+        copy_slice(array[0:], array[1:])
     }
     (^Raw_Dynamic_Array)(array).len -= 1
     return res
@@ -193,17 +193,11 @@ pop_front_safe :: proc "contextless" (array: ^$T/[dynamic]$E) -> (res: E, ok: bo
     }
     res, ok = array[0], true
     if len(array) > 1 {
-        copy(array[0:], array[1:])
+        copy_slice(array[0:], array[1:])
     }
     (^Raw_Dynamic_Array)(array).len -= 1
     return
 }
-
-// `free` will try to free the passed pointer, with the given `allocator` if the allocator supports this operation.
-free :: mem_free
-
-// `_ = free_all` will try to free/reset all of the memory of the given `allocator` if the allocator supports this operation.
-free_all :: mem_free_all
 
 
 // `delete_string` will try to free the underlying data of the passed string, with the given `allocator` if the allocator supports this operation.
@@ -214,7 +208,7 @@ delete_string :: proc(str: string, allocator: Allocator, loc := #caller_location
 // `delete_cstring` will try to free the underlying data of the passed string, with the given `allocator` if the allocator supports this operation.
 @(builtin)
 delete_cstring :: proc(str: cstring, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
-    return mem_free((^byte)(str), allocator, loc)
+    return free((^byte)(str), allocator, loc)
 }
 // `delete_dynamic_array` will try to free the underlying data of the passed dynamic array, with the given `allocator` if the allocator supports this operation.
 @(builtin)
@@ -239,7 +233,7 @@ delete_string16 :: proc(str: string16, allocator: Allocator, loc := #caller_loca
 }
 @(builtin)
 delete_cstring16 :: proc(str: cstring16, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
-    return mem_free((^u16)(str), allocator, loc)
+    return free((^u16)(str), allocator, loc)
 }
 
 
@@ -586,10 +580,10 @@ inject_at_many :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcas
     m := len(args)
     new_size := n + m
 
-    _ = resize(array, new_size, loc) or_return
+    _ = resize_dynamic_array(array, new_size, loc) or_return
     when size_of(E) != 0 {
-        copy(array[index + m:], array[index:])
-        copy(array[index:], args)
+        copy_slice(array[index + m:], array[index:])
+        copy_slice(array[index:], args)
     }
     ok = true
     return
@@ -613,9 +607,9 @@ inject_at_string :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: st
     m := len(arg)
     new_size := n + m
 
-    _ = resize(array, new_size, loc) or_return
-    copy(array[index+m:], array[index:])
-    copy(array[index:], arg)
+    _ = resize_dynamic_array(array, new_size, loc) or_return
+    copy_slice(array[index+m:], array[index:])
+    copy_slice(array[index:], arg)
     ok = true
     return
 }
@@ -629,7 +623,7 @@ assign_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, arg: E, loc := #c
         array[index] = arg
         ok = true
     } else {
-        _ = resize(array, index+1, loc) or_return
+        _ = resize_dynamic_array(array, index+1, loc) or_return
         array[index] = arg
         ok = true
     }
@@ -645,11 +639,11 @@ assign_at_many :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcas
     if len(args) == 0 {
         ok = true
     } else if new_size < len(array) {
-        copy(array[index:], args)
+        copy_slice(array[index:], args)
         ok = true
     } else {
-        _ = resize(array, new_size, loc) or_return
-        copy(array[index:], args)
+        _ = resize_dynamic_array(array, new_size, loc) or_return
+        copy_slice(array[index:], args)
         ok = true
     }
     return
@@ -663,11 +657,11 @@ assign_at_string :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: st
     if len(arg) == 0 {
         ok = true
     } else if new_size < len(array) {
-        copy(array[index:], arg)
+        copy_slice(array[index:], arg)
         ok = true
     } else {
-        _ = resize(array, new_size, loc) or_return
-        copy(array[index:], arg)
+        _ = resize_dynamic_array(array, new_size, loc) or_return
+        copy_slice(array[index:], arg)
         ok = true
     }
     return
@@ -806,6 +800,7 @@ non_zero_resize_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int length: i
 // If `len(array) < new_cap`, then `len(array)` will be left unchanged.
 //
 // Note: Prefer the procedure group `shrink`
+@(builtin)
 shrink_dynamic_array :: proc(array: ^$T/[dynamic]$E, #any_int new_cap := -1, loc := #caller_location) -> (did_shrink: bool, err: Allocator_Error) {
     return _shrink_dynamic_array((^Raw_Dynamic_Array)(array), size_of(E), align_of(E), new_cap, loc)
 }

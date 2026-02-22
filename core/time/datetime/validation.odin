@@ -15,7 +15,7 @@ This procedure validates all fields of a date, and if any of the fields is
 outside of allowed range, an error is returned.
 */
 validate_date :: proc(date: Date) -> (err: Error) {
-    return validate(date.year, date.month, date.day)
+    return validate_year_month_day(date.year, date.month, date.day)
 }
 
 /*
@@ -64,7 +64,7 @@ This procedure checks whether time has all fields in valid ranges, and if not
 an error is returned.
 */
 validate_time :: proc(time: Time) -> (err: Error) {
-    return validate(time.hour, time.minute, time.second, time.nano)
+    return validate_hour_minute_second(time.hour, time.minute, time.second, time.nano)
 }
 
 /*
@@ -96,7 +96,7 @@ This procedure checks whether all fields of date and time in the specified
 datetime are valid, and if not, an error is returned.
 */
 validate_datetime :: proc(datetime: DateTime) -> (err: Error) {
-    validate(datetime.date) or_return
-    validate(datetime.time) or_return
+    validate_date(datetime.date) or_return
+    validate_time(datetime.time) or_return
     return .None
 }

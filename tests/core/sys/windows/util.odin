@@ -25,7 +25,7 @@ utf16_vectors := []UTF16_Vector{
 utf16_to_utf8_buf_test :: proc(t: ^testing.T) {
 	for test in utf16_vectors {
 		buf := make_slice([]u8, len(test.ustr))
-		defer _ = delete(buf)
+		defer _ = delete_slice(buf)
 
 		wstr := string16(test.wstr)
 		res := win32.utf16_to_utf8_buf(buf[:], transmute([]u16)wstr)

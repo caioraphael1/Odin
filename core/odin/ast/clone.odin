@@ -87,7 +87,7 @@ clone_node :: proc(node: ^Node) -> ^Node {
     if node.derived != nil {
         src = (^rawptr)(&node.derived)^
     }
-    mem.copy(res, src, size)
+    mem.copy_slice(res, src, size)
     res_ptr_any: any
     res_ptr_any.data = &res
     res_ptr_any.id = ti.id

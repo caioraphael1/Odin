@@ -35,7 +35,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     defer freeifaddrs(head)
 
     ifaces: map[string]Network_Interface
-    defer _ = delete(ifaces)
+    defer _ = delete_slice(ifaces)
 
     for ifaddr := head; ifaddr != nil; ifaddr = ifaddr.next {
         adapter_name := string(ifaddr.name)

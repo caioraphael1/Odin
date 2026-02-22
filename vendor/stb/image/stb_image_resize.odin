@@ -4,22 +4,22 @@ import "core:c"
 
 @(private)
 RESIZE_LIB :: (
-	     "../lib/stb_image_resize.lib"      when ODIN_OS == .Windows
-	else "../lib/stb_image_resize.a"        when ODIN_OS == .Linux
-	else "../lib/darwin/stb_image_resize.a" when ODIN_OS == .Darwin
-	else "../lib/stb_image_resize_wasm.o"   when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
-	else ""
+         "../lib/stb_image_resize.lib"      when ODIN_OS == .Windows
+    else "../lib/stb_image_resize.a"        when ODIN_OS == .Linux
+    else "../lib/darwin/stb_image_resize.a" when ODIN_OS == .Darwin
+    else "../lib/stb_image_resize_wasm.o"   when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
+    else ""
 )
 
 when RESIZE_LIB != "" {
-	when !#exists(RESIZE_LIB) {
-		// The STB libraries are shipped with the compiler on Windows so a Windows specific message should not be needed.
-		#panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + ODIN_ROOT + "vendor/stb/src\"`")
-	}
+    when !#exists(RESIZE_LIB) {
+        // The STB libraries are shipped with the compiler on Windows so a Windows specific message should not be needed.
+        #panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + ODIN_ROOT + "vendor/stb/src\"`")
+    }
 }
 
 foreign import lib {
-	RESIZE_LIB when RESIZE_LIB != "" else "system:stb_image_resize",
+    RESIZE_LIB when RESIZE_LIB != "" else "system:stb_image_resize",
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,13 +42,13 @@ foreign import lib {
 
 @(default_calling_convention="c", link_prefix="stbir_")
 foreign lib {
-	resize_uint8 :: proc(input_pixels:  [^]u8, input_w,  input_h,  input_stride_in_bytes: c.int,
-	                     output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
-	                     num_channels: c.int) -> c.int ---
+    resize_uint8 :: proc(input_pixels:  [^]u8, input_w,  input_h,  input_stride_in_bytes: c.int,
+                         output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
+                         num_channels: c.int) -> c.int ---
 
-	resize_float :: proc(input_pixels:  [^]f32, input_w,  input_h,  input_stride_in_bytes: c.int,
-	                     output_pixels: [^]f32, output_w, output_h, output_stride_in_bytes: c.int,
-	                     num_channels: c.int) -> c.int ---
+    resize_float :: proc(input_pixels:  [^]f32, input_w,  input_h,  input_stride_in_bytes: c.int,
+                         output_pixels: [^]f32, output_w, output_h, output_stride_in_bytes: c.int,
+                         num_channels: c.int) -> c.int ---
 }
 
 // The following functions interpret image data as gamma-corrected sRGB.
@@ -69,24 +69,24 @@ FLAG_ALPHA_USES_COLORSPACE :: (1 << 1)
 
 
 edge :: enum c.int {
-	CLAMP   = 1,
-	REFLECT = 2,
-	WRAP    = 3,
-	ZERO    = 4,
+    CLAMP   = 1,
+    REFLECT = 2,
+    WRAP    = 3,
+    ZERO    = 4,
 }
 
 @(default_calling_convention="c", link_prefix="stbir_")
 foreign lib {
-	resize_uint8_srgb :: proc(input_pixels: [^]u8, input_w, input_h, input_stride_in_bytes: c.int,
-	                          output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
-	                          num_channels: c.int, alpha_channel: c.int, flags: c.int) -> c.int ---
+    resize_uint8_srgb :: proc(input_pixels: [^]u8, input_w, input_h, input_stride_in_bytes: c.int,
+                              output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
+                              num_channels: c.int, alpha_channel: c.int, flags: c.int) -> c.int ---
 
 
-	// This function adds the ability to specify how requests to sample off the edge of the image are handled.
-	resize_uint8_srgb_edgemode :: proc(input_pixels:  [^]u8, input_w,  input_h,  input_stride_in_bytes: c.int,
-	                                   output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
-	                                   num_channels: c.int, alpha_channel: c.int, flags: c.int,
-	                                   edge_wrap_mode: edge) -> c.int ---
+    // This function adds the ability to specify how requests to sample off the edge of the image are handled.
+    resize_uint8_srgb_edgemode :: proc(input_pixels:  [^]u8, input_w,  input_h,  input_stride_in_bytes: c.int,
+                                       output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
+                                       num_channels: c.int, alpha_channel: c.int, flags: c.int,
+                                       edge_wrap_mode: edge) -> c.int ---
 
 }
 
@@ -108,42 +108,42 @@ foreign lib {
 
 
 filter :: enum c.int {
-	DEFAULT      = 0,  // use same filter type that easy-to-use API chooses
-	BOX          = 1,  // A trapezoid w/1-pixel wide ramps, same result as box for integer scale ratios
-	TRIANGLE     = 2,  // On upsampling, produces same results as bilinear texture filtering
-	CUBICBSPLINE = 3,  // The cubic b-spline (aka Mitchell-Netrevalli with B=1,C=0), gaussian-esque
-	CATMULLROM   = 4,  // An interpolating cubic spline
-	MITCHELL     = 5,  // Mitchell-Netrevalli filter with B=1/3, C=1/3
+    DEFAULT      = 0,  // use same filter type that easy-to-use API chooses
+    BOX          = 1,  // A trapezoid w/1-pixel wide ramps, same result as box for integer scale ratios
+    TRIANGLE     = 2,  // On upsampling, produces same results as bilinear texture filtering
+    CUBICBSPLINE = 3,  // The cubic b-spline (aka Mitchell-Netrevalli with B=1,C=0), gaussian-esque
+    CATMULLROM   = 4,  // An interpolating cubic spline
+    MITCHELL     = 5,  // Mitchell-Netrevalli filter with B=1/3, C=1/3
 }
 
 colorspace :: enum c.int {
-	LINEAR,
-	SRGB,
+    LINEAR,
+    SRGB,
 
-	MAX_COLORSPACES,
+    MAX_COLORSPACES,
 }
 
 @(default_calling_convention="c", link_prefix="stbir_")
 foreign lib {
-	// The following functions are all identical except for the type of the image data
+    // The following functions are all identical except for the type of the image data
 
-	resize_uint8_generic :: proc(input_pixels:  [^]u8, input_w,  input_h,  input_stride_in_bytes:  c.int,
-	                             output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
-	                             num_channels: c.int, alpha_channel: c.int, flags: c.int,
-	                             edge_wrap_mode: edge, filter: filter, space: colorspace,
-	                             alloc_context: rawptr) -> c.int ---
+    resize_uint8_generic :: proc(input_pixels:  [^]u8, input_w,  input_h,  input_stride_in_bytes:  c.int,
+                                 output_pixels: [^]u8, output_w, output_h, output_stride_in_bytes: c.int,
+                                 num_channels: c.int, alpha_channel: c.int, flags: c.int,
+                                 edge_wrap_mode: edge, filter: filter, space: colorspace,
+                                 alloc_context: rawptr) -> c.int ---
 
-	resize_uint16_generic :: proc(input_pixels:  [^]u16, input_w,  input_h,  input_stride_in_bytes:  c.int,
-	                              output_pixels: [^]u16, output_w, output_h, output_stride_in_bytes: c.int,
-	                              num_channels: c.int, alpha_channel: c.int, flags: c.int,
-	                              edge_wrap_mode: edge, filter: filter, space: colorspace,
-	                              alloc_context: rawptr) -> c.int ---
+    resize_uint16_generic :: proc(input_pixels:  [^]u16, input_w,  input_h,  input_stride_in_bytes:  c.int,
+                                  output_pixels: [^]u16, output_w, output_h, output_stride_in_bytes: c.int,
+                                  num_channels: c.int, alpha_channel: c.int, flags: c.int,
+                                  edge_wrap_mode: edge, filter: filter, space: colorspace,
+                                  alloc_context: rawptr) -> c.int ---
 
-	resize_float_generic :: proc(input_pixels:  [^]f32, input_w,  input_h,  input_stride_in_bytes:  c.int,
-	                             output_pixels: [^]f32, output_w, output_h, output_stride_in_bytes: c.int,
-	                             num_channels: c.int, alpha_channel: c.int, flags: c.int,
-	                             edge_wrap_mode: edge, filter: filter, space: colorspace,
-	                             alloc_context: rawptr) -> c.int ---
+    resize_float_generic :: proc(input_pixels:  [^]f32, input_w,  input_h,  input_stride_in_bytes:  c.int,
+                                 output_pixels: [^]f32, output_w, output_h, output_stride_in_bytes: c.int,
+                                 num_channels: c.int, alpha_channel: c.int, flags: c.int,
+                                 edge_wrap_mode: edge, filter: filter, space: colorspace,
+                                 alloc_context: rawptr) -> c.int ---
 
 }
 
@@ -162,43 +162,43 @@ foreign lib {
 
 
 datatype :: enum c.int {
-	UINT8,
-	UINT16,
-	UINT32,
-	FLOAT,
+    UINT8,
+    UINT16,
+    UINT32,
+    FLOAT,
 
-	MAX_TYPES,
+    MAX_TYPES,
 }
 
 @(default_calling_convention="c", link_prefix="stbir_")
 foreign lib {
-	// (s0, t0) & (s1, t1) are the top-left and bottom right corner (uv addressing style: [0, 1]x[0, 1]) of a region of the input image to use.
+    // (s0, t0) & (s1, t1) are the top-left and bottom right corner (uv addressing style: [0, 1]x[0, 1]) of a region of the input image to use.
 
-	resize :: proc(input_pixels:  rawptr, input_w,  input_h,  input_stride_in_bytes:  c.int,
-	               output_pixels: rawptr, output_w, output_h, output_stride_in_bytes: c.int,
-	               datatype: datatype,
-	               num_channels: c.int, alpha_channel: c.int, flags: c.int,
-	               edge_mode_horizontal, edge_mode_vertical: edge,
-	               filter_horizontal, filter_vertical: filter,
-	               space: colorspace, alloc_context: rawptr) -> c.int ---
+    resize :: proc(input_pixels:  rawptr, input_w,  input_h,  input_stride_in_bytes:  c.int,
+                   output_pixels: rawptr, output_w, output_h, output_stride_in_bytes: c.int,
+                   datatype: datatype,
+                   num_channels: c.int, alpha_channel: c.int, flags: c.int,
+                   edge_mode_horizontal, edge_mode_vertical: edge,
+                   filter_horizontal, filter_vertical: filter,
+                   space: colorspace, alloc_context: rawptr) -> c.int ---
 
-	resize_subpixel :: proc(input_pixels:  rawptr, input_w,  input_h,  input_stride_in_bytes:  c.int,
-	                        output_pixels: rawptr, output_w, output_h, output_stride_in_bytes: c.int,
-	                        datatype: datatype,
-	                        num_channels: c.int, alpha_channel: c.int, flags: c.int,
-	                        edge_mode_horizontal, edge_mode_vertical: edge,
-	                        filter_horizontal, filter_vertical: filter,
-	                        space: colorspace, alloc_context: rawptr,
-	                        x_scale, y_scale: f32,
-	                        x_offset, y_offset: f32) -> c.int ---
+    resize_subpixel :: proc(input_pixels:  rawptr, input_w,  input_h,  input_stride_in_bytes:  c.int,
+                            output_pixels: rawptr, output_w, output_h, output_stride_in_bytes: c.int,
+                            datatype: datatype,
+                            num_channels: c.int, alpha_channel: c.int, flags: c.int,
+                            edge_mode_horizontal, edge_mode_vertical: edge,
+                            filter_horizontal, filter_vertical: filter,
+                            space: colorspace, alloc_context: rawptr,
+                            x_scale, y_scale: f32,
+                            x_offset, y_offset: f32) -> c.int ---
 
-	resize_region :: proc(input_pixels:  rawptr, input_w,  input_h,  input_stride_in_bytes:  c.int,
-	                      output_pixels: rawptr, output_w, output_h, output_stride_in_bytes: c.int,
-	                      datatype: datatype,
-	                      num_channels: c.int, alpha_channel: c.int, flags: c.int,
-	                      edge_mode_horizontal, edge_mode_vertical: edge,
-	                      filter_horizontal,  filter_vertical: filter,
-	                      space: colorspace, alloc_context: rawptr,
-	                      s0, t0, s1, t1: f32) -> c.int ---
+    resize_region :: proc(input_pixels:  rawptr, input_w,  input_h,  input_stride_in_bytes:  c.int,
+                          output_pixels: rawptr, output_w, output_h, output_stride_in_bytes: c.int,
+                          datatype: datatype,
+                          num_channels: c.int, alpha_channel: c.int, flags: c.int,
+                          edge_mode_horizontal, edge_mode_vertical: edge,
+                          filter_horizontal,  filter_vertical: filter,
+                          space: colorspace, alloc_context: rawptr,
+                          s0, t0, s1, t1: f32) -> c.int ---
 
 }

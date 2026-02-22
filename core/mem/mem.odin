@@ -617,7 +617,7 @@ into a new stack-allocated value and returns that value.
 */
 
 reinterpret_copy :: proc($T: typeid, ptr: rawptr) -> (value: T) {
-	copy(&value, ptr, size_of(T))
+	copy_slice(&value, ptr, size_of(T))
 	return
 }
 

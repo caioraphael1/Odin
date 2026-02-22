@@ -63,7 +63,7 @@ memory_block_dealloc :: proc(block_to_free: ^Memory_Block, loc := #caller_locati
 
         allocator := block_to_free.allocator
         // sanitizer.address_unpoison(block_to_free.base, block_to_free.capacity)
-        _ = mem_free(block_to_free, allocator, loc)
+        _ = free(block_to_free, allocator, loc)
     }
 }
 

@@ -22,8 +22,8 @@ test_avl :: proc(t: ^testing.T) {
 
 	// Test insertion.
 	NR_INSERTS :: 32 + 1 // Ensure at least 1 collision.
-	inserted_map := make(map[int]^avl.Node(int))
-	defer _ = delete(inserted_map)
+	inserted_map := make_map(map[int]^avl.Node(int))
+	defer _ = delete_slice(inserted_map)
 	for i := 0; i < NR_INSERTS; i += 1 {
 		v := int(rand.uint32() & 0x1f)
 		existing_node, in_map := inserted_map[v]
@@ -48,7 +48,7 @@ test_avl :: proc(t: ^testing.T) {
 
 	// Test the forward/backward iterators.
 	inserted_values: [dynamic]int
-	defer _ = delete(inserted_values)
+	defer _ = delete_slice(inserted_values)
 	for k in inserted_map {
 		_ = append(&inserted_values, k)
 	}

@@ -126,7 +126,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator := context
 		pixels := img.pixels.buf[:]
 
 		p4_buffer_size := (img.width / 8 + 1) * img.height
-		_ = reserve(&data.buf, len(header_buf) + p4_buffer_size)
+		_ = reserve_dynamic_array(&data.buf, len(header_buf) + p4_buffer_size)
 
 		// we build up a byte value until it is completely filled
 		// or we reach the end the row
@@ -156,8 +156,8 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator := context
 		header_buf := data.buf[:]
 		pixels := img.pixels.buf[:]
 
-		_ = resize(&data.buf, len(header_buf) + len(pixels))
-		mem.copy(raw_data(data.buf[len(header_buf):]), raw_data(pixels), len(pixels))
+		_ = resize_dynamic_array(&data.buf, len(header_buf) + len(pixels))
+		mem.copy_slice(raw_data(data.buf[len(header_buf):]), raw_data(pixels), len(pixels))
 
 		// convert from native endianness
 		if img.depth == 16 {
@@ -574,7 +574,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator := con
 
 	// Simple binary
 	case .P5, .P6, .P7, .Pf, .PF:
-		copy(img.pixels.buf[:], data[:])
+		copy_slice(img.pixels.buf[:], data[:])
 
 		// convert to native endianness
 		if header.format in PFM {

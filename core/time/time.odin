@@ -463,7 +463,7 @@ Example:
 
 time_to_string_hms :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
     assert(len(buf) >= MIN_HMS_LEN)
-    h, m, s := clock(t)
+    h, m, s := clock_from_time(t)
 
     buf[7] = '0' + u8(s % 10); s /= 10
     buf[6] = '0' + u8(s)
@@ -521,7 +521,7 @@ Example:
 
 to_string_hms_12 :: proc(t: Time, buf: []u8, ampm: [2]string = {" am", " pm"}) -> (res: string) #no_bounds_check {
     assert(len(buf) >= MIN_HMS_LEN + max(len(ampm[0]), len(ampm[1])))
-    h, m, s := clock(t)
+    h, m, s := clock_from_time(t)
 
     _h := h % 12
     buf[7] = '0' + u8(s % 10); s /= 10
@@ -534,10 +534,10 @@ to_string_hms_12 :: proc(t: Time, buf: []u8, ampm: [2]string = {" am", " pm"}) -
     buf[0] = '0' + u8(_h)
 
     if h < 13 {
-        copy(buf[8:], ampm[0])
+        copy_from_string(buf[8:], ampm[0])
         return string(buf[:MIN_HMS_LEN+len(ampm[0])])
     } else {
-        copy(buf[8:], ampm[1])
+        copy_from_string(buf[8:], ampm[1])
         return string(buf[:MIN_HMS_LEN+len(ampm[1])])
     }
 }
@@ -971,7 +971,7 @@ as the second return value. See `Time` for the representable range.
 
 compound_to_time :: proc(datetime: dt.DateTime) -> (t: Time, ok: bool) {
     unix_epoch := dt.DateTime{{1970, 1, 1}, {0, 0, 0, 0}, nil}
-    delta, err := dt.sub(datetime, unix_epoch)
+    delta, err := dt.subtract_datetimes(datetime, unix_epoch)
     if err != .None {
         return
     }
@@ -996,7 +996,7 @@ Convert time into datetime.
 time_to_datetime :: proc(t: Time) -> (dt.DateTime, bool) {
     unix_epoch := dt.DateTime{{1970, 1, 1}, {0, 0, 0, 0}, nil}
 
-    datetime, err := dt.add(unix_epoch, dt.Delta{ nanos = t._nsec })
+    datetime, err := dt.add_delta_to_datetime(unix_epoch, dt.Delta{ nanos = t._nsec })
     if err != .None {
         return {}, false
     }

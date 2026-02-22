@@ -4,6 +4,7 @@ package container_rbtree
 @(require) import "base:intrinsics"
 @(require) import "base:runtime"
 import "core:slice"
+import "core:mem"
 
 // Originally based on the CC0 implementation from literateprograms.org
 // But with API design mimicking `core:container/avl` for ease of use.
@@ -65,7 +66,7 @@ Iterator :: struct($Key: typeid, $Value: typeid) {
 
 
 // init_cmp initializes a tree.
-init_cmp :: proc(t: ^$T/Tree($Key, $Value), cmp_fn: proc(a, b: Key) -> Ordering, node_allocator := context.allocator) {
+init_cmp :: proc(t: ^$T/Tree($Key, $Value), cmp_fn: proc(a, b: Key) -> Ordering, node_allocator: mem.Allocator) {
     t._root   = nil
     t._node_allocator = node_allocator
     t._cmp_fn = cmp_fn
@@ -74,7 +75,7 @@ init_cmp :: proc(t: ^$T/Tree($Key, $Value), cmp_fn: proc(a, b: Key) -> Ordering,
 
 // init_ordered initializes a tree containing ordered keys, with
 // a comparison function that results in an ascending order sort.
-init_ordered :: proc(t: ^$T/Tree($Key, $Value), node_allocator := context.allocator) where intrinsics.type_is_ordered(Key) {
+init_ordered :: proc(t: ^$T/Tree($Key, $Value), node_allocator: mem.Allocator) where intrinsics.type_is_ordered(Key) {
     init_cmp(t, slice.cmp_proc(Key), node_allocator)
 }
 
@@ -170,7 +171,7 @@ remove_node :: proc(t: ^$T/Tree($Key, $Value), node: ^$N/Node(Key, Value), call_
     }
     node := node
     if node._left != nil && node._right != nil {
-        // Copy key + value from predecessor and _ = delete it instead
+        // Copy key + value from predecessor and _ = delete_slice it instead
         predecessor := maximum_node(node._left)
         node.key   = predecessor.key
         node.value = predecessor.value

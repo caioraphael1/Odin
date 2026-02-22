@@ -85,7 +85,7 @@ main :: proc() {
 main :: proc() {
     a := make_dynamic_array([dynamic]int)
         // context.allocator was used implicitly.
-    defer delete(a)
+    defer delete_dynamic_array(a)
 
     b := new(int)
         // context.allocator was used implicitly.
@@ -106,7 +106,7 @@ main :: proc() {
 
     a := make_dynamic_array([dynamic]int, allocator)
         //  `make` *requires* an explicit allocator. If not complied, there will be a compile-time error.
-    defer delete(a)
+    defer delete_dynamic_array(a)
         // No need to be explicit about the allocator here, as a `[dynamic]` array stores the allocator.
 
     b := new(int, allocator)

@@ -692,7 +692,7 @@ draw_text :: proc(ctx: ^Context, font: Font, str: string, pos: Vec2, color: Colo
     text_cmd.font = font
     /* copy string */
     dst_str := ([^]byte)(text_cmd)[size_of(Command_Text):][:len(str)]
-    copy(dst_str, str)
+    copy_slice(dst_str, str)
     text_cmd.str = string(dst_str)
     /* reset clipping if it was set */
     if clipped != .NONE {
@@ -748,7 +748,7 @@ layout_row :: proc(ctx: ^Context, widths: []i32, height: i32 = 0) {
     layout := get_layout(ctx)
     items := len(widths)
     if len(widths) > 0 {
-        items = copy(layout.widths[:], widths[:])
+        items = copy_slice(layout.widths[:], widths[:])
     }
     layout.items = i32(items)
     layout.position = Vec2{layout.indent, layout.next_row}
@@ -994,7 +994,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
     if ctx.focus_id == id {
         /* create a builder backed by the user's buffer */
         builder := strings.builder_from_bytes(textbuf)
-        _ = non_zero_resize(&builder.buf, textlen^)
+        _ = non_zero_resize_dynamic_array(&builder.buf, textlen^)
         ctx.textbox_state.builder = &builder
         if ctx.textbox_state.id != u64(id) {
             ctx.textbox_state.id = u64(id)
@@ -1026,7 +1026,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
         }
         /* handle ctrl+c */
         if .C in ctx.key_pressed_bits && .CTRL in ctx.key_down_bits && .ALT not_in ctx.key_down_bits {
-            textedit.copy(&ctx.textbox_state)
+            textedit.copy_slice(&ctx.textbox_state)
         }
         /* handle ctrl+v */
         if .V in ctx.key_pressed_bits && .CTRL in ctx.key_down_bits && .ALT not_in ctx.key_down_bits {
@@ -1067,7 +1067,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
                 textedit.move_to(&ctx.textbox_state, .End)
             }
         }
-        /* handle backspace/_ = delete */
+        /* handle backspace/_ = delete_slice */
         if .BACKSPACE in ctx.key_pressed_bits && textlen^ > 0 {
             move: textedit.Translation = .Word_Left if .CTRL in ctx.key_down_bits else .Left
             textedit.delete_to(&ctx.textbox_state, move)

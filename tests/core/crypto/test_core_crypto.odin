@@ -190,7 +190,7 @@ test_rand_bytes :: proc(t: ^testing.T) {
 	}
 
 	buf := make_slice([]byte, 1 << 25, context.allocator)
-	defer _ = delete(buf)
+	defer _ = delete_slice(buf)
 
 	// Testing a CSPRNG for correctness is incredibly involved and
 	// beyond the scope of an implementation that offloads

@@ -90,8 +90,8 @@ init_with_mem_arena :: proc(tbl: ^Table, format_arena: ^mem.Arena, table_allocat
 
 destroy :: proc(tbl: ^Table) {
     _ = free_all(tbl.format_allocator)
-    _ = delete(tbl.cells)
-    _ = delete(tbl.colw)
+    _ = delete_slice(tbl.cells)
+    _ = delete_slice(tbl.colw)
 }
 
 caption :: proc(tbl: ^Table, value: string) {
@@ -106,7 +106,7 @@ padding :: proc(tbl: ^Table, lpad, rpad: int) {
 get_cell :: proc(tbl: ^Table, row, col: int, loc := #caller_location) -> ^Cell {
     assert(col >= 0 && col < tbl.nr_cols, "cell column out of range", loc)
     assert(row >= 0 && row < tbl.nr_rows, "cell row out of range", loc)
-    _ = resize(&tbl.cells, tbl.nr_cols * tbl.nr_rows)
+    _ = resize_dynamic_array(&tbl.cells, tbl.nr_cols * tbl.nr_rows)
     return &tbl.cells[row*tbl.nr_cols + col]
 }
 
@@ -281,7 +281,7 @@ first_row :: proc(tbl: ^Table) -> int {
 }
 
 build :: proc(tbl: ^Table, width_proc: Width_Proc) {
-    _ = resize(&tbl.colw, tbl.nr_cols)
+    _ = resize_dynamic_array(&tbl.colw, tbl.nr_cols)
     mem.zero_slice(tbl.colw[:])
 
     for row in 0..<tbl.nr_rows {

@@ -534,7 +534,7 @@ send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
         return
     }
     if c.queue != nil { // buffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
         for !c.closed && c.queue.len == c.queue.cap {
             c.w_waiting += 1
             sync.wait(&c.w_cond, &c.mutex)
@@ -550,7 +550,7 @@ send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
             sync.signal(&c.r_cond)
         }
     } else if c.unbuffered_data != nil { // unbuffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
 
         if c.closed {
             return false
@@ -559,7 +559,7 @@ send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
         c.did_read = false
         defer c.did_read = false
 
-        mem.copy(c.unbuffered_data, msg_in, int(c.msg_size))
+        mem.copy_slice(c.unbuffered_data, msg_in, int(c.msg_size))
 
         c.w_waiting += 1
 
@@ -624,7 +624,7 @@ recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
         return
     }
     if c.queue != nil { // buffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
         for c.queue.len == 0 {
             if c.closed {
                 return
@@ -637,7 +637,7 @@ recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
 
         msg := raw_queue_pop(c.queue)
         if msg != nil {
-            mem.copy(msg_out, msg, int(c.msg_size))
+            mem.copy_slice(msg_out, msg, int(c.msg_size))
         }
 
         if c.w_waiting > 0 {
@@ -645,7 +645,7 @@ recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
         }
         ok = true
     } else if c.unbuffered_data != nil { // unbuffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
 
         for !c.closed && c.w_waiting == 0 {
             c.r_waiting += 1
@@ -657,7 +657,7 @@ recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
             return
         }
 
-        mem.copy(msg_out, c.unbuffered_data, int(c.msg_size))
+        mem.copy_slice(msg_out, c.unbuffered_data, int(c.msg_size))
         c.w_waiting -= 1
 
         c.did_read = true
@@ -704,7 +704,7 @@ try_send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
         return false
     }
     if c.queue != nil { // buffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
         if c.queue.len == c.queue.cap {
             return false
         }
@@ -718,13 +718,13 @@ try_send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
             sync.signal(&c.r_cond)
         }
     } else if c.unbuffered_data != nil { // unbuffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
 
         if c.closed || c.r_waiting - c.w_waiting <= 0 {
             return false
         }
 
-        mem.copy(c.unbuffered_data, msg_in, int(c.msg_size))
+        mem.copy_slice(c.unbuffered_data, msg_in, int(c.msg_size))
         c.w_waiting += 1
         if c.r_waiting > 0 {
             sync.signal(&c.r_cond)
@@ -767,14 +767,14 @@ try_recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> bool {
         return false
     }
     if c.queue != nil { // buffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
         if c.queue.len == 0 {
             return false
         }
 
         msg := raw_queue_pop(c.queue)
         if msg != nil {
-            mem.copy(msg_out, msg, int(c.msg_size))
+            mem.copy_slice(msg_out, msg, int(c.msg_size))
         }
 
         if c.w_waiting > 0 {
@@ -782,13 +782,13 @@ try_recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> bool {
         }
         return true
     } else if c.unbuffered_data != nil { // unbuffered
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
 
         if c.closed || c.w_waiting - c.r_waiting <= 0 {
             return false
         }
 
-        mem.copy(msg_out, c.unbuffered_data, int(c.msg_size))
+        mem.copy_slice(msg_out, c.unbuffered_data, int(c.msg_size))
         c.w_waiting -= 1
 
         sync.signal(&c.w_cond)
@@ -881,7 +881,7 @@ Output:
 
 len :: proc(c: ^Raw_Chan) -> int {
     if c != nil && c.queue != nil {
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
         return c.queue.len
     }
     return 0
@@ -918,7 +918,7 @@ Output:
 
 cap :: proc(c: ^Raw_Chan) -> int {
     if c != nil && c.queue != nil {
-        sync.guard(&c.mutex)
+        sync.mutex_guard(&c.mutex)
         return c.queue.cap
     }
     return 0
@@ -958,7 +958,7 @@ close :: proc(c: ^Raw_Chan) -> bool {
     if c == nil {
         return false
     }
-    sync.guard(&c.mutex)
+    sync.mutex_guard(&c.mutex)
     if c.closed {
         return false
     }
@@ -982,7 +982,7 @@ is_closed :: proc(c: ^Raw_Chan) -> bool {
     if c == nil {
         return true
     }
-    sync.guard(&c.mutex)
+    sync.mutex_guard(&c.mutex)
     return bool(c.closed)
 }
 
@@ -1013,7 +1013,7 @@ Example:
 */
 
 can_recv :: proc(c: ^Raw_Chan) -> bool {
-    sync.guard(&c.mutex)
+    sync.mutex_guard(&c.mutex)
     if is_buffered(c) {
         return c.queue.len > 0
     }
@@ -1048,7 +1048,7 @@ Example:
 */
 
 can_send :: proc(c: ^Raw_Chan) -> bool {
-    sync.guard(&c.mutex)
+    sync.mutex_guard(&c.mutex)
     if is_buffered(c) {
         return c.queue.len < c.queue.cap
     }
@@ -1285,7 +1285,7 @@ raw_queue_push :: proc(q: ^Raw_Queue, data: rawptr) -> bool {
     }
 
     val_ptr := q.data[pos*q.size:]
-    mem.copy(val_ptr, data, q.size)
+    mem.copy_slice(val_ptr, data, q.size)
     q.len += 1
     return true
 }

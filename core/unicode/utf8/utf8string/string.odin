@@ -67,7 +67,7 @@ at :: proc(s: ^String, i: int, loc := #caller_location) -> (r: rune) {
 		return
 
 	case s.rune_count-1:
-		r, s.width = utf8.decode_last_rune(s.contents)
+		r, s.width = utf8.decode_last_rune_in_bytes(s.contents)
 		s.rune_pos = i
 		s.byte_pos = _len(s.contents) - s.width
 		return

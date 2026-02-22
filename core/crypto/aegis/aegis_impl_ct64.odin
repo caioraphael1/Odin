@@ -205,7 +205,7 @@ absorb_sw :: proc(st: ^State_SW, aad: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // AAD is not confidential.
-		copy(tmp[:], ai)
+		copy_slice(tmp[:], ai)
 		switch st.rate {
 		case _RATE_128L:
 			absorb_sw_128l(st, tmp[:])
@@ -285,14 +285,14 @@ enc_sw :: proc(st: ^State_SW, dst, src: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // Ciphertext is not confidential.
-		copy(tmp[:], xi)
+		copy_slice(tmp[:], xi)
 		switch st.rate {
 		case _RATE_128L:
 			enc_sw_128l(st, tmp[:], tmp[:])
 		case _RATE_256:
 			enc_sw_256(st, tmp[:], tmp[:])
 		}
-		copy(ci, tmp[:l])
+		copy_slice(ci, tmp[:l])
 	}
 }
 
@@ -327,7 +327,7 @@ dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 	defer mem.zero_explicit(&tmp, size_of(tmp))
 
 	z0_0, z0_1, z1_0, z1_1 := z_sw_128l(st)
-	copy(tmp[:], cn)
+	copy_slice(tmp[:], cn)
 
 	t0_0, t0_1 := aes.load_interleaved(tmp[:16])
 	t1_0, t1_1 := aes.load_interleaved(tmp[16:])
@@ -336,7 +336,7 @@ dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 
 	aes.store_interleaved(tmp[:16], out0_0, out0_1)
 	aes.store_interleaved(tmp[16:], out1_0, out1_1)
-	copy(xn, tmp[:])
+	copy_slice(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_128L; off += 1 {
 		tmp[off] = 0
@@ -352,13 +352,13 @@ dec_partial_sw_256 :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 	defer mem.zero_explicit(&tmp, size_of(tmp))
 
 	z_0, z_1 := z_sw_256(st)
-	copy(tmp[:], cn)
+	copy_slice(tmp[:], cn)
 
 	cn_0, cn_1 := aes.load_interleaved(tmp[:])
 	xn_0, xn_1 := aes.xor_interleaved(cn_0, cn_1, z_0, z_1)
 
 	aes.store_interleaved(tmp[:], xn_0, xn_1)
-	copy(xn, tmp[:])
+	copy_slice(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_256; off += 1 {
 		tmp[off] = 0

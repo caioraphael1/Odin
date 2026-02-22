@@ -142,7 +142,7 @@ grow_buffer :: proc(buf: ^[dynamic]u8) -> (err: compress.Error) {
         Double until we reach the maximum allowed.
     */
     new_size := min(len(buf) << 1, compress.COMPRESS_OUTPUT_ALLOCATE_MAX)
-    return resize(buf, new_size)
+    return resize_dynamic_array(buf, new_size)
 }
 
 /*
@@ -325,7 +325,7 @@ decode_huffman :: proc(z: ^$C, t: ^Huffman_Table) -> (r: u16, err: Error) #no_bo
         if z.num_bits > 63 {
             return 0, .Code_Buffer_Malformed
         }
-        compress.refill_lsb(z)
+        compress.refill_lsb_from_memory(z)
         if z.num_bits > 63 {
             return 0, .Stream_Too_Short
         }
@@ -423,7 +423,7 @@ inflate_from_context :: proc(using ctx: ^compress.Context_Memory_Input, raw := f
             return .Stream_Too_Short
         }
 
-        cmf, _ := compress.read_u8(ctx)
+        cmf, _ := compress.read_u8_from_memory(ctx)
 
         method := Compression_Method(cmf & 0xf)
         if method != .DEFLATE {
@@ -433,7 +433,7 @@ inflate_from_context :: proc(using ctx: ^compress.Context_Memory_Input, raw := f
         if cinfo := (cmf >> 4) & 0xf; cinfo > 7 {
             return .Unsupported_Window_Size
         }
-        flg, _ := compress.read_u8(ctx)
+        flg, _ := compress.read_u8_from_memory(ctx)
 
         fcheck := flg & 0x1f
         fcheck_computed := (cmf << 8 | flg) & 0x1f
@@ -497,7 +497,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
         /*
             Try to pre-allocate the output buffer.
         */
-        _ = reserve(&z.output.buf, expected_output_size) or_return
+        _ = reserve_dynamic_array(&z.output.buf, expected_output_size) or_return
         _ = resize (&z.output.buf, expected_output_size) or_return
     }
 
@@ -551,7 +551,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
                 and a single Adler32 update after.
             */
             #no_bounds_check for uncompressed_len > 0 {
-                compress.refill_lsb(z)
+                compress.refill_lsb_from_memory(z)
                 lit := compress.read_bits_lsb(z, 8)
                 write_byte(z, u8(lit))
                 uncompressed_len -= 1
@@ -573,7 +573,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
                 //i: u32;
                 n: u32
 
-                compress.refill_lsb(z, 14)
+                compress.refill_lsb_from_memory(z, 14)
                 hlit  := compress.read_bits_no_refill_lsb(z, 5) + 257
                 hdist := compress.read_bits_no_refill_lsb(z, 5) + 1
                 hclen := compress.read_bits_no_refill_lsb(z, 4) + 4
@@ -599,7 +599,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
                         n += 1
                     } else {
                         fill := u8(0)
-                        compress.refill_lsb(z, 7)
+                        compress.refill_lsb_from_memory(z, 7)
                         switch c {
                         case 16:
                             c = u16(compress.read_bits_no_refill_lsb(z, 2) + 3)
@@ -641,7 +641,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
     }
 
     if int(z.bytes_written) != len(z.output.buf) {
-        _ = resize(&z.output.buf, int(z.bytes_written)) or_return
+        _ = resize_dynamic_array(&z.output.buf, int(z.bytes_written)) or_return
     }
 
     return nil

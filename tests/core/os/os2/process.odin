@@ -10,8 +10,8 @@ test_process_exec :: proc(t: ^testing.T) {
 	state, stdout, stderr, err := os.process_exec({
 		command = {"echo", "hellope"},
 	}, context.allocator)
-	defer _ = delete(stdout)
-	defer _ = delete(stderr)
+	defer _ = delete_slice(stdout)
+	defer _ = delete_slice(stderr)
 
 	if err == .Unsupported {
 		log.warn("process_exec unsupported")

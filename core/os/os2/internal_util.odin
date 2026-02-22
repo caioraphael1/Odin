@@ -29,7 +29,7 @@ _prefix_and_suffix :: proc(pattern: string) -> (prefix, suffix: string, err: Err
 
 clone_string :: proc(s: string, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
     buf := make_slice([]byte, len(s), allocator) or_return
-    copy(buf, s)
+    copy_from_string(buf, s)
     return string(buf), nil
 }
 
@@ -38,7 +38,7 @@ clone_string :: proc(s: string, allocator: runtime.Allocator) -> (res: string, e
 clone_to_cstring :: proc(s: string, allocator: runtime.Allocator) -> (res: cstring, err: runtime.Allocator_Error) {
     res = "" // do not use a `nil` cstring
     buf := make_slice([]byte, len(s)+1, allocator) or_return
-    copy(buf, s)
+    copy_from_string(buf, s)
     buf[len(s)] = 0
     return cstring(&buf[0]), nil
 }
@@ -60,7 +60,7 @@ concatenate_strings_from_buffer :: proc(buf: []byte, strings: ..string) -> strin
     n := 0
     for s in strings {
         (n < len(buf)) or_break
-        n += copy(buf[n:], s)
+        n += copy_from_string(buf[n:], s)
     }
     n = min(len(buf), n)
     return string(buf[:n])
@@ -75,7 +75,7 @@ concatenate :: proc(strings: []string, allocator: runtime.Allocator) -> (res: st
     buf := make_slice([]byte, n, allocator) or_return
     n = 0
     for s in strings {
-        n += copy(buf[n:], s)
+        n += copy_from_string(buf[n:], s)
     }
     return string(buf), nil
 }

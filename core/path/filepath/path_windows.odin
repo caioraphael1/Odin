@@ -57,7 +57,7 @@ temp_full_path :: proc(name: string) -> (path: string, err: os.Error) {
         name = "."
     }
 
-    p := win32.utf8_to_utf16(name, runtime.temp_allocator)
+    p := win32.utf8_to_utf16_alloc(name, runtime.temp_allocator)
     n := win32.GetFullPathNameW(cstring16(raw_data(p)), 0, nil, nil)
     if n == 0 {
         return "", os.get_last_error()
@@ -69,7 +69,7 @@ temp_full_path :: proc(name: string) -> (path: string, err: os.Error) {
         return "", os.get_last_error()
     }
 
-    return win32.utf16_to_utf8(buf[:n], runtime.temp_allocator)
+    return win32.utf16_to_utf8_alloc(buf[:n], runtime.temp_allocator)
 }
 */
 
@@ -118,7 +118,7 @@ join_non_empty :: proc(elems: []string, allocator: mem.Allocator) -> (joined: st
     if is_UNC(head) {
         return p, nil
     }
-    _ = delete(p, allocator) // It is not needed now
+    _ = delete_slice(p, allocator) // It is not needed now
 
     tail := strings.join(elems[1:], SEPARATOR_STRING, runtime.temp_allocator) or_return
     tail = clean(tail, runtime.temp_allocator) or_return

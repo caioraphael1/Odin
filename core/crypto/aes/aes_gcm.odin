@@ -57,7 +57,7 @@ seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []byte) {
 	ct64.ghash(s[:], h[:], aad)
 	gctr_ct64(ctx, dst, &s, plaintext, &h, &j0, true)
 	final_ghash_ct64(&s, &h, &j0_enc, len(aad), len(plaintext))
-	copy(tag, s[:])
+	copy_slice(tag, s[:])
 
 	mem.zero_explicit(&h, len(h))
 	mem.zero_explicit(&j0, len(j0))
@@ -139,7 +139,7 @@ init_ghash_ct64 :: proc(
 	// Define a block, J0, as follows:
 	if l := len(iv); l == GCM_IV_SIZE {
 		// if len(IV) = 96, then let J0 = IV || 0^31 || 1
-		copy(j0[:], iv)
+		copy_slice(j0[:], iv)
 		j0[_aes.GHASH_BLOCK_SIZE - 1] = 1
 	} else {
 		// If len(IV) != 96, then let s = 128 ceil(len(IV)/128) - len(IV),
@@ -200,7 +200,7 @@ gctr_ct64 :: proc(
 
 		// Pre-copy the IV to all the counter blocks.
 		ctrs[i] = tmp[i][:]
-		copy(ctrs[i], iv[:GCM_IV_SIZE])
+		copy_slice(ctrs[i], iv[:GCM_IV_SIZE])
 	}
 
 	impl := &ctx._impl.(ct64.Context)

@@ -114,7 +114,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 	if msg_len > 0 {
 		// TODO: While -donna does it this way, I'm fairly sure that
 		// `ctx._leftover == 0` is an invariant at this point.
-		copy(ctx._buffer[ctx._leftover:], msg)
+		copy_slice(ctx._buffer[ctx._leftover:], msg)
 		ctx._leftover = ctx._leftover + msg_len
 	}
 }

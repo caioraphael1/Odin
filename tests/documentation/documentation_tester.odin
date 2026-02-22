@@ -86,7 +86,7 @@ main :: proc() {
 	path_prefix: string
 	{
 		fullpaths: [dynamic]string
-		defer _ = delete(fullpaths)
+		defer _ = delete_slice(fullpaths)
 
 		for pkg in pkgs[1:] {
 			_ = append(&fullpaths, str(pkg.fullpath))
@@ -346,7 +346,7 @@ main :: proc() {
 
 	for test in example_tests {
 		fmt.printf("--- Generating documentation test for \"%v.%v\"\n", test.package_name, test.entity_name)
-		clear(&found_procedures_for_error_msg)
+		clear_dynamic_array(&found_procedures_for_error_msg)
 		strings.builder_reset(&example_build)
 		strings.write_string(&example_build, "package documentation_verification\n\n")
 		for line in test.example_code {

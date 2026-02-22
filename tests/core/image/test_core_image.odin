@@ -1459,7 +1459,7 @@ png_test_no_postproc :: proc(t: ^testing.T) {
 run_png_suite :: proc(t: ^testing.T, suite: []Test) {
 	for file in suite {
 		test_file := strings.concatenate({TEST_SUITE_PATH_PNG, "/", file.file, ".png"}, context.allocator)
-		defer _ = delete(test_file)
+		defer _ = delete_slice(test_file)
 
 		img: ^png.Image
 		err: png.Error
@@ -1526,7 +1526,7 @@ run_png_suite :: proc(t: ^testing.T, suite: []Test) {
 					{
 						// Roundtrip through PBM to test the PBM encoders and decoders - prefer binary
 						pbm_buf, pbm_save_err := pbm.save_to_buffer(img)
-						defer _ = delete(pbm_buf)
+						defer _ = delete_slice(pbm_buf)
 
 						testing.expectf(t, pbm_save_err == nil, "%v test %v PBM save failed with %v", file.file, count, pbm_save_err)
 
@@ -1551,7 +1551,7 @@ run_png_suite :: proc(t: ^testing.T, suite: []Test) {
 						// We already tested the binary formats above.
 						if pbm_info.header.format in pbm.ASCII {
 							pbm_buf, pbm_save_err := pbm.save_to_buffer(img, pbm_info)
-							defer _ = delete(pbm_buf)
+							defer _ = delete_slice(pbm_buf)
 
 							testing.expectf(t, pbm_save_err == nil, "%v test %v PBM save failed with %v", file.file, count, pbm_save_err)
 
@@ -1584,7 +1584,7 @@ run_png_suite :: proc(t: ^testing.T, suite: []Test) {
 							float_img.depth    = 32
 
 							buffer_size := image.compute_buffer_size(img.width, img.height, img.channels, 32)
-							_ = resize(&float_img.pixels.buf, buffer_size)
+							_ = resize_dynamic_array(&float_img.pixels.buf, buffer_size)
 
 							pbm_info := pbm.Info {
 								header = {
@@ -1615,7 +1615,7 @@ run_png_suite :: proc(t: ^testing.T, suite: []Test) {
 							}
 
 							float_pbm_buf, float_pbm_save_err := pbm.save_to_buffer(float_img, pbm_info)
-							defer _ = delete(float_pbm_buf)
+							defer _ = delete_slice(float_pbm_buf)
 
 							testing.expectf(t, float_pbm_save_err == nil, "%v test %v save as PFM failed with %v", file.file, count, float_pbm_save_err)
 
@@ -2320,7 +2320,7 @@ bmp_test_known_bad :: proc(t: ^testing.T) {
 run_bmp_suite :: proc(t: ^testing.T, suite: []Test) {
 	for file in suite {
 		test_file := strings.concatenate({TEST_SUITE_PATH_BMP, "/", file.file, ".bmp"}, context.allocator)
-		defer _ = delete(test_file)
+		defer _ = delete_slice(test_file)
 
 		for test in file.tests {
 			img, err := bmp.load(test_file, test.options)
@@ -2393,7 +2393,7 @@ jpeg_test_basic :: proc(t: ^testing.T) {
 run_jpg_suite :: proc(t: ^testing.T, suite: []Test) {
 	for file in suite {
 		test_file := strings.concatenate({TEST_SUITE_PATH_JPG, "/", file.file, ".jpg"}, context.allocator)
-		defer _ = delete(test_file)
+		defer _ = delete_slice(test_file)
 
 		for test in file.tests {
 			img, err := jpeg.load(test_file, test.options)

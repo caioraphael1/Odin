@@ -99,7 +99,7 @@ end_t :: proc(t: ^T) {
         c.procedure(c.user_data)
     }
 
-    _ = delete(t.cleanups)
+    _ = delete_slice(t.cleanups)
     t.cleanups = {}
 }
 
@@ -215,7 +215,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
         case raw_data(ERROR_STRING_TIMEOUT), raw_data(ERROR_STRING_UNKNOWN):
             return
         case:
-            _ = delete(s, allocator)
+            _ = delete_slice(s, allocator)
         }
     }
 
@@ -235,7 +235,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 
     when TEST_NAMES != "" {
         select_internal_tests: [dynamic]Internal_Test
-        defer _ = delete(select_internal_tests)
+        defer _ = delete_slice(select_internal_tests)
 
         {
             index_list := TEST_NAMES
@@ -338,7 +338,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
     task_channels: []Task_Channel = ---
     task_channels, alloc_error = make_slice([]Task_Channel, thread_count)
     fmt.assertf(alloc_error == nil, "Error allocating memory for update channels: %v", alloc_error)
-    defer _ = delete(task_channels)
+    defer _ = delete_slice(task_channels)
 
     for &task_channel, index in task_channels {
         task_channel.channel, alloc_error = chan.create_buffered(Update_Channel, BUFFERED_EVENTS_PER_CHANNEL, context.allocator)
@@ -373,7 +373,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
         // 1 extra line for the status bar.
         1 + len(report.packages), OSC_WINDOW_TITLE)
     assert(len(ansi_redraw_string) > 0, "Error allocating ANSI redraw string.")
-    defer _ = delete(ansi_redraw_string)
+    defer _ = delete_slice(ansi_redraw_string)
 
     thread_count_status_string: string = ---
     {
@@ -383,25 +383,25 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
         thread_count_status_string = fmt.aprintf("%- *[1]s", unpadded, report.pkg_column_len + PADDING)
         assert(len(thread_count_status_string) > 0, "Error allocating thread count status string.")
     }
-    defer _ = delete(thread_count_status_string)
+    defer _ = delete_slice(thread_count_status_string)
 
 
     task_data_slots: []Task_Data = ---
     task_data_slots, alloc_error = make_slice([]Task_Data, thread_count)
     fmt.assertf(alloc_error == nil, "Error allocating memory for task data slots: %v", alloc_error)
-    defer _ = delete(task_data_slots)
+    defer _ = delete_slice(task_data_slots)
 
     // Tests rotate through these allocators as they finish.
     task_allocators: []mem.Rollback_Stack = ---
     task_allocators, alloc_error = make_slice([]mem.Rollback_Stack, thread_count)
     fmt.assertf(alloc_error == nil, "Error allocating memory for task allocators: %v", alloc_error)
-    defer _ = delete(task_allocators)
+    defer _ = delete_slice(task_allocators)
 
     when TRACKING_MEMORY {
         task_memory_trackers: []mem.Tracking_Allocator = ---
         task_memory_trackers, alloc_error = make_slice([]mem.Tracking_Allocator, thread_count)
         fmt.assertf(alloc_error == nil, "Error allocating memory for memory trackers: %v", alloc_error)
-        defer _ = delete(task_memory_trackers)
+        defer _ = delete_slice(task_memory_trackers)
     }
 
     #no_bounds_check for i in 0 ..< thread_count {
@@ -423,22 +423,22 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
     task_timeouts: [dynamic]Task_Timeout = ---
     task_timeouts, alloc_error = make_dynamic_array([dynamic]Task_Timeout, 0, thread_count)
     fmt.assertf(alloc_error == nil, "Error allocating memory for task timeouts: %v", alloc_error)
-    defer _ = delete(task_timeouts)
+    defer _ = delete_slice(task_timeouts)
 
     failed_test_reason_map: map[int]string = ---
-    failed_test_reason_map, alloc_error = make(map[int]string, RESERVED_TEST_FAILURES)
+    failed_test_reason_map, alloc_error = make_map(map[int]string, RESERVED_TEST_FAILURES)
     fmt.assertf(alloc_error == nil, "Error allocating memory for failed test reasons: %v", alloc_error)
-    defer _ = delete(failed_test_reason_map)
+    defer _ = delete_slice(failed_test_reason_map)
 
     log_messages: [dynamic]Log_Message = ---
     log_messages, alloc_error = make_dynamic_array([dynamic]Log_Message, 0, RESERVED_LOG_MESSAGES)
     fmt.assertf(alloc_error == nil, "Error allocating memory for log message queue: %v", alloc_error)
-    defer _ = delete(log_messages)
+    defer _ = delete_slice(log_messages)
 
     sorted_failed_test_reasons: [dynamic]int = ---
     sorted_failed_test_reasons, alloc_error = make_dynamic_array([dynamic]int, 0, RESERVED_TEST_FAILURES)
     fmt.assertf(alloc_error == nil, "Error allocating memory for sorted failed test reasons: %v", alloc_error)
-    defer _ = delete(sorted_failed_test_reasons)
+    defer _ = delete_slice(sorted_failed_test_reasons)
 
     when USE_CLIPBOARD {
         clipboard_buffer: bytes.Buffer
@@ -668,7 +668,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
                         }
                         failed_test_reason_map[task_channel.test_index] = event.text
                     } else {
-                        _ = delete(event.text, shared_log_allocator)
+                        _ = delete_slice(event.text, shared_log_allocator)
                     }
                 }
             }
@@ -826,11 +826,11 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 
         for message in log_messages {
             fmt.wprintln(batch_writer, message.text)
-            _ = delete(message.text, message.allocator)
+            _ = delete_slice(message.text, message.allocator)
         }
 
         fmt.wprint(stderr, bytes.buffer_to_string(&batch_buffer))
-        clear(&log_messages)
+        clear_dynamic_array(&log_messages)
         bytes.buffer_reset(&batch_buffer)
 
         if should_show_animations {

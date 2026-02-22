@@ -197,7 +197,7 @@ Inputs:
 Returns:
 - ok: Whether the set was successful, `false` on allocation failure or bad index
 */
-set :: proc(ba: ^Bit_Array, #any_int index: uint, set_to: bool = true, allocator: mem.Allocator) -> (ok: bool) {
+set :: proc(ba: ^Bit_Array, #any_int index: uint, set_to: bool, allocator: mem.Allocator) -> (ok: bool) {
 
     idx := int(index) - ba.bias
 
@@ -284,7 +284,7 @@ create :: proc(max_index: int, min_index: int = 0, allocator: mem.Allocator) -> 
     ok  = init(res, max_index, min_index, allocator)
     res.free_pointer = true
 
-    if !ok { free(res, allocator) }
+    if !ok { _ = free(res, allocator) }
 
     return
 }
@@ -310,7 +310,7 @@ init :: proc(res: ^Bit_Array, max_index: int, min_index: int = 0, allocator: mem
     legs := size_in_bits >> INDEX_SHIFT
     if size_in_bits & INDEX_MASK > 0 { legs += 1 }
 
-    bits, err := make_dynamic_array([dynamic]u64, legs, allocator)
+    bits, err := make_dynamic_array_len([dynamic]u64, legs, allocator)
     ok = err == nil
 
     res.bits         = bits
@@ -369,8 +369,8 @@ shrink :: proc(ba: ^Bit_Array) #no_bounds_check {
         }
         ba.length += NUM_BITS - int(intrinsics.count_leading_zeros(ba.bits[legs_needed - 1]))
     }
-    _ = resize(&ba.bits, legs_needed)
-    _ = builtin.shrink(&ba.bits)
+    _ = resize_dynamic_array(&ba.bits, legs_needed)
+    _, _ = shrink_dynamic_array(&ba.bits)
 }
 /*
 Deallocates the Bit_Array and its backing storage
@@ -380,7 +380,7 @@ Inputs:
 */
 destroy :: proc(ba: ^Bit_Array) {
     if ba == nil { return }
-    _ = delete(ba.bits)
+    _ = delete_dynamic_array(ba.bits)
     if ba.free_pointer { // Only free if this Bit_Array was created using `create`, not when on the stack.
         _ = free(ba, ba.bits.allocator)
     }
@@ -394,7 +394,7 @@ resize_if_needed :: proc(ba: ^Bit_Array, legs: int, allocator: mem.Allocator) ->
     if ba == nil { return false }
 
     if legs + 1 > builtin.len(ba.bits) {
-        _ = resize(&ba.bits, legs + 1)
+        _ = resize_dynamic_array(&ba.bits, legs + 1)
     }
     return builtin.len(ba.bits) > legs
 }

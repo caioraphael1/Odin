@@ -446,9 +446,9 @@ scratch_destroy :: proc(s: ^Scratch) {
     for ptr in s.leaked_allocations {
         _ = free_bytes(ptr, s.backup_allocator)
     }
-    _ = delete(s.leaked_allocations)
+    _ = delete_dynamic_array(s.leaked_allocations)
     // sanitizer.address_unpoison(s.data)
-    _ = delete(s.data, s.backup_allocator)
+    _ = delete_slice(s.data, s.backup_allocator)
     s^ = {}
 }
 
@@ -621,7 +621,7 @@ scratch_free_all :: proc(s: ^Scratch, loc := #caller_location) {
     for ptr in s.leaked_allocations {
         _ = free_bytes(ptr, s.backup_allocator, loc)
     }
-    clear(&s.leaked_allocations)
+    clear_dynamic_array(&s.leaked_allocations)
     // sanitizer.address_poison(s.data)
 }
 
@@ -763,7 +763,7 @@ scratch_resize_bytes_non_zeroed :: proc(
     if err != nil {
         return data, err
     }
-    runtime.copy(data, byte_slice(old_memory, old_size))
+    runtime.copy_slice(data, byte_slice(old_memory, old_size))
     err = scratch_free(s, old_memory, loc)
     return data, err
 }
@@ -1152,7 +1152,7 @@ stack_resize_bytes_non_zeroed :: proc(
         // does not satisfy it.
         data, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
         if err == nil {
-            runtime.copy(data, byte_slice(old_memory, old_size))
+            runtime.copy_slice(data, byte_slice(old_memory, old_size))
             // sanitizer.address_poison(old_memory)
         }
         return data, err
@@ -1165,7 +1165,7 @@ stack_resize_bytes_non_zeroed :: proc(
     if old_offset != header.prev_offset {
         data, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
         if err == nil {
-            runtime.copy(data, byte_slice(old_memory, old_size))
+            runtime.copy_slice(data, byte_slice(old_memory, old_size))
             // sanitizer.address_poison(old_memory)
         }
         return data, err
@@ -1563,7 +1563,7 @@ small_stack_resize_bytes_non_zeroed :: proc(
         // does not satisfy it.
         data, err := small_stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
         if err == nil {
-            runtime.copy(data, byte_slice(old_memory, old_size))
+            runtime.copy_slice(data, byte_slice(old_memory, old_size))
             // sanitizer.address_poison(old_memory)
         }
         return data, err
@@ -1575,7 +1575,7 @@ small_stack_resize_bytes_non_zeroed :: proc(
     }
     data, err := small_stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
     if err == nil {
-        runtime.copy(data, byte_slice(old_memory, old_size))
+        runtime.copy_slice(data, byte_slice(old_memory, old_size))
     }
     return data, err
 
@@ -1718,9 +1718,9 @@ unused blocks, as well as the arrays for storing blocks.
 */
 dynamic_arena_destroy :: proc(a: ^Dynamic_Arena) {
     dynamic_arena_free_all(a)
-    _ = delete(a.unused_blocks)
-    _ = delete(a.used_blocks)
-    _ = delete(a.out_band_allocations)
+    _ = delete_dynamic_array(a.unused_blocks)
+    _ = delete_dynamic_array(a.used_blocks)
+    _ = delete_dynamic_array(a.out_band_allocations)
     zero(a, size_of(a^))
 }
 
@@ -1855,11 +1855,11 @@ dynamic_arena_reset :: proc(a: ^Dynamic_Arena, loc := #caller_location) {
         // sanitizer.address_poison(block, a.block_size)
         _ = append(&a.unused_blocks, block, loc=loc)
     }
-    clear(&a.used_blocks)
+    clear_dynamic_array(&a.used_blocks)
     for allocation in a.out_band_allocations {
         _ = free(allocation, a.out_band_allocations.allocator, loc=loc)
     }
-    clear(&a.out_band_allocations)
+    clear_dynamic_array(&a.out_band_allocations)
     a.bytes_left = 0 // Make new allocations call `_dynamic_arena_cycle_new_block` again.
 }
 
@@ -1875,7 +1875,7 @@ dynamic_arena_free_all :: proc(a: ^Dynamic_Arena, loc := #caller_location) {
         // sanitizer.address_unpoison(block, a.block_size)
         _ = free(block, a.block_allocator, loc)
     }
-    clear(&a.unused_blocks)
+    clear_dynamic_array(&a.unused_blocks)
 }
 
 /*
@@ -1997,7 +1997,7 @@ dynamic_arena_resize_bytes_non_zeroed :: proc(
     // cannot truly resize anything and must reallocate.
     data, err := dynamic_arena_alloc_bytes_non_zeroed(a, size, loc)
     if err == nil {
-        runtime.copy(data, byte_slice(old_memory, old_size))
+        runtime.copy_slice(data, byte_slice(old_memory, old_size))
     }
     return data, err
 }

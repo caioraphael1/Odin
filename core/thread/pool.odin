@@ -56,17 +56,17 @@ pool_thread_runner :: proc(t: ^Thread) {
     pool := data.pool
 
     for intrinsics.atomic_load(&pool.is_running) {
-        sync.wait(&pool.sem_available)
+        sync.sema_wait(&pool.sem_available)
 
         if task, ok := pool_pop_waiting(pool); ok {
             data.task = task
             pool_do_work(pool, task)
-            sync.guard(&pool.mutex)
+            sync.mutex_guard(&pool.mutex)
             data.task = {}
         }
     }
 
-    sync.post(&pool.sem_available, 1)
+    sync.sema_post(&pool.sem_available, 1)
 }
 
 // Once initialized, the pool's memory address is not allowed to change until
@@ -93,7 +93,7 @@ pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 
 pool_destroy :: proc(pool: ^Pool) {
     queue.destroy(&pool.tasks)
-    _ = delete(pool.tasks_done)
+    _ = delete_dynamic_array(pool.tasks_done)
 
     for &t in pool.threads {
         data := cast(^Pool_Thread_Data)t.data
@@ -101,7 +101,7 @@ pool_destroy :: proc(pool: ^Pool) {
         destroy(t)
     }
 
-    _ = delete(pool.threads, pool.allocator)
+    _ = delete_slice(pool.threads, pool.allocator)
 }
 
 pool_start :: proc(pool: ^Pool) {
@@ -115,7 +115,7 @@ pool_start :: proc(pool: ^Pool) {
 // user data of those tasks will not be freed.
 pool_join :: proc(pool: ^Pool) {
     intrinsics.atomic_store(&pool.is_running, false)
-    sync.post(&pool.sem_available, len(pool.threads))
+    sync.sema_post(&pool.sem_available, len(pool.threads))
 
     yield()
 
@@ -156,7 +156,7 @@ pool_join :: proc(pool: ^Pool) {
 // Each task also needs an allocator which it either owns, or which is thread
 // safe.
 pool_add_task :: proc(pool: ^Pool, allocator: mem.Allocator, procedure: Task_Proc, data: rawptr, user_index: int = 0) {
-    sync.guard(&pool.mutex)
+    sync.mutex_guard(&pool.mutex)
 
     _, _ = queue.push_back(&pool.tasks, Task{
         procedure  = procedure,
@@ -166,7 +166,7 @@ pool_add_task :: proc(pool: ^Pool, allocator: mem.Allocator, procedure: Task_Pro
     })
     intrinsics.atomic_add(&pool.num_waiting, 1)
     intrinsics.atomic_add(&pool.num_outstanding, 1)
-    sync.post(&pool.sem_available, 1)
+    sync.sema_post(&pool.sem_available, 1)
 }
 
 // Forcibly stop a running task by its user index.
@@ -179,7 +179,7 @@ pool_add_task :: proc(pool: ^Pool, allocator: mem.Allocator, procedure: Task_Pro
 //
 // Returns true if the task was found and terminated.
 pool_stop_task :: proc(pool: ^Pool, user_index: int, exit_code: int = 1, allocator: mem.Allocator) -> bool {
-    sync.guard(&pool.mutex)
+    sync.mutex_guard(&pool.mutex)
 
     for t, i in pool.threads {
         data := cast(^Pool_Thread_Data)t.data
@@ -213,7 +213,7 @@ pool_stop_task :: proc(pool: ^Pool, user_index: int, exit_code: int = 1, allocat
 //
 // The same notes from `pool_stop_task` apply here.
 pool_stop_all_tasks :: proc(pool: ^Pool, exit_code: int = 1, allocator: mem.Allocator) {
-    sync.guard(&pool.mutex)
+    sync.mutex_guard(&pool.mutex)
 
     for t, i in pool.threads {
         data := cast(^Pool_Thread_Data)t.data
@@ -246,7 +246,7 @@ pool_stop_all_tasks :: proc(pool: ^Pool, exit_code: int = 1, allocator: mem.Allo
 // The pool must still be destroyed after this.
 pool_shutdown :: proc(pool: ^Pool, exit_code: int = 1) {
     intrinsics.atomic_store(&pool.is_running, false)
-    sync.guard(&pool.mutex)
+    sync.mutex_guard(&pool.mutex)
 
     for t in pool.threads {
         terminate(t, exit_code)
@@ -300,7 +300,7 @@ pool_is_empty :: #force_inline proc(pool: ^Pool) -> bool {
 
 // Mostly for internal use.
 pool_pop_waiting :: proc(pool: ^Pool) -> (task: Task, got_task: bool) {
-    sync.guard(&pool.mutex)
+    sync.mutex_guard(&pool.mutex)
 
     if queue.len(pool.tasks) != 0 {
         intrinsics.atomic_sub(&pool.num_waiting, 1)
@@ -314,7 +314,7 @@ pool_pop_waiting :: proc(pool: ^Pool) -> (task: Task, got_task: bool) {
 
 // Use this to take out finished tasks.
 pool_pop_done :: proc(pool: ^Pool) -> (task: Task, got_task: bool) {
-    sync.guard(&pool.mutex)
+    sync.mutex_guard(&pool.mutex)
 
     if len(pool.tasks_done) != 0 {
         task = pop_front(&pool.tasks_done)
@@ -329,7 +329,7 @@ pool_pop_done :: proc(pool: ^Pool) -> (task: Task, got_task: bool) {
 pool_do_work :: proc(pool: ^Pool, task: Task) {
     task.procedure(task)
 
-    sync.guard(&pool.mutex)
+    sync.mutex_guard(&pool.mutex)
 
     _ = append(&pool.tasks_done, task)
     intrinsics.atomic_add(&pool.num_done, 1)

@@ -1115,8 +1115,6 @@ internal_int_compare :: #force_inline proc(a, b: ^Int) -> (comparison: int) {
     return #force_inline internal_compare_magnitude(a, b)
 }
 
-internal_cmp :: internal_compare
-
 /*
     Compare an `Int` to an unsigned number upto `DIGIT & _MASK`.
     Returns -1 if `a` < `b`, 0 if `a` == `b` and 1 if `b` > `a`.
@@ -1172,8 +1170,6 @@ internal_int_compare_magnitude :: #force_inline proc(a, b: ^Int) -> (comparison:
     return 0
 }
 
-internal_cmp_mag :: internal_compare_magnitude
-
 
 /*
     bool := a < b
@@ -1198,17 +1194,6 @@ internal_int_less_than_abs :: #force_inline proc(a, b: ^Int) -> (less_than: bool
 }
 
 
-    internal_int_less_than,
-    internal_int_less_than_digit,
-}
-internal_lt :: internal_less_than
-
-
-    internal_int_less_than_abs,
-}
-internal_lt_abs :: internal_less_than_abs
-
-
 /*
     bool := a <= b
 */
@@ -1230,17 +1215,6 @@ internal_int_less_than_or_equal_digit :: #force_inline proc(a: ^Int, b: DIGIT) -
 internal_int_less_than_or_equal_abs :: #force_inline proc(a, b: ^Int) -> (less_than_or_equal: bool) {
     return internal_cmp_mag(a, b) <= 0
 }
-
-
-    internal_int_less_than_or_equal,
-    internal_int_less_than_or_equal_digit,
-}
-internal_lte :: internal_less_than_or_equal
-
-
-    internal_int_less_than_or_equal_abs,
-}
-internal_lte_abs :: internal_less_than_or_equal_abs
 
 
 /*
@@ -1492,7 +1466,7 @@ internal_int_pow :: proc(dest, base: ^Int, power: int, allocator: mem.Allocator)
         /*
             Any base to the power one is itself.
         */
-        return copy(dest, base, allocator = allocator)
+        return copy_slice(dest, base, allocator = allocator)
     case 2:
         return #force_inline internal_sqr(dest, base, allocator)
     }
@@ -1540,9 +1514,6 @@ internal_int_pow_int :: proc(dest: ^Int, base, power: int, allocator: mem.Alloca
 
     return #force_inline internal_int_pow(dest, base_t, power, allocator)
 }
-
-
-internal_exp :: pow
 
 /*
 
@@ -2116,12 +2087,12 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
         /*
             `[dynamic]DIGIT` already knows what allocator was used for it, so resize will do the right thing.
         */
-        _ = resize(&a.digit, needed)
+        _ = resize_dynamic_array(&a.digit, needed)
     } else if cap > needed {
         /*
             Same applies to builtin.shrink here as resize above
         */
-        builtin.shrink(&a.digit, needed)
+        builtin.shrink_dynamic_array(&a.digit, needed)
     }
     /*
         Let's see if the allocation/resize worked as expected.
@@ -2147,8 +2118,6 @@ internal_int_clear :: proc(a: ^Int, minimize := false, allocator: mem.Allocator)
 
     return #force_inline internal_grow(a, a.used, minimize, allocator)
 }
-
-internal_zero  :: internal_clear
 
 /*
     Set the `Int` to 1 and optionally shrink it to the minimum backing size.

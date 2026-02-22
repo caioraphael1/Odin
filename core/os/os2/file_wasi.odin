@@ -254,7 +254,7 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
         err = _get_platform_error(errno)
     }
 
-    _ = delete(f.name, f.allocator)
+    _ = delete_slice(f.name, f.allocator)
     _ = free(f, f.allocator)
     return
 }

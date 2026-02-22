@@ -58,7 +58,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
         count += 1
     }
 
-    recs, _ := make_dynamic_array([dynamic]DNS_Record, 0, count, allocator)
+    recs, _ := make_dynamic_array_len_cap([dynamic]DNS_Record, 0, count, allocator)
     if recs == nil {
         return nil, .System_Error // return no results if OOM.
     }

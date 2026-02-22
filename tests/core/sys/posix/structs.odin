@@ -46,11 +46,11 @@ execute_struct_checks :: proc(t: ^testing.T) {
 	}
 
 	c_buf: [dynamic]byte
-	defer _ = delete(c_buf)
+	defer _ = delete_slice(c_buf)
 	c_out := get_output(t, &c_buf, #directory + "/structs/c_structs", nil)
 
 	odin_buf: [dynamic]byte
-	defer _ = delete(odin_buf)
+	defer _ = delete_slice(odin_buf)
 	odin_out := get_output(t, &odin_buf, #directory + "/structs/odin_structs", nil)
 
 	testing.expectf(t, c_out == odin_out, "The C output and Odin output differ!\nC output:\n%s\n\n\n\nOdin Output:\n%s", c_out, odin_out)

@@ -66,13 +66,13 @@ foreign lib {
 		length  = length == -1 ? 1024 : length
 
 		buffer: [dynamic]byte
-		defer _ = delete(buffer)
+		defer _ = delete_slice(buffer)
 
 		result:  posix.passwd
 		resultp: ^posix.passwd
 		errno:   posix.Errno
 		for {
-			if err := resize(&buffer, length); err != nil {
+			if err := resize_dynamic_array(&buffer, length); err != nil {
 				fmt.panicf("allocation failure: %v", err)
 			}
 

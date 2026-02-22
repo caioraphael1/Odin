@@ -219,11 +219,11 @@ destroy :: proc(catalog: ^Translation = ACTIVE, allocator := context.allocator) 
 
     for section in catalog.k_v {
         for key in catalog.k_v[section] {
-            _ = delete(catalog.k_v[section][key])
+            _ = delete_slice(catalog.k_v[section][key])
         }
-        _ = delete(catalog.k_v[section])
+        _ = delete_slice(catalog.k_v[section])
     }
-    _ = delete(catalog.k_v)
+    _ = delete_slice(catalog.k_v)
     strings.intern_destroy(&catalog.intern)
     _ = free(catalog)
 }

@@ -139,7 +139,7 @@ clean :: proc(path: string, allocator: mem.Allocator) -> string {
     }
 
     if out.w == 0 {
-        _ = delete(out.b, allocator)
+        _ = delete_slice(out.b, allocator)
         clone, _ := strings.clone(".", allocator)
         return clone
     }
@@ -221,7 +221,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: runtime.Allocat
             return
         }
         lb.b, _ = make_slice([]byte, len(lb.s), allocator)
-        copy(lb.b, lb.s[:lb.w])
+        copy_slice(lb.b, lb.s[:lb.w])
     }
     lb.b[lb.w] = c
     lb.w += 1

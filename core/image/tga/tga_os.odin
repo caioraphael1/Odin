@@ -22,7 +22,7 @@ load_from_file :: proc(filename: string, options := Options{}, allocator := cont
     context.allocator = allocator
 
     data, ok := os.read_entire_file(filename)
-    defer _ = delete(data)
+    defer _ = delete_slice(data)
 
     if ok {
         return load_from_bytes(data, options)

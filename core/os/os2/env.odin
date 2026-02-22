@@ -9,7 +9,7 @@ import "core:strings"
 // NOTE: the value will be allocated with the supplied allocator
 
 get_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> string {
-    value, _ := lookup_env(key, allocator)
+    value, _ := lookup_env_alloc(key, allocator)
     return value
 }
 
@@ -19,7 +19,7 @@ get_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> string {
 // NOTE: this version takes a backing buffer for the string value
 
 get_env_buf :: proc(buf: []u8, key: string) -> string {
-    value, _ := lookup_env(buf, key)
+    value, _ := lookup_env_buf(buf, key)
     return value
 }
 
@@ -69,7 +69,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
     path := path
 
     sb: strings.Builder
-    _ = strings.builder_init_none(&sb, allocator)
+    _ = strings.builder_init(&sb, allocator)
 
     for len(path) > 0 {
         switch path[0] {
@@ -78,7 +78,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
                 for r, i in path[1:] {
                     if r == '%' {
                         env_key := path[1:i+1]
-                        env_val := get_env(env_key, runtime.temp_allocator)
+                        env_val := get_env_alloc(env_key, runtime.temp_allocator)
                         strings.write_string(&sb, env_val)
                         path = path[i+1:] // % is part of key, so skip 1 character extra
                     }

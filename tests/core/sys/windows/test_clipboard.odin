@@ -36,7 +36,7 @@ write_to_clipboard :: proc(wnd_handle: win32.HWND, text: string) -> win32.BOOL {
 	defer win32.GlobalUnlock(h_mem)
 	if cstr_dst == nil {return false}
 	
-	mem.copy(rawptr(cstr_dst), raw_data(text), len(text))
+	mem.copy_slice(rawptr(cstr_dst), raw_data(text), len(text))
 	cstr_dst[len(text)] = 0
 	
 	win32.SetClipboardData(win32.CF_TEXT, win32.HANDLE(h_mem))

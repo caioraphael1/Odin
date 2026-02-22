@@ -84,7 +84,7 @@ Initializes an exponential array with the given allocator.
 - `x`: Pointer to the exponential array to initialize
 - `allocator`: Allocator to use for chunk allocations (defaults to context.allocator)
 */
-init :: proc(x: ^$X/Xar($T, $SHIFT), allocator := context.allocator) {
+init :: proc(x: ^$X/Xar($T, $SHIFT), allocator: mem.Allocator) {
     x^ = {allocator = allocator}
 }
 

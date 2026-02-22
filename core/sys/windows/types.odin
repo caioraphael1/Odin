@@ -1734,7 +1734,7 @@ FOF_NOERRORUI             :: 0x0400  // don't put up error UI, other UI may be d
 FOF_NOCOPYSECURITYATTRIBS :: 0x0800  // dont copy file security attributes (ACLs)
 FOF_NORECURSION           :: 0x1000  // don't recurse into directories for operations that would recurse
 FOF_NO_CONNECTED_ELEMENTS :: 0x2000  // don't operate on connected elements ("xxx_files" folders that go with .htm files)
-FOF_WANTNUKEWARNING       :: 0x4000  // during _ = delete operation, warn if object is being permanently destroyed instead of recycling (partially overrides FOF_NOCONFIRMATION)
+FOF_WANTNUKEWARNING       :: 0x4000  // during _ = delete_slice operation, warn if object is being permanently destroyed instead of recycling (partially overrides FOF_NOCONFIRMATION)
 FOF_NORECURSEREPARSE      :: 0x8000  // deprecated; the operations engine always does the right thing on FolderLink objects (symlinks, reparse points, folder shortcuts)
 FOF_NO_UI                 :: (FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NOCONFIRMMKDIR) // don't display any UI at all
 

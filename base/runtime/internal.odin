@@ -142,7 +142,8 @@ mem_alloc_non_zeroed :: #force_no_inline proc(size: int, alignment: int = DEFAUL
     return allocator.procedure(allocator.data, .Alloc_Non_Zeroed, size, alignment, nil, 0, loc)
 }
 
-mem_free :: #force_no_inline proc(ptr: rawptr, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
+@(builtin)
+free :: #force_no_inline proc(ptr: rawptr, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
     assert(allocator.procedure != nil, loc=loc)
     if ptr == nil {
         return nil
@@ -169,8 +170,8 @@ mem_free_bytes :: #force_no_inline proc(bytes: []byte, allocator: Allocator, loc
     return err
 }
 
-
-mem_free_all :: #force_no_inline proc(allocator: Allocator, loc := #caller_location) -> (err: Allocator_Error) {
+@(builtin)
+free_all :: #force_no_inline proc(allocator: Allocator, loc := #caller_location) -> (err: Allocator_Error) {
     assert(allocator.procedure != nil, loc=loc)
     _, err = allocator.procedure(allocator.data, .Free_All, 0, 0, nil, 0, loc)
     return

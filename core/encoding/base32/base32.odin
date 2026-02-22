@@ -15,6 +15,8 @@ As per RFC 4648:
 */
 package encoding_base32
 
+import "core:mem"
+
 Error :: enum {
     None,
     Invalid_Character, // Input contains characters outside the specified alphabet
@@ -59,15 +61,15 @@ DEC_TABLE := [256]u8 {
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 }
 
-encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator := context.allocator) -> string {
+encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> string {
     out_length := (len(data) + 4) / 5 * 8
-    out := make_slice([]byte, out_length, allocator)
-    _encode(out, data, ENC_TBL)
+    out, _ := make_slice([]byte, out_length, allocator)
+    _encode(out, data, ENC_TBL, allocator)
     return string(out[:])
 }
 
 @(private)
-_encode :: proc(out, data: []byte, ENC_TBL := ENC_TABLE, allocator := context.allocator) {
+_encode :: proc(out, data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) {
     out := out
     data := data
 
@@ -122,7 +124,7 @@ decode :: proc(
     data: string,
     DEC_TBL := DEC_TABLE,
     validate: Validate_Proc = _validate_default,
-    allocator := context.allocator) -> (out: []byte, err: Error) {
+    allocator: mem.Allocator) -> (out: []byte, err: Error) {
     if len(data) == 0 {
         return nil, .None
     }
@@ -190,9 +192,9 @@ decode :: proc(
     // Calculate decoded length: 5 bytes for every 8 input chars
     input_chars := data_len - padding_count
     out_len := input_chars * 5 / 8
-    out = make_slice([]byte, out_len, allocator)
+    out, _ = make_slice([]byte, out_len, allocator)
     defer if err != .None {
-        _ = delete(out)
+        _ = delete_slice(out, allocator)
     }
 
     // Process input in 8-byte blocks

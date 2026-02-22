@@ -27,12 +27,12 @@ Example:
 
 		// Compute the digest, using the high level API.
 		returned_digest := hash.hash(hash.Algorithm.SHA512_256, input)
-		defer _ = delete(returned_digest)
+		defer _ = delete_slice(returned_digest)
 
 		// Variant that takes a destination buffer, instead of returning
 		// the digest.
 		digest := make_slice([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // note: Destination buffer has to be at least as big as the digest size of the hash.
-		defer _ = delete(digest)
+		defer _ = delete_slice(digest)
 		hash.hash(hash.Algorithm.BLAKE2B, input, digest)
 	}
 
@@ -50,7 +50,7 @@ Example:
 		// Compute the digest, using the low level API.
 		ctx: hash.Context
 		digest := make_slice([]byte, hash.DIGEST_SIZES[hash.Algorithm.SHA3_512])
-		defer _ = delete(digest)
+		defer _ = delete_slice(digest)
 
 		hash.init(&ctx, hash.Algorithm.SHA3_512)
 		hash.update(&ctx, transmute([]byte)input)

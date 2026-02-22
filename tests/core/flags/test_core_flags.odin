@@ -344,7 +344,7 @@ test_all_strings :: proc(t: ^testing.T) {
 	s: S
 	args := [?]string { "-a:hi", "-b:hellope", "-c:spaced out", "-d:cstr", "-d:cstr-overwrite" }
 	result := flags.parse(&s, args[:])
-	defer _ = delete(s.d)
+	defer _ = delete_slice(s.d)
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, s.a, "hi")
 	testing.expect_value(t, s.b, "hellope")
@@ -434,8 +434,8 @@ test_arrays :: proc(t: ^testing.T) {
 	args := [?]string { "-a:abc", "-b:1", "-a:foo", "-b:3" }
 	result := flags.parse(&s, args[:])
 	defer {
-		_ = delete(s.a)
-		_ = delete(s.b)
+		_ = delete_slice(s.a)
+		_ = delete_slice(s.b)
 	}
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.a), 2)
@@ -459,7 +459,7 @@ test_varargs :: proc(t: ^testing.T) {
 	s: S
 	args := [?]string { "abc", "foo", "bar" }
 	result := flags.parse(&s, args[:])
-	defer _ = delete(s.overflow)
+	defer _ = delete_slice(s.overflow)
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.overflow), 3)
 
@@ -481,7 +481,7 @@ test_mixed_varargs :: proc(t: ^testing.T) {
 	s: S
 	args := [?]string { "abc", "foo", "bar" }
 	result := flags.parse(&s, args[:])
-	defer _ = delete(s.overflow)
+	defer _ = delete_slice(s.overflow)
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.overflow), 2)
 
@@ -504,8 +504,8 @@ test_maps :: proc(t: ^testing.T) {
 	args := [?]string { "-a:abc=foo", "-b:bar=42" }
 	result := flags.parse(&s, args[:])
 	defer {
-		_ = delete(s.a)
-		_ = delete(s.b)
+		_ = delete_slice(s.a)
+		_ = delete_slice(s.b)
 	}
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.a), 1)
@@ -615,7 +615,7 @@ test_tags_required_limit_min :: proc(t: ^testing.T) {
 		s: S
 		args := [?]string { "-n:1" }
 		result := flags.parse(&s, args[:])
-		defer _ = delete(s.n)
+		defer _ = delete_slice(s.n)
 		_, ok := result.(flags.Validation_Error)
 		testing.expectf(t, ok, "unexpected result: %v", result)
 	}
@@ -624,7 +624,7 @@ test_tags_required_limit_min :: proc(t: ^testing.T) {
 		s: S
 		args := [?]string { "-n:3", "-n:5", "-n:7" }
 		result := flags.parse(&s, args[:])
-		defer _ = delete(s.n)
+		defer _ = delete_slice(s.n)
 		testing.expect_value(t, result, nil)
 		testing.expect_value(t, len(s.n), 3)
 
@@ -646,7 +646,7 @@ test_tags_required_limit_min_max :: proc(t: ^testing.T) {
 		s: S
 		args := [?]string { "-n:1" }
 		result := flags.parse(&s, args[:])
-		defer _ = delete(s.n)
+		defer _ = delete_slice(s.n)
 		_, ok := result.(flags.Validation_Error)
 		testing.expectf(t, ok, "unexpected result: %v", result)
 	}
@@ -655,7 +655,7 @@ test_tags_required_limit_min_max :: proc(t: ^testing.T) {
 		s: S
 		args := [?]string { "-n:1", "-n:2", "-n:3", "-n:4" }
 		result := flags.parse(&s, args[:])
-		defer _ = delete(s.n)
+		defer _ = delete_slice(s.n)
 		_, ok := result.(flags.Validation_Error)
 		testing.expectf(t, ok, "unexpected result: %v", result)
 	}
@@ -664,7 +664,7 @@ test_tags_required_limit_min_max :: proc(t: ^testing.T) {
 		s: S
 		args := [?]string { "-n:3", "-n:5", "-n:7" }
 		result := flags.parse(&s, args[:])
-		defer _ = delete(s.n)
+		defer _ = delete_slice(s.n)
 		testing.expect_value(t, result, nil)
 		testing.expect_value(t, len(s.n), 3)
 
@@ -693,7 +693,7 @@ test_tags_required_limit_max :: proc(t: ^testing.T) {
 		s: S
 		args := [?]string { "-n:1", "-n:2", "-n:3", "-n:4" }
 		result := flags.parse(&s, args[:])
-		defer _ = delete(s.n)
+		defer _ = delete_slice(s.n)
 		_, ok := result.(flags.Validation_Error)
 		testing.expectf(t, ok, "unexpected result: %v", result)
 	}
@@ -702,7 +702,7 @@ test_tags_required_limit_max :: proc(t: ^testing.T) {
 		s: S
 		args := [?]string { "-n:3", "-n:5", "-n:7" }
 		result := flags.parse(&s, args[:])
-		defer _ = delete(s.n)
+		defer _ = delete_slice(s.n)
 		testing.expect_value(t, result, nil)
 		testing.expect_value(t, len(s.n), 3)
 
@@ -723,7 +723,7 @@ test_tags_pos_out_of_order :: proc(t: ^testing.T) {
 	s: S
 	args := [?]string { "1", "2", "3", "4" }
 	result := flags.parse(&s, args[:])
-	defer _ = delete(s.overflow)
+	defer _ = delete_slice(s.overflow)
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.overflow), 3)
 
@@ -806,7 +806,7 @@ test_map_overwrite :: proc(t: ^testing.T) {
 	s: S
 	args := [?]string { "-m:foo=3", "-m:foo=5" }
 	result := flags.parse(&s, args[:])
-	defer _ = delete(s.m)
+	defer _ = delete_slice(s.m)
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.m), 1)
 	foo, has_foo := s.m["foo"]
@@ -825,9 +825,9 @@ test_maps_of_arrays :: proc(t: ^testing.T) {
 	result := flags.parse(&s, args[:])
 	defer {
 		for _, v in s.m {
-			_ = delete(v)
+			_ = delete_slice(v)
 		}
-		_ = delete(s.m)
+		_ = delete_slice(s.m)
 	}
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.m), 2)
@@ -908,14 +908,14 @@ test_pos_many_args :: proc(t: ^testing.T) {
 	s: S
 
 	args: [dynamic]string
-	defer _ = delete(s.overflow)
+	defer _ = delete_slice(s.overflow)
 
 	for i in 0 ..< 130 { _ = append(&args, fmt.aprintf("%i", 1 + i)) }
 	defer {
 		for a in args {
-			_ = delete(a)
+			_ = delete_slice(a)
 		}
-		_ = delete(args)
+		_ = delete_slice(args)
 	}
 
 	result := flags.parse(&s, args[:])
@@ -975,7 +975,7 @@ test_unix_manifold :: proc(t: ^testing.T) {
 	args := [?]string { "--a", "7", "32", "11" }
 
 	result := flags.parse(&s, args[:], .Unix)
-	defer _ = delete(s.a)
+	defer _ = delete_slice(s.a)
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.a), 3)
 
@@ -999,7 +999,7 @@ test_unix_manifold_limited :: proc(t: ^testing.T) {
 	args := [?]string { "-a", "11", "101", "-b", "3" }
 
 	result := flags.parse(&s, args[:], .Unix)
-	defer _ = delete(s.a)
+	defer _ = delete_slice(s.a)
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.a), 2)
 
@@ -1025,8 +1025,8 @@ test_unix_two_manifold_limited :: proc(t: ^testing.T) {
 
 	result := flags.parse(&s, args[:], .Unix)
 	defer {
-		_ = delete(s.a)
-		_ = delete(s.b)
+		_ = delete_slice(s.a)
+		_ = delete_slice(s.b)
 	}
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.a), 2)
@@ -1058,8 +1058,8 @@ test_unix_two_manifold_string :: proc(t: ^testing.T) {
 
 	result := flags.parse(&s, args[:], .Unix)
 	defer {
-		_ = delete(s.a)
-		_ = delete(s.b)
+		_ = delete_slice(s.a)
+		_ = delete_slice(s.b)
 	}
 
 	testing.expect_value(t, result, nil)
@@ -1094,8 +1094,8 @@ test_unix_two_manifold_int :: proc(t: ^testing.T) {
 
 	result := flags.parse(&s, args[:], .Unix)
 	defer {
-		_ = delete(s.a)
-		_ = delete(s.b)
+		_ = delete_slice(s.a)
+		_ = delete_slice(s.b)
 	}
 
 	err, ok := result.(flags.Parse_Error)
@@ -1144,8 +1144,8 @@ test_unix_positional_with_manifold :: proc(t: ^testing.T) {
 
 	result := flags.parse(&s, args[:], .Unix)
 	defer {
-		_ = delete(s.overflow)
-		_ = delete(s.v)
+		_ = delete_slice(s.overflow)
+		_ = delete_slice(s.v)
 	}
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.overflow), 1)
@@ -1164,7 +1164,7 @@ test_unix_double_dash_varargs :: proc(t: ^testing.T) {
 
 	result := flags.parse(&s, args[:], .Unix)
 	defer {
-		_ = delete(s.overflow)
+		_ = delete_slice(s.overflow)
 	}
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, len(s.overflow), 3)
@@ -1208,9 +1208,9 @@ test_if_dynamic_cstrings_get_freed :: proc(t: ^testing.T) {
 	result := flags.parse(&s, args[:])
 	defer {
 		for v in s.overflow {
-			_ = delete(v)
+			_ = delete_slice(v)
 		}
-		_ = delete(s.overflow)
+		_ = delete_slice(s.overflow)
 	}
 	testing.expect_value(t, result, nil)
 }
@@ -1227,9 +1227,9 @@ test_if_map_cstrings_get_freed :: proc(t: ^testing.T) {
 	result := flags.parse(&s, args[:])
 	defer {
 		for _, v in s.m {
-			_ = delete(v)
+			_ = delete_slice(v)
 		}
-		_ = delete(s.m)
+		_ = delete_slice(s.m)
 	}
 	testing.expect_value(t, result, nil)
 	testing.expect_value(t, s.m["hellope"], "foo")

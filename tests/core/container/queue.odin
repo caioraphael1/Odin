@@ -10,7 +10,7 @@ test_queue :: proc(t: ^testing.T) {
 	q: queue.Queue(int)
 
 	testing.expect(t, queue.init_from_slice(&q, buf[:]))
-	testing.expect_value(t, queue.reserve(&q, len(buf)), nil)
+	testing.expect_value(t, queue.reserve_dynamic_array(&q, len(buf)), nil)
 
 	queue.push_back(&q, 1)
 	queue.push_back_elems(&q, 2, 3)
@@ -94,7 +94,7 @@ test_queue_grow_edge_case :: proc(t: ^testing.T) {
 	testing.expect_value(t, qq.offset, 3)
 	testing.expect_value(t, len(qq.data), 8) // value contingent on smallest dynamic array capacity on first allocation
 
-	queue.reserve(&qq, 16)
+	queue.reserve_dynamic_array(&qq, 16)
 
 	testing.expect_value(t, queue.len(qq), 6)
 	for i in 4..=9 {
@@ -142,9 +142,9 @@ test_queue_shrink :: proc(t: ^testing.T) {
 
 	queue.push_back_elems(&qq, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
-	queue.shrink(&qq)
+	queue.shrink_dynamic_array(&qq)
 	queue.consume_front(&qq, 7)
-	queue.shrink(&qq)
+	queue.shrink_dynamic_array(&qq)
 
 	for i in 1..=10 {
 		testing.expect_value(t, queue.pop_front(&qq), i)
@@ -153,5 +153,5 @@ test_queue_shrink :: proc(t: ^testing.T) {
 	buf: [1]int
 	qq_backed: queue.Queue(int)
 	queue.init_from_slice(&qq_backed, buf[:])
-	queue.shrink(&qq_backed)
+	queue.shrink_dynamic_array(&qq_backed)
 }

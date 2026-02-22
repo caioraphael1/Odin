@@ -88,8 +88,8 @@ walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
         return
     }
 
-    _ = resize(&w.err.path, len(path))
-    copy(w.err.path[:], path)
+    _ = resize_dynamic_array(&w.err.path, len(path))
+    copy_from_string(w.err.path[:], path)
 
     w.err.err = err
 }
@@ -104,14 +104,14 @@ walker_clear :: proc(w: ^Walker, allocator: runtime.Allocator) {
 
     w.todo.data.allocator = allocator
     for path in queue.pop_front_safe(&w.todo) {
-        _ = delete(path, allocator)
+        _ = delete_string(path, allocator)
     }
 }
 
 walker_destroy :: proc(w: ^Walker, allocator: runtime.Allocator) {
     walker_clear(w, allocator)
     queue.destroy(&w.todo)
-    _ = delete(w.err.path)
+    _ = delete_dynamic_array(w.err.path)
     read_directory_iterator_destroy(&w.iter, allocator)
 }
 
@@ -171,7 +171,7 @@ walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info,
     if w.skip_dir {
         w.skip_dir = false
         if skip, sok := queue.pop_back_safe(&w.todo); sok {
-            _ = delete(skip,  allocator)
+            _ = delete_string(skip,  allocator)
         }
     }
 
@@ -190,7 +190,7 @@ walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info,
 
         read_directory_iterator_init(&w.iter, handle, allocator)
 
-        _ = delete(next, allocator)
+        _ = delete_string(next, allocator)
     }
 
     info, _, iter_ok := read_directory_iterator(&w.iter, allocator)

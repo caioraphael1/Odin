@@ -1,8 +1,9 @@
 #+build !freestanding
 package crypto_hash
 
+import "core:mem"
 import "core:io"
-import "core:os"
+import os "core:os/os2"
 
 // hash_file will read the file provided by the given handle and return the
 // computed digest in a newly allocated slice.
@@ -10,7 +11,7 @@ hash_file :: proc(
     algorithm: Algorithm,
     hd: os.Handle,
     load_at_once := false,
-    allocator := context.allocator,
+    allocator: mem.Allocator,
 ) -> (
     []byte,
     io.Error,
@@ -23,7 +24,7 @@ hash_file :: proc(
     if !ok {
         return nil, io.Error.Unknown
     }
-    defer _ = delete(buf, allocator)
+    defer _ = delete_slice(buf, allocator)
 
     return hash_bytes(algorithm, buf, allocator), io.Error.None
 }

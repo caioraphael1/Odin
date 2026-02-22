@@ -419,8 +419,8 @@ split_url_test :: proc(t: ^testing.T) {
 	for test in test_cases {
 		scheme, host, path, queries, fragment := net.split_url(test.url[0])
 		defer {
-			_ = delete(queries)
-			_ = delete(test.queries)
+			_ = delete_slice(queries)
+			_ = delete_slice(test.queries)
 		}
 
 		testing.expectf(t, scheme       == test.scheme,       "Expected `net.split_url` to return %s, got %s", test.scheme, scheme)
@@ -509,8 +509,8 @@ join_url_test :: proc(t: ^testing.T) {
 	for test in test_cases {
 		url := net.join_url(test.scheme, test.host, test.path, test.queries, test.fragment)
 		defer {
-			_ = delete(url)
-			_ = delete(test.queries)
+			_ = delete_slice(url)
+			_ = delete_slice(test.queries)
 		}
 		pass := false
 		for test_url in test.url {

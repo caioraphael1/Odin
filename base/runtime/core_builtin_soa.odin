@@ -629,7 +629,7 @@ into_dynamic_soa :: proc(array: $T/#soa[]$E) -> #soa[dynamic]E {
     array := array
     dynamic_data := ([^]rawptr)(&d)[:field_count]
     slice_data   := ([^]rawptr)(&array)[:field_count]
-    copy(dynamic_data, slice_data)
+    copy_slice(dynamic_data, slice_data)
 
     return d
 }

@@ -170,7 +170,7 @@ update :: proc(ctx: ^$T, data: []byte) {
 	ctx.length += u64(len(data))
 
 	if ctx.bitlength > 0 {
-		n := copy(ctx.block[ctx.bitlength:], data[:])
+		n := copy_slice(ctx.block[ctx.bitlength:], data[:])
 		ctx.bitlength += u64(n)
 		if ctx.bitlength == CURR_BLOCK_SIZE {
 			sha2_transf(ctx, ctx.block[:])
@@ -184,7 +184,7 @@ update :: proc(ctx: ^$T, data: []byte) {
 		data = data[n:]
 	}
 	if len(data) > 0 {
-		ctx.bitlength = u64(copy(ctx.block[:], data[:]))
+		ctx.bitlength = u64(copy_slice(ctx.block[:], data[:]))
 	}
 }
 

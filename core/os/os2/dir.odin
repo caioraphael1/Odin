@@ -110,7 +110,7 @@ For an example on how to use the iterator, see `read_directory_iterator`.
 read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: runtime.Allocator) {
     it.err.err = nil
     it.err.path.allocator = allocator
-    clear(&it.err.path)
+    clear_dynamic_array(&it.err.path)
 
     it.f = f
     it.index = 0
@@ -126,7 +126,7 @@ read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator:
         return
     }
 
-    _ = delete(it.err.path)
+    _ = delete_dynamic_array(it.err.path)
 
     _read_directory_iterator_destroy(it, allocator)
 }
@@ -145,7 +145,7 @@ read_directory_iterator_set_error :: proc(it: ^Read_Directory_Iterator, path: st
         return
     }
 
-    _ = resize(&it.err.path, len(path))
+    _ = resize_dynamic_array(&it.err.path, len(path))
     copy_from_string(it.err.path[:], path)
 
     it.err.err = err
@@ -229,7 +229,7 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runt
     abs_src := get_absolute_path(src, runtime.temp_allocator) or_return
     abs_dst := get_absolute_path(dst, runtime.temp_allocator) or_return
 
-    dst_buf := make_dynamic_array([dynamic]byte, 0, len(abs_dst) + 256, runtime.temp_allocator) or_return
+    dst_buf := make_dynamic_array_len_cap([dynamic]byte, 0, len(abs_dst) + 256, runtime.temp_allocator) or_return
 
     w: Walker
     walker_init_path(&w, src, allocator)
@@ -240,11 +240,11 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runt
 
         rel := strings.trim_prefix(info.fullpath, abs_src)
 
-        non_zero_resize(&dst_buf, 0) or_return
-        reserve(&dst_buf, len(abs_dst) + len(Path_Separator_String) + len(rel)) or_return
-        append(&dst_buf, abs_dst) or_return
-        append(&dst_buf, Path_Separator_String) or_return
-        append(&dst_buf, rel) or_return
+        non_zero_resize_dynamic_array(&dst_buf, 0) or_return
+        reserve_dynamic_array(&dst_buf, len(abs_dst) + len(Path_Separator_String) + len(rel)) or_return
+        append_string(&dst_buf, abs_dst) or_return
+        append_string(&dst_buf, Path_Separator_String) or_return
+        append_string(&dst_buf, rel) or_return
 
         if info.type == .Directory {
             err = make_directory(string(dst_buf[:]), dst_perm)

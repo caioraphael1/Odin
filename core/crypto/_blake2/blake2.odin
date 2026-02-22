@@ -101,16 +101,16 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 
 	if cfg.salt != nil {
 		when T == Blake2s_Context {
-			copy(p[16:], cfg.salt)
+			copy_slice(p[16:], cfg.salt)
 		} else when T == Blake2b_Context {
-			copy(p[32:], cfg.salt)
+			copy_slice(p[32:], cfg.salt)
 		}
 	}
 	if cfg.person != nil {
 		when T == Blake2s_Context {
-			copy(p[24:], cfg.person)
+			copy_slice(p[24:], cfg.person)
 		} else when T == Blake2b_Context {
-			copy(p[48:], cfg.person)
+			copy_slice(p[48:], cfg.person)
 		}
 	}
 
@@ -151,12 +151,12 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 		ctx.is_last_node = true
 	}
 	if len(cfg.key) > 0 {
-		copy(ctx.padded_key[:], cfg.key)
+		copy_slice(ctx.padded_key[:], cfg.key)
 		update(ctx, ctx.padded_key[:])
 		ctx.is_keyed = true
 	}
-	copy(ctx.ih[:], ctx.h[:])
-	copy(ctx.h[:], ctx.ih[:])
+	copy_slice(ctx.ih[:], ctx.h[:])
+	copy_slice(ctx.h[:], ctx.ih[:])
 	if ctx.is_keyed {
 		update(ctx, ctx.padded_key[:])
 	}
@@ -178,7 +178,7 @@ update :: proc(ctx: ^$T, p: []byte) {
 
 	left := block_size - ctx.nx
 	if len(p) > left {
-		copy(ctx.x[ctx.nx:], p[:left])
+		copy_slice(ctx.x[ctx.nx:], p[:left])
 		p = p[left:]
 		blocks(ctx, ctx.x[:])
 		ctx.nx = 0
@@ -191,7 +191,7 @@ update :: proc(ctx: ^$T, p: []byte) {
 		blocks(ctx, p[:n])
 		p = p[n:]
 	}
-	ctx.nx += copy(ctx.x[ctx.nx:], p)
+	ctx.nx += copy_slice(ctx.x[ctx.nx:], p)
 }
 
 final :: proc(ctx: ^$T, hash: []byte, finalize_clone: bool = false) {
@@ -250,7 +250,7 @@ blake2s_final :: proc(ctx: ^Blake2s_Context, hash: []byte) {
 	for i := 0; i < BLAKE2S_SIZE / 4; i += 1 {
 		endian.unchecked_put_u32le(dst[i * 4:], ctx.h[i])
 	}
-	copy(hash, dst[:])
+	copy_slice(hash, dst[:])
 }
 
 @(private)
@@ -278,7 +278,7 @@ blake2b_final :: proc(ctx: ^Blake2b_Context, hash: []byte) {
 	for i := 0; i < BLAKE2B_SIZE / 8; i += 1 {
 		endian.unchecked_put_u64le(dst[i * 8:], ctx.h[i])
 	}
-	copy(hash, dst[:])
+	copy_slice(hash, dst[:])
 }
 
 @(private)

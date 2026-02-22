@@ -594,7 +594,7 @@ test_aead :: proc(t: ^testing.T) {
 			testing.expectf(t, !ok, "%s/%v: Expected false for open(bad_tag, aad, ciphertext)", algo_name, impl)
 
 			if len(dst) > 0 {
-				copy(dst, ciphertext[:])
+				copy_slice(dst, ciphertext[:])
 				dst[0] ~= 0xa5
 				ok = aead.open(&ctx, dst, iv, aad, dst, tag)
 				testing.expectf(t, !ok, "%s/%v: Expected false for open(tag, aad, bad_ciphertext)", algo_name, impl)
@@ -602,7 +602,7 @@ test_aead :: proc(t: ^testing.T) {
 
 			if len(aad) > 0 {
 				aad_ := make_slice([]byte, len(aad), context.temp_allocator)
-				copy(aad_, aad)
+				copy_slice(aad_, aad)
 				aad_[0] ~= 0xa5
 				ok = aead.open(&ctx, dst, iv, aad_, ciphertext, tag)
 				testing.expectf(t, !ok, "%s/%v: Expected false for open(tag, bad_aad, ciphertext)", algo_name, impl)

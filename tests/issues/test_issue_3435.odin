@@ -10,7 +10,7 @@ test_issue_3435 :: proc(t: ^testing.T) {
 	testing.set_fail_timeout(t, time.Second)
 	allocator: mem.Buddy_Allocator
 	data := runtime.make_aligned([]byte, 64, 32)
-	defer _ = delete(data)
+	defer _ = delete_slice(data)
 
 	// mem.buddy_allocator_init(&allocator, data, 32)
 

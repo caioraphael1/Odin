@@ -166,7 +166,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                 break read_peb
             }
             if .Command_Line in selection {
-                info.command_line = win32_utf16_to_utf8(cmdline_w, allocator) or_return
+                info.command_line = win32_utf16_u16_to_utf8(cmdline_w, allocator) or_return
                 info.fields += {.Command_Line}
             }
             if .Command_Args in selection {
@@ -192,7 +192,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             if err != nil {
                 break read_peb
             }
-            info.working_dir = win32_utf16_to_utf8(cwd_w, allocator) or_return
+            info.working_dir = win32_utf16_u16_to_utf8(cwd_w, allocator) or_return
             info.fields += {.Working_Dir}
         }
     }
@@ -277,7 +277,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
                 break read_peb
             }
             if .Command_Line in selection {
-                info.command_line = win32_utf16_to_utf8(cmdline_w, allocator) or_return
+                info.command_line = win32_utf16_u16_to_utf8(cmdline_w, allocator) or_return
                 info.fields += {.Command_Line}
             }
             if .Command_Args in selection {
@@ -303,7 +303,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
             if err != nil {
                 break read_peb
             }
-            info.working_dir = win32_utf16_to_utf8(cwd_w, allocator) or_return
+            info.working_dir = win32_utf16_u16_to_utf8(cwd_w, allocator) or_return
             info.fields += {.Working_Dir}
         }
     }
@@ -348,7 +348,7 @@ _current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime
         exe_filename_w: [256]u16
         path_len := win32.GetModuleFileNameW(nil, raw_data(exe_filename_w[:]), len(exe_filename_w))
         assert(path_len > 0)
-        info.executable_path = win32_utf16_to_utf8(exe_filename_w[:path_len], allocator) or_return
+        info.executable_path = win32_utf16_u16_to_utf8(exe_filename_w[:path_len], allocator) or_return
         info.fields += {.Executable_Path}
     }
     command_line: if selection >= {.Command_Line,  .Command_Args} {
@@ -640,8 +640,8 @@ _get_process_user :: proc(process_handle: win32.HANDLE, allocator: runtime.Alloc
         err = _get_platform_error()
         return
     }
-    username := win32_utf16_to_utf8(username_w[:username_chrs], runtime.temp_allocator) or_return
-    domain   := win32_utf16_to_utf8(domain_w[:domain_chrs], runtime.temp_allocator) or_return
+    username := win32_utf16_u16_to_utf8(username_w[:username_chrs], runtime.temp_allocator) or_return
+    domain   := win32_utf16_u16_to_utf8(domain_w[:domain_chrs], runtime.temp_allocator) or_return
     return strings.concatenate({domain, "\\", username}, allocator)
 }
 
@@ -654,9 +654,9 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: runtime.Allocator)
     argv = make_slice([]string, argc, allocator) or_return
     defer if err != nil {
         for arg in argv {
-            _ = delete(arg, allocator)
+            _ = delete_string(arg, allocator)
         }
-        _ = delete(argv, allocator)
+        _ = delete_slice(argv, allocator)
     }
     for arg_w, i in argv_w[:argc] {
         argv[i] = win32_wstring_to_utf8(arg_w, allocator) or_return
@@ -726,9 +726,9 @@ _parse_environment_block :: proc(block: [^]u16, allocator: runtime.Allocator) ->
     envs = make_slice([]string, env_count, allocator) or_return
     defer if err != nil {
         for env in envs {
-            _ = delete(env, allocator)
+            _ = delete_string(env, allocator)
         }
-        _ = delete(envs, allocator)
+        _ = delete_slice(envs, allocator)
     }
 
     env_idx := 0
@@ -739,7 +739,7 @@ _parse_environment_block :: proc(block: [^]u16, allocator: runtime.Allocator) ->
             idx += 1
         }
         env_w := block[last_idx:idx]
-        envs[env_idx] = win32_utf16_to_utf8(env_w, allocator) or_return
+        envs[env_idx] = win32_utf16_u16_to_utf8(env_w, allocator) or_return
         env_idx += 1
         idx += 1
         last_idx = idx

@@ -9,7 +9,7 @@ import "core:time/datetime"
 import "base:runtime"
 
 local_tz_name :: proc(allocator: runtime.Allocator) -> (name: string, success: bool) {
-	local_str, ok := os.lookup_env("TZ", allocator)
+	local_str, ok := os.lookup_env_alloc("TZ", allocator)
 	if !ok {
 		orig_localtime_path := "/etc/localtime"
 		path, err := os.get_absolute_path(orig_localtime_path, allocator)
@@ -23,7 +23,7 @@ local_tz_name :: proc(allocator: runtime.Allocator) -> (name: string, success: b
 
 			return
 		}
-		defer _ = delete(path, allocator)
+		defer _ = delete_slice(path, allocator)
 
 		// FreeBSD makes me sad.
 		// This is a hackaround, because FreeBSD copies rather than softlinks their local timezone file,
@@ -55,7 +55,7 @@ local_tz_name :: proc(allocator: runtime.Allocator) -> (name: string, success: b
 	}
 
 	if local_str == "" {
-		_ = delete(local_str, allocator)
+		_ = delete_slice(local_str, allocator)
 
 		str, err := strings.clone("UTC", allocator)
 		if err != nil { return }
@@ -74,17 +74,17 @@ _region_load :: proc(_reg_str: string, allocator: runtime.Allocator) -> (out_reg
 	if reg_str == "local" {
 		local_name := local_tz_name(allocator) or_return
 		if local_name == "UTC" {
-			_ = delete(local_name, allocator)
+			_ = delete_slice(local_name, allocator)
 			return nil, true
 		}
 
 		reg_str = local_name
 	}
-	defer if _reg_str == "local" { _ = delete(reg_str, allocator) }
+	defer if _reg_str == "local" { _ = delete_slice(reg_str, allocator) }
 
 	db_path := "/usr/share/zoneinfo"
 	region_path := filepath.join({db_path, reg_str}, allocator)
-	defer _ = delete(region_path, allocator)
+	defer _ = delete_slice(region_path, allocator)
 
 	return load_tzif_file(region_path, reg_str, allocator)
 }

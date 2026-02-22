@@ -206,7 +206,7 @@ update :: proc(ctx: ^Context, data: []byte) {
     data := data
     ctx.total_length += len(data)
     if ctx.last_block > 0 {
-        n := copy(ctx.buf[ctx.last_block:], data)
+        n := copy_slice(ctx.buf[ctx.last_block:], data)
         ctx.last_block += n
         if ctx.last_block == BLOCK_SIZE {
             block(ctx, ctx.buf[:])
@@ -220,7 +220,7 @@ update :: proc(ctx: ^Context, data: []byte) {
         data = data[n:]
     }
     if len(data) > 0 {
-        ctx.last_block = copy(ctx.buf[:], data)
+        ctx.last_block = copy_slice(ctx.buf[:], data)
     }
 }
 
@@ -228,7 +228,7 @@ final :: proc(ctx: ^Context, dst: ^u64) {
     ensure(ctx.is_initialized)
 
     tmp: [BLOCK_SIZE]byte
-    copy(tmp[:], ctx.buf[:ctx.last_block])
+    copy_slice(tmp[:], ctx.buf[:ctx.last_block])
     tmp[7] = byte(ctx.total_length & 0xff)
     block(ctx, tmp[:])
 

@@ -140,7 +140,7 @@ test_case_conversion :: proc(t: ^testing.T) {
 		for test_case, case_kind in test_cases {
 			result, err := entry.p(test_case.s, context.allocator)
 			testing.expectf(t, err == nil, "ERROR: We got the allocation error '{}'\n", err)
-			defer _ = delete(result)
+			defer _ = delete_slice(result)
 
 			testing.expectf(t, result == entry.s, "ERROR: Input `{}` to converter {} does not match `{}`, got `{}`.\n", test_case.s, case_kind, entry.s, result)
 		}
@@ -235,7 +235,7 @@ test_prefix_length :: proc(t: ^testing.T) {
 			s := a[:n]
 			n = 0
 			for {
-				r0, w := utf8.decode_rune(s[n:])
+				r0, w := utf8.decode_rune_in_bytes(s[n:])
 				if r0 != utf8.RUNE_ERROR {
 					n += w
 				} else {

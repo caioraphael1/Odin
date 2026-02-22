@@ -64,10 +64,10 @@ init_cpu_name :: proc() {
 
 	if generic {
 		when ODIN_ARCH == .arm64 {
-			copy(cpu_name_buf[:], "ARM64")
+			copy_slice(cpu_name_buf[:], "ARM64")
 			cpu.name = string(cpu_name_buf[:len("ARM64")])
 		} else {
-			copy(cpu_name_buf[:], "ARM")
+			copy_slice(cpu_name_buf[:], "ARM")
 			cpu.name = string(cpu_name_buf[:len("ARM")])
 		}
 	}

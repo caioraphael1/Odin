@@ -430,7 +430,7 @@ fill :: proc(array: $T/[]$E, value: E) #no_bounds_check {
     }
     array[0] = value
     for i := 1; i < len(array); i *= 2 {
-        copy(array[i:], array[:i])
+        copy_slice(array[i:], array[:i])
     }
 }
 
@@ -465,7 +465,7 @@ concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err:
     res = make(T, n, allocator) or_return
     i := 0
     for s in a {
-        i += copy(res[i:], s)
+        i += copy_slice(res[i:], s)
     }
     return
 }
@@ -662,9 +662,9 @@ repeat :: proc(s: $S/[]$U, count: int, allocator: runtime.Allocator) -> (b: S, e
     }
 
     b = make(S, len(s)*count, allocator) or_return
-    i := copy(b, s)
+    i := copy_slice(b, s)
     for i < len(b) { // 2^N trick to reduce the need to copy
-        copy(b[i:], b[:i])
+        copy_slice(b[i:], b[:i])
         i *= 2
     }
     return

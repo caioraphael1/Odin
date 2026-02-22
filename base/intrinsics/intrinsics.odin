@@ -340,7 +340,7 @@ simd_nearest :: proc(a: #simd[N]any_float) -> #simd[N]any_float ---
 
 simd_to_bits :: proc(v: #simd[N]T) -> #simd[N]Integer where size_of(T) == size_of(Integer), type_is_unsigned(Integer) ---
 
-// equivalent to a swizzle with descending indices, e.g. reserve(a, 3, 2, 1, 0)
+// equivalent to a swizzle with descending indices, e.g. reserve_dynamic_array(a, 3, 2, 1, 0)
 simd_lanes_reverse :: proc(a: #simd[N]T) -> #simd[N]T ---
 
 simd_lanes_rotate_left  :: proc(a: #simd[N]T, $offset: int) -> #simd[N]T ---

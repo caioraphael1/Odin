@@ -17,7 +17,7 @@ package math_big
 
 import "base:intrinsics"
 import "core:mem"
-import "core:os"
+import os "core:os/os2"
 
 /*
     This version of `itoa` allocates on behalf of the caller. The caller must free the string.
@@ -142,7 +142,7 @@ int_itoa_raw :: proc(a: ^Int, radix: i8, buffer: []u8, size := int(-1), zero_ter
         written = len(buffer) - available
         if written < size {
             diff := size - written
-            mem.copy(&buffer[0], &buffer[diff], written)
+            mem.copy_slice(&buffer[0], &buffer[diff], written)
         }
         return written, nil
     }
@@ -175,7 +175,7 @@ int_itoa_raw :: proc(a: ^Int, radix: i8, buffer: []u8, size := int(-1), zero_ter
         written = len(buffer) - available
         if written < size {
             diff := size - written
-            mem.copy(&buffer[0], &buffer[diff], written)
+            mem.copy_slice(&buffer[0], &buffer[diff], written)
         }
         return written, nil
     }
@@ -216,7 +216,7 @@ int_itoa_raw :: proc(a: ^Int, radix: i8, buffer: []u8, size := int(-1), zero_ter
         written = len(buffer) - available
         if written < size {
             diff := size - written
-            mem.copy(&buffer[0], &buffer[diff], written)
+            mem.copy_slice(&buffer[0], &buffer[diff], written)
         }
         return written, nil
     }
@@ -404,7 +404,7 @@ internal_int_read_from_ascii_file :: proc(a: ^Int, filename: string, radix := i8
     */
 
     res, ok := os.read_entire_file(filename, allocator)
-    defer _ = delete(res, allocator)
+    defer _ = delete_slice(res, allocator)
 
     if !ok {
         return .Cannot_Read_File
@@ -425,7 +425,7 @@ internal_int_write_to_ascii_file :: proc(a: ^Int, filename: string, radix := i8(
     */
 
     as := itoa(a, radix) or_return
-    defer _ = delete(as)
+    defer _ = delete_slice(as)
 
     l := len(as)
     assert(l > 0)
@@ -690,7 +690,7 @@ _itoa_raw_full :: proc(a: ^Int, radix: i8, buffer: []u8, zero_terminate := false
     written = len(buffer) - available
     if written < len(buffer) {
         diff := len(buffer) - written
-        mem.copy(&buffer[0], &buffer[diff], written)
+        mem.copy_slice(&buffer[0], &buffer[diff], written)
     }
     return written, nil
 }
@@ -737,7 +737,7 @@ _itoa_raw_old :: proc(a: ^Int, radix: i8, buffer: []u8, zero_terminate := false,
     written = len(buffer) - available
     if written < len(buffer) {
         diff := len(buffer) - written
-        mem.copy(&buffer[0], &buffer[diff], written)
+        mem.copy_slice(&buffer[0], &buffer[diff], written)
     }
     return written, nil
 }

@@ -179,7 +179,7 @@ barrier_wait :: proc(b: ^Barrier) -> (is_leader: bool) {
     when ODIN_VALGRIND_SUPPORT {
         vg.helgrind_barrier_wait_pre(b)
     }
-    guard(&b.mutex)
+    mutex_guard(&b.mutex)
     local_gen := b.generation_id
     b.index += 1
     if b.index < b.thread_count {
@@ -547,7 +547,7 @@ Call a function with no data once.
 once_do_without_data :: proc(o: ^Once, fn: proc()) {
     @(cold)
     do_slow :: proc(o: ^Once, fn: proc()) {
-        guard(&o.m)
+        mutex_guard(&o.m)
         if !o.done {
             fn()
             atomic_store_explicit(&o.done, true, .Release)
@@ -566,7 +566,7 @@ Call a function with data once.
 once_do_with_data :: proc(o: ^Once, fn: proc(data: rawptr), data: rawptr) {
     @(cold)
     do_slow :: proc(o: ^Once, fn: proc(data: rawptr), data: rawptr) {
-        guard(&o.m)
+        mutex_guard(&o.m)
         if !o.done {
             fn(data)
             atomic_store_explicit(&o.done, true, .Release)

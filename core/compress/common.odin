@@ -239,7 +239,7 @@ read_u8_prefer_code_buffer_lsb :: #force_inline proc(z: ^$C) -> (res: u8, err: i
     } else {
         size, _ := input_size(z)
         if size > 0 {
-            res, err = read_u8(z)
+            res, err = read_u8_from_memory(z)
         } else {
             err = .EOF
         }
@@ -388,7 +388,7 @@ refill_lsb_from_stream :: proc(z: ^Context_Stream_Input, width := i8(24)) {
             z.num_bits = max(u64)
             return
         }
-        b, err := read_u8(z)
+        b, err := read_u8_from_stream(z)
         if err != .None {
             // This is fine at the end of the file.
             return
@@ -415,7 +415,7 @@ consume_bits_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Input, wid
 @(optimization_mode="favor_size")
 peek_bits_lsb_from_memory :: #force_inline proc(z: ^Context_Memory_Input, width: u8) -> u32 {
     if z.num_bits < u64(width) {
-        refill_lsb(z)
+        refill_lsb_from_memory(z)
     }
     return u32(z.code_buffer &~ (~u64(0) << width))
 }
@@ -423,7 +423,7 @@ peek_bits_lsb_from_memory :: #force_inline proc(z: ^Context_Memory_Input, width:
 @(optimization_mode="favor_size")
 peek_bits_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Input, width: u8) -> u32 {
     if z.num_bits < u64(width) {
-        refill_lsb(z)
+        refill_lsb_from_stream(z)
     }
     return u32(z.code_buffer &~ (~u64(0) << width))
 }
@@ -444,30 +444,30 @@ peek_bits_no_refill_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Inp
 
 @(optimization_mode="favor_size")
 read_bits_lsb_from_memory :: #force_inline proc(z: ^Context_Memory_Input, width: u8) -> u32 {
-    k := #force_inline peek_bits_lsb(z, width)
-    #force_inline consume_bits_lsb(z, width)
+    k := #force_inline peek_bits_lsb_from_memory(z, width)
+    #force_inline consume_bits_lsb_from_memory(z, width)
     return k
 }
 
 @(optimization_mode="favor_size")
 read_bits_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Input, width: u8) -> u32 {
-    k := peek_bits_lsb(z, width)
-    consume_bits_lsb(z, width)
+    k := peek_bits_lsb_from_stream(z, width)
+    consume_bits_lsb_from_stream(z, width)
     return k
 }
 
 
 @(optimization_mode="favor_size")
 read_bits_no_refill_lsb_from_memory :: #force_inline proc(z: ^Context_Memory_Input, width: u8) -> u32 {
-    k := #force_inline peek_bits_no_refill_lsb(z, width)
-    #force_inline consume_bits_lsb(z, width)
+    k := #force_inline peek_bits_no_refill_lsb_from_memory(z, width)
+    #force_inline consume_bits_lsb_from_memory(z, width)
     return k
 }
 
 @(optimization_mode="favor_size")
 read_bits_no_refill_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Input, width: u8) -> u32 {
-    k := peek_bits_no_refill_lsb(z, width)
-    consume_bits_lsb(z, width)
+    k := peek_bits_no_refill_lsb_from_stream(z, width)
+    consume_bits_lsb_from_stream(z, width)
     return k
 }
 
@@ -475,13 +475,13 @@ read_bits_no_refill_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Inp
 @(optimization_mode="favor_size")
 discard_to_next_byte_lsb_from_memory :: proc(z: ^Context_Memory_Input) {
     discard := u8(z.num_bits & 7)
-    #force_inline consume_bits_lsb(z, discard)
+    #force_inline consume_bits_lsb_from_memory(z, discard)
 }
 
 
 @(optimization_mode="favor_size")
 discard_to_next_byte_lsb_from_stream :: proc(z: ^Context_Stream_Input) {
     discard := u8(z.num_bits & 7)
-    consume_bits_lsb(z, discard)
+    consume_bits_lsb_from_stream(z, discard)
 }
 

@@ -20,7 +20,7 @@ Example:
 		// removing elements
 		small_array.ordered_remove(&result, 4)
 		// resizing to the desired length (the capacity will stay unchanged)
-		small_array.resize(&result, 7)
+		small_array.resize_dynamic_array(&result, 7)
 		// inserting elements
 		small_array.inject_at(&result, 'p', 5)
 		// updating elements

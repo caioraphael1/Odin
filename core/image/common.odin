@@ -730,7 +730,7 @@ Channel :: enum u8 {
 }
 
 // Take a slice of pixels (`[]RGBA_Pixel`, etc), and return an `Image`
-// Don't call `destroy` on the resulting `Image`. Instead, _ = delete the original `pixels` slice.
+// Don't call `destroy` on the resulting `Image`. Instead, _ = delete_slice the original `pixels` slice.
 pixels_to_image :: proc(pixels: [][$N]$E, width: int, height: int) -> (img: Image, ok: bool) where E == u8 || E == u16, N >= 1, N <= 4 {
     if len(pixels) != width * height {
         return {}, false
@@ -780,7 +780,7 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
     case 8:
         buffer_size := compute_buffer_size(img.width, img.height, 1, 8)
         t = bytes.Buffer{}
-        _ = resize(&t.buf, buffer_size)
+        _ = resize_dynamic_array(&t.buf, buffer_size)
 
         i := bytes.buffer_to_bytes(&img.pixels)
         o := bytes.buffer_to_bytes(&t)
@@ -793,7 +793,7 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
     case 16:
         buffer_size := compute_buffer_size(img.width, img.height, 1, 16)
         t = bytes.Buffer{}
-        _ = resize(&t.buf, buffer_size)
+        _ = resize_dynamic_array(&t.buf, buffer_size)
 
         i := mem.slice_data_cast([]u16, img.pixels.buf[:])
         o := mem.slice_data_cast([]u16, t.buf[:])
@@ -928,8 +928,8 @@ alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator :=
     buf := bytes.Buffer{}
 
     // Can we allocate the return buffer?
-    if resize(&buf.buf, bytes_wanted) != nil {
-        _ = delete(buf.buf)
+    if resize_dynamic_array(&buf.buf, bytes_wanted) != nil {
+        _ = delete_slice(buf.buf)
         return false
     }
 
@@ -1120,8 +1120,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
     buf := bytes.Buffer{}
 
     // Can we allocate the return buffer?
-    if resize(&buf.buf, bytes_wanted) != nil {
-        _ = delete(buf.buf)
+    if resize_dynamic_array(&buf.buf, bytes_wanted) != nil {
+        _ = delete_slice(buf.buf)
         return false
     }
 
@@ -1369,8 +1369,8 @@ apply_palette_rgb :: proc(img: ^Image, palette: [256]RGB_Pixel, allocator := con
     // Can we allocate the return buffer?
     buf := bytes.Buffer{}
     bytes_wanted := compute_buffer_size(img.width, img.height, 3, 8)
-    if resize(&buf.buf, bytes_wanted) != nil {
-        _ = delete(buf.buf)
+    if resize_dynamic_array(&buf.buf, bytes_wanted) != nil {
+        _ = delete_slice(buf.buf)
         return false
     }
 
@@ -1406,8 +1406,8 @@ apply_palette_rgba :: proc(img: ^Image, palette: [256]RGBA_Pixel, allocator := c
     // Can we allocate the return buffer?
     buf := bytes.Buffer{}
     bytes_wanted := compute_buffer_size(img.width, img.height, 4, 8)
-    if resize(&buf.buf, bytes_wanted) != nil {
-        _ = delete(buf.buf)
+    if resize_dynamic_array(&buf.buf, bytes_wanted) != nil {
+        _ = delete_slice(buf.buf)
         return false
     }
 
@@ -1509,8 +1509,8 @@ expand_grayscale :: proc(img: ^Image, allocator := context.allocator) -> (ok: bo
     // Can we allocate the return buffer?
     buf := bytes.Buffer{}
     bytes_wanted := compute_buffer_size(img.width, img.height, img.channels + 2, img.depth)
-    if resize(&buf.buf, bytes_wanted) != nil {
-        _ = delete(buf.buf)
+    if resize_dynamic_array(&buf.buf, bytes_wanted) != nil {
+        _ = delete_slice(buf.buf)
         return false
     }
 
@@ -1591,7 +1591,7 @@ read_data :: proc(z: $C, $T: typeid) -> (res: T, err: compress.General_Error) {
 
 @(optimization_mode="favor_size")
 read_u8 :: proc(z: $C) -> (res: u8, err: compress.General_Error) {
-    if r, e := compress.read_u8(z); e != .None {
+    if r, e := compress.read_u8_from_memory(z); e != .None {
         return {}, .Stream_Too_Short
     } else {
         return r, nil

@@ -56,7 +56,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     // Calculate and allocate necessary space.
     necessary := pixels * img.channels + size_of(image.TGA_Header)
 
-    if resize(&output.buf, necessary) != nil {
+    if resize_dynamic_array(&output.buf, necessary) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
 
@@ -68,7 +68,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     }
     header_bytes := transmute([size_of(image.TGA_Header)]u8)header
 
-    copy(output.buf[written:], header_bytes[:])
+    copy_slice(output.buf[written:], header_bytes[:])
     written += size_of(image.TGA_Header)
 
     /*
@@ -239,7 +239,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
     }
 
     color_map := make_slice([]RGBA_Pixel, header.color_map_length)
-    defer _ = delete(color_map)
+    defer _ = delete_slice(color_map)
 
     if color_mapped {
         switch header.color_map_depth {
@@ -291,7 +291,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
         return img, nil
     }
 
-    if resize(&img.pixels.buf, dest_channels * img.width * img.height) != nil {
+    if resize_dynamic_array(&img.pixels.buf, dest_channels * img.width * img.height) != nil {
         return img, .Unable_To_Allocate_Or_Resize
     }
 
@@ -312,7 +312,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
             // handle RLE decoding
             if rle_encoding {
                 if rle_repetition_count == 0 {
-                    rle_cmd, err := compress.read_u8(ctx)
+                    rle_cmd, err := compress.read_u8_from_memory(ctx)
                     if err != .None {
                         return img, .Corrupt
                     }
@@ -364,7 +364,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
             }
 
             // Write pixel
-            copy(img.pixels.buf[offset:], pixel[:dest_channels])
+            copy_slice(img.pixels.buf[offset:], pixel[:dest_channels])
             offset += dest_channels if origin_is_left else -dest_channels
             rle_repetition_count -= 1
         }
@@ -390,7 +390,7 @@ destroy :: proc(img: ^Image) {
 
     bytes.buffer_destroy(&img.pixels)
     if v, ok := img.metadata.(^image.TGA_Info); ok {
-        _ = delete(v.image_id)
+        _ = delete_slice(v.image_id)
         _ = free(v)
     }
 

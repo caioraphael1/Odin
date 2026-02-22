@@ -238,7 +238,7 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
         return true, nil
         
     case reflect.Type_Info_Integer:
-        i, pok := strconv.parse_i128(str)
+        i, pok := strconv.parse_i128_maybe_prefixed(str)
         if !pok {
             return false, nil
         }
@@ -321,7 +321,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 
     case .Integer:
         _, _ = advance_token(p)
-        i, _ := strconv.parse_i128(token.text)
+        i, _ := strconv.parse_i128_maybe_prefixed(token.text)
         if assign_int(v, i) {
             return
         }
@@ -335,7 +335,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         if assign_float(v, f) {
             return
         }
-        if i, fract := math.modf(f); fract == 0 {
+        if i, fract := math.modf_f64(f); fract == 0 {
             if assign_int(v, i) {
                 return
             }
@@ -581,7 +581,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
                         key_ptr = &key_cstr
                     }
                 case runtime.Type_Info_Integer:
-                    i, ok := strconv.parse_i128(key)
+                    i, ok := strconv.parse_i128_maybe_prefixed(key)
                     if !ok  { return UNSUPPORTED_TYPE }
                     key_ptr = rawptr(&i)
                 case: return UNSUPPORTED_TYPE

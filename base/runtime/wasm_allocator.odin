@@ -745,7 +745,7 @@ aligned_alloc :: proc(a: ^WASM_Allocator, alignment, size: uint, loc := #caller_
 }
 
 @(private="file")
-_ = free :: proc(a: ^WASM_Allocator, ptr: rawptr, loc := #caller_location) {
+free :: proc(a: ^WASM_Allocator, ptr: rawptr, loc := #caller_location) {
     if ptr == nil {
         return
     }

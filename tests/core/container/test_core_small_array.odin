@@ -46,7 +46,7 @@ test_small_array_push_back_elems :: proc(t: ^testing.T) {
 	testing.expect(t, slice_equal(small_array.slice(&array), []int { 0, 1 }))
 	testing.expect(t, small_array.append(&array, 1) == false, "Expected to fail appending to full small array")
 	testing.expect(t, small_array.append(&array, 1, 2) == false, "Expected to fail appending multiple elements to full small array")
-	small_array.clear(&array)
+	small_array.clear_dynamic_array(&array)
 	testing.expect(t, slice_equal(small_array.slice(&array), []int { }))
 	testing.expect(t, small_array.append(&array, 1, 2, 3) == false, "Expected to fail appending multiple elements to empty small array")
 	testing.expect(t, slice_equal(small_array.slice(&array), []int { }))
@@ -64,14 +64,14 @@ test_small_array_resize :: proc(t: ^testing.T) {
 	}
 	testing.expect(t, slice_equal(small_array.slice(&array), []int{1, 2, 3, 4}), "Expected to initialize the array with 1, 2, 3, 4")
 
-	small_array.clear(&array)
+	small_array.clear_dynamic_array(&array)
 	testing.expect(t, slice_equal(small_array.slice(&array), []int{}), "Expected to clear the array")
 
-	small_array.non_zero_resize(&array, 4)
+	small_array.non_zero_resize_dynamic_array(&array, 4)
 	testing.expect(t, slice_equal(small_array.slice(&array), []int{1, 2, 3, 4}), "Expected non_zero_resize to set length 4 with previous values")
 
-	small_array.clear(&array)
-	small_array.resize(&array, 4)
+	small_array.clear_dynamic_array(&array)
+	small_array.resize_dynamic_array(&array, 4)
 	testing.expect(t, slice_equal(small_array.slice(&array), []int{0, 0, 0, 0}), "Expected resize to set length 4 with zeroed values")
 }
 

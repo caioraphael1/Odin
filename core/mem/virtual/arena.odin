@@ -207,7 +207,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
 }
 
 // Frees all of the memory allocated by the arena and zeros all of the values of an arena.
-// A buffer based arena does not `_ = delete` the provided `[]byte` bufffer.
+// A buffer based arena does not `_ = delete_slice` the provided `[]byte` bufffer.
 @(no_sanitize_address)
 arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
     sync.mutex_guard(&arena.mutex)
@@ -343,7 +343,7 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         if new_memory == nil {
             return
         }
-        copy(new_memory, old_data[:old_size])
+        copy_slice(new_memory, old_data[:old_size])
         // sanitizer.address_poison(old_data[:old_size])
         return new_memory, nil
     case .Query_Features:

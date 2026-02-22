@@ -241,7 +241,7 @@ Example:
         fmt.println(small_array.slice(&a))
 
         // resizing makes the change visible
-        small_array.non_zero_resize(&a, 100)
+        small_array.non_zero_resize_dynamic_array(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -282,10 +282,10 @@ Example:
         small_array.push_back(&a, 2)
         fmt.println(small_array.slice(&a))
 
-        small_array.resize(&a, 1)
+        small_array.resize_dynamic_array(&a, 1)
         fmt.println(small_array.slice(&a))
 
-        small_array.resize(&a, 100)
+        small_array.resize_dynamic_array(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -326,10 +326,10 @@ Example:
         small_array.push_back(&a, 2)
         fmt.println(small_array.slice(&a))
 
-        small_array.non_zero_resize(&a, 1)
+        small_array.non_zero_resize_dynamic_array(&a, 1)
         fmt.println(small_array.slice(&a))
 
-        small_array.non_zero_resize(&a, 100)
+        small_array.non_zero_resize_dynamic_array(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -418,7 +418,7 @@ push_front :: proc(a: ^$A/Small_Array($N, $T), item: T) -> bool {
     if a.len < cap(a^) {
         a.len += 1
         data := slice(a)
-        copy(data[1:], data[:])
+        copy_slice(data[1:], data[:])
         data[0] = item
         return true
     }
@@ -497,7 +497,7 @@ pop_front :: proc "odin" (a: ^$A/Small_Array($N, $T), loc := #caller_location) -
     assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
-    copy(s[:], s[1:])
+    copy_slice(s[:], s[1:])
     a.len -= 1
     return item
 }
@@ -570,7 +570,7 @@ pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[0]
         s := slice(a)
-        copy(s[:], s[1:])
+        copy_slice(s[:], s[1:])
         a.len -= 1
         ok = true
     }
@@ -644,7 +644,7 @@ Output:
 ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
     runtime.bounds_check_error_loc(loc, index, a.len)
     if index+1 < a.len {
-        copy(a.data[index:], a.data[index+1:])
+        copy_slice(a.data[index:], a.data[index+1:])
     }
     a.len -= 1
 }
@@ -700,7 +700,7 @@ Example:
         small_array.push(&a, 0, 1, 2, 3)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.clear(&a)
+        small_array.clear_dynamic_array(&a)
         fmt.println("AFTER :", small_array.slice(&a))
     }
 
@@ -711,7 +711,7 @@ Output:
 
 */
 clear :: proc(a: ^$A/Small_Array($N, $T)) {
-    _ = resize(a, 0)
+    _ = resize_dynamic_array(a, 0)
 }
 
 /*
@@ -743,7 +743,7 @@ Output:
 */
 push_back_many :: proc(a: ^$A/Small_Array($N, $T), items: ..T) -> bool {
     if a.len + builtin.len(items) <= cap(a^) {
-        n := copy(a.data[a.len:], items[:])
+        n := copy_slice(a.data[a.len:], items[:])
         a.len += n
         return true
     }

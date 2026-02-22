@@ -36,7 +36,7 @@ when ODIN_NO_CRT {
     // Returns value + index location into _env
     // or -1 if not found
     _lookup :: proc(key: string) -> (value: string, idx: int) {
-        sync.guard(&_env_mutex)
+        sync.mutex_guard(&_env_mutex)
 
         for entry, i in _env {
             if k, v := _kv_from_entry(entry); k == key {
@@ -65,7 +65,7 @@ when ODIN_NO_CRT {
 
         if v, idx := _lookup(key); idx != -1 {
             if len(buf) >= len(v) {
-                copy(buf, v)
+                copy_slice(buf, v)
                 return string(buf[:len(v)]), nil
             }
             return "", .Buffer_Full
@@ -77,7 +77,7 @@ when ODIN_NO_CRT {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
-        sync.guard(&_env_mutex)
+        sync.mutex_guard(&_env_mutex)
 
         // all key values are stored as "key=value\x00"
         kv_size := len(key) + len(v_new) + 2
@@ -127,7 +127,7 @@ when ODIN_NO_CRT {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
-        sync.guard(&_env_mutex)
+        sync.mutex_guard(&_env_mutex)
 
         v: string
         i: int
@@ -149,14 +149,14 @@ when ODIN_NO_CRT {
     }
 
     _clear_env :: proc() {
-        sync.guard(&_env_mutex)
+        sync.mutex_guard(&_env_mutex)
 
         for kv in _env {
             if !_is_in_org_env(kv) {
                 runtime.heap_free(raw_data(kv))
             }
         }
-        clear(&_env)
+        clear_dynamic_array(&_env)
 
         // nothing resides in the original environment either
         intrinsics.atomic_store_explicit(&_org_env_begin, ~uintptr(0), .Release)
@@ -167,14 +167,14 @@ when ODIN_NO_CRT {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
-        sync.guard(&_env_mutex)
+        sync.mutex_guard(&_env_mutex)
 
         env := make_dynamic_array([dynamic]string, 0, len(_env), allocator) or_return
         defer if err != nil {
             for e in env {
-                _ = delete(e, allocator)
+                _ = delete_slice(e, allocator)
             }
-            _ = delete(env)
+            _ = delete_slice(env)
         }
 
         for entry in _env {
@@ -196,7 +196,7 @@ when ODIN_NO_CRT {
             for ; org_env[n] != nil; n += 1 {}
             return slice.clone(org_env[:n + 1], allocator)
         }
-        sync.guard(&_env_mutex)
+        sync.mutex_guard(&_env_mutex)
 
         // NOTE: already terminated by nil pointer via + 1
         env := make_slice([]cstring, len(_env) + 1, allocator)
@@ -208,7 +208,7 @@ when ODIN_NO_CRT {
     }
 
     _build_env :: proc(allocator: runtime.Allocator) {
-        sync.guard(&_env_mutex)
+        sync.mutex_guard(&_env_mutex)
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) != 0 {
             return
         }
@@ -279,7 +279,7 @@ when ODIN_NO_CRT {
         if len(key) + 1 > len(buf) {
             return "", .Buffer_Full
         } else {
-            copy(buf, key)
+            copy_slice(buf, key)
         }
 
         cval := posix.getenv(cstring(raw_data(buf)))
@@ -293,7 +293,7 @@ when ODIN_NO_CRT {
             if len(value) > len(buf) {
                 return "", .Buffer_Full
             } else {
-                copy(buf, value)
+                copy_slice(buf, value)
                 return string(buf[:len(value)]), nil
             }
         }
@@ -338,9 +338,9 @@ when ODIN_NO_CRT {
         r := make_dynamic_array([dynamic]string, 0, n, allocator) or_return
         defer if err != nil {
             for e in r {
-                _ = delete(e, allocator)
+                _ = delete_slice(e, allocator)
             }
-            _ = delete(r)
+            _ = delete_slice(r)
         }
 
         for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {

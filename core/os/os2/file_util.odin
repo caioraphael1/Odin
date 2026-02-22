@@ -194,7 +194,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc :
             n: int
             n, err = read(f, buffer[:])
             total += n
-            _ = append_many(&out_buffer, ..buffer[:n], loc=loc) or_return
+            append_many(&out_buffer, ..buffer[:n], loc=loc) or_return
             if err != nil {
                 if err == .EOF || err == .Broken_Pipe {
                     err = nil
@@ -235,5 +235,5 @@ write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permiss
 */
 
 write_entire_file_from_string :: proc(name: string, data: string, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: runtime.Allocator) -> Error {
-    return write_entire_file(name, transmute([]byte)data, perm, truncate, allocator)
+    return write_entire_file_from_bytes(name, transmute([]byte)data, perm, truncate, allocator)
 }

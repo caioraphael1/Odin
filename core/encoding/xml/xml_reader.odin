@@ -360,7 +360,7 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
         return doc, .No_DocType
     }
 
-    _ = resize(&doc.elements, int(doc.element_count))
+    _ = resize_dynamic_array(&doc.elements, int(doc.element_count))
     return doc, .None
 }
 
@@ -387,19 +387,19 @@ destroy :: proc(doc: ^Document) {
     if doc == nil { return }
 
     for el in doc.elements {
-        _ = delete(el.attribs)
-        _ = delete(el.value)
+        _ = delete_slice(el.attribs)
+        _ = delete_slice(el.value)
     }
-    _ = delete(doc.elements)
+    _ = delete_slice(doc.elements)
 
-    _ = delete(doc.prologue)
-    _ = delete(doc.comments)
-    _ = delete(doc.input)
+    _ = delete_slice(doc.prologue)
+    _ = delete_slice(doc.comments)
+    _ = delete_slice(doc.input)
 
     for s in doc.strings_to_free {
-        _ = delete(s)
+        _ = delete_slice(s)
     }
-    _ = delete(doc.strings_to_free)
+    _ = delete_slice(doc.strings_to_free)
 
     _ = free(doc.tokenizer)
     _ = free(doc)
@@ -617,7 +617,7 @@ new_element :: proc(doc: ^Document) -> (id: Element_ID) {
         } else {
             element_space += 65536
         }
-        _ = resize(&doc.elements, element_space)
+        _ = resize_dynamic_array(&doc.elements, element_space)
     }
 
     cur := doc.element_count

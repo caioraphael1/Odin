@@ -866,7 +866,7 @@ wprintfln :: proc(w: io.Writer, format: string, args: ..any, flush := true) -> i
 // Returns: The number of bytes written and an io.Error if encountered
 //
 wprint_type :: proc(w: io.Writer, info: ^runtime.Type_Info, flush := true) -> (n: int, err: io.Error) {
-    n, err = reflect.write_type(w, info)
+    n, err = reflect.write_type_writer(w, info)
     if flush {
         io.flush(w) or_return
     }
@@ -881,7 +881,7 @@ wprint_type :: proc(w: io.Writer, info: ^runtime.Type_Info, flush := true) -> (n
 // Returns: The number of bytes written and an io.Error if encountered
 //
 wprint_typeid :: proc(w: io.Writer, id: typeid, flush := true) -> (n: int, err: io.Error) {
-    n, err = reflect.write_type(w, type_info_of(id))
+    n, err = reflect.write_type_writer(w, type_info_of(id))
     if flush {
         io.flush(w) or_return
     }
@@ -997,7 +997,7 @@ fmt_bad_verb :: proc(fi: ^Info, verb: rune) {
     _, _ = io.write_rune(fi.writer, verb, &fi.n)
     _ = io.write_byte(fi.writer, '(', &fi.n)
     if arg := fi.arg; arg != nil {
-        _, _ = reflect.write_typeid(fi.writer, arg.id, &fi.n)
+        _, _ = reflect.write_typeid_writer(fi.writer, arg.id, &fi.n)
         _ = io.write_byte(fi.writer, '=', &fi.n)
         fmt_value(fi, arg, 'v')
     } else {
@@ -1867,7 +1867,7 @@ fmt_bit_set :: proc(fi: ^Info, v: any, name: string = "", verb: rune = 'v') {
             if name != "" {
                 _, _ = io.write_string(fi.writer, name, &fi.n)
             } else {
-                _, _ = reflect.write_type(fi.writer, type_info, &fi.n)
+                _, _ = reflect.write_type_writer(fi.writer, type_info, &fi.n)
             }
         }
         _ = io.write_byte(fi.writer, '{', &fi.n)
@@ -2543,7 +2543,7 @@ fmt_named :: proc(fi: ^Info, v: any, verb: rune, info: runtime.Type_Info_Named) 
                     prec = 3
                     // U+00B5 'µ' micro sign == 0xC2 0xB5
                     w -= 1 // Need room for two bytes
-                    copy(buf[w:], "µ")
+                    copy_from_string(buf[w:], "µ")
                 case:
                     prec = 6
                     buf[w] = 'm'
@@ -2579,7 +2579,7 @@ fmt_named :: proc(fi: ^Info, v: any, verb: rune, info: runtime.Type_Info_Named) 
         case time.Time:
             t := a
             y, mon, d := time.date(t)
-            h, min, s := time.clock(t)
+            h, min, s := time.clock_from_time(t)
             ns := (t._nsec - (t._nsec/1e9 + time.UNIX_TO_ABSOLUTE)*1e9) % 1e9
             write_padded_number(fi, i64(y), 4)
             _ = io.write_byte(fi.writer, '-', &fi.n)
@@ -2883,7 +2883,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
 
     case runtime.Type_Info_Pointer:
         if v.id == typeid_of(^runtime.Type_Info) {
-            _, _ = reflect.write_type(fi.writer, (^^runtime.Type_Info)(v.data)^, &fi.n)
+            _, _ = reflect.write_type_writer(fi.writer, (^^runtime.Type_Info)(v.data)^, &fi.n)
         } else {
             ptr := (^rawptr)(v.data)^
             if verb != 'p' && info.elem != nil {
@@ -3171,14 +3171,14 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         if ptr == nil {
             _, _ = io.write_string(fi.writer, "nil", &fi.n)
         } else {
-            _, _ = reflect.write_typeid(fi.writer, v.id, &fi.n)
+            _, _ = reflect.write_typeid_writer(fi.writer, v.id, &fi.n)
             _, _ = io.write_string(fi.writer, " @ ", &fi.n)
             fmt_pointer(fi, ptr, 'p')
         }
 
     case runtime.Type_Info_Type_Id:
         id := (^typeid)(v.data)^
-        _, _ = reflect.write_typeid(fi.writer, id, &fi.n)
+        _, _ = reflect.write_typeid_writer(fi.writer, id, &fi.n)
 
     case runtime.Type_Info_Bit_Set:
         fmt_bit_set(fi, v, verb = verb)
@@ -3195,7 +3195,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
 @(private)
 _cq_should_print_intermediate_plus :: proc(fi: ^Info, f: f64) -> bool {
     if !fi.plus && f >= 0 {
-        #partial switch math.classify(f) {
+        #partial switch math.classify_f64(f) {
         case .Neg_Zero, .Inf:
             // These two classes print their own signs.
             return false
@@ -3288,7 +3288,7 @@ fmt_arg :: proc(fi: ^Info, arg: any, verb: rune) {
         switch a in arg {
         case ^runtime.Type_Info: ti = a
         }
-        _, _ = reflect.write_type(fi.writer, ti, &fi.n)
+        _, _ = reflect.write_type_writer(fi.writer, ti, &fi.n)
         return
     }
 
@@ -3358,7 +3358,7 @@ fmt_arg :: proc(fi: ^Info, arg: any, verb: rune) {
     case string16:  fmt_string16(fi, a, verb)
     case cstring16: fmt_cstring16(fi, a, verb)
 
-    case typeid:  _, _ = reflect.write_typeid(fi.writer, a, &fi.n)
+    case typeid:  _, _ = reflect.write_typeid_writer(fi.writer, a, &fi.n)
 
     case i16le:     fmt_int(fi, u64(a), true,  16, verb)
     case u16le:     fmt_int(fi, u64(a), false, 16, verb)

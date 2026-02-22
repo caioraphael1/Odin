@@ -10,7 +10,7 @@ import "core:testing"
 test_index_byte_sanity :: proc(t: ^testing.T) {
 	// We must be able to find the byte at the correct index.
 	data := make_slice([]u8, 2 * SIMD_SCAN_WIDTH)
-	defer _ = delete(data)
+	defer _ = delete_slice(data)
 	slice.fill(data, '-')
 
 	INDEX_MAX :: SIMD_SCAN_WIDTH - 1
@@ -41,7 +41,7 @@ test_index_byte_empty :: proc(t: ^testing.T) {
 test_index_byte_multiple_hits :: proc(t: ^testing.T) {
 	for n in 5..<256 {
 		data := make_slice([]u8, n)
-		defer _ = delete(data)
+		defer _ = delete_slice(data)
 		slice.fill(data, '-')
 
 		data[n-1] = 'o'
@@ -65,7 +65,7 @@ test_index_byte_zero :: proc(t: ^testing.T) {
 	// This test protects against false positives in uninitialized memory.
 	for n in 1..<256 {
 		data := make_slice([]u8, n + 64)
-		defer _ = delete(data)
+		defer _ = delete_slice(data)
 		slice.fill(data, '-')
 
 		// Positive hit.

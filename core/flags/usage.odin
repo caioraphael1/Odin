@@ -99,7 +99,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
     }
 
     visible_flags: [dynamic]Flag
-    defer _ = delete(visible_flags)
+    defer _ = delete_dynamic_array(visible_flags)
 
     longest_flag_length: int
 

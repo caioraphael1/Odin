@@ -180,7 +180,7 @@ bc_final :: proc(
 	tmp: [BLOCK_SIZE]byte
 
 	tmp[0] = PREFIX_TAG << PREFIX_SHIFT
-	copy(tmp[1:], iv)
+	copy_slice(tmp[1:], iv)
 
 	tweak := intrinsics.unaligned_load((^x86.__m128i)(&tmp))
 
@@ -269,7 +269,7 @@ bc_encrypt :: proc(
 @(private)
 e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_check {
 	tmp: [BLOCK_SIZE]byte
-	copy(tmp[1:], iv)
+	copy_slice(tmp[1:], iv)
 	iv_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(&tmp)))
 
 	// Algorithm 3
@@ -292,7 +292,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	if l := len(aad); l > 0 {
 		a_star: [BLOCK_SIZE]byte
 
-		copy(a_star[:], aad)
+		copy_slice(a_star[:], aad)
 		a_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, a_star[:], _PREFIX_AD_FINAL, n)
@@ -314,7 +314,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy(m_star[:], m)
+		copy_slice(m_star[:], m)
 		m_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, m_star[:], _PREFIX_MSG_FINAL, n)
@@ -336,10 +336,10 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy(m_star[:], m)
+		copy_slice(m_star[:], m)
 		_ = bc_encrypt(ctx, m_star[:], m_star[:], iv_, auth, n)
 
-		copy(dst[n*BLOCK_SIZE:], m_star[:])
+		copy_slice(dst[n*BLOCK_SIZE:], m_star[:])
 	}
 
 	intrinsics.unaligned_store((^x86.__m128i)(raw_data(tag)), auth)
@@ -348,7 +348,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 @(private)
 d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	tmp: [BLOCK_SIZE]byte
-	copy(tmp[1:], iv)
+	copy_slice(tmp[1:], iv)
 	iv_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(&tmp)))
 
 	// Algorithm 4
@@ -369,10 +369,10 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy(m_star[:], m)
+		copy_slice(m_star[:], m)
 		_ = bc_encrypt(ctx, m_star[:], m_star[:], iv_, auth, n)
 
-		copy(dst[n*BLOCK_SIZE:], m_star[:])
+		copy_slice(dst[n*BLOCK_SIZE:], m_star[:])
 
 		mem.zero_explicit(&m_star, size_of(m_star))
 	}
@@ -393,7 +393,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(aad); l > 0 {
 		a_star: [BLOCK_SIZE]byte
 
-		copy(a_star[:], aad)
+		copy_slice(a_star[:], aad)
 		a_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, a_star[:], _PREFIX_AD_FINAL, n)
@@ -415,7 +415,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy(m_star[:], m)
+		copy_slice(m_star[:], m)
 		m_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, m_star[:], _PREFIX_MSG_FINAL, n)

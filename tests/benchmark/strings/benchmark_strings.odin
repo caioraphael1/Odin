@@ -39,7 +39,7 @@ plain_prefix_length :: proc(a, b: string) -> (n: int) {
 		s := a[:n]
 		n = 0
 		for {
-			r0, w := utf8.decode_rune(s[n:])
+			r0, w := utf8.decode_rune_in_bytes(s[n:])
 			if r0 != utf8.RUNE_ERROR {
 				n += w
 			} else {
@@ -54,13 +54,13 @@ run_trial_size_prefix :: proc(p: proc(string, string) -> $R, suffix: string, siz
 	left  := make_slice([]u8, size)
 	right := make_slice([]u8, size)
 	defer {
-		_ = delete(left)
-		_ = delete(right)
+		_ = delete_slice(left)
+		_ = delete_slice(right)
 	}
 
 	if len(suffix) > 0 {
-		copy(left [idx:], suffix)
-		copy(right[idx:], suffix)
+		copy_slice(left [idx:], suffix)
+		copy_slice(right[idx:], suffix)
 
 	} else {
 		right[idx] = 'A'

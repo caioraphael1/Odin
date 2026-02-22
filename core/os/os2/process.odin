@@ -24,7 +24,7 @@ init_args :: proc(allocator: runtime.Allocator) {
 }
 
 fini_args :: proc(allocator: runtime.Allocator) {
-    _ = delete(args, allocator)
+    _ = delete_slice(args, allocator)
 }
 
 /*
@@ -226,14 +226,6 @@ current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime.
     return _current_process_info(selection, allocator)
 }
 
-/*
-Obtain information about the specified process.
-*/
-
-    process_info_by_pid,
-    process_info_by_handle,
-    current_process_info,
-}
 
 /*
 Free the information about the process.
@@ -243,18 +235,18 @@ allocator. The allocator needs to be the same allocator that was supplied
 to the `process_info` function.
 */
 free_process_info :: proc(pi: Process_Info, allocator: runtime.Allocator) {
-    _ = delete(pi.executable_path, allocator)
-    _ = delete(pi.command_line, allocator)
+    _ = delete_string(pi.executable_path, allocator)
+    _ = delete_string(pi.command_line, allocator)
     for a in pi.command_args {
-        _ = delete(a, allocator)
+        _ = delete_string(a, allocator)
     }
-    _ = delete(pi.command_args, allocator)
+    _ = delete_slice(pi.command_args, allocator)
     for s in pi.environment {
-        _ = delete(s, allocator)
+        _ = delete_string(s, allocator)
     }
-    _ = delete(pi.environment, allocator)
-    _ = delete(pi.working_dir, allocator)
-    _ = delete(pi.username, allocator)
+    _ = delete_slice(pi.environment, allocator)
+    _ = delete_string(pi.working_dir, allocator)
+    _ = delete_string(pi.username, allocator)
 }
 
 /*
@@ -363,7 +355,7 @@ are left at default, i.e. a `nil` value. You can not capture stdout/stderr and
 redirect it to a file at the same time.
 
 This procedure does not free `stdout` and `stderr` slices before an error is
-returned. Make sure to call `_ = delete` on these slices.
+returned. Make sure to call `_ = delete_slice` on these slices.
 */
 
 process_exec :: proc(
@@ -417,7 +409,7 @@ process_exec :: proc(
 
                 switch err {
                 case nil:
-                    err = append(&stdout_b, ..buf[:n])
+                    err = append_many(&stdout_b, ..buf[:n])
                 case .EOF, .Broken_Pipe:
                     stdout_done = true
                     err = nil
@@ -433,7 +425,7 @@ process_exec :: proc(
 
                 switch err {
                 case nil:
-                    err = append(&stderr_b, ..buf[:n])
+                    err = append_many(&stderr_b, ..buf[:n])
                 case .EOF, .Broken_Pipe:
                     stderr_done = true
                     err = nil

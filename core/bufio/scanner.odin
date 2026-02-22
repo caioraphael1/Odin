@@ -8,37 +8,37 @@ import "base:intrinsics"
 
 // Extra errors returns by scanning procedures
 Scanner_Extra_Error :: enum i32 {
-	None,
-	Negative_Advance,
-	Advanced_Too_Far,
-	Bad_Read_Count,
-	Too_Long,
-	Too_Short,
+    None,
+    Negative_Advance,
+    Advanced_Too_Far,
+    Bad_Read_Count,
+    Too_Long,
+    Too_Short,
 }
 
 Scanner_Error :: union #shared_nil {
-	io.Error,
-	Scanner_Extra_Error,
+    io.Error,
+    Scanner_Extra_Error,
 }
 
 // Split_Proc is the signature of the split procedure used to tokenize the input.
 Split_Proc :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool)
 
 Scanner :: struct {
-	r:              io.Reader,
-	split:          Split_Proc,
+    r:              io.Reader,
+    split:          Split_Proc,
 
-	buf:            [dynamic]byte,
-	max_token_size: int,
-	start:          int,
-	end:            int,
-	token:          []byte,
+    buf:            [dynamic]byte,
+    max_token_size: int,
+    start:          int,
+    end:            int,
+    token:          []byte,
 
-	_err: Scanner_Error,
-	max_consecutive_empty_reads:  int,
-	successive_empty_token_count: int,
-	scan_called: bool,
-	done:        bool,
+    _err: Scanner_Error,
+    max_consecutive_empty_reads:  int,
+    successive_empty_token_count: int,
+    scan_called: bool,
+    done:        bool,
 }
 
 DEFAULT_MAX_SCAN_TOKEN_SIZE :: 1<<16
@@ -48,34 +48,34 @@ _INIT_BUF_SIZE :: 4096
 
 // Initializes a Scanner buffer an allocator `buf_allocator`
 scanner_init :: proc(s: ^Scanner, r: io.Reader, buf_allocator: mem.Allocator) -> ^Scanner {
-	s.r = r
-	s.split = scan_lines
-	s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
-	s.buf.allocator = buf_allocator
-	return s
+    s.r = r
+    s.split = scan_lines
+    s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
+    s.buf.allocator = buf_allocator
+    return s
 }
 
 // Initializes a Scanner buffer a user provided bytes buffer `buf`
 scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []byte) -> ^Scanner {
-	s.r = r
-	s.split = scan_lines
-	s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
-	s.buf = mem.buffer_from_slice(buf)
-	_ = resize(&s.buf, cap(s.buf))
-	return s
+    s.r = r
+    s.split = scan_lines
+    s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
+    s.buf = mem.buffer_from_slice(buf)
+    _ = resize_dynamic_array(&s.buf, cap(s.buf))
+    return s
 }
 scanner_destroy :: proc(s: ^Scanner) {
-	_ = delete(s.buf)
+    _ = delete_dynamic_array(s.buf)
 }
 
 
 // Returns the first non-EOF error that was encountered by the scanner
 scanner_error :: proc(s: ^Scanner) -> Scanner_Error {
-	switch s._err {
-	case .EOF, nil:
-		return nil
-	}
-	return s._err
+    switch s._err {
+    case .EOF, nil:
+        return nil
+    }
+    return s._err
 }
 
 // Returns the most recent token created by 'scan'.
@@ -83,7 +83,7 @@ scanner_error :: proc(s: ^Scanner) -> Scanner_Error {
 // by another call to 'scan'.
 // Treat the returned value as if it is immutable.
 scanner_bytes :: proc(s: ^Scanner) -> []byte {
-	return s.token
+    return s.token
 }
 
 // Returns the most recent token created by 'scan'.
@@ -91,7 +91,7 @@ scanner_bytes :: proc(s: ^Scanner) -> []byte {
 // by another call to 'scan'.
 // Treat the returned value as if it is immutable.
 scanner_text :: proc(s: ^Scanner) -> string {
-	return string(s.token)
+    return string(s.token)
 }
 
 // scanner_scan is an alias of scan
@@ -99,148 +99,148 @@ scanner_scan :: scan
 
 // scan advances the Scanner
 scan :: proc(s: ^Scanner) -> bool {
-	set_err :: proc(s: ^Scanner, err: Scanner_Error) {
-		switch s._err {
-		case nil, .EOF:
-			s._err = err
-		}
-	}
+    set_err :: proc(s: ^Scanner, err: Scanner_Error) {
+        switch s._err {
+        case nil, .EOF:
+            s._err = err
+        }
+    }
 
-	if s.done {
-		return false
-	}
-	s.scan_called = true
+    if s.done {
+        return false
+    }
+    s.scan_called = true
 
-	for {
-		// Check if a token is possible with what is available
-		// Allow the split procedure to recover if it fails
-		if s.start < s.end || s._err != nil {
-			advance, token, err, final_token := s.split(s.buf[s.start:s.end], s._err != nil)
-			if final_token {
-				s.token = token
-				s.done = true
-				return true
-			}
-			if err != nil {
-				set_err(s, err)
-				return false
-			}
+    for {
+        // Check if a token is possible with what is available
+        // Allow the split procedure to recover if it fails
+        if s.start < s.end || s._err != nil {
+            advance, token, err, final_token := s.split(s.buf[s.start:s.end], s._err != nil)
+            if final_token {
+                s.token = token
+                s.done = true
+                return true
+            }
+            if err != nil {
+                set_err(s, err)
+                return false
+            }
 
-			// Do advance
-			if advance < 0 {
-				set_err(s, .Negative_Advance)
-				return false
-			}
-			if advance > s.end-s.start {
-				set_err(s, .Advanced_Too_Far)
-				return false
-			}
-			s.start += advance
+            // Do advance
+            if advance < 0 {
+                set_err(s, .Negative_Advance)
+                return false
+            }
+            if advance > s.end-s.start {
+                set_err(s, .Advanced_Too_Far)
+                return false
+            }
+            s.start += advance
 
-			s.token = token
-			if s.token != nil {
-				if s._err == nil || advance > 0 {
-					s.successive_empty_token_count = 0
-				} else {
-					s.successive_empty_token_count += 1
+            s.token = token
+            if s.token != nil {
+                if s._err == nil || advance > 0 {
+                    s.successive_empty_token_count = 0
+                } else {
+                    s.successive_empty_token_count += 1
 
-					if s.max_consecutive_empty_reads <= 0 {
-						s.max_consecutive_empty_reads = DEFAULT_MAX_CONSECUTIVE_EMPTY_READS
-					}
-					if s.successive_empty_token_count > s.max_consecutive_empty_reads {
-						set_err(s, .No_Progress)
-						return false
-					}
-				}
-				return true
-			}
-		}
+                    if s.max_consecutive_empty_reads <= 0 {
+                        s.max_consecutive_empty_reads = DEFAULT_MAX_CONSECUTIVE_EMPTY_READS
+                    }
+                    if s.successive_empty_token_count > s.max_consecutive_empty_reads {
+                        set_err(s, .No_Progress)
+                        return false
+                    }
+                }
+                return true
+            }
+        }
 
-		// If an error is hit, no token can be created
-		if s._err != nil {
-			s.start = 0
-			s.end = 0
-			return false
-		}
+        // If an error is hit, no token can be created
+        if s._err != nil {
+            s.start = 0
+            s.end = 0
+            return false
+        }
 
-		// More data must be required to be read
-		if s.start > 0 && (s.end == len(s.buf) || s.start > len(s.buf)/2) {
-			copy(s.buf[:], s.buf[s.start:s.end])
-			s.end -= s.start
-			s.start = 0
-		}
+        // More data must be required to be read
+        if s.start > 0 && (s.end == len(s.buf) || s.start > len(s.buf)/2) {
+            copy_slice(s.buf[:], s.buf[s.start:s.end])
+            s.end -= s.start
+            s.start = 0
+        }
 
-		could_be_too_short := false
+        could_be_too_short := false
 
-		// Resize the buffer if full
-		if s.end == len(s.buf) {
-			if s.max_token_size <= 0 {
-				s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
-			}
-			if len(s.buf) >= s.max_token_size {
-				set_err(s, .Too_Long)
-				return false
-			}
-			// overflow check
-			new_size := _INIT_BUF_SIZE
-			if len(s.buf) > 0 {
-				overflowed: bool
-				if new_size, overflowed = intrinsics.overflow_mul(len(s.buf), 2); overflowed {
-					set_err(s, .Too_Long)
-					return false
-				}
-			}
+        // Resize the buffer if full
+        if s.end == len(s.buf) {
+            if s.max_token_size <= 0 {
+                s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
+            }
+            if len(s.buf) >= s.max_token_size {
+                set_err(s, .Too_Long)
+                return false
+            }
+            // overflow check
+            new_size := _INIT_BUF_SIZE
+            if len(s.buf) > 0 {
+                overflowed: bool
+                if new_size, overflowed = intrinsics.overflow_mul(len(s.buf), 2); overflowed {
+                    set_err(s, .Too_Long)
+                    return false
+                }
+            }
 
-			old_size := len(s.buf)
-			new_size = min(new_size, s.max_token_size)
-			_ = resize(&s.buf, new_size)
-			s.end -= s.start
-			s.start = 0
+            old_size := len(s.buf)
+            new_size = min(new_size, s.max_token_size)
+            _ = resize_dynamic_array(&s.buf, new_size)
+            s.end -= s.start
+            s.start = 0
 
-			could_be_too_short = old_size >= len(s.buf)
+            could_be_too_short = old_size >= len(s.buf)
 
-		}
+        }
 
-		// Read data into the buffer
-		loop := 0
-		for {
-			n, err := io.read(s.r, s.buf[s.end:len(s.buf)])
-			if n < 0 || len(s.buf)-s.end < n {
-				set_err(s, .Bad_Read_Count)
-				break
-			}
-			s.end += n
-			if err != nil {
-				set_err(s, err)
-				break
-			}
-			if n > 0 {
-				s.successive_empty_token_count = 0
-				break
-			}
-			loop += 1
+        // Read data into the buffer
+        loop := 0
+        for {
+            n, err := io.read(s.r, s.buf[s.end:len(s.buf)])
+            if n < 0 || len(s.buf)-s.end < n {
+                set_err(s, .Bad_Read_Count)
+                break
+            }
+            s.end += n
+            if err != nil {
+                set_err(s, err)
+                break
+            }
+            if n > 0 {
+                s.successive_empty_token_count = 0
+                break
+            }
+            loop += 1
 
-			if s.max_consecutive_empty_reads <= 0 {
-				s.max_consecutive_empty_reads = DEFAULT_MAX_CONSECUTIVE_EMPTY_READS
-			}
-			if loop > s.max_consecutive_empty_reads {
-				if could_be_too_short {
-					set_err(s, .Too_Short)
-				} else {
-					set_err(s, .No_Progress)
-				}
-				break
-			}
-		}
-	}
+            if s.max_consecutive_empty_reads <= 0 {
+                s.max_consecutive_empty_reads = DEFAULT_MAX_CONSECUTIVE_EMPTY_READS
+            }
+            if loop > s.max_consecutive_empty_reads {
+                if could_be_too_short {
+                    set_err(s, .Too_Short)
+                } else {
+                    set_err(s, .No_Progress)
+                }
+                break
+            }
+        }
+    }
 }
 
 // scan_bytes is a splitting procedure that returns each byte as a token
 scan_bytes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
-	if at_eof && len(data) == 0 {
-		return
-	}
-	return 1, data[0:1], nil, false
+    if at_eof && len(data) == 0 {
+        return
+    }
+    return 1, data[0:1], nil, false
 }
 
 // scan_runes is a splitting procedure that returns each UTF-8 encoded rune as a token.
@@ -248,104 +248,104 @@ scan_bytes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
 // erroneous UTF-8 encodings will be returned as U+FFFD. Unfortunately this means it is impossible for the "client"
 // to know whether a U+FFFD is an expected replacement rune or an encoding of an error.
 scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
-	if at_eof && len(data) == 0 {
-		return
-	}
+    if at_eof && len(data) == 0 {
+        return
+    }
 
-	if data[0] < utf8.RUNE_SELF {
-		advance = 1
-		token = data[0:1]
-		return
-	}
+    if data[0] < utf8.RUNE_SELF {
+        advance = 1
+        token = data[0:1]
+        return
+    }
 
-	_, width := utf8.decode_rune(data)
-	if width > 1 {
-		advance = width
-		token = data[0:width]
-		return
-	}
+    _, width := utf8.decode_rune_in_bytes(data)
+    if width > 1 {
+        advance = width
+        token = data[0:width]
+        return
+    }
 
-	if !at_eof && !utf8.full_rune(data) {
-		return
-	}
+    if !at_eof && !utf8.full_rune_in_bytes(data) {
+        return
+    }
 
-	@(thread_local) ERROR_RUNE := []byte{0xef, 0xbf, 0xbd}
+    @(thread_local) ERROR_RUNE := []byte{0xef, 0xbf, 0xbd}
 
-	advance = 1
-	token = ERROR_RUNE
-	return
+    advance = 1
+    token = ERROR_RUNE
+    return
 }
 // scan_words is a splitting procedure that returns each Unicode-space-separated word of text, excluding the surrounded spaces.
 // It will never return return an empty string.
 scan_words :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
-	is_space :: proc(r:  rune) -> bool {
-		switch r {
-		// lower ones
-		case ' ', '\t', '\n', '\v', '\f', '\r':
-			return true
-		case '\u0085', '\u00a0':
-			return true
-		// higher ones
-		case '\u2000' ..= '\u200a':
-			return true
-		case '\u1680', '\u2028', '\u2029', '\u202f', '\u205f', '\u3000':
-			return true
-		}
-		return false
-	}
+    is_space :: proc(r:  rune) -> bool {
+        switch r {
+        // lower ones
+        case ' ', '\t', '\n', '\v', '\f', '\r':
+            return true
+        case '\u0085', '\u00a0':
+            return true
+        // higher ones
+        case '\u2000' ..= '\u200a':
+            return true
+        case '\u1680', '\u2028', '\u2029', '\u202f', '\u205f', '\u3000':
+            return true
+        }
+        return false
+    }
 
-	// skip spaces at the beginning
-	start := 0
-	for width := 0; start < len(data); start += width {
-		r: rune
-		r, width = utf8.decode_rune(data[start:])
-		if !is_space(r) {
-			break
-		}
-	}
+    // skip spaces at the beginning
+    start := 0
+    for width := 0; start < len(data); start += width {
+        r: rune
+        r, width = utf8.decode_rune_in_bytes(data[start:])
+        if !is_space(r) {
+            break
+        }
+    }
 
-	for width, i := 0, start; i < len(data); i += width {
-		r: rune
-		r, width = utf8.decode_rune(data[i:])
-		if is_space(r) {
-			advance = i+width
-			token = data[start:i]
-			return
-		}
-	}
+    for width, i := 0, start; i < len(data); i += width {
+        r: rune
+        r, width = utf8.decode_rune_in_bytes(data[i:])
+        if is_space(r) {
+            advance = i+width
+            token = data[start:i]
+            return
+        }
+    }
 
-	if at_eof && len(data) > start {
-		advance = len(data)
-		token = data[start:]
-		return
-	}
+    if at_eof && len(data) > start {
+        advance = len(data)
+        token = data[start:]
+        return
+    }
 
-	advance = start
-	return
+    advance = start
+    return
 }
 
 // scan_lines is a splitting procedure that returns each line of text stripping of any trailing newline and an optional preceding carriage return (\r?\n).
 // A new line is allowed to be empty.
 scan_lines :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
-	trim_carriage_return :: proc(data: []byte) -> []byte {
-		if len(data) > 0 && data[len(data)-1] == '\r' {
-			return data[0:len(data)-1]
-		}
-		return data
-	}
+    trim_carriage_return :: proc(data: []byte) -> []byte {
+        if len(data) > 0 && data[len(data)-1] == '\r' {
+            return data[0:len(data)-1]
+        }
+        return data
+    }
 
-	if at_eof && len(data) == 0 {
-		return
-	}
-	if i := bytes.index_byte(data, '\n'); i >= 0 {
-		advance = i+1
-		token = trim_carriage_return(data[0:i])
-		return
-	}
+    if at_eof && len(data) == 0 {
+        return
+    }
+    if i := bytes.index_byte(data, '\n'); i >= 0 {
+        advance = i+1
+        token = trim_carriage_return(data[0:i])
+        return
+    }
 
-	if at_eof {
-		advance = len(data)
-		token = trim_carriage_return(data)
-	}
-	return
+    if at_eof {
+        advance = len(data)
+        token = trim_carriage_return(data)
+    }
+    return
 }

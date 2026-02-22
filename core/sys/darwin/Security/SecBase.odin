@@ -175,7 +175,7 @@ errSec :: enum OSStatus {
 	InvalidQuery = -67693, // The specified query was not valid.
 	InvalidValue = -67694, // An invalid value was detected.
 	CallbackFailed = -67695, // A callback has failed.
-	ACLDeleteFailed = -67696, // An ACL _ = delete operation has failed.
+	ACLDeleteFailed = -67696, // An ACL _ = delete_slice operation has failed.
 	ACLReplaceFailed = -67697, // An ACL replace operation has failed.
 	ACLAddFailed = -67698, // An ACL add operation has failed.
 	ACLChangeFailed = -67699, // An ACL change operation has failed.

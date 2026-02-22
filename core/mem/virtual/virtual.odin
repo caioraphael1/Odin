@@ -28,7 +28,7 @@ commit :: proc(data: rawptr, size: uint) -> Allocator_Error {
 
 @(no_sanitize_address)
 reserve_and_commit :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
-	data = reserve(size) or_return
+	data = reserve_dynamic_array(size) or_return
 	commit(raw_data(data), size) or_return
 	return
 }

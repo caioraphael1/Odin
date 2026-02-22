@@ -67,7 +67,7 @@ Context :: struct {
 init :: proc(ctx: ^Context, key: []byte, impl := chacha20.DEFAULT_IMPLEMENTATION) {
 	ensure(len(key) == KEY_SIZE, "crypto/chacha20poly1305: invalid key size")
 
-	copy(ctx._key[:], key)
+	copy_slice(ctx._key[:], key)
 	ctx._impl = impl
 	ctx._is_xchacha = false
 	ctx._is_initialized = true

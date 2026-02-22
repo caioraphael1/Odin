@@ -38,9 +38,9 @@ destroy :: proc(img: ^Image) {
 
 	if v, ok := img.metadata.(^image.PNG_Info); ok {
 		for chunk in v.chunks {
-			_ = delete(chunk.data)
+			_ = delete_slice(chunk.data)
 		}
-		_ = delete(v.chunks)
+		_ = delete_slice(v.chunks)
 		_ = free(v)
 	}
 	_ = free(img)
@@ -82,7 +82,7 @@ time :: proc(c: image.PNG_Chunk) -> (res: tIME, ok: bool) {
 
 core_time :: proc(c: image.PNG_Chunk) -> (t: coretime.Time, ok: bool) {
 	if t, png_ok := time(c); png_ok {
-		return coretime.datetime_to_time(
+		return coretime.components_to_time(
 			int(t.year), int(t.month),  int(t.day),
 			int(t.hour), int(t.minute), int(t.second),
 		)
@@ -190,10 +190,10 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 }
 
 text_destroy :: proc(text: Text) {
-	_ = delete(text.keyword)
-	_ = delete(text.keyword_localized)
-	_ = delete(text.language)
-	_ = delete(text.text)
+	_ = delete_slice(text.keyword)
+	_ = delete_slice(text.keyword_localized)
+	_ = delete_slice(text.language)
+	_ = delete_slice(text.text)
 }
 
 iccp :: proc(c: image.PNG_Chunk) -> (res: iCCP, ok: bool) {
@@ -226,9 +226,9 @@ iccp :: proc(c: image.PNG_Chunk) -> (res: iCCP, ok: bool) {
 }
 
 iccp_destroy :: proc(i: iCCP) {
-	_ = delete(i.name)
+	_ = delete_slice(i.name)
 
-	_ = delete(i.profile)
+	_ = delete_slice(i.profile)
 
 }
 
@@ -305,7 +305,7 @@ splt :: proc(c: image.PNG_Chunk) -> (res: sPLT, ok: bool) {
 }
 
 splt_destroy :: proc(s: sPLT) {
-	_ = delete(s.name)
+	_ = delete_slice(s.name)
 }
 
 sbit :: proc(c: image.PNG_Chunk) -> (res: [4]u8, ok: bool) {

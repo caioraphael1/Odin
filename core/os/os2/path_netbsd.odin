@@ -19,6 +19,6 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
             return clone_string(string(buf[:n]), allocator)
         }
 
-        _ = resize(&buf, len(buf)*2) or_return
+        _ = resize_dynamic_array(&buf, len(buf)*2) or_return
     }
 }

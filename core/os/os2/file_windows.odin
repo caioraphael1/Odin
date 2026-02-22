@@ -276,7 +276,7 @@ _seek :: proc(f: ^File_Impl, offset: i64, whence: io.Seek_From) -> (ret: i64, er
         return 0, .Invalid_File
     }
 
-    sync.guard(&f.rw_mutex)
+    sync.rw_mutex_guard(&f.rw_mutex)
 
     w: u32
     switch whence {
@@ -361,9 +361,9 @@ _read_internal :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
     single_read_length: win32.DWORD
     total_read: int
 
-    sync.shared_guard(&f.rw_mutex) // multiple readers
+    sync.rw_mutex_shared_guard(&f.rw_mutex) // multiple readers
 
-    if sync.guard(&f.p_mutex) {
+    if sync.mutex_guard(&f.p_mutex) {
         to_read := min(win32.DWORD(length), MAX_RW)
         ok: win32.BOOL
         if f.kind == .Console {
@@ -417,7 +417,7 @@ _read_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (n: i64, err: Error) 
         return
     }
 
-    sync.guard(&f.p_mutex)
+    sync.mutex_guard(&f.p_mutex)
 
     p, offset := p, offset
     for len(p) > 0 {
@@ -443,7 +443,7 @@ _write_internal :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
 
     handle := _handle(&f.file)
 
-    sync.guard(&f.rw_mutex)
+    sync.rw_mutex_guard(&f.rw_mutex)
     for total_write < length {
         remaining := length - total_write
         to_write := win32.DWORD(min(i32(remaining), MAX_RW))
@@ -484,7 +484,7 @@ _write_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (n: i64, err: Error)
         return
     }
 
-    sync.guard(&f.p_mutex)
+    sync.mutex_guard(&f.p_mutex)
     p, offset := p, offset
     for len(p) > 0 {
         m := pwrite(f, p, offset) or_return
@@ -639,16 +639,16 @@ _normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: st
     }
 
     if !has_unc_prefix(p) {
-        return win32_utf16_to_utf8(p, allocator)
+        return win32_utf16_u16_to_utf8(p, allocator)
     }
 
     ws := p[4:]
     switch {
     case len(ws) >= 2 && ws[1] == ':':
-        return win32_utf16_to_utf8(ws, allocator)
+        return win32_utf16_u16_to_utf8(ws, allocator)
     case has_prefix(ws, `UNC\`):
         ws[3] = '\\' // override data in buffer
-        return win32_utf16_to_utf8(ws[3:], allocator)
+        return win32_utf16_u16_to_utf8(ws[3:], allocator)
     }
 
 
@@ -673,9 +673,9 @@ _normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: st
         ws = ws[4:]
         if len(ws) > 3 && has_prefix(ws, `UNC`) {
             ws[2] = '\\'
-            return win32_utf16_to_utf8(ws[2:], allocator)
+            return win32_utf16_u16_to_utf8(ws[2:], allocator)
         }
-        return win32_utf16_to_utf8(ws, allocator)
+        return win32_utf16_u16_to_utf8(ws, allocator)
     }
     return "", .Invalid_Path
 }
@@ -708,7 +708,7 @@ _read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, er
         pb[rb.SubstituteNameOffset+rb.SubstituteNameLength] = 0
         p := pb[rb.SubstituteNameOffset:][:rb.SubstituteNameLength]
         if rb.Flags & win32.SYMLINK_FLAG_RELATIVE != 0 {
-            return win32_utf16_to_utf8(p, allocator)
+            return win32_utf16_u16_to_utf8(p, allocator)
         }
         return _normalize_link_path(p, allocator)
 
@@ -898,7 +898,7 @@ win32_wstring_to_utf8 :: proc(s: cstring16, allocator: runtime.Allocator) -> (re
     if s == nil || s == "" {
         return "", nil
     }
-    return win32_utf16_to_utf8(string16(s), allocator)
+    return win32_utf16_string16_to_utf8(string16(s), allocator)
 }
 
 
@@ -922,7 +922,7 @@ win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: runtime.Allocator) 
 
     n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
     if n1 == 0 {
-        _ = delete_string(text, allocator)
+        _ = delete_slice(text, allocator)
         return
     }
 

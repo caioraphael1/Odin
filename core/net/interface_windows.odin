@@ -26,7 +26,7 @@ import "core:mem"
 
 _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network_Interface, err: Interfaces_Error) {
     buf: []u8
-    defer _ = delete(buf, allocator)
+    defer _ = delete_slice(buf, allocator)
 
     buf_size: u32
     res:      u32
@@ -46,7 +46,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
         switch res {
         case 111: // ERROR_BUFFER_OVERFLOW:
-            _ = delete(buf, allocator)
+            _ = delete_slice(buf, allocator)
             buf, _ = make_slice([]u8, buf_size, allocator)
         case 0:
             break gaa
@@ -62,13 +62,13 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
     _interfaces, _ := make_dynamic_array([dynamic]Network_Interface, 0, allocator)
     for adapter := (^sys.IP_Adapter_Addresses)(raw_data(buf)); adapter != nil; adapter = adapter.Next {
-        friendly_name, err1 := sys.wstring_to_utf8(sys.wstring(adapter.FriendlyName), 256, allocator)
+        friendly_name, err1 := sys.wstring_to_utf8_alloc(sys.wstring(adapter.FriendlyName), 256, allocator)
         if err1 != nil { return {}, .Allocation_Failure }
 
-        description, err2 :=  sys.wstring_to_utf8(sys.wstring(adapter.Description), 256, allocator)
+        description, err2 :=  sys.wstring_to_utf8_alloc(sys.wstring(adapter.Description), 256, allocator)
         if err2 != nil { return {}, .Allocation_Failure }
 
-        dns_suffix, err3  :=  sys.wstring_to_utf8(sys.wstring(adapter.DnsSuffix), 256, allocator)
+        dns_suffix, err3  :=  sys.wstring_to_utf8_alloc(sys.wstring(adapter.DnsSuffix), 256, allocator)
         if err3 != nil { return {}, .Allocation_Failure }
 
         adapter_name_clone, _ := strings.clone(string(adapter.AdapterName), allocator)

@@ -17,7 +17,7 @@ push_positional :: #force_no_inline proc (model: ^$T, parser: ^Parser, arg: stri
     if set, valid_index := bit_array.get(&parser.filled_pos, parser.filled_pos.length - 1); set || !valid_index {
         // The index below the last one is either set or invalid, which means we're out of space.
         // Add one free bit by setting the index above to false.
-        bit_array.set(&parser.filled_pos, parser.filled_pos.length, false)
+        _ = bit_array.set(&parser.filled_pos, parser.filled_pos.length, false, allocator)
     }
 
     pos: int = ---
@@ -58,19 +58,19 @@ push_positional :: #force_no_inline proc (model: ^$T, parser: ^Parser, arg: stri
             " " if len(specific_error.message) > 0 else "",
             specific_error.message)
     case nil:
-        bit_array.set(&parser.filled_pos, pos)
-        bit_array.set(&parser.fields_set, index)
+        _ = bit_array.set(&parser.filled_pos, pos, true, allocator)
+        _ = bit_array.set(&parser.fields_set, index, true, allocator)
     }
 
     return
 }
 
-register_field :: proc(parser: ^Parser, field: reflect.Struct_Field, index: int) {
+register_field :: proc(parser: ^Parser, field: reflect.Struct_Field, index: int, allocator: mem.Allocator) {
     if pos, ok := get_field_pos(field); ok {
-        bit_array.set(&parser.filled_pos, pos)
+        _ = bit_array.set(&parser.filled_pos, pos, true, allocator)
     }
 
-    bit_array.set(&parser.fields_set, index)
+    _ = bit_array.set(&parser.fields_set, index, true, allocator)
 }
 
 // Set a `-flag` argument, Odin-style.
@@ -192,7 +192,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
             key_ptr = &key_cstr
         }
         defer if key_cstr != nil {
-            _ = delete(key_cstr)
+            _ = delete_slice(key_cstr)
         }
 
         raw_map := (^runtime.Raw_Map)(cast(uintptr)model + field.offset)
@@ -248,7 +248,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
                 value_ptr,
             )
 
-            _ = delete(elem_backing)
+            _ = delete_slice(elem_backing)
         }
 
         register_field(parser, field, index)

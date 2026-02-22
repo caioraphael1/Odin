@@ -29,18 +29,18 @@ Example:
 
 		// Generate a random key for the purposes of illustration.
 		key := make_slice([]byte, aead.KEY_SIZES[algo])
-		defer _ = delete(key)
+		defer _ = delete_slice(key)
 		crypto.rand_bytes(key)
 
 		// `ciphertext || tag`, is a common way data is transmitted, so
 		// demonstrate that.
 		buf := make_slice([]byte, pt_len + aead.TAG_SIZES[algo])
-		defer _ = delete(buf)
+		defer _ = delete_slice(buf)
 		ciphertext, tag := buf[:pt_len], buf[pt_len:]
 
 		// Seal the AAD + Plaintext.
 		iv := make_slice([]byte, aead.IV_SIZES[algo])
-		defer _ = delete(iv)
+		defer _ = delete_slice(iv)
 		crypto.rand_bytes(iv) // Random IVs are safe with XChaCha20-Poly1305.
 		aead.seal(algo, ciphertext, tag, key, iv, aad, plaintext)
 

@@ -37,19 +37,19 @@ enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network
 */
 destroy_interfaces :: proc(interfaces: []Network_Interface, allocator: mem.Allocator) {
 	for i in interfaces {
-		_ = delete(i.adapter_name, allocator)
-		_ = delete(i.friendly_name, allocator)
-		_ = delete(i.description, allocator)
-		_ = delete(i.dns_suffix, allocator)
+		_ = delete_slice(i.adapter_name, allocator)
+		_ = delete_slice(i.friendly_name, allocator)
+		_ = delete_slice(i.description, allocator)
+		_ = delete_slice(i.dns_suffix, allocator)
 
-		_ = delete(i.physical_address, allocator)
+		_ = delete_slice(i.physical_address, allocator)
 
-		_ = delete(i.unicast)
-		_ = delete(i.multicast)
-		_ = delete(i.anycast)
-		_ = delete(i.gateways)
+		_ = delete_slice(i.unicast)
+		_ = delete_slice(i.multicast)
+		_ = delete_slice(i.anycast)
+		_ = delete_slice(i.gateways)
 	}
-	_ = delete(interfaces, allocator)
+	_ = delete_slice(interfaces, allocator)
 }
 
 /*

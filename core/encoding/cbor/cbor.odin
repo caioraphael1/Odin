@@ -259,7 +259,7 @@ decode_to_unmarshal_err_p2 :: #force_inline proc(v: $T, v2: $T2, err: Decode_Err
 }
 
 // Recursively frees all memory allocated when decoding the passed value.
-destroy :: proc(val: Value, allocator := context.allocator) {
+destroy :: proc(val: Value, allocator: mem.Allocator) {
     context.allocator = allocator
     #partial switch v in val {
     case ^Map:
@@ -268,22 +268,22 @@ destroy :: proc(val: Value, allocator := context.allocator) {
             destroy(entry.key)
             destroy(entry.value)
         }
-        _ = delete(v^)
+        _ = delete_slice(v^)
         _ = free(v)
     case ^Array:
         if v == nil { return }
         for entry in v {
             destroy(entry)
         }
-        _ = delete(v^)
+        _ = delete_slice(v^)
         _ = free(v)
     case ^Text:
         if v == nil { return }
-        _ = delete(v^)
+        _ = delete_slice(v^)
         _ = free(v)
     case ^Bytes:
         if v == nil { return }
-        _ = delete(v^)
+        _ = delete_slice(v^)
         _ = free(v)
     case ^Tag:
         if v == nil { return }
@@ -301,7 +301,7 @@ this will also be valid JSON.
 */
 // Turns the given CBOR value into a human-readable string.
 // See docs on the proc group `diagnose` for more info.
-to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator := context.allocator, loc := #caller_location) -> (string, mem.Allocator_Error) {
+to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator: mem.Allocator, loc := #caller_location) -> (string, mem.Allocator_Error) {
     b := strings.builder_make(allocator, loc)
     w := strings.to_stream(&b)
     err := to_diagnostic_format_writer(w, val, padding)
@@ -456,7 +456,7 @@ Converts from JSON to CBOR.
 
 Everything is copied to the given allocator, the passed in JSON value can be deleted after.
 */
-from_json :: proc(val: json.Value, allocator := context.allocator) -> (Value, mem.Allocator_Error) {
+from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allocator_Error) {
     internal :: proc(val: json.Value) -> (ret: Value, err: mem.Allocator_Error) {
         switch v in val {
         case json.Null: return Nil{}, nil
@@ -507,7 +507,7 @@ Everything is copied to the given allocator, the passed in CBOR value can be `de
 
 If a CBOR map with non-string keys is encountered it is turned into an array of tuples.
 */
-to_json :: proc(val: Value, allocator := context.allocator) -> (json.Value, mem.Allocator_Error) {
+to_json :: proc(val: Value, allocator: mem.Allocator) -> (json.Value, mem.Allocator_Error) {
     internal :: proc(val: Value) -> (ret: json.Value, err: mem.Allocator_Error) {
         switch v in val {
         case Simple: return json.Integer(v), nil

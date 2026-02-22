@@ -52,7 +52,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     if alloc_err != nil {
         return nil, .Allocation_Failure
     }
-    defer _ = delete(buf)
+    defer _ = delete_slice(buf)
 
     errno = freebsd.sysctl(mib[:], &buf[0], &needed, nil, 0)
     if errno != nil {
@@ -81,7 +81,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
             // This is done this way so the different message types can
             // dynamically build a `Network_Interface`.
-            _ = resize(&if_builder, max(len(if_builder), 1 + cast(int)ifm.index))
+            _ = resize_dynamic_array(&if_builder, max(len(if_builder), 1 + cast(int)ifm.index))
             interface := if_builder[ifm.index]
 
             interface.adapter_name = strings.clone_from_bytes(dl.data[0:dl.nlen])
@@ -112,7 +112,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
                 break
             }
 
-            _ = resize(&if_builder, max(len(if_builder), 1 + cast(int)ifam.index))
+            _ = resize_dynamic_array(&if_builder, max(len(if_builder), 1 + cast(int)ifam.index))
             interface := if_builder[ifam.index]
 
             address_pointer := message_pointer + cast(uintptr)ifam.len

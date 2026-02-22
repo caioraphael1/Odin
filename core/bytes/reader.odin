@@ -41,7 +41,7 @@ reader_read :: proc(r: ^Reader, p: []byte) -> (n: int, err: io.Error) {
 		return 0, .EOF
 	}
 	r.prev_rune = -1
-	n = copy(p, r.s[r.i:])
+	n = copy_slice(p, r.s[r.i:])
 	r.i += i64(n)
 	return
 }
@@ -55,7 +55,7 @@ reader_read_at :: proc(r: ^Reader, p: []byte, off: i64) -> (n: int, err: io.Erro
 	if off >= i64(len(r.s)) {
 		return 0, .EOF
 	}
-	n = copy(p, r.s[off:])
+	n = copy_slice(p, r.s[off:])
 	if n < len(p) {
 		err = .EOF
 	}
@@ -88,7 +88,7 @@ reader_read_rune :: proc(r: ^Reader) -> (ch: rune, size: int, err: io.Error) {
 		r.i += 1
 		return rune(c), 1, nil
 	}
-	ch, size = utf8.decode_rune(r.s[r.i:])
+	ch, size = utf8.decode_rune_in_bytes(r.s[r.i:])
 	r.i += i64(size)
 	return
 }

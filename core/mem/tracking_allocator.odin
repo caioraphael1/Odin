@@ -109,8 +109,8 @@ Reset all of a Tracking Allocator's allocation data back to zero.
 @(no_sanitize_address)
 tracking_allocator_reset :: proc(t: ^Tracking_Allocator) {
     sync.mutex_lock(&t.mutex)
-    clear(&t.allocation_map)
-    clear(&t.bad_free_array)
+    clear_map(&t.allocation_map)
+    clear_dynamic_array(&t.bad_free_array)
     t.total_memory_allocated = 0
     t.total_allocation_count = 0
     t.total_memory_freed = 0

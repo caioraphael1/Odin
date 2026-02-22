@@ -32,7 +32,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
     }
 
     name_servers, resolve_ok := load_resolv_conf(dns_configuration.resolv_conf, allocator)
-    defer _ = delete(name_servers, allocator)
+    defer _ = delete_slice(name_servers, allocator)
     if !resolve_ok {
         return nil, .Invalid_Resolv_Config_Error
     }
@@ -41,7 +41,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
     }
 
     hosts, hosts_ok := load_hosts(dns_configuration.hosts_file, allocator)
-    defer _ = delete(hosts, allocator)
+    defer _ = delete_slice(hosts, allocator)
     if !hosts_ok {
         return nil, .Invalid_Hosts_Config_Error
     }

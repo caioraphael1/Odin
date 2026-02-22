@@ -61,7 +61,7 @@ _open_file_dialog :: proc(title: string, dir: string,
     context.allocator = allocator
     file_buf := make_slice([]u16, MAX_PATH_WIDE)
     defer if !ok {
-        _ = delete(file_buf)
+        _ = delete_slice(file_buf)
     }
 
     // Filters need to be passed as a pair of strings (title, filter)
@@ -78,11 +78,11 @@ _open_file_dialog :: proc(title: string, dir: string,
         lStructSize     = size_of(OPENFILENAMEW),
         lpstrFile       = wstring(&file_buf[0]),
         nMaxFile        = MAX_PATH_WIDE,
-        lpstrTitle      = utf8_to_wstring(title, runtime.temp_allocator),
-        lpstrFilter     = utf8_to_wstring(filter, runtime.temp_allocator),
-        lpstrInitialDir = utf8_to_wstring(dir, runtime.temp_allocator),
+        lpstrTitle      = utf8_to_wstring_alloc(title, runtime.temp_allocator),
+        lpstrFilter     = utf8_to_wstring_alloc(filter, runtime.temp_allocator),
+        lpstrInitialDir = utf8_to_wstring_alloc(dir, runtime.temp_allocator),
         nFilterIndex    = u32(clamp(default_filter, 1, filter_len / 2)),
-        lpstrDefExt     = utf8_to_wstring(default_ext, runtime.temp_allocator),
+        lpstrDefExt     = utf8_to_wstring_alloc(default_ext, runtime.temp_allocator),
         Flags           = u32(flags),
     }
 
@@ -100,7 +100,7 @@ _open_file_dialog :: proc(title: string, dir: string,
     }
 
 
-    file_name, _ := utf16_to_utf8(file_buf[:], allocator)
+    file_name, _ := utf16_to_utf8_alloc(file_buf[:], allocator)
     path = strings.trim_right_null(file_name)
     return
 }

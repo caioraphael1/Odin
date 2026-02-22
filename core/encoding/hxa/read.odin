@@ -17,7 +17,7 @@ read_from_file :: proc(filename: string, print_error := false, allocator := cont
     data, ok := os.read_entire_file(filename, allocator, loc)
     if !ok {
         err = .Unable_To_Read_File
-        _ = delete(data, allocator, loc)
+        _ = delete_slice(data, allocator, loc)
         return
     }
     file, err = read(data, filename, print_error, allocator, loc)

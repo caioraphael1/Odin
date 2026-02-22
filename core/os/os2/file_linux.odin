@@ -143,8 +143,8 @@ _destroy :: proc(f: ^File_Impl) -> Error {
         return nil
     }
     a := f.allocator
-    err0 := _ = delete(f.name, a)
-    err1 := _ = delete(f.buffer, a)
+    err0 := _ = delete_slice(f.name, a)
+    err1 := _ = delete_slice(f.buffer, a)
     err2 := free(f, a)
     err0 or_return
     err1 or_return
@@ -335,11 +335,11 @@ _read_link_cstr :: proc(name_cstr: cstring, allocator: runtime.Allocator) -> (st
     for {
         sz, errno := linux.readlink(name_cstr, buf[:])
         if errno != .NONE {
-            _ = delete(buf, allocator)
+            _ = delete_slice(buf, allocator)
             return "", _get_platform_error(errno)
         } else if sz == int(bufsz) {
             bufsz *= 2
-            _ = delete(buf, allocator)
+            _ = delete_slice(buf, allocator)
             buf = make_slice([]byte, bufsz, allocator)
         } else {
             return string(buf[:sz]), nil
@@ -454,10 +454,10 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Alloc
     n: int
     i: int
     for {
-        _ = resize(&contents, i + BUF_SIZE_STEP)
+        _ = resize_dynamic_array(&contents, i + BUF_SIZE_STEP)
         n, errno = linux.read(fd, contents[i:i+BUF_SIZE_STEP])
         if errno != .NONE {
-            _ = delete(contents)
+            _ = delete_slice(contents)
             return nil, _get_platform_error(errno)
         }
         if n < BUF_SIZE_STEP {
@@ -466,7 +466,7 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Alloc
         i += BUF_SIZE_STEP
     }
 
-    _ = resize(&contents, i + n)
+    _ = resize_dynamic_array(&contents, i + n)
     return contents[:], nil
 }
 

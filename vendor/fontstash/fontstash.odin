@@ -151,17 +151,17 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
 Destroy :: proc(ctx: ^FontContext) {
     for font in ctx.fonts {
         if font.freeLoadedData {
-            _ = delete(font.loadedData)
+            _ = delete_slice(font.loadedData)
         }
 
-        _ = delete(font.name)
-        _ = delete(font.glyphs)
+        _ = delete_slice(font.name)
+        _ = delete_slice(font.glyphs)
     }
 
-    _ = delete(ctx.states)
-    _ = delete(ctx.textureData)
-    _ = delete(ctx.fonts)
-    _ = delete(ctx.nodes)
+    _ = delete_slice(ctx.states)
+    _ = delete_slice(ctx.textureData)
+    _ = delete_slice(ctx.fonts)
+    _ = delete_slice(ctx.nodes)
 }
 
 Reset :: proc(ctx: ^FontContext) {
@@ -204,7 +204,7 @@ __atlasExpand :: proc(ctx: ^FontContext, w, h: int) {
 
 __atlasReset :: proc(ctx: ^FontContext, w, h: int) {
     ctx.width, ctx.height = w, h
-    clear(&ctx.nodes)
+    clear_dynamic_array(&ctx.nodes)
 
     // init root node
     _ = append(&ctx.nodes, AtlasNode{
@@ -374,7 +374,7 @@ AddFallbackFont :: proc(ctx: ^FontContext, base, fallback: int) -> bool {
 ResetFallbackFont :: proc(ctx: ^FontContext, base: int) {
     base_font := __getFont(ctx, base)
     base_font.nfallbacks = 0
-    clear(&base_font.glyphs)
+    clear_dynamic_array(&base_font.glyphs)
     __lutReset(base_font)
 }
 
@@ -638,7 +638,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.
     for i in 0..<ctx.height {
         dst := &data[i * w]
         src := &ctx.textureData[i * ctx.width]
-        mem.copy(dst, src, ctx.width)
+        mem.copy_slice(dst, src, ctx.width)
 
         if w > ctx.width {
             mem.set(&data[i * w + ctx.width], 0, w - ctx.width)
@@ -649,7 +649,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.
         mem.set(&data[ctx.height * w], 0, (h - ctx.height) * w)
     }
 
-    _ = delete(ctx.textureData)
+    _ = delete_slice(ctx.textureData)
     ctx.textureData = data
 
     // increase atlas size
@@ -679,7 +679,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.a
         slice.zero(ctx.textureData)
     } else {
         // realloc
-        _ = delete(ctx.textureData, allocator)
+        _ = delete_slice(ctx.textureData, allocator)
         ctx.textureData = make_slice([]byte, width * height, allocator)
     }
 
@@ -690,7 +690,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.a
 
     // reset fonts
     for &font in ctx.fonts {
-        clear(&font.glyphs)
+        clear_dynamic_array(&font.glyphs)
         __lutReset(&font)
     }
 

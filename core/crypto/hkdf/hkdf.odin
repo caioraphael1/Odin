@@ -86,7 +86,7 @@ expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []byte) {
 		defer mem.zero_explicit(raw_data(blk), h_len)
 
 		_F(&base, prev, info, n + 1, blk)
-		copy(dst_blk, blk)
+		copy_slice(dst_blk, blk)
 	}
 }
 

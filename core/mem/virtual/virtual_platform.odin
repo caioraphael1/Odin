@@ -15,7 +15,7 @@ platform_memory_alloc :: proc(to_commit, to_reserve: uint) -> (block: ^Platform_
 	total_to_reserved := max(to_reserve, size_of(Platform_Memory_Block))
 	to_commit = clamp(to_commit, size_of(Platform_Memory_Block), total_to_reserved)
 	
-	data := reserve(total_to_reserved) or_return
+	data := reserve_dynamic_array(total_to_reserved) or_return
 
 	commit_err := commit(raw_data(data), to_commit)
 	assert(commit_err == nil)

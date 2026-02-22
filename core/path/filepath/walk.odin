@@ -25,7 +25,7 @@ Walk_Proc :: #type proc(info: os.File_Info, in_err: os.Error, user_data: rawptr)
 // The files are walked in lexical order to make the output deterministic
 // NOTE: Walking large directories can be inefficient due to the lexical sort
 // NOTE: walk does not follow symbolic links
-// NOTE: os.File_Info uses the 'runtime.temp_allocator' to allocate, and will _ = delete when it is done
+// NOTE: os.File_Info uses the 'runtime.temp_allocator' to allocate, and will _ = delete_slice when it is done
 walk :: proc(root: string, walk_proc: Walk_Proc, user_data: rawptr) -> os.Error {
 	info, err := os.lstat(root, runtime.temp_allocator)
 	defer os.file_info_delete(info, runtime.temp_allocator)

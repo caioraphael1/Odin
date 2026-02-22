@@ -85,7 +85,7 @@ init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
 		panic("crypto/aegis: invalid key size")
 	}
 
-	copy(ctx._key[:], key)
+	copy_slice(ctx._key[:], key)
 	ctx._key_len = len(key)
 	ctx._impl = impl
 	if ctx._impl == .Hardware && !is_hardware_accelerated() {

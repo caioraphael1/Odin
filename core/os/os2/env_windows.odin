@@ -33,7 +33,7 @@ _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: 
         return "", false
     }
 
-    value = win32_utf16_to_utf8(string16(b[:n]), allocator) or_else ""
+    value = win32_utf16_string16_to_utf8(string16(b[:n]), allocator) or_else ""
     found = true
     return
 }
@@ -44,7 +44,7 @@ _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: 
 
 _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, err: Error) {
     key_buf: [513]u16
-    wkey := win32.utf8_to_wstring(key_buf[:], key)
+    wkey := win32.utf8_to_wstring_buf(key_buf[:], key)
     if wkey == nil {
         return "", .Buffer_Full
     }
@@ -62,7 +62,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, err: Error) {
         return "", .Buffer_Full
     }
 
-    value = win32.utf16_to_utf8(buf, val_buf[:n2])
+    value = win32.utf16_to_utf8_buf(buf, val_buf[:n2])
 
     return value, nil
 }
@@ -116,12 +116,12 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
         }
     }
 
-    r := make_dynamic_array([dynamic]string, 0, n, allocator) or_return
+    r := make_dynamic_array_len_cap([dynamic]string, 0, n, allocator) or_return
     defer if err != nil {
         for e in r {
-            _ = delete(e, allocator)
+            _ = delete_string(e, allocator)
         }
-        _ = delete(r)
+        _ = delete_dynamic_array(r)
     }
     for from, i, p := 0, 0, envs; true; i += 1 {
         c := ([^]u16)(p)[i]
@@ -130,7 +130,7 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
                 break
             }
             w := ([^]u16)(p)[from:i]
-            s := win32_utf16_to_utf8(w, allocator) or_return
+            s := win32_utf16_u16_to_utf8(w, allocator) or_return
             _ = append(&r, s)
             from = i + 1
         }

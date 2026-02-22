@@ -15,7 +15,7 @@ write_to_file :: proc(filepath: string, file: File) -> (err: Write_Error) {
     if alloc_err == .Out_Of_Memory {
         return .Failed_File_Write
     }
-    defer _ = delete(buf)
+    defer _ = delete_slice(buf)
 
     write_internal(&Writer{data = buf}, file)
     if !os.write_entire_file(filepath, buf) {
@@ -67,7 +67,7 @@ write_internal :: proc(w: ^Writer, file: File) {
             assert(size_of(T)*len(array) <= remaining)
             ptr := raw_data(w.data[w.offset:])
             dst := mem.slice_ptr((^T)(ptr), len(array))
-            copy(dst, array)
+            copy_slice(dst, array)
         }
         w.offset += size_of(T)*len(array)
     }
@@ -77,7 +77,7 @@ write_internal :: proc(w: ^Writer, file: File) {
             assert(size_of(byte)*len(str) <= remaining)
             ptr := raw_data(w.data[w.offset:])
             dst := mem.slice_ptr((^byte)(ptr), len(str))
-            copy(dst, str)
+            copy_slice(dst, str)
         }
         w.offset += size_of(byte)*len(str)
     }

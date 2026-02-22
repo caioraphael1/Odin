@@ -136,7 +136,7 @@ marshal_json :: proc(t: ^testing.T) {
 	}
    
 	data, err := json.marshal(my_struct)
-	defer _ = delete(data)
+	defer _ = delete_slice(data)
 	testing.expectf(t, err == nil, "Expected `json.marshal` to return nil, got %v", err)
 }
 
@@ -364,13 +364,13 @@ Game_Marshal :: struct {
 
 cleanup :: proc(g: Game_Marshal) {
 	for p in g.products {
-		_ = delete(p.name)
-		_ = delete(p.owned)
-		_ = delete(p.cost)
-		_ = delete(p.profit)
+		_ = delete_slice(p.name)
+		_ = delete_slice(p.owned)
+		_ = delete_slice(p.cost)
+		_ = delete_slice(p.profit)
 	}
-	_ = delete(g.products)
-	_ = delete(g.cash)
+	_ = delete_slice(g.products)
+	_ = delete_slice(g.cash)
 }
 
 @(test)
@@ -391,7 +391,7 @@ unmarshal_json :: proc(t: ^testing.T) {
 @(test)
 unmarshal_empty_struct :: proc(t: ^testing.T) {
 	TestStruct :: struct {}
-	test := make(map[string]TestStruct)
+	test := make_map(map[string]TestStruct)
 	input: = `{
 		"test_1": {},
 		"test_2": {}
@@ -399,9 +399,9 @@ unmarshal_empty_struct :: proc(t: ^testing.T) {
 	err := json.unmarshal(transmute([]u8)input, &test)
 	defer {
 		for k in test {
-			_ = delete(k)
+			_ = delete_slice(k)
 		}
-		_ = delete(test)
+		_ = delete_slice(test)
 	}
 	testing.expect(t, err == nil, "Expected empty struct to unmarshal without error")
 }
@@ -411,12 +411,12 @@ surrogate :: proc(t: ^testing.T) {
 	input := `+ + * 😃 - /`
 
 	out, err := json.marshal(input)
-	defer _ = delete(out)
+	defer _ = delete_slice(out)
 	testing.expectf(t, err == nil,    "Expected `json.marshal(%q)` to return a nil error, got %v", input, err)
 
 	back: string
 	uerr := json.unmarshal(out, &back)
-	defer _ = delete(back)
+	defer _ = delete_slice(back)
 	testing.expectf(t, uerr == nil,   "Expected `json.unmarshal(%q)` to return a nil error, got %v", string(out), uerr)
 	testing.expectf(t, back == input, "Expected `json.unmarshal(%q)` to return %q, got %v", string(out), input, uerr)
 }
@@ -439,7 +439,7 @@ struct_with_ignore_tags :: proc(t: ^testing.T) {
 	}
 
 	my_struct_marshaled, marshal_err := json.marshal(my_struct)
-	defer _ = delete(my_struct_marshaled)
+	defer _ = delete_slice(my_struct_marshaled)
 
 	testing.expectf(t, marshal_err == nil, "Expected `json.marshal` to return nil error, got %v", marshal_err)
 
@@ -451,7 +451,7 @@ struct_with_ignore_tags :: proc(t: ^testing.T) {
 
 @(test)
 map_with_integer_keys :: proc(t: ^testing.T) {
-	my_map := make(map[i32]string)
+	my_map := make_map(map[i32]string)
 	defer delete_map(my_map)
 
 	my_map[-1] = "a"
@@ -460,11 +460,11 @@ map_with_integer_keys :: proc(t: ^testing.T) {
 	my_map[99999999] = "d"
 
 	marshaled_data, marshal_err := json.marshal(my_map)
-	defer _ = delete(marshaled_data)
+	defer _ = delete_slice(marshaled_data)
 	
 	testing.expectf(t, marshal_err == nil, "Expected `json.marshal` to return nil error, got %v", marshal_err)
 
-	my_map2 := make(map[i32]string)
+	my_map2 := make_map(map[i32]string)
 	defer delete_map(my_map2)
 
 	unmarshal_err := json.unmarshal(marshaled_data, &my_map2)
@@ -520,7 +520,7 @@ enumerated_array :: proc(t: ^testing.T) {
 
 	{ // test marshal -> unmarshal
 		marshaled, err_marshal := json.marshal(Sparse_Fruit_Stock)
-		defer _ = delete(marshaled)
+		defer _ = delete_slice(marshaled)
 		testing.expect_value(t, err_marshal, nil)
 
 		unmarshaled: #sparse [Sparse_Fruit]uint

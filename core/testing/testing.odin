@@ -147,7 +147,7 @@ expect_leaks :: proc(t: ^T, client_test: proc(t: ^T), verifier: Memory_Verifier_
         verifier(t, ta)
         sync.mutex_unlock(&ta.mutex)
 
-        clear(&ta.bad_free_array)
+        clear_dynamic_array(&ta.bad_free_array)
         _ = free_all(context.allocator)
     }
 }

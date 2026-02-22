@@ -71,7 +71,7 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
         buflen, errno = linux.getdents(dir_fd, buf[:])
         #partial switch errno {
         case .EINVAL:
-            _ = resize(&buf, len(buf) * 2)
+            _ = resize_dynamic_array(&buf, len(buf) * 2)
             continue loop
         case .NONE:
             if buflen == 0 { break loop }

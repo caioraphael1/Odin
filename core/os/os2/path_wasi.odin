@@ -85,20 +85,20 @@ _working_dir: struct {
 }
 
 _get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	sync.guard(&_working_dir_mutex)
+	sync.mutex_guard(&_working_dir_mutex)
     _working_dir.allocator = allocator
 	return clone_string(_working_dir.path if _working_dir.path != "" else "/", _working_dir.allocator)
 }
 
 _set_working_directory :: proc(dir: string, allocator: runtime.Allocator) -> (err: Error) {
-	sync.guard(&_working_dir.mutex)
+	sync.mutex_guard(&_working_dir.mutex)
 
 	if dir == _working_dir.path {
 		return
 	}
 
 	if _working_dir.path != "" {
-		_ = delete(_working_dir.path, _working_dir.allocator)
+		_ = delete_slice(_working_dir.path, _working_dir.allocator)
         _working_dir.allocator = {}
 	}
 

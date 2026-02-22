@@ -490,14 +490,14 @@ _internal_noise_2d_unskewed_base :: proc(seed: i64, coord: Vec2) -> (value: f32)
     // First vertex.
     a0 := RSQUARED_2D - d0.x * d0.x - d0.y * d0.y
     if a0 > 0 {
-        value = (a0 * a0) * (a0 * a0) * grad(seed, [2]i64{bp.x, bp.y}, d0)
+        value = (a0 * a0) * (a0 * a0) * grad_2d(seed, [2]i64{bp.x, bp.y}, d0)
     }
 
     // Second vertex.
     a1 := f32(2 * (1 + 2 * UNSKEW_2D) * (1 / UNSKEW_2D + 2)) * t + f32(-2 * (1 + 2 * UNSKEW_2D) * (1 + 2 * UNSKEW_2D)) + a0
     if a1 > 0 {
         d1 := d0 - [2]f32{f32(1 + 2 * UNSKEW_2D), f32(1 + 2 * UNSKEW_2D)}
-        value += (a1 * a1) * (a1 * a1) * grad(seed, [2]i64{bp.x + PRIME_X, bp.y + PRIME_Y}, d1)
+        value += (a1 * a1) * (a1 * a1) * grad_2d(seed, [2]i64{bp.x + PRIME_X, bp.y + PRIME_Y}, d1)
     }
 
     // Third vertex.
@@ -505,13 +505,13 @@ _internal_noise_2d_unskewed_base :: proc(seed: i64, coord: Vec2) -> (value: f32)
         d2 := d0 - [2]f32{f32(UNSKEW_2D), f32(UNSKEW_2D + 1)}
         a2 := RSQUARED_2D - d2.x * d2.x - d2.y * d2.y
         if(a2 > 0) {
-            value += (a2 * a2) * (a2 * a2) * grad(seed, [2]i64{bp.x, bp.y + PRIME_Y}, d2)
+            value += (a2 * a2) * (a2 * a2) * grad_2d(seed, [2]i64{bp.x, bp.y + PRIME_Y}, d2)
         }
     } else {
         d2 := d0 - [2]f32{f32(UNSKEW_2D + 1), f32(UNSKEW_2D)}
         a2 := RSQUARED_2D - d2.x * d2.x - d2.y * d2.y
         if(a2 > 0) {
-            value += (a2 * a2) * (a2 * a2) * grad(seed, [2]i64{bp.x + PRIME_X, bp.y}, d2)
+            value += (a2 * a2) * (a2 * a2) * grad_2d(seed, [2]i64{bp.x + PRIME_X, bp.y}, d2)
         }
     }
 
@@ -550,7 +550,7 @@ _internal_noise_3d_unrotated_base :: proc(seed: i64, coord: Vec3) -> (value: f32
         // Closest point on cube.
         if a > 0 {
             a2 := a * a; a4 := a2 * a2
-            value += a4 * grad(seed, rbp, ri)
+            value += a4 * grad_3d(seed, rbp, ri)
         }
 
         // Second-closest point.
@@ -559,21 +559,21 @@ _internal_noise_3d_unrotated_base :: proc(seed: i64, coord: Vec3) -> (value: f32
             if b > 1 {
                 b -= 1
                 b2 := b * b; b4 := b2 * b2
-                value += b4 * grad(seed, [3]i64{rbp.x - i_sign.x * PRIME_X, rbp.y, rbp.z}, [3]f32{ri.x + f_sign.x, ri.y, ri.z})
+                value += b4 * grad_3d(seed, [3]i64{rbp.x - i_sign.x * PRIME_X, rbp.y, rbp.z}, [3]f32{ri.x + f_sign.x, ri.y, ri.z})
             }
         } else if a0.y > a0.x && a0.y >= a0.z {
             b := a + a0.y + a0.y
             if b > 1 {
                 b -= 1
                 b2 := b * b; b4 := b2 * b2
-                value += b4 * grad(seed, [3]i64{rbp.x, rbp.y - i_sign.y * PRIME_Y, rbp.z}, [3]f32{ri.x, ri.y + f_sign.y, ri.z})
+                value += b4 * grad_3d(seed, [3]i64{rbp.x, rbp.y - i_sign.y * PRIME_Y, rbp.z}, [3]f32{ri.x, ri.y + f_sign.y, ri.z})
             }
         } else {
             b := a + a0.z + a0.z
             if b > 1 {
                 b -= 1
                 b2 := b * b; b4 := b2 * b2
-                value += b4 * grad(seed, [3]i64{rbp.x, rbp.y, rbp.z - i_sign.z * PRIME_Z}, [3]f32{ri.x, ri.y, ri.z + f_sign.z})
+                value += b4 * grad_3d(seed, [3]i64{rbp.x, rbp.y, rbp.z - i_sign.z * PRIME_Z}, [3]f32{ri.x, ri.y, ri.z + f_sign.z})
             }
         }
 
@@ -664,7 +664,7 @@ _internal_noise_4d_unskewed_base :: proc(seed: i64, coord: Vec4) -> (value: f32)
         if a < RSQUARED_4D {
             a -= RSQUARED_4D
             a *= a; a4 := a * a
-            value += a4 * grad(seed, svp, d)
+            value += a4 * grad_4d(seed, svp, d)
         }
 
         // Break from loop if we're done, skipping updates below.

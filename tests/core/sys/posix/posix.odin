@@ -46,7 +46,7 @@ test_arpa_inet :: proc(t: ^testing.T) {
 test_dirent :: proc(t: ^testing.T) {
 	test := #load_directory(#directory)
 	test_map: map[string]struct{}
-	defer _ = delete(test_map)
+	defer _ = delete_slice(test_map)
 
 	test_map[".."] = {}
 	test_map["."]  = {}
@@ -173,13 +173,13 @@ test_libgen :: proc(t: ^testing.T) {
 		// NOTE: dir/basename can change their input so they can't be literals.
 
 		dinput := strings.clone_to_cstring(string(test[0]))
-		defer _ = delete(dinput)
+		defer _ = delete_slice(dinput)
 
 		dir := posix.dirname(dinput)
 		testing.expectf(t, dir == test[1], "dirname(%q) == %q, expected %q", test[0], dir, test[1])
 
 		binput := strings.clone_to_cstring(string(test[0]))
-		defer _ = delete(binput)
+		defer _ = delete_slice(binput)
 
 		base := posix.basename(binput)
 		testing.expectf(t, base == test[2], "basename(%q) == %q, expected %q", test[0], base, test[2])

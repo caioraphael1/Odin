@@ -23,7 +23,7 @@ tests :: []Test{
 test_encoding :: proc(t: ^testing.T) {
 	for test in tests {
 		v := base64.encode(transmute([]byte)test.vector)
-		defer _ = delete(v)
+		defer _ = delete_slice(v)
 		testing.expect_value(t, v, test.base64)
 	}
 }
@@ -32,7 +32,7 @@ test_encoding :: proc(t: ^testing.T) {
 test_decoding :: proc(t: ^testing.T) {
 	for test in tests {
 		v := string(base64.decode(test.base64))
-		defer _ = delete(v)
+		defer _ = delete_slice(v)
 		testing.expect_value(t, v, test.vector)
 	}
 }
@@ -44,8 +44,8 @@ test_roundtrip :: proc(t: ^testing.T) {
 		v = u8(i)
 	}
 
-	encoded := base64.encode(values[:]); defer _ = delete(encoded)
-	decoded := base64.decode(encoded);   defer _ = delete(decoded)
+	encoded := base64.encode(values[:]); defer _ = delete_slice(encoded)
+	decoded := base64.decode(encoded);   defer _ = delete_slice(decoded)
 
 	for v, i in decoded {
 		testing.expect_value(t, v, values[i])

@@ -21,7 +21,7 @@ gcm_seal_hw :: proc(ctx: ^Context_Impl_Hardware, dst, tag, iv, aad, plaintext: [
 	hw_intel.ghash(s[:], h[:], aad)
 	gctr_hw(ctx, dst, &s, plaintext, &h, &j0, true)
 	final_ghash_hw(&s, &h, &j0_enc, len(aad), len(plaintext))
-	copy(tag, s[:])
+	copy_slice(tag, s[:])
 
 	mem.zero_explicit(&h, len(h))
 	mem.zero_explicit(&j0, len(j0))
@@ -67,7 +67,7 @@ init_ghash_hw :: proc(
 	// Define a block, J0, as follows:
 	if l := len(iv); l == GCM_IV_SIZE {
 		// if len(IV) = 96, then let J0 = IV || 0^31 || 1
-		copy(j0[:], iv)
+		copy_slice(j0[:], iv)
 		j0[_aes.GHASH_BLOCK_SIZE - 1] = 1
 	} else {
 		// If len(IV) != 96, then let s = 128 ceil(len(IV)/128) - len(IV),
@@ -215,9 +215,9 @@ gctr_hw :: proc(
 			xor_blocks_hw(dst, src, blks[:1])
 		} else {
 			blk: [BLOCK_SIZE]byte
-			copy(blk[:], src)
+			copy_slice(blk[:], src)
 			xor_blocks_hw(blk[:], blk[:], blks[:1])
-			copy(dst, blk[:l])
+			copy_slice(dst, blk[:l])
 		}
 		if is_seal {
 			hw_intel.ghash(s[:], h[:], dst[:l])

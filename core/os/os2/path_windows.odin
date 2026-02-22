@@ -145,7 +145,7 @@ _get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, er
 
     win32.ReleaseSRWLockExclusive(&cwd_lock)
 
-    return win32_utf16_to_utf8(dir_buf_wstr, allocator)
+    return win32_utf16_u16_to_utf8(dir_buf_wstr, allocator)
 }
 
 _set_working_directory :: proc(dir: string) -> (err: Error) {
@@ -166,7 +166,7 @@ _set_working_directory :: proc(dir: string) -> (err: Error) {
 _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := make_dynamic_array([dynamic]u16, 512, runtime.temp_allocator) or_return
+    buf := make_dynamic_array_len([dynamic]u16, 512, runtime.temp_allocator) or_return
     for {
         ret := win32.GetModuleFileNameW(nil, raw_data(buf), win32.DWORD(len(buf)))
         if ret == 0 {
@@ -175,11 +175,11 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
         }
 
         if ret == win32.DWORD(len(buf)) && win32.GetLastError() == win32.ERROR_INSUFFICIENT_BUFFER {
-            resize(&buf, len(buf)*2) or_return
+            resize_dynamic_array(&buf, len(buf)*2) or_return
             continue
         }
 
-        return win32_utf16_to_utf8(buf[:ret], allocator)
+        return win32_utf16_u16_to_utf8(buf[:ret], allocator)
     }
 }
 
@@ -266,7 +266,7 @@ _clean_path_handle_start :: proc(path: string, buffer: []u8) -> (rooted: bool, s
             // Take `C:` to `C:\`.
             start += 1
         }
-        copy(buffer, path[:start])
+        copy_from_string(buffer, path[:start])
         for n in 0..<start {
             if _is_path_separator(buffer[n]) {
                 buffer[n] = _Path_Separator
@@ -299,7 +299,7 @@ _get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absol
         rel = "."
     }
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-    rel_utf16 := win32.utf8_to_utf16(rel, runtime.temp_allocator)
+    rel_utf16 := win32.utf8_to_utf16_alloc(rel, runtime.temp_allocator)
     n := win32.GetFullPathNameW(cstring16(raw_data(rel_utf16)), 0, nil, nil)
     if n == 0 {
         return "", _get_platform_error()
@@ -311,7 +311,7 @@ _get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absol
         return "", _get_platform_error()
     }
 
-    return win32.utf16_to_utf8(buf, allocator)
+    return win32.utf16_to_utf8_alloc(buf, allocator)
 }
 
 _get_relative_path_handle_start :: proc(base, target: string) -> bool {

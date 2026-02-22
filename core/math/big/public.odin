@@ -105,7 +105,6 @@ int_halve :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error)
     return #force_inline internal_int_shr1(dest, src)
 }
 
-shr1  :: halve
 
 /*
     dest = src  * 2
@@ -123,7 +122,6 @@ int_double :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error
     return #force_inline internal_int_shl1(dest, src, allocator)
 }
 
-shl1   :: double
 
 /*
     Multiply by a DIGIT.
@@ -147,13 +145,6 @@ int_mul :: proc(dest, src, multiplier: ^Int, allocator: runtime.Allocator) -> (e
     return #force_inline internal_int_mul(dest, src, multiplier, allocator)
 }
 
-
-    int_mul, 
-    int_mul_digit, 
-    rat_mul_rat,
-    rat_mul_int,
-    int_mul_rat,
-}
 
 int_sqr :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) { return mul(dest, src, src, allocator) }
 rat_sqr :: proc(dest, src: ^Rat, allocator: runtime.Allocator) -> (err: Error) { return mul(dest, src, src, allocator) }
@@ -200,12 +191,6 @@ int_div_digit :: proc(quotient, numerator: ^Int, denominator: DIGIT, allocator: 
     return
 }
 
-    int_div, 
-    int_div_digit, 
-    rat_div_rat,
-    rat_div_int,
-    int_div_rat,
-}
 
 /*
     remainder = numerator % denominator.
@@ -406,8 +391,6 @@ int_pow_int :: proc(dest: ^Int, base, power: int, allocator: runtime.Allocator) 
 }
 
 
-exp :: pow
-
 small_pow :: proc(base: _WORD, exponent: _WORD) -> (result: _WORD) {
     return #force_inline internal_small_pow(base, exponent)
 }
@@ -521,7 +504,6 @@ int_compare :: proc(a, b: ^Int, allocator: runtime.Allocator) -> (comparison: in
 
     return #force_inline internal_cmp(a, b), nil
 }
-int_cmp :: int_compare
 
 /*
     Compare an `Int` to an unsigned number upto the size of the backing type.
@@ -533,7 +515,6 @@ int_compare_digit :: proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (c
 
     return #force_inline internal_cmp_digit(a, b), nil
 }
-int_cmp_digit :: int_compare_digit
 
 /*
     Compare the magnitude of two `Int`s, unsigned.
@@ -545,7 +526,6 @@ int_compare_magnitude :: proc(a, b: ^Int, allocator: runtime.Allocator) -> (res:
 
     return #force_inline internal_cmp_mag(a, b), nil
 }
-int_cmp_mag :: int_compare_magnitude
 
 
 /*
@@ -592,17 +572,6 @@ int_less_than_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator
 }
 
 
-    int_less_than,
-    int_less_than_digit,
-}
-lt :: less_than
-
-
-    int_less_than_abs,
-}
-lt_abs :: less_than_abs
-
-
 /*
     bool := a <= b
 */
@@ -645,17 +614,6 @@ int_less_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.
 
     return c <= 0, err
 }
-
-
-    int_less_than_or_equal,
-    int_less_than_or_equal_digit,
-}
-lteq :: less_than_or_equal
-
-
-    int_less_than_or_equal_abs,
-}
-lteq_abs :: less_than_or_equal_abs
 
 
 /*
@@ -702,17 +660,6 @@ int_equals_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -
 }
 
 
-    int_equals,
-    int_equals_digit,
-}
-eq :: equals
-
-
-    int_equals_abs,
-}
-eq_abs :: equals_abs
-
-
 /*
     bool := a >= b
 */
@@ -757,17 +704,6 @@ int_greater_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: runti
 }
 
 
-    int_greater_than_or_equal,
-    int_greater_than_or_equal_digit,
-}
-gteq :: greater_than_or_equal
-
-
-    int_greater_than_or_equal_abs,
-}
-gteq_abs :: greater_than_or_equal_abs
-
-
 /*
     bool := a > b
 */
@@ -810,17 +746,6 @@ int_greater_than_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Alloca
 
     return c > 0, err
 }
-
-
-    int_greater_than,
-    int_greater_than_digit,
-}
-gt :: greater_than
-
-
-    int_greater_than_abs,
-}
-gt_abs :: greater_than_abs
 
 
 /*

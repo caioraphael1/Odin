@@ -130,7 +130,7 @@ absorb_hw :: proc(st: ^State_HW, aad: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // AAD is not confidential.
-		copy(tmp[:], ai)
+		copy_slice(tmp[:], ai)
 		switch st.rate {
 		case _RATE_128L:
 			absorb_hw_128l(st, tmp[:])
@@ -222,14 +222,14 @@ enc_hw :: proc(st: ^State_HW, dst, src: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // Ciphertext is not confidential.
-		copy(tmp[:], xi)
+		copy_slice(tmp[:], xi)
 		switch st.rate {
 		case _RATE_128L:
 			enc_hw_128l(st, tmp[:], tmp[:])
 		case _RATE_256:
 			enc_hw_256(st, tmp[:], tmp[:])
 		}
-		copy(ci, tmp[:l])
+		copy_slice(ci, tmp[:l])
 	}
 }
 
@@ -264,7 +264,7 @@ dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bou
 	defer mem.zero_explicit(&tmp, size_of(tmp))
 
 	z0, z1 := z_hw_128l(st)
-	copy(tmp[:], cn)
+	copy_slice(tmp[:], cn)
 
 	t0 := intrinsics.unaligned_load((^x86.__m128i)(&tmp[0]))
 	t1 := intrinsics.unaligned_load((^x86.__m128i)(&tmp[16]))
@@ -273,7 +273,7 @@ dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bou
 
 	intrinsics.unaligned_store((^x86.__m128i)(&tmp[0]), out0)
 	intrinsics.unaligned_store((^x86.__m128i)(&tmp[16]), out1)
-	copy(xn, tmp[:])
+	copy_slice(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_128L; off += 1 {
 		tmp[off] = 0
@@ -289,13 +289,13 @@ dec_partial_hw_256 :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_boun
 	defer mem.zero_explicit(&tmp, size_of(tmp))
 
 	z := z_hw_256(st)
-	copy(tmp[:], cn)
+	copy_slice(tmp[:], cn)
 
 	cn_ := intrinsics.unaligned_load((^x86.__m128i)(&tmp[0]))
 	xn_ := x86._mm_xor_si128(cn_, z)
 
 	intrinsics.unaligned_store((^x86.__m128i)(&tmp[0]), xn_)
-	copy(xn, tmp[:])
+	copy_slice(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_256; off += 1 {
 		tmp[off] = 0

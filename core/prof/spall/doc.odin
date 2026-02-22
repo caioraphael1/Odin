@@ -22,7 +22,7 @@ Example:
         defer spall.context_destroy(&spall_ctx)
 
         buffer_backing := make_slice([]u8, spall.BUFFER_DEFAULT_SIZE)
-        defer _ = delete(buffer_backing)
+        defer _ = delete_slice(buffer_backing)
 
         spall_buffer = spall.buffer_create(buffer_backing, u32(sync.current_thread_id()))
         defer spall.buffer_destroy(&spall_ctx, &spall_buffer)

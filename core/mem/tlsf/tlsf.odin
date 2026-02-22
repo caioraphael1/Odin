@@ -118,7 +118,7 @@ destroy :: proc(control: ^Allocator) {
     if control == nil { return }
 
     if control.pool.allocator.procedure != nil {
-        _ = runtime.delete(control.pool.data, control.pool.allocator)
+        _ = runtime.delete_slice(control.pool.data, control.pool.allocator)
     }
 
     // No need to call `pool_remove` or anything, as they're they're embedded in the backing memory.
@@ -127,7 +127,7 @@ destroy :: proc(control: ^Allocator) {
         next := p.next
 
         // Free the allocation on the backing allocator
-        _ = runtime.delete(p.data, p.allocator)
+        _ = runtime.delete_slice(p.data, p.allocator)
         _ = free(p, p.allocator)
 
         p = next
@@ -158,7 +158,7 @@ allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
         return nil, nil
 
     case .Resize:
-        return resize(control, old_memory, uint(old_size), uint(size), uint(alignment))
+        return resize_dynamic_array(control, old_memory, uint(old_size), uint(size), uint(alignment))
 
     case .Resize_Non_Zeroed:
         return resize_non_zeroed(control, old_memory, uint(old_size), uint(size), uint(alignment))

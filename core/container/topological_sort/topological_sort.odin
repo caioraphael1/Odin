@@ -26,15 +26,15 @@ make_relations :: proc(sorter: ^$S/Sorter($K)) -> (r: Relations(K)) {
 
 
 init :: proc(sorter: ^$S/Sorter($K)) {
-	sorter.relations = make(map[K]Relations(K))
+	sorter.relations = make_map(map[K]Relations(K))
 	sorter.dependents_allocator = context.allocator
 }
 
 destroy :: proc(sorter: ^$S/Sorter($K)) {
 	for _, v in sorter.relations {
-		_ = delete(v.dependents)
+		_ = delete_slice(v.dependents)
 	}
-	_ = delete(sorter.relations)
+	_ = delete_slice(sorter.relations)
 }
 
 add_key :: proc(sorter: ^$S/Sorter($K), key: K) -> bool {

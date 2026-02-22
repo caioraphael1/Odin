@@ -30,14 +30,14 @@ have to be precomputed, sorted and only then written to the output.
 Empty flags will do nothing extra to the value.
 
 The allocations for the `.Deterministic_Map_Sorting` flag are done using the given `temp_allocator`.
-but are followed by the necessary `_ = delete` and `free` calls if the allocator supports them.
+but are followed by the necessary `_ = delete_slice` and `free` calls if the allocator supports them.
 This is helpful when the CBOR size is so big that you don't want to collect all the temporary
 allocations until the end.
 */
 
 // Marshals the given value into a CBOR byte stream (allocated using the given allocator).
 // See docs on the `marshal_into` proc group for more info.
-marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator := context.allocator, temp_allocator := runtime.temp_allocator, loc := #caller_location) -> (bytes: []byte, err: Marshal_Error) {
+marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Marshal_Error) {
     b, alloc_err := strings.builder_make(allocator, loc=loc)
     // The builder as a stream also returns .EOF if it ran out of memory so this is consistent.
     if alloc_err != nil {
@@ -46,7 +46,7 @@ marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator := context.a
 
     defer if err != nil { strings.builder_destroy(&b) }
 
-    if err = marshal_into_builder(&b, v, flags, temp_allocator); err != nil {
+    if err = marshal_into_builder(&b, v, flags); err != nil {
         return
     }
 
@@ -55,14 +55,14 @@ marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator := context.a
 
 // Marshals the given value into a CBOR byte stream written to the given builder.
 // See docs on the `marshal_into` proc group for more info.
-marshal_into_builder :: proc(b: ^strings.Builder, v: any, flags := ENCODE_SMALL, temp_allocator := runtime.temp_allocator) -> Marshal_Error {
-    return marshal_into_writer(strings.to_writer(b), v, flags, temp_allocator)
+marshal_into_builder :: proc(b: ^strings.Builder, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
+    return marshal_into_writer(strings.to_writer(b), v, flags)
 }
 
 // Marshals the given value into a CBOR byte stream written to the given writer.
 // See docs on the `marshal_into` proc group for more info.
-marshal_into_writer :: proc(w: io.Writer, v: any, flags := ENCODE_SMALL, temp_allocator := runtime.temp_allocator) -> Marshal_Error {
-    encoder := Encoder{flags, w, temp_allocator}
+marshal_into_writer :: proc(w: io.Writer, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
+    encoder := Encoder{flags, w, runtime.temp_allocator}
     return marshal_into_encoder(encoder, v)
 }
 
@@ -70,10 +70,6 @@ marshal_into_writer :: proc(w: io.Writer, v: any, flags := ENCODE_SMALL, temp_al
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_encoder :: proc(e: Encoder, v: any) -> (err: Marshal_Error) {
     e := e
-
-    if e.temp_allocator.procedure == nil {
-        e.temp_allocator = runtime.temp_allocator
-    }
 
     if .Self_Described_CBOR in e.flags {
         err_conv(_encode_u64(e, TAG_SELF_DESCRIBED_CBOR, .Tag)) or_return
@@ -364,7 +360,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
             switch info.key.id {
             case string:
                 entries := make_dynamic_array([dynamic]Encoded_Entry_Fast(^[]byte), 0, map_cap, e.temp_allocator) or_return
-                defer _ = delete(entries)
+                defer _ = delete_slice(entries)
 
                 for bucket_index in 0..<map_cap {
                     runtime.map_hash_is_valid(hs[bucket_index]) or_continue
@@ -398,7 +394,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
 
             case cstring:
                 entries := make_dynamic_array([dynamic]Encoded_Entry_Fast(^cstring), 0, map_cap, e.temp_allocator) or_return
-                defer _ = delete(entries)
+                defer _ = delete_slice(entries)
 
                 for bucket_index in 0..<map_cap {
                     runtime.map_hash_is_valid(hs[bucket_index]) or_continue
@@ -434,7 +430,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
 
             case:
                 entries := make_dynamic_array([dynamic]Encoded_Entry, 0, map_cap, e.temp_allocator) or_return
-                defer _ = delete(entries)
+                defer _ = delete_slice(entries)
 
                 for bucket_index in 0..<map_cap {
                     runtime.map_hash_is_valid(hs[bucket_index]) or_continue
@@ -451,7 +447,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
 
                 for entry in entries {
                     _ = io.write_full(e.writer, entry.key[:]) or_return
-                    _ = delete(entry.key^)
+                    _ = delete_slice(entry.key^)
 
                     value := rawptr(runtime.map_cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
                     marshal_into(e, any{ value, info.value.id }) or_return
@@ -511,7 +507,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
                 field: int,
             }
             entries := make_dynamic_array([dynamic]Name, 0, n, e.temp_allocator) or_return
-            defer _ = delete(entries)
+            defer _ = delete_slice(entries)
 
             for _, i in info.names[:info.field_count] {
                 fname := field_name(info, i)

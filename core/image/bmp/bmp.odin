@@ -70,13 +70,13 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     }
     written := 0
 
-    if resize(&output.buf, int(header.size)) != nil {
+    if resize_dynamic_array(&output.buf, int(header.size)) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
 
     header_bytes := transmute([size_of(image.BMP_Header)]u8)header
     written += int(total_header_size)
-    copy(output.buf[:], header_bytes[:written])
+    copy_slice(output.buf[:], header_bytes[:written])
 
     switch img.channels {
     case 3:
@@ -143,7 +143,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
     // Read file header (14) + info size (4)
     stub_data := compress.read_slice(ctx, INFO_STUB_SIZE) or_return
-    copy(info_buf[:], stub_data[:])
+    copy_slice(info_buf[:], stub_data[:])
     stub_info := transmute(image.BMP_Header)info_buf
 
     if stub_info.magic != .Bitmap {
@@ -180,7 +180,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
         to_read   := int(stub_info.info_size) - size_of(image.BMP_Version)
         info_data := compress.read_slice(ctx, to_read) or_return
-        copy(info_buf[INFO_STUB_SIZE:], info_data[:])
+        copy_slice(info_buf[INFO_STUB_SIZE:], info_data[:])
 
         // Update info struct with the rest of the data we read
         info = transmute(image.BMP_Header)info_buf
@@ -548,7 +548,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := c
     pixel_offset -= int(info.info_size) + FILE_HEADER_SIZE
 
     bytes_needed := size_of(RGB_Pixel) * img.height * img.width
-    if resize(&img.pixels.buf, bytes_needed) != nil {
+    if resize_dynamic_array(&img.pixels.buf, bytes_needed) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
     out := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
@@ -574,10 +574,10 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := c
         }
 
         data := make_slice([]u8, int(pixel_size) + 4)
-        defer _ = delete(data)
+        defer _ = delete_slice(data)
 
         for i in 0..<pixel_size {
-            data[i] = image.read_u8(ctx) or_return
+            data[i] = image.read_u8_from_memory(ctx) or_return
         }
 
         y, x := 0, 0
@@ -648,10 +648,10 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := c
         }
 
         data := make_slice([]u8, int(pixel_size) + 4)
-        defer _ = delete(data)
+        defer _ = delete_slice(data)
 
         for i in 0..<pixel_size {
-            data[i] = image.read_u8(ctx) or_return
+            data[i] = image.read_u8_from_memory(ctx) or_return
         }
 
         y, x := 0, 0
@@ -721,7 +721,7 @@ skip_space :: proc(ctx: ^$C, bytes_to_skip: int) -> (err: Error) {
         return .Corrupt
     }
     for _ in 0..<bytes_to_skip {
-        image.read_u8(ctx) or_return
+        image.read_u8_from_memory(ctx) or_return
     }
     return
 }

@@ -69,7 +69,7 @@ foreign lib {
 		buf: [dynamic]byte
 		cwd: cstring
 		for ; cwd == nil; size *= 2 {
-			if err := resize(&buf, size); err != nil {
+			if err := resize_dynamic_array(&buf, size); err != nil {
 				fmt.panicf("allocation failure: %v", err)
 			}
 

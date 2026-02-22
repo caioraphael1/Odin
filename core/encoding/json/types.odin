@@ -2,34 +2,34 @@
 Encoding and decoding JSON in strict `JSON`, [[ JSON5 ; https://json5.org/ ]] and [[ BitSquid ; https://bitsquid.blogspot.com/2009/10/simplified-json-notation.html ]] variants.
 
 Using one of these `Specification`s.
-	JSON
-		strict JSON
-	JSON5
-		pure superset of JSON and valid JavaScript
-		https://json5.org/
+    JSON
+        strict JSON
+    JSON5
+        pure superset of JSON and valid JavaScript
+        https://json5.org/
 
-		* Object keys may be an ECMAScript 5.1 IdentifierName.
-		* Objects may have a single trailing comma.
-		* Arrays may have a single trailing comma.
-		* Strings may be single quoted.
-		* Strings may span multiple lines by escaping new line characters.
-		* Strings may include character escapes
-		* Numbers may be hexadecimal.
-		* Numbers may have a leading or trailing decimal point.
-		* Numbers may be IEEE 754 positive infinity, negative infinity, and NaN.
-		* Numbers may begin with an explicit plus sign.
-		* Single and multi-line comments are allowed.
-		* Additional white space characters are allowed.
+        * Object keys may be an ECMAScript 5.1 IdentifierName.
+        * Objects may have a single trailing comma.
+        * Arrays may have a single trailing comma.
+        * Strings may be single quoted.
+        * Strings may span multiple lines by escaping new line characters.
+        * Strings may include character escapes
+        * Numbers may be hexadecimal.
+        * Numbers may have a leading or trailing decimal point.
+        * Numbers may be IEEE 754 positive infinity, negative infinity, and NaN.
+        * Numbers may begin with an explicit plus sign.
+        * Single and multi-line comments are allowed.
+        * Additional white space characters are allowed.
 
-	MJSON
-		pure superset of JSON5, may not be valid JavaScript
-		https://bitsquid.blogspot.com/2009/10/simplified-json-notation.html
+    MJSON
+        pure superset of JSON5, may not be valid JavaScript
+        https://bitsquid.blogspot.com/2009/10/simplified-json-notation.html
 
-		* All the same features as JSON5 plus extras.
-		* Assume an object definition at the root level (no need to surround entire file with { } ).
-		* Commas are optional, using comma insertion rules with newlines.
-		* Quotes around object keys are optional if the keys are valid identifiers.
-		* : can be replaced with =
+        * All the same features as JSON5 plus extras.
+        * Assume an object definition at the root level (no need to surround entire file with { } ).
+        * Commas are optional, using comma insertion rules with newlines.
+        * Quotes around object keys are optional if the keys are valid identifiers.
+        * : can be replaced with =
 */
 package encoding_json
 
@@ -37,11 +37,11 @@ import "core:strings"
 import "base:runtime"
 
 Specification :: enum {
-	JSON,
-	JSON5, // https://json5.org/
-	SJSON, // https://bitsquid.blogspot.com/2009/10/simplified-json-notation.html
-	Bitsquid = SJSON,
-	MJSON = SJSON,
+    JSON,
+    JSON5, // https://json5.org/
+    SJSON, // https://bitsquid.blogspot.com/2009/10/simplified-json-notation.html
+    Bitsquid = SJSON,
+    MJSON = SJSON,
 }
 
 
@@ -58,78 +58,78 @@ Array   :: distinct [dynamic]Value
 Object  :: distinct map[string]Value
 
 Value :: union {
-	Null,
-	Integer,
-	Float,
-	Boolean,
-	String,
-	Array,
-	Object,
+    Null,
+    Integer,
+    Float,
+    Boolean,
+    String,
+    Array,
+    Object,
 }
 
 Error :: enum {
-	None,
+    None,
 
-	EOF, // Not necessarily an error
+    EOF, // Not necessarily an error
 
-	// Tokenizing Errors
-	Illegal_Character,
-	Invalid_Number,
-	String_Not_Terminated,
-	Invalid_String,
+    // Tokenizing Errors
+    Illegal_Character,
+    Invalid_Number,
+    String_Not_Terminated,
+    Invalid_String,
 
 
-	// Parsing Errors
-	Unexpected_Token,
-	Expected_String_For_Object_Key,
-	Duplicate_Object_Key,
-	Expected_Colon_After_Key,
-	
-	// Allocating Errors
-	Invalid_Allocator,
-	Out_Of_Memory,
+    // Parsing Errors
+    Unexpected_Token,
+    Expected_String_For_Object_Key,
+    Duplicate_Object_Key,
+    Expected_Colon_After_Key,
+    
+    // Allocating Errors
+    Invalid_Allocator,
+    Out_Of_Memory,
 }
 
 
 
 
 destroy_value :: proc(value: Value, allocator: runtime.Allocator, loc := #caller_location) {
-	#partial switch v in value {
-	case Object:
-		for key, elem in v {
-			_ = delete_string(key, allocator, loc)
-			destroy_value(elem, allocator, loc)
-		}
-		_ = delete_map(v, loc)
-	case Array:
-		for elem in v {
-			destroy_value(elem, allocator, loc)
-		}
-		_ = delete_dynamic_array(v, loc)
-	case String:
-		_ = delete_string(v, allocator, loc)
-	}
+    #partial switch v in value {
+    case Object:
+        for key, elem in v {
+            _ = delete_string(key, allocator, loc)
+            destroy_value(elem, allocator, loc)
+        }
+        _ = delete_map(v, loc)
+    case Array:
+        for elem in v {
+            destroy_value(elem, allocator, loc)
+        }
+        _ = delete_dynamic_array(v, loc)
+    case String:
+        _ = delete_string(v, allocator, loc)
+    }
 }
 
 clone_value :: proc(value: Value, allocator: runtime.Allocator) -> Value {
-	#partial switch &v in value {
-	case Object:
-		new_o, _ := make(Object, len(v), allocator)
-		for key, elem in v {
+    #partial switch &v in value {
+    case Object:
+        new_o, _ := make_map_cap(Object, len(v), allocator)
+        for key, elem in v {
             k_clone,    _ := strings.clone(key, allocator)
-			new_o[k_clone] = clone_value(elem, allocator)
-		}
-		return new_o
-	case Array:
-		new_a, _ := make(Array, len(v), allocator)
-		for elem, idx in v {
-			new_a[idx] = clone_value(elem, allocator)
-		}
-		return new_a
-	case String:
+            new_o[k_clone] = clone_value(elem, allocator)
+        }
+        return new_o
+    case Array:
+        new_a, _ := make_dynamic_array_len(Array, len(v), allocator)
+        for elem, idx in v {
+            new_a[idx] = clone_value(elem, allocator)
+        }
+        return new_a
+    case String:
         v_clone, _ := strings.clone(v, allocator)
-		return v_clone
-	}
+        return v_clone
+    }
 
-	return value
+    return value
 }

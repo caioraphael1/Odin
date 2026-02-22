@@ -57,7 +57,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     path_bytes := make_slice([]u8, len(path) + 1, runtime.temp_allocator)
 
     // zero terminate the byte slice to make it a valid cstring
-    copy(path_bytes, path)
+    copy_slice(path_bytes, path)
     path_bytes[len(path)] = 0
 
     dfd: linux.Fd
@@ -81,13 +81,13 @@ _remove_all :: proc(path: string) -> Error {
     remove_all_dir :: proc(dfd: linux.Fd) -> Error {
         n := 64
         buf := make_slice([]u8, n)
-        defer _ = delete(buf)
+        defer _ = delete_slice(buf)
 
         loop: for {
             buflen, errno := linux.getdents(dfd, buf[:])
             #partial switch errno {
             case .EINVAL:
-                _ = delete(buf)
+                _ = delete_slice(buf)
                 n *= 2
                 buf = make_slice([]u8, n)
                 continue loop
@@ -162,7 +162,7 @@ _get_working_directory :: proc(allocator: runtime.Allocator) -> (string, Error) 
         if errno != .ERANGE {
             return "", _get_platform_error(errno)
         }
-        _ = resize(&buf, len(buf)+PATH_MAX)
+        _ = resize_dynamic_array(&buf, len(buf)+PATH_MAX)
     }
     unreachable()
 }
@@ -189,7 +189,7 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
             return clone_string(string(buf[:n]), allocator)
         }
 
-        _ = resize(&buf, len(buf)*2) or_return
+        _ = resize_dynamic_array(&buf, len(buf)*2) or_return
     }
 }
 
@@ -197,12 +197,12 @@ _get_full_path :: proc(fd: linux.Fd, allocator: runtime.Allocator) -> (fullpath:
     PROC_FD_PATH :: "/proc/self/fd/"
 
     buf: [32]u8
-    copy(buf[:], PROC_FD_PATH)
+    copy_slice(buf[:], PROC_FD_PATH)
 
     strconv.write_int(buf[len(PROC_FD_PATH):], i64(fd), 10)
 
     if fullpath, err = _read_link_cstr(cstring(&buf[0]), allocator); err != nil || fullpath[0] != '/' {
-        _ = delete(fullpath, allocator)
+        _ = delete_slice(fullpath, allocator)
         fullpath = ""
     }
     return

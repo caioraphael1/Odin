@@ -43,7 +43,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
     #partial switch specific_type_info in type_info.variant {
     case runtime.Type_Info_Integer:
         if specific_type_info.signed {
-            value := strconv.parse_i128(str) or_return
+            value := strconv.parse_i128_maybe_prefixed(str) or_return
             switch type_info.id {
             case i8:     (^i8)    (ptr)^ = cast(i8)     bounded_int(value, cast(i128)min(i8),     cast(i128)max(i8)    ) or_return
             case i16:    (^i16)   (ptr)^ = cast(i16)    bounded_int(value, cast(i128)min(i16),    cast(i128)max(i16)   ) or_return
@@ -64,7 +64,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
             case i128be: (^i128be)(ptr)^ = cast(i128be) bounded_int(value, cast(i128)min(i128be), cast(i128)max(i128be)) or_return
             }
         } else {
-            value := strconv.parse_u128(str) or_return
+            value := strconv.parse_u128_maybe_prefixed(str) or_return
             switch type_info.id {
             case u8:      (^u8)     (ptr)^ = cast(u8)      bounded_uint(value, cast(u128)max(u8)     ) or_return
             case u16:     (^u16)    (ptr)^ = cast(u16)     bounded_uint(value, cast(u128)max(u16)    ) or_return
@@ -133,9 +133,9 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
             cstr_ptr := (^cstring)(ptr)
             if cstr_ptr != nil {
                 // Prevent memory leaks from us setting this value multiple times.
-                _ = delete(cstr_ptr^)
+                _ = delete_cstring(cstr_ptr^, allocator)
             }
-            cstr_ptr^ = strings.clone_to_cstring(str)
+            cstr_ptr^, _ = strings.clone_to_cstring(str, allocator)
         } else {
             (^string)(ptr)^ = str
         }
@@ -426,14 +426,14 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^runt
         ptr := cast(^runtime.Raw_Dynamic_Array)ptr
 
         // Try to convert the value first.
-        elem_backing, alloc_error := mem.alloc_bytes(specific_type_info.elem.size, specific_type_info.elem.align)
+        elem_backing, alloc_error := mem.alloc_bytes(specific_type_info.elem.size, specific_type_info.elem.align, allocator)
         if alloc_error != nil {
             return Parse_Error {
                 alloc_error,
                 "Failed to allocate element backing for dynamic array.",
             }
         }
-        defer _ = delete(elem_backing)
+        defer _ = delete_slice(elem_backing, allocator)
         parse_and_set_pointer_by_type(raw_data(elem_backing), str, specific_type_info.elem, arg_tag) or_return
 
         if !runtime.__dynamic_array_resize(ptr, specific_type_info.elem.size, specific_type_info.elem.align, ptr.len + 1) {

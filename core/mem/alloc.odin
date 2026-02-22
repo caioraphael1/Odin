@@ -367,33 +367,6 @@ alloc_bytes_non_zeroed :: proc(
     return runtime.mem_alloc_non_zeroed(size, alignment, allocator, loc)
 }
 
-/*
-Free memory.
-
-This procedure frees memory region located at the address, specified by `ptr`,
-allocated from the allocator specified by `allocator`.
-
-**Inputs**:
-- `ptr`: Pointer to the memory region to free.
-- `allocator`: The allocator to free to.
-
-**Returns**:
-- The error, if freeing failed.
-
-**Errors**:
-- `None`: When no error has occurred.
-- `Invalid_Pointer`: The specified pointer is not owned by the specified allocator,
-    or does not point to a valid allocation.
-- `Mode_Not_Implemented`: If the specified allocator does not support the `.Free`
-mode.
-*/
-free :: proc(
-    ptr: rawptr,
-    allocator: Allocator,
-    loc := #caller_location,
-) -> Allocator_Error {
-    return runtime.mem_free(ptr, allocator, loc)
-}
 
 /*
 Free a memory region.
@@ -473,7 +446,7 @@ This procedure frees all allocations made on the allocator specified by
 mode.
 */
 free_all :: proc(allocator: Allocator, loc := #caller_location) -> Allocator_Error {
-    return runtime.mem_free_all(allocator, loc)
+    return runtime.free_all(allocator, loc)
 }
 
 /*
@@ -483,10 +456,10 @@ This procedure resizes a memory region, `old_size` bytes in size, located at
 the address specified by `ptr`, such that it has a new size, specified by
 `new_size` and and is aligned on a boundary specified by `alignment`.
 
-If the `ptr` parameter is `nil`, `resize()` acts just like `alloc()`, allocating
+If the `ptr` parameter is `nil`, `resize_dynamic_array()` acts just like `alloc()`, allocating
 `new_size` bytes, aligned on a boundary specified by `alignment`.
 
-If the `new_size` parameter is `0`, `resize()` acts just like `free()`, freeing
+If the `new_size` parameter is `0`, `resize_dynamic_array()` acts just like `free()`, freeing
 the memory region `old_size` bytes in length, located at the address specified
 by `ptr`.
 
@@ -540,10 +513,10 @@ This procedure resizes a memory region, `old_size` bytes in size, located at
 the address specified by `ptr`, such that it has a new size, specified by
 `new_size` and and is aligned on a boundary specified by `alignment`.
 
-If the `ptr` parameter is `nil`, `resize()` acts just like `alloc()`, allocating
+If the `ptr` parameter is `nil`, `resize_dynamic_array()` acts just like `alloc()`, allocating
 `new_size` bytes, aligned on a boundary specified by `alignment`.
 
-If the `new_size` parameter is `0`, `resize()` acts just like `free()`, freeing
+If the `new_size` parameter is `0`, `resize_dynamic_array()` acts just like `free()`, freeing
 the memory region `old_size` bytes in length, located at the address specified
 by `ptr`.
 
@@ -551,7 +524,7 @@ If the `old_memory` pointer is not aligned to the boundary specified by
 `alignment`, the procedure relocates the buffer such that the reallocated
 buffer is aligned to the boundary specified by `alignment`.
 
-Unlike `resize()`, this procedure does not explicitly zero-initialize any new
+Unlike `resize_dynamic_array()`, this procedure does not explicitly zero-initialize any new
 memory.
 
 **Inputs**:
@@ -885,7 +858,7 @@ This procedure allocates a new slice of type `T` with length `len`, aligned
 on a boundary specified by `alignment` from an allocator specified by
 `allocator`, and returns the allocated slice.
 
-The user should `_ = delete` the return `original_data` slice not the typed `slice`.
+The user should `_ = delete_slice` the return `original_data` slice not the typed `slice`.
 */
 
 make_over_aligned :: proc(
@@ -1215,7 +1188,7 @@ _default_resize_bytes_align :: #force_inline proc(
     if new_memory == nil || err != nil {
         return nil, err
     }
-    runtime.copy(new_memory, old_data)
+    runtime.copy_slice(new_memory, old_data)
     _ = free_bytes(old_data, allocator, loc)
     return new_memory, err
 }

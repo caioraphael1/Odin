@@ -298,7 +298,7 @@ test_time_to_datetime_roundtrip :: proc(t: ^testing.T) {
 			"Time<%i> failed to convert to DateTime",
 			n) or_continue
 
-		z, dtt_err := time.datetime_to_time(y)
+		z, dtt_err := time.components_to_time(y)
 		testing.expectf(t, dtt_err,
 			"DateTime<%v> failed to convert to Time",
 			y) or_continue
@@ -315,7 +315,7 @@ YEAR_END   :: 2024
 
 @(test)
 test_component_to_time_roundtrip :: proc(t: ^testing.T) {
-	// Roundtrip a datetime through `datetime_to_time` to `Time` and back to its components.
+	// Roundtrip a datetime through `components_to_time` to `Time` and back to its components.
 	for year in YEAR_START..=YEAR_END {
 		for month in 1..=12 {
 			days := MONTH_DAYS[month - 1]
@@ -331,7 +331,7 @@ test_component_to_time_roundtrip :: proc(t: ^testing.T) {
 }
 
 date_component_roundtrip_test :: proc(t: ^testing.T, moment: dt.DateTime) {
-	res, ok := time.datetime_to_time(moment.year, moment.month, moment.day, moment.hour, moment.minute, moment.second)
+	res, ok := time.components_to_time(moment.year, moment.month, moment.day, moment.hour, moment.minute, moment.second)
 	testing.expect(
 		t,
 		ok,

@@ -329,9 +329,9 @@ test_odin_value_export :: proc(t: ^testing.T) {
 	} = {a = 1, b = 2, e = .A}
 
 	defer {
-		_ = delete(darr)
-		_ = delete(dars)
-		_ = delete(map_)
+		_ = delete_slice(darr)
+		_ = delete_slice(dars)
+		_ = delete_slice(map_)
 	}
 
 	check(t, "64",                                                  "%w", i)

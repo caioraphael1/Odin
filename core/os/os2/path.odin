@@ -162,7 +162,7 @@ clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: stri
                 }
             case:
                 // Copy the path element verbatim and add a separator.
-                copy(buffer[buffer_i:], elem)
+                copy_from_string(buffer[buffer_i:], elem)
                 buffer_i += len(elem)
                 buffer[buffer_i] = _Path_Separator
                 buffer_i += 1
@@ -181,7 +181,7 @@ clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: stri
     }
 
     compact := make_slice([]u8, buffer_i, allocator) or_return
-    copy(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
+    copy_slice(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
     return string(compact), nil
 }
 
@@ -297,7 +297,7 @@ get_relative_path :: proc(base, target: string, allocator: runtime.Allocator) ->
             buf[n] = _Path_Separator
             n += 1
         }
-        copy(buf[n:], trailing)
+        copy_from_string(buf[n:], trailing)
     }
 
     path = string(buf)
@@ -395,9 +395,9 @@ join_filename :: proc(base: string, ext: string, allocator: runtime.Allocator) -
     }
 
     buf := make_slice([]u8, len(base) + 1 + len(ext), allocator) or_return
-    copy(buf, base)
+    copy_from_string(buf, base)
     buf[len(base)] = '.'
-    copy(buf[1+len(base):], ext)
+    copy_from_string(buf[1+len(base):], ext)
 
     return string(buf), nil
 }

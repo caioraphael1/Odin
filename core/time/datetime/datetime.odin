@@ -16,7 +16,7 @@ This procedure converts the specified date into an ordinal. If the specified
 date is not a valid date, an error is returned.
 */
 date_to_ordinal :: proc(date: Date) -> (ordinal: Ordinal, err: Error) {
-    validate(date) or_return
+    validate_date(date) or_return
     return unsafe_date_to_ordinal(date), .None
 }
 
@@ -28,7 +28,7 @@ components, into an ordinal. If the specified date is not a valid date, an error
 is returned.
 */
 components_to_ordinal :: proc(#any_int year, #any_int month, #any_int day: i64) -> (ordinal: Ordinal, err: Error) {
-    validate(year, month, day) or_return
+    validate_year_month_day(year, month, day) or_return
     return unsafe_date_to_ordinal({year, i8(month), i8(day)}), .None
 }
 
@@ -39,7 +39,7 @@ This provedure converts the specified ordinal into a date. If the ordinal is not
 a valid ordinal, an error is returned.
 */
 ordinal_to_date :: proc(ordinal: Ordinal) -> (date: Date, err: Error) {
-    validate(ordinal) or_return
+    validate_ordinal(ordinal) or_return
     return unsafe_ordinal_to_date(ordinal), .None
 }
 
@@ -131,8 +131,8 @@ subtract_datetimes :: proc(a, b: DateTime) -> (delta: Delta, err: Error) {
     ord_a := date_to_ordinal(a) or_return
     ord_b := date_to_ordinal(b) or_return
 
-    validate(a.time) or_return
-    validate(b.time) or_return
+    validate_time(a.time) or_return
+    validate_time(b.time) or_return
 
     seconds_a := i64(a.hour) * 3600 + i64(a.minute) * 60 + i64(a.second)
     seconds_b := i64(b.hour) * 3600 + i64(b.minute) * 60 + i64(b.second)
@@ -212,7 +212,7 @@ This procedure returns the number of the day in a year, starting from 1. If
 the date is not a valid date, an error is returned.
 */
 day_number :: proc(date: Date) -> (day_number: i64, err: Error) {
-    validate(date) or_return
+    validate_date(date) or_return
 
     ord := unsafe_date_to_ordinal(date)
     _, day_number = unsafe_ordinal_to_year(ord)
@@ -228,8 +228,8 @@ returned.
 */
 days_remaining :: proc(date: Date) -> (days_remaining: i64, err: Error) {
     // Alternative formulation `day_number` subtracted from 365 or 366 depending on leap year
-    validate(date) or_return
-    delta := sub(date, Date{date.year, 12, 31}) or_return
+    validate_date(date) or_return
+    delta := subtract_dates(date, Date{date.year, 12, 31}) or_return
     return delta.days, .None
 }
 
@@ -242,7 +242,7 @@ date. If the specified year or month is not valid, an error is returned.
 last_day_of_month :: proc(#any_int year: i64, #any_int month: i8) -> (day: i8, err: Error) {
     // Not using formula 2.27 from the book. This is far simpler and gives the same answer.
 
-    validate(Date{year, month, 1}) or_return
+    validate_date(Date{year, month, 1}) or_return
     month_days := MONTH_DAYS
 
     day = month_days[month]
@@ -259,7 +259,7 @@ This procedure returns the January 1st date of the specified year. If the year
 is not valid, an error is returned.
 */
 new_year :: proc(#any_int year: i64) -> (new_year: Date, err: Error) {
-    validate(year, 1, 1) or_return
+    validate_year_month_day(year, 1, 1) or_return
     return {year, 1, 1}, .None
 }
 
@@ -270,7 +270,7 @@ This procedure returns the December 31st date of the specified year. If the year
 is not valid, an error is returned.
 */
 year_end :: proc(#any_int year: i64) -> (year_end: Date, err: Error) {
-    validate(year, 12, 31) or_return
+    validate_year_month_day(year, 12, 31) or_return
     return {year, 12, 31}, .None
 }
 

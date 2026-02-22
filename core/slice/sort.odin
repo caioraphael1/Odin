@@ -74,7 +74,7 @@ _sort_by_indices :: proc(data, sorted: $T/[]$E, indices: []int) {
 sort_by_indices_overwrite :: proc(data: $T/[]$E, indices: []int) {
     assert(len(data) == len(indices))
     temp := make_slice([]E, len(data), context.allocator)
-    defer _ = delete(temp)
+    defer _ = delete_slice(temp)
     for v, i in indices {
         temp[i] = data[v]
     }

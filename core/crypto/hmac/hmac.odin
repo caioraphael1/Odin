@@ -138,7 +138,7 @@ _init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 		// bytes x’00’).
 		//
 		// K0 is zero-initialized, so the copy handles both cases.
-		copy(K0, key)
+		copy_slice(K0, key)
 	case kLen > B:
 		// If the length of K > B: hash K to obtain an L byte string,
 		// then append (B-L) zeros to create a B-byte string K0

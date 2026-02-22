@@ -77,12 +77,12 @@ init :: proc(s: ^State, undo_text_allocator, undo_state_allocator: runtime.Alloc
 	s.redo.allocator = undo_state_allocator
 }
 
-// clear undo|redo strings and _ = delete their stacks
+// clear undo|redo strings and _ = delete_slice their stacks
 destroy :: proc(s: ^State) {
 	undo_clear(s, &s.undo)
 	undo_clear(s, &s.redo)
-	_ = delete(s.undo)
-	_ = delete(s.redo)
+	_ = delete_slice(s.undo)
+	_ = delete_slice(s.redo)
 	s.builder = nil
 }
 
@@ -126,7 +126,7 @@ setup_once :: proc(s: ^State, builder: ^strings.Builder) {
 // clear builder&selection and the undo|redo stacks
 clear_all :: proc(s: ^State) -> (cleared: bool) {
 	if s.builder != nil && len(s.builder.buf) > 0 {
-		clear(&s.builder.buf)
+		clear_dynamic_array(&s.builder.buf)
 		s.selection = {}
 		cleared = true
 	}
@@ -146,7 +146,7 @@ undo_state_push :: proc(s: ^State, undo: ^[dynamic]^Undo_State) -> mem.Allocator
 	item.selection = s.selection
 	item.len = len(text)
 	#no_bounds_check {
-		runtime.copy(item.text[:len(text)], text)
+		runtime.copy_slice(item.text[:len(text)], text)
 	}
 	append(undo, item) or_return
 	return nil
@@ -273,7 +273,7 @@ sorted_selection :: proc(s: ^State) -> (lo, hi: int) {
 	return
 }
 
-// _ = delete the current selection range and set the proper selection afterwards
+// _ = delete_slice the current selection range and set the proper selection afterwards
 selection_delete :: proc(s: ^State) {
 	lo, hi := sorted_selection(s)
 	remove(s, lo, hi)
@@ -386,9 +386,9 @@ current_selected_text :: proc(s: ^State) -> string {
 	return ""
 }
 
-// copy & _ = delete the current selection when copy() succeeds
+// copy & _ = delete_slice the current selection when copy_slice() succeeds
 cut :: proc(s: ^State) -> bool {
-	if copy(s) {
+	if copy_slice(s) {
 		selection_delete(s)
 		return true
 	}
@@ -460,7 +460,7 @@ perform_command :: proc(s: ^State, cmd: Command) {
 	case .Redo:              undo(s, &s.redo, &s.undo)
 	case .New_Line:          input_text(s, "\n")
 	case .Cut:               cut(s)
-	case .Copy:              copy(s)
+	case .Copy:              copy_slice(s)
 	case .Paste:             paste(s)
 	case .Select_All:        s.selection = {len(s.builder.buf) if s.builder != nil else 0, 0}
 	case .Backspace:         delete_to(s, .Left)

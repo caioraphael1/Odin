@@ -36,13 +36,13 @@ SIMD_REG_SIZE_128 :: 16
 
 clone :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     c, _ := make_slice([]byte, len(s), allocator, loc)
-    copy(c, s)
+    copy_slice(c, s)
     return c[:len(s)]
 }
 
 clone_safe :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: mem.Allocator_Error) {
     c := make_slice([]byte, len(s), allocator, loc) or_return
-    copy(c, s)
+    copy_slice(c, s)
     return c[:len(s)], nil
 }
 
@@ -92,7 +92,7 @@ contains_any :: proc(s, chars: []byte) -> bool {
 
 
 rune_count :: proc(s: []byte) -> int {
-    return utf8.rune_count(s)
+    return utf8.rune_count_in_bytes(s)
 }
 
 
@@ -168,10 +168,10 @@ join :: proc(a: [][]byte, sep: []byte, allocator: mem.Allocator) -> []byte {
     }
 
     b, _ := make_slice([]byte, n, allocator)
-    i := copy(b, a[0])
+    i := copy_slice(b, a[0])
     for s in a[1:] {
-        i += copy(b[i:], sep)
-        i += copy(b[i:], s)
+        i += copy_slice(b[i:], sep)
+        i += copy_slice(b[i:], s)
     }
     return b
 }
@@ -187,10 +187,10 @@ join_safe :: proc(a: [][]byte, sep: []byte, allocator: mem.Allocator) -> (data: 
     }
 
     b := make_slice([]byte, n, allocator) or_return
-    i := copy(b, a[0])
+    i := copy_slice(b, a[0])
     for s in a[1:] {
-        i += copy(b[i:], sep)
-        i += copy(b[i:], s)
+        i += copy_slice(b[i:], sep)
+        i += copy_slice(b[i:], s)
     }
     return b, nil
 }
@@ -207,7 +207,7 @@ concatenate :: proc(a: [][]byte, allocator: mem.Allocator) -> []byte {
     b, _ := make_slice([]byte, n, allocator)
     i := 0
     for s in a {
-        i += copy(b[i:], s)
+        i += copy_slice(b[i:], s)
     }
     return b
 }
@@ -224,7 +224,7 @@ concatenate_safe :: proc(a: [][]byte, allocator: mem.Allocator) -> (data: []byte
     b := make_slice([]byte, n, allocator) or_return
     i := 0
     for s in a {
-        i += copy(b[i:], s)
+        i += copy_slice(b[i:], s)
     }
     return b, nil
 }
@@ -239,14 +239,14 @@ _split :: proc(s, sep: []byte, sep_save, n: int, allocator: mem.Allocator) -> []
     }
 
     if sep == nil {
-        l := utf8.rune_count(s)
+        l := utf8.rune_count_in_bytes(s)
         if n < 0 || n > l {
             n = l
         }
 
-        res, _ := make_dynamic_array([dynamic][]byte, n, allocator)
+        res, _ := make_dynamic_array_len([dynamic][]byte, n, allocator)
         for i := 0; i < n-1; i += 1 {
-            _, w := utf8.decode_rune(s)
+            _, w := utf8.decode_rune_in_bytes(s)
             res[i] = s[:w]
             s = s[w:]
         }
@@ -260,7 +260,7 @@ _split :: proc(s, sep: []byte, sep_save, n: int, allocator: mem.Allocator) -> []
         n = count(s, sep) + 1
     }
 
-    res, _ := make_dynamic_array([dynamic][]byte, n, allocator)
+    res, _ := make_dynamic_array_len([dynamic][]byte, n, allocator)
 
     n -= 1
 
@@ -721,7 +721,7 @@ last_index_any :: proc(s, chars: []byte) -> int {
     }
 
     for i := len(s); i > 0;  {
-        r, w := utf8.decode_last_rune(s[:i])
+        r, w := utf8.decode_last_rune_in_bytes(s[:i])
         i -= w
         for c in string(chars) {
             if r == c {
@@ -776,9 +776,9 @@ repeat :: proc(s: []byte, count: int, allocator: mem.Allocator) -> []byte {
     }
 
     b, _ := make_slice([]byte, len(s)*count, allocator)
-    i := copy(b, s)
+    i := copy_slice(b, s)
     for i < len(b) { // 2^N trick to reduce the need to copy
-        copy(b[i:], b[:i])
+        copy_slice(b[i:], b[:i])
         i *= 2
     }
     return b
@@ -814,17 +814,17 @@ replace :: proc(s, old, new: []byte, n: int, allocator: mem.Allocator) -> (outpu
         j := start
         if len(old) == 0 {
             if i > 0 {
-                _, width := utf8.decode_rune(s[start:])
+                _, width := utf8.decode_rune_in_bytes(s[start:])
                 j += width
             }
         } else {
             j += index(s[start:], old)
         }
-        w += copy(t[w:], s[start:j])
-        w += copy(t[w:], new)
+        w += copy_slice(t[w:], s[start:j])
+        w += copy_slice(t[w:], new)
         start = j + len(old)
     }
-    w += copy(t[w:], s[start:])
+    w += copy_slice(t[w:], s[start:])
     output = t[0:w]
     return
 }
@@ -890,7 +890,7 @@ index_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: r
 last_index_proc :: proc(s: []byte, p: proc(rune) -> bool, truth := true) -> int {
     // TODO(bill): Probably use Rabin-Karp Search
     for i := len(s); i > 0; {
-        r, size := utf8.decode_last_rune(s[:i])
+        r, size := utf8.decode_last_rune_in_bytes(s[:i])
         i -= size
         if p(r) == truth {
             return i
@@ -902,7 +902,7 @@ last_index_proc :: proc(s: []byte, p: proc(rune) -> bool, truth := true) -> int 
 last_index_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> int {
     // TODO(bill): Probably use Rabin-Karp Search
     for i := len(s); i > 0; {
-        r, size := utf8.decode_last_rune(s[:i])
+        r, size := utf8.decode_last_rune_in_bytes(s[:i])
         i -= size
         if p(state, r) == truth {
             return i
@@ -953,7 +953,7 @@ trim_left_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, stat
 trim_right_proc :: proc(s: []byte, p: proc(rune) -> bool) -> []byte {
     i := last_index_proc(s, p, false)
     if i >= 0 && s[i] >= utf8.RUNE_SELF {
-        _, w := utf8.decode_rune(s[i:])
+        _, w := utf8.decode_rune_in_bytes(s[i:])
         i += w
     } else {
         i += 1
@@ -964,7 +964,7 @@ trim_right_proc :: proc(s: []byte, p: proc(rune) -> bool) -> []byte {
 trim_right_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: rawptr) -> []byte {
     i := last_index_proc_with_state(s, p, state, false)
     if i >= 0 && s[i] >= utf8.RUNE_SELF {
-        _, w := utf8.decode_rune(s[i:])
+        _, w := utf8.decode_rune_in_bytes(s[i:])
         i += w
     } else {
         i += 1
@@ -1081,7 +1081,7 @@ split_multi :: proc(s: []byte, substrs: [][]byte, skip_empty := false, allocator
             }
         }
 
-        _, skip := utf8.decode_rune(s[i:])
+        _, skip := utf8.decode_rune_in_bytes(s[i:])
         i += skip
     }
 
@@ -1114,7 +1114,7 @@ split_multi :: proc(s: []byte, substrs: [][]byte, skip_empty := false, allocator
             }
         }
 
-        _, skip := utf8.decode_rune(s[i:])
+        _, skip := utf8.decode_rune_in_bytes(s[i:])
         i += skip
     }
 
@@ -1163,7 +1163,7 @@ split_multi_iterator :: proc(s: ^[]byte, substrs: [][]byte, skip_empty := false)
             }
         }
 
-        _, skip := utf8.decode_rune(s[i:])
+        _, skip := utf8.decode_rune_in_bytes(s[i:])
         i += skip
     }
 
@@ -1191,7 +1191,7 @@ scrub :: proc(s: []byte, replacement: []byte, allocator: mem.Allocator) -> []byt
     origin := str
 
     for len(str) > 0 {
-        r, w := utf8.decode_rune(str)
+        r, w := utf8.decode_rune_in_bytes(str)
 
         if r == utf8.RUNE_ERROR {
             if !has_error {
@@ -1221,9 +1221,9 @@ reverse :: proc(s: []byte, allocator: mem.Allocator) -> []byte {
     i := n
 
     for len(str) > 0 {
-        _, w := utf8.decode_rune(str)
+        _, w := utf8.decode_rune_in_bytes(str)
         i -= w
-        copy(buf[i:], str[:w])
+        copy_slice(buf[i:], str[:w])
         str = str[w:]
     }
     return buf
@@ -1246,7 +1246,7 @@ expand_tabs :: proc(s: []byte, tab_size: int, allocator: mem.Allocator) -> []byt
     column: int
 
     for len(str) > 0 {
-        r, w := utf8.decode_rune(str)
+        r, w := utf8.decode_rune_in_bytes(str)
 
         if r == '\t' {
             expand := tab_size - column%tab_size
@@ -1360,7 +1360,7 @@ write_pad_string :: proc(b: ^Buffer, pad: []byte, pad_len, remains: int) {
     p := pad
 
     for i := 0; i < n; i += 1 {
-        r, width := utf8.decode_rune(p)
+        r, width := utf8.decode_rune_in_bytes(p)
         _, _ = buffer_write_rune(b, r)
         p = p[width:]
     }

@@ -32,12 +32,12 @@ _multi_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 
 
 multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: runtime.Allocator) -> (r: Reader) {
-    all_readers, _ := make_dynamic_array([dynamic]Reader, 0, len(readers), allocator)
+    all_readers, _ := make_dynamic_array_len_cap([dynamic]Reader, 0, len(readers), allocator)
 
     for w in readers {
         if w.procedure == _multi_reader_proc {
             other := (^Multi_Reader)(w.data)
-            _ = append(&all_readers, ..other.readers[:])
+            _ = append_many(&all_readers, ..other.readers[:])
         } else {
             _ = append(&all_readers, w)
         }
@@ -51,7 +51,7 @@ multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: runti
 }
 
 multi_reader_destroy :: proc(mr: ^Multi_Reader) {
-    _ = delete(mr.readers)
+    _ = delete_dynamic_array(mr.readers)
 }
 
 
@@ -82,12 +82,12 @@ _multi_writer_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 
 
 multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: runtime.Allocator) -> (out: Writer) {
-    mw.writers, _ = make_dynamic_array([dynamic]Writer, 0, len(writers), allocator)
+    mw.writers, _ = make_dynamic_array_len_cap([dynamic]Writer, 0, len(writers), allocator)
 
     for w in writers {
         if w.procedure == _multi_writer_proc {
             other := (^Multi_Writer)(w.data)
-            _ = append(&mw.writers, ..other.writers[:])
+            _ = append_many(&mw.writers, ..other.writers[:])
         } else {
             _ = append(&mw.writers, w)
         }
@@ -99,5 +99,5 @@ multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: runti
 }
 
 multi_writer_destroy :: proc(mw: ^Multi_Writer) {
-    _ = delete(mw.writers)
+    _ = delete_dynamic_array(mw.writers)
 }

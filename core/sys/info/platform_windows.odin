@@ -230,7 +230,7 @@ init_os_version :: proc(allocator: runtime.Allocator) {
             "DisplayVersion",
             allocator,
         )
-        defer _ = delete(dv, allocator) // It'll be interned into `version_string_buf`
+        defer _ = delete_slice(dv, allocator) // It'll be interned into `version_string_buf`
 
         if ok {
             strings.write_string(b, " (version: ")

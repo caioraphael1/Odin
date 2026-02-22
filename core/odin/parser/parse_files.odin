@@ -18,7 +18,7 @@ collect_package :: proc(path: string) -> (pkg: ^ast.Package, success: bool) {
 
     path_pattern := fmt.tprintf("%s/*.odin", pkg_path)
     matches, err := filepath.glob(path_pattern)
-    defer _ = delete(matches)
+    defer _ = delete_slice(matches)
 
     if err != nil {
         return
@@ -36,12 +36,12 @@ collect_package :: proc(path: string) -> (pkg: ^ast.Package, success: bool) {
 
         src, ok = os.read_entire_file(fullpath)
         if !ok {
-            _ = delete(fullpath)
+            _ = delete_slice(fullpath)
             return
         }
         if strings.trim_space(string(src)) == "" {
-            _ = delete(fullpath)
-            _ = delete(src)
+            _ = delete_slice(fullpath)
+            _ = delete_slice(src)
             continue
         }
 

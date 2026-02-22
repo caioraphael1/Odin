@@ -91,7 +91,7 @@ utf8_to_utf16_alloc :: proc(s: string, allocator: runtime.Allocator) -> []u16 {
 
     n1 := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cstr, i32(len(s)), raw_data(text), n)
     if n1 == 0 {
-        _ = delete(text, allocator)
+        _ = delete_slice(text, allocator)
         return nil
     }
 
@@ -120,14 +120,14 @@ utf8_to_utf16_buf :: proc(buf: []u16, s: string) -> []u16 {
 }
 
 utf8_to_wstring_alloc :: proc(s: string, allocator: runtime.Allocator) -> wstring {
-    if res := utf8_to_utf16(s, allocator); len(res) > 0 {
+    if res := utf8_to_utf16_alloc(s, allocator); len(res) > 0 {
         return wstring(raw_data(res))
     }
     return nil
 }
 
 utf8_to_wstring_buf :: proc(buf: []u16, s: string) -> wstring {
-    if res := utf8_to_utf16(buf, s); len(res) > 0 {
+    if res := utf8_to_utf16_buf(buf, s); len(res) > 0 {
         return wstring(raw_data(res))
     }
     return nil
@@ -153,7 +153,7 @@ wstring_to_utf8_alloc :: proc(s: wstring, N: int, allocator: runtime.Allocator) 
 
     n1 := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, i32(N), raw_data(text), n, nil, nil)
     if n1 == 0 {
-        _ = delete(text, allocator)
+        _ = delete_slice(text, allocator)
         return
     }
 
@@ -209,7 +209,7 @@ utf16_to_utf8_alloc :: proc(s: []u16, allocator: runtime.Allocator) -> (res: str
     if len(s) == 0 {
         return "", nil
     }
-    return wstring_to_utf8(wstring(raw_data(s)), len(s), allocator)
+    return wstring_to_utf8_alloc(wstring(raw_data(s)), len(s), allocator)
 }
 
 /*
@@ -230,7 +230,7 @@ utf16_to_utf8_buf :: proc(buf: []u8, s: []u16) -> (res: string) {
     if len(s) == 0 {
         return
     }
-    return wstring_to_utf8(buf, wstring(raw_data(s)), len(s))
+    return wstring_to_utf8_buf(buf, wstring(raw_data(s)), len(s))
 }
 
 
@@ -289,7 +289,7 @@ _add_user :: proc(servername: string, username: string, password: string) -> (ok
         // Create account on this computer
         servername_w = nil
     } else {
-        server := utf8_to_utf16(servername, runtime.temp_allocator)
+        server := utf8_to_utf16_alloc(servername, runtime.temp_allocator)
         servername_w = wstring(&server[0])
     }
 
@@ -303,8 +303,8 @@ _add_user :: proc(servername: string, username: string, password: string) -> (ok
         return .BadPassword
     }
 
-    username_w = utf8_to_utf16(username, runtime.temp_allocator)
-    password_w = utf8_to_utf16(password, runtime.temp_allocator)
+    username_w = utf8_to_utf16_alloc(username, runtime.temp_allocator)
+    password_w = utf8_to_utf16_alloc(password, runtime.temp_allocator)
 
 
     level  := DWORD(1)
@@ -333,7 +333,7 @@ _add_user :: proc(servername: string, username: string, password: string) -> (ok
 
 get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: string, sid := SID{}, ok: bool) {
 
-    username_w := utf8_to_utf16(username, runtime.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, runtime.temp_allocator)
     cbsid: DWORD
     computer_name_size: DWORD
     pe_use := SID_NAME_USE.SidTypeUser
@@ -367,7 +367,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
     if !res {
         return "", {}, false
     }
-    computer_name = utf16_to_utf8(cname_w, runtime.temp_allocator) or_else ""
+    computer_name = utf16_to_utf8_alloc(cname_w, runtime.temp_allocator) or_else ""
 
     ok = true
     return
@@ -375,7 +375,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
 
 get_sid :: proc(username: string, sid: ^SID) -> (ok: bool) {
 
-    username_w := utf8_to_utf16(username, runtime.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, runtime.temp_allocator)
     cbsid: DWORD
     computer_name_size: DWORD
     pe_use := SID_NAME_USE.SidTypeUser
@@ -417,7 +417,7 @@ add_user_to_group :: proc(sid: ^SID, group: string) -> (ok: NET_API_STATUS) {
     group_member := LOCALGROUP_MEMBERS_INFO_0{
         sid = sid,
     }
-    group_name := utf8_to_utf16(group, runtime.temp_allocator)
+    group_name := utf8_to_utf16_alloc(group, runtime.temp_allocator)
     ok = NetLocalGroupAddMembers(
         nil,
         wstring(&group_name[0]),
@@ -432,7 +432,7 @@ add_del_from_group :: proc(sid: ^SID, group: string) -> (ok: NET_API_STATUS) {
     group_member := LOCALGROUP_MEMBERS_INFO_0{
         sid = sid,
     }
-    group_name := utf8_to_utf16(group, runtime.temp_allocator)
+    group_name := utf8_to_utf16_alloc(group, runtime.temp_allocator)
     ok = NetLocalGroupDelMembers(
         nil,
         cstring16(&group_name[0]),
@@ -444,7 +444,7 @@ add_del_from_group :: proc(sid: ^SID, group: string) -> (ok: NET_API_STATUS) {
 }
 
 add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
-    username_w := utf8_to_utf16(username, runtime.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, runtime.temp_allocator)
 
     sid := SID{}
     ok = get_sid(username, &sid)
@@ -469,7 +469,7 @@ add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
     if res2 != 0 {
         return false, ""
     }
-    profile_path = wstring_to_utf8(wstring(&pszProfilePath[0]), 257, runtime.temp_allocator) or_else ""
+    profile_path = wstring_to_utf8_alloc(wstring(&pszProfilePath[0]), 257, runtime.temp_allocator) or_else ""
 
     return true, profile_path
 }
@@ -502,7 +502,7 @@ add_user :: proc(servername: string, username: string, password: string) -> (ok:
         Convenience function that creates a new user, adds it to the group Users and creates a profile directory for it.
         Requires elevated privileges (run as administrator).
 
-        TODO: Add a bool that governs whether to _ = delete the user if adding to group and/or creating profile fail?
+        TODO: Add a bool that governs whether to _ = delete_slice the user if adding to group and/or creating profile fail?
         TODO: SecureZeroMemory the password after use.
     */
 
@@ -531,7 +531,7 @@ delete_user :: proc(servername: string, username: string) -> (ok: bool) {
         Convenience function that deletes a user.
         Requires elevated privileges (run as administrator).
 
-        TODO: Add a bool that governs whether to _ = delete the profile from this wrapper?
+        TODO: Add a bool that governs whether to _ = delete_slice the profile from this wrapper?
     */
 
     servername_w: wstring
@@ -539,10 +539,10 @@ delete_user :: proc(servername: string, username: string) -> (ok: bool) {
         // Delete account on this computer
         servername_w = nil
     } else {
-        server := utf8_to_utf16(servername, runtime.temp_allocator)
+        server := utf8_to_utf16_alloc(servername, runtime.temp_allocator)
         servername_w = wstring(&server[0])
     }
-    username_w := utf8_to_utf16(username, runtime.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, runtime.temp_allocator)
 
     res := NetUserDel(
         servername_w,
@@ -565,14 +565,14 @@ run_as_user :: proc(username, password, application, commandline: string, pi: ^P
 
     */
 
-    username_w    := utf8_to_utf16(username, runtime.temp_allocator)
-    domain_w      := utf8_to_utf16(".", runtime.temp_allocator)
-    password_w    := utf8_to_utf16(password, runtime.temp_allocator)
-    app_w         := utf8_to_utf16(application, runtime.temp_allocator)
+    username_w    := utf8_to_utf16_alloc(username, runtime.temp_allocator)
+    domain_w      := utf8_to_utf16_alloc(".", runtime.temp_allocator)
+    password_w    := utf8_to_utf16_alloc(password, runtime.temp_allocator)
+    app_w         := utf8_to_utf16_alloc(application, runtime.temp_allocator)
 
     commandline_w: []u16 = {0}
     if len(commandline) > 0 {
-        commandline_w = utf8_to_utf16(commandline, runtime.temp_allocator)
+        commandline_w = utf8_to_utf16_alloc(commandline, runtime.temp_allocator)
     }
 
     user_token: HANDLE

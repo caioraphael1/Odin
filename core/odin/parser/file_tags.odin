@@ -238,9 +238,9 @@ parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags
 		parse_tag(text, &tags, &build_kinds, &build_project_name_strings, &build_project_names)
 	}
 
-	shrink(&build_kinds)
-	shrink(&build_project_names)
-	_ = delete(build_project_name_strings)
+	shrink_dynamic_array(&build_kinds)
+	shrink_dynamic_array(&build_project_names)
+	_ = delete_slice(build_project_name_strings)
 
 	tags.build = build_kinds[:]
 	tags.build_project_name = build_project_names[:]

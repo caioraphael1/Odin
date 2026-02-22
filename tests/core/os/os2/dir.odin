@@ -9,7 +9,7 @@ import    "core:strings"
 @(test)
 test_read_dir :: proc(t: ^testing.T) {
 	path, err_join := os.join_path({#directory, "../dir"}, context.allocator)
-	defer _ = delete(path)
+	defer _ = delete_slice(path)
 
 	fis, err_read := os.read_all_directory_by_path(path, context.allocator)
 	defer os.file_info_slice_delete(fis, context.allocator)
@@ -35,7 +35,7 @@ test_read_dir :: proc(t: ^testing.T) {
 @(test)
 test_walker :: proc(t: ^testing.T) {
 	path, err := os.join_path({#directory, "../dir"}, context.allocator)
-	defer _ = delete(path)
+	defer _ = delete_slice(path)
 	testing.expect_value(t, err, nil)
 
 	w := os.walker_create(path)
@@ -47,7 +47,7 @@ test_walker :: proc(t: ^testing.T) {
 @(test)
 test_walker_file :: proc(t: ^testing.T) {
 	path, err_join := os.join_path({#directory, "../dir"}, context.allocator)
-	defer _ = delete(path)
+	defer _ = delete_slice(path)
 	testing.expect_value(t, err_join, nil)
 
 	f, err_open := os.open(path)
@@ -81,7 +81,7 @@ test_walker_internal :: proc(t: ^testing.T, w: ^os.Walker) {
 	}
 
 	seen: [dynamic]Seen
-	defer _ = delete(seen)
+	defer _ = delete_slice(seen)
 
 	for info in os.walker_walk(w) {
 
@@ -107,10 +107,10 @@ test_walker_internal :: proc(t: ^testing.T, w: ^os.Walker) {
 			if strings.has_suffix(entry.path, expectation.path) {
 				found = true
 				testing.expect_value(t, entry.type, expectation.type)
-				_ = delete(entry.path)
+				_ = delete_slice(entry.path)
 			}
 		}
 		testing.expectf(t, found, "%q not found in %v", expectation, seen)
-		_ = delete(expectation.path)
+		_ = delete_slice(expectation.path)
 	}
 } 

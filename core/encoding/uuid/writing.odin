@@ -1,5 +1,6 @@
 package uuid
 
+import "core:mem"
 import "base:runtime"
 import "core:io"
 import "core:strconv"
@@ -89,7 +90,7 @@ Returns:
 */
 to_string_allocated :: proc(
     id: Identifier,
-    allocator := context.allocator,
+    allocator: mem.Allocator,
     loc := #caller_location,
 ) -> (
     str: string,

@@ -33,12 +33,12 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
 		sname := string(cname)
 
 		n := len(fimpl.name)+1
-		if err := non_zero_resize(&it.impl.fullpath, n+len(sname)); err != nil {
+		if err := non_zero_resize_dynamic_array(&it.impl.fullpath, n+len(sname)); err != nil {
 			read_directory_iterator_set_error(it, sname, err)
 			ok = true
 			return
 		}
-		copy(it.impl.fullpath[n:], sname)
+		copy_slice(it.impl.fullpath[n:], sname)
 
 		stat: posix.stat_t
 		if posix.fstatat(posix.dirfd(it.impl.dir), cname, &stat, { .SYMLINK_NOFOLLOW }) != .OK {
@@ -63,8 +63,8 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 
 	// NOTE: Allow calling `init` to target a new directory with the same iterator.
 	it.impl.fullpath.allocator = allocator
-	clear(&it.impl.fullpath)
-	if err := reserve(&it.impl.fullpath, len(impl.name)+128); err != nil {
+	clear_dynamic_array(&it.impl.fullpath)
+	if err := reserve_dynamic_array(&it.impl.fullpath, len(impl.name)+128); err != nil {
 		read_directory_iterator_set_error(it, name(f), err)
 		return
 	}
@@ -100,5 +100,5 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator) {
 	}
 
 	posix.closedir(it.impl.dir)
-	_ = delete(it.impl.fullpath)
+	_ = delete_slice(it.impl.fullpath)
 }

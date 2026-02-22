@@ -113,7 +113,7 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 
     report.pkg_column_len = PROGRESS_COLUMN_SPACING + max(report.pkg_column_len, len(cur_pkg))
 
-    shrink(&packages) or_return
+    shrink_dynamic_array(&packages) or_return
 
     for &pkg in packages {
         pkg.header = fmt.aprintf("%- *[1]s[", pkg.name, report.pkg_column_len)
@@ -136,12 +136,12 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 
 destroy_report :: proc(report: ^Report) {
     for pkg in report.packages {
-        _ = delete(pkg.header)
+        _ = delete_slice(pkg.header)
     }
 
-    _ = delete(report.packages)
-    _ = delete(report.packages_by_name)
-    _ = delete(report.all_test_states)
+    _ = delete_slice(report.packages)
+    _ = delete_slice(report.packages_by_name)
+    _ = delete_slice(report.all_test_states)
 }
 
 redraw_package :: proc(w: io.Writer, report: Report, pkg: ^Package_Run) {

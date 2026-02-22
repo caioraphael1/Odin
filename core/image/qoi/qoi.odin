@@ -52,7 +52,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	// Calculate and allocate maximum size. We'll reclaim space to actually written output at the end.
 	max_size := pixels * (img.channels + 1) + size_of(image.QOI_Header) + size_of(u64be)
 
-	if resize(&output.buf, max_size) != nil {
+	if resize_dynamic_array(&output.buf, max_size) != nil {
 		return .Unable_To_Allocate_Or_Resize
 	}
 
@@ -65,7 +65,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	}
 	header_bytes := transmute([size_of(image.QOI_Header)]u8)header
 
-	copy(output.buf[written:], header_bytes[:])
+	copy_slice(output.buf[written:], header_bytes[:])
 	written += size_of(image.QOI_Header)
 
 	/*
@@ -138,13 +138,13 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 					} else {
 						// Write RGB literal
 						output.buf[written] = u8(QOI_Opcode_Tag.RGB)
-						copy(output.buf[written + 1:], pix[:3])
+						copy_slice(output.buf[written + 1:], pix[:3])
 						written += 4
 					}
 				} else {
 					// Write RGBA literal
 					output.buf[written] = u8(QOI_Opcode_Tag.RGBA)
-					copy(output.buf[written + 1:], pix[:])
+					copy_slice(output.buf[written + 1:], pix[:])
 					written += 5
 				}
 			}
@@ -153,10 +153,10 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	}
 
 	trailer := []u8{0, 0, 0, 0, 0, 0, 0, 1}
-	copy(output.buf[written:], trailer[:])
+	copy_slice(output.buf[written:], trailer[:])
 	written += len(trailer)
 
-	_ = resize(&output.buf, written)
+	_ = resize_dynamic_array(&output.buf, written)
 	return nil
 }
 
@@ -228,7 +228,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
 	bytes_needed := image.compute_buffer_size(int(header.width), int(header.height), img.channels, 8)
 
-	if resize(&img.pixels.buf, bytes_needed) != nil {
+	if resize_dynamic_array(&img.pixels.buf, bytes_needed) != nil {
 		return img, .Unable_To_Allocate_Or_Resize
 	}
 
@@ -240,7 +240,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 	pixels := img.pixels.buf[:]
 
 	decode: for len(pixels) > 0 {
-		data := image.read_u8(ctx) or_return
+		data := image.read_u8_from_memory(ctx) or_return
 
 		tag := QOI_Opcode_Tag(data)
 		#partial switch tag {
@@ -277,7 +277,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 					}
 
 				case .LUMA:
-					data2 := image.read_u8(ctx) or_return
+					data2 := image.read_u8_from_memory(ctx) or_return
 
 					diff_g := (data & 63) - 32
 					diff_r := diff_g - 8 + ((data2 >> 4) & 15)
@@ -294,7 +294,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 						return img, .Corrupt
 					} else {
 						#no_bounds_check for _ in 0..<length {
-							copy(pixels, pix[:img.channels])
+							copy_slice(pixels, pix[:img.channels])
 							pixels = pixels[img.channels:]
 						}
 					}
@@ -307,7 +307,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 		}
 
 		#no_bounds_check {
-			copy(pixels, pix[:img.channels])
+			copy_slice(pixels, pix[:img.channels])
 			pixels = pixels[img.channels:]
 		}
 	}

@@ -62,8 +62,8 @@ private_key_set_bytes :: proc(priv_key: ^Private_Key, b: []byte) -> bool {
 	sha2.update(&ctx, b)
 	sha2.final(&ctx, h_bytes[:])
 
-	copy(priv_key._b[:], b)
-	copy(priv_key._hdigest2[:], h_bytes[32:])
+	copy_slice(priv_key._b[:], b)
+	copy_slice(priv_key._hdigest2[:], h_bytes[32:])
 	grp.sc_set_bytes_rfc8032(&priv_key._s, h_bytes[:32])
 
 	// Derive the corresponding public key.
@@ -84,7 +84,7 @@ private_key_bytes :: proc(priv_key: ^Private_Key, dst: []byte) {
 	ensure(priv_key._is_initialized, "crypto/ed25519: uninitialized private key")
 	ensure(len(dst) == PRIVATE_KEY_SIZE, "crypto/ed25519: invalid destination size")
 
-	copy(dst, priv_key._b[:])
+	copy_slice(dst, priv_key._b[:])
 }
 
 // private_key_clear clears priv_key to the uninitialized state.
@@ -160,7 +160,7 @@ public_key_set_bytes :: proc(pub_key: ^Public_Key, b: []byte) -> bool {
 		return false
 	}
 
-	copy(pub_key._b[:], b)
+	copy_slice(pub_key._b[:], b)
 	grp.ge_negate(&pub_key._neg_A, &A)
 	pub_key._is_valid = !grp.ge_is_small_order(&A)
 	pub_key._is_initialized = true
@@ -173,7 +173,7 @@ public_key_set_priv :: proc(pub_key: ^Public_Key, priv_key: ^Private_Key) {
 	ensure(priv_key._is_initialized, "crypto/ed25519: uninitialized public key")
 
 	src := &priv_key._pub_key
-	copy(pub_key._b[:], src._b[:])
+	copy_slice(pub_key._b[:], src._b[:])
 	grp.ge_set(&pub_key._neg_A, &src._neg_A)
 	pub_key._is_valid = src._is_valid
 	pub_key._is_initialized = src._is_initialized
@@ -184,7 +184,7 @@ public_key_bytes :: proc(pub_key: ^Public_Key, dst: []byte) {
 	ensure(pub_key._is_initialized, "crypto/ed25519: uninitialized public key")
 	ensure(len(dst) == PUBLIC_KEY_SIZE, "crypto/ed25519: invalid destination size")
 
-	copy(dst, pub_key._b[:])
+	copy_slice(dst, pub_key._b[:])
 }
 
 // public_key_equal returns true iff pub_key is equal to other.

@@ -549,12 +549,12 @@ Inputs:
 - allocator: 
 */
 destroy_regex :: proc(regex: Regular_Expression, allocator: runtime.Allocator) {
-    _ = delete(regex.program, allocator)
+    _ = delete_slice(regex.program, allocator)
     for data in regex.class_data {
-        _ = delete(data.runes, allocator)
-        _ = delete(data.ranges, allocator)
+        _ = delete_slice(data.runes, allocator)
+        _ = delete_slice(data.ranges, allocator)
     }
-    _ = delete(regex.class_data, allocator)
+    _ = delete_slice(regex.class_data, allocator)
 }
 
 /*
@@ -567,8 +567,8 @@ Inputs:
 - allocator:
 */
 destroy_capture :: proc(capture: Capture, allocator: runtime.Allocator) {
-    _ = delete(capture.groups, allocator)
-    _ = delete(capture.pos, allocator)
+    _ = delete_slice(capture.groups, allocator)
+    _ = delete_slice(capture.pos, allocator)
 }
 
 /*

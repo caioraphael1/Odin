@@ -155,7 +155,7 @@ Returns:
 */
 clone_from_bytes :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     c := make_slice([]byte, len(s)+1, allocator, loc) or_return
-    copy_from_string(c, s)
+    copy_slice(c, s)
     c[len(s)] = 0
     return string(c[:len(s)]), nil
 }
@@ -2711,7 +2711,7 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
         it = it[i+w:]
     }
 
-    results := make_dynamic_array([dynamic]string, 0, n, allocator, loc) or_return
+    results := make_dynamic_array_len_cap([dynamic]string, 0, n, allocator, loc) or_return
     {
         it := s
         for len(it) > 0 {
@@ -2821,7 +2821,7 @@ Output:
 scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     str := s
     b: Builder
-    builder_init(&b, 0, len(s), allocator) or_return
+    builder_init_len_cap(&b, 0, len(s), allocator) or_return
 
     has_error := false
     cursor := 0
@@ -3046,7 +3046,7 @@ centre_justify :: proc(str: string, length: int, pad: string, allocator: mem.All
     pad_len := rune_count(pad)
 
     b: Builder
-    builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
     w := to_writer(&b)
 
@@ -3082,7 +3082,7 @@ left_justify :: proc(str: string, length: int, pad: string, allocator: mem.Alloc
     pad_len := rune_count(pad)
 
     b: Builder
-    builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
     w := to_writer(&b)
 
@@ -3117,7 +3117,7 @@ right_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allo
     pad_len := rune_count(pad)
 
     b: Builder
-    builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
     w := to_writer(&b)
 
@@ -3233,7 +3233,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
-    substrings := make_dynamic_array([dynamic]string, 0, 32, allocator, loc) or_return
+    substrings := make_dynamic_array_len_cap([dynamic]string, 0, 32, allocator, loc) or_return
 
     start, end := -1, -1
     for r, offset in s {
@@ -3347,7 +3347,7 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
     }
 
     defer if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-        _ = delete(costs, allocator)
+        _ = delete_slice(costs, allocator)
     }
 
     i: int

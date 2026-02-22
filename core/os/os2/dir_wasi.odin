@@ -40,12 +40,12 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
 		}
 
 		n := len(fimpl.name)+1
-		if alloc_err := non_zero_resize(&it.impl.fullpath, n+len(name)); alloc_err != nil {
+		if alloc_err := non_zero_resize_dynamic_array(&it.impl.fullpath, n+len(name)); alloc_err != nil {
 			read_directory_iterator_set_error(it, name, alloc_err)
 			ok = true
 			return
 		}
-		copy(it.impl.fullpath[n:], name)
+		copy_slice(it.impl.fullpath[n:], name)
 
 		stat, err := wasi.path_filestat_get(__fd(it.f), {}, name)
 		if err != nil {
@@ -81,10 +81,10 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 	}
 	buf.allocator = allocator
 
-	defer if it.err.err != nil { _ = delete(buf) }
+	defer if it.err.err != nil { _ = delete_slice(buf) }
 
 	for {
-		if err := non_zero_resize(&buf, 512 if len(buf) == 0 else len(buf)*2); err != nil {
+		if err := non_zero_resize_dynamic_array(&buf, 512 if len(buf) == 0 else len(buf)*2); err != nil {
 			read_directory_iterator_set_error(it, name(f), err)
 			return
 		}
@@ -96,7 +96,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 		}
 
 		if n < len(buf) {
-			_ = non_zero_resize(&buf, n)
+			_ = non_zero_resize_dynamic_array(&buf, n)
 			break
 		}
 
@@ -106,8 +106,8 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 
 	// NOTE: Allow calling `init` to target a new directory with the same iterator.
 	it.impl.fullpath.allocator = allocator
-	clear(&it.impl.fullpath)
-	if err := reserve(&it.impl.fullpath, len(impl.name)+128); err != nil {
+	clear_dynamic_array(&it.impl.fullpath)
+	if err := reserve_dynamic_array(&it.impl.fullpath, len(impl.name)+128); err != nil {
 		read_directory_iterator_set_error(it, name(f), err)
 		return
 	}
@@ -119,6 +119,6 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 }
 
 _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
-	_ = delete(it.impl.buf, allocator)
-	_ = delete(it.impl.fullpath)
+	_ = delete_slice(it.impl.buf, allocator)
+	_ = delete_slice(it.impl.fullpath)
 }

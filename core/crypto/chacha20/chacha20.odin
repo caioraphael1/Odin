@@ -40,7 +40,7 @@ init :: proc(ctx: ^Context, key, iv: []byte, impl := DEFAULT_IMPLEMENTATION) {
 		sub_key := ctx._state._buffer[:KEY_SIZE]
 		hchacha20(sub_key, k, n, ctx._impl)
 		k = sub_key
-		copy(sub_iv[4:], n[16:])
+		copy_slice(sub_iv[4:], n[16:])
 		n = sub_iv[:]
 	}
 
@@ -133,7 +133,7 @@ keystream_bytes :: proc(ctx: ^Context, dst: []byte) {
 		// Process partial blocks from the buffered keystream.
 		to_copy := min(_chacha20.BLOCK_SIZE - st._off, remaining)
 		buffered_keystream := st._buffer[st._off:]
-		copy(dst[:to_copy], buffered_keystream[:to_copy])
+		copy_slice(dst[:to_copy], buffered_keystream[:to_copy])
 		st._off += to_copy
 		dst = dst[to_copy:]
 		remaining -= to_copy

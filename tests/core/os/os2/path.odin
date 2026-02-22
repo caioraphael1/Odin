@@ -8,7 +8,7 @@ import    "core:strings"
 @(test)
 test_executable :: proc(t: ^testing.T) {
 	path, err := os.get_executable_path(context.allocator)
-	defer _ = delete(path)
+	defer _ = delete_slice(path)
 
 	log.infof("executable path: %q", path)
 

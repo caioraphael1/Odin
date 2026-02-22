@@ -45,6 +45,6 @@ teardown_sized_buf :: proc(
 ) {
 	assert(options != nil)
 
-	_ = delete(options.input)
+	_ = delete_slice(options.input)
 	return nil
 }

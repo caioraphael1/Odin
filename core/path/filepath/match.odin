@@ -222,7 +222,7 @@ get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Match_Er
 glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, err: Match_Error) {
     if !has_meta(pattern) {
         // TODO(bill): os.lstat on here to check for error
-        m := make_slice([]string, 1, allocator)
+        m, _ := make_slice([]string, 1, allocator)
         m[0] = pattern
         return m[:], .None
     }
@@ -249,12 +249,12 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
     }
     defer {
         for s in m {
-            _ = delete(s, allocator)
+            _ = delete_string(s, allocator)
         }
-        _ = delete(m, allocator)
+        _ = delete_slice(m, allocator)
     }
 
-    dmatches := make_dynamic_array([dynamic]string, 0, 0, allocator)
+    dmatches, _ := make_dynamic_array_len_cap([dynamic]string, 0, 0, allocator)
     for d in m {
         dmatches, err = _glob(d, file, &dmatches, allocator)
         if err != .None {
@@ -272,7 +272,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
     if matches != nil {
         m = matches^
     } else {
-        m = make_dynamic_array([dynamic]string, 0, 0, allocator)
+        m, _ = make_dynamic_array_len_cap([dynamic]string, 0, 0, allocator)
     }
 
 
@@ -303,7 +303,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
         for fi in fis {
             os.file_info_delete(fi, allocator)
         }
-        _ = delete(fis, allocator)
+        _ = delete_slice(fis, allocator)
     }
 
     for fi in fis {
@@ -347,7 +347,7 @@ clean_glob_path_windows :: proc(path: string, temp_buf: []byte) -> (prefix_len: 
     case vol_len+1 == len(path) && is_separator(path[len(path)-1]): // /, \, C:\, C:/
         return vol_len+1, path
     case vol_len == len(path) && len(path) == 2: // C:
-        copy(temp_buf[:], path)
+        copy_from_string(temp_buf[:], path)
         temp_buf[2] = '.'
         return vol_len, string(temp_buf[:3])
     }

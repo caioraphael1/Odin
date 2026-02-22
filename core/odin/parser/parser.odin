@@ -1135,7 +1135,7 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
     case:
         error(p, decl.pos, "expected a value or foreign declaration after an attribute")
         _ = free(attribute)
-        _ = delete(elems)
+        _ = delete_slice(elems)
     }
     return decl
 
@@ -1231,7 +1231,7 @@ parse_foreign_decl :: proc(p: ^Parser) -> ^ast.Decl {
             expect_token(p, .Close_Brace)
         } else {
             path := expect_token(p, .String)
-            _ = reserve(&fullpaths, 1)
+            _ = reserve_dynamic_array(&fullpaths, 1)
             bl := ast.new(ast.Basic_Lit, path.pos, end_pos(path))
             bl.tok = path
             _ = append(&fullpaths, bl)
@@ -2040,7 +2040,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
     fields: [dynamic]^ast.Field
 
     list: [dynamic]Expr_And_Flags
-    defer _ = delete(list)
+    defer _ = delete_slice(list)
 
     seen_ellipsis := false
 

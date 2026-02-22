@@ -62,8 +62,8 @@ expensive_for_backtrackers :: proc(t: ^testing.T) {
 		data := make_slice([]u8, count)
 		pattern := make_slice([]u8, 2 * count + count)
 		defer {
-			_ = delete(data)
-			_ = delete(pattern)
+			_ = delete_slice(data)
+			_ = delete_slice(pattern)
 		}
 		for i in 0..<2 * count {
 			pattern[i] = 'a' if i & 1 == 0 else '?'
@@ -117,7 +117,7 @@ global_capture_end_word :: proc(t: ^testing.T) {
 
 	for size in sizes {
 		data := make_slice([]u8, size)
-		defer _ = delete(data)
+		defer _ = delete_slice(data)
 		randomize_ascii(data[:])
 
 		for r, i in EXPR {
@@ -157,7 +157,7 @@ global_capture_end_word_unicode :: proc(t: ^testing.T) {
 
 	for size in sizes {
 		data := make_slice([]u8, size)
-		defer _ = delete(data)
+		defer _ = delete_slice(data)
 		randomize_unicode(data[:size - len(needle)])
 
 		for i := 0; i < len(needle); i += 1 {
@@ -197,7 +197,7 @@ alternations :: proc(t: ^testing.T) {
 
 	for size in sizes {
 		data := make_slice([]u8, size)
-		defer _ = delete(data)
+		defer _ = delete_slice(data)
 		for i in 0..<size {
 			data[i] = 'a'
 		}
@@ -231,7 +231,7 @@ classes :: proc(t: ^testing.T) {
 
 	for size in sizes {
 		data := make_slice([]u8, size)
-		defer _ = delete(data)
+		defer _ = delete_slice(data)
 
 		for i in 0..<size {
 			data[i] = ' '

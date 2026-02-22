@@ -46,7 +46,7 @@ foreign libc {
 
 		addr: posix.sockaddr_un
 		addr.sun_family = .UNIX
-		copy(addr.sun_path[:], "/somepath\x00")
+		copy_slice(addr.sun_path[:], "/somepath\x00")
 
 		/*
 			unlink the socket before binding in case

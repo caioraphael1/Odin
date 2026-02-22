@@ -195,8 +195,8 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
         return img, .Unsupported_Option
     }
 
-    first := compress.read_u8(ctx) or_return
-    soi := cast(image.JPEG_Marker)compress.read_u8(ctx) or_return
+    first := compress.read_u8_from_memory(ctx) or_return
+    soi := cast(image.JPEG_Marker)compress.read_u8_from_memory(ctx) or_return
     if first != 0xFF && soi != .SOI {
         return img, .Invalid_Signature
     }
@@ -217,14 +217,14 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
     block_width: int
     block_height: int
     blocks: []Block
-    defer _ = delete(blocks)
+    defer _ = delete_slice(blocks)
 
     loop: for {
         // Loop until we find 0xFF.
-        first = compress.read_u8(ctx) or_return
+        first = compress.read_u8_from_memory(ctx) or_return
         (first == 0xFF) or_continue
 
-        marker := cast(image.JPEG_Marker)compress.read_u8(ctx) or_return
+        marker := cast(image.JPEG_Marker)compress.read_u8_from_memory(ctx) or_return
         if expect_EOI && marker != .EOI {
             return img, .Extra_Data_After_SOS
         }
@@ -238,7 +238,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
             ident := make_dynamic_array([dynamic]byte, 0, 16, runtime.temp_allocator) or_return
             length := cast(int)((compress.read_data(ctx, u16be) or_return) - 2)
             for {
-                b := compress.read_u8(ctx) or_return
+                b := compress.read_u8_from_memory(ctx) or_return
                 if b == 0x00 {
                     break
                 }
@@ -252,11 +252,11 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                 }
 
                 version := compress.read_data(ctx, u16be) or_return
-                units := cast(image.JFIF_Unit)(compress.read_u8(ctx) or_return)
+                units := cast(image.JFIF_Unit)(compress.read_u8_from_memory(ctx) or_return)
                 x_density := compress.read_data(ctx, u16be) or_return
                 y_density := compress.read_data(ctx, u16be) or_return
-                x_thumbnail := cast(int)compress.read_u8(ctx) or_return
-                y_thumbnail := cast(int)compress.read_u8(ctx) or_return
+                x_thumbnail := cast(int)compress.read_u8_from_memory(ctx) or_return
+                y_thumbnail := cast(int)compress.read_u8_from_memory(ctx) or_return
                 thumbnail: []image.RGB_Pixel
 
                 if x_thumbnail * y_thumbnail != 0 {
@@ -274,7 +274,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
                     if .return_metadata in options {
                         thumbnail = make_slice([]image.RGB_Pixel, x_thumbnail * y_thumbnail) or_return
-                        copy(thumbnail, thumb_pixels)
+                        copy_slice(thumbnail, thumb_pixels)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -296,7 +296,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                     }
                 }
             } else if slice.equal(ident[:], image.JFXX_Magic[:]) {
-                extension_code := cast(image.JFXX_Extension_Code)compress.read_u8(ctx) or_return
+                extension_code := cast(image.JFXX_Extension_Code)compress.read_u8_from_memory(ctx) or_return
                 thumbnail: []byte
 
                 switch extension_code {
@@ -311,7 +311,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
                     if .return_metadata in options {
                         thumbnail = make_slice([]byte, thumbnail_len) or_return
-                        copy(thumbnail, thumbnail_jpeg)
+                        copy_slice(thumbnail, thumbnail_jpeg)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -328,13 +328,13 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                         img.metadata = info
                     }
                 case .Thumbnail_3_Byte_RGB:
-                    x_thumbnail := cast(int)compress.read_u8(ctx) or_return
-                    y_thumbnail := cast(int)compress.read_u8(ctx) or_return
+                    x_thumbnail := cast(int)compress.read_u8_from_memory(ctx) or_return
+                    y_thumbnail := cast(int)compress.read_u8_from_memory(ctx) or_return
                     pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail * 3) or_return
 
                     if .return_metadata in options {
                         thumbnail = make_slice([]byte, x_thumbnail * y_thumbnail * 3) or_return
-                        copy(thumbnail, pixels)
+                        copy_slice(thumbnail, pixels)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -351,8 +351,8 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                         img.metadata = info
                     }
                 case .Thumbnail_1_Byte_Palette: // NOTE(illusionman1212): NOT TESTED. Couldn't find a jpeg to test this with.
-                    x_thumbnail := cast(int)compress.read_u8(ctx) or_return
-                    y_thumbnail := cast(int)compress.read_u8(ctx) or_return
+                    x_thumbnail := cast(int)compress.read_u8_from_memory(ctx) or_return
+                    y_thumbnail := cast(int)compress.read_u8_from_memory(ctx) or_return
                     palette := slice.reinterpret([]image.RGB_Pixel, compress.read_slice(ctx, THUMBNAIL_PALETTE_SIZE / 3) or_return)
                     old_pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail) or_return
 
@@ -402,7 +402,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
             ident := make_dynamic_array([dynamic]byte, 0, 16, runtime.temp_allocator) or_return
             for {
-                b := compress.read_u8(ctx) or_return
+                b := compress.read_u8_from_memory(ctx) or_return
                 if b == 0x00 {
                     break
                 }
@@ -411,7 +411,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
             if slice.equal(ident[:], image.Exif_Magic[:]) {
                 // Padding byte according to section 4.7.2.2 in Exif spec 3.0
-                compress.read_u8(ctx) or_return
+                compress.read_u8_from_memory(ctx) or_return
 
                 exif: image.Exif
                 peek := compress.peek_data(ctx, [4]byte) or_return
@@ -444,7 +444,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                 // - 2 for the NUL byte and padding byte
                 data := compress.read_slice(ctx, length - len(ident) - 2) or_return
                 exif.data = make_slice([]byte, len(data)) or_return
-                copy(exif.data, data)
+                copy_slice(exif.data, data)
 
                 append(&info.exif, exif) or_return
                 img.metadata = info
@@ -465,7 +465,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
             length := cast(int)(compress.read_data(ctx, u16be) or_return) - 2
 
             for length > 0 {
-                precision_and_index := compress.read_u8(ctx) or_return
+                precision_and_index := compress.read_u8_from_memory(ctx) or_return
                 precision := precision_and_index >> 4
                 index := precision_and_index & 0xF
 
@@ -499,7 +499,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
             length := (compress.read_data(ctx, u16be) or_return) - 2
 
             for length > 0 {
-                type_index := compress.read_u8(ctx) or_return
+                type_index := compress.read_u8_from_memory(ctx) or_return
                 type := cast(Coefficient)((type_index >> 4) & 0xF)
                 index := type_index & 0xF
 
@@ -523,7 +523,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                 }
 
                 symbols := compress.read_slice(ctx, cast(int)num_symbols) or_return
-                copy(huffman[type][index].symbols[:], symbols)
+                copy_slice(huffman[type][index].symbols[:], symbols)
 
                 length -= cast(u16be)(1 + HUFFMAN_MAX_BITS + num_symbols)
 
@@ -551,10 +551,10 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
             // Length
             compress.read_data(ctx, u16be) or_return
-            precision := compress.read_u8(ctx) or_return
+            precision := compress.read_u8_from_memory(ctx) or_return
             height := compress.read_data(ctx, u16be) or_return
             width := compress.read_data(ctx, u16be) or_return
-            components := compress.read_u8(ctx) or_return
+            components := compress.read_u8_from_memory(ctx) or_return
             img.width = cast(int)width
             img.height = cast(int)height
             img.depth = cast(int)precision
@@ -596,7 +596,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
             block_height = mcu_height
 
             for _ in 0..<components {
-                id := cast(Component)compress.read_u8(ctx) or_return
+                id := cast(Component)compress.read_u8_from_memory(ctx) or_return
 
                 if id == Component(0) {
                     zero_based_components = true
@@ -612,7 +612,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                     return img, .Image_Does_Not_Adhere_to_Spec
                 }
 
-                h_v_factors := compress.read_u8(ctx) or_return
+                h_v_factors := compress.read_u8_from_memory(ctx) or_return
                 horizontal_sampling := h_v_factors >> 4
                 vertical_sampling := h_v_factors & 0xF
 
@@ -638,7 +638,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                     }
                 }
 
-                quantization_table_idx := compress.read_u8(ctx) or_return
+                quantization_table_idx := compress.read_u8_from_memory(ctx) or_return
 
                 if quantization_table_idx < 0 || quantization_table_idx > 3 {
                     return img, .Invalid_Quantization_Table_Index
@@ -675,13 +675,13 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
 
             // Length
             compress.read_data(ctx, u16be) or_return
-            num_components := compress.read_u8(ctx) or_return
+            num_components := compress.read_u8_from_memory(ctx) or_return
             if num_components != 1 && num_components != 3 {
                 return img, .Invalid_Number_Of_Channels
             }
 
             for _ in 0..<num_components {
-                component_id := cast(Component)compress.read_u8(ctx) or_return
+                component_id := cast(Component)compress.read_u8_from_memory(ctx) or_return
                 if zero_based_components {
                     component_id += Component(1)
                 }
@@ -690,7 +690,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                 }
 
                 // high 4 is DC, low 4 is AC
-                coefficient_indices := compress.read_u8(ctx) or_return
+                coefficient_indices := compress.read_u8_from_memory(ctx) or_return
                 dc_table_idx := coefficient_indices >> 4
                 ac_table_idx := coefficient_indices & 0xF
 
@@ -702,11 +702,11 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                 color_components[component_id].ac_table_idx = ac_table_idx
             }
             // TODO: These aren't used for sequential DCT, only progressive and lossless.
-            Ss := compress.read_u8(ctx) or_return
+            Ss := compress.read_u8_from_memory(ctx) or_return
             _ = Ss
-            Se := compress.read_u8(ctx) or_return
+            Se := compress.read_u8_from_memory(ctx) or_return
             _ = Se
-            Ah_Al := compress.read_u8(ctx) or_return
+            Ah_Al := compress.read_u8_from_memory(ctx) or_return
             _ = Ah_Al
 
             blocks = make_slice([]Block, block_height * block_width) or_return
@@ -959,7 +959,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
                 orig_channels += 1
             }
 
-            if resize(&img.pixels.buf, img.width * img.height * img.channels) != nil {
+            if resize_dynamic_array(&img.pixels.buf, img.width * img.height * img.channels) != nil {
                 return img, .Unable_To_Allocate_Or_Resize
             }
 
@@ -1070,21 +1070,21 @@ destroy :: proc(img: ^Image) {
 
     if v, ok := img.metadata.(^image.JPEG_Info); ok {
         if jfxx, jfxx_ok := v.jfxx_app0.?; jfxx_ok {
-            _ = delete(jfxx.thumbnail)
+            _ = delete_slice(jfxx.thumbnail)
         }
         if jfif, jfif_ok := v.jfif_app0.?; jfif_ok {
-            _ = delete(jfif.thumbnail)
+            _ = delete_slice(jfif.thumbnail)
         }
 
         for comment in v.comments {
-            _ = delete(comment)
+            _ = delete_slice(comment)
         }
-        _ = delete(v.comments)
+        _ = delete_slice(v.comments)
 
         for exif in v.exif {
-            _ = delete(exif.data)
+            _ = delete_slice(exif.data)
         }
-        _ = delete(v.exif)
+        _ = delete_slice(v.exif)
 
         _ = free(v)
     }

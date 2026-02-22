@@ -234,11 +234,11 @@ bug_5931 :: proc(t: ^testing.T) {
 
 	big.int_divmod(&quotient, &remainder, &numerator, &divisor)
 	quo_str, _ := big.int_itoa_string(&quotient)
-	defer _ = delete(quo_str)
+	defer _ = delete_slice(quo_str)
 	assert(quo_str == "28948022309329048855892746252171976963317496166410141009864396001977208667923")
 
 	rem_str, _ := big.int_itoa_string(&remainder)
-	defer _ = delete(rem_str)
+	defer _ = delete_slice(rem_str)
 	assert(rem_str == "28948022309329048855892746252171976963317496166410141009864396001977208667952")
 }
 
@@ -254,9 +254,9 @@ expect_a :: proc(t: ^testing.T, format: string, a, expected, res: ^big.Int, err:
 		rs, _ := big.itoa(res)
 		es, _ := big.itoa(expected)
 
-		defer _ = delete(as)
-		defer _ = delete(rs)
-		defer _ = delete(es)
+		defer _ = delete_slice(as)
+		defer _ = delete_slice(rs)
+		defer _ = delete_slice(es)
 
 		testing.expectf(t, equal, format, as, es, rs, loc=loc)
 		assert(equal)
@@ -273,10 +273,10 @@ expect_ab :: proc(t: ^testing.T, format: string, a, b, expected, res: ^big.Int, 
 		rs, _ := big.itoa(res)
 		es, _ := big.itoa(expected)
 
-		defer _ = delete(as)
-		defer _ = delete(bs)
-		defer _ = delete(rs)
-		defer _ = delete(es)
+		defer _ = delete_slice(as)
+		defer _ = delete_slice(bs)
+		defer _ = delete_slice(rs)
+		defer _ = delete_slice(es)
 
 		testing.expectf(t, equal, format, as, bs, es, rs, loc=loc)
 		assert(equal)
@@ -303,9 +303,9 @@ test_itoa :: proc(t: ^testing.T) {
 
 		size, _ := big.radix_size(a, i8(radix), false)
 		buffer_old := make_slice([]u8, size)
-		defer _ = delete(buffer_old)
+		defer _ = delete_slice(buffer_old)
 		buffer_new := make_slice([]u8, size)
-		defer _ = delete(buffer_new)
+		defer _ = delete_slice(buffer_new)
 
 		written_old, _ := big._itoa_raw_old (a, i8(radix), buffer_old, false)
 		written_new, _ := big._itoa_raw_full(a, i8(radix), buffer_new, false)
@@ -319,9 +319,9 @@ test_itoa :: proc(t: ^testing.T) {
 	big.set(a, "2970714761494550000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000802525522395693895558562897961119110387707542077460459880227570865486047631557732177235787527971863645406120285117781450154113859156752194121206131440514109132606823127467068869589613665129498148285292867292641704871893467328665051712596763187306247339023362481")
 	size, _ := big.radix_size(a, 10, false)
 	buffer_old := make_slice([]u8, size)
-	defer _ = delete(buffer_old)
+	defer _ = delete_slice(buffer_old)
 	buffer_new := make_slice([]u8, size)
-	defer _ = delete(buffer_new)
+	defer _ = delete_slice(buffer_new)
 
 	written_old, _ := big._itoa_raw_old (a, 10, buffer_old, false)
 	written_new, _ := big._itoa_raw_full(a, 10, buffer_new, false)

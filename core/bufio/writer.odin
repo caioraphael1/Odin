@@ -37,7 +37,7 @@ writer_init_with_buf :: proc(b: ^Writer, wr: io.Writer, buf: []byte) {
 
 // writer_destroy destroys the underlying buffer with its associated allocator IFF that allocator has been set
 writer_destroy :: proc(b: ^Writer) {
-	_ = delete(b.buf, b.buf_allocator)
+	_ = delete_slice(b.buf, b.buf_allocator)
 	b^ = {}
 }
 
@@ -68,7 +68,7 @@ writer_flush :: proc(b: ^Writer) -> io.Error {
 	}
 	if err != nil {
 		if n > 0 && n < b.n {
-			copy(b.buf[:b.n-n], b.buf[n : b.n])
+			copy_slice(b.buf[:b.n-n], b.buf[n : b.n])
 		}
 		b.n -= n
 		b.err = err
@@ -102,7 +102,7 @@ writer_write :: proc(b: ^Writer, p: []byte) -> (n: int, err: io.Error) {
 				break
 			}
 		} else {
-			m = copy(b.buf[b.n:], p)
+			m = copy_slice(b.buf[b.n:], p)
 			b.n += m
 			_ = writer_flush(b)
 		}
@@ -112,7 +112,7 @@ writer_write :: proc(b: ^Writer, p: []byte) -> (n: int, err: io.Error) {
 	if b.err != nil {
 		return n, b.err
 	}
-	m := copy(b.buf[b.n:], p)
+	m := copy_slice(b.buf[b.n:], p)
 	b.n += m
 	m += n
 	return m, nil
@@ -160,7 +160,7 @@ writer_write_rune :: proc(b: ^Writer, r: rune) -> (size: int, err: io.Error) {
 	}
 
 	buf, size = utf8.encode_rune(r)
-	copy(b.buf[b.n:], buf[:size])
+	copy_slice(b.buf[b.n:], buf[:size])
 	b.n += size
 	return
 }
