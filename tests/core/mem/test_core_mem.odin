@@ -71,14 +71,14 @@ tlsf_test_overlap_and_zero :: proc(t: ^testing.T) {
 	}
 	context.allocator = tlsf.allocator(&alloc)
 
-	allocations := make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator)
+	allocations := make_dynamic_array([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator)
 	defer _ = delete(allocations)
 
 	err: mem.Allocator_Error
 	s:   []byte
 
 	for size := 1; err == .None && size <= NUM_ALLOCATIONS; size += 1 {
-		s, err = make([]byte, size)
+		s, err = make_slice([]byte, size)
 		_ = append(&allocations, s)
 	}
 
@@ -103,7 +103,7 @@ tlsf_test_grow_pools :: proc(t: ^testing.T) {
 	BACKING_SIZE_INIT  := tlsf.estimate_pool_size(1, ALLOC_SIZE, 64)
 	BACKING_SIZE_GROW  := tlsf.estimate_pool_size(1, ALLOC_SIZE, 64)
 
-	allocations := make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator)
+	allocations := make_dynamic_array([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator)
 	defer _ = delete(allocations)
 
 	if err := tlsf.init_from_allocator(&alloc, default_allocator, BACKING_SIZE_INIT, BACKING_SIZE_GROW); err != .None {
@@ -112,7 +112,7 @@ tlsf_test_grow_pools :: proc(t: ^testing.T) {
 	context.allocator = tlsf.allocator(&alloc)
 
 	for len(allocations) < NUM_ALLOCATIONS {
-		s := make([]byte, ALLOC_SIZE) or_break
+		s := make_slice([]byte, ALLOC_SIZE) or_break
 		testing.expect_value(t, len(s), ALLOC_SIZE)
 		_ = append(&allocations, s)
 	}
@@ -145,15 +145,15 @@ tlsf_test_free_all :: proc(t: ^testing.T) {
 	context.allocator = tlsf.allocator(&alloc)
 
 	allocations: [2][dynamic][]byte
-	allocations[0] = make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator) // After `init`
-	allocations[1] = make([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator) // After `free_all`
+	allocations[0] = make_dynamic_array([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator) // After `init`
+	allocations[1] = make_dynamic_array([dynamic][]byte, 0, NUM_ALLOCATIONS, default_allocator) // After `free_all`
 	defer {
 		_ = delete(allocations[0])
 		_ = delete(allocations[1])
 	}
 
 	for {
-		s := make([]byte, ALLOCATION_SIZE) or_break
+		s := make_slice([]byte, ALLOCATION_SIZE) or_break
 		_ = append(&allocations[0], s)
 	}
 	testing.expect(t, len(allocations[0]) >= 10)
@@ -161,7 +161,7 @@ tlsf_test_free_all :: proc(t: ^testing.T) {
 	_ = free_all(tlsf.allocator(&alloc))
 
 	for {
-		s := make([]byte, ALLOCATION_SIZE) or_break
+		s := make_slice([]byte, ALLOCATION_SIZE) or_break
 		_ = append(&allocations[1], s)
 	}
 	testing.expect(t, len(allocations[1]) >= 10)
@@ -203,7 +203,7 @@ basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, l
 	context.allocator = allocator
 
 	{
-		a := make([dynamic]u8)
+		a := make_dynamic_array([dynamic]u8)
 		for i in 0..<limit {
 			_ = append(&a, u8(i))
 		}
@@ -215,7 +215,7 @@ basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, l
 	}
 
 	{
-		v := make([]u8, limit)
+		v := make_slice([]u8, limit)
 		testing.expect_value(t, len(v), limit, loc) or_return
 		for i in 0..<limit {
 			v[i] = u8(i)
@@ -226,7 +226,7 @@ basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, l
 
 	{
 		for i in 0..<limit {
-			v := make([]u8, 1)
+			v := make_slice([]u8, 1)
 			v[0] = u8(i)
 			testing.expect_value(t, v[0], u8(i), loc) or_return
 			_ = delete(v)

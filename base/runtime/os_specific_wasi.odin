@@ -52,12 +52,12 @@ _wasi_setup_args :: proc() {
 	}
 
 	err: Allocator_Error
-	if args__, err = make([]cstring, num_of_args); err != nil {
+	if args__, err = make_slice([]cstring, num_of_args); err != nil {
 		return
 	}
 
 	args_buf: []byte
-	if args_buf, err = make([]byte, size_of_args); err != nil {
+	if args_buf, err = make_slice([]byte, size_of_args); err != nil {
 		_ = delete(args__)
 		return
 	}

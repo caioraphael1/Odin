@@ -59,8 +59,8 @@ expensive_for_backtrackers :: proc(t: ^testing.T) {
 	report: string
 
 	for count in counts {
-		data := make([]u8, count)
-		pattern := make([]u8, 2 * count + count)
+		data := make_slice([]u8, count)
+		pattern := make_slice([]u8, 2 * count + count)
 		defer {
 			_ = delete(data)
 			_ = delete(pattern)
@@ -116,7 +116,7 @@ global_capture_end_word :: proc(t: ^testing.T) {
 	report := fmt.tprintf("Matching %q over a block of random ASCII text.", EXPR)
 
 	for size in sizes {
-		data := make([]u8, size)
+		data := make_slice([]u8, size)
 		defer _ = delete(data)
 		randomize_ascii(data[:])
 
@@ -156,7 +156,7 @@ global_capture_end_word_unicode :: proc(t: ^testing.T) {
 	report := fmt.tprintf("Matching %q over a block of random Unicode text.", EXPR)
 
 	for size in sizes {
-		data := make([]u8, size)
+		data := make_slice([]u8, size)
 		defer _ = delete(data)
 		randomize_unicode(data[:size - len(needle)])
 
@@ -196,7 +196,7 @@ alternations :: proc(t: ^testing.T) {
 	report := fmt.tprintf("Matching %q over a text block of only `a`s.", EXPR)
 
 	for size in sizes {
-		data := make([]u8, size)
+		data := make_slice([]u8, size)
 		defer _ = delete(data)
 		for i in 0..<size {
 			data[i] = 'a'
@@ -230,7 +230,7 @@ classes :: proc(t: ^testing.T) {
 	report := fmt.tprintf("Matching %q over a string of spaces with %q at the end.", EXPR, NEEDLE)
 
 	for size in sizes {
-		data := make([]u8, size)
+		data := make_slice([]u8, size)
 		defer _ = delete(data)
 
 		for i in 0..<size {

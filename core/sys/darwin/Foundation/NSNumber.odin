@@ -3,8 +3,8 @@ package objc_Foundation
 import "core:c"
 _ :: c
 when ODIN_OS == .Darwin {
-	#assert(size_of(c.long)  == size_of(int))
-	#assert(size_of(c.ulong) == size_of(uint))
+    #assert(size_of(c.long)  == size_of(int))
+    #assert(size_of(c.ulong) == size_of(uint))
 }
 
 @(objc_class="NSValue")
@@ -12,53 +12,53 @@ Value :: struct{using _: Copying(Value)}
 
 @(objc_type=Value, objc_name="alloc", objc_is_class_method=true)
 Value_alloc :: proc "c" () -> ^Value {
-	return msgSend(^Value, Value, "alloc")
+    return msgSend(^Value, Value, "alloc")
 }
 
 @(objc_type=Value, objc_name="init")
 Value_init :: proc "c" (self: ^Value) -> ^Value {
-	return msgSend(^Value, self, "init")
+    return msgSend(^Value, self, "init")
 }
 
 @(objc_type=Value, objc_name="valueWithBytes", objc_is_class_method=true)
 Value_valueWithBytes :: proc "c" (value: rawptr, type: cstring) -> ^Value {
-	return msgSend(^Value, Value, "valueWithBytes:objCType:", value, type)
+    return msgSend(^Value, Value, "valueWithBytes:objCType:", value, type)
 }
 
 @(objc_type=Value, objc_name="valueWithPointer", objc_is_class_method=true)
 Value_valueWithPointer :: proc "c" (pointer: rawptr) -> ^Value {
-	return msgSend(^Value, Value, "valueWithPointer:", pointer)
+    return msgSend(^Value, Value, "valueWithPointer:", pointer)
 }
 
 @(objc_type=Value, objc_name="initWithBytes")
 Value_initWithBytes :: proc "c" (self: ^Value, value: rawptr, type: cstring) -> ^Value {
-	return msgSend(^Value, self, "initWithBytes:objCType:", value, type)
+    return msgSend(^Value, self, "initWithBytes:objCType:", value, type)
 }
 
 @(objc_type=Value, objc_name="initWithCoder")
 Value_initWithCoder :: proc "c" (self: ^Value, coder: ^Coder) -> ^Value {
-	return msgSend(^Value, self, "initWithCoder:", coder)
+    return msgSend(^Value, self, "initWithCoder:", coder)
 }
 
 @(objc_type=Value, objc_name="getValue")
 Value_getValue :: proc "c" (self: ^Value, value: rawptr, size: UInteger) {
-	msgSend(nil, self, "getValue:size:", value, size)
+    msgSend(nil, self, "getValue:size:", value, size)
 }
 
 
 @(objc_type=Value, objc_name="objCType")
 Value_objCType :: proc "c" (self: ^Value) -> cstring {
-	return msgSend(cstring, self, "objCType")
+    return msgSend(cstring, self, "objCType")
 }
 
 @(objc_type=Value, objc_name="isEqualToValue")
 Value_isEqualToValue :: proc "c" (self, other: ^Value) -> BOOL {
-	return msgSend(BOOL, self, "isEqualToValue:", other)
+    return msgSend(BOOL, self, "isEqualToValue:", other)
 }
 
 @(objc_type=Value, objc_name="pointerValue")
 Value_pointerValue :: proc "c" (self: ^Value) -> rawptr {
-	return msgSend(rawptr, self, "pointerValue")
+    return msgSend(rawptr, self, "pointerValue")
 }
 
 
@@ -67,12 +67,12 @@ Number :: struct{using _: Copying(Number), using _: Value}
 
 @(objc_type=Number, objc_name="alloc", objc_is_class_method=true)
 Number_alloc :: proc "c" () -> ^Number {
-	return msgSend(^Number, Number, "alloc")
+    return msgSend(^Number, Number, "alloc")
 }
 
 @(objc_type=Number, objc_name="init")
 Number_init :: proc "c" (self: ^Number) -> ^Number {
-	return msgSend(^Number, self, "init")
+    return msgSend(^Number, self, "init")
 }
 
 @(objc_type=Number, objc_name="numberWithI8",   objc_is_class_method=true) Number_numberWithI8   :: proc "c" (value: i8)   -> ^Number { return msgSend(^Number, Number, "numberWithChar:",             value) }
@@ -89,22 +89,6 @@ Number_init :: proc "c" (self: ^Number) -> ^Number {
 @(objc_type=Number, objc_name="numberWithF64",  objc_is_class_method=true) Number_numberWithF64  :: proc "c" (value: f64)  -> ^Number { return msgSend(^Number, Number, "numberWithDouble:",           value) }
 @(objc_type=Number, objc_name="numberWithBool", objc_is_class_method=true) Number_numberWithBool :: proc "c" (value: BOOL) -> ^Number { return msgSend(^Number, Number, "numberWithBool:",             value) }
 
-@(objc_type=Number, objc_name="number", objc_is_class_method=true)
-Number_number :: proc{
-	Number_numberWithI8,
-	Number_numberWithU8,
-	Number_numberWithI16,
-	Number_numberWithU16,
-	Number_numberWithI32,
-	Number_numberWithU32,
-	Number_numberWithInt,
-	Number_numberWithUint,
-	Number_numberWithU64,
-	Number_numberWithI64,
-	Number_numberWithF32,
-	Number_numberWithF64,
-	Number_numberWithBool,
-}
 
 @(objc_type=Number, objc_name="initWithI8")    Number_initWithI8   :: proc "c" (self: ^Number, value: i8)   -> ^Number { return msgSend(^Number, self, "initWithChar:",             value) }
 @(objc_type=Number, objc_name="initWithU8")    Number_initWithU8   :: proc "c" (self: ^Number, value: u8)   -> ^Number { return msgSend(^Number, self, "initWithUnsignedChar:",     value) }
@@ -140,15 +124,15 @@ Number_number :: proc{
 
 @(objc_type=Number, objc_name="compare")
 Number_compare :: proc "c" (self, other: ^Number) -> ComparisonResult {
-	return msgSend(ComparisonResult, self, "compare:", other)
+    return msgSend(ComparisonResult, self, "compare:", other)
 }
 
 @(objc_type=Number, objc_name="isEqualToNumber")
 Number_isEqualToNumber :: proc "c" (self, other: ^Number) -> BOOL {
-	return msgSend(BOOL, self, "isEqualToNumber:", other)
+    return msgSend(BOOL, self, "isEqualToNumber:", other)
 }
 
 @(objc_type=Number, objc_name="descriptionWithLocale")
 Number_descriptionWithLocale :: proc "c" (self: ^Number, locale: ^Object) -> ^String {
-	return msgSend(^String, self, "descriptionWithLocale:", locale)
+    return msgSend(^String, self, "descriptionWithLocale:", locale)
 }

@@ -15,28 +15,28 @@ MAX_ATTEMPTS :: 1<<13 // Should be enough for everyone, right?
 // The caller must `close` the file once finished with.
 
 create_temp_file :: proc(dir, pattern: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-	dir := dir if dir != "" else temp_directory(runtime.temp_allocator) or_return
-	prefix, suffix := _prefix_and_suffix(pattern) or_return
-	prefix = temp_join_path(dir, prefix, runtime.temp_allocator) or_return
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    dir := dir if dir != "" else temp_directory(runtime.temp_allocator) or_return
+    prefix, suffix := _prefix_and_suffix(pattern) or_return
+    prefix = temp_join_path(dir, prefix, runtime.temp_allocator) or_return
 
-	rand_buf: [10]byte
-	name_buf, _ := make([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
+    rand_buf: [10]byte
+    name_buf, _ := make_slice([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
 
-	attempts := 0
-	for {
-		name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
-		f, err = open(name, {.Read, .Write, .Create, .Excl}, Permissions_Read_Write_All, allocator)
-		if err == .Exist {
-			_ = close(f)
-			attempts += 1
-			if attempts < MAX_ATTEMPTS {
-				continue
-			}
-			return nil, err
-		}
-		return f, err
-	}
+    attempts := 0
+    for {
+        name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
+        f, err = open(name, {.Read, .Write, .Create, .Excl}, Permissions_Read_Write_All, allocator)
+        if err == .Exist {
+            _ = close(f)
+            attempts += 1
+            if attempts < MAX_ATTEMPTS {
+                continue
+            }
+            return nil, err
+        }
+        return f, err
+    }
 }
 
 mkdir_temp :: make_directory_temp
@@ -47,64 +47,64 @@ mkdir_temp :: make_directory_temp
 // If `dir` is an empty tring, `temp_directory()` will be used.
 
 make_directory_temp :: proc(dir, pattern: string, allocator: runtime.Allocator) -> (temp_path: string, err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-	dir := dir if dir != "" else temp_directory(runtime.temp_allocator) or_return
-	prefix, suffix := _prefix_and_suffix(pattern) or_return
-	prefix = temp_join_path(dir, prefix, runtime.temp_allocator) or_return
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    dir := dir if dir != "" else temp_directory(runtime.temp_allocator) or_return
+    prefix, suffix := _prefix_and_suffix(pattern) or_return
+    prefix = temp_join_path(dir, prefix, runtime.temp_allocator) or_return
 
-	rand_buf: [10]byte
-	name_buf, _ := make([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
+    rand_buf: [10]byte
+    name_buf, _ := make_slice([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
 
-	attempts := 0
-	for {
-		name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
-		err = make_directory(name, 0o700)
-		if err == nil {
-			return clone_string(name, allocator)
-		}
-		if err == .Exist {
-			attempts += 1
-			if attempts < MAX_ATTEMPTS {
-				continue
-			}
-			return "", err
-		}
-		if err == .Not_Exist {
-			if _, serr := stat(dir, runtime.temp_allocator); serr == .Not_Exist {
-				return "", serr
-			}
-		}
-		return "", err
-	}
+    attempts := 0
+    for {
+        name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
+        err = make_directory(name, 0o700)
+        if err == nil {
+            return clone_string(name, allocator)
+        }
+        if err == .Exist {
+            attempts += 1
+            if attempts < MAX_ATTEMPTS {
+                continue
+            }
+            return "", err
+        }
+        if err == .Not_Exist {
+            if _, serr := stat(dir, runtime.temp_allocator); serr == .Not_Exist {
+                return "", serr
+            }
+        }
+        return "", err
+    }
 
 }
 
 temp_dir :: temp_directory
 
 /*
-	Returns the default directory to use for temporary files.
+    Returns the default directory to use for temporary files.
 
-	On Unix systems, it typically returns $TMPDIR if non-empty, otherwlse `/tmp`.
-	On Windows, it uses `GetTempPathW`, returning the first non-empty value from one of the following:
-	    * `%TMP%`
-	    * `%TEMP%`
-	    * `%USERPROFILE %`
-	    * or the Windows directory
-	  See https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppathw for more information.
-	On wasi, it returns `/tmp`.
+    On Unix systems, it typically returns $TMPDIR if non-empty, otherwlse `/tmp`.
+    On Windows, it uses `GetTempPathW`, returning the first non-empty value from one of the following:
+        * `%TMP%`
+        * `%TEMP%`
+        * `%USERPROFILE %`
+        * or the Windows directory
+      See https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppathw for more information.
+    On wasi, it returns `/tmp`.
 */
 
 temp_directory :: proc(allocator: runtime.Allocator) -> (string, Error) {
-	return _temp_dir(allocator)
+    return _temp_dir(allocator)
 }
 
 
 
 @(private="file")
 temp_join_path :: proc(dir, name: string, allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) {
-	if len(dir) > 0 && is_path_separator(dir[len(dir)-1]) {
-		return concatenate({dir, name}, allocator)
-	}
+    if len(dir) > 0 && is_path_separator(dir[len(dir)-1]) {
+        return concatenate({dir, name}, allocator)
+    }
 
-	return concatenate({dir, Path_Separator_String, name}, allocator)
+    return concatenate({dir, Path_Separator_String, name}, allocator)
 }

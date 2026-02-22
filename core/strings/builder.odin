@@ -32,9 +32,9 @@ Returns:
 - res: The new Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_make_none :: proc(allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
+builder_make :: proc(allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
-        buf = make([dynamic]byte, allocator, loc) or_return
+        buf = make_dynamic_array([dynamic]byte, allocator, loc) or_return
     }, nil
 }
 /*
@@ -51,7 +51,7 @@ Returns:
 */
 builder_make_len :: proc(len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
-        buf = make([dynamic]byte, len, allocator, loc) or_return
+        buf = make_dynamic_array([dynamic]byte, len, allocator, loc) or_return
     }, nil
 }
 /*
@@ -70,40 +70,10 @@ Returns:
 */
 builder_make_len_cap :: proc(len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
-        buf = make([dynamic]byte, len, cap, allocator, loc) or_return
+        buf = make_dynamic_array([dynamic]byte, len, cap, allocator, loc) or_return
     }, nil
 }
-/*
-Produces a String Builder
 
-*Allocates Using Provided Allocator*
-
-Example:
-
-    import "core:fmt"
-    import "core:strings"
-    builder_make_example :: proc() {
-        sb := strings.builder_make()
-        strings.write_byte(&sb, 'a')
-        strings.write_string(&sb, " slice of ")
-        strings.write_f64(&sb, 3.14,'g',true) // See `fmt.fmt_float` byte codes
-        strings.write_string(&sb, " is ")
-        strings.write_int(&sb, 180)
-        strings.write_rune(&sb,'°')
-        the_string :=strings.to_string(sb)
-        fmt.println(the_string)
-    }
-
-Output:
-
-    a slice of +3.14 is 180°
-
-*/
-builder_make :: proc{
-    builder_make_none,
-    builder_make_len,
-    builder_make_len_cap,
-}
 /*
 Initializes an empty Builder
 It replaces the existing `buf`
@@ -118,10 +88,11 @@ Returns:
 - res: A pointer to the initialized Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_init_none :: proc(b: ^Builder, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    b.buf = make([dynamic]byte, allocator, loc) or_return
+builder_init :: proc(b: ^Builder, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
+    b.buf = make_dynamic_array([dynamic]byte, allocator, loc) or_return
     return nil
 }
+
 /*
 Initializes a Builder with specified length and capacity `len`.
 It replaces the existing `buf`
@@ -138,9 +109,10 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init_len :: proc(b: ^Builder, len: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    b.buf = make([dynamic]byte, len, allocator, loc) or_return
+    b.buf = make_dynamic_array([dynamic]byte, len, allocator, loc) or_return
     return nil
 }
+
 /*
 Initializes a Builder with specified length `len` and capacity `cap`.
 It replaces the existing `buf`
@@ -156,15 +128,10 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init_len_cap :: proc(b: ^Builder, len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    b.buf = make([dynamic]byte, len, cap, allocator, loc) or_return
+    b.buf = make_dynamic_array_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
     return nil
 }
-// Overload simple `builder_init_*` with or without len / ap parameters
-builder_init :: proc{
-    builder_init_none,
-    builder_init_len,
-    builder_init_len_cap,
-}
+
 @(private)
 _builder_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     b := (^Builder)(stream_data)
@@ -219,7 +186,7 @@ Inputs:
 - b: A pointer to the Builder
 */
 builder_destroy :: proc(b: ^Builder) {
-    _ = delete(b.buf)
+    _ = delete_dynamic_array(b.buf)
     b.buf = nil
 }
 /*
@@ -425,7 +392,7 @@ Returns:
 @(optional_results)
 write_bytes :: proc(b: ^Builder, x: []byte, loc := #caller_location) -> (n: int) {
     n0 := len(b.buf)
-    _ = append(&b.buf, ..x, loc=loc)
+    _ = append_many(&b.buf, ..x, loc=loc)
     n1 := len(b.buf)
     return n1-n0
 }

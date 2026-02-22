@@ -9,41 +9,41 @@ A recursive directory walker.
 Note that none of the fields should be accessed directly.
 */
 Walker :: struct {
-	todo:      queue.Queue(string),
-	skip_dir:  bool,
-	err: struct {
-		path: [dynamic]byte,
-		err:  Error,
-	},
-	iter: Read_Directory_Iterator,
+    todo:      queue.Queue(string),
+    skip_dir:  bool,
+    err: struct {
+        path: [dynamic]byte,
+        err:  Error,
+    },
+    iter: Read_Directory_Iterator,
 }
 
 walker_init_path :: proc(w: ^Walker, path: string, allocator: runtime.Allocator) {
-	cloned_path, err := clone_string(path, allocator)
-	if err != nil {
-		walker_set_error(w, path, err)
-		return
-	}
+    cloned_path, err := clone_string(path, allocator)
+    if err != nil {
+        walker_set_error(w, path, err)
+        return
+    }
 
-	walker_clear(w, allocator)
+    walker_clear(w, allocator)
 
-	if _, err = queue.push(&w.todo, cloned_path); err != nil {
-		walker_set_error(w, cloned_path, err)
-		return
-	}
+    if _, err = queue.push(&w.todo, cloned_path); err != nil {
+        walker_set_error(w, cloned_path, err)
+        return
+    }
 }
 
 walker_init_file :: proc(w: ^Walker, f: ^File, allocator: runtime.Allocator) {
-	handle, err := clone(f, allocator)
-	if err != nil {
-		path, _ := clone_string(name(f), allocator)
-		walker_set_error(w, path, err)
-		return
-	}
+    handle, err := clone(f, allocator)
+    if err != nil {
+        path, _ := clone_string(name(f), allocator)
+        walker_set_error(w, path, err)
+        return
+    }
 
-	walker_clear(w, allocator)
+    walker_clear(w, allocator)
 
-	read_directory_iterator_init(&w.iter, handle, allocator)
+    read_directory_iterator_init(&w.iter, handle, allocator)
 }
 
 /*
@@ -53,21 +53,17 @@ You are allowed to repeatedly call this to reuse it for later walks.
 
 For an example on how to use the walker, see `walker_walk`.
 */
-walker_init :: proc {
-	walker_init_path,
-	walker_init_file,
-}
 
 
 walker_create_path :: proc(path: string, allocator: runtime.Allocator) -> (w: Walker) {
-	walker_init_path(&w, path, allocator)
-	return
+    walker_init_path(&w, path, allocator)
+    return
 }
 
 
 walker_create_file :: proc(f: ^File, allocator: runtime.Allocator) -> (w: Walker) {
-	walker_init_file(&w, f, allocator)
-	return
+    walker_init_file(&w, f, allocator)
+    return
 }
 
 /*
@@ -75,10 +71,6 @@ Creates a walker, either using a path or a file pointer to a directory the walke
 
 For an example on how to use the walker, see `walker_walk`.
 */
-walker_create :: proc {
-	walker_create_path,
-	walker_create_file,
-}
 
 /*
 Returns the last error that occurred during the walker's operations.
@@ -87,45 +79,45 @@ Can be called while iterating, or only at the end to check if anything failed.
 */
 
 walker_error :: proc(w: ^Walker) -> (path: string, err: Error) {
-	return string(w.err.path[:]), w.err.err
+    return string(w.err.path[:]), w.err.err
 }
 
 @(private)
 walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
-	if err == nil {
-		return
-	}
+    if err == nil {
+        return
+    }
 
-	_ = resize(&w.err.path, len(path))
-	copy(w.err.path[:], path)
+    _ = resize(&w.err.path, len(path))
+    copy(w.err.path[:], path)
 
-	w.err.err = err
+    w.err.err = err
 }
 
 @(private)
 walker_clear :: proc(w: ^Walker, allocator: runtime.Allocator) {
-	w.iter.f = nil
-	w.skip_dir = false
+    w.iter.f = nil
+    w.skip_dir = false
 
-	w.err.path.allocator = allocator
-	clear(&w.err.path)
+    w.err.path.allocator = allocator
+    clear_dynamic_array(&w.err.path)
 
-	w.todo.data.allocator = allocator
-	for path in queue.pop_front_safe(&w.todo) {
-		_ = delete(path, allocator)
-	}
+    w.todo.data.allocator = allocator
+    for path in queue.pop_front_safe(&w.todo) {
+        _ = delete(path, allocator)
+    }
 }
 
 walker_destroy :: proc(w: ^Walker, allocator: runtime.Allocator) {
-	walker_clear(w, allocator)
-	queue.destroy(&w.todo)
-	_ = delete(w.err.path)
-	read_directory_iterator_destroy(&w.iter, allocator)
+    walker_clear(w, allocator)
+    queue.destroy(&w.todo)
+    _ = delete(w.err.path)
+    read_directory_iterator_destroy(&w.iter, allocator)
 }
 
 // Marks the current directory to be skipped (not entered into).
 walker_skip_dir :: proc(w: ^Walker) {
-	w.skip_dir = true
+    w.skip_dir = true
 }
 
 /*
@@ -135,97 +127,97 @@ If an error occurred opening a directory, you may get zero'd info struct and
 `walker_error` will return the error.
 
 Example:
-	package main
+    package main
 
-	import    "core:fmt"
-	import    "core:strings"
-	import os "core:os/os2"
+    import    "core:fmt"
+    import    "core:strings"
+    import os "core:os/os2"
 
-	main :: proc() {
-		w := os.walker_create("core")
-		defer os.walker_destroy(&w)
+    main :: proc() {
+        w := os.walker_create("core")
+        defer os.walker_destroy(&w)
 
-		for info in os.walker_walk(&w) {
-			// Optionally break on the first error:
-			// _ = walker_error(&w) or_break
+        for info in os.walker_walk(&w) {
+            // Optionally break on the first error:
+            // _ = walker_error(&w) or_break
 
-			// Or, handle error as we go:
-			if path, err := os.walker_error(&w); err != nil {
-				fmt.eprintfln("failed walking %s: %s", path, err)
-				continue
-			}
+            // Or, handle error as we go:
+            if path, err := os.walker_error(&w); err != nil {
+                fmt.eprintfln("failed walking %s: %s", path, err)
+                continue
+            }
 
-			// Or, do not handle errors during iteration, and just check the error at the end.
+            // Or, do not handle errors during iteration, and just check the error at the end.
 
 
 
-			// Skip a directory:
-			if strings.has_suffix(info.fullpath, ".git") {
-				os.walker_skip_dir(&w)
-				continue
-			}
+            // Skip a directory:
+            if strings.has_suffix(info.fullpath, ".git") {
+                os.walker_skip_dir(&w)
+                continue
+            }
 
-			fmt.printfln("%#v", info)
-		}
+            fmt.printfln("%#v", info)
+        }
 
-		// Handle error if one happened during iteration at the end:
-		if path, err := os.walker_error(&w); err != nil {
-			fmt.eprintfln("failed walking %s: %v", path, err)
-		}
-	}
+        // Handle error if one happened during iteration at the end:
+        if path, err := os.walker_error(&w); err != nil {
+            fmt.eprintfln("failed walking %s: %v", path, err)
+        }
+    }
 */
 
 walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info, ok: bool) {
-	if w.skip_dir {
-		w.skip_dir = false
-		if skip, sok := queue.pop_back_safe(&w.todo); sok {
-			_ = delete(skip,  allocator)
-		}
-	}
+    if w.skip_dir {
+        w.skip_dir = false
+        if skip, sok := queue.pop_back_safe(&w.todo); sok {
+            _ = delete(skip,  allocator)
+        }
+    }
 
-	if w.iter.f == nil {
-		if queue.len(w.todo) == 0 {
-			return
-		}
+    if w.iter.f == nil {
+        if queue.len(w.todo) == 0 {
+            return
+        }
 
-		next := queue.pop_front(&w.todo)
+        next := queue.pop_front(&w.todo)
 
-		handle, err := open(next, allocator = allocator)
-		if err != nil {
-			walker_set_error(w, next, err)
-			return {}, true
-		}
+        handle, err := open(next, allocator = allocator)
+        if err != nil {
+            walker_set_error(w, next, err)
+            return {}, true
+        }
 
-		read_directory_iterator_init(&w.iter, handle, allocator)
+        read_directory_iterator_init(&w.iter, handle, allocator)
 
-		_ = delete(next, allocator)
-	}
+        _ = delete(next, allocator)
+    }
 
-	info, _, iter_ok := read_directory_iterator(&w.iter, allocator)
+    info, _, iter_ok := read_directory_iterator(&w.iter, allocator)
 
-	if path, err := read_directory_iterator_error(&w.iter); err != nil {
-		walker_set_error(w, path, err)
-	}
+    if path, err := read_directory_iterator_error(&w.iter); err != nil {
+        walker_set_error(w, path, err)
+    }
 
-	if !iter_ok {
-		_ = close(w.iter.f)
-		w.iter.f = nil
-		return walker_walk(w, allocator)
-	}
+    if !iter_ok {
+        _ = close(w.iter.f)
+        w.iter.f = nil
+        return walker_walk(w, allocator)
+    }
 
-	if info.type == .Directory {
-		path, err := clone_string(info.fullpath, allocator)
-		if err != nil {
-			walker_set_error(w, "", err)
-			return
-		}
+    if info.type == .Directory {
+        path, err := clone_string(info.fullpath, allocator)
+        if err != nil {
+            walker_set_error(w, "", err)
+            return
+        }
 
-		_, err = queue.push_back(&w.todo, path)
-		if err != nil {
-			walker_set_error(w, path, err)
-			return
-		}
-	}
+        _, err = queue.push_back(&w.todo, path)
+        if err != nil {
+            walker_set_error(w, path, err)
+            return
+        }
+    }
 
-	return info, iter_ok
+    return info, iter_ok
 }

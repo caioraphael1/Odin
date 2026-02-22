@@ -35,7 +35,7 @@ benchmark_crypto_aead :: proc(t: ^testing.T) {
 		algo_name := aead.ALGORITHM_NAMES[algo]
 		key_sz := aead.KEY_SIZES[algo]
 
-		key := make([]byte, key_sz, context.temp_allocator)
+		key := make_slice([]byte, key_sz, context.temp_allocator)
 		crypto.rand_bytes(key)
 
 		// TODO: Benchmark all available imlementations?

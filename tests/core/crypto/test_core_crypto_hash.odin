@@ -579,7 +579,7 @@ test_hash :: proc(t: ^testing.T) {
 		hash.final(&ctx, digest_a, true)
 		hash.final(&ctx, digest_b)
 
-		digest_c := make([]byte, hash.digest_size(&ctx_clone), context.temp_allocator)
+		digest_c := make_slice([]byte, hash.digest_size(&ctx_clone), context.temp_allocator)
 		hash.final(&ctx_clone, digest_c)
 
 		a_str = string(hex.encode(digest_a, context.temp_allocator))

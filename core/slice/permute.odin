@@ -4,9 +4,9 @@ import "base:runtime"
 
 // An in-place permutation iterator.
 Permutation_Iterator :: struct($T: typeid) {
-	index: int,
-	slice: []T,
-	counters: []int,
+    index: int,
+    slice: []T,
+    counters: []int,
 }
 
 /*
@@ -27,16 +27,16 @@ Returns:
 - error: An `Allocator_Error`, if allocation failed.
 */
 make_permutation_iterator :: proc(
-	slice: []$T,
-	allocator: runtime.Allocator,
+    slice: []$T,
+    allocator: runtime.Allocator,
 ) -> (
-	iter: Permutation_Iterator(T),
-	error: runtime.Allocator_Error,
+    iter: Permutation_Iterator(T),
+    error: runtime.Allocator_Error,
 ) {
-	iter.slice = slice
-	iter.counters = make([]int, len(iter.slice), allocator) or_return
+    iter.slice = slice
+    iter.counters = make_slice([]int, len(iter.slice), allocator) or_return
 
-	return
+    return
 }
 /*
 Free the state allocated by `make_permutation_iterator`.
@@ -46,10 +46,10 @@ Inputs:
 - allocator: The allocator used to create the iterator.
 */
 destroy_permutation_iterator :: proc(
-	iter: Permutation_Iterator($T),
-	allocator: runtime.Allocator,
+    iter: Permutation_Iterator($T),
+    allocator: runtime.Allocator,
 ) {
-	_ = delete(iter.counters, allocator = allocator)
+    _ = delete(iter.counters, allocator = allocator)
 }
 /*
 Permute a slice in-place.
@@ -63,43 +63,43 @@ Returns:
 - ok: True if the permutation succeeded, false if the iteration is complete.
 */
 permute :: proc(iter: ^Permutation_Iterator($T)) -> (ok: bool) {
-	// This is an iterative, resumable implementation of Heap's algorithm.
-	//
-	// The original algorithm was described by B. R. Heap as "Permutations by
-	// interchanges" in The Computer Journal, 1963.
-	//
-	// This implementation is based on the nonrecursive version described by
-	// Robert Sedgewick in "Permutation Generation Methods" which was published
-	// in ACM Computing Surveys in 1977.
+    // This is an iterative, resumable implementation of Heap's algorithm.
+    //
+    // The original algorithm was described by B. R. Heap as "Permutations by
+    // interchanges" in The Computer Journal, 1963.
+    //
+    // This implementation is based on the nonrecursive version described by
+    // Robert Sedgewick in "Permutation Generation Methods" which was published
+    // in ACM Computing Surveys in 1977.
 
-	i := iter.index
+    i := iter.index
 
-	if i == 0 {
-		iter.index = 1
-		return true
-	}
+    if i == 0 {
+        iter.index = 1
+        return true
+    }
 
-	n := len(iter.counters)
-	#no_bounds_check for i < n {
-		if iter.counters[i] < i {
-			if i & 1 == 0 {
-				iter.slice[0], iter.slice[i] = iter.slice[i], iter.slice[0]
-			} else {
-				iter.slice[iter.counters[i]], iter.slice[i] = iter.slice[i], iter.slice[iter.counters[i]]
-			}
+    n := len(iter.counters)
+    #no_bounds_check for i < n {
+        if iter.counters[i] < i {
+            if i & 1 == 0 {
+                iter.slice[0], iter.slice[i] = iter.slice[i], iter.slice[0]
+            } else {
+                iter.slice[iter.counters[i]], iter.slice[i] = iter.slice[i], iter.slice[iter.counters[i]]
+            }
 
-			iter.counters[i] += 1
-			i = 1
+            iter.counters[i] += 1
+            i = 1
 
-			break
-		} else {
-			iter.counters[i] = 0
-			i += 1
-		}
-	}
-	if i == n {
-		return false
-	}
-	iter.index = i
-	return true
+            break
+        } else {
+            iter.counters[i] = 0
+            i += 1
+        }
+    }
+    if i == n {
+        return false
+    }
+    iter.index = i
+    return true
 }

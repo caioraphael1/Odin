@@ -37,7 +37,7 @@ test_shake :: proc(t: ^testing.T) {
 	}
 
 	for v in test_vectors {
-		dst := make([]byte, len(v.output) / 2, context.temp_allocator)
+		dst := make_slice([]byte, len(v.output) / 2, context.temp_allocator)
 
 		ctx: shake.Context
 		switch v.sec_strength {
@@ -122,7 +122,7 @@ test_cshake :: proc(t: ^testing.T) {
 	}
 
 	for v in test_vectors {
-		dst := make([]byte, len(v.output) / 2, context.temp_allocator)
+		dst := make_slice([]byte, len(v.output) / 2, context.temp_allocator)
 
 		domainsep := transmute([]byte)(v.domainsep)
 
@@ -301,7 +301,7 @@ test_tuplehash :: proc(t: ^testing.T) {
 	}
 
 	for v in test_vectors {
-		dst := make([]byte, len(v.output) / 2, context.temp_allocator)
+		dst := make_slice([]byte, len(v.output) / 2, context.temp_allocator)
 
 		domainsep := transmute([]byte)(v.domainsep)
 
@@ -403,7 +403,7 @@ test_kmac :: proc(t:^testing.T) {
 	}
 
 	for v in test_vectors {
-		dst := make([]byte, len(v.output) / 2, context.temp_allocator)
+		dst := make_slice([]byte, len(v.output) / 2, context.temp_allocator)
 
 		key, _ := hex.decode(transmute([]byte)(v.key), context.temp_allocator)
 		domainsep := transmute([]byte)(v.domainsep)

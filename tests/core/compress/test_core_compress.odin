@@ -98,7 +98,7 @@ shoco_test :: proc(t: ^testing.T) {
 		biggest_unpacked := shoco.decompress_bound(expected_compressed)
 		biggest_packed   := shoco.compress_bound(expected_raw)
 
-		buffer := make([]u8, max(biggest_packed, biggest_unpacked))
+		buffer := make_slice([]u8, max(biggest_packed, biggest_unpacked))
 		defer _ = delete(buffer)
 
 		size, err := shoco.decompress(v.compressed, buffer[:])

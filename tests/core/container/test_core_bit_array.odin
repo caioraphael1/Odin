@@ -80,7 +80,7 @@ test_bit_array_biased_max_index :: proc(t: ^testing.T) {
 				"Expected bit_array<max_index: %i, bias: %i> length to be: %i, got %i",
 				max_index, bias, expected, ba.length)
 
-			list := make([]int, length)
+			list := make_slice([]int, length)
 			defer _ = delete(list)
 			for i in 0..<len(list) {
 				list[i] = i + bias

@@ -37,10 +37,10 @@
 - This is the new signature for `context`:
 ```odin
 Context :: struct {
-	user_ptr:   rawptr,
-	user_index: int,
+    user_ptr:   rawptr,
+    user_index: int,
 
-	_internal: rawptr,
+    _internal: rawptr,
 }
 ```
 - Also, `runtime.default_context()` was removed. If you want a blank context, just use `context = {}`.
@@ -83,7 +83,7 @@ main :: proc() {
 ### Before
 ```odin
 main :: proc() {
-    a := make([dynamic]int)
+    a := make_dynamic_array([dynamic]int)
         // context.allocator was used implicitly.
     defer delete(a)
 
@@ -104,7 +104,7 @@ import "base:runtime"
 main :: proc() {
     allocator := runtime.heap_allocator()
 
-    a := make([dynamic]int, allocator)
+    a := make_dynamic_array([dynamic]int, allocator)
         //  `make` *requires* an explicit allocator. If not complied, there will be a compile-time error.
     defer delete(a)
         // No need to be explicit about the allocator here, as a `[dynamic]` array stores the allocator.
@@ -267,9 +267,9 @@ temp_allocator_destroy :: proc() {
 
 @(deferred_out=arena_temp_end)
 TEMP_ALLOCATOR_TEMP_GUARD :: #force_inline proc(collision: Allocator = {}, loc := #caller_location) -> (Arena_Temp, Source_Code_Location) {
-	if collision == temp_allocator {
-		return {}, loc
-	}
+    if collision == temp_allocator {
+        return {}, loc
+    }
     return arena_temp_begin(&temp_allocator_arena, loc), loc
 }
 ```
@@ -318,13 +318,13 @@ assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 
 @(disabled=ODIN_DISABLE_ASSERT)
 assert :: proc "contextless" (condition: bool, message := #caller_expression(condition), loc := #caller_location) {
-	if !condition {
-		@(cold)
-		internal :: proc "contextless" (message: string, loc: Source_Code_Location) {
-			assertion_failure_proc("runtime assertion", message, loc)
-		}
-		internal(message, loc)
-	}
+    if !condition {
+        @(cold)
+        internal :: proc "contextless" (message: string, loc: Source_Code_Location) {
+            assertion_failure_proc("runtime assertion", message, loc)
+        }
+        internal(message, loc)
+    }
 }
 ```
 - The `runtime.assertion_failure_proc` can be changed by the user.

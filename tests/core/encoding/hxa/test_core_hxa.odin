@@ -121,7 +121,7 @@ test_write :: proc(t: ^testing.T) {
 	w_file.nodes = []hxa.Node{n1}
 
 	required_size := hxa.required_write_size(w_file)
-	buf := make([]u8, required_size)
+	buf := make_slice([]u8, required_size)
 	defer _ = delete(buf)
 
 	n, write_err := hxa.write(buf, w_file)

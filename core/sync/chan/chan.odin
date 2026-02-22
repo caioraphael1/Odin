@@ -19,9 +19,9 @@ __try_select_raw_pause : proc() = nil
 Determines what operations `Chan` supports.
 */
 Direction :: enum {
-	Send = -1,
-	Both =  0,
-	Recv = +1,
+    Send = -1,
+    Both =  0,
+    Recv = +1,
 }
 
 /*
@@ -36,23 +36,23 @@ Note: all procedures accepting `Raw_Chan` also accept `Chan`.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	chan_example :: proc() {
-		// Create an unbuffered channel with messages of type int,
-		// supporting both sending and receiving.
-		// Creating unidirectional channels, although possible, is useless.
-		c, _ := chan.create(chan.Chan(int), context.allocator)
-		defer chan.destroy(c)
+    chan_example :: proc() {
+        // Create an unbuffered channel with messages of type int,
+        // supporting both sending and receiving.
+        // Creating unidirectional channels, although possible, is useless.
+        c, _ := chan.create(chan.Chan(int), context.allocator)
+        defer chan.destroy(c)
 
-		// This channel can now only be used for receiving messages
-		recv_only_channel: chan.Chan(int, .Recv) = chan.as_recv(c)
-		// This channel can now only be used for sending messages
-		send_only_channel: chan.Chan(int, .Send) = chan.as_send(c)
-	}
+        // This channel can now only be used for receiving messages
+        recv_only_channel: chan.Chan(int, .Recv) = chan.as_recv(c)
+        // This channel can now only be used for sending messages
+        send_only_channel: chan.Chan(int, .Send) = chan.as_send(c)
+    }
 */
 Chan :: struct($T: typeid, $D: Direction = Direction.Both) {
-	#subtype impl: ^Raw_Chan `fmt:"-"`,
+    #subtype impl: ^Raw_Chan `fmt:"-"`,
 }
 
 /*
@@ -62,72 +62,36 @@ the concept of Direction.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	raw_chan_example :: proc() {
-		// Create an unbuffered channel with messages of type int,
-		c, _ := chan.create_raw(size_of(int), align_of(int), context.allocator)
-		defer chan.destroy(c)
-	}
+    raw_chan_example :: proc() {
+        // Create an unbuffered channel with messages of type int,
+        c, _ := chan.create_raw(size_of(int), align_of(int), context.allocator)
+        defer chan.destroy(c)
+    }
 
 */
 Raw_Chan :: struct {
-	// Shared
-	allocator:       runtime.Allocator,
-	allocation_size: int,
-	msg_size:        u16,
-	closed:          b16, // guarded by `mutex`
-	mutex:           sync.Mutex,
-	r_cond:          sync.Cond,
-	w_cond:          sync.Cond,
-	r_waiting:       int,  // guarded by `mutex`
-	w_waiting:       int,  // guarded by `mutex`
+    // Shared
+    allocator:       runtime.Allocator,
+    allocation_size: int,
+    msg_size:        u16,
+    closed:          b16, // guarded by `mutex`
+    mutex:           sync.Mutex,
+    r_cond:          sync.Cond,
+    w_cond:          sync.Cond,
+    r_waiting:       int,  // guarded by `mutex`
+    w_waiting:       int,  // guarded by `mutex`
 
-	did_read: bool, // lets a sender know if the value was read
+    did_read: bool, // lets a sender know if the value was read
 
-	// Buffered
-	queue: ^Raw_Queue,
+    // Buffered
+    queue: ^Raw_Queue,
 
-	// Unbuffered
-	unbuffered_data: rawptr,
+    // Unbuffered
+    unbuffered_data: rawptr,
 }
 
-/*
-Creates a buffered or unbuffered `Chan` instance.
-
-*Allocates Using Provided Allocator*
-
-**Inputs**
-- `$C`: Type of `Chan` to create
-- [`cap`: The capacity of the channel] omit for creating unbuffered channels
-- `allocator`: The allocator to use
-
-**Returns**:
-- The initialized `Chan`
-- An `Allocator_Error`
-
-Example:
-
-	import "core:sync/chan"
-
-	create_example :: proc() {
-		unbuffered: chan.Chan(int)
-		buffered: chan.Chan(int)
-		err: runtime.Allocator_Error
-
-		unbuffered, err = chan.create(chan.Chan(int), context.allocator)
-		assert(err == .None)
-		defer chan.destroy(unbuffered)
-
-		buffered, err = chan.create(chan.Chan(int), 10, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(buffered)
-	}
-*/
-create :: proc{
-	create_unbuffered,
-	create_buffered,
-}
 
 /*
 Creates an unbuffered version of the specified `Chan` type.
@@ -144,19 +108,19 @@ Creates an unbuffered version of the specified `Chan` type.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	create_unbuffered_example :: proc() {
-		c, err := chan.create_unbuffered(chan.Chan(int), context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
-	}
+    create_unbuffered_example :: proc() {
+        c, err := chan.create_unbuffered(chan.Chan(int), context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
+    }
 */
 
 create_unbuffered :: proc($C: typeid/Chan($T), allocator: runtime.Allocator) -> (c: C, err: runtime.Allocator_Error)
-	where size_of(T) <= int(max(u16)) {
-	c.impl, err = create_raw_unbuffered(size_of(T), align_of(T), allocator)
-	return
+    where size_of(T) <= int(max(u16)) {
+    c.impl, err = create_raw_unbuffered(size_of(T), align_of(T), allocator)
+    return
 }
 
 /*
@@ -175,59 +139,21 @@ Creates a buffered version of the specified `Chan` type.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	create_buffered_example :: proc() {
-		c, err := chan.create_buffered(chan.Chan(int), 10, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
-	}
+    create_buffered_example :: proc() {
+        c, err := chan.create_buffered(chan.Chan(int), 10, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
+    }
 */
 
 create_buffered :: proc($C: typeid/Chan($T), #any_int cap: int, allocator: runtime.Allocator) -> (c: C, err: runtime.Allocator_Error)
-	where size_of(T) <= int(max(u16)) {
-	c.impl, err = create_raw_buffered(size_of(T), align_of(T), cap, allocator)
-	return
+    where size_of(T) <= int(max(u16)) {
+    c.impl, err = create_raw_buffered(size_of(T), align_of(T), cap, allocator)
+    return
 }
 
-/*
-Creates a buffered or unbuffered `Raw_Chan` for messages of the specified
-size and alignment.
-
-*Allocates Using Provided Allocator*
-
-**Inputs**
-- `msg_size`: The size of the messages the messages being sent
-- `msg_alignment`: The alignment of the messages being sent
-- [`cap`: The capacity of the channel] omit for creating unbuffered channels
-- `allocator`: The allocator to use
-
-**Returns**:
-- The initialized `Raw_Chan`
-- An `Allocator_Error`
-
-Example:
-
-	import "core:sync/chan"
-
-	create_raw_example :: proc() {
-		unbuffered: ^chan.Raw_Chan
-		buffered: ^chan.Raw_Chan
-		err: runtime.Allocator_Error
-
-		unbuffered, err = chan.create_raw(size_of(int), align_of(int), context.allocator)
-		assert(err == .None)
-		defer chan.destroy(unbuffered)
-
-		buffered, err = chan.create_raw(size_of(int), align_of(int), 10, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(buffered)
-	}
-*/
-create_raw :: proc{
-	create_raw_unbuffered,
-	create_raw_buffered,
-}
 
 /*
 Creates an unbuffered `Raw_Chan` for messages of the specified
@@ -246,31 +172,31 @@ size and alignment.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	create_raw_unbuffered_example :: proc() {
-		unbuffered, err := chan.create_raw(size_of(int), align_of(int), context.allocator)
-		assert(err == .None)
-		defer chan.destroy(unbuffered)
-	}
+    create_raw_unbuffered_example :: proc() {
+        unbuffered, err := chan.create_raw(size_of(int), align_of(int), context.allocator)
+        assert(err == .None)
+        defer chan.destroy(unbuffered)
+    }
 */
 
 create_raw_unbuffered :: proc(#any_int msg_size, msg_alignment: int, allocator: runtime.Allocator) -> (c: ^Raw_Chan, err: runtime.Allocator_Error) {
-	assert(msg_size <= int(max(u16)))
-	align := max(align_of(Raw_Chan), msg_alignment)
+    assert(msg_size <= int(max(u16)))
+    align := max(align_of(Raw_Chan), msg_alignment)
 
-	size := mem.align_forward_int(size_of(Raw_Chan), align)
-	offset := size
-	size += msg_size
-	size = mem.align_forward_int(size, align)
+    size := mem.align_forward_int(size_of(Raw_Chan), align)
+    offset := size
+    size += msg_size
+    size = mem.align_forward_int(size, align)
 
-	ptr := mem.alloc(size, align, allocator) or_return
-	c = (^Raw_Chan)(ptr)
-	c.allocator = allocator
-	c.allocation_size = size
-	c.unbuffered_data = ([^]byte)(ptr)[offset:]
-	c.msg_size = u16(msg_size)
-	return
+    ptr := mem.alloc(size, align, allocator) or_return
+    c = (^Raw_Chan)(ptr)
+    c.allocator = allocator
+    c.allocation_size = size
+    c.unbuffered_data = ([^]byte)(ptr)[offset:]
+    c.msg_size = u16(msg_size)
+    return
 }
 
 /*
@@ -291,42 +217,42 @@ size and alignment.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	create_raw_unbuffered_example :: proc() {
-		c, err := chan.create_raw_buffered(size_of(int), align_of(int), 10, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
-	}
+    create_raw_unbuffered_example :: proc() {
+        c, err := chan.create_raw_buffered(size_of(int), align_of(int), 10, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
+    }
 */
 
 create_raw_buffered :: proc(#any_int msg_size, msg_alignment: int, #any_int cap: int, allocator: runtime.Allocator) -> (c: ^Raw_Chan, err: runtime.Allocator_Error) {
-	assert(msg_size <= int(max(u16)))
-	if cap <= 0 {
-		return create_raw_unbuffered(msg_size, msg_alignment, allocator)
-	}
+    assert(msg_size <= int(max(u16)))
+    if cap <= 0 {
+        return create_raw_unbuffered(msg_size, msg_alignment, allocator)
+    }
 
-	align := max(align_of(Raw_Chan), msg_alignment, align_of(Raw_Queue))
+    align := max(align_of(Raw_Chan), msg_alignment, align_of(Raw_Queue))
 
-	size := mem.align_forward_int(size_of(Raw_Chan), align)
-	q_offset := size
-	size = mem.align_forward_int(q_offset + size_of(Raw_Queue), msg_alignment)
-	offset := size
-	size += msg_size * cap
-	size = mem.align_forward_int(size, align)
+    size := mem.align_forward_int(size_of(Raw_Chan), align)
+    q_offset := size
+    size = mem.align_forward_int(q_offset + size_of(Raw_Queue), msg_alignment)
+    offset := size
+    size += msg_size * cap
+    size = mem.align_forward_int(size, align)
 
-	ptr := mem.alloc(size, align, allocator) or_return
-	c = (^Raw_Chan)(ptr)
-	c.allocator = allocator
-	c.allocation_size = size
+    ptr := mem.alloc(size, align, allocator) or_return
+    c = (^Raw_Chan)(ptr)
+    c.allocator = allocator
+    c.allocation_size = size
 
-	bptr := ([^]byte)(ptr)
+    bptr := ([^]byte)(ptr)
 
-	c.queue = (^Raw_Queue)(bptr[q_offset:])
-	c.msg_size = u16(msg_size)
+    c.queue = (^Raw_Queue)(bptr[q_offset:])
+    c.msg_size = u16(msg_size)
 
-	raw_queue_init(c.queue, ([^]byte)(bptr[offset:]), cap, msg_size)
-	return
+    raw_queue_init(c.queue, ([^]byte)(bptr[offset:]), cap, msg_size)
+    return
 }
 
 
@@ -340,11 +266,11 @@ Destroys the Channel.
 - An `Allocator_Error`
 */
 destroy :: proc(c: ^Raw_Chan) -> (err: runtime.Allocator_Error) {
-	if c != nil {
-		allocator := c.allocator
-		err = mem.free_with_size(c, c.allocation_size, allocator)
-	}
-	return
+    if c != nil {
+        allocator := c.allocator
+        err = mem.free_with_size(c, c.allocation_size, allocator)
+    }
+    return
 }
 
 /*
@@ -359,28 +285,28 @@ not receiving.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	as_send_example :: proc() {
-		// this procedure takes a channel that can only
-		// be used for sending not receiving.
-		producer :: proc(c: chan.Chan(int, .Send)) {
-			chan.send(c, 112)
+    as_send_example :: proc() {
+        // this procedure takes a channel that can only
+        // be used for sending not receiving.
+        producer :: proc(c: chan.Chan(int, .Send)) {
+            chan.send(c, 112)
 
-			// compile-time error:
-			// value, ok := chan.recv(c)
-		}
+            // compile-time error:
+            // value, ok := chan.recv(c)
+        }
 
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		producer(chan.as_send(c))
-	}
+        producer(chan.as_send(c))
+    }
 */
 
 as_send :: #force_inline proc(c: $C/Chan($T, $D)) -> (s: Chan(T, .Send)) where C.D <= .Both {
-	return transmute(type_of(s))c
+    return transmute(type_of(s))c
 }
 
 /*
@@ -395,27 +321,27 @@ not sending.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	as_recv_example :: proc() {
-		consumer :: proc(c: chan.Chan(int, .Recv)) {
-			value, ok := chan.recv(c)
+    as_recv_example :: proc() {
+        consumer :: proc(c: chan.Chan(int, .Recv)) {
+            value, ok := chan.recv(c)
 
-			// compile-time error:
-			// chan.send(c, 22)
-		}
+            // compile-time error:
+            // chan.send(c, 22)
+        }
 
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		chan.send(c, 112)
-		consumer(chan.as_recv(c))
-	}
+        chan.send(c, 112)
+        consumer(chan.as_recv(c))
+    }
 */
 
 as_recv :: #force_inline proc(c: $C/Chan($T, $D)) -> (r: Chan(T, .Recv)) where C.D >= .Both {
-	return transmute(type_of(r))c
+    return transmute(type_of(r))c
 }
 
 /*
@@ -434,27 +360,27 @@ return `false` when attempting to send on an already closed channel.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	send_example :: proc() {
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    send_example :: proc() {
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		assert(chan.send(c, 2))
+        assert(chan.send(c, 2))
 
-		// this would block since the channel has a buffersize of 1
-		// assert(chan.send(c, 2))
+        // this would block since the channel has a buffersize of 1
+        // assert(chan.send(c, 2))
 
-		// sending on a closed channel returns false
-		chan.close(c)
-		assert(! chan.send(c, 2))
-	}
+        // sending on a closed channel returns false
+        chan.close(c)
+        assert(! chan.send(c, 2))
+    }
 */
 send :: proc(c: $C/Chan($T, $D), data: T) -> (ok: bool) where C.D <= .Both {
-	data := data
-	ok = send_raw(c, &data)
-	return
+    data := data
+    ok = send_raw(c, &data)
+    return
 }
 
 /*
@@ -472,22 +398,22 @@ already closed or the channel's buffer was full
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	try_send_example :: proc() {
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    try_send_example :: proc() {
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		assert(chan.try_send(c, 2), "there is enough space")
-		assert(!chan.try_send(c, 2), "the buffer is already full")
-	}
+        assert(chan.try_send(c, 2), "there is enough space")
+        assert(!chan.try_send(c, 2), "the buffer is already full")
+    }
 */
 
 try_send :: proc(c: $C/Chan($T, $D), data: T) -> (ok: bool) where C.D <= .Both {
-	data := data
-	ok = try_send_raw(c, &data)
-	return
+    data := data
+    ok = try_send_raw(c, &data)
+    return
 }
 
 /*
@@ -507,31 +433,31 @@ channel.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	recv_example :: proc() {
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    recv_example :: proc() {
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		assert(chan.send(c, 2))
+        assert(chan.send(c, 2))
 
-		value, ok := chan.recv(c)
-		assert(ok, "the value was received")
+        value, ok := chan.recv(c)
+        assert(ok, "the value was received")
 
-		// this would block since the channel is now empty
-		// value, ok = chan.recv(c)
+        // this would block since the channel is now empty
+        // value, ok = chan.recv(c)
 
-		// reading from a closed channel returns false
-		chan.close(c)
-		value, ok = chan.recv(c)
-		assert(!ok, "the channel is closed")
-	}
+        // reading from a closed channel returns false
+        chan.close(c)
+        value, ok = chan.recv(c)
+        assert(!ok, "the channel is closed")
+    }
 */
 
 recv :: proc(c: $C/Chan($T)) -> (data: T, ok: bool) where C.D >= .Both {
-	ok = recv_raw(c, &data)
-	return
+    ok = recv_raw(c, &data)
+    return
 }
 
 
@@ -547,21 +473,21 @@ Tries reading a message from the channel in a non-blocking fashion.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	try_recv_example :: proc() {
-		c, err := chan.create(chan.Chan(int), context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    try_recv_example :: proc() {
+        c, err := chan.create(chan.Chan(int), context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		_, ok := chan.try_recv(c)
-		assert(!ok, "there is not value to read")
-	}
+        _, ok := chan.try_recv(c)
+        assert(!ok, "there is not value to read")
+    }
 */
 
 try_recv :: proc(c: $C/Chan($T)) -> (data: T, ok: bool) where C.D >= .Both {
-	ok = try_recv_raw(c, &data)
-	return
+    ok = try_recv_raw(c, &data)
+    return
 }
 
 
@@ -584,72 +510,72 @@ and alignment used when the `Raw_Chan` was created.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	send_raw_example :: proc() {
-		c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    send_raw_example :: proc() {
+        c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		value := 2
-		assert(chan.send_raw(c, &value))
+        value := 2
+        assert(chan.send_raw(c, &value))
 
-		// this would block since the channel has a buffersize of 1
-		// assert(chan.send_raw(c, &value))
+        // this would block since the channel has a buffersize of 1
+        // assert(chan.send_raw(c, &value))
 
-		// sending on a closed channel returns false
-		chan.close(c)
-		assert(! chan.send_raw(c, &value))
-	}
+        // sending on a closed channel returns false
+        chan.close(c)
+        assert(! chan.send_raw(c, &value))
+    }
 */
 
 send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
-	if c == nil {
-		return
-	}
-	if c.queue != nil { // buffered
-		sync.guard(&c.mutex)
-		for !c.closed && c.queue.len == c.queue.cap {
-			c.w_waiting += 1
-			sync.wait(&c.w_cond, &c.mutex)
-			c.w_waiting -= 1
-		}
+    if c == nil {
+        return
+    }
+    if c.queue != nil { // buffered
+        sync.guard(&c.mutex)
+        for !c.closed && c.queue.len == c.queue.cap {
+            c.w_waiting += 1
+            sync.wait(&c.w_cond, &c.mutex)
+            c.w_waiting -= 1
+        }
 
-		if c.closed {
-			return false
-		}
+        if c.closed {
+            return false
+        }
 
-		ok = raw_queue_push(c.queue, msg_in)
-		if c.r_waiting > 0 {
-			sync.signal(&c.r_cond)
-		}
-	} else if c.unbuffered_data != nil { // unbuffered
-		sync.guard(&c.mutex)
+        ok = raw_queue_push(c.queue, msg_in)
+        if c.r_waiting > 0 {
+            sync.signal(&c.r_cond)
+        }
+    } else if c.unbuffered_data != nil { // unbuffered
+        sync.guard(&c.mutex)
 
-		if c.closed {
-			return false
-		}
+        if c.closed {
+            return false
+        }
 
-		c.did_read = false
-		defer c.did_read = false
+        c.did_read = false
+        defer c.did_read = false
 
-		mem.copy(c.unbuffered_data, msg_in, int(c.msg_size))
+        mem.copy(c.unbuffered_data, msg_in, int(c.msg_size))
 
-		c.w_waiting += 1
+        c.w_waiting += 1
 
-		if c.r_waiting > 0 {
-			sync.signal(&c.r_cond)
-		}
+        if c.r_waiting > 0 {
+            sync.signal(&c.r_cond)
+        }
 
-		sync.wait(&c.w_cond, &c.mutex)
+        sync.wait(&c.w_cond, &c.mutex)
 
-		if c.closed && !c.did_read {
-			return false
-		}
+        if c.closed && !c.did_read {
+            return false
+        }
 
-		ok = true
-	}
-	return
+        ok = true
+    }
+    return
 }
 
 /*
@@ -672,73 +598,73 @@ and alignment used when the `Raw_Chan` was created.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	recv_raw_example :: proc() {
-		c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    recv_raw_example :: proc() {
+        c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		value := 2
-		assert(chan.send_raw(c, &value))
+        value := 2
+        assert(chan.send_raw(c, &value))
 
-		assert(chan.recv_raw(c, &value))
+        assert(chan.recv_raw(c, &value))
 
-		// this would block since the channel is now empty
-		// assert(chan.recv_raw(c, &value))
+        // this would block since the channel is now empty
+        // assert(chan.recv_raw(c, &value))
 
-		// reading from a closed channel returns false
-		chan.close(c)
-		assert(! chan.recv_raw(c, &value))
-	}
+        // reading from a closed channel returns false
+        chan.close(c)
+        assert(! chan.recv_raw(c, &value))
+    }
 */
 
 recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
-	if c == nil {
-		return
-	}
-	if c.queue != nil { // buffered
-		sync.guard(&c.mutex)
-		for c.queue.len == 0 {
-			if c.closed {
-				return
-			}
+    if c == nil {
+        return
+    }
+    if c.queue != nil { // buffered
+        sync.guard(&c.mutex)
+        for c.queue.len == 0 {
+            if c.closed {
+                return
+            }
 
-			c.r_waiting += 1
-			sync.wait(&c.r_cond, &c.mutex)
-			c.r_waiting -= 1
-		}
+            c.r_waiting += 1
+            sync.wait(&c.r_cond, &c.mutex)
+            c.r_waiting -= 1
+        }
 
-		msg := raw_queue_pop(c.queue)
-		if msg != nil {
-			mem.copy(msg_out, msg, int(c.msg_size))
-		}
+        msg := raw_queue_pop(c.queue)
+        if msg != nil {
+            mem.copy(msg_out, msg, int(c.msg_size))
+        }
 
-		if c.w_waiting > 0 {
-			sync.signal(&c.w_cond)
-		}
-		ok = true
-	} else if c.unbuffered_data != nil { // unbuffered
-		sync.guard(&c.mutex)
+        if c.w_waiting > 0 {
+            sync.signal(&c.w_cond)
+        }
+        ok = true
+    } else if c.unbuffered_data != nil { // unbuffered
+        sync.guard(&c.mutex)
 
-		for !c.closed && c.w_waiting == 0 {
-			c.r_waiting += 1
-			sync.wait(&c.r_cond, &c.mutex)
-			c.r_waiting -= 1
-		}
+        for !c.closed && c.w_waiting == 0 {
+            c.r_waiting += 1
+            sync.wait(&c.r_cond, &c.mutex)
+            c.r_waiting -= 1
+        }
 
-		if c.closed {
-			return
-		}
+        if c.closed {
+            return
+        }
 
-		mem.copy(msg_out, c.unbuffered_data, int(c.msg_size))
-		c.w_waiting -= 1
+        mem.copy(msg_out, c.unbuffered_data, int(c.msg_size))
+        c.w_waiting -= 1
 
-		c.did_read = true
-		sync.signal(&c.w_cond)
-		ok = true
-	}
-	return
+        c.did_read = true
+        sync.signal(&c.w_cond)
+        ok = true
+    }
+    return
 }
 
 
@@ -760,53 +686,53 @@ already closed or the channel's buffer was full
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	try_send_raw_example :: proc() {
-		c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    try_send_raw_example :: proc() {
+        c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		value := 2
-		assert(chan.try_send_raw(c, &value), "there is enough space")
-		assert(!chan.try_send_raw(c, &value), "the buffer is already full")
-	}
+        value := 2
+        assert(chan.try_send_raw(c, &value), "there is enough space")
+        assert(!chan.try_send_raw(c, &value), "the buffer is already full")
+    }
 */
 
 try_send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
-	if c == nil {
-		return false
-	}
-	if c.queue != nil { // buffered
-		sync.guard(&c.mutex)
-		if c.queue.len == c.queue.cap {
-			return false
-		}
+    if c == nil {
+        return false
+    }
+    if c.queue != nil { // buffered
+        sync.guard(&c.mutex)
+        if c.queue.len == c.queue.cap {
+            return false
+        }
 
-		if c.closed {
-			return false
-		}
+        if c.closed {
+            return false
+        }
 
-		ok = raw_queue_push(c.queue, msg_in)
-		if c.r_waiting > 0 {
-			sync.signal(&c.r_cond)
-		}
-	} else if c.unbuffered_data != nil { // unbuffered
-		sync.guard(&c.mutex)
+        ok = raw_queue_push(c.queue, msg_in)
+        if c.r_waiting > 0 {
+            sync.signal(&c.r_cond)
+        }
+    } else if c.unbuffered_data != nil { // unbuffered
+        sync.guard(&c.mutex)
 
-		if c.closed || c.r_waiting - c.w_waiting <= 0 {
-			return false
-		}
+        if c.closed || c.r_waiting - c.w_waiting <= 0 {
+            return false
+        }
 
-		mem.copy(c.unbuffered_data, msg_in, int(c.msg_size))
-		c.w_waiting += 1
-		if c.r_waiting > 0 {
-			sync.signal(&c.r_cond)
-		}
-		sync.wait(&c.w_cond, &c.mutex)
-		ok = true
-	}
-	return
+        mem.copy(c.unbuffered_data, msg_in, int(c.msg_size))
+        c.w_waiting += 1
+        if c.r_waiting > 0 {
+            sync.signal(&c.r_cond)
+        }
+        sync.wait(&c.w_cond, &c.mutex)
+        ok = true
+    }
+    return
 }
 
 /*
@@ -824,51 +750,51 @@ and alignment used when the `Raw_Chan` was created.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	try_recv_raw_example :: proc() {
-		c, err := chan.create_raw(size_of(int), align_of(int), context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    try_recv_raw_example :: proc() {
+        c, err := chan.create_raw(size_of(int), align_of(int), context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		value: int
-		assert(!chan.try_recv_raw(c, &value))
-	}
+        value: int
+        assert(!chan.try_recv_raw(c, &value))
+    }
 */
 
 try_recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> bool {
-	if c == nil {
-		return false
-	}
-	if c.queue != nil { // buffered
-		sync.guard(&c.mutex)
-		if c.queue.len == 0 {
-			return false
-		}
+    if c == nil {
+        return false
+    }
+    if c.queue != nil { // buffered
+        sync.guard(&c.mutex)
+        if c.queue.len == 0 {
+            return false
+        }
 
-		msg := raw_queue_pop(c.queue)
-		if msg != nil {
-			mem.copy(msg_out, msg, int(c.msg_size))
-		}
+        msg := raw_queue_pop(c.queue)
+        if msg != nil {
+            mem.copy(msg_out, msg, int(c.msg_size))
+        }
 
-		if c.w_waiting > 0 {
-			sync.signal(&c.w_cond)
-		}
-		return true
-	} else if c.unbuffered_data != nil { // unbuffered
-		sync.guard(&c.mutex)
+        if c.w_waiting > 0 {
+            sync.signal(&c.w_cond)
+        }
+        return true
+    } else if c.unbuffered_data != nil { // unbuffered
+        sync.guard(&c.mutex)
 
-		if c.closed || c.w_waiting - c.r_waiting <= 0 {
-			return false
-		}
+        if c.closed || c.w_waiting - c.r_waiting <= 0 {
+            return false
+        }
 
-		mem.copy(msg_out, c.unbuffered_data, int(c.msg_size))
-		c.w_waiting -= 1
+        mem.copy(msg_out, c.unbuffered_data, int(c.msg_size))
+        c.w_waiting -= 1
 
-		sync.signal(&c.w_cond)
-		return true
-	}
-	return false
+        sync.signal(&c.w_cond)
+        return true
+    }
+    return false
 }
 
 
@@ -884,17 +810,17 @@ Checks if the given channel is buffered.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	is_buffered_example :: proc() {
-		c, _ := chan.create(chan.Chan(int), 1, context.allocator)
-		defer chan.destroy(c)
-		assert(chan.is_buffered(c))
-	}
+    is_buffered_example :: proc() {
+        c, _ := chan.create(chan.Chan(int), 1, context.allocator)
+        defer chan.destroy(c)
+        assert(chan.is_buffered(c))
+    }
 */
 
 is_buffered :: proc(c: ^Raw_Chan) -> bool {
-	return c != nil && c.queue != nil
+    return c != nil && c.queue != nil
 }
 
 /*
@@ -908,17 +834,17 @@ Checks if the given channel is unbuffered.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	is_buffered_example :: proc() {
-		c, _ := chan.create(chan.Chan(int), context.allocator)
-		defer chan.destroy(c)
-		assert(chan.is_unbuffered(c))
-	}
+    is_buffered_example :: proc() {
+        c, _ := chan.create(chan.Chan(int), context.allocator)
+        defer chan.destroy(c)
+        assert(chan.is_unbuffered(c))
+    }
 */
 
 is_unbuffered :: proc(c: ^Raw_Chan) -> bool {
-	return c != nil && c.unbuffered_data != nil
+    return c != nil && c.unbuffered_data != nil
 }
 
 /*
@@ -935,30 +861,30 @@ because they cannot hold elements.
 
 Example:
 
-	import "core:sync/chan"
-	import "core:fmt"
+    import "core:sync/chan"
+    import "core:fmt"
 
-	len_example :: proc() {
-		c, _ := chan.create(chan.Chan(int), 2, context.allocator)
-		defer chan.destroy(c)
+    len_example :: proc() {
+        c, _ := chan.create(chan.Chan(int), 2, context.allocator)
+        defer chan.destroy(c)
 
-		fmt.println(chan.len(c))
-		assert(chan.send(c, 1))   // add an element
-		fmt.println(chan.len(c))
-	}
+        fmt.println(chan.len(c))
+        assert(chan.send(c, 1))   // add an element
+        fmt.println(chan.len(c))
+    }
 
 Output:
 
-	0
-	1
+    0
+    1
 */
 
 len :: proc(c: ^Raw_Chan) -> int {
-	if c != nil && c.queue != nil {
-		sync.guard(&c.mutex)
-		return c.queue.len
-	}
-	return 0
+    if c != nil && c.queue != nil {
+        sync.guard(&c.mutex)
+        return c.queue.len
+    }
+    return 0
 }
 
 /*
@@ -975,27 +901,27 @@ because they cannot hold elements.
 
 Example:
 
-	import "core:sync/chan"
-	import "core:fmt"
+    import "core:sync/chan"
+    import "core:fmt"
 
-	cap_example :: proc() {
-		c, _ := chan.create(chan.Chan(int), 2, context.allocator)
-		defer chan.destroy(c)
+    cap_example :: proc() {
+        c, _ := chan.create(chan.Chan(int), 2, context.allocator)
+        defer chan.destroy(c)
 
-		fmt.println(chan.cap(c))
-	}
+        fmt.println(chan.cap(c))
+    }
 
 Output:
 
-	2
+    2
 */
 
 cap :: proc(c: ^Raw_Chan) -> int {
-	if c != nil && c.queue != nil {
-		sync.guard(&c.mutex)
-		return c.queue.cap
-	}
-	return 0
+    if c != nil && c.queue != nil {
+        sync.guard(&c.mutex)
+        return c.queue.cap
+    }
+    return 0
 }
 
 /*
@@ -1009,37 +935,37 @@ Closes the channel, preventing new messages from being added.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	close_example :: proc() {
-		c, _ := chan.create(chan.Chan(int), 2, context.allocator)
-		defer chan.destroy(c)
+    close_example :: proc() {
+        c, _ := chan.create(chan.Chan(int), 2, context.allocator)
+        defer chan.destroy(c)
 
-		// Sending a message to an open channel
-		assert(chan.send(c, 1), "allowed to send")
+        // Sending a message to an open channel
+        assert(chan.send(c, 1), "allowed to send")
 
-		// Closing the channel successfully
-		assert(chan.close(c), "successfully closed")
+        // Closing the channel successfully
+        assert(chan.close(c), "successfully closed")
 
-		// Trying to send a message after the channel is closed (should fail)
-		assert(!chan.send(c, 1), "not allowed to send after close")
+        // Trying to send a message after the channel is closed (should fail)
+        assert(!chan.send(c, 1), "not allowed to send after close")
 
-		// Trying to close the channel again (should fail since it's already closed)
-		assert(!chan.close(c), "was already closed")
-	}
+        // Trying to close the channel again (should fail since it's already closed)
+        assert(!chan.close(c), "was already closed")
+    }
 */
 close :: proc(c: ^Raw_Chan) -> bool {
-	if c == nil {
-		return false
-	}
-	sync.guard(&c.mutex)
-	if c.closed {
-		return false
-	}
-	c.closed = true
-	sync.broadcast(&c.r_cond)
-	sync.broadcast(&c.w_cond)
-	return true
+    if c == nil {
+        return false
+    }
+    sync.guard(&c.mutex)
+    if c.closed {
+        return false
+    }
+    c.closed = true
+    sync.broadcast(&c.r_cond)
+    sync.broadcast(&c.w_cond)
+    return true
 }
 
 /*
@@ -1053,11 +979,11 @@ Returns if the channel is closed or not
 */
 
 is_closed :: proc(c: ^Raw_Chan) -> bool {
-	if c == nil {
-		return true
-	}
-	sync.guard(&c.mutex)
-	return bool(c.closed)
+    if c == nil {
+        return true
+    }
+    sync.guard(&c.mutex)
+    return bool(c.closed)
 }
 
 /*
@@ -1073,25 +999,25 @@ or if there is already a writer attempting to send a message.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	can_recv_example :: proc() {
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    can_recv_example :: proc() {
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		assert(!chan.can_recv(c), "the cannel is empty")
-		assert(chan.send(c, 2))
-		assert(chan.can_recv(c), "there is message to read")
-	}
+        assert(!chan.can_recv(c), "the cannel is empty")
+        assert(chan.send(c, 2))
+        assert(chan.can_recv(c), "there is message to read")
+    }
 */
 
 can_recv :: proc(c: ^Raw_Chan) -> bool {
-	sync.guard(&c.mutex)
-	if is_buffered(c) {
-		return c.queue.len > 0
-	}
-	return c.w_waiting - c.r_waiting > 0
+    sync.guard(&c.mutex)
+    if is_buffered(c) {
+        return c.queue.len > 0
+    }
+    return c.w_waiting - c.r_waiting > 0
 }
 
 
@@ -1108,34 +1034,34 @@ or if there is already a reader waiting for a message.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	can_send_example :: proc() {
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    can_send_example :: proc() {
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		assert(chan.can_send(c), "the channel's buffer is not full")
-		assert(chan.send(c, 2))
-		assert(!chan.can_send(c), "the channel's buffer is full")
-	}
+        assert(chan.can_send(c), "the channel's buffer is not full")
+        assert(chan.send(c, 2))
+        assert(!chan.can_send(c), "the channel's buffer is full")
+    }
 */
 
 can_send :: proc(c: ^Raw_Chan) -> bool {
-	sync.guard(&c.mutex)
-	if is_buffered(c) {
-		return c.queue.len < c.queue.cap
-	}
-	return c.r_waiting - c.w_waiting > 0
+    sync.guard(&c.mutex)
+    if is_buffered(c) {
+        return c.queue.len < c.queue.cap
+    }
+    return c.r_waiting - c.w_waiting > 0
 }
 
 /*
 Specifies the direction of the selected channel.
 */
 Select_Status :: enum {
-	None,
-	Recv,
-	Send,
+    None,
+    Recv,
+    Send,
 }
 
 
@@ -1163,116 +1089,116 @@ If the message is nil, corresponding send channel will be skipped.
 
 Example:
 
-	import "core:sync/chan"
-	import "core:fmt"
+    import "core:sync/chan"
+    import "core:fmt"
 
-	select_raw_example :: proc() {
-		c, err := chan.create(chan.Chan(int), 1, context.allocator)
-		assert(err == .None)
-		defer chan.destroy(c)
+    select_raw_example :: proc() {
+        c, err := chan.create(chan.Chan(int), 1, context.allocator)
+        assert(err == .None)
+        defer chan.destroy(c)
 
-		// sending value '1' on the channel
-		value1 := 1
-		msgs := [?]rawptr{&value1}
-		send_chans := [?]^chan.Raw_Chan{c}
+        // sending value '1' on the channel
+        value1 := 1
+        msgs := [?]rawptr{&value1}
+        send_chans := [?]^chan.Raw_Chan{c}
 
-		// for simplicity the same channel used for sending is also used for receiving
-		receive_chans := [?]^chan.Raw_Chan{c}
-		// where the value from the read should be stored
-		received_value: int
+        // for simplicity the same channel used for sending is also used for receiving
+        receive_chans := [?]^chan.Raw_Chan{c}
+        // where the value from the read should be stored
+        received_value: int
 
-		idx, ok := chan.try_select_raw(receive_chans[:], send_chans[:], msgs[:], &received_value)
-		fmt.println("SELECT:        ", idx, ok)
-		fmt.println("RECEIVED VALUE ", received_value)
+        idx, ok := chan.try_select_raw(receive_chans[:], send_chans[:], msgs[:], &received_value)
+        fmt.println("SELECT:        ", idx, ok)
+        fmt.println("RECEIVED VALUE ", received_value)
 
-		idx, ok = chan.try_select_raw(receive_chans[:], send_chans[:], msgs[:], &received_value)
-		fmt.println("SELECT:        ", idx, ok)
-		fmt.println("RECEIVED VALUE ", received_value)
+        idx, ok = chan.try_select_raw(receive_chans[:], send_chans[:], msgs[:], &received_value)
+        fmt.println("SELECT:        ", idx, ok)
+        fmt.println("RECEIVED VALUE ", received_value)
 
-		// closing of a channel also affects the select operation
-		chan.close(c)
+        // closing of a channel also affects the select operation
+        chan.close(c)
 
-		idx, ok = chan.try_select_raw(receive_chans[:], send_chans[:], msgs[:], &received_value)
-		fmt.println("SELECT:        ", idx, ok)
-	}
+        idx, ok = chan.try_select_raw(receive_chans[:], send_chans[:], msgs[:], &received_value)
+        fmt.println("SELECT:        ", idx, ok)
+    }
 
 Output:
 
-	SELECT:         0 true
-	RECEIVED VALUE  0
-	SELECT:         0 true
-	RECEIVED VALUE  1
-	SELECT:         0 false
+    SELECT:         0 true
+    RECEIVED VALUE  0
+    SELECT:         0 true
+    RECEIVED VALUE  1
+    SELECT:         0 false
 
 */
 
 try_select_raw :: proc "odin" (recvs: []^Raw_Chan, sends: []^Raw_Chan, send_msgs: []rawptr, recv_out: rawptr) -> (select_idx: int, status: Select_Status) #no_bounds_check {
-	Select_Op :: struct {
-		idx:     int, // local to the slice that was given
-		is_recv: bool,
-	}
+    Select_Op :: struct {
+        idx:     int, // local to the slice that was given
+        is_recv: bool,
+    }
 
-	candidate_count := builtin.len(recvs)+builtin.len(sends)
-	candidates := ([^]Select_Op)(intrinsics.alloca(candidate_count*size_of(Select_Op), align_of(Select_Op)))
+    candidate_count := builtin.len(recvs)+builtin.len(sends)
+    candidates := ([^]Select_Op)(intrinsics.alloca(candidate_count*size_of(Select_Op), align_of(Select_Op)))
 
-	try_loop: for {
-		count := 0
+    try_loop: for {
+        count := 0
 
-		for c, i in recvs {
-			if can_recv(c) {
-				candidates[count] = {
-					is_recv = true,
-					idx     = i,
-				}
-				count += 1
-			}
-		}
+        for c, i in recvs {
+            if can_recv(c) {
+                candidates[count] = {
+                    is_recv = true,
+                    idx     = i,
+                }
+                count += 1
+            }
+        }
 
-		for c, i in sends {
-			if i > builtin.len(send_msgs)-1 || send_msgs[i] == nil {
-				continue
-			}
-			if can_send(c)  {
-				candidates[count] = {
-					is_recv = false,
-					idx     = i,
-				}
-				count += 1
-			}
-		}
+        for c, i in sends {
+            if i > builtin.len(send_msgs)-1 || send_msgs[i] == nil {
+                continue
+            }
+            if can_send(c)  {
+                candidates[count] = {
+                    is_recv = false,
+                    idx     = i,
+                }
+                count += 1
+            }
+        }
 
-		if count == 0 {
-			return -1, .None
-		}
+        if count == 0 {
+            return -1, .None
+        }
 
-		when ODIN_TEST {
-			if __try_select_raw_pause != nil {
-				__try_select_raw_pause()
-			}
-		}
+        when ODIN_TEST {
+            if __try_select_raw_pause != nil {
+                __try_select_raw_pause()
+            }
+        }
 
-		candidate_idx := rand.int_max(count) if count > 0 else 0
+        candidate_idx := rand.int_max(count) if count > 0 else 0
 
-		sel := candidates[candidate_idx]
-		if sel.is_recv {
-			status = .Recv
-			if !try_recv_raw(recvs[sel.idx], recv_out) {
-				continue try_loop
-			}
-		} else {
-			status = .Send
-			if !try_send_raw(sends[sel.idx], send_msgs[sel.idx]) {
-				continue try_loop
-			}
-		}
+        sel := candidates[candidate_idx]
+        if sel.is_recv {
+            status = .Recv
+            if !try_recv_raw(recvs[sel.idx], recv_out) {
+                continue try_loop
+            }
+        } else {
+            status = .Send
+            if !try_send_raw(sends[sel.idx], send_msgs[sel.idx]) {
+                continue try_loop
+            }
+        }
 
-		return sel.idx, status
-	}
+        return sel.idx, status
+    }
 }
 
 @(deprecated = "use try_select_raw")
 select_raw :: proc "odin" (recvs: []^Raw_Chan, sends: []^Raw_Chan, send_msgs: []rawptr, recv_out: rawptr) -> (select_idx: int, status: Select_Status) #no_bounds_check {
-	return try_select_raw(recvs, sends, send_msgs, recv_out)
+    return try_select_raw(recvs, sends, send_msgs, recv_out)
 }
 
 /*
@@ -1285,11 +1211,11 @@ level of convenience for typical applications.
 */
 @(private)
 Raw_Queue :: struct {
-	data: [^]byte,
-	len:  int,
-	cap:  int,
-	next: int,
-	size: int, // element size
+    data: [^]byte,
+    len:  int,
+    cap:  int,
+    next: int,
+    size: int, // element size
 }
 
 /*
@@ -1303,23 +1229,23 @@ Initializes a `Raw_Queue`
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	raw_queue_init_example :: proc() {
-		// use a stack allocated array as backing storage
-		storage: [100]int
+    raw_queue_init_example :: proc() {
+        // use a stack allocated array as backing storage
+        storage: [100]int
 
-		rq: chan.Raw_Queue
-		chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
-	}
+        rq: chan.Raw_Queue
+        chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
+    }
 */
 @(private)
 raw_queue_init :: proc(q: ^Raw_Queue, data: rawptr, cap: int, size: int) {
-	q.data = ([^]byte)(data)
-	q.len  = 0
-	q.cap  = cap
-	q.next = 0
-	q.size = size
+    q.data = ([^]byte)(data)
+    q.len  = 0
+    q.cap  = cap
+    q.next = 0
+    q.size = size
 }
 
 /*
@@ -1337,31 +1263,31 @@ and alignment used when the `Raw_Queue` was initialized.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	raw_queue_push_example :: proc() {
-		storage: [100]int
-		rq: chan.Raw_Queue
-		chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
+    raw_queue_push_example :: proc() {
+        storage: [100]int
+        rq: chan.Raw_Queue
+        chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
 
-		value := 2
-		assert(chan.raw_queue_push(&rq, &value), "there was enough space")
-	}
+        value := 2
+        assert(chan.raw_queue_push(&rq, &value), "there was enough space")
+    }
 */
 @(private)
 raw_queue_push :: proc(q: ^Raw_Queue, data: rawptr) -> bool {
-	if q.len == q.cap {
-		return false
-	}
-	pos := q.next + q.len
-	if pos >= q.cap {
-		pos -= q.cap
-	}
+    if q.len == q.cap {
+        return false
+    }
+    pos := q.next + q.len
+    if pos >= q.cap {
+        pos -= q.cap
+    }
 
-	val_ptr := q.data[pos*q.size:]
-	mem.copy(val_ptr, data, q.size)
-	q.len += 1
-	return true
+    val_ptr := q.data[pos*q.size:]
+    mem.copy(val_ptr, data, q.size)
+    q.len += 1
+    return true
 }
 
 /*
@@ -1379,31 +1305,31 @@ undefined behavior.
 
 Example:
 
-	import "core:sync/chan"
+    import "core:sync/chan"
 
-	raw_queue_pop_example :: proc() {
-		storage: [100]int
-		rq: chan.Raw_Queue
-		chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
+    raw_queue_pop_example :: proc() {
+        storage: [100]int
+        rq: chan.Raw_Queue
+        chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
 
-		assert(chan.raw_queue_pop(&rq) == nil, "queue was empty")
+        assert(chan.raw_queue_pop(&rq) == nil, "queue was empty")
 
-		// add an element to the queue
-		value := 2
-		assert(chan.raw_queue_push(&rq, &value), "there was enough space")
+        // add an element to the queue
+        value := 2
+        assert(chan.raw_queue_push(&rq, &value), "there was enough space")
 
-		assert((cast(^int)chan.raw_queue_pop(&rq))^ == 2, "retrieved the element")
-	}
+        assert((cast(^int)chan.raw_queue_pop(&rq))^ == 2, "retrieved the element")
+    }
 */
 @(private)
 raw_queue_pop :: proc(q: ^Raw_Queue) -> (data: rawptr) {
-	if q.len > 0 {
-		data = q.data[q.next*q.size:]
-		q.next += 1
-		q.len -= 1
-		if q.next >= q.cap {
-			q.next -= q.cap
-		}
-	}
-	return
+    if q.len > 0 {
+        data = q.data[q.next*q.size:]
+        q.next += 1
+        q.len -= 1
+        if q.next >= q.cap {
+            q.next -= q.cap
+        }
+    }
+    return
 }

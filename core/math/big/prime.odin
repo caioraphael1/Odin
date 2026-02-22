@@ -110,7 +110,7 @@ internal_int_power_modulo :: proc(res, G, X, P: ^Int, allocator: mem.Allocator) 
 }
 internal_int_exponent_mod :: internal_int_power_modulo
 internal_int_powmod :: internal_int_power_modulo
-internal_powmod :: proc { internal_int_power_modulo, }
+
 
 /*
 	Kronecker/Legendre symbol (a|p)

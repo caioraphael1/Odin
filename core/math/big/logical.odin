@@ -28,7 +28,7 @@ int_bit_and :: proc(dest, a, b: ^Int, allocator: mem.Allocator) -> (err: Error) 
 	internal_clear_if_uninitialized(a, b) or_return
 	return #force_inline internal_int_and(dest, a, b, allocator)
 }
-bit_and :: proc { int_bit_and, }
+
 
 /*
 	2's complement `or`, returns `dest = a | b;`
@@ -39,7 +39,7 @@ int_bit_or :: proc(dest, a, b: ^Int, allocator: mem.Allocator) -> (err: Error) {
 	internal_clear_if_uninitialized(a, b) or_return
 	return #force_inline internal_int_or(dest, a, b, allocator)
 }
-bit_or :: proc { int_bit_or, }
+
 
 /*
 	2's complement `xor`, returns `dest = a ^ b;`
@@ -50,7 +50,7 @@ int_bit_xor :: proc(dest, a, b: ^Int, allocator: mem.Allocator) -> (err: Error) 
 	internal_clear_if_uninitialized(a, b) or_return
 	return #force_inline internal_int_xor(dest, a, b, allocator)
 }
-bit_xor :: proc { int_bit_xor, }
+
 
 /*
 	dest = ~src
@@ -64,7 +64,7 @@ int_bit_complement :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err: E
 	internal_clear_if_uninitialized(dest, src) or_return
 	return #force_inline internal_int_complement(dest, src, allocator)
 }
-bit_complement :: proc { int_bit_complement, }
+
 
 /*
 	quotient, remainder := numerator >> bits;
@@ -76,12 +76,12 @@ int_shrmod :: proc(quotient, remainder, numerator: ^Int, bits: int, allocator: m
 	if err = internal_clear_if_uninitialized(quotient, numerator);  err != nil { return err }
 	return #force_inline internal_int_shrmod(quotient, remainder, numerator, bits, allocator)
 }
-shrmod :: proc { int_shrmod, }
+
 
 int_shr :: proc(dest, source: ^Int, bits: int, allocator: mem.Allocator) -> (err: Error) {
 	return #force_inline shrmod(dest, nil, source, bits, allocator)
 }
-shr :: proc { int_shr, }
+
 
 /*
 	Shift right by a certain bit count with sign extension.
@@ -93,7 +93,7 @@ int_shr_signed :: proc(dest, src: ^Int, bits: int, allocator: mem.Allocator) -> 
 	return #force_inline internal_int_shr_signed(dest, src, bits, allocator)
 }
 
-shr_signed :: proc { int_shr_signed, }
+
 
 /*
 	Shift left by a certain bit count.
@@ -104,4 +104,4 @@ int_shl :: proc(dest, src: ^Int, bits: int, allocator: mem.Allocator) -> (err: E
 	internal_clear_if_uninitialized(dest, src) or_return
 	return #force_inline internal_int_shl(dest, src, bits, allocator)
 }
-shl :: proc { int_shl, }
+

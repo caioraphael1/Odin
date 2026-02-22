@@ -28,26 +28,26 @@ Returns:
 - result: The generated UUID.
 */
 generate_v3_bytes :: proc(
-	namespace: Identifier,
-	name: []byte,
+    namespace: Identifier,
+    name: []byte,
 ) -> (
-	result: Identifier,
+    result: Identifier,
 ) {
-	namespace := namespace
+    namespace := namespace
 
-	ctx: md5.Context
-	md5.init(&ctx)
-	md5.update(&ctx, namespace[:])
-	md5.update(&ctx, name)
-	md5.final(&ctx, result[:])
+    ctx: md5.Context
+    md5.init(&ctx)
+    md5.update(&ctx, namespace[:])
+    md5.update(&ctx, name)
+    md5.final(&ctx, result[:])
 
-	result[VERSION_BYTE_INDEX] &= 0x0F
-	result[VERSION_BYTE_INDEX] |= 0x30
+    result[VERSION_BYTE_INDEX] &= 0x0F
+    result[VERSION_BYTE_INDEX] |= 0x30
 
-	result[VARIANT_BYTE_INDEX] &= 0x3F
-	result[VARIANT_BYTE_INDEX] |= 0x80
+    result[VARIANT_BYTE_INDEX] &= 0x3F
+    result[VARIANT_BYTE_INDEX] |= 0x80
 
-	return
+    return
 }
 
 /*
@@ -64,17 +64,12 @@ Returns:
 - result: The generated UUID.
 */
 generate_v3_string :: proc(
-	namespace: Identifier,
-	name: string,
+    namespace: Identifier,
+    name: string,
 ) -> (
-	result: Identifier,
+    result: Identifier,
 ) {
-	return generate_v3_bytes(namespace, transmute([]byte)name)
-}
-
-generate_v3 :: proc {
-	generate_v3_bytes,
-	generate_v3_string,
+    return generate_v3_bytes(namespace, transmute([]byte)name)
 }
 
 /*
@@ -91,29 +86,29 @@ Returns:
 - result: The generated UUID.
 */
 generate_v5_bytes :: proc(
-	namespace: Identifier,
-	name: []byte,
+    namespace: Identifier,
+    name: []byte,
 ) -> (
-	result: Identifier,
+    result: Identifier,
 ) {
-	namespace := namespace
-	digest: [sha1.DIGEST_SIZE]byte
+    namespace := namespace
+    digest: [sha1.DIGEST_SIZE]byte
 
-	ctx: sha1.Context
-	sha1.init(&ctx)
-	sha1.update(&ctx, namespace[:])
-	sha1.update(&ctx, name)
-	sha1.final(&ctx, digest[:])
+    ctx: sha1.Context
+    sha1.init(&ctx)
+    sha1.update(&ctx, namespace[:])
+    sha1.update(&ctx, name)
+    sha1.final(&ctx, digest[:])
 
-	runtime.mem_copy_non_overlapping(&result, &digest, 16)
+    runtime.mem_copy_non_overlapping(&result, &digest, 16)
 
-	result[VERSION_BYTE_INDEX] &= 0x0F
-	result[VERSION_BYTE_INDEX] |= 0x50
+    result[VERSION_BYTE_INDEX] &= 0x0F
+    result[VERSION_BYTE_INDEX] |= 0x50
 
-	result[VARIANT_BYTE_INDEX] &= 0x3F
-	result[VARIANT_BYTE_INDEX] |= 0x80
+    result[VARIANT_BYTE_INDEX] &= 0x3F
+    result[VARIANT_BYTE_INDEX] |= 0x80
 
-	return
+    return
 }
 
 /*
@@ -130,16 +125,10 @@ Returns:
 - result: The generated UUID.
 */
 generate_v5_string :: proc(
-	namespace: Identifier,
-	name: string,
+    namespace: Identifier,
+    name: string,
 ) -> (
-	result: Identifier,
+    result: Identifier,
 ) {
-	return generate_v5_bytes(namespace, transmute([]byte)name)
+    return generate_v5_bytes(namespace, transmute([]byte)name)
 }
-
-generate_v5 :: proc {
-	generate_v5_bytes,
-	generate_v5_string,
-}
-

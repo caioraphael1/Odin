@@ -213,7 +213,7 @@ parse_file :: proc(p: ^Parser, file: ^ast.File) -> bool {
         return false
     }
 
-    p.file.decls = make([dynamic]^ast.Stmt)
+    p.file.decls = make_dynamic_array([dynamic]^ast.Stmt)
 
     for p.curr_tok.kind != .EOF {
         stmt := parse_stmt(p)
@@ -487,11 +487,7 @@ is_non_inserted_semicolon :: proc(tok: tokenizer.Token) -> bool {
     return tok.kind == .Semicolon && tok.text != "\n"
 }
 
-is_blank_ident :: proc{
-    is_blank_ident_string,
-    is_blank_ident_token,
-    is_blank_ident_node,
-}
+
 is_blank_ident_string :: proc(str: string) -> bool {
     return str == "_"
 }
@@ -1026,8 +1022,8 @@ parse_switch_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
             in_tok := expect_token(p, .In)
             is_type_switch = true
 
-            lhs := make([]^ast.Expr, 1)
-            rhs := make([]^ast.Expr, 1)
+            lhs := make_slice([]^ast.Expr, 1)
+            rhs := make_slice([]^ast.Expr, 1)
             lhs[0] = new_blank_ident(p, tok.pos)
             rhs[0] = parse_expr(p, true)
 
@@ -1273,7 +1269,7 @@ parse_unrolled_for_loop :: proc(p: ^Parser, inline_tok: tokenizer.Token) -> ^ast
         if p.curr_tok.kind == .Close_Paren {
             error(p, p.curr_tok.pos, "#unroll expected at least 1 argument, got 0")
         } else {
-            args = make([dynamic]^ast.Expr)
+            args = make_dynamic_array([dynamic]^ast.Expr)
             for p.curr_tok.kind != .Close_Paren &&
                 p.curr_tok.kind != .EOF {
                 arg := parse_value(p)
@@ -1683,7 +1679,7 @@ convert_stmt_to_body :: proc(p: ^Parser, stmt: ^ast.Stmt) -> ^ast.Stmt {
 
     bs := ast.new(ast.Block_Stmt, stmt.pos, stmt)
     bs.open = stmt.pos
-    bs.stmts = make([]^ast.Stmt, 1)
+    bs.stmts = make_slice([]^ast.Stmt, 1)
     bs.stmts[0] = stmt
     bs.close = stmt.end
     bs.uses_do = true
@@ -1729,7 +1725,7 @@ Expr_And_Flags :: struct {
 }
 
 convert_to_ident_list :: proc(p: ^Parser, list: []Expr_And_Flags, ignore_flags, allow_poly_names: bool) -> []^ast.Expr {
-    idents := make([dynamic]^ast.Expr, 0, len(list))
+    idents := make_dynamic_array([dynamic]^ast.Expr, 0, len(list))
 
     for ident, i in list {
         if !ignore_flags {
@@ -2079,7 +2075,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
                 tok.text = "_"
             }
 
-            names := make([]^ast.Expr, 1)
+            names := make_slice([]^ast.Expr, 1)
             names[0] = ast.new(ast.Ident, tok.pos, end_pos(tok))
             #partial switch ident in names[0].derived_expr {
             case ^ast.Ident:
@@ -2143,7 +2139,7 @@ parse_results :: proc(p: ^Parser) -> (list: ^ast.Field_List, diverging: bool) {
         field := new_ast_field(nil, type, nil)
 
         list = ast.new(ast.Field_List, field.pos, field.end)
-        list.list = make([]^ast.Field, 1)
+        list.list = make_slice([]^ast.Field, 1)
         list.list[0] = field
         return
     }
@@ -3647,7 +3643,7 @@ parse_simple_stmt :: proc(p: ^Parser, flags: Stmt_Allow_Flags) -> ^ast.Stmt {
             expr := parse_expr(p, false)
             p.allow_range = prev_allow_range
 
-            rhs := make([]^ast.Expr, 1)
+            rhs := make_slice([]^ast.Expr, 1)
             rhs[0] = expr
 
             stmt := ast.new(ast.Assign_Stmt, lhs[0].pos, rhs[len(rhs)-1])

@@ -694,17 +694,17 @@ acos_sc := []f64{
 }
 
 vfacosh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	0.5,
 	1,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 acosh_sc := []f64{
 	NaN,
 	NaN,
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 
@@ -724,25 +724,25 @@ asin_sc := []f64{
 }
 
 vfasinh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 asinh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 
 vfatan_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 atan_sc := []f64{
@@ -754,64 +754,64 @@ atan_sc := []f64{
 }
 
 vfatanh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	-Pi,
 	-1,
 	math.copy_sign_f64(0, -1),
 	0,
 	1,
 	Pi,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 atanh_sc := []f64{
 	NaN,
 	NaN,
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 	NaN,
 	NaN,
 }
 vfatan2_sc := [][2]f64{
-	{math.inf_f64(-1), math.inf_f64(-1)},
-	{math.inf_f64(-1), -Pi},
-	{math.inf_f64(-1), 0},
-	{math.inf_f64(-1), +Pi},
-	{math.inf_f64(-1), math.inf_f64(1)},
-	{math.inf_f64(-1), NaN},
-	{-Pi, math.inf_f64(-1)},
+	{math.inf(-1), math.inf(-1)},
+	{math.inf(-1), -Pi},
+	{math.inf(-1), 0},
+	{math.inf(-1), +Pi},
+	{math.inf(-1), math.inf(1)},
+	{math.inf(-1), NaN},
+	{-Pi, math.inf(-1)},
 	{-Pi, 0},
-	{-Pi, math.inf_f64(1)},
+	{-Pi, math.inf(1)},
 	{-Pi, NaN},
-	{math.copy_sign_f64(0, -1), math.inf_f64(-1)},
+	{math.copy_sign_f64(0, -1), math.inf(-1)},
 	{math.copy_sign_f64(0, -1), -Pi},
 	{math.copy_sign_f64(0, -1), math.copy_sign_f64(0, -1)},
 	{math.copy_sign_f64(0, -1), 0},
 	{math.copy_sign_f64(0, -1), +Pi},
-	{math.copy_sign_f64(0, -1), math.inf_f64(1)},
+	{math.copy_sign_f64(0, -1), math.inf(1)},
 	{math.copy_sign_f64(0, -1), NaN},
-	{0, math.inf_f64(-1)},
+	{0, math.inf(-1)},
 	{0, -Pi},
 	{0, math.copy_sign_f64(0, -1)},
 	{0, 0},
 	{0, +Pi},
-	{0, math.inf_f64(1)},
+	{0, math.inf(1)},
 	{0, NaN},
-	{+Pi, math.inf_f64(-1)},
+	{+Pi, math.inf(-1)},
 	{+Pi, 0},
-	{+Pi, math.inf_f64(1)},
-	{1.0, math.inf_f64(1)},
-	{-1.0, math.inf_f64(1)},
+	{+Pi, math.inf(1)},
+	{1.0, math.inf(1)},
+	{-1.0, math.inf(1)},
 	{+Pi, NaN},
-	{math.inf_f64(1), math.inf_f64(-1)},
-	{math.inf_f64(1), -Pi},
-	{math.inf_f64(1), 0},
-	{math.inf_f64(1), +Pi},
-	{math.inf_f64(1), math.inf_f64(1)},
-	{math.inf_f64(1), NaN},
+	{math.inf(1), math.inf(-1)},
+	{math.inf(1), -Pi},
+	{math.inf(1), 0},
+	{math.inf(1), +Pi},
+	{math.inf(1), math.inf(1)},
+	{math.inf(1), NaN},
 	{NaN, NaN},
 }
 atan2_sc := []f64{
@@ -855,49 +855,49 @@ atan2_sc := []f64{
 }
 
 vfcbrt_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 cbrt_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 
 vfceil_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 ceil_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 
 vfcopysign_sc := []f64{
-	math.inf_f64(-1),
-	math.inf_f64(1),
+	math.inf(-1),
+	math.inf(1),
 	NaN,
 }
 copysign_sc := []f64{
-	math.inf_f64(-1),
-	math.inf_f64(-1),
+	math.inf(-1),
+	math.inf(-1),
 	NaN,
 }
 
 vfcos_sc := []f64{
-	math.inf_f64(-1),
-	math.inf_f64(1),
+	math.inf(-1),
+	math.inf(1),
 	NaN,
 }
 cos_sc := []f64{
@@ -907,26 +907,26 @@ cos_sc := []f64{
 }
 
 vfcosh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 cosh_sc := []f64{
-	math.inf_f64(1),
+	math.inf(1),
 	1,
 	1,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 
 
 vfsin_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 sin_sc := []f64{
@@ -938,25 +938,25 @@ sin_sc := []f64{
 }
 
 vfsinh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 sinh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 
 vftanh_sc := []f64{
-	math.inf_f64(-1),
+	math.inf(-1),
 	math.copy_sign_f64(0, -1),
 	0,
-	math.inf_f64(1),
+	math.inf(1),
 	NaN,
 }
 tanh_sc := []f64{

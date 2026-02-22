@@ -309,7 +309,7 @@ align_of     :: proc($T: typeid) -> int ---
 offset_of_selector :: proc(selector: $T) -> uintptr ---
 // e.g. offset_of(T, f), where T can be the type instead of a variable
 offset_of_member   :: proc($T: typeid, member: $M) -> uintptr ---
-offset_of :: proc{offset_of_selector, offset_of_member}
+
 // e.g. offset_of(T, "f"), where T can be the type instead of a variable
 offset_of_by_string :: proc($T: typeid, member: string) -> uintptr ---
 

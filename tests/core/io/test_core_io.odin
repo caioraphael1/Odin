@@ -108,7 +108,7 @@ _test_stream :: proc(
 				"Read_At into empty slice failed: bytes_read<%v>, %v", bytes_read, err, loc = loc) or_return
 		}
 
-		read_buf, alloc_err := make([]u8, size)
+		read_buf, alloc_err := make_slice([]u8, size)
 		testing.expect_value(t, alloc_err, nil, loc = loc) or_return
 		defer _ = delete(read_buf)
 
@@ -159,7 +159,7 @@ _test_stream :: proc(
 		}
 
 		if size > 0 {
-			read_buf, alloc_err := make([]u8, size)
+			read_buf, alloc_err := make_slice([]u8, size)
 			testing.expectf(t, alloc_err == nil, "allocation failed", loc = loc) or_return
 			defer _ = delete(read_buf)
 
@@ -241,7 +241,7 @@ _test_stream :: proc(
 		}
 
 		if size > 0 {
-			write_buf, write_buf_alloc_err := make([]u8, size)
+			write_buf, write_buf_alloc_err := make_slice([]u8, size)
 			testing.expectf(t, write_buf_alloc_err == nil, "allocation failed", loc = loc) or_return
 			defer _ = delete(write_buf)
 
@@ -255,7 +255,7 @@ _test_stream :: proc(
 
 			// Test reading what we've written.
 			if .Read_At in mode_set {
-				read_buf, read_buf_alloc_err := make([]u8, size)
+				read_buf, read_buf_alloc_err := make_slice([]u8, size)
 				testing.expectf(t, read_buf_alloc_err == nil, "allocation failed", loc = loc) or_return
 				defer _ = delete(read_buf)
 				bytes_read, read_err := io.read_at(stream, read_buf[:], 0)
@@ -301,7 +301,7 @@ _test_stream :: proc(
 				"Write from empty slice failed: bytes_written<%v>, %v", bytes_written, err, loc = loc) or_return
 		}
 
-		write_buf, write_buf_alloc_err := make([]u8, size)
+		write_buf, write_buf_alloc_err := make_slice([]u8, size)
 		testing.expectf(t, write_buf_alloc_err == nil, "allocation failed", loc = loc) or_return
 		defer _ = delete(write_buf)
 
@@ -343,7 +343,7 @@ _test_stream :: proc(
 
 		// Test reading what we've written directly with Read_At.
 		if pos >= 0 && .Read_At in mode_set {
-			read_buf, read_buf_alloc_err := make([]u8, size)
+			read_buf, read_buf_alloc_err := make_slice([]u8, size)
 			testing.expectf(t, read_buf_alloc_err == nil, "allocation failed", loc = loc) or_return
 			defer _ = delete(read_buf)
 
@@ -361,7 +361,7 @@ _test_stream :: proc(
 			testing.expectf(t, pos == 0 && seek_err == nil,
 				"Write+Read+Seek(Start) failed: pos<%i>, %v", pos, seek_err) or_return
 
-			read_buf, read_buf_alloc_err := make([]u8, size)
+			read_buf, read_buf_alloc_err := make_slice([]u8, size)
 			testing.expectf(t, read_buf_alloc_err == nil, "allocation failed", loc = loc) or_return
 			defer _ = delete(read_buf)
 

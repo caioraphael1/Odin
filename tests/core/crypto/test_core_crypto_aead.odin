@@ -12,19 +12,19 @@ import "core:testing"
 test_aead :: proc(t: ^testing.T) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-	aes_impls := make([dynamic]aead.Implementation, context.temp_allocator)
+	aes_impls := make_dynamic_array([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_aes_impls() {
 		_ = append(&aes_impls, impl)
 	}
-	chacha_impls := make([dynamic]aead.Implementation, context.temp_allocator)
+	chacha_impls := make_dynamic_array([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_chacha_impls() {
 		_ = append(&chacha_impls, impl)
 	}
-	aegis_impls := make([dynamic]aead.Implementation, context.temp_allocator)
+	aegis_impls := make_dynamic_array([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_aegis_impls() {
 		_ = append(&aegis_impls, impl)
 	}
-	deoxysii_impls := make([dynamic]aead.Implementation, context.temp_allocator)
+	deoxysii_impls := make_dynamic_array([dynamic]aead.Implementation, context.temp_allocator)
 	for impl in supported_deoxysii_impls() {
 		_ = append(&deoxysii_impls, impl)
 	}
@@ -508,8 +508,8 @@ test_aead :: proc(t: ^testing.T) {
 		ciphertext, _ := hex.decode(transmute([]byte)(v.ciphertext), context.temp_allocator)
 		tag, _ := hex.decode(transmute([]byte)(v.tag), context.temp_allocator)
 
-		tag_ := make([]byte, len(tag), context.temp_allocator)
-		dst := make([]byte, len(ciphertext), context.temp_allocator)
+		tag_ := make_slice([]byte, len(tag), context.temp_allocator)
+		dst := make_slice([]byte, len(ciphertext), context.temp_allocator)
 
 		ctx: aead.Context
 		for impl in impls[v.algo] {
@@ -601,7 +601,7 @@ test_aead :: proc(t: ^testing.T) {
 			}
 
 			if len(aad) > 0 {
-				aad_ := make([]byte, len(aad), context.temp_allocator)
+				aad_ := make_slice([]byte, len(aad), context.temp_allocator)
 				copy(aad_, aad)
 				aad_[0] ~= 0xa5
 				ok = aead.open(&ctx, dst, iv, aad_, ciphertext, tag)
@@ -612,7 +612,7 @@ test_aead :: proc(t: ^testing.T) {
 }
 
 supported_aegis_impls :: proc() -> [dynamic]aes.Implementation {
-	impls := make([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
+	impls := make_dynamic_array([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
 	_ = append(&impls, aes.Implementation.Portable)
 	if aegis.is_hardware_accelerated() {
 		_ = append(&impls, aes.Implementation.Hardware)
@@ -622,7 +622,7 @@ supported_aegis_impls :: proc() -> [dynamic]aes.Implementation {
 }
 
 supported_deoxysii_impls :: proc() -> [dynamic]aes.Implementation {
-	impls := make([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
+	impls := make_dynamic_array([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
 	_ = append(&impls, aes.Implementation.Portable)
 	if deoxysii.is_hardware_accelerated() {
 		_ = append(&impls, aes.Implementation.Hardware)

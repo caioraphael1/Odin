@@ -6,36 +6,36 @@ foreign import "system:Comdlg32.lib"
 LPOFNHOOKPROC :: #type proc "system" (hdlg: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> UINT_PTR
 
 OPENFILENAMEW :: struct {
-	lStructSize: 	        DWORD,
-	hwndOwner: 	        HWND,
-	hInstance: 	        HINSTANCE,
-	lpstrFilter: 	        wstring,
-	lpstrCustomFilter: 	wstring,
-	nMaxCustFilter: 	DWORD,
-	nFilterIndex: 	        DWORD,
-	lpstrFile: 	        wstring,
-	nMaxFile: 	        DWORD,
-	lpstrFileTitle: 	wstring,
-	nMaxFileTitle: 	        DWORD,
-	lpstrInitialDir: 	wstring,
-	lpstrTitle: 	        wstring,
-	Flags: 	                DWORD,
-	nFileOffset: 	        WORD,
-	nFileExtension: 	WORD,
-	lpstrDefExt: 	        wstring,
-	lCustData: 	        LPARAM,
-	lpfnHook: 	        LPOFNHOOKPROC,
-	lpTemplateName: 	wstring,
-	pvReserved:             rawptr,
-	dwReserved:             DWORD,
-	FlagsEx:                DWORD,
+    lStructSize:            DWORD,
+    hwndOwner:          HWND,
+    hInstance:          HINSTANCE,
+    lpstrFilter:            wstring,
+    lpstrCustomFilter:  wstring,
+    nMaxCustFilter:     DWORD,
+    nFilterIndex:           DWORD,
+    lpstrFile:          wstring,
+    nMaxFile:           DWORD,
+    lpstrFileTitle:     wstring,
+    nMaxFileTitle:          DWORD,
+    lpstrInitialDir:    wstring,
+    lpstrTitle:             wstring,
+    Flags:                  DWORD,
+    nFileOffset:            WORD,
+    nFileExtension:     WORD,
+    lpstrDefExt:            wstring,
+    lCustData:          LPARAM,
+    lpfnHook:           LPOFNHOOKPROC,
+    lpTemplateName:     wstring,
+    pvReserved:             rawptr,
+    dwReserved:             DWORD,
+    FlagsEx:                DWORD,
 }
 
 @(default_calling_convention="system")
 foreign Comdlg32 {
-	GetOpenFileNameW     :: proc(arg1: ^OPENFILENAMEW) -> BOOL ---
-	GetSaveFileNameW     :: proc(arg1: ^OPENFILENAMEW) -> BOOL ---
-	CommDlgExtendedError :: proc() -> u32 ---
+    GetOpenFileNameW     :: proc(arg1: ^OPENFILENAMEW) -> BOOL ---
+    GetSaveFileNameW     :: proc(arg1: ^OPENFILENAMEW) -> BOOL ---
+    CommDlgExtendedError :: proc() -> u32 ---
 }
 
 OPEN_TITLE :: "Select file to open"
@@ -50,67 +50,67 @@ SAVE_EXT   :: "txt"
 import "core:strings"
 
 Open_Save_Mode :: enum {
-	Open = 0,
-	Save = 1,
+    Open = 0,
+    Save = 1,
 }
 
 _open_file_dialog :: proc(title: string, dir: string,
                           filters: []string, default_filter: u32,
                           flags: u32, default_ext: string,
                           mode: Open_Save_Mode, allocator := runtime.temp_allocator) -> (path: string, ok: bool = true) {
-	context.allocator = allocator
-	file_buf := make([]u16, MAX_PATH_WIDE)
-	defer if !ok {
-		_ = delete(file_buf)
-	}
+    context.allocator = allocator
+    file_buf := make_slice([]u16, MAX_PATH_WIDE)
+    defer if !ok {
+        _ = delete(file_buf)
+    }
 
-	// Filters need to be passed as a pair of strings (title, filter)
-	filter_len := u32(len(filters))
-	if filter_len % 2 != 0 {
-		return "", false
-	}
+    // Filters need to be passed as a pair of strings (title, filter)
+    filter_len := u32(len(filters))
+    if filter_len % 2 != 0 {
+        return "", false
+    }
 
-	filter: string
-	filter = strings.join(filters, "\u0000", runtime.temp_allocator)
-	filter = strings.concatenate({filter, "\u0000"}, runtime.temp_allocator)
+    filter: string
+    filter = strings.join(filters, "\u0000", runtime.temp_allocator)
+    filter = strings.concatenate({filter, "\u0000"}, runtime.temp_allocator)
 
-	ofn := OPENFILENAMEW{
-		lStructSize     = size_of(OPENFILENAMEW),
-		lpstrFile       = wstring(&file_buf[0]),
-		nMaxFile        = MAX_PATH_WIDE,
-		lpstrTitle      = utf8_to_wstring(title, runtime.temp_allocator),
-		lpstrFilter     = utf8_to_wstring(filter, runtime.temp_allocator),
-		lpstrInitialDir = utf8_to_wstring(dir, runtime.temp_allocator),
-		nFilterIndex    = u32(clamp(default_filter, 1, filter_len / 2)),
-		lpstrDefExt     = utf8_to_wstring(default_ext, runtime.temp_allocator),
-		Flags           = u32(flags),
-	}
+    ofn := OPENFILENAMEW{
+        lStructSize     = size_of(OPENFILENAMEW),
+        lpstrFile       = wstring(&file_buf[0]),
+        nMaxFile        = MAX_PATH_WIDE,
+        lpstrTitle      = utf8_to_wstring(title, runtime.temp_allocator),
+        lpstrFilter     = utf8_to_wstring(filter, runtime.temp_allocator),
+        lpstrInitialDir = utf8_to_wstring(dir, runtime.temp_allocator),
+        nFilterIndex    = u32(clamp(default_filter, 1, filter_len / 2)),
+        lpstrDefExt     = utf8_to_wstring(default_ext, runtime.temp_allocator),
+        Flags           = u32(flags),
+    }
 
-	switch mode {
-	case .Open:
-		ok = bool(GetOpenFileNameW(&ofn))
-	case .Save:
-		ok = bool(GetSaveFileNameW(&ofn))
-	case:
-		ok = false
-	}
+    switch mode {
+    case .Open:
+        ok = bool(GetOpenFileNameW(&ofn))
+    case .Save:
+        ok = bool(GetSaveFileNameW(&ofn))
+    case:
+        ok = false
+    }
 
-	if !ok {
-		return
-	}
+    if !ok {
+        return
+    }
 
 
-	file_name, _ := utf16_to_utf8(file_buf[:], allocator)
-	path = strings.trim_right_null(file_name)
-	return
+    file_name, _ := utf16_to_utf8(file_buf[:], allocator)
+    path = strings.trim_right_null(file_name)
+    return
 }
 
 select_file_to_open :: proc(title := OPEN_TITLE, dir := ".",
                             filters := []string{"All Files", "*.*"}, default_filter := u32(1),
                             flags := OPEN_FLAGS, allocator := runtime.temp_allocator) -> (path: string, ok: bool) {
 
-	path, ok = _open_file_dialog(title, dir, filters, default_filter, flags, "", Open_Save_Mode.Open, allocator)
-	return
+    path, ok = _open_file_dialog(title, dir, filters, default_filter, flags, "", Open_Save_Mode.Open, allocator)
+    return
 }
 
 select_file_to_save :: proc(title := SAVE_TITLE, dir := ".",
@@ -118,8 +118,8 @@ select_file_to_save :: proc(title := SAVE_TITLE, dir := ".",
                             flags := SAVE_FLAGS, default_ext := SAVE_EXT,
                             allocator := runtime.temp_allocator) -> (path: string, ok: bool) {
 
-	path, ok = _open_file_dialog(title, dir, filters, default_filter, flags, default_ext, Open_Save_Mode.Save, allocator)
-	return
+    path, ok = _open_file_dialog(title, dir, filters, default_filter, flags, default_ext, Open_Save_Mode.Save, allocator)
+    return
 }
 */
 

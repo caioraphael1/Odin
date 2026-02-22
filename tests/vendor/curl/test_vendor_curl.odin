@@ -28,7 +28,7 @@ test_curl :: proc(t: ^testing.T) {
 
 	defer curl.easy_cleanup(c)
 
-	memory, memory_err := make([dynamic]byte)
+	memory, memory_err := make_dynamic_array([dynamic]byte)
 	testing.expectf(t, memory_err == nil, "make failed: %v", memory_err)
 	defer _ = delete(memory)
 

@@ -29,7 +29,7 @@ setup_sized_buf :: proc(
 ) {
 	assert(options != nil)
 
-	options.input = make([]u8, options.bytes, allocator)
+	options.input = make_slice([]u8, options.bytes, allocator)
 	if len(options.input) > 0 {
 		crypto.rand_bytes(options.input)
 	}

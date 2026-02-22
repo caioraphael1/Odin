@@ -71,12 +71,12 @@ test_init_cap_map_dynarray :: proc(t: ^testing.T) {
 	testing.expect(t, cap(m2) == 0)
 	testing.expect(t, m2.allocator.procedure == ally.procedure)
 
-	d1 := make([dynamic]string)
+	d1 := make_dynamic_array([dynamic]string)
 	defer _ = delete(d1)
 	testing.expect(t, cap(d1) == 0)
 	testing.expect(t, d1.allocator.procedure == context.allocator.procedure)
 
-	d2 := make([dynamic]string, ally)
+	d2 := make_dynamic_array([dynamic]string, ally)
 	defer _ = delete(d2)
 	testing.expect(t, cap(d2) == 0)
 	testing.expect(t, d2.allocator.procedure == ally.procedure)

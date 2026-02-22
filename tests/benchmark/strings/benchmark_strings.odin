@@ -51,8 +51,8 @@ plain_prefix_length :: proc(a, b: string) -> (n: int) {
 }
 
 run_trial_size_prefix :: proc(p: proc(string, string) -> $R, suffix: string, size: int, idx: int, runs: int, loc := #caller_location) -> (timing: time.Duration) {
-	left  := make([]u8, size)
-	right := make([]u8, size)
+	left  := make_slice([]u8, size)
+	right := make_slice([]u8, size)
 	defer {
 		_ = delete(left)
 		_ = delete(right)
@@ -82,7 +82,7 @@ run_trial_size_prefix :: proc(p: proc(string, string) -> $R, suffix: string, siz
 	return
 }
 
-run_trial_size :: proc {
+
 	run_trial_size_prefix,
 }
 

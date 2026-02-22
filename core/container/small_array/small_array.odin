@@ -13,16 +13,16 @@ Fields:
 
 Example:
 
-	import "core:container/small_array"
+    import "core:container/small_array"
 
-	example :: proc() {
-		a: small_array.Small_Array(100, int)
-		small_array.push_back(&a, 10)
-	}
+    example :: proc() {
+        a: small_array.Small_Array(100, int)
+        small_array.push_back(&a, 10)
+    }
 */
 Small_Array :: struct($N: int, $T: typeid) where N >= 0 {
-	data: [N]T,
-	len:  int,
+    data: [N]T,
+    len:  int,
 }
 
 /*
@@ -35,7 +35,7 @@ Returns the amount of items in the small-array.
 - the amount of items in the array
 */
 len :: proc(a: $A/Small_Array) -> int {
-	return a.len
+    return a.len
 }
 
 /*
@@ -47,7 +47,7 @@ Returns the capacity of the small-array.
 **Returns** the capacity
 */
 cap :: proc(a: $A/Small_Array) -> int {
-	return builtin.len(a.data)
+    return builtin.len(a.data)
 }
 
 /*
@@ -60,7 +60,7 @@ Returns how many more items the small-array could fit.
 - the number of unused slots
 */
 space :: proc(a: $A/Small_Array) -> int {
-	return builtin.len(a.data) - a.len
+    return builtin.len(a.data) - a.len
 }
 
 /*
@@ -74,29 +74,29 @@ Returns a slice of the data.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	slice_example :: proc() {
-		print :: proc(a: ^small_array.Small_Array($N, int)) {
-			for item in small_array.slice(a) {
-				fmt.println(item)
-			}
-		}
+    slice_example :: proc() {
+        print :: proc(a: ^small_array.Small_Array($N, int)) {
+            for item in small_array.slice(a) {
+                fmt.println(item)
+            }
+        }
 
-		a: small_array.Small_Array(5, int)
-		small_array.push_back(&a, 1)
-		small_array.push_back(&a, 2)
-		print(&a)
-	}
+        a: small_array.Small_Array(5, int)
+        small_array.push_back(&a, 1)
+        small_array.push_back(&a, 2)
+        print(&a)
+    }
 
 Output:
 
-	1
-	2
+    1
+    2
 */
 slice :: proc(a: ^$A/Small_Array($N, $T)) -> []T {
-	return a.data[:a.len]
+    return a.data[:a.len]
 }
 
 /*
@@ -104,14 +104,14 @@ Get a copy of the item at the specified position.
 This operation assumes that the small-array is large enough.
 
 This will result in:
-	- the value if 0 <= index < len
-	- raise a bounds check error if capacity <= index
-	- the previous value if len < index < capacity, which defauls to T's zero value.
+    - the value if 0 <= index < len
+    - raise a bounds check error if capacity <= index
+    - the previous value if len < index < capacity, which defauls to T's zero value.
 
-	e.g. if you call `small_array.push(&a, 0, 1, 2)`, and `i := pop_back(&a)`,
-	then `get(a, 2)` will return the earlier value `2` at that location.
+    e.g. if you call `small_array.push(&a, 0, 1, 2)`, and `i := pop_back(&a)`,
+    then `get(a, 2)` will return the earlier value `2` at that location.
 
-	See also `get_safe`, which returns T's zero value and `false` if `index` is out of bounds.
+    See also `get_safe`, which returns T's zero value and `false` if `index` is out of bounds.
 
 **Inputs**
 - `a`: The small-array
@@ -121,7 +121,7 @@ This will result in:
 - the element at the specified position
 */
 get :: proc(a: $A/Small_Array($N, $T), index: int) -> T {
-	return a.data[index]
+    return a.data[index]
 }
 
 /*
@@ -129,14 +129,14 @@ Get a pointer to the item at the specified position.
 This operation assumes that the small-array is large enough.
 
 This will result in:
-	- the pointer if 0 <= index < len
-	- raise a bounds check error if capacity <= index
-	- a pointer to the previous value if len < index < capacity, which defauls to T's zero value.
+    - the pointer if 0 <= index < len
+    - raise a bounds check error if capacity <= index
+    - a pointer to the previous value if len < index < capacity, which defauls to T's zero value.
 
-	e.g. if you call `small_array.push(&a, 0, 1, 2)`, and `i := pop_back(&a)`,
-	then `get_ptr(a, 2)` will return a pointer to the slot containing the earlier value `2` at that location.
+    e.g. if you call `small_array.push(&a, 0, 1, 2)`, and `i := pop_back(&a)`,
+    then `get_ptr(a, 2)` will return a pointer to the slot containing the earlier value `2` at that location.
 
-	See also `get_ptr_safe`, which returns a nil pointer, and `false` if `index` is out of bounds.
+    See also `get_ptr_safe`, which returns a nil pointer, and `false` if `index` is out of bounds.
 
 **Inputs**
 - `a`: A pointer to the small-array
@@ -146,7 +146,7 @@ This will result in:
 - the pointer to the element at the specified position
 */
 get_ptr :: proc(a: ^$A/Small_Array($N, $T), index: int) -> ^T {
-	return &a.data[index]
+    return &a.data[index]
 }
 
 /*
@@ -162,28 +162,28 @@ Attempt to get a copy of the item at the specified position.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	get_safe_example :: proc() {
-		a: small_array.Small_Array(5, rune)
-		small_array.push_back(&a, 'A')
-		
-		fmt.println(small_array.get_safe(a, 0) or_else 'x')
-		fmt.println(small_array.get_safe(a, 1) or_else 'x')
-	}
+    get_safe_example :: proc() {
+        a: small_array.Small_Array(5, rune)
+        small_array.push_back(&a, 'A')
+        
+        fmt.println(small_array.get_safe(a, 0) or_else 'x')
+        fmt.println(small_array.get_safe(a, 1) or_else 'x')
+    }
 
 Output:
 
-	A
-	x
+    A
+    x
 
 */
 get_safe :: proc(a: $A/Small_Array($N, $T), index: int) -> (T, bool) #no_bounds_check {
-	if index < 0 || index >= a.len {
-		return {}, false
-	}
-	return a.data[index], true
+    if index < 0 || index >= a.len {
+        return {}, false
+    }
+    return a.data[index], true
 }
 
 /*
@@ -198,10 +198,10 @@ Get a pointer to the item at the specified position.
 - true if element exists, false otherwise
 */
 get_ptr_safe :: proc(a: ^$A/Small_Array($N, $T), index: int) -> (^T, bool) #no_bounds_check {
-	if index < 0 || index >= a.len {
-		return {}, false
-	}
-	return &a.data[index], true
+    if index < 0 || index >= a.len {
+        return {}, false
+    }
+    return &a.data[index], true
 }
 
 /*
@@ -209,8 +209,8 @@ Set the element at the specified position to the given value.
 This operation assumes that the small-array is large enough.
 
 This will result in:
-	- the value being set if 0 <= index < capacity
-	- 'crash' otherwise
+    - the value being set if 0 <= index < capacity
+    - 'crash' otherwise
 
 **Inputs**
 - `a`: A pointer to the small-array
@@ -219,42 +219,42 @@ This will result in:
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	set_example :: proc() {
-		a: small_array.Small_Array(5, rune)
-		small_array.push_back(&a, 'A')
-		small_array.push_back(&a, 'B')
-		fmt.println(small_array.slice(&a))
+    set_example :: proc() {
+        a: small_array.Small_Array(5, rune)
+        small_array.push_back(&a, 'A')
+        small_array.push_back(&a, 'B')
+        fmt.println(small_array.slice(&a))
 
-		// updates index 0
-		small_array.set(&a, 0, 'Z')
-		fmt.println(small_array.slice(&a))
+        // updates index 0
+        small_array.set(&a, 0, 'Z')
+        fmt.println(small_array.slice(&a))
 
-		// updates to a position x, where
-		// len <= x < cap are not visible since
-		// the length of the small-array remains unchanged
-		small_array.set(&a, 2, 'X')
-		small_array.set(&a, 3, 'Y')
-		small_array.set(&a, 4, 'Z')
-		fmt.println(small_array.slice(&a))
+        // updates to a position x, where
+        // len <= x < cap are not visible since
+        // the length of the small-array remains unchanged
+        small_array.set(&a, 2, 'X')
+        small_array.set(&a, 3, 'Y')
+        small_array.set(&a, 4, 'Z')
+        fmt.println(small_array.slice(&a))
 
-		// resizing makes the change visible
-		small_array.non_zero_resize(&a, 100)
-		fmt.println(small_array.slice(&a))
-	}
+        // resizing makes the change visible
+        small_array.non_zero_resize(&a, 100)
+        fmt.println(small_array.slice(&a))
+    }
 
 Output:
 
-	[A, B]
-	[Z, B]
-	[Z, B]
-	[Z, B, X, Y, Z]
+    [A, B]
+    [Z, B]
+    [Z, B]
+    [Z, B, X, Y, Z]
 
 */
 set :: proc(a: ^$A/Small_Array($N, $T), index: int, item: T) {
-	a.data[index] = item
+    a.data[index] = item
 }
 
 /*
@@ -263,8 +263,8 @@ Tries to resize the small-array to the specified length.
 The memory of added elements will be zeroed out.
 
 The new length will be:
-	- `length` if `length` <= capacity
-	- capacity if length > capacity
+    - `length` if `length` <= capacity
+    - capacity if length > capacity
 
 **Inputs**
 - `a`: A pointer to the small-array
@@ -272,43 +272,43 @@ The new length will be:
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	resize_example :: proc() {
-		a: small_array.Small_Array(5, int)
+    resize_example :: proc() {
+        a: small_array.Small_Array(5, int)
 
-		small_array.push_back(&a, 1)
-		small_array.push_back(&a, 2)
-		fmt.println(small_array.slice(&a))
+        small_array.push_back(&a, 1)
+        small_array.push_back(&a, 2)
+        fmt.println(small_array.slice(&a))
 
-		small_array.resize(&a, 1)
-		fmt.println(small_array.slice(&a))
+        small_array.resize(&a, 1)
+        fmt.println(small_array.slice(&a))
 
-		small_array.resize(&a, 100)
-		fmt.println(small_array.slice(&a))
-	}
+        small_array.resize(&a, 100)
+        fmt.println(small_array.slice(&a))
+    }
 
 Output:
 
-	[1, 2]
-	[1]
-	[1, 0, 0, 0, 0]
+    [1, 2]
+    [1]
+    [1, 0, 0, 0, 0]
 */
 resize :: proc(a: ^$A/Small_Array($N, $T), length: int) {
-	prev_len := a.len
-	a.len = min(length, builtin.len(a.data))
-	if prev_len < a.len {
-		intrinsics.mem_zero(&a.data[prev_len], size_of(T)*(a.len-prev_len))
-	}
+    prev_len := a.len
+    a.len = min(length, builtin.len(a.data))
+    if prev_len < a.len {
+        intrinsics.mem_zero(&a.data[prev_len], size_of(T)*(a.len-prev_len))
+    }
 }
 
 /*
 Tries to resize the small-array to the specified length.
 
 The new length will be:
-	- `length` if `length` <= capacity
-	- capacity if length > capacity
+    - `length` if `length` <= capacity
+    - capacity if length > capacity
 
 **Inputs**
 - `a`: A pointer to the small-array
@@ -316,31 +316,31 @@ The new length will be:
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	non_zero_resize_example :: proc() {
-		a: small_array.Small_Array(5, int)
+    non_zero_resize_example :: proc() {
+        a: small_array.Small_Array(5, int)
 
-		small_array.push_back(&a, 1)
-		small_array.push_back(&a, 2)
-		fmt.println(small_array.slice(&a))
+        small_array.push_back(&a, 1)
+        small_array.push_back(&a, 2)
+        fmt.println(small_array.slice(&a))
 
-		small_array.non_zero_resize(&a, 1)
-		fmt.println(small_array.slice(&a))
+        small_array.non_zero_resize(&a, 1)
+        fmt.println(small_array.slice(&a))
 
-		small_array.non_zero_resize(&a, 100)
-		fmt.println(small_array.slice(&a))
-	}
+        small_array.non_zero_resize(&a, 100)
+        fmt.println(small_array.slice(&a))
+    }
 
 Output:
 
-	[1, 2]
-	[1]
-	[1, 2, 0, 0, 0]
+    [1, 2]
+    [1]
+    [1, 2, 0, 0, 0]
 */
 non_zero_resize :: proc(a: ^$A/Small_Array, length: int) {
-	a.len = min(length, builtin.len(a.data))
+    a.len = min(length, builtin.len(a.data))
 }
 
 /*
@@ -354,31 +354,31 @@ Attempts to add the given element to the end.
 - true if there was enough space to fit the element, false otherwise
 
 Example:
-	
-	import "core:container/small_array"
-	import "core:fmt"
+    
+    import "core:container/small_array"
+    import "core:fmt"
 
-	push_back_example :: proc() {
-		a: small_array.Small_Array(2, int)
+    push_back_example :: proc() {
+        a: small_array.Small_Array(2, int)
 
-		assert(small_array.push_back(&a, 1), "this should fit")
-		assert(small_array.push_back(&a, 2), "this should fit")
-		assert(!small_array.push_back(&a, 3), "this should not fit")
+        assert(small_array.push_back(&a, 1), "this should fit")
+        assert(small_array.push_back(&a, 2), "this should fit")
+        assert(!small_array.push_back(&a, 3), "this should not fit")
 
-		fmt.println(small_array.slice(&a))
-	}
+        fmt.println(small_array.slice(&a))
+    }
 
 Output:
 
-	[1, 2]
+    [1, 2]
 */
 push_back :: proc(a: ^$A/Small_Array($N, $T), item: T) -> bool {
-	if a.len < cap(a^) {
-		a.data[a.len] = item
-		a.len += 1
-		return true
-	}
-	return false
+    if a.len < cap(a^) {
+        a.data[a.len] = item
+        a.len += 1
+        return true
+    }
+    return false
 }
 
 /*
@@ -396,33 +396,33 @@ through get_ptr(_save) to reference incorrect elements.
 - true if there was enough space to fit the element, false otherwise
 
 Example:
-	
-	import "core:container/small_array"
-	import "core:fmt"
+    
+    import "core:container/small_array"
+    import "core:fmt"
 
-	push_front_example :: proc() {
-		a: small_array.Small_Array(2, int)
+    push_front_example :: proc() {
+        a: small_array.Small_Array(2, int)
 
-		assert(small_array.push_front(&a, 2), "this should fit")
-		assert(small_array.push_front(&a, 1), "this should fit")
-		assert(!small_array.push_back(&a, 0), "this should not fit")
+        assert(small_array.push_front(&a, 2), "this should fit")
+        assert(small_array.push_front(&a, 1), "this should fit")
+        assert(!small_array.push_back(&a, 0), "this should not fit")
 
-		fmt.println(small_array.slice(&a))
-	}
+        fmt.println(small_array.slice(&a))
+    }
 
 Output:
 
-	[1, 2]
+    [1, 2]
 */
 push_front :: proc(a: ^$A/Small_Array($N, $T), item: T) -> bool {
-	if a.len < cap(a^) {
-		a.len += 1
-		data := slice(a)
-		copy(data[1:], data[:])
-		data[0] = item
-		return true
-	}
-	return false
+    if a.len < cap(a^) {
+        a.len += 1
+        data := slice(a)
+        copy(data[1:], data[:])
+        data[0] = item
+        return true
+    }
+    return false
 }
 
 /*
@@ -437,28 +437,28 @@ This operation assumes that the small-array is not empty.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	pop_back_example :: proc() {
-		a: small_array.Small_Array(5, int)
-		small_array.push(&a, 0, 1, 2)
+    pop_back_example :: proc() {
+        a: small_array.Small_Array(5, int)
+        small_array.push(&a, 0, 1, 2)
 
-		fmt.println("BEFORE:", small_array.slice(&a))
-		small_array.pop_back(&a)
-		fmt.println("AFTER: ", small_array.slice(&a))
-	}
+        fmt.println("BEFORE:", small_array.slice(&a))
+        small_array.pop_back(&a)
+        fmt.println("AFTER: ", small_array.slice(&a))
+    }
 
 Output:
 
-	BEFORE: [0, 1, 2]
-	AFTER:  [0, 1]
+    BEFORE: [0, 1, 2]
+    AFTER:  [0, 1]
 */
 pop_back :: proc "odin" (a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
-	assert(condition=(N > 0 && a.len > 0), loc=loc)
-	item := a.data[a.len-1]
-	a.len -= 1
-	return item
+    assert(condition=(N > 0 && a.len > 0), loc=loc)
+    item := a.data[a.len-1]
+    a.len -= 1
+    return item
 }
 
 /*
@@ -476,30 +476,30 @@ through get_ptr(_save) to reference incorrect elements.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	pop_front_example :: proc() {
-		a: small_array.Small_Array(5, int)
-		small_array.push(&a, 0, 1, 2)
+    pop_front_example :: proc() {
+        a: small_array.Small_Array(5, int)
+        small_array.push(&a, 0, 1, 2)
 
-		fmt.println("BEFORE:", small_array.slice(&a))
-		small_array.pop_front(&a)
-		fmt.println("AFTER: ", small_array.slice(&a))
-	}
+        fmt.println("BEFORE:", small_array.slice(&a))
+        small_array.pop_front(&a)
+        fmt.println("AFTER: ", small_array.slice(&a))
+    }
 
 Output:
 
-	BEFORE: [0, 1, 2]
-	AFTER:  [1, 2]
+    BEFORE: [0, 1, 2]
+    AFTER:  [1, 2]
 */
 pop_front :: proc "odin" (a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
-	assert(condition=(N > 0 && a.len > 0), loc=loc)
-	item := a.data[0]
-	s := slice(a)
-	copy(s[:], s[1:])
-	a.len -= 1
-	return item
+    assert(condition=(N > 0 && a.len > 0), loc=loc)
+    item := a.data[0]
+    s := slice(a)
+    copy(s[:], s[1:])
+    a.len -= 1
+    return item
 }
 
 /*
@@ -515,26 +515,26 @@ Unlike `pop_back`, it does not assume that the array is non-empty.
 
 Example:
 
-	import "core:container/small_array"
+    import "core:container/small_array"
 
-	pop_back_safe_example :: proc() {
-		a: small_array.Small_Array(3, int)
-		small_array.push(&a, 1)
+    pop_back_safe_example :: proc() {
+        a: small_array.Small_Array(3, int)
+        small_array.push(&a, 1)
 
-		el, ok := small_array.pop_back_safe(&a)
-		assert(ok, "there was an element in the array")
+        el, ok := small_array.pop_back_safe(&a)
+        assert(ok, "there was an element in the array")
 
-		el, ok = small_array.pop_back_safe(&a)
-		assert(!ok, "there was NO element in the array")
-	}
+        el, ok = small_array.pop_back_safe(&a)
+        assert(!ok, "there was NO element in the array")
+    }
 */
 pop_back_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
-	if N > 0 && a.len > 0 {
-		item = a.data[a.len-1]
-		a.len -= 1
-		ok = true
-	}
-	return
+    if N > 0 && a.len > 0 {
+        item = a.data[a.len-1]
+        a.len -= 1
+        ok = true
+    }
+    return
 }
 
 /*
@@ -553,28 +553,28 @@ through get_ptr(_save) to reference incorrect elements.
 
 Example:
 
-	import "core:container/small_array"
+    import "core:container/small_array"
 
-	pop_front_safe_example :: proc() {
-		a: small_array.Small_Array(3, int)
-		small_array.push(&a, 1)
+    pop_front_safe_example :: proc() {
+        a: small_array.Small_Array(3, int)
+        small_array.push(&a, 1)
 
-		el, ok := small_array.pop_front_safe(&a)
-		assert(ok, "there was an element in the array")
+        el, ok := small_array.pop_front_safe(&a)
+        assert(ok, "there was an element in the array")
 
-		el, ok = small_array.pop_front_(&a)
-		assert(!ok, "there was NO element in the array")
-	}
+        el, ok = small_array.pop_front_(&a)
+        assert(!ok, "there was NO element in the array")
+    }
 */
 pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
-	if N > 0 && a.len > 0 {
-		item = a.data[0]
-		s := slice(a)
-		copy(s[:], s[1:])
-		a.len -= 1
-		ok = true
-	}
-	return
+    if N > 0 && a.len > 0 {
+        item = a.data[0]
+        s := slice(a)
+        copy(s[:], s[1:])
+        a.len -= 1
+        ok = true
+    }
+    return
 }
 
 /*
@@ -590,26 +590,26 @@ Note: This procedure assumes that the array has a sufficient length.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	consume_example :: proc() {
-		a: small_array.Small_Array(3, int)
-		small_array.push(&a, 0, 1, 2)
+    consume_example :: proc() {
+        a: small_array.Small_Array(3, int)
+        small_array.push(&a, 0, 1, 2)
 
-		fmt.println("BEFORE:", small_array.slice(&a))
-		small_array.consume(&a, 2)
-		fmt.println("AFTER :", small_array.slice(&a))
-	}
+        fmt.println("BEFORE:", small_array.slice(&a))
+        small_array.consume(&a, 2)
+        fmt.println("AFTER :", small_array.slice(&a))
+    }
 
 Output:
 
-	BEFORE: [0, 1, 2]
-	AFTER : [0]
+    BEFORE: [0, 1, 2]
+    AFTER : [0]
 */
 consume :: proc "odin" (a: ^$A/Small_Array($N, $T), count: int, loc := #caller_location) {
-	assert(condition=a.len >= count, loc=loc)
-	a.len -= count
+    assert(condition=a.len >= count, loc=loc)
+    a.len -= count
 }
 
 /*
@@ -624,29 +624,29 @@ through get_ptr(_save) to reference incorrect elements.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	ordered_remove_example :: proc() {
-		a: small_array.Small_Array(4, int)
-		small_array.push(&a, 0, 1, 2, 3)
+    ordered_remove_example :: proc() {
+        a: small_array.Small_Array(4, int)
+        small_array.push(&a, 0, 1, 2, 3)
 
-		fmt.println("BEFORE:", small_array.slice(&a))
-		small_array.ordered_remove(&a, 1)
-		fmt.println("AFTER :", small_array.slice(&a))
-	}
+        fmt.println("BEFORE:", small_array.slice(&a))
+        small_array.ordered_remove(&a, 1)
+        fmt.println("AFTER :", small_array.slice(&a))
+    }
 
 Output:
 
-	BEFORE: [0, 1, 2, 3]
-	AFTER : [0, 2, 3]
+    BEFORE: [0, 1, 2, 3]
+    AFTER : [0, 2, 3]
 */
 ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
-	runtime.bounds_check_error_loc(loc, index, a.len)
-	if index+1 < a.len {
-		copy(a.data[index:], a.data[index+1:])
-	}
-	a.len -= 1
+    runtime.bounds_check_error_loc(loc, index, a.len)
+    if index+1 < a.len {
+        copy(a.data[index:], a.data[index+1:])
+    }
+    a.len -= 1
 }
 
 /*
@@ -658,30 +658,30 @@ Removes the element at the specified index without retaining order.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	unordered_remove_example :: proc() {
-		a: small_array.Small_Array(4, int)
-		small_array.push(&a, 0, 1, 2, 3)
+    unordered_remove_example :: proc() {
+        a: small_array.Small_Array(4, int)
+        small_array.push(&a, 0, 1, 2, 3)
 
-		fmt.println("BEFORE:", small_array.slice(&a))
-		small_array.unordered_remove(&a, 1)
-		fmt.println("AFTER :", small_array.slice(&a))
-	}
+        fmt.println("BEFORE:", small_array.slice(&a))
+        small_array.unordered_remove(&a, 1)
+        fmt.println("AFTER :", small_array.slice(&a))
+    }
 
 Output:
 
-	BEFORE: [0, 1, 2, 3]
-	AFTER : [0, 3, 2]
+    BEFORE: [0, 1, 2, 3]
+    AFTER : [0, 3, 2]
 */
 unordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
-	runtime.bounds_check_error_loc(loc, index, a.len)
-	n := a.len-1
-	if index != n {
-		a.data[index] = a.data[n]
-	}
-	a.len -= 1
+    runtime.bounds_check_error_loc(loc, index, a.len)
+    n := a.len-1
+    if index != n {
+        a.data[index] = a.data[n]
+    }
+    a.len -= 1
 }
 
 /*
@@ -691,27 +691,27 @@ Sets the length of the small-array to 0.
 - `a`: A pointer to the small-array
 
 Example:
-	
-	import "core:container/small_array"
-	import "core:fmt"
+    
+    import "core:container/small_array"
+    import "core:fmt"
 
-	clear_example :: proc() {
-		a: small_array.Small_Array(4, int)
-		small_array.push(&a, 0, 1, 2, 3)
+    clear_example :: proc() {
+        a: small_array.Small_Array(4, int)
+        small_array.push(&a, 0, 1, 2, 3)
 
-		fmt.println("BEFORE:", small_array.slice(&a))
-		small_array.clear(&a)
-		fmt.println("AFTER :", small_array.slice(&a))
-	}
+        fmt.println("BEFORE:", small_array.slice(&a))
+        small_array.clear(&a)
+        fmt.println("AFTER :", small_array.slice(&a))
+    }
 
 Output:
 
-	BEFORE: [0, 1, 2, 3]
-	AFTER : []
+    BEFORE: [0, 1, 2, 3]
+    AFTER : []
 
 */
 clear :: proc(a: ^$A/Small_Array($N, $T)) {
-	_ = resize(a, 0)
+    _ = resize(a, 0)
 }
 
 /*
@@ -727,27 +727,27 @@ false if there is not enough space to fit all of them.
 - true if there was enough space to fit the element, false otherwise
 
 Example:
-	
-	import "core:container/small_array"
-	import "core:fmt"
+    
+    import "core:container/small_array"
+    import "core:fmt"
 
-	push_back_elems_example :: proc() {
-		a: small_array.Small_Array(100, int)
-		small_array.push_back_elems(&a, 0, 1, 2, 3, 4)
-		fmt.println(small_array.slice(&a))
-	}
+    push_back_elems_example :: proc() {
+        a: small_array.Small_Array(100, int)
+        small_array.push_back_many(&a, 0, 1, 2, 3, 4)
+        fmt.println(small_array.slice(&a))
+    }
 
 Output:
 
-	[0, 1, 2, 3, 4]
+    [0, 1, 2, 3, 4]
 */
-push_back_elems :: proc(a: ^$A/Small_Array($N, $T), items: ..T) -> bool {
-	if a.len + builtin.len(items) <= cap(a^) {
-		n := copy(a.data[a.len:], items[:])
-		a.len += n
-		return true
-	}
-	return false
+push_back_many :: proc(a: ^$A/Small_Array($N, $T), items: ..T) -> bool {
+    if a.len + builtin.len(items) <= cap(a^) {
+        n := copy(a.data[a.len:], items[:])
+        a.len += n
+        return true
+    }
+    return false
 }
 
 /*
@@ -766,36 +766,34 @@ through get_ptr(_save) to reference incorrect elements.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	inject_at_example :: proc() {
-		arr: small_array.Small_Array(100, rune)
-		small_array.push(&arr,  'A', 'C', 'D')
-		small_array.inject_at(&arr, 'B', 1)
-		fmt.println(small_array.slice(&arr))
-	}
+    inject_at_example :: proc() {
+        arr: small_array.Small_Array(100, rune)
+        small_array.push(&arr,  'A', 'C', 'D')
+        small_array.inject_at(&arr, 'B', 1)
+        fmt.println(small_array.slice(&arr))
+    }
 
 Output:
 
-	[A, B, C, D]
+    [A, B, C, D]
 */
 inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> bool #no_bounds_check {
-	if a.len < cap(a^) && index >= 0 && index <= len(a^) {
-		a.len += 1
-		for i := a.len - 1; i >= index + 1; i -= 1 {
-			a.data[i] = a.data[i - 1]
-		}
-		a.data[index] = item
-		return true
-	}
-	return false
+    if a.len < cap(a^) && index >= 0 && index <= len(a^) {
+        a.len += 1
+        for i := a.len - 1; i >= index + 1; i -= 1 {
+            a.data[i] = a.data[i - 1]
+        }
+        a.data[index] = item
+        return true
+    }
+    return false
 }
 
-// Alias for `push_back`
-append_elem  :: push_back
-// Alias for `push_back_elems`
-append_elems :: push_back_elems
+append      :: push_back
+append_many :: push_back_many
 
 /*
 Tries to append the element(s) to the small-array.
@@ -810,20 +808,18 @@ Tries to append the element(s) to the small-array.
 
 Example:
 
-	import "core:container/small_array"
-	import "core:fmt"
+    import "core:container/small_array"
+    import "core:fmt"
 
-	push_example :: proc() {
-		a: small_array.Small_Array(100, int)
-		small_array.push(&a, 0)
-		small_array.push(&a, 1, 2, 3, 4)
-		fmt.println(small_array.slice(&a))
-	}
+    push_example :: proc() {
+        a: small_array.Small_Array(100, int)
+        small_array.push(&a, 0)
+        small_array.push(&a, 1, 2, 3, 4)
+        fmt.println(small_array.slice(&a))
+    }
 
 Output:
 
-	[0, 1, 2, 3, 4]
+    [0, 1, 2, 3, 4]
 */
-push   :: proc{push_back, push_back_elems}
-// Alias for `push`
-append :: proc{push_back, push_back_elems}
+

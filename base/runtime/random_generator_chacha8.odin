@@ -43,122 +43,122 @@ CHACHA_SIGMA_3: u32 : 0x6b206574
 CHACHA_ROUNDS :: 8
 
 Default_Random_State :: struct {
-	_buf:    [1024]byte,
-	_off:    int,
-	_seeded: bool,
+    _buf:    [1024]byte,
+    _off:    int,
+    _seeded: bool,
 }
 
 
 default_random_generator :: proc(state: ^Default_Random_State = nil) -> Random_Generator {
-	return {
-		procedure = default_random_generator_proc,
-		data      = state,
-	}
+    return {
+        procedure = default_random_generator_proc,
+        data      = state,
+    }
 }
 
 default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []byte) {
-	@(thread_local)
-	state: Default_Random_State
+    @(thread_local)
+    state: Default_Random_State
 
-	r: ^Default_Random_State = &state
-	if data != nil {
-		r = cast(^Default_Random_State)data
-	}
-	next_seed := r._buf[RNG_OUTPUT_PER_ITER:]
+    r: ^Default_Random_State = &state
+    if data != nil {
+        r = cast(^Default_Random_State)data
+    }
+    next_seed := r._buf[RNG_OUTPUT_PER_ITER:]
 
-	switch mode {
-	case .Read:
-		if !r._seeded { // Unlikely.
-			rand_bytes(next_seed)
-			r._off = RNG_OUTPUT_PER_ITER // Force refill.
-			r._seeded = true
-		}
+    switch mode {
+    case .Read:
+        if !r._seeded { // Unlikely.
+            rand_bytes(next_seed)
+            r._off = RNG_OUTPUT_PER_ITER // Force refill.
+            r._seeded = true
+        }
 
-		assert(r._off <= RNG_OUTPUT_PER_ITER, "chacha8rand/BUG: outputed key material")
-		if r._off >= RNG_OUTPUT_PER_ITER { // Unlikely.
-			chacha8rand_refill(r)
-		}
+        assert(r._off <= RNG_OUTPUT_PER_ITER, "chacha8rand/BUG: outputed key material")
+        if r._off >= RNG_OUTPUT_PER_ITER { // Unlikely.
+            chacha8rand_refill(r)
+        }
 
-		// We are guaranteed to have at least some RNG output buffered.
-		//
-		// As an invariant each read will consume a multiple of 8-bytes
-		// of output at a time.
-		assert(r._off <= RNG_OUTPUT_PER_ITER - 8, "chacha8rand/BUG: less than 8-bytes of output available")
-		assert(r._off % 8 == 0, "chacha8rand/BUG: buffered output is not a multiple of 8-bytes")
+        // We are guaranteed to have at least some RNG output buffered.
+        //
+        // As an invariant each read will consume a multiple of 8-bytes
+        // of output at a time.
+        assert(r._off <= RNG_OUTPUT_PER_ITER - 8, "chacha8rand/BUG: less than 8-bytes of output available")
+        assert(r._off % 8 == 0, "chacha8rand/BUG: buffered output is not a multiple of 8-bytes")
 
-		p_len := len(p)
-		if p_len == size_of(u64) {
-			#no_bounds_check {
-				// Fast path for a 64-bit destination.
-				src := (^u64)(raw_data(r._buf[r._off:]))
-				intrinsics.unaligned_store((^u64)(raw_data(p)), src^)
-				src^ = 0 // Erasure (backtrack resistance)
-				r._off += 8
-			}
-			return
-		}
+        p_len := len(p)
+        if p_len == size_of(u64) {
+            #no_bounds_check {
+                // Fast path for a 64-bit destination.
+                src := (^u64)(raw_data(r._buf[r._off:]))
+                intrinsics.unaligned_store((^u64)(raw_data(p)), src^)
+                src^ = 0 // Erasure (backtrack resistance)
+                r._off += 8
+            }
+            return
+        }
 
-		p_ := p
-		for remaining := p_len; remaining > 0; {
-			sz := min(remaining, RNG_OUTPUT_PER_ITER - r._off)
-			#no_bounds_check {
-				copy(p_[:sz], r._buf[r._off:])
-				p_ = p_[sz:]
-				remaining -= sz
-			}
-			rounded_sz := ((sz + 7) / 8) * 8
-			new_off := r._off + rounded_sz
-			#no_bounds_check if new_off < RNG_OUTPUT_PER_ITER {
-				// Erasure (backtrack resistance)
-				intrinsics.mem_zero(raw_data(r._buf[r._off:]), rounded_sz)
-				r._off = new_off
-			} else {
-				// Can omit erasure since we are overwriting the entire
-				// buffer.
-				chacha8rand_refill(r)
-			}
-		}
+        p_ := p
+        for remaining := p_len; remaining > 0; {
+            sz := min(remaining, RNG_OUTPUT_PER_ITER - r._off)
+            #no_bounds_check {
+                copy_slice(p_[:sz], r._buf[r._off:])
+                p_ = p_[sz:]
+                remaining -= sz
+            }
+            rounded_sz := ((sz + 7) / 8) * 8
+            new_off := r._off + rounded_sz
+            #no_bounds_check if new_off < RNG_OUTPUT_PER_ITER {
+                // Erasure (backtrack resistance)
+                intrinsics.mem_zero(raw_data(r._buf[r._off:]), rounded_sz)
+                r._off = new_off
+            } else {
+                // Can omit erasure since we are overwriting the entire
+                // buffer.
+                chacha8rand_refill(r)
+            }
+        }
 
-	case .Reset:
-		// If no seed is passed, the next call to .Read will attempt to
-		// reseed from the system entropy source.
-		if len(p) == 0 {
-			r._seeded = false
-			return
-		}
+    case .Reset:
+        // If no seed is passed, the next call to .Read will attempt to
+        // reseed from the system entropy source.
+        if len(p) == 0 {
+            r._seeded = false
+            return
+        }
 
-		// The cryptographic security of the output depends entirely
-		// on the quality of the entropy in the seed, we will allow
-		// re-seeding (as it makes testing easier), but callers that
-		// decide to provide arbitrary seeds are on their own as far
-		// as ensuring high-quality entropy.
-		intrinsics.mem_zero(raw_data(next_seed), RNG_SEED_SIZE)
-		copy(next_seed, p)
-		r._seeded = true
-		r._off = RNG_OUTPUT_PER_ITER // Force a refill.
+        // The cryptographic security of the output depends entirely
+        // on the quality of the entropy in the seed, we will allow
+        // re-seeding (as it makes testing easier), but callers that
+        // decide to provide arbitrary seeds are on their own as far
+        // as ensuring high-quality entropy.
+        intrinsics.mem_zero(raw_data(next_seed), RNG_SEED_SIZE)
+        copy_slice(next_seed, p)
+        r._seeded = true
+        r._off = RNG_OUTPUT_PER_ITER // Force a refill.
 
-	case .Query_Info:
-		if len(p) != size_of(Random_Generator_Query_Info) {
-			return
-		}
-		info := (^Random_Generator_Query_Info)(raw_data(p))
-		info^ += {.Uniform, .Cryptographic, .Resettable}
-	}
+    case .Query_Info:
+        if len(p) != size_of(Random_Generator_Query_Info) {
+            return
+        }
+        info := (^Random_Generator_Query_Info)(raw_data(p))
+        info^ += {.Uniform, .Cryptographic, .Resettable}
+    }
 }
 
 @(private = "file")
 chacha8rand_refill :: proc(r: ^Default_Random_State) {
-	assert(r._seeded == true, "chacha8rand/BUG: unseeded refill")
+    assert(r._seeded == true, "chacha8rand/BUG: unseeded refill")
 
-	// i386 has insufficient vector registers to use the
-	// accelerated path at the moment.
-	when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
-		chacha8rand_refill_simd256(r)
-	} else when HAS_HARDWARE_SIMD && ODIN_ARCH != .i386 {
-		chacha8rand_refill_simd128(r)
-	} else {
-		chacha8rand_refill_ref(r)
-	}
+    // i386 has insufficient vector registers to use the
+    // accelerated path at the moment.
+    when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+        chacha8rand_refill_simd256(r)
+    } else when HAS_HARDWARE_SIMD && ODIN_ARCH != .i386 {
+        chacha8rand_refill_simd128(r)
+    } else {
+        chacha8rand_refill_ref(r)
+    }
 
-	r._off = 0
+    r._off = 0
 }

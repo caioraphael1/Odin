@@ -27,9 +27,9 @@ is not allowed to become negative.
 copied after first use. See documentation for `Mutex` or `Cond`.
 */
 Wait_Group :: struct {
-	counter: int,
-	mutex:   Mutex,
-	cond:    Cond,
+    counter: int,
+    mutex:   Mutex,
+    cond:    Cond,
 }
 
 /*
@@ -40,22 +40,22 @@ internal counter by a specified amount. This operation can be done on any
 thread.
 */
 wait_group_add :: proc(wg: ^Wait_Group, delta: int) {
-	if delta == 0 {
-		return
-	}
+    if delta == 0 {
+        return
+    }
 
-	guard(&wg.mutex)
+    mutex_guard(&wg.mutex)
 
-	atomic_add(&wg.counter, delta)
-	switch counter := atomic_load(&wg.counter); {
-	case counter < 0:
-		panic("sync.Wait_Group negative counter")
-	case wg.counter == 0:
-		cond_broadcast(&wg.cond)
-		if atomic_load(&wg.counter) != 0 {
-			panic("sync.Wait_Group misuse: sync.wait_group_add called concurrently with sync.wait_group_wait")
-		}
-	}
+    atomic_add(&wg.counter, delta)
+    switch counter := atomic_load(&wg.counter); {
+    case counter < 0:
+        panic("sync.Wait_Group negative counter")
+    case wg.counter == 0:
+        cond_broadcast(&wg.cond)
+        if atomic_load(&wg.counter) != 0 {
+            panic("sync.Wait_Group misuse: sync.wait_group_add called concurrently with sync.wait_group_wait")
+        }
+    }
 }
 
 /*
@@ -66,7 +66,7 @@ wakes up the waiting thread. Once the internal counter reaches zero, the waiting
 thread resumes execution.
 */
 wait_group_done :: proc(wg: ^Wait_Group) {
-	wait_group_add(wg, -1)
+    wait_group_add(wg, -1)
 }
 
 /*
@@ -76,11 +76,11 @@ This procedure blocks the execution of the current thread, until the specified
 wait group's internal counter reaches zero.
 */
 wait_group_wait :: proc(wg: ^Wait_Group) {
-	guard(&wg.mutex)
+    mutex_guard(&wg.mutex)
 
-	for atomic_load(&wg.counter) != 0 {
-		cond_wait(&wg.cond, &wg.mutex)
-	}
+    for atomic_load(&wg.counter) != 0 {
+        cond_wait(&wg.cond, &wg.mutex)
+    }
 }
 
 /*
@@ -92,17 +92,17 @@ wait group's internal counter reaches zero, or until the timeout is reached.
 This procedure returns `false`, if the timeout was reached, `true` otherwise.
 */
 wait_group_wait_with_timeout :: proc(wg: ^Wait_Group, duration: time.Duration) -> bool {
-	if duration <= 0 {
-		return false
-	}
-	guard(&wg.mutex)
+    if duration <= 0 {
+        return false
+    }
+    mutex_guard(&wg.mutex)
 
-	for atomic_load(&wg.counter) != 0 {
-		if !cond_wait_with_timeout(&wg.cond, &wg.mutex, duration) {
-			return false
-		}
-	}
-	return true
+    for atomic_load(&wg.counter) != 0 {
+        if !cond_wait_with_timeout(&wg.cond, &wg.mutex, duration) {
+            return false
+        }
+    }
+    return true
 }
 
 /*
@@ -129,27 +129,27 @@ thread procedure.
 
 **Example**:
 
-	THREAD_COUNT :: 4
-	threads: [THREAD_COUNT]^thread.Thread
-	sync.barrier_init(barrier, THREAD_COUNT)
-	for _, i in threads {
-		threads[i] = thread.create_and_start(proc(t: ^thread.Thread) {
-			// Same messages will be printed together but without any interleaving
-			fmt.println("Getting ready!")
-			sync.barrier_wait(barrier)
-			fmt.println("Off their marks they go!")
-		})
-	}
-	for t in threads {
-		thread.destroy(t)
-	}
+    THREAD_COUNT :: 4
+    threads: [THREAD_COUNT]^thread.Thread
+    sync.barrier_init(barrier, THREAD_COUNT)
+    for _, i in threads {
+        threads[i] = thread.create_and_start(proc(t: ^thread.Thread) {
+            // Same messages will be printed together but without any interleaving
+            fmt.println("Getting ready!")
+            sync.barrier_wait(barrier)
+            fmt.println("Off their marks they go!")
+        })
+    }
+    for t in threads {
+        thread.destroy(t)
+    }
 */
 Barrier :: struct {
-	mutex: Mutex,
-	cond:  Cond,
-	index:         int,
-	generation_id: int,
-	thread_count:  int,
+    mutex: Mutex,
+    cond:  Cond,
+    index:         int,
+    generation_id: int,
+    thread_count:  int,
 }
 
 /*
@@ -160,12 +160,12 @@ This procedure initializes the barrier for the specified amount of participant
 threads.
 */
 barrier_init :: proc(b: ^Barrier, thread_count: int) {
-	when ODIN_VALGRIND_SUPPORT {
-		vg.helgrind_barrier_resize_pre(b, uint(thread_count))
-	}
-	b.index = 0
-	b.generation_id = 0
-	b.thread_count = thread_count
+    when ODIN_VALGRIND_SUPPORT {
+        vg.helgrind_barrier_resize_pre(b, uint(thread_count))
+    }
+    b.index = 0
+    b.generation_id = 0
+    b.thread_count = thread_count
 }
 
 /*
@@ -176,23 +176,23 @@ have reached the same point in the execution of the thread proc. Multiple calls
 to `barrier_wait` are allowed within the thread procedure.
 */
 barrier_wait :: proc(b: ^Barrier) -> (is_leader: bool) {
-	when ODIN_VALGRIND_SUPPORT {
-		vg.helgrind_barrier_wait_pre(b)
-	}
-	guard(&b.mutex)
-	local_gen := b.generation_id
-	b.index += 1
-	if b.index < b.thread_count {
-		for local_gen == b.generation_id && b.index < b.thread_count {
-			cond_wait(&b.cond, &b.mutex)
-		}
-		return false
-	}
+    when ODIN_VALGRIND_SUPPORT {
+        vg.helgrind_barrier_wait_pre(b)
+    }
+    guard(&b.mutex)
+    local_gen := b.generation_id
+    b.index += 1
+    if b.index < b.thread_count {
+        for local_gen == b.generation_id && b.index < b.thread_count {
+            cond_wait(&b.cond, &b.mutex)
+        }
+        return false
+    }
 
-	b.index = 0
-	b.generation_id += 1
-	cond_broadcast(&b.cond)
-	return true
+    b.index = 0
+    b.generation_id += 1
+    cond_broadcast(&b.cond)
+    return true
 }
 
 /*
@@ -207,11 +207,11 @@ until the event is signalled by another thread. The call to
 `auto_reset_event_signal` wakes up exactly one thread waiting for the event.
 */
 Auto_Reset_Event :: struct {
-	// status ==  0: Event is reset and no threads are waiting
-	// status ==  1: Event is signalled
-	// status == -N: Event is reset and N threads are waiting
-	status: i32,
-	sema:   Sema,
+    // status ==  0: Event is reset and no threads are waiting
+    // status ==  1: Event is signalled
+    // status == -N: Event is reset and N threads are waiting
+    status: i32,
+    sema:   Sema,
 }
 
 /*
@@ -221,17 +221,17 @@ This procedure signals an auto-reset event, waking up exactly one waiting
 thread.
 */
 auto_reset_event_signal :: proc(e: ^Auto_Reset_Event) {
-	old_status := atomic_load_explicit(&e.status, .Relaxed)
-	new_status := old_status + 1 if old_status < 1 else 1
-	for {
-		if _, ok := atomic_compare_exchange_weak_explicit(&e.status, old_status, new_status, .Release, .Relaxed); ok {
-			break
-		}
-		cpu_relax()
-	}
-	if old_status < 0 {
-		sema_post(&e.sema)
-	}
+    old_status := atomic_load_explicit(&e.status, .Relaxed)
+    new_status := old_status + 1 if old_status < 1 else 1
+    for {
+        if _, ok := atomic_compare_exchange_weak_explicit(&e.status, old_status, new_status, .Release, .Relaxed); ok {
+            break
+        }
+        cpu_relax()
+    }
+    if old_status < 0 {
+        sema_post(&e.sema)
+    }
 }
 
 /*
@@ -241,10 +241,10 @@ This procedure blocks the execution of the current thread, until the event is
 signalled by another thread.
 */
 auto_reset_event_wait :: proc(e: ^Auto_Reset_Event) {
-	old_status := atomic_sub_explicit(&e.status, 1, .Acquire)
-	if old_status < 1 {
-		sema_wait(&e.sema)
-	}
+    old_status := atomic_sub_explicit(&e.status, 1, .Acquire)
+    if old_status < 1 {
+        sema_wait(&e.sema)
+    }
 }
 
 /*
@@ -261,8 +261,8 @@ This type of synchronization primitive is applicable for short critical sections
 in low-contention systems, as it uses a spinlock under the hood.
 */
 Ticket_Mutex :: struct {
-	ticket:  uint,
-	serving: uint,
+    ticket:  uint,
+    serving: uint,
 }
 
 /*
@@ -277,10 +277,10 @@ blocked from entering any critical sections associated with the same ticket
 mutex, until the lock is released.
 */
 ticket_mutex_lock :: #force_inline proc(m: ^Ticket_Mutex) {
-	ticket := atomic_add_explicit(&m.ticket, 1, .Relaxed)
-	for ticket != atomic_load_explicit(&m.serving, .Acquire) {
-		cpu_relax()
-	}
+    ticket := atomic_add_explicit(&m.ticket, 1, .Relaxed)
+    for ticket != atomic_load_explicit(&m.serving, .Acquire) {
+        cpu_relax()
+    }
 }
 
 /*
@@ -291,7 +291,7 @@ waiting to acquire the lock, exactly one of those threads is unblocked and
 allowed into the critical section.
 */
 ticket_mutex_unlock :: #force_inline proc(m: ^Ticket_Mutex) {
-	atomic_add_explicit(&m.serving, 1, .Release)
+    atomic_add_explicit(&m.serving, 1, .Release)
 }
 
 /*
@@ -310,14 +310,14 @@ section by putting the function inside the `if` statement.
 
 **Example**:
 
-	if ticket_mutex_guard(&m) {
-		...
-	}
+    if ticket_mutex_guard(&m) {
+        ...
+    }
 */
 @(deferred_in=ticket_mutex_unlock, optional_results)
 ticket_mutex_guard :: proc(m: ^Ticket_Mutex) -> bool {
-	ticket_mutex_lock(m)
-	return true
+    ticket_mutex_lock(m)
+    return true
 }
 
 /*
@@ -333,8 +333,8 @@ into any critical sections, associted with the same benaphore, until the lock
 is released.
 */
 Benaphore :: struct {
-	counter: i32,
-	sema:    Sema,
+    counter: i32,
+    sema:    Sema,
 }
 
 /*
@@ -349,9 +349,9 @@ from entering any critical sections associated with the same benaphore, until
 until the lock is released.
 */
 benaphore_lock :: proc(b: ^Benaphore) {
-	if atomic_add_explicit(&b.counter, 1, .Acquire) > 0 {
-		sema_wait(&b.sema)
-	}
+    if atomic_add_explicit(&b.counter, 1, .Acquire) > 0 {
+        sema_wait(&b.sema)
+    }
 }
 
 /*
@@ -366,8 +366,8 @@ blocked from entering any critical sections associated with the same benaphore,
 until the lock is released.
 */
 benaphore_try_lock :: proc(b: ^Benaphore) -> bool {
-	v, _ := atomic_compare_exchange_strong_explicit(&b.counter, 0, 1, .Acquire, .Acquire)
-	return v == 0
+    v, _ := atomic_compare_exchange_strong_explicit(&b.counter, 0, 1, .Acquire, .Acquire)
+    return v == 0
 }
 
 /*
@@ -378,9 +378,9 @@ are waiting on the lock, exactly one thread is allowed into a critical section
 associated with the same benaphore.
 */
 benaphore_unlock :: proc(b: ^Benaphore) {
-	if atomic_sub_explicit(&b.counter, 1, .Release) > 1 {
-		sema_post(&b.sema)
-	}
+    if atomic_sub_explicit(&b.counter, 1, .Release) > 1 {
+        sema_post(&b.sema)
+    }
 }
 
 /*
@@ -399,14 +399,14 @@ section by putting the function inside the `if` statement.
 
 **Example**:
 
-	if benaphore_guard(&m) {
-		...
-	}
+    if benaphore_guard(&m) {
+        ...
+    }
 */
 @(deferred_in=benaphore_unlock, optional_results)
 benaphore_guard :: proc(m: ^Benaphore) -> bool {
-	benaphore_lock(m)
-	return true
+    benaphore_lock(m)
+    return true
 }
 
 /*
@@ -425,10 +425,10 @@ lock on a benaphore, the benaphore will stay locked until the thread releases
 the lock as many times as it has been locked by the thread.
 */
 Recursive_Benaphore :: struct {
-	counter:   int,
-	owner:     int,
-	recursion: i32,
-	sema:      Sema,
+    counter:   int,
+    owner:     int,
+    recursion: i32,
+    sema:      Sema,
 }
 
 /*
@@ -442,17 +442,17 @@ be blocked from entering any critical sections associated with the same
 recursive benaphore, until the lock is released.
 */
 recursive_benaphore_lock :: proc(b: ^Recursive_Benaphore) {
-	tid := current_thread_id()
-	check_owner: if tid != atomic_load_explicit(&b.owner, .Acquire) {
-		atomic_add_explicit(&b.counter, 1, .Relaxed)
-		if _, ok := atomic_compare_exchange_strong_explicit(&b.owner, 0, tid, .Release, .Relaxed); ok {
-			break check_owner
-		}
-		sema_wait(&b.sema)
-		atomic_store_explicit(&b.owner, tid, .Release)
-	}
-	// inside the lock
-	b.recursion += 1
+    tid := current_thread_id()
+    check_owner: if tid != atomic_load_explicit(&b.owner, .Acquire) {
+        atomic_add_explicit(&b.counter, 1, .Relaxed)
+        if _, ok := atomic_compare_exchange_strong_explicit(&b.owner, 0, tid, .Release, .Relaxed); ok {
+            break check_owner
+        }
+        sema_wait(&b.sema)
+        atomic_store_explicit(&b.owner, tid, .Release)
+    }
+    // inside the lock
+    b.recursion += 1
 }
 
 /*
@@ -467,17 +467,17 @@ be blocked from entering any critical sections assciated with the same recursive
 benaphore, until the lock is released.
 */
 recursive_benaphore_try_lock :: proc(b: ^Recursive_Benaphore) -> bool {
-	tid := current_thread_id()
-	check_owner: if tid != atomic_load_explicit(&b.owner, .Acquire) {
-		if _, ok := atomic_compare_exchange_strong_explicit(&b.owner, 0, tid, .Release, .Relaxed); ok {
-			atomic_add_explicit(&b.counter, 1, .Relaxed)
-			break check_owner
-		}
-		return false
-	}
-	// inside the lock
-	b.recursion += 1
-	return true
+    tid := current_thread_id()
+    check_owner: if tid != atomic_load_explicit(&b.owner, .Acquire) {
+        if _, ok := atomic_compare_exchange_strong_explicit(&b.owner, 0, tid, .Release, .Relaxed); ok {
+            atomic_add_explicit(&b.counter, 1, .Relaxed)
+            break check_owner
+        }
+        return false
+    }
+    // inside the lock
+    b.recursion += 1
+    return true
 }
 
 /*
@@ -488,19 +488,19 @@ causes the critical sections associated with the same benaphore, to become open
 for other threads for entering.
 */
 recursive_benaphore_unlock :: proc(b: ^Recursive_Benaphore) {
-	tid := current_thread_id()
-	assert(tid == atomic_load_explicit(&b.owner, .Relaxed), "tid != b.owner")
-	b.recursion -= 1
-	recursion := b.recursion
+    tid := current_thread_id()
+    assert(tid == atomic_load_explicit(&b.owner, .Relaxed), "tid != b.owner")
+    b.recursion -= 1
+    recursion := b.recursion
 
-	if recursion == 0 {
-		if atomic_sub_explicit(&b.counter, 1, .Relaxed) == 1 {
-			atomic_store_explicit(&b.owner, 0, .Release)
-		} else {
-			sema_post(&b.sema)
-		}
-	}
-	// outside the lock
+    if recursion == 0 {
+        if atomic_sub_explicit(&b.counter, 1, .Relaxed) == 1 {
+            atomic_store_explicit(&b.owner, 0, .Release)
+        } else {
+            sema_post(&b.sema)
+        }
+    }
+    // outside the lock
 }
 
 /*
@@ -520,14 +520,14 @@ section by calling this procedure inside an `if` statement.
 
 **Example**:
 
-	if recursive_benaphore_guard(&m) {
-		...
-	}
+    if recursive_benaphore_guard(&m) {
+        ...
+    }
 */
 @(deferred_in=recursive_benaphore_unlock, optional_results)
 recursive_benaphore_guard :: proc(m: ^Recursive_Benaphore) -> bool {
-	recursive_benaphore_lock(m)
-	return true
+    recursive_benaphore_lock(m)
+    return true
 }
 
 /*
@@ -537,37 +537,26 @@ Once action.
 critical section from a single thread.
 */
 Once :: struct {
-	m:    Mutex,
-	done: bool,
-}
-
-/*
-Call a function once.
-
-The `once_do` procedure group calls a specified function, if it wasn't already
-called from the perspective of a specific `Once` struct.
-*/
-once_do :: proc{
-	once_do_without_data,
-	once_do_with_data,
+    m:    Mutex,
+    done: bool,
 }
 
 /*
 Call a function with no data once.
 */
 once_do_without_data :: proc(o: ^Once, fn: proc()) {
-	@(cold)
-	do_slow :: proc(o: ^Once, fn: proc()) {
-		guard(&o.m)
-		if !o.done {
-			fn()
-			atomic_store_explicit(&o.done, true, .Release)
-		}
-	}
+    @(cold)
+    do_slow :: proc(o: ^Once, fn: proc()) {
+        guard(&o.m)
+        if !o.done {
+            fn()
+            atomic_store_explicit(&o.done, true, .Release)
+        }
+    }
 
-	if atomic_load_explicit(&o.done, .Acquire) == false {
-		do_slow(o, fn)
-	}
+    if atomic_load_explicit(&o.done, .Acquire) == false {
+        do_slow(o, fn)
+    }
 }
 
 
@@ -575,18 +564,18 @@ once_do_without_data :: proc(o: ^Once, fn: proc()) {
 Call a function with data once.
 */
 once_do_with_data :: proc(o: ^Once, fn: proc(data: rawptr), data: rawptr) {
-	@(cold)
-	do_slow :: proc(o: ^Once, fn: proc(data: rawptr), data: rawptr) {
-		guard(&o.m)
-		if !o.done {
-			fn(data)
-			atomic_store_explicit(&o.done, true, .Release)
-		}
-	}
+    @(cold)
+    do_slow :: proc(o: ^Once, fn: proc(data: rawptr), data: rawptr) {
+        guard(&o.m)
+        if !o.done {
+            fn(data)
+            atomic_store_explicit(&o.done, true, .Release)
+        }
+    }
 
-	if atomic_load_explicit(&o.done, .Acquire) == false {
-		do_slow(o, fn, data)
-	}
+    if atomic_load_explicit(&o.done, .Acquire) == false {
+        do_slow(o, fn, data)
+    }
 }
 
 /*
@@ -600,7 +589,7 @@ A Parker is an associated token which is initially not present:
   was not already.
 */
 Parker :: struct {
-	state: Futex,
+    state: Futex,
 }
 
 @(private="file") PARKER_EMPTY    :: 0
@@ -617,15 +606,15 @@ made available.
 the Parker.
 */
 park :: proc(p: ^Parker) {
-	if atomic_sub_explicit(&p.state, 1, .Acquire) == PARKER_NOTIFIED {
-		return
-	}
-	for {
-		futex_wait(&p.state, PARKER_PARKED)
-		if _, ok := atomic_compare_exchange_strong_explicit(&p.state, PARKER_NOTIFIED, PARKER_EMPTY, .Acquire, .Acquire); ok {
-			return
-		}
-	}
+    if atomic_sub_explicit(&p.state, 1, .Acquire) == PARKER_NOTIFIED {
+        return
+    }
+    for {
+        futex_wait(&p.state, PARKER_PARKED)
+        if _, ok := atomic_compare_exchange_strong_explicit(&p.state, PARKER_NOTIFIED, PARKER_EMPTY, .Acquire, .Acquire); ok {
+            return
+        }
+    }
 }
 
 /*
@@ -638,32 +627,32 @@ available, or until the timeout has expired, whatever happens first.
 the Parker.
 */
 park_with_timeout :: proc(p: ^Parker, duration: time.Duration) {
-	start_tick := time.tick_now()
-	remaining_duration := duration
-	if atomic_sub_explicit(&p.state, 1, .Acquire) == PARKER_NOTIFIED {
-		return
-	}
-	for {
-		if !futex_wait_with_timeout(&p.state, PARKER_PARKED, remaining_duration) {
-			return
-		}
-		old, ok := atomic_compare_exchange_weak_explicit((^u32)(&p.state), PARKER_PARKED, PARKER_EMPTY, .Acquire, .Relaxed)
-		if ok || old == PARKER_PARKED {
-			return
-		}
-		end_tick := time.tick_now()
-		remaining_duration -= time.tick_diff(start_tick, end_tick)
-		start_tick = end_tick
-	}
+    start_tick := time.tick_now()
+    remaining_duration := duration
+    if atomic_sub_explicit(&p.state, 1, .Acquire) == PARKER_NOTIFIED {
+        return
+    }
+    for {
+        if !futex_wait_with_timeout(&p.state, PARKER_PARKED, remaining_duration) {
+            return
+        }
+        old, ok := atomic_compare_exchange_weak_explicit((^u32)(&p.state), PARKER_PARKED, PARKER_EMPTY, .Acquire, .Relaxed)
+        if ok || old == PARKER_PARKED {
+            return
+        }
+        end_tick := time.tick_now()
+        remaining_duration -= time.tick_diff(start_tick, end_tick)
+        start_tick = end_tick
+    }
 }
 
 /*
 Make the token available.
 */
 unpark :: proc(p: ^Parker)  {
-	if atomic_exchange_explicit((^u32)(&p.state), PARKER_NOTIFIED, .Release) == PARKER_PARKED {
-		futex_signal(&p.state)
-	}
+    if atomic_exchange_explicit((^u32)(&p.state), PARKER_NOTIFIED, .Release) == PARKER_PARKED {
+        futex_signal(&p.state)
+    }
 }
 
 /*
@@ -677,7 +666,7 @@ A one-shot event is an associated token which is initially not present:
   available if its was not already.
 */
 One_Shot_Event :: struct {
-	state: Futex,
+    state: Futex,
 }
 
 /*
@@ -687,15 +676,15 @@ This procedure blocks the execution of the current thread, until the event is
 made available.
 */
 one_shot_event_wait :: proc(e: ^One_Shot_Event) {
-	for atomic_load_explicit(&e.state, .Acquire) == 0 {
-		futex_wait(&e.state, 0)
-	}
+    for atomic_load_explicit(&e.state, .Acquire) == 0 {
+        futex_wait(&e.state, 0)
+    }
 }
 
 /*
 Make event available.
 */
 one_shot_event_signal :: proc(e: ^One_Shot_Event) {
-	atomic_store_explicit(&e.state, 1, .Release)
-	futex_broadcast(&e.state)
+    atomic_store_explicit(&e.state, 1, .Release)
+    futex_broadcast(&e.state)
 }

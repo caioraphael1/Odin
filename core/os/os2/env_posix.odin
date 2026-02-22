@@ -8,102 +8,100 @@ import "core:strings"
 import "core:sys/posix"
 
 _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
-	if key == "" {
-		return
-	}
+    if key == "" {
+        return
+    }
 
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-	ckey := strings.clone_to_cstring(key, runtime.temp_allocator)
-	cval := posix.getenv(ckey)
-	if cval == nil {
-		return
-	}
+    ckey := strings.clone_to_cstring(key, runtime.temp_allocator)
+    cval := posix.getenv(ckey)
+    if cval == nil {
+        return
+    }
 
-	found = true
-	value = strings.clone(string(cval), allocator) // NOTE(laytan): what if allocation fails?
+    found = true
+    value = strings.clone(string(cval), allocator) // NOTE(laytan): what if allocation fails?
 
-	return
+    return
 }
 
 _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error) {
-	if key == "" {
-		return
-	}
+    if key == "" {
+        return
+    }
 
-	if len(key) + 1 > len(buf) {
-		return "", .Buffer_Full
-	} else {
-		copy(buf, key)
-	}
+    if len(key) + 1 > len(buf) {
+        return "", .Buffer_Full
+    } else {
+        copy(buf, key)
+    }
 
-	cval := posix.getenv(cstring(raw_data(buf)))
-	if cval == nil {
-		return
-	}
+    cval := posix.getenv(cstring(raw_data(buf)))
+    if cval == nil {
+        return
+    }
 
-	if value = string(cval); value == "" {
-		return "", .Env_Var_Not_Found
-	} else {
-		if len(value) > len(buf) {
-			return "", .Buffer_Full
-		} else {
-			copy(buf, value)
-			return string(buf[:len(value)]), nil
-		}
-	}
+    if value = string(cval); value == "" {
+        return "", .Env_Var_Not_Found
+    } else {
+        if len(value) > len(buf) {
+            return "", .Buffer_Full
+        } else {
+            copy(buf, value)
+            return string(buf[:len(value)]), nil
+        }
+    }
 }
 
-_lookup_env :: proc{_lookup_env_alloc, _lookup_env_buf}
-
 _set_env :: proc(key, value: string) -> (err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-	ckey := strings.clone_to_cstring(key,   runtime.temp_allocator) or_return
-	cval := strings.clone_to_cstring(value, runtime.temp_allocator) or_return
+    ckey := strings.clone_to_cstring(key,   runtime.temp_allocator) or_return
+    cval := strings.clone_to_cstring(value, runtime.temp_allocator) or_return
 
-	if posix.setenv(ckey, cval, true) != nil {
-		err = _get_platform_error_from_errno()
-	}
-	return
+    if posix.setenv(ckey, cval, true) != nil {
+        err = _get_platform_error_from_errno()
+    }
+    return
 }
 
 _unset_env :: proc(key: string) -> (ok: bool) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-	ckey := strings.clone_to_cstring(key, runtime.temp_allocator)
+    ckey := strings.clone_to_cstring(key, runtime.temp_allocator)
 
-	ok = posix.unsetenv(ckey) == .OK
-	return
+    ok = posix.unsetenv(ckey) == .OK
+    return
 }
 
 // NOTE(laytan): clearing the env is weird, why would you ever do that?
 
 _clear_env :: proc() {
-	for entry := posix.environ[0]; entry != nil; entry = posix.environ[0] {
-		key := strings.truncate_to_byte(string(entry), '=')
-		_unset_env(key)
-	}
+    for entry := posix.environ[0]; entry != nil; entry = posix.environ[0] {
+        key := strings.truncate_to_byte(string(entry), '=')
+        _unset_env(key)
+    }
 }
 
 _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
-	n := 0
-	for entry := posix.environ[0]; entry != nil; n, entry = n+1, posix.environ[n] {}
+    n := 0
+    for entry := posix.environ[0]; entry != nil; n, entry = n+1, posix.environ[n] {}
 
-	r := make([dynamic]string, 0, n, allocator) or_return
-	defer if err != nil {
-		for e in r {
-			_ = delete(e, allocator)
-		}
-		_ = delete(r)
-	}
+    r := make_dynamic_array([dynamic]string, 0, n, allocator) or_return
+    defer if err != nil {
+        for e in r {
+            _ = delete(e, allocator)
+        }
+        _ = delete(r)
+    }
 
-	for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-		_ = append(&r, strings.clone(string(entry), allocator) or_return)
-	}
+    for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
+        _ = append(&r, strings.clone(string(entry), allocator) or_return)
+    }
 
-	environ = r[:]
-	return
+    environ = r[:]
+    return
 }
 
 

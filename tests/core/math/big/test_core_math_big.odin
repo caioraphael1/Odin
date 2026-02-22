@@ -302,9 +302,9 @@ test_itoa :: proc(t: ^testing.T) {
 		}
 
 		size, _ := big.radix_size(a, i8(radix), false)
-		buffer_old := make([]u8, size)
+		buffer_old := make_slice([]u8, size)
 		defer _ = delete(buffer_old)
-		buffer_new := make([]u8, size)
+		buffer_new := make_slice([]u8, size)
 		defer _ = delete(buffer_new)
 
 		written_old, _ := big._itoa_raw_old (a, i8(radix), buffer_old, false)
@@ -318,9 +318,9 @@ test_itoa :: proc(t: ^testing.T) {
 	// Also test a number with a large number of zeroes
 	big.set(a, "2970714761494550000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000802525522395693895558562897961119110387707542077460459880227570865486047631557732177235787527971863645406120285117781450154113859156752194121206131440514109132606823127467068869589613665129498148285292867292641704871893467328665051712596763187306247339023362481")
 	size, _ := big.radix_size(a, 10, false)
-	buffer_old := make([]u8, size)
+	buffer_old := make_slice([]u8, size)
 	defer _ = delete(buffer_old)
-	buffer_new := make([]u8, size)
+	buffer_new := make_slice([]u8, size)
 	defer _ = delete(buffer_new)
 
 	written_old, _ := big._itoa_raw_old (a, 10, buffer_old, false)

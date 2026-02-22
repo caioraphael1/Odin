@@ -22,26 +22,26 @@ Returns:
 - error: An `io` error, if one occurred, otherwise `nil`.
 */
 write :: proc(w: io.Writer, id: Identifier) -> (error: io.Error) #no_bounds_check {
-	write_octet :: proc(w: io.Writer, octet: u8) -> io.Error #no_bounds_check {
-		high_nibble := octet >> 4
-		low_nibble := octet & 0xF
+    write_octet :: proc(w: io.Writer, octet: u8) -> io.Error #no_bounds_check {
+        high_nibble := octet >> 4
+        low_nibble := octet & 0xF
 
-		io.write_byte(w, strconv.digits[high_nibble]) or_return
-		io.write_byte(w, strconv.digits[low_nibble]) or_return
-		return nil
-	}
+        io.write_byte(w, strconv.digits[high_nibble]) or_return
+        io.write_byte(w, strconv.digits[low_nibble]) or_return
+        return nil
+    }
 
-	for index in 0 ..< 4 {write_octet(w, id[index]) or_return}
-	io.write_byte(w, '-') or_return
-	for index in 4 ..< 6 {write_octet(w, id[index]) or_return}
-	io.write_byte(w, '-') or_return
-	for index in 6 ..< 8 {write_octet(w, id[index]) or_return}
-	io.write_byte(w, '-') or_return
-	for index in 8 ..< 10 {write_octet(w, id[index]) or_return}
-	io.write_byte(w, '-') or_return
-	for index in 10 ..< 16 {write_octet(w, id[index]) or_return}
+    for index in 0 ..< 4 {write_octet(w, id[index]) or_return}
+    io.write_byte(w, '-') or_return
+    for index in 4 ..< 6 {write_octet(w, id[index]) or_return}
+    io.write_byte(w, '-') or_return
+    for index in 6 ..< 8 {write_octet(w, id[index]) or_return}
+    io.write_byte(w, '-') or_return
+    for index in 8 ..< 10 {write_octet(w, id[index]) or_return}
+    io.write_byte(w, '-') or_return
+    for index in 10 ..< 16 {write_octet(w, id[index]) or_return}
 
-	return nil
+    return nil
 }
 
 /*
@@ -54,23 +54,23 @@ Inputs:
 - id: The identifier to convert.
 */
 unsafe_write :: proc(w: io.Writer, id: Identifier) #no_bounds_check {
-	write_octet :: proc(w: io.Writer, octet: u8) #no_bounds_check {
-		high_nibble := octet >> 4
-		low_nibble := octet & 0xF
+    write_octet :: proc(w: io.Writer, octet: u8) #no_bounds_check {
+        high_nibble := octet >> 4
+        low_nibble := octet & 0xF
 
-		io.write_byte(w, strconv.digits[high_nibble])
-		io.write_byte(w, strconv.digits[low_nibble])
-	}
+        io.write_byte(w, strconv.digits[high_nibble])
+        io.write_byte(w, strconv.digits[low_nibble])
+    }
 
-	for index in 0 ..< 4 {write_octet(w, id[index])}
-	io.write_byte(w, '-')
-	for index in 4 ..< 6 {write_octet(w, id[index])}
-	io.write_byte(w, '-')
-	for index in 6 ..< 8 {write_octet(w, id[index])}
-	io.write_byte(w, '-')
-	for index in 8 ..< 10 {write_octet(w, id[index])}
-	io.write_byte(w, '-')
-	for index in 10 ..< 16 {write_octet(w, id[index])}
+    for index in 0 ..< 4 {write_octet(w, id[index])}
+    io.write_byte(w, '-')
+    for index in 4 ..< 6 {write_octet(w, id[index])}
+    io.write_byte(w, '-')
+    for index in 6 ..< 8 {write_octet(w, id[index])}
+    io.write_byte(w, '-')
+    for index in 8 ..< 10 {write_octet(w, id[index])}
+    io.write_byte(w, '-')
+    for index in 10 ..< 16 {write_octet(w, id[index])}
 }
 
 /*
@@ -88,17 +88,17 @@ Returns:
 - error: An optional allocator error if one occured, `nil` otherwise.
 */
 to_string_allocated :: proc(
-	id: Identifier,
-	allocator := context.allocator,
-	loc := #caller_location,
+    id: Identifier,
+    allocator := context.allocator,
+    loc := #caller_location,
 ) -> (
-	str: string,
-	error: runtime.Allocator_Error,
+    str: string,
+    error: runtime.Allocator_Error,
 ) {
-	buf := make([]byte, EXPECTED_LENGTH, allocator, loc) or_return
-	builder := strings.builder_from_bytes(buf[:])
-	unsafe_write(strings.to_writer(&builder), id)
-	return strings.to_string(builder), nil
+    buf := make_slice([]byte, EXPECTED_LENGTH, allocator, loc) or_return
+    builder := strings.builder_from_bytes(buf[:])
+    unsafe_write(strings.to_writer(&builder), id)
+    return strings.to_string(builder), nil
 }
 
 /*
@@ -113,24 +113,18 @@ Returns:
 - str: The converted string which will be stored in `buffer`.
 */
 to_string_buffer :: proc(
-	id: Identifier,
-	buffer: []byte,
-	loc := #caller_location,
+    id: Identifier,
+    buffer: []byte,
+    loc := #caller_location,
 ) -> (
-	str: string,
+    str: string,
 ) {
-	assert(
-		len(buffer) >= EXPECTED_LENGTH,
-		"The buffer provided is not at least 36 bytes large.",
-		loc,
-	)
-	builder := strings.builder_from_bytes(buffer)
-	unsafe_write(strings.to_writer(&builder), id)
-	return strings.to_string(builder)
+    assert(
+        len(buffer) >= EXPECTED_LENGTH,
+        "The buffer provided is not at least 36 bytes large.",
+        loc,
+    )
+    builder := strings.builder_from_bytes(buffer)
+    unsafe_write(strings.to_writer(&builder), id)
+    return strings.to_string(builder)
 }
-
-to_string :: proc {
-	to_string_allocated,
-	to_string_buffer,
-}
-

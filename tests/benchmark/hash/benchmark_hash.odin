@@ -143,7 +143,7 @@ benchmark_hash :: proc(t: ^testing.T) {
 setup_xxhash :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
 	assert(options != nil)
 
-	options.input = make([]u8, options.bytes, allocator)
+	options.input = make_slice([]u8, options.bytes, allocator)
 	return nil if len(options.input) == options.bytes else .Allocation_Error
 }
 

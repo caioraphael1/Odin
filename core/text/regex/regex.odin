@@ -1,11 +1,11 @@
 package regex
 
 /*
-	(c) Copyright 2024 Feoramund <rune@swevencraft.org>.
-	Made available under Odin's license.
+    (c) Copyright 2024 Feoramund <rune@swevencraft.org>.
+    Made available under Odin's license.
 
-	List of contributors:
-		Feoramund: Initial implementation.
+    List of contributors:
+        Feoramund: Initial implementation.
 */
 
 import "base:runtime"
@@ -22,28 +22,28 @@ Parser_Error   :: parser.Error
 Compiler_Error :: compiler.Error
 
 Creation_Error :: enum {
-	None,
-	// A `\` was supplied as the delimiter to `create_by_user`.
-	Bad_Delimiter,
-	// A pair of delimiters for `create_by_user` was not found.
-	Expected_Delimiter,
-	// An unknown letter was supplied to `create_by_user` after the last delimiter.
-	Unknown_Flag,
+    None,
+    // A `\` was supplied as the delimiter to `create_by_user`.
+    Bad_Delimiter,
+    // A pair of delimiters for `create_by_user` was not found.
+    Expected_Delimiter,
+    // An unknown letter was supplied to `create_by_user` after the last delimiter.
+    Unknown_Flag,
 }
 
 Error :: union #shared_nil {
-	// An error that can occur in the pattern parsing phase.
-	//
-	// Most of these are regular expression syntax errors and are either
-	// context-dependent as to what they mean or have self-explanatory names.
-	Parser_Error,
-	// An error that can occur in the pattern compiling phase.
-	//
-	// Of the two that can be returned, they have to do with exceeding the
-	// limitations of the Virtual Machine.
-	Compiler_Error,
-	// An error that occurs only for `create_by_user`.
-	Creation_Error,
+    // An error that can occur in the pattern parsing phase.
+    //
+    // Most of these are regular expression syntax errors and are either
+    // context-dependent as to what they mean or have self-explanatory names.
+    Parser_Error,
+    // An error that can occur in the pattern compiling phase.
+    //
+    // Of the two that can be returned, they have to do with exceeding the
+    // limitations of the Virtual Machine.
+    Compiler_Error,
+    // An error that occurs only for `create_by_user`.
+    Creation_Error,
 }
 
 /*
@@ -53,30 +53,30 @@ This struct corresponds to a set of string captures from a RegEx match.
 such that `str[pos[0][0]:pos[0][1]] == groups[0]`.
 */
 Capture :: struct {
-	pos:    [][2]int,
-	groups: []string,
+    pos:    [][2]int,
+    groups: []string,
 }
 
 /*
 A compiled Regular Expression value, to be used with the `match_*` procedures.
 */
 Regular_Expression :: struct {
-	flags:      Flags `fmt:"-"`,
-	class_data: []virtual_machine.Rune_Class_Data `fmt:"-"`,
-	program:    []virtual_machine.Opcode `fmt:"-"`,
+    flags:      Flags `fmt:"-"`,
+    class_data: []virtual_machine.Rune_Class_Data `fmt:"-"`,
+    program:    []virtual_machine.Opcode `fmt:"-"`,
 }
 
 /*
 An iterator to repeatedly match a pattern against a string, to be used with `*_iterator` procedures.
 */
 Match_Iterator :: struct {
-	regex:    Regular_Expression,
-	capture:  Capture,
-	vm:       virtual_machine.Machine,
-	idx:      int,
-	temp:     runtime.Allocator,
-	threads:  int,
-	done:     bool,
+    regex:    Regular_Expression,
+    capture:  Capture,
+    vm:       virtual_machine.Machine,
+    idx:      int,
+    temp:     runtime.Allocator,
+    threads:  int,
+    done:     bool,
 }
 
 /*
@@ -95,15 +95,15 @@ Returns:
 */
 
 create :: proc(
-	pattern:       string,
-	flags:         Flags = {},
-	allocator:     mem.Allocator,
+    pattern:       string,
+    flags:         Flags = {},
+    allocator:     mem.Allocator,
 ) -> (result: Regular_Expression, err: Error) {
-	// For the sake of speed and simplicity, we first run all the intermediate
-	// processes such as parsing and compilation through the temporary
-	// allocator.
-	program: [dynamic]virtual_machine.Opcode = ---
-	class_data: [dynamic]parser.Rune_Class_Data = ---
+    // For the sake of speed and simplicity, we first run all the intermediate
+    // processes such as parsing and compilation through the temporary
+    // allocator.
+    program: [dynamic]virtual_machine.Opcode = ---
+    class_data: [dynamic]parser.Rune_Class_Data = ---
 
     ast := parser.parse(pattern, flags, runtime.temp_allocator) or_return
 
@@ -113,28 +113,28 @@ create :: proc(
 
     program, class_data = compiler.compile(ast, flags, runtime.temp_allocator) or_return
 
-	// When that's successful, re-allocate all at once with the permanent
-	// allocator so everything can be tightly packed.
-	result.flags = flags
+    // When that's successful, re-allocate all at once with the permanent
+    // allocator so everything can be tightly packed.
+    result.flags = flags
 
-	if len(class_data) > 0 {
-		result.class_data, _ = make([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
-	}
-	for data, i in class_data {
-		if len(data.runes) > 0 {
-			result.class_data[i].runes, _ = make([]rune, len(data.runes), allocator)
-			copy(result.class_data[i].runes, data.runes[:])
-		}
-		if len(data.ranges) > 0 {
-			result.class_data[i].ranges, _ = make([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
-			copy(result.class_data[i].ranges, data.ranges[:])
-		}
-	}
+    if len(class_data) > 0 {
+        result.class_data, _ = make_slice([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
+    }
+    for data, i in class_data {
+        if len(data.runes) > 0 {
+            result.class_data[i].runes, _ = make_slice([]rune, len(data.runes), allocator)
+            copy_slice(result.class_data[i].runes, data.runes[:])
+        }
+        if len(data.ranges) > 0 {
+            result.class_data[i].ranges, _ = make_slice([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
+            copy_slice(result.class_data[i].ranges, data.ranges[:])
+        }
+    }
 
-	result.program, _ = make([]virtual_machine.Opcode, len(program), allocator)
-	copy(result.program, program[:])
+    result.program, _ = make_slice([]virtual_machine.Opcode, len(program), allocator)
+    copy_slice(result.program, program[:])
 
-	return
+    return
 }
 
 /*
@@ -143,14 +143,14 @@ provided by users of a program or those found in a configuration file.
 
 They are in the form of:
 
-	[DELIMITER] [regular expression] [DELIMITER] [flags]
+    [DELIMITER] [regular expression] [DELIMITER] [flags]
 
 For example, the following strings are valid:
 
-	/hellope/i
-	#hellope#i
-	•hellope•i
-	つhellopeつi
+    /hellope/i
+    #hellope#i
+    •hellope•i
+    つhellopeつi
 
 The delimiter is determined by the very first rune in the string.
 The only restriction is that the delimiter cannot be `\`, as that rune is used
@@ -179,72 +179,72 @@ Returns:
 */
 
 create_by_user :: proc(
-	pattern: string,
-	allocator: runtime.Allocator,
+    pattern: string,
+    allocator: runtime.Allocator,
 ) -> (result: Regular_Expression, err: Error) {
 
-	if len(pattern) == 0 {
-		err = .Expected_Delimiter
-		return
-	}
+    if len(pattern) == 0 {
+        err = .Expected_Delimiter
+        return
+    }
 
-	delimiter: rune
-	start := -1
-	end := -1
+    delimiter: rune
+    start := -1
+    end := -1
 
-	flags: Flags
+    flags: Flags
 
-	escaping: bool
-	parse_loop: for r, i in pattern {
-		if delimiter == 0 {
-			if r == '\\' {
-				err = .Bad_Delimiter
-				return
-			}
-			delimiter = r
-			continue parse_loop
-		}
+    escaping: bool
+    parse_loop: for r, i in pattern {
+        if delimiter == 0 {
+            if r == '\\' {
+                err = .Bad_Delimiter
+                return
+            }
+            delimiter = r
+            continue parse_loop
+        }
 
-		if start == -1 {
-			start = i
-		}
+        if start == -1 {
+            start = i
+        }
 
-		if escaping {
-			escaping = false
-			continue parse_loop
-		}
+        if escaping {
+            escaping = false
+            continue parse_loop
+        }
 
-		switch r {
-		case '\\':
-			escaping = true
-		case delimiter:
-			end = i
-			break parse_loop
-		}
-	}
+        switch r {
+        case '\\':
+            escaping = true
+        case delimiter:
+            end = i
+            break parse_loop
+        }
+    }
 
-	if end == -1 {
-		err = .Expected_Delimiter
-		return
-	}
+    if end == -1 {
+        err = .Expected_Delimiter
+        return
+    }
 
-	// `start` is also the size of the delimiter, which is why it's being added
-	// to `end` here.
-	for r in pattern[start + end:] {
-		switch r {
-		case 'm': flags += { .Multiline }
-		case 'i': flags += { .Case_Insensitive }
-		case 'x': flags += { .Ignore_Whitespace }
-		case 'u': flags += { .Unicode }
-		case 'n': flags += { .No_Capture }
-		case '-': flags += { .No_Optimization }
-		case:
-			err = .Unknown_Flag
-			return
-		}
-	}
+    // `start` is also the size of the delimiter, which is why it's being added
+    // to `end` here.
+    for r in pattern[start + end:] {
+        switch r {
+        case 'm': flags += { .Multiline }
+        case 'i': flags += { .Case_Insensitive }
+        case 'x': flags += { .Ignore_Whitespace }
+        case 'u': flags += { .Unicode }
+        case 'n': flags += { .No_Capture }
+        case '-': flags += { .No_Optimization }
+        case:
+            err = .Unknown_Flag
+            return
+        }
+    }
 
-	return create(pattern[start:end], flags, allocator)
+    return create(pattern[start:end], flags, allocator)
 }
 
 /*
@@ -263,18 +263,18 @@ Returns:
 - err: An error, if one occurred.
 */
 create_iterator :: proc(
-	str:           string,
-	pattern:       string,
-	flags:         Flags = {},
-	allocator:     runtime.Allocator,
+    str:           string,
+    pattern:       string,
+    flags:         Flags = {},
+    allocator:     runtime.Allocator,
 ) -> (result: Match_Iterator, err: Error) {
-	result.regex         = create(pattern, flags, allocator) or_return
-	result.capture       = preallocate_capture(allocator)
-	result.temp          = runtime.temp_allocator
-	result.vm            = virtual_machine.create(result.regex.program, str, allocator)
-	result.vm.class_data = result.regex.class_data
-	result.threads       = max(1, virtual_machine.opcode_count(result.vm.code) - 1)
-	return
+    result.regex         = create(pattern, flags, allocator) or_return
+    result.capture       = preallocate_capture(allocator)
+    result.temp          = runtime.temp_allocator
+    result.vm            = virtual_machine.create(result.regex.program, str, allocator)
+    result.vm.class_data = result.regex.class_data
+    result.threads       = max(1, virtual_machine.opcode_count(result.vm.code) - 1)
+    return
 }
 
 /*
@@ -297,12 +297,12 @@ Returns:
 */
 
 match_and_allocate_capture :: proc(
-	regex:         Regular_Expression,
-	str:           string,
-	allocator:     runtime.Allocator,
+    regex:         Regular_Expression,
+    str:           string,
+    allocator:     runtime.Allocator,
 ) -> (capture: Capture, success: bool) {
 
-	saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
+    saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
 
     vm := virtual_machine.create(regex.program, str, runtime.temp_allocator)
     vm.class_data = regex.class_data
@@ -313,35 +313,35 @@ match_and_allocate_capture :: proc(
         saved, success = virtual_machine.run(&vm, false, runtime.temp_allocator)
     }
 
-	if saved != nil {
-		num_groups := 0
-		#no_bounds_check for i := 0; i < len(saved); i += 2 {
-			a, b := saved[i], saved[i + 1]
-			if a == -1 || b == -1 {
-				continue
-			}
-			num_groups += 1
-		}
+    if saved != nil {
+        num_groups := 0
+        #no_bounds_check for i := 0; i < len(saved); i += 2 {
+            a, b := saved[i], saved[i + 1]
+            if a == -1 || b == -1 {
+                continue
+            }
+            num_groups += 1
+        }
 
-		if num_groups > 0 {
-			capture.groups, _ = make([]string, num_groups, allocator)
-			capture.pos, _ = make([][2]int, num_groups, allocator)
-			n := 0
+        if num_groups > 0 {
+            capture.groups, _ = make_slice([]string, num_groups, allocator)
+            capture.pos, _ = make_slice([][2]int, num_groups, allocator)
+            n := 0
 
-			#no_bounds_check for i := 0; i < len(saved); i += 2 {
-				a, b := saved[i], saved[i + 1]
-				if a == -1 || b == -1 {
-					continue
-				}
+            #no_bounds_check for i := 0; i < len(saved); i += 2 {
+                a, b := saved[i], saved[i + 1]
+                if a == -1 || b == -1 {
+                    continue
+                }
 
-				capture.groups[n] = str[a:b]
-				capture.pos[n] = {a, b}
-				n += 1
-			}
-		}
-	}
+                capture.groups[n] = str[a:b]
+                capture.pos[n] = {a, b}
+                n += 1
+            }
+        }
+    }
 
-	return
+    return
 }
 
 /*
@@ -364,18 +364,18 @@ Returns:
 */
 
 match_with_preallocated_capture :: proc(
-	regex:         Regular_Expression,
-	str:           string,
-	capture:       ^Capture,
+    regex:         Regular_Expression,
+    str:           string,
+    capture:       ^Capture,
 ) -> (num_groups: int, success: bool) {
 
-	assert(capture != nil, "Pre-allocated RegEx capture must not be nil.")
-	assert(len(capture.groups) >= common.MAX_CAPTURE_GROUPS,
-		"Pre-allocated RegEx capture `groups` must be at least 10 elements long.")
-	assert(len(capture.pos) >= common.MAX_CAPTURE_GROUPS,
-		"Pre-allocated RegEx capture `pos` must be at least 10 elements long.")
+    assert(capture != nil, "Pre-allocated RegEx capture must not be nil.")
+    assert(len(capture.groups) >= common.MAX_CAPTURE_GROUPS,
+        "Pre-allocated RegEx capture `groups` must be at least 10 elements long.")
+    assert(len(capture.pos) >= common.MAX_CAPTURE_GROUPS,
+        "Pre-allocated RegEx capture `pos` must be at least 10 elements long.")
 
-	saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
+    saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
 
     vm := virtual_machine.create(regex.program, str, runtime.temp_allocator)
     vm.class_data = regex.class_data
@@ -386,23 +386,23 @@ match_with_preallocated_capture :: proc(
         saved, success = virtual_machine.run(&vm, false, runtime.temp_allocator)
     }
 
-	if saved != nil {
-		n := 0
+    if saved != nil {
+        n := 0
 
-		#no_bounds_check for i := 0; i < len(saved); i += 2 {
-			a, b := saved[i], saved[i + 1]
-			if a == -1 || b == -1 {
-				continue
-			}
+        #no_bounds_check for i := 0; i < len(saved); i += 2 {
+            a, b := saved[i], saved[i + 1]
+            if a == -1 || b == -1 {
+                continue
+            }
 
-			capture.groups[n] = str[a:b]
-			capture.pos[n] = {a, b}
-			n += 1
-		}
-		num_groups = n
-	}
+            capture.groups[n] = str[a:b]
+            capture.pos[n] = {a, b}
+            n += 1
+        }
+        num_groups = n
+    }
 
-	return
+    return
 }
 
 /*
@@ -416,93 +416,89 @@ Returns:
 - ok:     A bool indicating if there was a match, stopping the iteration on `false`.
 */
 match_iterator :: proc(it: ^Match_Iterator) -> (result: Capture, index: int, ok: bool) {
-	assert(len(it.capture.groups) >= common.MAX_CAPTURE_GROUPS,
-		"Pre-allocated RegEx capture `groups` must be at least 10 elements long.")
-	assert(len(it.capture.pos) >= common.MAX_CAPTURE_GROUPS,
-		"Pre-allocated RegEx capture `pos` must be at least 10 elements long.")
+    assert(len(it.capture.groups) >= common.MAX_CAPTURE_GROUPS,
+        "Pre-allocated RegEx capture `groups` must be at least 10 elements long.")
+    assert(len(it.capture.pos) >= common.MAX_CAPTURE_GROUPS,
+        "Pre-allocated RegEx capture `pos` must be at least 10 elements long.")
 
-	// Guard against situations in which the iterator should finish.
-	if it.done {
-		return
-	}
+    // Guard against situations in which the iterator should finish.
+    if it.done {
+        return
+    }
 
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-	if it.idx > 0 {
-		// Reset the state needed to `virtual_machine.run` again.
-		it.vm.top_thread        = 0
-		it.vm.current_rune      = rune(0)
-		it.vm.current_rune_size = 0
-		for i in 0..<it.threads {
-			it.vm.threads[i]      = {}
-			it.vm.next_threads[i] = {}
-		}
-	}
+    if it.idx > 0 {
+        // Reset the state needed to `virtual_machine.run` again.
+        it.vm.top_thread        = 0
+        it.vm.current_rune      = rune(0)
+        it.vm.current_rune_size = 0
+        for i in 0..<it.threads {
+            it.vm.threads[i]      = {}
+            it.vm.next_threads[i] = {}
+        }
+    }
 
-	// Take note of where the string pointer is before we start.
-	sp_before := it.vm.string_pointer
+    // Take note of where the string pointer is before we start.
+    sp_before := it.vm.string_pointer
 
-	saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
+    saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
     if .Unicode in it.regex.flags {
         saved, ok = virtual_machine.run(&it.vm, true, it.temp)
     } else {
         saved, ok = virtual_machine.run(&it.vm, false, it.temp)
     }
 
-	if !ok {
-		// Match failed, bail out.
-		return
-	}
+    if !ok {
+        // Match failed, bail out.
+        return
+    }
 
-	if it.vm.string_pointer == sp_before {
-		// The string pointer did not move, but there was a match.
-		//
-		// At this point, the pattern supplied to the iterator will infinitely
-		// loop if we do not intervene.
-		it.done = true
-	}
-	if it.vm.string_pointer == len(it.vm.memory) {
-		// The VM hit the end of the string.
-		//
-		// We do not check at the start, because a match of pattern `$`
-		// against string "" is valid and must return a match.
-		//
-		// This check prevents a double-match of `$` against a non-empty string.
-		it.done = true
-	}
+    if it.vm.string_pointer == sp_before {
+        // The string pointer did not move, but there was a match.
+        //
+        // At this point, the pattern supplied to the iterator will infinitely
+        // loop if we do not intervene.
+        it.done = true
+    }
+    if it.vm.string_pointer == len(it.vm.memory) {
+        // The VM hit the end of the string.
+        //
+        // We do not check at the start, because a match of pattern `$`
+        // against string "" is valid and must return a match.
+        //
+        // This check prevents a double-match of `$` against a non-empty string.
+        it.done = true
+    }
 
-	str := string(it.vm.memory)
-	num_groups: int
+    str := string(it.vm.memory)
+    num_groups: int
 
-	if saved != nil {
-		n := 0
+    if saved != nil {
+        n := 0
 
-		#no_bounds_check for i := 0; i < len(saved); i += 2 {
-			a, b := saved[i], saved[i + 1]
-			if a == -1 || b == -1 {
-				continue
-			}
+        #no_bounds_check for i := 0; i < len(saved); i += 2 {
+            a, b := saved[i], saved[i + 1]
+            if a == -1 || b == -1 {
+                continue
+            }
 
-			it.capture.groups[n] = str[a:b]
-			it.capture.pos[n]    = {a, b}
-			n += 1
-		}
-		num_groups = n
-	}
+            it.capture.groups[n] = str[a:b]
+            it.capture.pos[n]    = {a, b}
+            n += 1
+        }
+        num_groups = n
+    }
 
-	defer it.idx += 1
+    defer it.idx += 1
 
-	if num_groups > 0 {
-		result = {it.capture.pos[:num_groups], it.capture.groups[:num_groups]}
-	}
-	return result, it.idx, ok
+    if num_groups > 0 {
+        result = {it.capture.pos[:num_groups], it.capture.groups[:num_groups]}
+    }
+    return result, it.idx, ok
 }
 
-match :: proc {
-	match_and_allocate_capture,
-	match_with_preallocated_capture,
-	match_iterator,
-}
+
 
 /*
 Reset an iterator, allowing it to be run again as if new.
@@ -511,18 +507,18 @@ Inputs:
 - it: The iterator to reset.
 */
 reset :: proc(it: ^Match_Iterator) {
-	it.done                 = false
-	it.idx                  = 0
-	it.vm.string_pointer    = 0
+    it.done                 = false
+    it.idx                  = 0
+    it.vm.string_pointer    = 0
 
-	it.vm.top_thread        = 0
-	it.vm.current_rune      = rune(0)
-	it.vm.current_rune_size = 0
-	it.vm.last_rune         = rune(0)
-	for i in 0..<it.threads {
-		it.vm.threads[i]      = {}
-		it.vm.next_threads[i] = {}
-	}
+    it.vm.top_thread        = 0
+    it.vm.current_rune      = rune(0)
+    it.vm.current_rune_size = 0
+    it.vm.last_rune         = rune(0)
+    for i in 0..<it.threads {
+        it.vm.threads[i]      = {}
+        it.vm.next_threads[i] = {}
+    }
 }
 
 /*
@@ -538,9 +534,9 @@ Returns:
 */
 
 preallocate_capture :: proc(allocator: runtime.Allocator) -> (result: Capture) {
-	result.pos   , _ = make([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
-	result.groups, _ = make([]string, common.MAX_CAPTURE_GROUPS, allocator)
-	return
+    result.pos   , _ = make_slice([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
+    result.groups, _ = make_slice([]string, common.MAX_CAPTURE_GROUPS, allocator)
+    return
 }
 
 /*
@@ -553,12 +549,12 @@ Inputs:
 - allocator: 
 */
 destroy_regex :: proc(regex: Regular_Expression, allocator: runtime.Allocator) {
-	_ = delete(regex.program, allocator)
-	for data in regex.class_data {
-		_ = delete(data.runes, allocator)
-		_ = delete(data.ranges, allocator)
-	}
-	_ = delete(regex.class_data, allocator)
+    _ = delete(regex.program, allocator)
+    for data in regex.class_data {
+        _ = delete(data.runes, allocator)
+        _ = delete(data.ranges, allocator)
+    }
+    _ = delete(regex.class_data, allocator)
 }
 
 /*
@@ -571,8 +567,8 @@ Inputs:
 - allocator:
 */
 destroy_capture :: proc(capture: Capture, allocator: runtime.Allocator) {
-	_ = delete(capture.groups, allocator)
-	_ = delete(capture.pos, allocator)
+    _ = delete(capture.groups, allocator)
+    _ = delete(capture.pos, allocator)
 }
 
 /*
@@ -585,13 +581,13 @@ Inputs:
 - allocator: 
 */
 destroy_iterator :: proc(it: Match_Iterator, allocator: runtime.Allocator) {
-	destroy(it.regex, allocator)
-	destroy(it.capture, allocator)
-	virtual_machine.destroy(it.vm, allocator)
+    destroy(it.regex, allocator)
+    destroy(it.capture, allocator)
+    virtual_machine.destroy(it.vm, allocator)
 }
 
-destroy :: proc {
-	destroy_regex,
-	destroy_capture,
-	destroy_iterator,
+
+    destroy_regex,
+    destroy_capture,
+    destroy_iterator,
 }

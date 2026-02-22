@@ -14,8 +14,8 @@ test_sort_with_indices :: proc(t: ^testing.T) {
 	for test_size in test_sizes {
 		rand.reset(t.seed)
 
-		vals  := make([]u64, test_size)
-		r_idx := make([]int, test_size) // Reverse index
+		vals  := make_slice([]u64, test_size)
+		r_idx := make_slice([]int, test_size) // Reverse index
 		defer {
 			_ = delete(vals)
 			_ = delete(r_idx)
@@ -65,8 +65,8 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 	for test_size in test_sizes {
 		rand.reset(t.seed)
 
-		vals  := make([]u64, test_size)
-		r_idx := make([]int, test_size) // Reverse index
+		vals  := make_slice([]u64, test_size)
+		r_idx := make_slice([]int, test_size) // Reverse index
 		defer {
 			_ = delete(vals)
 			_ = delete(r_idx)
@@ -85,7 +85,7 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 		rand.reset(t.seed)
 
 		{
-			indices := make([]int, test_size)
+			indices := make_slice([]int, test_size)
 			defer _ = delete(indices)
 			for _, i in indices {
 				indices[i] = i
@@ -102,7 +102,7 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 			}
 		}
 		{
-			indices := make([]int, test_size)
+			indices := make_slice([]int, test_size)
 			defer _ = delete(indices)
 			for _, i in indices {
 				indices[i] = i
@@ -118,8 +118,8 @@ test_sort_by_indices :: proc(t: ^testing.T) {
 			}
 		}
 		{
-			indices := make([]int, test_size)
-			swap := make([]int, test_size)
+			indices := make_slice([]int, test_size)
+			swap := make_slice([]int, test_size)
 			defer {
 				_ = delete(indices)
 				_ = delete(swap)

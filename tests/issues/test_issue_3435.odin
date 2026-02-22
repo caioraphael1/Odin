@@ -26,11 +26,11 @@ test_issue_3435 :: proc(t: ^testing.T) {
 
 	// Three allocations in the space above is all that's needed to reproduce
 	// the bug seen in #3435; this is the most minimal reproduction possible.
-	a := make([]u8, 1)
+	a := make_slice([]u8, 1)
 	testing.expect(t, len(a) == 1)
-	b := make([]u8, 1)
+	b := make_slice([]u8, 1)
 	testing.expect(t, len(b) == 0)
-	c := make([]u8, 1)
+	c := make_slice([]u8, 1)
 	testing.expect(t, len(c) == 0)
 
 	// With the bugfix in place, the allocator should be sensible enough to not

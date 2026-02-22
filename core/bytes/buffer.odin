@@ -40,7 +40,7 @@ buffer_init_string :: proc(b: ^Buffer, s: string, loc := #caller_location) {
 
 buffer_init_allocator :: proc(b: ^Buffer, len, cap: int, allocator: mem.Allocator, loc := #caller_location) {
 	if b.buf == nil {
-		b.buf, _ = make([dynamic]byte, len, cap, allocator, loc)
+		b.buf, _ = make_dynamic_array([dynamic]byte, len, cap, allocator, loc)
 		return
 	}
 

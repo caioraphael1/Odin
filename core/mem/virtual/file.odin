@@ -18,10 +18,6 @@ Map_File_Flag :: enum u32 {
 }
 Map_File_Flags :: distinct bit_set[Map_File_Flag; u32]
 
-map_file :: proc{
-	map_file_from_path,
-	map_file_from_file_descriptor,
-}
 
 map_file_from_path :: proc(filename: string, flags: Map_File_Flags, allocator: runtime.Allocator) -> (data: []byte, error: Map_File_Error) {
 	fd, err := os.open(filename, os.O_RDWR, allocator = allocator)

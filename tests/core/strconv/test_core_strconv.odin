@@ -93,8 +93,8 @@ test_nan :: proc(t: ^testing.T) {
 
 @(test)
 test_infinity :: proc(t: ^testing.T) {
-	pos_inf := math.inf_f64(+1)
-	neg_inf := math.inf_f64(-1)
+	pos_inf := math.inf(+1)
+	neg_inf := math.inf(-1)
 
 	n: int
 	s := "infinity"

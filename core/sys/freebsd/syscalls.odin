@@ -1,11 +1,11 @@
 package sys_freebsd
 
 /*
-	(c) Copyright 2024 Feoramund <rune@swevencraft.org>.
-	Made available under Odin's license.
+    (c) Copyright 2024 Feoramund <rune@swevencraft.org>.
+    Made available under Odin's license.
 
-	List of contributors:
-		Feoramund: Initial implementation.
+    List of contributors:
+        Feoramund: Initial implementation.
 */
 
 import "base:intrinsics"
@@ -46,32 +46,32 @@ SYS_accept4    : uintptr : 541
 //
 // The read() function appeared in Version 1 AT&T UNIX.
 read :: proc(fd: Fd, buf: []u8) -> (int, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_read,
-		cast(uintptr)fd,
-		cast(uintptr)raw_data(buf),
-		cast(uintptr)len(buf))
+    result, ok := intrinsics.syscall_bsd(SYS_read,
+        cast(uintptr)fd,
+        cast(uintptr)raw_data(buf),
+        cast(uintptr)len(buf))
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Write output.
 //
 // The write() function appeared in Version 1 AT&T UNIX.
 write :: proc(fd: Fd, buf: []u8) -> (int, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_write,
-		cast(uintptr)fd,
-		cast(uintptr)raw_data(buf),
-		cast(uintptr)len(buf))
+    result, ok := intrinsics.syscall_bsd(SYS_write,
+        cast(uintptr)fd,
+        cast(uintptr)raw_data(buf),
+        cast(uintptr)len(buf))
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Open or create a file for reading, writing or executing.
@@ -79,35 +79,35 @@ write :: proc(fd: Fd, buf: []u8) -> (int, Errno) {
 // The open() function appeared in Version 1 AT&T UNIX.
 // The openat() function was introduced in FreeBSD 8.0.
 open :: proc(path: string, flags: File_Status_Flags, mode: int = 0o000) -> (Fd, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_open,
-		cast(uintptr)raw_data(path),
-		cast(uintptr)transmute(c.int)flags,
-		cast(uintptr)mode)
+    result, ok := intrinsics.syscall_bsd(SYS_open,
+        cast(uintptr)raw_data(path),
+        cast(uintptr)transmute(c.int)flags,
+        cast(uintptr)mode)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(Fd)result, nil
+    return cast(Fd)result, nil
 }
 
 // Delete a descriptor.
 //
 // The open() function appeared in Version 1 AT&T UNIX.
 close :: proc(fd: Fd) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_close,
-		cast(uintptr)fd)
+    result, _ := intrinsics.syscall_bsd(SYS_close,
+        cast(uintptr)fd)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // Get parent or calling process identification.
 //
 // The getpid() function appeared in Version 7 AT&T UNIX.
 getpid :: proc() -> pid_t {
-	// This always succeeds.
-	result, _ := intrinsics.syscall_bsd(SYS_getpid)
-	return cast(pid_t)result
+    // This always succeeds.
+    result, _ := intrinsics.syscall_bsd(SYS_getpid)
+    return cast(pid_t)result
 }
 
 // Receive message(s) from a socket.
@@ -116,26 +116,26 @@ getpid :: proc() -> pid_t {
 // The recvmmsg() function appeared in FreeBSD 11.0.
 recvfrom :: proc(s: Fd, buf: []u8, flags: Recv_Flags, from: ^$T) -> (int, Errno)
 where
-	intrinsics.type_is_subtype_of(T, Socket_Address_Header)
+    intrinsics.type_is_subtype_of(T, Socket_Address_Header)
 {
-	fromlen: socklen_t = size_of(T)
+    fromlen: socklen_t = size_of(T)
 
-	result, ok := intrinsics.syscall_bsd(SYS_recvfrom,
-		cast(uintptr)s,
-		cast(uintptr)raw_data(buf),
-		cast(uintptr)len(buf),
-		cast(uintptr)flags,
-		cast(uintptr)from,
-		cast(uintptr)&fromlen)
+    result, ok := intrinsics.syscall_bsd(SYS_recvfrom,
+        cast(uintptr)s,
+        cast(uintptr)raw_data(buf),
+        cast(uintptr)len(buf),
+        cast(uintptr)flags,
+        cast(uintptr)from,
+        cast(uintptr)&fromlen)
 
-	// `from.len` will be modified by the syscall, so we shouldn't need to pass
-	// `fromlen` back from this API.
+    // `from.len` will be modified by the syscall, so we shouldn't need to pass
+    // `fromlen` back from this API.
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Receive message(s) from a socket.
@@ -143,20 +143,20 @@ where
 // The recv() function appeared in 4.2BSD.
 // The recvmmsg() function appeared in FreeBSD 11.0.
 recv :: proc(s: Fd, buf: []u8, flags: Recv_Flags) -> (int, Errno) {
-	// This is a wrapper over recvfrom().
-	result, ok := intrinsics.syscall_bsd(SYS_recvfrom,
-		cast(uintptr)s,
-		cast(uintptr)raw_data(buf),
-		cast(uintptr)len(buf),
-		cast(uintptr)flags,
-		0,
-		0)
+    // This is a wrapper over recvfrom().
+    result, ok := intrinsics.syscall_bsd(SYS_recvfrom,
+        cast(uintptr)s,
+        cast(uintptr)raw_data(buf),
+        cast(uintptr)len(buf),
+        cast(uintptr)flags,
+        0,
+        0)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Accept a connection on a socket.
@@ -164,24 +164,24 @@ recv :: proc(s: Fd, buf: []u8, flags: Recv_Flags) -> (int, Errno) {
 // The accept() system call appeared in 4.2BSD.
 accept_T :: proc(s: Fd, sockaddr: ^$T) -> (Fd, Errno)
 where
-	intrinsics.type_is_subtype_of(T, Socket_Address_Header)
+    intrinsics.type_is_subtype_of(T, Socket_Address_Header)
 {
-	// sockaddr must contain a valid pointer, or this will segfault because
-	// we're telling the syscall that there's memory available to write to.
-	addrlen: socklen_t = size_of(T)
+    // sockaddr must contain a valid pointer, or this will segfault because
+    // we're telling the syscall that there's memory available to write to.
+    addrlen: socklen_t = size_of(T)
 
-	result, ok := intrinsics.syscall_bsd(SYS_accept,
-		cast(uintptr)s,
-		cast(uintptr)sockaddr,
-		cast(uintptr)&addrlen)
+    result, ok := intrinsics.syscall_bsd(SYS_accept,
+        cast(uintptr)s,
+        cast(uintptr)sockaddr,
+        cast(uintptr)&addrlen)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	sockaddr.len = cast(u8)addrlen
+    sockaddr.len = cast(u8)addrlen
 
-	return cast(Fd)result, nil
+    return cast(Fd)result, nil
 }
 
 
@@ -189,60 +189,60 @@ where
 //
 // The accept() system call appeared in 4.2BSD.
 accept_nil :: proc(s: Fd) -> (Fd, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_accept,
-		cast(uintptr)s,
-		cast(uintptr)0,
-		cast(uintptr)0)
+    result, ok := intrinsics.syscall_bsd(SYS_accept,
+        cast(uintptr)s,
+        cast(uintptr)0,
+        cast(uintptr)0)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(Fd)result, nil
+    return cast(Fd)result, nil
 }
 
-accept :: proc { accept_T, accept_nil }
+
 
 getsockname_or_peername :: proc(s: Fd, sockaddr: ^$T, is_peer: bool) -> Errno {
-	// sockaddr must contain a valid pointer, or this will segfault because
-	// we're telling the syscall that there's memory available to write to.
-	addrlen: socklen_t = size_of(T)
+    // sockaddr must contain a valid pointer, or this will segfault because
+    // we're telling the syscall that there's memory available to write to.
+    addrlen: socklen_t = size_of(T)
 
-	result, ok := intrinsics.syscall_bsd(
-		is_peer ? SYS_getpeername : SYS_getsockname,
-		cast(uintptr)s,
-		cast(uintptr)sockaddr,
-		cast(uintptr)&addrlen)
+    result, ok := intrinsics.syscall_bsd(
+        is_peer ? SYS_getpeername : SYS_getsockname,
+        cast(uintptr)s,
+        cast(uintptr)sockaddr,
+        cast(uintptr)&addrlen)
 
-	if !ok {
-			return cast(Errno)result
-	}
+    if !ok {
+            return cast(Errno)result
+    }
 
-	return nil
+    return nil
 }
 
 // Get name of connected peer
 //
 // The getpeername() system call appeared in 4.2BSD.
 getpeername :: proc(s: Fd, sockaddr: ^$T) -> Errno {
-	return getsockname_or_peername(s, sockaddr, true)
+    return getsockname_or_peername(s, sockaddr, true)
 }
 
 // Get socket name.
 //
 // The getsockname() system call appeared in 4.2BSD.
 getsockname :: proc(s: Fd, sockaddr: ^$T) -> Errno {
-	return getsockname_or_peername(s, sockaddr, false)
+    return getsockname_or_peername(s, sockaddr, false)
 }
 
 // Synchronize changes to a file.
 //
 // The fsync() system call appeared in 4.2BSD.
 fsync :: proc(fd: Fd) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_fsync,
-		cast(uintptr)fd)
+    result, _ := intrinsics.syscall_bsd(SYS_fsync,
+        cast(uintptr)fd)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // File control.
@@ -253,133 +253,133 @@ fsync :: proc(fd: Fd) -> Errno {
 // NOTE: If you know at compile-time what command you're calling, use one of the
 // `fcntl_*` procedures instead to preserve type safety.
 fcntl :: proc(fd: Fd, cmd: File_Control_Command, arg: c.int) -> (int, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)cmd,
-		cast(uintptr)arg)
+    result, ok := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)cmd,
+        cast(uintptr)arg)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // TODO: Implement more type-safe fcntl commands.
 
 fcntl_dupfd :: proc(fd: Fd, newfd: Fd) -> (Fd, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.DUPFD,
-		cast(uintptr)newfd)
+    result, ok := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.DUPFD,
+        cast(uintptr)newfd)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(Fd)result, nil
+    return cast(Fd)result, nil
 }
 
 fcntl_getfd :: proc(fd: Fd) -> (bool, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.GETFD)
+    result, ok := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.GETFD)
 
-	if !ok {
-		return false, cast(Errno)result
-	}
+    if !ok {
+        return false, cast(Errno)result
+    }
 
-	return result & FD_CLOEXEC > 0, nil
+    return result & FD_CLOEXEC > 0, nil
 }
 
 fcntl_setfd :: proc(fd: Fd, close_on_exec: bool) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.SETFD,
-		(close_on_exec ? FD_CLOEXEC : 0))
+    result, _ := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.SETFD,
+        (close_on_exec ? FD_CLOEXEC : 0))
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 fcntl_getfl :: proc(fd: Fd) -> (File_Status_Flags, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.GETFL)
+    result, ok := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.GETFL)
 
-	if !ok {
-		return nil, cast(Errno)result
-	}
+    if !ok {
+        return nil, cast(Errno)result
+    }
 
-	return transmute(File_Status_Flags)cast(c.int)result, nil
+    return transmute(File_Status_Flags)cast(c.int)result, nil
 }
 
 fcntl_setfl :: proc(fd: Fd, flags: File_Status_Flags) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.SETFL,
-		cast(uintptr)transmute(c.int)flags)
+    result, _ := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.SETFL,
+        cast(uintptr)transmute(c.int)flags)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 fcntl_getown :: proc(fd: Fd) -> (pid_t, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.GETOWN)
+    result, ok := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.GETOWN)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(pid_t)result, nil
+    return cast(pid_t)result, nil
 }
 
 fcntl_setown :: proc(fd: Fd, pid: pid_t) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.SETOWN,
-		cast(uintptr)pid)
+    result, _ := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.SETOWN,
+        cast(uintptr)pid)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 fcntl_getlk :: proc(fd: Fd, flock: ^File_Lock) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.GETLK,
-		cast(uintptr)flock)
+    result, _ := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.GETLK,
+        cast(uintptr)flock)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 fcntl_setlk :: proc(fd: Fd, flock: ^File_Lock) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.SETLK,
-		cast(uintptr)flock)
+    result, _ := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.SETLK,
+        cast(uintptr)flock)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 fcntl_add_seals :: proc(fd: Fd, seals: File_Seals) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.ADD_SEALS,
-		cast(uintptr)transmute(c.int)seals)
+    result, _ := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.ADD_SEALS,
+        cast(uintptr)transmute(c.int)seals)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 fcntl_get_seals :: proc(fd: Fd) -> (File_Seals, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_fcntl,
-		cast(uintptr)fd,
-		cast(uintptr)File_Control_Command.GET_SEALS)
+    result, ok := intrinsics.syscall_bsd(SYS_fcntl,
+        cast(uintptr)fd,
+        cast(uintptr)File_Control_Command.GET_SEALS)
 
-	if !ok {
-		return nil, cast(Errno)result
-	}
+    if !ok {
+        return nil, cast(Errno)result
+    }
 
-	return transmute(File_Seals)cast(c.int)result, nil
+    return transmute(File_Seals)cast(c.int)result, nil
 }
 
 //
@@ -390,16 +390,16 @@ fcntl_get_seals :: proc(fd: Fd) -> (File_Seals, Errno) {
 //
 // The socket() system call appeared in 4.2BSD.
 socket :: proc(domain: Protocol_Family, type: Socket_Type, protocol: Protocol) -> (Fd, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_socket,
-		cast(uintptr)domain,
-		cast(uintptr)type,
-		cast(uintptr)protocol)
+    result, ok := intrinsics.syscall_bsd(SYS_socket,
+        cast(uintptr)domain,
+        cast(uintptr)type,
+        cast(uintptr)protocol)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(Fd)result, nil
+    return cast(Fd)result, nil
 }
 
 // Initiate a connection on a socket.
@@ -407,14 +407,14 @@ socket :: proc(domain: Protocol_Family, type: Socket_Type, protocol: Protocol) -
 // The connect() system call appeared in 4.2BSD.
 connect :: proc(fd: Fd, sockaddr: ^$T, addrlen: socklen_t) -> Errno
 where
-	intrinsics.type_is_subtype_of(T, Socket_Address_Header)
+    intrinsics.type_is_subtype_of(T, Socket_Address_Header)
 {
-	result, _ := intrinsics.syscall_bsd(SYS_connect,
-		cast(uintptr)fd,
-		cast(uintptr)sockaddr,
-		cast(uintptr)addrlen)
+    result, _ := intrinsics.syscall_bsd(SYS_connect,
+        cast(uintptr)fd,
+        cast(uintptr)sockaddr,
+        cast(uintptr)addrlen)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 
@@ -423,25 +423,25 @@ where
 // The bind() system call appeared in 4.2BSD.
 bind :: proc(s: Fd, sockaddr: ^$T, addrlen: socklen_t) -> Errno
 where
-	intrinsics.type_is_subtype_of(T, Socket_Address_Header)
+    intrinsics.type_is_subtype_of(T, Socket_Address_Header)
 {
-	result, _ := intrinsics.syscall_bsd(SYS_bind,
-		cast(uintptr)s,
-		cast(uintptr)sockaddr,
-		cast(uintptr)addrlen)
+    result, _ := intrinsics.syscall_bsd(SYS_bind,
+        cast(uintptr)s,
+        cast(uintptr)sockaddr,
+        cast(uintptr)addrlen)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // Listen for connections on a socket.
 //
 // The listen() system call appeared in 4.2BSD.
 listen :: proc(s: Fd, backlog: int) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_listen,
-		cast(uintptr)s,
-		cast(uintptr)backlog)
+    result, _ := intrinsics.syscall_bsd(SYS_listen,
+        cast(uintptr)s,
+        cast(uintptr)backlog)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // Send message(s) from a socket.
@@ -450,21 +450,21 @@ listen :: proc(s: Fd, backlog: int) -> Errno {
 // The sendmmsg() function appeared in FreeBSD 11.0.
 sendto :: proc(s: Fd, msg: []u8, flags: Send_Flags, to: ^$T) -> (int, Errno)
 where
-	intrinsics.type_is_subtype_of(T, Socket_Address_Header)
+    intrinsics.type_is_subtype_of(T, Socket_Address_Header)
 {
-	result, ok := intrinsics.syscall_bsd(SYS_sendto,
-		cast(uintptr)s,
-		cast(uintptr)raw_data(msg),
-		cast(uintptr)len(msg),
-		cast(uintptr)flags,
-		cast(uintptr)to,
-		cast(uintptr)to.len)
+    result, ok := intrinsics.syscall_bsd(SYS_sendto,
+        cast(uintptr)s,
+        cast(uintptr)raw_data(msg),
+        cast(uintptr)len(msg),
+        cast(uintptr)flags,
+        cast(uintptr)to,
+        cast(uintptr)to.len)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Send message(s) from a socket.
@@ -472,66 +472,66 @@ where
 // The send() function appeared in 4.2BSD.
 // The sendmmsg() function appeared in FreeBSD 11.0.
 send :: proc(s: Fd, msg: []u8, flags: Send_Flags) -> (int, Errno) {
-	// This is a wrapper over sendto().
-	result, ok := intrinsics.syscall_bsd(SYS_sendto,
-		cast(uintptr)s,
-		cast(uintptr)raw_data(msg),
-		cast(uintptr)len(msg),
-		cast(uintptr)flags,
-		0,
-		0)
+    // This is a wrapper over sendto().
+    result, ok := intrinsics.syscall_bsd(SYS_sendto,
+        cast(uintptr)s,
+        cast(uintptr)raw_data(msg),
+        cast(uintptr)len(msg),
+        cast(uintptr)flags,
+        0,
+        0)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Disable sends and/or receives on a socket.
 //
 // The shutdown() system call appeared in 4.2BSD.
 shutdown :: proc(s: Fd, how: Shutdown_Method) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_shutdown,
-		cast(uintptr)s,
-		cast(uintptr)how)
+    result, _ := intrinsics.syscall_bsd(SYS_shutdown,
+        cast(uintptr)s,
+        cast(uintptr)how)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // Get and set options on sockets.
 //
 // The getsockopt() and setsockopt() system calls appeared in 4.2BSD.
 setsockopt :: proc(s: Fd, level: Valid_Socket_Option_Level, optname: Socket_Option, optval: rawptr, optlen: socklen_t) -> Errno {
-	real_level: uintptr
-	switch which in level {
-	case Protocol_Family:     real_level = cast(uintptr)which
-	case Socket_Option_Level: real_level = cast(uintptr)which
-	}
+    real_level: uintptr
+    switch which in level {
+    case Protocol_Family:     real_level = cast(uintptr)which
+    case Socket_Option_Level: real_level = cast(uintptr)which
+    }
 
-	result, _ := intrinsics.syscall_bsd(SYS_setsockopt,
-		cast(uintptr)s,
-		real_level,
-		cast(uintptr)optname,
-		cast(uintptr)optval,
-		cast(uintptr)optlen)
+    result, _ := intrinsics.syscall_bsd(SYS_setsockopt,
+        cast(uintptr)s,
+        real_level,
+        cast(uintptr)optname,
+        cast(uintptr)optval,
+        cast(uintptr)optlen)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // Get or set system information.
 //
 // The sysctl() function first appeared in 4.4BSD.
 sysctl :: proc(mib: []MIB_Identifier, oldp: rawptr, oldlenp: ^c.size_t, newp: rawptr, newlen: c.size_t) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS_sysctl,
-		cast(uintptr)raw_data(mib),
-		cast(uintptr)len(mib),
-		cast(uintptr)oldp,
-		cast(uintptr)oldlenp,
-		cast(uintptr)newp,
-		cast(uintptr)newlen)
+    result, _ := intrinsics.syscall_bsd(SYS_sysctl,
+        cast(uintptr)raw_data(mib),
+        cast(uintptr)len(mib),
+        cast(uintptr)oldp,
+        cast(uintptr)oldlenp,
+        cast(uintptr)newp,
+        cast(uintptr)newlen)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // Interface for implementation of userspace threading synchronization primitives.
@@ -540,31 +540,31 @@ sysctl :: proc(mib: []MIB_Identifier, oldp: rawptr, oldlenp: ^c.size_t, newp: ra
 // Library (libthr, -lthr) to implement IEEE Std 1003.1-2001 (“POSIX.1”)
 // pthread(3) functionality.
 _umtx_op :: proc(obj: rawptr, op: Userland_Mutex_Operation, val: c.ulong, uaddr, uaddr2: rawptr) -> Errno {
-	result, _ := intrinsics.syscall_bsd(SYS__umtx_op,
-		cast(uintptr)obj,
-		cast(uintptr)op,
-		cast(uintptr)val,
-		cast(uintptr)uaddr,
-		cast(uintptr)uaddr2)
+    result, _ := intrinsics.syscall_bsd(SYS__umtx_op,
+        cast(uintptr)obj,
+        cast(uintptr)op,
+        cast(uintptr)val,
+        cast(uintptr)uaddr,
+        cast(uintptr)uaddr2)
 
-	return cast(Errno)result
+    return cast(Errno)result
 }
 
 // Read input without modifying the file pointer.
 //
 // The pread() function appeared in AT&T System V Release 4 UNIX.
 pread :: proc(fd: Fd, buf: []u8, offset: off_t) -> (int, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_pread,
-		cast(uintptr)fd,
-		cast(uintptr)raw_data(buf),
-		cast(uintptr)len(buf),
-		cast(uintptr)offset)
+    result, ok := intrinsics.syscall_bsd(SYS_pread,
+        cast(uintptr)fd,
+        cast(uintptr)raw_data(buf),
+        cast(uintptr)len(buf),
+        cast(uintptr)offset)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Write output without modifying the file pointer.
@@ -577,17 +577,17 @@ pread :: proc(fd: Fd, buf: []u8, offset: off_t) -> (int, Errno) {
 // offset if O_APPEND is set, contrary to IEEE Std 1003.1-2008 (“POSIX.1”)
 // where pwrite() writes into offset regardless of whether O_APPEND is set.
 pwrite :: proc(fd: Fd, buf: []u8, offset: off_t) -> (int, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_pwrite,
-		cast(uintptr)fd,
-		cast(uintptr)raw_data(buf),
-		cast(uintptr)len(buf),
-		cast(uintptr)offset)
+    result, ok := intrinsics.syscall_bsd(SYS_pwrite,
+        cast(uintptr)fd,
+        cast(uintptr)raw_data(buf),
+        cast(uintptr)len(buf),
+        cast(uintptr)offset)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(int)result, nil
+    return cast(int)result, nil
 }
 
 // Accept a connection on a socket.
@@ -595,42 +595,42 @@ pwrite :: proc(fd: Fd, buf: []u8, offset: off_t) -> (int, Errno) {
 // The accept4() system call appeared in FreeBSD 10.0.
 accept4_T :: proc(s: Fd, sockaddr: ^$T, flags: Socket_Flags = {}) -> (Fd, Errno)
 where
-	intrinsics.type_is_subtype_of(T, Socket_Address_Header)
+    intrinsics.type_is_subtype_of(T, Socket_Address_Header)
 {
-	// `sockaddr` must contain a valid pointer, or this will segfault because
-	// we're telling the syscall that there's memory available to write to.
-	addrlen: u32 = size_of(T)
+    // `sockaddr` must contain a valid pointer, or this will segfault because
+    // we're telling the syscall that there's memory available to write to.
+    addrlen: u32 = size_of(T)
 
-	result, ok := intrinsics.syscall_bsd(SYS_accept4,
-		cast(uintptr)s,
-		cast(uintptr)sockaddr,
-		cast(uintptr)&addrlen,
-		cast(uintptr)transmute(c.int)flags)
+    result, ok := intrinsics.syscall_bsd(SYS_accept4,
+        cast(uintptr)s,
+        cast(uintptr)sockaddr,
+        cast(uintptr)&addrlen,
+        cast(uintptr)transmute(c.int)flags)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	sockaddr.len = cast(u8)addrlen
+    sockaddr.len = cast(u8)addrlen
 
-	return cast(Fd)result, nil
+    return cast(Fd)result, nil
 }
 
 // Accept a connection on a socket.
 //
 // The accept4() system call appeared in FreeBSD 10.0.
 accept4_nil :: proc(s: Fd, flags: Socket_Flags = {}) -> (Fd, Errno) {
-	result, ok := intrinsics.syscall_bsd(SYS_accept4,
-		cast(uintptr)s,
-		cast(uintptr)0,
-		cast(uintptr)0,
-		cast(uintptr)transmute(c.int)flags)
+    result, ok := intrinsics.syscall_bsd(SYS_accept4,
+        cast(uintptr)s,
+        cast(uintptr)0,
+        cast(uintptr)0,
+        cast(uintptr)transmute(c.int)flags)
 
-	if !ok {
-		return 0, cast(Errno)result
-	}
+    if !ok {
+        return 0, cast(Errno)result
+    }
 
-	return cast(Fd)result, nil
+    return cast(Fd)result, nil
 }
 
-accept4 :: proc { accept4_nil, accept4_T }
+

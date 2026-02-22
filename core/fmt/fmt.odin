@@ -1272,7 +1272,7 @@ _fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, units: st
     str := strconv.write_float(buf[:], amt, 'f', prec, 64)
 
     // Add the unit at the end.
-    copy(buf[len(str):], units[off:off+unit_len])
+    copy_from_string(buf[len(str):], units[off:off+unit_len])
     str = string(buf[:len(str)+unit_len])
 
     if !fi.plus {

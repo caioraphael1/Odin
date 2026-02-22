@@ -410,7 +410,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
         if tl != t0 {
             size += 1 + tl - t0
         }
-        buf := make([]byte, size, allocator)
+        buf := make_slice([]byte, size, allocator)
         n := copy(buf, "..")
         for _ in 0..<seps {
             buf[n] = SEPARATOR
@@ -475,7 +475,7 @@ split_list :: proc(path: string, allocator: mem.Allocator) -> (list: []string, e
     }
 
     start, quote = 0, false
-    list = make([]string, count + 1, allocator) or_return
+    list = make_slice([]string, count + 1, allocator) or_return
     index := 0
     for i := 0; i < len(path); i += 1 {
         c := path[i]
@@ -531,7 +531,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: runtime.Allocat
             lb.w += 1
             return
         }
-        lb.b = make([]byte, len(lb.s), allocator) or_return
+        lb.b = make_slice([]byte, len(lb.s), allocator) or_return
         copy(lb.b, lb.s[:lb.w])
     }
     lb.b[lb.w] = c
@@ -546,7 +546,7 @@ lazy_buffer_string :: proc(lb: ^Lazy_Buffer, allocator: runtime.Allocator) -> (s
 
     x := lb.vol_and_path[:lb.vol_len]
     y := string(lb.b[:lb.w])
-    z := make([]byte, len(x)+len(y), allocator) or_return
+    z := make_slice([]byte, len(x)+len(y), allocator) or_return
     copy(z, x)
     copy(z[len(x):], y)
     return string(z), nil

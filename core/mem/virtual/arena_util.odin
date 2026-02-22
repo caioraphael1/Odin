@@ -59,7 +59,7 @@ make_aligned :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, alignmen
 // `make_multi_pointer` allocates and initializes a dynamic array. Like `new`, the second argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
 //
-// This is "similar" to doing `raw_data(make([]E, len, allocator))`.
+// This is "similar" to doing `raw_data(make_slice([]E, len, allocator))`.
 //
 // Note: Prefer using the procedure group `make`.
 
@@ -70,9 +70,4 @@ make_multi_pointer :: proc(arena: ^Arena, $T: typeid/[^]$E, #any_int len: int, l
 		return nil, err
 	}
 	return (T)(raw_data(data)), err
-}
-
-make :: proc{
-	make_slice,
-	make_multi_pointer,
 }

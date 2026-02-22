@@ -98,7 +98,7 @@ _benchmark_large :: proc(t: ^testing.T, tbl: ^table.Table, algo_name: string) {
 			options.processed = options.rounds * options.bytes
 			return
 		},
-		output = make([]byte, 1024768, context.temp_allocator),
+		output = make_slice([]byte, 1024768, context.temp_allocator),
 		teardown = nil,
 	}
 

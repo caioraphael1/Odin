@@ -203,7 +203,7 @@ test_siphash_2_4 :: proc(t: ^testing.T) {
 	}
 
 	for i in 0 ..< len(test_vectors) {
-		data := make([]byte, i)
+		data := make_slice([]byte, i)
 		defer _ = delete(data)
 		for j in 0 ..< i {
 			data[j] = byte(j)

@@ -24,9 +24,9 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	c := make([]byte, len(s), allocator, loc) or_return
-	copy(c, s)
-	return string(c), nil
+    c := make_slice([]byte, len(s), allocator, loc) or_return
+    copy_from_string(c, s)
+    return string(c), nil
 }
 
 /*
@@ -44,10 +44,10 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone_to_cstring :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
-	c := make([]byte, len(s)+1, allocator, loc) or_return
-	copy(c, s)
-	c[len(s)] = 0
-	return cstring(&c[0]), nil
+    c := make_slice([]byte, len(s)+1, allocator, loc) or_return
+    copy_from_string(c, s)
+    c[len(s)] = 0
+    return cstring(&c[0]), nil
 }
 
 /*
@@ -63,14 +63,14 @@ Returns:
 - res: A string created from the byte pointer and length
 */
 string_from_ptr :: proc(ptr: ^byte, len: int) -> (res: string) {
-	return transmute(string)mem.Raw_String{ptr, len}
+    return transmute(string)mem.Raw_String{ptr, len}
 }
 
 /*
 Transmutes a raw pointer (null-terminated) into a string. Non-allocating. Searches for a null-byte from `0..<len`, otherwise `len` will be the end size
 
 NOTE: The created string is only valid as long as the pointer and length are valid.
-	  The string is truncated at the first null-byte encountered.
+      The string is truncated at the first null-byte encountered.
 
 Inputs:
 - ptr: A pointer to the start of the null-terminated byte sequence
@@ -80,9 +80,9 @@ Returns:
 - res: A string created from the null-terminated byte pointer and length
 */
 string_from_null_terminated_ptr :: proc(ptr: [^]byte, len: int) -> (res: string) {
-	s := string(ptr[:len])
-	s = truncate_to_byte(s, 0)
-	return s
+    s := string(ptr[:len])
+    s = truncate_to_byte(s, 0)
+    return s
 }
 
 /*
@@ -97,8 +97,8 @@ Returns:
 - res: The converted cstring
 */
 unsafe_string_to_cstring :: proc(str: string) -> (res: cstring) {
-	d := transmute(mem.Raw_String)str
-	return cstring(d.data)
+    d := transmute(mem.Raw_String)str
+    return cstring(d.data)
 }
 
 /*
@@ -114,11 +114,11 @@ Returns:
 - res: The truncated string
 */
 truncate_to_byte :: proc(str: string, b: byte) -> (res: string) {
-	n := index_byte(str, b)
-	if n < 0 {
-		n = len(str)
-	}
-	return str[:n]
+    n := index_byte(str, b)
+    if n < 0 {
+        n = len(str)
+    }
+    return str[:n]
 }
 
 /*
@@ -132,11 +132,11 @@ Returns:
 - res: The truncated string
 */
 truncate_to_rune :: proc(str: string, r: rune) -> (res: string) {
-	n := index_rune(str, r)
-	if n < 0 {
-		n = len(str)
-	}
-	return str[:n]
+    n := index_rune(str, r)
+    if n < 0 {
+        n = len(str)
+    }
+    return str[:n]
 }
 
 /*
@@ -154,10 +154,10 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone_from_bytes :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	c := make([]byte, len(s)+1, allocator, loc) or_return
-	copy(c, s)
-	c[len(s)] = 0
-	return string(c[:len(s)]), nil
+    c := make_slice([]byte, len(s)+1, allocator, loc) or_return
+    copy_from_string(c, s)
+    c[len(s)] = 0
+    return string(c[:len(s)]), nil
 }
 
 /*
@@ -175,7 +175,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone_from_cstring :: proc(s: cstring, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	return clone(string(s), allocator, loc)
+    return clone(string(s), allocator, loc)
 }
 
 /*
@@ -196,17 +196,10 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone_from_ptr :: proc(ptr: ^byte, len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	s := string_from_ptr(ptr, len)
-	return clone(s, allocator, loc)
+    s := string_from_ptr(ptr, len)
+    return clone(s, allocator, loc)
 }
 
-// Overloaded procedure to clone from a string, `[]byte`, `cstring` or a `^byte` + length
-clone_from :: proc{
-	clone,
-	clone_from_bytes,
-	clone_from_cstring,
-	clone_from_ptr,
-}
 
 /*
 Clones a string from a null-terminated cstring `ptr` and a byte length `len`
@@ -226,9 +219,9 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone_from_cstring_bounded :: proc(ptr: cstring, len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	s := string_from_ptr((^u8)(ptr), len)
-	s = truncate_to_byte(s, 0)
-	return clone(s, allocator, loc)
+    s := string_from_ptr((^u8)(ptr), len)
+    s = truncate_to_byte(s, 0)
+    return clone(s, allocator, loc)
 }
 
 /*
@@ -243,7 +236,7 @@ Returns:
 - result: `-1` if `lhs` comes first, `1` if `rhs` comes first, or `0` if they are equal
 */
 compare :: proc(lhs, rhs: string) -> (result: int) {
-	return mem.compare(transmute([]byte)lhs, transmute([]byte)rhs)
+    return mem.compare(transmute([]byte)lhs, transmute([]byte)rhs)
 }
 
 /*
@@ -257,12 +250,12 @@ Returns:
 - result: `true` if the rune `r` in the string `s`, `false` otherwise
 */
 contains_rune :: proc(s: string, r: rune) -> (result: bool) {
-	for c in s {
-		if c == r {
-			return true
-		}
-	}
-	return false
+    for c in s {
+        if c == r {
+            return true
+        }
+    }
+    return false
 }
 
 /*
@@ -277,24 +270,24 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	contains_example :: proc() {
-		fmt.println(strings.contains("testing", "test"))
-		fmt.println(strings.contains("testing", "ing"))
-		fmt.println(strings.contains("testing", "text"))
-	}
+    contains_example :: proc() {
+        fmt.println(strings.contains("testing", "test"))
+        fmt.println(strings.contains("testing", "ing"))
+        fmt.println(strings.contains("testing", "text"))
+    }
 
 Output:
 
-	true
-	true
-	false
+    true
+    true
+    false
 
 */
 contains :: proc(s, substr: string) -> (res: bool) {
-	return index(s, substr) >= 0
+    return index(s, substr) >= 0
 }
 
 /*
@@ -309,36 +302,36 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	contains_any_example :: proc() {
-		fmt.println(strings.contains_any("test", "test"))
-		fmt.println(strings.contains_any("test", "ts"))
-		fmt.println(strings.contains_any("test", "et"))
-		fmt.println(strings.contains_any("test", "a"))
-	}
+    contains_any_example :: proc() {
+        fmt.println(strings.contains_any("test", "test"))
+        fmt.println(strings.contains_any("test", "ts"))
+        fmt.println(strings.contains_any("test", "et"))
+        fmt.println(strings.contains_any("test", "a"))
+    }
 
 Output:
 
-	true
-	true
-	true
-	false
+    true
+    true
+    true
+    false
 
 */
 contains_any :: proc(s, chars: string) -> (res: bool) {
-	return index_any(s, chars) >= 0
+    return index_any(s, chars) >= 0
 }
 
 
 contains_space :: proc(s: string) -> (res: bool) {
-	for c in s {
-		if is_space(c) {
-			return true
-		}
-	}
-	return false
+    for c in s {
+        if is_space(c) {
+            return true
+        }
+    }
+    return false
 }
 
 /*
@@ -352,22 +345,22 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	rune_count_example :: proc() {
-		fmt.println(strings.rune_count("test"))
-		fmt.println(strings.rune_count("testö")) // where len("testö") == 6
-	}
+    rune_count_example :: proc() {
+        fmt.println(strings.rune_count("test"))
+        fmt.println(strings.rune_count("testö")) // where len("testö") == 6
+    }
 
 Output:
 
-	4
-	5
+    4
+    5
 
 */
 rune_count :: proc(s: string) -> (res: int) {
-	return utf8.rune_count_in_string(s)
+    return utf8.rune_count_in_string(s)
 }
 
 /*
@@ -383,70 +376,70 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	equal_fold_example :: proc() {
-		fmt.println(strings.equal_fold("test", "test"))
-		fmt.println(strings.equal_fold("Test", "test"))
-		fmt.println(strings.equal_fold("Test", "tEsT"))
-		fmt.println(strings.equal_fold("test", "tes"))
-	}
+    equal_fold_example :: proc() {
+        fmt.println(strings.equal_fold("test", "test"))
+        fmt.println(strings.equal_fold("Test", "test"))
+        fmt.println(strings.equal_fold("Test", "tEsT"))
+        fmt.println(strings.equal_fold("test", "tes"))
+    }
 
 Output:
 
-	true
-	true
-	true
-	false
+    true
+    true
+    true
+    false
 
 */
 equal_fold :: proc(u, v: string) -> (res: bool) {
-	s, t := u, v
-	loop: for s != "" && t != "" {
-		sr, tr: rune
-		if s[0] < utf8.RUNE_SELF {
-			sr, s = rune(s[0]), s[1:]
-		} else {
-			r, size := utf8.decode_rune_in_string(s)
-			sr, s = r, s[size:]
-		}
-		if t[0] < utf8.RUNE_SELF {
-			tr, t = rune(t[0]), t[1:]
-		} else {
-			r, size := utf8.decode_rune_in_string(t)
-			tr, t = r, t[size:]
-		}
+    s, t := u, v
+    loop: for s != "" && t != "" {
+        sr, tr: rune
+        if s[0] < utf8.RUNE_SELF {
+            sr, s = rune(s[0]), s[1:]
+        } else {
+            r, size := utf8.decode_rune_in_string(s)
+            sr, s = r, s[size:]
+        }
+        if t[0] < utf8.RUNE_SELF {
+            tr, t = rune(t[0]), t[1:]
+        } else {
+            r, size := utf8.decode_rune_in_string(t)
+            tr, t = r, t[size:]
+        }
 
-		if tr == sr { // easy case
-			continue loop
-		}
+        if tr == sr { // easy case
+            continue loop
+        }
 
-		if tr < sr {
-			tr, sr = sr, tr
-		}
+        if tr < sr {
+            tr, sr = sr, tr
+        }
 
-		if tr < utf8.RUNE_SELF {
-			switch sr {
-			case 'A'..='Z':
-				if tr == (sr+'a')-'A' {
-					continue loop
-				}
-			}
-			return false
-		}
+        if tr < utf8.RUNE_SELF {
+            switch sr {
+            case 'A'..='Z':
+                if tr == (sr+'a')-'A' {
+                    continue loop
+                }
+            }
+            return false
+        }
 
-		r := unicode.simple_fold(sr)
-		for r != sr && r < tr {
-			r = unicode.simple_fold(sr)
-		}
-		if r == tr {
-			continue loop
-		}
-		return false
-	}
+        r := unicode.simple_fold(sr)
+        for r != sr && r < tr {
+            r = unicode.simple_fold(sr)
+        }
+        if r == tr {
+            continue loop
+        }
+        return false
+    }
 
-	return s == t
+    return s == t
 }
 
 /*
@@ -461,41 +454,41 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	prefix_length_example :: proc() {
-		fmt.println(strings.prefix_length("testing", "test"))
-		fmt.println(strings.prefix_length("testing", "te"))
-		fmt.println(strings.prefix_length("telephone", "te"))
-		fmt.println(strings.prefix_length("testing", "est"))
-	}
+    prefix_length_example :: proc() {
+        fmt.println(strings.prefix_length("testing", "test"))
+        fmt.println(strings.prefix_length("testing", "te"))
+        fmt.println(strings.prefix_length("telephone", "te"))
+        fmt.println(strings.prefix_length("testing", "est"))
+    }
 
 Output:
 
-	4
-	2
-	2
-	0
+    4
+    2
+    2
+    0
 
 */
 prefix_length :: proc(a, b: string) -> (n: int) {
-	RUNE_ERROR :: '\ufffd'
-	RUNE_SELF  :: 0x80
-	UTF_MAX    :: 4
+    RUNE_ERROR :: '\ufffd'
+    RUNE_SELF  :: 0x80
+    UTF_MAX    :: 4
 
-	n    = runtime.memory_prefix_length(raw_data(a), raw_data(b), min(len(a), len(b)))
-	lim := max(n - UTF_MAX + 1, 0)
-	for l := n; l > lim; l -= 1 {
-		r, _ := runtime.string_decode_rune(a[l - 1:])
-		if r != RUNE_ERROR {
-			if l > 0 && (a[l - 1] & 0xc0 == 0xc0) {
-				return l - 1
-			}
-			return l
-		}
-	}
-	return
+    n    = runtime.memory_prefix_length(raw_data(a), raw_data(b), min(len(a), len(b)))
+    lim := max(n - UTF_MAX + 1, 0)
+    for l := n; l > lim; l -= 1 {
+        r, _ := runtime.string_decode_rune(a[l - 1:])
+        if r != RUNE_ERROR {
+            if l > 0 && (a[l - 1] & 0xc0 == 0xc0) {
+                return l - 1
+            }
+            return l
+        }
+    }
+    return
 }
 
 /*
@@ -510,25 +503,25 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	common_prefix_example :: proc() {
-		fmt.println(strings.common_prefix("testing", "test"))
-		fmt.println(strings.common_prefix("testing", "te"))
-		fmt.println(strings.common_prefix("telephone", "te"))
-	}
+    common_prefix_example :: proc() {
+        fmt.println(strings.common_prefix("testing", "test"))
+        fmt.println(strings.common_prefix("testing", "te"))
+        fmt.println(strings.common_prefix("telephone", "te"))
+    }
 
 Output:
 
-	test
-	te
-	te
+    test
+    te
+    te
 
 
 */
 common_prefix :: proc(a, b: string) -> string {
-	return a[:prefix_length(a, b)]
+    return a[:prefix_length(a, b)]
 }
 
 /*
@@ -543,26 +536,26 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	has_prefix_example :: proc() {
-		fmt.println(strings.has_prefix("testing", "test"))
-		fmt.println(strings.has_prefix("testing", "te"))
-		fmt.println(strings.has_prefix("telephone", "te"))
-		fmt.println(strings.has_prefix("testing", "est"))
-	}
+    has_prefix_example :: proc() {
+        fmt.println(strings.has_prefix("testing", "test"))
+        fmt.println(strings.has_prefix("testing", "te"))
+        fmt.println(strings.has_prefix("telephone", "te"))
+        fmt.println(strings.has_prefix("testing", "est"))
+    }
 
 Output:
 
-	true
-	true
-	true
-	false
+    true
+    true
+    true
+    false
 
 */
 has_prefix :: proc(s, prefix: string) -> (result: bool) {
-	return len(s) >= len(prefix) && s[0:len(prefix)] == prefix
+    return len(s) >= len(prefix) && s[0:len(prefix)] == prefix
 }
 
 starts_with :: has_prefix
@@ -579,24 +572,24 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	has_suffix_example :: proc() {
-		fmt.println(strings.has_suffix("todo.txt", ".txt"))
-		fmt.println(strings.has_suffix("todo.doc", ".txt"))
-		fmt.println(strings.has_suffix("todo.doc.txt", ".txt"))
-	}
+    has_suffix_example :: proc() {
+        fmt.println(strings.has_suffix("todo.txt", ".txt"))
+        fmt.println(strings.has_suffix("todo.doc", ".txt"))
+        fmt.println(strings.has_suffix("todo.doc.txt", ".txt"))
+    }
 
 Output:
 
-	true
-	false
-	true
+    true
+    false
+    true
 
 */
 has_suffix :: proc(s, suffix: string) -> (result: bool) {
-	return len(s) >= len(suffix) && s[len(s)-len(suffix):] == suffix
+    return len(s) >= len(suffix) && s[len(s)-len(suffix):] == suffix
 }
 
 ends_with :: has_suffix
@@ -617,40 +610,40 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	join_example :: proc() {
-		a := [?]string { "a", "b", "c" }
-		fmt.println(strings.join(a[:], " "))
-		fmt.println(strings.join(a[:], "-"))
-		fmt.println(strings.join(a[:], "..."))
-	}
+    join_example :: proc() {
+        a := [?]string { "a", "b", "c" }
+        fmt.println(strings.join(a[:], " "))
+        fmt.println(strings.join(a[:], "-"))
+        fmt.println(strings.join(a[:], "..."))
+    }
 
 Output:
 
-	a b c
-	a-b-c
-	a...b...c
+    a b c
+    a-b-c
+    a...b...c
 
 */
 join :: proc(a: []string, sep: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	if len(a) == 0 {
-		return "", nil
-	}
+    if len(a) == 0 {
+        return "", nil
+    }
 
-	n := len(sep) * (len(a) - 1)
-	for s in a {
-		n += len(s)
-	}
+    n := len(sep) * (len(a) - 1)
+    for s in a {
+        n += len(s)
+    }
 
-	b := make([]byte, n, allocator, loc) or_return
-	i := copy(b, a[0])
-	for s in a[1:] {
-		i += copy(b[i:], sep)
-		i += copy(b[i:], s)
-	}
-	return string(b), nil
+    b := make_slice([]byte, n, allocator, loc) or_return
+    i := copy_from_string(b, a[0])
+    for s in a[1:] {
+        i += copy_from_string(b[i:], sep)
+        i += copy_from_string(b[i:], s)
+    }
+    return string(b), nil
 }
 
 /*
@@ -668,34 +661,34 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	concatenate_example :: proc() {
-		a := [?]string { "a", "b", "c" }
-		fmt.println(strings.concatenate(a[:]))
-	}
+    concatenate_example :: proc() {
+        a := [?]string { "a", "b", "c" }
+        fmt.println(strings.concatenate(a[:]))
+    }
 
 Output:
 
-	abc
+    abc
 
 */
 concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	if len(a) == 0 {
-		return "", nil
-	}
+    if len(a) == 0 {
+        return "", nil
+    }
 
-	n := 0
-	for s in a {
-		n += len(s)
-	}
-	b := make([]byte, n, allocator, loc) or_return
-	i := 0
-	for s in a {
-		i += copy(b[i:], s)
-	}
-	return string(b), nil
+    n := 0
+    for s in a {
+        n += len(s)
+    }
+    b := make_slice([]byte, n, allocator, loc) or_return
+    i := 0
+    for s in a {
+        i += copy_from_string(b[i:], s)
+    }
+    return string(b), nil
 }
 
 /*
@@ -711,47 +704,47 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	cut_example :: proc() {
-		fmt.println(strings.cut("some example text", 0, 4)) // -> "some"
-		fmt.println(strings.cut("some example text", 2, 2)) // -> "me"
-		fmt.println(strings.cut("some example text", 5, 7)) // -> "example"
-	}
+    cut_example :: proc() {
+        fmt.println(strings.cut("some example text", 0, 4)) // -> "some"
+        fmt.println(strings.cut("some example text", 2, 2)) // -> "me"
+        fmt.println(strings.cut("some example text", 5, 7)) // -> "example"
+    }
 
 Output:
 
-	some
-	me
-	example
+    some
+    me
+    example
 
 */
 cut :: proc(s: string, rune_offset := int(0), rune_length := int(0)) -> (res: string) {
-	s := s; rune_length := rune_length
+    s := s; rune_length := rune_length
 
-	count := 0
-	for _, offset in s {
-		if count == rune_offset {
-			s = s[offset:]
-			break
-		}
-		count += 1
-	}
+    count := 0
+    for _, offset in s {
+        if count == rune_offset {
+            s = s[offset:]
+            break
+        }
+        count += 1
+    }
 
-	if rune_length < 1 {
-		return s
-	}
+    if rune_length < 1 {
+        return s
+    }
 
-	count = 0
-	for _, offset in s {
-		if count == rune_length {
-			s = s[:offset]
-			break
-		}
-		count += 1
-	}
-	return s
+    count = 0
+    for _, offset in s {
+        if count == rune_length {
+            s = s[:offset]
+            break
+        }
+        count += 1
+    }
+    return s
 }
 
 /*
@@ -771,25 +764,25 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	cut_clone_example :: proc() {
-		fmt.println(strings.cut_clone("some example text", 0, 4)) // -> "some"
-		fmt.println(strings.cut_clone("some example text", 2, 2)) // -> "me"
-		fmt.println(strings.cut_clone("some example text", 5, 7)) // -> "example"
-	}
+    cut_clone_example :: proc() {
+        fmt.println(strings.cut_clone("some example text", 0, 4)) // -> "some"
+        fmt.println(strings.cut_clone("some example text", 2, 2)) // -> "me"
+        fmt.println(strings.cut_clone("some example text", 5, 7)) // -> "example"
+    }
 
 Output:
 
-	some
-	me
-	example
+    some
+    me
+    example
 
 */
 cut_clone :: proc(s: string, rune_offset := int(0), rune_length := int(0), allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	res = cut(s, rune_offset, rune_length)
-	return clone(res, allocator, loc)
+    res = cut(s, rune_offset, rune_length)
+    return clone(res, allocator, loc)
 }
 
 /*
@@ -814,50 +807,50 @@ Returns:
 */
 @(private)
 _split :: proc(s_, sep: string, sep_save, n_: int, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
-	s, n := s_, n_
+    s, n := s_, n_
 
-	if n == 0 {
-		return nil, nil
-	}
+    if n == 0 {
+        return nil, nil
+    }
 
-	if sep == "" {
-		l := utf8.rune_count_in_string(s)
-		if n < 0 || n > l {
-			n = l
-		}
+    if sep == "" {
+        l := utf8.rune_count_in_string(s)
+        if n < 0 || n > l {
+            n = l
+        }
 
-		res = make([]string, n, allocator, loc) or_return
-		for i := 0; i < n-1; i += 1 {
-			_, w := utf8.decode_rune_in_string(s)
-			res[i] = s[:w]
-			s = s[w:]
-		}
-		if n > 0 {
-			res[n-1] = s
-		}
-		return res[:], nil
-	}
+        res = make_slice([]string, n, allocator, loc) or_return
+        for i := 0; i < n-1; i += 1 {
+            _, w := utf8.decode_rune_in_string(s)
+            res[i] = s[:w]
+            s = s[w:]
+        }
+        if n > 0 {
+            res[n-1] = s
+        }
+        return res[:], nil
+    }
 
-	if n < 0 {
-		n = count(s, sep) + 1
-	}
+    if n < 0 {
+        n = count(s, sep) + 1
+    }
 
-	res = make([]string, n, allocator, loc) or_return
+    res = make_slice([]string, n, allocator, loc) or_return
 
-	n -= 1
+    n -= 1
 
-	i := 0
-	for ; i < n; i += 1 {
-		m := index(s, sep)
-		if m < 0 {
-			break
-		}
-		res[i] = s[:m+sep_save]
-		s = s[m+len(sep):]
-	}
-	res[i] = s
+    i := 0
+    for ; i < n; i += 1 {
+        m := index(s, sep)
+        if m < 0 {
+            break
+        }
+        res[i] = s[:m+sep_save]
+        s = s[m+len(sep):]
+    }
+    res[i] = s
 
-	return res[:i+1], nil
+    return res[:i+1], nil
 }
 
 /*
@@ -878,22 +871,22 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_example :: proc() {
-		s := "aaa.bbb.ccc.ddd.eee"    // 5 parts
-		ss := strings.split(s, ".")
-		fmt.println(ss)
-	}
+    split_example :: proc() {
+        s := "aaa.bbb.ccc.ddd.eee"    // 5 parts
+        ss := strings.split(s, ".")
+        fmt.println(ss)
+    }
 
 Output:
 
-	["aaa", "bbb", "ccc", "ddd", "eee"]
+    ["aaa", "bbb", "ccc", "ddd", "eee"]
 
 */
 split :: proc(s, sep: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
-	return _split(s, sep, 0, -1, allocator, loc)
+    return _split(s, sep, 0, -1, allocator, loc)
 }
 
 /*
@@ -915,22 +908,22 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_n_example :: proc() {
-		s := "aaa.bbb.ccc.ddd.eee"  // 5 parts present
-		ss := strings.split_n(s, ".",3) // total of 3 wanted
-		fmt.println(ss)
-	}
+    split_n_example :: proc() {
+        s := "aaa.bbb.ccc.ddd.eee"  // 5 parts present
+        ss := strings.split_n(s, ".",3) // total of 3 wanted
+        fmt.println(ss)
+    }
 
 Output:
 
-	["aaa", "bbb", "ccc.ddd.eee"]
+    ["aaa", "bbb", "ccc.ddd.eee"]
 
 */
 split_n :: proc(s, sep: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-	return _split(s, sep, 0, n, allocator)
+    return _split(s, sep, 0, n, allocator)
 }
 
 /*
@@ -951,22 +944,22 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_after_example :: proc() {
-		a := "aaa.bbb.ccc.ddd.eee"         // 5 parts
-		aa := strings.split_after(a, ".")
-		fmt.println(aa)
-	}
+    split_after_example :: proc() {
+        a := "aaa.bbb.ccc.ddd.eee"         // 5 parts
+        aa := strings.split_after(a, ".")
+        fmt.println(aa)
+    }
 
 Output:
 
-	["aaa.", "bbb.", "ccc.", "ddd.", "eee"]
+    ["aaa.", "bbb.", "ccc.", "ddd.", "eee"]
 
 */
 split_after :: proc(s, sep: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-	return _split(s, sep, len(sep), -1, allocator)
+    return _split(s, sep, len(sep), -1, allocator)
 }
 
 /*
@@ -988,22 +981,22 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_after_n_example :: proc() {
-		a := "aaa.bbb.ccc.ddd.eee"
-		aa := strings.split_after_n(a, ".", 3)
-		fmt.println(aa)
-	}
+    split_after_n_example :: proc() {
+        a := "aaa.bbb.ccc.ddd.eee"
+        aa := strings.split_after_n(a, ".", 3)
+        fmt.println(aa)
+    }
 
 Output:
 
-	["aaa.", "bbb.", "ccc.ddd.eee"]
+    ["aaa.", "bbb.", "ccc.ddd.eee"]
 
 */
 split_after_n :: proc(s, sep: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-	return _split(s, sep, len(sep), n, allocator)
+    return _split(s, sep, len(sep), n, allocator)
 }
 
 /*
@@ -1023,28 +1016,28 @@ Returns:
 */
 @(private)
 _split_iterator :: proc(s: ^string, sep: string, sep_save: int) -> (res: string, ok: bool) {
-	m: int
-	if sep == "" {
-		if len(s) == 0 {
-			m = -1
-		} else {
-			_, w := utf8.decode_rune_in_string(s^)
-			m = w
-		}
-	} else {
-		m = index(s^, sep)
-	}
-	if m < 0 {
-		// not found
-		res = s[:]
-		ok = res != ""
-		s^ = s[len(s):]
-	} else {
-		res = s[:m+sep_save]
-		ok = true
-		s^ = s[m+len(sep):]
-	}
-	return
+    m: int
+    if sep == "" {
+        if len(s) == 0 {
+            m = -1
+        } else {
+            _, w := utf8.decode_rune_in_string(s^)
+            m = w
+        }
+    } else {
+        m = index(s^, sep)
+    }
+    if m < 0 {
+        // not found
+        res = s[:]
+        ok = res != ""
+        s^ = s[len(s):]
+    } else {
+        res = s[:m+sep_save]
+        ok = true
+        s^ = s[m+len(sep):]
+    }
+    return
 }
 
 /*
@@ -1060,38 +1053,38 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_by_byte_iterator_example :: proc() {
-		text := "a.b.c.d.e"
-		for str in strings.split_by_byte_iterator(&text, '.') {
-			fmt.println(str) // every loop -> a b c d e
-		}
-	}
+    split_by_byte_iterator_example :: proc() {
+        text := "a.b.c.d.e"
+        for str in strings.split_by_byte_iterator(&text, '.') {
+            fmt.println(str) // every loop -> a b c d e
+        }
+    }
 
 Output:
 
-	a
-	b
-	c
-	d
-	e
+    a
+    b
+    c
+    d
+    e
 
 */
 split_by_byte_iterator :: proc(s: ^string, sep: u8) -> (res: string, ok: bool) {
-	m := index_byte(s^, sep)
-	if m < 0 {
-		// not found
-		res = s[:]
-		ok = res != ""
-		s^ = {}
-	} else {
-		res = s[:m]
-		ok = true
-		s^ = s[m+1:]
-	}
-	return
+    m := index_byte(s^, sep)
+    if m < 0 {
+        // not found
+        res = s[:]
+        ok = res != ""
+        s^ = {}
+    } else {
+        res = s[:m]
+        ok = true
+        s^ = s[m+1:]
+    }
+    return
 }
 
 /*
@@ -1107,27 +1100,27 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_iterator_example :: proc() {
-		text := "a.b.c.d.e"
-		for str in strings.split_iterator(&text, ".") {
-			fmt.println(str)
-		}
-	}
+    split_iterator_example :: proc() {
+        text := "a.b.c.d.e"
+        for str in strings.split_iterator(&text, ".") {
+            fmt.println(str)
+        }
+    }
 
 Output:
 
-	a
-	b
-	c
-	d
-	e
+    a
+    b
+    c
+    d
+    e
 
 */
 split_iterator :: proc(s: ^string, sep: string) -> (res: string, ok: bool) {
-	return _split_iterator(s, sep, 0)
+    return _split_iterator(s, sep, 0)
 }
 
 /*
@@ -1143,27 +1136,27 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_after_iterator_example :: proc() {
-		text := "a.b.c.d.e"
-		for str in strings.split_after_iterator(&text, ".") {
-			fmt.println(str)
-		}
-	}
+    split_after_iterator_example :: proc() {
+        text := "a.b.c.d.e"
+        for str in strings.split_after_iterator(&text, ".") {
+            fmt.println(str)
+        }
+    }
 
 Output:
 
-	a.
-	b.
-	c.
-	d.
-	e
+    a.
+    b.
+    c.
+    d.
+    e
 
 */
 split_after_iterator :: proc(s: ^string, sep: string) -> (res: string, ok: bool) {
-	return _split_iterator(s, sep, len(sep))
+    return _split_iterator(s, sep, len(sep))
 }
 
 /*
@@ -1179,13 +1172,13 @@ Returns:
 */
 @(private)
 _trim_cr :: proc(s: string) -> (res: string) {
-	n := len(s)
-	if n > 0 {
-		if s[n-1] == '\r' {
-			return s[:n-1]
-		}
-	}
-	return s
+    n := len(s)
+    if n > 0 {
+        if s[n-1] == '\r' {
+            return s[:n-1]
+        }
+    }
+    return s
 }
 
 /*
@@ -1203,27 +1196,27 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_lines_example :: proc() {
-		a := "a\nb\nc\nd\ne"
-		b := strings.split_lines(a)
-		fmt.println(b)
-	}
+    split_lines_example :: proc() {
+        a := "a\nb\nc\nd\ne"
+        b := strings.split_lines(a)
+        fmt.println(b)
+    }
 
 Output:
 
-	["a", "b", "c", "d", "e"]
+    ["a", "b", "c", "d", "e"]
 
 */
 split_lines :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-	sep :: "\n"
-	lines := _split(s, sep, 0, -1, allocator) or_return
-	for &line in lines {
-		line = _trim_cr(line)
-	}
-	return lines, nil
+    sep :: "\n"
+    lines := _split(s, sep, 0, -1, allocator) or_return
+    for &line in lines {
+        line = _trim_cr(line)
+    }
+    return lines, nil
 }
 
 /*
@@ -1244,27 +1237,27 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_lines_n_example :: proc() {
-		a := "a\nb\nc\nd\ne"
-		b := strings.split_lines_n(a, 3)
-		fmt.println(b)
-	}
+    split_lines_n_example :: proc() {
+        a := "a\nb\nc\nd\ne"
+        b := strings.split_lines_n(a, 3)
+        fmt.println(b)
+    }
 
 Output:
 
-	["a", "b", "c\nd\ne"]
+    ["a", "b", "c\nd\ne"]
 
 */
 split_lines_n :: proc(s: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-	sep :: "\n"
-	lines := _split(s, sep, 0, n, allocator) or_return
-	for &line in lines {
-		line = _trim_cr(line)
-	}
-	return lines, nil
+    sep :: "\n"
+    lines := _split(s, sep, 0, n, allocator) or_return
+    for &line in lines {
+        line = _trim_cr(line)
+    }
+    return lines, nil
 }
 
 /*
@@ -1284,27 +1277,27 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_lines_after_example :: proc() {
-		a := "a\nb\nc\nd\ne"
-		b := strings.split_lines_after(a)
-		fmt.println(b)
-	}
+    split_lines_after_example :: proc() {
+        a := "a\nb\nc\nd\ne"
+        b := strings.split_lines_after(a)
+        fmt.println(b)
+    }
 
 Output:
 
-	["a\n", "b\n", "c\n", "d\n", "e"]
+    ["a\n", "b\n", "c\n", "d\n", "e"]
 
 */
 split_lines_after :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-	sep :: "\n"
-	lines := _split(s, sep, len(sep), -1, allocator) or_return
-	for &line in lines {
-		line = _trim_cr(line)
-	}
-	return lines, nil
+    sep :: "\n"
+    lines := _split(s, sep, len(sep), -1, allocator) or_return
+    for &line in lines {
+        line = _trim_cr(line)
+    }
+    return lines, nil
 }
 
 /*
@@ -1326,27 +1319,27 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_lines_after_n_example :: proc() {
-		a := "a\nb\nc\nd\ne"
-		b := strings.split_lines_after_n(a, 3)
-		fmt.println(b)
-	}
+    split_lines_after_n_example :: proc() {
+        a := "a\nb\nc\nd\ne"
+        b := strings.split_lines_after_n(a, 3)
+        fmt.println(b)
+    }
 
 Output:
 
-	["a\n", "b\n", "c\nd\ne"]
+    ["a\n", "b\n", "c\nd\ne"]
 
 */
 split_lines_after_n :: proc(s: string, n: int, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-	sep :: "\n"
-	lines := _split(s, sep, len(sep), n, allocator) or_return
-	for &line in lines {
-		line = _trim_cr(line)
-	}
-	return lines, nil
+    sep :: "\n"
+    lines := _split(s, sep, len(sep), n, allocator) or_return
+    for &line in lines {
+        line = _trim_cr(line)
+    }
+    return lines, nil
 }
 
 /*
@@ -1362,26 +1355,26 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_lines_iterator_example :: proc() {
-		text := "a\nb\nc\nd\ne"
-		for str in strings.split_lines_iterator(&text) {
-			fmt.print(str)    // every loop -> a b c d e
-		}
-		fmt.print("\n")
-	}
+    split_lines_iterator_example :: proc() {
+        text := "a\nb\nc\nd\ne"
+        for str in strings.split_lines_iterator(&text) {
+            fmt.print(str)    // every loop -> a b c d e
+        }
+        fmt.print("\n")
+    }
 
 Output:
 
-	abcde
+    abcde
 
 */
 split_lines_iterator :: proc(s: ^string) -> (line: string, ok: bool) {
-	sep :: "\n"
-	line = _split_iterator(s, sep, 0) or_return
-	return _trim_cr(line), true
+    sep :: "\n"
+    line = _split_iterator(s, sep, 0) or_return
+    return _trim_cr(line), true
 }
 
 /*
@@ -1397,29 +1390,29 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_lines_after_iterator_example :: proc() {
-		text := "a\nb\nc\nd\ne\n"
-		for str in strings.split_lines_after_iterator(&text) {
-			fmt.print(str) // every loop -> a\n b\n c\n d\n e\n
-		}
-	}
+    split_lines_after_iterator_example :: proc() {
+        text := "a\nb\nc\nd\ne\n"
+        for str in strings.split_lines_after_iterator(&text) {
+            fmt.print(str) // every loop -> a\n b\n c\n d\n e\n
+        }
+    }
 
 Output:
 
-	a
-	b
-	c
-	d
-	e
+    a
+    b
+    c
+    d
+    e
 
 */
 split_lines_after_iterator :: proc(s: ^string) -> (line: string, ok: bool) {
-	sep :: "\n"
-	line = _split_iterator(s, sep, len(sep)) or_return
-	return _trim_cr(line), true
+    sep :: "\n"
+    line = _split_iterator(s, sep, len(sep)) or_return
+    return _trim_cr(line), true
 }
 
 /*
@@ -1435,26 +1428,26 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	index_byte_example :: proc() {
-		fmt.println(strings.index_byte("test", 't'))
-		fmt.println(strings.index_byte("test", 'e'))
-		fmt.println(strings.index_byte("test", 'x'))
-		fmt.println(strings.index_byte("teäst", 'ä'))
-	}
+    index_byte_example :: proc() {
+        fmt.println(strings.index_byte("test", 't'))
+        fmt.println(strings.index_byte("test", 'e'))
+        fmt.println(strings.index_byte("test", 'x'))
+        fmt.println(strings.index_byte("teäst", 'ä'))
+    }
 
 Output:
 
-	0
-	1
-	-1
-	-1
+    0
+    1
+    -1
+    -1
 
 */
 index_byte :: proc(s: string, c: byte) -> (res: int) {
-	return #force_inline bytes.index_byte(transmute([]u8)s, c)
+    return #force_inline bytes.index_byte(transmute([]u8)s, c)
 }
 
 /*
@@ -1471,26 +1464,26 @@ NOTE: Can't find UTF-8 based runes.
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	last_index_byte_example :: proc() {
-		fmt.println(strings.last_index_byte("test", 't'))
-		fmt.println(strings.last_index_byte("test", 'e'))
-		fmt.println(strings.last_index_byte("test", 'x'))
-		fmt.println(strings.last_index_byte("teäst", 'ä'))
-	}
+    last_index_byte_example :: proc() {
+        fmt.println(strings.last_index_byte("test", 't'))
+        fmt.println(strings.last_index_byte("test", 'e'))
+        fmt.println(strings.last_index_byte("test", 'x'))
+        fmt.println(strings.last_index_byte("teäst", 'ä'))
+    }
 
 Output:
 
-	3
-	1
-	-1
-	-1
+    3
+    1
+    -1
+    -1
 
 */
 last_index_byte :: proc(s: string, c: byte) -> (res: int) {
-	return #force_inline bytes.last_index_byte(transmute([]u8)s, c)
+    return #force_inline bytes.last_index_byte(transmute([]u8)s, c)
 }
 
 /*
@@ -1506,51 +1499,51 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	index_rune_example :: proc() {
-		fmt.println(strings.index_rune("abcädef", 'x'))
-		fmt.println(strings.index_rune("abcädef", 'a'))
-		fmt.println(strings.index_rune("abcädef", 'b'))
-		fmt.println(strings.index_rune("abcädef", 'c'))
-		fmt.println(strings.index_rune("abcädef", 'ä'))
-		fmt.println(strings.index_rune("abcädef", 'd'))
-		fmt.println(strings.index_rune("abcädef", 'e'))
-		fmt.println(strings.index_rune("abcädef", 'f'))
-	}
+    index_rune_example :: proc() {
+        fmt.println(strings.index_rune("abcädef", 'x'))
+        fmt.println(strings.index_rune("abcädef", 'a'))
+        fmt.println(strings.index_rune("abcädef", 'b'))
+        fmt.println(strings.index_rune("abcädef", 'c'))
+        fmt.println(strings.index_rune("abcädef", 'ä'))
+        fmt.println(strings.index_rune("abcädef", 'd'))
+        fmt.println(strings.index_rune("abcädef", 'e'))
+        fmt.println(strings.index_rune("abcädef", 'f'))
+    }
 
 Output:
 
-	-1
-	0
-	1
-	2
-	3
-	5
-	6
-	7
+    -1
+    0
+    1
+    2
+    3
+    5
+    6
+    7
 
 */
 index_rune :: proc(s: string, r: rune) -> (res: int) {
-	switch {
-	case u32(r) < utf8.RUNE_SELF:
-		return index_byte(s, byte(r))
+    switch {
+    case u32(r) < utf8.RUNE_SELF:
+        return index_byte(s, byte(r))
 
-	case r == utf8.RUNE_ERROR:
-		for c, i in s {
-			if c == utf8.RUNE_ERROR {
-				return i
-			}
-		}
-		return -1
+    case r == utf8.RUNE_ERROR:
+        for c, i in s {
+            if c == utf8.RUNE_ERROR {
+                return i
+            }
+        }
+        return -1
 
-	case !utf8.valid_rune(r):
-		return -1
-	}
+    case !utf8.valid_rune(r):
+        return -1
+    }
 
-	b, w := utf8.encode_rune(r)
-	return index(s, string(b[:w]))
+    b, w := utf8.encode_rune(r)
+    return index(s, string(b[:w]))
 }
 
 @(private) PRIME_RABIN_KARP :: 16777619
@@ -1566,72 +1559,72 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	index_example :: proc() {
-		fmt.println(strings.index("test", "t"))
-		fmt.println(strings.index("test", "te"))
-		fmt.println(strings.index("test", "st"))
-		fmt.println(strings.index("test", "tt"))
-	}
+    index_example :: proc() {
+        fmt.println(strings.index("test", "t"))
+        fmt.println(strings.index("test", "te"))
+        fmt.println(strings.index("test", "st"))
+        fmt.println(strings.index("test", "tt"))
+    }
 
 Output:
 
-	0
-	0
-	2
-	-1
+    0
+    0
+    2
+    -1
 
 */
 index :: proc(s, substr: string) -> (res: int) {
-	hash_str_rabin_karp :: proc(s: string) -> (hash: u32 = 0, pow: u32 = 1) {
-		for i := 0; i < len(s); i += 1 {
-			hash = hash*PRIME_RABIN_KARP + u32(s[i])
-		}
-		sq := u32(PRIME_RABIN_KARP)
-		for i := len(s); i > 0; i >>= 1 {
-			if (i & 1) != 0 {
-				pow *= sq
-			}
-			sq *= sq
-		}
-		return
-	}
+    hash_str_rabin_karp :: proc(s: string) -> (hash: u32 = 0, pow: u32 = 1) {
+        for i := 0; i < len(s); i += 1 {
+            hash = hash*PRIME_RABIN_KARP + u32(s[i])
+        }
+        sq := u32(PRIME_RABIN_KARP)
+        for i := len(s); i > 0; i >>= 1 {
+            if (i & 1) != 0 {
+                pow *= sq
+            }
+            sq *= sq
+        }
+        return
+    }
 
-	n := len(substr)
-	switch {
-	case n == 0:
-		return 0
-	case n == 1:
-		return index_byte(s, substr[0])
-	case n == len(s):
-		if s == substr {
-			return 0
-		}
-		return -1
-	case n > len(s):
-		return -1
-	}
+    n := len(substr)
+    switch {
+    case n == 0:
+        return 0
+    case n == 1:
+        return index_byte(s, substr[0])
+    case n == len(s):
+        if s == substr {
+            return 0
+        }
+        return -1
+    case n > len(s):
+        return -1
+    }
 
-	hash, pow := hash_str_rabin_karp(substr)
-	h: u32
-	for i := 0; i < n; i += 1 {
-		h = h*PRIME_RABIN_KARP + u32(s[i])
-	}
-	if h == hash && s[:n] == substr {
-		return 0
-	}
-	for i := n; i < len(s); /**/ {
-		h *= PRIME_RABIN_KARP
-		h += u32(s[i])
-		h -= pow * u32(s[i-n])
-		i += 1
-		if h == hash && s[i-n:i] == substr {
-			return i - n
-		}
-	}
-	return -1
+    hash, pow := hash_str_rabin_karp(substr)
+    h: u32
+    for i := 0; i < n; i += 1 {
+        h = h*PRIME_RABIN_KARP + u32(s[i])
+    }
+    if h == hash && s[:n] == substr {
+        return 0
+    }
+    for i := n; i < len(s); /**/ {
+        h *= PRIME_RABIN_KARP
+        h += u32(s[i])
+        h -= pow * u32(s[i-n])
+        i += 1
+        if h == hash && s[i-n:i] == substr {
+            return i - n
+        }
+    }
+    return -1
 }
 
 /*
@@ -1646,70 +1639,70 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	last_index_example :: proc() {
-		fmt.println(strings.last_index("test", "t"))
-		fmt.println(strings.last_index("test", "te"))
-		fmt.println(strings.last_index("test", "st"))
-		fmt.println(strings.last_index("test", "tt"))
-	}
+    last_index_example :: proc() {
+        fmt.println(strings.last_index("test", "t"))
+        fmt.println(strings.last_index("test", "te"))
+        fmt.println(strings.last_index("test", "st"))
+        fmt.println(strings.last_index("test", "tt"))
+    }
 
 Output:
 
-	3
-	0
-	2
-	-1
+    3
+    0
+    2
+    -1
 
 */
 last_index :: proc(s, substr: string) -> (res: int) {
-	hash_str_rabin_karp_reverse :: proc(s: string) -> (hash: u32 = 0, pow: u32 = 1) {
-		for i := len(s) - 1; i >= 0; i -= 1 {
-			hash = hash*PRIME_RABIN_KARP + u32(s[i])
-		}
-		sq := u32(PRIME_RABIN_KARP)
-		for i := len(s); i > 0; i >>= 1 {
-			if (i & 1) != 0 {
-				pow *= sq
-			}
-			sq *= sq
-		}
-		return
-	}
+    hash_str_rabin_karp_reverse :: proc(s: string) -> (hash: u32 = 0, pow: u32 = 1) {
+        for i := len(s) - 1; i >= 0; i -= 1 {
+            hash = hash*PRIME_RABIN_KARP + u32(s[i])
+        }
+        sq := u32(PRIME_RABIN_KARP)
+        for i := len(s); i > 0; i >>= 1 {
+            if (i & 1) != 0 {
+                pow *= sq
+            }
+            sq *= sq
+        }
+        return
+    }
 
-	n := len(substr)
-	switch {
-	case n == 0:
-		return len(s)
-	case n == 1:
-		return last_index_byte(s, substr[0])
-	case n == len(s):
-		return 0 if substr == s else -1
-	case n > len(s):
-		return -1
-	}
+    n := len(substr)
+    switch {
+    case n == 0:
+        return len(s)
+    case n == 1:
+        return last_index_byte(s, substr[0])
+    case n == len(s):
+        return 0 if substr == s else -1
+    case n > len(s):
+        return -1
+    }
 
-	hash, pow := hash_str_rabin_karp_reverse(substr)
-	last := len(s) - n
-	h: u32
-	for i := len(s)-1; i >= last; i -= 1 {
-		h = h*PRIME_RABIN_KARP + u32(s[i])
-	}
-	if h == hash && s[last:] == substr {
-		return last
-	}
+    hash, pow := hash_str_rabin_karp_reverse(substr)
+    last := len(s) - n
+    h: u32
+    for i := len(s)-1; i >= last; i -= 1 {
+        h = h*PRIME_RABIN_KARP + u32(s[i])
+    }
+    if h == hash && s[last:] == substr {
+        return last
+    }
 
-	for i := last-1; i >= 0; i -= 1 {
-		h *= PRIME_RABIN_KARP
-		h += u32(s[i])
-		h -= pow * u32(s[i+n])
-		if h == hash && s[i:i+n] == substr {
-			return i
-		}
-	}
-	return -1
+    for i := last-1; i >= 0; i -= 1 {
+        h *= PRIME_RABIN_KARP
+        h += u32(s[i])
+        h -= pow * u32(s[i+n])
+        if h == hash && s[i:i+n] == substr {
+            return i
+        }
+    }
+    return -1
 }
 
 /*
@@ -1724,56 +1717,56 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	index_any_example :: proc() {
-		fmt.println(strings.index_any("test", "s"))
-		fmt.println(strings.index_any("test", "se"))
-		fmt.println(strings.index_any("test", "et"))
-		fmt.println(strings.index_any("test", "set"))
-		fmt.println(strings.index_any("test", "x"))
-	}
+    index_any_example :: proc() {
+        fmt.println(strings.index_any("test", "s"))
+        fmt.println(strings.index_any("test", "se"))
+        fmt.println(strings.index_any("test", "et"))
+        fmt.println(strings.index_any("test", "set"))
+        fmt.println(strings.index_any("test", "x"))
+    }
 
 Output:
 
-	2
-	1
-	0
-	0
-	-1
+    2
+    1
+    0
+    0
+    -1
 
 */
 index_any :: proc(s, chars: string) -> (res: int) {
-	if chars == "" {
-		return -1
-	}
-	
-	if len(chars) == 1 {
-		r := rune(chars[0])
-		if r >= utf8.RUNE_SELF {
-			r = utf8.RUNE_ERROR
-		}
-		return index_rune(s, r)
-	}
-	
-	if len(s) > 8 {
-		if as, ok := ascii_set_make(chars); ok {
-			for i in 0..<len(s) {
-				if ascii_set_contains(as, s[i]) {
-					return i
-				}
-			}
-			return -1
-		}
-	}
+    if chars == "" {
+        return -1
+    }
+    
+    if len(chars) == 1 {
+        r := rune(chars[0])
+        if r >= utf8.RUNE_SELF {
+            r = utf8.RUNE_ERROR
+        }
+        return index_rune(s, r)
+    }
+    
+    if len(s) > 8 {
+        if as, ok := ascii_set_make(chars); ok {
+            for i in 0..<len(s) {
+                if ascii_set_contains(as, s[i]) {
+                    return i
+                }
+            }
+            return -1
+        }
+    }
 
-	for c, i in s {
-		if index_rune(chars, c) >= 0 {
-			return i
-		}
-	}
-	return -1
+    for c, i in s {
+        if index_rune(chars, c) >= 0 {
+            return i
+        }
+    }
+    return -1
 }
 
 /*
@@ -1788,74 +1781,74 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	last_index_any_example :: proc() {
-		fmt.println(strings.last_index_any("test", "s"))
-		fmt.println(strings.last_index_any("test", "se"))
-		fmt.println(strings.last_index_any("test", "et"))
-		fmt.println(strings.last_index_any("test", "set"))
-		fmt.println(strings.last_index_any("test", "x"))
-	}
+    last_index_any_example :: proc() {
+        fmt.println(strings.last_index_any("test", "s"))
+        fmt.println(strings.last_index_any("test", "se"))
+        fmt.println(strings.last_index_any("test", "et"))
+        fmt.println(strings.last_index_any("test", "set"))
+        fmt.println(strings.last_index_any("test", "x"))
+    }
 
 Output:
 
-	2
-	2
-	3
-	3
-	-1
+    2
+    2
+    3
+    3
+    -1
 
 */
 last_index_any :: proc(s, chars: string) -> (res: int) {
-	if chars == "" {
-		return -1
-	}
-	
-	if len(s) == 1 {
-		r := rune(s[0])
-		if r >= utf8.RUNE_SELF {
-			r = utf8.RUNE_ERROR
-		}
-		i := index_rune(chars, r)
-		return i if i < 0 else 0
-	}
-	
-	if len(s) > 8 {
-		if as, ok := ascii_set_make(chars); ok {
-			for i := len(s)-1; i >= 0; i -= 1 {
-				if ascii_set_contains(as, s[i]) {
-					return i
-				}
-			}
-			return -1
-		}
-	}
-	
-	if len(chars) == 1 {
-		r := rune(chars[0])
-		if r >= utf8.RUNE_SELF {
-			r = utf8.RUNE_ERROR
-		}
-		for i := len(s); i > 0; /**/ {
-			c, w := utf8.decode_last_rune_in_string(s[:i])
-			i -= w
-			if c == r {
-				return i
-			}
-		}
-		return -1
-	}
+    if chars == "" {
+        return -1
+    }
+    
+    if len(s) == 1 {
+        r := rune(s[0])
+        if r >= utf8.RUNE_SELF {
+            r = utf8.RUNE_ERROR
+        }
+        i := index_rune(chars, r)
+        return i if i < 0 else 0
+    }
+    
+    if len(s) > 8 {
+        if as, ok := ascii_set_make(chars); ok {
+            for i := len(s)-1; i >= 0; i -= 1 {
+                if ascii_set_contains(as, s[i]) {
+                    return i
+                }
+            }
+            return -1
+        }
+    }
+    
+    if len(chars) == 1 {
+        r := rune(chars[0])
+        if r >= utf8.RUNE_SELF {
+            r = utf8.RUNE_ERROR
+        }
+        for i := len(s); i > 0; /**/ {
+            c, w := utf8.decode_last_rune_in_string(s[:i])
+            i -= w
+            if c == r {
+                return i
+            }
+        }
+        return -1
+    }
 
-	for i := len(s); i > 0; /**/ {
-		r, w := utf8.decode_last_rune_in_string(s[:i])
-		i -= w
-		if index_rune(chars, r) >= 0 {
-			return i
-		}
-	}
-	return -1
+    for i := len(s); i > 0; /**/ {
+        r, w := utf8.decode_last_rune_in_string(s[:i])
+        i -= w
+        if index_rune(chars, r) >= 0 {
+            return i
+        }
+    }
+    return -1
 }
 
 /*
@@ -1870,34 +1863,34 @@ Returns:
 - width: the length of the found substring
 */
 index_multi :: proc(s: string, substrs: []string) -> (idx: int, width: int) {
-	idx = -1
-	if s == "" || len(substrs) <= 0 {
-		return
-	}
-	// disallow "" substr
-	for substr in substrs {
-		if len(substr) == 0 {
-			return
-		}
-	}
+    idx = -1
+    if s == "" || len(substrs) <= 0 {
+        return
+    }
+    // disallow "" substr
+    for substr in substrs {
+        if len(substr) == 0 {
+            return
+        }
+    }
 
-	lowest_index := len(s)
-	found := false
-	for substr in substrs {
-		haystack := s[:min(len(s), lowest_index + len(substr))]
-		if i := index(haystack, substr); i >= 0 {
-			if i < lowest_index {
-				lowest_index = i
-				width = len(substr)
-				found = true
-			}
-		}
-	}
+    lowest_index := len(s)
+    found := false
+    for substr in substrs {
+        haystack := s[:min(len(s), lowest_index + len(substr))]
+        if i := index(haystack, substr); i >= 0 {
+            if i < lowest_index {
+                lowest_index = i
+                width = len(substr)
+                found = true
+            }
+        }
+    }
 
-	if found {
-		idx = lowest_index
-	}
-	return
+    if found {
+        idx = lowest_index
+    }
+    return
 }
 
 /*
@@ -1912,59 +1905,59 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	count_example :: proc() {
-		fmt.println(strings.count("abbccc", "a"))
-		fmt.println(strings.count("abbccc", "b"))
-		fmt.println(strings.count("abbccc", "c"))
-		fmt.println(strings.count("abbccc", "ab"))
-		fmt.println(strings.count("abbccc", " "))
-	}
+    count_example :: proc() {
+        fmt.println(strings.count("abbccc", "a"))
+        fmt.println(strings.count("abbccc", "b"))
+        fmt.println(strings.count("abbccc", "c"))
+        fmt.println(strings.count("abbccc", "ab"))
+        fmt.println(strings.count("abbccc", " "))
+    }
 
 Output:
 
-	1
-	2
-	3
-	1
-	0
+    1
+    2
+    3
+    1
+    0
 
 */
 count :: proc(s, substr: string) -> (res: int) {
-	if len(substr) == 0 { // special case
-		return rune_count(s) + 1
-	}
-	if len(substr) == 1 {
-		c := substr[0]
-		switch len(s) {
-		case 0:
-			return 0
-		case 1:
-			return int(s[0] == c)
-		}
-		n := 0
-		for i := 0; i < len(s); i += 1 {
-			if s[i] == c {
-				n += 1
-			}
-		}
-		return n
-	}
+    if len(substr) == 0 { // special case
+        return rune_count(s) + 1
+    }
+    if len(substr) == 1 {
+        c := substr[0]
+        switch len(s) {
+        case 0:
+            return 0
+        case 1:
+            return int(s[0] == c)
+        }
+        n := 0
+        for i := 0; i < len(s); i += 1 {
+            if s[i] == c {
+                n += 1
+            }
+        }
+        return n
+    }
 
-	// TODO(bill): Use a non-brute for approach
-	n := 0
-	str := s
-	for {
-		i := index(str, substr)
-		if i == -1 {
-			return n
-		}
-		n += 1
-		str = str[i+len(substr):]
-	}
-	return n
+    // TODO(bill): Use a non-brute for approach
+    n := 0
+    str := s
+    for {
+        i := index(str, substr)
+        if i == -1 {
+            return n
+        }
+        n += 1
+        str = str[i+len(substr):]
+    }
+    return n
 }
 
 /*
@@ -1985,32 +1978,32 @@ WARNING: Panics if count < 0
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	repeat_example :: proc() {
-		fmt.println(strings.repeat("abc", 2))
-	}
+    repeat_example :: proc() {
+        fmt.println(strings.repeat("abc", 2))
+    }
 
 Output:
 
-	abcabc
+    abcabc
 
 */
 repeat :: proc(s: string, count: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	if count < 0 {
-		panic("strings: negative repeat count")
-	} else if count > 0 && (len(s)*count)/count != len(s) {
-		panic("strings: repeat count will cause an overflow")
-	}
+    if count < 0 {
+        panic("strings: negative repeat count")
+    } else if count > 0 && (len(s)*count)/count != len(s) {
+        panic("strings: repeat count will cause an overflow")
+    }
 
-	b := make([]byte, len(s)*count, allocator, loc) or_return
-	i := copy(b, s)
-	for i < len(b) { // 2^N trick to reduce the need to copy
-		copy(b[i:], b[:i])
-		i *= 2
-	}
-	return string(b), nil
+    b := make_slice([]byte, len(s)*count, allocator, loc) or_return
+    i := copy_from_string(b, s)
+    for i < len(b) { // 2^N trick to reduce the need to copy_from_string
+        copy_slice(b[i:], b[:i])
+        i *= 2
+    }
+    return string(b), nil
 }
 
 /*
@@ -2030,25 +2023,25 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	replace_all_example :: proc() {
-		fmt.println(strings.replace_all("xyzxyz", "xyz", "abc"))
-		fmt.println(strings.replace_all("xyzxyz", "abc", "xyz"))
-		fmt.println(strings.replace_all("xyzxyz", "xy", "z"))
-	}
+    replace_all_example :: proc() {
+        fmt.println(strings.replace_all("xyzxyz", "xyz", "abc"))
+        fmt.println(strings.replace_all("xyzxyz", "abc", "xyz"))
+        fmt.println(strings.replace_all("xyzxyz", "xy", "z"))
+    }
 
 Output:
 
-	abcabc true
-	xyzxyz false
-	zzzz true
+    abcabc true
+    xyzxyz false
+    zzzz true
 
 */
 
 replace_all :: proc(s, old, new: string, allocator: mem.Allocator) -> (output: string, was_allocation: bool) {
-	return replace(s, old, new, -1, allocator)
+    return replace(s, old, new, -1, allocator)
 }
 
 /*
@@ -2069,65 +2062,65 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	replace_example :: proc() {
-		fmt.println(strings.replace("xyzxyz", "xyz", "abc", 2))
-		fmt.println(strings.replace("xyzxyz", "xyz", "abc", 1))
-		fmt.println(strings.replace("xyzxyz", "abc", "xyz", -1))
-		fmt.println(strings.replace("xyzxyz", "xy", "z", -1))
-	}
+    replace_example :: proc() {
+        fmt.println(strings.replace("xyzxyz", "xyz", "abc", 2))
+        fmt.println(strings.replace("xyzxyz", "xyz", "abc", 1))
+        fmt.println(strings.replace("xyzxyz", "abc", "xyz", -1))
+        fmt.println(strings.replace("xyzxyz", "xy", "z", -1))
+    }
 
 Output:
 
-	abcabc true
-	abcxyz true
-	xyzxyz false
-	zzzz true
+    abcabc true
+    abcxyz true
+    xyzxyz false
+    zzzz true
 
 */
 replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #caller_location) -> (output: string, was_allocation: bool) {
-	if old == new || n == 0 {
-		was_allocation = false
-		output = s
-		return
-	}
-	byte_count := n
-	if m := count(s, old); m == 0 {
-		was_allocation = false
-		output = s
-		return
-	} else if n < 0 || m < n {
-		byte_count = m
-	}
+    if old == new || n == 0 {
+        was_allocation = false
+        output = s
+        return
+    }
+    byte_count := n
+    if m := count(s, old); m == 0 {
+        was_allocation = false
+        output = s
+        return
+    } else if n < 0 || m < n {
+        byte_count = m
+    }
 
 
-	t, err := make([]byte, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
-	if err != nil {
-		return
-	}
-	was_allocation = true
+    t, err := make_slice([]byte, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
+    if err != nil {
+        return
+    }
+    was_allocation = true
 
-	w := 0
-	start := 0
-	for i := 0; i < byte_count; i += 1 {
-		j := start
-		if len(old) == 0 {
-			if i > 0 {
-				_, width := utf8.decode_rune_in_string(s[start:])
-				j += width
-			}
-		} else {
-			j += index(s[start:], old)
-		}
-		w += copy(t[w:], s[start:j])
-		w += copy(t[w:], new)
-		start = j + len(old)
-	}
-	w += copy(t[w:], s[start:])
-	output = string(t[0:w])
-	return
+    w := 0
+    start := 0
+    for i := 0; i < byte_count; i += 1 {
+        j := start
+        if len(old) == 0 {
+            if i > 0 {
+                _, width := utf8.decode_rune_in_string(s[start:])
+                j += width
+            }
+        } else {
+            j += index(s[start:], old)
+        }
+        w += copy_from_string(t[w:], s[start:j])
+        w += copy_from_string(t[w:], new)
+        start = j + len(old)
+    }
+    w += copy_from_string(t[w:], s[start:])
+    output = string(t[0:w])
+    return
 }
 
 /*
@@ -2147,26 +2140,26 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	remove_example :: proc() {
-		fmt.println(strings.remove("abcabc", "abc", 1))
-		fmt.println(strings.remove("abcabc", "abc", -1))
-		fmt.println(strings.remove("abcabc", "a", -1))
-		fmt.println(strings.remove("abcabc", "x", -1))
-	}
+    remove_example :: proc() {
+        fmt.println(strings.remove("abcabc", "abc", 1))
+        fmt.println(strings.remove("abcabc", "abc", -1))
+        fmt.println(strings.remove("abcabc", "a", -1))
+        fmt.println(strings.remove("abcabc", "x", -1))
+    }
 
 Output:
 
-	abc true
-	 true
-	bcbc true
-	abcabc false
+    abc true
+     true
+    bcbc true
+    abcabc false
 
 */
 remove :: proc(s, key: string, n: int, allocator: mem.Allocator) -> (output: string, was_allocation: bool) {
-	return replace(s, key, "", n, allocator)
+    return replace(s, key, "", n, allocator)
 }
 
 /*
@@ -2185,24 +2178,24 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	remove_all_example :: proc() {
-		fmt.println(strings.remove_all("abcabc", "abc"))
-		fmt.println(strings.remove_all("abcabc", "a"))
-		fmt.println(strings.remove_all("abcabc", "x"))
-	}
+    remove_all_example :: proc() {
+        fmt.println(strings.remove_all("abcabc", "abc"))
+        fmt.println(strings.remove_all("abcabc", "a"))
+        fmt.println(strings.remove_all("abcabc", "x"))
+    }
 
 Output:
 
-	 true
-	bcbc true
-	abcabc false
+     true
+    bcbc true
+    abcabc false
 
 */
 remove_all :: proc(s, key: string, allocator: mem.Allocator) -> (output: string, was_allocation: bool) {
-	return remove(s, key, -1, allocator)
+    return remove(s, key, -1, allocator)
 }
 
 // Returns true if is an ASCII space character ('\t', '\n', '\v', '\f', '\r', ' ')
@@ -2218,10 +2211,10 @@ Returns:
 -res: `true` if `r` is a whitespace character, `false` if otherwise
 */
 is_ascii_space :: proc(r: rune) -> (res: bool) {
-	if r < utf8.RUNE_SELF {
-		return _ascii_space[u8(r)]
-	}
-	return false
+    if r < utf8.RUNE_SELF {
+        return _ascii_space[u8(r)]
+    }
+    return false
 }
 
 /*
@@ -2234,21 +2227,21 @@ Returns:
 -res: `true` if `r` is a whitespace character, `false` if otherwise
 */
 is_space :: proc(r: rune) -> (res: bool) {
-	if r < 0x2000 {
-		switch r {
-		case '\t', '\n', '\v', '\f', '\r', ' ', 0x85, 0xa0, 0x1680:
-			return true
-		}
-	} else {
-		if r <= 0x200a {
-			return true
-		}
-		switch r {
-		case 0x2028, 0x2029, 0x202f, 0x205f, 0x3000:
-			return true
-		}
-	}
-	return false
+    if r < 0x2000 {
+        switch r {
+        case '\t', '\n', '\v', '\f', '\r', ' ', 0x85, 0xa0, 0x1680:
+            return true
+        }
+    } else {
+        if r <= 0x200a {
+            return true
+        }
+        switch r {
+        case 0x2028, 0x2029, 0x202f, 0x205f, 0x3000:
+            return true
+        }
+    }
+    return false
 }
 
 /*
@@ -2261,7 +2254,7 @@ Returns:
 -res: `true` if `r` is `0x0`, `false` if otherwise
 */
 is_null :: proc(r: rune) -> (res: bool) {
-	return r == 0x0000
+    return r == 0x0000
 }
 
 /*
@@ -2277,72 +2270,72 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	index_proc_example :: proc() {
-		call :: proc(r: rune) -> bool {
-			return r == 'a'
-		}
-		fmt.println(strings.index_proc("abcabc", call))
-		fmt.println(strings.index_proc("cbacba", call))
-		fmt.println(strings.index_proc("cbacba", call, false))
-		fmt.println(strings.index_proc("abcabc", call, false))
-		fmt.println(strings.index_proc("xyz", call))
-	}
+    index_proc_example :: proc() {
+        call :: proc(r: rune) -> bool {
+            return r == 'a'
+        }
+        fmt.println(strings.index_proc("abcabc", call))
+        fmt.println(strings.index_proc("cbacba", call))
+        fmt.println(strings.index_proc("cbacba", call, false))
+        fmt.println(strings.index_proc("abcabc", call, false))
+        fmt.println(strings.index_proc("xyz", call))
+    }
 
 Output:
 
-	0
-	2
-	0
-	1
-	-1
+    0
+    2
+    0
+    1
+    -1
 
 */
 index_proc :: proc(s: string, p: proc(rune) -> bool, truth := true) -> (res: int) {
-	for r, i in s {
-		if p(r) == truth {
-			return i
-		}
-	}
-	return -1
+    for r, i in s {
+        if p(r) == truth {
+            return i
+        }
+    }
+    return -1
 }
 
 // Same as `index_proc`, but the procedure p takes a raw pointer for state
 index_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (res: int) {
-	for r, i in s {
-		if p(state, r) == truth {
-			return i
-		}
-	}
-	return -1
+    for r, i in s {
+        if p(state, r) == truth {
+            return i
+        }
+    }
+    return -1
 }
 
 // Finds the index of the *last* rune in the string s for which the procedure p returns the same value as truth
 last_index_proc :: proc(s: string, p: proc(rune) -> bool, truth := true) -> (res: int) {
-	// TODO(bill): Probably use Rabin-Karp Search
-	for i := len(s); i > 0; {
-		r, size := utf8.decode_last_rune_in_string(s[:i])
-		i -= size
-		if p(r) == truth {
-			return i
-		}
-	}
-	return -1
+    // TODO(bill): Probably use Rabin-Karp Search
+    for i := len(s); i > 0; {
+        r, size := utf8.decode_last_rune_in_string(s[:i])
+        i -= size
+        if p(r) == truth {
+            return i
+        }
+    }
+    return -1
 }
 
 // Same as `index_proc_with_state`, runs through the string in reverse
 last_index_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (res: int) {
-	// TODO(bill): Probably use Rabin-Karp Search
-	for i := len(s); i > 0; {
-		r, size := utf8.decode_last_rune_in_string(s[:i])
-		i -= size
-		if p(state, r) == truth {
-			return i
-		}
-	}
-	return -1
+    // TODO(bill): Probably use Rabin-Karp Search
+    for i := len(s); i > 0; {
+        r, size := utf8.decode_last_rune_in_string(s[:i])
+        i -= size
+        if p(state, r) == truth {
+            return i
+        }
+    }
+    return -1
 }
 
 /*
@@ -2357,27 +2350,27 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	trim_left_proc_example :: proc() {
-		find :: proc(r: rune) -> bool {
-			return r == 'x'
-		}
-		fmt.println(strings.trim_left_proc("xxxxxxtesting", find))
-	}
+    trim_left_proc_example :: proc() {
+        find :: proc(r: rune) -> bool {
+            return r == 'x'
+        }
+        fmt.println(strings.trim_left_proc("xxxxxxtesting", find))
+    }
 
 Output:
 
-	testing
+    testing
 
 */
 trim_left_proc :: proc(s: string, p: proc(rune) -> bool) -> (res: string) {
-	i := index_proc(s, p, false)
-	if i == -1 {
-		return ""
-	}
-	return s[i:]
+    i := index_proc(s, p, false)
+    if i == -1 {
+        return ""
+    }
+    return s[i:]
 }
 
 /*
@@ -2392,11 +2385,11 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_left_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr) -> (res: string) {
-	i := index_proc_with_state(s, p, state, false)
-	if i == -1 {
-		return ""
-	}
-	return s[i:]
+    i := index_proc_with_state(s, p, state, false)
+    if i == -1 {
+        return ""
+    }
+    return s[i:]
 }
 
 /*
@@ -2411,30 +2404,30 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	trim_right_proc_example :: proc() {
-		find :: proc(r: rune) -> bool {
-			return r != 't'
-		}
-		fmt.println(strings.trim_right_proc("testing", find))
-	}
+    trim_right_proc_example :: proc() {
+        find :: proc(r: rune) -> bool {
+            return r != 't'
+        }
+        fmt.println(strings.trim_right_proc("testing", find))
+    }
 
 Output:
 
-	test
+    test
 
 */
 trim_right_proc :: proc(s: string, p: proc(rune) -> bool) -> (res: string) {
-	i := last_index_proc(s, p, false)
-	if i >= 0 && s[i] >= utf8.RUNE_SELF {
-		_, w := utf8.decode_rune_in_string(s[i:])
-		i += w
-	} else {
-		i += 1
-	}
-	return s[0:i]
+    i := last_index_proc(s, p, false)
+    if i >= 0 && s[i] >= utf8.RUNE_SELF {
+        _, w := utf8.decode_rune_in_string(s[i:])
+        i += w
+    } else {
+        i += 1
+    }
+    return s[0:i]
 }
 
 /*
@@ -2449,25 +2442,25 @@ Returns:
 - res: The trimmed string as a slice of the original, empty when no match
 */
 trim_right_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr) -> (res: string) {
-	i := last_index_proc_with_state(s, p, state, false)
-	if i >= 0 && s[i] >= utf8.RUNE_SELF {
-		_, w := utf8.decode_rune_in_string(s[i:])
-		i += w
-	} else {
-		i += 1
-	}
-	return s[0:i]
+    i := last_index_proc_with_state(s, p, state, false)
+    if i >= 0 && s[i] >= utf8.RUNE_SELF {
+        _, w := utf8.decode_rune_in_string(s[i:])
+        i += w
+    } else {
+        i += 1
+    }
+    return s[0:i]
 }
 
 // Procedure for `trim_*_proc` variants, which has a string rawptr cast + rune comparison
 is_in_cutset :: proc(state: rawptr, r: rune) -> (res: bool) {
-	cutset := (^string)(state)^
-	for c in cutset {
-		if r == c {
-			return true
-		}
-	}
-	return false
+    cutset := (^string)(state)^
+    for c in cutset {
+        if r == c {
+            return true
+        }
+    }
+    return false
 }
 
 /*
@@ -2481,11 +2474,11 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_left :: proc(s: string, cutset: string) -> (res: string) {
-	if s == "" || cutset == "" {
-		return s
-	}
-	state := cutset
-	return trim_left_proc_with_state(s, is_in_cutset, &state)
+    if s == "" || cutset == "" {
+        return s
+    }
+    state := cutset
+    return trim_left_proc_with_state(s, is_in_cutset, &state)
 }
 
 /*
@@ -2499,11 +2492,11 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_right :: proc(s: string, cutset: string) -> (res: string) {
-	if s == "" || cutset == "" {
-		return s
-	}
-	state := cutset
-	return trim_right_proc_with_state(s, is_in_cutset, &state)
+    if s == "" || cutset == "" {
+        return s
+    }
+    state := cutset
+    return trim_right_proc_with_state(s, is_in_cutset, &state)
 }
 
 /*
@@ -2517,7 +2510,7 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim :: proc(s: string, cutset: string) -> (res: string) {
-	return trim_right(trim_left(s, cutset), cutset)
+    return trim_right(trim_left(s, cutset), cutset)
 }
 
 /*
@@ -2530,7 +2523,7 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_left_space :: proc(s: string) -> (res: string) {
-	return trim_left_proc(s, is_space)
+    return trim_left_proc(s, is_space)
 }
 
 /*
@@ -2543,7 +2536,7 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_right_space :: proc(s: string) -> (res: string) {
-	return trim_right_proc(s, is_space)
+    return trim_right_proc(s, is_space)
 }
 
 /*
@@ -2556,7 +2549,7 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_space :: proc(s: string) -> (res: string) {
-	return trim_right_space(trim_left_space(s))
+    return trim_right_space(trim_left_space(s))
 }
 
 /*
@@ -2569,7 +2562,7 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_left_null :: proc(s: string) -> (res: string) {
-	return trim_left_proc(s, is_null)
+    return trim_left_proc(s, is_null)
 }
 
 /*
@@ -2582,7 +2575,7 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_right_null :: proc(s: string) -> (res: string) {
-	return trim_right_proc(s, is_null)
+    return trim_right_proc(s, is_null)
 }
 
 /*
@@ -2594,7 +2587,7 @@ Returns:
 - res: The trimmed string as a slice of the original
 */
 trim_null :: proc(s: string) -> (res: string) {
-	return trim_right_null(trim_left_null(s))
+    return trim_right_null(trim_left_null(s))
 }
 
 /*
@@ -2609,25 +2602,25 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	trim_prefix_example :: proc() {
-		fmt.println(strings.trim_prefix("testing", "test"))
-		fmt.println(strings.trim_prefix("testing", "abc"))
-	}
+    trim_prefix_example :: proc() {
+        fmt.println(strings.trim_prefix("testing", "test"))
+        fmt.println(strings.trim_prefix("testing", "abc"))
+    }
 
 Output:
 
-	ing
-	testing
+    ing
+    testing
 
 */
 trim_prefix :: proc(s, prefix: string) -> (res: string) {
-	if has_prefix(s, prefix) {
-		return s[len(prefix):]
-	}
-	return s
+    if has_prefix(s, prefix) {
+        return s[len(prefix):]
+    }
+    return s
 }
 
 /*
@@ -2642,25 +2635,25 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	trim_suffix_example :: proc() {
-		fmt.println(strings.trim_suffix("todo.txt", ".txt"))
-		fmt.println(strings.trim_suffix("todo.doc", ".txt"))
-	}
+    trim_suffix_example :: proc() {
+        fmt.println(strings.trim_suffix("todo.txt", ".txt"))
+        fmt.println(strings.trim_suffix("todo.doc", ".txt"))
+    }
 
 Output:
 
-	todo
-	todo.doc
+    todo
+    todo.doc
 
 */
 trim_suffix :: proc(s, suffix: string) -> (res: string) {
-	if has_suffix(s, suffix) {
-		return s[:len(s)-len(suffix)]
-	}
-	return s
+    if has_suffix(s, suffix) {
+        return s[:len(s)-len(suffix)]
+    }
+    return s
 }
 
 /*
@@ -2681,59 +2674,59 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_multi_example :: proc() {
-		splits := [?]string { "---", "~~~", ".", "_", "," }
-		res := strings.split_multi("testing,this.out_nice---done~~~last", splits[:])
-		fmt.println(res) // -> [testing, this, out, nice, done, last]
-	}
+    split_multi_example :: proc() {
+        splits := [?]string { "---", "~~~", ".", "_", "," }
+        res := strings.split_multi("testing,this.out_nice---done~~~last", splits[:])
+        fmt.println(res) // -> [testing, this, out, nice, done, last]
+    }
 
 Output:
 
-	["testing", "this", "out", "nice", "done", "last"]
+    ["testing", "this", "out", "nice", "done", "last"]
 
 */
 split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
-	if s == "" || len(substrs) <= 0 {
-		return nil, nil
-	}
+    if s == "" || len(substrs) <= 0 {
+        return nil, nil
+    }
 
-	// disallow "" substr
-	for substr in substrs {
-		if len(substr) == 0 {
-			return nil, nil
-		}
-	}
+    // disallow "" substr
+    for substr in substrs {
+        if len(substr) == 0 {
+            return nil, nil
+        }
+    }
 
-	// calculate the needed len of `results`
-	n := 1
-	for it := s; len(it) > 0; {
-		i, w := index_multi(it, substrs)
-		if i < 0 {
-			break
-		}
-		n += 1
-		it = it[i+w:]
-	}
+    // calculate the needed len of `results`
+    n := 1
+    for it := s; len(it) > 0; {
+        i, w := index_multi(it, substrs)
+        if i < 0 {
+            break
+        }
+        n += 1
+        it = it[i+w:]
+    }
 
-	results := make([dynamic]string, 0, n, allocator, loc) or_return
-	{
-		it := s
-		for len(it) > 0 {
-			i, w := index_multi(it, substrs)
-			if i < 0 {
-				break
-			}
-			part := it[:i]
-			_ = append(&results, part)
-			it = it[i+w:]
-		}
-		_ = append(&results, it)
-	}
-	assert(len(results) == n)
-	return results[:], nil
+    results := make_dynamic_array([dynamic]string, 0, n, allocator, loc) or_return
+    {
+        it := s
+        for len(it) > 0 {
+            i, w := index_multi(it, substrs)
+            if i < 0 {
+                break
+            }
+            part := it[:i]
+            _ = append(&results, part)
+            it = it[i+w:]
+        }
+        _ = append(&results, it)
+    }
+    assert(len(results) == n)
+    return results[:], nil
 }
 
 /*
@@ -2749,51 +2742,51 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	split_multi_iterate_example :: proc() {
-		it := "testing,this.out_nice---done~~~last"
-		splits := [?]string { "---", "~~~", ".", "_", "," }
-		for str in strings.split_multi_iterate(&it, splits[:]) {
-			fmt.println(str)
-		}
-	}
+    split_multi_iterate_example :: proc() {
+        it := "testing,this.out_nice---done~~~last"
+        splits := [?]string { "---", "~~~", ".", "_", "," }
+        for str in strings.split_multi_iterate(&it, splits[:]) {
+            fmt.println(str)
+        }
+    }
 
 Output:
 
-	testing
-	this
-	out
-	nice
-	done
-	last
+    testing
+    this
+    out
+    nice
+    done
+    last
 
 */
 split_multi_iterate :: proc(it: ^string, substrs: []string) -> (res: string, ok: bool) #no_bounds_check {
-	if len(it) == 0 || len(substrs) <= 0 {
-		return
-	}
+    if len(it) == 0 || len(substrs) <= 0 {
+        return
+    }
 
-	// disallow "" substr
-	for substr in substrs {
-		if len(substr) == 0 {
-			return
-		}
-	}
+    // disallow "" substr
+    for substr in substrs {
+        if len(substr) == 0 {
+            return
+        }
+    }
 
-	// calculate the needed len of `results`
-	i, w := index_multi(it^, substrs)
-	if i >= 0 {
-		res = it[:i]
-		it^ = it[i+w:]
-	} else {
-		// last value
-		res = it^
-		it^ = it[len(it):]
-	}
-	ok = true
-	return
+    // calculate the needed len of `results`
+    i, w := index_multi(it^, substrs)
+    if i >= 0 {
+        res = it[:i]
+        it^ = it[i+w:]
+    } else {
+        // last value
+        res = it^
+        it^ = it[len(it):]
+    }
+    ok = true
+    return
 }
 
 /*
@@ -2812,49 +2805,49 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	scrub_example :: proc() {
-		text := "Hello\xC0\x80World"
-		fmt.println(strings.scrub(text, "?")) // -> "Hello?World"
-	}
+    scrub_example :: proc() {
+        text := "Hello\xC0\x80World"
+        fmt.println(strings.scrub(text, "?")) // -> "Hello?World"
+    }
 
 Output:
 
-	Hello?
+    Hello?
 
 */
 scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-	str := s
-	b: Builder
-	builder_init(&b, 0, len(s), allocator) or_return
+    str := s
+    b: Builder
+    builder_init(&b, 0, len(s), allocator) or_return
 
-	has_error := false
-	cursor := 0
-	origin := str
+    has_error := false
+    cursor := 0
+    origin := str
 
-	for len(str) > 0 {
-		r, w := utf8.decode_rune_in_string(str)
+    for len(str) > 0 {
+        r, w := utf8.decode_rune_in_string(str)
 
-		if r == utf8.RUNE_ERROR {
-			if !has_error {
-				has_error = true
-				write_string(&b, origin[:cursor])
-			}
-		} else if has_error {
-			has_error = false
-			write_string(&b, replacement)
+        if r == utf8.RUNE_ERROR {
+            if !has_error {
+                has_error = true
+                write_string(&b, origin[:cursor])
+            }
+        } else if has_error {
+            has_error = false
+            write_string(&b, replacement)
 
-			origin = origin[cursor:]
-			cursor = 0
-		}
+            origin = origin[cursor:]
+            cursor = 0
+        }
 
-		cursor += w
-		str = str[w:]
-	}
+        cursor += w
+        str = str[w:]
+    }
 
-	return to_string(b), nil
+    return to_string(b), nil
 }
 
 /*
@@ -2872,33 +2865,33 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	reverse_example :: proc() {
-		a := "abcxyz"
-		b := strings.reverse(a)
-		fmt.println(a, b)
-	}
+    reverse_example :: proc() {
+        a := "abcxyz"
+        b := strings.reverse(a)
+        fmt.println(a, b)
+    }
 
 Output:
 
-	abcxyz zyxcba
+    abcxyz zyxcba
 
 */
 reverse :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-	str := s
-	n := len(str)
-	buf := make([]byte, n, allocator, loc) or_return
-	i := n
+    str := s
+    n := len(str)
+    buf := make_slice([]byte, n, allocator, loc) or_return
+    i := n
 
-	for len(str) > 0 {
-		_, w := utf8.decode_rune_in_string(str)
-		i -= w
-		copy(buf[i:], str[:w])
-		str = str[w:]
-	}
-	return string(buf), nil
+    for len(str) > 0 {
+        _, w := utf8.decode_rune_in_string(str)
+        i -= w
+        copy_from_string(buf[i:], str[:w])
+        str = str[w:]
+    }
+    return string(buf), nil
 }
 
 /*
@@ -2919,59 +2912,59 @@ WARNING: Panics if tab_size <= 0
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	expand_tabs_example :: proc() {
-		text := "abc1\tabc2\tabc3"
-		fmt.println(strings.expand_tabs(text, 4))
-	}
+    expand_tabs_example :: proc() {
+        text := "abc1\tabc2\tabc3"
+        fmt.println(strings.expand_tabs(text, 4))
+    }
 
 Output:
 
-	abc1    abc2    abc3
+    abc1    abc2    abc3
 
 */
 expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-	if tab_size <= 0 {
-		panic("tab size must be positive")
-	}
+    if tab_size <= 0 {
+        panic("tab size must be positive")
+    }
 
-	if s == "" {
-		return "", nil
-	}
+    if s == "" {
+        return "", nil
+    }
 
-	b: Builder
-	builder_init(&b, allocator) or_return
-	writer := to_writer(&b)
-	str := s
-	column: int
+    b: Builder
+    builder_init(&b, allocator) or_return
+    writer := to_writer(&b)
+    str := s
+    column: int
 
-	for len(str) > 0 {
-		r, w := utf8.decode_rune_in_string(str)
+    for len(str) > 0 {
+        r, w := utf8.decode_rune_in_string(str)
 
-		if r == '\t' {
-			expand := tab_size - column%tab_size
+        if r == '\t' {
+            expand := tab_size - column%tab_size
 
-			for i := 0; i < expand; i += 1 {
-				_ = io.write_byte(writer, ' ')
-			}
+            for i := 0; i < expand; i += 1 {
+                _ = io.write_byte(writer, ' ')
+            }
 
-			column += expand
-		} else {
-			if r == '\n' {
-				column = 0
-			} else {
-				column += w
-			}
+            column += expand
+        } else {
+            if r == '\n' {
+                column = 0
+            } else {
+                column += w
+            }
 
-			_, _ = io.write_rune(writer, r)
-		}
+            _, _ = io.write_rune(writer, r)
+        }
 
-		str = str[w:]
-	}
+        str = str[w:]
+    }
 
-	return to_string(b), nil
+    return to_string(b), nil
 }
 
 /*
@@ -2988,41 +2981,41 @@ Returns:
 
 Example:
 
-	import "core:fmt"
-	import "core:strings"
+    import "core:fmt"
+    import "core:strings"
 
-	partition_example :: proc() {
-		text := "testing this out"
-		head, match, tail := strings.partition(text, " this ") // -> head: "testing", match: " this ", tail: "out"
-		fmt.println(head, match, tail)
-		head, match, tail = strings.partition(text, "hi") // -> head: "testing t", match: "hi", tail: "s out"
-		fmt.println(head, match, tail)
-		head, match, tail = strings.partition(text, "xyz")    // -> head: "testing this out", match: "", tail: ""
-		fmt.println(head)
-		fmt.println(match == "")
-		fmt.println(tail == "")
-	}
+    partition_example :: proc() {
+        text := "testing this out"
+        head, match, tail := strings.partition(text, " this ") // -> head: "testing", match: " this ", tail: "out"
+        fmt.println(head, match, tail)
+        head, match, tail = strings.partition(text, "hi") // -> head: "testing t", match: "hi", tail: "s out"
+        fmt.println(head, match, tail)
+        head, match, tail = strings.partition(text, "xyz")    // -> head: "testing this out", match: "", tail: ""
+        fmt.println(head)
+        fmt.println(match == "")
+        fmt.println(tail == "")
+    }
 
 Output:
 
-	testing  this  out
-	testing t hi s out
-	testing this out
-	true
-	true
+    testing  this  out
+    testing t hi s out
+    testing this out
+    true
+    true
 
 */
 partition :: proc(str, sep: string) -> (head, match, tail: string) {
-	i := index(str, sep)
-	if i == -1 {
-		head = str
-		return
-	}
+    i := index(str, sep)
+    if i == -1 {
+        head = str
+        return
+    }
 
-	head = str[:i]
-	match = str[i:i+len(sep)]
-	tail = str[i+len(sep):]
-	return
+    head = str[:i]
+    match = str[i:i+len(sep)]
+    tail = str[i+len(sep):]
+    return
 }
 
 // Alias for centre_justify
@@ -3044,24 +3037,24 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 centre_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-	n := rune_count(str)
-	if n >= length || pad == "" {
-		return clone(str, allocator)
-	}
+    n := rune_count(str)
+    if n >= length || pad == "" {
+        return clone(str, allocator)
+    }
 
-	remains := length-n
-	pad_len := rune_count(pad)
+    remains := length-n
+    pad_len := rune_count(pad)
 
-	b: Builder
-	builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    b: Builder
+    builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-	w := to_writer(&b)
+    w := to_writer(&b)
 
-	write_pad_string(w, pad, pad_len, remains/2)
-	_, _ = io.write_string(w, str)
-	write_pad_string(w, pad, pad_len, (remains+1)/2)
+    write_pad_string(w, pad, pad_len, remains/2)
+    _, _ = io.write_string(w, str)
+    write_pad_string(w, pad, pad_len, (remains+1)/2)
 
-	return to_string(b), nil
+    return to_string(b), nil
 }
 
 /*
@@ -3080,23 +3073,23 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 left_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-	n := rune_count(str)
-	if n >= length || pad == "" {
-		return clone(str, allocator)
-	}
+    n := rune_count(str)
+    if n >= length || pad == "" {
+        return clone(str, allocator)
+    }
 
-	remains := length-n
-	pad_len := rune_count(pad)
+    remains := length-n
+    pad_len := rune_count(pad)
 
-	b: Builder
-	builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    b: Builder
+    builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-	w := to_writer(&b)
+    w := to_writer(&b)
 
-	_, _ = io.write_string(w, str)
-	write_pad_string(w, pad, pad_len, remains)
+    _, _ = io.write_string(w, str)
+    write_pad_string(w, pad, pad_len, remains)
 
-	return to_string(b), nil
+    return to_string(b), nil
 }
 
 /*
@@ -3115,23 +3108,23 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 right_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-	n := rune_count(str)
-	if n >= length || pad == "" {
-		return clone(str, allocator)
-	}
+    n := rune_count(str)
+    if n >= length || pad == "" {
+        return clone(str, allocator)
+    }
 
-	remains := length-n
-	pad_len := rune_count(pad)
+    remains := length-n
+    pad_len := rune_count(pad)
 
-	b: Builder
-	builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    b: Builder
+    builder_init(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-	w := to_writer(&b)
+    w := to_writer(&b)
 
-	write_pad_string(w, pad, pad_len, remains)
-	_, _ = io.write_string(w, str)
+    write_pad_string(w, pad, pad_len, remains)
+    _, _ = io.write_string(w, str)
 
-	return to_string(b), nil
+    return to_string(b), nil
 }
 
 /*
@@ -3145,20 +3138,20 @@ Inputs:
 */
 @(private)
 write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: int) {
-	repeats := remains / pad_len
+    repeats := remains / pad_len
 
-	for i := 0; i < repeats; i += 1 {
-		_, _ = io.write_string(w, pad)
-	}
+    for i := 0; i < repeats; i += 1 {
+        _, _ = io.write_string(w, pad)
+    }
 
-	n := remains % pad_len
-	p := pad
+    n := remains % pad_len
+    p := pad
 
-	for i := 0; i < n; i += 1 {
-		r, width := utf8.decode_rune_in_string(p)
-		_, _ = io.write_rune(w, r)
-		p = p[width:]
-	}
+    for i := 0; i < n; i += 1 {
+        r, width := utf8.decode_rune_in_string(p)
+        _, _ = io.write_rune(w, r)
+        p = p[width:]
+    }
 }
 
 /*
@@ -3175,52 +3168,52 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 fields :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
-	n := 0
-	was_space := 1
-	set_bits := u8(0)
+    n := 0
+    was_space := 1
+    set_bits := u8(0)
 
-	// check to see
-	for i in 0..<len(s) {
-		r := s[i]
-		set_bits |= r
-		is_space := int(_ascii_space[r])
-		n += was_space & ~is_space
-		was_space = is_space
-	}
+    // check to see
+    for i in 0..<len(s) {
+        r := s[i]
+        set_bits |= r
+        is_space := int(_ascii_space[r])
+        n += was_space & ~is_space
+        was_space = is_space
+    }
 
-	if set_bits >= utf8.RUNE_SELF {
-		return fields_proc(s, unicode.is_space, allocator)
-	}
+    if set_bits >= utf8.RUNE_SELF {
+        return fields_proc(s, unicode.is_space, allocator)
+    }
 
-	if n == 0 {
-		return nil, nil
-	}
+    if n == 0 {
+        return nil, nil
+    }
 
-	a := make([]string, n, allocator, loc) or_return
-	na := 0
-	field_start := 0
-	i := 0
-	for i < len(s) && _ascii_space[s[i]] {
-		i += 1
-	}
-	field_start = i
-	for i < len(s) {
-		if !_ascii_space[s[i]] {
-			i += 1
-			continue
-		}
-		a[na] = s[field_start : i]
-		na += 1
-		i += 1
-		for i < len(s) && _ascii_space[s[i]] {
-			i += 1
-		}
-		field_start = i
-	}
-	if field_start < len(s) {
-		a[na] = s[field_start:]
-	}
-	return a, nil
+    a := make_slice([]string, n, allocator, loc) or_return
+    na := 0
+    field_start := 0
+    i := 0
+    for i < len(s) && _ascii_space[s[i]] {
+        i += 1
+    }
+    field_start = i
+    for i < len(s) {
+        if !_ascii_space[s[i]] {
+            i += 1
+            continue
+        }
+        a[na] = s[field_start : i]
+        na += 1
+        i += 1
+        for i < len(s) && _ascii_space[s[i]] {
+            i += 1
+        }
+        field_start = i
+    }
+    if field_start < len(s) {
+        a[na] = s[field_start:]
+    }
+    return a, nil
 }
 
 /*
@@ -3240,30 +3233,30 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
-	substrings := make([dynamic]string, 0, 32, allocator, loc) or_return
+    substrings := make_dynamic_array([dynamic]string, 0, 32, allocator, loc) or_return
 
-	start, end := -1, -1
-	for r, offset in s {
-		end = offset
-		if f(r) {
-			if start >= 0 {
-				_ = append(&substrings, s[start : end])
-				// -1 could be used, but just speed it up through bitwise not
-				// gotta love 2's complement
-				start = ~start
-			}
-		} else {
-			if start < 0 {
-				start = end
-			}
-		}
-	}
+    start, end := -1, -1
+    for r, offset in s {
+        end = offset
+        if f(r) {
+            if start >= 0 {
+                _ = append(&substrings, s[start : end])
+                // -1 could be used, but just speed it up through bitwise not
+                // gotta love 2's complement
+                start = ~start
+            }
+        } else {
+            if start < 0 {
+                start = end
+            }
+        }
+    }
 
-	if start >= 0 {
-		_ = append(&substrings, s[start : len(s)])
-	}
+    if start >= 0 {
+        _ = append(&substrings, s[start : len(s)])
+    }
 
-	return substrings[:], nil
+    return substrings[:], nil
 }
 
 /*
@@ -3277,32 +3270,32 @@ Returns:
 - ok: A boolean indicating if a non-space substring was found
 */
 fields_iterator :: proc(s: ^string) -> (field: string, ok: bool) {
-	start, end := -1, -1
-	for r, offset in s {
-		end = offset
-		if unicode.is_space(r) {
-			if start >= 0 {
-				field = s[start : end]
-				ok = true
-				s^ = s[end:]
-				return
-			}
-		} else {
-			if start < 0 {
-				start = end
-			}
-		}
-	}
+    start, end := -1, -1
+    for r, offset in s {
+        end = offset
+        if unicode.is_space(r) {
+            if start >= 0 {
+                field = s[start : end]
+                ok = true
+                s^ = s[end:]
+                return
+            }
+        } else {
+            if start < 0 {
+                start = end
+            }
+        }
+    }
 
-	// if either of these are true, the string did not contain any characters
-	if end < 0 || start < 0 {
-		return "", false
-	}
+    // if either of these are true, the string did not contain any characters
+    if end < 0 || start < 0 {
+        return "", false
+    }
 
-	field = s[start:]
-	ok = true
-	s^ = s[len(s):]
-	return
+    field = s[start:]
+    ok = true
+    s^ = s[len(s):]
+    return
 }
 
 /*
@@ -3323,101 +3316,101 @@ Returns:
 NOTE: This implementation is a single-row-version of the Wagner–Fischer algorithm, based on C code by Martin Ettl.
 */
 levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #caller_location) -> (res: int, err: mem.Allocator_Error) {
-	LEVENSHTEIN_DEFAULT_COSTS: []int : {
-		0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
-		10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
-		20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
-		30,  31,  32,  33,  34,  35,  36,  37,  38,  39,
-		40,  41,  42,  43,  44,  45,  46,  47,  48,  49,
-		50,  51,  52,  53,  54,  55,  56,  57,  58,  59,
-		60,  61,  62,  63,
-	}
+    LEVENSHTEIN_DEFAULT_COSTS: []int : {
+        0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+        10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
+        20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
+        30,  31,  32,  33,  34,  35,  36,  37,  38,  39,
+        40,  41,  42,  43,  44,  45,  46,  47,  48,  49,
+        50,  51,  52,  53,  54,  55,  56,  57,  58,  59,
+        60,  61,  62,  63,
+    }
 
-	m, n := utf8.rune_count_in_string(a), utf8.rune_count_in_string(b)
+    m, n := utf8.rune_count_in_string(a), utf8.rune_count_in_string(b)
 
-	if m == 0 {
-		return n, nil
-	}
-	if n == 0 {
-		return m, nil
-	}
+    if m == 0 {
+        return n, nil
+    }
+    if n == 0 {
+        return m, nil
+    }
 
-	costs: []int
+    costs: []int
 
-	if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-		costs = make([]int, n + 1, allocator, loc) or_return
-		for k in 0..=n {
-			costs[k] = k
-		}
-	} else {
-		costs = LEVENSHTEIN_DEFAULT_COSTS
-	}
+    if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
+        costs = make_slice([]int, n + 1, allocator, loc) or_return
+        for k in 0..=n {
+            costs[k] = k
+        }
+    } else {
+        costs = LEVENSHTEIN_DEFAULT_COSTS
+    }
 
-	defer if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-		_ = delete(costs, allocator)
-	}
+    defer if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
+        _ = delete(costs, allocator)
+    }
 
-	i: int
-	for c1 in a {
-		costs[0] = i + 1
-		corner := i
-		j: int
-		for c2 in b {
-			upper := costs[j + 1]
-			if c1 == c2 {
-				costs[j + 1] = corner
-			} else {
-				t := upper if upper < corner else corner
-				costs[j + 1] = (costs[j] if costs[j] < t else t) + 1
-			}
+    i: int
+    for c1 in a {
+        costs[0] = i + 1
+        corner := i
+        j: int
+        for c2 in b {
+            upper := costs[j + 1]
+            if c1 == c2 {
+                costs[j + 1] = corner
+            } else {
+                t := upper if upper < corner else corner
+                costs[j + 1] = (costs[j] if costs[j] < t else t) + 1
+            }
 
-			corner = upper
-			j += 1
-		}
+            corner = upper
+            j += 1
+        }
 
-		i += 1
-	}
+        i += 1
+    }
 
-	return costs[n], nil
+    return costs[n], nil
 }
 
 @(private)
 internal_substring :: proc(s: string, rune_start: int, rune_end: int) -> (sub: string, ok: bool) {
-	sub = s
-	ok  = true
+    sub = s
+    ok  = true
 
-	rune_i: int
+    rune_i: int
 
-	if rune_start > 0 {
-		ok = false
-		for _, i in sub {
-			if rune_start == rune_i {
-				ok = true
-				sub = sub[i:]
-				break
-			}
-			rune_i += 1
-		}
-		if !ok { return }
-	}
+    if rune_start > 0 {
+        ok = false
+        for _, i in sub {
+            if rune_start == rune_i {
+                ok = true
+                sub = sub[i:]
+                break
+            }
+            rune_i += 1
+        }
+        if !ok { return }
+    }
 
-	if rune_end >= rune_start {
-		ok = false
-		for _, i in sub {
-			if rune_end == rune_i {
-				ok = true
-				sub = sub[:i]
-				break
-			}
-			rune_i += 1
-		}
+    if rune_end >= rune_start {
+        ok = false
+        for _, i in sub {
+            if rune_end == rune_i {
+                ok = true
+                sub = sub[:i]
+                break
+            }
+            rune_i += 1
+        }
 
-		if rune_end == rune_i {
-			ok = true
-		}
-	}
+        if rune_end == rune_i {
+            ok = true
+        }
+    }
 
-	return
+    return
 }
 
 /*
@@ -3435,11 +3428,11 @@ Returns:
 - ok: whether the rune indexes where in bounds of the original string
 */
 substring :: proc(s: string, rune_start: int, rune_end: int) -> (sub: string, ok: bool) {
-	if rune_start < 0 || rune_end < 0 || rune_end < rune_start {
-		return
-	}
+    if rune_start < 0 || rune_end < 0 || rune_end < rune_start {
+        return
+    }
 
-	return internal_substring(s, rune_start, rune_end)
+    return internal_substring(s, rune_start, rune_end)
 }
 
 /*
@@ -3456,11 +3449,11 @@ Returns:
 - ok: whether the rune indexes where in bounds of the original string
 */
 substring_from :: proc(s: string, rune_start: int) -> (sub: string, ok: bool) {
-	if rune_start < 0 {
-		return
-	}
+    if rune_start < 0 {
+        return
+    }
 
-	return internal_substring(s, rune_start, -1)
+    return internal_substring(s, rune_start, -1)
 }
 
 /*
@@ -3477,9 +3470,9 @@ Returns:
 - ok: whether the rune indexes where in bounds of the original string
 */
 substring_to :: proc(s: string, rune_end: int) -> (sub: string, ok: bool) {
-	if rune_end < 0 {
-		return
-	}
+    if rune_end < 0 {
+        return
+    }
 
-	return internal_substring(s, -1, rune_end)
+    return internal_substring(s, -1, rune_end)
 }

@@ -21,7 +21,7 @@ test_aes :: proc(t: ^testing.T) {
 }
 
 supported_aes_impls :: proc() -> [dynamic]aes.Implementation {
-	impls := make([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
+	impls := make_dynamic_array([dynamic]aes.Implementation, 0, 2, context.temp_allocator)
 	_ = append(&impls, aes.Implementation.Portable)
 	if aes.is_hardware_accelerated() {
 		_ = append(&impls, aes.Implementation.Hardware)
@@ -172,7 +172,7 @@ test_aes_ctr :: proc(t: ^testing.T, impl: aes.Implementation) {
 		plaintext, _ := hex.decode(transmute([]byte)(v.plaintext), context.temp_allocator)
 		ciphertext, _ := hex.decode(transmute([]byte)(v.ciphertext), context.temp_allocator)
 
-		dst := make([]byte, len(ciphertext), context.temp_allocator)
+		dst := make_slice([]byte, len(ciphertext), context.temp_allocator)
 
 		ctx: aes.Context_CTR
 		aes.init_ctr(&ctx, key, iv, impl)
@@ -197,7 +197,7 @@ test_aes_ctr :: proc(t: ^testing.T, impl: aes.Implementation) {
 	// compare the SHA-512/256 digest with a known value.  Results
 	// and testcase taken from a known good implementation.
 
-	tmp := make([]byte, 2048, context.temp_allocator)
+	tmp := make_slice([]byte, 2048, context.temp_allocator)
 
 	ctx: aes.Context_CTR
 	key: [aes.KEY_SIZE_256]byte

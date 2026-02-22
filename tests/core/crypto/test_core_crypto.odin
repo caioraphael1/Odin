@@ -39,7 +39,7 @@ test_chacha20 :: proc(t: ^testing.T) {
 }
 
 supported_chacha_impls :: proc() -> [dynamic]chacha20.Implementation {
-	impls := make([dynamic]chacha20.Implementation, 0, 3, context.temp_allocator)
+	impls := make_dynamic_array([dynamic]chacha20.Implementation, 0, 3, context.temp_allocator)
 	_ = append(&impls, chacha20.Implementation.Portable)
 	if chacha_simd128.is_performant() {
 		_ = append(&impls, chacha20.Implementation.Simd128)
@@ -153,7 +153,7 @@ test_chacha20_stream :: proc(t: ^testing.T, impl: chacha20.Implementation) {
 	// and testcase taken from a known good implementation by the
 	// same author as the Odin test case.
 
-	tmp := make([]byte, 2048, context.temp_allocator)
+	tmp := make_slice([]byte, 2048, context.temp_allocator)
 
 	mem.zero(&key, size_of(key))
 	mem.zero(&iv, size_of(iv))
@@ -189,7 +189,7 @@ test_rand_bytes :: proc(t: ^testing.T) {
 		return
 	}
 
-	buf := make([]byte, 1 << 25, context.allocator)
+	buf := make_slice([]byte, 1 << 25, context.allocator)
 	defer _ = delete(buf)
 
 	// Testing a CSPRNG for correctness is incredibly involved and

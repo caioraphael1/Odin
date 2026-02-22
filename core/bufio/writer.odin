@@ -25,7 +25,7 @@ writer_init :: proc(b: ^Writer, wr: io.Writer, size: int = DEFAULT_BUF_SIZE, all
 	size = max(size, MIN_READ_BUFFER_SIZE)
 	writer_reset(b, wr)
 	b.buf_allocator = allocator
-	b.buf, _ = make([]byte, size, allocator)
+	b.buf, _ = make_slice([]byte, size, allocator)
 }
 
 // Initialized a Writer with a user provided buffer `buf`

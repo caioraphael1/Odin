@@ -17,21 +17,21 @@ Arguments to the current process.
 args: []string
 
 init_args :: proc(allocator: runtime.Allocator) {
-	args, _ = make([]string, len(runtime.args__), allocator)
-	for rt_arg, i in runtime.args__ {
-		args[i] = string(rt_arg)
-	}
+    args, _ = make_slice([]string, len(runtime.args__), allocator)
+    for rt_arg, i in runtime.args__ {
+        args[i] = string(rt_arg)
+    }
 }
 
 fini_args :: proc(allocator: runtime.Allocator) {
-	_ = delete(args, allocator)
+    _ = delete(args, allocator)
 }
 
 /*
 Exit the current process.
 */
 exit :: proc(code: int) -> ! {
-	runtime.exit(code)
+    runtime.exit(code)
 }
 
 /*
@@ -42,7 +42,7 @@ the function simply returns -1.
 */
 
 get_uid :: proc() -> int {
-	return _get_uid()
+    return _get_uid()
 }
 
 /*
@@ -58,7 +58,7 @@ the function simply returns -1.
 */
 
 get_euid :: proc() -> int {
-	return _get_euid()
+    return _get_euid()
 }
 
 /*
@@ -69,7 +69,7 @@ the function simply returns -1.
 */
 
 get_gid :: proc() -> int {
-	return _get_gid()
+    return _get_gid()
 }
 
 /*
@@ -85,7 +85,7 @@ the function simply returns -1.
 */
 
 get_egid :: proc() -> int {
-	return _get_egid()
+    return _get_egid()
 }
 
 /*
@@ -93,7 +93,7 @@ Obtain the ID of the current process.
 */
 
 get_pid :: proc() -> int {
-	return _get_pid()
+    return _get_pid()
 }
 
 /*
@@ -107,7 +107,7 @@ process.
 */
 
 get_ppid :: proc() -> int {
-	return _get_ppid()
+    return _get_ppid()
 }
 
 /*
@@ -115,7 +115,7 @@ Obtain ID's of all processes running in the system.
 */
 
 process_list :: proc(allocator: runtime.Allocator) -> ([]int, Error) {
-	return _process_list(allocator)
+    return _process_list(allocator)
 }
 
 /*
@@ -125,14 +125,14 @@ field in the `Process_Info` struct.
 */
 Process_Info_Fields :: bit_set[Process_Info_Field]
 Process_Info_Field :: enum {
-	Executable_Path,
-	PPid,
-	Priority,
-	Command_Line,
-	Command_Args,
-	Environment,
-	Username,
-	Working_Dir,
+    Executable_Path,
+    PPid,
+    Priority,
+    Command_Line,
+    Command_Args,
+    Environment,
+    Username,
+    Working_Dir,
 }
 
 ALL_INFO :: Process_Info_Fields{.Executable_Path, .PPid, .Priority, .Command_Line, .Command_Args, .Environment, .Username, .Working_Dir}
@@ -142,27 +142,27 @@ Contains information about the process as obtained by the `process_info()`
 procedure.
 */
 Process_Info :: struct {
-	// The information about a process the struct contains. `pid` is always
-	// stored, no matter what.
-	fields: Process_Info_Fields,
-	// The ID of the process.
-	pid: int,
-	// The ID of the parent process.
-	ppid: int,
-	// The process priority.
-	priority: int,
-	// The path to the executable, which the process runs.
-	executable_path: string,
-	// The command line supplied to the process.
-	command_line: string,
-	// The arguments supplied to the process.
-	command_args: []string,
-	// The environment of the process.
-	environment: []string,
-	// The username of the user who started the process.
-	username: string,
-	// The current working directory of the process.
-	working_dir: string,
+    // The information about a process the struct contains. `pid` is always
+    // stored, no matter what.
+    fields: Process_Info_Fields,
+    // The ID of the process.
+    pid: int,
+    // The ID of the parent process.
+    ppid: int,
+    // The process priority.
+    priority: int,
+    // The path to the executable, which the process runs.
+    executable_path: string,
+    // The command line supplied to the process.
+    command_line: string,
+    // The arguments supplied to the process.
+    command_args: []string,
+    // The environment of the process.
+    environment: []string,
+    // The username of the user who started the process.
+    username: string,
+    // The current working directory of the process.
+    working_dir: string,
 }
 
 /*
@@ -182,7 +182,7 @@ returned by this procedure.
 */
 
 process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
-	return _process_info_by_pid(pid, selection, allocator)
+    return _process_info_by_pid(pid, selection, allocator)
 }
 
 /*
@@ -203,7 +203,7 @@ returned by this procedure.
 */
 
 process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
-	return _process_info_by_handle(process, selection, allocator)
+    return _process_info_by_handle(process, selection, allocator)
 }
 
 /*
@@ -223,16 +223,16 @@ returned by this procedure.
 */
 
 current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
-	return _current_process_info(selection, allocator)
+    return _current_process_info(selection, allocator)
 }
 
 /*
 Obtain information about the specified process.
 */
-process_info :: proc {
-	process_info_by_pid,
-	process_info_by_handle,
-	current_process_info,
+
+    process_info_by_pid,
+    process_info_by_handle,
+    current_process_info,
 }
 
 /*
@@ -243,18 +243,18 @@ allocator. The allocator needs to be the same allocator that was supplied
 to the `process_info` function.
 */
 free_process_info :: proc(pi: Process_Info, allocator: runtime.Allocator) {
-	_ = delete(pi.executable_path, allocator)
-	_ = delete(pi.command_line, allocator)
-	for a in pi.command_args {
-		_ = delete(a, allocator)
-	}
-	_ = delete(pi.command_args, allocator)
-	for s in pi.environment {
-		_ = delete(s, allocator)
-	}
-	_ = delete(pi.environment, allocator)
-	_ = delete(pi.working_dir, allocator)
-	_ = delete(pi.username, allocator)
+    _ = delete(pi.executable_path, allocator)
+    _ = delete(pi.command_line, allocator)
+    for a in pi.command_args {
+        _ = delete(a, allocator)
+    }
+    _ = delete(pi.command_args, allocator)
+    for s in pi.environment {
+        _ = delete(s, allocator)
+    }
+    _ = delete(pi.environment, allocator)
+    _ = delete(pi.working_dir, allocator)
+    _ = delete(pi.username, allocator)
 }
 
 /*
@@ -267,16 +267,16 @@ specific process, even after it has died.
 **Note(linux)**: The `handle` will be referring to pidfd.
 */
 Process :: struct {
-	pid:    int,
-	handle: uintptr,
+    pid:    int,
+    handle: uintptr,
 }
 
 Process_Open_Flags :: bit_set[Process_Open_Flag]
 Process_Open_Flag :: enum {
-	// Request for reading from the virtual memory of another process.
-	Mem_Read,
-	// Request for writing to the virtual memory of another process.
-	Mem_Write,
+    // Request for reading from the virtual memory of another process.
+    Mem_Read,
+    // Request for writing to the virtual memory of another process.
+    Mem_Write,
 }
 
 /*
@@ -290,37 +290,37 @@ Use `process_close()` function to close the process handle.
 */
 
 process_open :: proc(pid: int, flags := Process_Open_Flags {}) -> (Process, Error) {
-	return _process_open(pid, flags)
+    return _process_open(pid, flags)
 }
 
 /*
-	The description of how a process should be created.
+    The description of how a process should be created.
 */
 Process_Desc :: struct {
-	// The working directory of the process. If the string has length 0, the
-	// working directory is assumed to be the current working directory of the
-	// current process.
-	working_dir: string,
-	// The command to run. Each element of the slice is a separate argument to
-	// the process. The first element of the slice would be the executable.
-	command: []string,
-	// A slice of strings, each having the format `KEY=VALUE` representing the
-	// full environment that the child process will receive.
-	// In case this slice is `nil`, the current process' environment is used.
-	// NOTE(laytan): maybe should be `Maybe([]string)` so you can do `nil` == current env, empty == empty/no env.
-	env: []string,
-	// The `stderr` handle to give to the child process. It can be either a file
-	// or a writeable end of a pipe. Passing `nil` will shut down the process'
-	// stderr output.
-	stderr: ^File,
-	// The `stdout` handle to give to the child process. It can be either a file
-	// or a writeabe end of a pipe. Passing a `nil` will shut down the process'
-	// stdout output.
-	stdout: ^File,
-	// The `stdin` handle to give to the child process. It can either be a file
-	// or a readable end of a pipe. Passing a `nil` will shut down the process'
-	// input.
-	stdin: ^File,
+    // The working directory of the process. If the string has length 0, the
+    // working directory is assumed to be the current working directory of the
+    // current process.
+    working_dir: string,
+    // The command to run. Each element of the slice is a separate argument to
+    // the process. The first element of the slice would be the executable.
+    command: []string,
+    // A slice of strings, each having the format `KEY=VALUE` representing the
+    // full environment that the child process will receive.
+    // In case this slice is `nil`, the current process' environment is used.
+    // NOTE(laytan): maybe should be `Maybe([]string)` so you can do `nil` == current env, empty == empty/no env.
+    env: []string,
+    // The `stderr` handle to give to the child process. It can be either a file
+    // or a writeable end of a pipe. Passing `nil` will shut down the process'
+    // stderr output.
+    stderr: ^File,
+    // The `stdout` handle to give to the child process. It can be either a file
+    // or a writeabe end of a pipe. Passing a `nil` will shut down the process'
+    // stdout output.
+    stdout: ^File,
+    // The `stdin` handle to give to the child process. It can either be a file
+    // or a readable end of a pipe. Passing a `nil` will shut down the process'
+    // input.
+    stdin: ^File,
 }
 
 /*
@@ -346,7 +346,7 @@ handle inheritance properties, make sure to serialize all those calls.
 */
 
 process_start :: proc(desc: Process_Desc) -> (Process, Error) {
-	return _process_start(desc)
+    return _process_start(desc)
 }
 
 /*
@@ -367,118 +367,118 @@ returned. Make sure to call `_ = delete` on these slices.
 */
 
 process_exec :: proc(
-	desc: Process_Desc,
-	allocator: runtime.Allocator,
-	loc := #caller_location,
+    desc: Process_Desc,
+    allocator: runtime.Allocator,
+    loc := #caller_location,
 ) -> (
-	state: Process_State,
-	stdout: []byte,
-	stderr: []byte,
-	err: Error,
+    state: Process_State,
+    stdout: []byte,
+    stderr: []byte,
+    err: Error,
 ) {
-	assert(desc.stdout == nil, "Cannot redirect stdout when it's being captured", loc)
-	assert(desc.stderr == nil, "Cannot redirect stderr when it's being captured", loc)
+    assert(desc.stdout == nil, "Cannot redirect stdout when it's being captured", loc)
+    assert(desc.stderr == nil, "Cannot redirect stderr when it's being captured", loc)
 
-	stdout_r, stdout_w := pipe(allocator) or_return
-	defer _ = close(stdout_r)
-	stderr_r, stderr_w := pipe(allocator) or_return
-	defer _ = close(stderr_r)
+    stdout_r, stdout_w := pipe(allocator) or_return
+    defer _ = close(stdout_r)
+    stderr_r, stderr_w := pipe(allocator) or_return
+    defer _ = close(stderr_r)
 
-	process: Process
-	{
-		// NOTE(flysand): Make sure the write-ends are closed, regardless
-		// of the outcome. This makes read-ends readable on our side.
-		defer _ = close(stdout_w)
-		defer _ = close(stderr_w)
-		desc := desc
-		desc.stdout = stdout_w
-		desc.stderr = stderr_w
-		process = process_start(desc) or_return
-	}
+    process: Process
+    {
+        // NOTE(flysand): Make sure the write-ends are closed, regardless
+        // of the outcome. This makes read-ends readable on our side.
+        defer _ = close(stdout_w)
+        defer _ = close(stderr_w)
+        desc := desc
+        desc.stdout = stdout_w
+        desc.stderr = stderr_w
+        process = process_start(desc) or_return
+    }
 
-	{
-		stdout_b: [dynamic]byte
-		stdout_b.allocator = allocator
+    {
+        stdout_b: [dynamic]byte
+        stdout_b.allocator = allocator
 
-		stderr_b: [dynamic]byte
-		stderr_b.allocator = allocator
+        stderr_b: [dynamic]byte
+        stderr_b.allocator = allocator
 
-		buf: [1024]u8 = ---
-		
-		stdout_done, stderr_done, has_data: bool
-		for err == nil && (!stdout_done || !stderr_done) {
-			n := 0
+        buf: [1024]u8 = ---
+        
+        stdout_done, stderr_done, has_data: bool
+        for err == nil && (!stdout_done || !stderr_done) {
+            n := 0
 
-			if !stdout_done {
-				has_data, err = pipe_has_data(stdout_r)
-				if has_data {
-					n, err = read(stdout_r, buf[:])
-				}
+            if !stdout_done {
+                has_data, err = pipe_has_data(stdout_r)
+                if has_data {
+                    n, err = read(stdout_r, buf[:])
+                }
 
-				switch err {
-				case nil:
-					err = append(&stdout_b, ..buf[:n])
-				case .EOF, .Broken_Pipe:
-					stdout_done = true
-					err = nil
-				}
-			}
+                switch err {
+                case nil:
+                    err = append(&stdout_b, ..buf[:n])
+                case .EOF, .Broken_Pipe:
+                    stdout_done = true
+                    err = nil
+                }
+            }
 
-			if err == nil && !stderr_done {
-				n = 0
-				has_data, err = pipe_has_data(stderr_r)
-				if has_data {
-					n, err = read(stderr_r, buf[:])
-				}
+            if err == nil && !stderr_done {
+                n = 0
+                has_data, err = pipe_has_data(stderr_r)
+                if has_data {
+                    n, err = read(stderr_r, buf[:])
+                }
 
-				switch err {
-				case nil:
-					err = append(&stderr_b, ..buf[:n])
-				case .EOF, .Broken_Pipe:
-					stderr_done = true
-					err = nil
-				}
-			}
-		}
+                switch err {
+                case nil:
+                    err = append(&stderr_b, ..buf[:n])
+                case .EOF, .Broken_Pipe:
+                    stderr_done = true
+                    err = nil
+                }
+            }
+        }
 
-		stdout = stdout_b[:]
-		stderr = stderr_b[:]
-	}
+        stdout = stdout_b[:]
+        stderr = stderr_b[:]
+    }
 
-	if err != nil {
-		state, _ = process_wait(process, timeout=0)
-		if !state.exited {
-			_ = process_kill(process)
-			state, _ = process_wait(process)
-		}
-		return
-	}
+    if err != nil {
+        state, _ = process_wait(process, timeout=0)
+        if !state.exited {
+            _ = process_kill(process)
+            state, _ = process_wait(process)
+        }
+        return
+    }
 
-	state, err = process_wait(process)
-	return
+    state, err = process_wait(process)
+    return
 }
 
 /*
-	The state of the process after it has finished execution.
+    The state of the process after it has finished execution.
 */
 Process_State :: struct {
-	// The ID of the process.
-	pid: int,
-	// Specifies whether the process has terminated or is still running.
-	exited: bool,
-	// The exit code of the process, if it has exited.
-	// Will also store the number of the exception or signal that has crashed the
-	// process.
-	exit_code: int,
-	// Specifies whether the termination of the process was successfull or not,
-	// i.e. whether it has crashed or not.
-	// **Note(windows)**: On windows `true` is always returned, as there is no
-	// reliable way to obtain information about whether the process has crashed.
-	success: bool,
-	// The time the process has spend executing in kernel time.
-	system_time: time.Duration,
-	// The time the process has spend executing in userspace.
-	user_time: time.Duration,
+    // The ID of the process.
+    pid: int,
+    // Specifies whether the process has terminated or is still running.
+    exited: bool,
+    // The exit code of the process, if it has exited.
+    // Will also store the number of the exception or signal that has crashed the
+    // process.
+    exit_code: int,
+    // Specifies whether the termination of the process was successfull or not,
+    // i.e. whether it has crashed or not.
+    // **Note(windows)**: On windows `true` is always returned, as there is no
+    // reliable way to obtain information about whether the process has crashed.
+    success: bool,
+    // The time the process has spend executing in kernel time.
+    system_time: time.Duration,
+    // The time the process has spend executing in userspace.
+    user_time: time.Duration,
 }
 
 /*
@@ -496,7 +496,7 @@ process state is considered undetermined.
 */
 
 process_wait :: proc(process: Process, timeout := TIMEOUT_INFINITE) -> (Process_State, Error) {
-	return _process_wait(process, timeout)
+    return _process_wait(process, timeout)
 }
 
 /*
@@ -509,7 +509,7 @@ then close the handle.
 */
 
 process_close :: proc(process: Process) -> (Error) {
-	return _process_close(process)
+    return _process_close(process)
 }
 
 /*
@@ -519,5 +519,5 @@ This procedure terminates a process, specified by it's handle, `process`.
 */
 
 process_kill :: proc(process: Process) -> (Error) {
-	return _process_kill(process)
+    return _process_kill(process)
 }

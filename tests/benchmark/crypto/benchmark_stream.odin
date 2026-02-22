@@ -32,8 +32,8 @@ benchmark_crypto_stream :: proc(t: ^testing.T) {
 			table.row(&tbl)
 		}
 
-		key := make([]byte, key_sz/8, context.temp_allocator)
-		iv := make([]byte, aes.CTR_IV_SIZE, context.temp_allocator)
+		key := make_slice([]byte, key_sz/8, context.temp_allocator)
+		iv := make_slice([]byte, aes.CTR_IV_SIZE, context.temp_allocator)
 		crypto.rand_bytes(key)
 		crypto.rand_bytes(iv)
 
@@ -68,8 +68,8 @@ benchmark_crypto_stream :: proc(t: ^testing.T) {
 	table.row(&tbl)
 
 	{
-		key := make([]byte, chacha20.KEY_SIZE, context.temp_allocator)
-		iv := make([]byte, chacha20.IV_SIZE, context.temp_allocator)
+		key := make_slice([]byte, chacha20.KEY_SIZE, context.temp_allocator)
+		iv := make_slice([]byte, chacha20.IV_SIZE, context.temp_allocator)
 		crypto.rand_bytes(key)
 		crypto.rand_bytes(iv)
 

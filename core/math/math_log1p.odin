@@ -79,121 +79,111 @@ package math
 //
 //       See HP-15C Advanced Functions Handbook, p.193.
 
-log1p :: proc {
-	log1p_f16,
-	log1p_f32,
-	log1p_f64,
-	log1p_f16le,
-	log1p_f16be,
-	log1p_f32le,
-	log1p_f32be,
-	log1p_f64le,
-	log1p_f64be,
-}
- log1p_f16   :: proc(x: f16)   -> f16   { return f16(log1p_f64(f64(x))) }
- log1p_f32   :: proc(x: f32)   -> f32   { return f32(log1p_f64(f64(x))) }
- log1p_f16le :: proc(x: f16le) -> f16le { return f16le(log1p_f64(f64(x))) }
- log1p_f16be :: proc(x: f16be) -> f16be { return f16be(log1p_f64(f64(x))) }
- log1p_f32le :: proc(x: f32le) -> f32le { return f32le(log1p_f64(f64(x))) }
- log1p_f32be :: proc(x: f32be) -> f32be { return f32be(log1p_f64(f64(x))) }
- log1p_f64le :: proc(x: f64le) -> f64le { return f64le(log1p_f64(f64(x))) }
- log1p_f64be :: proc(x: f64be) -> f64be { return f64be(log1p_f64(f64(x))) }
+
+log1p_f16   :: proc(x: f16)   -> f16   { return f16(log1p_f64(f64(x))) }
+log1p_f32   :: proc(x: f32)   -> f32   { return f32(log1p_f64(f64(x))) }
+log1p_f16le :: proc(x: f16le) -> f16le { return f16le(log1p_f64(f64(x))) }
+log1p_f16be :: proc(x: f16be) -> f16be { return f16be(log1p_f64(f64(x))) }
+log1p_f32le :: proc(x: f32le) -> f32le { return f32le(log1p_f64(f64(x))) }
+log1p_f32be :: proc(x: f32be) -> f32be { return f32be(log1p_f64(f64(x))) }
+log1p_f64le :: proc(x: f64le) -> f64le { return f64le(log1p_f64(f64(x))) }
+log1p_f64be :: proc(x: f64be) -> f64be { return f64be(log1p_f64(f64(x))) }
 
 
 log1p_f64 :: proc(x: f64) -> f64 {
-	SQRT2_M1      :: 0h3fda827999fcef34 // sqrt(2)-1 
-	SQRT2_HALF_M1 :: 0hbfd2bec333018866 // sqrt(2)/2-1
-	SMALL         :: 0h3e20000000000000 // 2**-29
-	TINY          :: 0h3c90000000000000 // 2**-54
-	TWO53         :: 0h4340000000000000 // 2**53
-	LN2HI         :: 0h3fe62e42fee00000
-	LN2LO         :: 0h3dea39ef35793c76
-	LP1           :: 0h3FE5555555555593
-	LP2           :: 0h3FD999999997FA04
-	LP3           :: 0h3FD2492494229359
-	LP4           :: 0h3FCC71C51D8E78AF
-	LP5           :: 0h3FC7466496CB03DE
-	LP6           :: 0h3FC39A09D078C69F
-	LP7           :: 0h3FC2F112DF3E5244
-	
-	switch {
-	case x < -1 || is_nan(x):
-		return nan_f64()
-	case x == -1:
-		return inf_f64(-1)
-	case is_inf(x, 1):
-		return inf_f64(+1)
-	}
-	absx := abs(x)
-	
-	f: f64
-	iu: u64
-	k := 1
-	if absx < SQRT2_M1 { //  |x| < sqrt(2)-1
-		if absx < SMALL { // |x| < 2**-29
-			if absx < TINY { // |x| < 2**-54
-				return x
-			}
-			return x - x*x*0.5
-		}
-		if x > SQRT2_HALF_M1 { // sqrt(2)/2-1 < x
-			// (sqrt(2)/2-1) < x < (sqrt(2)-1)
-			k = 0
-			f = x
-			iu = 1
-		}
-	}
-	c: f64
-	if k != 0 {
-		u: f64
-		if absx < TWO53 { // 1<<53
-			u = 1.0 + x
-			iu = transmute(u64)u
-			k = int((iu >> 52) - 1023)
-			// correction term
-			if k > 0 {
-				c = 1.0 - (u - x)
-			} else {
-				c = x - (u - 1.0)
-			}
-			c /= u
-		} else {
-			u = x
-			iu = transmute(u64)u
-			k = int((iu >> 52) - 1023)
-			c = 0
-		}
-		iu &= 0x000fffffffffffff
-		if iu < 0x0006a09e667f3bcd { // mantissa of sqrt(2)
-			u = transmute(f64)(iu | 0x3ff0000000000000) // normalize u
-		} else {
-			k += 1
-			u = transmute(f64)(iu | 0x3fe0000000000000) // normalize u/2
-			iu = (0x0010000000000000 - iu) >> 2
-		}
-		f = u - 1.0 // sqrt(2)/2 < u < sqrt(2)
-	}
-	hfsq := 0.5 * f * f
-	s, R, z: f64
-	if iu == 0 { // |f| < 2**-20
-		if f == 0 {
-			if k == 0 {
-				return 0
-			}
-			c += f64(k) * LN2LO
-			return f64(k)*LN2HI + c
-		}
-		R = hfsq * (1.0 - 0.66666666666666666*f) // avoid division
-		if k == 0 {
-			return f - R
-		}
-		return f64(k)*LN2HI - ((R - (f64(k)*LN2LO + c)) - f)
-	}
-	s = f / (2.0 + f)
-	z = s * s
-	R = z * (LP1 + z*(LP2+z*(LP3+z*(LP4+z*(LP5+z*(LP6+z*LP7))))))
-	if k == 0 {
-		return f - (hfsq - s*(hfsq+R))
-	}
-	return f64(k)*LN2HI - ((hfsq - (s*(hfsq+R) + (f64(k)*LN2LO + c))) - f)
+    SQRT2_M1      :: 0h3fda827999fcef34 // sqrt(2)-1 
+    SQRT2_HALF_M1 :: 0hbfd2bec333018866 // sqrt(2)/2-1
+    SMALL         :: 0h3e20000000000000 // 2**-29
+    TINY          :: 0h3c90000000000000 // 2**-54
+    TWO53         :: 0h4340000000000000 // 2**53
+    LN2HI         :: 0h3fe62e42fee00000
+    LN2LO         :: 0h3dea39ef35793c76
+    LP1           :: 0h3FE5555555555593
+    LP2           :: 0h3FD999999997FA04
+    LP3           :: 0h3FD2492494229359
+    LP4           :: 0h3FCC71C51D8E78AF
+    LP5           :: 0h3FC7466496CB03DE
+    LP6           :: 0h3FC39A09D078C69F
+    LP7           :: 0h3FC2F112DF3E5244
+    
+    switch {
+    case x < -1 || is_nan_f64(x):
+        return nan()
+    case x == -1:
+        return inf(-1)
+    case is_inf_f64(x, 1):
+        return inf(+1)
+    }
+    absx := abs(x)
+    
+    f: f64
+    iu: u64
+    k := 1
+    if absx < SQRT2_M1 { //  |x| < sqrt(2)-1
+        if absx < SMALL { // |x| < 2**-29
+            if absx < TINY { // |x| < 2**-54
+                return x
+            }
+            return x - x*x*0.5
+        }
+        if x > SQRT2_HALF_M1 { // sqrt(2)/2-1 < x
+            // (sqrt(2)/2-1) < x < (sqrt(2)-1)
+            k = 0
+            f = x
+            iu = 1
+        }
+    }
+    c: f64
+    if k != 0 {
+        u: f64
+        if absx < TWO53 { // 1<<53
+            u = 1.0 + x
+            iu = transmute(u64)u
+            k = int((iu >> 52) - 1023)
+            // correction term
+            if k > 0 {
+                c = 1.0 - (u - x)
+            } else {
+                c = x - (u - 1.0)
+            }
+            c /= u
+        } else {
+            u = x
+            iu = transmute(u64)u
+            k = int((iu >> 52) - 1023)
+            c = 0
+        }
+        iu &= 0x000fffffffffffff
+        if iu < 0x0006a09e667f3bcd { // mantissa of sqrt(2)
+            u = transmute(f64)(iu | 0x3ff0000000000000) // normalize u
+        } else {
+            k += 1
+            u = transmute(f64)(iu | 0x3fe0000000000000) // normalize u/2
+            iu = (0x0010000000000000 - iu) >> 2
+        }
+        f = u - 1.0 // sqrt(2)/2 < u < sqrt(2)
+    }
+    hfsq := 0.5 * f * f
+    s, R, z: f64
+    if iu == 0 { // |f| < 2**-20
+        if f == 0 {
+            if k == 0 {
+                return 0
+            }
+            c += f64(k) * LN2LO
+            return f64(k)*LN2HI + c
+        }
+        R = hfsq * (1.0 - 0.66666666666666666*f) // avoid division
+        if k == 0 {
+            return f - R
+        }
+        return f64(k)*LN2HI - ((R - (f64(k)*LN2LO + c)) - f)
+    }
+    s = f / (2.0 + f)
+    z = s * s
+    R = z * (LP1 + z*(LP2+z*(LP3+z*(LP4+z*(LP5+z*(LP6+z*LP7))))))
+    if k == 0 {
+        return f - (hfsq - s*(hfsq+R))
+    }
+    return f64(k)*LN2HI - ((hfsq - (s*(hfsq+R) + (f64(k)*LN2LO + c))) - f)
 }

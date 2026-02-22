@@ -129,7 +129,7 @@ chacha8rand_bytes :: proc(t: ^testing.T) {
 	rand.reset_bytes(transmute([]byte)(SAMPLE_SEED))
 
 	// Test a massive bulk read.
-	buf := make([]byte, len(SAMPLE_OUTPUT) * size_of(u64), context.temp_allocator)
+	buf := make_slice([]byte, len(SAMPLE_OUTPUT) * size_of(u64), context.temp_allocator)
 	n := rand.read(buf)
 	testing.expectf(t, n == len(buf), "insufficient output: got %d (expected %d)", n, len(buf))
 

@@ -36,7 +36,7 @@ Example:
 		f3, f3_ok := os.read_entire_file("file3.txt", arena_alloc)
 		ensure(f3_ok)
 
-		res := make([]string, 3, arena_alloc)
+		res := make_slice([]string, 3, arena_alloc)
 		res[0] = string(f1)
 		res[1] = string(f2)
 		res[2] = string(f3)

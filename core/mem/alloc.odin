@@ -13,27 +13,27 @@ used to discriminate between different functions of the allocator.
 
 The type is defined as follows:
 
-	Allocator_Mode :: enum byte {
-		Alloc,
-		Alloc_Non_Zeroed,
-		Free,
-		Free_All,
-		Resize,
-		Resize_Non_Zeroed,
-		Query_Features,
-	}
+    Allocator_Mode :: enum byte {
+        Alloc,
+        Alloc_Non_Zeroed,
+        Free,
+        Free_All,
+        Resize,
+        Resize_Non_Zeroed,
+        Query_Features,
+    }
 
 Depending on which value is used, the allocator procedure will perform different
 functions:
 
 - `Alloc`: Allocates a memory region with a given `size` and `alignment`.
 - `Alloc_Non_Zeroed`: Same as `Alloc` without explicit zero-initialization of
-	the memory region.
+    the memory region.
 - `Free`: Free a memory region located at address `ptr` with a given `size`.
 - `Free_All`: Free all memory allocated using this allocator.
 - `Resize`: Resize a memory region located at address `old_ptr` with size
-	`old_size` to be `size` bytes in length and have the specified `alignment`,
-	in case a re-alllocation occurs.
+    `old_size` to be `size` bytes in length and have the specified `alignment`,
+    in case a re-alllocation occurs.
 - `Resize_Non_Zeroed`: Same as `Resize`, without explicit zero-initialization.
 */
 Allocator_Mode :: runtime.Allocator_Mode
@@ -44,7 +44,7 @@ A set of allocator features.
 This type represents values that contain a set of features an allocator has.
 Currently the type is defined as follows:
 
-	Allocator_Mode_Set :: distinct bit_set[Allocator_Mode];
+    Allocator_Mode_Set :: distinct bit_set[Allocator_Mode];
 */
 Allocator_Mode_Set :: runtime.Allocator_Mode_Set
 
@@ -54,11 +54,11 @@ Allocator information.
 This type represents information about a given allocator at a specific point
 in time. Currently the type is defined as follows:
 
-	Allocator_Query_Info :: struct {
-		pointer:   rawptr,
-		size:      Maybe(int),
-		alignment: Maybe(int),
-	}
+    Allocator_Query_Info :: struct {
+        pointer:   rawptr,
+        size:      Maybe(int),
+        alignment: Maybe(int),
+    }
 
 - `pointer`: Pointer to a backing buffer.
 - `size`: Size of the backing buffer.
@@ -73,32 +73,32 @@ An allocation request error.
 
 This type represents error values the allocators may return upon requests.
 
-	Allocator_Error :: enum byte {
-		None                 = 0,
-		Out_Of_Memory        = 1,
-		Invalid_Pointer      = 2,
-		Invalid_Argument     = 3,
-		Mode_Not_Implemented = 4,
-	}
+    Allocator_Error :: enum byte {
+        None                 = 0,
+        Out_Of_Memory        = 1,
+        Invalid_Pointer      = 2,
+        Invalid_Argument     = 3,
+        Mode_Not_Implemented = 4,
+    }
 
 The meaning of the errors is as follows:
 
 - `None`: No error.
 - `Out_Of_Memory`: Either:
-	1. The allocator has ran out of the backing buffer, or the requested
-		allocation size is too large to fit into a backing buffer.
-	2. The operating system error during memory allocation.
-	3. The backing allocator was used to allocate a new backing buffer and the
-		backing allocator returned Out_Of_Memory.
+    1. The allocator has ran out of the backing buffer, or the requested
+        allocation size is too large to fit into a backing buffer.
+    2. The operating system error during memory allocation.
+    3. The backing allocator was used to allocate a new backing buffer and the
+        backing allocator returned Out_Of_Memory.
 - `Invalid_Pointer`: The pointer referring to a memory region does not belong
-	to any of the allocators backing buffers or does not point to a valid start
-	of an allocation made in that allocator.
+    to any of the allocators backing buffers or does not point to a valid start
+    of an allocation made in that allocator.
 - `Invalid_Argument`: Can occur if one of the arguments makes it impossible to
-	satisfy a request (i.e. having alignment larger than the backing buffer
-	of the allocation).
+    satisfy a request (i.e. having alignment larger than the backing buffer
+    of the allocation).
 - `Mode_Not_Implemented`: The allocator does not support the specified
-	operation. For example, an arena does not support freeing individual
-	allocations.
+    operation. For example, an arena does not support freeing individual
+    allocations.
 */
 Allocator_Error :: runtime.Allocator_Error
 
@@ -111,15 +111,15 @@ freeing the memory, etc.
 
 Currently the type is defined as follows:
 
-	Allocator_Proc :: #type proc(
-		allocator_data: rawptr,
-		mode: Allocator_Mode,
-		size: int,
-		alignment: int,
-		old_memory: rawptr,
-		old_size: int,
-		location: Source_Code_Location = #caller_location,
-	) -> ([]byte, Allocator_Error);
+    Allocator_Proc :: #type proc(
+        allocator_data: rawptr,
+        mode: Allocator_Mode,
+        size: int,
+        alignment: int,
+        old_memory: rawptr,
+        old_size: int,
+        location: Source_Code_Location = #caller_location,
+    ) -> ([]byte, Allocator_Error);
 
 The function of this procedure and the meaning of parameters depends on the
 value of the `mode` parameter. For any operation the following constraints
@@ -164,7 +164,7 @@ the `old_size` parameter.
 - `alignment`: Unused, should be 0.
 - `old_memory`: Pointer to the memory region to free.
 - `old_size`: The size of the memory region to free. This parameter is optional
-	if the allocator keeps track of the sizes of allocations.
+    if the allocator keeps track of the sizes of allocations.
 
 **Returns**:
 1. `nil`
@@ -215,11 +215,11 @@ buffer is aligned to the boundary specified by `alignment`.
 - `alignment`: The alignment of the new memory region, if its allocated
 - `old_memory`: The pointer to the memory region to resize.
 - `old_size`: The size of the memory region to resize. If the allocator
-	keeps track of the sizes of allocations, this parameter is optional.
+    keeps track of the sizes of allocations, this parameter is optional.
 
 **Returns**:
 1. The slice of the  memory region after resize operation, if successfull,
-	`nil` otherwise.
+    `nil` otherwise.
 2. An error, if the resize failed.
 
 **Note**: Some allocators may return `nil`, even if no error is returned.
@@ -236,10 +236,10 @@ Allocator.
 This type represents generic interface for all allocators. Currently this type
 is defined as follows:
 
-	Allocator :: struct {
-		procedure: Allocator_Proc,
-		data: rawptr,
-	}
+    Allocator :: struct {
+        procedure: Allocator_Proc,
+        data: rawptr,
+    }
 
 - `procedure`: Pointer to the allocation procedure.
 - `data`: Pointer to the allocator data.
@@ -260,9 +260,9 @@ Default page size.
 This value is the default page size for the current platform.
 */
 DEFAULT_PAGE_SIZE ::
-	64 * 1024 when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 else
-	16 * 1024 when ODIN_OS == .Darwin && ODIN_ARCH == .arm64 else
-	4 * 1024
+    64 * 1024 when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 else
+    16 * 1024 when ODIN_OS == .Darwin && ODIN_ARCH == .arm64 else
+    4 * 1024
 
 /*
 Allocate memory.
@@ -284,20 +284,20 @@ If the `size` parameter is `0`, the operation is a no-op.
 **Errors**:
 - `None`: If no error occurred.
 - `Out_Of_Memory`: Occurs when the allocator runs out of space in any of its
-	backing buffers, the backing allocator has ran out of space, or an operating
-	system failure occurred.
+    backing buffers, the backing allocator has ran out of space, or an operating
+    system failure occurred.
 - `Invalid_Argument`: If the supplied `size` is negative, alignment is not a
-	power of two.
+    power of two.
 */
 
 alloc :: proc(
-	size: int,
-	alignment: int = DEFAULT_ALIGNMENT,
-	allocator: Allocator,
-	loc := #caller_location,
+    size: int,
+    alignment: int = DEFAULT_ALIGNMENT,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (rawptr, Allocator_Error) {
-	data, err := runtime.mem_alloc(size, alignment, allocator, loc)
-	return raw_data(data), err
+    data, err := runtime.mem_alloc(size, alignment, allocator, loc)
+    return raw_data(data), err
 }
 
 /*
@@ -318,19 +318,19 @@ by `alignment` using the allocator specified by `allocator`.
 **Errors**:
 - `None`: If no error occurred.
 - `Out_Of_Memory`: Occurs when the allocator runs out of space in any of its
-	backing buffers, the backing allocator has ran out of space, or an operating
-	system failure occurred.
+    backing buffers, the backing allocator has ran out of space, or an operating
+    system failure occurred.
 - `Invalid_Argument`: If the supplied `size` is negative, alignment is not a
-	power of two.
+    power of two.
 */
 
 alloc_bytes :: proc(
-	size: int,
-	alignment: int = DEFAULT_ALIGNMENT,
-	allocator: Allocator,
-	loc := #caller_location,
+    size: int,
+    alignment: int = DEFAULT_ALIGNMENT,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> ([]byte, Allocator_Error) {
-	return runtime.mem_alloc(size, alignment, allocator, loc)
+    return runtime.mem_alloc(size, alignment, allocator, loc)
 }
 
 /*
@@ -352,19 +352,19 @@ does not explicitly zero-initialize allocated memory region.
 **Errors**:
 - `None`: If no error occurred.
 - `Out_Of_Memory`: Occurs when the allocator runs out of space in any of its
-	backing buffers, the backing allocator has ran out of space, or an operating
-	system failure occurred.
+    backing buffers, the backing allocator has ran out of space, or an operating
+    system failure occurred.
 - `Invalid_Argument`: If the supplied `size` is negative, alignment is not a
-	power of two.
+    power of two.
 */
 
 alloc_bytes_non_zeroed :: proc(
-	size: int,
-	alignment: int = DEFAULT_ALIGNMENT,
-	allocator: Allocator,
-	loc := #caller_location,
+    size: int,
+    alignment: int = DEFAULT_ALIGNMENT,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> ([]byte, Allocator_Error) {
-	return runtime.mem_alloc_non_zeroed(size, alignment, allocator, loc)
+    return runtime.mem_alloc_non_zeroed(size, alignment, allocator, loc)
 }
 
 /*
@@ -383,16 +383,16 @@ allocated from the allocator specified by `allocator`.
 **Errors**:
 - `None`: When no error has occurred.
 - `Invalid_Pointer`: The specified pointer is not owned by the specified allocator,
-	or does not point to a valid allocation.
+    or does not point to a valid allocation.
 - `Mode_Not_Implemented`: If the specified allocator does not support the `.Free`
 mode.
 */
 free :: proc(
-	ptr: rawptr,
-	allocator: Allocator,
-	loc := #caller_location,
+    ptr: rawptr,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.mem_free(ptr, allocator, loc)
+    return runtime.mem_free(ptr, allocator, loc)
 }
 
 /*
@@ -414,17 +414,17 @@ If the `size` parameter is `0`, this call is equivalent to `free()`.
 **Errors**:
 - `None`: When no error has occurred.
 - `Invalid_Pointer`: The specified pointer is not owned by the specified allocator,
-	or does not point to a valid allocation.
+    or does not point to a valid allocation.
 - `Mode_Not_Implemented`: If the specified allocator does not support the `.Free`
 mode.
 */
 free_with_size :: proc(
-	ptr: rawptr,
-	size: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    ptr: rawptr,
+    size: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.mem_free_with_size(ptr, size, allocator, loc)
+    return runtime.mem_free_with_size(ptr, size, allocator, loc)
 }
 
 /*
@@ -446,16 +446,16 @@ is returned.
 **Errors**:
 - `None`: When no error has occurred.
 - `Invalid_Pointer`: The specified pointer is not owned by the specified allocator,
-	or does not point to a valid allocation.
+    or does not point to a valid allocation.
 - `Mode_Not_Implemented`: If the specified allocator does not support the `.Free`
 mode.
 */
 free_bytes :: proc(
-	bytes: []byte,
-	allocator: Allocator,
-	loc := #caller_location,
+    bytes: []byte,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.mem_free_bytes(bytes, allocator, loc)
+    return runtime.mem_free_bytes(bytes, allocator, loc)
 }
 
 /*
@@ -473,7 +473,7 @@ This procedure frees all allocations made on the allocator specified by
 mode.
 */
 free_all :: proc(allocator: Allocator, loc := #caller_location) -> Allocator_Error {
-	return runtime.mem_free_all(allocator, loc)
+    return runtime.mem_free_all(allocator, loc)
 }
 
 /*
@@ -508,13 +508,13 @@ buffer is aligned to the boundary specified by `alignment`.
 **Errors**:
 - `None`: No error.
 - `Out_Of_Memory`: When the allocator's backing buffer or it's backing
-	allocator does not have enough space to fit in an allocation with the new
-	size, or an operating system failure occurs.
+    allocator does not have enough space to fit in an allocation with the new
+    size, or an operating system failure occurs.
 - `Invalid_Pointer`: The pointer referring to a memory region does not belong
-	to any of the allocators backing buffers or does not point to a valid start
-	of an allocation made in that allocator.
+    to any of the allocators backing buffers or does not point to a valid start
+    of an allocation made in that allocator.
 - `Invalid_Argument`: When `size` is negative, alignment is not a power of two,
-	or the `old_size` argument is incorrect.
+    or the `old_size` argument is incorrect.
 - `Mode_Not_Implemented`: The allocator does not support the `.Realloc` mode.
 
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
@@ -522,15 +522,15 @@ no-op, and should not return errors.
 */
 
 resize :: proc(
-	ptr: rawptr,
-	old_size: int,
-	new_size: int,
-	alignment: int = DEFAULT_ALIGNMENT,
-	allocator: Allocator,
-	loc := #caller_location,
+    ptr: rawptr,
+    old_size: int,
+    new_size: int,
+    alignment: int = DEFAULT_ALIGNMENT,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (rawptr, Allocator_Error) {
-	data, err := runtime.mem_resize(ptr, old_size, new_size, alignment, allocator, loc)
-	return raw_data(data), err
+    data, err := runtime.mem_resize(ptr, old_size, new_size, alignment, allocator, loc)
+    return raw_data(data), err
 }
 
 /*
@@ -568,13 +568,13 @@ memory.
 **Errors**:
 - `None`: No error.
 - `Out_Of_Memory`: When the allocator's backing buffer or it's backing
-	allocator does not have enough space to fit in an allocation with the new
-	size, or an operating system failure occurs.
+    allocator does not have enough space to fit in an allocation with the new
+    size, or an operating system failure occurs.
 - `Invalid_Pointer`: The pointer referring to a memory region does not belong
-	to any of the allocators backing buffers or does not point to a valid start
-	of an allocation made in that allocator.
+    to any of the allocators backing buffers or does not point to a valid start
+    of an allocation made in that allocator.
 - `Invalid_Argument`: When `size` is negative, alignment is not a power of two,
-	or the `old_size` argument is incorrect.
+    or the `old_size` argument is incorrect.
 - `Mode_Not_Implemented`: The allocator does not support the `.Realloc` mode.
 
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
@@ -582,15 +582,15 @@ no-op, and should not return errors.
 */
 
 resize_non_zeroed :: proc(
-	ptr: rawptr,
-	old_size: int,
-	new_size: int,
-	alignment: int = DEFAULT_ALIGNMENT,
-	allocator: Allocator,
-	loc := #caller_location,
+    ptr: rawptr,
+    old_size: int,
+    new_size: int,
+    alignment: int = DEFAULT_ALIGNMENT,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (rawptr, Allocator_Error) {
-	data, err := runtime.non_zero_mem_resize(ptr, old_size, new_size, alignment, allocator, loc)
-	return raw_data(data), err
+    data, err := runtime.non_zero_mem_resize(ptr, old_size, new_size, alignment, allocator, loc)
+    return raw_data(data), err
 }
 
 /*
@@ -624,13 +624,13 @@ buffer is aligned to the boundary specified by `alignment`.
 **Errors**:
 - `None`: No error.
 - `Out_Of_Memory`: When the allocator's backing buffer or it's backing
-	allocator does not have enough space to fit in an allocation with the new
-	size, or an operating system failure occurs.
+    allocator does not have enough space to fit in an allocation with the new
+    size, or an operating system failure occurs.
 - `Invalid_Pointer`: The pointer referring to a memory region does not belong
-	to any of the allocators backing buffers or does not point to a valid start
-	of an allocation made in that allocator.
+    to any of the allocators backing buffers or does not point to a valid start
+    of an allocation made in that allocator.
 - `Invalid_Argument`: When `size` is negative, alignment is not a power of two,
-	or the `old_size` argument is incorrect.
+    or the `old_size` argument is incorrect.
 - `Mode_Not_Implemented`: The allocator does not support the `.Realloc` mode.
 
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
@@ -638,13 +638,13 @@ no-op, and should not return errors.
 */
 
 resize_bytes :: proc(
-	old_data: []byte,
-	new_size: int,
-	alignment: int = DEFAULT_ALIGNMENT,
-	allocator: Allocator,
-	loc := #caller_location,
+    old_data: []byte,
+    new_size: int,
+    alignment: int = DEFAULT_ALIGNMENT,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> ([]byte, Allocator_Error) {
-	return runtime.mem_resize(raw_data(old_data), len(old_data), new_size, alignment, allocator, loc)
+    return runtime.mem_resize(raw_data(old_data), len(old_data), new_size, alignment, allocator, loc)
 }
 
 /*
@@ -681,13 +681,13 @@ any new memory.
 **Errors**:
 - `None`: No error.
 - `Out_Of_Memory`: When the allocator's backing buffer or it's backing
-	allocator does not have enough space to fit in an allocation with the new
-	size, or an operating system failure occurs.
+    allocator does not have enough space to fit in an allocation with the new
+    size, or an operating system failure occurs.
 - `Invalid_Pointer`: The pointer referring to a memory region does not belong
-	to any of the allocators backing buffers or does not point to a valid start
-	of an allocation made in that allocator.
+    to any of the allocators backing buffers or does not point to a valid start
+    of an allocation made in that allocator.
 - `Invalid_Argument`: When `size` is negative, alignment is not a power of two,
-	or the `old_size` argument is incorrect.
+    or the `old_size` argument is incorrect.
 - `Mode_Not_Implemented`: The allocator does not support the `.Realloc` mode.
 
 **Note**: if `old_size` is `0` and `old_memory` is `nil`, this operation is a
@@ -695,13 +695,13 @@ no-op, and should not return errors.
 */
 
 resize_bytes_non_zeroed :: proc(
-	old_data: []byte,
-	new_size: int,
-	alignment: int = DEFAULT_ALIGNMENT,
-	allocator: Allocator,
-	loc := #caller_location,
+    old_data: []byte,
+    new_size: int,
+    alignment: int = DEFAULT_ALIGNMENT,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> ([]byte, Allocator_Error) {
-	return runtime.non_zero_mem_resize(raw_data(old_data), len(old_data), new_size, alignment, allocator, loc)
+    return runtime.non_zero_mem_resize(raw_data(old_data), len(old_data), new_size, alignment, allocator, loc)
 }
 
 /*
@@ -709,11 +709,11 @@ Query allocator features.
 */
 
 query_features :: proc(allocator: Allocator, loc := #caller_location) -> (set: Allocator_Mode_Set) {
-	if allocator.procedure != nil {
-		_, _ = allocator.procedure(allocator.data, .Query_Features, 0, 0, &set, 0, loc)
-		return set
-	}
-	return nil
+    if allocator.procedure != nil {
+        _, _ = allocator.procedure(allocator.data, .Query_Features, 0, 0, &set, 0, loc)
+        return set
+    }
+    return nil
 }
 
 /*
@@ -721,103 +721,91 @@ Query allocator information.
 */
 
 query_info :: proc(
-	pointer: rawptr,
-	allocator: Allocator,
-	loc := #caller_location,
+    pointer: rawptr,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (props: Allocator_Query_Info) {
-	props.pointer = pointer
-	if allocator.procedure != nil {
-		_, _ = allocator.procedure(allocator.data, .Query_Info, 0, 0, &props, 0, loc)
-	}
-	return
+    props.pointer = pointer
+    if allocator.procedure != nil {
+        _, _ = allocator.procedure(allocator.data, .Query_Info, 0, 0, &props, 0, loc)
+    }
+    return
 }
 
 /*
 Free a string.
 */
 delete_string :: proc(
-	str: string,
-	allocator: Allocator,
-	loc := #caller_location,
+    str: string,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.delete_string(str, allocator, loc)
+    return runtime.delete_string(str, allocator, loc)
 }
 
 /*
 Free a cstring.
 */
 delete_cstring :: proc(
-	str: cstring,
-	allocator: Allocator,
-	loc := #caller_location,
+    str: cstring,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.delete_cstring(str, allocator, loc)
+    return runtime.delete_cstring(str, allocator, loc)
 }
 
 /*
 Free a dynamic array.
 */
 delete_dynamic_array :: proc(
-	array: $T/[dynamic]$E,
-	loc := #caller_location,
+    array: $T/[dynamic]$E,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.delete_dynamic_array(array, loc)
+    return runtime.delete_dynamic_array(array, loc)
 }
 
 /*
 Free a slice.
 */
 delete_slice :: proc(
-	array: $T/[]$E,
-	allocator: Allocator,
-	loc := #caller_location,
+    array: $T/[]$E,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.delete_slice(array, allocator, loc)
+    return runtime.delete_slice(array, allocator, loc)
 }
 
 /*
 Free a map.
 */
 delete_map :: proc(
-	m: $T/map[$K]$V,
-	loc := #caller_location,
+    m: $T/map[$K]$V,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.delete_map(m, loc)
+    return runtime.delete_map(m, loc)
 }
 
 /*
 Free an SoA slice.
 */
 delete_soa_slice :: proc(
-	array: $T/#soa[]$E,
-	allocator: Allocator,
-	loc := #caller_location,
+    array: $T/#soa[]$E,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.delete_soa_slice(array, allocator, loc)
+    return runtime.delete_soa_slice(array, allocator, loc)
 }
 
 /*
 Free an SoA dynamic array.
 */
 delete_soa_dynamic_array :: proc(
-	array: $T/#soa[dynamic]$E,
-	loc := #caller_location,
+    array: $T/#soa[dynamic]$E,
+    loc := #caller_location,
 ) -> Allocator_Error {
-	return runtime.delete_soa_dynamic_array(array, loc)
+    return runtime.delete_soa_dynamic_array(array, loc)
 }
 
-/*
-Free.
-*/
-delete :: proc{
-	delete_string,
-	delete_cstring,
-	delete_dynamic_array,
-	delete_slice,
-	delete_map,
-	delete_soa_slice,
-	delete_soa_dynamic_array,
-}
 
 /*
 Allocate a new object.
@@ -828,11 +816,11 @@ successfully, or `nil` otherwise.
 */
 
 new :: proc(
-	$T: typeid,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (^T, Allocator_Error) {
-	return new_aligned(T, align_of(T), allocator, loc)
+    return new_aligned(T, align_of(T), allocator, loc)
 }
 
 /*
@@ -845,12 +833,12 @@ otherwise.
 */
 
 new_aligned :: proc(
-	$T: typeid,
-	alignment: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid,
+    alignment: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (t: ^T, err: Allocator_Error) {
-	return runtime.new_aligned(T, alignment, allocator, loc)
+    return runtime.new_aligned(T, alignment, allocator, loc)
 }
 
 /*
@@ -863,11 +851,11 @@ otherwise. The allocated object is initialized with `data`.
 */
 
 new_clone :: proc(
-	data: $T,
-	allocator: Allocator,
-	loc := #caller_location,
+    data: $T,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (t: ^T, err: Allocator_Error) {
-	return runtime.new_clone(data, allocator, loc)
+    return runtime.new_clone(data, allocator, loc)
 }
 
 /*
@@ -879,13 +867,13 @@ on a boundary specified by `alignment` from an allocator specified by
 */
 
 make_aligned :: proc(
-	$T: typeid/[]$E,
-	#any_int len: int,
-	alignment: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid/[]$E,
+    #any_int len: int,
+    alignment: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (slice: T, err: Allocator_Error) {
-	return runtime.make_aligned(T, len, alignment, allocator, loc)
+    return runtime.make_aligned(T, len, alignment, allocator, loc)
 }
 
 
@@ -901,19 +889,19 @@ The user should `_ = delete` the return `original_data` slice not the typed `sli
 */
 
 make_over_aligned :: proc(
-	$T: typeid/[]$E,
-	#any_int len: int,
-	alignment: int,
-	allocator: runtime.Allocator,
-	loc := #caller_location,
+    $T: typeid/[]$E,
+    #any_int len: int,
+    alignment: int,
+    allocator: runtime.Allocator,
+    loc := #caller_location,
 ) -> (slice: T, original_data: []byte, err: Allocator_Error) {
-	size := size_of(E)*len + alignment-1
-	original_data, err = runtime.make([]byte, size, allocator, loc)
-	if err == nil {
-		ptr := align_forward(raw_data(original_data), uintptr(alignment))
-		slice = ([^]E)(ptr)[:len]
-	}
-	return
+    size := size_of(E)*len + alignment-1
+    original_data, err = runtime.make_slice([]byte, size, allocator, loc)
+    if err == nil {
+        ptr := align_forward(raw_data(original_data), uintptr(alignment))
+        slice = ([^]E)(ptr)[:len]
+    }
+    return
 }
 
 /*
@@ -924,12 +912,12 @@ allocator specified by `allocator`, and returns the allocated slice.
 */
 
 make_slice :: proc(
-	$T: typeid/[]$E,
-	#any_int len: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid/[]$E,
+    #any_int len: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (T, Allocator_Error) {
-	return runtime.make_slice(T, len, allocator, loc)
+    return runtime.make_slice(T, len, allocator, loc)
 }
 
 /*
@@ -940,11 +928,11 @@ backing allocator, and initial length and capacity of `0`.
 */
 
 make_dynamic_array :: proc(
-	$T: typeid/[dynamic]$E,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid/[dynamic]$E,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (T, Allocator_Error) {
-	return runtime.make_dynamic_array(T, allocator, loc)
+    return runtime.make_dynamic_array(T, allocator, loc)
 }
 
 /*
@@ -955,12 +943,12 @@ backing allocator, and initial capacity and length specified by `len`.
 */
 
 make_dynamic_array_len :: proc(
-	$T: typeid/[dynamic]$E,
-	#any_int len: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid/[dynamic]$E,
+    #any_int len: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (T, Allocator_Error) {
-	return runtime.make_dynamic_array_len(T, len, allocator, loc)
+    return runtime.make_dynamic_array_len(T, len, allocator, loc)
 }
 
 /*
@@ -972,13 +960,13 @@ specified by `len`.
 */
 
 make_dynamic_array_len_cap :: proc(
-	$T: typeid/[dynamic]$E,
-	#any_int len: int,
-	#any_int cap: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid/[dynamic]$E,
+    #any_int len: int,
+    #any_int cap: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (array: T, err: Allocator_Error) {
-	return runtime.make_dynamic_array_len_cap(T, len, cap, allocator, loc)
+    return runtime.make_dynamic_array_len_cap(T, len, cap, allocator, loc)
 }
 
 /*
@@ -990,11 +978,11 @@ allocates.
 */
 
 make_map :: proc(
-	$T: typeid/map[$K]$E,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid/map[$K]$E,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (m: T) {
-	return runtime.make_map(T, allocator, loc)
+    return runtime.make_map(T, allocator, loc)
 }
 
 /*
@@ -1006,12 +994,12 @@ allocator.
 */
 
 make_map_cap :: proc(
-	$T: typeid/map[$K]$E,
-	#any_int cap: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    $T: typeid/map[$K]$E,
+    #any_int cap: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (m: T, err: Allocator_Error) {
-	return runtime.make_map_cap(T, cap, allocator, loc)
+    return runtime.make_map_cap(T, cap, allocator, loc)
 }
 
 /*
@@ -1022,12 +1010,12 @@ from an allocator specified by `allocator`.
 */
 
 make_multi_pointer :: proc(
-	$T: typeid/[^]$E,
-	#any_int len: int,
-	allocator: Allocator,
-	loc := #caller_location
+    $T: typeid/[^]$E,
+    #any_int len: int,
+    allocator: Allocator,
+    loc := #caller_location
 ) -> (mp: T, err: Allocator_Error) {
-	return runtime.make_multi_pointer(T, len, allocator, loc)
+    return runtime.make_multi_pointer(T, len, allocator, loc)
 }
 
 /*
@@ -1038,12 +1026,12 @@ allocator specified by `allocator`, and returns the allocated SoA slice.
 */
 
 make_soa_slice :: proc(
-	$T: typeid/#soa[]$E,
-	#any_int len: int,
-	allocator: Allocator,
-	loc := #caller_location
+    $T: typeid/#soa[]$E,
+    #any_int len: int,
+    allocator: Allocator,
+    loc := #caller_location
 ) -> (array: T, err: Allocator_Error) {
-	return runtime.make_soa_slice(T, len, allocator, loc)
+    return runtime.make_soa_slice(T, len, allocator, loc)
 }
 
 /*
@@ -1054,11 +1042,11 @@ its backing allocator, and initial length and capacity of `0`.
 */
 
 make_soa_dynamic_array :: proc(
-	$T: typeid/#soa[dynamic]$E,
-	allocator: Allocator,
-	loc := #caller_location
+    $T: typeid/#soa[dynamic]$E,
+    allocator: Allocator,
+    loc := #caller_location
 ) -> (array: T, err: Allocator_Error) {
-	return runtime.make_soa_dynamic_array(T, allocator, loc)
+    return runtime.make_soa_dynamic_array(T, allocator, loc)
 }
 
 /*
@@ -1069,12 +1057,12 @@ backing allocator, and initial capacity and length specified by `len`.
 */
 
 make_soa_dynamic_array_len :: proc(
-	$T: typeid/#soa[dynamic]$E,
-	#any_int len: int,
-	allocator: Allocator,
-	loc := #caller_location
+    $T: typeid/#soa[dynamic]$E,
+    #any_int len: int,
+    allocator: Allocator,
+    loc := #caller_location
 ) -> (array: T, err: Allocator_Error) {
-	return runtime.make_soa_dynamic_array_len(T, len, allocator, loc)
+    return runtime.make_soa_dynamic_array_len(T, len, allocator, loc)
 }
 
 /*
@@ -1086,30 +1074,13 @@ specified by `len`.
 */
 
 make_soa_dynamic_array_len_cap :: proc(
-	$T: typeid/#soa[dynamic]$E,
-	#any_int len: int,
-	#any_int cap: int,
-	allocator: Allocator,
-	loc := #caller_location
+    $T: typeid/#soa[dynamic]$E,
+    #any_int len: int,
+    #any_int cap: int,
+    allocator: Allocator,
+    loc := #caller_location
 ) -> (array: T, err: Allocator_Error) {
-	return runtime.make_soa_dynamic_array_len_cap(T, len, cap, allocator, loc)
-}
-
-/*
-Allocate.
-*/
-make :: proc{
-	make_slice,
-	make_dynamic_array,
-	make_dynamic_array_len,
-	make_dynamic_array_len_cap,
-	make_map,
-	make_map_cap,
-	make_multi_pointer,
-	make_soa_slice,
-	make_soa_dynamic_array,
-	make_soa_dynamic_array_len,
-	make_soa_dynamic_array_len_cap,
+    return runtime.make_soa_dynamic_array_len_cap(T, len, cap, allocator, loc)
 }
 
 /*
@@ -1122,32 +1093,32 @@ _ = resize.
 The behavior of the function is as follows:
 
 - If `new_size` is `0`, the function acts like `free()`, freeing the memory
-	region of `old_size` bytes located at `old_memory`.
+    region of `old_size` bytes located at `old_memory`.
 - If `old_memory` is `nil`, the function acts like `alloc()`, allocating
-	`new_size` bytes of memory aligned on a boundary specified by `alignment`.
+    `new_size` bytes of memory aligned on a boundary specified by `alignment`.
 - Otherwise, a new memory region of size `new_size` is allocated, then the
-	data from the old memory region is copied and the old memory region is
-	freed.
+    data from the old memory region is copied and the old memory region is
+    freed.
 */
 
 default_resize_align :: proc(
-	old_memory: rawptr,
-	old_size: int,
-	new_size: int,
-	alignment: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    old_memory: rawptr,
+    old_size: int,
+    new_size: int,
+    alignment: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> (res: rawptr, err: Allocator_Error) {
-	data: []byte
-	data, err = default_resize_bytes_align(
-		([^]byte) (old_memory)[:old_size],
-		new_size,
-		alignment,
-		allocator,
-		loc,
-	)
-	res = raw_data(data)
-	return
+    data: []byte
+    data, err = default_resize_bytes_align(
+        ([^]byte) (old_memory)[:old_size],
+        new_size,
+        alignment,
+        allocator,
+        loc,
+    )
+    res = raw_data(data)
+    return
 }
 
 /*
@@ -1163,22 +1134,22 @@ zero-initialized.
 The behavior of the function is as follows:
 
 - If `new_size` is `0`, the function acts like `free()`, freeing the memory
-	region of `old_size` bytes located at `old_memory`.
+    region of `old_size` bytes located at `old_memory`.
 - If `old_memory` is `nil`, the function acts like `alloc()`, allocating
-	`new_size` bytes of memory aligned on a boundary specified by `alignment`.
+    `new_size` bytes of memory aligned on a boundary specified by `alignment`.
 - Otherwise, a new memory region of size `new_size` is allocated, then the
-	data from the old memory region is copied and the old memory region is
-	freed.
+    data from the old memory region is copied and the old memory region is
+    freed.
 */
 
 default_resize_bytes_align_non_zeroed :: proc(
-	old_data: []byte,
-	new_size: int,
-	alignment: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    old_data: []byte,
+    new_size: int,
+    alignment: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> ([]byte, Allocator_Error) {
-	return _default_resize_bytes_align(old_data, new_size, alignment, false, allocator, loc)
+    return _default_resize_bytes_align(old_data, new_size, alignment, false, allocator, loc)
 }
 
 /*
@@ -1191,60 +1162,60 @@ _ = resize.
 The behavior of the function is as follows:
 
 - If `new_size` is `0`, the function acts like `free()`, freeing the memory
-	region specified by `old_data`.
+    region specified by `old_data`.
 - If `old_data` is `nil`, the function acts like `alloc()`, allocating
-	`new_size` bytes of memory aligned on a boundary specified by `alignment`.
+    `new_size` bytes of memory aligned on a boundary specified by `alignment`.
 - Otherwise, a new memory region of size `new_size` is allocated, then the
-	data from the old memory region is copied and the old memory region is
-	freed.
+    data from the old memory region is copied and the old memory region is
+    freed.
 */
 
 default_resize_bytes_align :: proc(
-	old_data: []byte,
-	new_size: int,
-	alignment: int,
-	allocator: Allocator,
-	loc := #caller_location,
+    old_data: []byte,
+    new_size: int,
+    alignment: int,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> ([]byte, Allocator_Error) {
-	return _default_resize_bytes_align(old_data, new_size, alignment, true, allocator, loc)
+    return _default_resize_bytes_align(old_data, new_size, alignment, true, allocator, loc)
 }
 
 
 _default_resize_bytes_align :: #force_inline proc(
-	old_data: []byte,
-	new_size: int,
-	alignment: int,
-	should_zero: bool,
-	allocator: Allocator,
-	loc := #caller_location,
+    old_data: []byte,
+    new_size: int,
+    alignment: int,
+    should_zero: bool,
+    allocator: Allocator,
+    loc := #caller_location,
 ) -> ([]byte, Allocator_Error) {
-	old_memory := raw_data(old_data)
-	old_size := len(old_data)
-	if old_memory == nil {
-		if should_zero {
-			return alloc_bytes(new_size, alignment, allocator, loc)
-		} else {
-			return alloc_bytes_non_zeroed(new_size, alignment, allocator, loc)
-		}
-	}
-	if new_size == 0 {
-		err := free_bytes(old_data, allocator, loc)
-		return nil, err
-	}
-	if new_size == old_size && is_aligned(old_memory, alignment) {
-		return old_data, .None
-	}
-	new_memory : []byte
-	err : Allocator_Error
-	if should_zero {
-		new_memory, err = alloc_bytes(new_size, alignment, allocator, loc)
-	} else {
-		new_memory, err = alloc_bytes_non_zeroed(new_size, alignment, allocator, loc)
-	}
-	if new_memory == nil || err != nil {
-		return nil, err
-	}
-	runtime.copy(new_memory, old_data)
-	_ = free_bytes(old_data, allocator, loc)
-	return new_memory, err
+    old_memory := raw_data(old_data)
+    old_size := len(old_data)
+    if old_memory == nil {
+        if should_zero {
+            return alloc_bytes(new_size, alignment, allocator, loc)
+        } else {
+            return alloc_bytes_non_zeroed(new_size, alignment, allocator, loc)
+        }
+    }
+    if new_size == 0 {
+        err := free_bytes(old_data, allocator, loc)
+        return nil, err
+    }
+    if new_size == old_size && is_aligned(old_memory, alignment) {
+        return old_data, .None
+    }
+    new_memory : []byte
+    err : Allocator_Error
+    if should_zero {
+        new_memory, err = alloc_bytes(new_size, alignment, allocator, loc)
+    } else {
+        new_memory, err = alloc_bytes_non_zeroed(new_size, alignment, allocator, loc)
+    }
+    if new_memory == nil || err != nil {
+        return nil, err
+    }
+    runtime.copy(new_memory, old_data)
+    _ = free_bytes(old_data, allocator, loc)
+    return new_memory, err
 }

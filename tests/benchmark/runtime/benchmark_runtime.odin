@@ -121,8 +121,8 @@ plain_memory_compare_zero :: proc(a: rawptr, n: int) -> int #no_bounds_check {
 }
 
 run_trial_size_cmp :: proc(p: proc(rawptr, rawptr, int) -> $R, size: int, idx: int, runs: int, loc := #caller_location) -> (timing: time.Duration) {
-	left  := make([]u8, size)
-	right := make([]u8, size)
+	left  := make_slice([]u8, size)
+	right := make_slice([]u8, size)
 	defer {
 		_ = delete(left)
 		_ = delete(right)
@@ -153,7 +153,7 @@ run_trial_size_cmp :: proc(p: proc(rawptr, rawptr, int) -> $R, size: int, idx: i
 }
 
 run_trial_size_zero :: proc(p: proc(rawptr, int) -> int, size: int, idx: int, runs: int, loc := #caller_location) -> (timing: time.Duration) {
-	data := make([]u8, size)
+	data := make_slice([]u8, size)
 	defer _ = delete(data)
 
 	data[idx] = 0x01
@@ -175,7 +175,7 @@ run_trial_size_zero :: proc(p: proc(rawptr, int) -> int, size: int, idx: int, ru
 	return
 }
 
-run_trial_size :: proc {
+
 	run_trial_size_cmp,
 	run_trial_size_zero,
 }

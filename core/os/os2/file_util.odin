@@ -172,7 +172,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc :
 
     if has_size && size > 0 {
         total: int
-        data = make([]byte, size, allocator, loc) or_return
+        data = make_slice([]byte, size, allocator, loc) or_return
         for total < len(data) {
             n: int
             n, err = read(f, data[total:])
@@ -188,13 +188,13 @@ read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc :
         return
     } else {
         buffer: [1024]u8
-        out_buffer, _ := make([dynamic]u8, 0, 0, allocator, loc)
+        out_buffer, _ := make_dynamic_array_len_cap([dynamic]u8, 0, 0, allocator, loc)
         total := 0
         for {
             n: int
             n, err = read(f, buffer[:])
             total += n
-            append_elems(&out_buffer, ..buffer[:n], loc=loc) or_return
+            _ = append_many(&out_buffer, ..buffer[:n], loc=loc) or_return
             if err != nil {
                 if err == .EOF || err == .Broken_Pipe {
                     err = nil
@@ -206,15 +206,6 @@ read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc :
     }
 }
 
-/*
-    `write_entire_file` writes the contents of `data` into named file `name`.
-    It defaults with the permssions `perm := Permissions_Read_All + {.Write_User}`, and `truncate`s by default.
-    An error is returned if any is encountered.
-*/
-write_entire_file :: proc{
-    write_entire_file_from_bytes,
-    write_entire_file_from_string,
-}
 
 /*
     `write_entire_file_from_bytes` writes the contents of `data` into named file `name`.

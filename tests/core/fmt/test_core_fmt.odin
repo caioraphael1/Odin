@@ -27,10 +27,10 @@ test_fmt_memory :: proc(t: ^testing.T) {
 
 @(test)
 test_fmt_complex_quaternion :: proc(t: ^testing.T) {
-	neg_inf  := math.inf_f64(-1)
-	pos_inf  := math.inf_f64(+1)
+	neg_inf  := math.inf(-1)
+	pos_inf  := math.inf(+1)
 	neg_zero := f64(0h80000000_00000000)
-	nan      := math.nan_f64()
+	nan      := math.nan()
 
 	// NOTE(Feoramund): Doing it this way, because complex construction is broken.
 	// Reported in issue #3665.
