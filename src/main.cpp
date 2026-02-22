@@ -3132,7 +3132,6 @@ gb_internal void print_show_unused(Checker *c) {
 		case Entity_Variable:
 		case Entity_TypeName:
 		case Entity_Procedure:
-		case Entity_ProcGroup:
 		case Entity_ImportName:
 		case Entity_LibraryName:
 			// Fine

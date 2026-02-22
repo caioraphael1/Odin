@@ -3248,30 +3248,6 @@ gb_internal Entity *check_type_path_pop(CheckerContext *c) {
 }
 
 
-
-gb_internal Array<Entity *> proc_group_entities(CheckerContext *c, Operand o) {
-    Array<Entity *> procs = {};
-    if (o.mode == Addressing_ProcGroup) {
-        GB_ASSERT(o.proc_group != nullptr);
-        if (o.proc_group->kind == Entity_ProcGroup) {
-            check_entity_decl(c, o.proc_group, nullptr, nullptr);
-            return o.proc_group->ProcGroup.entities;
-        }
-    }
-    return procs;
-}
-
-gb_internal Array<Entity *> proc_group_entities_cloned(CheckerContext *c, Operand o) {
-    auto entities = proc_group_entities(c, o);
-    if (entities.count == 0) {
-        return {};
-    }
-    return array_clone(permanent_allocator(), entities);
-}
-
-
-
-
 gb_internal void init_core_type_info(Checker *c) {
     if (t_type_info != nullptr) {
         return;
@@ -4448,7 +4424,6 @@ gb_internal void check_collect_entities_from_when_stmt(CheckerContext *c, AstWhe
 
 gb_internal void check_builtin_attributes(CheckerContext *ctx, Entity *e, Array<Ast *> *attributes) {
     switch (e->kind) {
-    case Entity_ProcGroup:
     case Entity_Procedure:
     case Entity_TypeName:
     case Entity_Constant:
@@ -4738,12 +4713,6 @@ gb_internal void check_collect_value_decl(CheckerContext *c, Ast *decl) {
                     e->flags |= EntityFlag_Init;
                 } else if (is_fini) {
                     e->flags |= EntityFlag_Fini;
-                }
-            } else if (init->kind == Ast_ProcGroup) {
-                ast_node(pg, ProcGroup, init);
-                e = alloc_entity_proc_group(d->scope, token, nullptr);
-                if (fl != nullptr) {
-                    error(name, "Procedure groups are not allowed within a foreign block");
                 }
             } else {
                 e = alloc_entity_constant(d->scope, token, nullptr, empty_exact_value);

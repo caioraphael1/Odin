@@ -886,16 +886,6 @@ def group_functions(f):
         ))
     f.write("}\n\n")
 
-    f.write("""
-load_proc_addresses :: proc{
-\tload_proc_addresses_global,
-\tload_proc_addresses_instance,
-\tload_proc_addresses_device,
-\tload_proc_addresses_device_vtable,
-\tload_proc_addresses_custom,
-}\n
-"""[1::])
-
 with open("../core.odin", 'w', encoding='utf-8') as f:
     f.write(BASE)
     f.write(PACKAGE_LINE)

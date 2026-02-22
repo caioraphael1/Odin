@@ -206,9 +206,6 @@ gb_internal Ast *clone_ast(Ast *node, AstFile *f) {
     case Ast_Ellipsis:
         n->Ellipsis.expr = clone_ast(n->Ellipsis.expr, f);
         break;
-    case Ast_ProcGroup:
-        n->ProcGroup.args = clone_ast_array(n->ProcGroup.args, f);
-        break;
     case Ast_ProcLit:
         n->ProcLit.type = clone_ast(n->ProcLit.type, f);
         n->ProcLit.body = clone_ast(n->ProcLit.body, f);
@@ -828,16 +825,6 @@ gb_internal Ast *ast_ellipsis(AstFile *f, Token token, Ast *expr) {
     Ast *result = alloc_ast_node(f, Ast_Ellipsis);
     result->Ellipsis.token = token;
     result->Ellipsis.expr = expr;
-    return result;
-}
-
-
-gb_internal Ast *ast_proc_group(AstFile *f, Token token, Token open, Token close, Array<Ast *> const &args) {
-    Ast *result = alloc_ast_node(f, Ast_ProcGroup);
-    result->ProcGroup.token = token;
-    result->ProcGroup.open  = open;
-    result->ProcGroup.close = close;
-    result->ProcGroup.args = slice_from_array(args);
     return result;
 }
 
@@ -2515,31 +2502,6 @@ gb_internal Ast *parse_operand(AstFile *f, bool lhs) {
     // Parse Procedure Type or Literal or Group
     case Token_proc: {
         Token token = expect_token(f, Token_proc);
-
-        if (f->curr_token.kind == Token_OpenBrace) { // ProcGroup
-            Token open = expect_token(f, Token_OpenBrace);
-
-            auto args = array_make<Ast *>(ast_allocator(f));
-
-            while (f->curr_token.kind != Token_CloseBrace &&
-                   f->curr_token.kind != Token_EOF) {
-                Ast *elem = parse_expr(f, false);
-                array_add(&args, elem);
-
-                if (!allow_field_separator(f)) {
-                    break;
-                }
-            }
-
-            Token close = expect_token(f, Token_CloseBrace);
-
-            if (args.count == 0) {
-                syntax_error(token, "Expected a least 1 argument in a procedure group");
-            }
-
-            return ast_proc_group(f, token, open, close, args);
-        }
-
 
         Ast *type = parse_proc_type(f, token);
         Token where_token = {};
