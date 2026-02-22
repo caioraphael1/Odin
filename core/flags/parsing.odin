@@ -3,11 +3,13 @@ package flags
 @(require) import "core:container/bit_array"
 @(require) import "core:fmt"
 
+import "core:mem"
+
 Parsing_Style :: enum {
-	// Odin-style: `-flag`, `-flag:option`, `-map:key=value`
-	Odin,
-	// UNIX-style: `-flag` or `--flag`, `--flag=argument`, `--flag argument (manifold-argument)`
-	Unix,
+    // Odin-style: `-flag`, `-flag:option`, `-map:key=value`
+    Odin,
+    // UNIX-style: `-flag` or `--flag`, `--flag=argument`, `--flag argument (manifold-argument)`
+    Unix,
 }
 
 /*
@@ -34,68 +36,67 @@ Returns:
 */
 @(optimization_mode="favor_size")
 parse :: proc(
-	model: ^$T,
-	args: []string,
-	style: Parsing_Style = .Odin,
-	validate_args: bool = true,
-	strict: bool = true,
-	allocator := context.allocator,
-	loc := #caller_location,
-) -> (error: Error) {
-	context.allocator = allocator
-	validate_structure(model^, style, loc)
+    model:         ^$T,
+    args:          []string,
+    style:         Parsing_Style = .Odin,
+    validate_args: bool = true,
+    strict:        bool = true,
+    allocator:     mem.Allocator,
+    loc :=         #caller_location,
+    ) -> (error: Error) {
+    validate_structure(model^, style, loc)
 
-	parser: Parser
-	defer {
-		bit_array.destroy(&parser.filled_pos)
-		bit_array.destroy(&parser.fields_set)
-	}
+    parser: Parser
+    defer {
+        bit_array.destroy(&parser.filled_pos)
+        bit_array.destroy(&parser.fields_set)
+    }
 
-	switch style {
-	case .Odin:
-		for arg in args {
-			error = parse_one_odin_arg(model, &parser, arg)
-			if strict && error != nil {
-				return
-			}
-		}
+    switch style {
+    case .Odin:
+        for arg in args {
+            error = parse_one_odin_arg(model, &parser, arg)
+            if strict && error != nil {
+                return
+            }
+        }
 
-	case .Unix:
-		// Support for `-flag argument (manifold-argument ...)`
-		future_args: int
-		current_flag: string
+    case .Unix:
+        // Support for `-flag argument (manifold-argument ...)`
+        future_args: int
+        current_flag: string
 
-		for i := 0; i < len(args); i += 1 {
-			#no_bounds_check arg := args[i]
-			future_args, current_flag, error = parse_one_unix_arg(model, &parser, arg)
-			if strict && error != nil {
-				return
-			}
+        for i := 0; i < len(args); i += 1 {
+            #no_bounds_check arg := args[i]
+            future_args, current_flag, error = parse_one_unix_arg(model, &parser, arg)
+            if strict && error != nil {
+                return
+            }
 
-			for starting_future_args := future_args; future_args > 0; future_args -= 1 {
-				i += 1
-				if i == len(args) {
-					if future_args == starting_future_args {
-						return Parse_Error {
-							.No_Value,
-							fmt.tprintf("Expected a value for `%s` but none was given.", current_flag),
-						}
-					}
-					break
-				}
-				#no_bounds_check arg = args[i]
+            for starting_future_args := future_args; future_args > 0; future_args -= 1 {
+                i += 1
+                if i == len(args) {
+                    if future_args == starting_future_args {
+                        return Parse_Error {
+                            .No_Value,
+                            fmt.tprintf("Expected a value for `%s` but none was given.", current_flag),
+                        }
+                    }
+                    break
+                }
+                #no_bounds_check arg = args[i]
 
-				error = set_option(model, &parser, current_flag, arg)
-				if strict && error != nil {
-					return
-				}
-			}
-		}
-	}
+                error = set_option(model, &parser, current_flag, arg)
+                if strict && error != nil {
+                    return
+                }
+            }
+        }
+    }
 
-	if error == nil && validate_args {
-		return validate_arguments(model, &parser)
-	}
+    if error == nil && validate_args {
+        return validate_arguments(model, &parser)
+    }
 
-	return
+    return
 }

@@ -1611,6 +1611,8 @@ matrix3_rotate_f64 :: proc(angle_radians: f64, v: Vector3f64) -> (rot: Matrix3f6
 
 	return rot
 }
+
+// Implementation of Rodrigues’ rotation formula.
 matrix3_rotate :: proc{
 	matrix3_rotate_f16,
 	matrix3_rotate_f32,

@@ -7,11 +7,11 @@ import "core:c"
 import "core:c/libc"
 
 when ODIN_OS == .Windows {
-	foreign import lib "system:libucrt.lib"
+    foreign import lib "system:libucrt.lib"
 } else when ODIN_OS == .Darwin {
-	foreign import lib "system:System"
+    foreign import lib "system:System"
 } else {
-	foreign import lib "system:c"
+    foreign import lib "system:c"
 }
 
 // stdlib.h - standard library definitions
@@ -60,26 +60,26 @@ wctomb        :: libc.wctomb
 mbstowcs      :: libc.mbstowcs
 wcstombs      :: libc.wcstombs
 
-_ = free :: #force_inline proc "c" (ptr: $T) where intrinsics.type_is_pointer(T) || intrinsics.type_is_multi_pointer(T) || T == cstring {
-	libc.free(rawptr(ptr))
+free :: #force_inline proc "c" (ptr: $T) where intrinsics.type_is_pointer(T) || intrinsics.type_is_multi_pointer(T) || T == cstring {
+    libc.free(rawptr(ptr))
 }
 
 foreign lib {
 
-	/*
-	Uses the string argument to set environment variable values. 
+    /*
+    Uses the string argument to set environment variable values. 
 
-	Returns: 0 on success, non-zero (setting errno) on failure
+    Returns: 0 on success, non-zero (setting errno) on failure
 
-	Example:
-		if posix.putenv("HOME=/usr/home") != 0 {
-			fmt.panicf("putenv failure: %v", posix.strerror(posix.errno()))
-		}
+    Example:
+        if posix.putenv("HOME=/usr/home") != 0 {
+            fmt.panicf("putenv failure: %v", posix.strerror(posix.errno()))
+        }
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/putenv.html ]]
-	*/
-	@(link_name=LPUTENV)
-	putenv :: proc(string: cstring) -> c.int ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/putenv.html ]]
+    */
+    @(link_name=LPUTENV)
+    putenv :: proc(string: cstring) -> c.int ---
 }
 
 EXIT_FAILURE :: libc.EXIT_FAILURE
@@ -93,9 +93,9 @@ ldiv_t  :: libc.ldiv_t
 lldiv_t :: libc.lldiv_t
 
 when ODIN_OS == .Windows {
-	@(private) LPUTENV :: "_putenv"
+    @(private) LPUTENV :: "_putenv"
 } else when ODIN_OS == .NetBSD {
-	@(private) LPUTENV :: "__putenv50"
+    @(private) LPUTENV :: "__putenv50"
 } else {
-	@(private) LPUTENV :: "putenv"
+    @(private) LPUTENV :: "putenv"
 }

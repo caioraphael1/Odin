@@ -359,7 +359,7 @@ foreign lib {
 	/*
 	_ = free()
 	*/
-	_ = free :: proc(p: rawptr, pAllocationCallbacks: ^allocation_callbacks) ---
+	free :: proc(p: rawptr, pAllocationCallbacks: ^allocation_callbacks) ---
 
 	/*
 	Performs an aligned malloc, with the assumption that the alignment is a power of 2.

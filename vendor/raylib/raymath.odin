@@ -13,37 +13,37 @@ EPSILON :: 0.000001
 
 // Clamp float value
 
-Clamp :: proc "c" (value: f32, min, max: f32) -> f32 {
+Clamp :: proc(value: f32, min, max: f32) -> f32 {
 	return clamp(value, min, max)
 }
 
 // Calculate linear interpolation between two floats
 
-Lerp :: proc "c" (start, end: f32, amount: f32) -> f32 {
+Lerp :: proc(start, end: f32, amount: f32) -> f32 {
 	return start*(1-amount) + end*amount
 }
 
 // Normalize input value within input range
 
-Normalize :: proc "c" (value: f32, start, end: f32) -> f32 {
+Normalize :: proc(value: f32, start, end: f32) -> f32 {
 	return (value - start) / (end - start)
 }
 
 // Remap input value within input range to output range
 
-Remap :: proc "c" (value: f32, inputStart, inputEnd: f32, outputStart, outputEnd: f32) -> f32 {
+Remap :: proc(value: f32, inputStart, inputEnd: f32, outputStart, outputEnd: f32) -> f32 {
 	return (value - inputStart)/(inputEnd - inputStart)*(outputEnd - outputStart) + outputStart
 }
 
 // Wrap input value from min to max
 
-Wrap :: proc "c" (value: f32, min, max: f32) -> f32 {
+Wrap :: proc(value: f32, min, max: f32) -> f32 {
 	return value - (max - min)*math.floor((value - min)/(max - min))
 }
 
 // Check whether two given floats are almost equal
 
-FloatEquals :: proc "c" (x, y: f32) -> bool {
+FloatEquals :: proc(x, y: f32) -> bool {
 	return abs(x - y) <= EPSILON*fmaxf(1.0, fmaxf(abs(x), abs(y)))
 }
 
@@ -56,63 +56,63 @@ FloatEquals :: proc "c" (x, y: f32) -> bool {
 
 // Vector with components value 0.0
 @(deprecated="Prefer Vector2(0)")
-Vector2Zero :: proc "c" () -> Vector2 {
+Vector2Zero :: proc() -> Vector2 {
 	return Vector2(0)
 }
 // Vector with components value 1.0
 @(deprecated="Prefer Vector2(1)")
-Vector2One :: proc "c" () -> Vector2 {
+Vector2One :: proc() -> Vector2 {
 	return Vector2(1)
 }
 // Add two vectors (v1 + v2)
 @(deprecated="Prefer v1 + v2")
-Vector2Add :: proc "c" (v1, v2: Vector2) -> Vector2 {
+Vector2Add :: proc(v1, v2: Vector2) -> Vector2 {
 	return v1 + v2
 }
 // Add vector and float value
 @(deprecated="Prefer v + value")
-Vector2AddValue :: proc "c" (v: Vector2, value: f32) -> Vector2 {
+Vector2AddValue :: proc(v: Vector2, value: f32) -> Vector2 {
 	return v + value
 }
 // Subtract two vectors (v1 - v2)
 @(deprecated="Prefer a - b")
-Vector2Subtract :: proc "c" (a, b: Vector2) -> Vector2 {
+Vector2Subtract :: proc(a, b: Vector2) -> Vector2 {
 	return a - b
 }
 // Subtract vector by float value
 @(deprecated="Prefer v + value")
-Vector2SubtractValue :: proc "c" (v: Vector2, value: f32) -> Vector2 {
+Vector2SubtractValue :: proc(v: Vector2, value: f32) -> Vector2 {
 	return v - value
 }
 // Calculate vector length
 
-Vector2Length :: proc "c" (v: Vector2) -> f32 {
+Vector2Length :: proc(v: Vector2) -> f32 {
 	return linalg.length(v)
 }
 // Calculate vector square length
 
-Vector2LengthSqr :: proc "c" (v: Vector2) -> f32 {
+Vector2LengthSqr :: proc(v: Vector2) -> f32 {
 	return linalg.length2(v)
 }
 // Calculate two vectors dot product
 
-Vector2DotProduct :: proc "c" (v1, v2: Vector2) -> f32 {
+Vector2DotProduct :: proc(v1, v2: Vector2) -> f32 {
 	return linalg.dot(v1, v2)
 }
 // Calculate distance between two vectors
 
-Vector2Distance :: proc "c" (v1, v2: Vector2) -> f32 {
+Vector2Distance :: proc(v1, v2: Vector2) -> f32 {
 	return linalg.distance(v1, v2)
 }
 // Calculate square distance between two vectors
 
-Vector2DistanceSqrt :: proc "c" (v1, v2: Vector2) -> f32 {
+Vector2DistanceSqrt :: proc(v1, v2: Vector2) -> f32 {
 	return linalg.length2(v2-v1)
 }
 // Calculate angle between two vectors
 // NOTE: Angle is calculated from origin point (0, 0)
 
-Vector2Angle :: proc "c" (v1, v2: Vector2) -> f32 {
+Vector2Angle :: proc(v1, v2: Vector2) -> f32 {
 	return linalg.angle_between(v1, v2)
 }
 
@@ -120,55 +120,55 @@ Vector2Angle :: proc "c" (v1, v2: Vector2) -> f32 {
 // NOTE: Parameters need to be normalized
 // Current implementation should be aligned with glm::angle
 
-Vector2LineAngle :: proc "c" (start, end: Vector2) -> f32 {
+Vector2LineAngle :: proc(start, end: Vector2) -> f32 {
 	// TODO(10/9/2023): Currently angles move clockwise, determine if this is wanted behavior
 	return -math.atan2(end.y - start.y, end.x - start.x)
 }
 
 // Scale vector (multiply by value)
 @(deprecated="Prefer v * scale")
-Vector2Scale :: proc "c" (v: Vector2, scale: f32) -> Vector2 {
+Vector2Scale :: proc(v: Vector2, scale: f32) -> Vector2 {
 	return v * scale
 }
 // Multiply vector by vector
 @(deprecated="Prefer v1 * v2")
-Vector2Multiply :: proc "c" (v1, v2: Vector2) -> Vector2 {
+Vector2Multiply :: proc(v1, v2: Vector2) -> Vector2 {
 	return v1 * v2
 }
 // Negate vector
 @(deprecated="Prefer -v")
-Vector2Negate :: proc "c" (v: Vector2) -> Vector2 {
+Vector2Negate :: proc(v: Vector2) -> Vector2 {
 	return -v
 }
 // Divide vector by vector
 @(deprecated="Prefer v1 / v2")
-Vector2Divide :: proc "c" (v1, v2: Vector2) -> Vector2 {
+Vector2Divide :: proc(v1, v2: Vector2) -> Vector2 {
 	return v1 / v2
 }
 // Normalize provided vector
 
-Vector2Normalize :: proc "c" (v: Vector2) -> Vector2 {
+Vector2Normalize :: proc(v: Vector2) -> Vector2 {
 	return linalg.normalize0(v)
 }
 // Transforms a Vector2 by a given Matrix
 
-Vector2Transform :: proc "c" (v: Vector2, m: Matrix) -> Vector2 {
+Vector2Transform :: proc(v: Vector2, m: Matrix) -> Vector2 {
 	v4 := Vector4{v.x, v.y, 0, 1}
 	return (m * v4).xy
 }
 // Calculate linear interpolation between two vectors
 @(deprecated="Prefer = linalg.lerp(v1, v2, amount)")
-Vector2Lerp :: proc "c" (v1, v2: Vector2, amount: f32) -> Vector2 {
+Vector2Lerp :: proc(v1, v2: Vector2, amount: f32) -> Vector2 {
 	return linalg.lerp(v1, v2, Vector2(amount))
 }
 // Calculate reflected vector to normal
 @(deprecated="Prefer = linalg.reflect(v, normal)")
-Vector2Reflect :: proc "c" (v, normal: Vector2) -> Vector2 {
+Vector2Reflect :: proc(v, normal: Vector2) -> Vector2 {
 	return linalg.reflect(v, normal)
 }
 // Rotate vector by angle
 
-Vector2Rotate :: proc "c" (v: Vector2, angle: f32) -> Vector2 {
+Vector2Rotate :: proc(v: Vector2, angle: f32) -> Vector2 {
 	c, s := math.cos(angle), math.sin(angle)
 
 	return Vector2{
@@ -179,7 +179,7 @@ Vector2Rotate :: proc "c" (v: Vector2, angle: f32) -> Vector2 {
 
 // Move Vector towards target
 
-Vector2MoveTowards :: proc "c" (v, target: Vector2, maxDistance: f32) -> Vector2 {
+Vector2MoveTowards :: proc(v, target: Vector2, maxDistance: f32) -> Vector2 {
 	dv := target - v
 	value := linalg.dot(dv, dv)
 
@@ -193,14 +193,14 @@ Vector2MoveTowards :: proc "c" (v, target: Vector2, maxDistance: f32) -> Vector2
 
 // Invert the given vector
 @(deprecated="Prefer 1.0/v")
-Vector2Invert :: proc "c" (v: Vector2) -> Vector2 {
+Vector2Invert :: proc(v: Vector2) -> Vector2 {
 	return 1.0/v
 }
 
 // Clamp the components of the vector between
 // min and max values specified by the given vectors
 
-Vector2Clamp :: proc "c" (v: Vector2, min, max: Vector2) -> Vector2 {
+Vector2Clamp :: proc(v: Vector2, min, max: Vector2) -> Vector2 {
 	return Vector2{
 		clamp(v.x, min.x, max.x),
 		clamp(v.y, min.y, max.y),
@@ -209,7 +209,7 @@ Vector2Clamp :: proc "c" (v: Vector2, min, max: Vector2) -> Vector2 {
 
 // Clamp the magnitude of the vector between two min and max values
 
-Vector2ClampValue :: proc "c" (v: Vector2, min, max: f32) -> Vector2 {
+Vector2ClampValue :: proc(v: Vector2, min, max: f32) -> Vector2 {
 	result := v
 
 	length := linalg.dot(v, v)
@@ -227,7 +227,7 @@ Vector2ClampValue :: proc "c" (v: Vector2, min, max: f32) -> Vector2 {
 }
 
 
-Vector2Equals :: proc "c" (p, q: Vector2) -> bool {
+Vector2Equals :: proc(p, q: Vector2) -> bool {
 	return FloatEquals(p.x, q.x) &&
 	       FloatEquals(p.y, q.y)
 }
@@ -241,68 +241,68 @@ Vector2Equals :: proc "c" (p, q: Vector2) -> bool {
 
 // Vector with components value 0.0
 @(deprecated="Prefer Vector3(0)")
-Vector3Zero :: proc "c" () -> Vector3 {
+Vector3Zero :: proc() -> Vector3 {
 	return Vector3(0)
 }
 // Vector with components value 1.0
 @(deprecated="Prefer Vector3(1)")
-Vector3One :: proc "c" () -> Vector3 {
+Vector3One :: proc() -> Vector3 {
 	return Vector3(1)
 }
 // Add two vectors (v1 + v2)
 @(deprecated="Prefer v1 + v2")
-Vector3Add :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3Add :: proc(v1, v2: Vector3) -> Vector3 {
 	return v1 + v2
 }
 // Add vector and float value
 @(deprecated="Prefer v + value")
-Vector3AddValue :: proc "c" (v: Vector3, value: f32) -> Vector3 {
+Vector3AddValue :: proc(v: Vector3, value: f32) -> Vector3 {
 	return v + value
 }
 // Subtract two vectors (v1 - v2)
 @(deprecated="Prefer a - b")
-Vector3Subtract :: proc "c" (a, b: Vector3) -> Vector3 {
+Vector3Subtract :: proc(a, b: Vector3) -> Vector3 {
 	return a - b
 }
 // Subtract vector by float value
 @(deprecated="Prefer v + value")
-Vector3SubtractValue :: proc "c" (v: Vector3, value: f32) -> Vector3 {
+Vector3SubtractValue :: proc(v: Vector3, value: f32) -> Vector3 {
 	return v - value
 }
 // Calculate vector length
 
-Vector3Length :: proc "c" (v: Vector3) -> f32 {
+Vector3Length :: proc(v: Vector3) -> f32 {
 	return linalg.length(v)
 }
 // Calculate vector square length
 
-Vector3LengthSqr :: proc "c" (v: Vector3) -> f32 {
+Vector3LengthSqr :: proc(v: Vector3) -> f32 {
 	return linalg.length2(v)
 }
 // Calculate two vectors dot product
 
-Vector3DotProduct :: proc "c" (v1, v2: Vector3) -> f32 {
+Vector3DotProduct :: proc(v1, v2: Vector3) -> f32 {
 	return linalg.dot(v1, v2)
 }
 // Calculate two vectors dot product
 
-Vector3CrossProduct :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3CrossProduct :: proc(v1, v2: Vector3) -> Vector3 {
 	return linalg.cross(v1, v2)
 }
 // Calculate distance between two vectors
 
-Vector3Distance :: proc "c" (v1, v2: Vector3) -> f32 {
+Vector3Distance :: proc(v1, v2: Vector3) -> f32 {
 	return linalg.distance(v1, v2)
 }
 // Calculate square distance between two vectors
 
-Vector3DistanceSqrt :: proc "c" (v1, v2: Vector3) -> f32 {
+Vector3DistanceSqrt :: proc(v1, v2: Vector3) -> f32 {
 	return linalg.length2(v2-v1)
 }
 // Calculate angle between two vectors
 // NOTE: Angle is calculated from origin point (0, 0)
 
-Vector3Angle :: proc "c" (v1, v2: Vector3) -> f32 {
+Vector3Angle :: proc(v1, v2: Vector3) -> f32 {
 	return linalg.angle_between(v1, v2)
 }
 
@@ -310,46 +310,46 @@ Vector3Angle :: proc "c" (v1, v2: Vector3) -> f32 {
 // NOTE: Parameters need to be normalized
 // Current implementation should be aligned with glm::angle
 
-Vector3LineAngle :: proc "c" (start, end: Vector3) -> f32 {
+Vector3LineAngle :: proc(start, end: Vector3) -> f32 {
 	// TODO(10/9/2023): Currently angles move clockwise, determine if this is wanted behavior
 	return -math.atan2(end.y - start.y, end.x - start.x)
 }
 
 // Scale vector (multiply by value)
 @(deprecated="Prefer v * scale")
-Vector3Scale :: proc "c" (v: Vector3, scale: f32) -> Vector3 {
+Vector3Scale :: proc(v: Vector3, scale: f32) -> Vector3 {
 	return v * scale
 }
 // Multiply vector by vector
 @(deprecated="Prefer v1 * v2")
-Vector3Multiply :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3Multiply :: proc(v1, v2: Vector3) -> Vector3 {
 	return v1 * v2
 }
 // Negate vector
 @(deprecated="Prefer -v")
-Vector3Negate :: proc "c" (v: Vector3) -> Vector3 {
+Vector3Negate :: proc(v: Vector3) -> Vector3 {
 	return -v
 }
 // Divide vector by vector
 @(deprecated="Prefer v1 / v2")
-Vector3Divide :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3Divide :: proc(v1, v2: Vector3) -> Vector3 {
 	return v1 / v2
 }
 // Normalize provided vector
 
-Vector3Normalize :: proc "c" (v: Vector3) -> Vector3 {
+Vector3Normalize :: proc(v: Vector3) -> Vector3 {
 	return linalg.normalize0(v)
 }
 
 // Calculate the projection of the vector v1 on to v2
 
-Vector3Project :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3Project :: proc(v1, v2: Vector3) -> Vector3 {
 	return linalg.projection(v1, v2)
 }
 
 // Calculate the rejection  of the vector v1 on to v2
 
-Vector3Reject :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3Reject :: proc(v1, v2: Vector3) -> Vector3 {
 	mag := linalg.dot(v1, v2)/linalg.dot(v2, v2)
 	return v1 - v2*mag
 }
@@ -357,7 +357,7 @@ Vector3Reject :: proc "c" (v1, v2: Vector3) -> Vector3 {
 // Orthonormalize provided vectors
 // Makes vectors normalized and orthogonal to each other
 // Gram-Schmidt function implementation
-Vector3OrthoNormalize :: proc "c" (v1, v2: ^Vector3) {
+Vector3OrthoNormalize :: proc(v1, v2: ^Vector3) {
 	v1^ = linalg.normalize0(v1^)
 	v3 := linalg.normalize0(linalg.cross(v1^, v2^))
 	v2^ = linalg.cross(v3, v1^)
@@ -365,13 +365,13 @@ Vector3OrthoNormalize :: proc "c" (v1, v2: ^Vector3) {
 
 // Transform a vector by quaternion rotation
 
-Vector3RotateByQuaternion :: proc "c" (v: Vector3, q: Quaternion) -> Vector3 {
+Vector3RotateByQuaternion :: proc(v: Vector3, q: Quaternion) -> Vector3 {
 	return linalg.mul(q, v)
 }
 
 // Rotates a vector around an axis
 
-Vector3RotateByAxisAngle :: proc "c" (v: Vector3, axis: Vector3, angle: f32) -> Vector3 {
+Vector3RotateByAxisAngle :: proc(v: Vector3, axis: Vector3, angle: f32) -> Vector3 {
 	axis, angle := axis, angle
 
 	axis = linalg.normalize0(axis)
@@ -398,18 +398,18 @@ Vector3RotateByAxisAngle :: proc "c" (v: Vector3, axis: Vector3, angle: f32) -> 
 
 // Transforms a Vector3 by a given Matrix
 
-Vector3Transform :: proc "c" (v: Vector3, m: Matrix) -> Vector3 {
+Vector3Transform :: proc(v: Vector3, m: Matrix) -> Vector3 {
 	v4 := Vector4{v.x, v.y, v.z, 1}
 	return (m * v4).xyz
 }
 // Calculate linear interpolation between two vectors
 @(deprecated="Prefer = linalg.lerp(v1, v2, amount)")
-Vector3Lerp :: proc "c" (v1, v2: Vector3, amount: f32) -> Vector3 {
+Vector3Lerp :: proc(v1, v2: Vector3, amount: f32) -> Vector3 {
 	return linalg.lerp(v1, v2, Vector3(amount))
 }
 // Calculate reflected vector to normal
 @(deprecated="Prefer = linalg.reflect(v, normal)")
-Vector3Reflect :: proc "c" (v, normal: Vector3) -> Vector3 {
+Vector3Reflect :: proc(v, normal: Vector3) -> Vector3 {
 	return linalg.reflect(v, normal)
 }
 // Compute the direction of a refracted ray
@@ -418,13 +418,13 @@ Vector3Reflect :: proc "c" (v, normal: Vector3) -> Vector3 {
 // r: ratio of the refractive index of the medium from where the ray comes
 //    to the refractive index of the medium on the other side of the surface
 @(deprecated="Prefer = linalg.refract(v, n, r)")
-Vector3Refract :: proc "c" (v, n: Vector3, r: f32) -> Vector3 {
+Vector3Refract :: proc(v, n: Vector3, r: f32) -> Vector3 {
 	return linalg.refract(v, n, r)
 }
 
 // Move Vector towards target
 
-Vector3MoveTowards :: proc "c" (v, target: Vector3, maxDistance: f32) -> Vector3 {
+Vector3MoveTowards :: proc(v, target: Vector3, maxDistance: f32) -> Vector3 {
 	dv := target - v
 	value := linalg.dot(dv, dv)
 
@@ -438,14 +438,14 @@ Vector3MoveTowards :: proc "c" (v, target: Vector3, maxDistance: f32) -> Vector3
 
 // Invert the given vector
 @(deprecated="Prefer 1.0/v")
-Vector3Invert :: proc "c" (v: Vector3) -> Vector3 {
+Vector3Invert :: proc(v: Vector3) -> Vector3 {
 	return 1.0/v
 }
 
 // Clamp the components of the vector between
 // min and max values specified by the given vectors
 
-Vector3Clamp :: proc "c" (v: Vector3, min, max: Vector3) -> Vector3 {
+Vector3Clamp :: proc(v: Vector3, min, max: Vector3) -> Vector3 {
 	return Vector3{
 		clamp(v.x, min.x, max.x),
 		clamp(v.y, min.y, max.y),
@@ -455,7 +455,7 @@ Vector3Clamp :: proc "c" (v: Vector3, min, max: Vector3) -> Vector3 {
 
 // Clamp the magnitude of the vector between two min and max values
 
-Vector3ClampValue :: proc "c" (v: Vector3, min, max: f32) -> Vector3 {
+Vector3ClampValue :: proc(v: Vector3, min, max: f32) -> Vector3 {
 	result := v
 
 	length := linalg.dot(v, v)
@@ -473,7 +473,7 @@ Vector3ClampValue :: proc "c" (v: Vector3, min, max: f32) -> Vector3 {
 }
 
 
-Vector3Equals :: proc "c" (p, q: Vector3) -> bool {
+Vector3Equals :: proc(p, q: Vector3) -> bool {
 	return FloatEquals(p.x, q.x) &&
 	       FloatEquals(p.y, q.y) &&
 	       FloatEquals(p.z, q.z)
@@ -481,12 +481,12 @@ Vector3Equals :: proc "c" (p, q: Vector3) -> bool {
 
 
 
-Vector3Min :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3Min :: proc(v1, v2: Vector3) -> Vector3 {
 	return linalg.min(v1, v2)
 }
 
 
-Vector3Max :: proc "c" (v1, v2: Vector3) -> Vector3 {
+Vector3Max :: proc(v1, v2: Vector3) -> Vector3 {
 	return linalg.max(v1, v2)
 }
 
@@ -494,7 +494,7 @@ Vector3Max :: proc "c" (v1, v2: Vector3) -> Vector3 {
 // Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
 // NOTE: Assumes P is on the plane of the triangle
 
-Vector3Barycenter :: proc "c" (p: Vector3, a, b, c: Vector3) -> (result: Vector3) {
+Vector3Barycenter :: proc(p: Vector3, a, b, c: Vector3) -> (result: Vector3) {
 	v0 := b - a
 	v1 := c - a
 	v2 := p - a
@@ -516,7 +516,7 @@ Vector3Barycenter :: proc "c" (p: Vector3, a, b, c: Vector3) -> (result: Vector3
 
 // Projects a Vector3 from screen space into object space
 
-Vector3Unproject :: proc "c" (source: Vector3, projection: Matrix, view: Matrix) -> Vector3 {
+Vector3Unproject :: proc(source: Vector3, projection: Matrix, view: Matrix) -> Vector3 {
 	matViewProj := view * projection
 
 	matViewProjInv := linalg.inverse(matViewProj)
@@ -540,56 +540,56 @@ Vector3Unproject :: proc "c" (source: Vector3, projection: Matrix, view: Matrix)
 
 // Compute matrix determinant
 
-MatrixDeterminant :: proc "c" (mat: Matrix) -> f32 {
+MatrixDeterminant :: proc(mat: Matrix) -> f32 {
 	return linalg.determinant(mat)
 }
 
 // Get the trace of the matrix (sum of the values along the diagonal)
 
-MatrixTrace :: proc "c" (mat: Matrix) -> f32 {
+MatrixTrace :: proc(mat: Matrix) -> f32 {
 	return linalg.trace(mat)
 }
 
 // Transposes provided matrix
 
-MatrixTranspose :: proc "c" (mat: Matrix) -> Matrix {
+MatrixTranspose :: proc(mat: Matrix) -> Matrix {
 	return linalg.transpose(mat)
 }
 
 // Invert provided matrix
 
-MatrixInvert :: proc "c" (mat: Matrix) -> Matrix {
+MatrixInvert :: proc(mat: Matrix) -> Matrix {
 	return linalg.inverse(mat)
 }
 
 // Get identity matrix
 @(deprecated="Prefer Matrix(1)")
-MatrixIdentity :: proc "c" () -> Matrix {
+MatrixIdentity :: proc() -> Matrix {
 	return Matrix(1)
 }
 
 // Add two matrices
 @(deprecated="Prefer left + right")
-MatrixAdd :: proc "c" (left, right: Matrix) -> Matrix {
+MatrixAdd :: proc(left, right: Matrix) -> Matrix {
 	return left + right
 }
 
 // Subtract two matrices (left - right)
 @(deprecated="Prefer left - right")
-MatrixSubtract :: proc "c" (left, right: Matrix) -> Matrix {
+MatrixSubtract :: proc(left, right: Matrix) -> Matrix {
 	return left - right
 }
 
 // Get two matrix multiplication
 // NOTE: When multiplying matrices... the order matters!
 @(deprecated="Prefer left * right")
-MatrixMultiply :: proc "c" (left, right: Matrix) -> Matrix {
+MatrixMultiply :: proc(left, right: Matrix) -> Matrix {
 	return left * right
 }
 
 // Get translation matrix
 
-MatrixTranslate :: proc "c" (x, y, z: f32) -> Matrix {
+MatrixTranslate :: proc(x, y, z: f32) -> Matrix {
 	return {
 		1, 0, 0, x,
 		0, 1, 0, y,
@@ -601,73 +601,73 @@ MatrixTranslate :: proc "c" (x, y, z: f32) -> Matrix {
 // Create rotation matrix from axis and angle
 // NOTE: Angle should be provided in radians
 
-MatrixRotate :: proc "c" (axis: Vector3, angle: f32) -> Matrix {
+MatrixRotate :: proc(axis: Vector3, angle: f32) -> Matrix {
 	return auto_cast linalg.matrix4_rotate(angle, axis)
 }
 
 // Get x-rotation matrix
 // NOTE: Angle must be provided in radians
 
-MatrixRotateX :: proc "c" (angle: f32) -> Matrix {
+MatrixRotateX :: proc(angle: f32) -> Matrix {
 	return auto_cast linalg.matrix4_rotate(angle, Vector3{1, 0, 0})
 }
 
 // Get y-rotation matrix
 // NOTE: Angle must be provided in radians
 
-MatrixRotateY :: proc "c" (angle: f32) -> Matrix {
+MatrixRotateY :: proc(angle: f32) -> Matrix {
 	return auto_cast linalg.matrix4_rotate(angle, Vector3{0, 1, 0})
 }
 
 // Get z-rotation matrix
 // NOTE: Angle must be provided in radians
 
-MatrixRotateZ :: proc "c" (angle: f32) -> Matrix {
+MatrixRotateZ :: proc(angle: f32) -> Matrix {
 	return auto_cast linalg.matrix4_rotate(angle, Vector3{0, 0, 1})
 }
 
 // Get xyz-rotation matrix
 // NOTE: Angle must be provided in radians
 
-MatrixRotateXYZ :: proc "c" (angle: Vector3) -> Matrix {
+MatrixRotateXYZ :: proc(angle: Vector3) -> Matrix {
 	return auto_cast linalg.matrix4_from_euler_angles_xyz(angle.x, angle.y, angle.z)
 }
 
 // Get zyx-rotation matrix
 // NOTE: Angle must be provided in radians
 
-MatrixRotateZYX :: proc "c" (angle: Vector3) -> Matrix {
+MatrixRotateZYX :: proc(angle: Vector3) -> Matrix {
 	return auto_cast linalg.matrix4_from_euler_angles_zyx(angle.x, angle.y, angle.z)
 }
 
 
 // Get scaling matrix
 
-MatrixScale :: proc "c" (x, y, z: f32) -> Matrix {
+MatrixScale :: proc(x, y, z: f32) -> Matrix {
 	return auto_cast linalg.matrix4_scale(Vector3{x, y, z})
 }
 
 // Get orthographic projection matrix
 
-MatrixOrtho :: proc "c" (left, right, bottom, top, near, far: f32) -> Matrix {
+MatrixOrtho :: proc(left, right, bottom, top, near, far: f32) -> Matrix {
 	return auto_cast linalg.matrix_ortho3d(left, right, bottom, top, near, far)
 }
 
 // Get perspective projection matrix
 // NOTE: Fovy angle must be provided in radians
 
-MatrixPerspective :: proc "c" (fovY, aspect, nearPlane, farPlane: f32) -> Matrix {
+MatrixPerspective :: proc(fovY, aspect, nearPlane, farPlane: f32) -> Matrix {
 	return auto_cast linalg.matrix4_perspective(fovY, aspect, nearPlane, farPlane)
 }
 // Get camera look-at matrix (view matrix)
 
-MatrixLookAt :: proc "c" (eye, target, up: Vector3) -> Matrix {
+MatrixLookAt :: proc(eye, target, up: Vector3) -> Matrix {
 	return auto_cast linalg.matrix4_look_at(eye, target, up)
 }
 
 // Get float array of matrix data
 
-MatrixToFloatV :: proc "c" (mat: Matrix) -> [16]f32 {
+MatrixToFloatV :: proc(mat: Matrix) -> [16]f32 {
 	return transmute([16]f32)linalg.transpose(mat)
 }
 
@@ -680,62 +680,62 @@ MatrixToFloatV :: proc "c" (mat: Matrix) -> [16]f32 {
 
 // Add two quaternions
 @(deprecated="Prefer q1 + q2")
-QuaternionAdd :: proc "c" (q1, q2: Quaternion) -> Quaternion {
+QuaternionAdd :: proc(q1, q2: Quaternion) -> Quaternion {
 	return q1 + q2
 }
 // Add quaternion and float value
 
-QuaternionAddValue :: proc "c" (q: Quaternion, add: f32) -> Quaternion {
+QuaternionAddValue :: proc(q: Quaternion, add: f32) -> Quaternion {
 	return q + Quaternion(add)
 }
 // Subtract two quaternions
 @(deprecated="Prefer q1 - q2")
-QuaternionSubtract :: proc "c" (q1, q2: Quaternion) -> Quaternion {
+QuaternionSubtract :: proc(q1, q2: Quaternion) -> Quaternion {
 	return q1 - q2
 }
 // Subtract quaternion and float value
 
-QuaternionSubtractValue :: proc "c" (q: Quaternion, sub: f32) -> Quaternion {
+QuaternionSubtractValue :: proc(q: Quaternion, sub: f32) -> Quaternion {
 	return q - Quaternion(sub)
 }
 // Get identity quaternion
 @(deprecated="Prefer Quaternion(1)")
-QuaternionIdentity :: proc "c" () -> Quaternion {
+QuaternionIdentity :: proc() -> Quaternion {
 	return 1
 }
 // Computes the length of a quaternion
 @(deprecated="Prefer abs(q)")
-QuaternionLength :: proc "c" (q: Quaternion) -> f32 {
+QuaternionLength :: proc(q: Quaternion) -> f32 {
 	return abs(q)
 }
 // Normalize provided quaternion
 
-QuaternionNormalize :: proc "c" (q: Quaternion) -> Quaternion {
+QuaternionNormalize :: proc(q: Quaternion) -> Quaternion {
 	return linalg.normalize0(q)
 }
 // Invert provided quaternion
 @(deprecated="Prefer 1/q")
-QuaternionInvert :: proc "c" (q: Quaternion) -> Quaternion {
+QuaternionInvert :: proc(q: Quaternion) -> Quaternion {
 	return 1/q
 }
 // Calculate two quaternion multiplication
 @(deprecated="Prefer q1 * q2")
-QuaternionMultiply :: proc "c" (q1, q2: Quaternion) -> Quaternion {
+QuaternionMultiply :: proc(q1, q2: Quaternion) -> Quaternion {
 	return q1 * q2
 }
 // Scale quaternion by float value
 
-QuaternionScale :: proc "c" (q: Quaternion, mul: f32) -> Quaternion {
+QuaternionScale :: proc(q: Quaternion, mul: f32) -> Quaternion {
 	return q * Quaternion(mul)
 }
 // Divide two quaternions
 @(deprecated="Prefer q1 / q2")
-QuaternionDivide :: proc "c" (q1, q2: Quaternion) -> Quaternion {
+QuaternionDivide :: proc(q1, q2: Quaternion) -> Quaternion {
 	return q1 / q2
 }
 // Calculate linear interpolation between two quaternions
 
-QuaternionLerp :: proc "c" (q1, q2: Quaternion, amount: f32) -> (q3: Quaternion) {
+QuaternionLerp :: proc(q1, q2: Quaternion, amount: f32) -> (q3: Quaternion) {
 	q3.x = q1.x + (q2.x-q1.x)*amount
 	q3.y = q1.y + (q2.y-q1.y)*amount
 	q3.z = q1.z + (q2.z-q1.z)*amount
@@ -744,48 +744,48 @@ QuaternionLerp :: proc "c" (q1, q2: Quaternion, amount: f32) -> (q3: Quaternion)
 }
 // Calculate slerp-optimized interpolation between two quaternions
 
-QuaternionNlerp :: proc "c" (q1, q2: Quaternion, amount: f32) -> Quaternion {
+QuaternionNlerp :: proc(q1, q2: Quaternion, amount: f32) -> Quaternion {
 	return linalg.quaternion_nlerp(q1, q2, amount)
 }
 // Calculates spherical linear interpolation between two quaternions
 
-QuaternionSlerp :: proc "c" (q1, q2: Quaternion, amount: f32) -> Quaternion {
+QuaternionSlerp :: proc(q1, q2: Quaternion, amount: f32) -> Quaternion {
 	return linalg.quaternion_slerp(q1, q2, amount)
 }
 // Calculate quaternion based on the rotation from one vector to another
 
-QuaternionFromVector3ToVector3 :: proc "c" (from, to: Vector3) -> Quaternion {
+QuaternionFromVector3ToVector3 :: proc(from, to: Vector3) -> Quaternion {
 	return linalg.quaternion_between_two_vector3(from, to)
 }
 // Get a quaternion for a given rotation matrix
 
-QuaternionFromMatrix :: proc "c" (mat: Matrix) -> Quaternion {
+QuaternionFromMatrix :: proc(mat: Matrix) -> Quaternion {
 	return linalg.quaternion_from_matrix4(linalg.Matrix4f32(mat))
 }
 // Get a matrix for a given quaternion
 
-QuaternionToMatrix :: proc "c" (q: Quaternion) -> Matrix {
+QuaternionToMatrix :: proc(q: Quaternion) -> Matrix {
 	return auto_cast linalg.matrix4_from_quaternion(q)
 }
 // Get rotation quaternion for an angle and axis NOTE: Angle must be provided in radians
 
-QuaternionFromAxisAngle :: proc "c" (axis: Vector3, angle: f32) -> Quaternion {
+QuaternionFromAxisAngle :: proc(axis: Vector3, angle: f32) -> Quaternion {
 	return linalg.quaternion_angle_axis(angle, axis)
 }
 // Get the rotation angle and axis for a given quaternion
 
-QuaternionToAxisAngle :: proc "c" (q: Quaternion) -> (outAxis: Vector3, outAngle: f32) {
+QuaternionToAxisAngle :: proc(q: Quaternion) -> (outAxis: Vector3, outAngle: f32) {
 	outAngle, outAxis = linalg.angle_axis_from_quaternion(q)
 	return
 }
 // Get the quaternion equivalent to Euler angles NOTE: Rotation order is ZYX
 
-QuaternionFromEuler :: proc "c" (pitch, yaw, roll: f32) -> Quaternion {
+QuaternionFromEuler :: proc(pitch, yaw, roll: f32) -> Quaternion {
 	return linalg.quaternion_from_pitch_yaw_roll(pitch, yaw, roll)
 }
 // Get the Euler angles equivalent to quaternion (roll, pitch, yaw) NOTE: Angles are returned in a Vector3 struct in radians
 
-QuaternionToEuler :: proc "c" (q: Quaternion) -> Vector3 {
+QuaternionToEuler :: proc(q: Quaternion) -> Vector3 {
 	result: Vector3
 
 	// Roll (x-axis rotation)
@@ -808,13 +808,13 @@ QuaternionToEuler :: proc "c" (q: Quaternion) -> Vector3 {
 }
 // Transform a quaternion given a transformation matrix
 
-QuaternionTransform :: proc "c" (q: Quaternion, mat: Matrix) -> Quaternion {
+QuaternionTransform :: proc(q: Quaternion, mat: Matrix) -> Quaternion {
 	v := mat * transmute(Vector4)q
 	return transmute(Quaternion)v
 }
 // Check whether two given quaternions are almost equal
 
-QuaternionEquals :: proc "c" (p, q: Quaternion) -> bool {
+QuaternionEquals :: proc(p, q: Quaternion) -> bool {
 	return FloatEquals(p.x, q.x) &&
 	       FloatEquals(p.y, q.y) &&
 	       FloatEquals(p.z, q.z) &&

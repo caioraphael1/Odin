@@ -5,7 +5,7 @@ import "base:intrinsics"
 import "core:mem"
 
 /*
-	Note that these constants are dependent on the backing being a u64.
+    Note that these constants are dependent on the backing being a u64.
 */
 @(private="file")
 INDEX_SHIFT :: 6
@@ -17,16 +17,16 @@ INDEX_MASK  :: 63
 NUM_BITS :: 64
 
 Bit_Array :: struct {
-	bits:         [dynamic]u64,
-	bias:         int,
-	length:       int,
-	free_pointer: bool,
+    bits:         [dynamic]u64,
+    bias:         int,
+    length:       int,
+    free_pointer: bool,
 }
 
 Bit_Array_Iterator :: struct {
-	array:    ^Bit_Array,
-	word_idx: int,
-	bit_idx:  uint,
+    array:    ^Bit_Array,
+    word_idx: int,
+    bit_idx:  uint,
 }
 /*
 Wraps a `Bit_Array` into an Iterator
@@ -38,7 +38,7 @@ Returns:
 - it: Iterator struct
 */
 make_iterator :: proc (ba: ^Bit_Array) -> (it: Bit_Array_Iterator) {
-	return Bit_Array_Iterator { array = ba }
+    return Bit_Array_Iterator { array = ba }
 }
 /*
 Returns the next bit, including its set-state. ok=false once exhausted
@@ -52,19 +52,19 @@ Returns:
 - ok: `true` if the iterator can continue, `false` if the iterator is done
 */
 iterate_by_all :: proc (it: ^Bit_Array_Iterator) -> (set: bool, index: int, ok: bool) {
-	index = it.word_idx * NUM_BITS + int(it.bit_idx) + it.array.bias
-	if index >= it.array.length + it.array.bias { return false, 0, false }
+    index = it.word_idx * NUM_BITS + int(it.bit_idx) + it.array.bias
+    if index >= it.array.length + it.array.bias { return false, 0, false }
 
-	word := it.array.bits[it.word_idx] if builtin.len(it.array.bits) > it.word_idx else 0
-	set = (word >> it.bit_idx & 1) == 1
+    word := it.array.bits[it.word_idx] if builtin.len(it.array.bits) > it.word_idx else 0
+    set = (word >> it.bit_idx & 1) == 1
 
-	it.bit_idx += 1
-	if it.bit_idx >= NUM_BITS {
-		it.bit_idx = 0
-		it.word_idx += 1
-	}
+    it.bit_idx += 1
+    if it.bit_idx >= NUM_BITS {
+        it.bit_idx = 0
+        it.word_idx += 1
+    }
 
-	return set, index, true
+    return set, index, true
 }
 /*
 Returns the next Set Bit, for example if `0b1010`, then the iterator will return index={1, 3} over two calls.
@@ -77,7 +77,7 @@ Returns:
 - ok: `true` if the iterator can continue, `false` if the iterator is done
 */
 iterate_by_set :: proc (it: ^Bit_Array_Iterator) -> (index: int, ok: bool) {
-	return iterate_internal_(it, true)
+    return iterate_internal_(it, true)
 }
 /*
 Returns the next Unset Bit, for example if `0b1010`, then the iterator will return index={0, 2} over two calls.
@@ -90,7 +90,7 @@ Returns:
 - ok: `true` if the iterator can continue, `false` if the iterator is done
 */
 iterate_by_unset:: proc (it: ^Bit_Array_Iterator) -> (index: int, ok: bool) {
-	return iterate_internal_(it, false)
+    return iterate_internal_(it, false)
 }
 /*
 Iterates through set/unset bits
@@ -107,36 +107,36 @@ Returns:
 */
 @(private="file")
 iterate_internal_ :: proc (it: ^Bit_Array_Iterator, $ITERATE_SET_BITS: bool) -> (index: int, ok: bool) {
-	word := it.array.bits[it.word_idx] if builtin.len(it.array.bits) > it.word_idx else 0
-	when ! ITERATE_SET_BITS { word = ~word }
+    word := it.array.bits[it.word_idx] if builtin.len(it.array.bits) > it.word_idx else 0
+    when ! ITERATE_SET_BITS { word = ~word }
 
-	// If the word is empty or we have already gone over all the bits in it,
-	// b.bit_idx is greater than the index of any set bit in the word,
-	// meaning that word >> b.bit_idx == 0.
-	for it.word_idx < builtin.len(it.array.bits) && word >> it.bit_idx == 0 {
-		it.word_idx += 1
-		it.bit_idx = 0
-		word = it.array.bits[it.word_idx] if builtin.len(it.array.bits) > it.word_idx else 0
-		when ! ITERATE_SET_BITS { word = ~word }
-	}
+    // If the word is empty or we have already gone over all the bits in it,
+    // b.bit_idx is greater than the index of any set bit in the word,
+    // meaning that word >> b.bit_idx == 0.
+    for it.word_idx < builtin.len(it.array.bits) && word >> it.bit_idx == 0 {
+        it.word_idx += 1
+        it.bit_idx = 0
+        word = it.array.bits[it.word_idx] if builtin.len(it.array.bits) > it.word_idx else 0
+        when ! ITERATE_SET_BITS { word = ~word }
+    }
 
-	// If we are iterating the set bits, reaching the end of the array means we have no more bits to check
-	when ITERATE_SET_BITS {
-		if it.word_idx >= builtin.len(it.array.bits) {
-			return 0, false
-		}
-	}
+    // If we are iterating the set bits, reaching the end of the array means we have no more bits to check
+    when ITERATE_SET_BITS {
+        if it.word_idx >= builtin.len(it.array.bits) {
+            return 0, false
+        }
+    }
 
-	// Reaching here means that the word has some set bits
-	it.bit_idx += uint(intrinsics.count_trailing_zeros(word >> it.bit_idx))
-	index = it.word_idx * NUM_BITS + int(it.bit_idx) + it.array.bias
+    // Reaching here means that the word has some set bits
+    it.bit_idx += uint(intrinsics.count_trailing_zeros(word >> it.bit_idx))
+    index = it.word_idx * NUM_BITS + int(it.bit_idx) + it.array.bias
 
-	it.bit_idx += 1
-	if it.bit_idx >= NUM_BITS {
-		it.bit_idx = 0
-		it.word_idx += 1
-	}
-	return index, index < it.array.length + it.array.bias
+    it.bit_idx += 1
+    if it.bit_idx >= NUM_BITS {
+        it.bit_idx = 0
+        it.word_idx += 1
+    }
+    return index, index < it.array.length + it.array.bias
 }
 /*
 Gets the state of a bit in the bit-array
@@ -150,23 +150,23 @@ Returns:
 - ok: Whether the index was valid. Returns `false` if the index is smaller than the bias.
 */
 get :: proc(ba: ^Bit_Array, #any_int index: uint) -> (res: bool, ok: bool) {
-	idx := int(index) - ba.bias
+    idx := int(index) - ba.bias
 
-	if ba == nil || int(index) < ba.bias { return false, false }
+    if ba == nil || int(index) < ba.bias { return false, false }
 
-	leg_index := idx >> INDEX_SHIFT
-	bit_index := idx &  INDEX_MASK
+    leg_index := idx >> INDEX_SHIFT
+    bit_index := idx &  INDEX_MASK
 
-	/*
-		If we `get` a bit that doesn't fit in the Bit Array, it's naturally `false`.
-		This early-out prevents unnecessary resizing.
-	*/
-	if leg_index + 1 > builtin.len(ba.bits) { return false, true }
+    /*
+        If we `get` a bit that doesn't fit in the Bit Array, it's naturally `false`.
+        This early-out prevents unnecessary resizing.
+    */
+    if leg_index + 1 > builtin.len(ba.bits) { return false, true }
 
-	val := u64(1 << uint(bit_index))
-	res = ba.bits[leg_index] & val == val
+    val := u64(1 << uint(bit_index))
+    res = ba.bits[leg_index] & val == val
 
-	return res, true
+    return res, true
 }
 /*
 Gets the state of a bit in the bit-array
@@ -181,7 +181,7 @@ Returns:
 - `true` if bit is set
 */
 unsafe_get :: #force_inline proc(ba: ^Bit_Array, #any_int index: uint) -> bool #no_bounds_check {
-	return bool((ba.bits[index >> INDEX_SHIFT] >> uint(index & INDEX_MASK)) & 1)
+    return bool((ba.bits[index >> INDEX_SHIFT] >> uint(index & INDEX_MASK)) & 1)
 }
 /*
 Sets the state of a bit in the bit-array
@@ -199,25 +199,24 @@ Returns:
 */
 set :: proc(ba: ^Bit_Array, #any_int index: uint, set_to: bool = true, allocator: mem.Allocator) -> (ok: bool) {
 
-	idx := int(index) - ba.bias
+    idx := int(index) - ba.bias
 
-	if ba == nil || int(index) < ba.bias { return false }
-	context.allocator = allocator
+    if ba == nil || int(index) < ba.bias { return false }
 
-	leg_index := idx >> INDEX_SHIFT
-	bit_index := idx &  INDEX_MASK
+    leg_index := idx >> INDEX_SHIFT
+    bit_index := idx &  INDEX_MASK
 
-	resize_if_needed(ba, leg_index) or_return
+    resize_if_needed(ba, leg_index, allocator) or_return
 
-	ba.length = max(1 + idx, ba.length)
+    ba.length = max(1 + idx, ba.length)
 
-	if set_to {
-		ba.bits[leg_index] |=  1 << uint(bit_index)
-	} else {
-		ba.bits[leg_index] &~= 1 << uint(bit_index)
-	}
+    if set_to {
+        ba.bits[leg_index] |=  1 << uint(bit_index)
+    } else {
+        ba.bits[leg_index] &~= 1 << uint(bit_index)
+    }
 
-	return true
+    return true
 }
 /*
 Sets the state of a bit in the bit-array
@@ -229,7 +228,7 @@ Inputs:
 - index: Which bit in the array
 */
 unsafe_set :: proc(ba: ^Bit_Array, bit: int) #no_bounds_check {
-	ba.bits[bit >> INDEX_SHIFT] |= 1 << uint(bit & INDEX_MASK)
+    ba.bits[bit >> INDEX_SHIFT] |= 1 << uint(bit & INDEX_MASK)
 }
 /*
 Unsets the state of a bit in the bit-array. (Convienence wrapper for `set`)
@@ -245,7 +244,7 @@ Returns:
 - ok: Whether the unset was successful, `false` on allocation failure or bad index
 */
 unset :: #force_inline proc(ba: ^Bit_Array, #any_int index: uint, allocator: mem.Allocator) -> (ok: bool) {
-	return set(ba, index, false, allocator)
+    return set(ba, index, false, allocator)
 }
 /*
 Unsets the state of a bit in the bit-array
@@ -257,7 +256,7 @@ Inputs:
 - index: Which bit in the array
 */
 unsafe_unset :: proc(b: ^Bit_Array, bit: int) #no_bounds_check {
-	b.bits[bit >> INDEX_SHIFT] &~= 1 << uint(bit & INDEX_MASK)
+    b.bits[bit >> INDEX_SHIFT] &~= 1 << uint(bit & INDEX_MASK)
 }
 
 /*
@@ -277,17 +276,17 @@ Returns:
 - ba: Allocates a bit_Array, backing data is set to `max-min / 64` indices, rounded up (eg 65 - 0 allocates for [2]u64).
 */
 create :: proc(max_index: int, min_index: int = 0, allocator: mem.Allocator) -> (res: ^Bit_Array, ok: bool) {
-	size_in_bits := max_index - min_index
+    size_in_bits := max_index - min_index
 
-	if size_in_bits < 0 { return {}, false }
+    if size_in_bits < 0 { return {}, false }
 
-	res = new(Bit_Array, allocator)
-	ok  = init(res, max_index, min_index, allocator)
-	res.free_pointer = true
+    res, _ = new(Bit_Array, allocator)
+    ok  = init(res, max_index, min_index, allocator)
+    res.free_pointer = true
 
-	if !ok { free(res, allocator) }
+    if !ok { free(res, allocator) }
 
-	return
+    return
 }
 
 /*
@@ -304,21 +303,21 @@ Inputs:
 - allocator: (default is context.allocator)
 */
 init :: proc(res: ^Bit_Array, max_index: int, min_index: int = 0, allocator: mem.Allocator) -> (ok: bool) {
-	size_in_bits := max_index - min_index
+    size_in_bits := max_index - min_index
 
-	if size_in_bits < 0 { return false }
+    if size_in_bits < 0 { return false }
 
-	legs := size_in_bits >> INDEX_SHIFT
-	if size_in_bits & INDEX_MASK > 0 { legs += 1 }
+    legs := size_in_bits >> INDEX_SHIFT
+    if size_in_bits & INDEX_MASK > 0 { legs += 1 }
 
-	bits, err := make([dynamic]u64, legs, allocator)
-	ok = err == nil
+    bits, err := make([dynamic]u64, legs, allocator)
+    ok = err == nil
 
-	res.bits         = bits
-	res.bias         = min_index
-	res.length       = max_index - min_index
-	res.free_pointer = false
-	return
+    res.bits         = bits
+    res.bias         = min_index
+    res.length       = max_index - min_index
+    res.free_pointer = false
+    return
 }
 
 /*
@@ -328,8 +327,8 @@ Inputs:
 - ba: The target Bit_Array
 */
 clear :: proc(ba: ^Bit_Array) {
-	if ba == nil { return }
-	mem.zero_slice(ba.bits[:])
+    if ba == nil { return }
+    mem.zero_slice(ba.bits[:])
 }
 /*
 Gets the length of set and unset valid bits in the Bit_Array.
@@ -341,8 +340,8 @@ Returns:
 - length: The length of valid bits.
 */
 len :: proc(ba: ^Bit_Array) -> (length: int) {
-	if ba == nil { return }
-	return ba.length
+    if ba == nil { return }
+    return ba.length
 }
 /*
 Shrinks the Bit_Array's backing storage to the smallest possible size.
@@ -351,27 +350,27 @@ Inputs:
 - ba: The target Bit_Array
 */
 shrink :: proc(ba: ^Bit_Array) #no_bounds_check {
-	if ba == nil { return }
-	legs_needed := builtin.len(ba.bits)
-	for i := legs_needed - 1; i >= 0; i -= 1 {
-		if ba.bits[i] == 0 {
-			legs_needed -= 1
-		} else {
-			break
-		}
-	}
-	if legs_needed == builtin.len(ba.bits) {
-		return
-	}
-	ba.length = 0
-	if legs_needed > 0 {
-		if legs_needed > 1 {
-			ba.length = (legs_needed - 1) * NUM_BITS
-		}
-		ba.length += NUM_BITS - int(intrinsics.count_leading_zeros(ba.bits[legs_needed - 1]))
-	}
-	_ = resize(&ba.bits, legs_needed)
-	builtin.shrink(&ba.bits)
+    if ba == nil { return }
+    legs_needed := builtin.len(ba.bits)
+    for i := legs_needed - 1; i >= 0; i -= 1 {
+        if ba.bits[i] == 0 {
+            legs_needed -= 1
+        } else {
+            break
+        }
+    }
+    if legs_needed == builtin.len(ba.bits) {
+        return
+    }
+    ba.length = 0
+    if legs_needed > 0 {
+        if legs_needed > 1 {
+            ba.length = (legs_needed - 1) * NUM_BITS
+        }
+        ba.length += NUM_BITS - int(intrinsics.count_leading_zeros(ba.bits[legs_needed - 1]))
+    }
+    _ = resize(&ba.bits, legs_needed)
+    _ = builtin.shrink(&ba.bits)
 }
 /*
 Deallocates the Bit_Array and its backing storage
@@ -380,24 +379,22 @@ Inputs:
 - ba: The target Bit_Array
 */
 destroy :: proc(ba: ^Bit_Array) {
-	if ba == nil { return }
-	_ = delete(ba.bits)
-	if ba.free_pointer { // Only free if this Bit_Array was created using `create`, not when on the stack.
-		_ = free(ba)
-	}
+    if ba == nil { return }
+    _ = delete(ba.bits)
+    if ba.free_pointer { // Only free if this Bit_Array was created using `create`, not when on the stack.
+        _ = free(ba, ba.bits.allocator)
+    }
 }
 /*
-	Resizes the Bit Array. For internal use. Provisions needed capacity+1
-	If you want to reserve the memory for a given-sized Bit Array up front, you can use `create`.
+    Resizes the Bit Array. For internal use. Provisions needed capacity+1
+    If you want to reserve the memory for a given-sized Bit Array up front, you can use `create`.
 */
 @(private="file")
 resize_if_needed :: proc(ba: ^Bit_Array, legs: int, allocator: mem.Allocator) -> (ok: bool) {
-	if ba == nil { return false }
+    if ba == nil { return false }
 
-	context.allocator = allocator
-
-	if legs + 1 > builtin.len(ba.bits) {
-		_ = resize(&ba.bits, legs + 1)
-	}
-	return builtin.len(ba.bits) > legs
+    if legs + 1 > builtin.len(ba.bits) {
+        _ = resize(&ba.bits, legs + 1)
+    }
+    return builtin.len(ba.bits) > legs
 }

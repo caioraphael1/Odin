@@ -1744,7 +1744,7 @@ TextFormat :: proc(text: cstring, args: ..any) -> cstring {
 
 // Text formatting with variables (sprintf style) and allocates (must be freed with 'MemFree')
 TextFormatAlloc :: proc(text: cstring, args: ..any) -> cstring {
-	return fmt.caprintf(string(text), ..args, allocator=MemAllocator())
+	return fmt.caprintf(string(text), args, allocator=MemAllocator())
 }
 
 
