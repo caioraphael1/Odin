@@ -1375,35 +1375,35 @@ atan2 :: proc(y: $T, x: T) -> T where intrinsics.type_is_float(T) {
 
     switch {
     case is_nan_f64(y) || is_nan_f64(x):
-        return NAN
+        return T(NAN)
     case y == 0:
         if x >= 0 && !sign_bit_f64(x) {
-            return copy_sign_f64(0.0, y)
+            return T(copy_sign_f64(0.0, y))
         }
-        return copy_sign_f64(PI, y)
+        return T(copy_sign_f64(PI, y))
     case x == 0:
-        return copy_sign_f64(PI/2, y)
+        return T(copy_sign_f64(PI/2, y))
     case is_inf_f64(x, 0):
         if is_inf_f64(x, 1) {
             if is_inf_f64(y, 0) {
-                return copy_sign_f64(PI/4, y)
+                return T(copy_sign_f64(PI/4, y))
             }
-            return copy_sign_f64(0, y)
+            return T(copy_sign_f64(0, y))
         }
         if is_inf_f64(y, 0) {
-            return copy_sign_f64(3*PI/4, y)
+            return T(copy_sign_f64(3*PI/4, y))
         }
-        return copy_sign_f64(PI, y)
+        return T(copy_sign_f64(PI, y))
     case is_inf_f64(y, 0):
-        return copy_sign_f64(PI/2, y)
+        return T(copy_sign_f64(PI/2, y))
     }
 
     q := atan(y / x)
     if x < 0 {
         if q <= 0 {
-            return q + PI
+            return T(q + PI)
         }
-        return q - PI
+        return T(q - PI)
     }
     return T(q)
 }
@@ -1460,17 +1460,17 @@ asin :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
         lx := dwords[0]
         if (ix-0x3ff00000 | lx) == 0 {
             /* asin(1) = +-pi/2 with inexact */
-            return x*pio2_hi + 1e-120
+            return T(x*pio2_hi + 1e-120)
         }
-        return 0/(x-x)
+        return T(0/(x-x))
     }
     /* |x| < 0.5 */
     if ix < 0x3fe00000 {
         /* if 0x1p-1022 <= |x| < 0x1p-26, avoid raising underflow */
         if ix < 0x3e500000 && ix >= 0x00100000 {
-            return x
+            return T(x)
         }
-        return x + x*R(x*x)
+        return T(x + x*R(x*x))
     }
     /* 1 > |x| >= 0.5 */
     z = (1 - abs(x))*0.5
@@ -1537,25 +1537,25 @@ acos :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
         if (ix-0x3ff00000 | lx) == 0 {
             /* acos(1)=0, acos(-1)=pi */
             if hx >> 31 != 0 {
-                return 2*pio2_hi + 1e-120
+                return T(2*pio2_hi + 1e-120)
             }
-            return 0
+            return T(0)
         }
-        return 0/(x-x)
+        return T(0/(x-x))
     }
     /* |x| < 0.5 */
     if ix < 0x3fe00000 {
         if ix <= 0x3c600000 { /* |x| < 2**-57 */
-            return pio2_hi + 1e-120
+            return T(pio2_hi + 1e-120)
         }
-        return pio2_hi - (x - (pio2_lo-x*R(x*x)))
+        return T(pio2_hi - (x - (pio2_lo-x*R(x*x))))
     }
     /* x < -0.5 */
     if hx >> 31 != 0 {
         z = (1.0+x)*0.5
         s = sqrt(z)
         w = R(z)*s-pio2_lo
-        return 2*(pio2_hi - (s+w))
+        return T(2*(pio2_hi - (s+w)))
     }
     /* x > 0.5 */
     z = (1.0-x)*0.5

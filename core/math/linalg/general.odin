@@ -31,61 +31,51 @@ DEG_PER_RAD :: 360.0/TAU
 
 
 
-@(private) IS_NUMERIC :: intrinsics.type_is_numeric
-@(private) IS_QUATERNION :: intrinsics.type_is_quaternion
-@(private) IS_ARRAY :: intrinsics.type_is_array
-@(private) IS_FLOAT :: intrinsics.type_is_float
-@(private) BASE_TYPE :: intrinsics.type_base_type
-@(private) ELEM_TYPE :: intrinsics.type_elem_type
-
-
-
-scalar_dot :: proc(a, b: $T) -> T where IS_FLOAT(T), !IS_ARRAY(T) {
+scalar_dot :: proc(a, b: $T) -> T where intrinsics.type_is_float(T), !intrinsics.type_is_array(T) {
     return a * b
 }
 
 
-vector_dot :: proc(a, b: $T/[$N]$E) -> (c: E) where IS_NUMERIC(E) #no_bounds_check {
+vector_dot :: proc(a, b: $T/[$N]$E) -> (c: E) where intrinsics.type_is_numeric(E) #no_bounds_check {
     for i in 0..<N {
         c += a[i] * b[i]
     }
     return
 }
 
-quaternion64_dot :: proc(a, b: $T/quaternion64) -> (c: f16) {
+quaternionf16_dot :: proc(a, b: $T/quaternion64) -> (c: f16) {
     return a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z
 }
 
-quaternion128_dot :: proc(a, b: $T/quaternion128) -> (c: f32) {
+quaternionf32_dot :: proc(a, b: $T/quaternion128) -> (c: f32) {
     return a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z
 }
 
-quaternion256_dot :: proc(a, b: $T/quaternion256) -> (c: f64) {
+quaternionf64_dot :: proc(a, b: $T/quaternion256) -> (c: f64) {
     return a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z
 }
 
 
-inner_product :: dot
 outer_product :: intrinsics.outer_product
 
 
-quaternion_inverse :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
+quaternion_inverse :: proc(q: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
     return conj(q) * quaternion(w=1.0/dot(q, q), x=0, y=0, z=0)
 }
 
 
 
-scalar_cross :: proc(a, b: $T) -> T where IS_FLOAT(T), !IS_ARRAY(T) {
+scalar_cross :: proc(a, b: $T) -> T where intrinsics.type_is_float(T), !intrinsics.type_is_array(T) {
     return a * b
 }
 
 
-vector_cross2 :: proc(a, b: $T/[2]$E) -> E where IS_NUMERIC(E) {
+vector_cross2 :: proc(a, b: $T/[2]$E) -> E where intrinsics.type_is_numeric(E) {
     return a[0]*b[1] - b[0]*a[1]
 }
 
 
-vector_cross3 :: proc(a, b: $T/[3]$E) -> (c: T) where IS_NUMERIC(E) {
+vector_cross3 :: proc(a, b: $T/[3]$E) -> (c: T) where intrinsics.type_is_numeric(E) {
     c[0] = a[1]*b[2] - b[1]*a[2]
     c[1] = a[2]*b[0] - b[2]*a[0]
     c[2] = a[0]*b[1] - b[0]*a[1]
@@ -93,7 +83,7 @@ vector_cross3 :: proc(a, b: $T/[3]$E) -> (c: T) where IS_NUMERIC(E) {
 }
 
 
-quaternion_cross :: proc(q1, q2: $Q) -> (q3: Q) where IS_QUATERNION(Q) {
+quaternion_cross :: proc(q1, q2: $Q) -> (q3: Q) where intrinsics.type_is_quaternion(Q) {
     q3.x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
     q3.y = q1.w * q2.y + q1.y * q2.w + q1.z * q2.x - q1.x * q2.z
     q3.z = q1.w * q2.z + q1.z * q2.w + q1.x * q2.y - q1.y * q2.x
@@ -101,48 +91,48 @@ quaternion_cross :: proc(q1, q2: $Q) -> (q3: Q) where IS_QUATERNION(Q) {
     return
 }
 
-vector_normalize :: proc(v: $T/[$N]$E) -> T where IS_FLOAT(E) {
-    return v / length(v)
+vector_normalize :: proc(v: $T/[$N]$E) -> T where intrinsics.type_is_float(E) {
+    return v / vector_length(v)
 }
 
-quaternion_normalize :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
+quaternion_normalize :: proc(q: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
     return q/abs(q)
 }
 
 
-vector_normalize0 :: proc(v: $T/[$N]$E) -> T where IS_FLOAT(E) {
-    m := length(v)
+vector_normalize0 :: proc(v: $T/[$N]$E) -> T where intrinsics.type_is_float(E) {
+    m := vector_length(v)
     return 0 if m == 0 else v/m
 }
 
-quaternion_normalize0 :: proc(q: $Q) -> Q  where IS_QUATERNION(Q) {
+quaternion_normalize0 :: proc(q: $Q) -> Q  where intrinsics.type_is_quaternion(Q) {
     m := abs(q)
     return 0 if m == 0 else q/m
 }
 
 
 
-vector_length :: proc(v: $T/[$N]$E) -> E where IS_FLOAT(E) {
-    return math.sqrt(dot(v, v))
+vector_length :: proc(v: $T/[$N]$E) -> E where intrinsics.type_is_float(E) {
+    return math.sqrt(vector_dot(v, v))
 }
 
 
-vector_length2 :: proc(v: $T/[$N]$E) -> E where IS_NUMERIC(E) {
-    return dot(v, v)
+vector_length2 :: proc(v: $T/[$N]$E) -> E where intrinsics.type_is_numeric(E) {
+    return vector_dot(v, v)
 }
 
 
-quaternion_length :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
+quaternion_length :: proc(q: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
     return abs(q)
 }
 
 
-quaternion_length2 :: proc(q: $Q) -> Q where IS_QUATERNION(Q) {
+quaternion_length2 :: proc(q: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
     return dot(q, q)
 }
 
 
-scalar_triple_product :: proc(a, b, c: $T/[$N]$E) -> E where IS_NUMERIC(E) {
+scalar_triple_product :: proc(a, b, c: $T/[$N]$E) -> E where intrinsics.type_is_numeric(E) {
     // a . (b x c)
     // b . (c x a)
     // c . (a x b)
@@ -150,14 +140,14 @@ scalar_triple_product :: proc(a, b, c: $T/[$N]$E) -> E where IS_NUMERIC(E) {
 }
 
 
-vector_triple_product :: proc(a, b, c: $T/[$N]$E) -> T where IS_NUMERIC(E) {
+vector_triple_product :: proc(a, b, c: $T/[$N]$E) -> T where intrinsics.type_is_numeric(E) {
     // a x (b x c)
     // (a . c)b - (a . b)c
     return cross(a, cross(b, c))
 }
 
 
-clamp_length :: proc(v: $T/[$N]$E, a: E) -> T where IS_FLOAT(E) {
+clamp_length :: proc(v: $T/[$N]$E, a: E) -> T where intrinsics.type_is_float(E) {
     if a <= 0 {
         return 0
     }
@@ -168,7 +158,7 @@ clamp_length :: proc(v: $T/[$N]$E, a: E) -> T where IS_FLOAT(E) {
 
 
 
-projection :: proc(x, normal: $T/[$N]$E) -> T where IS_NUMERIC(E) {
+projection :: proc(x, normal: $T/[$N]$E) -> T where intrinsics.type_is_numeric(E) {
     return dot(x, normal) / dot(normal, normal) * normal
 }
 
@@ -189,31 +179,31 @@ transpose :: intrinsics.transpose
 
 
 matrix_mul :: proc(a, b: $M/matrix[$N, N]$E) -> (c: M)
-    where !IS_ARRAY(E), IS_NUMERIC(E) #no_bounds_check {
+    where !intrinsics.type_is_array(E), intrinsics.type_is_numeric(E) #no_bounds_check {
     return a * b
 }
 
 
 matrix_comp_mul :: proc(a, b: $M/matrix[$I, $J]$E) -> (c: M)
-    where !IS_ARRAY(E), IS_NUMERIC(E) #no_bounds_check {
+    where !intrinsics.type_is_array(E), intrinsics.type_is_numeric(E) #no_bounds_check {
     return hadamard_product(a, b)
 }
 
 
 matrix_mul_differ :: proc(a: $A/matrix[$I, $J]$E, b: $B/matrix[J, $K]E) -> (c: matrix[I, K]E)
-    where !IS_ARRAY(E), IS_NUMERIC(E), I != K #no_bounds_check {
+    where !intrinsics.type_is_array(E), intrinsics.type_is_numeric(E), I != K #no_bounds_check {
     return a * b
 }
 
 
 
 matrix_mul_vector :: proc(a: $A/matrix[$I, $J]$E, b: $B/[J]E) -> (c: B)
-    where !IS_ARRAY(E), IS_NUMERIC(E) #no_bounds_check {
+    where !intrinsics.type_is_array(E), intrinsics.type_is_numeric(E) #no_bounds_check {
     return a * b
 }
 
 
-quaternion_mul_quaternion :: proc(q1, q2: $Q) -> Q where IS_QUATERNION(Q) {
+quaternion_mul_quaternion :: proc(q1, q2: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
     return q1 * q2
 }
 
@@ -243,11 +233,11 @@ quaternion256_mul_vector3 :: proc(q: $Q/quaternion256, v: $V/[3]$F/f64) -> V {
 }
 
 
-vector_to_ptr :: proc(v: ^$V/[$N]$E) -> ^E where IS_NUMERIC(E), N > 0 #no_bounds_check {
+vector_to_ptr :: proc(v: ^$V/[$N]$E) -> ^E where intrinsics.type_is_numeric(E), N > 0 #no_bounds_check {
     return &v[0]
 }
 
-matrix_to_ptr :: proc(m: ^$A/matrix[$I, $J]$E) -> ^E where IS_NUMERIC(E), I > 0, J > 0 #no_bounds_check {
+matrix_to_ptr :: proc(m: ^$A/matrix[$I, $J]$E) -> ^E where intrinsics.type_is_numeric(E), I > 0, J > 0 #no_bounds_check {
     return &m[0, 0]
 }
 

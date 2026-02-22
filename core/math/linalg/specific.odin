@@ -1,7 +1,9 @@
 package linalg
 
 import "base:builtin"
+import "base:intrinsics"
 import "core:math"
+
 
 F16_EPSILON :: 1e-3
 F32_EPSILON :: 1e-7
@@ -50,12 +52,12 @@ Euler_Angle_Order :: enum {
 }
 
 
-vector2_orthogonal :: proc(v: $V/[2]$E) -> V where !IS_ARRAY(E), IS_FLOAT(E) {
+vector2_orthogonal :: proc(v: $V/[2]$E) -> V where !intrinsics.type_is_array(E), intrinsics.type_is_float(E) {
     return {-v.y, v.x}
 }
 
 
-vector3_orthogonal :: proc(v: $V/[3]$E) -> V where !IS_ARRAY(E), IS_FLOAT(E) {
+vector3_orthogonal :: proc(v: $V/[3]$E) -> V where !intrinsics.type_is_array(E), intrinsics.type_is_float(E) {
     x := abs(v.x)
     y := abs(v.y)
     z := abs(v.z)
@@ -74,94 +76,94 @@ vector3_orthogonal :: proc(v: $V/[3]$E) -> V where !IS_ARRAY(E), IS_FLOAT(E) {
             other = {0, 0, 1}
         }
     }
-    return normalize(cross(v, other))
+    return vector_normalize(vector_cross3(v, other))
 }
 
 
 vector4_srgb_to_linear_f16 :: proc(col: [4]f16) -> [4]f16 {
-    r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
-    g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
-    b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
+    r := math.pow_f16((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
+    g := math.pow_f16((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
+    b := math.pow_f16((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
     a := col.w
     return {r, g, b, a}
 }
 vector4_srgb_to_linear_f32 :: proc(col: [4]f32) -> [4]f32 {
-    r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
-    g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
-    b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
+    r := math.pow_f32((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
+    g := math.pow_f32((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
+    b := math.pow_f32((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
     a := col.w
     return {r, g, b, a}
 }
 vector4_srgb_to_linear_f64 :: proc(col: [4]f64) -> [4]f64 {
-    r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
-    g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
-    b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
+    r := math.pow_f64((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
+    g := math.pow_f64((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
+    b := math.pow_f64((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
     a := col.w
     return {r, g, b, a}
 }
 
 
 vector3_srgb_to_linear_f16 :: proc(col: [3]f16) -> [3]f16 {
-    r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
-    g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
-    b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
+    r := math.pow_f16((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
+    g := math.pow_f16((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
+    b := math.pow_f16((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
     return {r, g, b}
 }
 vector3_srgb_to_linear_f32 :: proc(col: [3]f32) -> [3]f32 {
-    r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
-    g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
-    b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
+    r := math.pow_f32((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
+    g := math.pow_f32((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
+    b := math.pow_f32((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
     return {r, g, b}
 }
 vector3_srgb_to_linear_f64 :: proc(col: [3]f64) -> [3]f64 {
-    r := math.pow((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
-    g := math.pow((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
-    b := math.pow((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
+    r := math.pow_f64((col.x + 0.055) / 1.055, 2.4) if col.x > 0.04045 else col.x / 12.92
+    g := math.pow_f64((col.y + 0.055) / 1.055, 2.4) if col.y > 0.04045 else col.y / 12.92
+    b := math.pow_f64((col.z + 0.055) / 1.055, 2.4) if col.z > 0.04045 else col.z / 12.92
     return {r, g, b}
 }
 
 
 vector4_linear_to_srgb_f16 :: proc(col: [4]f16) -> [4]f16 {
-    x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
-    y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
-    z := 1.055 * math.pow(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
+    x := 1.055 * math.pow_f16(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
+    y := 1.055 * math.pow_f16(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
+    z := 1.055 * math.pow_f16(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
 
     return {x, y, z, col.w}
 }
 vector4_linear_to_srgb_f32 :: proc(col: [4]f32) -> [4]f32 {
-    x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
-    y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
-    z := 1.055 * math.pow(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
+    x := 1.055 * math.pow_f32(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
+    y := 1.055 * math.pow_f32(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
+    z := 1.055 * math.pow_f32(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
 
     return {x, y, z, col.w}
 }
 vector4_linear_to_srgb_f64 :: proc(col: [4]f64) -> [4]f64 {
-    x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
-    y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
-    z := 1.055 * math.pow(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
+    x := 1.055 * math.pow_f64(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
+    y := 1.055 * math.pow_f64(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
+    z := 1.055 * math.pow_f64(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
 
     return {x, y, z, col.w}
 }
 
 
 vector3_linear_to_srgb_f16 :: proc(col: [3]f16) -> [3]f16 {
-    x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
-    y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
-    z := 1.055 * math.pow(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
+    x := 1.055 * math.pow_f16(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
+    y := 1.055 * math.pow_f16(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
+    z := 1.055 * math.pow_f16(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
 
     return {x, y, z}
 }
 vector3_linear_to_srgb_f32 :: proc(col: [3]f32) -> [3]f32 {
-    x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
-    y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
-    z := 1.055 * math.pow(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
+    x := 1.055 * math.pow_f32(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
+    y := 1.055 * math.pow_f32(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
+    z := 1.055 * math.pow_f32(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
 
     return {x, y, z}
 }
 vector3_linear_to_srgb_f64 :: proc(col: [3]f64) -> [3]f64 {
-    x := 1.055 * math.pow(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
-    y := 1.055 * math.pow(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
-    z := 1.055 * math.pow(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
+    x := 1.055 * math.pow_f64(col.x, 1.0 / 2.4) - 0.055 if col.x > 0.0031308 else 12.92 * col.x
+    y := 1.055 * math.pow_f64(col.y, 1.0 / 2.4) - 0.055 if col.y > 0.0031308 else 12.92 * col.y
+    z := 1.055 * math.pow_f64(col.z, 1.0 / 2.4) - 0.055 if col.z > 0.0031308 else 12.92 * col.z
 
     return {x, y, z}
 }
@@ -344,29 +346,29 @@ vector4_rgb_to_hsl_f64 :: proc(col: [4]f64) -> [4]f64 {
 
 quaternion_angle_axis_f16 :: proc(angle_radians: f16, axis: [3]f16) -> (q: Quaternionf16) {
     t := angle_radians*0.5
-    v := normalize(axis) * math.sin(t)
+    v := vector_normalize(axis) * math.sin_f16(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z
-    q.w = math.cos(t)
+    q.w = math.cos_f16(t)
     return
 }
 quaternion_angle_axis_f32 :: proc(angle_radians: f32, axis: [3]f32) -> (q: Quaternionf32) {
     t := angle_radians*0.5
-    v := normalize(axis) * math.sin(t)
+    v := vector_normalize(axis) * math.sin_f32(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z
-    q.w = math.cos(t)
+    q.w = math.cos_f32(t)
     return
 }
 quaternion_angle_axis_f64 :: proc(angle_radians: f64, axis: [3]f64) -> (q: Quaternionf64) {
     t := angle_radians*0.5
-    v := normalize(axis) * math.sin(t)
+    v := vector_normalize(axis) * math.sin_f64(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z
-    q.w = math.cos(t)
+    q.w = math.cos_f64(t)
     return
 }
 
@@ -421,26 +423,26 @@ axis_from_quaternion_f64 :: proc(q: Quaternionf64) -> [3]f64 {
 
 
 angle_axis_from_quaternion_f16 :: proc(q: Quaternionf16) -> (angle: f16, axis: [3]f16) {
-    angle = angle_from_quaternion(q)
-    axis  = axis_from_quaternion(q)
+    angle = angle_from_quaternion_f16(q)
+    axis  = axis_from_quaternion_f16(q)
     return
 }
 angle_axis_from_quaternion_f32 :: proc(q: Quaternionf32) -> (angle: f32, axis: [3]f32) {
-    angle = angle_from_quaternion(q)
-    axis  = axis_from_quaternion(q)
+    angle = angle_from_quaternion_f32(q)
+    axis  = axis_from_quaternion_f32(q)
     return
 }
 angle_axis_from_quaternion_f64 :: proc(q: Quaternionf64) -> (angle: f64, axis: [3]f64) {
-    angle = angle_from_quaternion(q)
-    axis  = axis_from_quaternion(q)
+    angle = angle_from_quaternion_f64(q)
+    axis  = axis_from_quaternion_f64(q)
     return
 }
 
 
 quaternion_from_forward_and_up_f16 :: proc(forward, up: [3]f16) -> Quaternionf16 #no_bounds_check {
-    f := normalize(forward)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(forward)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
     m := matrix[3, 3]f16{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -478,12 +480,12 @@ quaternion_from_forward_and_up_f16 :: proc(forward, up: [3]f16) -> Quaternionf16
         q.z = 0.25 * S
     }
 
-    return normalize(q)
+    return quaternion_normalize(q)
 }
 quaternion_from_forward_and_up_f32 :: proc(forward, up: [3]f32) -> Quaternionf32 #no_bounds_check {
-    f := normalize(forward)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(forward)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
     m := matrix[3, 3]f32{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -521,12 +523,12 @@ quaternion_from_forward_and_up_f32 :: proc(forward, up: [3]f32) -> Quaternionf32
         q.z = 0.25 * S
     }
 
-    return normalize(q)
+    return quaternion_normalize(q)
 }
 quaternion_from_forward_and_up_f64 :: proc(forward, up: [3]f64) -> Quaternionf64 #no_bounds_check {
-    f := normalize(forward)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(forward)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
     m := matrix[3, 3]f64{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -564,18 +566,18 @@ quaternion_from_forward_and_up_f64 :: proc(forward, up: [3]f64) -> Quaternionf64
         q.z = 0.25 * S
     }
 
-    return normalize(q)
+    return quaternion_normalize(q)
 }
 
 
 quaternion_look_at_f16 :: proc(eye, centre: [3]f16, up: [3]f16) -> Quaternionf16 {
-    return quaternion_from_matrix3(matrix3_look_at(eye, centre, up))
+    return quaternion_from_matrix3_f16(matrix3_look_at_f16(eye, centre, up))
 }
 quaternion_look_at_f32 :: proc(eye, centre: [3]f32, up: [3]f32) -> Quaternionf32 {
-    return quaternion_from_matrix3(matrix3_look_at(eye, centre, up))
+    return quaternion_from_matrix3_f32(matrix3_look_at_f32(eye, centre, up))
 }
 quaternion_look_at_f64 :: proc(eye, centre: [3]f64, up: [3]f64) -> Quaternionf64 {
-    return quaternion_from_matrix3(matrix3_look_at(eye, centre, up))
+    return quaternion_from_matrix3_f64(matrix3_look_at_f64(eye, centre, up))
 }
 
 
@@ -584,27 +586,27 @@ quaternion_nlerp_f16 :: proc(a, b: Quaternionf16, t: f16) -> (c: Quaternionf16) 
     c.y = a.y + (b.y-a.y)*t
     c.z = a.z + (b.z-a.z)*t
     c.w = a.w + (b.w-a.w)*t
-    return normalize(c)
+    return quaternion_normalize(c)
 }
 quaternion_nlerp_f32 :: proc(a, b: Quaternionf32, t: f32) -> (c: Quaternionf32) {
     c.x = a.x + (b.x-a.x)*t
     c.y = a.y + (b.y-a.y)*t
     c.z = a.z + (b.z-a.z)*t
     c.w = a.w + (b.w-a.w)*t
-    return normalize(c)
+    return quaternion_normalize(c)
 }
 quaternion_nlerp_f64 :: proc(a, b: Quaternionf64, t: f64) -> (c: Quaternionf64) {
     c.x = a.x + (b.x-a.x)*t
     c.y = a.y + (b.y-a.y)*t
     c.z = a.z + (b.z-a.z)*t
     c.w = a.w + (b.w-a.w)*t
-    return normalize(c)
+    return quaternion_normalize(c)
 }
 
 
 quaternion_slerp_f16 :: proc(x, y: Quaternionf16, t: f16) -> (q: Quaternionf16) {
     a, b := x, y
-    cos_angle := dot(a, b)
+    cos_angle := quaternionf16_dot(a, b)
     if cos_angle < 0 {
         b = -b
         cos_angle = -cos_angle
@@ -618,9 +620,9 @@ quaternion_slerp_f16 :: proc(x, y: Quaternionf16, t: f16) -> (q: Quaternionf16) 
     }
 
     angle := math.acos(cos_angle)
-    sin_angle := math.sin(angle)
-    factor_a := math.sin((1-t) * angle) / sin_angle
-    factor_b := math.sin(t * angle)     / sin_angle
+    sin_angle := math.sin_f16(angle)
+    factor_a := math.sin_f16((1-t) * angle) / sin_angle
+    factor_b := math.sin_f16(t * angle)     / sin_angle
 
 
     q.x = factor_a * a.x + factor_b * b.x
@@ -631,7 +633,7 @@ quaternion_slerp_f16 :: proc(x, y: Quaternionf16, t: f16) -> (q: Quaternionf16) 
 }
 quaternion_slerp_f32 :: proc(x, y: Quaternionf32, t: f32) -> (q: Quaternionf32) {
     a, b := x, y
-    cos_angle := dot(a, b)
+    cos_angle := quaternionf32_dot(a, b)
     if cos_angle < 0 {
         b = -b
         cos_angle = -cos_angle
@@ -645,9 +647,9 @@ quaternion_slerp_f32 :: proc(x, y: Quaternionf32, t: f32) -> (q: Quaternionf32) 
     }
 
     angle := math.acos(cos_angle)
-    sin_angle := math.sin(angle)
-    factor_a := math.sin((1-t) * angle) / sin_angle
-    factor_b := math.sin(t * angle)     / sin_angle
+    sin_angle := math.sin_f32(angle)
+    factor_a := math.sin_f32((1-t) * angle) / sin_angle
+    factor_b := math.sin_f32(t * angle)     / sin_angle
 
 
     q.x = factor_a * a.x + factor_b * b.x
@@ -658,7 +660,7 @@ quaternion_slerp_f32 :: proc(x, y: Quaternionf32, t: f32) -> (q: Quaternionf32) 
 }
 quaternion_slerp_f64 :: proc(x, y: Quaternionf64, t: f64) -> (q: Quaternionf64) {
     a, b := x, y
-    cos_angle := dot(a, b)
+    cos_angle := quaternionf64_dot(a, b)
     if cos_angle < 0 {
         b = -b
         cos_angle = -cos_angle
@@ -672,9 +674,9 @@ quaternion_slerp_f64 :: proc(x, y: Quaternionf64, t: f64) -> (q: Quaternionf64) 
     }
 
     angle := math.acos(cos_angle)
-    sin_angle := math.sin(angle)
-    factor_a := math.sin((1-t) * angle) / sin_angle
-    factor_b := math.sin(t * angle)     / sin_angle
+    sin_angle := math.sin_f64(angle)
+    factor_a := math.sin_f64((1-t) * angle) / sin_angle
+    factor_b := math.sin_f64(t * angle)     / sin_angle
 
 
     q.x = factor_a * a.x + factor_b * b.x
@@ -686,15 +688,15 @@ quaternion_slerp_f64 :: proc(x, y: Quaternionf64, t: f64) -> (q: Quaternionf64) 
 
 
 quaternion_squad_f16 :: proc(q1, q2, s1, s2: Quaternionf16, h: f16) -> Quaternionf16 {
-    slerp :: quaternion_slerp
+    slerp :: quaternion_slerp_f16
     return slerp(slerp(q1, q2, h), slerp(s1, s2, h), 2 * (1 - h) * h)
 }
 quaternion_squad_f32 :: proc(q1, q2, s1, s2: Quaternionf32, h: f32) -> Quaternionf32 {
-    slerp :: quaternion_slerp
+    slerp :: quaternion_slerp_f32
     return slerp(slerp(q1, q2, h), slerp(s1, s2, h), 2 * (1 - h) * h)
 }
 quaternion_squad_f64 :: proc(q1, q2, s1, s2: Quaternionf64, h: f64) -> Quaternionf64 {
-    slerp :: quaternion_slerp
+    slerp :: quaternion_slerp_f64
     return slerp(slerp(q1, q2, h), slerp(s1, s2, h), 2 * (1 - h) * h)
 }
 
@@ -704,21 +706,21 @@ quaternion_from_matrix4_f16 :: proc(m: matrix[4, 4]f16) -> (q: Quaternionf16) #n
     m3[0, 0], m3[1, 0], m3[2, 0] = m[0, 0], m[1, 0], m[2, 0]
     m3[0, 1], m3[1, 1], m3[2, 1] = m[0, 1], m[1, 1], m[2, 1]
     m3[0, 2], m3[1, 2], m3[2, 2] = m[0, 2], m[1, 2], m[2, 2]
-    return quaternion_from_matrix3(m3)
+    return quaternion_from_matrix3_f16(m3)
 }
 quaternion_from_matrix4_f32 :: proc(m: matrix[4, 4]f32) -> (q: Quaternionf32) #no_bounds_check {
     m3: matrix[3, 3]f32 = ---
     m3[0, 0], m3[1, 0], m3[2, 0] = m[0, 0], m[1, 0], m[2, 0]
     m3[0, 1], m3[1, 1], m3[2, 1] = m[0, 1], m[1, 1], m[2, 1]
     m3[0, 2], m3[1, 2], m3[2, 2] = m[0, 2], m[1, 2], m[2, 2]
-    return quaternion_from_matrix3(m3)
+    return quaternion_from_matrix3_f32(m3)
 }
 quaternion_from_matrix4_f64 :: proc(m: matrix[4, 4]f64) -> (q: Quaternionf64) #no_bounds_check {
     m3: matrix[3, 3]f64 = ---
     m3[0, 0], m3[1, 0], m3[2, 0] = m[0, 0], m[1, 0], m[2, 0]
     m3[0, 1], m3[1, 1], m3[2, 1] = m[0, 1], m[1, 1], m[2, 1]
     m3[0, 2], m3[1, 2], m3[2, 2] = m[0, 2], m[1, 2], m[2, 2]
-    return quaternion_from_matrix3(m3)
+    return quaternion_from_matrix3_f64(m3)
 }
 
 
@@ -872,10 +874,10 @@ quaternion_from_matrix3_f64 :: proc(m: matrix[3, 3]f64) -> (q: Quaternionf64) #n
 
 
 quaternion_between_two_vector3_f16 :: proc(from, to: [3]f16) -> (q: Quaternionf16) {
-    x := normalize(from)
-    y := normalize(to)
+    x := vector_normalize(from)
+    y := vector_normalize(to)
 
-    cos_theta := dot(x, y)
+    cos_theta := vector_dot(x, y)
     if abs(cos_theta + 1) < 2*F32_EPSILON {
         v := vector3_orthogonal(x)
         q.x = v.x
@@ -884,19 +886,19 @@ quaternion_between_two_vector3_f16 :: proc(from, to: [3]f16) -> (q: Quaternionf1
         q.w = 0
         return
     }
-    v := cross(x, y)
+    v := vector_cross3(x, y)
     w := cos_theta + 1
     q.w = w
     q.x = v.x
     q.y = v.y
     q.z = v.z
-    return normalize(q)
+    return quaternion_normalize(q)
 }
 quaternion_between_two_vector3_f32 :: proc(from, to: [3]f32) -> (q: Quaternionf32) {
-    x := normalize(from)
-    y := normalize(to)
+    x := vector_normalize(from)
+    y := vector_normalize(to)
 
-    cos_theta := dot(x, y)
+    cos_theta := vector_dot(x, y)
     if abs(cos_theta + 1) < 2*F32_EPSILON {
         v := vector3_orthogonal(x)
         q.x = v.x
@@ -905,19 +907,19 @@ quaternion_between_two_vector3_f32 :: proc(from, to: [3]f32) -> (q: Quaternionf3
         q.w = 0
         return
     }
-    v := cross(x, y)
+    v := vector_cross3(x, y)
     w := cos_theta + 1
     q.w = w
     q.x = v.x
     q.y = v.y
     q.z = v.z
-    return normalize(q)
+    return quaternion_normalize(q)
 }
 quaternion_between_two_vector3_f64 :: proc(from, to: [3]f64) -> (q: Quaternionf64) {
-    x := normalize(from)
-    y := normalize(to)
+    x := vector_normalize(from)
+    y := vector_normalize(to)
 
-    cos_theta := dot(x, y)
+    cos_theta := vector_dot(x, y)
     if abs(cos_theta + 1) < 2*F64_EPSILON {
         v := vector3_orthogonal(x)
         q.x = v.x
@@ -926,13 +928,13 @@ quaternion_between_two_vector3_f64 :: proc(from, to: [3]f64) -> (q: Quaternionf6
         q.w = 0
         return
     }
-    v := cross(x, y)
+    v := vector_cross3(x, y)
     w := cos_theta + 1
     q.w = w
     q.x = v.x
     q.y = v.y
     q.z = v.z
-    return normalize(q)
+    return quaternion_normalize(q)
 }
 
 
@@ -1029,8 +1031,8 @@ matrix2_adjoint_f64 :: proc(m: matrix[2, 2]f64) -> (c: matrix[2, 2]f64) #no_boun
 
 
 matrix2_rotate_f16 :: proc(angle_radians: f16) -> matrix[2, 2]f16 {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f16(angle_radians)
+    s := math.sin_f16(angle_radians)
 
     return matrix[2, 2]f16{
         c, -s,
@@ -1038,8 +1040,8 @@ matrix2_rotate_f16 :: proc(angle_radians: f16) -> matrix[2, 2]f16 {
     }
 }
 matrix2_rotate_f32 :: proc(angle_radians: f32) -> matrix[2, 2]f32 {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f32(angle_radians)
+    s := math.sin_f32(angle_radians)
 
     return matrix[2, 2]f32{
         c, -s,
@@ -1047,8 +1049,8 @@ matrix2_rotate_f32 :: proc(angle_radians: f32) -> matrix[2, 2]f32 {
     }
 }
 matrix2_rotate_f64 :: proc(angle_radians: f64) -> matrix[2, 2]f64 {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f64(angle_radians)
+    s := math.sin_f64(angle_radians)
 
     return matrix[2, 2]f64{
         c, -s,
@@ -1132,13 +1134,13 @@ matrix3_from_quaternion_f64 :: proc(q: Quaternionf64) -> (m: matrix[3, 3]f64) #n
 
 
 matrix3_inverse_f16 :: proc(m: matrix[3, 3]f16) -> matrix[3, 3]f16 {
-    return transpose(matrix3_inverse_transpose(m))
+    return transpose(matrix3_inverse_transpose_f16(m))
 }
 matrix3_inverse_f32 :: proc(m: matrix[3, 3]f32) -> matrix[3, 3]f32 {
-    return transpose(matrix3_inverse_transpose(m))
+    return transpose(matrix3_inverse_transpose_f32(m))
 }
 matrix3_inverse_f64 :: proc(m: matrix[3, 3]f64) -> matrix[3, 3]f64 {
-    return transpose(matrix3_inverse_transpose(m))
+    return transpose(matrix3_inverse_transpose_f64(m))
 }
 
 
@@ -1201,13 +1203,13 @@ matrix3_adjoint_f64 :: proc(m: matrix[3, 3]f64) -> (adjoint: matrix[3, 3]f64) #n
 
 
 matrix3_inverse_transpose_f16 :: proc(m: matrix[3, 3]f16) -> (p: matrix[3, 3]f16) {
-    return inverse_transpose(m)
+    return matrix3_inverse_transpose_f16(m)
 }
 matrix3_inverse_transpose_f32 :: proc(m: matrix[3, 3]f32) -> (p: matrix[3, 3]f32) {
-    return inverse_transpose(m)
+    return matrix3_inverse_transpose_f32(m)
 }
 matrix3_inverse_transpose_f64 :: proc(m: matrix[3, 3]f64) -> (p: matrix[3, 3]f64) {
-    return inverse_transpose(m)
+    return matrix3_inverse_transpose_f64(m)
 }
 
 
@@ -1233,10 +1235,10 @@ matrix3_scale_f64 :: proc(s: [3]f64) -> (m: matrix[3, 3]f64) #no_bounds_check {
 
 // Implementation of Rodrigues’ rotation formula.
 matrix3_rotate_f16 :: proc(angle_radians: f16, v: [3]f16) -> (rot: matrix[3, 3]f16) #no_bounds_check {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f16(angle_radians)
+    s := math.sin_f16(angle_radians)
 
-    a := normalize(v)
+    a := vector_normalize(v)
     t := a * (1-c)
 
     rot[0, 0] = c + t[0]*a[0]
@@ -1254,10 +1256,10 @@ matrix3_rotate_f16 :: proc(angle_radians: f16, v: [3]f16) -> (rot: matrix[3, 3]f
     return rot
 }
 matrix3_rotate_f32 :: proc(angle_radians: f32, v: [3]f32) -> (rot: matrix[3, 3]f32) #no_bounds_check {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f32(angle_radians)
+    s := math.sin_f32(angle_radians)
 
-    a := normalize(v)
+    a := vector_normalize(v)
     t := a * (1-c)
 
     rot[0, 0] = c + t[0]*a[0]
@@ -1275,10 +1277,10 @@ matrix3_rotate_f32 :: proc(angle_radians: f32, v: [3]f32) -> (rot: matrix[3, 3]f
     return rot
 }
 matrix3_rotate_f64 :: proc(angle_radians: f64, v: [3]f64) -> (rot: matrix[3, 3]f64) {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f64(angle_radians)
+    s := math.sin_f64(angle_radians)
 
-    a := normalize(v)
+    a := vector_normalize(v)
     t := a * (1-c)
 
     rot[0, 0] = c + t[0]*a[0]
@@ -1298,9 +1300,9 @@ matrix3_rotate_f64 :: proc(angle_radians: f64, v: [3]f64) -> (rot: matrix[3, 3]f
 
 
 matrix3_look_at_f16 :: proc(eye, centre, up: [3]f16) -> matrix[3, 3]f16 {
-    f := normalize(centre - eye)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(centre - eye)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
     return matrix[3, 3]f16{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -1308,9 +1310,9 @@ matrix3_look_at_f16 :: proc(eye, centre, up: [3]f16) -> matrix[3, 3]f16 {
     }
 }
 matrix3_look_at_f32 :: proc(eye, centre, up: [3]f32) -> matrix[3, 3]f32 {
-    f := normalize(centre - eye)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(centre - eye)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
     return matrix[3, 3]f32{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -1318,9 +1320,9 @@ matrix3_look_at_f32 :: proc(eye, centre, up: [3]f32) -> matrix[3, 3]f32 {
     }
 }
 matrix3_look_at_f64 :: proc(eye, centre, up: [3]f64) -> matrix[3, 3]f64 {
-    f := normalize(centre - eye)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(centre - eye)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
     return matrix[3, 3]f64{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -1413,33 +1415,33 @@ matrix4_from_quaternion_f64 :: proc(q: Quaternionf64) -> (m: matrix[4, 4]f64) #n
 
 
 matrix4_from_trs_f16 :: proc(t: [3]f16, r: Quaternionf16, s: [3]f16) -> matrix[4, 4]f16 {
-    translation := matrix4_translate(t)
-    rotation := matrix4_from_quaternion(r)
-    scale := matrix4_scale(s)
-    return mul(translation, mul(rotation, scale))
+    translation := matrix4_translate_f16(t)
+    rotation := matrix4_from_quaternion_f16(r)
+    scale := matrix4_scale_f16(s)
+    return matrix_mul(translation, matrix_mul(rotation, scale))
 }
 matrix4_from_trs_f32 :: proc(t: [3]f32, r: Quaternionf32, s: [3]f32) -> matrix[4, 4]f32 {
-    translation := matrix4_translate(t)
-    rotation := matrix4_from_quaternion(r)
-    scale := matrix4_scale(s)
-    return mul(translation, mul(rotation, scale))
+    translation := matrix4_translate_f32(t)
+    rotation := matrix4_from_quaternion_f32(r)
+    scale := matrix4_scale_f32(s)
+    return matrix_mul(translation, matrix_mul(rotation, scale))
 }
 matrix4_from_trs_f64 :: proc(t: [3]f64, r: Quaternionf64, s: [3]f64) -> matrix[4, 4]f64 {
-    translation := matrix4_translate(t)
-    rotation := matrix4_from_quaternion(r)
-    scale := matrix4_scale(s)
-    return mul(translation, mul(rotation, scale))
+    translation := matrix4_translate_f64(t)
+    rotation := matrix4_from_quaternion_f64(r)
+    scale := matrix4_scale_f64(s)
+    return matrix_mul(translation, matrix_mul(rotation, scale))
 }
 
 
 matrix4_inverse_f16 :: proc(m: matrix[4, 4]f16) -> matrix[4, 4]f16 {
-    return transpose(matrix4_inverse_transpose(m))
+    return transpose(matrix4_inverse_transpose_f16(m))
 }
 matrix4_inverse_f32 :: proc(m: matrix[4, 4]f32) -> matrix[4, 4]f32 {
-    return transpose(matrix4_inverse_transpose(m))
+    return transpose(matrix4_inverse_transpose_f32(m))
 }
 matrix4_inverse_f64 :: proc(m: matrix[4, 4]f64) -> matrix[4, 4]f64 {
-    return transpose(matrix4_inverse_transpose(m))
+    return transpose(matrix4_inverse_transpose_f64(m))
 }
 
 
@@ -1452,7 +1454,7 @@ matrix4_minor_f16 :: proc(m: matrix[4, 4]f16, c, r: int) -> f16 #no_bounds_check
             cut_down[i][j] = m[col][row]
         }
     }
-    return matrix3_determinant(cut_down)
+    return matrix3_determinant_f16(cut_down)
 }
 matrix4_minor_f32 :: proc(m: matrix[4, 4]f32, c, r: int) -> f32 #no_bounds_check {
     cut_down: matrix[3, 3]f32
@@ -1463,7 +1465,7 @@ matrix4_minor_f32 :: proc(m: matrix[4, 4]f32, c, r: int) -> f32 #no_bounds_check
             cut_down[i][j] = m[col][row]
         }
     }
-    return matrix3_determinant(cut_down)
+    return matrix3_determinant_f32(cut_down)
 }
 matrix4_minor_f64 :: proc(m: matrix[4, 4]f64, c, r: int) -> f64 #no_bounds_check {
     cut_down: matrix[3, 3]f64
@@ -1474,26 +1476,26 @@ matrix4_minor_f64 :: proc(m: matrix[4, 4]f64, c, r: int) -> f64 #no_bounds_check
             cut_down[i][j] = m[col][row]
         }
     }
-    return matrix3_determinant(cut_down)
+    return matrix3_determinant_f64(cut_down)
 }
 
 
 matrix4_cofactor_f16 :: proc(m: matrix[4, 4]f16, c, r: int) -> f16 {
     sign, minor: f16
     sign = 1 if (c + r) % 2 == 0 else -1
-    minor = matrix4_minor(m, c, r)
+    minor = matrix4_minor_f16(m, c, r)
     return sign * minor
 }
 matrix4_cofactor_f32 :: proc(m: matrix[4, 4]f32, c, r: int) -> f32 {
     sign, minor: f32
     sign = 1 if (c + r) % 2 == 0 else -1
-    minor = matrix4_minor(m, c, r)
+    minor = matrix4_minor_f32(m, c, r)
     return sign * minor
 }
 matrix4_cofactor_f64 :: proc(m: matrix[4, 4]f64, c, r: int) -> f64 {
     sign, minor: f64
     sign = 1 if (c + r) % 2 == 0 else -1
-    minor = matrix4_minor(m, c, r)
+    minor = matrix4_minor_f64(m, c, r)
     return sign * minor
 }
 
@@ -1501,7 +1503,7 @@ matrix4_cofactor_f64 :: proc(m: matrix[4, 4]f64, c, r: int) -> f64 {
 matrix4_adjoint_f16 :: proc(m: matrix[4, 4]f16) -> (adjoint: matrix[4, 4]f16) #no_bounds_check {
     for i in 0..<4 {
         for j in 0..<4 {
-            adjoint[i][j] = matrix4_cofactor(m, i, j)
+            adjoint[i][j] = matrix4_cofactor_f16(m, i, j)
         }
     }
     return
@@ -1509,7 +1511,7 @@ matrix4_adjoint_f16 :: proc(m: matrix[4, 4]f16) -> (adjoint: matrix[4, 4]f16) #n
 matrix4_adjoint_f32 :: proc(m: matrix[4, 4]f32) -> (adjoint: matrix[4, 4]f32) #no_bounds_check {
     for i in 0..<4 {
         for j in 0..<4 {
-            adjoint[i][j] = matrix4_cofactor(m, i, j)
+            adjoint[i][j] = matrix4_cofactor_f32(m, i, j)
         }
     }
     return
@@ -1517,7 +1519,7 @@ matrix4_adjoint_f32 :: proc(m: matrix[4, 4]f32) -> (adjoint: matrix[4, 4]f32) #n
 matrix4_adjoint_f64 :: proc(m: matrix[4, 4]f64) -> (adjoint: matrix[4, 4]f64) #no_bounds_check {
     for i in 0..<4 {
         for j in 0..<4 {
-            adjoint[i][j] = matrix4_cofactor(m, i, j)
+            adjoint[i][j] = matrix4_cofactor_f64(m, i, j)
         }
     }
     return
@@ -1525,21 +1527,21 @@ matrix4_adjoint_f64 :: proc(m: matrix[4, 4]f64) -> (adjoint: matrix[4, 4]f64) #n
 
 
 matrix4_determinant_f16 :: proc(m: matrix[4, 4]f16) -> (determinant: f16) #no_bounds_check {
-    adjoint := matrix4_adjoint(m)
+    adjoint := matrix4_adjoint_f16(m)
     for i in 0..<4 {
         determinant += m[i][0] * adjoint[i][0]
     }
     return
 }
 matrix4_determinant_f32 :: proc(m: matrix[4, 4]f32) -> (determinant: f32) #no_bounds_check {
-    adjoint := matrix4_adjoint(m)
+    adjoint := matrix4_adjoint_f32(m)
     for i in 0..<4 {
         determinant += m[i][0] * adjoint[i][0]
     }
     return
 }
 matrix4_determinant_f64 :: proc(m: matrix[4, 4]f64) -> (determinant: f64) #no_bounds_check {
-    adjoint := matrix4_adjoint(m)
+    adjoint := matrix4_adjoint_f64(m)
     for i in 0..<4 {
         determinant += m[i][0] * adjoint[i][0]
     }
@@ -1548,7 +1550,7 @@ matrix4_determinant_f64 :: proc(m: matrix[4, 4]f64) -> (determinant: f64) #no_bo
 
 
 matrix4_inverse_transpose_f16 :: proc(m: matrix[4, 4]f16) -> (inverse_transpose: matrix[4, 4]f16) #no_bounds_check {
-    adjoint := matrix4_adjoint(m)
+    adjoint := matrix4_adjoint_f16(m)
     determinant: f16 = 0
     for i in 0..<4 {
         determinant += m[i][0] * adjoint[i][0]
@@ -1562,7 +1564,7 @@ matrix4_inverse_transpose_f16 :: proc(m: matrix[4, 4]f16) -> (inverse_transpose:
     return
 }
 matrix4_inverse_transpose_f32 :: proc(m: matrix[4, 4]f32) -> (inverse_transpose: matrix[4, 4]f32) #no_bounds_check {
-    adjoint := matrix4_adjoint(m)
+    adjoint := matrix4_adjoint_f32(m)
     determinant: f32 = 0
     for i in 0..<4 {
         determinant += m[i][0] * adjoint[i][0]
@@ -1576,7 +1578,7 @@ matrix4_inverse_transpose_f32 :: proc(m: matrix[4, 4]f32) -> (inverse_transpose:
     return
 }
 matrix4_inverse_transpose_f64 :: proc(m: matrix[4, 4]f64) -> (inverse_transpose: matrix[4, 4]f64) #no_bounds_check {
-    adjoint := matrix4_adjoint(m)
+    adjoint := matrix4_adjoint_f64(m)
     determinant: f64 = 0
     for i in 0..<4 {
         determinant += m[i][0] * adjoint[i][0]
@@ -1615,10 +1617,10 @@ matrix4_translate_f64 :: proc(v: [3]f64) -> matrix[4, 4]f64 #no_bounds_check {
 
 
 matrix4_rotate_f16 :: proc(angle_radians: f16, v: [3]f16) -> matrix[4, 4]f16 #no_bounds_check {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f16(angle_radians)
+    s := math.sin_f16(angle_radians)
 
-    a := normalize(v)
+    a := vector_normalize(v)
     t := a * (1-c)
 
     rot := MATRIX4F16_IDENTITY
@@ -1641,10 +1643,10 @@ matrix4_rotate_f16 :: proc(angle_radians: f16, v: [3]f16) -> matrix[4, 4]f16 #no
     return rot
 }
 matrix4_rotate_f32 :: proc(angle_radians: f32, v: [3]f32) -> matrix[4, 4]f32 #no_bounds_check {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f32(angle_radians)
+    s := math.sin_f32(angle_radians)
 
-    a := normalize(v)
+    a := vector_normalize(v)
     t := a * (1-c)
 
     rot := MATRIX4F32_IDENTITY
@@ -1667,10 +1669,10 @@ matrix4_rotate_f32 :: proc(angle_radians: f32, v: [3]f32) -> matrix[4, 4]f32 #no
     return rot
 }
 matrix4_rotate_f64 :: proc(angle_radians: f64, v: [3]f64) -> matrix[4, 4]f64 #no_bounds_check {
-    c := math.cos(angle_radians)
-    s := math.sin(angle_radians)
+    c := math.cos_f64(angle_radians)
+    s := math.sin_f64(angle_radians)
 
-    a := normalize(v)
+    a := vector_normalize(v)
     t := a * (1-c)
 
     rot := MATRIX4F64_IDENTITY
@@ -1718,43 +1720,43 @@ matrix4_scale_f64 :: proc(v: [3]f64) -> (m: matrix[4, 4]f64) #no_bounds_check {
 
 
 matrix4_look_at_f16 :: proc(eye, centre, up: [3]f16, flip_z_axis := true) -> (m: matrix[4, 4]f16) {
-    f := normalize(centre - eye)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(centre - eye)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
 
-    fe := dot(f, eye)
+    fe := vector_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -dot(s, eye),
-        +u.x, +u.y, +u.z, -dot(u, eye),
+        +s.x, +s.y, +s.z, -vector_dot(s, eye),
+        +u.x, +u.y, +u.z, -vector_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_f32 :: proc(eye, centre, up: [3]f32, flip_z_axis := true) -> (m: matrix[4, 4]f32) {
-    f := normalize(centre - eye)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(centre - eye)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
 
-    fe := dot(f, eye)
+    fe := vector_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -dot(s, eye),
-        +u.x, +u.y, +u.z, -dot(u, eye),
+        +s.x, +s.y, +s.z, -vector_dot(s, eye),
+        +u.x, +u.y, +u.z, -vector_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_f64 :: proc(eye, centre, up: [3]f64, flip_z_axis := true) -> (m: matrix[4, 4]f64) {
-    f := normalize(centre - eye)
-    s := normalize(cross(f, up))
-    u := cross(s, f)
+    f := vector_normalize(centre - eye)
+    s := vector_normalize(vector_cross3(f, up))
+    u := vector_cross3(s, f)
 
-    fe := dot(f, eye)
+    fe := vector_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -dot(s, eye),
-        +u.x, +u.y, +u.z, -dot(u, eye),
+        +s.x, +s.y, +s.z, -vector_dot(s, eye),
+        +u.x, +u.y, +u.z, -vector_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
@@ -1763,42 +1765,42 @@ matrix4_look_at_f64 :: proc(eye, centre, up: [3]f64, flip_z_axis := true) -> (m:
 
 matrix4_look_at_from_fru_f16 :: proc(eye, f, r, u: [3]f16, flip_z_axis := true) -> (m: matrix[4, 4]f16) {
     f, s, u := f, r, u
-    f = normalize(f)
-    s = normalize(s)
-    u = normalize(u)
-    fe := dot(f, eye)
+    f = vector_normalize(f)
+    s = vector_normalize(s)
+    u = vector_normalize(u)
+    fe := vector_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -dot(s, eye),
-        +u.x, +u.y, +u.z, -dot(u, eye),
+        +s.x, +s.y, +s.z, -vector_dot(s, eye),
+        +u.x, +u.y, +u.z, -vector_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_from_fru_f32 :: proc(eye, f, r, u: [3]f32, flip_z_axis := true) -> (m: matrix[4, 4]f32) {
     f, s, u := f, r, u
-    f = normalize(f)
-    s = normalize(s)
-    u = normalize(u)
-    fe := dot(f, eye)
+    f = vector_normalize(f)
+    s = vector_normalize(s)
+    u = vector_normalize(u)
+    fe := vector_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -dot(s, eye),
-        +u.x, +u.y, +u.z, -dot(u, eye),
+        +s.x, +s.y, +s.z, -vector_dot(s, eye),
+        +u.x, +u.y, +u.z, -vector_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_from_fru_f64 :: proc(eye, f, r, u: [3]f64, flip_z_axis := true) -> (m: matrix[4, 4]f64) {
     f, s, u := f, r, u
-    f = normalize(f)
-    s = normalize(s)
-    u = normalize(u)
-    fe := dot(f, eye)
+    f = vector_normalize(f)
+    s = vector_normalize(s)
+    u = vector_normalize(u)
+    fe := vector_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -dot(s, eye),
-        +u.x, +u.y, +u.z, -dot(u, eye),
+        +s.x, +s.y, +s.z, -vector_dot(s, eye),
+        +u.x, +u.y, +u.z, -vector_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
@@ -1806,7 +1808,7 @@ matrix4_look_at_from_fru_f64 :: proc(eye, f, r, u: [3]f64, flip_z_axis := true) 
 
 
 matrix4_perspective_f16 :: proc(fovy, aspect, near, far: f16, flip_z_axis := true) -> (m: matrix[4, 4]f16) #no_bounds_check {
-    tan_half_fovy := math.tan(0.5 * fovy)
+    tan_half_fovy := math.tan_f16(0.5 * fovy)
     m[0, 0] = 1 / (aspect*tan_half_fovy)
     m[1, 1] = 1 / (tan_half_fovy)
     m[2, 2] = +(far + near) / (far - near)
@@ -1820,7 +1822,7 @@ matrix4_perspective_f16 :: proc(fovy, aspect, near, far: f16, flip_z_axis := tru
     return
 }
 matrix4_perspective_f32 :: proc(fovy, aspect, near, far: f32, flip_z_axis := true) -> (m: matrix[4, 4]f32) #no_bounds_check {
-    tan_half_fovy := math.tan(0.5 * fovy)
+    tan_half_fovy := math.tan_f32(0.5 * fovy)
     m[0, 0] = 1 / (aspect*tan_half_fovy)
     m[1, 1] = 1 / (tan_half_fovy)
     m[2, 2] = +(far + near) / (far - near)
@@ -1834,7 +1836,7 @@ matrix4_perspective_f32 :: proc(fovy, aspect, near, far: f32, flip_z_axis := tru
     return
 }
 matrix4_perspective_f64 :: proc(fovy, aspect, near, far: f64, flip_z_axis := true) -> (m: matrix[4, 4]f64) #no_bounds_check {
-    tan_half_fovy := math.tan(0.5 * fovy)
+    tan_half_fovy := math.tan_f64(0.5 * fovy)
     m[0, 0] = 1 / (aspect*tan_half_fovy)
     m[1, 1] = 1 / (tan_half_fovy)
     m[2, 2] = +(far + near) / (far - near)
@@ -1897,7 +1899,7 @@ matrix_ortho3d_f64 :: proc(left, right, bottom, top, near, far: f64, flip_z_axis
 
 
 matrix4_infinite_perspective_f16 :: proc(fovy, aspect, near: f16, flip_z_axis := true) -> (m: matrix[4, 4]f16) #no_bounds_check {
-    tan_half_fovy := math.tan(0.5 * fovy)
+    tan_half_fovy := math.tan_f16(0.5 * fovy)
     m[0, 0] = 1 / (aspect*tan_half_fovy)
     m[1, 1] = 1 / (tan_half_fovy)
     m[2, 2] = +1
@@ -1911,7 +1913,7 @@ matrix4_infinite_perspective_f16 :: proc(fovy, aspect, near: f16, flip_z_axis :=
     return
 }
 matrix4_infinite_perspective_f32 :: proc(fovy, aspect, near: f32, flip_z_axis := true) -> (m: matrix[4, 4]f32) #no_bounds_check {
-    tan_half_fovy := math.tan(0.5 * fovy)
+    tan_half_fovy := math.tan_f32(0.5 * fovy)
     m[0, 0] = 1 / (aspect*tan_half_fovy)
     m[1, 1] = 1 / (tan_half_fovy)
     m[2, 2] = +1
@@ -1925,7 +1927,7 @@ matrix4_infinite_perspective_f32 :: proc(fovy, aspect, near: f32, flip_z_axis :=
     return
 }
 matrix4_infinite_perspective_f64 :: proc(fovy, aspect, near: f64, flip_z_axis := true) -> (m: matrix[4, 4]f64) #no_bounds_check {
-    tan_half_fovy := math.tan(0.5 * fovy)
+    tan_half_fovy := math.tan_f64(0.5 * fovy)
     m[0, 0] = 1 / (aspect*tan_half_fovy)
     m[1, 1] = 1 / (tan_half_fovy)
     m[2, 2] = +1
@@ -2136,31 +2138,31 @@ quaternion_from_scalar_f64 :: proc(f: f64) -> (q: Quaternionf64) {
 
 matrix2_orthonormalize_f16 :: proc(m: matrix[2, 2]f16) -> (r: matrix[2, 2]f16) #no_bounds_check {
     r = m
-    r[0] = normalize(m[0])
+    r[0] = vector_normalize(m[0])
 
-    d0 := dot(r[0], r[1])
+    d0 := vector_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = normalize(r[1])
+    r[1] = vector_normalize(r[1])
 
     return
 }
 matrix2_orthonormalize_f32 :: proc(m: matrix[2, 2]f32) -> (r: matrix[2, 2]f32) #no_bounds_check {
     r = m
-    r[0] = normalize(m[0])
+    r[0] = vector_normalize(m[0])
 
-    d0 := dot(r[0], r[1])
+    d0 := vector_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = normalize(r[1])
+    r[1] = vector_normalize(r[1])
 
     return
 }
 matrix2_orthonormalize_f64 :: proc(m: matrix[2, 2]f64) -> (r: matrix[2, 2]f64) #no_bounds_check {
     r = m
-    r[0] = normalize(m[0])
+    r[0] = vector_normalize(m[0])
 
-    d0 := dot(r[0], r[1])
+    d0 := vector_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = normalize(r[1])
+    r[1] = vector_normalize(r[1])
 
     return
 }
@@ -2168,98 +2170,98 @@ matrix2_orthonormalize_f64 :: proc(m: matrix[2, 2]f64) -> (r: matrix[2, 2]f64) #
 
 matrix3_orthonormalize_f16 :: proc(m: matrix[3, 3]f16) -> (r: matrix[3, 3]f16) #no_bounds_check {
     r = m
-    r[0] = normalize(m[0])
+    r[0] = vector_normalize(m[0])
 
-    d0 := dot(r[0], r[1])
+    d0 := vector_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = normalize(r[1])
+    r[1] = vector_normalize(r[1])
 
-    d1 := dot(r[1], r[2])
-    d0 = dot(r[0], r[2])
+    d1 := vector_dot(r[1], r[2])
+    d0 = vector_dot(r[0], r[2])
     r[2] -= r[0]*d0 + r[1]*d1
-    r[2] = normalize(r[2])
+    r[2] = vector_normalize(r[2])
 
     return
 }
 matrix3_orthonormalize_f32 :: proc(m: matrix[3, 3]f32) -> (r: matrix[3, 3]f32) #no_bounds_check {
     r = m
-    r[0] = normalize(m[0])
+    r[0] = vector_normalize(m[0])
 
-    d0 := dot(r[0], r[1])
+    d0 := vector_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = normalize(r[1])
+    r[1] = vector_normalize(r[1])
 
-    d1 := dot(r[1], r[2])
-    d0 = dot(r[0], r[2])
+    d1 := vector_dot(r[1], r[2])
+    d0 = vector_dot(r[0], r[2])
     r[2] -= r[0]*d0 + r[1]*d1
-    r[2] = normalize(r[2])
+    r[2] = vector_normalize(r[2])
 
     return
 }
 matrix3_orthonormalize_f64 :: proc(m: matrix[3, 3]f64) -> (r: matrix[3, 3]f64) #no_bounds_check {
     r = m
-    r[0] = normalize(m[0])
+    r[0] = vector_normalize(m[0])
 
-    d0 := dot(r[0], r[1])
+    d0 := vector_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = normalize(r[1])
+    r[1] = vector_normalize(r[1])
 
-    d1 := dot(r[1], r[2])
-    d0 = dot(r[0], r[2])
+    d1 := vector_dot(r[1], r[2])
+    d0 = vector_dot(r[0], r[2])
     r[2] -= r[0]*d0 + r[1]*d1
-    r[2] = normalize(r[2])
+    r[2] = vector_normalize(r[2])
 
     return
 }
 
 
 vector3_orthonormalize_f16 :: proc(x, y: [3]f16) -> (z: [3]f16) {
-    return normalize(x - y * dot(y, x))
+    return vector_normalize(x - y * vector_dot(y, x))
 }
 vector3_orthonormalize_f32 :: proc(x, y: [3]f32) -> (z: [3]f32) {
-    return normalize(x - y * dot(y, x))
+    return vector_normalize(x - y * vector_dot(y, x))
 }
 vector3_orthonormalize_f64 :: proc(x, y: [3]f64) -> (z: [3]f64) {
-    return normalize(x - y * dot(y, x))
+    return vector_normalize(x - y * vector_dot(y, x))
 }
 
 
 matrix4_orientation_f16 :: proc(normal, up: [3]f16) -> matrix[4, 4]f16 {
-    if all(equal(normal, up)) {
+    if all(equal_array(normal, up)) {
         return MATRIX4F16_IDENTITY
     }
 
-    rotation_axis := cross(up, normal)
-    angle := math.acos(dot(normal, up))
+    rotation_axis := vector_cross3(up, normal)
+    angle := math.acos(vector_dot(normal, up))
 
-    return matrix4_rotate(angle, rotation_axis)
+    return matrix4_rotate_f16(angle, rotation_axis)
 }
 matrix4_orientation_f32 :: proc(normal, up: [3]f32) -> matrix[4, 4]f32 {
-    if all(equal(normal, up)) {
+    if all(equal_array(normal, up)) {
         return MATRIX4F32_IDENTITY
     }
 
-    rotation_axis := cross(up, normal)
-    angle := math.acos(dot(normal, up))
+    rotation_axis := vector_cross3(up, normal)
+    angle := math.acos(vector_dot(normal, up))
 
-    return matrix4_rotate(angle, rotation_axis)
+    return matrix4_rotate_f32(angle, rotation_axis)
 }
 matrix4_orientation_f64 :: proc(normal, up: [3]f64) -> matrix[4, 4]f64 {
-    if all(equal(normal, up)) {
+    if all(equal_array(normal, up)) {
         return MATRIX4F64_IDENTITY
     }
 
-    rotation_axis := cross(up, normal)
-    angle := math.acos(dot(normal, up))
+    rotation_axis := vector_cross3(up, normal)
+    angle := math.acos(vector_dot(normal, up))
 
-    return matrix4_rotate(angle, rotation_axis)
+    return matrix4_rotate_f64(angle, rotation_axis)
 }
 
 
 euclidean_from_polar_f16 :: proc(polar: [2]f16) -> [3]f16 {
     latitude, longitude := polar.x, polar.y
-    cx, sx := math.cos(latitude), math.sin(latitude)
-    cy, sy := math.cos(longitude), math.sin(longitude)
+    cx, sx := math.cos_f16(latitude),  math.sin_f16(latitude)
+    cy, sy := math.cos_f16(longitude), math.sin_f16(longitude)
 
     return {
         cx*sy,
@@ -2269,8 +2271,8 @@ euclidean_from_polar_f16 :: proc(polar: [2]f16) -> [3]f16 {
 }
 euclidean_from_polar_f32 :: proc(polar: [2]f32) -> [3]f32 {
     latitude, longitude := polar.x, polar.y
-    cx, sx := math.cos(latitude), math.sin(latitude)
-    cy, sy := math.cos(longitude), math.sin(longitude)
+    cx, sx := math.cos_f32(latitude),  math.sin_f32(latitude)
+    cy, sy := math.cos_f32(longitude), math.sin_f32(longitude)
 
     return {
         cx*sy,
@@ -2280,8 +2282,8 @@ euclidean_from_polar_f32 :: proc(polar: [2]f32) -> [3]f32 {
 }
 euclidean_from_polar_f64 :: proc(polar: [2]f64) -> [3]f64 {
     latitude, longitude := polar.x, polar.y
-    cx, sx := math.cos(latitude), math.sin(latitude)
-    cy, sy := math.cos(longitude), math.sin(longitude)
+    cx, sx := math.cos_f64(latitude),  math.sin_f64(latitude)
+    cy, sy := math.cos_f64(longitude), math.sin_f64(longitude)
 
     return {
         cx*sy,
@@ -2292,24 +2294,24 @@ euclidean_from_polar_f64 :: proc(polar: [2]f64) -> [3]f64 {
 
 
 polar_from_euclidean_f16 :: proc(euclidean: [3]f16) -> [3]f16 {
-    n := length(euclidean)
+    n := vector_length(euclidean)
     tmp := euclidean / n
 
     xz_dist := math.sqrt(tmp.x*tmp.x + tmp.z*tmp.z)
 
-    return {
+    return [3]f16{
         math.asin(tmp.y),
         math.atan2(tmp.x, tmp.z),
         xz_dist,
     }
 }
 polar_from_euclidean_f32 :: proc(euclidean: [3]f32) -> [3]f32 {
-    n := length(euclidean)
+    n := vector_length(euclidean)
     tmp := euclidean / n
 
     xz_dist := math.sqrt(tmp.x*tmp.x + tmp.z*tmp.z)
 
-    return {
+    return [3]f32{
         math.asin(tmp.y),
         math.atan2(tmp.x, tmp.z),
         xz_dist,
@@ -2321,7 +2323,7 @@ polar_from_euclidean_f64 :: proc(euclidean: [3]f64) -> [3]f64 {
 
     xz_dist := math.sqrt(tmp.x*tmp.x + tmp.z*tmp.z)
 
-    return {
+    return [3]f64{
         math.asin(tmp.y),
         math.atan2(tmp.x, tmp.z),
         xz_dist,

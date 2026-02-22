@@ -3,9 +3,11 @@ package linalg
 import "base:builtin"
 import "core:math"
 
+import "base:intrinsics"
 
-to_radians :: proc(degrees: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+
+to_radians :: proc(degrees: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = degrees[i] * RAD_PER_DEG
         }
@@ -16,8 +18,8 @@ to_radians :: proc(degrees: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 }
 
 
-to_degrees :: proc(radians: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+to_degrees :: proc(radians: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = radians[i] * DEG_PER_RAD
         }
@@ -28,8 +30,8 @@ to_degrees :: proc(radians: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 }
 
 
-min_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+min_double :: proc(a, b: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = builtin.min(a[i], b[i])
         }
@@ -40,8 +42,8 @@ min_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 }
 
 
-min_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+min_single :: proc(a: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         N :: len(T)
 
         when N == 1 {
@@ -61,13 +63,13 @@ min_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) 
 }
 
 
-min_triple :: proc(a, b, c: $T) -> T where IS_NUMERIC(ELEM_TYPE(T)) {
+min_triple :: proc(a, b, c: $T) -> T where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
     return min_double(a, min_double(b, c))
 }
 
 
-max_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+max_double :: proc(a, b: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = builtin.max(a[i], b[i])
         }
@@ -78,8 +80,8 @@ max_double :: proc(a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 }
 
 
-max_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+max_single :: proc(a: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         N :: len(T)
 
         when N == 1 {
@@ -101,13 +103,13 @@ max_single :: proc(a: $T) -> (out: ELEM_TYPE(T)) where IS_NUMERIC(ELEM_TYPE(T)) 
 }
 
 
-max_triple :: proc(a, b, c: $T) -> T where IS_NUMERIC(ELEM_TYPE(T)) {
+max_triple :: proc(a, b, c: $T) -> T where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
     return max_double(a, max_double(b, c))
 }
 
 
-abs :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+abs :: proc(a: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = auto_cast builtin.abs(a[i])
         }
@@ -118,8 +120,8 @@ abs :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 }
 
 
-sign :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+sign :: proc(a: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = #force_inline math.sign(a[i])
         }
@@ -130,8 +132,8 @@ sign :: proc(a: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 }
 
 
-clamp :: proc(x, a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+clamp :: proc(x, a, b: $T) -> (out: T) where intrinsics.type_is_numeric(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = builtin.clamp(x[i], a[i], b[i])
         }
@@ -143,13 +145,13 @@ clamp :: proc(x, a, b: $T) -> (out: T) where IS_NUMERIC(ELEM_TYPE(T)) {
 
 
 
-saturate :: proc(x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
+saturate :: proc(x: $T) -> T where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     return clamp(x, 0.0, 1.0)
 }
 
 
-lerp :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+lerp :: proc(a, b, t: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = a[i]*(1-t[i]) + b[i]*t[i]
         }
@@ -159,8 +161,8 @@ lerp :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
     return
 }
 
-mix :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+mix :: proc(a, b, t: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = a[i]*(1-t[i]) + b[i]*t[i]
         }
@@ -171,13 +173,13 @@ mix :: proc(a, b, t: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-unlerp :: proc(a, b, x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
+unlerp :: proc(a, b, x: $T) -> T where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     return (x - a) / (b - a)
 }
 
 
-step :: proc(e, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+step :: proc(e, x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = x[i] < e[i] ? 0.0 : 1.0
         }
@@ -188,21 +190,21 @@ step :: proc(e, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-smoothstep :: proc(e0, e1, x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
+smoothstep :: proc(e0, e1, x: $T) -> T where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     t := saturate(unlerp(e0, e1, x))
     return t * t * (3.0 - 2.0 * t)
 }
 
 
-smootherstep :: proc(e0, e1, x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
+smootherstep :: proc(e0, e1, x: $T) -> T where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     t := saturate(unlerp(e0, e1, x))
     return t * t * t * (t * (6*t - 15) + 10)
 }
 
 
 
-sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+sqrt :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.sqrt(x[i])
         }
@@ -213,8 +215,8 @@ sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-inverse_sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+inverse_sqrt :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = 1.0/math.sqrt(x[i])
         }
@@ -225,8 +227,8 @@ inverse_sqrt :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-cos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+cos :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.cos(x[i])
         }
@@ -237,8 +239,8 @@ cos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-sin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+sin :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.sin(x[i])
         }
@@ -249,8 +251,8 @@ sin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-tan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+tan :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.tan(x[i])
         }
@@ -261,8 +263,8 @@ tan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-acos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+acos :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.acos(x[i])
         }
@@ -273,8 +275,8 @@ acos :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-asin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+asin :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.asin(x[i])
         }
@@ -285,8 +287,8 @@ asin :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-atan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+atan :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.atan(x[i])
         }
@@ -296,8 +298,8 @@ atan :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
     return
 }
 
-atan2 :: proc(y, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+atan2 :: proc(y, x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.atan2(y[i], x[i])
         }
@@ -309,8 +311,8 @@ atan2 :: proc(y, x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 
 
 
-ln :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+ln :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.ln(x[i])
         }
@@ -321,9 +323,9 @@ ln :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-log2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
+log2 :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     INVLN2 :: 1.4426950408889634073599246810018921374266459541529859341354494069
-    when IS_ARRAY(T) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = INVLN2 * math.ln(x[i])
         }
@@ -334,9 +336,9 @@ log2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-log10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
+log10 :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     INVLN10 :: 0.4342944819032518276511289189166050822943970058036665661144537831
-    when IS_ARRAY(T) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = INVLN10 * math.ln(x[i])
         }
@@ -347,20 +349,20 @@ log10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-log :: proc(x, b: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+log :: proc(x, b: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
-            out[i] = math.ln(x[i]) / math.ln(cast(ELEM_TYPE(T))b[i])
+            out[i] = math.ln(x[i]) / math.ln(cast(intrinsics.type_elem_type(T))b[i])
         }
     } else {
-        out = math.ln(x) / math.ln(cast(ELEM_TYPE(T))b)
+        out = math.ln(x) / math.ln(cast(intrinsics.type_elem_type(T))b)
     }
     return
 }
 
 
-exp :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+exp :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.exp(x[i])
         }
@@ -371,8 +373,8 @@ exp :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-exp2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+exp2 :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.exp(LN2 * x[i])
         }
@@ -383,8 +385,8 @@ exp2 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-exp10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+exp10 :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.exp(LN10 * x[i])
         }
@@ -395,8 +397,8 @@ exp10 :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-pow :: proc(x, e: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+pow :: proc(x, e: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = math.pow(x[i], e[i])
         }
@@ -408,8 +410,8 @@ pow :: proc(x, e: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 
 
 
-ceil :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+ceil :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = #force_inline math.ceil(x[i])
         }
@@ -420,8 +422,8 @@ ceil :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-floor :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+floor :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = #force_inline math.floor(x[i])
         }
@@ -432,8 +434,8 @@ floor :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-round :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
-    when IS_ARRAY(T) {
+round :: proc(x: $T) -> (out: T) where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
+    when intrinsics.type_is_array(T) {
         for i in 0..<len(T) {
             out[i] = #force_inline math.round(x[i])
         }
@@ -444,35 +446,35 @@ round :: proc(x: $T) -> (out: T) where IS_FLOAT(ELEM_TYPE(T)) {
 }
 
 
-fract :: proc(x: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
+fract :: proc(x: $T) -> T where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     f := #force_inline floor(x)
     return x - f
 }
 
 
-mod :: proc(x, m: $T) -> T where IS_FLOAT(ELEM_TYPE(T)) {
+mod :: proc(x, m: $T) -> T where intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     f := #force_inline floor(x / m)
     return x - f * m
 }
 
 
 
-face_forward :: proc(N, I, N_ref: $T) -> (out: T) where IS_ARRAY(T), IS_FLOAT(ELEM_TYPE(T)) {
+face_forward :: proc(N, I, N_ref: $T) -> (out: T) where intrinsics.type_is_array(T), intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     return dot(N_ref, I) < 0 ? N : -N
 }
 
 
-distance :: proc(p0, p1: $V/[$N]$E) -> E where IS_NUMERIC(E) {
+distance :: proc(p0, p1: $V/[$N]$E) -> E where intrinsics.type_is_numeric(E) {
     return length(p1 - p0)
 }
 
 
-reflect :: proc(I, N: $T) -> (out: T) where IS_ARRAY(T), IS_FLOAT(ELEM_TYPE(T)) {
+reflect :: proc(I, N: $T) -> (out: T) where intrinsics.type_is_array(T), intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
     b := N * (2 * dot(N, I))
     return I - b
 }
 
-refract :: proc(I, Normal: $V/[$N]$E, eta: E) -> (out: V) where IS_ARRAY(V), IS_FLOAT(ELEM_TYPE(V)) {
+refract :: proc(I, Normal: $V/[$N]$E, eta: E) -> (out: V) where intrinsics.type_is_array(V), intrinsics.type_is_float(intrinsics.type_elem_type(V)) {
     dv := dot(Normal, I)
     k := 1 - eta*eta * (1 - dv*dv)
     a := I * eta
@@ -484,12 +486,12 @@ refract :: proc(I, Normal: $V/[$N]$E, eta: E) -> (out: V) where IS_ARRAY(V), IS_
 
 
 
-is_nan_single :: proc(x: $T) -> bool where IS_FLOAT(T) {
+is_nan_single :: proc(x: $T) -> bool where intrinsics.type_is_float(T) {
     return #force_inline math.is_nan(x)
 }
 
 
-is_nan_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
+is_nan_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_float(T) {
     for i in 0..<N {
         out[i] = #force_inline is_nan(x[i])
     }
@@ -497,12 +499,12 @@ is_nan_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
 }
 
 
-is_inf_single :: proc(x: $T) -> bool where IS_FLOAT(T) {
+is_inf_single :: proc(x: $T) -> bool where intrinsics.type_is_float(T) {
     return #force_inline math.is_inf(x)
 }
 
 
-is_inf_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
+is_inf_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_float(T) {
     for i in 0..<N {
         out[i] = #force_inline is_inf(x[i])
     }
@@ -510,62 +512,62 @@ is_inf_array :: proc(x: $A/[$N]$T) -> (out: [N]bool) where IS_FLOAT(T) {
 }
 
 
-classify_single :: proc(x: $T) -> math.Float_Class where IS_FLOAT(T) {
+classify_single :: proc(x: $T) -> math.Float_Class where intrinsics.type_is_float(T) {
     return #force_inline math.classify(x)
 }
 
 
-classify_array :: proc(x: $A/[$N]$T) -> (out: [N]math.Float_Class) where IS_FLOAT(T) {
+classify_array :: proc(x: $A/[$N]$T) -> (out: [N]math.Float_Class) where intrinsics.type_is_float(T) {
     for i in 0..<N {
         out[i] = #force_inline classify_single(x[i])
     }
     return
 }
 
-less_than_single          :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x < y }
-less_than_equal_single    :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x <= y }
-greater_than_single       :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x > y }
-greater_than_equal_single :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x >= y }
-equal_single              :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x == y }
-not_equal_single          :: proc(x, y: $T) -> (out: bool) where !IS_ARRAY(T), IS_FLOAT(T) { return x != y }
+less_than_single          :: proc(x, y: $T) -> (out: bool) where !intrinsics.type_is_array(T), intrinsics.type_is_float(T) { return x < y }
+less_than_equal_single    :: proc(x, y: $T) -> (out: bool) where !intrinsics.type_is_array(T), intrinsics.type_is_float(T) { return x <= y }
+greater_than_single       :: proc(x, y: $T) -> (out: bool) where !intrinsics.type_is_array(T), intrinsics.type_is_float(T) { return x > y }
+greater_than_equal_single :: proc(x, y: $T) -> (out: bool) where !intrinsics.type_is_array(T), intrinsics.type_is_float(T) { return x >= y }
+equal_single              :: proc(x, y: $T) -> (out: bool) where !intrinsics.type_is_array(T), intrinsics.type_is_float(T) { return x == y }
+not_equal_single          :: proc(x, y: $T) -> (out: bool) where !intrinsics.type_is_array(T), intrinsics.type_is_float(T) { return x != y }
 
 
-less_than_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
+less_than_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_array(A), intrinsics.type_is_float(intrinsics.type_elem_type(A)) {
     for i in 0..<N {
         out[i] = x[i] < y[i]
     }
     return
 }
 
-less_than_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
+less_than_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_array(A), intrinsics.type_is_float(intrinsics.type_elem_type(A)) {
     for i in 0..<N {
         out[i] = x[i] <= y[i]
     }
     return
 }
 
-greater_than_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
+greater_than_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_array(A), intrinsics.type_is_float(intrinsics.type_elem_type(A)) {
     for i in 0..<N {
         out[i] = x[i] > y[i]
     }
     return
 }
 
-greater_than_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
+greater_than_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_array(A), intrinsics.type_is_float(intrinsics.type_elem_type(A)) {
     for i in 0..<N {
         out[i] = x[i] >= y[i]
     }
     return
 }
 
-equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
+equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_array(A), intrinsics.type_is_float(intrinsics.type_elem_type(A)) {
     for i in 0..<N {
         out[i] = x[i] == y[i]
     }
     return
 }
 
-not_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where IS_ARRAY(A), IS_FLOAT(ELEM_TYPE(A)) {
+not_equal_array :: proc(x, y: $A/[$N]$T) -> (out: [N]bool) where intrinsics.type_is_array(A), intrinsics.type_is_float(intrinsics.type_elem_type(A)) {
     for i in 0..<N {
         out[i] = x[i] != y[i]
     }
