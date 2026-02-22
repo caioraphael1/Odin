@@ -202,6 +202,8 @@ ln :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
     // compiler will convert from decimal to binary accurately enough
     // to produce the hexadecimal values shown.
     
+    x_f64 := f64(x)
+
     LN2_HI :: 0h3fe62e42_fee00000 // 6.93147180369123816490e-01
     LN2_LO :: 0h3dea39ef_35793c76 // 1.90821492927058770002e-10
     L1     :: 0h3fe55555_55555593 // 6.666666666666735130e-01
@@ -212,19 +214,17 @@ ln :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
     L6     :: 0h3fc39a09_d078c69f // 1.531383769920937332e-01
     L7     :: 0h3fc2f112_df3e5244 // 1.479819860511658591e-01
     
-    x := f64(x)
-
     switch {
-    case is_nan_f64(x) || is_inf_f64(x, 1):
-        return T(x)
-    case x < 0:
+    case is_nan_f64(x_f64) || is_inf_f64(x_f64, 1):
+        return T(x_f64)
+    case x_f64 < 0:
         return T(nan())
-    case x == 0:
+    case x_f64 == 0:
         return T(inf(-1))
     }
 
     // reduce
-    f1, ki := frexp(x)
+    f1, ki := frexp(x_f64)
     if f1 < SQRT_TWO/2 {
         f1 *= 2
         ki -= 1

@@ -994,12 +994,12 @@ normalize_f64be :: proc(x: f64be) -> (y: f64be, exponent: int) { y0, e := normal
 //  frexp(+inf) = +inf, 0
 //  frexp(-inf) = -inf, 0
 //  frexp(NaN)  = NaN,  0
-frexp :: proc(f: $T) -> (significand: T, exponent: int) where intrinsics.type_is_float(T) {
+frexp :: proc(float: $T) -> (significand: T, exponent: int) where intrinsics.type_is_float(T) {
     mask  :: F64_MASK
     shift :: F64_SHIFT
     bias  :: F64_BIAS
     
-    f := f64(f)
+    f := f64(float)
 
     switch {
     case f == 0:
@@ -1320,6 +1320,9 @@ cumsum :: proc(dst, src: $T/[]$E) -> T
     atan2(-∞, x)      = - π/2
 */
 atan2 :: proc(y: $T, x: T) -> T where intrinsics.type_is_float(T) {
+    y_f64 := f64(y)
+    x_f64 := f64(x)
+
     // TODO(bill): Faster atan2 if possible
 
     // The original C code:
@@ -1330,32 +1333,29 @@ atan2 :: proc(y: $T, x: T) -> T where intrinsics.type_is_float(T) {
     INF :: 0h7FF0_0000_0000_0000
     PI  :: 0h4009_21fb_5444_2d18
 
-    y := f64(y)
-    x := f64(y)
-
-    atan :: proc(x: f64) -> f64 {
-        if x == 0 {
-            return x
+    atan :: proc(x_f64: f64) -> f64 {
+        if x_f64 == 0 {
+            return x_f64
         }
-        if x > 0 {
-            return s_atan(x)
+        if x_f64 > 0 {
+            return s_atan(x_f64)
         }
-        return -s_atan(-x)
+        return -s_atan(-x_f64)
     }
     // s_atan reduces its argument (known to be positive) to the range [0, 0.66] and calls x_atan.
-    s_atan :: proc(x: f64) -> f64 {
+    s_atan :: proc(x_f64: f64) -> f64 {
         MORE_BITS :: 6.123233995736765886130e-17 // pi/2 = PIO2 + MORE_BITS
         TAN3PI08  :: 2.41421356237309504880      // tan(3*pi/8)
-        if x <= 0.66 {
-            return x_atan(x)
+        if x_f64 <= 0.66 {
+            return x_atan(x_f64)
         }
-        if x > TAN3PI08 {
-            return PI/2 - x_atan(1/x) + MORE_BITS
+        if x_f64 > TAN3PI08 {
+            return PI/2 - x_atan(1/x_f64) + MORE_BITS
         }
-        return PI/4 + x_atan((x-1)/(x+1)) + 0.5*MORE_BITS
+        return PI/4 + x_atan((x_f64-1)/(x_f64+1)) + 0.5*MORE_BITS
     }
     // x_atan evaluates a series valid in the range [0, 0.66].
-    x_atan :: proc(x: f64) -> f64 {
+    x_atan :: proc(x_f64: f64) -> f64 {
         P0 :: -8.750608600031904122785e-01
         P1 :: -1.615753718733365076637e+01
         P2 :: -7.500855792314704667340e+01
@@ -1367,39 +1367,39 @@ atan2 :: proc(y: $T, x: T) -> T where intrinsics.type_is_float(T) {
         Q3 :: +4.853903996359136964868e+02
         Q4 :: +1.945506571482613964425e+02
 
-        z := x * x
+        z := x_f64 * x_f64
         z = z * ((((P0*z+P1)*z+P2)*z+P3)*z + P4) / (((((z+Q0)*z+Q1)*z+Q2)*z+Q3)*z + Q4)
-        z = x*z + x
+        z = x_f64 * z + x_f64
         return z
     }
 
     switch {
-    case is_nan_f64(y) || is_nan_f64(x):
+    case is_nan_f64(y_f64) || is_nan_f64(x_f64):
         return T(NAN)
-    case y == 0:
-        if x >= 0 && !sign_bit_f64(x) {
-            return T(copy_sign_f64(0.0, y))
+    case y_f64 == 0:
+        if x_f64 >= 0 && !sign_bit_f64(x_f64) {
+            return T(copy_sign_f64(0.0, y_f64))
         }
-        return T(copy_sign_f64(PI, y))
-    case x == 0:
-        return T(copy_sign_f64(PI/2, y))
-    case is_inf_f64(x, 0):
-        if is_inf_f64(x, 1) {
-            if is_inf_f64(y, 0) {
-                return T(copy_sign_f64(PI/4, y))
+        return T(copy_sign_f64(PI, y_f64))
+    case x_f64 == 0:
+        return T(copy_sign_f64(PI/2, y_f64))
+    case is_inf_f64(x_f64, 0):
+        if is_inf_f64(x_f64, 1) {
+            if is_inf_f64(y_f64, 0) {
+                return T(copy_sign_f64(PI/4, y_f64))
             }
-            return T(copy_sign_f64(0, y))
+            return T(copy_sign_f64(0, y_f64))
         }
-        if is_inf_f64(y, 0) {
-            return T(copy_sign_f64(3*PI/4, y))
+        if is_inf_f64(y_f64, 0) {
+            return T(copy_sign_f64(3*PI/4, y_f64))
         }
-        return T(copy_sign_f64(PI, y))
-    case is_inf_f64(y, 0):
-        return T(copy_sign_f64(PI/2, y))
+        return T(copy_sign_f64(PI, y_f64))
+    case is_inf_f64(y_f64, 0):
+        return T(copy_sign_f64(PI/2, y_f64))
     }
 
-    q := atan(y / x)
-    if x < 0 {
+    q := atan(y_f64 / x_f64)
+    if x_f64 < 0 {
         if q <= 0 {
             return T(q + PI)
         }
@@ -1429,6 +1429,7 @@ asin :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
      * is preserved.
      * ====================================================
      */
+    x_f64 := f64(x)
 
     pio2_hi :: 0h3FF921FB54442D18
     pio2_lo :: 0h3C91A62633145C07
@@ -1450,43 +1451,42 @@ asin :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
         return p/q
     }
 
-    x := f64(x)
     z, r, s: f64
-    dwords := transmute([2]u32)x
+    dwords := transmute([2]u32)x_f64
     hx := dwords[1]
     ix := hx & 0x7fffffff
-    /* |x| >= 1 or nan */
+    /* |x_f64| >= 1 or nan */
     if ix >= 0x3ff00000 {
         lx := dwords[0]
         if (ix-0x3ff00000 | lx) == 0 {
             /* asin(1) = +-pi/2 with inexact */
-            return T(x*pio2_hi + 1e-120)
+            return T(x_f64*pio2_hi + 1e-120)
         }
-        return T(0/(x-x))
+        return T(0/(x_f64-x_f64))
     }
-    /* |x| < 0.5 */
+    /* |x_f64| < 0.5 */
     if ix < 0x3fe00000 {
-        /* if 0x1p-1022 <= |x| < 0x1p-26, avoid raising underflow */
+        /* if 0x1p-1022 <= |x_f64| < 0x1p-26, avoid raising underflow */
         if ix < 0x3e500000 && ix >= 0x00100000 {
-            return T(x)
+            return T(x_f64)
         }
-        return T(x + x*R(x*x))
+        return T(x_f64 + x_f64*R(x_f64*x_f64))
     }
-    /* 1 > |x| >= 0.5 */
-    z = (1 - abs(x))*0.5
+    /* 1 > |x_f64| >= 0.5 */
+    z = (1 - abs(x_f64))*0.5
     s = sqrt(z)
     r = R(z)
-    if ix >= 0x3fef3333 {  /* if |x| > 0.975 */
-        x = pio2_hi-(2*(s+s*r)-pio2_lo)
+    if ix >= 0x3fef3333 {  /* if |x_f64| > 0.975 */
+        x_f64 = pio2_hi-(2*(s+s*r)-pio2_lo)
     } else {
         f, c: f64
         /* f+c = sqrt(z) */
         f = s
         (^u64)(&f)^ &= 0xffffffff_00000000
         c = (z-f*f)/(s+f)
-        x = 0.5*pio2_hi - (2*s*r - (pio2_lo-2*c) - (0.5*pio2_hi-2*f))
+        x_f64 = 0.5*pio2_hi - (2*s*r - (pio2_lo-2*c) - (0.5*pio2_hi-2*f))
     }
-    return T(-x if hx >> 31 != 0 else x)
+    return T(-x_f64 if hx >> 31 != 0 else x_f64)
 }
 
 
@@ -1524,13 +1524,13 @@ acos :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
         return p/q
     }
 
-    x := f64(x)
+    x_f64 := f64(x)
 
     z, w, s, c, df: f64
-    dwords := transmute([2]u32)x
+    dwords := transmute([2]u32)x_f64
     hx := dwords[1]
     ix := hx & 0x7fffffff
-    /* |x| >= 1 or nan */
+    /* |x_f64| >= 1 or nan */
     if ix >= 0x3ff00000 {
         lx := dwords[0]
 
@@ -1541,24 +1541,24 @@ acos :: proc(x: $T) -> T where intrinsics.type_is_float(T) {
             }
             return T(0)
         }
-        return T(0/(x-x))
+        return T(0/(x_f64-x_f64))
     }
-    /* |x| < 0.5 */
+    /* |x_f64| < 0.5 */
     if ix < 0x3fe00000 {
-        if ix <= 0x3c600000 { /* |x| < 2**-57 */
+        if ix <= 0x3c600000 { /* |x_f64| < 2**-57 */
             return T(pio2_hi + 1e-120)
         }
-        return T(pio2_hi - (x - (pio2_lo-x*R(x*x))))
+        return T(pio2_hi - (x_f64 - (pio2_lo-x_f64*R(x_f64*x_f64))))
     }
-    /* x < -0.5 */
+    /* x_f64 < -0.5 */
     if hx >> 31 != 0 {
-        z = (1.0+x)*0.5
+        z = (1.0+x_f64)*0.5
         s = sqrt(z)
         w = R(z)*s-pio2_lo
         return T(2*(pio2_hi - (s+w)))
     }
-    /* x > 0.5 */
-    z = (1.0-x)*0.5
+    /* x_f64 > 0.5 */
+    z = (1.0-x_f64)*0.5
     s = sqrt(z)
     df = s
     (^u64)(&df)^ &= 0xffffffff_00000000

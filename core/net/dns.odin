@@ -54,7 +54,7 @@ init_dns_configuration :: proc() {
     when ODIN_OS == .Windows {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
         val := os.replace_environment_placeholders(dns_configuration.hosts_file, runtime.temp_allocator)
-        copy_slice(dns_configuration.hosts_file_buf[:], val)
+        copy_from_string(dns_configuration.hosts_file_buf[:], val)
         dns_configuration.hosts_file = string(dns_configuration.hosts_file_buf[:len(val)])
     }
 }
@@ -179,7 +179,7 @@ resolve_ip6 :: proc(hostname_and_maybe_port: string) -> (ep6: Endpoint, err: Net
 */
 get_dns_records_from_os :: proc(hostname: string, type: DNS_Record_Type, allocator: mem.Allocator) -> (records: []DNS_Record, err: DNS_Error) {
     when ODIN_OS == .Windows {
-        sync.once_do(&dns_config_initialized, init_dns_configuration)
+        sync.once_do_without_data(&dns_config_initialized, init_dns_configuration)
     }
     return _get_dns_records_os(hostname, type, allocator)
 }
@@ -197,7 +197,7 @@ get_dns_records_from_os :: proc(hostname: string, type: DNS_Record_Type, allocat
 */
 get_dns_records_from_nameservers :: proc(hostname: string, type: DNS_Record_Type, name_servers: []Endpoint, host_overrides: []DNS_Record, allocator: mem.Allocator) -> (records: []DNS_Record, err: DNS_Error) {
     when ODIN_OS == .Windows {
-        sync.once_do(&dns_config_initialized, init_dns_configuration)
+        sync.once_do_without_data(&dns_config_initialized, init_dns_configuration)
     }
 
     if type != .SRV {
@@ -248,7 +248,7 @@ get_dns_records_from_nameservers :: proc(hostname: string, type: DNS_Record_Type
         }
         defer close(conn)
 
-        _ = send(conn, dns_packet[:], name_server) or_continue
+        _ = send_udp(conn, dns_packet[:], name_server) or_continue
 
         if set_option(conn, .Receive_Timeout, time.Second * 1) != nil {
             return nil, .Connection_Error
@@ -287,30 +287,30 @@ destroy_dns_records :: proc(records: []DNS_Record, allocator: mem.Allocator) {
     for rec in records {
         switch r in rec {
         case DNS_Record_IP4:
-            _ = delete_slice(r.base.record_name, allocator)
+            _ = delete_string(r.base.record_name, allocator)
 
         case DNS_Record_IP6:
-            _ = delete_slice(r.base.record_name, allocator)
+            _ = delete_string(r.base.record_name, allocator)
 
         case DNS_Record_CNAME:
-            _ = delete_slice(r.base.record_name, allocator)
-            _ = delete_slice(r.host_name, allocator)
+            _ = delete_string(r.base.record_name, allocator)
+            _ = delete_string(r.host_name, allocator)
 
         case DNS_Record_TXT:
-            _ = delete_slice(r.base.record_name, allocator)
-            _ = delete_slice(r.value, allocator)
+            _ = delete_string(r.base.record_name, allocator)
+            _ = delete_string(r.value, allocator)
 
         case DNS_Record_NS:
-            _ = delete_slice(r.base.record_name, allocator)
-            _ = delete_slice(r.host_name, allocator)
+            _ = delete_string(r.base.record_name, allocator)
+            _ = delete_string(r.host_name, allocator)
 
         case DNS_Record_MX:
-            _ = delete_slice(r.base.record_name, allocator)
-            _ = delete_slice(r.host_name, allocator)
+            _ = delete_string(r.base.record_name, allocator)
+            _ = delete_string(r.host_name, allocator)
 
         case DNS_Record_SRV:
-            _ = delete_slice(r.record_name, allocator)
-            _ = delete_slice(r.target, allocator)
+            _ = delete_string(r.record_name, allocator)
+            _ = delete_string(r.target, allocator)
         }
     }
 
@@ -362,14 +362,14 @@ unpack_dns_header :: proc(id: u16be, bits: u16be) -> (hdr: DNS_Header) {
 }
 
 load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> (name_servers: []Endpoint, err: os.Error) {
-    res := os.read_entire_file(resolv_conf_path, allocator) or_return
+    res := os.read_entire_file_from_path(resolv_conf_path, allocator) or_return
     defer _ = delete_slice(res, allocator)
     resolv_str := string(res)
 
     id_str := "nameserver"
     id_len := len(id_str)
 
-    _name_servers, _ := make_dynamic_array([dynamic]Endpoint, 0, allocator)
+    _name_servers, _ := make_dynamic_array_len([dynamic]Endpoint, 0, allocator)
     for line in strings.split_lines_iterator(&resolv_str) {
         if len(line) == 0 || line[0] == '#' {
             continue
@@ -400,10 +400,10 @@ load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> 
 }
 
 load_hosts :: proc(hosts_file_path: string, allocator: mem.Allocator) -> (hosts: []DNS_Host_Entry, err: os.Error) {
-    res := os.read_entire_file(hosts_file_path, allocator) or_return
+    res := os.read_entire_file_from_path(hosts_file_path, allocator) or_return
     defer _ = delete_slice(res, allocator)
 
-    _hosts, _ := make_dynamic_array([dynamic]DNS_Host_Entry, 0, allocator)
+    _hosts, _ := make_dynamic_array_len([dynamic]DNS_Host_Entry, 0, allocator)
     hosts_str := string(res)
     for line in strings.split_lines_iterator(&hosts_str) {
         if len(line) == 0 || line[0] == '#' {
@@ -809,18 +809,18 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
         return
     }
 
-    _records, _ := make_dynamic_array([dynamic]DNS_Record, 0, allocator)
+    _records, _ := make_dynamic_array_len([dynamic]DNS_Record, 0, allocator)
 
     dns_hdr_chunks := mem.slice_data_cast([]u16be, response[:HEADER_SIZE_BYTES])
     hdr := unpack_dns_header(dns_hdr_chunks[0], dns_hdr_chunks[1])
     if !hdr.is_response {
-        _ = delete_slice(_records)
+        _ = delete_dynamic_array(_records)
         return
     }
 
     question_count := int(dns_hdr_chunks[2])
     if question_count != 1 {
-        _ = delete_slice(_records)
+        _ = delete_dynamic_array(_records)
         return
     }
     answer_count := int(dns_hdr_chunks[3])

@@ -483,11 +483,11 @@ free_rawptr :: proc "c" (ptr: rawptr) {
     cmm := get_default_mem_allocator()
     cmm.free(ptr)
 }
-free_cstring :: proc "c" (str: cstring) {
-    free_rawptr(rawptr(str))
-}
 free_string :: proc "c" (s: string) {
     free_rawptr(raw_data(s))
+}
+free_cstring :: proc "c" (str: cstring) {
+    free_rawptr(rawptr(str))
 }
 
 

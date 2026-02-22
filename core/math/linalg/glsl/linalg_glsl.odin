@@ -778,8 +778,8 @@ mat4Ortho3d :: proc "c" (left, right, bottom, top, near, far: f32) -> (m: mat4) 
 }
 
 mat4LookAt :: proc "c" (eye, centre, up: vec3) -> (m: mat4) {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(cross(f, up))
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(cross(f, up))
     u := cross(s, f)
 
     fe := dot(f, eye)
@@ -795,7 +795,7 @@ mat4Rotate :: proc "c" (v: vec3, radians: f32) -> (rot: mat4) {
     c := cos(radians)
     s := sin(radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot = 1
@@ -905,8 +905,8 @@ dmat4Ortho3d :: proc "c" (left, right, bottom, top, near, far: f64) -> (m: dmat4
 }
 
 dmat4LookAt :: proc "c" (eye, centre, up: dvec3) -> (m: dmat4) {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(cross(f, up))
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(cross(f, up))
     u := cross(s, f)
 
     fe := dot(f, eye)
@@ -922,7 +922,7 @@ dmat4Rotate :: proc "c" (v: dvec3, radians: f64) -> (rot: dmat4) {
     c := cos(radians)
     s := sin(radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot = 1
@@ -1001,7 +1001,7 @@ dmat4FromDquat :: proc "c" (q: dquat) -> (m: dmat4) {
 
 quatAxisAngle :: proc "c" (axis: vec3, radians: f32) -> (q: quat) {
     t := radians*0.5
-    v := vector_normalize(axis) * sin(t)
+    v := vec_normalize(axis) * sin(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z
@@ -1109,7 +1109,7 @@ quatMulVec3 :: proc "c" (q: quat, v: vec3) -> vec3 {
 
 dquatAxisAngle :: proc "c" (axis: dvec3, radians: f64) -> (q: dquat) {
     t := radians*0.5
-    v := vector_normalize(axis) * sin(t)
+    v := vec_normalize(axis) * sin(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z

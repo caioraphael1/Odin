@@ -155,10 +155,10 @@ log1p_f64 :: proc(x: f64) -> f64 {
         }
         iu &= 0x000fffffffffffff
         if iu < 0x0006a09e667f3bcd { // mantissa of sqrt(2)
-            u = transmute(f64)(iu | 0x3ff0000000000000) // vector_normalize u
+            u = transmute(f64)(iu | 0x3ff0000000000000) // vec_normalize u
         } else {
             k += 1
-            u = transmute(f64)(iu | 0x3fe0000000000000) // vector_normalize u/2
+            u = transmute(f64)(iu | 0x3fe0000000000000) // vec_normalize u/2
             iu = (0x0010000000000000 - iu) >> 2
         }
         f = u - 1.0 // sqrt(2)/2 < u < sqrt(2)

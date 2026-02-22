@@ -76,7 +76,7 @@ vector3_orthogonal :: proc(v: $V/[3]$E) -> V where !intrinsics.type_is_array(E),
             other = {0, 0, 1}
         }
     }
-    return vector_normalize(vector_cross3(v, other))
+    return vec_normalize(vec3_cross(v, other))
 }
 
 
@@ -346,7 +346,7 @@ vector4_rgb_to_hsl_f64 :: proc(col: [4]f64) -> [4]f64 {
 
 quaternion_angle_axis_f16 :: proc(angle_radians: f16, axis: [3]f16) -> (q: Quaternionf16) {
     t := angle_radians*0.5
-    v := vector_normalize(axis) * math.sin_f16(t)
+    v := vec_normalize(axis) * math.sin_f16(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z
@@ -355,7 +355,7 @@ quaternion_angle_axis_f16 :: proc(angle_radians: f16, axis: [3]f16) -> (q: Quate
 }
 quaternion_angle_axis_f32 :: proc(angle_radians: f32, axis: [3]f32) -> (q: Quaternionf32) {
     t := angle_radians*0.5
-    v := vector_normalize(axis) * math.sin_f32(t)
+    v := vec_normalize(axis) * math.sin_f32(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z
@@ -364,7 +364,7 @@ quaternion_angle_axis_f32 :: proc(angle_radians: f32, axis: [3]f32) -> (q: Quate
 }
 quaternion_angle_axis_f64 :: proc(angle_radians: f64, axis: [3]f64) -> (q: Quaternionf64) {
     t := angle_radians*0.5
-    v := vector_normalize(axis) * math.sin_f64(t)
+    v := vec_normalize(axis) * math.sin_f64(t)
     q.x = v.x
     q.y = v.y
     q.z = v.z
@@ -440,9 +440,9 @@ angle_axis_from_quaternion_f64 :: proc(q: Quaternionf64) -> (angle: f64, axis: [
 
 
 quaternion_from_forward_and_up_f16 :: proc(forward, up: [3]f16) -> Quaternionf16 #no_bounds_check {
-    f := vector_normalize(forward)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(forward)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
     m := matrix[3, 3]f16{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -483,9 +483,9 @@ quaternion_from_forward_and_up_f16 :: proc(forward, up: [3]f16) -> Quaternionf16
     return quaternion_normalize(q)
 }
 quaternion_from_forward_and_up_f32 :: proc(forward, up: [3]f32) -> Quaternionf32 #no_bounds_check {
-    f := vector_normalize(forward)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(forward)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
     m := matrix[3, 3]f32{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -526,9 +526,9 @@ quaternion_from_forward_and_up_f32 :: proc(forward, up: [3]f32) -> Quaternionf32
     return quaternion_normalize(q)
 }
 quaternion_from_forward_and_up_f64 :: proc(forward, up: [3]f64) -> Quaternionf64 #no_bounds_check {
-    f := vector_normalize(forward)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(forward)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
     m := matrix[3, 3]f64{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -874,10 +874,10 @@ quaternion_from_matrix3_f64 :: proc(m: matrix[3, 3]f64) -> (q: Quaternionf64) #n
 
 
 quaternion_between_two_vector3_f16 :: proc(from, to: [3]f16) -> (q: Quaternionf16) {
-    x := vector_normalize(from)
-    y := vector_normalize(to)
+    x := vec_normalize(from)
+    y := vec_normalize(to)
 
-    cos_theta := vector_dot(x, y)
+    cos_theta := vec_dot(x, y)
     if abs(cos_theta + 1) < 2*F32_EPSILON {
         v := vector3_orthogonal(x)
         q.x = v.x
@@ -886,7 +886,7 @@ quaternion_between_two_vector3_f16 :: proc(from, to: [3]f16) -> (q: Quaternionf1
         q.w = 0
         return
     }
-    v := vector_cross3(x, y)
+    v := vec3_cross(x, y)
     w := cos_theta + 1
     q.w = w
     q.x = v.x
@@ -895,10 +895,10 @@ quaternion_between_two_vector3_f16 :: proc(from, to: [3]f16) -> (q: Quaternionf1
     return quaternion_normalize(q)
 }
 quaternion_between_two_vector3_f32 :: proc(from, to: [3]f32) -> (q: Quaternionf32) {
-    x := vector_normalize(from)
-    y := vector_normalize(to)
+    x := vec_normalize(from)
+    y := vec_normalize(to)
 
-    cos_theta := vector_dot(x, y)
+    cos_theta := vec_dot(x, y)
     if abs(cos_theta + 1) < 2*F32_EPSILON {
         v := vector3_orthogonal(x)
         q.x = v.x
@@ -907,7 +907,7 @@ quaternion_between_two_vector3_f32 :: proc(from, to: [3]f32) -> (q: Quaternionf3
         q.w = 0
         return
     }
-    v := vector_cross3(x, y)
+    v := vec3_cross(x, y)
     w := cos_theta + 1
     q.w = w
     q.x = v.x
@@ -916,10 +916,10 @@ quaternion_between_two_vector3_f32 :: proc(from, to: [3]f32) -> (q: Quaternionf3
     return quaternion_normalize(q)
 }
 quaternion_between_two_vector3_f64 :: proc(from, to: [3]f64) -> (q: Quaternionf64) {
-    x := vector_normalize(from)
-    y := vector_normalize(to)
+    x := vec_normalize(from)
+    y := vec_normalize(to)
 
-    cos_theta := vector_dot(x, y)
+    cos_theta := vec_dot(x, y)
     if abs(cos_theta + 1) < 2*F64_EPSILON {
         v := vector3_orthogonal(x)
         q.x = v.x
@@ -928,7 +928,7 @@ quaternion_between_two_vector3_f64 :: proc(from, to: [3]f64) -> (q: Quaternionf6
         q.w = 0
         return
     }
-    v := vector_cross3(x, y)
+    v := vec3_cross(x, y)
     w := cos_theta + 1
     q.w = w
     q.x = v.x
@@ -1238,7 +1238,7 @@ matrix3_rotate_f16 :: proc(angle_radians: f16, v: [3]f16) -> (rot: matrix[3, 3]f
     c := math.cos_f16(angle_radians)
     s := math.sin_f16(angle_radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot[0, 0] = c + t[0]*a[0]
@@ -1259,7 +1259,7 @@ matrix3_rotate_f32 :: proc(angle_radians: f32, v: [3]f32) -> (rot: matrix[3, 3]f
     c := math.cos_f32(angle_radians)
     s := math.sin_f32(angle_radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot[0, 0] = c + t[0]*a[0]
@@ -1280,7 +1280,7 @@ matrix3_rotate_f64 :: proc(angle_radians: f64, v: [3]f64) -> (rot: matrix[3, 3]f
     c := math.cos_f64(angle_radians)
     s := math.sin_f64(angle_radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot[0, 0] = c + t[0]*a[0]
@@ -1300,9 +1300,9 @@ matrix3_rotate_f64 :: proc(angle_radians: f64, v: [3]f64) -> (rot: matrix[3, 3]f
 
 
 matrix3_look_at_f16 :: proc(eye, centre, up: [3]f16) -> matrix[3, 3]f16 {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
     return matrix[3, 3]f16{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -1310,9 +1310,9 @@ matrix3_look_at_f16 :: proc(eye, centre, up: [3]f16) -> matrix[3, 3]f16 {
     }
 }
 matrix3_look_at_f32 :: proc(eye, centre, up: [3]f32) -> matrix[3, 3]f32 {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
     return matrix[3, 3]f32{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -1320,9 +1320,9 @@ matrix3_look_at_f32 :: proc(eye, centre, up: [3]f32) -> matrix[3, 3]f32 {
     }
 }
 matrix3_look_at_f64 :: proc(eye, centre, up: [3]f64) -> matrix[3, 3]f64 {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
     return matrix[3, 3]f64{
         +s.x, +s.y, +s.z,
         +u.x, +u.y, +u.z,
@@ -1620,7 +1620,7 @@ matrix4_rotate_f16 :: proc(angle_radians: f16, v: [3]f16) -> matrix[4, 4]f16 #no
     c := math.cos_f16(angle_radians)
     s := math.sin_f16(angle_radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot := MATRIX4F16_IDENTITY
@@ -1646,7 +1646,7 @@ matrix4_rotate_f32 :: proc(angle_radians: f32, v: [3]f32) -> matrix[4, 4]f32 #no
     c := math.cos_f32(angle_radians)
     s := math.sin_f32(angle_radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot := MATRIX4F32_IDENTITY
@@ -1672,7 +1672,7 @@ matrix4_rotate_f64 :: proc(angle_radians: f64, v: [3]f64) -> matrix[4, 4]f64 #no
     c := math.cos_f64(angle_radians)
     s := math.sin_f64(angle_radians)
 
-    a := vector_normalize(v)
+    a := vec_normalize(v)
     t := a * (1-c)
 
     rot := MATRIX4F64_IDENTITY
@@ -1720,43 +1720,43 @@ matrix4_scale_f64 :: proc(v: [3]f64) -> (m: matrix[4, 4]f64) #no_bounds_check {
 
 
 matrix4_look_at_f16 :: proc(eye, centre, up: [3]f16, flip_z_axis := true) -> (m: matrix[4, 4]f16) {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
 
-    fe := vector_dot(f, eye)
+    fe := vec_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -vector_dot(s, eye),
-        +u.x, +u.y, +u.z, -vector_dot(u, eye),
+        +s.x, +s.y, +s.z, -vec_dot(s, eye),
+        +u.x, +u.y, +u.z, -vec_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_f32 :: proc(eye, centre, up: [3]f32, flip_z_axis := true) -> (m: matrix[4, 4]f32) {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
 
-    fe := vector_dot(f, eye)
+    fe := vec_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -vector_dot(s, eye),
-        +u.x, +u.y, +u.z, -vector_dot(u, eye),
+        +s.x, +s.y, +s.z, -vec_dot(s, eye),
+        +u.x, +u.y, +u.z, -vec_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_f64 :: proc(eye, centre, up: [3]f64, flip_z_axis := true) -> (m: matrix[4, 4]f64) {
-    f := vector_normalize(centre - eye)
-    s := vector_normalize(vector_cross3(f, up))
-    u := vector_cross3(s, f)
+    f := vec_normalize(centre - eye)
+    s := vec_normalize(vec3_cross(f, up))
+    u := vec3_cross(s, f)
 
-    fe := vector_dot(f, eye)
+    fe := vec_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -vector_dot(s, eye),
-        +u.x, +u.y, +u.z, -vector_dot(u, eye),
+        +s.x, +s.y, +s.z, -vec_dot(s, eye),
+        +u.x, +u.y, +u.z, -vec_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
@@ -1765,42 +1765,42 @@ matrix4_look_at_f64 :: proc(eye, centre, up: [3]f64, flip_z_axis := true) -> (m:
 
 matrix4_look_at_from_fru_f16 :: proc(eye, f, r, u: [3]f16, flip_z_axis := true) -> (m: matrix[4, 4]f16) {
     f, s, u := f, r, u
-    f = vector_normalize(f)
-    s = vector_normalize(s)
-    u = vector_normalize(u)
-    fe := vector_dot(f, eye)
+    f = vec_normalize(f)
+    s = vec_normalize(s)
+    u = vec_normalize(u)
+    fe := vec_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -vector_dot(s, eye),
-        +u.x, +u.y, +u.z, -vector_dot(u, eye),
+        +s.x, +s.y, +s.z, -vec_dot(s, eye),
+        +u.x, +u.y, +u.z, -vec_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_from_fru_f32 :: proc(eye, f, r, u: [3]f32, flip_z_axis := true) -> (m: matrix[4, 4]f32) {
     f, s, u := f, r, u
-    f = vector_normalize(f)
-    s = vector_normalize(s)
-    u = vector_normalize(u)
-    fe := vector_dot(f, eye)
+    f = vec_normalize(f)
+    s = vec_normalize(s)
+    u = vec_normalize(u)
+    fe := vec_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -vector_dot(s, eye),
-        +u.x, +u.y, +u.z, -vector_dot(u, eye),
+        +s.x, +s.y, +s.z, -vec_dot(s, eye),
+        +u.x, +u.y, +u.z, -vec_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
 }
 matrix4_look_at_from_fru_f64 :: proc(eye, f, r, u: [3]f64, flip_z_axis := true) -> (m: matrix[4, 4]f64) {
     f, s, u := f, r, u
-    f = vector_normalize(f)
-    s = vector_normalize(s)
-    u = vector_normalize(u)
-    fe := vector_dot(f, eye)
+    f = vec_normalize(f)
+    s = vec_normalize(s)
+    u = vec_normalize(u)
+    fe := vec_dot(f, eye)
 
     return {
-        +s.x, +s.y, +s.z, -vector_dot(s, eye),
-        +u.x, +u.y, +u.z, -vector_dot(u, eye),
+        +s.x, +s.y, +s.z, -vec_dot(s, eye),
+        +u.x, +u.y, +u.z, -vec_dot(u, eye),
         -f.x, -f.y, -f.z, +fe if flip_z_axis else -fe,
            0,    0,    0, 1,
     }
@@ -2138,31 +2138,31 @@ quaternion_from_scalar_f64 :: proc(f: f64) -> (q: Quaternionf64) {
 
 matrix2_orthonormalize_f16 :: proc(m: matrix[2, 2]f16) -> (r: matrix[2, 2]f16) #no_bounds_check {
     r = m
-    r[0] = vector_normalize(m[0])
+    r[0] = vec_normalize(m[0])
 
-    d0 := vector_dot(r[0], r[1])
+    d0 := vec_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = vector_normalize(r[1])
+    r[1] = vec_normalize(r[1])
 
     return
 }
 matrix2_orthonormalize_f32 :: proc(m: matrix[2, 2]f32) -> (r: matrix[2, 2]f32) #no_bounds_check {
     r = m
-    r[0] = vector_normalize(m[0])
+    r[0] = vec_normalize(m[0])
 
-    d0 := vector_dot(r[0], r[1])
+    d0 := vec_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = vector_normalize(r[1])
+    r[1] = vec_normalize(r[1])
 
     return
 }
 matrix2_orthonormalize_f64 :: proc(m: matrix[2, 2]f64) -> (r: matrix[2, 2]f64) #no_bounds_check {
     r = m
-    r[0] = vector_normalize(m[0])
+    r[0] = vec_normalize(m[0])
 
-    d0 := vector_dot(r[0], r[1])
+    d0 := vec_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = vector_normalize(r[1])
+    r[1] = vec_normalize(r[1])
 
     return
 }
@@ -2170,59 +2170,59 @@ matrix2_orthonormalize_f64 :: proc(m: matrix[2, 2]f64) -> (r: matrix[2, 2]f64) #
 
 matrix3_orthonormalize_f16 :: proc(m: matrix[3, 3]f16) -> (r: matrix[3, 3]f16) #no_bounds_check {
     r = m
-    r[0] = vector_normalize(m[0])
+    r[0] = vec_normalize(m[0])
 
-    d0 := vector_dot(r[0], r[1])
+    d0 := vec_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = vector_normalize(r[1])
+    r[1] = vec_normalize(r[1])
 
-    d1 := vector_dot(r[1], r[2])
-    d0 = vector_dot(r[0], r[2])
+    d1 := vec_dot(r[1], r[2])
+    d0 = vec_dot(r[0], r[2])
     r[2] -= r[0]*d0 + r[1]*d1
-    r[2] = vector_normalize(r[2])
+    r[2] = vec_normalize(r[2])
 
     return
 }
 matrix3_orthonormalize_f32 :: proc(m: matrix[3, 3]f32) -> (r: matrix[3, 3]f32) #no_bounds_check {
     r = m
-    r[0] = vector_normalize(m[0])
+    r[0] = vec_normalize(m[0])
 
-    d0 := vector_dot(r[0], r[1])
+    d0 := vec_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = vector_normalize(r[1])
+    r[1] = vec_normalize(r[1])
 
-    d1 := vector_dot(r[1], r[2])
-    d0 = vector_dot(r[0], r[2])
+    d1 := vec_dot(r[1], r[2])
+    d0 = vec_dot(r[0], r[2])
     r[2] -= r[0]*d0 + r[1]*d1
-    r[2] = vector_normalize(r[2])
+    r[2] = vec_normalize(r[2])
 
     return
 }
 matrix3_orthonormalize_f64 :: proc(m: matrix[3, 3]f64) -> (r: matrix[3, 3]f64) #no_bounds_check {
     r = m
-    r[0] = vector_normalize(m[0])
+    r[0] = vec_normalize(m[0])
 
-    d0 := vector_dot(r[0], r[1])
+    d0 := vec_dot(r[0], r[1])
     r[1] -= r[0] * d0
-    r[1] = vector_normalize(r[1])
+    r[1] = vec_normalize(r[1])
 
-    d1 := vector_dot(r[1], r[2])
-    d0 = vector_dot(r[0], r[2])
+    d1 := vec_dot(r[1], r[2])
+    d0 = vec_dot(r[0], r[2])
     r[2] -= r[0]*d0 + r[1]*d1
-    r[2] = vector_normalize(r[2])
+    r[2] = vec_normalize(r[2])
 
     return
 }
 
 
 vector3_orthonormalize_f16 :: proc(x, y: [3]f16) -> (z: [3]f16) {
-    return vector_normalize(x - y * vector_dot(y, x))
+    return vec_normalize(x - y * vec_dot(y, x))
 }
 vector3_orthonormalize_f32 :: proc(x, y: [3]f32) -> (z: [3]f32) {
-    return vector_normalize(x - y * vector_dot(y, x))
+    return vec_normalize(x - y * vec_dot(y, x))
 }
 vector3_orthonormalize_f64 :: proc(x, y: [3]f64) -> (z: [3]f64) {
-    return vector_normalize(x - y * vector_dot(y, x))
+    return vec_normalize(x - y * vec_dot(y, x))
 }
 
 
@@ -2231,8 +2231,8 @@ matrix4_orientation_f16 :: proc(normal, up: [3]f16) -> matrix[4, 4]f16 {
         return MATRIX4F16_IDENTITY
     }
 
-    rotation_axis := vector_cross3(up, normal)
-    angle := math.acos(vector_dot(normal, up))
+    rotation_axis := vec3_cross(up, normal)
+    angle := math.acos(vec_dot(normal, up))
 
     return matrix4_rotate_f16(angle, rotation_axis)
 }
@@ -2241,8 +2241,8 @@ matrix4_orientation_f32 :: proc(normal, up: [3]f32) -> matrix[4, 4]f32 {
         return MATRIX4F32_IDENTITY
     }
 
-    rotation_axis := vector_cross3(up, normal)
-    angle := math.acos(vector_dot(normal, up))
+    rotation_axis := vec3_cross(up, normal)
+    angle := math.acos(vec_dot(normal, up))
 
     return matrix4_rotate_f32(angle, rotation_axis)
 }
@@ -2251,8 +2251,8 @@ matrix4_orientation_f64 :: proc(normal, up: [3]f64) -> matrix[4, 4]f64 {
         return MATRIX4F64_IDENTITY
     }
 
-    rotation_axis := vector_cross3(up, normal)
-    angle := math.acos(vector_dot(normal, up))
+    rotation_axis := vec3_cross(up, normal)
+    angle := math.acos(vec_dot(normal, up))
 
     return matrix4_rotate_f64(angle, rotation_axis)
 }
@@ -2294,7 +2294,7 @@ euclidean_from_polar_f64 :: proc(polar: [2]f64) -> [3]f64 {
 
 
 polar_from_euclidean_f16 :: proc(euclidean: [3]f16) -> [3]f16 {
-    n := vector_length(euclidean)
+    n := vec_length(euclidean)
     tmp := euclidean / n
 
     xz_dist := math.sqrt(tmp.x*tmp.x + tmp.z*tmp.z)
@@ -2306,7 +2306,7 @@ polar_from_euclidean_f16 :: proc(euclidean: [3]f16) -> [3]f16 {
     }
 }
 polar_from_euclidean_f32 :: proc(euclidean: [3]f32) -> [3]f32 {
-    n := vector_length(euclidean)
+    n := vec_length(euclidean)
     tmp := euclidean / n
 
     xz_dist := math.sqrt(tmp.x*tmp.x + tmp.z*tmp.z)
@@ -2318,7 +2318,7 @@ polar_from_euclidean_f32 :: proc(euclidean: [3]f32) -> [3]f32 {
     }
 }
 polar_from_euclidean_f64 :: proc(euclidean: [3]f64) -> [3]f64 {
-    n := vector_length(euclidean)
+    n := vec_length(euclidean)
     tmp := euclidean / n
 
     xz_dist := math.sqrt(tmp.x*tmp.x + tmp.z*tmp.z)

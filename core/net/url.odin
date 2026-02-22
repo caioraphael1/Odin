@@ -46,7 +46,7 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
         if query_str != "" {
             queries_parts, _ := strings.split(query_str, "&", allocator)
             defer _ = delete_slice(queries_parts, allocator)
-            queries, _ = make_map(map[string]string, len(queries_parts), allocator)
+            queries, _ = make_map_cap(map[string]string, len(queries_parts), allocator)
             for q in queries_parts {
                 parts, _ := strings.split(q, "=", allocator)
                 defer _ = delete_slice(parts, allocator)

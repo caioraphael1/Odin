@@ -581,13 +581,7 @@ Inputs:
 - allocator: 
 */
 destroy_iterator :: proc(it: Match_Iterator, allocator: runtime.Allocator) {
-    destroy(it.regex, allocator)
-    destroy(it.capture, allocator)
+    destroy_regex(it.regex, allocator)
+    destroy_capture(it.capture, allocator)
     virtual_machine.destroy(it.vm, allocator)
-}
-
-
-    destroy_regex,
-    destroy_capture,
-    destroy_iterator,
 }

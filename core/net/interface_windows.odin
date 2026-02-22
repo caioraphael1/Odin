@@ -60,7 +60,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
         return {}, .Unable_To_Enumerate_Network_Interfaces
     }
 
-    _interfaces, _ := make_dynamic_array([dynamic]Network_Interface, 0, allocator)
+    _interfaces, _ := make_dynamic_array_len([dynamic]Network_Interface, 0, allocator)
     for adapter := (^sys.IP_Adapter_Addresses)(raw_data(buf)); adapter != nil; adapter = adapter.Next {
         friendly_name, err1 := sys.wstring_to_utf8_alloc(sys.wstring(adapter.FriendlyName), 256, allocator)
         if err1 != nil { return {}, .Allocation_Failure }
