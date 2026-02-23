@@ -1014,7 +1014,7 @@ Creates a slice of `int` filled with random values using the provided random num
 
 Inputs:
 - n: The size of the created slice
-- allocator: (default: context.allocator)
+
 
 Returns:
 - res: A slice filled with random values

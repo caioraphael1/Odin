@@ -8,14 +8,14 @@ _IS_SUPPORTED :: true
 
 _now :: proc() -> Time {
 	foreign odin_env {
-		time_now :: proc "contextless" () -> i64 ---
+		time_now :: proc() -> i64 ---
 	}
 	return Time{time_now()*1e6}
 }
 
 _sleep :: proc(d: Duration) {
 	foreign odin_env {
-		time_sleep :: proc "contextless" (ms: u32) ---
+		time_sleep :: proc(ms: u32) ---
 	}
 	if d > 0 {
 		time_sleep(u32(d/1e6))
@@ -24,7 +24,7 @@ _sleep :: proc(d: Duration) {
 
 _tick_now :: proc() -> Tick {
 	foreign odin_env {
-		tick_now :: proc "contextless" () -> f64 ---
+		tick_now :: proc() -> f64 ---
 	}
 	return Tick{i64(tick_now()*1e6)}
 }

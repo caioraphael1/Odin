@@ -653,7 +653,6 @@ gb_internal void destroy_checker_type_path(CheckerTypePath *tp, gbAllocator allo
 gb_internal void    check_type_path_push(CheckerContext *c, Entity *e);
 gb_internal Entity *check_type_path_pop (CheckerContext *c);
 
-gb_internal void init_core_context(Checker *c);
 gb_internal void init_mem_allocator(Checker *c);
 
 gb_internal void add_untyped_expressions(CheckerInfo *cinfo, UntypedExprInfoMap *untyped);

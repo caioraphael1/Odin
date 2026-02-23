@@ -11,9 +11,7 @@ Read_Error :: enum {
     Unable_To_Read_File,
 }
 
-read_from_file :: proc(filename: string, print_error := false, allocator := context.allocator, loc := #caller_location) -> (file: File, err: Read_Error) {
-    context.allocator = allocator
-
+read_from_file :: proc(filename: string, print_error := false, allocator: mem.Allocator, loc := #caller_location) -> (file: File, err: Read_Error) {
     data, ok := os.read_entire_file(filename, allocator, loc)
     if !ok {
         err = .Unable_To_Read_File
@@ -25,7 +23,7 @@ read_from_file :: proc(filename: string, print_error := false, allocator := cont
     return
 }
 
-read :: proc(data: []byte, filename := "<input>", print_error := false, allocator := context.allocator, loc := #caller_location) -> (file: File, err: Read_Error) {
+read :: proc(data: []byte, filename := "<input>", print_error := false, allocator: mem.Allocator, loc := #caller_location) -> (file: File, err: Read_Error) {
     Reader :: struct {
         filename:    string,
         data:        []byte,
@@ -76,7 +74,7 @@ read :: proc(data: []byte, filename := "<input>", print_error := false, allocato
         return string(data[:len]), nil
     }
 
-    read_meta :: proc(r: ^Reader, capacity: u32le, allocator := context.allocator, loc := #caller_location) -> (meta_data: []Meta, err: Read_Error) {
+    read_meta :: proc(r: ^Reader, capacity: u32le, allocator: mem.Allocator, loc := #caller_location) -> (meta_data: []Meta, err: Read_Error) {
         meta_data = make_slice([]Meta, int(capacity), allocator=allocator)
         count := 0
         for &m in meta_data {
@@ -108,7 +106,7 @@ read :: proc(data: []byte, filename := "<input>", print_error := false, allocato
         return
     }
 
-    read_layer_stack :: proc(r: ^Reader, capacity: u32le, allocator := context.allocator, loc := #caller_location) -> (layers: Layer_Stack, err: Read_Error) {
+    read_layer_stack :: proc(r: ^Reader, capacity: u32le, allocator: mem.Allocator, loc := #caller_location) -> (layers: Layer_Stack, err: Read_Error) {
         stack_count := read_value(r, u32le) or_return
         layer_count := 0
         layers = make(Layer_Stack, stack_count, allocator=allocator, loc=loc)
@@ -146,8 +144,6 @@ read :: proc(data: []byte, filename := "<input>", print_error := false, allocato
         err = .Short_Read
         return
     }
-
-    context.allocator = allocator
 
     header := cast(^Header)raw_data(data)
     if (header.magic_number != MAGIC_NUMBER) {

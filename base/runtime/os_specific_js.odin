@@ -6,18 +6,18 @@ foreign import "odin_env"
 
 _HAS_RAND_BYTES :: true
 
-_stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
 	foreign odin_env {
-		write :: proc "contextless" (fd: u32, p: []byte) ---
+		write :: proc(fd: u32, p: []byte) ---
 	}
 	write(1, data)
 	return len(data), 0
 }
 
-_rand_bytes :: proc "contextless" (dst: []byte) {
+_rand_bytes :: proc(dst: []byte) {
 	foreign odin_env {
 		@(link_name = "rand_bytes")
-		env_rand_bytes :: proc "contextless" (buf: []byte) ---
+		env_rand_bytes :: proc(buf: []byte) ---
 	}
 
 	MAX_PER_CALL_BYTES :: 65536 // 64kiB
@@ -31,6 +31,6 @@ _rand_bytes :: proc "contextless" (dst: []byte) {
 	}
 }
 
-_exit :: proc "contextless" (code: int) -> ! {
+_exit :: proc(code: int) -> ! {
 	trap()
 }

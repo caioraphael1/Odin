@@ -251,7 +251,7 @@ IsNormalized :: proc "c" (v: Vec2) -> bool {
 }
 
 
-NormalizeChecked :: proc "odin" (v: Vec2) -> Vec2 {
+NormalizeChecked :: proc(v: Vec2) -> Vec2 {
 	length := Length(v)
 	if length < 1e-23 {
 		panic("zero-length Vec2")

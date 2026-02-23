@@ -1086,9 +1086,10 @@ gb_internal void check_objc_methods(CheckerContext *ctx, Entity *e, AttributeCon
                     error(e->token, "@(objc_is_implement) attribute may only be applied to procedures whose class also have @(objc_is_implement) applied");
                 } else if (!ac.objc_is_class_method && !(first_param->kind == Type_Pointer && internal_check_is_assignable_to(t, first_param->Pointer.elem))) {
                     error(e->token, "Objective-C instance methods implementations require the first parameter to be a pointer to the class type set by @(objc_type)");
-                } else if (proc.calling_convention == ProcCC_Odin && !tn->TypeName.objc_context_provider) {
+                } /* else if (proc.calling_convention == ProcCC_Odin && !tn->TypeName.objc_context_provider) {
                     error(e->token, "Objective-C methods with Odin calling convention can only be used with classes that have @(objc_context_provider) set");
-                } else if (ac.objc_is_class_method && proc.calling_convention != ProcCC_CDecl) {
+                }  */
+                else if (ac.objc_is_class_method && proc.calling_convention != ProcCC_CDecl) {
                     error(e->token, "Objective-C class methods (objc_is_class_method=true) that have @objc_is_implementation can only use \"c\" calling convention");
                 } else if (proc.result_count > 1) {
                     error(e->token, "Objective-C method implementations may return at most 1 value");
@@ -1233,7 +1234,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
     if (d->gen_proc_type != nullptr) {
         proc_type = d->gen_proc_type;
     } else {
-        proc_type = alloc_type_proc(e->scope, nullptr, 0, nullptr, 0, false, default_calling_convention());
+        proc_type = alloc_type_proc(e->scope, nullptr, 0, nullptr, 0, false, ProcCC_Odin);
     }
     e->type = proc_type;
     ast_node(pl, ProcLit, d->proc_lit);
@@ -1369,7 +1370,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
         if (type == nullptr || type->kind != Type_Proc) {
             return false;
         }
-        if (type->Proc.calling_convention != ProcCC_Contextless) {
+        if (type->Proc.calling_convention != ProcCC_Odin) {
             return false;
         }
         if (type->Proc.result_count != 0) {
@@ -1480,10 +1481,10 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
                 error(e->token, "Procedure type of 'main' was expected to be 'proc()', got %s", str);
                 gb_string_free(str);
             }
-            if (pt->calling_convention != default_calling_convention()) {
+            if (pt->calling_convention != ProcCC_Odin) {
                 error(e->token, "Procedure 'main' cannot have a custom calling convention");
             }
-            pt->calling_convention = default_calling_convention();
+            pt->calling_convention = ProcCC_Odin;
             if (e->pkg->kind == Package_Init) {
                 if (ctx->info->entry_point != nullptr) {
                     error(e->token, "Redeclaration of the entry pointer procedure 'main'");
@@ -1787,7 +1788,7 @@ gb_internal void check_entity_decl(CheckerContext *ctx, Entity *e, DeclInfo *d, 
         c.scope = d->scope;
         c.decl  = d;
         c.type_level = 0;
-        c.curr_proc_calling_convention = ProcCC_Contextless;
+        c.curr_proc_calling_convention = ProcCC_Odin;
 
         auto prev_flags = c.scope->flags;
         defer (c.scope->flags = prev_flags);

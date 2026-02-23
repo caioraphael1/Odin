@@ -45,7 +45,7 @@ Output:
     ^Node
 */
 @(builtin)
-container_of :: #force_inline proc "contextless" (ptr: $P/^$Field_Type, $T: typeid, $field_name: string) -> ^T
+container_of :: #force_inline proc(ptr: $P/^$Field_Type, $T: typeid, $field_name: string) -> ^T
     where intrinsics.type_has_field(T, field_name),
           intrinsics.type_field_type(T, field_name) == Field_Type {
     offset :: offset_of_by_string(T, field_name)
@@ -54,7 +54,7 @@ container_of :: #force_inline proc "contextless" (ptr: $P/^$Field_Type, $T: type
 
 
 @(optional_results)
-copy_slice_raw :: proc "contextless" (dst, src: rawptr, dst_len, src_len, elem_size: int) -> int {
+copy_slice_raw :: proc(dst, src: rawptr, dst_len, src_len, elem_size: int) -> int {
     n := min(dst_len, src_len)
     if n > 0 {
         intrinsics.mem_copy(dst, src, n*elem_size)
@@ -68,7 +68,7 @@ copy_slice_raw :: proc "contextless" (dst, src: rawptr, dst_len, src_len, elem_s
 //
 // Prefer the procedure group `copy`.
 @(builtin, optional_results)
-copy_slice :: #force_inline proc "contextless" (dst, src: $T/[]$E) -> int {
+copy_slice :: #force_inline proc(dst, src: $T/[]$E) -> int {
     return copy_slice_raw(raw_data(dst), raw_data(src), len(dst), len(src), size_of(E))
 }
 
@@ -78,7 +78,7 @@ copy_slice :: #force_inline proc "contextless" (dst, src: $T/[]$E) -> int {
 //
 // Prefer the procedure group `copy`.
 @(builtin, optional_results)
-copy_from_string :: #force_inline proc "contextless" (dst: $T/[]$E/u8, src: $S/string) -> int {
+copy_from_string :: #force_inline proc(dst: $T/[]$E/u8, src: $S/string) -> int {
     return copy_slice_raw(raw_data(dst), raw_data(src), len(dst), len(src), 1)
 }
 
@@ -88,7 +88,7 @@ copy_from_string :: #force_inline proc "contextless" (dst: $T/[]$E/u8, src: $S/s
 //
 // Prefer the procedure group `copy`.
 @(builtin, optional_results)
-copy_from_string16 :: #force_inline proc "contextless" (dst: $T/[]$E/u16, src: $S/string16) -> int {
+copy_from_string16 :: #force_inline proc(dst: $T/[]$E/u16, src: $S/string16) -> int {
     return copy_slice_raw(raw_data(dst), raw_data(src), len(dst), len(src), 2)
 }
 
@@ -161,7 +161,7 @@ _pop_type_erased :: proc(res: rawptr, array: ^Raw_Dynamic_Array, elem_size: int,
 // `pop_safe` trys to remove and return the end value of dynamic array `array` and reduces the length of `array` by 1.
 // If the operation is not possible, it will return false.
 @(builtin)
-pop_safe :: proc "contextless" (array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_check {
+pop_safe :: proc(array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_check {
     if len(array) == 0 {
         return
     }
@@ -187,7 +187,7 @@ pop_front :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #
 // `pop_front_safe` trys to return and remove the first value of dynamic array `array` and reduces the length of `array` by 1.
 // If the operation is not possible, it will return false.
 @(builtin)
-pop_front_safe :: proc "contextless" (array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_check {
+pop_front_safe :: proc(array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_check {
     if len(array) == 0 {
         return
     }
@@ -373,7 +373,7 @@ make_multi_pointer :: proc($T: typeid/[^]$E, #any_int len: int, allocator: Alloc
 //
 // Note: Prefer the procedure group `clear`
 @(builtin)
-clear_map :: proc "contextless" (m: ^$T/map[$K]$V) {
+clear_map :: proc(m: ^$T/map[$K]$V) {
     if m == nil {
         return
     }
@@ -670,7 +670,7 @@ assign_at_string :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: st
 
 // `clear_dynamic_array` will set the length of a passed dynamic array to `0`
 @(builtin)
-clear_dynamic_array :: proc "contextless" (array: ^$T/[dynamic]$E) {
+clear_dynamic_array :: proc(array: ^$T/[dynamic]$E) {
     if array != nil {
         (^Raw_Dynamic_Array)(array).len = 0
     }
@@ -882,7 +882,7 @@ map_entry :: proc(m: ^$T/map[$K]$V, key: K, loc := #caller_location) -> (key_ptr
 
 // `card` returns the number of bits that are set in a bit_set—its cardinality
 @(builtin)
-card :: proc "contextless" (s: $S/bit_set[$E; $U]) -> int {
+card :: proc(s: $S/bit_set[$E; $U]) -> int {
     return int(intrinsics.count_ones(transmute(intrinsics.type_bit_set_underlying_type(S))s))
 }
 
@@ -894,14 +894,14 @@ card :: proc "contextless" (s: $S/bit_set[$E; $U]) -> int {
 // This routine will be ignored when `ODIN_DISABLE_ASSERT` is true.
 @(builtin)
 @(disabled=ODIN_DISABLE_ASSERT)
-assert :: proc "contextless" (condition: bool, message := #caller_expression(condition), loc := #caller_location) {
+assert :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         // NOTE(bill): This is wrapped in a procedure call
         // to improve performance to make the CPU not
         // execute speculatively, making it about an order of
         // magnitude faster
         @(cold)
-        internal :: proc "contextless" (message: string, loc: Source_Code_Location) {
+        internal :: proc(message: string, loc: Source_Code_Location) {
             assertion_failure_proc("runtime assertion", message, loc)
         }
         internal(message, loc)
@@ -912,10 +912,10 @@ assert :: proc "contextless" (condition: bool, message := #caller_expression(con
 // This uses the `assertion_failure_proc` to assert.
 // This routine ignores `ODIN_DISABLE_ASSERT`, and will always execute.
 @(builtin)
-ensure :: proc "contextless" (condition: bool, message := #caller_expression(condition), loc := #caller_location) {
+ensure :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         @(cold)
-        internal :: proc "contextless" (message: string, loc: Source_Code_Location) {
+        internal :: proc(message: string, loc: Source_Code_Location) {
             assertion_failure_proc("unsatisfied ensure", message, loc)
         }
         internal(message, loc)
@@ -925,13 +925,13 @@ ensure :: proc "contextless" (condition: bool, message := #caller_expression(con
 // Panics the program with a message.
 // This uses the `assertion_failure_proc` to panic.
 @(builtin)
-panic :: proc "contextless" (message: string, loc := #caller_location) -> ! {
+panic :: proc(message: string, loc := #caller_location) -> ! {
     assertion_failure_proc("panic", message, loc)
 }
 
 // Panics the program with a message to indicate something has yet to be implemented.
 // This uses the `assertion_failure_proc` to assert.
 @(builtin)
-unimplemented :: proc "contextless" (message := "", loc := #caller_location) -> ! {
+unimplemented :: proc(message := "", loc := #caller_location) -> ! {
     assertion_failure_proc("not yet implemented", message, loc)
 }

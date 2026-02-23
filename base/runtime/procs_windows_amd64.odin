@@ -9,14 +9,14 @@ foreign kernel32 {
 	RaiseException :: proc "system" (dwExceptionCode, dwExceptionFlags, nNumberOfArguments: u32, lpArguments: ^uint) -> ! ---
 }
 
-windows_trap_array_bounds :: proc "contextless" () -> ! {
+windows_trap_array_bounds :: proc() -> ! {
 	EXCEPTION_ARRAY_BOUNDS_EXCEEDED :: 0xC000008C
 
 
 	RaiseException(EXCEPTION_ARRAY_BOUNDS_EXCEEDED, 0, 0, nil)
 }
 
-windows_trap_type_assertion :: proc "contextless" () -> ! {
+windows_trap_type_assertion :: proc() -> ! {
 	windows_trap_array_bounds()
 }
 

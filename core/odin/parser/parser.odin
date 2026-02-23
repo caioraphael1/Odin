@@ -1364,7 +1364,6 @@ parse_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
         fallthrough
     // Operands
     case .No_Inline,
-         .Context, // Also allows for 'context = '
          .Proc,
          .Ident,
          .Integer, .Float, .Imag,

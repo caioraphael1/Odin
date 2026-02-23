@@ -5,8 +5,8 @@ import "core:os"
 import "core:bytes"
 
 
-load_from_file :: proc(filename: string, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
-    context.allocator = allocator
+load_from_file :: proc(filename: string, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+
 
     data, ok := os.read_entire_file(filename)
     defer _ = delete_slice(data)
@@ -19,8 +19,8 @@ load_from_file :: proc(filename: string, options := Options{}, allocator := cont
 }
 
 
-save_to_file :: proc(output: string, img: ^Image, options := Options{}, allocator := context.allocator) -> (err: Error) {
-    context.allocator = allocator
+save_to_file :: proc(output: string, img: ^Image, options := Options{}, allocator : mem.Allocator) -> (err: Error) {
+
 
     out := &bytes.Buffer{}
     defer bytes.buffer_destroy(out)

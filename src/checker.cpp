@@ -16,7 +16,6 @@ gb_internal Type *check_type(CheckerContext *ctx, Ast *e);
 gb_internal bool is_operand_value(Operand o) {
     switch (o.mode) {
     case Addressing_Value:
-    case Addressing_Context:
     case Addressing_Variable:
     case Addressing_Constant:
     case Addressing_MapIndex:
@@ -1109,13 +1108,13 @@ gb_internal void init_universal(void) {
 
     {
         Type *equal_args[2] = {t_rawptr, t_rawptr};
-        t_equal_proc = alloc_type_proc_from_types(equal_args, gb_count_of(equal_args), t_bool, false, ProcCC_Contextless);
+        t_equal_proc = alloc_type_proc_from_types(equal_args, gb_count_of(equal_args), t_bool, false, ProcCC_Odin);
 
         Type *hasher_args[2] = {t_rawptr, t_uintptr};
-        t_hasher_proc = alloc_type_proc_from_types(hasher_args, gb_count_of(hasher_args), t_uintptr, false, ProcCC_Contextless);
+        t_hasher_proc = alloc_type_proc_from_types(hasher_args, gb_count_of(hasher_args), t_uintptr, false, ProcCC_Odin);
 
         Type *map_get_args[3] = {/*map*/t_rawptr, /*hash*/t_uintptr, /*key*/t_rawptr};
-        t_map_get_proc = alloc_type_proc_from_types(map_get_args, gb_count_of(map_get_args), t_rawptr, false, ProcCC_Contextless);
+        t_map_get_proc = alloc_type_proc_from_types(map_get_args, gb_count_of(map_get_args), t_rawptr, false, ProcCC_Odin);
     }
 
 // Constants
@@ -2000,9 +1999,7 @@ gb_internal bool could_entity_be_lazy(Entity *e, DeclInfo *d) {
             case_ast_node(i, Ident, elem);
                 name = i->token.string;
             case_end;
-            case_ast_node(i, Implicit, elem);
-                name = i->string;
-            case_end;
+
             case_ast_node(fv, FieldValue, elem);
                 if (fv->field->kind == Ast_Ident) {
                     name = fv->field->Ident.token.string;
@@ -2014,8 +2011,6 @@ gb_internal bool could_entity_be_lazy(Entity *e, DeclInfo *d) {
                 if (name == "test") {
                     return false;
                 } else if (name == "export") {
-                    return false;
-                } else if (name == "init") {
                     return false;
                 } else if (name == "linkage") {
                     return false;
@@ -3261,14 +3256,6 @@ gb_internal void init_mem_allocator(Checker *c) {
     t_allocator_error = find_core_type(c, str_lit("Allocator_Error"));
 }
 
-gb_internal void init_core_context(Checker *c) {
-    if (t_context != nullptr) {
-        return;
-    }
-    t_context = find_core_type(c, str_lit("Context"));
-    t_context_ptr = alloc_type_pointer(t_context);
-}
-
 gb_internal void init_core_source_code_location(Checker *c) {
     if (t_source_code_location != nullptr) {
         return;
@@ -3311,7 +3298,6 @@ gb_internal void init_core_objc_c(Checker *c) {
 gb_internal void init_preload(Checker *c) {
     init_core_type_info(c);
     init_mem_allocator(c);
-    init_core_context(c);
     init_core_source_code_location(c);
     init_core_map_type(c);
     init_core_objc_c(c);
@@ -4173,14 +4159,10 @@ gb_internal void check_decl_attributes(CheckerContext *c, Array<Ast *> const &at
             case_ast_node(i, Ident, elem);
                 name = i->token.string;
             case_end;
-            case_ast_node(i, Implicit, elem);
-                name = i->string;
-            case_end;
+
             case_ast_node(fv, FieldValue, elem);
                 if (fv->field->kind == Ast_Ident) {
                     name = fv->field->Ident.token.string;
-                } else if (fv->field->kind == Ast_Implicit) {
-                    name = fv->field->Implicit.string;
                 } else {
                     GB_PANIC("Unknown Field Value name");
                 }
@@ -6864,10 +6846,12 @@ gb_internal void check_objc_context_provider_procedures(Checker *c) {
 
         auto &proc = proc_entity->type->Proc;
 
+        /* CAIO(2026-02-23): I commented this.
         Type *return_type = proc.result_count != 1 ? t_untyped_nil : base_named_type(proc.results->Tuple.variables[0]->type);
         if (return_type != t_context) {
             error(proc_entity->token, "The @(objc_context_provider) procedure must only return a context.");
-        }
+        } 
+        */
 
         const char *self_param_err = "The @(objc_context_provider) procedure must take as a parameter a single pointer to the @(objc_type) value.";
         if (proc.param_count != 1) {
@@ -6884,7 +6868,7 @@ gb_internal void check_objc_context_provider_procedures(Checker *c) {
             !(e->TypeName.objc_ivar && internal_check_is_assignable_to(self_type, e->TypeName.objc_ivar))) {
             error(proc_entity->token, self_param_err);
         }
-        if (proc.calling_convention != ProcCC_CDecl && proc.calling_convention != ProcCC_Contextless) {
+        if (proc.calling_convention != ProcCC_CDecl && proc.calling_convention != ProcCC_Odin) {
             error(e->token, self_param_err);
         }
         if (proc.is_polymorphic) {

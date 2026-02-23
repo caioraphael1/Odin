@@ -190,7 +190,6 @@ gb_internal Ast *clone_ast(Ast *node, AstFile *f) {
     case Ast_Ident:
         n->Ident.entity = nullptr;
         break;
-    case Ast_Implicit:       break;
     case Ast_Uninit:         break;
     case Ast_BasicLit:       break;
     case Ast_BasicDirective: break;
@@ -747,11 +746,6 @@ gb_internal Ast *ast_ident(AstFile *f, Token token) {
     return result;
 }
 
-gb_internal Ast *ast_implicit(AstFile *f, Token token) {
-    Ast *result = alloc_ast_node(f, Ast_Implicit);
-    result->Implicit = token;
-    return result;
-}
 gb_internal Ast *ast_uninit(AstFile *f, Token token) {
     Ast *result = alloc_ast_node(f, Ast_Uninit);
     result->Uninit = token;
@@ -1558,9 +1552,6 @@ gb_internal Token expect_token(AstFile *f, TokenKind kind) {
         begin_error_block();
         syntax_error(f->curr_token, "Expected '%.*s', got '%.*s'", LIT(c), LIT(p));
         if (kind == Token_Ident) switch (prev.kind) {
-        case Token_context:
-            error_line("\tSuggestion: '%.*s' is a keyword, would 'ctx' suffice?\n", LIT(prev.string));
-            break;
         case Token_package:
             error_line("\tSuggestion: '%.*s' is a keyword, would 'pkg' suffice?\n", LIT(prev.string));
             break;
@@ -1742,14 +1733,14 @@ gb_internal void fix_advance_to_next_stmt(AstFile *f) {
     }
 }
 
-gb_internal Token expect_closing(AstFile *f, TokenKind kind, String const &context) {
+gb_internal Token expect_closing(AstFile *f, TokenKind kind, String const &closing_context) {
     if (f->curr_token.kind != kind &&
         f->curr_token.kind == Token_Semicolon &&
         (f->curr_token.string == "\n" || f->curr_token.kind == Token_EOF)) {
             if (f->allow_newline) {
             Token tok = f->prev_token;
             tok.pos.column += cast(i32)tok.string.len;
-            syntax_error(tok, "Missing ',' before newline in %.*s", LIT(context));
+            syntax_error(tok, "Missing ',' before newline in %.*s", LIT(closing_context));
         }
         advance_token(f);
     }
@@ -2343,9 +2334,6 @@ gb_internal Ast *parse_operand(AstFile *f, bool lhs) {
 
     case Token_Uninit:
         return ast_uninit(f, expect_token(f, Token_Uninit));
-
-    case Token_context:
-        return ast_implicit(f, expect_token(f, Token_context));
 
     case Token_Integer:
     case Token_Float:
@@ -3947,19 +3935,17 @@ gb_internal Ast *parse_results(AstFile *f, bool *diverging) {
 
 
 gb_internal ProcCallingConvention string_to_calling_convention(String const &s) {
-    if (s == "odin")        return ProcCC_Odin;
-    if (s == "contextless") return ProcCC_Contextless;
-    if (s == "cdecl")       return ProcCC_CDecl;
-    if (s == "c")           return ProcCC_CDecl;
-    if (s == "stdcall")     return ProcCC_StdCall;
-    if (s == "std")         return ProcCC_StdCall;
-    if (s == "fastcall")    return ProcCC_FastCall;
-    if (s == "fast")        return ProcCC_FastCall;
-    if (s == "none")        return ProcCC_None;
-    if (s == "naked")       return ProcCC_Naked;
+    if (s == "odin")  return ProcCC_Odin;
+    if (s == "c")     return ProcCC_CDecl;
 
-    if (s == "win64")   return ProcCC_Win64;
-    if (s == "sysv")        return ProcCC_SysV;
+    if (s == "std")   return ProcCC_StdCall;
+    if (s == "fast")  return ProcCC_FastCall;
+
+    if (s == "none")  return ProcCC_None;
+    if (s == "naked") return ProcCC_Naked;
+
+    if (s == "win64") return ProcCC_Win64;
+    if (s == "sysv")  return ProcCC_SysV;
 
     if (s == "system") {
         if (build_context.metrics.os == TargetOs_windows) {
@@ -3967,7 +3953,6 @@ gb_internal ProcCallingConvention string_to_calling_convention(String const &s) 
         }
         return ProcCC_CDecl;
     }
-
 
     return ProcCC_Invalid;
 }
@@ -3991,7 +3976,7 @@ gb_internal Ast *parse_proc_type(AstFile *f, Token proc_token) {
         if (f->in_foreign_block) {
             cc = ProcCC_ForeignBlockDefault;
         } else {
-            cc = default_calling_convention();
+            cc = ProcCC_Odin;
         }
     }
 
@@ -4192,16 +4177,6 @@ gb_internal Array<Ast *> convert_to_ident_list(AstFile *f, Array<AstAndFlags> li
         case Ast_Ident:
         case Ast_BadExpr:
             break;
-        case Ast_Implicit:
-            begin_error_block();
-            syntax_error(ident, "Expected an identifier, '%.*s' which is a keyword", LIT(ident->Implicit.string));
-            if (ident->Implicit.kind == Token_context) {
-                error_line("\tSuggestion: Would 'ctx' suffice as an alternative name?\n");
-            }
-            end_error_block();
-            ident = ast_ident(f, blank_token);
-            break;
-
         case Ast_PolyType:
             if (allow_poly_names) {
                 if (ident->PolyType.specialization == nullptr) {
@@ -5224,7 +5199,6 @@ gb_internal Ast *parse_stmt(AstFile *f) {
     Token token = f->curr_token;
     switch (token.kind) {
     // Operands
-    case Token_context: // Also allows for `context =`
     case Token_proc:
     case Token_Ident:
     case Token_Integer:

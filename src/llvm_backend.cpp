@@ -188,53 +188,6 @@ gb_internal void lb_correct_entity_linkage(lbGenerator *gen) {
 }
 
 
-gb_internal void lb_emit_init_context(lbProcedure *p, lbAddr addr) {
-    TEMPORARY_ALLOCATOR_GUARD();
-
-    GB_ASSERT(addr.kind == lbAddr_Context);
-    GB_ASSERT(addr.ctx.sel.index.count == 0);
-
-    auto args = array_make<lbValue>(temporary_allocator(), 1);
-    args[0] = addr.addr;
-    lb_emit_runtime_call(p, "__init_context", args);
-}
-
-gb_internal lbContextData *lb_push_context_onto_stack_from_implicit_parameter(lbProcedure *p) {
-    Type *pt = base_type(p->type);
-    GB_ASSERT(pt->kind == Type_Proc);
-    GB_ASSERT(pt->Proc.calling_convention == ProcCC_Odin);
-
-    String name = str_lit("__.context_ptr");
-
-    Entity *e = alloc_entity_param(nullptr, make_token_ident(name), t_context_ptr, false, false);
-    e->flags |= EntityFlag_NoAlias;
-
-    LLVMValueRef context_ptr = LLVMGetParam(p->value, LLVMCountParams(p->value)-1);
-    LLVMSetValueName2(context_ptr, cast(char const *)name.text, name.len);
-    context_ptr = LLVMBuildPointerCast(p->builder, context_ptr, lb_type(p->module, e->type), "");
-
-    lbValue param = {context_ptr, e->type};
-    lb_add_entity(p->module, e, param);
-    lbAddr ctx_addr = {};
-    ctx_addr.kind = lbAddr_Context;
-    ctx_addr.addr = param;
-
-    lbContextData *cd = array_add_and_get(&p->context_stack);
-    cd->ctx = ctx_addr;
-    cd->scope_index = -1;
-    cd->uses = +1; // make sure it has been used already
-    return cd;
-}
-
-gb_internal lbContextData *lb_push_context_onto_stack(lbProcedure *p, lbAddr ctx) {
-    ctx.kind = lbAddr_Context;
-    lbContextData *cd = array_add_and_get(&p->context_stack);
-    cd->ctx = ctx;
-    cd->scope_index = p->scope_index;
-    return cd;
-}
-
-
 gb_internal String lb_internal_gen_name_from_type(char const *prefix, Type *type) {
     gbString str = gb_string_make(permanent_allocator(), prefix);
     u64 hash = type_hash_canonical_type(type);
@@ -1758,32 +1711,7 @@ gb_internal void lb_finalize_objc_names(lbGenerator *gen, lbProcedure *p) {
             lb_add_attribute_to_proc(wrapper_proc->module, wrapper_proc->value, "nounwind");
 
             lb_begin_procedure_body(wrapper_proc);
-            {
-                LLVMValueRef context_addr = nullptr;
-                if (method_type->Proc.calling_convention == ProcCC_Odin) {
-                    GB_ASSERT(context_provider);
-
-                    // Emit the get odin context call
-                    get_context_args[0] = lbValue {
-                        wrapper_proc->raw_input_parameters[0],
-                        contex_provider_self_ptr_type,
-                    };
-
-                    if (is_context_provider_ivar) {
-                        // The context provider takes the ivar's type.
-                        // Emit an objc_ivar_get call and use that pointer for 'self' instead.
-                        lbValue real_self {
-                            wrapper_proc->raw_input_parameters[0],
-                            class_ptr_type
-                        };
-                        get_context_args[0] = lb_handle_objc_ivar_for_objc_object_pointer(wrapper_proc, real_self);
-                    }
-
-                    lbValue context = lb_emit_call(wrapper_proc, context_provider_proc_value, get_context_args);
-                    context_addr    = lb_address_from_load(wrapper_proc, context).value;//lb_address_from_load_or_generate_local(wrapper_proc, context));
-                    // context_addr = LLVMGetOperand(context.value, 0);
-                }
-
+            {               
                 isize method_forward_arg_count = method_param_count + method_param_offset;
                 isize method_forward_return_arg_offset = 0;
                 auto raw_method_args = array_make<LLVMValueRef>(temporary_allocator(), 0, method_forward_arg_count+1);
@@ -1809,10 +1737,6 @@ gb_internal void lb_finalize_objc_names(lbGenerator *gen, lbProcedure *p) {
 
                 for (isize i = 0; i < method_param_count; i++) {
                     array_add(&raw_method_args, wrapper_proc->raw_input_parameters[i+2+method_forward_return_arg_offset]);
-                }
-
-                if (method_type->Proc.calling_convention == ProcCC_Odin) {
-                    array_add(&raw_method_args, context_addr);
                 }
 
                 // Call real procedure for method from here, passing the parameters expected, if any.
@@ -2098,9 +2022,7 @@ gb_internal void lb_create_startup_runtime_generate_body(lbModule *m, lbProcedur
             lb_init_global_var(m, dummy, e, init_expr, var);
             lb_end_procedure_body(dummy);
 
-            LLVMValueRef context_ptr = lb_find_or_generate_context_ptr(p).addr.value;
-            LLVMValueRef cast_ctx = LLVMBuildBitCast(p->builder, context_ptr, LLVMPointerType(LLVMInt8TypeInContext(m->ctx), 0), "");
-            LLVMBuildCall2(p->builder, raw_dummy_type, dummy->value, &cast_ctx, 1, "");
+            LLVMBuildCall2(p->builder, raw_dummy_type, dummy->value, NULL, 0, "");
         } else {
             lb_init_global_var(m, p, e, init_expr, var);
         }

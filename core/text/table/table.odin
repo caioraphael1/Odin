@@ -74,17 +74,17 @@ unicode_width_proc :: proc(str: string) -> (width: int) {
 }
 
 
-init_with_allocator :: proc(tbl: ^Table, format_allocator := runtime.temp_allocator, table_allocator := context.allocator) -> ^Table {
+init_with_allocator :: proc(tbl: ^Table, format_allocator := runtime.temp_allocator, table_allocator : mem.Allocator) -> ^Table {
     tbl.table_allocator = table_allocator
     tbl.cells = make_dynamic_array([dynamic]Cell, tbl.table_allocator)
     tbl.colw = make_dynamic_array([dynamic]int, tbl.table_allocator)
     tbl.format_allocator = format_allocator
     return tbl
 }
-init_with_virtual_arena :: proc(tbl: ^Table, format_arena: ^virtual.Arena, table_allocator := context.allocator) -> ^Table {
+init_with_virtual_arena :: proc(tbl: ^Table, format_arena: ^virtual.Arena, table_allocator : mem.Allocator) -> ^Table {
     return init_with_allocator(tbl, virtual.arena_allocator(format_arena), table_allocator)
 }
-init_with_mem_arena :: proc(tbl: ^Table, format_arena: ^mem.Arena, table_allocator := context.allocator) -> ^Table {
+init_with_mem_arena :: proc(tbl: ^Table, format_arena: ^mem.Arena, table_allocator : mem.Allocator) -> ^Table {
     return init_with_allocator(tbl, mem.arena_allocator(format_arena), table_allocator)
 }
 

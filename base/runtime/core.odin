@@ -9,8 +9,8 @@ GingerBill:
     The compiler relies upon this _exact_ order.
     It's just a bootstrapping phase.
     It's in that order because they need to be evaluated very early on to make sure things can use them.
-Caio:
-    (2025-12-15) I changed the order, but I haven't got any errors.
+Caio(2025-12-15) I:
+    I have changed the order, but I haven't got any errors.
     src/ckecker.cpp:2941
     src/llvm_backend.cpp:199
 */
@@ -26,9 +26,9 @@ import "base:intrinsics"
 // This is probably only useful for freestanding targets
 foreign {
     @(link_name="__$startup_runtime")
-    _startup_runtime :: proc "odin" () ---
+    _startup_runtime :: proc() ---
     @(link_name="__$cleanup_runtime")
-    _cleanup_runtime :: proc "odin" () ---
+    _cleanup_runtime :: proc() ---
 }
 
 
@@ -60,19 +60,6 @@ Load_Directory_File :: struct {
 }
 
 
-//--------------------------------------------------------------------------------------------------
-// Context
-//--------------------------------------------------------------------------------------------------
-
-Context :: struct {
-    user_ptr:   rawptr,
-    user_index: int,
-
-    // Internal use only
-    _internal:  rawptr,
-}
-
-
 Source_Code_Location :: struct {
     file_path:    string,
     line, column: i32,
@@ -82,29 +69,19 @@ Source_Code_Location :: struct {
 // NOTE(bill): This must match the compiler's
 Calling_Convention :: enum u8 {
     Invalid     = 0,
+    
     Odin        = 1,
-    Contextless = 2,
-    CDecl       = 3,
-    Std_Call    = 4,
-    Fast_Call   = 5,
+    CDecl       = 2,
+    Std_Call    = 3,
+    Fast_Call   = 4,
 
-    None        = 6,
-    Naked       = 7,
+    None        = 5,
+    Naked       = 6,
 
-    _           = 8, // reserved
+    _           = 7, // reserved
 
-    Win64       = 9,
-    SysV        = 10,
-}
-
-/* 
-Caio: I decided to keep this, as removing it gave me a llvm compiler error on game compiling.
-    src/ckecker.cpp:2941
-    src/llvm_backend.cpp:199
-*/
-@(private)
-__init_context :: proc "contextless" (c: ^Context) {
-    return
+    Win64       = 8,
+    SysV        = 9,
 }
 
 
@@ -402,9 +379,9 @@ Platform_Endianness :: enum u8 {
 }
 
 // Procedure type to test whether two values of the same type are equal
-Equal_Proc :: distinct proc "contextless" (rawptr, rawptr) -> bool
+Equal_Proc :: distinct proc(rawptr, rawptr) -> bool
 // Procedure type to hash a value, default seed value is 0
-Hasher_Proc :: distinct proc "contextless" (data: rawptr, seed: uintptr = 0) -> uintptr
+Hasher_Proc :: distinct proc(data: rawptr, seed: uintptr = 0) -> uintptr
 
 Type_Info_Struct_Soa_Kind :: enum u8 {
     None    = 0,
@@ -602,7 +579,7 @@ type_table: []^Type_Info
 
 // type_info_base returns the base-type of a `^Type_Info` stripping the `distinct`ness from the first level
 
-type_info_base :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
+type_info_base :: proc(info: ^Type_Info) -> ^Type_Info {
     if info == nil {
         return nil
     }
@@ -622,7 +599,7 @@ type_info_base :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
 // returns the backing integer type of an enum or bit_set `^Type_Info`.
 // This is also aliased as `type_info_base_without_enum`
 
-type_info_core :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
+type_info_core :: proc(info: ^Type_Info) -> ^Type_Info {
     if info == nil {
         return nil
     }
@@ -644,7 +621,7 @@ type_info_core :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
 // This is also aliased as `type_info_core`
 type_info_base_without_enum :: type_info_core
 
-__type_info_of :: proc "contextless" (id: typeid) -> ^Type_Info #no_bounds_check {
+__type_info_of :: proc(id: typeid) -> ^Type_Info #no_bounds_check {
     n := u64(len(type_table))
     i := transmute(u64)id % n
     for _ in 0..<n {
@@ -659,7 +636,7 @@ __type_info_of :: proc "contextless" (id: typeid) -> ^Type_Info #no_bounds_check
 
 when !ODIN_NO_RTTI {
     // typeid_base returns the base-type of a `typeid` stripping the `distinct`ness from the first level
-    typeid_base :: proc "contextless" (id: typeid) -> typeid {
+    typeid_base :: proc(id: typeid) -> typeid {
         ti := type_info_of(id)
         ti = type_info_base(ti)
         return ti.id
@@ -667,7 +644,7 @@ when !ODIN_NO_RTTI {
     // typeid_core returns the core-type of a `typeid` stripping the `distinct`ness from the first level AND/OR
     // returns the backing integer type of an enum or bit_set `typeid`.
     // This is also aliased as `typeid_base_without_enum`
-    typeid_core :: proc "contextless" (id: typeid) -> typeid {
+    typeid_core :: proc(id: typeid) -> typeid {
         ti := type_info_core(type_info_of(id))
         return ti.id
     }
@@ -686,11 +663,11 @@ when !ODIN_NO_RTTI {
 debug_trap         :: intrinsics.debug_trap
 trap               :: intrinsics.trap
 
-Assertion_Failure_Proc :: #type proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> !
+Assertion_Failure_Proc :: #type proc(prefix, message: string, loc: Source_Code_Location) -> !
 assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 
 
-default_assertion_failure_proc :: proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> ! {
+default_assertion_failure_proc :: proc(prefix, message: string, loc: Source_Code_Location) -> ! {
     when ODIN_OS == .Freestanding {
         // Do nothing
     } else {

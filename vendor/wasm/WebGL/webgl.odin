@@ -173,108 +173,108 @@ foreign webgl {
 	Viewport :: proc(x, y, w, h: i32) ---
 }
 
-Uniform1fv :: proc "contextless" (location: i32, v: []f32) {
+Uniform1fv :: proc(location: i32, v: []f32) {
 	foreign webgl {
 		@(link_name="Uniform1fv")
-		_Uniform1fv :: proc "contextless" (location: i32, count: int, value: [^]f32) ---
+		_Uniform1fv :: proc(location: i32, count: int, value: [^]f32) ---
 	}
 	_Uniform1fv(location, len(v), &v[0])
 }
-Uniform2fv :: proc "contextless" (location: i32, v: []glm.vec2) {
+Uniform2fv :: proc(location: i32, v: []glm.vec2) {
 	foreign webgl {
 		@(link_name="Uniform2fv")
-		_Uniform2fv :: proc "contextless" (location: i32, count: int, value: [^]f32) ---
+		_Uniform2fv :: proc(location: i32, count: int, value: [^]f32) ---
 	}
 	_Uniform2fv(location, len(v), &v[0].x)
 }
-Uniform3fv :: proc "contextless" (location: i32, v: []glm.vec3) {
+Uniform3fv :: proc(location: i32, v: []glm.vec3) {
 	foreign webgl {
 		@(link_name="Uniform3fv")
-		_Uniform3fv :: proc "contextless" (location: i32, count: int, value: [^]f32) ---
+		_Uniform3fv :: proc(location: i32, count: int, value: [^]f32) ---
 	}
 	_Uniform3fv(location, len(v), &v[0].x)
 }
-Uniform4fv :: proc "contextless" (location: i32, v: []glm.vec4) {
+Uniform4fv :: proc(location: i32, v: []glm.vec4) {
 	foreign webgl {
 		@(link_name="Uniform4fv")
-		_Uniform4fv :: proc "contextless" (location: i32, count: int, value: [^]f32) ---
+		_Uniform4fv :: proc(location: i32, count: int, value: [^]f32) ---
 	}
 	_Uniform4fv(location, len(v), &v[0].x)
 }
 
-Uniform1iv :: proc "contextless" (location: i32, v: []i32) {
+Uniform1iv :: proc(location: i32, v: []i32) {
 	foreign webgl {
 		@(link_name="Uniform1iv")
-		_Uniform1iv :: proc "contextless" (location: i32, count: int, value: [^]i32) ---
+		_Uniform1iv :: proc(location: i32, count: int, value: [^]i32) ---
 	}
 	_Uniform1iv(location, len(v), &v[0])
 }
-Uniform2iv :: proc "contextless" (location: i32, v: []glm.ivec2) {
+Uniform2iv :: proc(location: i32, v: []glm.ivec2) {
 	foreign webgl {
 		@(link_name="Uniform2iv")
-		_Uniform2iv :: proc "contextless" (location: i32, count: int, value: [^]i32) ---
+		_Uniform2iv :: proc(location: i32, count: int, value: [^]i32) ---
 	}
 	_Uniform2iv(location, len(v), &v[0].x)
 }
-Uniform3iv :: proc "contextless" (location: i32, v: []glm.ivec3) {
+Uniform3iv :: proc(location: i32, v: []glm.ivec3) {
 	foreign webgl {
 		@(link_name="Uniform3iv")
-		_Uniform3iv :: proc "contextless" (location: i32, count: int, value: [^]i32) ---
+		_Uniform3iv :: proc(location: i32, count: int, value: [^]i32) ---
 	}
 	_Uniform3iv(location, len(v), &v[0].x)
 }
-Uniform4iv :: proc "contextless" (location: i32, v: []glm.ivec4) {
+Uniform4iv :: proc(location: i32, v: []glm.ivec4) {
 	foreign webgl {
 		@(link_name="Uniform4iv")
-		_Uniform4iv :: proc "contextless" (location: i32, count: int, value: [^]i32) ---
+		_Uniform4iv :: proc(location: i32, count: int, value: [^]i32) ---
 	}
 	_Uniform4iv(location, len(v), &v[0].x)
 }
 
-VertexAttrib1fv :: proc "contextless" (index: i32, v: f32)     { VertexAttrib1f(index, v) }
-VertexAttrib2fv :: proc "contextless" (index: i32, v: glm.vec2){ VertexAttrib2f(index, v.x, v.y) }
-VertexAttrib3fv :: proc "contextless" (index: i32, v: glm.vec3){ VertexAttrib3f(index, v.x, v.y, v.z) }
-VertexAttrib4fv :: proc "contextless" (index: i32, v: glm.vec4){ VertexAttrib4f(index, v.x, v.y, v.z, v.w) }
+VertexAttrib1fv :: proc(index: i32, v: f32)     { VertexAttrib1f(index, v) }
+VertexAttrib2fv :: proc(index: i32, v: glm.vec2){ VertexAttrib2f(index, v.x, v.y) }
+VertexAttrib3fv :: proc(index: i32, v: glm.vec3){ VertexAttrib3f(index, v.x, v.y, v.z) }
+VertexAttrib4fv :: proc(index: i32, v: glm.vec4){ VertexAttrib4f(index, v.x, v.y, v.z, v.w) }
 
-UniformMatrix2fv :: proc "contextless" (location: i32, m: glm.mat2) {
+UniformMatrix2fv :: proc(location: i32, m: glm.mat2) {
 	foreign webgl {
 		@(link_name="UniformMatrix2fv")
-		_UniformMatrix2fv :: proc "contextless" (location: i32, value: [^]f32) ---
+		_UniformMatrix2fv :: proc(location: i32, value: [^]f32) ---
 	}
 	value := transmute([2*2]f32)m
 	_UniformMatrix2fv(location, &value[0])
 }
-UniformMatrix3fv :: proc "contextless" (location: i32, m: glm.mat3) {
+UniformMatrix3fv :: proc(location: i32, m: glm.mat3) {
 	foreign webgl {
 		@(link_name="UniformMatrix3fv")
-		_UniformMatrix3fv :: proc "contextless" (location: i32, value: [^]f32) ---
+		_UniformMatrix3fv :: proc(location: i32, value: [^]f32) ---
 	}
 	value := transmute([3*3]f32)m
 	_UniformMatrix3fv(location, &value[0])
 }
-UniformMatrix4fv :: proc "contextless" (location: i32, m: glm.mat4) {
+UniformMatrix4fv :: proc(location: i32, m: glm.mat4) {
 	foreign webgl {
 		@(link_name="UniformMatrix4fv")
-		_UniformMatrix4fv :: proc "contextless" (location: i32, value: [^]f32) ---
+		_UniformMatrix4fv :: proc(location: i32, value: [^]f32) ---
 	}
 	value := transmute([4*4]f32)m
 	_UniformMatrix4fv(location, &value[0])
 }
 
-GetShaderiv :: proc "contextless" (shader: Shader, pname: Enum) -> (p: i32) {
+GetShaderiv :: proc(shader: Shader, pname: Enum) -> (p: i32) {
 	foreign webgl {
 		@(link_name="GetShaderiv")
-		_GetShaderiv :: proc "contextless" (shader: Shader, pname: Enum, p: ^i32) ---
+		_GetShaderiv :: proc(shader: Shader, pname: Enum, p: ^i32) ---
 	}
 	_GetShaderiv(shader, pname, &p)
 	return
 }
 
 
-GetProgramInfoLog :: proc "contextless" (program: Program, buf: []byte) -> string {
+GetProgramInfoLog :: proc(program: Program, buf: []byte) -> string {
 	foreign webgl {
 		@(link_name="GetProgramInfoLog")
-		_GetProgramInfoLog :: proc "contextless" (program: Program, buf: []byte, length: ^int) ---
+		_GetProgramInfoLog :: proc(program: Program, buf: []byte, length: ^int) ---
 	}
 	
 	length: int
@@ -282,10 +282,10 @@ GetProgramInfoLog :: proc "contextless" (program: Program, buf: []byte) -> strin
 	return string(buf[:length])
 }
 
-GetShaderInfoLog :: proc "contextless" (shader: Shader, buf: []byte) -> string {
+GetShaderInfoLog :: proc(shader: Shader, buf: []byte) -> string {
 	foreign webgl {
 		@(link_name="GetShaderInfoLog")
-		_GetShaderInfoLog :: proc "contextless" (shader: Shader, buf: []byte, length: ^int) ---
+		_GetShaderInfoLog :: proc(shader: Shader, buf: []byte, length: ^int) ---
 	}
 	
 	length: int
@@ -295,27 +295,27 @@ GetShaderInfoLog :: proc "contextless" (shader: Shader, buf: []byte) -> string {
 
 
 
-BufferDataSlice :: proc "contextless" (target: Enum, slice: $S/[]$E, usage: Enum) {
+BufferDataSlice :: proc(target: Enum, slice: $S/[]$E, usage: Enum) {
 	BufferData(target, len(slice)*size_of(E), raw_data(slice), usage)
 }
-BufferSubDataSlice :: proc "contextless" (target: Enum, offset: uintptr, slice: $S/[]$E) {
+BufferSubDataSlice :: proc(target: Enum, offset: uintptr, slice: $S/[]$E) {
 	BufferSubData(target, offset, len(slice)*size_of(E), raw_data(slice))
 }
 
-CompressedTexImage2DSlice :: proc "contextless" (target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, slice: $S/[]$E) {
+CompressedTexImage2DSlice :: proc(target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, slice: $S/[]$E) {
 	CompressedTexImage2DSlice(target, level, internalformat, width, height, border, len(slice)*size_of(E), raw_data(slice))
 }
-CompressedTexSubImage2DSlice :: proc "contextless" (target: Enum, level: i32, xoffset, yoffset, width, height: i32, format: Enum, slice: $S/[]$E) {
+CompressedTexSubImage2DSlice :: proc(target: Enum, level: i32, xoffset, yoffset, width, height: i32, format: Enum, slice: $S/[]$E) {
 	CompressedTexSubImage2DSlice(target, level, level, xoffset, yoffset, width, height, format, len(slice)*size_of(E), raw_data(slice))
 }
 
-ReadPixelsSlice :: proc "contextless" (x, y, width, height: i32, format: Enum, type: Enum, slice: $S/[]$E) {
+ReadPixelsSlice :: proc(x, y, width, height: i32, format: Enum, type: Enum, slice: $S/[]$E) {
 	ReadnPixels(x, y, width, height, format, type, len(slice)*size_of(E), raw_data(slice))
 }
 
-TexImage2DSlice :: proc "contextless" (target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, format, type: Enum, slice: $S/[]$E) {
+TexImage2DSlice :: proc(target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, format, type: Enum, slice: $S/[]$E) {
 	TexImage2D(target, level, internalformat, width, height, border, format, type, len(slice)*size_of(E), raw_data(slice))
 }
-TexSubImage2DSlice :: proc "contextless" (target: Enum, level: i32, xoffset, yoffset, width, height: i32, format, type: Enum, slice: $S/[]$E) {
+TexSubImage2DSlice :: proc(target: Enum, level: i32, xoffset, yoffset, width, height: i32, format, type: Enum, slice: $S/[]$E) {
 	TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, len(slice)*size_of(E), raw_data(slice))
 }

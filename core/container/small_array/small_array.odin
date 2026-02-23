@@ -454,7 +454,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER:  [0, 1]
 */
-pop_back :: proc "odin" (a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
+pop_back :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
     assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[a.len-1]
     a.len -= 1
@@ -493,7 +493,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER:  [1, 2]
 */
-pop_front :: proc "odin" (a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
+pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
     assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
@@ -607,7 +607,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER : [0]
 */
-consume :: proc "odin" (a: ^$A/Small_Array($N, $T), count: int, loc := #caller_location) {
+consume :: proc(a: ^$A/Small_Array($N, $T), count: int, loc := #caller_location) {
     assert(condition=a.len >= count, loc=loc)
     a.len -= count
 }

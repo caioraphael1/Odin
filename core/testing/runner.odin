@@ -95,7 +95,6 @@ JSON_Test :: struct {
 end_t :: proc(t: ^T) {
     for i := len(t.cleanups)-1; i >= 0; i -= 1 {
         #no_bounds_check c := t.cleanups[i]
-        context = c.ctx
         c.procedure(c.user_data)
     }
 
@@ -209,7 +208,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
     ERROR_STRING_UNKNOWN : string : "Test failed for unknown reasons."
     OSC_WINDOW_TITLE     : string : ansi.OSC + ansi.WINDOW_TITLE + ";Odin test runner (%i/%i)" + ansi.ST
 
-    safe_delete_string :: proc(s: string, allocator := context.allocator) {
+    safe_delete_string :: proc(s: string, allocator : mem.Allocator) {
         // Guard against bad frees on static strings.
         switch raw_data(s) {
         case raw_data(ERROR_STRING_TIMEOUT), raw_data(ERROR_STRING_UNKNOWN):
@@ -458,7 +457,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
     // persist log messages past their lifetimes. It has its own variable name
     // in the event it needs to be changed from `context.allocator` without
     // digging through the source to divine everywhere it is used for that.
-    shared_log_allocator := context.allocator
+    shared_log_allocator : mem.Allocator
 
     logger_options := Default_Test_Logger_Opts - {.Short_File_Path, .Line, .Procedure}
     if global_log_colors_disabled {

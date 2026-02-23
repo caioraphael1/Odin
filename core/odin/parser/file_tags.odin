@@ -64,7 +64,7 @@ get_build_arch_from_string :: proc(str: string) -> runtime.Odin_Arch_Type {
 }
 
 
-parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags: File_Tags) {
+parse_file_tags :: proc(file: ast.File, allocator : mem.Allocator) -> (tags: File_Tags) {
 	next_char :: proc(src: string, i: ^int) -> (ch: u8) {
 		if i^ < len(src) {
 			ch = src[i^]
@@ -205,7 +205,7 @@ parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags
 		}
 	}
 
-	context.allocator = allocator
+	
 
 	if file.docs == nil && file.tags == nil {
 		return

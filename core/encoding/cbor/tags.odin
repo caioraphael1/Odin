@@ -56,9 +56,9 @@ TAG_OBJECT_TYPE :: 1010
 
 // A tag implementation that handles marshals and unmarshals for the tag it is registered on.
 Tag_Implementation :: struct {
-	data:      rawptr,
-	unmarshal: Tag_Unmarshal_Proc,
-	marshal:   Tag_Marshal_Proc,
+    data:      rawptr,
+    unmarshal: Tag_Unmarshal_Proc,
+    marshal:   Tag_Marshal_Proc,
 }
 
 // Procedure responsible for umarshalling the tag out of the reader into the given `any`.
@@ -83,15 +83,15 @@ _tag_implementations_type: map[typeid]Tag_Implementation
 
 // Register a custom tag implementation to be used when marshalling that type and unmarshalling that tag number.
 tag_register_type :: proc(impl: Tag_Implementation, nr: Tag_Number, type: typeid) {
-	_tag_implementations_nr[nr] = impl
-	_tag_implementations_type[type] = impl
+    _tag_implementations_nr[nr] = impl
+    _tag_implementations_type[type] = impl
 }
 
 // Register a custom tag implementation to be used when marshalling that tag number or marshalling
 // a field with the struct tag `cbor_tag:"nr"`.
 tag_register_number :: proc(impl: Tag_Implementation, nr: Tag_Number, id: string) {
-	_tag_implementations_nr[nr] = impl
-	_tag_implementations_id[id] = impl
+    _tag_implementations_nr[nr] = impl
+    _tag_implementations_id[id] = impl
 }
 
 // Controls initialization of default tag implementations.
@@ -100,22 +100,22 @@ INITIALIZE_DEFAULT_TAGS :: #config(CBOR_INITIALIZE_DEFAULT_TAGS, !ODIN_DEFAULT_T
 // @(init) 
 @(private, disabled=!INITIALIZE_DEFAULT_TAGS)
 tags_initialize_defaults :: proc() {
-	tags_register_defaults()
+    tags_register_defaults()
 }
 
 // Registers tags that have implementations provided by this package.
 // This is done by default and can be controlled with the `CBOR_INITIALIZE_DEFAULT_TAGS` define.
 tags_register_defaults :: proc() {
-	tag_register_number({nil, tag_time_unmarshal,   tag_time_marshal},   TAG_EPOCH_TIME_NR, TAG_EPOCH_TIME_ID)
-	tag_register_number({nil, tag_base64_unmarshal, tag_base64_marshal}, TAG_BASE64_NR,     TAG_BASE64_ID)
-	tag_register_number({nil, tag_cbor_unmarshal,   tag_cbor_marshal},   TAG_CBOR_NR,       TAG_CBOR_ID)
+    tag_register_number({nil, tag_time_unmarshal,   tag_time_marshal},   TAG_EPOCH_TIME_NR, TAG_EPOCH_TIME_ID)
+    tag_register_number({nil, tag_base64_unmarshal, tag_base64_marshal}, TAG_BASE64_NR,     TAG_BASE64_ID)
+    tag_register_number({nil, tag_cbor_unmarshal,   tag_cbor_marshal},   TAG_CBOR_NR,       TAG_CBOR_ID)
 
-	// These following tags are registered at the type level and don't require an opt-in struct tag.
-	// Encoding these types on its own make no sense or no data is lost to encode it.
-	
-	// En/Decoding of `big.Int` fields by default.
-	tag_register_type({nil, tag_big_unmarshal, tag_big_marshal}, TAG_UNSIGNED_BIG_NR, big.Int)
-	tag_register_type({nil, tag_big_unmarshal, tag_big_marshal}, TAG_NEGATIVE_BIG_NR, big.Int)
+    // These following tags are registered at the type level and don't require an opt-in struct tag.
+    // Encoding these types on its own make no sense or no data is lost to encode it.
+    
+    // En/Decoding of `big.Int` fields by default.
+    tag_register_type({nil, tag_big_unmarshal, tag_big_marshal}, TAG_UNSIGNED_BIG_NR, big.Int)
+    tag_register_type({nil, tag_big_unmarshal, tag_big_marshal}, TAG_NEGATIVE_BIG_NR, big.Int)
 }
 
 // Tag number 1 contains a numerical value counting the number of seconds from 1970-01-01T00:00Z
@@ -124,262 +124,261 @@ tags_register_defaults :: proc() {
 // See RFC 8949 section 3.4.2.
 @(private)
 tag_time_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, v: any) -> (err: Unmarshal_Error) {
-	hdr := _decode_header(d.reader) or_return
-	#partial switch hdr {
-	case .U8, .U16, .U32, .U64, .Neg_U8, .Neg_U16, .Neg_U32, .Neg_U64:
-		switch &dst in v {
-		case time.Time:
-			secs: i64
-			_unmarshal_any_ptr(d, &secs, hdr) or_return
-			dst = time.unix(i64(secs), 0)
-			return
-		case:
-			return _unmarshal_value(d, v, hdr)
-		}
+    hdr := _decode_header(d.reader) or_return
+    #partial switch hdr {
+    case .U8, .U16, .U32, .U64, .Neg_U8, .Neg_U16, .Neg_U32, .Neg_U64:
+        switch &dst in v {
+        case time.Time:
+            secs: i64
+            _unmarshal_any_ptr(d, &secs, hdr) or_return
+            dst = time.unix(i64(secs), 0)
+            return
+        case:
+            return _unmarshal_value(d, v, hdr)
+        }
 
-	case .F16, .F32, .F64:
-		switch &dst in v {
-		case time.Time:
-			f: f64
-			_unmarshal_any_ptr(d, &f, hdr) or_return
-			whole, fract := math.modf(f)
-			dst = time.unix(i64(whole), i64(fract * 1e9))
-			return
-		case:
-			return _unmarshal_value(d, v, hdr)
-		}
+    case .F16, .F32, .F64:
+        switch &dst in v {
+        case time.Time:
+            f: f64
+            _unmarshal_any_ptr(d, &f, hdr) or_return
+            whole, fract := math.modf(f)
+            dst = time.unix(i64(whole), i64(fract * 1e9))
+            return
+        case:
+            return _unmarshal_value(d, v, hdr)
+        }
 
-	case:
-		maj, add := _header_split(hdr)
-		secs: u8
-		#partial switch maj {
-		case .Unsigned:
-			secs = _decode_tiny_u8(add) or_return
-		case .Other:
-			secs = u8(_decode_tiny_simple(add) or_return)
-		case:
-			return .Bad_Tag_Value
-		}
+    case:
+        maj, add := _header_split(hdr)
+        secs: u8
+        #partial switch maj {
+        case .Unsigned:
+            secs = _decode_tiny_u8(add) or_return
+        case .Other:
+            secs = u8(_decode_tiny_simple(add) or_return)
+        case:
+            return .Bad_Tag_Value
+        }
 
-		switch &dst in v {
-		case time.Time:
-			dst = time.unix(i64(secs), 0)
-			return
-		case:
-			if _assign_int(v, secs) { return }
-		}
-	}
+        switch &dst in v {
+        case time.Time:
+            dst = time.unix(i64(secs), 0)
+            return
+        case:
+            if _assign_int(v, secs) { return }
+        }
+    }
 
-	return _unsupported(v, hdr)
+    return _unsupported(v, hdr)
 }
 
 @(private)
 tag_time_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_Error {
-	switch vv in v {
-	case time.Time:
-		// NOTE: we lose precision here, which is one of the reasons for this tag being opt-in.
-		i := time.time_to_unix(vv)
+    switch vv in v {
+    case time.Time:
+        // NOTE: we lose precision here, which is one of the reasons for this tag being opt-in.
+        i := time.time_to_unix(vv)
 
-		_encode_u8(e.writer, TAG_EPOCH_TIME_NR, .Tag) or_return
-		return err_conv(_encode_uint(e, _int_to_uint(i)))
-	case:
-		unreachable()
-	}
+        _encode_u8(e.writer, TAG_EPOCH_TIME_NR, .Tag) or_return
+        return err_conv(_encode_uint(e, _int_to_uint(i)))
+    case:
+        unreachable()
+    }
 }
 
 @(private)
 tag_big_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, tnr: Tag_Number, v: any) -> (err: Unmarshal_Error) {
-	hdr := _decode_header(d.reader) or_return
-	maj, add := _header_split(hdr)
-	if maj != .Bytes {
-		// Only bytes are supported in this tag.
-		return .Bad_Tag_Value
-	}
+    hdr := _decode_header(d.reader) or_return
+    maj, add := _header_split(hdr)
+    if maj != .Bytes {
+        // Only bytes are supported in this tag.
+        return .Bad_Tag_Value
+    }
 
-	switch &dst in v {
-	case big.Int:
-		bytes := err_conv(_decode_bytes(d, add)) or_return
-		defer _ = delete_slice(bytes)
+    switch &dst in v {
+    case big.Int:
+        bytes := err_conv(_decode_bytes(d, add)) or_return
+        defer _ = delete_slice(bytes)
 
-		if err := big.int_from_bytes_big(&dst, bytes); err != nil {
-			return .Bad_Tag_Value
-		}
+        if err := big.int_from_bytes_big(&dst, bytes); err != nil {
+            return .Bad_Tag_Value
+        }
 
-		if tnr ==  TAG_NEGATIVE_BIG_NR {
-			dst.sign = .Negative
-		}
+        if tnr ==  TAG_NEGATIVE_BIG_NR {
+            dst.sign = .Negative
+        }
 
-		return
-	}
+        return
+    }
 
-	return _unsupported(v, hdr)
+    return _unsupported(v, hdr)
 }
 
 @(private)
 tag_big_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_Error {
-	switch &vv in v {
-	case big.Int:
-		if !big.int_is_initialized(&vv) {
-			_encode_u8(e.writer, TAG_UNSIGNED_BIG_NR, .Tag) or_return
-			return _encode_u8(e.writer, 0, .Bytes)
-		}
+    switch &vv in v {
+    case big.Int:
+        if !big.int_is_initialized(&vv) {
+            _encode_u8(e.writer, TAG_UNSIGNED_BIG_NR, .Tag) or_return
+            return _encode_u8(e.writer, 0, .Bytes)
+        }
 
-		// NOTE: using the panic_allocator because all procedures should only allocate if the Int
-		// is uninitialized (which we checked).
+        // NOTE: using the panic_allocator because all procedures should only allocate if the Int
+        // is uninitialized (which we checked).
 
-		is_neg, err := big.is_negative(&vv, mem.panic_allocator())
-		assert(err == nil, "should only error if not initialized, which has been checked")
-		
-		tnr: u8 = TAG_NEGATIVE_BIG_NR if is_neg else TAG_UNSIGNED_BIG_NR
-		_encode_u8(e.writer, tnr, .Tag) or_return
+        is_neg, err := big.is_negative(&vv, mem.panic_allocator())
+        assert(err == nil, "should only error if not initialized, which has been checked")
+        
+        tnr: u8 = TAG_NEGATIVE_BIG_NR if is_neg else TAG_UNSIGNED_BIG_NR
+        _encode_u8(e.writer, tnr, .Tag) or_return
 
-		size_in_bytes, berr := big.int_to_bytes_size(&vv, false, mem.panic_allocator())
-		assert(berr == nil, "should only error if not initialized, which has been checked")
-		assert(size_in_bytes >= 0)
+        size_in_bytes, berr := big.int_to_bytes_size(&vv, false, mem.panic_allocator())
+        assert(berr == nil, "should only error if not initialized, which has been checked")
+        assert(size_in_bytes >= 0)
 
-		err_conv(_encode_u64(e, u64(size_in_bytes), .Bytes)) or_return
+        err_conv(_encode_u64(e, u64(size_in_bytes), .Bytes)) or_return
 
-		for offset := (size_in_bytes*8)-8; offset >= 0; offset -= 8 {
-			bits, derr := big.int_bitfield_extract(&vv, offset, 8, mem.panic_allocator())
-			assert(derr == nil, "should only error if not initialized or invalid argument (offset and count), which won't happen")
+        for offset := (size_in_bytes*8)-8; offset >= 0; offset -= 8 {
+            bits, derr := big.int_bitfield_extract(&vv, offset, 8, mem.panic_allocator())
+            assert(derr == nil, "should only error if not initialized or invalid argument (offset and count), which won't happen")
 
-			_ = io.write_full(e.writer, {u8(bits & 255)}) or_return
-		}
-		return nil
+            _ = io.write_full(e.writer, {u8(bits & 255)}) or_return
+        }
+        return nil
 
-	case: unreachable()
-	}
+    case: unreachable()
+    }
 }
 
 @(private)
 tag_cbor_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, v: any) -> Unmarshal_Error {
-	hdr := _decode_header(d.reader) or_return
-	major, add := _header_split(hdr)
-	#partial switch major {
-	case .Bytes:
-		ti := reflect.type_info_base(type_info_of(v.id))
-		return _unmarshal_bytes(d, v, ti, hdr, add)
-		
-	case: return .Bad_Tag_Value
-	}
+    hdr := _decode_header(d.reader) or_return
+    major, add := _header_split(hdr)
+    #partial switch major {
+    case .Bytes:
+        ti := reflect.type_info_base(type_info_of(v.id))
+        return _unmarshal_bytes(d, v, ti, hdr, add)
+        
+    case: return .Bad_Tag_Value
+    }
 }
 
 @(private)
 tag_cbor_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_Error {
-	_encode_u8(e.writer, TAG_CBOR_NR, .Tag) or_return
-	ti := runtime.type_info_base(type_info_of(v.id))
-	#partial switch t in ti.variant {
-	case runtime.Type_Info_String:
-		return marshal_into(e, v)
-	case runtime.Type_Info_Array:
-		elem_base := reflect.type_info_base(t.elem)
-		if elem_base.id != byte { return .Bad_Tag_Value }
-		return marshal_into(e, v)
-	case runtime.Type_Info_Slice:
-		elem_base := reflect.type_info_base(t.elem)
-		if elem_base.id != byte { return .Bad_Tag_Value }
-		return marshal_into(e, v)
-	case runtime.Type_Info_Dynamic_Array:
-		elem_base := reflect.type_info_base(t.elem)
-		if elem_base.id != byte { return .Bad_Tag_Value }
-		return marshal_into(e, v)
-	case:
-		return .Bad_Tag_Value
-	}
+    _encode_u8(e.writer, TAG_CBOR_NR, .Tag) or_return
+    ti := runtime.type_info_base(type_info_of(v.id))
+    #partial switch t in ti.variant {
+    case runtime.Type_Info_String:
+        return marshal_into(e, v)
+    case runtime.Type_Info_Array:
+        elem_base := reflect.type_info_base(t.elem)
+        if elem_base.id != byte { return .Bad_Tag_Value }
+        return marshal_into(e, v)
+    case runtime.Type_Info_Slice:
+        elem_base := reflect.type_info_base(t.elem)
+        if elem_base.id != byte { return .Bad_Tag_Value }
+        return marshal_into(e, v)
+    case runtime.Type_Info_Dynamic_Array:
+        elem_base := reflect.type_info_base(t.elem)
+        if elem_base.id != byte { return .Bad_Tag_Value }
+        return marshal_into(e, v)
+    case:
+        return .Bad_Tag_Value
+    }
 }
 
 @(private)
 tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, v: any) -> (err: Unmarshal_Error) {
-	hdr        := _decode_header(d.reader) or_return
-	major, add := _header_split(hdr)
-	ti         := reflect.type_info_base(type_info_of(v.id))
+    hdr        := _decode_header(d.reader) or_return
+    major, add := _header_split(hdr)
+    ti         := reflect.type_info_base(type_info_of(v.id))
 
-	if major != .Text && major != .Bytes {
-		return .Bad_Tag_Value
-	}
+    if major != .Text && major != .Bytes {
+        return .Bad_Tag_Value
+    }
 
-	bytes := string(err_conv(_decode_bytes(d, add, allocator=runtime.temp_allocator)) or_return)
-	defer _ = delete_slice(bytes, runtime.temp_allocator)
+    bytes := string(err_conv(_decode_bytes(d, add, allocator=runtime.temp_allocator)) or_return)
+    defer _ = delete_slice(bytes, runtime.temp_allocator)
 
-	#partial switch t in ti.variant {
-	case reflect.Type_Info_String:
-		assert(t.encoding == .UTF_8)
-		if t.is_cstring {
-			length  := base64.decoded_len(bytes)
-			builder := strings.builder_make(0, length+1)
-			base64.decode_into(strings.to_stream(&builder), bytes) or_return
+    #partial switch t in ti.variant {
+    case reflect.Type_Info_String:
+        assert(t.encoding == .UTF_8)
+        if t.is_cstring {
+            length  := base64.decoded_len(bytes)
+            builder := strings.builder_make(0, length+1)
+            base64.decode_into(strings.to_stream(&builder), bytes) or_return
 
-			raw  := (^cstring)(v.data)
-			raw^  = cstring(raw_data(builder.buf))
-		} else {
-			raw  := (^string)(v.data)
-			raw^  = string(base64.decode(bytes) or_return)
-		}
+            raw  := (^cstring)(v.data)
+            raw^  = cstring(raw_data(builder.buf))
+        } else {
+            raw  := (^string)(v.data)
+            raw^  = string(base64.decode(bytes) or_return)
+        }
 
-		return
+        return
 
-	case reflect.Type_Info_Slice:
-		elem_base := reflect.type_info_base(t.elem)
+    case reflect.Type_Info_Slice:
+        elem_base := reflect.type_info_base(t.elem)
 
-		if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != byte { return _unsupported(v, hdr) }
 
-		raw  := (^[]byte)(v.data)
-		raw^  = base64.decode(bytes) or_return
-		return
-		
-	case reflect.Type_Info_Dynamic_Array:
-		elem_base := reflect.type_info_base(t.elem)
+        raw  := (^[]byte)(v.data)
+        raw^  = base64.decode(bytes) or_return
+        return
+        
+    case reflect.Type_Info_Dynamic_Array:
+        elem_base := reflect.type_info_base(t.elem)
 
-		if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != byte { return _unsupported(v, hdr) }
 
-		decoded := base64.decode(bytes) or_return
-		
-		raw           := (^mem.Raw_Dynamic_Array)(v.data)
-		raw.data       = raw_data(decoded)
-		raw.len        = len(decoded)
-		raw.cap        = len(decoded)
-		raw.allocator  = context.allocator
-		return
+        decoded := base64.decode(bytes) or_return
+        
+        raw           := (^mem.Raw_Dynamic_Array)(v.data)
+        raw.data       = raw_data(decoded)
+        raw.len        = len(decoded)
+        raw.cap        = len(decoded)
+        return
 
-	case reflect.Type_Info_Array:
-		elem_base := reflect.type_info_base(t.elem)
+    case reflect.Type_Info_Array:
+        elem_base := reflect.type_info_base(t.elem)
 
-		if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != byte { return _unsupported(v, hdr) }
 
-		if base64.decoded_len(bytes) > t.count { return _unsupported(v, hdr) }
-		
-		slice := ([^]byte)(v.data)[:len(bytes)]
-		copy_slice(slice, base64.decode(bytes) or_return)
-		return
-	}
+        if base64.decoded_len(bytes) > t.count { return _unsupported(v, hdr) }
+        
+        slice := ([^]byte)(v.data)[:len(bytes)]
+        copy_slice(slice, base64.decode(bytes) or_return)
+        return
+    }
 
-	return _unsupported(v, hdr)
+    return _unsupported(v, hdr)
 }
 
 @(private)
 tag_base64_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_Error {
-	_encode_u8(e.writer, TAG_BASE64_NR, .Tag) or_return
+    _encode_u8(e.writer, TAG_BASE64_NR, .Tag) or_return
 
-	ti := runtime.type_info_base(type_info_of(v.id))
-	a := any{v.data, ti.id}
+    ti := runtime.type_info_base(type_info_of(v.id))
+    a := any{v.data, ti.id}
 
-	bytes: []byte
-	switch val in a {
-	case string:        bytes = transmute([]byte)val
-	case cstring:       bytes = transmute([]byte)string(val)
-	case []byte:        bytes = val
-	case [dynamic]byte: bytes = val[:]
-	case:
-		#partial switch t in ti.variant {
-		case runtime.Type_Info_Array:
-			if t.elem.id != byte { return .Bad_Tag_Value }
-			bytes = ([^]byte)(v.data)[:t.count]
-		case:
-			return .Bad_Tag_Value
-		}
-	}
+    bytes: []byte
+    switch val in a {
+    case string:        bytes = transmute([]byte)val
+    case cstring:       bytes = transmute([]byte)string(val)
+    case []byte:        bytes = val
+    case [dynamic]byte: bytes = val[:]
+    case:
+        #partial switch t in ti.variant {
+        case runtime.Type_Info_Array:
+            if t.elem.id != byte { return .Bad_Tag_Value }
+            bytes = ([^]byte)(v.data)[:t.count]
+        case:
+            return .Bad_Tag_Value
+        }
+    }
 
-	out_len := base64.encoded_len(bytes)
-	err_conv(_encode_u64(e, u64(out_len), .Text)) or_return
-	return base64.encode_into(e.writer, bytes)
+    out_len := base64.encoded_len(bytes)
+    err_conv(_encode_u64(e, u64(out_len), .Text)) or_return
+    return base64.encode_into(e.writer, bytes)
 }

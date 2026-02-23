@@ -8,8 +8,6 @@ import "base:intrinsics"
 when ODIN_BUILD_MODE == .Dynamic {
     @(link_name="DllMain", linkage="strong", require)
     DllMain :: proc "system" (hinstDLL: rawptr, fdwReason: u32, lpReserved: rawptr) -> b32 {
-        context = {}
-
         // Populate Windows DLL-specific globals
         dll_forward_reason = DLL_Forward_Reason(fdwReason)
         dll_instance       = hinstDLL
@@ -31,7 +29,6 @@ when ODIN_BUILD_MODE == .Dynamic {
         // Note: "c" calling convention adds underscore prefix automatically on i386
         @(link_name="main", linkage="strong", require)
         main :: proc "c" (argc: i32, argv: [^]cstring) -> i32 {
-            context = {}
             args__ = argv[:argc]
             intrinsics.__entry_point()
             return 0
@@ -39,14 +36,12 @@ when ODIN_BUILD_MODE == .Dynamic {
     } else when ODIN_NO_CRT {
         @(link_name="mainCRTStartup", linkage="strong", require)
         mainCRTStartup :: proc "system" () -> i32 {
-            context = {}
             intrinsics.__entry_point()
             return 0
         }
     } else {
         @(link_name="main", linkage="strong", require)
         main :: proc "c" (argc: i32, argv: [^]cstring) -> i32 {
-            context = {}
             args__ = argv[:argc]
             intrinsics.__entry_point()
             return 0

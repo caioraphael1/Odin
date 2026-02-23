@@ -429,14 +429,10 @@ gb_internal OdinDocArray<OdinDocAttribute> odin_doc_attributes(OdinDocWriter *w,
             case_ast_node(i, Ident, elem);
                 name = i->token.string;
             case_end;
-            case_ast_node(i, Implicit, elem);
-                name = i->string;
-            case_end;
+
             case_ast_node(fv, FieldValue, elem);
                 if (fv->field->kind == Ast_Ident) {
                     name = fv->field->Ident.token.string;
-                } else if (fv->field->kind == Ast_Implicit) {
-                    name = fv->field->Implicit.string;
                 }
                 value = fv->value;
             case_end;

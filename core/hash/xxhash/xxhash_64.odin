@@ -162,13 +162,13 @@ XXH64 :: proc(input: []u8, seed := XXH64_DEFAULT_SEED) -> (digest: XXH64_hash) {
 /*
 	******   Hash Streaming   ******
 */
-XXH64_create_state :: proc(allocator := context.allocator) -> (res: ^XXH64_state, err: Error) {
+XXH64_create_state :: proc(allocator : mem.Allocator) -> (res: ^XXH64_state, err: Error) {
 	state := new(XXH64_state, allocator)
 	XXH64_reset_state(state)
 	return state, .None if state != nil else .Error
 }
 
-XXH64_destroy_state :: proc(state: ^XXH64_state, allocator := context.allocator) -> (err: Error) {
+XXH64_destroy_state :: proc(state: ^XXH64_state, allocator : mem.Allocator) -> (err: Error) {
 	_ = free(state, allocator)
 	return .None
 }

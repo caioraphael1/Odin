@@ -82,25 +82,25 @@ FXECHO_DEFAULT_DELAY :: 500.0
 // The EQ supports only f32 audio foramts.
 // The framerate must be within [22000, 48000] Hz.
 FXEQ_PARAMETERS :: struct #packed {
-	FrequencyCenter0: f32,  // center frequency in Hz, band 0
-	Gain0:            f32,  // boost/cut
-	Bandwidth0:       f32,  // bandwidth, region of EQ is center frequency +/- bandwidth/2
-	FrequencyCenter1: f32,  // band 1
-	Gain1:            f32,
-	Bandwidth1:       f32,
-	FrequencyCenter2: f32,  // band 2
-	Gain2:            f32,
-	Bandwidth2:       f32,
-	FrequencyCenter3: f32,  // band 3
-	Gain3:            f32,
-	Bandwidth3:       f32,
+    FrequencyCenter0: f32,  // center frequency in Hz, band 0
+    Gain0:            f32,  // boost/cut
+    Bandwidth0:       f32,  // bandwidth, region of EQ is center frequency +/- bandwidth/2
+    FrequencyCenter1: f32,  // band 1
+    Gain1:            f32,
+    Bandwidth1:       f32,
+    FrequencyCenter2: f32,  // band 2
+    Gain2:            f32,
+    Bandwidth2:       f32,
+    FrequencyCenter3: f32,  // band 3
+    Gain3:            f32,
+    Bandwidth3:       f32,
 }
 
 // Mastering limiter parameters, used with IXAPOParameters.SetParameters:
 // The mastering limiter supports only f32 audio formats.
 FXMASTERINGLIMITER_PARAMETERS :: struct #packed {
-	Release:  u32,  // release time (tuning factor with no specific units)
-	Loudness: u32,  // loudness target (threshold)
+    Release:  u32,  // release time (tuning factor with no specific units)
+    Loudness: u32,  // loudness target (threshold)
 }
 
 // Reverb parameters, used with IXAPOParameters.SetParameters:
@@ -108,31 +108,31 @@ FXMASTERINGLIMITER_PARAMETERS :: struct #packed {
 //     Input: Mono   Output: Mono
 //     Input: Stereo Output: Stereo
 FXREVERB_PARAMETERS :: struct #packed {
-	Diffusion: f32,  // diffusion
-	RoomSize:  f32,  // room size
+    Diffusion: f32,  // diffusion
+    RoomSize:  f32,  // room size
 }
 
 
 // Echo initialization data, used with CreateFX:
 // Use of this structure is optional, the default MaxDelay is FXECHO_DEFAULT_DELAY.
 FXECHO_INITDATA :: struct #packed {
-	MaxDelay: f32,  // maximum delay (all channels) in milliseconds, must be within [FXECHO_MIN_DELAY, FXECHO_MAX_DELAY]
+    MaxDelay: f32,  // maximum delay (all channels) in milliseconds, must be within [FXECHO_MIN_DELAY, FXECHO_MAX_DELAY]
 }
 
 // Echo parameters, used with IXAPOParameters.SetParameters:
 // The echo supports only f32 audio formats.
 FXECHO_PARAMETERS :: struct #packed {
-	WetDryMix: f32,   // ratio of wet (processed) signal to dry (original) signal
-	Feedback:  f32,   // amount of output fed back into input
-	Delay:     f32,   // delay (all channels) in milliseconds, must be within [FXECHO_MIN_DELAY, FXECHO_PARAMETERS.MaxDelay]
+    WetDryMix: f32,   // ratio of wet (processed) signal to dry (original) signal
+    Feedback:  f32,   // amount of output fed back into input
+    Delay:     f32,   // delay (all channels) in milliseconds, must be within [FXECHO_MIN_DELAY, FXECHO_PARAMETERS.MaxDelay]
 }
 
 //--------------<F-U-N-C-T-I-O-N-S>-----------------------------------------//
 
-@(default_calling_convention="cdecl")
+@(default_calling_convention="c")
 foreign xa2 {
-	// creates instance of requested XAPO, use Release to free instance
-    	//  pInitData        - [in] effect-specific initialization parameters, may be nil if InitDataByteSize == 0
-    	//  InitDataByteSize - [in] size of pInitData in bytes, may be 0 if pInitData is nil
-	CreateFX :: proc(clsid: win.REFCLSID, pEffect: ^^IUnknown, pInitDat: rawptr = nil, InitDataByteSize: u32 = 0) -> HRESULT ---
+    // creates instance of requested XAPO, use Release to free instance
+        //  pInitData        - [in] effect-specific initialization parameters, may be nil if InitDataByteSize == 0
+        //  InitDataByteSize - [in] size of pInitData in bytes, may be 0 if pInitData is nil
+    CreateFX :: proc(clsid: win.REFCLSID, pEffect: ^^IUnknown, pInitDat: rawptr = nil, InitDataByteSize: u32 = 0) -> HRESULT ---
 }

@@ -37,32 +37,6 @@ gb_internal cgValue cg_expr_untyped_const_to_typed(cgProcedure *p, Ast *expr, Ty
     return cg_const_value(p, t, tv.value);
 }
 
-gb_internal cgContextData *cg_push_context_onto_stack(cgProcedure *p, cgAddr ctx) {
-    ctx.kind = cgAddr_Context;
-    cgContextData *cd = array_add_and_get(&p->context_stack);
-    cd->ctx = ctx;
-    cd->scope_index = p->scope_index;
-    return cd;
-}
-
-gb_internal cgAddr cg_find_or_generate_context_ptr(cgProcedure *p) {
-    if (p->context_stack.count > 0) {
-        return p->context_stack[p->context_stack.count-1].ctx;
-    }
-
-    Type *pt = base_type(p->type);
-    GB_ASSERT(pt->kind == Type_Proc);
-    GB_ASSERT(pt->Proc.calling_convention != ProcCC_Odin);
-
-    cgAddr c = cg_add_local(p, t_context, nullptr, true);
-    tb_function_attrib_variable(p->func, c.addr.node, nullptr, -1, "context", cg_debug_type(p->module, t_context));
-    c.kind = cgAddr_Context;
-    // lb_emit_init_context(p, c);
-    cg_push_context_onto_stack(p, c);
-    // lb_add_debug_context_variable(p, c);
-
-    return c;
-}
 
 gb_internal cgValue cg_find_value_from_entity(cgModule *m, Entity *e) {
     e = strip_entity_wrapping(e);
@@ -3253,10 +3227,6 @@ gb_internal cgValue cg_build_expr_internal(cgProcedure *p, Ast *expr) {
         return cg_find_ident(p, e, expr);
     case_end;
 
-    case_ast_node(i, Implicit, expr);
-        return cg_addr_load(p, cg_build_addr(p, expr));
-    case_end;
-
     case_ast_node(u, Uninit, expr);
         if (is_type_untyped(type)) {
             return cg_value(cast(TB_Node *)nullptr, t_untyped_uninit);
@@ -3764,17 +3734,6 @@ gb_internal cgAddr cg_build_addr_index_expr(cgProcedure *p, Ast *expr) {
 
 gb_internal cgAddr cg_build_addr_internal(cgProcedure *p, Ast *expr) {
     switch (expr->kind) {
-    case_ast_node(i, Implicit, expr);
-        cgAddr v = {};
-        switch (i->kind) {
-        case Token_context:
-            v = cg_find_or_generate_context_ptr(p);
-            break;
-        }
-
-        GB_ASSERT(v.addr.node != nullptr);
-        return v;
-    case_end;
 
     case_ast_node(i, Ident, expr);
         if (is_blank_ident(expr)) {
@@ -3876,14 +3835,6 @@ gb_internal cgAddr cg_build_addr_internal(cgProcedure *p, Ast *expr) {
                 cgValue a = cg_address_from_load_or_generate_local(p, v);
                 a = cg_emit_deep_field_gep(p, a, sel);
                 return cg_addr(a);
-            } else if (addr.kind == cgAddr_Context) {
-                GB_ASSERT(sel.index.count > 0);
-                if (addr.ctx.sel.index.count >= 0) {
-                    sel = selection_combine(addr.ctx.sel, sel);
-                }
-                addr.ctx.sel = sel;
-                addr.kind = cgAddr_Context;
-                return addr;
             } else if (addr.kind == cgAddr_SoaVariable) {
                 cgValue index = addr.soa.index;
                 i64 first_index = sel.index[0];

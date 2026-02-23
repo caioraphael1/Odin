@@ -82,7 +82,6 @@ Initializes an exponential array with the given allocator.
 
 **Inputs**
 - `x`: Pointer to the exponential array to initialize
-- `allocator`: Allocator to use for chunk allocations (defaults to context.allocator)
 */
 init :: proc(x: ^$X/Xar($T, $SHIFT), allocator: mem.Allocator) {
     x^ = {allocator = allocator}
@@ -250,7 +249,6 @@ Example:
 push_back_elem :: proc(x: ^$X/Xar($T, $SHIFT), value: T, loc := #caller_location) -> (n: int, err: mem.Allocator_Error) {
     if x.allocator.procedure == nil {
         // to minic `[dynamic]T` behaviour
-        x.allocator = context.allocator
     }
 
     chunk_idx, elem_idx, chunk_cap := _meta_get(SHIFT, uint(x.len))
@@ -311,7 +309,7 @@ Example:
 push_back_elem_and_get_ptr :: proc(x: ^$X/Xar($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, err: mem.Allocator_Error) {
     if x.allocator.procedure == nil {
         // to minic `[dynamic]T` behaviour
-        x.allocator = context.allocator
+        // x.allocator = context.allocator
     }
 
     chunk_idx, elem_idx, chunk_cap := _meta_get(SHIFT, uint(x.len))

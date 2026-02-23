@@ -28,7 +28,6 @@ Inputs:
 - style: The argument parsing style.
 - validate_args: If `true`, will ensure that all required arguments are set if no errors occurred.
 - strict: If `true`, will return on first error. Otherwise, parsing continues.
-- allocator: (default: context.allocator)
 - loc: The caller location for debugging purposes (default: #caller_location)
 
 Returns:

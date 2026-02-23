@@ -260,7 +260,6 @@ decode_to_unmarshal_err_p2 :: #force_inline proc(v: $T, v2: $T2, err: Decode_Err
 
 // Recursively frees all memory allocated when decoding the passed value.
 destroy :: proc(val: Value, allocator: mem.Allocator) {
-    context.allocator = allocator
     #partial switch v in val {
     case ^Map:
         if v == nil { return }
@@ -494,7 +493,6 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
         return nil, nil
     }
 
-    context.allocator = allocator
     return internal(val)
 }
 
@@ -589,7 +587,6 @@ to_json :: proc(val: Value, allocator: mem.Allocator) -> (json.Value, mem.Alloca
         }
     }
 
-    context.allocator = allocator
     return internal(val)
 }
 

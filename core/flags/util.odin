@@ -18,7 +18,6 @@ Inputs:
 - model: A pointer to an annotated struct.
 - program_args: A slice of strings, usually `os.args`.
 - style: The argument parsing style.
-- allocator: (default: context.allocator)
 - loc: The caller location for debugging purposes (default: #caller_location)
 */
 @(optimization_mode="favor_size")

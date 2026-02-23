@@ -9,9 +9,7 @@ kind of functionality is placed in different files:
 
 | File pattern         | Description
 |----------------------|------------------------------------------------------|
-| `core.odin`          | Contains the declarations that compiler will require to be present. Contains context-related declarations, `Type_Info` declarations and some other types used to implement the runtime and other packages. |
 | `core_builtin*.odin` | Contain `@(builtin)` declarations that can be used without importing the package. Most of them aren't required by the compiler |
-| `default_*.odin`     | Contain default implementations for context allocators |
 | `entry_*.odin`       | Contain OS-specific entry points |
 | `os_specific_*.odin` | Contain OS-specific utility procedures |
 | `*internal*.odin`    | Contain implementations for internal procedures that can be called by the compiler |
@@ -32,15 +30,6 @@ In case this is required, the following is suggested:
    declarations*.
 
 What constitutes the necessary definitions is described below.
-
-### Context-related
-
-The compiler will require these declarations as they concern the `context`
-variable.
-
-* `Maybe`
-* `Source_Code_Location`
-* `Context`
 
 
 ### Type assertion check

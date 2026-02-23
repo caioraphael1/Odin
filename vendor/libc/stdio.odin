@@ -16,13 +16,11 @@ EOF :: -1
 
 @(require, linkage="strong", link_name="fopen")
 fopen :: proc "c" (path: cstring, mode: cstring) -> FILE {
-    context = g_ctx
     unimplemented("vendor/libc: fopen")
 }
 
 @(require, linkage="strong", link_name="fseek")
 fseek :: proc "c" (file: FILE, offset: c.long, whence: i32) -> i32 {
-    context = g_ctx
     handle := os.Handle(file-1)
     _, err := os.seek(handle, i64(offset), int(whence))
     if err != nil {
@@ -33,7 +31,6 @@ fseek :: proc "c" (file: FILE, offset: c.long, whence: i32) -> i32 {
 
 @(require, linkage="strong", link_name="ftell")
 ftell :: proc "c" (file: FILE) -> c.long {
-    context = g_ctx
     handle := os.Handle(file-1)
     off, err := os.seek(handle, 0, os.SEEK_CUR)
     if err != nil {
@@ -44,7 +41,6 @@ ftell :: proc "c" (file: FILE) -> c.long {
 
 @(require, linkage="strong", link_name="fclose")
 fclose :: proc "c" (file: FILE) -> i32 {
-    context = g_ctx
     handle := os.Handle(file-1)
     if os.close(handle) != nil {
         return -1
@@ -54,7 +50,6 @@ fclose :: proc "c" (file: FILE) -> i32 {
 
 @(require, linkage="strong", link_name="fread")
 fread :: proc "c" (buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
-    context = g_ctx
     handle := os.Handle(file-1)
     n, _   := os.read(handle, buffer[:min(size, count)])
     return uint(max(0, n))
@@ -62,7 +57,6 @@ fread :: proc "c" (buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint
 
 @(require, linkage="strong", link_name="fwrite")
 fwrite :: proc "c" (buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
-    context = g_ctx
     handle := os.Handle(file-1)
     n, _   := os.write(handle, buffer[:min(size, count)])
     return uint(max(0, n))
@@ -70,7 +64,6 @@ fwrite :: proc "c" (buffer: [^]byte, size: uint, count: uint, file: FILE) -> uin
 
 @(require, linkage="strong", link_name="putchar")
 putchar :: proc "c" (char: c.int) -> c.int {
-    context = g_ctx
 
     n, err := os.write_byte(os.stdout, byte(char))  
     if n == 0 || err != nil {
@@ -107,7 +100,6 @@ vsprintf :: proc "c" (buf: [^]byte, fmt: cstring, args: ^c.va_list) -> i32 {
 
 @(require, linkage="strong", link_name="vfprintf")
 vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
-    context = g_ctx
 
     handle := os.Handle(file-1)
 
@@ -171,7 +163,6 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
         }
     }
 
-    context = g_ctx
 
     str := str
     ptrs := orig_ptrs

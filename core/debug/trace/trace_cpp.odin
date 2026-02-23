@@ -142,7 +142,6 @@ _resolve :: proc(ctx: ^Context, frame: Frame, allocator: runtime.Allocator) -> F
     }
 
     btc := &Backtrace_Context{
-        rt_ctx = context,
         allocator = allocator,
     }
     done := backtrace_pcinfo(
@@ -150,7 +149,6 @@ _resolve :: proc(ctx: ^Context, frame: Frame, allocator: runtime.Allocator) -> F
         uintptr(frame),
         proc "c" (data: rawptr, address: uintptr, file: cstring, line: c.int, symbol: cstring) -> c.int {
             btc := (^Backtrace_Context)(data)
-            context = btc.rt_ctx
 
             frame := &btc.frame
 
@@ -183,7 +181,6 @@ _resolve :: proc(ctx: ^Context, frame: Frame, allocator: runtime.Allocator) -> F
         proc "c" (data: rawptr, address: uintptr, symbol: cstring, _ignore0, _ignore1: uintptr) {
             if symbol != nil {
                 btc := (^Backtrace_Context)(data)
-                context = btc.rt_ctx
                 btc.frame.procedure = strings.clone_from_cstring(symbol, btc.allocator)
             }
         },

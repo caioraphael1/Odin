@@ -54,7 +54,6 @@ verify_lua_api_version :: proc(t: ^testing.T) {
 lua_context_allocator :: proc "c" (ud: rawptr, ptr: rawptr, osize, nsize: c.size_t) -> (buf: rawptr) {
     old_size := int(osize)
     new_size := int(nsize)
-    context = (^runtime.Context)(ud)^
 
     if ptr == nil {
         data, err := runtime.mem_alloc(new_size)

@@ -10,20 +10,19 @@ enum AddressingMode : u8 {
     Addressing_Invalid   = 0,        // invalid addressing mode
     Addressing_NoValue   = 1,        // no value (void in C)
     Addressing_Value     = 2,        // computed value (rvalue)
-    Addressing_Context   = 3,        // context value
-    Addressing_Variable  = 4,        // addressable variable (lvalue)
-    Addressing_Constant  = 5,        // constant
-    Addressing_Type      = 6,        // type
-    Addressing_Builtin   = 7,        // built-in procedure
-    Addressing_MapIndex  = 8,        // map index expression -
+    Addressing_Variable  = 3,        // addressable variable (lvalue)
+    Addressing_Constant  = 4,        // constant
+    Addressing_Type      = 5,        // type
+    Addressing_Builtin   = 6,        // built-in procedure
+    Addressing_MapIndex  = 7,        // map index expression -
                                      //         lhs: acts like a Variable
                                      //         rhs: acts like OptionalOk
-    Addressing_OptionalOk    = 9,   // rhs: acts like a value with an optional boolean part (for existence check)
-    Addressing_OptionalOkPtr = 10,   // rhs: same as OptionalOk but the value is a pointer
-    Addressing_SoaVariable   = 11,   // Struct-Of-Arrays indexed variable
+    Addressing_OptionalOk    = 8,   // rhs: acts like a value with an optional boolean part (for existence check)
+    Addressing_OptionalOkPtr = 9,   // rhs: same as OptionalOk but the value is a pointer
+    Addressing_SoaVariable   = 10,   // Struct-Of-Arrays indexed variable
 
-    Addressing_SwizzleValue    = 12, // Swizzle indexed value
-    Addressing_SwizzleVariable = 13, // Swizzle indexed variable
+    Addressing_SwizzleValue    = 11, // Swizzle indexed value
+    Addressing_SwizzleVariable = 12, // Swizzle indexed variable
 };
 
 gb_global String const addressing_mode_strings[] = {
@@ -278,20 +277,20 @@ enum ProcTag {
 };
 
 enum ProcCallingConvention : i32 {
-    ProcCC_Invalid     = 0,
-    ProcCC_Odin        = 1,
-    ProcCC_Contextless = 2,
-    ProcCC_CDecl       = 3,
-    ProcCC_StdCall     = 4,
-    ProcCC_FastCall    = 5,
+    ProcCC_Invalid   = 0,
+    
+    ProcCC_Odin      = 1,
+    ProcCC_CDecl     = 2,
+    ProcCC_StdCall   = 3,
+    ProcCC_FastCall  = 4,
 
-    ProcCC_None        = 6,
-    ProcCC_Naked       = 7,
+    ProcCC_None      = 5,
+    ProcCC_Naked     = 6,
 
-    ProcCC_InlineAsm   = 8,
+    ProcCC_InlineAsm = 7,
 
-    ProcCC_Win64       = 9,
-    ProcCC_SysV        = 10,
+    ProcCC_Win64     = 8,
+    ProcCC_SysV      = 9,
 
 
     ProcCC_MAX,
@@ -303,20 +302,15 @@ enum ProcCallingConvention : i32 {
 gb_global char const *proc_calling_convention_strings[ProcCC_MAX] = {
     "",
     "odin",
-    "contextless",
-    "cdecl",
-    "stdcall",
-    "fastcall",
+    "c",
+    "std",
+    "fast",
     "none",
     "naked",
     "inlineasm",
     "win64",
     "sysv",
 };
-
-gb_internal ProcCallingConvention default_calling_convention(void) {
-    return ProcCC_Odin;
-}
 
 enum StateFlag : u8 {
     StateFlag_bounds_check    = 1<<0,
@@ -414,7 +408,6 @@ struct AstSplitArgs {
         Entity *entity; \
         u32     hash;   \
     }) \
-    AST_KIND(Implicit,       "implicit",        Token) \
     AST_KIND(Uninit,         "uninitialized value", Token) \
     AST_KIND(BasicLit,       "basic literal",   struct { \
         Token token; \

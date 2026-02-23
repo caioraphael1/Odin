@@ -117,7 +117,7 @@ benchmark_crypto_mac :: proc(t: ^testing.T) {
 @(private = "file")
 do_bench_hmac_sha_256 :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {
@@ -142,7 +142,7 @@ do_bench_hmac_sha_256 :: proc(
 @(private = "file")
 do_bench_kmac :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {
@@ -168,7 +168,7 @@ do_bench_kmac :: proc(
 @(private = "file")
 do_bench_poly1305 :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {

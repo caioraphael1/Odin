@@ -13,7 +13,6 @@ import "core:strings"
 
 @(require, linkage="strong", link_name="malloc")
 malloc :: proc "c" (size: uint) -> rawptr {
-    context = g_ctx
     ptr, err := runtime.mem_alloc_non_zeroed(int(size))
     assert(err == nil, "allocation failure")
     return raw_data(ptr)
@@ -21,7 +20,6 @@ malloc :: proc "c" (size: uint) -> rawptr {
 
 @(require, linkage="strong", link_name="aligned_alloc")
 aligned_alloc :: proc "c" (alignment: uint, size: uint) -> rawptr {
-    context = g_ctx
     ptr, err := runtime.mem_alloc_non_zeroed(int(size), int(alignment))
     assert(err == nil, "allocation failure")
     return raw_data(ptr)
@@ -29,13 +27,11 @@ aligned_alloc :: proc "c" (alignment: uint, size: uint) -> rawptr {
 
 @(require, linkage="strong", link_name="free")
 free :: proc "c" (ptr: rawptr) {
-    context = g_ctx
     runtime.free(ptr)
 }
 
 @(require, linkage="strong", link_name="realloc")
 realloc :: proc "c" (ptr: rawptr, new_size: uint) -> rawptr {
-    context = g_ctx
     // -1 for the old_size, assumed to be wrapped with the mem.Compat_Allocator to get the right size.
     // Note that realloc does not actually care about alignment and is allowed to just align it to something
     // else than the original allocation.
@@ -46,7 +42,6 @@ realloc :: proc "c" (ptr: rawptr, new_size: uint) -> rawptr {
 
 @(require, linkage="strong", link_name="qsort")
 qsort :: proc "c" (base: rawptr, num: uint, size: uint, cmp: proc "c" (a, b: rawptr) -> i32) {
-    context = g_ctx
 
     Inputs :: struct {
         base: rawptr,
@@ -90,7 +85,6 @@ atol :: proc "c" (str: cstring) -> c.long {
 
 @(require, linkage="strong", link_name="atoll")
 atoll :: proc "c" (str: cstring) -> c.longlong {
-    context = g_ctx
 
     sstr := string(str)
     sstr  = strings.trim_left_space(sstr)
@@ -100,7 +94,6 @@ atoll :: proc "c" (str: cstring) -> c.longlong {
 
 @(require, linkage="strong", link_name="atof")
 atof :: proc "c" (str: cstring) -> f64 {
-    context = g_ctx
 
     sstr := string(str)
     sstr  = strings.trim_left_space(sstr)
@@ -110,7 +103,6 @@ atof :: proc "c" (str: cstring) -> f64 {
 
 @(require, linkage="strong", link_name="strtol")
 strtol :: proc "c" (str: cstring, str_end: ^cstring, base: i32) -> c.long {
-    context = g_ctx
     sstr := string(str)
     sstr  = strings.trim_left_space(sstr)
 
@@ -125,7 +117,6 @@ strtol :: proc "c" (str: cstring, str_end: ^cstring, base: i32) -> c.long {
 
 @(require, linkage="strong", link_name="strtod")
 strtod :: proc "c" (str: cstring, str_end: ^cstring) -> c.double {
-    context = g_ctx
 
     sstr := string(str)
     sstr  = strings.trim_left_space(sstr)

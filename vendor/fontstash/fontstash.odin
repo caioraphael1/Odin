@@ -621,7 +621,7 @@ __blur :: proc(dst: []u8, w, h, dstStride: int, blurSize: i16) {
 // Texture expansion
 /////////////////////////////////
 
-ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.allocator) -> bool {
+ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Allocator) -> bool {
     w := max(ctx.width, width)
     h := max(ctx.height, height)
 
@@ -673,7 +673,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.
     return true
 }
 
-ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator := context.allocator) -> bool {
+ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Allocator) -> bool {
     if width == ctx.width && height == ctx.height {
         // just clear
         slice.zero(ctx.textureData)

@@ -8,99 +8,99 @@ VERSION_API :: "0.3"
 MAGIC_NUMBER :: 'H'<<0 | 'x'<<8 | 'A'<<16 | '\x00'<<24
 
 Header :: struct #packed {
-	magic_number:        u32le,
-	version:             u32le,
-	internal_node_count: u32le,
+    magic_number:        u32le,
+    version:             u32le,
+    internal_node_count: u32le,
 }
 
 File :: struct {
-	using header: Header,
-	backing:   []byte,
-	allocator: mem.Allocator,
-	nodes:     []Node,
+    using header: Header,
+    backing:   []byte,
+    allocator: mem.Allocator,
+    nodes:     []Node,
 }
 
 Node_Type :: enum u8 {
-	Meta_Only = 0, // node only containing meta data.
-	Geometry  = 1, // node containing a geometry mesh, and meta data.
-	Image     = 2, // node containing a 1D, 2D, 3D, or Cube image, and meta data.
+    Meta_Only = 0, // node only containing meta data.
+    Geometry  = 1, // node containing a geometry mesh, and meta data.
+    Image     = 2, // node containing a 1D, 2D, 3D, or Cube image, and meta data.
 }
 
 Layer_Data_Type :: enum u8 {
-	Uint8  = 0, // 8-bit unsigned integer,
-	Int32  = 1, // 32-bit little-endian signed integer
-	Float  = 2, // 32-bit little-endian IEEE 754 floating point value
-	Double = 3, // 64-bit little-endian IEEE 754 floating point value
+    Uint8  = 0, // 8-bit unsigned integer,
+    Int32  = 1, // 32-bit little-endian signed integer
+    Float  = 2, // 32-bit little-endian IEEE 754 floating point value
+    Double = 3, // 64-bit little-endian IEEE 754 floating point value
 }
 
 // Pixel data is arranged in the following configurations
 Image_Type :: enum u8 {
-	Image_Cube = 0, // 6 sided qube, in the order of: +x, -x, +y, -y, +z, -z.
-	Image_1D   = 1, // One dimensional pixel data.
-	Image_2D   = 2, // Two dimensional pixel data.
-	Image_3D   = 3, // Three dimensional pixel data.
+    Image_Cube = 0, // 6 sided qube, in the order of: +x, -x, +y, -y, +z, -z.
+    Image_1D   = 1, // One dimensional pixel data.
+    Image_2D   = 2, // Two dimensional pixel data.
+    Image_3D   = 3, // Three dimensional pixel data.
 }
 
 Meta_Value_Type :: enum u8 {
-	Int64  = 0,
-	Double = 1,
-	Node   = 2,
-	Text   = 3,
-	Binary = 4,
-	Meta   = 5,
+    Int64  = 0,
+    Double = 1,
+    Node   = 2,
+    Text   = 3,
+    Binary = 4,
+    Meta   = 5,
 }
 
 Meta :: struct {
-	name: string, // name of the meta data value (maximum length is 255)
-	value: union {
-		[]i64le,
-		[]f64le,
-		[]Node_Index, // a reference to another node
-		string, // text
-		[]byte, // binary data
-		[]Meta,
-	},
+    name: string, // name of the meta data value (maximum length is 255)
+    value: union {
+        []i64le,
+        []f64le,
+        []Node_Index, // a reference to another node
+        string, // text
+        []byte, // binary data
+        []Meta,
+    },
 }
 
 Layer :: struct {
-	name: string, // name of the layer (maximum length is 255)
-	components: u8, // 2 for uv, 3 for xyz/rgb, 4 for rgba
-	data: union {
-		[]u8,
-		[]i32le,
-		[]f32le,
-		[]f64le,
-	},
+    name: string, // name of the layer (maximum length is 255)
+    components: u8, // 2 for uv, 3 for xyz/rgb, 4 for rgba
+    data: union {
+        []u8,
+        []i32le,
+        []f32le,
+        []f64le,
+    },
 }
 
 // Layers stacks are arrays of layers where all the layers have the same number of entries (polygons, edges, vertices or pixels)
 Layer_Stack :: distinct []Layer
 
 Node_Geometry :: struct {
-	vertex_count:      u32le,       // number of vertices
-	vertex_stack:      Layer_Stack, // stack of vertex arrays. the first layer is always the vertex positions
-	edge_corner_count: u32le,       // number of corners
-	corner_stack:      Layer_Stack, // stack of corner arrays, the first layer is always a reference array (see below)
-	edge_stack:        Layer_Stack, // stack of edge arrays
-	face_count:        u32le,       // number of polygons
-	face_stack:        Layer_Stack, // stack of per polygon data.
+    vertex_count:      u32le,       // number of vertices
+    vertex_stack:      Layer_Stack, // stack of vertex arrays. the first layer is always the vertex positions
+    edge_corner_count: u32le,       // number of corners
+    corner_stack:      Layer_Stack, // stack of corner arrays, the first layer is always a reference array (see below)
+    edge_stack:        Layer_Stack, // stack of edge arrays
+    face_count:        u32le,       // number of polygons
+    face_stack:        Layer_Stack, // stack of per polygon data.
 }
 
 Node_Image :: struct {
-	type:        Image_Type,
-	resolution:  [3]u32le,
-	image_stack: Layer_Stack,
+    type:        Image_Type,
+    resolution:  [3]u32le,
+    image_stack: Layer_Stack,
 }
 
 Node_Index :: distinct u32le
 
 // A file consists of an array of nodes, All nodes have meta data. Geometry nodes have geometry, image nodes have pixels
 Node :: struct {
-	meta_data: []Meta,
-	content: union {
-		Node_Geometry,
-		Node_Image,
-	},
+    meta_data: []Meta,
+    content: union {
+        Node_Geometry,
+        Node_Image,
+    },
 }
 
 
@@ -160,35 +160,35 @@ CONVENTION_SOFT_TRANSFORM :: "transform"
 
 /* destroy procedures */
 
-meta_destroy :: proc(meta: Meta, allocator := context.allocator, loc := #caller_location) {
-	if nested, ok := meta.value.([]Meta); ok {
-		for m in nested {
-			meta_destroy(m, loc=loc)
-		}
-		_ = delete_slice(nested, allocator, loc=loc)
-	}
+meta_destroy :: proc(meta: Meta, allocator: mem.Allocator, loc := #caller_location) {
+    if nested, ok := meta.value.([]Meta); ok {
+        for m in nested {
+            meta_destroy(m, loc=loc)
+        }
+        _ = delete_slice(nested, allocator, loc=loc)
+    }
 }
-nodes_destroy :: proc(nodes: []Node, allocator := context.allocator, loc := #caller_location) {
-	for node in nodes {
-		for meta in node.meta_data {
-			meta_destroy(meta, loc=loc)
-		}
-		_ = delete_slice(node.meta_data, allocator, loc=loc)
+nodes_destroy :: proc(nodes: []Node, allocator: mem.Allocator, loc := #caller_location) {
+    for node in nodes {
+        for meta in node.meta_data {
+            meta_destroy(meta, loc=loc)
+        }
+        _ = delete_slice(node.meta_data, allocator, loc=loc)
 
-		switch n in node.content {
-		case Node_Geometry:
-			_ = delete_slice(n.corner_stack, allocator, loc=loc)
-			_ = delete_slice(n.vertex_stack, allocator, loc=loc)
-			_ = delete_slice(n.edge_stack,   allocator, loc=loc)
-			_ = delete_slice(n.face_stack,   allocator, loc=loc)
-		case Node_Image:
-			_ = delete_slice(n.image_stack,  allocator, loc=loc)
-		}
-	}
-	_ = delete_slice(nodes, allocator, loc=loc)
+        switch n in node.content {
+        case Node_Geometry:
+            _ = delete_slice(n.corner_stack, allocator, loc=loc)
+            _ = delete_slice(n.vertex_stack, allocator, loc=loc)
+            _ = delete_slice(n.edge_stack,   allocator, loc=loc)
+            _ = delete_slice(n.face_stack,   allocator, loc=loc)
+        case Node_Image:
+            _ = delete_slice(n.image_stack,  allocator, loc=loc)
+        }
+    }
+    _ = delete_slice(nodes, allocator, loc=loc)
 }
 
 file_destroy :: proc(file: File, loc := #caller_location) {
-	nodes_destroy(file.nodes, file.allocator, loc=loc)
-	_ = delete_slice(file.backing, file.allocator, loc=loc)
+    nodes_destroy(file.nodes, file.allocator, loc=loc)
+    _ = delete_slice(file.backing, file.allocator, loc=loc)
 }

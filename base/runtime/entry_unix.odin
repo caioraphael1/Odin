@@ -8,7 +8,6 @@ import "base:intrinsics"
 when ODIN_BUILD_MODE == .Dynamic {
     @(link_name="_odin_entry_point", linkage="strong", require/*, link_section=".init"*/)
     _odin_entry_point :: proc "c" () {
-        context = {}
         intrinsics.__entry_point()
     }
     @(link_name="_odin_exit_point", linkage="strong", require/*, link_section=".fini"*/)
@@ -37,7 +36,6 @@ when ODIN_BUILD_MODE == .Dynamic {
         }
         @(link_name="_start_odin", linkage="strong", require)
         _start_odin :: proc "c" (argc: i32, argv: [^]cstring) -> ! {
-            context = {}
             args__ = argv[:argc]
             intrinsics.__entry_point()
             intrinsics.syscall(SYS_exit, 0)
@@ -46,7 +44,6 @@ when ODIN_BUILD_MODE == .Dynamic {
     } else {
         @(link_name="main", linkage="strong", require)
         main :: proc "c" (argc: i32, argv: [^]cstring) -> i32 {
-            context = {}
             args__ = argv[:argc]
             intrinsics.__entry_point()
             return 0

@@ -3993,10 +3993,6 @@ gb_internal lbValue lb_build_expr_internal(lbProcedure *p, Ast *expr) {
         GB_PANIC("Non-constant basic literal %s - %.*s", token_pos_to_string(pos), LIT(name));
     case_end;
 
-    case_ast_node(i, Implicit, expr);
-        return lb_addr_load(p, lb_build_addr(p, expr));
-    case_end;
-
     case_ast_node(u, Uninit, expr)
         lbValue res = {};
         if (is_type_untyped(type)) {
@@ -5531,18 +5527,6 @@ gb_internal lbAddr lb_build_addr_compound_lit(lbProcedure *p, Ast *expr) {
 
 gb_internal lbAddr lb_build_addr_internal(lbProcedure *p, Ast *expr) {
     switch (expr->kind) {
-    case_ast_node(i, Implicit, expr);
-        lbAddr v = {};
-        switch (i->kind) {
-        case Token_context:
-            v = lb_find_or_generate_context_ptr(p);
-            break;
-        }
-
-        GB_ASSERT(v.addr.value != nullptr);
-        return v;
-    case_end;
-
     case_ast_node(i, Ident, expr);
         if (is_blank_ident(expr)) {
             lbAddr val = {};
@@ -5655,14 +5639,6 @@ gb_internal lbAddr lb_build_addr_internal(lbProcedure *p, Ast *expr) {
                     lbValue a = lb_address_from_load_or_generate_local(p, v);
                     a = lb_emit_deep_field_gep(p, a, sel);
                     return lb_addr(a);
-                } else if (addr.kind == lbAddr_Context) {
-                    GB_ASSERT(sel.index.count > 0);
-                    if (addr.ctx.sel.index.count >= 0) {
-                        sel = selection_combine(addr.ctx.sel, sel);
-                    }
-                    addr.ctx.sel = sel;
-                    addr.kind = lbAddr_Context;
-                    return addr;
                 } else if (addr.kind == lbAddr_SoaVariable) {
                     lbValue index = addr.soa.index;
                     i32 first_index = sel.index[0];

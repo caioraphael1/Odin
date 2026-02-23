@@ -169,8 +169,6 @@ decompress_slice_to_output_buffer :: proc(input: []u8, output: []u8, model := DE
 }
 
 decompress_slice_to_string :: proc(input: []u8, model := DEFAULT_MODEL, allocator: mem.Allocator) -> (res: string, err: compress.Error) {
-    context.allocator = allocator
-
     if len(input) == 0 {
         return "", .Stream_Too_Short
     }
@@ -293,8 +291,6 @@ compress_string_to_buffer :: proc(input: string, output: []u8, model := DEFAULT_
 }
 
 compress_string :: proc(input: string, model := DEFAULT_MODEL, allocator: mem.Allocator) -> (output: []u8, err: compress.Error) {
-    context.allocator = allocator
-
     if len(input) == 0 {
         return {}, .Stream_Too_Short
     }

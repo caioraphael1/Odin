@@ -18,8 +18,8 @@ RGBA_Pixel :: image.RGBA_Pixel
 FILE_HEADER_SIZE :: 14
 INFO_STUB_SIZE   :: FILE_HEADER_SIZE + size_of(image.BMP_Version)
 
-save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}, allocator := context.allocator) -> (err: Error) {
-    context.allocator = allocator
+save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}, allocator : mem.Allocator) -> (err: Error) {
+
 
     if img == nil {
         return .Invalid_Input_Image
@@ -113,7 +113,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 }
 
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }
@@ -123,8 +123,8 @@ load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context
 }
 
 @(optimization_mode="favor_size")
-load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
-    context.allocator = allocator
+load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+
     options := options
 
     // For compress.read_slice(), until that's rewritten to not use temp allocator
@@ -264,7 +264,7 @@ is_os2 :: proc(version: image.BMP_Version) -> (res: bool) {
     }
 }
 
-make_output :: proc(img: ^Image, allocator := context.allocator) -> (err: Error) {
+make_output :: proc(img: ^Image, allocator : mem.Allocator) -> (err: Error) {
     assert(img != nil)
     bytes_needed := img.channels * img.height * img.width
     img.pixels.buf = make_dynamic_array([dynamic]u8, bytes_needed, allocator)
@@ -386,7 +386,7 @@ scale :: proc(val: $T, mask, shift, bits: u32le) -> (res: u8) {
     return u8(v * 255 / mask_in)
 }
 
-decode_rgb :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := context.allocator) -> (err: Error) {
+decode_rgb :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : mem.Allocator) -> (err: Error) {
     pixel_offset := int(info.pixel_offset)
     pixel_offset -= int(info.info_size) + FILE_HEADER_SIZE
 
@@ -543,7 +543,7 @@ decode_rgb :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := c
     return nil
 }
 
-decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator := context.allocator) -> (err: Error) {
+decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : mem.Allocator) -> (err: Error) {
     pixel_offset := int(info.pixel_offset)
     pixel_offset -= int(info.info_size) + FILE_HEADER_SIZE
 

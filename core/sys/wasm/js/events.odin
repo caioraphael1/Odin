@@ -340,7 +340,7 @@ add_event_listener :: proc(id: string, kind: Event_Kind, user_data: rawptr, call
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="add_event_listener")
-		_add_event_listener :: proc(id: string, name: string, name_code: Event_Kind, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_add_event_listener :: proc(id: string, name: string, name_code: Event_Kind, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	// TODO: Pointer_Lock_Change etc related stuff for all different browsers
 	return _add_event_listener(id, event_kind_string[kind], kind, user_data, callback, use_capture)
@@ -350,7 +350,7 @@ remove_event_listener :: proc(id: string, kind: Event_Kind, user_data: rawptr, c
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="remove_event_listener")
-		_remove_event_listener :: proc(id: string, name: string, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_remove_event_listener :: proc(id: string, name: string, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	return _remove_event_listener(id, event_kind_string[kind], user_data, callback, use_capture)
 }
@@ -359,7 +359,7 @@ add_window_event_listener :: proc(kind: Event_Kind, user_data: rawptr, callback:
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="add_window_event_listener")
-		_add_window_event_listener :: proc(name: string, name_code: Event_Kind, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_add_window_event_listener :: proc(name: string, name_code: Event_Kind, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	return _add_window_event_listener(event_kind_string[kind], kind, user_data, callback, use_capture)
 }
@@ -368,7 +368,7 @@ remove_window_event_listener :: proc(kind: Event_Kind, user_data: rawptr, callba
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="remove_window_event_listener")
-		_remove_window_event_listener :: proc(name: string, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_remove_window_event_listener :: proc(name: string, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	return _remove_window_event_listener(event_kind_string[kind], user_data, callback, use_capture)
 }
@@ -377,7 +377,7 @@ add_document_event_listener :: proc(kind: Event_Kind, user_data: rawptr, callbac
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="add_document_event_listener")
-		_add_document_event_listener :: proc(name: string, name_code: Event_Kind, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_add_document_event_listener :: proc(name: string, name_code: Event_Kind, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	return _add_document_event_listener(event_kind_string[kind], kind, user_data, callback, use_capture)
 }
@@ -386,7 +386,7 @@ remove_document_event_listener :: proc(kind: Event_Kind, user_data: rawptr, call
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="remove_document_event_listener")
-		_remove_document_event_listener :: proc(name: string, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_remove_document_event_listener :: proc(name: string, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	return _remove_document_event_listener(event_kind_string[kind], user_data, callback, use_capture)
 }
@@ -410,7 +410,7 @@ add_custom_event_listener :: proc(id: string, name: string, user_data: rawptr, c
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="add_event_listener")
-		_add_event_listener :: proc(id: string, name: string, name_code: Event_Kind, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_add_event_listener :: proc(id: string, name: string, name_code: Event_Kind, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	return _add_event_listener(id, name, .Custom, user_data, callback, use_capture)
 }
@@ -418,7 +418,7 @@ remove_custom_event_listener :: proc(id: string, name: string, user_data: rawptr
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="remove_event_listener")
-		_remove_event_listener :: proc(id: string, name: string, user_data: rawptr, callback: proc "odin" (Event), use_capture: bool) -> bool ---
+		_remove_event_listener :: proc(id: string, name: string, user_data: rawptr, callback: proc(Event), use_capture: bool) -> bool ---
 	}
 	return _remove_event_listener(id, name, user_data, callback, use_capture)
 }

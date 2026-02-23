@@ -58,7 +58,7 @@ _open_file_dialog :: proc(title: string, dir: string,
                           filters: []string, default_filter: u32,
                           flags: u32, default_ext: string,
                           mode: Open_Save_Mode, allocator := runtime.temp_allocator) -> (path: string, ok: bool = true) {
-    context.allocator = allocator
+
     file_buf := make_slice([]u16, MAX_PATH_WIDE)
     defer if !ok {
         _ = delete_slice(file_buf)

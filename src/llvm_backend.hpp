@@ -48,356 +48,353 @@
 #endif
 
 gb_internal bool lb_use_new_pass_system(void) {
-	return LB_USE_NEW_PASS_SYSTEM;
+    return LB_USE_NEW_PASS_SYSTEM;
 }
 
 struct lbProcedure;
 
 struct lbValue {
-	LLVMValueRef value;
-	Type *type;
+    LLVMValueRef value;
+    Type *type;
 };
 
 
 enum lbAddrKind {
-	lbAddr_Default,
-	lbAddr_Map,
-	lbAddr_Context,
-	lbAddr_SoaVariable,
+    lbAddr_Default,
+    lbAddr_Map,
+    lbAddr_SoaVariable,
 
+    lbAddr_Swizzle,
+    lbAddr_SwizzleLarge,
 
-	lbAddr_Swizzle,
-	lbAddr_SwizzleLarge,
-
-	lbAddr_BitField,
+    lbAddr_BitField,
 };
 
 struct lbAddr {
-	lbAddrKind kind;
-	lbValue addr;
-	union {
-		struct {
-			lbValue key;
-			Type *type;
-			Type *result;
-		} map;
-		struct {
-			Selection sel;
-		} ctx;
-		struct {
-			lbValue index;
-			Ast *index_expr;
-		} soa;
-		struct {
-			lbValue index;
-			Ast *node;
-		} index_set;
-		struct {
-			Type *type;
-			u8 count;      // 2, 3, or 4 components
-			u8 indices[4];
-		} swizzle;
-		struct {
-			Type *type;
-			Slice<i32> indices;
-		} swizzle_large;
-		struct {
-			Type *type;
-			i64 bit_offset;
-			i64 bit_size;
-		} bitfield;
-	};
+    lbAddrKind kind;
+    lbValue addr;
+    union {
+        struct {
+            lbValue key;
+            Type *type;
+            Type *result;
+        } map;
+        struct {
+            Selection sel;
+        } ctx;
+        struct {
+            lbValue index;
+            Ast *index_expr;
+        } soa;
+        struct {
+            lbValue index;
+            Ast *node;
+        } index_set;
+        struct {
+            Type *type;
+            u8 count;      // 2, 3, or 4 components
+            u8 indices[4];
+        } swizzle;
+        struct {
+            Type *type;
+            Slice<i32> indices;
+        } swizzle_large;
+        struct {
+            Type *type;
+            i64 bit_offset;
+            i64 bit_size;
+        } bitfield;
+    };
 };
 
 struct lbIncompleteDebugType {
-	Type *type;
-	LLVMMetadataRef metadata;
+    Type *type;
+    LLVMMetadataRef metadata;
 };
 
 typedef Slice<i32> lbStructFieldRemapping;
 
 enum lbFunctionPassManagerKind {
-	lbFunctionPassManager_default,
-	lbFunctionPassManager_default_without_memcpy,
-	lbFunctionPassManager_none,
-	lbFunctionPassManager_COUNT
+    lbFunctionPassManager_default,
+    lbFunctionPassManager_default_without_memcpy,
+    lbFunctionPassManager_none,
+    lbFunctionPassManager_COUNT
 };
 
 struct lbPadType {
-	i64 padding;
-	i64 padding_align;
-	LLVMTypeRef type;
+    i64 padding;
+    i64 padding_align;
+    LLVMTypeRef type;
 };
 
 struct lbModule {
-	LLVMModuleRef mod;
-	LLVMContextRef ctx;
+    LLVMModuleRef mod;
+    LLVMContextRef ctx;
 
-	Checker *checker;
+    Checker *checker;
 
-	struct lbGenerator *gen;
-	LLVMTargetMachineRef target_machine;
+    struct lbGenerator *gen;
+    LLVMTargetMachineRef target_machine;
 
-	lbModule *polymorphic_module;
+    lbModule *polymorphic_module;
 
-	CheckerInfo *info;
-	AstPackage *pkg; // possibly associated
-	AstFile *file;   // possibly associated
-	char const *module_name;
+    CheckerInfo *info;
+    AstPackage *pkg; // possibly associated
+    AstFile *file;   // possibly associated
+    char const *module_name;
 
-	PtrMap<u64/*type hash*/, LLVMTypeRef>  types;                  // mutex: types_mutex
-	PtrMap<void *, lbStructFieldRemapping> struct_field_remapping; // Key: LLVMTypeRef or Type *, mutex: types_mutex
-	PtrMap<u64/*type hash*/, LLVMTypeRef>  func_raw_types;         // mutex: func_raw_types_mutex
-	RecursiveMutex types_mutex;
-	RecursiveMutex func_raw_types_mutex;
-	i32 internal_type_level;
+    PtrMap<u64/*type hash*/, LLVMTypeRef>  types;                  // mutex: types_mutex
+    PtrMap<void *, lbStructFieldRemapping> struct_field_remapping; // Key: LLVMTypeRef or Type *, mutex: types_mutex
+    PtrMap<u64/*type hash*/, LLVMTypeRef>  func_raw_types;         // mutex: func_raw_types_mutex
+    RecursiveMutex types_mutex;
+    RecursiveMutex func_raw_types_mutex;
+    i32 internal_type_level;
 
-	RwMutex values_mutex;
+    RwMutex values_mutex;
 
-	std::atomic<u32> global_array_index;
+    std::atomic<u32> global_array_index;
 
-	PtrMap<Entity *, lbValue> values;           
-	PtrMap<Entity *, lbAddr>  soa_values;       
-	StringMap<lbValue>  members;
-	StringMap<lbProcedure *> procedures;
-	PtrMap<LLVMValueRef, Entity *> procedure_values;
+    PtrMap<Entity *, lbValue> values;           
+    PtrMap<Entity *, lbAddr>  soa_values;       
+    StringMap<lbValue>  members;
+    StringMap<lbProcedure *> procedures;
+    PtrMap<LLVMValueRef, Entity *> procedure_values;
 
-	MPSCQueue<lbProcedure *> missing_procedures_to_check;
+    MPSCQueue<lbProcedure *> missing_procedures_to_check;
 
-	StringMap<LLVMValueRef>   const_strings;
-	String16Map<LLVMValueRef> const_string16s;
+    StringMap<LLVMValueRef>   const_strings;
+    String16Map<LLVMValueRef> const_string16s;
 
-	PtrMap<u64/*type hash*/, struct lbFunctionType *> function_type_map;
+    PtrMap<u64/*type hash*/, struct lbFunctionType *> function_type_map;
 
-	StringMap<lbProcedure *> gen_procs;   // key is the canonicalized name
+    StringMap<lbProcedure *> gen_procs;   // key is the canonicalized name
 
-	MPSCQueue<lbProcedure *> procedures_to_generate;
-	Array<Entity *> global_procedures_to_create;
-	Array<Entity *> global_types_to_create;
+    MPSCQueue<lbProcedure *> procedures_to_generate;
+    Array<Entity *> global_procedures_to_create;
+    Array<Entity *> global_types_to_create;
 
-	BlockingMutex generated_procedures_mutex;
-	Array<lbProcedure *> generated_procedures;
+    BlockingMutex generated_procedures_mutex;
+    Array<lbProcedure *> generated_procedures;
 
-	lbProcedure *curr_procedure;
+    lbProcedure *curr_procedure;
 
-	LLVMBuilderRef const_dummy_builder;
+    LLVMBuilderRef const_dummy_builder;
 
-	LLVMDIBuilderRef debug_builder;
-	LLVMMetadataRef debug_compile_unit;
+    LLVMDIBuilderRef debug_builder;
+    LLVMMetadataRef debug_compile_unit;
 
-	RecursiveMutex debug_values_mutex;
-	PtrMap<void *, LLVMMetadataRef> debug_values; 
+    RecursiveMutex debug_values_mutex;
+    PtrMap<void *, LLVMMetadataRef> debug_values; 
 
 
-	StringMap<lbAddr> objc_classes;
-	StringMap<lbAddr> objc_selectors;
-	StringMap<lbAddr> objc_ivars;
-	isize             objc_next_block_id;  // Used to name objective-c blocks. Tracked per module.
+    StringMap<lbAddr> objc_classes;
+    StringMap<lbAddr> objc_selectors;
+    StringMap<lbAddr> objc_ivars;
+    isize             objc_next_block_id;  // Used to name objective-c blocks. Tracked per module.
 
-	PtrMap<u64/*type hash*/, lbAddr> map_cell_info_map; // address of runtime.Map_Info
-	PtrMap<u64/*type hash*/, lbAddr> map_info_map;      // address of runtime.Map_Cell_Info
+    PtrMap<u64/*type hash*/, lbAddr> map_cell_info_map; // address of runtime.Map_Info
+    PtrMap<u64/*type hash*/, lbAddr> map_info_map;      // address of runtime.Map_Cell_Info
 
-	PtrMap<Ast *, lbAddr> exact_value_compound_literal_addr_map; // Key: Ast_CompoundLit
+    PtrMap<Ast *, lbAddr> exact_value_compound_literal_addr_map; // Key: Ast_CompoundLit
 
-	LLVMPassManagerRef function_pass_managers[lbFunctionPassManager_COUNT];
+    LLVMPassManagerRef function_pass_managers[lbFunctionPassManager_COUNT];
 
-	BlockingMutex pad_types_mutex;
-	Array<lbPadType> pad_types;
+    BlockingMutex pad_types_mutex;
+    Array<lbPadType> pad_types;
 };
 
 struct lbEntityCorrection {
-	lbModule *  other_module;
-	Entity *    e;
-	char const *cname;
+    lbModule *  other_module;
+    Entity *    e;
+    char const *cname;
 };
 
 struct lbObjCGlobal {
-	lbModule *module;
-	gbString  global_name;
-	String    name;
-	Type *    type;
-	Type *    class_impl_type;  // This is set when the class has the objc_implement attribute set to true.
+    lbModule *module;
+    gbString  global_name;
+    String    name;
+    Type *    type;
+    Type *    class_impl_type;  // This is set when the class has the objc_implement attribute set to true.
 };
 
 struct lbGenerator : LinkerData {
-	CheckerInfo *info;
+    CheckerInfo *info;
 
-	PtrMap<void *, lbModule *> modules; // key is `AstPackage *` (`void *` is used for future use)
-	PtrMap<LLVMContextRef, lbModule *> modules_through_ctx; 
-	lbModule default_module;
+    PtrMap<void *, lbModule *> modules; // key is `AstPackage *` (`void *` is used for future use)
+    PtrMap<LLVMContextRef, lbModule *> modules_through_ctx; 
+    lbModule default_module;
 
-	lbModule *equal_module;
+    lbModule *equal_module;
 
-	isize used_module_count;
+    isize used_module_count;
 
-	lbProcedure *startup_runtime;
-	lbProcedure *cleanup_runtime;
-	lbProcedure *objc_names;
+    lbProcedure *startup_runtime;
+    lbProcedure *cleanup_runtime;
+    lbProcedure *objc_names;
 
-	MPSCQueue<lbEntityCorrection> entities_to_correct_linkage;
-	MPSCQueue<lbObjCGlobal> objc_selectors;
-	MPSCQueue<lbObjCGlobal> objc_classes;
-	MPSCQueue<lbObjCGlobal> objc_ivars;
-	MPSCQueue<String> raddebug_section_strings;
+    MPSCQueue<lbEntityCorrection> entities_to_correct_linkage;
+    MPSCQueue<lbObjCGlobal> objc_selectors;
+    MPSCQueue<lbObjCGlobal> objc_classes;
+    MPSCQueue<lbObjCGlobal> objc_ivars;
+    MPSCQueue<String> raddebug_section_strings;
 };
 
 
 struct lbBlock {
-	LLVMBasicBlockRef block;
-	Scope *scope;
-	isize scope_index;
-	bool appended;
+    LLVMBasicBlockRef block;
+    Scope *scope;
+    isize scope_index;
+    bool appended;
 
-	Array<lbBlock *> preds;
-	Array<lbBlock *> succs;
+    Array<lbBlock *> preds;
+    Array<lbBlock *> succs;
 };
 
 struct lbBranchBlocks {
-	Ast *label;
-	lbBlock *break_;
-	lbBlock *continue_;
+    Ast *label;
+    lbBlock *break_;
+    lbBlock *continue_;
 };
 
 
 struct lbContextData {
-	lbAddr ctx;
-	isize scope_index;
-	isize uses;
+    lbAddr ctx;
+    isize scope_index;
+    isize uses;
 };
 
 enum lbParamPasskind {
-	lbParamPass_Value,    // Pass by value
-	lbParamPass_Pointer,  // Pass as a pointer rather than by value
-	lbParamPass_Integer,  // Pass as an integer of the same size
-	lbParamPass_ConstRef, // Pass as a pointer but the value is immutable
-	lbParamPass_BitCast,  // Pass by value and bit cast to the correct type
-	lbParamPass_Tuple,    // Pass across multiple parameters (System V AMD64, up to 2)
+    lbParamPass_Value,    // Pass by value
+    lbParamPass_Pointer,  // Pass as a pointer rather than by value
+    lbParamPass_Integer,  // Pass as an integer of the same size
+    lbParamPass_ConstRef, // Pass as a pointer but the value is immutable
+    lbParamPass_BitCast,  // Pass by value and bit cast to the correct type
+    lbParamPass_Tuple,    // Pass across multiple parameters (System V AMD64, up to 2)
 };
 
 enum lbDeferExitKind {
-	lbDeferExit_Default,
-	lbDeferExit_Return,
-	lbDeferExit_Branch,
+    lbDeferExit_Default,
+    lbDeferExit_Return,
+    lbDeferExit_Branch,
 };
 
 enum lbDeferKind {
-	lbDefer_Node,
-	lbDefer_Proc,
+    lbDefer_Node,
+    lbDefer_Proc,
 };
 
 struct lbDefer {
-	lbDeferKind kind;
-	isize       scope_index;
-	isize       context_stack_count;
-	lbBlock *   block;
-	union {
-		Ast *stmt;
-		struct {
-			lbValue deferred;
-			Array<lbValue> result_as_args;
-		} proc;
-	};
+    lbDeferKind kind;
+    isize       scope_index;
+    isize       context_stack_count;
+    lbBlock *   block;
+    union {
+        Ast *stmt;
+        struct {
+            lbValue deferred;
+            Array<lbValue> result_as_args;
+        } proc;
+    };
 };
 
 struct lbTargetList {
-	lbTargetList *prev;
-	bool          is_block;
-	lbBlock *     break_;
-	lbBlock *     continue_;
-	lbBlock *     fallthrough_;
+    lbTargetList *prev;
+    bool          is_block;
+    lbBlock *     break_;
+    lbBlock *     continue_;
+    lbBlock *     fallthrough_;
 };
 
 
 struct lbTupleFix {
-	Slice<lbValue> values;
+    Slice<lbValue> values;
 };
 
 enum lbProcedureFlag : u32 {
-	lbProcedureFlag_WithoutMemcpyPass = 1<<0,
-	lbProcedureFlag_DebugAllocaCopy = 1<<1,
+    lbProcedureFlag_WithoutMemcpyPass = 1<<0,
+    lbProcedureFlag_DebugAllocaCopy = 1<<1,
 };
 
 struct lbVariadicReuseSlices {
-	Type *slice_type;
-	lbAddr slice_addr;
+    Type *slice_type;
+    lbAddr slice_addr;
 };
 
 struct lbGlobalVariable {
-	lbValue var;
-	lbValue init;
-	DeclInfo *decl;
-	bool is_initialized;
+    lbValue var;
+    lbValue init;
+    DeclInfo *decl;
+    bool is_initialized;
 };
 
 
 struct lbProcedure {
-	u32 flags;
-	u16 state_flags;
+    u32 flags;
+    u16 state_flags;
 
-	lbProcedure *parent;
-	Array<lbProcedure *> children;
+    lbProcedure *parent;
+    Array<lbProcedure *> children;
 
-	Entity *     entity;
-	lbModule *   module;
-	String       name;
-	Type *       type;
-	Ast *        type_expr;
-	Ast *        body;
-	u64          tags;
-	ProcInlining inlining;
-	bool         is_foreign;
-	bool         is_export;
-	bool         is_entry_point;
-	bool         is_startup;
+    Entity *     entity;
+    lbModule *   module;
+    String       name;
+    Type *       type;
+    Ast *        type_expr;
+    Ast *        body;
+    u64          tags;
+    ProcInlining inlining;
+    bool         is_foreign;
+    bool         is_export;
+    bool         is_entry_point;
+    bool         is_startup;
 
-	lbFunctionType *abi_function_type;
+    lbFunctionType *abi_function_type;
 
-	LLVMValueRef      value;
-	LLVMBuilderRef    builder;
-	std::atomic<bool> is_done;
+    LLVMValueRef      value;
+    LLVMBuilderRef    builder;
+    std::atomic<bool> is_done;
 
-	lbAddr           return_ptr;
-	Array<lbDefer>   defer_stmts;
-	Array<lbBlock *> blocks;
-	Array<lbBranchBlocks> branch_blocks;
-	Scope *          curr_scope;
-	i32              scope_index;
-	lbBlock *        decl_block;
-	lbBlock *        entry_block;
-	lbBlock *        curr_block;
-	lbTargetList *   target_list;
-	PtrMap<Entity *, lbValue> direct_parameters;
-	bool             in_multi_assignment;
-	Array<LLVMValueRef> raw_input_parameters;
+    lbAddr           return_ptr;
+    Array<lbDefer>   defer_stmts;
+    Array<lbBlock *> blocks;
+    Array<lbBranchBlocks> branch_blocks;
+    Scope *          curr_scope;
+    i32              scope_index;
+    lbBlock *        decl_block;
+    lbBlock *        entry_block;
+    lbBlock *        curr_block;
+    lbTargetList *   target_list;
+    PtrMap<Entity *, lbValue> direct_parameters;
+    bool             in_multi_assignment;
+    Array<LLVMValueRef> raw_input_parameters;
 
-	u32 global_generated_index;
+    u32 global_generated_index;
 
-	bool             uses_branch_location;
-	TokenPos         branch_location_pos;
-	TokenPos         curr_token_pos;
+    bool             uses_branch_location;
+    TokenPos         branch_location_pos;
+    TokenPos         curr_token_pos;
 
-	Array<lbVariadicReuseSlices> variadic_reuses;
-	lbAddr variadic_reuse_base_array_ptr;
+    Array<lbVariadicReuseSlices> variadic_reuses;
+    lbAddr variadic_reuse_base_array_ptr;
 
-	LLVMValueRef temp_callee_return_struct_memory;
-	Ast *curr_stmt;
+    LLVMValueRef temp_callee_return_struct_memory;
+    Ast *curr_stmt;
 
-	Array<Scope *>       scope_stack;
-	Array<lbContextData> context_stack;
+    Array<Scope *>       scope_stack;
 
-	LLVMMetadataRef debug_info;
+    LLVMMetadataRef debug_info;
 
-	PtrMap<Ast *, lbValue> selector_values;
-	PtrMap<Ast *, lbAddr>  selector_addr;
-	PtrMap<LLVMValueRef, lbTupleFix> tuple_fix_map;
+    PtrMap<Ast *, lbValue> selector_values;
+    PtrMap<Ast *, lbAddr>  selector_addr;
+    PtrMap<LLVMValueRef, lbTupleFix> tuple_fix_map;
 
-	Array<lbValue> asan_stack_locals;
+    Array<lbValue> asan_stack_locals;
 
-	void (*generate_body)(lbModule *m, lbProcedure *p);
-	Array<lbGlobalVariable> *global_variables;
-	lbProcedure *objc_names;
+    void (*generate_body)(lbModule *m, lbProcedure *p);
+    Array<lbGlobalVariable> *global_variables;
+    lbProcedure *objc_names;
 
-	Type *internal_gen_type; // map_set, map_get, etc.
+    Type *internal_gen_type; // map_set, map_get, etc.
 };
 
 
@@ -432,9 +429,9 @@ gb_internal LLVMTypeRef llvm_get_element_type(LLVMTypeRef type);
 gb_internal lbBlock *lb_create_block(lbProcedure *p, char const *name, bool append=false);
 
 struct lbConstContext {
-	bool   allow_local;
-	bool   is_rodata;
-	String link_section;
+    bool   allow_local;
+    bool   is_rodata;
+    String link_section;
 };
 
 static lbConstContext const LB_CONST_CONTEXT_DEFAULT = {true, false, {}};
@@ -497,10 +494,6 @@ gb_internal lbProcedure *lb_create_dummy_procedure(lbModule *m, String link_name
 gb_internal void lb_begin_procedure_body(lbProcedure *p);
 gb_internal void lb_end_procedure_body(lbProcedure *p);
 gb_internal lbValue lb_emit_call(lbProcedure *p, lbValue value, Array<lbValue> const &args, ProcInlining inlining);
-
-gb_internal lbAddr lb_find_or_generate_context_ptr(lbProcedure *p);
-gb_internal lbContextData *lb_push_context_onto_stack(lbProcedure *p, lbAddr ctx);
-gb_internal lbContextData *lb_push_context_onto_stack_from_implicit_parameter(lbProcedure *p);
 
 
 gb_internal lbAddr lb_add_global_generated_from_procedure(lbProcedure *p, Type *type, lbValue value={});
@@ -602,8 +595,6 @@ gb_internal LLVMValueRef llvm_alloca(lbProcedure *p, LLVMTypeRef llvm_type, isiz
 
 gb_internal void lb_mem_zero_ptr(lbProcedure *p, LLVMValueRef ptr, Type *type, unsigned alignment);
 
-gb_internal void lb_emit_init_context(lbProcedure *p, lbAddr addr);
-
 gb_internal lbBranchBlocks lb_lookup_branch_blocks(lbProcedure *p, Ast *ident);
 
 gb_internal lbStructFieldRemapping lb_get_struct_remapping(lbModule *m, Type *t);
@@ -618,7 +609,7 @@ gb_internal LLVMValueRef lb_mem_zero_ptr_internal(lbProcedure *p, LLVMValueRef p
 gb_internal LLVMValueRef lb_mem_zero_ptr_internal(lbProcedure *p, LLVMValueRef ptr, usize len, unsigned alignment, bool is_volatile);
 
 gb_internal gb_inline i64 lb_max_zero_init_size(void) {
-	return cast(i64)(4*build_context.int_size);
+    return cast(i64)(4*build_context.int_size);
 }
 
 gb_internal LLVMTypeRef OdinLLVMGetArrayElementType(LLVMTypeRef type);
@@ -634,9 +625,9 @@ gb_internal LLVMMetadataRef lb_debug_location_from_token_pos(lbProcedure *p, Tok
 
 gb_internal LLVMTypeRef llvm_array_type(LLVMTypeRef ElementType, uint64_t ElementCount) {
 #if LB_USE_NEW_PASS_SYSTEM
-	return LLVMArrayType2(ElementType, ElementCount);
+    return LLVMArrayType2(ElementType, ElementCount);
 #else
-	return LLVMArrayType(ElementType, cast(unsigned)ElementCount);
+    return LLVMArrayType(ElementType, cast(unsigned)ElementCount);
 #endif
 }
 
@@ -659,130 +650,129 @@ gb_internal u64 lb_get_metadata_custom_u64(lbModule *m, LLVMValueRef v_ref, Stri
 
 
 enum lbCallingConventionKind : unsigned {
-	lbCallingConvention_C = 0,
-	lbCallingConvention_Fast = 8,
-	lbCallingConvention_Cold = 9,
-	lbCallingConvention_GHC = 10,
-	lbCallingConvention_HiPE = 11,
-	lbCallingConvention_WebKit_JS = 12,
-	lbCallingConvention_AnyReg = 13,
-	lbCallingConvention_PreserveMost = 14,
-	lbCallingConvention_PreserveAll = 15,
-	lbCallingConvention_Swift = 16,
-	lbCallingConvention_CXX_FAST_TLS = 17,
-	lbCallingConvention_FirstTargetCC = 64,
-	lbCallingConvention_X86_StdCall = 64,
-	lbCallingConvention_X86_FastCall = 65,
-	lbCallingConvention_ARM_APCS = 66,
-	lbCallingConvention_ARM_AAPCS = 67,
-	lbCallingConvention_ARM_AAPCS_VFP = 68,
-	lbCallingConvention_MSP430_INTR = 69,
-	lbCallingConvention_X86_ThisCall = 70,
-	lbCallingConvention_PTX_Kernel = 71,
-	lbCallingConvention_PTX_Device = 72,
-	lbCallingConvention_SPIR_FUNC = 75,
-	lbCallingConvention_SPIR_KERNEL = 76,
-	lbCallingConvention_Intel_OCL_BI = 77,
-	lbCallingConvention_X86_64_SysV = 78,
-	lbCallingConvention_Win64 = 79,
-	lbCallingConvention_X86_VectorCall = 80,
-	lbCallingConvention_HHVM = 81,
-	lbCallingConvention_HHVM_C = 82,
-	lbCallingConvention_X86_INTR = 83,
-	lbCallingConvention_AVR_INTR = 84,
-	lbCallingConvention_AVR_SIGNAL = 85,
-	lbCallingConvention_AVR_BUILTIN = 86,
-	lbCallingConvention_AMDGPU_VS = 87,
-	lbCallingConvention_AMDGPU_GS = 88,
-	lbCallingConvention_AMDGPU_PS = 89,
-	lbCallingConvention_AMDGPU_CS = 90,
-	lbCallingConvention_AMDGPU_KERNEL = 91,
-	lbCallingConvention_X86_RegCall = 92,
-	lbCallingConvention_AMDGPU_HS = 93,
-	lbCallingConvention_MSP430_BUILTIN = 94,
-	lbCallingConvention_AMDGPU_LS = 95,
-	lbCallingConvention_AMDGPU_ES = 96,
-	lbCallingConvention_AArch64_VectorCall = 97,
-	lbCallingConvention_AArch64_SVE_VectorCall = 98,
-	lbCallingConvention_WASM_EmscriptenInvoke = 99,
-	lbCallingConvention_MaxID = 1023,
+    lbCallingConvention_C = 0,
+    lbCallingConvention_Fast = 8,
+    lbCallingConvention_Cold = 9,
+    lbCallingConvention_GHC = 10,
+    lbCallingConvention_HiPE = 11,
+    lbCallingConvention_WebKit_JS = 12,
+    lbCallingConvention_AnyReg = 13,
+    lbCallingConvention_PreserveMost = 14,
+    lbCallingConvention_PreserveAll = 15,
+    lbCallingConvention_Swift = 16,
+    lbCallingConvention_CXX_FAST_TLS = 17,
+    lbCallingConvention_FirstTargetCC = 64,
+    lbCallingConvention_X86_StdCall = 64,
+    lbCallingConvention_X86_FastCall = 65,
+    lbCallingConvention_ARM_APCS = 66,
+    lbCallingConvention_ARM_AAPCS = 67,
+    lbCallingConvention_ARM_AAPCS_VFP = 68,
+    lbCallingConvention_MSP430_INTR = 69,
+    lbCallingConvention_X86_ThisCall = 70,
+    lbCallingConvention_PTX_Kernel = 71,
+    lbCallingConvention_PTX_Device = 72,
+    lbCallingConvention_SPIR_FUNC = 75,
+    lbCallingConvention_SPIR_KERNEL = 76,
+    lbCallingConvention_Intel_OCL_BI = 77,
+    lbCallingConvention_X86_64_SysV = 78,
+    lbCallingConvention_Win64 = 79,
+    lbCallingConvention_X86_VectorCall = 80,
+    lbCallingConvention_HHVM = 81,
+    lbCallingConvention_HHVM_C = 82,
+    lbCallingConvention_X86_INTR = 83,
+    lbCallingConvention_AVR_INTR = 84,
+    lbCallingConvention_AVR_SIGNAL = 85,
+    lbCallingConvention_AVR_BUILTIN = 86,
+    lbCallingConvention_AMDGPU_VS = 87,
+    lbCallingConvention_AMDGPU_GS = 88,
+    lbCallingConvention_AMDGPU_PS = 89,
+    lbCallingConvention_AMDGPU_CS = 90,
+    lbCallingConvention_AMDGPU_KERNEL = 91,
+    lbCallingConvention_X86_RegCall = 92,
+    lbCallingConvention_AMDGPU_HS = 93,
+    lbCallingConvention_MSP430_BUILTIN = 94,
+    lbCallingConvention_AMDGPU_LS = 95,
+    lbCallingConvention_AMDGPU_ES = 96,
+    lbCallingConvention_AArch64_VectorCall = 97,
+    lbCallingConvention_AArch64_SVE_VectorCall = 98,
+    lbCallingConvention_WASM_EmscriptenInvoke = 99,
+    lbCallingConvention_MaxID = 1023,
 };
 
 lbCallingConventionKind const lb_calling_convention_map[ProcCC_MAX] = {
-	lbCallingConvention_C,            // ProcCC_Invalid,
-	lbCallingConvention_C,            // ProcCC_Odin,
-	lbCallingConvention_C,            // ProcCC_Contextless,
-	lbCallingConvention_C,            // ProcCC_CDecl,
-	lbCallingConvention_X86_StdCall,  // ProcCC_StdCall,
-	lbCallingConvention_X86_FastCall, // ProcCC_FastCall,
+    lbCallingConvention_C,            // ProcCC_Invalid,
+    lbCallingConvention_C,            // ProcCC_Odin,
+    lbCallingConvention_C,            // ProcCC_CDecl,
+    lbCallingConvention_X86_StdCall,  // ProcCC_StdCall,
+    lbCallingConvention_X86_FastCall, // ProcCC_FastCall,
 
-	lbCallingConvention_C,            // ProcCC_None,
-	lbCallingConvention_C,            // ProcCC_Naked,
-	lbCallingConvention_C,            // ProcCC_InlineAsm,
+    lbCallingConvention_C,            // ProcCC_None,
+    lbCallingConvention_C,            // ProcCC_Naked,
+    lbCallingConvention_C,            // ProcCC_InlineAsm,
 
-	lbCallingConvention_Win64,        // ProcCC_Win64,
-	lbCallingConvention_X86_64_SysV,  // ProcCC_SysV,
+    lbCallingConvention_Win64,        // ProcCC_Win64,
+    lbCallingConvention_X86_64_SysV,  // ProcCC_SysV,
 
 };
 
 enum : LLVMDWARFTypeEncoding {
-	LLVMDWARFTypeEncoding_Address = 1,
-	LLVMDWARFTypeEncoding_Boolean = 2,
-	LLVMDWARFTypeEncoding_ComplexFloat = 3,
-	LLVMDWARFTypeEncoding_Float = 4,
-	LLVMDWARFTypeEncoding_Signed = 5,
-	LLVMDWARFTypeEncoding_SignedChar = 6,
-	LLVMDWARFTypeEncoding_Unsigned = 7,
-	LLVMDWARFTypeEncoding_UnsignedChar = 8,
-	LLVMDWARFTypeEncoding_ImaginaryFloat = 9,
-	LLVMDWARFTypeEncoding_PackedDecimal = 10,
-	LLVMDWARFTypeEncoding_NumericString = 11,
-	LLVMDWARFTypeEncoding_Edited = 12,
-	LLVMDWARFTypeEncoding_SignedFixed = 13,
-	LLVMDWARFTypeEncoding_UnsignedFixed = 14,
-	LLVMDWARFTypeEncoding_DecimalFloat = 15,
-	LLVMDWARFTypeEncoding_Utf = 16,
-	LLVMDWARFTypeEncoding_LoUser = 128,
-	LLVMDWARFTypeEncoding_HiUser = 255
+    LLVMDWARFTypeEncoding_Address = 1,
+    LLVMDWARFTypeEncoding_Boolean = 2,
+    LLVMDWARFTypeEncoding_ComplexFloat = 3,
+    LLVMDWARFTypeEncoding_Float = 4,
+    LLVMDWARFTypeEncoding_Signed = 5,
+    LLVMDWARFTypeEncoding_SignedChar = 6,
+    LLVMDWARFTypeEncoding_Unsigned = 7,
+    LLVMDWARFTypeEncoding_UnsignedChar = 8,
+    LLVMDWARFTypeEncoding_ImaginaryFloat = 9,
+    LLVMDWARFTypeEncoding_PackedDecimal = 10,
+    LLVMDWARFTypeEncoding_NumericString = 11,
+    LLVMDWARFTypeEncoding_Edited = 12,
+    LLVMDWARFTypeEncoding_SignedFixed = 13,
+    LLVMDWARFTypeEncoding_UnsignedFixed = 14,
+    LLVMDWARFTypeEncoding_DecimalFloat = 15,
+    LLVMDWARFTypeEncoding_Utf = 16,
+    LLVMDWARFTypeEncoding_LoUser = 128,
+    LLVMDWARFTypeEncoding_HiUser = 255
 };
 
 
 enum {
-	DW_TAG_array_type       = 1,
-	DW_TAG_enumeration_type = 4,
-	DW_TAG_structure_type   = 19,
-	DW_TAG_union_type       = 23,
-	DW_TAG_vector_type      = 259,
-	DW_TAG_subroutine_type  = 21,
-	DW_TAG_inheritance      = 28,
+    DW_TAG_array_type       = 1,
+    DW_TAG_enumeration_type = 4,
+    DW_TAG_structure_type   = 19,
+    DW_TAG_union_type       = 23,
+    DW_TAG_vector_type      = 259,
+    DW_TAG_subroutine_type  = 21,
+    DW_TAG_inheritance      = 28,
 };
 
 
 enum : LLVMAttributeIndex {
-	LLVMAttributeIndex_ReturnIndex = 0u,
-	LLVMAttributeIndex_FunctionIndex = ~0u,
-	LLVMAttributeIndex_FirstArgIndex = 1,
+    LLVMAttributeIndex_ReturnIndex = 0u,
+    LLVMAttributeIndex_FunctionIndex = ~0u,
+    LLVMAttributeIndex_FirstArgIndex = 1,
 };
 
 
 gb_global char const *llvm_linkage_strings[] = {
-	"external linkage",
-	"available externally linkage",
-	"link once any linkage",
-	"link once odr linkage",
-	"link once odr auto hide linkage",
-	"weak any linkage",
-	"weak odr linkage",
-	"appending linkage",
-	"internal linkage",
-	"private linkage",
-	"dllimport linkage",
-	"dllexport linkage",
-	"external weak linkage",
-	"ghost linkage",
-	"common linkage",
-	"linker private linkage",
-	"linker private weak linkage"
+    "external linkage",
+    "available externally linkage",
+    "link once any linkage",
+    "link once odr linkage",
+    "link once odr auto hide linkage",
+    "weak any linkage",
+    "weak odr linkage",
+    "appending linkage",
+    "internal linkage",
+    "private linkage",
+    "dllimport linkage",
+    "dllexport linkage",
+    "external weak linkage",
+    "ghost linkage",
+    "common linkage",
+    "linker private linkage",
+    "linker private weak linkage"
 };
 
 #define ODIN_METADATA_IS_PACKED str_lit("odin-is-packed")

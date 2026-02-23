@@ -746,7 +746,7 @@ Returns:
 - rem: 32-bit remainder
 */
 
-div_u32 :: proc "odin" (hi, lo, y: u32) -> (quo, rem: u32) {
+div_u32 :: proc(hi, lo, y: u32) -> (quo, rem: u32) {
     assert(y != 0 && y <= hi)
     z := u64(hi)<<32 | u64(lo)
     quo, rem = u32(z/u64(y)), u32(z%u64(y))
@@ -766,7 +766,7 @@ Returns:
 - rem: 64-bit Remainder
 */
 
-div_u64 :: proc "odin" (hi, lo, y: u64) -> (quo, rem: u64) {
+div_u64 :: proc(hi, lo, y: u64) -> (quo, rem: u64) {
     y := y
     two32  :: 1 << 32
     mask32 :: two32 - 1
@@ -825,7 +825,7 @@ Returns:
 - rem: Remainder
 */
 
-div_uint :: proc "odin" (hi, lo, y: uint) -> (quo, rem: uint) {
+div_uint :: proc(hi, lo, y: uint) -> (quo, rem: uint) {
     when size_of(uint) == size_of(u32) {
         a, b := div_u32(u32(hi), u32(lo), u32(y))
     } else {

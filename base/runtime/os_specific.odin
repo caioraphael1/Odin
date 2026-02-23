@@ -4,11 +4,11 @@ _OS_Errno :: distinct int
 
 HAS_RAND_BYTES :: _HAS_RAND_BYTES
 
-stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
+stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
 	return _stderr_write(data)
 }
 
-rand_bytes :: proc "contextless" (dst: []byte) {
+rand_bytes :: proc(dst: []byte) {
 	when HAS_RAND_BYTES {
 		_rand_bytes(dst)
 	} else {
@@ -16,6 +16,6 @@ rand_bytes :: proc "contextless" (dst: []byte) {
 	}
 }
 
-exit :: proc "contextless" (code: int) -> ! {
+exit :: proc(code: int) -> ! {
 	_exit(code)
 }

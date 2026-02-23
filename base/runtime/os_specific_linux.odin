@@ -5,7 +5,7 @@ import "base:intrinsics"
 
 _HAS_RAND_BYTES :: true
 
-_stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
 	when ODIN_ARCH == .amd64 {
 		SYS_write :: uintptr(1)
 	} else when ODIN_ARCH == .arm64 {
@@ -27,7 +27,7 @@ _stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
 	return ret, 0
 }
 
-_rand_bytes :: proc "contextless" (dst: []byte) {
+_rand_bytes :: proc(dst: []byte) {
 	when ODIN_ARCH == .amd64 {
 		SYS_getrandom :: uintptr(318)
 	} else when ODIN_ARCH == .arm64 {
@@ -75,7 +75,7 @@ _rand_bytes :: proc "contextless" (dst: []byte) {
 	}
 }
 
-_exit :: proc "contextless" (code: int) -> ! {
+_exit :: proc(code: int) -> ! {
 	SYS_exit_group ::
 		231 when ODIN_ARCH == .amd64 else
 		248 when ODIN_ARCH == .arm32 else

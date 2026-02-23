@@ -192,7 +192,6 @@ Inputs:
 - ba: Pointer to the Bit_Array
 - index: Which bit in the array
 - set_to: `true` sets the bit on, `false` to turn it off
-- allocator: (default is context.allocator)
 
 Returns:
 - ok: Whether the set was successful, `false` on allocation failure or bad index
@@ -238,7 +237,6 @@ Unsets the state of a bit in the bit-array. (Convienence wrapper for `set`)
 Inputs:
 - ba: Pointer to the Bit_Array
 - index: Which bit in the array
-- allocator: (default is context.allocator)
 
 Returns:
 - ok: Whether the unset was successful, `false` on allocation failure or bad index
@@ -270,7 +268,6 @@ array will be able to expand beyond `max_index` if needed.
 Inputs:
 - max_index: maximum starting index
 - min_index: minimum starting index (used as a bias)
-- allocator: (default is context.allocator)
 
 Returns:
 - ba: Allocates a bit_Array, backing data is set to `max-min / 64` indices, rounded up (eg 65 - 0 allocates for [2]u64).
@@ -300,7 +297,6 @@ array will be able to expand beyond `max_index` if needed.
 Inputs:
 - max_index: maximum starting index
 - min_index: minimum starting index (used as a bias)
-- allocator: (default is context.allocator)
 */
 init :: proc(res: ^Bit_Array, max_index: int, min_index: int = 0, allocator: mem.Allocator) -> (ok: bool) {
     size_in_bits := max_index - min_index

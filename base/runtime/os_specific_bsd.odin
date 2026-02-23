@@ -20,7 +20,7 @@ foreign libc {
 	arc4random_buf :: proc(buf: [^]byte, nbytes: uint) ---
 }
 
-_stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
 	ret := _unix_write(2, raw_data(data), len(data))
 	if ret < len(data) {
 		err := __error()
@@ -29,11 +29,11 @@ _stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
 	return int(ret), 0
 }
 
-_rand_bytes :: proc "contextless" (dst: []byte) {
+_rand_bytes :: proc(dst: []byte) {
 	arc4random_buf(raw_data(dst), len(dst))
 }
 
-_exit :: proc "contextless" (code: int) -> ! {
+_exit :: proc(code: int) -> ! {
 	@(default_calling_convention="c")
 	foreign libc {
 		exit :: proc(status: i32) -> ! ---

@@ -18,8 +18,8 @@ import "core:os"
 import "core:strings"
 import "core:bytes"
 
-parse_mo_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator := context.allocator) -> (translation: ^Translation, err: Error) {
-    context.allocator = allocator
+parse_mo_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator : mem.Allocator) -> (translation: ^Translation, err: Error) {
+
     /*
         An MO file should have at least a 4-byte magic, 2 x 2 byte version info,
         a 4-byte number of strings value, and 2 x 4-byte offsets.
@@ -137,8 +137,8 @@ parse_mo_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, plur
     return
 }
 
-parse_mo_file :: proc(filename: string, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator := context.allocator) -> (translation: ^Translation, err: Error) {
-    context.allocator = allocator
+parse_mo_file :: proc(filename: string, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator : mem.Allocator) -> (translation: ^Translation, err: Error) {
+
 
     data, data_ok := os.read_entire_file(filename)
     defer _ = delete_slice(data)

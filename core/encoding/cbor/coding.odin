@@ -356,7 +356,6 @@ _decode_bytes_ptr :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator:
 }
 
 _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem.Allocator, loc := #caller_location) -> (v: Bytes, err: Decode_Error) {
-    context.allocator = allocator
 
     add := add
     n, scap := _decode_len_str(d, add) or_return

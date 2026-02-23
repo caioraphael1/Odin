@@ -77,7 +77,7 @@ runner_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, tex
 	})
 }
 
-format_log_text :: proc(level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location: runtime.Source_Code_Location, at_time: time.Time, allocator := context.allocator) -> string{
+format_log_text :: proc(level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location: runtime.Source_Code_Location, at_time: time.Time, allocator : mem.Allocator) -> string{
 	backing: [1024]byte
 	buf := strings.builder_from_bytes(backing[:])
 

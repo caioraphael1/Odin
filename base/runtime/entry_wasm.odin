@@ -9,7 +9,6 @@ when !ODIN_TEST && !ODIN_NO_ENTRY_POINT {
     when ODIN_OS == .Orca {
         @(linkage="strong", require, export)
         oc_on_init :: proc "c" () {
-            context = {}
             intrinsics.__entry_point()
         }
         @(linkage="strong", require, export)
@@ -18,8 +17,6 @@ when !ODIN_TEST && !ODIN_NO_ENTRY_POINT {
     } else {
         @(link_name="_start", linkage="strong", require, export)
         _start :: proc "c" () {
-            context = {}
-
             when ODIN_OS == .WASI {
                 _wasi_setup_args()
             }

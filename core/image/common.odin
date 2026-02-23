@@ -909,8 +909,7 @@ Alpha_Key :: union {
         - For Gray, if pix = key.r  -> pix = {0, key.g}
     Otherwise, an opaque alpha channel will be added.
 */
-alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator := context.allocator) -> (ok: bool) {
-    context.allocator = allocator
+alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator : mem.Allocator) -> (ok: bool) {
 
     if !is_valid_image(img) {
         return false
@@ -1083,9 +1082,7 @@ alpha_apply_keyed_alpha :: alpha_add_if_missing
 
     In this case a keyed alpha pixel will be replaced with the background color.
 */
-alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Alpha_Key{}, allocator := context.allocator) -> (ok: bool) {
-    context.allocator = allocator
-
+alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Alpha_Key{}, allocator : mem.Allocator) -> (ok: bool) {
     if !is_valid_image(img) {
         return false
     }
@@ -1354,8 +1351,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
 
 // Apply palette to 8-bit single-channel image and return an 8-bit RGB image, in-place.
 // If the image given is not a valid 8-bit single channel image, the procedure will return `false` early.
-apply_palette_rgb :: proc(img: ^Image, palette: [256]RGB_Pixel, allocator := context.allocator) -> (ok: bool) {
-    context.allocator = allocator
+apply_palette_rgb :: proc(img: ^Image, palette: [256]RGB_Pixel, allocator : mem.Allocator) -> (ok: bool) {
+
 
     if img == nil || img.channels != 1 || img.depth != 8 {
         return false
@@ -1391,8 +1388,8 @@ apply_palette_rgb :: proc(img: ^Image, palette: [256]RGB_Pixel, allocator := con
 
 // Apply palette to 8-bit single-channel image and return an 8-bit RGBA image, in-place.
 // If the image given is not a valid 8-bit single channel image, the procedure will return `false` early.
-apply_palette_rgba :: proc(img: ^Image, palette: [256]RGBA_Pixel, allocator := context.allocator) -> (ok: bool) {
-    context.allocator = allocator
+apply_palette_rgba :: proc(img: ^Image, palette: [256]RGBA_Pixel, allocator : mem.Allocator) -> (ok: bool) {
+
 
     if img == nil || img.channels != 1 || img.depth != 8 {
         return false
@@ -1498,8 +1495,8 @@ premultiply_alpha :: proc(img: ^Image) -> (ok: bool) {
 
 // Replicates grayscale values into RGB(A) 8- or 16-bit images as appropriate.
 // Returns early with `false` if already an RGB(A) image.
-expand_grayscale :: proc(img: ^Image, allocator := context.allocator) -> (ok: bool) {
-    context.allocator = allocator
+expand_grayscale :: proc(img: ^Image, allocator : mem.Allocator) -> (ok: bool) {
+
 
     if !is_valid_grayscale_image(img) {
         return false

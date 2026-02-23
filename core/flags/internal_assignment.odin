@@ -204,7 +204,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
         value_ptr: rawptr
 
         if raw_map.allocator.procedure == nil {
-            raw_map.allocator = context.allocator
+            // raw_map.allocator = context.allocator
         } else {
             value_ptr = runtime.__dynamic_map_get(raw_map,
                 specific_type_info.map_info,

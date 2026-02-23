@@ -26,8 +26,8 @@ GA_Pixel   :: image.GA_Pixel
 RGB_Pixel  :: image.RGB_Pixel
 RGBA_Pixel :: image.RGBA_Pixel
 
-save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}, allocator := context.allocator) -> (err: Error) {
-    context.allocator = allocator
+save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}, allocator : mem.Allocator) -> (err: Error) {
+
 
     if img == nil {
         return .Invalid_Input_Image
@@ -90,8 +90,8 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     return nil
 }
 
-load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
-    context.allocator = allocator
+load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+
     options := options
 
     if .alpha_premultiply in options {
@@ -373,7 +373,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.a
     return img, nil
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }

@@ -140,21 +140,21 @@ benchmark_hash :: proc(t: ^testing.T) {
 
 // Benchmarks
 
-setup_xxhash :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
+setup_xxhash :: proc(options: ^time.Benchmark_Options, allocator : mem.Allocator) -> (err: time.Benchmark_Error) {
 	assert(options != nil)
 
 	options.input = make_slice([]u8, options.bytes, allocator)
 	return nil if len(options.input) == options.bytes else .Allocation_Error
 }
 
-teardown_xxhash :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
+teardown_xxhash :: proc(options: ^time.Benchmark_Options, allocator : mem.Allocator) -> (err: time.Benchmark_Error) {
 	assert(options != nil)
 
 	_ = delete_slice(options.input)
 	return nil
 }
 
-benchmark_xxh32 :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
+benchmark_xxh32 :: proc(options: ^time.Benchmark_Options, allocator : mem.Allocator) -> (err: time.Benchmark_Error) {
 	buf := options.input
 
 	h: u32
@@ -167,7 +167,7 @@ benchmark_xxh32 :: proc(options: ^time.Benchmark_Options, allocator := context.a
 	return nil
 }
 
-benchmark_xxh64 :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
+benchmark_xxh64 :: proc(options: ^time.Benchmark_Options, allocator : mem.Allocator) -> (err: time.Benchmark_Error) {
 	buf := options.input
 
 	h: u64
@@ -180,7 +180,7 @@ benchmark_xxh64 :: proc(options: ^time.Benchmark_Options, allocator := context.a
 	return nil
 }
 
-benchmark_xxh3_64 :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
+benchmark_xxh3_64 :: proc(options: ^time.Benchmark_Options, allocator : mem.Allocator) -> (err: time.Benchmark_Error) {
 	buf := options.input
 
 	h: u64
@@ -193,7 +193,7 @@ benchmark_xxh3_64 :: proc(options: ^time.Benchmark_Options, allocator := context
 	return nil
 }
 
-benchmark_xxh3_128 :: proc(options: ^time.Benchmark_Options, allocator := context.allocator) -> (err: time.Benchmark_Error) {
+benchmark_xxh3_128 :: proc(options: ^time.Benchmark_Options, allocator : mem.Allocator) -> (err: time.Benchmark_Error) {
 	buf := options.input
 
 	h: u128

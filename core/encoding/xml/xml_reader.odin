@@ -164,9 +164,8 @@ Error :: enum {
     Conflicting_Options,
 }
 
-parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_handler := default_error_handler, allocator := context.allocator) -> (doc: ^Document, err: Error) {
+parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_handler := default_error_handler, allocator: mem.Allocator) -> (doc: ^Document, err: Error) {
     data := data
-    context.allocator = allocator
 
     opts := validate_options(options) or_return
 
@@ -364,15 +363,14 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
     return doc, .None
 }
 
-parse_string :: proc(data: string, options := DEFAULT_OPTIONS, path := "", error_handler := default_error_handler, allocator := context.allocator) -> (doc: ^Document, err: Error) {
+parse_string :: proc(data: string, options := DEFAULT_OPTIONS, path := "", error_handler := default_error_handler, allocator: mem.Allocator) -> (doc: ^Document, err: Error) {
     _data := transmute([]u8)data
 
     return parse_bytes(_data, options, path, error_handler, allocator)
 }
 
 // Load an XML file
-load_from_file :: proc(filename: string, options := DEFAULT_OPTIONS, error_handler := default_error_handler, allocator := context.allocator) -> (doc: ^Document, err: Error) {
-    context.allocator = allocator
+load_from_file :: proc(filename: string, options := DEFAULT_OPTIONS, error_handler := default_error_handler, allocator: mem.Allocator) -> (doc: ^Document, err: Error) {
     options := options
 
     data, data_ok := os.read_entire_file(filename)
@@ -428,7 +426,6 @@ expect :: proc(t: ^Tokenizer, kind: Token_Kind, multiline_string := false) -> (t
 
 parse_attribute :: proc(doc: ^Document) -> (attr: Attribute, offset: int, err: Error) {
     assert(doc != nil)
-    context.allocator = doc.allocator
     t := doc.tokenizer
 
     key    := expect(t, .Ident)  or_return
@@ -460,7 +457,6 @@ check_duplicate_attributes :: proc(t: ^Tokenizer, attribs: Attributes, attr: Att
 
 parse_attributes :: proc(doc: ^Document, attribs: ^Attributes) -> (err: Error) {
     assert(doc != nil)
-    context.allocator = doc.allocator
     t := doc.tokenizer
 
     for peek(t).kind == .Ident {
@@ -474,7 +470,6 @@ parse_attributes :: proc(doc: ^Document, attribs: ^Attributes) -> (err: Error) {
 
 parse_prologue :: proc(doc: ^Document) -> (err: Error) {
     assert(doc != nil)
-    context.allocator = doc.allocator
     t := doc.tokenizer
 
     offset := t.offset
@@ -549,7 +544,6 @@ parse_doctype :: proc(doc: ^Document) -> (err: Error) {
     ]>
     */
     assert(doc != nil)
-    context.allocator = doc.allocator
     t := doc.tokenizer
 
     tok := expect(t, .Ident) or_return
@@ -566,7 +560,6 @@ parse_doctype :: proc(doc: ^Document) -> (err: Error) {
 
 parse_body :: proc(doc: ^Document, element: Element_ID, opts: Options) -> (err: Error) {
     assert(doc != nil)
-    context.allocator = doc.allocator
     t := doc.tokenizer
 
     body_text        := scan_string(t, t.offset) or_return

@@ -25,9 +25,7 @@ _thread_priority_map := [Thread_Priority]i32{
 _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: runtime.Allocator) -> ^Thread {
     win32_thread_id: win32.DWORD
 
-    __windows_thread_entry_proc :: proc "system" (t_: rawptr) -> win32.DWORD {
-        context = {}
-        
+    __windows_thread_entry_proc :: proc "system" (t_: rawptr) -> win32.DWORD {        
         t := (^Thread)(t_)
         for (.Started not_in sync.atomic_load(&t.flags)) {
             sync.sema_wait(&t.start_ok)

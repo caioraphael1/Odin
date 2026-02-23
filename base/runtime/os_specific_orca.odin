@@ -30,7 +30,7 @@ foreign {
 orca_stderr_buffer:     [4096]byte
 orca_stderr_buffer_idx: int
 
-_stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
 	for b in data {
 		orca_stderr_buffer[orca_stderr_buffer_idx] = b
 		orca_stderr_buffer_idx += 1
@@ -45,6 +45,6 @@ _stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
 }
 
 
-_exit :: proc "contextless" (code: int) -> ! {
+_exit :: proc(code: int) -> ! {
 	trap()
 }

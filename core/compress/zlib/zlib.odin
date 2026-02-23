@@ -483,7 +483,6 @@ inflate_from_context :: proc(using ctx: ^compress.Context_Memory_Input, raw := f
 
 @(optimization_mode="favor_size")
 inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator) -> (err: Error) #no_bounds_check {
-    context.allocator = allocator
     expected_output_size := expected_output_size
 
     /*

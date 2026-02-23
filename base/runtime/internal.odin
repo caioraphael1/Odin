@@ -24,18 +24,18 @@ HAS_HARDWARE_SIMD :: false when (ODIN_ARCH == .amd64 || ODIN_ARCH == .i386) && !
 
 
 @(private)
-byte_slice :: #force_inline proc "contextless" (data: rawptr, len: int) -> []byte #no_bounds_check {
+byte_slice :: #force_inline proc(data: rawptr, len: int) -> []byte #no_bounds_check {
     return ([^]byte)(data)[:max(len, 0)]
 }
 
-is_power_of_two_int :: #force_inline proc "contextless" (x: int) -> bool {
+is_power_of_two_int :: #force_inline proc(x: int) -> bool {
     if x <= 0 {
         return false
     }
     return (x & (x-1)) == 0
 }
 
-align_forward_int :: #force_inline proc "odin" (ptr, align: int) -> int {
+align_forward_int :: #force_inline proc(ptr, align: int) -> int {
     assert(is_power_of_two_int(align))
 
     p := ptr
@@ -46,14 +46,14 @@ align_forward_int :: #force_inline proc "odin" (ptr, align: int) -> int {
     return p
 }
 
-is_power_of_two_uint :: #force_inline proc "contextless" (x: uint) -> bool {
+is_power_of_two_uint :: #force_inline proc(x: uint) -> bool {
     if x <= 0 {
         return false
     }
     return (x & (x-1)) == 0
 }
 
-align_forward_uint :: #force_inline proc "odin" (ptr, align: uint) -> uint {
+align_forward_uint :: #force_inline proc(ptr, align: uint) -> uint {
     assert(is_power_of_two_uint(align))
 
     p := ptr
@@ -64,14 +64,14 @@ align_forward_uint :: #force_inline proc "odin" (ptr, align: uint) -> uint {
     return p
 }
 
-is_power_of_two_uintptr :: #force_inline proc "contextless" (x: uintptr) -> bool {
+is_power_of_two_uintptr :: #force_inline proc(x: uintptr) -> bool {
     if x <= 0 {
         return false
     }
     return (x & (x-1)) == 0
 }
 
-align_forward_uintptr :: #force_inline proc "odin" (ptr, align: uintptr) -> uintptr {
+align_forward_uintptr :: #force_inline proc(ptr, align: uintptr) -> uintptr {
     assert(is_power_of_two_uintptr(align))
 
     p := ptr
@@ -84,7 +84,7 @@ align_forward_uintptr :: #force_inline proc "odin" (ptr, align: uintptr) -> uint
 
 
 @(optional_results)
-mem_zero :: proc "contextless" (data: rawptr, len: int) -> rawptr {
+mem_zero :: proc(data: rawptr, len: int) -> rawptr {
     if data == nil {
         return nil
     }
@@ -96,7 +96,7 @@ mem_zero :: proc "contextless" (data: rawptr, len: int) -> rawptr {
 }
 
 @(optional_results)
-mem_copy :: proc "contextless" (dst, src: rawptr, len: int) -> rawptr {
+mem_copy :: proc(dst, src: rawptr, len: int) -> rawptr {
     if src != nil && dst != src && len > 0 {
         // NOTE(bill): This _must_ be implemented like C's memmove
         intrinsics.mem_copy(dst, src, len)
@@ -105,7 +105,7 @@ mem_copy :: proc "contextless" (dst, src: rawptr, len: int) -> rawptr {
 }
 
 @(optional_results)
-mem_copy_non_overlapping :: proc "contextless" (dst, src: rawptr, len: int) -> rawptr {
+mem_copy_non_overlapping :: proc(dst, src: rawptr, len: int) -> rawptr {
     if src != nil && dst != src && len > 0 {
         // NOTE(bill): This _must_ be implemented like C's memcpy
         intrinsics.mem_copy_non_overlapping(dst, src, len)
@@ -227,7 +227,7 @@ non_zero_mem_resize :: proc(ptr: rawptr, old_size, new_size: int, alignment: int
     return _mem_resize(ptr, old_size, new_size, alignment, allocator, false, loc)
 }
 
-conditional_mem_zero :: proc "contextless" (data: rawptr, n_: int) #no_bounds_check {
+conditional_mem_zero :: proc(data: rawptr, n_: int) #no_bounds_check {
     // When acquiring memory from the OS for the first time it's likely that the
     // OS already gives the zero page mapped multiple times for the request. The
     // actual allocation does not have physical pages allocated to it until those
@@ -276,7 +276,7 @@ conditional_mem_zero :: proc "contextless" (data: rawptr, n_: int) #no_bounds_ch
     }
 }
 
-memory_equal :: proc "contextless" (x, y: rawptr, n: int) -> bool {
+memory_equal :: proc(x, y: rawptr, n: int) -> bool {
     switch {
     case n == 0: return true
     case x == y: return true
@@ -330,7 +330,7 @@ memory_equal :: proc "contextless" (x, y: rawptr, n: int) -> bool {
     return true
 }
 
-memory_compare :: proc "contextless" (x, y: rawptr, n: int) -> int #no_bounds_check {
+memory_compare :: proc(x, y: rawptr, n: int) -> int #no_bounds_check {
     switch {
     case x == y:   return 0
     case x == nil: return -1
@@ -398,7 +398,7 @@ memory_compare :: proc "contextless" (x, y: rawptr, n: int) -> int #no_bounds_ch
     return 0
 }
 
-memory_compare_zero :: proc "contextless" (a: rawptr, n: int) -> int #no_bounds_check {
+memory_compare_zero :: proc(a: rawptr, n: int) -> int #no_bounds_check {
     n := uint(n)
     i := uint(0)
     m := uint(0)
@@ -451,7 +451,7 @@ memory_compare_zero :: proc "contextless" (a: rawptr, n: int) -> int #no_bounds_
     return 0
 }
 
-memory_prefix_length :: proc "contextless" (x, y: rawptr, n: int) -> (idx: int) #no_bounds_check {
+memory_prefix_length :: proc(x, y: rawptr, n: int) -> (idx: int) #no_bounds_check {
     switch {
     case x == y:   return n
     case x == nil: return 0
@@ -519,7 +519,7 @@ memory_prefix_length :: proc "contextless" (x, y: rawptr, n: int) -> (idx: int) 
     return int(n)
 }
 
-string_eq :: proc "contextless" (lhs, rhs: string) -> bool {
+string_eq :: proc(lhs, rhs: string) -> bool {
     x := transmute(Raw_String)lhs
     y := transmute(Raw_String)rhs
     if x.len != y.len {
@@ -528,7 +528,7 @@ string_eq :: proc "contextless" (lhs, rhs: string) -> bool {
     return #force_inline memory_equal(x.data, y.data, x.len)
 }
 
-string_cmp :: proc "contextless" (a, b: string) -> int {
+string_cmp :: proc(a, b: string) -> int {
     x := transmute(Raw_String)a
     y := transmute(Raw_String)b
 
@@ -540,7 +540,7 @@ string_cmp :: proc "contextless" (a, b: string) -> int {
 }
 
 
-string16_eq :: proc "contextless" (lhs, rhs: string16) -> bool {
+string16_eq :: proc(lhs, rhs: string16) -> bool {
     x := transmute(Raw_String16)lhs
     y := transmute(Raw_String16)rhs
     if x.len != y.len {
@@ -549,7 +549,7 @@ string16_eq :: proc "contextless" (lhs, rhs: string16) -> bool {
     return #force_inline memory_equal(x.data, y.data, x.len*size_of(u16))
 }
 
-string16_cmp :: proc "contextless" (a, b: string16) -> int {
+string16_cmp :: proc(a, b: string16) -> int {
     x := transmute(Raw_String16)a
     y := transmute(Raw_String16)b
 
@@ -560,20 +560,20 @@ string16_cmp :: proc "contextless" (a, b: string16) -> int {
     return ret
 }
 
-string_ne :: #force_inline proc "contextless" (a, b: string) -> bool { return !string_eq(a, b) }
-string_lt :: #force_inline proc "contextless" (a, b: string) -> bool { return string_cmp(a, b) < 0 }
-string_gt :: #force_inline proc "contextless" (a, b: string) -> bool { return string_cmp(a, b) > 0 }
-string_le :: #force_inline proc "contextless" (a, b: string) -> bool { return string_cmp(a, b) <= 0 }
-string_ge :: #force_inline proc "contextless" (a, b: string) -> bool { return string_cmp(a, b) >= 0 }
+string_ne :: #force_inline proc(a, b: string) -> bool { return !string_eq(a, b) }
+string_lt :: #force_inline proc(a, b: string) -> bool { return string_cmp(a, b) < 0 }
+string_gt :: #force_inline proc(a, b: string) -> bool { return string_cmp(a, b) > 0 }
+string_le :: #force_inline proc(a, b: string) -> bool { return string_cmp(a, b) <= 0 }
+string_ge :: #force_inline proc(a, b: string) -> bool { return string_cmp(a, b) >= 0 }
 
-string16_ne :: #force_inline proc "contextless" (a, b: string16) -> bool { return !string16_eq(a, b) }
-string16_lt :: #force_inline proc "contextless" (a, b: string16) -> bool { return string16_cmp(a, b) < 0 }
-string16_gt :: #force_inline proc "contextless" (a, b: string16) -> bool { return string16_cmp(a, b) > 0 }
-string16_le :: #force_inline proc "contextless" (a, b: string16) -> bool { return string16_cmp(a, b) <= 0 }
-string16_ge :: #force_inline proc "contextless" (a, b: string16) -> bool { return string16_cmp(a, b) >= 0 }
+string16_ne :: #force_inline proc(a, b: string16) -> bool { return !string16_eq(a, b) }
+string16_lt :: #force_inline proc(a, b: string16) -> bool { return string16_cmp(a, b) < 0 }
+string16_gt :: #force_inline proc(a, b: string16) -> bool { return string16_cmp(a, b) > 0 }
+string16_le :: #force_inline proc(a, b: string16) -> bool { return string16_cmp(a, b) <= 0 }
+string16_ge :: #force_inline proc(a, b: string16) -> bool { return string16_cmp(a, b) >= 0 }
 
 
-cstring_len :: proc "contextless" (s: cstring) -> int {
+cstring_len :: proc(s: cstring) -> int {
     p0 := uintptr((^byte)(s))
     p := p0
     for p != 0 && (^byte)(p)^ != 0 {
@@ -582,7 +582,7 @@ cstring_len :: proc "contextless" (s: cstring) -> int {
     return int(p - p0)
 }
 
-cstring16_len :: proc "contextless" (s: cstring16) -> int {
+cstring16_len :: proc(s: cstring16) -> int {
     p := ([^]u16)(s)
     n := 0
     for p != nil && p[0] != 0 {
@@ -592,7 +592,7 @@ cstring16_len :: proc "contextless" (s: cstring16) -> int {
     return n
 }
 
-cstring_to_string :: proc "contextless" (s: cstring) -> string {
+cstring_to_string :: proc(s: cstring) -> string {
     if s == nil {
         return ""
     }
@@ -601,7 +601,7 @@ cstring_to_string :: proc "contextless" (s: cstring) -> string {
     return transmute(string)Raw_String{ptr, n}
 }
 
-cstring16_to_string16 :: proc "contextless" (s: cstring16) -> string16 {
+cstring16_to_string16 :: proc(s: cstring16) -> string16 {
     if s == nil {
         return ""
     }
@@ -611,7 +611,7 @@ cstring16_to_string16 :: proc "contextless" (s: cstring16) -> string16 {
 }
 
 
-cstring_eq :: proc "contextless" (lhs, rhs: cstring) -> bool {
+cstring_eq :: proc(lhs, rhs: cstring) -> bool {
     x := ([^]byte)(lhs)
     y := ([^]byte)(rhs)
     if x == y {
@@ -628,7 +628,7 @@ cstring_eq :: proc "contextless" (lhs, rhs: cstring) -> bool {
     return #force_inline memory_equal(x, y, xn)
 }
 
-cstring_cmp :: proc "contextless" (lhs, rhs: cstring) -> int {
+cstring_cmp :: proc(lhs, rhs: cstring) -> int {
     x := ([^]byte)(lhs)
     y := ([^]byte)(rhs)
     if x == y {
@@ -646,13 +646,13 @@ cstring_cmp :: proc "contextless" (lhs, rhs: cstring) -> int {
     return ret
 }
 
-cstring_ne :: #force_inline proc "contextless" (a, b: cstring) -> bool { return !cstring_eq(a, b) }
-cstring_lt :: #force_inline proc "contextless" (a, b: cstring) -> bool { return cstring_cmp(a, b) < 0 }
-cstring_gt :: #force_inline proc "contextless" (a, b: cstring) -> bool { return cstring_cmp(a, b) > 0 }
-cstring_le :: #force_inline proc "contextless" (a, b: cstring) -> bool { return cstring_cmp(a, b) <= 0 }
-cstring_ge :: #force_inline proc "contextless" (a, b: cstring) -> bool { return cstring_cmp(a, b) >= 0 }
+cstring_ne :: #force_inline proc(a, b: cstring) -> bool { return !cstring_eq(a, b) }
+cstring_lt :: #force_inline proc(a, b: cstring) -> bool { return cstring_cmp(a, b) < 0 }
+cstring_gt :: #force_inline proc(a, b: cstring) -> bool { return cstring_cmp(a, b) > 0 }
+cstring_le :: #force_inline proc(a, b: cstring) -> bool { return cstring_cmp(a, b) <= 0 }
+cstring_ge :: #force_inline proc(a, b: cstring) -> bool { return cstring_cmp(a, b) >= 0 }
 
-cstring16_eq :: proc "contextless" (lhs, rhs: cstring16) -> bool {
+cstring16_eq :: proc(lhs, rhs: cstring16) -> bool {
     x := ([^]u16)(lhs)
     y := ([^]u16)(rhs)
     if x == y {
@@ -669,7 +669,7 @@ cstring16_eq :: proc "contextless" (lhs, rhs: cstring16) -> bool {
     return #force_inline memory_equal(x, y, xn*size_of(u16))
 }
 
-cstring16_cmp :: proc "contextless" (lhs, rhs: cstring16) -> int {
+cstring16_cmp :: proc(lhs, rhs: cstring16) -> int {
     x := ([^]u16)(lhs)
     y := ([^]u16)(rhs)
     if x == y {
@@ -687,33 +687,33 @@ cstring16_cmp :: proc "contextless" (lhs, rhs: cstring16) -> int {
     return ret
 }
 
-cstring16_ne :: #force_inline proc "contextless" (a, b: cstring16) -> bool { return !cstring16_eq(a, b) }
-cstring16_lt :: #force_inline proc "contextless" (a, b: cstring16) -> bool { return cstring16_cmp(a, b) < 0 }
-cstring16_gt :: #force_inline proc "contextless" (a, b: cstring16) -> bool { return cstring16_cmp(a, b) > 0 }
-cstring16_le :: #force_inline proc "contextless" (a, b: cstring16) -> bool { return cstring16_cmp(a, b) <= 0 }
-cstring16_ge :: #force_inline proc "contextless" (a, b: cstring16) -> bool { return cstring16_cmp(a, b) >= 0 }
+cstring16_ne :: #force_inline proc(a, b: cstring16) -> bool { return !cstring16_eq(a, b) }
+cstring16_lt :: #force_inline proc(a, b: cstring16) -> bool { return cstring16_cmp(a, b) < 0 }
+cstring16_gt :: #force_inline proc(a, b: cstring16) -> bool { return cstring16_cmp(a, b) > 0 }
+cstring16_le :: #force_inline proc(a, b: cstring16) -> bool { return cstring16_cmp(a, b) <= 0 }
+cstring16_ge :: #force_inline proc(a, b: cstring16) -> bool { return cstring16_cmp(a, b) >= 0 }
 
-complex32_eq :: #force_inline proc "contextless"  (a, b: complex32)  -> bool { return real(a) == real(b) && imag(a) == imag(b) }
-complex32_ne :: #force_inline proc "contextless"  (a, b: complex32)  -> bool { return real(a) != real(b) || imag(a) != imag(b) }
+complex32_eq :: #force_inline proc(a, b: complex32)  -> bool { return real(a) == real(b) && imag(a) == imag(b) }
+complex32_ne :: #force_inline proc(a, b: complex32)  -> bool { return real(a) != real(b) || imag(a) != imag(b) }
 
-complex64_eq :: #force_inline proc "contextless"  (a, b: complex64)  -> bool { return real(a) == real(b) && imag(a) == imag(b) }
-complex64_ne :: #force_inline proc "contextless"  (a, b: complex64)  -> bool { return real(a) != real(b) || imag(a) != imag(b) }
+complex64_eq :: #force_inline proc(a, b: complex64)  -> bool { return real(a) == real(b) && imag(a) == imag(b) }
+complex64_ne :: #force_inline proc(a, b: complex64)  -> bool { return real(a) != real(b) || imag(a) != imag(b) }
 
-complex128_eq :: #force_inline proc "contextless" (a, b: complex128) -> bool { return real(a) == real(b) && imag(a) == imag(b) }
-complex128_ne :: #force_inline proc "contextless" (a, b: complex128) -> bool { return real(a) != real(b) || imag(a) != imag(b) }
-
-
-quaternion64_eq :: #force_inline proc "contextless"  (a, b: quaternion64)  -> bool { return real(a) == real(b) && imag(a) == imag(b) && jmag(a) == jmag(b) && kmag(a) == kmag(b) }
-quaternion64_ne :: #force_inline proc "contextless"  (a, b: quaternion64)  -> bool { return real(a) != real(b) || imag(a) != imag(b) || jmag(a) != jmag(b) || kmag(a) != kmag(b) }
-
-quaternion128_eq :: #force_inline proc "contextless"  (a, b: quaternion128)  -> bool { return real(a) == real(b) && imag(a) == imag(b) && jmag(a) == jmag(b) && kmag(a) == kmag(b) }
-quaternion128_ne :: #force_inline proc "contextless"  (a, b: quaternion128)  -> bool { return real(a) != real(b) || imag(a) != imag(b) || jmag(a) != jmag(b) || kmag(a) != kmag(b) }
-
-quaternion256_eq :: #force_inline proc "contextless" (a, b: quaternion256) -> bool { return real(a) == real(b) && imag(a) == imag(b) && jmag(a) == jmag(b) && kmag(a) == kmag(b) }
-quaternion256_ne :: #force_inline proc "contextless" (a, b: quaternion256) -> bool { return real(a) != real(b) || imag(a) != imag(b) || jmag(a) != jmag(b) || kmag(a) != kmag(b) }
+complex128_eq :: #force_inline proc(a, b: complex128) -> bool { return real(a) == real(b) && imag(a) == imag(b) }
+complex128_ne :: #force_inline proc(a, b: complex128) -> bool { return real(a) != real(b) || imag(a) != imag(b) }
 
 
-string_decode_rune :: proc "contextless" (s: string) -> (rune, int) {
+quaternion64_eq :: #force_inline proc(a, b: quaternion64)  -> bool { return real(a) == real(b) && imag(a) == imag(b) && jmag(a) == jmag(b) && kmag(a) == kmag(b) }
+quaternion64_ne :: #force_inline proc(a, b: quaternion64)  -> bool { return real(a) != real(b) || imag(a) != imag(b) || jmag(a) != jmag(b) || kmag(a) != kmag(b) }
+
+quaternion128_eq :: #force_inline proc(a, b: quaternion128)  -> bool { return real(a) == real(b) && imag(a) == imag(b) && jmag(a) == jmag(b) && kmag(a) == kmag(b) }
+quaternion128_ne :: #force_inline proc(a, b: quaternion128)  -> bool { return real(a) != real(b) || imag(a) != imag(b) || jmag(a) != jmag(b) || kmag(a) != kmag(b) }
+
+quaternion256_eq :: #force_inline proc(a, b: quaternion256) -> bool { return real(a) == real(b) && imag(a) == imag(b) && jmag(a) == jmag(b) && kmag(a) == kmag(b) }
+quaternion256_ne :: #force_inline proc(a, b: quaternion256) -> bool { return real(a) != real(b) || imag(a) != imag(b) || jmag(a) != jmag(b) || kmag(a) != kmag(b) }
+
+
+string_decode_rune :: proc(s: string) -> (rune, int) {
     // NOTE(bill): Duplicated here to remove dependency on package unicode/utf8
 
     @(static, rodata) accept_sizes := [256]u8{
@@ -792,7 +792,7 @@ string_decode_rune :: proc "contextless" (s: string) -> (rune, int) {
     return rune(s0&MASK4)<<18 | rune(b1&MASKX)<<12 | rune(b2&MASKX)<<6 | rune(b3&MASKX), 4
 }
 
-string_decode_last_rune :: proc "contextless" (s: string) -> (rune, int) {
+string_decode_last_rune :: proc(s: string) -> (rune, int) {
     RUNE_ERROR :: '\ufffd'
     RUNE_SELF  :: 0x80
     UTF_MAX    :: 4
@@ -828,7 +828,7 @@ string_decode_last_rune :: proc "contextless" (s: string) -> (rune, int) {
 }
 
 
-string16_decode_rune :: proc "contextless" (s: string16) -> (rune, int) {
+string16_decode_rune :: proc(s: string16) -> (rune, int) {
     REPLACEMENT_CHAR :: '\ufffd'
     _surr1           :: 0xd800
     _surr2           :: 0xdc00
@@ -856,7 +856,7 @@ string16_decode_rune :: proc "contextless" (s: string16) -> (rune, int) {
     return r, w
 }
 
-string16_decode_last_rune :: proc "contextless" (s: string16) -> (rune, int) {
+string16_decode_last_rune :: proc(s: string16) -> (rune, int) {
     REPLACEMENT_CHAR :: '\ufffd'
     _surr1           :: 0xd800
     _surr2           :: 0xdc00
@@ -889,7 +889,7 @@ string16_decode_last_rune :: proc "contextless" (s: string16) -> (rune, int) {
 
 
 
-abs_complex32 :: #force_inline proc "contextless" (x: complex32) -> f16 {
+abs_complex32 :: #force_inline proc(x: complex32) -> f16 {
     p, q := abs(real(x)), abs(imag(x))
     if p < q {
         p, q = q, p
@@ -900,7 +900,7 @@ abs_complex32 :: #force_inline proc "contextless" (x: complex32) -> f16 {
     q = q / p
     return p * f16(intrinsics.sqrt(f32(1 + q*q)))
 }
-abs_complex64 :: #force_inline proc "contextless" (x: complex64) -> f32 {
+abs_complex64 :: #force_inline proc(x: complex64) -> f32 {
     p, q := abs(real(x)), abs(imag(x))
     if p < q {
         p, q = q, p
@@ -911,7 +911,7 @@ abs_complex64 :: #force_inline proc "contextless" (x: complex64) -> f32 {
     q = q / p
     return p * intrinsics.sqrt(1 + q*q)
 }
-abs_complex128 :: #force_inline proc "contextless" (x: complex128) -> f64 {
+abs_complex128 :: #force_inline proc(x: complex128) -> f64 {
     p, q := abs(real(x)), abs(imag(x))
     if p < q {
         p, q = q, p
@@ -922,21 +922,21 @@ abs_complex128 :: #force_inline proc "contextless" (x: complex128) -> f64 {
     q = q / p
     return p * intrinsics.sqrt(1 + q*q)
 }
-abs_quaternion64 :: #force_inline proc "contextless" (x: quaternion64) -> f16 {
+abs_quaternion64 :: #force_inline proc(x: quaternion64) -> f16 {
     r, i, j, k := real(x), imag(x), jmag(x), kmag(x)
     return f16(intrinsics.sqrt(f32(r*r + i*i + j*j + k*k)))
 }
-abs_quaternion128 :: #force_inline proc "contextless" (x: quaternion128) -> f32 {
+abs_quaternion128 :: #force_inline proc(x: quaternion128) -> f32 {
     r, i, j, k := real(x), imag(x), jmag(x), kmag(x)
     return intrinsics.sqrt(r*r + i*i + j*j + k*k)
 }
-abs_quaternion256 :: #force_inline proc "contextless" (x: quaternion256) -> f64 {
+abs_quaternion256 :: #force_inline proc(x: quaternion256) -> f64 {
     r, i, j, k := real(x), imag(x), jmag(x), kmag(x)
     return intrinsics.sqrt(r*r + i*i + j*j + k*k)
 }
 
 
-quo_complex32 :: proc "contextless" (n, m: complex32) -> complex32 {
+quo_complex32 :: proc(n, m: complex32) -> complex32 {
     nr, ni := f32(real(n)), f32(imag(n))
     mr, mi := f32(real(m)), f32(imag(m))
 
@@ -958,7 +958,7 @@ quo_complex32 :: proc "contextless" (n, m: complex32) -> complex32 {
 }
 
 
-quo_complex64 :: proc "contextless" (n, m: complex64) -> complex64 {
+quo_complex64 :: proc(n, m: complex64) -> complex64 {
     e, f: f32
 
     if abs(real(m)) >= abs(imag(m)) {
@@ -976,7 +976,7 @@ quo_complex64 :: proc "contextless" (n, m: complex64) -> complex64 {
     return complex(e, f)
 }
 
-quo_complex128 :: proc "contextless" (n, m: complex128) -> complex128 {
+quo_complex128 :: proc(n, m: complex128) -> complex128 {
     e, f: f64
 
     if abs(real(m)) >= abs(imag(m)) {
@@ -994,7 +994,7 @@ quo_complex128 :: proc "contextless" (n, m: complex128) -> complex128 {
     return complex(e, f)
 }
 
-mul_quaternion64 :: proc "contextless" (q, r: quaternion64) -> quaternion64 {
+mul_quaternion64 :: proc(q, r: quaternion64) -> quaternion64 {
     q0, q1, q2, q3 := f32(real(q)), f32(imag(q)), f32(jmag(q)), f32(kmag(q))
     r0, r1, r2, r3 := f32(real(r)), f32(imag(r)), f32(jmag(r)), f32(kmag(r))
 
@@ -1006,7 +1006,7 @@ mul_quaternion64 :: proc "contextless" (q, r: quaternion64) -> quaternion64 {
     return quaternion(w=f16(t0), x=f16(t1), y=f16(t2), z=f16(t3))
 }
 
-mul_quaternion128 :: proc "contextless" (q, r: quaternion128) -> quaternion128 {
+mul_quaternion128 :: proc(q, r: quaternion128) -> quaternion128 {
     q0, q1, q2, q3 := real(q), imag(q), jmag(q), kmag(q)
     r0, r1, r2, r3 := real(r), imag(r), jmag(r), kmag(r)
 
@@ -1018,7 +1018,7 @@ mul_quaternion128 :: proc "contextless" (q, r: quaternion128) -> quaternion128 {
     return quaternion(w=t0, x=t1, y=t2, z=t3)
 }
 
-mul_quaternion256 :: proc "contextless" (q, r: quaternion256) -> quaternion256 {
+mul_quaternion256 :: proc(q, r: quaternion256) -> quaternion256 {
     q0, q1, q2, q3 := real(q), imag(q), jmag(q), kmag(q)
     r0, r1, r2, r3 := real(r), imag(r), jmag(r), kmag(r)
 
@@ -1030,7 +1030,7 @@ mul_quaternion256 :: proc "contextless" (q, r: quaternion256) -> quaternion256 {
     return quaternion(w=t0, x=t1, y=t2, z=t3)
 }
 
-quo_quaternion64 :: proc "contextless" (q, r: quaternion64) -> quaternion64 {
+quo_quaternion64 :: proc(q, r: quaternion64) -> quaternion64 {
     q0, q1, q2, q3 := f32(real(q)), f32(imag(q)), f32(jmag(q)), f32(kmag(q))
     r0, r1, r2, r3 := f32(real(r)), f32(imag(r)), f32(jmag(r)), f32(kmag(r))
 
@@ -1044,7 +1044,7 @@ quo_quaternion64 :: proc "contextless" (q, r: quaternion64) -> quaternion64 {
     return quaternion(w=f16(t0), x=f16(t1), y=f16(t2), z=f16(t3))
 }
 
-quo_quaternion128 :: proc "contextless" (q, r: quaternion128) -> quaternion128 {
+quo_quaternion128 :: proc(q, r: quaternion128) -> quaternion128 {
     q0, q1, q2, q3 := real(q), imag(q), jmag(q), kmag(q)
     r0, r1, r2, r3 := real(r), imag(r), jmag(r), kmag(r)
 
@@ -1058,7 +1058,7 @@ quo_quaternion128 :: proc "contextless" (q, r: quaternion128) -> quaternion128 {
     return quaternion(w=t0, x=t1, y=t2, z=t3)
 }
 
-quo_quaternion256 :: proc "contextless" (q, r: quaternion256) -> quaternion256 {
+quo_quaternion256 :: proc(q, r: quaternion256) -> quaternion256 {
     q0, q1, q2, q3 := real(q), imag(q), jmag(q), kmag(q)
     r0, r1, r2, r3 := real(r), imag(r), jmag(r), kmag(r)
 
@@ -1381,7 +1381,7 @@ fixdfti :: proc "c" (a: u64) -> i128 {
 
 
 
-__write_bits :: proc "contextless" (dst, src: [^]byte, offset: uintptr, size: uintptr) {
+__write_bits :: proc(dst, src: [^]byte, offset: uintptr, size: uintptr) {
     for i in 0..<size {
         j := offset+i
         the_bit := byte((src[i>>3]) & (1<<(i&7)) != 0)
@@ -1390,7 +1390,7 @@ __write_bits :: proc "contextless" (dst, src: [^]byte, offset: uintptr, size: ui
     }
 }
 
-__read_bits :: proc "contextless" (dst, src: [^]byte, offset: uintptr, size: uintptr) {
+__read_bits :: proc(dst, src: [^]byte, offset: uintptr, size: uintptr) {
     for j in 0..<size {
         i := offset+j
         the_bit := byte((src[i>>3]) & (1<<(i&7)) != 0)

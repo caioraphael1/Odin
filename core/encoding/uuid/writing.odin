@@ -81,7 +81,6 @@ Convert a UUID to a string in the 8-4-4-4-12 format.
 
 Inputs:
 - id: The identifier to convert.
-- allocator: (default: context.allocator)
 - loc: The caller location for debugging purposes (default: #caller_location)
 
 Returns:

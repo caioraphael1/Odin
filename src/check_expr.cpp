@@ -961,13 +961,9 @@ gb_internal i64 check_distance_between_types(CheckerContext *c, Operand *operand
 
     if (is_type_any(dst)) {
         if (!is_type_polymorphic(src)) {
-            if (operand->mode == Addressing_Context && operand->type == t_context) {
-                return -1;
-            } else {
-                // NOTE(bill): Anything can cast to 'Any'
-                add_type_info_type(c, s);
-                return MAXIMUM_TYPE_DISTANCE;
-            }
+            // NOTE(bill): Anything can cast to 'Any'
+            add_type_info_type(c, s);
+            return MAXIMUM_TYPE_DISTANCE;
         }
     }
 
@@ -5744,8 +5740,6 @@ gb_internal Entity *check_selector(CheckerContext *c, Operand *operand, Ast *nod
         }
         if (sel.indirect) {
             operand->mode = Addressing_Variable;
-        } else if (operand->mode == Addressing_Context) {
-            // Do nothing
         } else if (operand->mode == Addressing_MapIndex) {
             operand->mode = Addressing_Value;
         } else if (entity->flags & EntityFlag_SoaPtrField) {
@@ -7295,14 +7289,14 @@ gb_internal CallArgumentError check_polymorphic_record_type(CheckerContext *c, O
 
 
 // returns true on success
-gb_internal bool check_call_parameter_mixture(Slice<Ast *> const &args, char const *context, bool allow_mixed=false) {
+gb_internal bool check_call_parameter_mixture(Slice<Ast *> const &args, char const *parameter_context, bool allow_mixed=false) {
     bool success = true;
     if (args.count > 0) {
         if (allow_mixed) {
             bool was_named = false;
             for (Ast *arg : args) {
                 if (was_named && arg->kind != Ast_FieldValue) {
-                    error(arg, "Non-named parameter is not allowed to follow named parameter i.e. 'field = value' in a %s", context);
+                    error(arg, "Non-named parameter is not allowed to follow named parameter i.e. 'field = value' in a %s", parameter_context);
                     success = false;
                     break;
                 }
@@ -7318,7 +7312,7 @@ gb_internal bool check_call_parameter_mixture(Slice<Ast *> const &args, char con
                     mix = arg->kind == Ast_FieldValue;
                 }
                 if (mix) {
-                    error(arg, "Mixture of 'field = value' and value elements in a %s is not allowed", context);
+                    error(arg, "Mixture of 'field = value' and value elements in a %s is not allowed", parameter_context);
                     success = false;
                 }
             }
@@ -7328,7 +7322,7 @@ gb_internal bool check_call_parameter_mixture(Slice<Ast *> const &args, char con
     return success;
 }
 
-#define CHECK_CALL_PARAMETER_MIXTURE_OR_RETURN(context_, ...) if (!check_call_parameter_mixture(args, context_, ##__VA_ARGS__)) { \
+#define CHECK_CALL_PARAMETER_MIXTURE_OR_RETURN(parameter_context_, ...) if (!check_call_parameter_mixture(args, parameter_context_, ##__VA_ARGS__)) { \
     operand->mode = Addressing_Invalid; \
     operand->expr = call; \
     return Expr_Stmt; \
@@ -7624,18 +7618,6 @@ gb_internal ExprKind check_call_expr(CheckerContext *c, Operand *operand, Ast *c
     }
     pt = base_type(pt);
 
-    if (pt->kind == Type_Proc && pt->Proc.calling_convention == ProcCC_Odin) {
-        if ((c->scope->flags & ScopeFlag_ContextDefined) == 0) {
-            ERROR_BLOCK();
-            if (c->scope->flags & ScopeFlag_File) {
-                error(call, "Procedures requiring a 'context' cannot be called at the global scope");
-            } else {
-                error(call, "'context' has not been defined within this scope, but is required for this procedure call");
-                error_line("\tSuggestion: 'context = runtime.default_context()'");
-            }
-        }
-    }
-
     if (result_type == nullptr) {
         operand->mode = Addressing_NoValue;
     } else {
@@ -7766,7 +7748,7 @@ gb_internal void check_expr_with_type_hint(CheckerContext *c, Operand *o, Ast *e
         break;
     case Addressing_Type:
         if (t == nullptr || !is_type_typeid(t)) {
-            err_str = "is not an expression but a type, in this context it is ambiguous";
+            err_str = "is not an expression but a type, in this scenario it is ambiguous";
         }
         break;
     case Addressing_Builtin:
@@ -10748,35 +10730,6 @@ gb_internal ExprKind check_expr_base_internal(CheckerContext *c, Operand *o, Ast
         return kind;
     case_end;
 
-    case_ast_node(i, Implicit, node);
-        switch (i->kind) {
-        case Token_context:
-            {
-                if (c->proc_name.len == 0 && c->curr_proc_sig == nullptr) {
-                    error(node, "'context' is only allowed within procedures");
-                    return kind;
-                }
-                if (unparen_expr(c->assignment_lhs_hint) == node) {
-                    c->scope->flags |= ScopeFlag_ContextDefined;
-                }
-
-                if ((c->scope->flags & ScopeFlag_ContextDefined) == 0) {
-                    error(node, "'context' has not been defined within this scope");
-                    // Continue with value
-                }
-
-                init_core_context(c->checker);
-                o->mode = Addressing_Context;
-                o->type = t_context;
-            }
-            break;
-
-        default:
-            error(node, "Illegal implicit name '%.*s'", LIT(i->string));
-            return kind;
-        }
-    case_end;
-
     case_ast_node(i, Ident, node);
         check_ident(c, o, node, nullptr, type_hint, false);
     case_end;
@@ -11340,10 +11293,6 @@ gb_internal gbString write_expr_to_string(gbString str, Ast *node, bool shorthan
 
     case_ast_node(i, Ident, node);
         str = string_append_token(str, i->token);
-    case_end;
-
-    case_ast_node(i, Implicit, node);
-        str = string_append_token(str, *i);
     case_end;
 
     case_ast_node(bl, BasicLit, node);

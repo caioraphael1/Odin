@@ -23,7 +23,7 @@ log_table :: #force_inline proc(tbl: ^table.Table) {
 @(private)
 setup_sized_buf :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {
@@ -39,7 +39,7 @@ setup_sized_buf :: proc(
 @(private)
 teardown_sized_buf :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {

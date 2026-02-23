@@ -503,9 +503,6 @@ gb_internal Type *check_assignment_variable(CheckerContext *ctx, Operand *lhs, O
         break;
     }
 
-    case Addressing_Context:
-        break;
-
     case Addressing_SoaVariable:
         break;
 
@@ -851,14 +848,6 @@ gb_internal void error_var_decl_identifier(Ast *name) {
     defer (gb_string_free(s));
 
     error(name, "A variable declaration must be an identifier, got '%s'", s);
-    if (name->kind == Ast_Implicit) {
-        String imp = name->Implicit.string;
-        if (imp == "context") {
-            error_line("\tSuggestion: '%.*s' is a reserved keyword, would 'ctx' suffice?\n", LIT(imp));
-        } else {
-            error_line("\tNote: '%.*s' is a reserved keyword\n", LIT(imp));
-        }
-    }
 }
 
 gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags) {
@@ -2392,7 +2381,6 @@ gb_internal void check_expr_stmt(CheckerContext *ctx, Ast *node) {
         }
 
         switch (be->left->tav.mode) {
-        case Addressing_Context:
         case Addressing_Variable:
         case Addressing_MapIndex:
         case Addressing_SoaVariable:
@@ -2942,9 +2930,6 @@ gb_internal void check_stmt_internal(CheckerContext *ctx, Ast *node, u32 flags) 
                 e = check_selector(ctx, &o, expr, nullptr);
                 is_selector = true;
                 break;
-            case Ast_Implicit:
-                error(us->token, "'using' applied to an implicit value");
-                continue;
             default:
                 error(us->token, "'using' can only be applied to an entity, got %.*s", LIT(ast_strings[expr->kind]));
                 continue;

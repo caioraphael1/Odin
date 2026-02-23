@@ -59,7 +59,7 @@ test_align_bumping_block_limit :: proc(t: ^testing.T) {
 
 @(test)
 tlsf_test_overlap_and_zero :: proc(t: ^testing.T) {
-	default_allocator := context.allocator
+	default_allocator : mem.Allocator
 	alloc: tlsf.Allocator
 	defer tlsf.destroy(&alloc)
 
@@ -94,7 +94,7 @@ tlsf_test_overlap_and_zero :: proc(t: ^testing.T) {
 
 @(test)
 tlsf_test_grow_pools :: proc(t: ^testing.T) {
-	default_allocator := context.allocator
+	default_allocator : mem.Allocator
 	alloc: tlsf.Allocator
 	defer tlsf.destroy(&alloc)
 
@@ -131,7 +131,7 @@ tlsf_test_grow_pools :: proc(t: ^testing.T) {
 
 @(test)
 tlsf_test_free_all :: proc(t: ^testing.T) {
-	default_allocator := context.allocator
+	default_allocator : mem.Allocator
 	alloc: tlsf.Allocator
 	defer tlsf.destroy(&alloc)
 
@@ -200,7 +200,7 @@ fail_if_allocations_overlap :: proc(t: ^testing.T, a, b: []byte) {
 // A serious test of an allocator would require hooking it up to a benchmark or
 // a large, complicated program in order to get all manner of usage patterns.
 basic_sanity_test :: proc(t: ^testing.T, allocator: mem.Allocator, limit: int, loc := #caller_location) -> bool {
-	context.allocator = allocator
+	
 
 	{
 		a := make_dynamic_array([dynamic]u8)

@@ -33,13 +33,13 @@ foreign wasi {
 	random_get :: proc(buf: []u8) -> u16 ---
 }
 
-_stderr_write :: proc "contextless" (data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
 	n: uint
 	err := fd_write(1, {data}, &n)
 	return int(n), _OS_Errno(err)
 }
 
-_rand_bytes :: proc "contextless" (dst: []byte) {
+_rand_bytes :: proc(dst: []byte) {
 	if errno := random_get(dst); errno != 0 {
 		panic("base/runtime: wasi.random_get failed")
 	}
@@ -69,6 +69,6 @@ _wasi_setup_args :: proc() {
 }
 
 
-_exit :: proc "contextless" (code: int) -> ! {
+_exit :: proc(code: int) -> ! {
 	proc_exit(u32(code))
 }

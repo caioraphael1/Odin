@@ -7,7 +7,7 @@ g_ctx: runtime.Context
 
 
 @(private="file", export)
-wgpu_alloc :: proc "contextless" (size: i32) -> [^]byte {
+wgpu_alloc :: proc(size: i32) -> [^]byte {
 	context = g_ctx
 	bytes, err := runtime.mem_alloc(int(size), 16)
 	assert(err == nil, "wgpu_alloc failed")
@@ -15,7 +15,7 @@ wgpu_alloc :: proc "contextless" (size: i32) -> [^]byte {
 }
 
 @(private="file", export)
-wgpu_free :: proc "contextless" (ptr: rawptr) {
+wgpu_free :: proc(ptr: rawptr) {
 	context = g_ctx
 	err := free(ptr)
 	assert(err == nil, "wgpu_free failed")

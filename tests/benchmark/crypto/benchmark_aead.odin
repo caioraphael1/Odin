@@ -73,7 +73,7 @@ benchmark_crypto_aead :: proc(t: ^testing.T) {
 @(private = "file")
 do_bench_aead :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {

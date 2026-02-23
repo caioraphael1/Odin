@@ -20,7 +20,7 @@ register :: proc(kind: Which_File_Type, loader: Loader_Proc, destroyer: Destroy_
 	_internal_destroyers[kind] = destroyer
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
 	loader := _internal_loaders[which(data)]
 	if loader == nil {
 
@@ -37,11 +37,11 @@ load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context
 }
 
 
-destroy :: proc(img: ^Image, allocator := context.allocator) {
+destroy :: proc(img: ^Image, allocator : mem.Allocator) {
 	if img == nil {
 		return
 	}
-	context.allocator = allocator
+	
 	destroyer := _internal_destroyers[img.which]
 	if destroyer != nil {
 		destroyer(img)

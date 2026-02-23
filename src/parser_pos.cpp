@@ -1,7 +1,6 @@
 gb_internal Token ast_token(Ast *node) {
     switch (node->kind) {
     case Ast_Ident:          return node->Ident.token;
-    case Ast_Implicit:       return node->Implicit;
     case Ast_Uninit:         return node->Uninit;
     case Ast_BasicLit:       return node->BasicLit.token;
     case Ast_BasicDirective: return node->BasicDirective.token;
@@ -141,7 +140,6 @@ Token ast_end_token(Ast *node) {
     case Ast_Invalid:
         return empty_token;
     case Ast_Ident:          return node->Ident.token;
-    case Ast_Implicit:       return node->Implicit;
     case Ast_Uninit:         return node->Uninit;
     case Ast_BasicLit:       return node->BasicLit.token;
     case Ast_BasicDirective: return node->BasicDirective.token;

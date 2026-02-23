@@ -16,7 +16,6 @@ Clones a string
 
 Inputs:
 - s: The string to be cloned
-- allocator: (default: context.allocator)
 - loc: The caller location for debugging purposes (default: #caller_location)
 
 Returns:
@@ -36,7 +35,7 @@ Clones a string and appends a null-byte to make it a cstring
 
 Inputs:
 - s: The string to be cloned
-- allocator: (default: context.allocator)
+
 - loc: The caller location for debugging purposes (default: #caller_location)
 
 Returns:
@@ -146,7 +145,7 @@ Clones a byte array `s` and appends a null-byte
 
 Inputs:
 - s: The byte array to be cloned
-- allocator: (default: context.allocator)
+
 - loc: The caller location for debugging purposes (default: `#caller_location`)
 
 Returns:
@@ -167,7 +166,7 @@ Clones a cstring `s` as a string
 
 Inputs:
 - s: The cstring to be cloned
-- allocator: (default: context.allocator)
+
 - loc: The caller location for debugging purposes (default: `#caller_location`)
 
 Returns:
@@ -186,7 +185,7 @@ Clones a string from a byte pointer `ptr` and a byte length `len`
 Inputs:
 - ptr: A pointer to the start of the byte sequence
 - len: The length of the byte sequence
-- allocator: (default: context.allocator)
+
 - loc: The caller location for debugging purposes (default: `#caller_location`)
 
 NOTE: Same as `string_from_ptr`, but perform an additional `clone` operation
@@ -209,7 +208,7 @@ Clones a string from a null-terminated cstring `ptr` and a byte length `len`
 Inputs:
 - ptr: A pointer to the start of the null-terminated cstring
 - len: The byte length of the cstring
-- allocator: (default: context.allocator)
+
 - loc: The caller location for debugging purposes (default: `#caller_location`)
 
 NOTE: Truncates at the first null-byte encountered or the byte length.
@@ -602,7 +601,7 @@ Joins a slice of strings `a` with a `sep` string
 Inputs:
 - a: A slice of strings to join
 - sep: The separator string
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A combined string from the slice of strings `a` separated with the `sep` string
@@ -653,7 +652,7 @@ Returns a combined string from the slice of strings `a` without a separator
 
 Inputs:
 - a: A slice of strings to concatenate
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The concatenated string
@@ -756,7 +755,7 @@ Inputs:
 - s: The input string to cut
 - rune_offset: The starting rune index (default is 0). In runes, not bytes.
 - rune_length: The number of runes to include in the substring (default is 0, which returns the remainder of the string).  In runes, not bytes.
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The substring
@@ -797,7 +796,7 @@ Inputs:
 - sep: The separator string
 - sep_save: A flag determining if the separator should be saved in the resulting substrings
 - n: The maximum number of substrings to return, returns `nil` without alloc when `n=0`
-- allocator: (default is context.allocator)
+
 
 NOTE: Allocation occurs for the array, the splits are all views of the original string.
 
@@ -861,7 +860,7 @@ Splits a string into parts based on a separator.
 Inputs:
 - s: The string to split.
 - sep: The separator string used to split the input string.
-- allocator: (default is context.allocator).
+.
 
 Returns:
 - res: The slice of strings, each representing a part of the split string.
@@ -898,7 +897,7 @@ Inputs:
 - s: The string to split.
 - sep: The separator string used to split the input string.
 - n: The maximum amount of parts to split the string into.
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The slice of strings, each representing a part of the split string.
@@ -934,7 +933,7 @@ Splits a string into parts after the separator, retaining it in the substrings.
 Inputs:
 - s: The string to split.
 - sep: The separator string used to split the input string.
-- allocator: (default is context.allocator).
+.
 
 Returns:
 - res: The slice of strings, each representing a part of the split string after the separator
@@ -971,7 +970,7 @@ Inputs:
 - s: The string to split.
 - sep: The separator string used to split the input string.
 - n: The maximum number of parts to split the string into.
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The slice of strings with `n` parts or fewer if there weren't
@@ -1188,7 +1187,7 @@ Splits the input string at every line break `\n`.
 
 Inputs:
 - s: The input string to split.
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The slice (allocated) of the split string (slices into original string)
@@ -1227,7 +1226,7 @@ Splits the input string at every line break `\n` for `n` parts.
 Inputs:
 - s: The input string to split.
 - n: The number of parts to split into.
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The slice (allocated) of the split string (slices into original string)
@@ -1267,7 +1266,7 @@ Splits the input string at every line break `\n` leaving the `\n` in the resulti
 
 Inputs:
 - s: The input string to split.
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The slice (allocated) of the split string (slices into original string), with `\n` included
@@ -1309,7 +1308,7 @@ Only runs for n parts.
 Inputs:
 - s: The input string to split.
 - n: The number of parts to split into.
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The slice (allocated) of the split string (slices into original string), with `\n` included
@@ -1968,7 +1967,7 @@ Repeats the string `s` `count` times, concatenating the result
 Inputs:
 - s: The string to repeat
 - count: The number of times to repeat `s`
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The concatenated repeated string
@@ -2054,7 +2053,7 @@ Inputs:
 - old: The substring to be replaced
 - new: The replacement string
 - n: The number of instances to replace (if `n < 0`, no limit on the number of replacements)
-- allocator: (default: context.allocator)
+
 
 Returns:
 - output: The modified string
@@ -2132,7 +2131,7 @@ Inputs:
 - s: The input string
 - key: The substring to be removed
 - n: The number of instances to remove (if `n < 0`, no limit on the number of removes)
-- allocator: (default: context.allocator)
+
 
 Returns:
 - output: The modified string
@@ -2170,7 +2169,7 @@ Removes all the `key` string instances from the `s` string
 Inputs:
 - s: The input string
 - key: The substring to be removed
-- allocator: (default: context.allocator)
+
 
 Returns:
 - output: The modified string
@@ -2664,7 +2663,7 @@ Splits the input string `s` by all possible `substrs` and returns an allocated a
 Inputs:
 - s: The input string
 - substrs: An array of substrings used for splitting
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: An array of strings, or nil on empty substring or no matches
@@ -2797,7 +2796,7 @@ Replaces invalid UTF-8 characters in the input string with a specified replaceme
 Inputs:
 - s: The input string
 - replacement: The string used to replace invalid UTF-8 characters
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A new string with invalid UTF-8 characters replaced
@@ -2857,7 +2856,7 @@ Reverses the input string `s`
 
 Inputs:
 - s: The input string
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A reversed version of the input string
@@ -2902,7 +2901,7 @@ Expands the input string by replacing tab characters with spaces to align to a s
 Inputs:
 - s: The input string
 - tab_size: The number of spaces to use for each tab character
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A new string with tab characters expanded to the specified tab size
@@ -3030,7 +3029,7 @@ Inputs:
 - str: The input string
 - length: The desired length of the centered string, in runes
 - pad: The string used for padding on both sides
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A new string centered within a field of the specified length
@@ -3066,7 +3065,7 @@ Inputs:
 - str: The input string
 - length: The desired length of the left-justified string
 - pad: The string used for padding on the right side
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A new string left-justified within a field of the specified length
@@ -3101,7 +3100,7 @@ Inputs:
 - str: The input string
 - length: The desired length of the right-justified string
 - pad: The string used for padding on the left side
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A new string right-justified within a field of the specified length
@@ -3161,7 +3160,7 @@ Splits a string into a slice of substrings at each instance of one or more conse
 
 Inputs:
 - s: The input string
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: A slice of substrings of the input string, or an empty slice if the input string only contains white space
@@ -3224,7 +3223,7 @@ Splits a string into a slice of substrings at each run of unicode code points `r
 Inputs:
 - s: The input string
 - f: A predicate function to determine the split points
-- allocator: (default is context.allocator)
+
 
 NOTE: fields_proc makes no guarantee about the order in which it calls `f(r)`, it assumes that `f` always returns the same value for a given `r`
 
@@ -3307,7 +3306,7 @@ NOTE: Does not perform internal allocation if length of string `b`, in runes, is
 
 Inputs:
 - a, b: The two strings to compare
-- allocator: (default is context.allocator)
+
 
 Returns:
 - res: The Levenshtein edit distance between the two strings

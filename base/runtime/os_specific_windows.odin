@@ -27,7 +27,7 @@ foreign bcrypt {
 	BCryptGenRandom :: proc(hAlgorithm: rawptr, pBuffer: [^]u8, cbBuffer: u32, dwFlags: u32) -> i32 ---
 }
 
-_stderr_write :: proc "contextless" (data: []byte) -> (n: int, err: _OS_Errno) #no_bounds_check {
+_stderr_write :: proc(data: []byte) -> (n: int, err: _OS_Errno) #no_bounds_check {
 	if len(data) == 0 {
 		return 0, 0
 	}
@@ -61,7 +61,7 @@ _stderr_write :: proc "contextless" (data: []byte) -> (n: int, err: _OS_Errno) #
 	return
 }
 
-_rand_bytes :: proc "contextless" (dst: []byte) {
+_rand_bytes :: proc(dst: []byte) {
 	ensure(u64(len(dst)) <= u64(max(u32)), "base/runtime: oversized rand_bytes request")
 
 	BCRYPT_USE_SYSTEM_PREFERRED_RNG :: 0x00000002
@@ -85,6 +85,6 @@ _rand_bytes :: proc "contextless" (dst: []byte) {
 	}
 }
 
-_exit :: proc "contextless" (code: int) -> ! {
+_exit :: proc(code: int) -> ! {
 	ExitProcess(u32(code))
 }

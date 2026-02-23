@@ -107,7 +107,7 @@ benchmark_crypto_stream :: proc(t: ^testing.T) {
 @(private = "file")
 do_bench_aes_ctr :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {
@@ -127,7 +127,7 @@ do_bench_aes_ctr :: proc(
 @(private = "file")
 do_bench_chacha20 :: proc(
 	options: ^time.Benchmark_Options,
-	allocator := context.allocator,
+	allocator : mem.Allocator,
 ) -> (
 	err: time.Benchmark_Error,
 ) {

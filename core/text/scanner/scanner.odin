@@ -36,7 +36,7 @@ position_to_string :: proc(pos: Position, allocator := runtime.temp_allocator) -
 		s = "<input>"
 	}
 
-	context.allocator = allocator
+	
 	if position_is_valid(pos) {
 		return fmt.aprintf("%s(%d:%d)", s, pos.line, pos.column)
 	} else {
@@ -652,7 +652,7 @@ token_text :: proc(s: ^Scanner) -> string {
 // By default, it uses the runtime.temp_allocator to produce the string
 
 token_string :: proc(tok: rune, allocator: runtime.Allocator) -> string {
-	context.allocator = allocator
+	
 	switch tok {
 	case EOF:        return strings.clone("EOF")
 	case Ident:      return strings.clone("Ident")

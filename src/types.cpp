@@ -728,8 +728,7 @@ gb_global Type *t_type_info_bit_field_ptr        = nullptr;
 
 gb_global Type *t_allocator                      = nullptr;
 gb_global Type *t_allocator_ptr                  = nullptr;
-gb_global Type *t_context                        = nullptr;
-gb_global Type *t_context_ptr                    = nullptr;
+
 gb_global Type *t_allocator_error                = nullptr;
 
 gb_global Type *t_source_code_location           = nullptr;
@@ -1139,15 +1138,6 @@ gb_internal bool is_calling_convention_none(ProcCallingConvention calling_conven
     switch (calling_convention) {
     case ProcCC_None:
     case ProcCC_InlineAsm:
-        return true;
-    }
-    return false;
-}
-
-gb_internal bool is_calling_convention_odin(ProcCallingConvention calling_convention) {
-    switch (calling_convention) {
-    case ProcCC_Odin:
-    case ProcCC_Contextless:
         return true;
     }
     return false;
@@ -5212,14 +5202,6 @@ gb_internal gbString write_type_to_string(gbString str, Type *type, bool shortha
 
         switch (type->Proc.calling_convention) {
         case ProcCC_Odin:
-            if (default_calling_convention() != ProcCC_Odin) {
-                str = gb_string_appendc(str, " \"odin\" ");
-            }
-            break;
-        case ProcCC_Contextless:
-            if (default_calling_convention() != ProcCC_Contextless) {
-                str = gb_string_appendc(str, " \"contextless\" ");
-            }
             break;
         case ProcCC_CDecl:
             str = gb_string_appendc(str, " \"c\" ");
@@ -5233,9 +5215,6 @@ gb_internal gbString write_type_to_string(gbString str, Type *type, bool shortha
             break;
         case ProcCC_None:
             str = gb_string_appendc(str, " \"none\" ");
-            break;
-        case ProcCC_Naked:
-            str = gb_string_appendc(str, " \"naked\" ");
             break;
         // case ProcCC_VectorCall:
         //  str = gb_string_appendc(str, " \"vectorcall\" ");

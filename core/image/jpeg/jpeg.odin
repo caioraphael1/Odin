@@ -134,7 +134,7 @@ read_bits_msb :: #force_inline proc(z: ^compress.Context_Memory_Input, width: u8
     return k
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }
@@ -161,8 +161,8 @@ get_symbol :: proc(ctx: ^$C, huffman_table: Huffman_Table) -> byte {
     return 0
 }
 
-load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
-    context.allocator = allocator
+load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+
     options := options
 
     // Precalculate IDCT scaling factors

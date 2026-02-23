@@ -13,13 +13,13 @@ import "core:mem"
 
 // hash_bytes will hash the given input and return the computed digest
 // in a newly allocated slice.
-hash_string :: proc(algorithm: Algorithm, data: string, allocator := context.allocator) -> []byte {
+hash_string :: proc(algorithm: Algorithm, data: string, allocator: mem.Allocator) -> []byte {
     return hash_bytes(algorithm, transmute([]byte)(data), allocator)
 }
 
 // hash_bytes will hash the given input and return the computed digest
 // in a newly allocated slice.
-hash_bytes :: proc(algorithm: Algorithm, data: []byte, allocator := context.allocator) -> []byte {
+hash_bytes :: proc(algorithm: Algorithm, data: []byte, allocator: mem.Allocator) -> []byte {
     dst := make_slice([]byte, DIGEST_SIZES[algorithm], allocator)
     return hash_bytes_to_buffer(algorithm, data, dst)
 }
@@ -53,7 +53,7 @@ hash_bytes_to_buffer :: proc(algorithm: Algorithm, data, hash: []byte) -> []byte
 hash_stream :: proc(
     algorithm: Algorithm,
     s: io.Stream,
-    allocator := context.allocator,
+    allocator: mem.Allocator,
 ) -> (
     []byte,
     io.Error,

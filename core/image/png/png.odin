@@ -203,7 +203,7 @@ read_chunk :: proc(ctx: ^$C) -> (chunk: image.PNG_Chunk, err: Error) {
     return chunk, nil
 }
 
-copy_chunk :: proc(src: image.PNG_Chunk, allocator := context.allocator) -> (dest: image.PNG_Chunk, err: Error) {
+copy_chunk :: proc(src: image.PNG_Chunk, allocator : mem.Allocator) -> (dest: image.PNG_Chunk, err: Error) {
     if int(src.header.length) != len(src.data) {
         return {}, .Invalid_Chunk_Length
     }
@@ -216,7 +216,7 @@ copy_chunk :: proc(src: image.PNG_Chunk, allocator := context.allocator) -> (des
     return
 }
 
-append_chunk :: proc(list: ^[dynamic]image.PNG_Chunk, src: image.PNG_Chunk, allocator := context.allocator) -> (err: Error) {
+append_chunk :: proc(list: ^[dynamic]image.PNG_Chunk, src: image.PNG_Chunk, allocator : mem.Allocator) -> (err: Error) {
     if int(src.header.length) != len(src.data) {
         return .Invalid_Chunk_Length
     }
@@ -313,7 +313,7 @@ chunk_type_to_name :: proc(type: ^image.PNG_Chunk_Type) -> string {
     return string(([^]u8)(type)[:4])
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }
@@ -328,8 +328,8 @@ load_from_bytes :: proc(data: []byte, options := Options{}, allocator := context
     return img, err
 }
 
-load_from_context :: proc(ctx: ^$C, options := Options{}, allocator := context.allocator) -> (img: ^Image, err: Error) {
-    context.allocator = allocator
+load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+
     options := options
 
     if .info in options {

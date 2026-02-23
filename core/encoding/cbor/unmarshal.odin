@@ -488,7 +488,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         data := mem.alloc_bytes_non_zeroed(t.elem.size * scap, t.elem.align, allocator=allocator, loc=loc) or_return
         defer if err != nil { _ = mem.free_bytes(data, allocator=allocator, loc=loc) }
 
-        da := mem.Raw_Dynamic_Array{raw_data(data), 0, scap, context.allocator }
+        da := mem.Raw_Dynamic_Array{raw_data(data), 0, scap, /* context.allocator */ }
 
         assign_array(d, &da, t.elem, length) or_return
 
@@ -512,7 +512,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         raw.data       = raw_data(data) 
         raw.len        = 0
         raw.cap        = scap
-        raw.allocator  = context.allocator
+        // raw.allocator  = context.allocator
 
         _ = assign_array(d, raw, t.elem, length) or_return
 
@@ -718,7 +718,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
     case reflect.Type_Info_Map:
         raw_map := (^mem.Raw_Map)(v.data)
         if raw_map.allocator.procedure == nil {
-            raw_map.allocator = context.allocator
+            // raw_map.allocator = context.allocator
         }
 
         defer if err != nil {

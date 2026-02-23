@@ -18,7 +18,7 @@ address within the slice as if it had already been initialized.
 
 When msan is not enabled this procedure does nothing.
 */
-memory_unpoison_slice :: proc "contextless" (region: $T/[]$E) {
+memory_unpoison_slice :: proc(region: $T/[]$E) {
     when MSAN_ENABLED {
         __msan_unpoison(raw_data(region),  size_of(E) * len(region))
     }
@@ -32,7 +32,7 @@ within the region the pointer points to as if it had already been initialized.
 
 When msan is not enabled this procedure does nothing.
 */
-memory_unpoison_ptr :: proc "contextless" (ptr: ^$T) {
+memory_unpoison_ptr :: proc(ptr: ^$T) {
     when MSAN_ENABLED {
         __msan_unpoison(ptr, size_of(T))
     }
@@ -46,7 +46,7 @@ within this range as if it had already been initialized.
 
 When msan is not enabled this procedure does nothing.
 */
-memory_unpoison_rawptr :: proc "contextless" (ptr: rawptr, len: int) {
+memory_unpoison_rawptr :: proc(ptr: rawptr, len: int) {
     when MSAN_ENABLED {
         __msan_unpoison(ptr, uint(len))
     }
@@ -60,7 +60,7 @@ within this range as if it had already been initialized.
 
 When msan is not enabled this procedure does nothing.
 */
-memory_unpoison_rawptr_uint :: proc "contextless" (ptr: rawptr, len: uint) {
+memory_unpoison_rawptr_uint :: proc(ptr: rawptr, len: uint) {
     when MSAN_ENABLED {
         __msan_unpoison(ptr, len)
     }

@@ -9,7 +9,7 @@ foreign import "odin_env"
 
 @(private="file")
 foreign odin_env {
-	write :: proc "contextless" (fd: u32, p: []byte) ---
+	write :: proc(fd: u32, p: []byte) ---
 }
 
 @(private="file")

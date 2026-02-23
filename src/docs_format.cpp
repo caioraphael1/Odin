@@ -155,7 +155,6 @@ struct OdinDocType {
     i64 elem_counts[OdinDocType_ElemsCap];
 
     // Used by: .Procedures
-    // blank implies the "odin" calling convention
     OdinDocString calling_convention;
 
     // Used by:

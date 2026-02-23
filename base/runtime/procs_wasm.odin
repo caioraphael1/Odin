@@ -14,7 +14,7 @@ ti_uint :: struct #raw_union {
 }
 
 @(link_name="__ashlti3", linkage="strong")
-__ashlti3 :: proc "contextless" (a: i128, b: u32) -> i128 {
+__ashlti3 :: proc(a: i128, b: u32) -> i128 {
 	bits :: 64
 	
 	input: ti_int = ---
@@ -33,12 +33,12 @@ __ashlti3 :: proc "contextless" (a: i128, b: u32) -> i128 {
 	return result.all
 }
 
-__ashlti3_unsigned :: proc "contextless" (a: u128, b: u32) -> u128 {
+__ashlti3_unsigned :: proc(a: u128, b: u32) -> u128 {
 	return cast(u128)__ashlti3(cast(i128)a, b)
 }
 
 @(link_name="__mulddi3", linkage="strong")
-__mulddi3 :: proc "contextless" (a, b: u64) -> i128 {
+__mulddi3 :: proc(a, b: u64) -> i128 {
 	r: ti_int
 	bits :: 32
 
@@ -59,7 +59,7 @@ __mulddi3 :: proc "contextless" (a, b: u64) -> i128 {
 }
 
 @(link_name="__multi3", linkage="strong")
-__multi3 :: proc "contextless" (a, b: i128) -> i128 {
+__multi3 :: proc(a, b: i128) -> i128 {
 	x, y, r: ti_int
 
 	x.all = a

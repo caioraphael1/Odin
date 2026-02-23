@@ -59,7 +59,6 @@ struct cgValueMulti {
 enum cgAddrKind {
     cgAddr_Default,
     cgAddr_Map,
-    cgAddr_Context,
     cgAddr_SoaVariable,
 
     cgAddr_RelativePointer,
@@ -190,7 +189,6 @@ struct cgProcedure {
     cgTargetList *         target_list;
     Array<cgDefer>         defer_stack;
     Array<Scope *>         scope_stack;
-    Array<cgContextData>   context_stack;
 
     Array<cgControlRegion> control_regions;
     Array<cgBranchRegions> branch_regions;

@@ -988,7 +988,7 @@ CaptureManager_startCaptureWithCommandQueue :: #force_inline proc "c" (self: ^Ca
     msgSend(nil, self, "startCaptureWithCommandQueue:", commandQueue)
 }
 @(objc_type=CaptureManager, objc_name="startCaptureWithDescriptor")
-CaptureManager_startCaptureWithDescriptor :: #force_inline proc "contextless" (self: ^CaptureManager, descriptor: ^CaptureDescriptor) -> (ok: BOOL, error: ^NS.Error) {
+CaptureManager_startCaptureWithDescriptor :: #force_inline proc(self: ^CaptureManager, descriptor: ^CaptureDescriptor) -> (ok: BOOL, error: ^NS.Error) {
     ok = msgSend(BOOL, self, "startCaptureWithDescriptor:error:", descriptor, &error)
     return
 }
@@ -4615,7 +4615,7 @@ ArgumentEncoder_setBuffer :: #force_inline proc "c" (self: ^ArgumentEncoder, buf
     msgSend(nil, self, "setBuffer:offset:atIndex:", buffer, offset, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setBuffers")
-ArgumentEncoder_setBuffers :: #force_inline proc "odin" (self: ^ArgumentEncoder, buffers: []^Buffer, offsets: []NS.UInteger, range: NS.Range) {
+ArgumentEncoder_setBuffers :: #force_inline proc(self: ^ArgumentEncoder, buffers: []^Buffer, offsets: []NS.UInteger, range: NS.Range) {
     assert(len(buffers) == len(offsets))
     msgSend(nil, self, "setBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
 }
@@ -4624,7 +4624,7 @@ ArgumentEncoder_setComputePipelineState :: #force_inline proc "c" (self: ^Argume
     msgSend(nil, self, "setComputePipelineState:atIndex:", pipeline, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setComputePipelineStates")
-ArgumentEncoder_setComputePipelineStates :: #force_inline proc "odin" (self: ^ArgumentEncoder, pipelines: []^ComputePipelineState, range: NS.Range) {
+ArgumentEncoder_setComputePipelineStates :: #force_inline proc(self: ^ArgumentEncoder, pipelines: []^ComputePipelineState, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(pipelines)))
     msgSend(nil, self, "setComputePipelineStates:withRange:", raw_data(pipelines), range)
 }
@@ -4633,7 +4633,7 @@ ArgumentEncoder_setIndirectCommandBuffer :: #force_inline proc "c" (self: ^Argum
     msgSend(nil, self, "setIndirectCommandBuffer:atIndex:", indirectCommandBuffer, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setIndirectCommandBuffers")
-ArgumentEncoder_setIndirectCommandBuffers :: #force_inline proc "odin" (self: ^ArgumentEncoder, buffers: []^IndirectCommandBuffer, range: NS.Range) {
+ArgumentEncoder_setIndirectCommandBuffers :: #force_inline proc(self: ^ArgumentEncoder, buffers: []^IndirectCommandBuffer, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(buffers)))
     msgSend(nil, self, "setIndirectCommandBuffers:withRange:", raw_data(buffers), range)
 }
@@ -4642,7 +4642,7 @@ ArgumentEncoder_setIntersectionFunctionTable :: #force_inline proc "c" (self: ^A
     msgSend(nil, self, "setIntersectionFunctionTable:atIndex:", intersectionFunctionTable, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setIntersectionFunctionTables")
-ArgumentEncoder_setIntersectionFunctionTables :: #force_inline proc "odin" (self: ^ArgumentEncoder, intersectionFunctionTables: []^IntersectionFunctionTable, range: NS.Range) {
+ArgumentEncoder_setIntersectionFunctionTables :: #force_inline proc(self: ^ArgumentEncoder, intersectionFunctionTables: []^IntersectionFunctionTable, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(intersectionFunctionTables)))
     msgSend(nil, self, "setIntersectionFunctionTables:withRange:", raw_data(intersectionFunctionTables), range)
 }
@@ -4655,7 +4655,7 @@ ArgumentEncoder_setRenderPipelineState :: #force_inline proc "c" (self: ^Argumen
     msgSend(nil, self, "setRenderPipelineState:atIndex:", pipeline, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setRenderPipelineStates")
-ArgumentEncoder_setRenderPipelineStates :: #force_inline proc "odin" (self: ^ArgumentEncoder, pipelines: []^RenderPipelineState, range: NS.Range) {
+ArgumentEncoder_setRenderPipelineStates :: #force_inline proc(self: ^ArgumentEncoder, pipelines: []^RenderPipelineState, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(pipelines)))
     msgSend(nil, self, "setRenderPipelineStates:withRange:", raw_data(pipelines), range)
 }
@@ -4664,7 +4664,7 @@ ArgumentEncoder_setSamplerState :: #force_inline proc "c" (self: ^ArgumentEncode
     msgSend(nil, self, "setSamplerState:atIndex:", sampler, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setSamplerStates")
-ArgumentEncoder_setSamplerStates :: #force_inline proc "odin" (self: ^ArgumentEncoder, samplers: []^SamplerState, range: NS.Range) {
+ArgumentEncoder_setSamplerStates :: #force_inline proc(self: ^ArgumentEncoder, samplers: []^SamplerState, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(samplers)))
     msgSend(nil, self, "setSamplerStates:withRange:", raw_data(samplers), range)
 }
@@ -4673,7 +4673,7 @@ ArgumentEncoder_setTexture :: #force_inline proc "c" (self: ^ArgumentEncoder, te
     msgSend(nil, self, "setTexture:atIndex:", texture, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setTextures")
-ArgumentEncoder_setTextures :: #force_inline proc "odin" (self: ^ArgumentEncoder, textures: []^Texture, range: NS.Range) {
+ArgumentEncoder_setTextures :: #force_inline proc(self: ^ArgumentEncoder, textures: []^Texture, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(textures)))
     msgSend(nil, self, "setTextures:withRange:", raw_data(textures), range)
 }
@@ -4682,7 +4682,7 @@ ArgumentEncoder_setVisibleFunctionTable :: #force_inline proc "c" (self: ^Argume
     msgSend(nil, self, "setVisibleFunctionTable:atIndex:", visibleFunctionTable, index)
 }
 @(objc_type=ArgumentEncoder, objc_name="setVisibleFunctionTables")
-ArgumentEncoder_setVisibleFunctionTables :: #force_inline proc "odin" (self: ^ArgumentEncoder, visibleFunctionTables: []^VisibleFunctionTable, range: NS.Range) {
+ArgumentEncoder_setVisibleFunctionTables :: #force_inline proc(self: ^ArgumentEncoder, visibleFunctionTables: []^VisibleFunctionTable, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(visibleFunctionTables)))
     msgSend(nil, self, "setVisibleFunctionTables:withRange:", raw_data(visibleFunctionTables), range)
 }
@@ -4693,17 +4693,17 @@ ArgumentEncoder_setVisibleFunctionTables :: #force_inline proc "odin" (self: ^Ar
 BinaryArchive :: struct { using _: NS.Copying(BinaryArchive) }
 
 @(objc_type=BinaryArchive, objc_name="addComputePipelineFunctions")
-BinaryArchive_addComputePipelineFunctions :: #force_inline proc "contextless" (self: ^BinaryArchive, descriptor: ^ComputePipelineDescriptor) -> (ok: BOOL, error: ^NS.Error) {
+BinaryArchive_addComputePipelineFunctions :: #force_inline proc(self: ^BinaryArchive, descriptor: ^ComputePipelineDescriptor) -> (ok: BOOL, error: ^NS.Error) {
     ok = msgSend(BOOL, self, "addComputePipelineFunctionsWithDescriptor:error:", descriptor, &error)
     return
 }
 @(objc_type=BinaryArchive, objc_name="addRenderPipelineFunctions")
-BinaryArchive_addRenderPipelineFunctions :: #force_inline proc "contextless" (self: ^BinaryArchive, descriptor: ^RenderPipelineDescriptor) -> (ok: BOOL, error: ^NS.Error) {
+BinaryArchive_addRenderPipelineFunctions :: #force_inline proc(self: ^BinaryArchive, descriptor: ^RenderPipelineDescriptor) -> (ok: BOOL, error: ^NS.Error) {
     ok = msgSend(BOOL, self, "addRenderPipelineFunctionsWithDescriptor:error:", descriptor, &error)
     return
 }
 @(objc_type=BinaryArchive, objc_name="addTileRenderPipelineFunctions")
-BinaryArchive_addTileRenderPipelineFunctions :: #force_inline proc "contextless" (self: ^BinaryArchive, descriptor: ^TileRenderPipelineDescriptor) -> (ok: BOOL, error: ^NS.Error) {
+BinaryArchive_addTileRenderPipelineFunctions :: #force_inline proc(self: ^BinaryArchive, descriptor: ^TileRenderPipelineDescriptor) -> (ok: BOOL, error: ^NS.Error) {
     ok = msgSend(BOOL, self, "addTileRenderPipelineFunctionsWithDescriptor:error:", descriptor, &error)
     return
 }
@@ -4716,7 +4716,7 @@ BinaryArchive_label :: #force_inline proc "c" (self: ^BinaryArchive) -> ^NS.Stri
     return msgSend(^NS.String, self, "label")
 }
 @(objc_type=BinaryArchive, objc_name="serializeToURL")
-BinaryArchive_serializeToURL :: #force_inline proc "contextless" (self: ^BinaryArchive, url: ^NS.URL) -> (ok: BOOL, error: ^NS.Error) {
+BinaryArchive_serializeToURL :: #force_inline proc(self: ^BinaryArchive, url: ^NS.URL) -> (ok: BOOL, error: ^NS.Error) {
     ok = msgSend(BOOL, self, "serializeToURL:error:", url, &error)
     return
 }
@@ -4727,7 +4727,7 @@ BinaryArchive_setLabel :: #force_inline proc "c" (self: ^BinaryArchive, label: ^
 
 
 @(objc_type=BinaryArchive, objc_name="addFunction")
-BinaryArchive_addFunction :: #force_inline proc "contextless" (self: ^BinaryArchive, descriptor: ^FunctionDescriptor, library: ^Library) -> (ok: BOOL, error: ^NS.Error) {
+BinaryArchive_addFunction :: #force_inline proc(self: ^BinaryArchive, descriptor: ^FunctionDescriptor, library: ^Library) -> (ok: BOOL, error: ^NS.Error) {
     ok = msgSend(BOOL, self, "addFunction:", descriptor, library, &error)
     return
 }
@@ -5226,7 +5226,7 @@ ComputeCommandEncoder_setBufferOffset :: #force_inline proc "c" (self: ^ComputeC
     msgSend(nil, self, "setBufferOffset:atIndex:", offset, index)
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setBuffers")
-ComputeCommandEncoder_setBuffers :: #force_inline proc "odin" (self: ^ComputeCommandEncoder, buffers: []^Buffer, offsets: []NS.UInteger, range: NS.Range) {
+ComputeCommandEncoder_setBuffers :: #force_inline proc(self: ^ComputeCommandEncoder, buffers: []^Buffer, offsets: []NS.UInteger, range: NS.Range) {
     assert(len(buffers) == len(offsets))
     assert(range.length <= NS.UInteger(len(buffers)))
     msgSend(nil, self, "setBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
@@ -5248,7 +5248,7 @@ ComputeCommandEncoder_setIntersectionFunctionTable :: #force_inline proc "c" (se
     msgSend(nil, self, "setIntersectionFunctionTable:atBufferIndex:", intersectionFunctionTable, bufferIndex)
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setIntersectionFunctionTables")
-ComputeCommandEncoder_setIntersectionFunctionTables :: #force_inline proc "odin" (self: ^ComputeCommandEncoder, intersectionFunctionTables: []^IntersectionFunctionTable, range: NS.Range) {
+ComputeCommandEncoder_setIntersectionFunctionTables :: #force_inline proc(self: ^ComputeCommandEncoder, intersectionFunctionTables: []^IntersectionFunctionTable, range: NS.Range) {
     assert(range.length <= NS.UInteger(len(intersectionFunctionTables)))
     msgSend(nil, self, "setIntersectionFunctionTables:withBufferRange:", raw_data(intersectionFunctionTables), range)
 }
@@ -5347,7 +5347,7 @@ ComputePipelineState_maxTotalThreadsPerThreadgroup :: #force_inline proc "c" (se
     return msgSend(NS.UInteger, self, "maxTotalThreadsPerThreadgroup")
 }
 @(objc_type=ComputePipelineState, objc_name="newComputePipelineState")
-ComputePipelineState_newComputePipelineState :: #force_inline proc "contextless" (self: ^ComputePipelineState, functions: ^NS.Array) -> (state: ^ComputePipelineState, error: ^NS.Error) {
+ComputePipelineState_newComputePipelineState :: #force_inline proc(self: ^ComputePipelineState, functions: ^NS.Array) -> (state: ^ComputePipelineState, error: ^NS.Error) {
     state = msgSend(^ComputePipelineState, self, "newComputePipelineStateWithAdditionalBinaryFunctions:error:", functions, &error)
     return
 }
@@ -5560,7 +5560,7 @@ Device_newArgumentEncoderWithArguments :: #force_inline proc "c" (self: ^Device,
     return msgSend(^ArgumentEncoder, self, "newArgumentEncoderWithArguments:", arguments)
 }
 @(objc_type=Device, objc_name="newBinaryArchive")
-Device_newBinaryArchive :: #force_inline proc "contextless" (self: ^Device, descriptor: ^BinaryArchiveDescriptor) -> (res: ^BinaryArchive, error: ^NS.Error) {
+Device_newBinaryArchive :: #force_inline proc(self: ^Device, descriptor: ^BinaryArchiveDescriptor) -> (res: ^BinaryArchive, error: ^NS.Error) {
     res = msgSend(^BinaryArchive, self, "newBinaryArchiveWithDescriptor:error:", descriptor, &error)
     return
 }
@@ -5599,7 +5599,7 @@ Device_newComputePipelineStateWithDescriptorWithCompletionHandler :: #force_inli
     return msgSend(^ComputePipelineState, self, "newComputePipelineStateWithDescriptor:options:completionHandler:", descriptor, options, completionHandler)
 }
 @(objc_type=Device, objc_name="newComputePipelineStateWithDescriptorWithReflection")
-Device_newComputePipelineStateWithDescriptorWithReflection :: #force_inline proc "contextless" (self: ^Device, descriptor: ^ComputePipelineDescriptor, options: PipelineOption, reflection: ^AutoreleasedComputePipelineReflection) -> (res: ^ComputePipelineState, error: ^NS.Error) {
+Device_newComputePipelineStateWithDescriptorWithReflection :: #force_inline proc(self: ^Device, descriptor: ^ComputePipelineDescriptor, options: PipelineOption, reflection: ^AutoreleasedComputePipelineReflection) -> (res: ^ComputePipelineState, error: ^NS.Error) {
     res = msgSend(^ComputePipelineState, self, "newComputePipelineStateWithDescriptor:options:reflection:error:", descriptor, options, reflection, &error)
     return
 }
@@ -5608,7 +5608,7 @@ Device_newComputePipelineStateWithFunctionWithCompletionHandler :: #force_inline
     return msgSend(^ComputePipelineState, self, "newComputePipelineStateWithFunction:completionHandler:", computeFunction, completionHandler)
 }
 @(objc_type=Device, objc_name="newComputePipelineStateWithFunction")
-Device_newComputePipelineStateWithFunction :: #force_inline proc "contextless" (self: ^Device, computeFunction: ^Function) -> (res: ^ComputePipelineState, error: ^NS.Error) {
+Device_newComputePipelineStateWithFunction :: #force_inline proc(self: ^Device, computeFunction: ^Function) -> (res: ^ComputePipelineState, error: ^NS.Error) {
     res = msgSend(^ComputePipelineState, self, "newComputePipelineStateWithFunction:error:", computeFunction, &error)
     return
 }
@@ -5617,14 +5617,14 @@ Device_newComputePipelineStateWithFunctionWithOptionsAndCompletionHandler :: #fo
     return msgSend(^ComputePipelineState, self, "newComputePipelineStateWithFunction:options:completionHandler:", computeFunction, options, completionHandler)
 }
 @(objc_type=Device, objc_name="newComputePipelineStateWithFunctionWithReflection")
-Device_newComputePipelineStateWithFunctionWithReflection :: #force_inline proc "contextless" (self: ^Device, computeFunction: ^Function, options: PipelineOption, reflection: ^AutoreleasedComputePipelineReflection) -> (res: ^ComputePipelineState, error: ^NS.Error) {
+Device_newComputePipelineStateWithFunctionWithReflection :: #force_inline proc(self: ^Device, computeFunction: ^Function, options: PipelineOption, reflection: ^AutoreleasedComputePipelineReflection) -> (res: ^ComputePipelineState, error: ^NS.Error) {
     res = msgSend(^ComputePipelineState, self, "newComputePipelineStateWithFunction:options:reflection:error:", computeFunction, options, reflection, &error)
     return
 }
 
 
 @(objc_type=Device, objc_name="newCounterSampleBuffer")
-Device_newCounterSampleBuffer :: #force_inline proc "contextless" (self: ^Device, descriptor: ^CounterSampleBufferDescriptor) -> (counter: ^Counter, error: ^NS.Error) {
+Device_newCounterSampleBuffer :: #force_inline proc(self: ^Device, descriptor: ^CounterSampleBufferDescriptor) -> (counter: ^Counter, error: ^NS.Error) {
     counter = msgSend(^Counter, self, "newCounterSampleBufferWithDescriptor:error:", descriptor, &error)
     return
 }
@@ -5633,7 +5633,7 @@ Device_newDefaultLibrary :: #force_inline proc "c" (self: ^Device) -> ^Library {
     return msgSend(^Library, self, "newDefaultLibrary")
 }
 @(objc_type=Device, objc_name="newDefaultLibraryWithBundle")
-Device_newDefaultLibraryWithBundle :: #force_inline proc "contextless" (self: ^Device, bundle: ^NS.Bundle) -> (library: ^Library, error: ^NS.Error) {
+Device_newDefaultLibraryWithBundle :: #force_inline proc(self: ^Device, bundle: ^NS.Bundle) -> (library: ^Library, error: ^NS.Error) {
     library = msgSend(^Library, self, "newDefaultLibraryWithBundle:error:", bundle, &error)
     return
 }
@@ -5642,12 +5642,12 @@ Device_newDepthStencilState :: #force_inline proc "c" (self: ^Device, descriptor
     return msgSend(^DepthStencilState, self, "newDepthStencilStateWithDescriptor:", descriptor)
 }
 @(objc_type=Device, objc_name="newDynamicLibrary")
-Device_newDynamicLibrary :: #force_inline proc "contextless" (self: ^Device, library: ^Library) -> (dyn_library: ^DynamicLibrary, error: ^NS.Error) {
+Device_newDynamicLibrary :: #force_inline proc(self: ^Device, library: ^Library) -> (dyn_library: ^DynamicLibrary, error: ^NS.Error) {
     dyn_library = msgSend(^DynamicLibrary, self, "newDynamicLibrary:error:", library, &error)
     return
 }
 @(objc_type=Device, objc_name="newDynamicLibraryWithURL")
-Device_newDynamicLibraryWithURL :: #force_inline proc "contextless" (self: ^Device, url: ^NS.URL) -> (dyn_library: ^DynamicLibrary, error: ^NS.Error) {
+Device_newDynamicLibraryWithURL :: #force_inline proc(self: ^Device, url: ^NS.URL) -> (dyn_library: ^DynamicLibrary, error: ^NS.Error) {
     dyn_library = msgSend(^DynamicLibrary, self, "newDynamicLibraryWithURL:error:", url, &error)
     return
 }
@@ -5669,12 +5669,12 @@ Device_newIndirectCommandBuffer :: #force_inline proc "c" (self: ^Device, descri
 }
 
 @(objc_type=Device, objc_name="newLibraryWithData")
-Device_newLibraryWithData :: #force_inline proc "contextless" (self: ^Device, data: dispatch_data_t) -> (library: ^Library, error: ^NS.Error) {
+Device_newLibraryWithData :: #force_inline proc(self: ^Device, data: dispatch_data_t) -> (library: ^Library, error: ^NS.Error) {
     library = msgSend(^Library, self, "newLibraryWithData:error:", data, &error)
     return
 }
 @(objc_type=Device, objc_name="newLibraryWithFile")
-Device_newLibraryWithFile :: #force_inline proc "contextless" (self: ^Device, filepath: ^NS.String) -> (library: ^Library, error: ^NS.Error) {
+Device_newLibraryWithFile :: #force_inline proc(self: ^Device, filepath: ^NS.String) -> (library: ^Library, error: ^NS.Error) {
     library = msgSend(^Library, self, "newLibraryWithFile:error:", filepath, &error)
     return
 }
@@ -5683,12 +5683,12 @@ Device_newLibraryWithSourceWithCompletionHandler :: #force_inline proc "c" (self
     return msgSend(^Library, self, "newLibraryWithSource:options:completionHandler:", source, options, completionHandler)
 }
 @(objc_type=Device, objc_name="newLibraryWithSource")
-Device_newLibraryWithSource :: #force_inline proc "contextless" (self: ^Device, source: ^NS.String, options: ^CompileOptions) -> (library: ^Library, error: ^NS.Error) {
+Device_newLibraryWithSource :: #force_inline proc(self: ^Device, source: ^NS.String, options: ^CompileOptions) -> (library: ^Library, error: ^NS.Error) {
     library = msgSend(^Library, self, "newLibraryWithSource:options:error:", source, options, &error)
     return
 }
 @(objc_type=Device, objc_name="newLibraryWithURL")
-Device_newLibraryWithURL :: #force_inline proc "contextless" (self: ^Device, url: ^NS.URL) -> (library: ^Library, error: ^NS.Error) {
+Device_newLibraryWithURL :: #force_inline proc(self: ^Device, url: ^NS.URL) -> (library: ^Library, error: ^NS.Error) {
     library = msgSend(^Library, self, "newLibraryWithURL:error:", url, &error)
     return
 }
@@ -5704,7 +5704,7 @@ Device_newRenderPipelineStateWithDescriptorWithCompletionHandler :: #force_inlin
     return msgSend(^RenderPipelineState, self, "newRenderPipelineStateWithDescriptor:completionHandler:", descriptor, completionHandler)
 }
 @(objc_type=Device, objc_name="newRenderPipelineStateWithDescriptor")
-Device_newRenderPipelineStateWithDescriptor :: #force_inline proc "contextless" (self: ^Device, descriptor: ^RenderPipelineDescriptor) -> (pipeline: ^RenderPipelineState, error: ^NS.Error) {
+Device_newRenderPipelineStateWithDescriptor :: #force_inline proc(self: ^Device, descriptor: ^RenderPipelineDescriptor) -> (pipeline: ^RenderPipelineState, error: ^NS.Error) {
     pipeline = msgSend(^RenderPipelineState, self, "newRenderPipelineStateWithDescriptor:error:", descriptor, &error)
     return
 }
@@ -5713,7 +5713,7 @@ Device_newRenderPipelineStateWithDescriptorWithOptionsAndCompletionHandler :: #f
     return msgSend(^RenderPipelineState, self, "newRenderPipelineStateWithDescriptor:options:completionHandler:", descriptor, options, completionHandler)
 }
 @(objc_type=Device, objc_name="newRenderPipelineStateWithDescriptorWithReflection")
-Device_newRenderPipelineStateWithDescriptorWithReflection :: #force_inline proc "contextless" (self: ^Device, descriptor: ^RenderPipelineDescriptor, options: PipelineOption, reflection: ^AutoreleasedRenderPipelineReflection) -> (pipeline: ^RenderPipelineState, error: ^NS.Error) {
+Device_newRenderPipelineStateWithDescriptorWithReflection :: #force_inline proc(self: ^Device, descriptor: ^RenderPipelineDescriptor, options: PipelineOption, reflection: ^AutoreleasedRenderPipelineReflection) -> (pipeline: ^RenderPipelineState, error: ^NS.Error) {
     pipeline = msgSend(^RenderPipelineState, self, "newRenderPipelineStateWithDescriptor:options:reflection:error:", descriptor, options, reflection, &error)
     return
 }
@@ -5722,7 +5722,7 @@ Device_newRenderPipelineStateWithTileDescriptorWithCompletionHandler :: #force_i
     return msgSend(^RenderPipelineState, self, "newRenderPipelineStateWithTileDescriptor:options:completionHandler:", descriptor, options, completionHandler)
 }
 @(objc_type=Device, objc_name="newRenderPipelineStateWithTileDescriptorWithReflection")
-Device_newRenderPipelineStateWithTileDescriptorWithReflection :: #force_inline proc "contextless" (self: ^Device, descriptor: ^TileRenderPipelineDescriptor, options: PipelineOption, reflection: ^AutoreleasedRenderPipelineReflection) -> (pipeline: ^RenderPipelineState, error: ^NS.Error) {
+Device_newRenderPipelineStateWithTileDescriptorWithReflection :: #force_inline proc(self: ^Device, descriptor: ^TileRenderPipelineDescriptor, options: PipelineOption, reflection: ^AutoreleasedRenderPipelineReflection) -> (pipeline: ^RenderPipelineState, error: ^NS.Error) {
     pipeline = msgSend(^RenderPipelineState, self, "newRenderPipelineStateWithTileDescriptor:options:reflection:error:", descriptor, options, reflection, &error)
     return
 }
@@ -5868,17 +5868,17 @@ Device_newRenderPipelineStateWithMeshDescriptorAndCompletionHandler :: #force_in
 }
 
 @(objc_type=Device, objc_name="newIOHandle")
-Device_newIOHandle :: #force_inline proc "contextless" (self: ^Device, url: ^NS.URL) -> (handle: ^IOFileHandle, err: ^NS.Error) {
+Device_newIOHandle :: #force_inline proc(self: ^Device, url: ^NS.URL) -> (handle: ^IOFileHandle, err: ^NS.Error) {
     handle = msgSend(^IOFileHandle, self, "newIOHandleWithURL:error:", url, &err)
     return
 }
 @(objc_type=Device, objc_name="newIOHandleWithCompressionMethod")
-Device_newIOHandleWithCompressionMethod :: #force_inline proc "contextless" (self: ^Device, url: ^NS.URL, compressionMethod: IOCompressionMethod) -> (handle: ^IOFileHandle, err: ^NS.Error) {
+Device_newIOHandleWithCompressionMethod :: #force_inline proc(self: ^Device, url: ^NS.URL, compressionMethod: IOCompressionMethod) -> (handle: ^IOFileHandle, err: ^NS.Error) {
     handle = msgSend(^IOFileHandle, self, "newIOHandleWithURL:compressionMethod:error:", url, compressionMethod, &err)
     return
 }
 @(objc_type=Device, objc_name="newIOCommandQueue")
-Device_newIOCommandQueue :: #force_inline proc "contextless" (self: ^Device, descriptor: ^IOCommandQueueDescriptor) -> (handle: ^IOCommandQueue, err: ^NS.Error) {
+Device_newIOCommandQueue :: #force_inline proc(self: ^Device, descriptor: ^IOCommandQueueDescriptor) -> (handle: ^IOCommandQueue, err: ^NS.Error) {
     handle = msgSend(^IOCommandQueue, self, "newIOCommandQueueWithDescriptor:error:", descriptor, &err)
     return
 }
@@ -5931,7 +5931,7 @@ DynamicLibrary_label :: #force_inline proc "c" (self: ^DynamicLibrary) -> ^NS.St
     return msgSend(^NS.String, self, "label")
 }
 @(objc_type=DynamicLibrary, objc_name="serializeToURL")
-DynamicLibrary_serializeToURL :: #force_inline proc "contextless" (self: ^DynamicLibrary, url: ^NS.URL) -> (ok: BOOL, error: ^NS.Error) {
+DynamicLibrary_serializeToURL :: #force_inline proc(self: ^DynamicLibrary, url: ^NS.URL) -> (ok: BOOL, error: ^NS.Error) {
     ok = msgSend(BOOL, self, "serializeToURL:error:", url, &error)
     return
 }
@@ -6550,7 +6550,7 @@ Library_newFunctionWithCompletionHandler :: #force_inline proc "c" (self: ^Libra
     return msgSend(^Function, self, "newFunctionWithDescriptor:completionHandler:", descriptor, completionHandler)
 }
 @(objc_type=Library, objc_name="newFunctionWithDescriptor")
-Library_newFunctionWithDescriptor :: #force_inline proc "contextless" (self: ^Library, descriptor: ^FunctionDescriptor) -> (function: ^Function, error: ^NS.Error) {
+Library_newFunctionWithDescriptor :: #force_inline proc(self: ^Library, descriptor: ^FunctionDescriptor) -> (function: ^Function, error: ^NS.Error) {
     function = msgSend(^Function, self, "newFunctionWithDescriptor:error:", descriptor, &error)
     return
 }
@@ -6563,7 +6563,7 @@ Library_newFunctionWithConstantValuesAndCompletionHandler :: #force_inline proc 
     return msgSend(^Function, self, "newFunctionWithName:constantValues:completionHandler:", name, constantValues, completionHandler)
 }
 @(objc_type=Library, objc_name="newFunctionWithConstantValues")
-Library_newFunctionWithConstantValues :: #force_inline proc "contextless" (self: ^Library, name: ^NS.String, constantValues: ^FunctionConstantValues) -> (function: ^Function, error: ^NS.Error) {
+Library_newFunctionWithConstantValues :: #force_inline proc(self: ^Library, name: ^NS.String, constantValues: ^FunctionConstantValues) -> (function: ^Function, error: ^NS.Error) {
     function = msgSend(^Function, self, "newFunctionWithName:constantValues:error:", name, constantValues, &error)
     return
 }
@@ -6574,7 +6574,7 @@ Library_newIntersectionFunctionWithCompletionHandler :: #force_inline proc "c" (
     return msgSend(^Function, self, "newIntersectionFunctionWithDescriptor:completionHandler:", descriptor, completionHandler)
 }
 @(objc_type=Library, objc_name="newIntersectionFunction")
-Library_newIntersectionFunction :: #force_inline proc "contextless" (self: ^Library, descriptor: ^IntersectionFunctionDescriptor) -> (function: ^Function, error: ^NS.Error) {
+Library_newIntersectionFunction :: #force_inline proc(self: ^Library, descriptor: ^IntersectionFunctionDescriptor) -> (function: ^Function, error: ^NS.Error) {
     function = msgSend(^Function, self, "newIntersectionFunctionWithDescriptor:error:", descriptor, &error)
     return
 }
@@ -7211,7 +7211,7 @@ RenderPipelineState_newIntersectionFunctionTable :: #force_inline proc "c" (self
 }
 
 @(objc_type=RenderPipelineState, objc_name="newRenderPipelineState")
-RenderPipelineState_newRenderPipelineState :: #force_inline proc "contextless" (self: ^RenderPipelineState, additionalBinaryFunctions: ^RenderPipelineFunctionsDescriptor) -> (state: ^RenderPipelineState, error: ^NS.Error) {
+RenderPipelineState_newRenderPipelineState :: #force_inline proc(self: ^RenderPipelineState, additionalBinaryFunctions: ^RenderPipelineFunctionsDescriptor) -> (state: ^RenderPipelineState, error: ^NS.Error) {
     state = msgSend(^RenderPipelineState, self, "newRenderPipelineStateWithAdditionalBinaryFunctions:error:", additionalBinaryFunctions, &error)
     return
 }
