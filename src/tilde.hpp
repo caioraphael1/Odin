@@ -1,8 +1,8 @@
 #if defined(GB_SYSTEM_WINDOWS)
-	#pragma warning(push)
-	#pragma warning(disable: 4200)
-	#pragma warning(disable: 4201)
-	#define restrict gb_restrict
+    #pragma warning(push)
+    #pragma warning(disable: 4200)
+    #pragma warning(disable: 4201)
+    #define restrict gb_restrict
 #endif
 
 #include "tilde/tb.h"
@@ -14,7 +14,7 @@
 #define TB_TYPE_INTPTR TB_TYPE_INTN(cast(u16)(8*build_context.ptr_size))
 
 #if defined(GB_SYSTEM_WINDOWS)
-	#pragma warning(pop)
+    #pragma warning(pop)
 #endif
 
 #define CG_STARTUP_RUNTIME_PROC_NAME   "__$startup_runtime"
@@ -32,221 +32,221 @@ struct cgModule;
 
 
 enum cgValueKind : u32 {
-	cgValue_Value,  // rvalue
-	cgValue_Addr,   // lvalue
-	cgValue_Symbol, // global
-	cgValue_Multi,  // multiple values
+    cgValue_Value,  // rvalue
+    cgValue_Addr,   // lvalue
+    cgValue_Symbol, // global
+    cgValue_Multi,  // multiple values
 };
 
 struct cgValueMulti;
 
 struct cgValue {
-	cgValueKind kind;
-	Type *      type;
-	union {
-		// NOTE: any value in this union must be a pointer
-		TB_Symbol *   symbol;
-		TB_Node *     node;
-		cgValueMulti *multi;
-	};
+    cgValueKind kind;
+    Type *      type;
+    union {
+        // NOTE: any value in this union must be a pointer
+        TB_Symbol *   symbol;
+        TB_Node *     node;
+        cgValueMulti *multi;
+    };
 };
 
 struct cgValueMulti {
-	Slice<cgValue> values;
+    Slice<cgValue> values;
 };
 
 
 enum cgAddrKind {
-	cgAddr_Default,
-	cgAddr_Map,
-	cgAddr_Context,
-	cgAddr_SoaVariable,
+    cgAddr_Default,
+    cgAddr_Map,
+    cgAddr_Context,
+    cgAddr_SoaVariable,
 
-	cgAddr_RelativePointer,
-	cgAddr_RelativeSlice,
+    cgAddr_RelativePointer,
+    cgAddr_RelativeSlice,
 
-	cgAddr_Swizzle,
-	cgAddr_SwizzleLarge,
+    cgAddr_Swizzle,
+    cgAddr_SwizzleLarge,
 };
 
 struct cgAddr {
-	cgAddrKind kind;
-	cgValue addr;
-	union {
-		struct {
-			cgValue key;
-			Type *type;
-			Type *result;
-		} map;
-		struct {
-			Selection sel;
-		} ctx;
-		struct {
-			cgValue index;
-			Ast *index_expr;
-		} soa;
-		struct {
-			cgValue index;
-			Ast *node;
-		} index_set;
-		struct {
-			bool deref;
-		} relative;
-		struct {
-			Type *type;
-			u8 count;      // 2, 3, or 4 components
-			u8 indices[4];
-		} swizzle;
-		struct {
-			Type *type;
-			Slice<i32> indices;
-		} swizzle_large;
-	};
+    cgAddrKind kind;
+    cgValue addr;
+    union {
+        struct {
+            cgValue key;
+            Type *type;
+            Type *result;
+        } map;
+        struct {
+            Selection sel;
+        } ctx;
+        struct {
+            cgValue index;
+            Ast *index_expr;
+        } soa;
+        struct {
+            cgValue index;
+            Ast *node;
+        } index_set;
+        struct {
+            bool deref;
+        } relative;
+        struct {
+            Type *type;
+            u8 count;      // 2, 3, or 4 components
+            u8 indices[4];
+        } swizzle;
+        struct {
+            Type *type;
+            Slice<i32> indices;
+        } swizzle_large;
+    };
 };
 
 
 struct cgTargetList {
-	cgTargetList *prev;
-	bool          is_block;
-	// control regions
-	TB_Node *     break_;
-	TB_Node *     continue_;
-	TB_Node *     fallthrough_;
+    cgTargetList *prev;
+    bool          is_block;
+    // control regions
+    TB_Node *     break_;
+    TB_Node *     continue_;
+    TB_Node *     fallthrough_;
 };
 
 struct cgBranchRegions {
-	Ast *    label;
-	TB_Node *break_;
-	TB_Node *continue_;
+    Ast *    label;
+    TB_Node *break_;
+    TB_Node *continue_;
 };
 
 enum cgDeferExitKind {
-	cgDeferExit_Default,
-	cgDeferExit_Return,
-	cgDeferExit_Branch,
+    cgDeferExit_Default,
+    cgDeferExit_Return,
+    cgDeferExit_Branch,
 };
 
 enum cgDeferKind {
-	cgDefer_Node,
-	cgDefer_Proc,
+    cgDefer_Node,
+    cgDefer_Proc,
 };
 
 struct cgDefer {
-	cgDeferKind kind;
-	isize       scope_index;
-	isize       context_stack_count;
-	TB_Node *   control_region;
-	union {
-		Ast *stmt;
-		struct {
-			cgValue deferred;
-			Slice<cgValue> result_as_args;
-		} proc;
-	};
+    cgDeferKind kind;
+    isize       scope_index;
+    isize       context_stack_count;
+    TB_Node *   control_region;
+    union {
+        Ast *stmt;
+        struct {
+            cgValue deferred;
+            Slice<cgValue> result_as_args;
+        } proc;
+    };
 };
 
 
 struct cgContextData {
-	cgAddr ctx;
-	isize scope_index;
-	isize uses;
+    cgAddr ctx;
+    isize scope_index;
+    isize uses;
 };
 
 struct cgControlRegion {
-	TB_Node *control_region;
-	isize    scope_index;
+    TB_Node *control_region;
+    isize    scope_index;
 };
 
 struct cgProcedure {
-	u32 flags;
-	u16 state_flags;
+    u32 flags;
+    u16 state_flags;
 
-	cgProcedure *parent;
-	Array<cgProcedure *> children;
+    cgProcedure *parent;
+    Array<cgProcedure *> children;
 
-	TB_Function *func;
-	TB_FunctionPrototype *proto;
-	TB_Symbol *symbol;
+    TB_Function *func;
+    TB_FunctionPrototype *proto;
+    TB_Symbol *symbol;
 
-	Entity *  entity;
-	cgModule *module;
-	String    name;
-	Type *    type;
-	Ast *     type_expr;
-	Ast *     body;
-	u64       tags;
-	ProcInlining inlining;
-	bool         is_foreign;
-	bool         is_export;
-	bool         is_entry_point;
-	bool         is_startup;
+    Entity *  entity;
+    cgModule *module;
+    String    name;
+    Type *    type;
+    Ast *     type_expr;
+    Ast *     body;
+    u64       tags;
+    ProcInlining inlining;
+    bool         is_foreign;
+    bool         is_export;
+    bool         is_entry_point;
+    bool         is_startup;
 
-	TB_DebugType *debug_type;
+    TB_DebugType *debug_type;
 
-	cgValue value;
+    cgValue value;
 
-	Ast *curr_stmt;
+    Ast *curr_stmt;
 
-	cgTargetList *         target_list;
-	Array<cgDefer>         defer_stack;
-	Array<Scope *>         scope_stack;
-	Array<cgContextData>   context_stack;
+    cgTargetList *         target_list;
+    Array<cgDefer>         defer_stack;
+    Array<Scope *>         scope_stack;
+    Array<cgContextData>   context_stack;
 
-	Array<cgControlRegion> control_regions;
-	Array<cgBranchRegions> branch_regions;
+    Array<cgControlRegion> control_regions;
+    Array<cgBranchRegions> branch_regions;
 
-	Scope *curr_scope;
-	i32    scope_index;
-	bool   in_multi_assignment;
-	isize  split_returns_index;
-	bool   return_by_ptr;
+    Scope *curr_scope;
+    i32    scope_index;
+    bool   in_multi_assignment;
+    isize  split_returns_index;
+    bool   return_by_ptr;
 
-	PtrMap<Entity *, cgAddr> variable_map;
-	PtrMap<Entity *, cgAddr> soa_values_map;
+    PtrMap<Entity *, cgAddr> variable_map;
+    PtrMap<Entity *, cgAddr> soa_values_map;
 };
 
 
 struct cgModule {
-	TB_Module *  mod;
-	Checker *    checker;
-	CheckerInfo *info;
-	LinkerData * linker_data;
+    TB_Module *  mod;
+    Checker *    checker;
+    CheckerInfo *info;
+    LinkerData * linker_data;
 
-	bool do_threading;
-	Array<cgProcedure *> single_threaded_procedure_queue;
+    bool do_threading;
+    Array<cgProcedure *> single_threaded_procedure_queue;
 
-	RwMutex values_mutex;
-	PtrMap<Entity *, cgValue>       values;
-	PtrMap<Entity *, TB_Symbol *>   symbols;
-	StringMap<cgValue>              members;
-	StringMap<cgProcedure *>        procedures;
-	PtrMap<TB_Function *, Entity *> procedure_values;
+    RwMutex values_mutex;
+    PtrMap<Entity *, cgValue>       values;
+    PtrMap<Entity *, TB_Symbol *>   symbols;
+    StringMap<cgValue>              members;
+    StringMap<cgProcedure *>        procedures;
+    PtrMap<TB_Function *, Entity *> procedure_values;
 
-	RecursiveMutex debug_type_mutex;
-	PtrMap<Type *, TB_DebugType *> debug_type_map;
-	PtrMap<Type *, TB_DebugType *> proc_debug_type_map; // not pointer to
+    RecursiveMutex debug_type_mutex;
+    PtrMap<Type *, TB_DebugType *> debug_type_map;
+    PtrMap<Type *, TB_DebugType *> proc_debug_type_map; // not pointer to
 
-	RecursiveMutex proc_proto_mutex;
-	PtrMap<Type *, TB_FunctionPrototype *> proc_proto_map;
+    RecursiveMutex proc_proto_mutex;
+    PtrMap<Type *, TB_FunctionPrototype *> proc_proto_map;
 
-	BlockingMutex anonymous_proc_lits_mutex;
-	PtrMap<Ast *, cgProcedure *> anonymous_proc_lits_map;
+    BlockingMutex anonymous_proc_lits_mutex;
+    PtrMap<Ast *, cgProcedure *> anonymous_proc_lits_map;
 
-	RecursiveMutex generated_procs_mutex;
-	PtrMap<Type *, cgProcedure *> equal_procs;
-	PtrMap<Type *, cgProcedure *> hasher_procs;
-	PtrMap<Type *, cgProcedure *> map_get_procs;
-	PtrMap<Type *, cgProcedure *> map_set_procs;
+    RecursiveMutex generated_procs_mutex;
+    PtrMap<Type *, cgProcedure *> equal_procs;
+    PtrMap<Type *, cgProcedure *> hasher_procs;
+    PtrMap<Type *, cgProcedure *> map_get_procs;
+    PtrMap<Type *, cgProcedure *> map_set_procs;
 
-	RecursiveMutex map_info_mutex;
-	PtrMap<Type *, TB_Symbol *> map_info_map;
-	PtrMap<Type *, TB_Symbol *> map_cell_info_map;
+    RecursiveMutex map_info_mutex;
+    PtrMap<Type *, TB_Symbol *> map_info_map;
+    PtrMap<Type *, TB_Symbol *> map_cell_info_map;
 
-	// NOTE(bill): no need to protect this with a mutex
-	PtrMap<uintptr, TB_SourceFile *> file_id_map; // Key: AstFile.id (i32 cast to uintptr)
+    // NOTE(bill): no need to protect this with a mutex
+    PtrMap<uintptr, TB_SourceFile *> file_id_map; // Key: AstFile.id (i32 cast to uintptr)
 
-	std::atomic<u32> nested_type_name_guid;
-	std::atomic<u32> const_nil_guid;
+    std::atomic<u32> nested_type_name_guid;
+    std::atomic<u32> const_nil_guid;
 };
 
 #ifndef ABI_PKG_NAME_SEPARATOR
@@ -254,10 +254,10 @@ struct cgModule {
 #endif
 
 struct GlobalTypeInfoData {
-	TB_Global *global;
-	Type *     array_type;
-	Type *     elem_type;
-	isize      index;
+    TB_Global *global;
+    Type *     array_type;
+    Type *     elem_type;
+    isize      index;
 };
 
 gb_global Entity *cg_global_type_info_data_entity   = {};

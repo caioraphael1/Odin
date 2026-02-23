@@ -133,8 +133,6 @@ struct AttributeContext {
     bool    has_disabled_proc     : 1;
     bool    disabled_proc         : 1;
     bool    test                  : 1;
-    bool    init                  : 1;
-    bool    fini                  : 1;
     bool    set_cold              : 1;
     bool    entry_point_only      : 1;
     bool    instrumentation_enter : 1;
@@ -461,8 +459,6 @@ struct CheckerInfo {
 
 
     Array<Entity *> testing_procedures;
-    Array<Entity *> init_procedures;
-    Array<Entity *> fini_procedures;
 
     Array<Entity *> definitions;
     Array<Entity *> entities;

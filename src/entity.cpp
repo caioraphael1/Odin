@@ -71,9 +71,7 @@ enum EntityFlag : u64 {
     EntityFlag_SwitchValue   = 1ull<<29,
 
     EntityFlag_Test          = 1ull<<30,
-    EntityFlag_Init          = 1ull<<31,
-    EntityFlag_Subtype       = 1ull<<32,
-    EntityFlag_Fini          = 1ull<<33,
+    EntityFlag_Subtype       = 1ull<<31,
     
     EntityFlag_CustomLinkName = 1ull<<40,
     EntityFlag_CustomLinkage_Internal = 1ull<<41,

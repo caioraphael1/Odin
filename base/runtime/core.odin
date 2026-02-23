@@ -25,38 +25,38 @@ import "base:intrinsics"
 // IMPORTANT NOTE(bill): Do not call this unless you want to explicitly set up the entry point and how it gets called
 // This is probably only useful for freestanding targets
 foreign {
-	@(link_name="__$startup_runtime")
-	_startup_runtime :: proc "odin" () ---
-	@(link_name="__$cleanup_runtime")
-	_cleanup_runtime :: proc "odin" () ---
+    @(link_name="__$startup_runtime")
+    _startup_runtime :: proc "odin" () ---
+    @(link_name="__$cleanup_runtime")
+    _cleanup_runtime :: proc "odin" () ---
 }
 
 
 args__: []cstring
 
 when ODIN_OS == .Windows {
-	// NOTE(Jeroen): If we're a Windows DLL, fwdReason will be populated.
-	// This tells a DLL if it's first loaded, about to be unloaded, or a thread is joining/exiting.
+    // NOTE(Jeroen): If we're a Windows DLL, fwdReason will be populated.
+    // This tells a DLL if it's first loaded, about to be unloaded, or a thread is joining/exiting.
 
-	DLL_Forward_Reason :: enum u32 {
-		Process_Detach = 0, // About to unload DLL
-		Process_Attach = 1, // Entry point
-		Thread_Attach  = 2,
-		Thread_Detach  = 3,
-	}
-	dll_forward_reason: DLL_Forward_Reason
+    DLL_Forward_Reason :: enum u32 {
+        Process_Detach = 0, // About to unload DLL
+        Process_Attach = 1, // Entry point
+        Thread_Attach  = 2,
+        Thread_Detach  = 3,
+    }
+    dll_forward_reason: DLL_Forward_Reason
 
-	dll_instance: rawptr
+    dll_instance: rawptr
 }
 
 read_cycle_counter :: intrinsics.read_cycle_counter
 
 /*
-	Used by the built-in directory `#load_directory(path: string) -> []Load_Directory_File`
+    Used by the built-in directory `#load_directory(path: string) -> []Load_Directory_File`
 */
 Load_Directory_File :: struct {
-	name: string,
-	data: []byte, // immutable data
+    name: string,
+    data: []byte, // immutable data
 }
 
 
@@ -65,36 +65,36 @@ Load_Directory_File :: struct {
 //--------------------------------------------------------------------------------------------------
 
 Context :: struct {
-	user_ptr:   rawptr,
-	user_index: int,
+    user_ptr:   rawptr,
+    user_index: int,
 
-	// Internal use only
-	_internal:  rawptr,
+    // Internal use only
+    _internal:  rawptr,
 }
 
 
 Source_Code_Location :: struct {
-	file_path:    string,
-	line, column: i32,
-	procedure:    string,
+    file_path:    string,
+    line, column: i32,
+    procedure:    string,
 }
 
 // NOTE(bill): This must match the compiler's
 Calling_Convention :: enum u8 {
-	Invalid     = 0,
-	Odin        = 1,
-	Contextless = 2,
-	CDecl       = 3,
-	Std_Call    = 4,
-	Fast_Call   = 5,
+    Invalid     = 0,
+    Odin        = 1,
+    Contextless = 2,
+    CDecl       = 3,
+    Std_Call    = 4,
+    Fast_Call   = 5,
 
-	None        = 6,
-	Naked       = 7,
+    None        = 6,
+    Naked       = 7,
 
-	_           = 8, // reserved
+    _           = 8, // reserved
 
-	Win64       = 9,
-	SysV        = 10,
+    Win64       = 9,
+    SysV        = 10,
 }
 
 /* 
@@ -104,7 +104,7 @@ Caio: I decided to keep this, as removing it gave me a llvm compiler error on ga
 */
 @(private)
 __init_context :: proc "contextless" (c: ^Context) {
-	return
+    return
 }
 
 
@@ -113,30 +113,30 @@ __init_context :: proc "contextless" (c: ^Context) {
 //--------------------------------------------------------------------------------------------------
 
 Allocator_Mode :: enum byte {
-	Alloc,
-	Free,
-	Free_All,
-	Resize,
-	Query_Features,
-	Query_Info,
-	Alloc_Non_Zeroed,
-	Resize_Non_Zeroed,
+    Alloc,
+    Free,
+    Free_All,
+    Resize,
+    Query_Features,
+    Query_Info,
+    Alloc_Non_Zeroed,
+    Resize_Non_Zeroed,
 }
 
 Allocator_Mode_Set :: distinct bit_set[Allocator_Mode]
 
 Allocator_Query_Info :: struct {
-	pointer:   rawptr,
-	size:      Maybe(int),
-	alignment: Maybe(int),
+    pointer:   rawptr,
+    size:      Maybe(int),
+    alignment: Maybe(int),
 }
 
 Allocator_Error :: enum byte {
-	None                 = 0,
-	Out_Of_Memory        = 1,
-	Invalid_Pointer      = 2,
-	Invalid_Argument     = 3,
-	Mode_Not_Implemented = 4,
+    None                 = 0,
+    Out_Of_Memory        = 1,
+    Invalid_Pointer      = 2,
+    Invalid_Argument     = 3,
+    Mode_Not_Implemented = 4,
 }
 
 Allocator_Proc :: #type proc(allocator_data: rawptr, mode: Allocator_Mode,
@@ -144,8 +144,8 @@ Allocator_Proc :: #type proc(allocator_data: rawptr, mode: Allocator_Mode,
                              old_memory: rawptr, old_size: int,
                              location: Source_Code_Location = #caller_location) -> ([]byte, Allocator_Error)
 Allocator :: struct {
-	procedure: Allocator_Proc,
-	data:      rawptr,
+    procedure: Allocator_Proc,
+    data:      rawptr,
 }
 
 
@@ -154,25 +154,25 @@ Allocator :: struct {
 //--------------------------------------------------------------------------------------------------
 
 Raw_String :: struct {
-	data: [^]byte,
-	len:  int,
+    data: [^]byte,
+    len:  int,
 }
 
 Raw_String16 :: struct {
-	data: [^]u16,
-	len:  int,
+    data: [^]u16,
+    len:  int,
 }
 
 Raw_Slice :: struct {
-	data: rawptr,
-	len:  int,
+    data: rawptr,
+    len:  int,
 }
 
 Raw_Dynamic_Array :: struct {
-	data:      rawptr,
-	len:       int,
-	cap:       int,
-	allocator: Allocator,
+    data:      rawptr,
+    len:       int,
+    cap:       int,
+    allocator: Allocator,
 }
 
 // The raw, type-erased representation of a map.
@@ -180,51 +180,51 @@ Raw_Dynamic_Array :: struct {
 // 32-bytes on 64-bit
 // 16-bytes on 32-bit
 Raw_Map :: struct {
-	// A single allocation spanning all keys, values, and hashes.
-	// {
-	//   k: Map_Cell(K) * (capacity / ks_per_cell)
-	//   v: Map_Cell(V) * (capacity / vs_per_cell)
-	//   h: Map_Cell(H) * (capacity / hs_per_cell)
-	// }
-	//
-	// The data is allocated assuming 64-byte alignment, meaning the address is
-	// always a multiple of 64. This means we have 6 bits of zeros in the pointer
-	// to store the capacity. We can store a value as large as 2^6-1 or 63 in
-	// there. This conveniently is the maximum log2 capacity we can have for a map
-	// as Odin uses signed integers to represent capacity.
-	//
-	// Since the hashes are backed by Map_Hash, which is just a 64-bit unsigned
-	// integer, the cell structure for hashes is unnecessary because 64/8 is 8 and
-	// requires no padding, meaning it can be indexed as a regular array of
-	// Map_Hash directly, though for consistency sake it's written as if it were
-	// an array of Map_Cell(Map_Hash).
-	data:      uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
-	len:       uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
-	allocator: Allocator, // 16-bytes on 64-bits, 8-bytes on 32-bits
+    // A single allocation spanning all keys, values, and hashes.
+    // {
+    //   k: Map_Cell(K) * (capacity / ks_per_cell)
+    //   v: Map_Cell(V) * (capacity / vs_per_cell)
+    //   h: Map_Cell(H) * (capacity / hs_per_cell)
+    // }
+    //
+    // The data is allocated assuming 64-byte alignment, meaning the address is
+    // always a multiple of 64. This means we have 6 bits of zeros in the pointer
+    // to store the capacity. We can store a value as large as 2^6-1 or 63 in
+    // there. This conveniently is the maximum log2 capacity we can have for a map
+    // as Odin uses signed integers to represent capacity.
+    //
+    // Since the hashes are backed by Map_Hash, which is just a 64-bit unsigned
+    // integer, the cell structure for hashes is unnecessary because 64/8 is 8 and
+    // requires no padding, meaning it can be indexed as a regular array of
+    // Map_Hash directly, though for consistency sake it's written as if it were
+    // an array of Map_Cell(Map_Hash).
+    data:      uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
+    len:       uintptr,   // 8-bytes on 64-bits, 4-bytes on 32-bits
+    allocator: Allocator, // 16-bytes on 64-bits, 8-bytes on 32-bits
 }
 
 Raw_Any :: struct {
-	data: rawptr,
-	id:   typeid,
+    data: rawptr,
+    id:   typeid,
 }
 when !ODIN_NO_RTTI {
-	#assert(size_of(Raw_Any) == size_of(any))
+    #assert(size_of(Raw_Any) == size_of(any))
 }
 
 Raw_Cstring :: struct {
-	data: [^]byte,
+    data: [^]byte,
 }
 #assert(size_of(Raw_Cstring) == size_of(cstring))
 
 Raw_Cstring16 :: struct {
-	data: [^]u16,
+    data: [^]u16,
 }
 #assert(size_of(Raw_Cstring16) == size_of(cstring16))
 
 
 Raw_Soa_Pointer :: struct {
-	data:  rawptr,
-	index: int,
+    data:  rawptr,
+    index: int,
 }
 
 Raw_Complex32     :: struct {real, imag: f16}
@@ -251,100 +251,100 @@ Petabyte :: 1024 * Terabyte
 Exabyte  :: 1024 * Petabyte
 
 /*
-	// Defined internally by the compiler
-	Odin_OS_Type :: enum int {
-		Unknown,
-		Windows,
-		Darwin,
-		Linux,
-		Essence,
-		FreeBSD,
-		OpenBSD,
-		NetBSD,
-		Haiku,
-		WASI,
-		JS,
-		Orca,
-		Freestanding,
-	}
+    // Defined internally by the compiler
+    Odin_OS_Type :: enum int {
+        Unknown,
+        Windows,
+        Darwin,
+        Linux,
+        Essence,
+        FreeBSD,
+        OpenBSD,
+        NetBSD,
+        Haiku,
+        WASI,
+        JS,
+        Orca,
+        Freestanding,
+    }
 */
 Odin_OS_Type :: type_of(ODIN_OS)
 
 /*
-	// Defined internally by the compiler
-	Odin_Arch_Type :: enum int {
-		Unknown,
-		amd64,
-		i386,
-		arm32,
-		arm64,
-		wasm32,
-		wasm64p32,
-		riscv64,
-	}
+    // Defined internally by the compiler
+    Odin_Arch_Type :: enum int {
+        Unknown,
+        amd64,
+        i386,
+        arm32,
+        arm64,
+        wasm32,
+        wasm64p32,
+        riscv64,
+    }
 */
 Odin_Arch_Type :: type_of(ODIN_ARCH)
 
 Odin_Arch_Types :: bit_set[Odin_Arch_Type]
 
 ALL_ODIN_ARCH_TYPES :: Odin_Arch_Types{
-	.amd64,
-	.i386,
-	.arm32,
-	.arm64,
-	.wasm32,
-	.wasm64p32,
-	.riscv64,
+    .amd64,
+    .i386,
+    .arm32,
+    .arm64,
+    .wasm32,
+    .wasm64p32,
+    .riscv64,
 }
 
 /*
-	// Defined internally by the compiler
-	Odin_Build_Mode_Type :: enum int {
-		Executable,
-		Dynamic,
-		Static,
-		Object,
-		Assembly,
-		LLVM_IR,
-	}
+    // Defined internally by the compiler
+    Odin_Build_Mode_Type :: enum int {
+        Executable,
+        Dynamic,
+        Static,
+        Object,
+        Assembly,
+        LLVM_IR,
+    }
 */
 Odin_Build_Mode_Type :: type_of(ODIN_BUILD_MODE)
 
 /*
-	// Defined internally by the compiler
-	Odin_Endian_Type :: enum int {
-		Unknown,
-		Little,
-		Big,
-	}
+    // Defined internally by the compiler
+    Odin_Endian_Type :: enum int {
+        Unknown,
+        Little,
+        Big,
+    }
 */
 Odin_Endian_Type :: type_of(ODIN_ENDIAN)
 
 Odin_OS_Types :: bit_set[Odin_OS_Type]
 
 ALL_ODIN_OS_TYPES :: Odin_OS_Types{
-	.Windows,
-	.Darwin,
-	.Linux,
-	.Essence,
-	.FreeBSD,
-	.OpenBSD,
-	.NetBSD,
-	.Haiku,
-	.WASI,
-	.JS,
-	.Orca,
-	.Freestanding,
+    .Windows,
+    .Darwin,
+    .Linux,
+    .Essence,
+    .FreeBSD,
+    .OpenBSD,
+    .NetBSD,
+    .Haiku,
+    .WASI,
+    .JS,
+    .Orca,
+    .Freestanding,
 }
 
 /*
-	// Defined internally by the compiler
-	Odin_Platform_Subtarget_Type :: enum int {
-		Default,
-		iPhone,
-		iPhoneSimulator
-		Android,
-	}
+    // Defined internally by the compiler
+    Odin_Platform_Subtarget_Type :: enum int {
+        Default,
+        iPhone,
+        iPhoneSimulator
+        Android,
+    }
 */
 Odin_Platform_Subtarget_Type :: type_of(ODIN_PLATFORM_SUBTARGET)
 
@@ -354,29 +354,29 @@ Odin_Platform_Subtarget_Types :: bit_set[Odin_Platform_Subtarget_Type]
 ODIN_PLATFORM_SUBTARGET_IOS :: ODIN_PLATFORM_SUBTARGET == .iPhone || ODIN_PLATFORM_SUBTARGET == .iPhoneSimulator
 
 /*
-	// Defined internally by the compiler
-	Odin_Sanitizer_Flag :: enum u32 {
-		Address = 0,
-		Memory  = 1,
-		Thread  = 2,
-	}
-	Odin_Sanitizer_Flags :: distinct bit_set[Odin_Sanitizer_Flag; u32]
+    // Defined internally by the compiler
+    Odin_Sanitizer_Flag :: enum u32 {
+        Address = 0,
+        Memory  = 1,
+        Thread  = 2,
+    }
+    Odin_Sanitizer_Flags :: distinct bit_set[Odin_Sanitizer_Flag; u32]
 
-	ODIN_SANITIZER_FLAGS // is a constant
+    ODIN_SANITIZER_FLAGS // is a constant
 */
 Odin_Sanitizer_Flags :: type_of(ODIN_SANITIZER_FLAGS)
 
 /*
-	// Defined internally by the compiler
-	Odin_Optimization_Mode :: enum int {
-		None       = -1,
-		Minimal    =  0,
-		Size       =  1,
-		Speed      =  2,
-		Aggressive =  3,
-	}
+    // Defined internally by the compiler
+    Odin_Optimization_Mode :: enum int {
+        None       = -1,
+        Minimal    =  0,
+        Size       =  1,
+        Speed      =  2,
+        Aggressive =  3,
+    }
 
-	ODIN_OPTIMIZATION_MODE // is a constant
+    ODIN_OPTIMIZATION_MODE // is a constant
 */
 Odin_Optimization_Mode :: type_of(ODIN_OPTIMIZATION_MODE)
 
@@ -396,9 +396,9 @@ Odin_Optimization_Mode :: type_of(ODIN_OPTIMIZATION_MODE)
 Type_Info_Enum_Value :: distinct i64
 
 Platform_Endianness :: enum u8 {
-	Platform = 0,
-	Little   = 1,
-	Big      = 2,
+    Platform = 0,
+    Little   = 1,
+    Big      = 2,
 }
 
 // Procedure type to test whether two values of the same type are equal
@@ -407,23 +407,23 @@ Equal_Proc :: distinct proc "contextless" (rawptr, rawptr) -> bool
 Hasher_Proc :: distinct proc "contextless" (data: rawptr, seed: uintptr = 0) -> uintptr
 
 Type_Info_Struct_Soa_Kind :: enum u8 {
-	None    = 0,
-	Fixed   = 1,
-	Slice   = 2,
-	Dynamic = 3,
+    None    = 0,
+    Fixed   = 1,
+    Slice   = 2,
+    Dynamic = 3,
 }
 
 Type_Info_String_Encoding_Kind :: enum u8 {
-	UTF_8  = 0,
-	UTF_16 = 1,
+    UTF_8  = 0,
+    UTF_16 = 1,
 }
 
 // Variant Types
 Type_Info_Named :: struct {
-	name: string,
-	base: ^Type_Info,
-	pkg:  string,
-	loc:  ^Source_Code_Location,
+    name: string,
+    base: ^Type_Info,
+    pkg:  string,
+    loc:  ^Source_Code_Location,
 }
 Type_Info_Integer    :: struct {signed: bool, endianness: Platform_Endianness}
 Type_Info_Rune       :: struct {}
@@ -435,164 +435,164 @@ Type_Info_Boolean    :: struct {}
 Type_Info_Any        :: struct {}
 Type_Info_Type_Id    :: struct {}
 Type_Info_Pointer :: struct {
-	elem: ^Type_Info, // nil -> rawptr
+    elem: ^Type_Info, // nil -> rawptr
 }
 Type_Info_Multi_Pointer :: struct {
-	elem: ^Type_Info,
+    elem: ^Type_Info,
 }
 Type_Info_Procedure :: struct {
-	params:     ^Type_Info, // Type_Info_Parameters
-	results:    ^Type_Info, // Type_Info_Parameters
-	variadic:   bool,
-	convention: Calling_Convention,
+    params:     ^Type_Info, // Type_Info_Parameters
+    results:    ^Type_Info, // Type_Info_Parameters
+    variadic:   bool,
+    convention: Calling_Convention,
 }
 Type_Info_Array :: struct {
-	elem:      ^Type_Info,
-	elem_size: int,
-	count:     int,
+    elem:      ^Type_Info,
+    elem_size: int,
+    count:     int,
 }
 Type_Info_Enumerated_Array :: struct {
-	elem:      ^Type_Info,
-	index:     ^Type_Info,
-	elem_size: int,
-	count:     int,
-	min_value: Type_Info_Enum_Value,
-	max_value: Type_Info_Enum_Value,
-	is_sparse: bool,
+    elem:      ^Type_Info,
+    index:     ^Type_Info,
+    elem_size: int,
+    count:     int,
+    min_value: Type_Info_Enum_Value,
+    max_value: Type_Info_Enum_Value,
+    is_sparse: bool,
 }
 Type_Info_Dynamic_Array :: struct {elem: ^Type_Info, elem_size: int}
 Type_Info_Slice         :: struct {elem: ^Type_Info, elem_size: int}
 
 Type_Info_Parameters :: struct { // Only used for procedures parameters and results
-	types:        []^Type_Info,
-	names:        []string,
+    types:        []^Type_Info,
+    names:        []string,
 }
 
 Type_Info_Struct_Flags :: distinct bit_set[Type_Info_Struct_Flag; u8]
 Type_Info_Struct_Flag :: enum u8 {
-	packed      = 0,
-	raw_union   = 1,
-	all_or_none = 2,
-	align       = 3,
+    packed      = 0,
+    raw_union   = 1,
+    all_or_none = 2,
+    align       = 3,
 }
 
 Type_Info_Struct :: struct {
-	// Slice these with `field_count`
-	types:   [^]^Type_Info `fmt:"v,field_count"`,
-	names:   [^]string     `fmt:"v,field_count"`,
-	offsets: [^]uintptr    `fmt:"v,field_count"`,
-	usings:  [^]bool       `fmt:"v,field_count"`,
-	tags:    [^]string     `fmt:"v,field_count"`,
+    // Slice these with `field_count`
+    types:   [^]^Type_Info `fmt:"v,field_count"`,
+    names:   [^]string     `fmt:"v,field_count"`,
+    offsets: [^]uintptr    `fmt:"v,field_count"`,
+    usings:  [^]bool       `fmt:"v,field_count"`,
+    tags:    [^]string     `fmt:"v,field_count"`,
 
-	field_count: i32,
+    field_count: i32,
 
-	flags: Type_Info_Struct_Flags,
+    flags: Type_Info_Struct_Flags,
 
-	// These are only set iff this structure is an SOA structure
-	soa_kind:      Type_Info_Struct_Soa_Kind,
-	soa_len:       i32,
-	soa_base_type: ^Type_Info,
+    // These are only set iff this structure is an SOA structure
+    soa_kind:      Type_Info_Struct_Soa_Kind,
+    soa_len:       i32,
+    soa_base_type: ^Type_Info,
 
-	equal: Equal_Proc, // set only when the struct has .Comparable set but does not have .Simple_Compare set
+    equal: Equal_Proc, // set only when the struct has .Comparable set but does not have .Simple_Compare set
 }
 Type_Info_Union :: struct {
-	variants:     []^Type_Info,
-	tag_offset:   uintptr,
-	tag_type:     ^Type_Info,
+    variants:     []^Type_Info,
+    tag_offset:   uintptr,
+    tag_type:     ^Type_Info,
 
-	equal: Equal_Proc, // set only when the struct has .Comparable set but does not have .Simple_Compare set
+    equal: Equal_Proc, // set only when the struct has .Comparable set but does not have .Simple_Compare set
 
-	custom_align: bool,
-	no_nil:       bool,
-	shared_nil:   bool,
+    custom_align: bool,
+    no_nil:       bool,
+    shared_nil:   bool,
 }
 Type_Info_Enum :: struct {
-	base:   ^Type_Info,
-	names:  []string,
-	values: []Type_Info_Enum_Value,
+    base:   ^Type_Info,
+    names:  []string,
+    values: []Type_Info_Enum_Value,
 }
 Type_Info_Map :: struct {
-	key:      ^Type_Info,
-	value:    ^Type_Info,
-	map_info: ^Map_Info,
+    key:      ^Type_Info,
+    value:    ^Type_Info,
+    map_info: ^Map_Info,
 }
 Type_Info_Bit_Set :: struct {
-	elem:       ^Type_Info,
-	underlying: ^Type_Info, // Possibly nil
-	lower:      i64,
-	upper:      i64,
+    elem:       ^Type_Info,
+    underlying: ^Type_Info, // Possibly nil
+    lower:      i64,
+    upper:      i64,
 }
 Type_Info_Simd_Vector :: struct {
-	elem:       ^Type_Info,
-	elem_size:  int,
-	count:      int,
+    elem:       ^Type_Info,
+    elem_size:  int,
+    count:      int,
 }
 Type_Info_Matrix :: struct {
-	elem:         ^Type_Info,
-	elem_size:    int,
-	elem_stride:  int, // elem_stride >= row_count
-	row_count:    int,
-	column_count: int,
-	// Total element count = column_count * elem_stride
-	layout: enum u8 {
-		Column_Major, // array of column vectors
-		Row_Major,    // array of row vectors
-	},
+    elem:         ^Type_Info,
+    elem_size:    int,
+    elem_stride:  int, // elem_stride >= row_count
+    row_count:    int,
+    column_count: int,
+    // Total element count = column_count * elem_stride
+    layout: enum u8 {
+        Column_Major, // array of column vectors
+        Row_Major,    // array of row vectors
+    },
 }
 Type_Info_Soa_Pointer :: struct {
-	elem: ^Type_Info,
+    elem: ^Type_Info,
 }
 Type_Info_Bit_Field :: struct {
-	backing_type: ^Type_Info,
-	names:        [^]string     `fmt:"v,field_count"`,
-	types:        [^]^Type_Info `fmt:"v,field_count"`,
-	bit_sizes:    [^]uintptr    `fmt:"v,field_count"`,
-	bit_offsets:  [^]uintptr    `fmt:"v,field_count"`,
-	tags:         [^]string     `fmt:"v,field_count"`,
-	field_count:  int,
+    backing_type: ^Type_Info,
+    names:        [^]string     `fmt:"v,field_count"`,
+    types:        [^]^Type_Info `fmt:"v,field_count"`,
+    bit_sizes:    [^]uintptr    `fmt:"v,field_count"`,
+    bit_offsets:  [^]uintptr    `fmt:"v,field_count"`,
+    tags:         [^]string     `fmt:"v,field_count"`,
+    field_count:  int,
 }
 
 Type_Info_Flag :: enum u8 {
-	Comparable     = 0,
-	Simple_Compare = 1,
+    Comparable     = 0,
+    Simple_Compare = 1,
 }
 Type_Info_Flags :: distinct bit_set[Type_Info_Flag; u32]
 
 Type_Info :: struct {
-	size:  int,
-	align: int,
-	flags: Type_Info_Flags,
-	id:    typeid,
+    size:  int,
+    align: int,
+    flags: Type_Info_Flags,
+    id:    typeid,
 
-	variant: union {
-		Type_Info_Named,
-		Type_Info_Integer,
-		Type_Info_Rune,
-		Type_Info_Float,
-		Type_Info_Complex,
-		Type_Info_Quaternion,
-		Type_Info_String,
-		Type_Info_Boolean,
-		Type_Info_Any,
-		Type_Info_Type_Id,
-		Type_Info_Pointer,
-		Type_Info_Multi_Pointer,
-		Type_Info_Procedure,
-		Type_Info_Array,
-		Type_Info_Enumerated_Array,
-		Type_Info_Dynamic_Array,
-		Type_Info_Slice,
-		Type_Info_Parameters,
-		Type_Info_Struct,
-		Type_Info_Union,
-		Type_Info_Enum,
-		Type_Info_Map,
-		Type_Info_Bit_Set,
-		Type_Info_Simd_Vector,
-		Type_Info_Matrix,
-		Type_Info_Soa_Pointer,
-		Type_Info_Bit_Field,
-	},
+    variant: union {
+        Type_Info_Named,
+        Type_Info_Integer,
+        Type_Info_Rune,
+        Type_Info_Float,
+        Type_Info_Complex,
+        Type_Info_Quaternion,
+        Type_Info_String,
+        Type_Info_Boolean,
+        Type_Info_Any,
+        Type_Info_Type_Id,
+        Type_Info_Pointer,
+        Type_Info_Multi_Pointer,
+        Type_Info_Procedure,
+        Type_Info_Array,
+        Type_Info_Enumerated_Array,
+        Type_Info_Dynamic_Array,
+        Type_Info_Slice,
+        Type_Info_Parameters,
+        Type_Info_Struct,
+        Type_Info_Union,
+        Type_Info_Enum,
+        Type_Info_Map,
+        Type_Info_Bit_Set,
+        Type_Info_Simd_Vector,
+        Type_Info_Matrix,
+        Type_Info_Soa_Pointer,
+        Type_Info_Bit_Field,
+    },
 }
 
 // NOTE(bill): only the ones that are needed (not all types)
@@ -603,18 +603,18 @@ type_table: []^Type_Info
 // type_info_base returns the base-type of a `^Type_Info` stripping the `distinct`ness from the first level
 
 type_info_base :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
-	if info == nil {
-		return nil
-	}
+    if info == nil {
+        return nil
+    }
 
-	base := info
-	loop: for {
-		#partial switch i in base.variant {
-		case Type_Info_Named: base = i.base
-		case: break loop
-		}
-	}
-	return base
+    base := info
+    loop: for {
+        #partial switch i in base.variant {
+        case Type_Info_Named: base = i.base
+        case: break loop
+        }
+    }
+    return base
 }
 
 
@@ -623,20 +623,20 @@ type_info_base :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
 // This is also aliased as `type_info_base_without_enum`
 
 type_info_core :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
-	if info == nil {
-		return nil
-	}
+    if info == nil {
+        return nil
+    }
 
-	base := info
-	loop: for {
-		#partial switch i in base.variant {
-		case Type_Info_Named:     base = i.base
-		case Type_Info_Enum:      base = i.base
-		case Type_Info_Bit_Field: base = i.backing_type
-		case: break loop
-		}
-	}
-	return base
+    base := info
+    loop: for {
+        #partial switch i in base.variant {
+        case Type_Info_Named:     base = i.base
+        case Type_Info_Enum:      base = i.base
+        case Type_Info_Bit_Field: base = i.backing_type
+        case: break loop
+        }
+    }
+    return base
 }
 
 // type_info_base_without_enum returns the core-type of a `^Type_Info` stripping the `distinct`ness from the first level AND/OR
@@ -645,37 +645,37 @@ type_info_core :: proc "contextless" (info: ^Type_Info) -> ^Type_Info {
 type_info_base_without_enum :: type_info_core
 
 __type_info_of :: proc "contextless" (id: typeid) -> ^Type_Info #no_bounds_check {
-	n := u64(len(type_table))
-	i := transmute(u64)id % n
-	for _ in 0..<n {
-		ptr := type_table[i]
-		if ptr != nil && ptr.id == id {
-			return ptr
-		}
-		i = i+1 if i+1 < n else 0
-	}
-	return type_table[0]
+    n := u64(len(type_table))
+    i := transmute(u64)id % n
+    for _ in 0..<n {
+        ptr := type_table[i]
+        if ptr != nil && ptr.id == id {
+            return ptr
+        }
+        i = i+1 if i+1 < n else 0
+    }
+    return type_table[0]
 }
 
 when !ODIN_NO_RTTI {
-	// typeid_base returns the base-type of a `typeid` stripping the `distinct`ness from the first level
-	typeid_base :: proc "contextless" (id: typeid) -> typeid {
-		ti := type_info_of(id)
-		ti = type_info_base(ti)
-		return ti.id
-	}
-	// typeid_core returns the core-type of a `typeid` stripping the `distinct`ness from the first level AND/OR
-	// returns the backing integer type of an enum or bit_set `typeid`.
-	// This is also aliased as `typeid_base_without_enum`
-	typeid_core :: proc "contextless" (id: typeid) -> typeid {
-		ti := type_info_core(type_info_of(id))
-		return ti.id
-	}
+    // typeid_base returns the base-type of a `typeid` stripping the `distinct`ness from the first level
+    typeid_base :: proc "contextless" (id: typeid) -> typeid {
+        ti := type_info_of(id)
+        ti = type_info_base(ti)
+        return ti.id
+    }
+    // typeid_core returns the core-type of a `typeid` stripping the `distinct`ness from the first level AND/OR
+    // returns the backing integer type of an enum or bit_set `typeid`.
+    // This is also aliased as `typeid_base_without_enum`
+    typeid_core :: proc "contextless" (id: typeid) -> typeid {
+        ti := type_info_core(type_info_of(id))
+        return ti.id
+    }
 
-	// typeid_base_without_enum returns the core-type of a `typeid` stripping the `distinct`ness from the first level AND/OR
-	// returns the backing integer type of an enum or bit_set `typeid`.
-	// This is also aliased as `typeid_core`
-	typeid_base_without_enum :: typeid_core
+    // typeid_base_without_enum returns the core-type of a `typeid` stripping the `distinct`ness from the first level AND/OR
+    // returns the backing integer type of an enum or bit_set `typeid`.
+    // This is also aliased as `typeid_core`
+    typeid_base_without_enum :: typeid_core
 }
 
 
@@ -691,30 +691,30 @@ assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 
 
 default_assertion_failure_proc :: proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> ! {
-	when ODIN_OS == .Freestanding {
-		// Do nothing
-	} else {
-		when ODIN_OS != .Orca && !ODIN_DISABLE_ASSERT {
-			print_caller_location(loc)
-			print_string(" ")
-		}
-		print_string(prefix)
-		if len(message) > 0 {
-			print_string(": ")
-			print_string(message)
-		}
+    when ODIN_OS == .Freestanding {
+        // Do nothing
+    } else {
+        when ODIN_OS != .Orca && !ODIN_DISABLE_ASSERT {
+            print_caller_location(loc)
+            print_string(" ")
+        }
+        print_string(prefix)
+        if len(message) > 0 {
+            print_string(": ")
+            print_string(message)
+        }
 
-		when ODIN_OS == .Orca {
-			assert_fail(
-				cstring(raw_data(loc.file_path)),
-				cstring(raw_data(loc.procedure)),
-				loc.line,
-				"",
-				cstring(raw_data(orca_stderr_buffer[:orca_stderr_buffer_idx])),
-			)
-		} else {
-			print_byte('\n')
-		}
-	}
-	trap()
+        when ODIN_OS == .Orca {
+            assert_fail(
+                cstring(raw_data(loc.file_path)),
+                cstring(raw_data(loc.procedure)),
+                loc.line,
+                "",
+                cstring(raw_data(orca_stderr_buffer[:orca_stderr_buffer_idx])),
+            )
+        } else {
+            print_byte('\n')
+        }
+    }
+    trap()
 }

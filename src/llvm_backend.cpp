@@ -2105,13 +2105,6 @@ gb_internal void lb_create_startup_runtime_generate_body(lbModule *m, lbProcedur
             lb_init_global_var(m, p, e, init_expr, var);
         }
     }
-    CheckerInfo *info = m->gen->info;
-
-    for (Entity *e : info->init_procedures) {
-        lbValue value = lb_find_procedure_value_from_entity(m, e);
-        lb_emit_call(p, value, {}, ProcInlining_none);
-    }
-
 
     lb_end_procedure_body(p);
 }
@@ -2150,13 +2143,6 @@ gb_internal lbProcedure *lb_create_cleanup_runtime(lbModule *main_module) { // C
     LLVMSetLinkage(p->value, LLVMWeakAnyLinkage);
 
     lb_begin_procedure_body(p);
-
-    CheckerInfo *info = main_module->gen->info;
-
-    for (Entity *e : info->fini_procedures) {
-        lbValue value = lb_find_procedure_value_from_entity(main_module, e);
-        lb_emit_call(p, value, {}, ProcInlining_none);
-    }
 
     lb_end_procedure_body(p);
 
@@ -3503,10 +3489,10 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
     TIME_SECTION("LLVM Runtime Objective-C Names Creation");
     gen->objc_names = lb_create_objc_names(default_module);
 
-    TIME_SECTION("LLVM Runtime Startup Creation (Global Variables & @(init))");
+    TIME_SECTION("LLVM Runtime Startup Creation (Global Variables)");
     gen->startup_runtime = lb_create_startup_runtime(default_module, gen->objc_names, global_variables);
 
-    TIME_SECTION("LLVM Runtime Cleanup Creation & @(fini)");
+    TIME_SECTION("LLVM Runtime Cleanup Creation");
     gen->cleanup_runtime = lb_create_cleanup_runtime(default_module);
 
 
