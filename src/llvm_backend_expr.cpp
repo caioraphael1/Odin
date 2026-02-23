@@ -5309,21 +5309,7 @@ gb_internal lbAddr lb_build_addr_compound_lit(lbProcedure *p, Ast *expr) {
     }
 
     case Type_Map: {
-        if (cl->elems.count == 0) {
-            break;
-        }
-        GB_ASSERT(expr->file()->feature_flags & OptInFeatureFlag_DynamicLiterals || build_context.dynamic_literals);
-
-        lbValue err = lb_dynamic_map_reserve(p, v.addr, 2*cl->elems.count, pos);
-        gb_unused(err);
-
-        for (Ast *elem : cl->elems) {
-            ast_node(fv, FieldValue, elem);
-
-            lbValue key   = lb_build_expr(p, fv->field);
-            lbValue value = lb_build_expr(p, fv->value);
-            lb_internal_dynamic_map_set(p, v.addr, type, key, value, elem);
-        }
+        GB_ASSERT(cl->elems.count == 0);
         break;
     }
 
@@ -5398,47 +5384,7 @@ gb_internal lbAddr lb_build_addr_compound_lit(lbProcedure *p, Ast *expr) {
     }
 
     case Type_DynamicArray: {
-        if (cl->elems.count == 0) {
-            break;
-        }
-        GB_ASSERT(expr->file()->feature_flags & OptInFeatureFlag_DynamicLiterals || build_context.dynamic_literals);
-
-        Type *et = bt->DynamicArray.elem;
-        lbValue size  = lb_const_int(p->module, t_int, type_size_of(et));
-        lbValue align = lb_const_int(p->module, t_int, type_align_of(et));
-
-        i64 item_count = gb_max(cl->max_count, cl->elems.count);
-        {
-
-            auto args = array_make<lbValue>(temporary_allocator(), 5);
-            args[0] = lb_emit_conv(p, lb_addr_get_ptr(p, v), t_rawptr);
-            args[1] = size;
-            args[2] = align;
-            args[3] = lb_const_int(p->module, t_int, item_count);
-            args[4] = lb_emit_source_code_location_as_global(p, proc_name, pos);
-            lb_emit_runtime_call(p, "__dynamic_array_reserve", args);
-        }
-
-        lbValue items = lb_generate_local_array(p, et, item_count);
-
-        auto temp_data = array_make<lbCompoundLitElemTempData>(temporary_allocator(), 0, cl->elems.count);
-        lb_build_addr_compound_lit_populate(p, cl->elems, &temp_data, type);
-
-        for_array(i, temp_data) {
-            temp_data[i].gep = lb_emit_array_epi(p, items, temp_data[i].elem_index);
-        }
-        lb_build_addr_compound_lit_assign_array(p, temp_data);
-
-        {
-            auto args = array_make<lbValue>(temporary_allocator(), 6);
-            args[0] = lb_emit_conv(p, v.addr, t_rawptr);
-            args[1] = size;
-            args[2] = align;
-            args[3] = lb_emit_conv(p, items, t_rawptr);
-            args[4] = lb_const_int(p->module, t_int, item_count);
-            args[5] = lb_emit_source_code_location_as_global(p, proc_name, pos);
-            lb_emit_runtime_call(p, "__dynamic_array_append", args);
-        }
+        GB_ASSERT(cl->elems.count == 0);
         break;
     }
 

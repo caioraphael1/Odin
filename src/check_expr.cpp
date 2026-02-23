@@ -9171,30 +9171,6 @@ gb_internal bool is_expr_inferred_fixed_array(Ast *type_expr) {
     return false;
 }
 
-gb_internal bool check_for_dynamic_literals(CheckerContext *c, Ast *node, AstCompoundLit *cl) {
-    if (cl->elems.count == 0) {
-        return false;
-    }
-    if ((check_feature_flags(c, node) & OptInFeatureFlag_DynamicLiterals) == 0 && !build_context.dynamic_literals) {
-        ERROR_BLOCK();
-        error(node, "Compound literals of dynamic types are disabled by default");
-        error_line("\tSuggestion: If you want to enable them for this specific file, add '#+feature dynamic-literals' at the top of the file\n");
-        error_line("\tWarning: Please understand that dynamic literals will implicitly allocate using the current 'context.allocator' in that scope\n");
-        if (build_context.ODIN_DEFAULT_TO_NIL_ALLOCATOR) {
-            error_line("\tWarning: As '-default-to-panic-allocator' has been set, the dynamic compound literal may not be initialized as expected\n");
-        } else if (build_context.ODIN_DEFAULT_TO_PANIC_ALLOCATOR) {
-            error_line("\tWarning: As '-default-to-panic-allocator' has been set, the dynamic compound literal may not be initialized as expected\n");
-        }
-        return false;
-    } else if (c->curr_proc_decl != nullptr && c->curr_proc_calling_convention != ProcCC_Odin) {
-        if (c->scope != nullptr && (c->scope->flags & ScopeFlag_ContextDefined) == 0) {
-            error(node, "Compound literals of dynamic types require a 'context' to defined");
-        }
-    }
-
-    return true;
-}
-
 gb_internal IntegerDivisionByZeroKind check_for_integer_division_by_zero(CheckerContext *c, Ast *node) {
     // TODO(bill): per file `#+feature` flags
     u64 flags = check_feature_flags(c, node);
@@ -9621,11 +9597,10 @@ gb_internal ExprKind check_compound_literal(CheckerContext *c, Operand *o, Ast *
             }
         }
 
-
         if (t->kind == Type_DynamicArray) {
-            if (check_for_dynamic_literals(c, node, cl)) {
-                add_package_dependency(c, "runtime", "__dynamic_array_reserve");
-                add_package_dependency(c, "runtime", "__dynamic_array_append");
+            if (cl->elems.count != 0) {
+                ERROR_BLOCK();
+                error(node, "Compound literals of dynamic types are not allowed");
             }
         }
 
@@ -9986,43 +9961,9 @@ gb_internal ExprKind check_compound_literal(CheckerContext *c, Operand *o, Ast *
     }
 
     case Type_Map: {
-        if (cl->elems.count == 0) {
-            break;
-        }
-        is_constant = false;
-        { // Checker values
-            bool key_is_typeid = is_type_typeid(t->Map.key);
-            bool value_is_typeid = is_type_typeid(t->Map.value);
-
-            for (Ast *elem : cl->elems) {
-                if (elem->kind != Ast_FieldValue) {
-                    error(elem, "Only 'field = value' elements are allowed in a map literal");
-                    continue;
-                }
-                ast_node(fv, FieldValue, elem);
-
-                if (key_is_typeid) {
-                    check_expr_or_type(c, o, fv->field, t->Map.key);
-                } else {
-                    check_expr_with_type_hint(c, o, fv->field, t->Map.key);
-                }
-                check_assignment(c, o, t->Map.key, str_lit("map literal"));
-                if (o->mode == Addressing_Invalid) {
-                    continue;
-                }
-
-                if (value_is_typeid) {
-                    check_expr_or_type(c, o, fv->value, t->Map.value);
-                } else {
-                    check_expr_with_type_hint(c, o, fv->value, t->Map.value);
-                }
-                check_assignment(c, o, t->Map.value, str_lit("map literal"));
-            }
-        }
-
-        if (check_for_dynamic_literals(c, node, cl)) {
-            add_map_reserve_dependencies(c);
-            add_map_set_dependencies(c);
+        if (cl->elems.count != 0) {
+            ERROR_BLOCK();
+            error(node, "Compound literals of dynamic types are not allowed");
         }
         break;
     }

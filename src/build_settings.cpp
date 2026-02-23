@@ -351,7 +351,6 @@ u64 get_vet_flag_from_name(String const &name) {
 
 enum OptInFeatureFlags : u64 {
     OptInFeatureFlag_NONE            = 0,
-    OptInFeatureFlag_DynamicLiterals = 1u<<0,
 
     OptInFeatureFlag_GlobalContext = 1u<<1,
 
@@ -369,9 +368,6 @@ enum OptInFeatureFlags : u64 {
 };
 
 u64 get_feature_flag_from_name(String const &name) {
-    if (name == "dynamic-literals") {
-        return OptInFeatureFlag_DynamicLiterals;
-    }
     if (name == "integer-division-by-zero:trap") {
         return OptInFeatureFlag_IntegerDivisionByZero_Trap;
     }
@@ -515,7 +511,6 @@ struct BuildContext {
     bool   ignore_unknown_attributes;
     bool   no_bounds_check;
     bool   no_type_assert;
-    bool   dynamic_literals;  // Opt-in to `#+feature dynamic-literals` project-wide.
     bool   no_output_files;
     bool   no_crt;
     bool   no_rpath;
