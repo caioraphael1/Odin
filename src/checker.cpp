@@ -2825,12 +2825,9 @@ gb_internal void generate_minimum_dependency_set_internal(Checker *c, Entity *st
                 }
 
                 u64 feature_flags = check_feature_flags(e);
-                if ((feature_flags & OptInFeatureFlag_GlobalContext) == 0) {
-                    if (t->Proc.calling_convention != ProcCC_Contextless) {
-                        ERROR_BLOCK();
-                        error(e->token, "@(init) procedures must be declared as \"contextless\"");
-                        error_line("\tSuggestion: this can be bypassed, for the time being, with '#+feature global-context'");
-                    }
+                if (t->Proc.calling_convention != ProcCC_Contextless) {
+                    ERROR_BLOCK();
+                    error(e->token, "@(init) procedures must be declared as \"contextless\"");
                 }
 
                 if ((e->scope->flags & (ScopeFlag_File|ScopeFlag_Pkg)) == 0) {
@@ -2866,12 +2863,9 @@ gb_internal void generate_minimum_dependency_set_internal(Checker *c, Entity *st
                 }
 
                 u64 feature_flags = check_feature_flags(e);
-                if ((feature_flags & OptInFeatureFlag_GlobalContext) == 0) {
-                    if (t->Proc.calling_convention != ProcCC_Contextless) {
-                        ERROR_BLOCK();
-                        error(e->token, "@(fini) procedures must be declared as \"contextless\"");
-                        error_line("\tSuggestion: this can be bypassed, for the time being, with '#+feature global-context'");
-                    }
+                if (t->Proc.calling_convention != ProcCC_Contextless) {
+                    ERROR_BLOCK();
+                    error(e->token, "@(fini) procedures must be declared as \"contextless\"");
                 }
 
                 if ((e->scope->flags & (ScopeFlag_File|ScopeFlag_Pkg)) == 0) {
