@@ -1,5 +1,3 @@
-package filepath
-
 import "base:runtime"
 
 import "core:strings"

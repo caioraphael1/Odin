@@ -1,5 +1,3 @@
-package spall
-
 import "core:os"
 import "core:time"
 import "base:intrinsics"

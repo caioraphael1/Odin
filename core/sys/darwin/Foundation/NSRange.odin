@@ -1,5 +1,3 @@
-package objc_Foundation
-
 Range :: struct {
 	location: UInteger,
 	length:  UInteger,

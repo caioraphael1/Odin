@@ -1,7 +1,5 @@
 #+build freestanding
 #+private
-package runtime
-
 _HAS_RAND_BYTES :: false
 
 // TODO(bill): reimplement `os.write`

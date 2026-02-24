@@ -1,5 +1,4 @@
 #+no-instrumentation
-package sanitizer
 
 @(private="file")
 MSAN_ENABLED :: .Memory in ODIN_SANITIZER_FLAGS

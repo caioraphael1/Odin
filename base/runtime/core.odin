@@ -1,6 +1,4 @@
-
 #+no-instrumentation
-package runtime
 /* 
 Info:
 GingerBill:

@@ -1,6 +1,4 @@
 // The `Odin` file parser to be used in tooling.
-package odin_parser
-
 import "core:odin/ast"
 import "core:odin/tokenizer"
 
@@ -173,12 +171,6 @@ parse_file :: proc(p: ^Parser, file: ^ast.File) -> bool {
 
             _, _ = advance_token(p)
         }
-    }
-
-    if p.curr_tok.kind != .Package {
-        t := invalid_pre_package_token.? or_else p.curr_tok
-        error(p, t.pos, "Expected a package declaration at the start of the file")
-        return false
     }
     
     p.file.pkg_token = expect_token(p, .Package)

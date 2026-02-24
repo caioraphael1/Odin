@@ -4,8 +4,6 @@
 See:
 - [[ https://datatracker.ietf.org/doc/html/rfc8439 ]]
 */
-package poly1305
-
 import "core:crypto"
 import field "core:crypto/_fiat/field_poly1305"
 import "core:encoding/endian"

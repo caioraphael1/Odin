@@ -1,5 +1,5 @@
 // Vulkan wrapper generated from [[ vulkan_core.h ; https://raw.githubusercontent.com/KhronosGroup/Vulkan-Headers/master/include/vulkan/vulkan_core.h ]].
-package vulkan
+
 // Core API
 API_VERSION_1_0 :: (1<<22) | (0<<12) | (0)
 API_VERSION_1_1 :: (1<<22) | (1<<12) | (0)

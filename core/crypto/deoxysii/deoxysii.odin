@@ -4,8 +4,6 @@
 - [[ https://sites.google.com/view/deoxyscipher ]]
 - [[ https://thomaspeyrin.github.io/web/assets/docs/papers/Jean-etal-JoC2021.pdf ]]
 */
-package deoxysii
-
 import "base:intrinsics"
 import "core:bytes"
 import "core:crypto/aes"

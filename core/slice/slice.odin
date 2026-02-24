@@ -1,6 +1,4 @@
 // Utility procedures for working with slices, including sorting and searching them.
-package slice
-
 import "base:intrinsics"
 import "base:builtin"
 import "core:math/bits"

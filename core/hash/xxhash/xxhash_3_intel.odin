@@ -1,6 +1,4 @@
 #+build amd64, i386
-package xxhash
-
 import "base:intrinsics"
 
 @(private="file") SSE2_FEATURES :: "sse2"

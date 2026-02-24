@@ -6,8 +6,6 @@
 //
 // By default, a Scanner skips white space and Odin comments and recognizes all literals defined by the Odin programming language specification.
 // A Scanner may be customized to recognize only a subset of those literals and to recognize different identifiers and white space characters.
-package text_scanner
-
 import "base:runtime"
 import "core:fmt"
 import "core:strings"

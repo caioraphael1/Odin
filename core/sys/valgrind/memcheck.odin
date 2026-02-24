@@ -1,6 +1,4 @@
 #+build amd64
-package sys_valgrind
-
 import "base:intrinsics"
 
 Mem_Check_Client_Request :: enum uintptr {

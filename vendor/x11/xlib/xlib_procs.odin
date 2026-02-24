@@ -1,6 +1,4 @@
 #+build linux, openbsd, freebsd
-package xlib
-
 foreign import xlib "system:X11"
 foreign xlib {
 	@(link_name="_Xdebug") _Xdebug: i32

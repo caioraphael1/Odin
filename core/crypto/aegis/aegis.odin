@@ -6,8 +6,6 @@ Where AEAD stands for Authenticated Encryption with Additional Data.
 See:
 - [[ https://www.ietf.org/archive/id/draft-irtf-cfrg-aegis-aead-12.txt ]]
 */
-package aegis
-
 import "core:bytes"
 import "core:crypto"
 import "core:crypto/aes"

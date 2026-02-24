@@ -1,5 +1,3 @@
-package wgpu_glfw_glue
-
 import "vendor:glfw"
 import "vendor:wgpu"
 

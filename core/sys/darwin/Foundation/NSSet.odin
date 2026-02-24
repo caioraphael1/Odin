@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSSet")
 Set :: struct {using _: Copying(Set)}
 

@@ -1,5 +1,3 @@
-package raylib
-
 import "core:math"
 import "core:math/linalg"
 

@@ -1,5 +1,3 @@
-package CoreFoundation
-
 import "core:c"
 import "core:mem"
 

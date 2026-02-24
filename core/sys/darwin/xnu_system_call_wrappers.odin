@@ -1,5 +1,3 @@
-package darwin
-
 import "core:c"
 import "base:intrinsics"
 

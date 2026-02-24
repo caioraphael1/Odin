@@ -1,5 +1,3 @@
-package odin_ast
-
 import "core:fmt"
 
 // A Visitor's visit procedure is invoked for each node encountered by walk

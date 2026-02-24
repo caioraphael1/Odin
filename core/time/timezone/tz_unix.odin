@@ -1,7 +1,5 @@
 #+build darwin, linux, freebsd, openbsd, netbsd
 #+private
-package timezone
-
 import os "core:os/os2"
 import "core:strings"
 import "core:path/filepath"

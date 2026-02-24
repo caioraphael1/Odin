@@ -1,5 +1,3 @@
-package vendor_box2d
-
 import "base:intrinsics"
 
 /**

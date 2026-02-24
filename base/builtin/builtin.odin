@@ -1,5 +1,4 @@
 // This is purely for documentation
-package builtin
 
 import "base:runtime"
 

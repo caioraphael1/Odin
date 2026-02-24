@@ -1,8 +1,6 @@
 #+private
 #+build !netbsd
 #+build !openbsd
-package flags
-
 import "core:net"
 
 // This proc exists purely as a workaround for import restrictions.

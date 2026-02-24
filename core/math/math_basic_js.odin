@@ -1,6 +1,4 @@
 #+build js
-package math
-
 import "base:intrinsics"
 
 foreign import "odin_env"

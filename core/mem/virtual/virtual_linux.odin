@@ -1,7 +1,5 @@
 #+build linux
 #+private
-package mem_virtual
-
 import "core:sys/linux"
 
 _reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {

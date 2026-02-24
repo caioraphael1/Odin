@@ -1,5 +1,3 @@
-package aes
-
 import "core:crypto/_aes/ct64"
 
 // Context_ECB is a keyed AES-ECB instance.

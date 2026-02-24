@@ -1,6 +1,4 @@
 #+private
-package math_noise
-
 /*
     OpenSimplex2 noise implementation.
 

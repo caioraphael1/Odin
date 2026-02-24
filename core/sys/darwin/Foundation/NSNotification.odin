@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSNotification")
 Notification :: struct{using _: Object}
 

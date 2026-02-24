@@ -1,6 +1,4 @@
 #+build amd64
-package deoxysii
-
 import "base:intrinsics"
 import "core:crypto"
 import "core:crypto/aes"

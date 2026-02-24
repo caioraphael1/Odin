@@ -61,4 +61,3 @@ If that version is lower than 3.4 or hasn't been compiled with the previously me
 you will have to compile glfw from source yourself and adjust the `foreign import` declarations in `vendor:glfw/bindings` to
 point to it.
 */
-package wgpu

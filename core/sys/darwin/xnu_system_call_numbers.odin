@@ -1,5 +1,3 @@
-package darwin
-
 // IMPORTANT NOTE: direct syscall usage is not allowed by Apple's review process of apps and should
 // be entirely avoided in the builtin Odin collections, these are here for users if they don't
 // care about the Apple review process.

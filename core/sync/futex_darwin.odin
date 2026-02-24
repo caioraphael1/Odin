@@ -1,7 +1,5 @@
 #+private
 #+build darwin
-package sync
-
 import "core:c"
 import "core:sys/darwin"
 import "core:time"

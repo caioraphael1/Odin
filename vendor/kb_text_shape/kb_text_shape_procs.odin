@@ -1,5 +1,3 @@
-package vendor_kb_text_shape
-
 when ODIN_OS == .Windows {
     foreign import lib {
         "lib/kb_text_shape.lib",

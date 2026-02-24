@@ -1,5 +1,3 @@
-package vendor_curl
-
 import c "core:c/libc"
 
 CURLM :: struct {}

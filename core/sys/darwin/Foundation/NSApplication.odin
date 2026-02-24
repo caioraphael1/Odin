@@ -1,5 +1,3 @@
-package objc_Foundation
-
 foreign import "system:Foundation.framework"
 
 import "base:intrinsics"

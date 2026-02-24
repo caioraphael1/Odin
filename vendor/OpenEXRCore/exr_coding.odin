@@ -1,5 +1,3 @@
-package vendor_openexr
-
 import "core:c"
 /**
  * Enum for use in a custom allocator in the encode/decode pipelines

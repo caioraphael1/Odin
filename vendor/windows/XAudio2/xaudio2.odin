@@ -6,8 +6,6 @@
     Compiling for Windows 10 RS5 (1809) and later
 */
 
-package windows_xaudio2
-
 import win "core:sys/windows"
 import "core:math"
 

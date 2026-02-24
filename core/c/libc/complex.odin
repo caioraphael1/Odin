@@ -1,5 +1,3 @@
-package libc
-
 // 7.3 Complex arithmetic
 
 when ODIN_OS == .Windows {

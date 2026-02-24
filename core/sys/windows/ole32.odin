@@ -1,5 +1,3 @@
-package sys_windows
-
 foreign import "system:Ole32.lib"
 
 //objbase.h

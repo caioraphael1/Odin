@@ -1,5 +1,3 @@
-package libc
-
 // 7.14 Signal handling
 
 when ODIN_OS == .Windows {

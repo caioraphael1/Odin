@@ -1,5 +1,3 @@
-package field_scalar25519
-
 import "core:encoding/endian"
 import "core:math/bits"
 import "core:mem"

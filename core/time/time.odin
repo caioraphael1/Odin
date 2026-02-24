@@ -1,6 +1,4 @@
 // `Time`-related procedures and types, including `sleep`, `now`, and string formatting of moments.
-package time
-
 import    "base:intrinsics"
 import dt "core:time/datetime"
 

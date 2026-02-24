@@ -1,5 +1,3 @@
-package aead
-
 // seal_oneshot encrypts the plaintext and authenticates the aad and ciphertext,
 // with the provided algorithm, key, and iv, stores the output in dst and tag.
 //

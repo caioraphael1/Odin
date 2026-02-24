@@ -1,6 +1,4 @@
 #+build amd64
-package runtime
-
 import "base:intrinsics"
 
 #assert(ODIN_ENDIAN == .Little)

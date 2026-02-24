@@ -1,5 +1,3 @@
-package libc
-
 // 7.17 Atomics
 
 import "base:intrinsics"

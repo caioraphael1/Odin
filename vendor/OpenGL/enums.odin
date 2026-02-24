@@ -1,5 +1,3 @@
-package vendor_gl
-
 GL_Enum :: enum u64 {
 	FALSE = 0, 
 	TRUE = 1, 

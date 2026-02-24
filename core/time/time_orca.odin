@@ -1,7 +1,5 @@
 #+private
 #+build orca
-package time
-
 import "base:intrinsics"
 
 import "core:sys/orca"

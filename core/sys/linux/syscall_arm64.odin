@@ -1,6 +1,4 @@
 #+build arm64
-package linux
-
 // Syscalls for arm64 are defined using the new way, i.e. differently from
 // the other platforms. It defines a few constants representing which optional
 // syscalls it wants and includes the generic unistd.h file.

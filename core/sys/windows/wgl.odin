@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 import "core:c"
 
 foreign import "system:Opengl32.lib"

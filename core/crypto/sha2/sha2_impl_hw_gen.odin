@@ -1,6 +1,4 @@
 #+build !amd64
-package sha2
-
 @(private = "file")
 ERR_HW_NOT_SUPPORTED :: "crypto/sha2: hardware implementation unsupported"
 

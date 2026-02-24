@@ -1,5 +1,3 @@
-package microui
-
 DEFAULT_ATLAS_WIDTH          :: 128
 DEFAULT_ATLAS_HEIGHT         :: 128
 DEFAULT_ATLAS_WHITE          :: int(len(Icon) + 1)

@@ -1,7 +1,5 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 #+private
-package testing
-
 import "core:c/libc"
 import "core:sys/posix"
 

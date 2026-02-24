@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSColorSpace")
 ColorSpace :: struct {using _: Object}
 

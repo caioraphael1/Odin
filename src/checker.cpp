@@ -2845,12 +2845,9 @@ gb_internal void generate_minimum_dependency_set(Checker *c, Entity *start) {
     // required runtime entities
     FORCE_ADD_RUNTIME_ENTITIES(true,
         // Odin types
-        str_lit("Context"),
         str_lit("Source_Code_Location"),
         str_lit("Allocator"),
 
-        // Odin internal procedures
-        str_lit("__init_context"),
         // str_lit("cstring_to_string"),
         str_lit("_cleanup_runtime"),
 
@@ -3095,7 +3092,7 @@ gb_internal void check_single_global_entity(Checker *c, Entity *e, DeclInfo *d);
 gb_internal Entity *find_core_entity(Checker *c, String name) {
     Entity *e = scope_lookup_current(c->info.runtime_package->scope, name);
     if (e == nullptr) {
-        compiler_error("Could not find type declaration for '%.*s'\n"
+        compiler_error("[find_core_entity] Could not find type declaration for '%.*s'\n"
 , LIT(name));
         // NOTE(bill): This will exit the program as it's cannot continue without it!
     }
@@ -3105,7 +3102,7 @@ gb_internal Entity *find_core_entity(Checker *c, String name) {
 gb_internal Type *find_core_type(Checker *c, String name) {
     Entity *e = scope_lookup_current(c->info.runtime_package->scope, name);
     if (e == nullptr) {
-        compiler_error("Could not find type declaration for '%.*s'\n"
+        compiler_error("[find_core_type] Could not find type declaration for '%.*s'\n"
 , LIT(name));
         // NOTE(bill): This will exit the program as it's cannot continue without it!
     }
@@ -3121,7 +3118,7 @@ gb_internal Entity *find_entity_in_pkg(CheckerInfo *info, String const &pkg, Str
     AstPackage *package = get_core_package(info, pkg);
     Entity *e = scope_lookup_current(package->scope, name);
     if (e == nullptr) {
-        compiler_error("Could not find type declaration for '%.*s.%.*s'\n", LIT(pkg), LIT(name));
+        compiler_error("[find_entity_in_pkg] Could not find type declaration for '%.*s.%.*s'\n", LIT(pkg), LIT(name));
         // NOTE(bill): This will exit the program as it's cannot continue without it!
     }
     return e;
@@ -3131,7 +3128,7 @@ gb_internal Type *find_type_in_pkg(CheckerInfo *info, String const &pkg, String 
     AstPackage *package = get_core_package(info, pkg);
     Entity *e = scope_lookup_current(package->scope, name);
     if (e == nullptr) {
-        compiler_error("Could not find type declaration for '%.*s.%.*s'\n", LIT(pkg), LIT(name));
+        compiler_error("[find_type_in_pkg] Could not find type declaration for '%.*s.%.*s'\n", LIT(pkg), LIT(name));
         // NOTE(bill): This will exit the program as it's cannot continue without it!
     }
     GB_ASSERT(e->type != nullptr);
@@ -4428,8 +4425,6 @@ gb_internal void check_collect_value_decl(CheckerContext *c, Ast *decl) {
                 } else {
                     is_priv = true;
                 }
-
-
 
                 if (entity_visibility_kind >= kind) {
                     error(elem, "Previous declaration of '%.*s'", LIT(name));
@@ -6894,14 +6889,12 @@ gb_internal bool check_unique_package_names(Checker *c) {
 
         String name = pkg->name;
         auto key = string_hash_string(name);
-        auto *found = string_map_get(&pkgs, key);
+        auto *found = (AstPackage*)string_map_get(&pkgs, key);
         if (found == nullptr) {
             string_map_set(&pkgs, key, pkg);
             continue;
         }
-        auto *curr = pkg->files[0]->pkg_decl;
-        auto *prev = (*found)->files[0]->pkg_decl;
-        if (curr == prev) {
+        if (pkg == found) {
             // NOTE(bill): A false positive was found, ignore it
             continue;
         }
@@ -6909,22 +6902,27 @@ gb_internal bool check_unique_package_names(Checker *c) {
         ok = false;
 
         begin_error_block();
-        error(curr, "Duplicate declaration of 'package %.*s'", LIT(name));
-        error_line("\tA package name must be unique\n"
-                   "\tThere is no relation between a package name and the directory that contains it, so they can be completely different\n"
-                   "\tA package name is required for link name prefixing to have a consistent ABI\n");
-        error_line("%s found at previous location\n", token_pos_to_string(ast_token(prev).pos));
+
+        global_error_collector.count.fetch_add(1);
+        mutex_lock(&global_error_collector.mutex);
+        if (global_error_collector.count > MAX_ERROR_COLLECTOR_COUNT()) {
+            print_all_errors();
+            gb_exit(1);
+        }
+        push_error_value({}, ErrorValue_Error);
+        error_out_empty();
+        error_out_coloured("Error: ", TerminalStyle_Normal, TerminalColour_Red);
+        error_line("Duplicate declaration of package '%.*s'.\n", LIT(name));
+        error_line("\tThe package name is defined by the name of the directory the files are in, and that must be unique for the linker.\n");
+        error_line("\tUsing an import alias is not enough.\n");
+        try_pop_error_value();
+        mutex_unlock(&global_error_collector.mutex);
 
         // NOTE(Jeroen): Check if the conflicting imports are the same case-folded directory
         //               See https://github.com/odin-lang/Odin/issues/5080
         #if defined(GB_SYSTEM_WINDOWS)
-        String dir_a = pkg->files[0]->directory;
-        String dir_b = (*found)->files[0]->directory;
-
-        if (str_eq_ignore_case(dir_a, dir_b)) {
-            error_line("\tRemember that Windows case-folds paths, and so %.*s and %.*s are the same directory.\n", LIT(dir_a), LIT(dir_b));
+            error_line("\tRemember that Windows case-folds paths, and so 'My_Directory' and 'my_directory' are the same directory.\n");
             // Could also perform a FS lookup to check which of the two is the actual directory and suggest it, but this should be enough.
-        }
         #endif
 
         end_error_block();
@@ -7157,7 +7155,10 @@ gb_internal void check_parsed_files(Checker *c) {
         Scope *scope = create_scope_from_package(&c->builtin_ctx, p);
         p->decl_info = make_decl_info(scope, c->builtin_ctx.decl);
         string_map_set(&c->info.packages, p->fullpath, p);
+                    // map                key          value
 
+        // Package_Runtime -> the base:runtime.
+        // ScopeFlag_Init  -> the package of which odin.exe is being ran (odin run .)
         if (scope->flags&ScopeFlag_Init) {
             c->info.init_package = p;
             c->info.init_scope = scope;

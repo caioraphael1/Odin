@@ -1,5 +1,3 @@
-package aes
-
 import "core:bytes"
 import "core:crypto"
 import "core:crypto/_aes"

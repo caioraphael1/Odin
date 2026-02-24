@@ -1,8 +1,5 @@
 #+build !wasi
 #+build !js
-package filepath
-
-
 import "base:runtime"
 import os "core:os/os2"
 import "core:slice"

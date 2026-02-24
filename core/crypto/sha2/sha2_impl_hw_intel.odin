@@ -1,6 +1,4 @@
 #+build amd64
-package sha2
-
 // Based on the public domain code by Jeffrey Walton, though
 // realistically, there only is one sensible way to write this
 // and Intel's whitepaper covers it.

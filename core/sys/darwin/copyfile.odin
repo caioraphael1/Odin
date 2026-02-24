@@ -1,5 +1,3 @@
-package darwin
-
 import "core:sys/posix"
 
 copyfile_state_t :: distinct rawptr

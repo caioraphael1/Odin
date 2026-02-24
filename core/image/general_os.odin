@@ -1,6 +1,4 @@
 #+build !js
-package image
-
 import "core:os"
 
 

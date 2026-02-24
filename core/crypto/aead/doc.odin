@@ -53,4 +53,3 @@ Example:
         assert(bytes.equal(opened_pt, plaintext))
     }
 */
-package aead

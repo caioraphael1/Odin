@@ -1,6 +1,4 @@
 // A reader for the Windows `PE` executable format for debug purposes.
-package debug_pe
-
 PE_SIGNATURE_OFFSET_INDEX_POS :: 0x3c
 PE_SIGNATURE :: u32le(0x0000_4550) // "PE\x00\x00"
 PE_SIGNATURE_STRING :: "PE\x00\x00"

@@ -1,5 +1,3 @@
-package encoding_cbor
-
 import "base:intrinsics"
 
 import "core:encoding/json"

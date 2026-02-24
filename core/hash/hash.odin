@@ -1,5 +1,3 @@
-package hash
-
 import "core:mem"
 import "base:intrinsics"
 

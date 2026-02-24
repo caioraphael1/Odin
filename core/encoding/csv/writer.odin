@@ -1,5 +1,3 @@
-package encoding_csv
-
 import "core:io"
 import "core:strings"
 import "core:unicode/utf8"

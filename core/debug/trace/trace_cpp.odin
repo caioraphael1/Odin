@@ -1,7 +1,5 @@
 #+private file
 #+build linux, darwin
-package debug_trace
-
 import "base:intrinsics"
 import "base:runtime"
 import "core:strings"

@@ -5,8 +5,6 @@ See:
 - [[ https://datatracker.ietf.org/doc/html/rfc7693 ]]
 - [[ https://www.blake2.net/ ]]
 */
-package blake2s
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

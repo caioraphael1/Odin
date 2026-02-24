@@ -1,5 +1,3 @@
-package portmidi
-
 /* util.odin -- some helpful utilities for building midi 
                 applications that use PortMidi 
  */

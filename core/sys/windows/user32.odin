@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 import "base:intrinsics"
 import "core:c"
 foreign import user32 "system:User32.lib"

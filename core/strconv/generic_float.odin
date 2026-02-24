@@ -1,5 +1,3 @@
-package strconv
-
 import "decimal"
 
 Decimal_Slice :: struct {

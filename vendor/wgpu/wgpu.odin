@@ -1,5 +1,3 @@
-package wgpu
-
 import "base:intrinsics"
 
 WGPU_SHARED :: #config(WGPU_SHARED, false)

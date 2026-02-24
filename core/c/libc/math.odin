@@ -1,5 +1,3 @@
-package libc
-
 // 7.12 Mathematics
 
 import "base:intrinsics"

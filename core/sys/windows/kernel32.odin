@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import kernel32 "system:Kernel32.lib"
 foreign import one_core "system:OneCore.lib"
 

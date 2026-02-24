@@ -1,5 +1,3 @@
-package strings
-
 import "core:io"
 import "core:mem"
 import "core:unicode"

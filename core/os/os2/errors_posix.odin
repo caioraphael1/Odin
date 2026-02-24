@@ -1,7 +1,5 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-package os2
-
 import "core:sys/posix"
 
 _Platform_Error :: posix.Errno

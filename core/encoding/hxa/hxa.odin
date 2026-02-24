@@ -1,5 +1,3 @@
-package encoding_hxa
-
 import "core:mem"
 
 LATEST_VERSION :: 3

@@ -1,6 +1,4 @@
 #+build ignore
-package custom_formatter_example
-
 import "core:fmt"
 import "core:io"
 

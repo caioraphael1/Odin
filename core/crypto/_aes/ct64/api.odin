@@ -1,5 +1,3 @@
-package aes_ct64
-
 import "base:intrinsics"
 import "core:mem"
 

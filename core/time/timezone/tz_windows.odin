@@ -1,7 +1,5 @@
 #+build windows
 #+private
-package timezone
-
 import "core:strings"
 import "core:sys/windows"
 import "core:time/datetime"

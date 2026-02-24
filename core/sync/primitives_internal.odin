@@ -1,6 +1,4 @@
 #+private
-package sync
-
 import "core:time"
 import vg "core:sys/valgrind"
 _ :: vg

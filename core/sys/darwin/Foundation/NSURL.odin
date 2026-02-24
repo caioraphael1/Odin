@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSURL")
 URL :: struct{using _: Copying(URL)}
 

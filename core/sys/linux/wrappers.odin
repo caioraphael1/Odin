@@ -1,6 +1,4 @@
 #+build linux
-package linux
-
 /// Low 8 bits of the exit code
 /// Only retrieve the exit code if WIFEXITED(s) = true
 WEXITSTATUS :: #force_inline proc(s: u32) -> u32 {

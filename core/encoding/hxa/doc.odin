@@ -70,10 +70,10 @@ integer layer named "index" describing the vertices used to form polygons. The l
 polygon has a negative - 1 index to indicate the end of the polygon.
 
 For Example:
-	A quad and a tri with the vertex index:
-		[0, 1, 2, 3] [1, 4, 2]
-	is stored:
-		[0, 1, 2, -4, 1, 4, -3]
+    A quad and a tri with the vertex index:
+        [0, 1, 2, 3] [1, 4, 2]
+    is stored:
+        [0, 1, 2, -4, 1, 4, -3]
 
 The face stack stores values per face. the length of the face stack has to match the number of
 negative values in the index layer in the corner stack. The face stack can be used to store things
@@ -87,4 +87,3 @@ the length of the name followed by that many characters. Termination is not stor
 Text strings stored in meta data are stored the same way as names, but instead of a 8-bit unsigned
 integer a 32-bit unsigned integer is used.
 */
-package encoding_hxa

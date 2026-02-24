@@ -1,7 +1,5 @@
 #+build i386, amd64
 #+build linux
-package sysinfo
-
 import "core:sys/linux"
 import "core:strings"
 import "core:strconv"

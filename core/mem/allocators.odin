@@ -1,5 +1,3 @@
-package mem
-
 import "base:intrinsics"
 import "base:runtime"
 

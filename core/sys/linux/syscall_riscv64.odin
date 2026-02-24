@@ -1,6 +1,4 @@
 #+build riscv64
-package linux
-
 // https://github.com/riscv-collab/riscv-gnu-toolchain/blob/master/linux-headers/include/asm-generic/unistd.h
 
 SYS_io_setup                     :: uintptr(0)

@@ -1,5 +1,3 @@
-package encoding_endian
-
 import "base:intrinsics"
 import "core:math/bits"
 

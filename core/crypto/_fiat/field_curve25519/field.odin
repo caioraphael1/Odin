@@ -1,5 +1,3 @@
-package field_curve25519
-
 import "core:crypto"
 import "core:mem"
 

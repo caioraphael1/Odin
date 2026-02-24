@@ -1,5 +1,3 @@
-package libc
-
 // 7.26 Threads
 
 thrd_start_t :: proc "c" (rawptr) -> int

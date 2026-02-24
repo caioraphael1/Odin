@@ -7,8 +7,6 @@ See:
 - [[ https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.202.pdf ]]
 - [[ https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-185.pdf ]]
 */
-package shake
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

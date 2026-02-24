@@ -1,6 +1,4 @@
 // A generic in-place max heap on a slice for any type.
-package heap
-
 /*
 	Copyright 2022 Dale Weiler <weilercdale@gmail.com>.
 	Made available under Odin's license.

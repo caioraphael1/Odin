@@ -1,6 +1,4 @@
 #+build haiku
-package sys_haiku
-
 status_t       :: Errno
 bigtime_t      :: i64
 nanotime_t     :: i64

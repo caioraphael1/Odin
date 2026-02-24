@@ -1,6 +1,4 @@
 #+build !js
-package qoi
-
 import "core:os"
 import "core:bytes"
 

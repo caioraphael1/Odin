@@ -1,6 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
 @(enable_target_feature="sha")
 _mm_sha1msg1_epu32 :: #force_inline proc "c" (a, b: __m128i) -> __m128i {
 	return transmute(__m128i)sha1msg1(transmute(i32x4)a, transmute(i32x4)b)

@@ -6,8 +6,6 @@ See:
 - [[ https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf ]]
 - [[ https://eprint.iacr.org/2020/1244.pdf ]]
 */
-package ed25519
-
 import "core:crypto"
 import grp "core:crypto/_edwards25519"
 import "core:crypto/sha2"

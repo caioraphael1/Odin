@@ -1,6 +1,4 @@
 #+build !freestanding
-package crypto_hash
-
 import "core:mem"
 import "core:io"
 import os "core:os/os2"

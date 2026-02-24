@@ -1,6 +1,4 @@
 #+private
-package datetime
-
 // Internal helper functions for calendrical conversions
 
 import "base:intrinsics"

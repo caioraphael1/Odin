@@ -1,5 +1,3 @@
-package net
-
 /*
 Retrieve a platform specific error code, for when the categorized cross-platform errors are not enough.
 

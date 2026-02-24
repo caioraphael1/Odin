@@ -1,6 +1,4 @@
 #+private
-package slice
-
 import "base:builtin"
 import "base:intrinsics"
 _ :: intrinsics

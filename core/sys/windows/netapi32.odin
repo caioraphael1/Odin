@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import netapi32 "system:Netapi32.lib"
 
 @(default_calling_convention="system")

@@ -1,7 +1,5 @@
 #+build js, wasi, freestanding, essence
 #+private
-package runtime
-
 _heap_alloc :: proc(size: int, zero_memory := true) -> rawptr {
 	unimplemented("base:runtime 'heap_alloc' procedure is not supported on this platform")
 }

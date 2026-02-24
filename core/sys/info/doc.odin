@@ -77,8 +77,6 @@ Example:
 	CPU:  Intel(R) Core(TM) i5-7360U CPU @ 2.30GHz
 	RAM:  8.0 GiB
 */
-package sysinfo
-
 /*
 Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
 Made available under Odin's license.

@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 import "base:runtime"
 import "base:intrinsics"
 

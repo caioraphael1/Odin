@@ -1,6 +1,4 @@
 // Bindings for [[ stb_rect_pack.h ; https://github.com/nothings/stb/blob/master/stb_rect_pack.h ]].
-package stb_rect_pack
-
 import "core:c"
 
 #assert(size_of(b32) == size_of(c.int))

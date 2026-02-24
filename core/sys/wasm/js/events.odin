@@ -1,6 +1,4 @@
 #+build js wasm32, js wasm64p32
-package wasm_js_interface
-
 foreign import dom_lib "odin_dom"
 
 Event_Kind :: enum u32 {

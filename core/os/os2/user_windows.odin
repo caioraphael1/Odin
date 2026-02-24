@@ -1,5 +1,3 @@
-package os2
-
 import "base:runtime"
 @(require) import win32 "core:sys/windows"
 

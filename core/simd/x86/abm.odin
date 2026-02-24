@@ -1,6 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
 import "base:intrinsics"
 
 @(enable_target_feature="lzcnt")

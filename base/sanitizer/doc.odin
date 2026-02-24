@@ -34,5 +34,3 @@ are concurrently writing and accessing a memory location without proper syncroni
 For more information about the thread sanitizer see: https://clang.llvm.org/docs/ThreadSanitizer.html
 
 */
-package sanitizer
-

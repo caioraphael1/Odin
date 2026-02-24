@@ -1,6 +1,4 @@
 // A selection of cryptography algorithms and useful helper routines.
-package crypto
-
 import "base:runtime"
 import "core:mem"
 

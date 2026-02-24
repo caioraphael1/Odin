@@ -1,6 +1,4 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
-package posix
-
 import "base:intrinsics"
 
 import "core:c"

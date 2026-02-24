@@ -1,5 +1,3 @@
-package runtime
-
 import "base:intrinsics"
 
 udivmod128 :: proc "c" (a, b: u128, rem: ^u128) -> u128 {

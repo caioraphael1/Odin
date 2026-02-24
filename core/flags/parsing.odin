@@ -1,5 +1,3 @@
-package flags
-
 @(require) import "core:container/bit_array"
 @(require) import "core:fmt"
 

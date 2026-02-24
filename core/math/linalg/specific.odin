@@ -1,5 +1,3 @@
-package linalg
-
 import "base:builtin"
 import "base:intrinsics"
 import "core:math"

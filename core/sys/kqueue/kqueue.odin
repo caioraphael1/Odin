@@ -1,6 +1,4 @@
 #+build darwin, netbsd, openbsd, freebsd
-package kqueue
-
 when ODIN_OS == .Darwin {
 	foreign import lib "system:System"
 } else {

@@ -1,5 +1,3 @@
-package darwin
-
 import "base:intrinsics"
 
 import "core:sys/posix"

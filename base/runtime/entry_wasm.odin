@@ -1,8 +1,6 @@
 #+private
 #+build wasm32, wasm64p32
 #+no-instrumentation
-package runtime
-
 import "base:intrinsics"
 
 when !ODIN_TEST && !ODIN_NO_ENTRY_POINT {

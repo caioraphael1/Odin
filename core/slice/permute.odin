@@ -1,5 +1,3 @@
-package slice
-
 import "base:runtime"
 
 // An in-place permutation iterator.

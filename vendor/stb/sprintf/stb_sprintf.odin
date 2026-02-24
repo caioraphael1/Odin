@@ -1,5 +1,3 @@
-package stb_sprintf
-
 import "core:c"
 
 @(private)

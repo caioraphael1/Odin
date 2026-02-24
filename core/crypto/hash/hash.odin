@@ -1,5 +1,3 @@
-package crypto_hash
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

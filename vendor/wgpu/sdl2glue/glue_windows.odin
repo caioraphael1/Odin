@@ -1,5 +1,3 @@
-package wgpu_sdl2_glue
-
 import win "core:sys/windows"
 
 import  "vendor:sdl2"

@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSBundle")
 Bundle :: struct { using _: Object }
 

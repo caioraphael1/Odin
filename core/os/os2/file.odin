@@ -1,5 +1,3 @@
-package os2
-
 import "core:io"
 import "core:time"
 import "base:runtime"

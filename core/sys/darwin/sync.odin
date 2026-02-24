@@ -1,5 +1,3 @@
-package darwin
-
 // #define OS_WAIT_ON_ADDR_AVAILABILITY \
 // 	__API_AVAILABLE(macos(14.4), ios(17.4), tvos(17.4), watchos(10.4))
 when ODIN_OS == .Darwin {

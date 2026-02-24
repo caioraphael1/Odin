@@ -1,5 +1,3 @@
-package flags
-
 import "base:runtime"
 import "core:fmt"
 import "core:io"

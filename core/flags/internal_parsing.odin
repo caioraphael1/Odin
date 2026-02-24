@@ -1,6 +1,4 @@
 #+private
-package flags
-
 import "core:container/bit_array"
 import "core:strconv"
 import "core:strings"

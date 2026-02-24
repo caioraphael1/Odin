@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import "system:iphlpapi.lib"
 
 Address_Family :: enum u32 {

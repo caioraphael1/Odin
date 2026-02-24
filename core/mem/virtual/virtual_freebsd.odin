@@ -1,5 +1,3 @@
-package mem_virtual
-
 import "core:sys/posix"
 
 _reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {

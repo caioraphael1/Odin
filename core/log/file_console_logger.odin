@@ -1,7 +1,5 @@
 #+build !freestanding
 #+build !orca
-package log
-
 import "base:runtime"
 import "core:fmt"
 import "core:strings"

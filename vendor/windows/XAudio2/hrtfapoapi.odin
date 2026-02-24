@@ -1,7 +1,5 @@
 #+build windows
 
-package windows_xaudio2
-
 import win "core:sys/windows"
 
 foreign import hrtf "system:hrtfapo.lib"

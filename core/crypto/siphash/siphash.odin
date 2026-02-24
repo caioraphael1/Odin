@@ -7,8 +7,6 @@ See:
 - [[ https://github.com/veorq/SipHash ]]
 - [[ https://www.aumasson.jp/siphash/siphash.pdf ]]
 */
-package siphash
-
 /*
     Copyright 2022 zhibog
     Made available under Odin's license.

@@ -1,5 +1,3 @@
-package vendor_openexr
-
 import "core:c"
 
 #assert(size_of(c.int) == size_of(i32))

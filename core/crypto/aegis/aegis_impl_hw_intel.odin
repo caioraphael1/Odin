@@ -1,6 +1,4 @@
 #+build amd64
-package aegis
-
 import "base:intrinsics"
 import "core:crypto/aes"
 import "core:encoding/endian"

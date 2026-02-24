@@ -1,5 +1,3 @@
-package objc_Foundation
-
 ModalResponse :: enum UInteger {
 	Cancel = 0,
 	OK = 1,

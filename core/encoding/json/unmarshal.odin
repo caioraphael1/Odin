@@ -1,5 +1,3 @@
-package encoding_json
-
 import "core:mem"
 import "core:math"
 import "core:reflect"

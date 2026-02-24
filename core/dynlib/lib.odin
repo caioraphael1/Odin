@@ -1,5 +1,3 @@
-package dynlib
-
 import "base:intrinsics"
 import "core:reflect"
 import "base:runtime"

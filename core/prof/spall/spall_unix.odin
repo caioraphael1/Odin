@@ -1,7 +1,5 @@
 #+private
 #+build darwin, freebsd, openbsd, netbsd
-package spall
-
 // Only for types.
 import "core:os"
 

@@ -1,5 +1,3 @@
-package example
-
 import "core:dynlib"
 import "core:fmt"
 

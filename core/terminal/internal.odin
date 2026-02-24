@@ -1,5 +1,3 @@
-package terminal
-
 import os "core:os/os2"
 import "core:strings"
 

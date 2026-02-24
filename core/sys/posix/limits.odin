@@ -1,6 +1,4 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
-package posix
-
 // limits.h - implementation-defined constants
 
 // NOTE: numerical limits are left out because Odin provides `min(T)` and `max(T)`.

@@ -1,6 +1,4 @@
 #+build !js
-package fontstash
-
 import "core:log"
 import "core:os"
 

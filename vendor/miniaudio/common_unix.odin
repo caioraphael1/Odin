@@ -1,6 +1,4 @@
 #+build !windows
-package miniaudio
-
 import "core:sys/posix"
 import "core:c"
 

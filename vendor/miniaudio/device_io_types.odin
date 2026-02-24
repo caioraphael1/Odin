@@ -1,5 +1,3 @@
-package miniaudio
-
 import "core:c"
 
 SUPPORT_WASAPI     :: ODIN_OS == .Windows

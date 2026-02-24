@@ -1,6 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
 import "core:simd"
 
 bf16 :: u16

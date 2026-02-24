@@ -1,5 +1,3 @@
-package slice
-
 import "base:builtin"
 import "base:runtime"
 

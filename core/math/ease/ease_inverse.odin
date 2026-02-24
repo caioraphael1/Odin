@@ -2,8 +2,6 @@
 // These are the mathematical inverses of the corresponding easing functions,
 // allowing you to reverse the transformation:
 //    if y = ease_fn(x), then x = ease_fn_inverse(y) + some_imprecision
-package ease
-
 @(require) import "core:math"
 import "base:intrinsics"
 

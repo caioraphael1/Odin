@@ -1,4 +1,3 @@
-package time
 // Parsing ISO 8601 date/time strings into time.Time.
 
 import dt "core:time/datetime"

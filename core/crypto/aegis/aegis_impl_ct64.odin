@@ -1,5 +1,3 @@
-package aegis
-
 import aes "core:crypto/_aes/ct64"
 import "core:encoding/endian"
 import "core:mem"

@@ -1,5 +1,3 @@
-package webgl
-
 foreign import "webgl"
 
 import glm "core:math/linalg/glsl"

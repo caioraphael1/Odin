@@ -1,6 +1,4 @@
 #+build !amd64
-package chacha20_simd256
-
 import "base:intrinsics"
 import "core:crypto/_chacha20"
 

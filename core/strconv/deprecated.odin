@@ -1,5 +1,3 @@
-package strconv
-
 // (2025-06-05) These procedures are to be removed at a later release.
 
 @(deprecated="Use write_bits instead")

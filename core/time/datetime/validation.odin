@@ -1,6 +1,3 @@
-package datetime
-// Validation helpers
-
 /*
 Check if a year is a leap year.
 */

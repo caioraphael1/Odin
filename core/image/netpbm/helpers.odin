@@ -1,5 +1,3 @@
-package netpbm
-
 import "core:bytes"
 import "core:image"
 

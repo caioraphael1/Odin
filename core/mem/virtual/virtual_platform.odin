@@ -1,6 +1,4 @@
 #+private
-package mem_virtual
-
 Platform_Memory_Block :: struct {
     block:      Memory_Block,
     committed:  uint,

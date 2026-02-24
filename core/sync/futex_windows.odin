@@ -1,7 +1,5 @@
 #+private
 #+build windows
-package sync
-
 import "core:time"
 
 foreign import Synchronization "system:Synchronization.lib"

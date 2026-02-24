@@ -1,5 +1,3 @@
-package bufio
-
 import "core:io"
 import "core:mem"
 import "core:unicode/utf8"

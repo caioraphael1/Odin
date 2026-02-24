@@ -1,5 +1,3 @@
-package slice
-
 import "core:mem"
 
 Ordering :: enum {

@@ -1,7 +1,5 @@
 #+build darwin
 
-package glfw
-
 import NS "core:sys/darwin/Foundation"
 
 @(default_calling_convention="c", link_prefix="glfw")

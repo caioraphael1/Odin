@@ -1,7 +1,5 @@
 #+build haiku
 #+private
-package dynlib
-
 import "base:runtime"
 
 _LIBRARY_FILE_EXTENSION :: ""

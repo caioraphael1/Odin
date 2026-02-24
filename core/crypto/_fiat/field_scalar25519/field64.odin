@@ -22,8 +22,6 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package field_scalar25519
-
 // The file provides arithmetic on the field Z/(2^252+27742317777372353535851937790883648493)
 // using a 64-bit Montgomery form internal representation.  It is derived
 // primarily from the machine generated Golang output from the fiat-crypto

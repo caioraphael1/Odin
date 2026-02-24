@@ -1,7 +1,5 @@
 #+build windows
 
-package sys_windows
-
 foreign import shcore "system:Shcore.lib"
 
 @(default_calling_convention="system")

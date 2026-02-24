@@ -1,6 +1,4 @@
 // Procedures for manipulation of `[]byte` slices.
-package bytes
-
 import "base:intrinsics"
 import "core:mem"
 import "core:simd"

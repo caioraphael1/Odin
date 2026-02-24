@@ -1,5 +1,3 @@
-package deoxysii
-
 import "base:intrinsics"
 import "core:crypto"
 import aes "core:crypto/_aes/ct64"

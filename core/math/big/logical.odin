@@ -1,5 +1,3 @@
-package math_big
-
 import "core:mem"
 /*
 	Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.

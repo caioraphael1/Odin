@@ -1,6 +1,4 @@
 #+build freebsd
-package unix
-
 import "base:intrinsics"
 
 sysctl :: proc(mib: []i32, val: ^$T) -> (ok: bool) {

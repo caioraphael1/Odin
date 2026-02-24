@@ -1,5 +1,3 @@
-package _aes
-
 // KEY_SIZE_128 is the AES-128 key size in bytes.
 KEY_SIZE_128 :: 16
 // KEY_SIZE_192 is the AES-192 key size in bytes.

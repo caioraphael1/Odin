@@ -76,94 +76,93 @@ e.g. `cbor_tag:"69"` or `cbor_tag:"my_tag"`.
 You can look at the default tags provided for pointers on how these implementations work.
 
 Example:
-	package main
+    package main
 
-	import "base:intrinsics"
+    import "base:intrinsics"
 
-	import "core:encoding/cbor"
-	import "core:fmt"
-	import "core:reflect"
-	import "core:time"
+    import "core:encoding/cbor"
+    import "core:fmt"
+    import "core:reflect"
+    import "core:time"
 
-	Possibilities :: union {
-		string,
-		int,
-	}
+    Possibilities :: union {
+        string,
+        int,
+    }
 
-	Data :: struct {
-		str: string,
-		neg: cbor.Negative_U16,            // Store a CBOR value directly.
-		now: time.Time `cbor_tag:"epoch"`, // Wrapped in the epoch tag.
-		ignore_this: ^Data `cbor:"-"`,     // Ignored by implementation.
-		renamed: f32 `cbor:"renamed :)"`,  // Renamed when encoded.
-		my_union: Possibilities,           // Union support.
+    Data :: struct {
+        str: string,
+        neg: cbor.Negative_U16,            // Store a CBOR value directly.
+        now: time.Time `cbor_tag:"epoch"`, // Wrapped in the epoch tag.
+        ignore_this: ^Data `cbor:"-"`,     // Ignored by implementation.
+        renamed: f32 `cbor:"renamed :)"`,  // Renamed when encoded.
+        my_union: Possibilities,           // Union support.
 
-		my_raw: [8]u32 `cbor_tag:"raw"`, // Custom tag that just writes the value as bytes.
-	}
+        my_raw: [8]u32 `cbor_tag:"raw"`, // Custom tag that just writes the value as bytes.
+    }
 
-	main :: proc() {
-		// Example custom tag implementation that instead of breaking down all parts,
-		// just writes the value as a big byte blob. This is an advanced feature but very powerful.
-		RAW_TAG_NR :: 200
-		cbor.tag_register_number({
-			marshal = proc(_: ^cbor.Tag_Implementation, e: cbor.Encoder, v: any) -> cbor.Marshal_Error {
-				cbor._encode_u8(e.writer, RAW_TAG_NR, .Tag) or_return
-				return cbor.err_conv(cbor._encode_bytes(e, reflect.as_bytes(v)))
-			},
-			unmarshal = proc(_: ^cbor.Tag_Implementation, d: cbor.Decoder, _: cbor.Tag_Number, v: any) -> (cbor.Unmarshal_Error) {
-				hdr := cbor._decode_header(d.reader) or_return
-				maj, add := cbor._header_split(hdr)
-				if maj != .Bytes {
-					return .Bad_Tag_Value
-				}
+    main :: proc() {
+        // Example custom tag implementation that instead of breaking down all parts,
+        // just writes the value as a big byte blob. This is an advanced feature but very powerful.
+        RAW_TAG_NR :: 200
+        cbor.tag_register_number({
+            marshal = proc(_: ^cbor.Tag_Implementation, e: cbor.Encoder, v: any) -> cbor.Marshal_Error {
+                cbor._encode_u8(e.writer, RAW_TAG_NR, .Tag) or_return
+                return cbor.err_conv(cbor._encode_bytes(e, reflect.as_bytes(v)))
+            },
+            unmarshal = proc(_: ^cbor.Tag_Implementation, d: cbor.Decoder, _: cbor.Tag_Number, v: any) -> (cbor.Unmarshal_Error) {
+                hdr := cbor._decode_header(d.reader) or_return
+                maj, add := cbor._header_split(hdr)
+                if maj != .Bytes {
+                    return .Bad_Tag_Value
+                }
 
-				bytes := cbor.err_conv(cbor._decode_bytes(d, add, maj)) or_return
-				intrinsics.mem_copy_non_overlapping(v.data, raw_data(bytes), len(bytes))
-				return nil
-			},
-		}, RAW_TAG_NR, "raw")
+                bytes := cbor.err_conv(cbor._decode_bytes(d, add, maj)) or_return
+                intrinsics.mem_copy_non_overlapping(v.data, raw_data(bytes), len(bytes))
+                return nil
+            },
+        }, RAW_TAG_NR, "raw")
 
-		now := time.Time{_nsec = 1701117968 * 1e9}
+        now := time.Time{_nsec = 1701117968 * 1e9}
 
-		data := Data{
-			str         = "Hello, World!",
-			neg         = 300,
-			now         = now,
-			ignore_this = &Data{},
-			renamed     = 123123.125,
-			my_union    = 3,
-			my_raw      = {1=1, 2=2, 3=3},
-		}
+        data := Data{
+            str         = "Hello, World!",
+            neg         = 300,
+            now         = now,
+            ignore_this = &Data{},
+            renamed     = 123123.125,
+            my_union    = 3,
+            my_raw      = {1=1, 2=2, 3=3},
+        }
 
-		// Marshal the struct into binary CBOR.
-		binary, err := cbor.marshal(data, cbor.ENCODE_FULLY_DETERMINISTIC)
-		fmt.assertf(err == nil, "marshal error: %v", err)
-		defer _ = delete_slice(binary)
+        // Marshal the struct into binary CBOR.
+        binary, err := cbor.marshal(data, cbor.ENCODE_FULLY_DETERMINISTIC)
+        fmt.assertf(err == nil, "marshal error: %v", err)
+        defer _ = delete_slice(binary)
 
-		// Decode the binary data into a `cbor.Value`.
-		decoded, derr := cbor.decode(string(binary))
-		fmt.assertf(derr == nil, "decode error: %v", derr)
-		defer cbor.destroy(decoded)
+        // Decode the binary data into a `cbor.Value`.
+        decoded, derr := cbor.decode(string(binary))
+        fmt.assertf(derr == nil, "decode error: %v", derr)
+        defer cbor.destroy(decoded)
 
-		// Turn the CBOR into a human readable representation defined as the diagnostic format in [[RFC 8949 Section 8;https://www.rfc-editor.org/rfc/rfc8949.html#name-diagnostic-notation]].
-		diagnosis, eerr := cbor.to_diagnostic_format(decoded)
-		fmt.assertf(eerr == nil, "to diagnostic error: %v", eerr)
-		defer _ = delete_slice(diagnosis)
+        // Turn the CBOR into a human readable representation defined as the diagnostic format in [[RFC 8949 Section 8;https://www.rfc-editor.org/rfc/rfc8949.html#name-diagnostic-notation]].
+        diagnosis, eerr := cbor.to_diagnostic_format(decoded)
+        fmt.assertf(eerr == nil, "to diagnostic error: %v", eerr)
+        defer _ = delete_slice(diagnosis)
 
-		fmt.println(diagnosis)
-	}
+        fmt.println(diagnosis)
+    }
 
 Output:
-	{
-		"my_raw": 200(h'00001000200030000000000000000000'),
-		"my_union": 1010([
-			"int",
-			3
-		]),
-		"neg": -301,
-		"now": 1(1701117968),
-		"renamed :)": 123123.12500000,
-		"str": "Hello, World!"
-	}
+    {
+        "my_raw": 200(h'00001000200030000000000000000000'),
+        "my_union": 1010([
+            "int",
+            3
+        ]),
+        "neg": -301,
+        "now": 1(1701117968),
+        "renamed :)": 123123.12500000,
+        "str": "Hello, World!"
+    }
 */
-package encoding_cbor

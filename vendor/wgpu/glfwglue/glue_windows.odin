@@ -1,5 +1,3 @@
-package wgpu_glfw_glue
-
 import win "core:sys/windows"
 
 import     "vendor:glfw"

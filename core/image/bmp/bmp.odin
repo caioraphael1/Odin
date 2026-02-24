@@ -1,6 +1,4 @@
 // Reader and writer for Microsoft `BMP` images.
-package core_image_bmp
-
 import "core:image"
 import "core:bytes"
 import "core:compress"

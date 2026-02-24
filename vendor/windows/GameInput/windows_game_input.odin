@@ -5,8 +5,6 @@
 
     Windows SDK 10.0.26100.0 is at least required to link with.
 */
-package windows_game_input
-
 foreign import wgi "system:gameinput.lib"
 
 import win "core:sys/windows"

@@ -1,5 +1,3 @@
-package odin_tokenizer
-
 import "core:strings"
 
 Token :: struct {

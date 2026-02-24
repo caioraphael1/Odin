@@ -1,6 +1,4 @@
 #+build js wasm32, js wasm64p32
-package wasm_js_interface
-
 import "core:mem"
 import "base:intrinsics"
 

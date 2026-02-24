@@ -372,14 +372,6 @@ gb_internal OdinDocString odin_doc_pkg_doc_string(OdinDocWriter *w, AstPackage *
     }
     auto buf = array_make<u8>(permanent_allocator(), 0, 0); // Minor leak
 
-    for_array(i, pkg->files) {
-        AstFile *f = pkg->files[i];
-        if (f->pkg_decl) {
-            GB_ASSERT(f->pkg_decl->kind == Ast_PackageDecl);
-            odin_doc_append_comment_group_string(&buf, f->pkg_decl->PackageDecl.docs);
-        }
-    }
-
     return odin_doc_write_string_without_cache(w, make_string(buf.data, buf.count));
 }
 

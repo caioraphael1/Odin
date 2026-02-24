@@ -1,6 +1,4 @@
 // `Shoco` short string compression and decompression.
-package compress_shoco
-
 /*
     Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
     Made available under Odin's license.

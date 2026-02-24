@@ -8,8 +8,6 @@ crypto/legacy/keccak.
 See:
 - [[ https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.202.pdf ]]
 */
-package sha3
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

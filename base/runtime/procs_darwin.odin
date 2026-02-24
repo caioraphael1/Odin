@@ -1,6 +1,4 @@
 #+private
-package runtime
-
 @(priority_index=-1e5)
 foreign import ObjC "system:objc"
 

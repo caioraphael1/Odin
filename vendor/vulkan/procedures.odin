@@ -1,5 +1,3 @@
-package vulkan
-
 import "core:c"
 
 // Loader Procedure Types

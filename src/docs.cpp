@@ -197,15 +197,6 @@ gb_internal void print_doc_package(CheckerInfo *info, AstPackage *pkg) {
 
     print_doc_line(0, "package %.*s", LIT(pkg->name));
 
-
-    for_array(i, pkg->files) {
-        AstFile *f = pkg->files[i];
-        if (f->pkg_decl) {
-            GB_ASSERT(f->pkg_decl->kind == Ast_PackageDecl);
-            print_doc_comment_group_string(1, f->pkg_decl->PackageDecl.docs);
-        }
-    }
-
     if (pkg->scope != nullptr) {
         auto entities = array_make<Entity *>(heap_allocator(), 0, pkg->scope->elements.count);
         defer (array_free(&entities));

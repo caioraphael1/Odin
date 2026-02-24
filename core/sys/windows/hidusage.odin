@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 USAGE :: distinct USHORT
 PUSAGE :: ^USAGE
 

@@ -1,5 +1,3 @@
-package encoding_varint
-
 /*
     Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
     Made available under Odin's license.

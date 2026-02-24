@@ -1,5 +1,3 @@
-package linalg
-
 import "core:math"
 
 

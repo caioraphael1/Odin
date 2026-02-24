@@ -1,6 +1,4 @@
 #+private
-package sync
-
 foreign import libc "system:c"
 
 foreign libc {

@@ -1,6 +1,4 @@
 #+private
-package os2
-
 import "core:time"
 import "base:runtime"
 import "core:sys/linux"

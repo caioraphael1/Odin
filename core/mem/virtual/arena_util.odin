@@ -1,5 +1,3 @@
-package mem_virtual
-
 import "base:runtime"
 _ :: runtime
 

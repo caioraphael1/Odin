@@ -1,5 +1,3 @@
-package fmt
-
 import "base:intrinsics"
 import "base:runtime"
 import "core:math"

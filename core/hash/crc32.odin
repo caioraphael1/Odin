@@ -1,5 +1,3 @@
-package hash
-
 import "base:intrinsics"
 
 @(optimization_mode="favor_size")

@@ -1,6 +1,4 @@
 #+build !js
-package netpbm
-
 import "core:os"
 
 

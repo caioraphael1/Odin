@@ -1,6 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
 @(enable_target_feature = "bmi2")
 _bzhi_u32 :: #force_inline proc "c" (a, index: u32) -> u32 {
 	return bzhi_u32(a, index)

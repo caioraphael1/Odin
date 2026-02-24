@@ -1,6 +1,4 @@
 // Bindings for [[ GLFW ; https://www.glfw.org ]]
-package glfw
-
 import glfw "bindings"
 
 WindowHandle  :: glfw.WindowHandle

@@ -1,5 +1,3 @@
-package xxhash
-
 /*
 	An implementation of Yann Collet's [xxhash Fast Hash Algorithm](https://cyan4973.github.io/xxHash/).
 	Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.

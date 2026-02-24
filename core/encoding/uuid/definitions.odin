@@ -1,5 +1,3 @@
-package uuid
-
 // A RFC 4122 Universally Unique Identifier
 Identifier :: distinct [16]u8
 

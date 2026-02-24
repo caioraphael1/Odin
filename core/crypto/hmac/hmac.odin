@@ -4,8 +4,6 @@
 See:
 - [[ https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf ]]
 */
-package hmac
-
 import "core:crypto"
 import "core:crypto/hash"
 import "core:mem"

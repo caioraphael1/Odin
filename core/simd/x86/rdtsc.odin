@@ -1,7 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
-
 _rdtsc :: #force_inline proc "c" () -> u64 {
 	return rdtsc()
 }

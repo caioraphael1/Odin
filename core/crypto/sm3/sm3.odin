@@ -4,8 +4,6 @@
 See:
 - [[ https://datatracker.ietf.org/doc/html/draft-sca-cfrg-sm3-02 ]]
 */
-package sm3
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 LCTYPE :: distinct DWORD
 
 LOCALE_NAME_MAX_LENGTH     :: 85

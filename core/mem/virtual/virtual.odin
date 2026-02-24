@@ -1,5 +1,3 @@
-package mem_virtual
-
 import "core:mem"
 import "base:intrinsics"
 // import "base:sanitizer"

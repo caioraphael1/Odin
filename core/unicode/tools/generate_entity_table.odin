@@ -1,5 +1,3 @@
-package xml_example
-
 import "core:encoding/xml"
 import "core:os"
 import path "core:path/filepath"

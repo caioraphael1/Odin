@@ -1,6 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
 @(enable_target_feature="fxsr")
 _fxsave :: #force_inline proc "c" (mem_addr: rawptr) {
 	fxsave(mem_addr)

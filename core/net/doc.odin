@@ -28,8 +28,6 @@ this and panic to avoid temp allocations prematurely overwriting data and garbli
 or worse. This means that should you replace the temp allocator with an insufficient one,
 we'll do our best to loudly complain the first time you try it.
 */
-package net
-
 /*
 	Copyright 2022 Tetralux        <tetraluxonpc@gmail.com>
 	Copyright 2022 Colin Davidson  <colrdavidson@gmail.com>

@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import "system:icu.lib"
 
 UError :: enum i32 {

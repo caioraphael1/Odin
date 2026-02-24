@@ -2,8 +2,6 @@
 #+build !linux
 #+build !freebsd
 #+build !windows
-package net
-
 @(private="file", thread_local)
 _last_error: i32
 

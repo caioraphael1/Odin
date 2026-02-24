@@ -1,6 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
 @(enable_target_feature = "aes")
 _mm_aesdec_si128 :: #force_inline proc "c" (a, b: __m128i) -> __m128i {
     return aesdec(a, b)

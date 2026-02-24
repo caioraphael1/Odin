@@ -1,6 +1,4 @@
 #+build !js
-package wasm_js_interface
-
 import "base:runtime"
 
 

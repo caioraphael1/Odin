@@ -1,7 +1,5 @@
 #+build windows
 
-package glfw
-
 import win32 "core:sys/windows"
 
 @(default_calling_convention="c", link_prefix="glfw")

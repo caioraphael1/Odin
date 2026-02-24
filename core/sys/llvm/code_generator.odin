@@ -1,7 +1,5 @@
 // Code Generator Intrinsics
 
-package sys_llvm
-
 @(default_calling_convention="none")
 foreign _ {
 	@(link_name="llvm.returnaddress")

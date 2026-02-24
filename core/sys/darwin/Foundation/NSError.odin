@@ -1,5 +1,3 @@
-package objc_Foundation
-
 foreign import "system:Foundation.framework"
 
 ErrorDomain :: ^String

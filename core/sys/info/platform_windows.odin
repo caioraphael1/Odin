@@ -1,5 +1,3 @@
-package sysinfo
-
 import sys "core:sys/windows"
 import "base:intrinsics"
 import "core:strings"

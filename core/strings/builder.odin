@@ -1,5 +1,3 @@
-package strings
-
 import "base:runtime"
 import "core:unicode/utf8"
 import "core:strconv"

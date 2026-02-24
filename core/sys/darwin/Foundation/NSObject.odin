@@ -1,5 +1,3 @@
-package objc_Foundation
-
 import "base:intrinsics"
 
 methodSignatureForSelector :: proc "c" (obj: ^Object, selector: SEL) -> rawptr {

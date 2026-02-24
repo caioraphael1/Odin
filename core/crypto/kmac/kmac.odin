@@ -4,8 +4,6 @@
 See:
 - [[ https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-185.pdf ]]
 */
-package kmac
-
 import "../_sha3"
 import "core:crypto"
 import "core:crypto/shake"

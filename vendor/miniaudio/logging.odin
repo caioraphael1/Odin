@@ -1,5 +1,3 @@
-package miniaudio
-
 import "core:c/libc"
 
 foreign import lib { LIB }

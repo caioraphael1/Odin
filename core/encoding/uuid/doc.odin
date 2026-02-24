@@ -20,27 +20,26 @@ cryptographically-secure, per RFC 9562's suggestion.
 - Version 6 without either a clock or node argument.
 - Version 7 in all cases.
 
-Example:	
-	package main
+Example:    
+    package main
 
-	import "core:crypto"
-	import "core:encoding/uuid"
+    import "core:crypto"
+    import "core:encoding/uuid"
 
-	main :: proc() {
-		my_uuid: uuid.Identifier
+    main :: proc() {
+        my_uuid: uuid.Identifier
 
-		{
-			// This scope will have a CSPRNG.
-			random_generator := crypto.random_generator()
-			my_uuid = uuid.generate_v7()
-		}
+        {
+            // This scope will have a CSPRNG.
+            random_generator := crypto.random_generator()
+            my_uuid = uuid.generate_v7()
+        }
 
-		// Back to the default random number generator.
-	}
+        // Back to the default random number generator.
+    }
 
 
 For more information on the specifications, see here:
 - [[ https://www.rfc-editor.org/rfc/rfc4122.html ]]
 - [[ https://www.rfc-editor.org/rfc/rfc9562.html ]]
 */
-package uuid

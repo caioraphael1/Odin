@@ -1,6 +1,4 @@
 // Reader and writer for 8-bit RGB and RGBA `TGA` images.
-package tga
-
 /*
     Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
     Made available under Odin's license.

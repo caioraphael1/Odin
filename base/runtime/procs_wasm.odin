@@ -1,6 +1,4 @@
 #+build wasm32, wasm64p32
-package runtime
-
 @(private="file")
 ti_int :: struct #raw_union {
 	using s: struct { lo, hi: u64 },

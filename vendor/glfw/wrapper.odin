@@ -1,5 +1,3 @@
-package glfw
-
 import "core:c"
 import glfw "bindings"
 

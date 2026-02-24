@@ -20,8 +20,6 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package aes_ct64
-
 add_round_key :: proc(q: ^[8]u64, sk: []u64) #no_bounds_check {
 	ensure(len(sk) >= 8, "aes/ct64: invalid round key size")
 

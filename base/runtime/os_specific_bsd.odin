@@ -1,7 +1,5 @@
 #+build freebsd, openbsd, netbsd
 #+private
-package runtime
-
 foreign import libc "system:c"
 
 _HAS_RAND_BYTES :: true

@@ -2,8 +2,6 @@
 Various allocators and provides helpers for dealing with memory, pointers and slices.
 
 The documentation below describes basic concepts, applicable to the `mem`
-package.
-
 ## Pointers, multipointers, and slices
 
 A *pointer* is an abstraction of an *address*, a numberic value representing the
@@ -105,4 +103,3 @@ Higher-level allocation procedures follow the following naming scheme:
 - `make`: Allocate a group of objects
 - `delete_slice`: Free a group of objects (opposite of `make`)
 */
-package mem

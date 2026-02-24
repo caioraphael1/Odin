@@ -1,5 +1,3 @@
-package runtime
-
 import "base:intrinsics"
 
 // This is an implementation of the Chacha8Rand DRBG, as specified

@@ -1,7 +1,5 @@
 #+build windows
 #+private
-package dynlib
-
 import "base:runtime"
 
 import win32 "core:sys/windows"

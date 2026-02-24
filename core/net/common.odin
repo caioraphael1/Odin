@@ -1,6 +1,4 @@
 #+build windows, linux, darwin, freebsd
-package net
-
 /*
     Package net implements cross-platform Berkeley Sockets, DNS resolution and associated procedures.
     For other protocols and their features, see subdirectories of this package.

@@ -1,6 +1,4 @@
 // Bindings for [[ libz ; https://zlib.net ]] ZLIB compression library.
-package vendor_zlib
-
 import "core:c"
 
 when ODIN_OS == .Windows {

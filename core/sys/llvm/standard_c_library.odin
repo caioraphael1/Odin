@@ -1,7 +1,5 @@
 // Standard C Library Intrinsics
 
-package sys_llvm
-
 @(default_calling_convention="none")
 foreign _ {
     when size_of(int) == 4 {

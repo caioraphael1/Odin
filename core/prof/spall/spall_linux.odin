@@ -1,6 +1,4 @@
 #+private
-package spall
-
 // Only for types and constants.
 import "core:os"
 

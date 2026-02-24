@@ -1,5 +1,3 @@
-package _chacha20
-
 import "core:encoding/endian"
 import "core:math/bits"
 import "core:mem"

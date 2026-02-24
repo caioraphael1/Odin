@@ -1,6 +1,4 @@
 // Timezone lookup.
-package timezone
-
 import "core:fmt"
 import "core:slice"
 import "core:time"

@@ -1,6 +1,4 @@
 #+private
-package os2
-
 import "base:intrinsics"
 import "base:runtime"
 import "core:math/rand"

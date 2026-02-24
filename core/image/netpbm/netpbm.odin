@@ -1,6 +1,4 @@
 #+vet !using-stmt
-package netpbm
-
 import "core:bytes"
 import "core:fmt"
 import "core:image"

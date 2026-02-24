@@ -1,7 +1,5 @@
 #+build riscv64
 #+build linux
-package sysinfo
-
 import "base:intrinsics"
 
 import "core:sys/linux"

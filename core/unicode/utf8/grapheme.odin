@@ -1,5 +1,3 @@
-package utf8
-
 import "base:runtime"
 import "core:unicode"
 

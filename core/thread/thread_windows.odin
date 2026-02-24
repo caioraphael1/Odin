@@ -1,7 +1,5 @@
 #+build windows
 #+private
-package thread
-
 import "base:intrinsics"
 import "base:runtime"
 import "core:sync"

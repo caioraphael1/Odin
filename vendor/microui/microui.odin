@@ -23,8 +23,6 @@ An Odin-native source port of [[ rxi's microui ; https://github.com/rxi/microui 
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 ** IN THE SOFTWARE.
 */
-package microui
-
 import "core:fmt"
 import "core:sort"
 import "core:strings"

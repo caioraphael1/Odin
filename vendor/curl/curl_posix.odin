@@ -1,6 +1,4 @@
 #+build !windows
-package vendor_curl
-
 import "core:sys/posix"
 
 platform_sockaddr :: posix.sockaddr

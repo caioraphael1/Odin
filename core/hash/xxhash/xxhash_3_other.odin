@@ -1,7 +1,5 @@
 #+build !amd64
 #+build !i386
-package xxhash
-
 import "base:runtime"
 
 XXH_NATIVE_WIDTH :: min(XXH_MAX_WIDTH,

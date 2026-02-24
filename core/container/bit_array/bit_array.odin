@@ -1,5 +1,3 @@
-package container_dynamic_bit_array
-
 import "base:builtin"
 import "base:intrinsics"
 import "core:mem"

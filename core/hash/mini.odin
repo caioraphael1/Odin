@@ -1,5 +1,3 @@
-package hash
-
 ginger_hash8 :: proc(x: u8) -> u8 {
 	h := x * 251
 	h += ~(x << 3)

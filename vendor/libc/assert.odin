@@ -1,5 +1,3 @@
-package odin_libc
-
 import "base:runtime"
 
 @(require, linkage="strong", link_name="__odin_libc_assert_fail")

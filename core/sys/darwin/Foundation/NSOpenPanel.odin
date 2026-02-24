@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSOpenPanel")
 OpenPanel :: struct{ using _: SavePanel }
 

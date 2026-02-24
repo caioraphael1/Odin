@@ -2,8 +2,6 @@
 //
 // This package does not deal with Windows/NT paths with volume letters or backslashes
 // To manipulate operating system specific paths, use the path/filepath package
-package slashpath
-
 import "base:runtime"
 import "core:strings"
 import "core:mem"

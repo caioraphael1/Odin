@@ -1,7 +1,5 @@
 #+private
 #+build freebsd
-package sync
-
 import "core:c"
 import "core:sys/freebsd"
 import "core:time"

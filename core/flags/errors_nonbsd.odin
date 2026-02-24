@@ -1,7 +1,5 @@
 #+build !netbsd
 #+build !openbsd
-package flags
-
 import "base:runtime"
 import "core:net"
 

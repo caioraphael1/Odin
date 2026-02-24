@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import userenv "system:Userenv.lib"
 
 @(default_calling_convention="system")

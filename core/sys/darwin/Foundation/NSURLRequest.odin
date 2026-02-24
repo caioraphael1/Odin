@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class = "URLRequest")
 URLRequest :: struct { using _: Object }
 

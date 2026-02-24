@@ -1,5 +1,3 @@
-package libc
-
 import "core:c"
 
 #assert(!ODIN_NO_CRT, `"core:c/libc" cannot be imported when '-no-crt' is used`)

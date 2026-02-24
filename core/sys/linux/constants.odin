@@ -1,5 +1,3 @@
-package linux
-
 /*
 	Standard input file descriptor
 */

@@ -1,7 +1,5 @@
 #+private
 #+build linux, darwin, netbsd, freebsd, openbsd, wasi
-package os2
-
 // This implementation is for all systems that have POSIX-compliant filesystem paths.
 
 _are_paths_identical :: proc(a, b: string) -> (identical: bool) {

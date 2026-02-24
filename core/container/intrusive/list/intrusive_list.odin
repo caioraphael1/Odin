@@ -1,5 +1,3 @@
-package container_intrusive_list
-
 import "base:intrinsics"
 
 // An intrusive doubly-linked list

@@ -1,7 +1,5 @@
 #+build linux, darwin, freebsd, openbsd, netbsd
 #+private
-package dynlib
-
 import "base:runtime"
 
 import "core:strings"

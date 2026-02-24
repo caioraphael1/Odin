@@ -1,5 +1,3 @@
-package io
-
 import "base:runtime"
 
 Multi_Reader :: struct {

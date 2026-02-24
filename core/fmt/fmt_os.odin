@@ -1,8 +1,6 @@
 #+build !freestanding
 #+build !js
 #+build !orca
-package fmt
-
 import "base:runtime"
 import os "core:os/os2"
 import "core:io"

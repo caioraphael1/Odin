@@ -1,5 +1,3 @@
-package vendor_openexr
-
 import "core:c"
 
 @(link_prefix="exr_", default_calling_convention="c")

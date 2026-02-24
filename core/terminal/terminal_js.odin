@@ -1,7 +1,5 @@
 #+private
 #+build js
-package terminal
-
 import "core:os"
 
 _is_terminal :: proc(handle: os.Handle) -> bool {

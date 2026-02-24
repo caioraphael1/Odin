@@ -1,7 +1,5 @@
 #+private
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
-package terminal
-
 import "base:runtime"
 import "core:os"
 import "core:sys/posix"

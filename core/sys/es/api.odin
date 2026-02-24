@@ -1,4 +1,4 @@
-package es
+
 ElementPublic :: struct {
 	userCallback :   UICallbackFunction,
 	cName :   cstring  ,

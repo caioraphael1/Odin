@@ -1,6 +1,4 @@
 #+build arm32
-package linux
-
 // This file was taken and transformed from
 //   /arch/arm/tools/syscall.tbl
 // in linux headers. OABI and EABI syscalls

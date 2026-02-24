@@ -1,5 +1,3 @@
-package math_linalg_hlsl
-
 import "core:math"
 
  cos_half         :: proc "c" (x: half)    -> half { return math.cos(x) }

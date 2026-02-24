@@ -1,6 +1,4 @@
 #+build !freestanding
-package odin_libc
-
 import "base:runtime"
 
 import "core:c"

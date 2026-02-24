@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import "system:xinput.lib"
 
 // Device types available in XINPUT_CAPABILITIES

@@ -1,7 +1,5 @@
 // A generic `O(V+E)` topological sorter implementation. This is the fastest known method for topological sorting.
 // Odin's map type is being used to accelerate lookups.
-package container_topological_sort
-
 import "base:intrinsics"
 import "base:runtime"
 _ :: intrinsics

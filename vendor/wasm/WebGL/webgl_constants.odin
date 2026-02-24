@@ -1,5 +1,3 @@
-package webgl
-
 /* ClearBufferMask */
 DEPTH_BUFFER_BIT               :: Enum(0x00000100)
 STENCIL_BUFFER_BIT             :: Enum(0x00000400)

@@ -1,5 +1,3 @@
-package objc_Foundation
-
 import "core:c"
 _ :: c
 when ODIN_OS == .Darwin {

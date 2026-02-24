@@ -1,6 +1,4 @@
 // Easing procedures used for animations.
-package ease
-
 @(require) import "core:math"
 import "base:intrinsics"
 

@@ -4,8 +4,6 @@ Calendrical conversions using a proleptic Gregorian calendar.
 Implemented using formulas from: Calendrical Calculations Ultimate Edition,
 Reingold & Dershowitz
 */
-package datetime
-
 import "base:intrinsics"
 import "base:runtime"
 

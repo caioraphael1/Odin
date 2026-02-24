@@ -8,8 +8,6 @@ See:
 - [[ https://eprint.iacr.org/2005/075 ]]
 - [[ https://datatracker.ietf.org/doc/html/rfc1321 ]]
 */
-package md5
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

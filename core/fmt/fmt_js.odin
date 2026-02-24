@@ -1,6 +1,4 @@
 #+build js
-package fmt
-
 import "core:bufio"
 import "core:io"
 import os "core:os/os2"

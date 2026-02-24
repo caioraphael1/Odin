@@ -1,4 +1,3 @@
-package i18n
 /*
     Internationalization helpers.
 

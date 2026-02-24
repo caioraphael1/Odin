@@ -1,6 +1,4 @@
 #+build !freestanding, wasm32, wasm64p32
-package mem
-
 import "base:runtime"
 import "core:sync"
 

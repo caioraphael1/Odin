@@ -1,7 +1,5 @@
 #+build linux
 
-package glfw
-
 import "vendor:x11/xlib"
 
 @(default_calling_convention="c", link_prefix="glfw")

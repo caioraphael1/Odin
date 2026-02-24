@@ -17,8 +17,6 @@ SIMD vectors consist of elements, called *scalar values*, or
 
 This package implements procedures for working with vectors.
 */
-package simd
-
 import "base:builtin"
 import "base:intrinsics"
 import "base:runtime"

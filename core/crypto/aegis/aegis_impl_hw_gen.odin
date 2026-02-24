@@ -1,6 +1,4 @@
 #+build !amd64
-package aegis
-
 @(private = "file")
 ERR_HW_NOT_SUPPORTED :: "crypto/aegis: hardware implementation unsupported"
 

@@ -1,4 +1,3 @@
-package encoding_xml
 /*
     An XML 1.0 / 1.1 parser
 

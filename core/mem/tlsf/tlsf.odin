@@ -1,6 +1,4 @@
 // Two Level Segregated Fit memory allocator.
-package mem_tlsf
-
 /*
     Copyright 2024 Jeroen van Rijn <nom@duclavier.com>.
     Made available under tlsf's LICENSE (BSD 3-clause).

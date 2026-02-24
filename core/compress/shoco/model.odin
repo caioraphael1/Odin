@@ -1,5 +1,3 @@
-package compress_shoco
-
 /*
 	This file was generated, so don't edit this by hand.
 	Transliterated from https://github.com/Ed-von-Schleck/shoco/blob/master/shoco_model.h,

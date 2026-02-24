@@ -1,5 +1,3 @@
-package math
-
 // The original C code, the long comment, and the constants
 // below are from http://netlib.sandia.gov/cephes/cprob/gamma.c.
 //

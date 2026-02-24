@@ -6,8 +6,6 @@ thus Keccac and SHA-3 produce different outputs.  Most users should use
 SHA-3 and/or SHAKE instead, however the legacy algorithm is provided for
 backward compatibility purposes.
 */
-package keccak
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

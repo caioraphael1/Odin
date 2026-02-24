@@ -1,5 +1,3 @@
-package flags
-
 /*
 Check a flag after parsing, during the validation stage.
 

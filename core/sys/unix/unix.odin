@@ -1,5 +1,3 @@
-package unix
-
 import "core:c"
 
 timespec :: struct {

@@ -1,5 +1,3 @@
-package libc
-
 import "core:c"
 
 when ODIN_OS == .Windows {

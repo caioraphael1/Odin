@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import Synchronization "system:Synchronization.lib"
 
 @(default_calling_convention="system")

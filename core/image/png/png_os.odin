@@ -1,6 +1,4 @@
 #+build !js
-package png
-
 import "core:os"
 
 

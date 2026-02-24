@@ -1,5 +1,3 @@
-package chacha20_ref
-
 import "core:crypto/_chacha20"
 import "core:encoding/endian"
 import "core:math/bits"

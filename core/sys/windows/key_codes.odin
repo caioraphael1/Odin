@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 // https://docs.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input
 KF_EXTENDED :: 0x0100
 KF_DLGMODE :: 0x0800

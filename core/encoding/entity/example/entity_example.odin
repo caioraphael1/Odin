@@ -1,5 +1,3 @@
-package unicode_entity_example
-
 import "core:encoding/xml"
 import "core:strings"
 import "core:mem"

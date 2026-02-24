@@ -13,8 +13,6 @@ As per RFC 4648:
 - Section 3.2: Padding requirements
 - Section 6: Base32 encoding specifics (including block size requirements)
 */
-package encoding_base32
-
 import "core:mem"
 
 Error :: enum {

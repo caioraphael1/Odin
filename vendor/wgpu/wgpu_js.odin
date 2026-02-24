@@ -1,5 +1,3 @@
-package wgpu
-
 import "base:runtime"
 
 

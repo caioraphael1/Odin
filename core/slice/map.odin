@@ -1,5 +1,3 @@
-package slice
-
 import "base:intrinsics"
 import "base:runtime"
 

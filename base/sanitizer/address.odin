@@ -1,5 +1,4 @@
 #+no-instrumentation
-package sanitizer
 
 Address_Death_Callback :: #type proc "c" (pc: rawptr, bp: rawptr, sp: rawptr, addr: rawptr, is_write: i32, access_size: uint)
 

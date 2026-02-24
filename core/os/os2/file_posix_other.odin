@@ -1,7 +1,5 @@
 #+private
 #+build openbsd
-package os2
-
 import "base:runtime"
 
 import "core:sys/posix"

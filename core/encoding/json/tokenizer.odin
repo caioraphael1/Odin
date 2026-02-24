@@ -1,5 +1,3 @@
-package encoding_json
-
 import "core:unicode/utf8"
 
 Pos :: struct {

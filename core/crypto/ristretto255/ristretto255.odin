@@ -4,8 +4,6 @@ Ristretto255 prime-order group.
 See:
 - [[ https://www.rfc-editor.org/rfc/rfc9496 ]]
 */
-package ristretto255
-
 import grp "core:crypto/_edwards25519"
 import field "core:crypto/_fiat/field_curve25519"
 import "core:mem"

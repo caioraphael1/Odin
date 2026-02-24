@@ -1,6 +1,4 @@
 #+private
-package flags
-
 @(require) import "base:runtime"
 @(require) import "core:container/bit_array"
 @(require) import "core:fmt"

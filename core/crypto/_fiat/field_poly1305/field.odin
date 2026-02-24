@@ -1,5 +1,3 @@
-package field_poly1305
-
 import "core:encoding/endian"
 import "core:mem"
 

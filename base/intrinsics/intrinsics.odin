@@ -1,6 +1,5 @@
 // This is purely for documentation
 #+build ignore
-package intrinsics
 
 import "base:runtime"
 

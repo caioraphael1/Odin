@@ -51,4 +51,3 @@ Example:
         fmt.printf("Freed.\n")
     }
 */
-package container_dynamic_bit_array

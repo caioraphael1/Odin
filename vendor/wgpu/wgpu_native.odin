@@ -1,6 +1,4 @@
 #+build !js
-package wgpu
-
 import "core:mem"
 
 @(link_prefix="wgpu")

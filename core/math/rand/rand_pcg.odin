@@ -1,5 +1,3 @@
-package rand
-
 import "base:intrinsics"
 import "base:runtime"
 

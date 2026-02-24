@@ -1,6 +1,4 @@
 #+build !amd64
-package deoxysii
-
 @(private = "file")
 ERR_HW_NOT_SUPPORTED :: "crypto/deoxysii: hardware implementation unsupported"
 

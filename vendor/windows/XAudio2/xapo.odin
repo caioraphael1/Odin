@@ -41,8 +41,6 @@
 
     6.  User-defined XAPOs should assume all input and output buffers are 16-byte aligned.   */
 
-package windows_xaudio2
-
 import win "core:sys/windows"
 
 //--------------<D-E-F-I-N-I-T-I-O-N-S>-------------------------------------//

@@ -1,6 +1,4 @@
 // A Lua-like string match algorithm.
-package text_match
-
 import "base:runtime"
 import "core:unicode"
 import "core:unicode/utf8"

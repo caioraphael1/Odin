@@ -1,5 +1,3 @@
-package runtime
-
 _OS_Errno :: distinct int
 
 HAS_RAND_BYTES :: _HAS_RAND_BYTES

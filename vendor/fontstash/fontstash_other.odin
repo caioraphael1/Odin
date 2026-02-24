@@ -1,6 +1,4 @@
 #+build js
-package fontstash
-
 AddFontPath :: proc(
 	ctx: ^FontContext,
 	name: string,

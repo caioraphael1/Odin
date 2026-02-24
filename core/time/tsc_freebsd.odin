@@ -1,7 +1,5 @@
 #+private
 #+build freebsd
-package time
-
 import "core:c"
 
 foreign import libc "system:c"

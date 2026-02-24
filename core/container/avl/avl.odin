@@ -1,6 +1,4 @@
 // A non-intrusive and non-recursive implementation of `AVL` trees.
-package container_avl
-
 @(require) import "base:intrinsics"
 @(require) import "base:runtime"
 import "core:slice"

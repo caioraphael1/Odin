@@ -20,4 +20,3 @@ MAYBE:
 
 For a full example, see: [[ core/encoding/xml/example; https://github.com/odin-lang/Odin/tree/master/core/encoding/xml/example ]]
 */
-package encoding_xml

@@ -1,6 +1,4 @@
 #+build i386, amd64
-package sysinfo
-
 import "base:intrinsics"
 
 CPU_Feature :: enum u64 {

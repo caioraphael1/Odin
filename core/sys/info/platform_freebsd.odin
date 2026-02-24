@@ -1,5 +1,3 @@
-package sysinfo
-
 import sys "core:sys/unix"
 import "core:strings"
 import "core:strconv"

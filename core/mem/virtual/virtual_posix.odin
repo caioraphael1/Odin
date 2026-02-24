@@ -1,7 +1,5 @@
 #+build darwin, netbsd, freebsd, openbsd
 #+private
-package mem_virtual
-
 import "core:sys/posix"
 
 _commit :: proc(data: rawptr, size: uint) -> Allocator_Error {

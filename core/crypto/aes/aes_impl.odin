@@ -1,5 +1,3 @@
-package aes
-
 import "core:crypto/_aes/ct64"
 import "core:mem"
 import "core:reflect"

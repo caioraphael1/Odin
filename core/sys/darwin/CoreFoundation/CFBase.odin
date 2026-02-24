@@ -1,5 +1,3 @@
-package CoreFoundation
-
 foreign import CoreFoundation "system:CoreFoundation.framework"
 
 TypeID      :: distinct uint

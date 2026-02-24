@@ -1,5 +1,3 @@
-package sys_windows
-
 import "core:c"
 
 c_char      :: c.char

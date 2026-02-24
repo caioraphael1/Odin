@@ -1,5 +1,3 @@
-package linux
-
 import "base:intrinsics"
 
 @(private)

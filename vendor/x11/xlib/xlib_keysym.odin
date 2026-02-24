@@ -1,6 +1,4 @@
 #+build linux, freebsd, openbsd
-package xlib
-
 KeySym :: enum u32 {
 	XK_BackSpace                     = 0xff08,  /* Back space, back char */
 	XK_Tab                           = 0xff09,

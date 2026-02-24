@@ -1,5 +1,3 @@
-package log
-
 import "base:runtime"
 import "core:fmt"
 

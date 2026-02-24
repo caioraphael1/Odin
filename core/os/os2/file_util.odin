@@ -1,5 +1,3 @@
-package os2
-
 import "base:runtime"
 import "core:strconv"
 import "core:unicode/utf8"

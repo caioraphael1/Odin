@@ -1,6 +1,4 @@
 #+private
-package time
-
 import win32 "core:sys/windows"
 
 _IS_SUPPORTED :: true

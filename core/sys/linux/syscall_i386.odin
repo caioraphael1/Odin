@@ -1,6 +1,4 @@
 #+build i386
-package linux
-
 // The numbers are taken from
 //    /arch/x86/entry/syscalls/syscall_32.tbl
 // in Linux headers. Only x64 and common ABI

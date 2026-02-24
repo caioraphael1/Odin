@@ -1,5 +1,3 @@
-package chacha20_simd128
-
 import "base:intrinsics"
 import "core:crypto/_chacha20"
 import "core:simd"

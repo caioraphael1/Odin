@@ -1,5 +1,3 @@
-package encoding_hxa
-
 import "core:fmt"
 import "core:os"
 import "core:mem"

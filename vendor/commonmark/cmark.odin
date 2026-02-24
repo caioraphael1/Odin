@@ -1,5 +1,3 @@
-package vendor_commonmark
-
 import "core:c"
 import "base:runtime"
 

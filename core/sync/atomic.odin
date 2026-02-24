@@ -1,5 +1,3 @@
-package sync
-
 import "base:intrinsics"
 
 /*

@@ -1,4 +1,3 @@
-package i18n
 /*
     A parser for Qt Linguist TS files.
 

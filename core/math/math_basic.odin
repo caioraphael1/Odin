@@ -1,6 +1,4 @@
 #+build !js
-package math
-
 import "base:intrinsics"
 
 @(default_calling_convention="none", private="file")

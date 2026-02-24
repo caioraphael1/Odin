@@ -1,6 +1,4 @@
 #+private
-package terminal
-
 import "base:runtime"
 import os "core:os/os2"
 import "core:sys/windows"

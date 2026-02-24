@@ -1,5 +1,3 @@
-package timezone
-
 import "base:intrinsics"
 
 import "core:slice"

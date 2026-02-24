@@ -1,8 +1,6 @@
 #+private
 #+build linux, darwin, freebsd, openbsd, netbsd, haiku
 #+no-instrumentation
-package runtime
-
 import "base:intrinsics"
 
 when ODIN_BUILD_MODE == .Dynamic {

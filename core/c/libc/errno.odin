@@ -1,5 +1,3 @@
-package libc
-
 // 7.5 Errors
 
 when ODIN_OS == .Windows {

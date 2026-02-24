@@ -44,139 +44,138 @@ For more information, see: https://swtch.com/~rsc/regexp/regexp2.html
 
 **Opcode Reference:**
 
-	(0x00) Match
+    (0x00) Match
 
-	The terminal opcode which ends a thread. This always comes at the end of
-	the program.
+    The terminal opcode which ends a thread. This always comes at the end of
+    the program.
 
-	(0x01) Match_And_Exit
+    (0x01) Match_And_Exit
 
-	A modified version of Match which stops the virtual machine entirely. It is
-	only compiled for `No_Capture` expressions, as those expressions do not
-	need to determine which thread may have saved the most appropriate capture
-	groups.
+    A modified version of Match which stops the virtual machine entirely. It is
+    only compiled for `No_Capture` expressions, as those expressions do not
+    need to determine which thread may have saved the most appropriate capture
+    groups.
 
-	(0x02) Byte
+    (0x02) Byte
 
-	Consumes one byte from the text using its operand, which is also a byte.
+    Consumes one byte from the text using its operand, which is also a byte.
 
-	(0x03) Rune
+    (0x03) Rune
 
-	Consumes one Unicode codepoint from the text using its operand, which is
-	four bytes long in a system-dependent endian order.
+    Consumes one Unicode codepoint from the text using its operand, which is
+    four bytes long in a system-dependent endian order.
 
-	(0x04) Rune_Class
+    (0x04) Rune_Class
 
-	Consumes one character (which may be an ASCII byte or Unicode codepoint,
-	wholly dependent on which mode the virtual machine is running in) from the
-	text.
+    Consumes one character (which may be an ASCII byte or Unicode codepoint,
+    wholly dependent on which mode the virtual machine is running in) from the
+    text.
 
-	The actual data storing what runes and ranges of runes apply to the class
-	are stored alongside the program in the Regular_Expression structure and
-	the operand for this opcode is a single byte which indexes into a
-	collection of these data structures.
+    The actual data storing what runes and ranges of runes apply to the class
+    are stored alongside the program in the Regular_Expression structure and
+    the operand for this opcode is a single byte which indexes into a
+    collection of these data structures.
 
-	(0x05) Rune_Class_Negated
+    (0x05) Rune_Class_Negated
 
-	A modified version of Rune_Class that functions the same, save for how it
-	returns the opposite of what Rune_Class matches.
+    A modified version of Rune_Class that functions the same, save for how it
+    returns the opposite of what Rune_Class matches.
 
-	(0x06) Wildcard
+    (0x06) Wildcard
 
-	Consumes one byte or one Unicode codepoint, depending on the VM mode.
+    Consumes one byte or one Unicode codepoint, depending on the VM mode.
 
-	(0x07) Jump
+    (0x07) Jump
 
-	Sets the Program Counter of a VM thread to the operand, which is a u16.
-	This opcode is used to implement Alternation (coming at the end of the left
-	choice) and Repeat_Zero (to cause the thread to loop backwards).
+    Sets the Program Counter of a VM thread to the operand, which is a u16.
+    This opcode is used to implement Alternation (coming at the end of the left
+    choice) and Repeat_Zero (to cause the thread to loop backwards).
 
-	(0x08) Split
+    (0x08) Split
 
-	Spawns a new thread for the X operand and causes the current thread to jump
-	to the Y operand. This opcode is used to implement Alternation, all the
-	Repeat variations, and the Optional nodes.
+    Spawns a new thread for the X operand and causes the current thread to jump
+    to the Y operand. This opcode is used to implement Alternation, all the
+    Repeat variations, and the Optional nodes.
 
-	Splitting threads is how the virtual machine is able to execute optional
-	control flow paths, letting it evaluate different possible ways to match
-	text.
+    Splitting threads is how the virtual machine is able to execute optional
+    control flow paths, letting it evaluate different possible ways to match
+    text.
 
-	(0x09) Save
+    (0x09) Save
 
-	Saves the current string index to a slot on the thread dictated by the
-	operand. These values will be used later to reconstruct capture groups.
+    Saves the current string index to a slot on the thread dictated by the
+    operand. These values will be used later to reconstruct capture groups.
 
-	(0x0A) Assert_Start
+    (0x0A) Assert_Start
 
-	Asserts that the thread is at the beginning of the string.
+    Asserts that the thread is at the beginning of the string.
 
-	(0x0B) Assert_Start_Multiline
+    (0x0B) Assert_Start_Multiline
 
-	This opcode is compiled in only when the `Multiline` flag is present as a
-	replacement for the `^` text anchor.
+    This opcode is compiled in only when the `Multiline` flag is present as a
+    replacement for the `^` text anchor.
 
-	Asserts that the thread is at the beginning of the string or previously
-	parsed either a "\n" or "\r".
+    Asserts that the thread is at the beginning of the string or previously
+    parsed either a "\n" or "\r".
 
-	(0x0C) Assert_End
+    (0x0C) Assert_End
 
-	Asserts that the thread is at the end of the string.
+    Asserts that the thread is at the end of the string.
 
-	(0x0D) Assert_Word_Boundary
+    (0x0D) Assert_Word_Boundary
 
-	Asserts that the thread is on a word boundary, which can be the start or
-	end of the text. This examines both the current rune and the next rune.
+    Asserts that the thread is on a word boundary, which can be the start or
+    end of the text. This examines both the current rune and the next rune.
 
-	(0x0E) Assert_Non_Word_Boundary
+    (0x0E) Assert_Non_Word_Boundary
 
-	A modified version of Assert_Word_Boundary that returns the opposite value.
+    A modified version of Assert_Word_Boundary that returns the opposite value.
 
-	(0x0F) Multiline_Open
+    (0x0F) Multiline_Open
 
-	This opcode is compiled in only when the `Multiline` flag is present as a
-	replacement for the `$` text anchor.
+    This opcode is compiled in only when the `Multiline` flag is present as a
+    replacement for the `$` text anchor.
 
-	It asserts that either the current thread is at the end of the string,
-	or it consumes a `\n` or `\r` character.
+    It asserts that either the current thread is at the end of the string,
+    or it consumes a `\n` or `\r` character.
 
-	If a `\r` character is consumed, the PC will be advanced to the sibling
-	`Multiline_Close` opcode to optionally consume a `\n` character on the next
-	frame.
+    If a `\r` character is consumed, the PC will be advanced to the sibling
+    `Multiline_Close` opcode to optionally consume a `\n` character on the next
+    frame.
 
-	(0x10) Multiline_Close
+    (0x10) Multiline_Close
 
-	This opcode is always present after `Multiline_Open`.
+    This opcode is always present after `Multiline_Open`.
 
-	It handles consuming the second half of a complete newline, if necessary.
-	For example, Windows newlines are represented by the characters `\r\n`,
-	whereas UNIX newlines are `\n` and Macintosh newlines are `\r`.
+    It handles consuming the second half of a complete newline, if necessary.
+    For example, Windows newlines are represented by the characters `\r\n`,
+    whereas UNIX newlines are `\n` and Macintosh newlines are `\r`.
 
-	(0x11) Wait_For_Byte
-	(0x12) Wait_For_Rune
-	(0x13) Wait_For_Rune_Class
-	(0x14) Wait_For_Rune_Class_Negated
+    (0x11) Wait_For_Byte
+    (0x12) Wait_For_Rune
+    (0x13) Wait_For_Rune_Class
+    (0x14) Wait_For_Rune_Class_Negated
 
-	These opcodes are an optimization around restarting threads on failed
-	matches when the beginning to a pattern is predictable and the Global flag
-	is set.
+    These opcodes are an optimization around restarting threads on failed
+    matches when the beginning to a pattern is predictable and the Global flag
+    is set.
 
-	They will cause the VM to wait for the next rune to match before splitting,
-	as would happen in the un-optimized version.
+    They will cause the VM to wait for the next rune to match before splitting,
+    as would happen in the un-optimized version.
 
-	(0x15) Match_All_And_Escape
+    (0x15) Match_All_And_Escape
 
-	This opcode is an optimized version of `.*$` or `.+$` that causes the
-	active thread to immediately work on escaping the program by following all
-	Jumps out to the end.
+    This opcode is an optimized version of `.*$` or `.+$` that causes the
+    active thread to immediately work on escaping the program by following all
+    Jumps out to the end.
 
-	While running through the rest of the program, the thread will trigger on
-	every Save instruction it passes to store the length of the string.
+    While running through the rest of the program, the thread will trigger on
+    every Save instruction it passes to store the length of the string.
 
-	This way, any time a program hits one of these `.*$` constructs, the
-	virtual machine can exit early, vastly improving processing times.
+    This way, any time a program hits one of these `.*$` constructs, the
+    virtual machine can exit early, vastly improving processing times.
 
-	Be aware, this opcode is not compiled in if the `Multiline` flag is on, as
-	the meaning of `$` changes with that flag.
+    Be aware, this opcode is not compiled in if the `Multiline` flag is on, as
+    the meaning of `$` changes with that flag.
 
 */
-package regex_vm

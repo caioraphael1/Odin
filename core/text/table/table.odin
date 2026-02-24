@@ -7,8 +7,6 @@
         Feoramund: Unicode support.
 */
 
-package text_table
-
 import "core:io"
 import "core:fmt"
 import "core:log"

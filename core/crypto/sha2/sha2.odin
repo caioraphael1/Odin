@@ -5,8 +5,6 @@ See:
 - [[ https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf ]]
 - [[ https://datatracker.ietf.org/doc/html/rfc3874 ]]
 */
-package sha2
-
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.

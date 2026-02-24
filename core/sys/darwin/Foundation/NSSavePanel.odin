@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSSavePanel")
 SavePanel :: struct{ using _: Panel }
 

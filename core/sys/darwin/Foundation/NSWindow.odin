@@ -1,5 +1,3 @@
-package objc_Foundation
-
 import "core:strings"
 import "base:runtime"
 import "base:intrinsics"

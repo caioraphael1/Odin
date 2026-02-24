@@ -1,7 +1,5 @@
 #+build linux
 #+private file
-package os2
-
 import "base:runtime"
 import "base:intrinsics"
 

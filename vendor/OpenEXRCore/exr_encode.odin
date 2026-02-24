@@ -1,5 +1,3 @@
-package vendor_openexr
-
 import "core:c"
 
 /** Can be bit-wise or'ed into the decode_flags in the decode pipeline.

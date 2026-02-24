@@ -1,6 +1,4 @@
 #+build linux, freebsd, openbsd
-package xlib
-
 // Since this is a unix-only library we make a few simplifying assumptions
 import "core:c"
 #assert(size_of(int)  == size_of(c.long))

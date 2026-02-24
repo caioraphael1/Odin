@@ -1,6 +1,4 @@
 #+private
-package flags
-
 import "base:intrinsics"
 @(require) import "base:runtime"
 import "core:container/bit_array"

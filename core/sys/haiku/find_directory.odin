@@ -1,6 +1,4 @@
 #+build haiku
-package sys_haiku
-
 import "base:intrinsics"
 
 foreign import libroot "system:c"

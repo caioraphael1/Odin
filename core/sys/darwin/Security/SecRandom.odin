@@ -1,5 +1,3 @@
-package Security
-
 import CF "core:sys/darwin/CoreFoundation"
 
 foreign import Security "system:Security.framework"

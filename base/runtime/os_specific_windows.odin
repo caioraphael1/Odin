@@ -1,7 +1,5 @@
 #+build windows
 #+private
-package runtime
-
 foreign import bcrypt "system:Bcrypt.lib"
 foreign import kernel32 "system:Kernel32.lib"
 

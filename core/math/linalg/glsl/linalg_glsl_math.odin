@@ -1,5 +1,3 @@
-package math_linalg_glsl
-
 import "core:math"
 
  cos_f32         :: proc "c" (x: f32) -> f32 { return math.cos(x) }

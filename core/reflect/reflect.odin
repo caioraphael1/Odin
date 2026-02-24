@@ -1,5 +1,3 @@
-package reflect
-
 import "base:runtime"
 import "base:intrinsics"
 _ :: intrinsics

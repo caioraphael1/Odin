@@ -1,5 +1,3 @@
-package vendor_gl
-
 #assert(size_of(bool) == size_of(u8))
 
 import "base:runtime"

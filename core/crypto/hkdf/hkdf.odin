@@ -3,8 +3,6 @@
 
 See: [[ https://www.rfc-editor.org/rfc/rfc5869 ]]
 */
-package hkdf
-
 import "core:crypto/hash"
 import "core:crypto/hmac"
 import "core:mem"

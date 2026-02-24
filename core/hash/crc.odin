@@ -1,5 +1,3 @@
-package hash
-
 /*
 	Compute CRC-16 in the manner of CCITT (ITU-T V.41), using the 0x1021 polynomial.
 	Generator polynomial: x^16 + x^12 + x^5 + 1

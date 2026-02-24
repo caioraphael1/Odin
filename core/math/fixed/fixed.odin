@@ -1,6 +1,4 @@
 // Fixed-point rational numbers and conversion to/from `f64`.
-package math_fixed
-
 import "core:math"
 import "base:runtime"
 import "core:strconv"

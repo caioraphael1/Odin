@@ -1,6 +1,4 @@
 #+build windows, linux, darwin, netbsd, openbsd, freebsd
-package posix
-
 import "core:c/libc"
 
 // setjmp.h - stack environment declarations

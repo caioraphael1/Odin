@@ -1,5 +1,3 @@
-package io
-
 to_reader :: proc(s: Stream) -> (r: Reader, ok: bool = true) {
 	r = s
 	ok = .Read in query(s)

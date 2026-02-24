@@ -1,5 +1,3 @@
-package uuid
-
 import "base:runtime"
 import "core:crypto/hash"
 import "core:math/rand"

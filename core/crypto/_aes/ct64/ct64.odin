@@ -20,8 +20,6 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package aes_ct64
-
 // Bitsliced AES for 64-bit general purpose (integer) registers.  Each
 // invocation will process up to 4 blocks at a time.  This implementation
 // is derived from the BearSSL ct64 code, and distributed under a 1-clause

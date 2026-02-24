@@ -1,5 +1,3 @@
-package libc
-
 // 7.27 Date and time
 
 when ODIN_OS == .Windows {

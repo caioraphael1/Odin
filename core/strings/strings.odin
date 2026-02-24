@@ -1,6 +1,4 @@
 // A `string` builder, as well as procedures to manipulate `UTF-8` encoded strings.
-package strings
-
 import "base:intrinsics"
 import "base:runtime"
 import "core:bytes"

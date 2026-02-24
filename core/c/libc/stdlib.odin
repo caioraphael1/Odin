@@ -1,5 +1,3 @@
-package libc
-
 // 7.22 General utilities
 
 when ODIN_OS == .Windows {

@@ -1,5 +1,3 @@
-package wgpu_sdl3_glue
-
 import "vendor:sdl3"
 import "vendor:wgpu"
 

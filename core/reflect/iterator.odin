@@ -1,5 +1,3 @@
-package reflect
-
 import "base:runtime"
 
 // An iterator to dynamically iterate across something that is array-like (or pointer-to-array-like)

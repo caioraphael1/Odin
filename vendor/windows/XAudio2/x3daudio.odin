@@ -34,8 +34,6 @@
     All computation occurs in 32-bit precision mode.                    */
 
 
-package windows_xaudio2
-
 import "core:math"
 import win "core:sys/windows"
 

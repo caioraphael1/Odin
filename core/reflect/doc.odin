@@ -29,23 +29,22 @@
 // the current stack frame.
 //
 // Example:
-// 	x: int = 123
-// 	a: any = x
-// 	// equivalent to
-// 	a: any
-// 	a.data = &x
-// 	a.id   = typeid_of(type_of(x))
-// 	// With literals
-// 	v: any = 123
-// 	// equivalent to
-// 	v: any
-// 	_tmp: int = 123
-// 	v.data = &_tmp
-// 	v.id   = typeid_of(type_of(_tmp))
+//  x: int = 123
+//  a: any = x
+//  // equivalent to
+//  a: any
+//  a.data = &x
+//  a.id   = typeid_of(type_of(x))
+//  // With literals
+//  v: any = 123
+//  // equivalent to
+//  v: any
+//  _tmp: int = 123
+//  v.data = &_tmp
+//  v.id   = typeid_of(type_of(_tmp))
 //
 //
 // `any` is a topologically-dual to a `union` in terms of its usage. Both support assignments of differing types
 // (`any` being open to any type, `union` being closed to a specific set of types), type assertions (`x.(T)`), and `switch in`.
 // The main internal difference is how the memory is stored. `any` being open is a pointer+typeid, a `union`
 // is a blob+tag. A `union` does not need to store a `typeid` because it is a closed ABI-consistent set of variant types.
-package reflect

@@ -1,7 +1,5 @@
 #+private
 #+build darwin, freebsd, openbsd, netbsd, haiku
-package time
-
 import "core:sys/posix"
 
 _IS_SUPPORTED :: true

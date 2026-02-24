@@ -1,5 +1,3 @@
-package glfw
-
 /* Config */
 GLFW_SHARED :: #config(GLFW_SHARED, false)
 

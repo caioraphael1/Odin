@@ -4,8 +4,6 @@
 See:
 - [[ https://www.rfc-editor.org/rfc/rfc7748 ]]
 */
-package x25519
-
 import field "core:crypto/_fiat/field_curve25519"
 import "core:mem"
 

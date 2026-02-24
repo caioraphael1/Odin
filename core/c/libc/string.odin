@@ -1,5 +1,3 @@
-package libc
-
 import "base:runtime"
 
 // 7.24 String handling

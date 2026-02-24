@@ -1,5 +1,3 @@
-package vendor_kb_text_shape
-
 import "core:c"
 
 #assert(size_of(b8)  == size_of(bool))

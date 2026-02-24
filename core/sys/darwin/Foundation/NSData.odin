@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSData")
 Data :: struct {using _: Copying(Data)}
 

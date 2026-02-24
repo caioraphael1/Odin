@@ -1,6 +1,4 @@
 // Bit-level operations, including the ability to set or toggle individual bits in an integer.
-package math_bits
-
 import "base:intrinsics"
 
 // The minimum value held by a `u8`. The same value as `min(u8)`, except untyped.

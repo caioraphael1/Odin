@@ -1,5 +1,3 @@
-package reflect
-
 import "core:io"
 import "core:strings"
 

@@ -1,5 +1,3 @@
-package libc_tests
-
 import "core:c/libc"
 
 test_stdio :: proc() {

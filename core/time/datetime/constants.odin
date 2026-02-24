@@ -1,5 +1,3 @@
-package datetime
-
 /*
 Type representing a mononotic day number corresponding to a date.
 

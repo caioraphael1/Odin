@@ -22,8 +22,6 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package field_curve448
-
 // The file provides arithmetic on the field Z/(2^448 - 2^224 - 1) using
 // unsaturated 64-bit integer arithmetic.  It is derived primarily
 // from the machine generated Golang output from the fiat-crypto project.

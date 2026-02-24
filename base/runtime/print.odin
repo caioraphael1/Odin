@@ -1,5 +1,3 @@
-package runtime
-
 _INTEGER_DIGITS :: "0123456789abcdefghijklmnopqrstuvwxyz"
 
 @(private="file")

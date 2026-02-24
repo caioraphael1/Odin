@@ -101,4 +101,3 @@ which are nodes of type:
 Nodes must only be modified after an `.Exit` event, or an `.Enter` event for
 leaf nodes.
 */
-package vendor_commonmark

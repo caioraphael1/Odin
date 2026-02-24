@@ -93,4 +93,3 @@ many intermediate steps, assumptions, and generalizations in what it takes to
 handle a regular expression.
 
 */
-package regex

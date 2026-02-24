@@ -1,7 +1,5 @@
 #+build js
 #+private
-package runtime
-
 foreign import "odin_env"
 
 _HAS_RAND_BYTES :: true

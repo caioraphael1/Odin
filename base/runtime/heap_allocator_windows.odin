@@ -1,5 +1,3 @@
-package runtime
-
 import "../sanitizer"
 
 foreign import kernel32 "system:Kernel32.lib"

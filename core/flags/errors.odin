@@ -1,5 +1,3 @@
-package flags
-
 import os "core:os/os2"
 
 Parse_Error_Reason :: enum {

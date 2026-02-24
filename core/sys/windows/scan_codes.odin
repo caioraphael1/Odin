@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 // Win32 scan codes for QWERTY layout
 // https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#scan-codes
 

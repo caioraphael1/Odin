@@ -1,5 +1,3 @@
-package miniaudio
-
 import "core:c"
 
 MINIAUDIO_SHARED :: #config(MINIAUDIO_SHARED, false)

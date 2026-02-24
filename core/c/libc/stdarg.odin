@@ -1,5 +1,3 @@
-package libc
-
 // 7.16 Variable arguments
 
 import "base:intrinsics"

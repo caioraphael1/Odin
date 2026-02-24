@@ -1,6 +1,4 @@
 // A red-black tree with the same API as our AVL tree.
-package container_rbtree
-
 @(require) import "base:intrinsics"
 @(require) import "base:runtime"
 import "core:slice"

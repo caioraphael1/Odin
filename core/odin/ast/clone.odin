@@ -1,5 +1,3 @@
-package odin_ast
-
 import "base:intrinsics"
 import "core:mem"
 import "core:fmt"

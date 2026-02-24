@@ -1,5 +1,3 @@
-package field_curve448
-
 import "core:mem"
 
 fe_relax_cast :: #force_inline proc(

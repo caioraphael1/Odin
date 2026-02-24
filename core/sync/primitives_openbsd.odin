@@ -1,7 +1,5 @@
 #+build openbsd
 #+private
-package sync
-
 foreign import libc "system:c"
 
 @(default_calling_convention="c")

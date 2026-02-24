@@ -7,8 +7,6 @@ If none is supplied it just uses the standard Base64 alphabet.
 In case your specific version does not use padding, you may
 truncate it from the encoded output.
 */
-package encoding_base64
-
 import "core:io"
 import "core:mem"
 import "core:strings"

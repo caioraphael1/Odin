@@ -1,5 +1,3 @@
-package thread
-
 /*
     thread.Pool
     Copyright 2022 eisbehr

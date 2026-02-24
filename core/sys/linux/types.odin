@@ -1,5 +1,3 @@
-package linux
-
 /*
 	Type for storage device handle.
 */

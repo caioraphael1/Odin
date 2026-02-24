@@ -14,4 +14,3 @@ In lock-free programming the data itself is organized in such a way that threads
 don't intervene much. It can be done via segmenting the data between threads,
 and/or by using atomic operations.
 */
-package sync

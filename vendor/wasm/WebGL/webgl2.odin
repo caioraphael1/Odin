@@ -1,5 +1,3 @@
-package webgl
-
 foreign import "webgl2"
 
 import "base:intrinsics"

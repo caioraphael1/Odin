@@ -1,5 +1,3 @@
-package runtime
-
 @(no_instrumentation)
 bounds_trap :: proc() -> ! {
 	when ODIN_OS == .Windows {

@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 // WGL_ARB_buffer_region
 WGL_FRONT_COLOR_BUFFER_BIT_ARB :: 0x00000001
 WGL_BACK_COLOR_BUFFER_BIT_ARB  :: 0x00000002

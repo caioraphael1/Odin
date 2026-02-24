@@ -1,5 +1,3 @@
-package odin_parser
-
 import "base:runtime"
 import "core:strings"
 import "core:reflect"

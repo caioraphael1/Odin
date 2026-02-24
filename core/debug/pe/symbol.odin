@@ -1,5 +1,3 @@
-package debug_pe
-
 COFF_SYMBOL_SIZE :: 18
 
 COFF_Symbol :: struct {

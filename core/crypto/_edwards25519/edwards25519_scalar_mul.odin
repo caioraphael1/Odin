@@ -1,5 +1,3 @@
-package _edwards25519
-
 import field "core:crypto/_fiat/field_scalar25519"
 import "core:math/bits"
 import "core:mem"

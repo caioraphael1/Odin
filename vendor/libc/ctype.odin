@@ -1,5 +1,3 @@
-package odin_libc
-
 @(require, linkage="strong", link_name="isdigit")
 isdigit :: proc "c" (c: i32) -> b32 {
 	switch c {

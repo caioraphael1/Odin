@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSDictionary")
 Dictionary :: struct {using _: Copying(Dictionary)}
 

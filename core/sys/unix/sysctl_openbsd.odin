@@ -1,6 +1,4 @@
 #+build openbsd
-package unix
-
 import "core:c"
 foreign import libc "system:c"
 

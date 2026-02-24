@@ -7,8 +7,6 @@
         Jeroen van Rijn: Source port
 */
 
-package mem_tlsf
-
 import "base:intrinsics"
 // import "base:sanitizer"
 import "base:runtime"

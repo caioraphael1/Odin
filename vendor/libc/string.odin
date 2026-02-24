@@ -1,5 +1,3 @@
-package odin_libc
-
 import "base:intrinsics"
 
 import "core:c"

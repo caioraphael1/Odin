@@ -1,5 +1,3 @@
-package libc
-
 // 7.28 Unicode utilities
 
 when ODIN_OS == .Windows {

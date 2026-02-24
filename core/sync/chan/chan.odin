@@ -1,5 +1,3 @@
-package sync_chan
-
 import "base:builtin"
 import "base:intrinsics"
 import "base:runtime"

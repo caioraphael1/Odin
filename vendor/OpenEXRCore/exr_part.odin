@@ -1,5 +1,3 @@
-package vendor_openexr
-
 import "core:c"
 
 attr_list_access_mode_t :: enum c.int {

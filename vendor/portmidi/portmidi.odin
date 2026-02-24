@@ -1,5 +1,3 @@
-package portmidi
-
 import "core:c"
 import "core:strings"
 

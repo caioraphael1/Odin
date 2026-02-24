@@ -1,6 +1,4 @@
 #+build amd64
-package sys_valgrind
-
 import "base:intrinsics"
 
 Client_Request :: enum uintptr {

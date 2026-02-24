@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 // https://learn.microsoft.com/en-us/windows/win32/api/winerror/
 
 //  Values are 32 bit values laid out as follows:

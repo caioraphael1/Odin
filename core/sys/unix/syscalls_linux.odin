@@ -1,5 +1,3 @@
-package unix
-
 import "base:intrinsics"
 
 // Linux has inconsistent system call numbering across architectures,

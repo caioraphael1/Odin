@@ -1,5 +1,3 @@
-package runtime
-
 /*
 Note:
 This allocator needs to be manually initialized by the user.

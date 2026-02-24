@@ -1,5 +1,3 @@
-package unicode
-
 // simple_fold iterates over the Unicode code points equivalent under the Unicode defined simple case folding.
 // simple_fold returns the smallest rune > r if one exists, or the smallest rune >= 0.
 // If no valid Unicode code point exists, r is returned.

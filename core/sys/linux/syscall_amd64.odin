@@ -1,6 +1,4 @@
 #+build amd64
-package linux
-
 // AMD64 uses the new way to define syscalls, i.e. one that
 // is different from the other architectures. Instead of using
 // a .tbl file, they define constants to tell which syscalls they

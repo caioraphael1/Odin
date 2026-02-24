@@ -1,5 +1,3 @@
-package xml_example
-
 import "core:encoding/xml"
 import "core:mem"
 import "core:fmt"

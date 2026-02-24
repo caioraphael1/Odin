@@ -1,7 +1,5 @@
 #+build js
 #+private
-package timezone
-
 import "core:time/datetime"
 import "base:runtime"
 

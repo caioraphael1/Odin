@@ -1,7 +1,5 @@
 #+build freebsd
 #+private
-package sync
-
 import "core:c"
 
 foreign import dl "system:dl"

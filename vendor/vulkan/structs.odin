@@ -1,5 +1,3 @@
-package vulkan
-
 import "core:c"
 
 import win32 "core:sys/windows"

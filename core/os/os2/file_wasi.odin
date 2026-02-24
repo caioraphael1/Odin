@@ -1,6 +1,4 @@
 #+private
-package os2
-
 import "base:runtime"
 
 import "core:io"

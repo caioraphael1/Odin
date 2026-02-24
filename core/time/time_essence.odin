@@ -1,6 +1,4 @@
 #+private
-package time
-
 import "core:sys/es"
 
 _IS_SUPPORTED :: true

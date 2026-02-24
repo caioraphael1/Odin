@@ -1,5 +1,3 @@
-package vendor_openexr
-
 import "core:c"
 
 /**

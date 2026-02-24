@@ -1,6 +1,4 @@
 // Conversions to and from `string` representations of other data types like integers and booleans.
-package strconv
-
 import "core:unicode/utf8"
 import "base:runtime"
 import "decimal"

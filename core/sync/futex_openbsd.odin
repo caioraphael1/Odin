@@ -1,7 +1,5 @@
 #+private
 #+build openbsd
-package sync
-
 import "core:c"
 import "core:time"
 

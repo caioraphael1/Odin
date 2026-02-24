@@ -1,5 +1,3 @@
-package darwin
-
 foreign import mach "system:System"
 
 import "core:c"

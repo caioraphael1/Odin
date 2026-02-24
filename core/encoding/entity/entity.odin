@@ -11,8 +11,6 @@
     - URL encode / decode %hex entity
     Reference: [[ https://datatracker.ietf.org/doc/html/rfc3986/#section-2.1 ]]
 */
-package encoding_unicode_entity
-
 /*
     Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
     Made available under Odin's license.

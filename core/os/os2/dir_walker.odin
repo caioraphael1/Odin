@@ -1,5 +1,3 @@
-package os2
-
 import "base:runtime"
 import "core:container/queue"
 
@@ -53,7 +51,6 @@ You are allowed to repeatedly call this to reuse it for later walks.
 
 For an example on how to use the walker, see `walker_walk`.
 */
-
 
 walker_create_path :: proc(path: string, allocator: runtime.Allocator) -> (w: Walker) {
     walker_init_path(&w, path, allocator)

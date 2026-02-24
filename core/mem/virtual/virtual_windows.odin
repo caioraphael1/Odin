@@ -1,7 +1,5 @@
 #+build windows
 #+private
-package mem_virtual
-
 foreign import Kernel32 "system:Kernel32.lib"
 
 import os "core:os/os2"

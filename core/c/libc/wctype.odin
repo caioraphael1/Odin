@@ -1,5 +1,3 @@
-package libc
-
 // 7.30 Wide character classification and mapping utilities
 
 when ODIN_OS == .Windows {

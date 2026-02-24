@@ -1,5 +1,3 @@
-package Security
-
 OSStatus :: distinct i32
 
 errSec :: enum OSStatus {

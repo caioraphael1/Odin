@@ -1,5 +1,3 @@
-package text_table
-
 import "core:io"
 import "core:os"
 import "core:strings"

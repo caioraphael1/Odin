@@ -1,7 +1,5 @@
 #+private
 #+build js
-package time
-
 foreign import "odin_env"
 
 _IS_SUPPORTED :: true

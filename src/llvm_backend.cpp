@@ -1877,7 +1877,7 @@ gb_internal void lb_verify_function(lbModule *m, lbProcedure *p, bool dump_ll=fa
             gb_printf_err("\n\n\n");
             String filepath_ll = lb_filepath_ll_for_module(m);
             if (LLVMPrintModuleToFile(m->mod, cast(char const *)filepath_ll.text, &llvm_error)) {
-                gb_printf_err("LLVM Error: %s\n", llvm_error);
+                gb_printf_err("[LLVMPrintModuleToFile] LLVM Error: %s\n", llvm_error);
             }
         }
         LLVMVerifyFunction(p->value, LLVMPrintMessageAction);
@@ -1900,7 +1900,7 @@ gb_internal WORKER_TASK_PROC(lb_llvm_module_verification_worker_proc) {
             TIME_SECTION("LLVM Print Module to File");
             String filepath_ll = lb_filepath_ll_for_module(m);
             if (LLVMPrintModuleToFile(m->mod, cast(char const *)filepath_ll.text, &llvm_error)) {
-                gb_printf_err("LLVM Error: %s\n", llvm_error);
+                gb_printf_err("[LLVMPrintModuleToFile] LLVM Error: %s\n", llvm_error);
                 exit_with_errors();
                 return false;
             }
@@ -2231,7 +2231,7 @@ gb_internal WORKER_TASK_PROC(lb_llvm_emit_worker_proc) {
     auto wd = cast(lbLLVMEmitWorker *)data;
 
     if (LLVMTargetMachineEmitToFile(wd->target_machine, wd->m->mod, cast(char *)wd->filepath_obj.text, wd->code_gen_file_type, &llvm_error)) {
-        gb_printf_err("LLVM Error: %s\n", llvm_error);
+        gb_printf_err("[LLVMTargetMachineEmitToFile] LLVM Error: %s %s\n", llvm_error, cast(char *)wd->filepath_obj.text);
         exit_with_errors();
     }
     debugf("Generated File: %.*s\n", LIT(wd->filepath_obj));
@@ -2396,7 +2396,7 @@ gb_internal WORKER_TASK_PROC(lb_llvm_module_pass_worker_proc) {
             TIME_SECTION("LLVM Print Module to File");
             String filepath_ll = lb_filepath_ll_for_module(wd->m);
             if (LLVMPrintModuleToFile(wd->m->mod, cast(char const *)filepath_ll.text, &llvm_error)) {
-                gb_printf_err("LLVM Error: %s\n", llvm_error);
+                gb_printf_err("[LLVMPrintModuleToFile] LLVM Error: %s\n", llvm_error);
             }
         }
         exit_with_errors();
@@ -2588,6 +2588,7 @@ gb_internal String lb_filepath_obj_for_module(lbModule *m) {
         }
 
         path = gb_string_append_length(path, s.text, s.len);
+
     } else {
         path = gb_string_append_length(path, name.text, name.len);
     }
@@ -2675,7 +2676,7 @@ gb_internal bool lb_llvm_object_generation(lbGenerator *gen, bool do_threading) 
             TIME_SECTION_WITH_LEN(section_name, gb_string_length(section_name));
 
             if (LLVMTargetMachineEmitToFile(m->target_machine, m->mod, cast(char *)filepath_obj.text, code_gen_file_type, &llvm_error)) {
-                gb_printf_err("LLVM Error: %s\n", llvm_error);
+                gb_printf_err("[LLVMTargetMachineEmitToFile] LLVM Error: %s\n", llvm_error);
                 exit_with_errors();
                 return false;
             }
@@ -3588,7 +3589,7 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
             }
             String filepath_ll = lb_filepath_ll_for_module(m);
             if (LLVMPrintModuleToFile(m->mod, cast(char const *)filepath_ll.text, &llvm_error)) {
-                gb_printf_err("LLVM Error: %s\n", llvm_error);
+                gb_printf_err("[LLVMPrintModuleToFile] LLVM Error: %s\n", llvm_error);
                 exit_with_errors();
                 return false;
             }

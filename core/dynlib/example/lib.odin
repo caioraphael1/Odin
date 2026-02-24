@@ -1,5 +1,3 @@
-package library
-
 @(export)
 foo_add :: proc "c" (a, b: int) -> (res: int) {
 	return a + b

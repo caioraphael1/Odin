@@ -7,8 +7,6 @@ See:
 - [[ https://www.rfc-editor.org/rfc/rfc8439 ]]
 - [[ https://datatracker.ietf.org/doc/html/draft-arciszewski-xchacha-03 ]]
 */
-package chacha20poly1305
-
 import "core:crypto"
 import "core:crypto/chacha20"
 import "core:crypto/poly1305"

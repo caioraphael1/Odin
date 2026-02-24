@@ -1,5 +1,3 @@
-package unicode
-
 @(private) pC     :: 1<<0 // a control character.
 @(private) pP     :: 1<<1 // a punctuation character.
 @(private) pN     :: 1<<2 // a numeral.

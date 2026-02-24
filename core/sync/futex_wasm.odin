@@ -1,7 +1,5 @@
 #+private
 #+build wasm32, wasm64p32
-package sync
-
 import "base:intrinsics"
 import "core:time"
 

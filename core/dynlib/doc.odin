@@ -6,4 +6,3 @@ For in depth detail on the underlying behaviour please refer to your target plat
 
 For a full example, see: [[ core/dynlib/example; https://github.com/odin-lang/Odin/tree/master/core/dynlib/example ]]
 */
-package dynlib

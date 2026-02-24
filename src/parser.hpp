@@ -108,8 +108,6 @@ struct AstFile {
     AstPackage * pkg;
     Scope *      scope;
 
-    Ast *        pkg_decl;
-
     String       fullpath;
     String       filename;
     String       directory;
@@ -120,8 +118,6 @@ struct AstFile {
     isize        prev_token_index;
     Token        curr_token;
     Token        prev_token; // previous non-comment
-    Token        package_token;
-    String       package_name;
 
     u64          vet_flags;
     u64          feature_flags;
@@ -629,12 +625,6 @@ AST_KIND(_DeclBegin,      "", bool) \
         CommentGroup *comment;    \
         bool          is_using;   \
         bool          is_mutable; \
-    }) \
-    AST_KIND(PackageDecl, "package declaration", struct { \
-        Token token;           \
-        Token name;            \
-        CommentGroup *docs;    \
-        CommentGroup *comment; \
     }) \
     AST_KIND(ImportDecl, "import declaration", struct { \
         AstPackage *package;    \

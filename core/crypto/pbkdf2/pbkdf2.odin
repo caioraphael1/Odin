@@ -3,8 +3,6 @@
 
 See: [[ https://www.rfc-editor.org/rfc/rfc2898 ]]
 */
-package pbkdf2
-
 import "core:crypto/hash"
 import "core:crypto/hmac"
 import "core:encoding/endian"

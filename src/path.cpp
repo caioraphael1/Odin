@@ -124,6 +124,19 @@ gb_internal String directory_from_path(String const &s) {
     return substring(s, 0, 0);
 }
 
+// Caio:
+String get_last_element_in_path(String const &s) {
+    isize i = s.len-1;
+    for (; i > 0; i--) {
+        if (s[i] == '/' ||
+            s[i] == '\\') {
+            break;
+        }
+    }
+
+    return substring(s, i+1, s.len);  
+}
+
 #if defined(GB_SYSTEM_WINDOWS)
     gb_internal bool path_is_directory(String path) {
         gbAllocator a = heap_allocator();

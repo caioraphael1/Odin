@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSAutoreleasePool")
 AutoreleasePool :: struct {using _: Object}
 

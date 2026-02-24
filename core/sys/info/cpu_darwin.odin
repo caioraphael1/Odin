@@ -1,5 +1,3 @@
-package sysinfo
-
 import "core:sys/unix"
 
 // @(init)

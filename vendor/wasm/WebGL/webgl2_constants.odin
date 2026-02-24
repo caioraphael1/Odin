@@ -1,5 +1,3 @@
-package webgl
-
 READ_BUFFER                                   :: Enum(0x0C02)
 UNPACK_ROW_LENGTH                             :: Enum(0x0CF2)
 UNPACK_SKIP_ROWS                              :: Enum(0x0CF3)

@@ -1,5 +1,3 @@
-package sync
-
 import "core:time"
 
 Atomic_Mutex_State :: enum Futex {

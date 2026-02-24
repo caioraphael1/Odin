@@ -1,5 +1,3 @@
-package objc_Foundation
-
 import "base:intrinsics"
 
 @(private) msgSend :: intrinsics.objc_send

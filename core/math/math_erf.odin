@@ -1,5 +1,3 @@
-package math
-
 // The original C code and the long comment below are
 // from FreeBSD's /usr/src/lib/msun/src/s_erf.c and
 // came with this notice. 

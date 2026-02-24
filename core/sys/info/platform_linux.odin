@@ -1,5 +1,3 @@
-package sysinfo
-
 import "base:intrinsics"
 import "base:runtime"
 

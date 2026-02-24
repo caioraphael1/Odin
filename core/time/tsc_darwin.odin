@@ -1,6 +1,4 @@
 #+private
-package time
-
 import "base:intrinsics"
 @(require) import "core:sys/unix"
 

@@ -1,5 +1,3 @@
-package glfw_bindings
-
 import "core:c"
 
 WindowHandle  :: distinct rawptr

@@ -1,7 +1,5 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-package os2
-
 import "base:runtime"
 
 @(require)

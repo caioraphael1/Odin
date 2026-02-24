@@ -6,4 +6,3 @@ References:
 - https://tdop.github.io/
 - http://crockford.com/javascript/tdop/tdop.html
 */
-package regex_parser

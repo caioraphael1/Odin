@@ -1,6 +1,4 @@
 #+build !js
-package tga
-
 import "core:os"
 import "core:bytes"
 

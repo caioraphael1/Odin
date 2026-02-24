@@ -1,5 +1,3 @@
-package vendor_openexr
-
 import "core:c"
 
 // Enum declaring allowed values for \c u8 value stored in built-in compression type.

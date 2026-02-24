@@ -3734,4 +3734,3 @@ See below for some tips on improving performance.
 - When compiling with VC6 and earlier, decoding is restricted to files less than 2GB in size. This
   is due to 64-bit file APIs not being available.
 */
-package miniaudio

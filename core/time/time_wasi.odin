@@ -1,7 +1,5 @@
 #+private
 #+build wasi
-package time
-
 import "base:intrinsics"
 
 import "core:sys/wasm/wasi"

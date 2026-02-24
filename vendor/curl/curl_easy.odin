@@ -1,5 +1,3 @@
-package vendor_curl
-
 import c "core:c/libc"
 
 /* Flag bits in the curl_blob struct: */

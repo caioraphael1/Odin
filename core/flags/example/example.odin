@@ -1,5 +1,3 @@
-package core_flags_example
-
 import "base:runtime"
 import "core:flags"
 import "core:fmt"

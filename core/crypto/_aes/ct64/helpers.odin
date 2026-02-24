@@ -1,5 +1,3 @@
-package aes_ct64
-
 import "core:crypto/_aes"
 import "core:encoding/endian"
 

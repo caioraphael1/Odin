@@ -1,6 +1,4 @@
 #+build !i386
-package runtime
-
 import "base:intrinsics"
 
 @(private = "file")

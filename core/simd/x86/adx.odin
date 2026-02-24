@@ -1,7 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
-
 _addcarry_u32 :: #force_inline proc "c" (c_in: u8, a: u32, b: u32, out: ^u32) -> u8 {
     x, y := llvm_addcarry_u32(c_in, a, b)
     out^ = y

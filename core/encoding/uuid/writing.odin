@@ -1,5 +1,3 @@
-package uuid
-
 import "core:mem"
 import "base:runtime"
 import "core:io"

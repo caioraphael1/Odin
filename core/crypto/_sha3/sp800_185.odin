@@ -1,5 +1,3 @@
-package _sha3
-
 import "core:encoding/endian"
 import "core:math/bits"
 

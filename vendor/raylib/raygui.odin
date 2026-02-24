@@ -1,5 +1,3 @@
-package raylib
-
 import "core:c"
 
 RAYGUI_SHARED :: #config(RAYGUI_SHARED, false)

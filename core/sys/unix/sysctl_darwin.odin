@@ -1,6 +1,4 @@
 #+build darwin
-package unix
-
 import "base:intrinsics"
 
 import "core:sys/darwin"

@@ -1,5 +1,3 @@
-package container_small_array
-
 import "base:builtin"
 @(require) import "base:intrinsics"
 @(require) import "base:runtime"

@@ -78,7 +78,6 @@ gb_internal Token ast_token(Ast *node) {
     case Ast_Label:              return node->Label.token;
 
     case Ast_ValueDecl:          return ast_token(node->ValueDecl.names[0]);
-    case Ast_PackageDecl:        return node->PackageDecl.token;
     case Ast_ImportDecl:         return node->ImportDecl.token;
     case Ast_ForeignImportDecl:  return node->ForeignImportDecl.token;
 
@@ -270,7 +269,6 @@ Token ast_end_token(Ast *node) {
         }
         return {};
 
-    case Ast_PackageDecl:        return node->PackageDecl.name;
     case Ast_ImportDecl:         return node->ImportDecl.relpath;
     case Ast_ForeignImportDecl:
         if (node->ForeignImportDecl.filepaths.count > 0) {

@@ -1,7 +1,5 @@
 #+build windows
 
-package windows_xaudio2
-
 import "core:math"
 
 foreign import xa2 "system:xaudio2.lib"

@@ -56,4 +56,3 @@ Possible future improvements:
   and check against that on any strings before running the virtual machine.
 
 */
-package regex_optimizer

@@ -1,5 +1,3 @@
-package wgpu
-
 import "base:runtime"
 
 BINDINGS_VERSION        :: [4]u8{27, 0, 2, 0}

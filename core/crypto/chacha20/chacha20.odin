@@ -5,8 +5,6 @@ See:
 - [[ https://datatracker.ietf.org/doc/html/rfc8439 ]]
 - [[ https://datatracker.ietf.org/doc/draft-irtf-cfrg-xchacha/03/ ]]
 */
-package chacha20
-
 import "core:bytes"
 import "core:crypto/_chacha20"
 import "core:mem"

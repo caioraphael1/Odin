@@ -1,5 +1,3 @@
-package _edwards25519
-
 /*
 This implements the edwards25519 composite-order group, primarily for
 the purpose of implementing X25519, Ed25519, and ristretto255.  Use of

@@ -1,6 +1,4 @@
 #+build darwin, linux, freebsd, openbsd, netbsd
-package posix
-
 import "core:c"
 
 when ODIN_OS == .Darwin {

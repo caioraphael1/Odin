@@ -1,7 +1,5 @@
 #+build darwin
 #+private
-package sync
-
 import "core:c"
 
 foreign import pthread "system:System"

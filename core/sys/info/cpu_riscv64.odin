@@ -1,5 +1,3 @@
-package sysinfo
-
 CPU_Feature :: enum u64 {
 	// Bit-Manipulation ISA Extensions v1.
 	Zba = 3,

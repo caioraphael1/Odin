@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import uxtheme "system:UxTheme.lib"
 
 MARGINS :: distinct [4]i32

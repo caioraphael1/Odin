@@ -1,7 +1,5 @@
 // Bit Manipulation Intrinsics
 
-package sys_llvm
-
 /*
 @(default_calling_convention="none")
 foreign _ {

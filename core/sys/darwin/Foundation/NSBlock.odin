@@ -1,5 +1,3 @@
-package objc_Foundation
-
 import "base:intrinsics"
 import "base:builtin"
 import "core:mem"

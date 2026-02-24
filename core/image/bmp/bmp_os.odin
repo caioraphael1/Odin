@@ -1,6 +1,4 @@
 #+build !js
-package core_image_bmp
-
 import "core:os"
 import "core:bytes"
 

@@ -1,6 +1,4 @@
 #+build haiku
-package sys_haiku
-
 import "core:sys/posix"
 
 foreign import libroot "system:c"

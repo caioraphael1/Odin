@@ -40,8 +40,6 @@ Example:
 		assert(len(s) == OUTPUT_SIZE)
 	}
 */
-package compress_zlib
-
 /*
 	Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
 	Made available under Odin's license.

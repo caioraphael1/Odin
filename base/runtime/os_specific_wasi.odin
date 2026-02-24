@@ -1,7 +1,5 @@
 #+build wasi
 #+private
-package runtime
-
 foreign import wasi "wasi_snapshot_preview1"
 
 _HAS_RAND_BYTES :: true

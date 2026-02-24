@@ -1,6 +1,4 @@
 #+private
-package sync
-
 import "core:sys/haiku"
 import "core:sys/posix"
 import "core:time"

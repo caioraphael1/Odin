@@ -1,5 +1,3 @@
-package image
-
 import "core:mem"
 import "core:bytes"
 

@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 import "core:math/fixed"
 
 foreign import gdi32 "system:Gdi32.lib"

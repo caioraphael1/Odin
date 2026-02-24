@@ -1,5 +1,3 @@
-package runtime
-
 when ODIN_NO_CRT && ODIN_OS == .Windows {
 	foreign import lib "system:NtDll.lib"
 	

@@ -10,8 +10,6 @@
 #+build !windows
 #+build !orca
 #+build !haiku
-package time
-
 _IS_SUPPORTED :: false
 
 _now :: proc() -> Time {

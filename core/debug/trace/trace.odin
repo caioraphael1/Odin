@@ -1,5 +1,3 @@
-package debug_trace
-
 import "base:intrinsics"
 import "base:runtime"
 

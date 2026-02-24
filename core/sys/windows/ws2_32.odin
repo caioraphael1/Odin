@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 // Define flags to be used with the WSAAsyncSelect() call.
 FD_READ       :: 0x01
 FD_WRITE      :: 0x02

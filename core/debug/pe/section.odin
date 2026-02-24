@@ -1,5 +1,3 @@
-package debug_pe
-
 Section_Header32 :: struct {
     name:                    [8]u8,
     virtual_size:            u32le,

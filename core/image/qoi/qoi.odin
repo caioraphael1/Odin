@@ -1,8 +1,6 @@
 // Reader and writer for `QOI` images.
 //
 // The QOI specification is at [[ https://qoiformat.org ]].
-package qoi
-
 /*
 	Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
 	Made available under Odin's license.

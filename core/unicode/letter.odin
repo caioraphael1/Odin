@@ -1,5 +1,3 @@
-package unicode
-
 import "base:runtime"
 
 MAX_RUNE         :: '\U00010fff' // Maximum valid unicode code point

@@ -1,6 +1,4 @@
 #+private
-package sync
-
 import "base:intrinsics"
 import "core:time"
 import "core:c"

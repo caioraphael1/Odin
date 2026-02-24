@@ -1,7 +1,5 @@
 #+private
 #+build linux
-package sync
-
 import "core:time"
 import "core:sys/linux"
 

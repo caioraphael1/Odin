@@ -1,5 +1,3 @@
-package linalg
-
 /*
     These procedures are to allow for swizzling with non-compile (runtime) known components
 */

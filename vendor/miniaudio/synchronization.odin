@@ -1,5 +1,3 @@
-package miniaudio
-
 foreign import lib { LIB }
 
 @(default_calling_convention="c", link_prefix="ma_")

@@ -1,6 +1,4 @@
 #+build amd64
-package aes_hw_intel
-
 import "core:sys/info"
 
 // is_supported returns true iff hardware accelerated AES

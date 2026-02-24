@@ -1,5 +1,3 @@
-package libc
-
 // 7.13 Nonlocal jumps
 
 when ODIN_OS == .Windows {

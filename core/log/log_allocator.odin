@@ -1,7 +1,5 @@
 #+build !freestanding
 
-package log
-
 import "base:runtime"
 import "core:fmt"
 import "core:sync"

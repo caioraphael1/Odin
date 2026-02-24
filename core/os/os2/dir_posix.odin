@@ -1,7 +1,5 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-package os2
-
 import "core:sys/posix"
 
 Read_Directory_Iterator_Impl :: struct {

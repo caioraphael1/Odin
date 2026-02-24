@@ -1,7 +1,4 @@
 #+build !js
-package wasm_js_interface
-
-
 Event_Kind :: enum u32 {
 	Invalid,
 

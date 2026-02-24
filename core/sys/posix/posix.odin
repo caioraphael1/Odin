@@ -47,8 +47,6 @@ Unimplemented headers:
 - wctype.h
 
 */
-package posix
-
 import "base:intrinsics"
 
 import "core:c"

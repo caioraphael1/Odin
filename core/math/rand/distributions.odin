@@ -1,5 +1,3 @@
-package rand
-
 import "base:runtime"
 import "core:math"
 

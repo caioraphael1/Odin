@@ -36,8 +36,6 @@ Credits:
     Bugfixes:      Florian Behr & Jeroen van Rijn
     Additions:     Jeroen van Rijn
 */
-package stb_easy_font
-
 import "core:math"
 import "core:mem"
 

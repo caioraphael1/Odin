@@ -1,7 +1,5 @@
 #+private
 #+build linux
-package time
-
 import "base:intrinsics"
 @(require) import linux "core:sys/linux"
 

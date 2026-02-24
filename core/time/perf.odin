@@ -1,5 +1,3 @@
-package time
-
 import "base:runtime"
 import "base:intrinsics"
 

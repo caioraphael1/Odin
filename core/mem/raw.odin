@@ -1,5 +1,3 @@
-package mem
-
 import "base:builtin"
 import "base:runtime"
 

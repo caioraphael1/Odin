@@ -1318,15 +1318,6 @@ gb_internal Ast *ast_value_decl(AstFile *f, Array<Ast *> const &names, Ast *type
     return result;
 }
 
-gb_internal Ast *ast_package_decl(AstFile *f, Token token, Token name, CommentGroup *docs, CommentGroup *comment) {
-    Ast *result = alloc_ast_node(f, Ast_PackageDecl);
-    result->PackageDecl.token       = token;
-    result->PackageDecl.name        = name;
-    result->PackageDecl.docs        = docs;
-    result->PackageDecl.comment     = comment;
-    return result;
-}
-
 gb_internal Ast *ast_import_decl(AstFile *f, Token token, Token relpath, Token import_name,
                      CommentGroup *docs, CommentGroup *comment) {
     Ast *result = alloc_ast_node(f, Ast_ImportDecl);
@@ -1551,17 +1542,9 @@ gb_internal Token expect_token(AstFile *f, TokenKind kind) {
         String p = token_to_string(prev);
         begin_error_block();
         syntax_error(f->curr_token, "Expected '%.*s', got '%.*s'", LIT(c), LIT(p));
-        if (kind == Token_Ident) switch (prev.kind) {
-        case Token_package:
-            error_line("\tSuggestion: '%.*s' is a keyword, would 'pkg' suffice?\n", LIT(prev.string));
-            break;
-        default:
-            if (token_is_keyword(prev.kind)) {
-                error_line("\tNote: '%.*s' is a keyword\n", LIT(prev.string));
-            }
-            break;
+        if (kind == Token_Ident && token_is_keyword(prev.kind)) {
+            error_line("\tNote: '%.*s' is a keyword\n", LIT(prev.string));
         }
-
         end_error_block();
 
         if (prev.kind == Token_EOF) {
@@ -1697,8 +1680,6 @@ gb_internal void fix_advance_to_next_stmt(AstFile *f) {
         case Token_Semicolon:
             return;
 
-
-        case Token_package:
         case Token_foreign:
         case Token_import:
 
@@ -5499,6 +5480,7 @@ gb_internal ParseFileError init_ast_file(AstFile *f, String const &fullpath, Tok
     f->fullpath  = string_trim_whitespace(fullpath); // Just in case
     f->filename  = remove_directory_from_path(f->fullpath);
     f->directory = directory_from_path(f->fullpath);
+
     set_file_path_string(f->id, f->fullpath);
     thread_safe_set_ast_file_from_id(f->id, f);
     if (!string_ends_with(f->fullpath, str_lit(".odin"))) {
@@ -5521,7 +5503,6 @@ gb_internal ParseFileError init_ast_file(AstFile *f, String const &fullpath, Tok
         default:
             return ParseFile_InvalidFile;
         }
-
     }
 
     isize file_size = f->tokenizer.end - f->tokenizer.start;
@@ -6538,7 +6519,6 @@ gb_internal bool parse_file_tag(const String &lc, const Token &tok, AstFile *f) 
     } else {
         syntax_error(tok, "Unknown tag '%.*s'", LIT(lc));
     }
-
     return true;
 }
 
@@ -6561,63 +6541,37 @@ gb_internal bool parse_file(Parser *p, AstFile *f) {
     CommentGroup *docs = f->lead_comment;
 
     Array<Token> tags = array_make<Token>(temporary_allocator());
-    bool first_invalid_token_set = false;
-    Token first_invalid_token = {};
+    Token first_token_that_is_not_comment_or_tag = {};
 
-    while (f->curr_token.kind != Token_package && f->curr_token.kind != Token_EOF) {
+    // Loop until the end to check for invalid file tags.
+    bool invalid_tag_found = false;
+    bool token_that_is_not_comment_or_tag_found = false;
+
+    while (f->curr_token.kind != Token_EOF) {
         if (f->curr_token.kind == Token_Comment) {
             consume_comment_groups(f, f->prev_token);
         } else if (f->curr_token.kind == Token_FileTag) {
+            if (token_that_is_not_comment_or_tag_found) {
+                invalid_tag_found = true;
+                break;
+            }
+
             array_add(&tags, f->curr_token);
             advance_token(f);
         } else {
-            if (!first_invalid_token_set) {
-                first_invalid_token_set = true;
-                first_invalid_token = f->curr_token;
+            if (!token_that_is_not_comment_or_tag_found) {
+                token_that_is_not_comment_or_tag_found = true;
+                first_token_that_is_not_comment_or_tag = f->curr_token;
+                break;
             }
-
             advance_token(f);
         }
     }
 
-    if (f->curr_token.kind != Token_package) {
-        ERROR_BLOCK();
-
-        // The while loop above scanned until it found the package token. If we never
-        // found one, then make this error appear on the first invalid token line.
-        Token t = first_invalid_token_set ? first_invalid_token : f->curr_token;
-        syntax_error(t, "Expected a package declaration at the beginning of the file");
-
-        // IMPORTANT NOTE(bill): this is technically a race condition with the suggestion, but it's ony a suggession
-        // so in practice is should be "fine"
-        if (f->pkg && f->pkg->name != "") {
-            error_line("\tSuggestion: Add 'package %.*s' to the top of the file\n", LIT(f->pkg->name));
-        }
+    if (invalid_tag_found) {
+        syntax_error(f->curr_token, "Expected only comments or file tags with '#+' before any other token");
         return false;
     }
-
-    // There was an OK package declaration. But there some invalid token was hit before the package declaration.
-    if (first_invalid_token_set) {
-        syntax_error(first_invalid_token, "Expected only comments or lines starting with '#+' before the package declaration");
-        return false;
-    }
-
-    f->package_token = expect_token(f, Token_package);
-    if (f->package_token.kind != Token_package) {
-        return false;
-    }
-
-    Token package_name = expect_token_after(f, Token_Ident, "package");
-    if (package_name.kind == Token_Ident) {
-        if (package_name.string == "_") {
-            syntax_error(package_name, "Invalid package name '_'");
-        } else if (f->pkg->kind != Package_Runtime && package_name.string == "runtime") {
-            syntax_error(package_name, "Use of reserved package name '%.*s'", LIT(package_name.string));
-        } else if (is_package_name_reserved(package_name.string)) {
-            syntax_error(package_name, "Use of reserved package name '%.*s'", LIT(package_name.string));
-        }
-    }
-    f->package_name = package_name.string;
 
     {
         if (docs != nullptr && docs->list.count > 0) {
@@ -6652,10 +6606,6 @@ gb_internal bool parse_file(Parser *p, AstFile *f) {
             }
         }
     }
-
-    Ast *pd = ast_package_decl(f, f->package_token, package_name, docs, f->line_comment);
-    expect_semicolon(f);
-    f->pkg_decl = pd;
 
     if (f->error_count == 0) {
         auto decls = array_make<Ast *>(ast_allocator(f));
@@ -6765,15 +6715,24 @@ gb_internal ParseFileError process_imported_file(Parser *p, ImportedFile importe
 
         mutex_lock(&pkg->name_mutex);
         if (pkg->name.len == 0) {
-            pkg->name = file->package_name;
-        } else if (pkg->name != file->package_name) {
-            if (file->tokens.count > 0 && file->tokens[0].kind != Token_EOF) {
-                Token tok = file->package_token;
-                tok.pos.file_id = file->id;
-                tok.pos.line = gb_max(tok.pos.line, 1);
-                tok.pos.column = gb_max(tok.pos.column, 1);
-                syntax_error(tok, "Different package name, expected '%.*s', got '%.*s'", LIT(pkg->name), LIT(file->package_name));
+            String package_name = get_last_element_in_path(file->directory);
+            if (is_package_name_reserved(package_name)) {
+
+                global_error_collector.count.fetch_add(1);
+                mutex_lock(&global_error_collector.mutex);
+                if (global_error_collector.count > MAX_ERROR_COLLECTOR_COUNT()) {
+                    print_all_errors();
+                    gb_exit(1);
+                }
+                push_error_value({}, ErrorValue_Error);
+                error_out_empty();
+                error_out_coloured("Error: ", TerminalStyle_Normal, TerminalColour_Red);
+                error_line("Use of reserved package name '%.*s'", LIT(package_name));
+                try_pop_error_value();
+                mutex_unlock(&global_error_collector.mutex);
+                
             }
+            pkg->name = package_name;
         }
         mutex_unlock(&pkg->name_mutex);
 

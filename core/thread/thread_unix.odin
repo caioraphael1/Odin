@@ -1,7 +1,5 @@
 #+build linux, darwin, freebsd, openbsd, netbsd, haiku
 #+private
-package thread
-
 import "base:runtime"
 import "core:sync"
 import "core:sys/posix"

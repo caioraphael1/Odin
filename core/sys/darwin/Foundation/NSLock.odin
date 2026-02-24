@@ -1,5 +1,3 @@
-package objc_Foundation
-
 Locking :: struct($T: typeid) {using _: Object}
 
 Locking_lock :: proc "c" (self: ^Locking($T)) {

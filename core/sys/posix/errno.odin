@@ -1,6 +1,4 @@
 #+build windows, darwin, linux, freebsd, openbsd, netbsd, haiku
-package posix
-
 import "core:c"
 import "core:c/libc"
 

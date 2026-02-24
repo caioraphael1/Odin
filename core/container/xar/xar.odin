@@ -24,8 +24,6 @@
             fmt.println(ptr^)  // prints 20
         }
 */
-package container_xar
-
 @(require) import "core:mem"
 @(require) import "base:intrinsics"
 @(require) import "base:runtime"

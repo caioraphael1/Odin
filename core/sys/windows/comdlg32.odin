@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import "system:Comdlg32.lib"
 
 LPOFNHOOKPROC :: #type proc "system" (hdlg: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> UINT_PTR

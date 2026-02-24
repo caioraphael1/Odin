@@ -1,5 +1,3 @@
-package math_cmplx
-
 import "core:math"
 import "core:math/bits"
 

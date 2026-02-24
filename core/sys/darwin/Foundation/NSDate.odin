@@ -1,5 +1,3 @@
-package objc_Foundation
-
 @(objc_class="NSDate")
 Date :: struct {using _: Copying(Date)}
 

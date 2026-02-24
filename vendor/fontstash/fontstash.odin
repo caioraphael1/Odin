@@ -1,7 +1,5 @@
 // An Odin-native source port of [[ Fontstash ; https://github.com/memononen/fontstash ]].
 #+vet !using-param
-package fontstash
-
 import "base:runtime"
 
 import "core:log"

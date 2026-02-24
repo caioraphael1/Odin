@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import version "system:version.lib"
 
 @(default_calling_convention = "system")

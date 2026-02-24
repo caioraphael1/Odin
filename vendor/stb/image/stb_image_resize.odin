@@ -1,5 +1,3 @@
-package stb_image
-
 import "core:c"
 
 @(private)

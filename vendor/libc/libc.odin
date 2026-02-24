@@ -1,5 +1,3 @@
-package odin_libc
-
 import "base:runtime"
 
 import "core:mem"

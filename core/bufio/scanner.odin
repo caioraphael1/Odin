@@ -1,5 +1,3 @@
-package bufio
-
 import "core:bytes"
 import "core:io"
 import "core:mem"

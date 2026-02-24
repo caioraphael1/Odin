@@ -5,8 +5,6 @@
 #+build !netbsd
 #+build !linux
 #+build !windows
-package mem_virtual
-
 import os "core:os/os2"
 
 _reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {

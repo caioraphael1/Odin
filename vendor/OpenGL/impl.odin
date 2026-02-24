@@ -1,5 +1,3 @@
-package vendor_gl
-
 loaded_up_to: [2]int
 loaded_up_to_major := 0
 loaded_up_to_minor := 0

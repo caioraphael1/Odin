@@ -1,6 +1,4 @@
 #+build linux, freebsd, openbsd
-package xlib
-
 XNClientWindow: cstring : "clientWindow"
 XNInputStyle:   cstring : "inputStyle"
 XNFocusWindow:  cstring : "focusWindow"

@@ -1,6 +1,4 @@
 #+build windows
-package sys_windows
-
 foreign import "system:bthprops.lib"
 
 HBLUETOOTH_DEVICE_FIND :: distinct HANDLE

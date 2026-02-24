@@ -1,6 +1,4 @@
 #+build !js
-package wasm_js_interface
-
 import "core:mem"
 
 PAGE_SIZE :: 64 * 1024

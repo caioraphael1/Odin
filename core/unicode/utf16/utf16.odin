@@ -1,6 +1,4 @@
 // Procedures and constants to support text-encoding in the `UTF-16` character encoding.
-package utf16
-
 import "core:unicode/utf8"
 import "base:runtime"
 

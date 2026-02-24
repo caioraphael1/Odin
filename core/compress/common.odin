@@ -1,6 +1,4 @@
 // A collection of utilities to aid with other `compress`ion packages.
-package compress
-
 /*
     Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
     Made available under Odin's license.

@@ -1,7 +1,5 @@
 #+build orca
 #+private
-package runtime
-
 import "base:intrinsics"
 
 _HAS_RAND_BYTES :: false

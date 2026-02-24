@@ -1,6 +1,4 @@
 #+build i386, amd64
-package simd_x86
-
 import "core:simd"
 
 _SIDD_UBYTE_OPS                :: 0b0000_0000
