@@ -1,4 +1,4 @@
-// #+private
+
 import "base:runtime"
 import "core:strings"
 import win32 "core:sys/windows"
@@ -6,6 +6,9 @@ import win32 "core:sys/windows"
 _Path_Separator        :: '\\'
 _Path_Separator_String :: "\\"
 _Path_List_Separator   :: ';'
+
+@(private)
+can_use_long_paths: bool
 
 // @(init)
 init_long_path_support :: proc() {
@@ -41,7 +44,7 @@ _is_path_separator :: proc(c: byte) -> bool {
     return c == '\\' || c == '/'
 }
 
-_mkdir :: proc(name: string, perm: int) -> Error {
+_mkdir :: proc(name: string, perm: Permissions) -> Error {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
     if !win32.CreateDirectoryW(_fix_long_path(name, runtime.temp_allocator) or_return, nil) {
         return _get_platform_error()
@@ -49,15 +52,16 @@ _mkdir :: proc(name: string, perm: int) -> Error {
     return nil
 }
 
-_mkdir_all :: proc(path: string, perm: int) -> Error {
-    fix_root_directory :: proc(p: string, allocator: runtime.Allocator) -> (s: string, err: runtime.Allocator_Error) {
+_mkdir_all :: proc(path: string, perm: Permissions) -> Error {
+    fix_root_directory :: proc(p: string, allocator: runtime.Allocator) -> (s: string, allocated: bool, err: runtime.Allocator_Error) {
         if len(p) == len(`\\?\c:`) {
             if is_path_separator(p[0]) && is_path_separator(p[1]) && p[2] == '?' && is_path_separator(p[3]) && p[5] == ':' {
                 s = concatenate({p, `\`}, allocator) or_return
+                allocated = true
                 return
             }
         }
-        return p, nil
+        return p, false, nil
     }
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
@@ -81,7 +85,10 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     }
 
     if j > 1 {
-        new_path := fix_root_directory(path[:j-1], runtime.temp_allocator) or_return
+        new_path, _ := fix_root_directory(path[:j-1], runtime.temp_allocator) or_return
+        // defer if allocated {
+        //  delete(new_path, allocator)
+        // }
         mkdir_all(new_path, perm) or_return
     }
 
@@ -181,8 +188,6 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
     }
 }
 
-can_use_long_paths: bool
-
 
 
 _fix_long_path_slice :: proc(path: string, allocator: runtime.Allocator) -> ([]u16, runtime.Allocator_Error) {
@@ -278,6 +283,10 @@ _is_absolute_path :: proc(path: string) -> bool {
     if _is_reserved_name(path) {
         return true
     }
+    if len(path) > 0 && _is_path_separator(path[0]) {
+        return true
+    }
+
     l := _volume_name_len(path)
     if l == 0 {
         return false

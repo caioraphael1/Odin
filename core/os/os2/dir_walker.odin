@@ -44,13 +44,6 @@ walker_init_file :: proc(w: ^Walker, f: ^File, allocator: runtime.Allocator) {
     read_directory_iterator_init(&w.iter, handle, allocator)
 }
 
-/*
-Initializes a walker, either using a path or a file pointer to a directory the walker will start at.
-
-You are allowed to repeatedly call this to reuse it for later walks.
-
-For an example on how to use the walker, see `walker_walk`.
-*/
 
 walker_create_path :: proc(path: string, allocator: runtime.Allocator) -> (w: Walker) {
     walker_init_path(&w, path, allocator)
@@ -63,11 +56,6 @@ walker_create_file :: proc(f: ^File, allocator: runtime.Allocator) -> (w: Walker
     return
 }
 
-/*
-Creates a walker, either using a path or a file pointer to a directory the walker will start at.
-
-For an example on how to use the walker, see `walker_walk`.
-*/
 
 /*
 Returns the last error that occurred during the walker's operations.
@@ -126,8 +114,8 @@ If an error occurred opening a directory, you may get zero'd info struct and
 Example:
     package main
 
-    import    "core:fmt"
-    import    "core:strings"
+    import "core:fmt"
+    import "core:strings"
     import os "core:os/os2"
 
     main :: proc() {

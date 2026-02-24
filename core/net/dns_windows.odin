@@ -1,4 +1,6 @@
 #+build windows
+
+
 /*
     Package net implements cross-platform Berkeley Sockets, DNS resolution and associated procedures.
     For other protocols and their features, see subdirectories of this package.
@@ -18,11 +20,28 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "core:strings"
-import "core:mem"
 import "base:runtime"
 
+import "core:mem"
+import os "core:os/os2"
+import "core:strings"
+import "core:sync"
+
 import win "core:sys/windows"
+
+/*
+    Replaces environment placeholders in `dns_configuration`. Only necessary on Windows.
+    Is automatically called, once, by `get_dns_records_*`.
+*/
+@(private)
+_init_dns_configuration :: proc() {
+    sync.once_do_without_data(&dns_config_initialized, proc() {
+        runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+        val := os.replace_environment_placeholders(dns_configuration.hosts_file, runtime.temp_allocator)
+        copy_from_string(dns_configuration.hosts_file_buf[:], val)
+        dns_configuration.hosts_file = string(dns_configuration.hosts_file_buf[:len(val)])
+    })
+}
 
 @(private)
 _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: mem.Allocator) -> (records: []DNS_Record, err: DNS_Error) {
@@ -67,6 +86,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
         }
 
         name_clone, _ := strings.clone(string(r.pName), allocator)
+
         base_record := DNS_Record_Base{
             record_name = name_clone,
             ttl_seconds = r.dwTtl,
@@ -90,10 +110,10 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
             _ = append(&recs, record)
 
         case .CNAME:
-            cname_clone, _ := strings.clone(string(r.Data.CNAME), allocator)
+            data_clone, _ := strings.clone(string(r.Data.CNAME), allocator)
             record := DNS_Record_CNAME{
                 base      = base_record,
-                host_name = cname_clone,
+                host_name = data_clone,
             }
             _ = append(&recs, record)
 
@@ -127,6 +147,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
             */
 
             name_exchange_clone, _ := strings.clone(string(r.Data.MX.pNameExchange), allocator)
+
             record := DNS_Record_MX{
                 base       = base_record,
                 host_name  = name_exchange_clone,
@@ -159,6 +180,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
             }
 
             name_target_clone, _ := strings.clone(string(r.Data.SRV.pNameTarget), allocator)
+
             _ = append(&recs, DNS_Record_SRV {
                 base          = base_record,
                 target        = name_target_clone, // The target hostname/address that the service can be found on

@@ -8,6 +8,8 @@ See:
 - [[ https://eprint.iacr.org/2005/075 ]]
 - [[ https://datatracker.ietf.org/doc/html/rfc1321 ]]
 */
+
+
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.
@@ -16,9 +18,9 @@ See:
         zhibog, dotbmp:  Initial implementation.
 */
 
+import "core:crypto"
 import "core:encoding/endian"
 import "core:math/bits"
-import "core:mem"
 
 // DIGEST_SIZE is the MD5 digest size in bytes.
 DIGEST_SIZE :: 16
@@ -98,7 +100,7 @@ final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
 			i += 1
 		}
 		transform(ctx, ctx.data[:])
-		mem.set(&ctx.data, 0, 56)
+		crypto.set(&ctx.data, 0, 56)
 	}
 
 	ctx.bitlen += u64(ctx.datalen * 8)
@@ -122,7 +124,7 @@ reset :: proc(ctx: ^$T) {
 		return
 	}
 
-	mem.zero_explicit(ctx, size_of(ctx^))
+	crypto.zero_explicit(ctx, size_of(ctx^))
 }
 
 /*
@@ -130,7 +132,7 @@ reset :: proc(ctx: ^$T) {
 */
 
 /*
-    Note(zh): F, G, H and I, as mentioned in the RFC, have been inlined into FF, GG, HH
+    @note(zh): F, G, H and I, as mentioned in the RFC, have been inlined into FF, GG, HH
     and II respectively, instead of declaring them separately.
 */
 

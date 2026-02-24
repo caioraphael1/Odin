@@ -1,4 +1,6 @@
 #+build !amd64
+
+
 @(private = "file")
 ERR_HW_NOT_SUPPORTED :: "crypto/sha2: hardware implementation unsupported"
 
@@ -9,5 +11,5 @@ is_hardware_accelerated_256 :: proc() -> bool {
 }
 
 sha256_transf_hw :: proc(ctx: ^Context_256, data: []byte) {
-	panic(ERR_HW_NOT_SUPPORTED)
+	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }

@@ -1,25 +1,27 @@
-/*
-    Copyright 2021 zhibog
-    Made available under Odin's license.
 
-    List of contributors:
-        zhibog, dotbmp:  Initial implementation.
+
+/*
+	Copyright 2021 zhibog
+	Made available under Odin's license.
+
+	List of contributors:
+		zhibog, dotbmp:  Initial implementation.
 */
 
+import "core:crypto"
 import "core:io"
-import "core:mem"
 
 // hash_bytes will hash the given input and return the computed digest
 // in a newly allocated slice.
 hash_string :: proc(algorithm: Algorithm, data: string, allocator: mem.Allocator) -> []byte {
-    return hash_bytes(algorithm, transmute([]byte)(data), allocator)
+	return hash_bytes(algorithm, transmute([]byte)(data), allocator)
 }
 
 // hash_bytes will hash the given input and return the computed digest
 // in a newly allocated slice.
 hash_bytes :: proc(algorithm: Algorithm, data: []byte, allocator: mem.Allocator) -> []byte {
-    dst := make_slice([]byte, DIGEST_SIZES[algorithm], allocator)
-    return hash_bytes_to_buffer(algorithm, data, dst)
+	dst := make([]byte, DIGEST_SIZES[algorithm], allocator)
+	return hash_bytes_to_buffer(algorithm, data, dst)
 }
 
 // hash_string_to_buffer will hash the given input and assign the
@@ -28,7 +30,7 @@ hash_bytes :: proc(algorithm: Algorithm, data: []byte, allocator: mem.Allocator)
 // provided destination buffer is returned to match the behavior of
 // `hash_string`.
 hash_string_to_buffer :: proc(algorithm: Algorithm, data: string, hash: []byte) -> []byte {
-    return hash_bytes_to_buffer(algorithm, transmute([]byte)(data), hash)
+	return hash_bytes_to_buffer(algorithm, transmute([]byte)(data), hash)
 }
 
 // hash_bytes_to_buffer will hash the given input and write the
@@ -37,49 +39,49 @@ hash_string_to_buffer :: proc(algorithm: Algorithm, data: string, hash: []byte) 
 // provided destination buffer is returned to match the behavior of
 // `hash_bytes`.
 hash_bytes_to_buffer :: proc(algorithm: Algorithm, data, hash: []byte) -> []byte {
-    ctx: Context
+	ctx: Context
 
-    init(&ctx, algorithm)
-    update(&ctx, data)
-    final(&ctx, hash)
+	init(&ctx, algorithm)
+	update(&ctx, data)
+	final(&ctx, hash)
 
-    return hash[:DIGEST_SIZES[algorithm]]
+	return hash[:DIGEST_SIZES[algorithm]]
 }
 
 // hash_stream will incrementally fully consume a stream, and return the
 // computed digest in a newly allocated slice.
 hash_stream :: proc(
-    algorithm: Algorithm,
-    s: io.Stream,
-    allocator: mem.Allocator,
+	algorithm: Algorithm,
+	s: io.Stream,
+	allocator: mem.Allocator,
 ) -> (
-    []byte,
-    io.Error,
+	[]byte,
+	io.Error,
 ) {
-    ctx: Context
+	ctx: Context
 
-    buf: [MAX_BLOCK_SIZE * 4]byte
-    defer mem.zero_explicit(&buf, size_of(buf))
+	buf: [MAX_BLOCK_SIZE * 4]byte
+	defer crypto.zero_explicit(&buf, size_of(buf))
 
-    init(&ctx, algorithm)
+	init(&ctx, algorithm)
 
-    loop: for {
-        n, err := io.read(s, buf[:])
-        if n > 0 {
-            // XXX/yawning: Can io.read return n > 0 and EOF?
-            update(&ctx, buf[:n])
-        }
-        #partial switch err {
-        case .None:
-        case .EOF:
-            break loop
-        case:
-            return nil, err
-        }
-    }
+	loop: for {
+		n, err := io.read(s, buf[:])
+		if n > 0 {
+			// XXX/yawning: Can io.read return n > 0 and EOF?
+			update(&ctx, buf[:n])
+		}
+		#partial switch err {
+		case .None:
+		case .EOF:
+			break loop
+		case:
+			return nil, err
+		}
+	}
 
-    dst := make_slice([]byte, DIGEST_SIZES[algorithm], allocator)
-    final(&ctx, dst)
+	dst := make([]byte, DIGEST_SIZES[algorithm], allocator)
+	final(&ctx, dst)
 
-    return dst, io.Error.None
+	return dst, io.Error.None
 }

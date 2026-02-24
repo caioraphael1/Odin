@@ -1,5 +1,6 @@
 #+build linux
 #+no-instrumentation
+
 import "base:intrinsics"
 
 
@@ -395,12 +396,6 @@ shmctl_info :: proc(key: Key, cmd: IPC_Cmd, buf: ^Shm_Info) -> (int, Errno) {
 }
 
 /*
-    SystemV shared memory control.
-    Available since Linux 2.0.
-*/
-
-
-/*
     Allocate a new file descriptor that refers to the same file as the one provided.
     Available since Linux 1.0.
 */
@@ -581,16 +576,8 @@ send_noaddr :: proc(sock: Fd, buf: []u8, flags: Socket_Msg) -> (int, Errno) {
     return errno_unwrap(ret, int)
 }
 
-/*
-    Receive a message from a socket.
-    Available since Linux 2.0.
-*/
 
 
-/*
-    Send a message through a socket.
-    Available since Linux 2.0.
-*/
 
 
 /*
@@ -748,130 +735,6 @@ where
 }
 
 
-/*
-    Creates a copy of the running process.
-    Available since Linux 1.0.
-*/
-fork :: proc() -> (Pid, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_clone, u64(Signal.SIGCHLD), cast(rawptr) nil, cast(rawptr) nil, cast(rawptr) nil, u64(0))
-        return errno_unwrap(ret, Pid)
-    } else {
-        ret := syscall(SYS_fork)
-        return errno_unwrap(ret, Pid)
-    }
-}
-
-/*
-    Create a child process and block parent.
-    Available since Linux 2.2.
-*/
-vfork :: proc() -> Pid {
-    when ODIN_ARCH != .arm64 && ODIN_ARCH != .riscv64 {
-        return Pid(syscall(SYS_vfork))
-    } else {
-        return Pid(syscall(SYS_clone, Signal.SIGCHLD))
-    }
-}
-
-/*
-    Replace the current process with another program.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 3.19.
-*/
-execve :: proc(name: cstring, argv: [^]cstring, envp: [^]cstring) -> (Errno) {
-    when ODIN_ARCH != .arm64 && ODIN_ARCH != .riscv64 {
-        ret := syscall(SYS_execve, cast(rawptr) name, cast(rawptr) argv, cast(rawptr) envp)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_execveat, AT_FDCWD, cast(rawptr) name, cast(rawptr) argv, cast(rawptr) envp, i32(0))
-        return Errno(-ret)
-    }
-}
-
-/*
-    Exit the thread with a given exit code.
-    Available since Linux 1.0.
-*/
-exit :: proc(code: i32) -> ! {
-    syscall(SYS_exit, code)
-    unreachable()
-}
-
-/*
-    Wait for the process to change state.
-    Available since Linux 1.0.
-*/
-wait4 :: proc(pid: Pid, status: ^u32, options: Wait_Options, rusage: ^RUsage) -> (Pid, Errno) {
-    ret := syscall(SYS_wait4, pid, status, transmute(u32) options, rusage)
-    return errno_unwrap(ret, Pid)
-}
-
-/*
-    See `wait4` for documentation.
-*/
-waitpid :: wait4
-
-/*
-    Send signal to a process.
-    Available since Linux 1.0.
-*/
-kill :: proc(pid: Pid, signal: Signal) -> (Errno) {
-    ret := syscall(SYS_kill, pid, signal)
-    return Errno(-ret)
-}
-
-/*
-    Get system information.
-    Available since Linux 1.0.
-*/
-uname :: proc(uts_name: ^UTS_Name) -> (Errno) {
-    ret := syscall(SYS_uname, uts_name)
-    return Errno(-ret)
-}
-
-/*
-    Get a SystemV semaphore set identifier.
-    Available since Linux 2.0.
-*/
-semget :: proc(key: Key, n: i32, flags: IPC_Flags) -> (Key, Errno) {
-    ret := syscall(SYS_semget, key, n, transmute(i16) flags)
-    return errno_unwrap(ret, Key)
-}
-
-/*
-    SystemV semaphore operations.
-    Available since Linux 2.0.
-*/
-semop :: proc(key: Key, ops: []Sem_Buf) -> (Errno) {
-    when ODIN_ARCH != .i386 {
-        ret := syscall(SYS_semop, key, raw_data(ops), len(ops))
-        return Errno(-ret)
-    } else {
-        // Note(flysand): Max time limit, let's not worry about nanoseconds...
-        max_timespec := Time_Spec {
-            time_sec = max(uint),
-            time_nsec = 0,
-        }
-        ret := syscall(SYS_semtimedop_time64, key, raw_data(ops), len(ops), &max_timespec)
-        return Errno(-ret)
-    }
-}
-
-semctl3 :: proc(key: Key, semnum: i32, cmd: IPC_Cmd) -> (int, Errno) {
-    ret := syscall(SYS_semctl, key, semnum, cmd)
-    return errno_unwrap(ret, int)
-}
-
-semctl4 :: proc(key: Key, semnum: i32, cmd: IPC_Cmd, semun: ^Sem_Un) -> (int, Errno) {
-    ret := syscall(SYS_semctl, key, semnum, cmd, semun)
-    return errno_unwrap(ret, int)
-}
-
-/*
-    SystemV semaphore control operations.
-    Available since Linux 2.0.
-*/
 
 
 /*
@@ -1055,497 +918,6 @@ fcntl_set_file_rw_hint :: proc(fd: Fd, cmd: FCntl_Command_SET_FILE_RW_HINT, hint
 }
 
 
-/*
-    Apply or remove advisory lock on an open file.
-    Available since Linux 2.0.
-*/
-flock :: proc(fd: Fd, operation: FLock_Op) -> (Errno) {
-    ret := syscall(SYS_flock, fd, transmute(i32) operation)
-    return Errno(-ret)
-}
-
-/*
-    Sync state of the file with the storage device.
-    Available since Linux 1.0.
-*/
-fsync :: proc(fd: Fd) -> (Errno) {
-    ret := syscall(SYS_fsync, fd)
-    return Errno(-ret)
-}
-
-/*
-    Synchronize the state of the file with the storage device. Similar to `fsync`,
-    except does not flush the metadata.
-    Available since Linux 2.0.
-*/
-fdatasync :: proc(fd: Fd) -> (Errno) {
-    ret := syscall(SYS_fdatasync, fd)
-    return Errno(-ret)
-}
-
-/*
-    Truncate a file to specified length.
-    Available since Linux 1.0.
-    On 32-bit architectures available since Linux 2.4.
-*/
-truncate :: proc(name: cstring, length: i64) -> (Errno) {
-    when ODIN_ARCH == .arm32 {
-        ret := syscall(SYS_truncate64, cast(rawptr) name, 0, compat64_arg_pair(length))
-        return Errno(-ret)
-    } else when size_of(int) == 4 {
-        ret := syscall(SYS_truncate64, cast(rawptr) name, compat64_arg_pair(length))
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_truncate, cast(rawptr) name, compat64_arg_pair(length))
-        return Errno(-ret)
-    }
-}
-
-/*
-    Truncate a file specified by file descriptor to specified length.
-    On 32-bit architectures available since 2.4.
-*/
-ftruncate :: proc(fd: Fd, length: i64) -> (Errno) {
-    when ODIN_ARCH == .arm32 {
-        ret := syscall(SYS_ftruncate64, fd, 0, compat64_arg_pair(length))
-        return Errno(-ret)
-    } else when size_of(int) == 4 {
-        ret := syscall(SYS_ftruncate64, fd, compat64_arg_pair(length))
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_ftruncate, fd, compat64_arg_pair(length))
-        return Errno(-ret)
-    }
-}
-
-/*
-    Retrieve the contents of the directory specified by dirfd.
-    Returns the number of bytes written.
-    Available since Linux 2.4.
-*/
-getdents :: proc(dirfd: Fd, buf: []u8) -> (int, Errno) {
-    ret := syscall(SYS_getdents64, dirfd, raw_data(buf), len(buf))
-    return errno_unwrap(ret, int)
-}
-
-/*
-    Get current working directory.
-    Available since Linux 1.0.
-*/
-getcwd :: proc(buf: []u8) -> (int, Errno) {
-    ret := syscall(SYS_getcwd, raw_data(buf), len(buf))
-    return errno_unwrap(ret, int)
-}
-
-/*
-    Change working directory to the directory specified by path.
-    Available since Linux 1.0.
-*/
-chdir :: proc(path: cstring) -> (Errno) {
-    ret := syscall(SYS_chdir, cast(rawptr) path)
-    return Errno(-ret)
-}
-
-/*
-    Change working directory to the directory specified by dirfd.
-    Available since Linux 1.0.
-*/
-fchdir :: proc(fd: Fd) -> (Errno) {
-    ret := syscall(SYS_fchdir, fd)
-    return Errno(-ret)
-}
-
-/*
-    Rename (move) the file.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 2.6.16.
-*/
-rename :: proc(old: cstring, new: cstring) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_renameat, AT_FDCWD, cast(rawptr) old, AT_FDCWD, cast(rawptr) new)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_rename, cast(rawptr) old, cast(rawptr) new)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Creates a directory.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 2.6.16.
-*/
-mkdir :: proc(name: cstring, mode: Mode) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_mkdirat, AT_FDCWD, cast(rawptr) name, transmute(u32) mode)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_mkdir, cast(rawptr) name, transmute(u32) mode)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Remove a directory specified by name.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 2.6.16.
-*/
-rmdir :: proc(name: cstring) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_unlinkat, AT_FDCWD, cast(rawptr) name, transmute(i32) FD_Flags{.REMOVEDIR})
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_rmdir, cast(rawptr) name)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Create a file.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 2.6.16.
-*/
-creat :: proc(name: cstring, mode: Mode) -> (Fd, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        return openat(AT_FDCWD, name, {.CREAT, .WRONLY,.TRUNC}, mode)
-    } else {
-        ret := syscall(SYS_creat, cast(rawptr) name, transmute(u32) mode)
-        return errno_unwrap(ret, Fd)
-    }
-}
-
-/*
-    Create a hard link on a file.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 2.6.16.
-*/
-link :: proc(target: cstring, linkpath: cstring) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_linkat, AT_FDCWD, cast(rawptr) target, AT_FDCWD, cast(rawptr) linkpath, 0)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_link, cast(rawptr) target, cast(rawptr) linkpath)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Delete a name, and possible a file it refers to.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 2.6.16.
-*/
-unlink :: proc(name: cstring) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_unlinkat, AT_FDCWD, cast(rawptr) name, 0)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_unlink, cast(rawptr) name)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Create a symbolic link.
-    Available since Linux 1.0.
-    On arm64 available since Linux 2.6.16.
-*/
-symlink :: proc(target: cstring, linkpath: cstring) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_symlinkat, cast(rawptr) target, AT_FDCWD, cast(rawptr) linkpath)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_symlink, cast(rawptr) target, cast(rawptr) linkpath)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Read the value of a symbolic link.
-    Available since Linux 1.0.
-    On arm64 available since Linux 2.6.16.
-*/
-readlink :: proc(name: cstring, buf: []u8) -> (int, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_readlinkat, AT_FDCWD, cast(rawptr) name, raw_data(buf), len(buf))
-        return errno_unwrap(ret, int)
-    } else {
-        ret := syscall(SYS_readlink, cast(rawptr) name, raw_data(buf), len(buf))
-        return errno_unwrap(ret, int)
-    }
-}
-
-/*
-    Change file permissions.
-    Available since Linux 1.0.
-    On ARM64 available since Linux 2.6.16.
-*/
-chmod :: proc(name: cstring, mode: Mode) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_fchmodat, AT_FDCWD, cast(rawptr) name, transmute(u32) mode)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_chmod, cast(rawptr) name, transmute(u32) mode)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Change file permissions through a file descriptor.
-    Available since Linux 1.0.
-*/
-fchmod :: proc(fd: Fd, mode: Mode) -> (Errno) {
-    ret := syscall(SYS_fchmod, fd, transmute(u32) mode)
-    return Errno(-ret)
-}
-
-/*
-    Change ownership of a file.
-    Available since Linux 2.2.
-    On 32-bit architectures available since Linux 2.4.
-    On ARM64 available since Linux 2.6.16.
-*/
-chown :: proc(name: cstring, uid: Uid, gid: Gid) -> (Errno) {
-    when size_of(int) == 4 {
-        ret := syscall(SYS_chown32, cast(rawptr) name, uid, gid)
-        return Errno(-ret)
-    } else when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_fchownat, AT_FDCWD, cast(rawptr) name, uid, gid, 0)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_chown, cast(rawptr) name, uid, gid)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Change ownership of a file by file descriptor.
-    Available since Linux 1.0.
-    On 32-bit architecvtures available since Linux 2.4.
-*/
-fchown :: proc(fd: Fd, uid: Uid, gid: Gid) -> (Errno) {
-    when size_of(int) == 4 {
-        ret := syscall(SYS_fchown32, fd, uid, gid)
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_fchown, fd, uid, gid)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Change ownership of a file. Unlike chown, if a file is a symlink dooesn't dereference it.
-    Available since Linux 1.0.
-    On 32-bit architectures available since Linux 2.4.
-    On ARM64 available since Linux 2.6.16.
-*/
-lchown :: proc(name: cstring, uid: Uid, gid: Gid) -> (Errno) {
-    when size_of(int) == 4 {
-        ret := syscall(SYS_lchown32, cast(rawptr) name, uid, gid)
-        return Errno(-ret)
-    } else when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
-        ret := syscall(SYS_fchownat, AT_FDCWD, cast(rawptr) name, uid, gid, transmute(i32) FD_Flags{.SYMLINK_NOFOLLOW})
-        return Errno(-ret)
-    } else {
-        ret := syscall(SYS_lchown, cast(rawptr) name, uid, gid)
-        return Errno(-ret)
-    }
-}
-
-/*
-    Set file mode creation mask.
-    Available since Linux 1.0.
-*/
-umask :: proc(mask: Mode) -> Mode {
-    ret := syscall(SYS_umask, transmute(u32) mask)
-    return transmute(Mode) cast(u32) ret
-}
-
-/*
-    Get current time.
-    Available since Linux 1.0.
-*/
-gettimeofday :: proc(tv: ^Time_Val) -> (Errno) {
-    ret := syscall(SYS_gettimeofday, tv, rawptr(nil))
-    return Errno(-ret)
-}
-
-/*
-    Get limits on resources.
-    Available since Linux 1.0.
-*/
-getrlimit :: proc(kind: RLimit_Kind, resource: ^RLimit) -> (Errno) {
-    ret := syscall(SYS_getrlimit, kind, resource)
-    return Errno(-ret)
-}
-
-/*
-    Get resource usage.
-    Available since Linux 1.0.
-*/
-getrusage :: proc(who: RUsage_Who, rusage: ^RUsage) -> (Errno) {
-    ret := syscall(SYS_getrusage, who, rusage)
-    return Errno(-ret)
-}
-
-/*
-    Get information about the system.
-    Available since Linux 1.0.
-*/
-sysinfo :: proc(sysinfo: ^Sys_Info) -> (Errno) {
-    ret := syscall(SYS_sysinfo, sysinfo)
-    return Errno(-ret)
-}
-
-/*
-    Get current process times.
-    Available since Linux 1.0.
-*/
-times :: proc(tms: ^Tms) -> (Errno) {
-    ret := syscall(SYS_times, cast(rawptr) tms)
-    return Errno(-ret)
-}
-
-ptrace_traceme :: proc(rq: PTrace_Traceme_Type) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq)
-    return Errno(-ret)
-}
-
-ptrace_peek :: proc(rq: PTrace_Peek_Type, pid: Pid, addr: uintptr) -> (uint, Errno) {
-    res: uint = ---
-    ret := syscall(SYS_ptrace, rq, pid, addr, &res)
-    return res, Errno(-ret)
-}
-
-ptrace_poke :: proc(rq: PTrace_Poke_Type, pid: Pid, addr: uintptr, data: uint) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, addr, data)
-    return Errno(-ret)
-}
-
-ptrace_getregs :: proc(rq: PTrace_Getregs_Type, pid: Pid, buf: ^User_Regs) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, buf)
-    return Errno(-ret)
-}
-
-ptrace_getfpregs :: proc(rq: PTrace_Getfpregs_Type, pid: Pid, buf: ^User_FP_Regs) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, buf)
-    return Errno(-ret)
-}
-
-ptrace_getfpxregs :: proc(rq: PTrace_Getfpxregs_Type, pid: Pid, buf: ^User_FPX_Regs) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, buf)
-    return Errno(-ret)
-}
-
-ptrace_setregs :: proc(rq: PTrace_Setregs_Type, pid: Pid, buf: ^User_Regs) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, buf)
-    return Errno(-ret)
-}
-
-ptrace_setfpregs :: proc(rq: PTrace_Setfpregs_Type, pid: Pid, buf: ^User_FP_Regs) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, buf)
-    return Errno(-ret)
-}
-
-ptrace_setfpxregs :: proc(rq: PTrace_Setfpxregs_Type, pid: Pid, buf: ^User_FPX_Regs) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, buf)
-    return Errno(-ret)
-}
-
-ptrace_getregset :: proc(rq: PTrace_Getregset_Type, pid: Pid, note: PTrace_Note_Type, buf: ^IO_Vec) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, note, buf)
-    return Errno(-ret)
-}
-
-ptrace_setregset :: proc(rq: PTrace_Setregset_Type, pid: Pid, note: PTrace_Note_Type, buf: ^IO_Vec) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, note, buf)
-    return Errno(-ret)
-}
-
-ptrace_getsiginfo :: proc(rq: PTrace_Getsiginfo_Type, pid: Pid, si: ^Sig_Info) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, si, rawptr(nil))
-    return Errno(-ret)
-}
-
-ptrace_peeksiginfo :: proc(rq: PTrace_Peeksiginfo_Type, pid: Pid, si: ^Sig_Info) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, si, rawptr(nil))
-    return Errno(-ret)
-}
-
-ptrace_getsigmask :: proc(rq: PTrace_Getsigmask_Type, pid: Pid, sigmask: ^Sig_Set) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, size_of(Sig_Set), sigmask)
-    return Errno(-ret)
-}
-
-ptrace_setsigmask :: proc(rq: PTrace_Setsigmask_Type, pid: Pid, sigmask: ^Sig_Set) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, size_of(Sig_Set), sigmask)
-    return Errno(-ret)
-}
-
-ptrace_setoptions :: proc(rq: PTrace_Setoptions_Type, pid: Pid, options: PTrace_Options) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, transmute(u32) options)
-    return Errno(-ret)
-}
-
-ptrace_geteventmsg :: proc(rq: PTrace_Geteventmsg_Type, pid: Pid, msg: ^uint) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, msg, rawptr(nil))
-    return Errno(-ret)
-}
-
-ptrace_cont :: proc(rq: PTrace_Cont_Type, pid: Pid, sig: Signal) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, rawptr(nil), sig)
-    return Errno(-ret)
-}
-
-ptrace_singlestep :: proc(rq: PTrace_Singlestep_Type, pid: Pid, sig: Signal) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, rawptr(nil), sig)
-    return Errno(-ret)
-}
-
-ptrace_syscall :: proc(rq: PTrace_Syscall_Type, pid: Pid, sig: Signal) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, rawptr(nil), sig)
-    return Errno(-ret)
-}
-
-ptrace_sysemu :: proc(rq: PTrace_Sysemu_Type, pid: Pid, sig: Signal) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, rawptr(nil), sig)
-    return Errno(-ret)
-}
-
-ptrace_sysemu_singlestep :: proc(rq: PTrace_Sysemu_Singlestep_Type, pid: Pid, sig: Signal) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, rawptr(nil), sig)
-    return Errno(-ret)
-}
-
-ptrace_listen :: proc(rq: PTrace_Listen_Type, pid: Pid) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, rawptr(nil))
-    return Errno(-ret)
-}
-
-ptrace_interrupt :: proc(rq: PTrace_Interrupt_Type, pid: Pid) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, rawptr(nil))
-    return Errno(-ret)
-}
-
-ptrace_attach :: proc(rq: PTrace_Attach_Type, pid: Pid) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, rawptr(nil))
-    return Errno(-ret)
-}
-
-ptrace_seize :: proc(rq: PTrace_Seize_Type, pid: Pid, opt: PTrace_Options) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, transmute(u32) opt, rawptr(nil))
-    return Errno(-ret)
-}
-
-// TODO(flysand): ptrace_seccomp_get_filter
-
-ptrace_detach :: proc(rq: PTrace_Detach_Type, pid: Pid, sig: Signal) -> (Errno) {
-    ret := syscall(SYS_ptrace, rq, pid, 0, sig)
-    return Errno(-ret)
-}
-
-// TODO(flysand): ptrace_get_thread_area
-// TODO(flysand): ptrace_set_thread_area
-// TODO(flysand): ptrace_get_syscall_info
 
 /*
     Get real user ID.
@@ -1962,22 +1334,71 @@ setpriority :: proc(which: Priority_Which, who: i32, prio: i32) -> (Errno) {
     return Errno(-ret)
 }
 
-// TODO(flysand): sched_setparam
-
-// TODO(flysand): sched_getparam
-
-// TODO(flysand): sched_setscheduler
-
-// TODO(flysand): sched_getscheduler
-
-// TODO(flysand): sched_get_priority_max
-
-// TODO(flysand): sched_get_priority_min
-
-// TODO(flysand): sched_rr_get_interval
+/*
+    Set scheduling parameters.
+    Available since Linux 2.0.
+*/
+sched_setparam :: proc(pid: Pid, param: ^Sched_Param) -> (Errno) {
+    ret := syscall(SYS_sched_setparam, pid, param)
+    return Errno(-ret)
+}
 
 /*
-    Lock and memory.
+    Get scheduling parameters.
+    Available since Linux 2.0.
+*/
+sched_getparam :: proc(pid: Pid, param: ^Sched_Param) -> (Errno) {
+    ret := syscall(SYS_sched_getparam, pid, param)
+    return Errno(-ret)
+}
+
+/*
+    Set scheduling policy/parameters.
+    Available since Linux 2.0.
+*/
+sched_setscheduler :: proc(pid: Pid, policy: i32, param: ^Sched_Param) -> (Errno) {
+    ret := syscall(SYS_sched_setscheduler, pid, policy, param)
+    return Errno(-ret)
+}
+
+/*
+    Get scheduling policy/parameters.
+    Available since Linux 2.0.
+*/
+sched_getscheduler :: proc(pid: Pid, policy: i32, param: ^Sched_Param) -> (i32, Errno) {
+    ret := syscall(SYS_sched_getscheduler, pid)
+    return errno_unwrap(ret, i32)
+}
+
+/*
+    Get static priority range.
+    Available since Linux 2.0.
+*/
+sched_get_priority_max :: proc(policy: i32) -> (i32, Errno) {
+    ret := syscall(SYS_sched_get_priority_max, policy)
+    return errno_unwrap(ret, i32)
+}
+
+/*
+    Get static priority range.
+    Available since Linux 2.0.
+*/
+sched_get_priority_min :: proc(policy: i32) -> (i32, Errno) {
+    ret := syscall(SYS_sched_get_priority_min, policy)
+    return errno_unwrap(ret, i32)
+}
+
+/*
+    get the SCHED_RR interval for the named process.
+    Available since Linux 2.0.
+*/
+sched_rr_get_interval :: proc(pid: Pid, tp: ^Time_Spec) -> (Errno) {
+    ret := syscall(SYS_sched_rr_get_interval, pid, tp)
+    return Errno(-ret)
+}
+
+/*
+    Lock memory.
     Available since Linux 2.0.
     If flags specified, available since Linux 4.4.
 */
@@ -2467,9 +1888,29 @@ futex_wake_bitset :: proc(futex: ^Futex, op: Futex_Wake_Bitset_Type, flags: Fute
     return errno_unwrap(ret, int)
 }
 
-// TODO(flysand): sched_setaffinity
+/*
+    Set a thread's CPU affinity mask.
+    Available since Linux 2.6.
+    
+    If you are running on a system with less than 128 cores you can use `linux.Cpu_Set` as the type for the mask argument.
+    Otherwise use an array of integers.
+*/
+sched_setaffinity :: proc(pid: Pid, cpusetsize: uint, mask: rawptr) -> (int, Errno) {
+    ret := syscall(SYS_sched_setaffinity, pid, cpusetsize, mask)
+    return errno_unwrap(ret, int)
+}
 
-// TODO(flysand): sched_getaffinity
+/*
+    Get a thread's CPU affinity mask.
+    Available since Linux 2.6.
+    
+    If you are running on a system with less than 128 cores you can use `linux.Cpu_Set` as the type for the mask argument.
+    Otherwise use an array of integers.
+*/
+sched_getaffinity :: proc(pid: Pid, cpusetsize: uint, mask: rawptr) -> (int, Errno) {
+    ret := syscall(SYS_sched_getaffinity, pid, cpusetsize, mask)
+    return errno_unwrap(ret, int)
+}
 
 // TODO(flysand): set_thread_area
 
@@ -2899,15 +2340,39 @@ epoll_pwait :: proc(epfd: Fd, events: [^]EPoll_Event, count: i32, timeout: i32, 
 
 // TODO(flysand): signalfd
 
-// TODO(flysand): timerfd_create
+/*
+    Create Linux file descriptor based timer.
+    Available since Linux 2.6.25
+*/
+timerfd_create :: proc(clock_id: Clock_Id, flags: Open_Flags) -> (Fd, Errno) {
+    ret := syscall(SYS_timerfd_create, clock_id, transmute(u32)flags)
+    return errno_unwrap2(ret, Fd)
+}
 
-// TODO(flysand): eventfd
+eventfd :: proc(initval: u32, flags: Eventfd_Flags) -> (Fd, Errno) {
+    ret := syscall(SYS_eventfd2, initval, transmute(i32)flags)
+    return errno_unwrap2(ret, Fd)
+}
 
 // TODO(flysand): fallocate
 
-// TODO(flysand): timerfd_settime
+/*
+    Arm/disarm the state of the Linux file descriptor based timer.
+    Available since Linux 2.6.25
+*/
+timerfd_settime :: proc(fd: Fd, flags: ITimer_Flags, new_value: ^ITimer_Spec, old_value: ^ITimer_Spec) -> Errno {
+    ret := syscall(SYS_timerfd_settime, fd, transmute(u32)flags, new_value, old_value)
+    return Errno(-ret)
+}
 
-// TODO(flysand): timerfd_gettime
+/*
+    Get the state of the Linux file descriptor based timer.
+    Available since Linux 2.6.25
+*/
+timerfd_gettime :: proc(fd: Fd, curr_value: ^ITimer_Spec) -> Errno {
+    ret := syscall(SYS_timerfd_gettime, fd, curr_value)
+    return Errno(-ret)
+}
 
 // TODO(flysand): accept4
 
@@ -2986,7 +2451,14 @@ sendmmsg :: proc(sock: Fd, msg_vec: []MMsg_Hdr, flags: Socket_Msg) -> (int, Errn
 
 // TODO(flysand): setns
 
-// TODO(flysand): getcpu
+/*
+    Determine CPU and NUMA node on which the calling thread is running.
+    Available since Linux 2.6.19.
+*/
+getcpu :: proc(cpu, node: ^u32) -> (Errno) {
+    ret := syscall(SYS_getcpu, cpu, node)
+    return Errno(-ret)
+}
 
 // TODO(flysand): process_vm_readv
 
@@ -2996,9 +2468,23 @@ sendmmsg :: proc(sock: Fd, msg_vec: []MMsg_Hdr, flags: Socket_Msg) -> (int, Errn
 
 // TODO(flysand): finit_module
 
-// TODO(flysand): sched_setattr
+/*
+    Set scheduling policy and attributes.
+    Available since Linux 3.14.
+*/
+sched_setattr :: proc(pid: Pid, attr: ^Sched_Attr, flags: Sched_Attr_Flags) -> (Errno) {
+    ret := syscall(SYS_sched_setattr, pid, attr, transmute(u32)flags)
+    return Errno(-ret)
+}
 
-// TODO(flysand): sched_getattr
+/*
+    Get scheduling policy and attributes.
+    Available since Linux 3.14.
+*/
+sched_getattr :: proc(pid: Pid, attr: ^Sched_Attr, size: u32, flags: Sched_Attr_Flags) -> (Errno) {
+    ret := syscall(SYS_sched_getattr, pid, attr, transmute(u32)flags)
+    return Errno(-ret)
+}
 
 /*
     Rename the file with names relative to the specified dirfd's with other options.
@@ -3016,7 +2502,14 @@ getrandom :: proc(buf: []u8, flags: Get_Random_Flags) -> (int, Errno) {
     return errno_unwrap(ret, int)
 }
 
-// TODO(flysand): memfd_create
+/*
+    Create an anonymous file.
+    Available since Linux 3.17.
+*/
+memfd_create :: proc(name: cstring, flags: Memfd_Create_Flags) -> (Fd, Errno) {
+    ret := syscall(SYS_memfd_create, cast(rawptr)name, transmute(u32)flags)
+    return errno_unwrap(ret, Fd)
+}
 
 // TODO(flysand): kexec_file_load
 

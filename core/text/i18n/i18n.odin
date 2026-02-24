@@ -1,3 +1,4 @@
+
 /*
     Internationalization helpers.
 
@@ -7,7 +8,7 @@
     List of contributors:
         Jeroen van Rijn: Initial implementation.
 */
-import "core:strings"
+import    "core:strings"
 
 // Currently active catalog.
 ACTIVE: ^Translation
@@ -100,6 +101,7 @@ get_by_section :: proc(section, key: string, catalog: ^Translation = ACTIVE) -> 
     return get_by_slot(section, key, 0, catalog)
 }
 
+
 /*
     Returns the translation string for the passed `key` in a specific plural form (if present in the catalogue).
     It is also aliased with `get_n()`.
@@ -156,7 +158,6 @@ get_by_section_with_quantity :: proc(section, key: string, quantity: int, catalo
     return get_by_slot(section, key, slot, catalog)
 }
 
-
 /*
     Two ways to use:
     - get_by_slot(key, slot), which returns the requested plural from the active catalogue, or
@@ -209,8 +210,8 @@ get_by_slot_by_section :: proc(section, key: string, slot: int, catalog: ^Transl
     - destroy(), to clean up the currently active catalog catalog i18n.ACTIVE
     - destroy(catalog), to clean up a specific catalog.
 */
-destroy :: proc(catalog: ^Translation = ACTIVE, allocator : mem.Allocator) {
-
+destroy :: proc(catalog: ^Translation = ACTIVE, allocator: mem.Allocator) {
+    context.allocator = allocator
 
     if catalog == nil {
         return
@@ -218,11 +219,11 @@ destroy :: proc(catalog: ^Translation = ACTIVE, allocator : mem.Allocator) {
 
     for section in catalog.k_v {
         for key in catalog.k_v[section] {
-            _ = delete_slice(catalog.k_v[section][key])
+            delete(catalog.k_v[section][key])
         }
-        _ = delete_slice(catalog.k_v[section])
+        delete(catalog.k_v[section])
     }
-    _ = delete_slice(catalog.k_v)
+    delete(catalog.k_v)
     strings.intern_destroy(&catalog.intern)
-    _ = free(catalog)
+    free(catalog)
 }

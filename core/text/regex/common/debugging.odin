@@ -1,32 +1,26 @@
-/*
-	(c) Copyright 2024 Feoramund <rune@swevencraft.org>.
-	Made available under Odin's license.
 
-	List of contributors:
-		Feoramund: Initial implementation.
+/*
+    (c) Copyright 2024 Feoramund <rune@swevencraft.org>.
+    Made available under Odin's license.
+
+    List of contributors:
+        Feoramund: Initial implementation.
 */
 
-@(require) import os "core:os/os2"
-import "core:mem"
 import "core:io"
 import "core:strings"
-
-ODIN_DEBUG_REGEX :: #config(ODIN_DEBUG_REGEX, false)
-
-when ODIN_DEBUG_REGEX {
-	debug_stream := os.to_stream(os.stderr)
-}
+import "core:mem"
 
 write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
-	sb, _ := strings.builder_make(allocator)
-	defer strings.builder_destroy(&sb)
+    sb, _ := strings.builder_make(allocator)
+    defer strings.builder_destroy(&sb)
 
-	sbw := strings.to_writer(&sb)
-	_, _ = io.write_int(sbw, n, 0x10)
+    sbw := strings.to_writer(&sb)
+    _, _ = io.write_int(sbw, n, 0x10)
 
-	_, _ = io.write_string(w, "0x")
-	for _ in 0..<max(0, zeroes - strings.builder_len(sb)) {
-		_ = io.write_byte(w, '0')
-	}
-	_, _ = io.write_int(w, n, 0x10)
+    _, _ = io.write_string(w, "0x")
+    for _ in 0..<max(0, zeroes - strings.builder_len(sb)) {
+        _ = io.write_byte(w, '0')
+    }
+    _, _ = io.write_int(w, n, 0x10)
 }

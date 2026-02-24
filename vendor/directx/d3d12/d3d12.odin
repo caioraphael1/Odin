@@ -1722,14 +1722,14 @@ SHADER_COMPONENT_MAPPING :: enum u32 {
 	FORCE_VALUE_0           = 4,
 	FORCE_VALUE_1           = 5,
 }
-ENCODE_SHADER_4_COMPONENT_MAPPING :: #force_inline proc "contextless" (Src0, Src1, Src2, Src3: u32) -> u32 {
+ENCODE_SHADER_4_COMPONENT_MAPPING :: #force_inline proc(Src0, Src1, Src2, Src3: u32) -> u32 {
 	return (Src0 & SHADER_COMPONENT_MAPPING_MASK) |
 	       ((Src1 & SHADER_COMPONENT_MAPPING_MASK) << SHADER_COMPONENT_MAPPING_SHIFT) |
 	       ((Src2 & SHADER_COMPONENT_MAPPING_MASK) << (SHADER_COMPONENT_MAPPING_SHIFT * 2)) |
 	       ((Src3 & SHADER_COMPONENT_MAPPING_MASK) << (SHADER_COMPONENT_MAPPING_SHIFT * 3)) |
 	       SHADER_COMPONENT_MAPPING_ALWAYS_SET_BIT_AVOIDING_ZEROMEM_MISTAKES
 }
-DECODE_SHADER_4_COMPONENT_MAPPING :: #force_inline proc "contextless" (ComponentToExtract, Mapping: u32) -> u32 {
+DECODE_SHADER_4_COMPONENT_MAPPING :: #force_inline proc(ComponentToExtract, Mapping: u32) -> u32 {
 	return Mapping >> (SHADER_COMPONENT_MAPPING_SHIFT * ComponentToExtract) & SHADER_COMPONENT_MAPPING_MASK
 }
 
@@ -5513,15 +5513,15 @@ SHADER_VERSION_TYPE :: enum u32 {
 	RESERVED0             = 0xFFF0,
 }
 
-shver_get_type :: proc "contextless" (version: u32) -> SHADER_VERSION_TYPE {
+shver_get_type :: proc(version: u32) -> SHADER_VERSION_TYPE {
 	return SHADER_VERSION_TYPE((version >> 16) & 0xffff)
 }
 
-shver_get_major :: proc "contextless" (version: u32) -> u8 {
+shver_get_major :: proc(version: u32) -> u8 {
 	return u8((version >> 4) & 0xf)
 }
 
-shver_get_minor :: proc "contextless" (version: u32) -> u8 {
+shver_get_minor :: proc(version: u32) -> u8 {
 	return u8((version >> 0) & 0xf)
 }
 

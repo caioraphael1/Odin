@@ -1,5 +1,7 @@
 // Bit Manipulation Intrinsics
 
+
+
 /*
 @(default_calling_convention="none")
 foreign _ {

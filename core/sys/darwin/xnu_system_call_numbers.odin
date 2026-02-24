@@ -1,3 +1,4 @@
+
 // IMPORTANT NOTE: direct syscall usage is not allowed by Apple's review process of apps and should
 // be entirely avoided in the builtin Odin collections, these are here for users if they don't
 // care about the Apple review process.
@@ -233,7 +234,7 @@ System_Call_Number :: enum uintptr {
 	exchangedata = 223,
 	/* 224  old checkuseraccess or fsgetpath */
 	searchfs = 225,
-	_ = delete_slice = 226,
+	delete = 226,
 	copyfile = 227,
 	fgetattrlist = 228,
 	fsetattrlist = 229,

@@ -1,8 +1,9 @@
+
+
 import "base:intrinsics"
 import "core:crypto"
 import aes "core:crypto/_aes/ct64"
 import "core:encoding/endian"
-import "core:mem"
 import "core:simd"
 
 // This uses the bitlsiced 64-bit general purpose register SWAR AES
@@ -38,7 +39,7 @@ enc_tweak :: #force_inline proc(
 	tmp: [8]byte
 	endian.unchecked_put_u64be(tmp[:], u64(block_nr))
 
-	copy_slice(dst[:], tag[:])
+	copy(dst[:], tag[:])
 	dst[0] |= 0x80
 	for i in 0 ..< 8 {
 		dst[i+8] ~= tmp[i]
@@ -52,7 +53,7 @@ enc_plaintext :: #force_inline proc(
 ) {
 	tmp: [BLOCK_SIZE]byte = ---
 	tmp[0] = 0
-	copy_slice(tmp[1:], iv[:])
+	copy(tmp[1:], iv[:])
 
 	q_0, q_1 := aes.load_interleaved(tmp[:])
 	for i in 0 ..< 4 {
@@ -105,7 +106,7 @@ bc_x4 :: proc(
 	}
 }
 
-@(private = "file")
+@(private = "file", require_results)
 bc_absorb :: proc(
 	st:           ^State_SW,
 	dst:          []byte,
@@ -147,8 +148,8 @@ bc_absorb :: proc(
 
 	intrinsics.unaligned_store((^simd.u8x16)(raw_data(dst)), dst_)
 
-	mem.zero_explicit(&tweaks, size_of(tweaks))
-	mem.zero_explicit(&tmp, size_of(tmp))
+	crypto.zero_explicit(&tweaks, size_of(tweaks))
+	crypto.zero_explicit(&tmp, size_of(tmp))
 
 	return stk_block_nr
 }
@@ -162,7 +163,7 @@ bc_final :: proc(
 	tweaks: [4][TWEAK_SIZE]byte = ---
 
 	tweaks[0][0] = PREFIX_TAG << PREFIX_SHIFT
-	copy_slice(tweaks[0][1:], iv)
+	copy(tweaks[0][1:], iv)
 
 	st.q_b[0], st.q_b[4] = aes.load_interleaved(dst)
 	aes.orthogonalize(&st.q_b)
@@ -170,7 +171,7 @@ bc_final :: proc(
 	bc_x4(st.ctx, dst, &tweaks, &st.q_stk, &st.q_b, 1)
 }
 
-@(private = "file")
+@(private = "file", require_results)
 bc_encrypt :: proc(
 	st:           ^State_SW,
 	dst:          []byte,
@@ -212,8 +213,8 @@ bc_encrypt :: proc(
 		nr_blocks -= n
 	}
 
-	mem.zero_explicit(&tweaks, size_of(tweaks))
-	mem.zero_explicit(&tmp, size_of(tmp))
+	crypto.zero_explicit(&tweaks, size_of(tweaks))
+	crypto.zero_explicit(&tmp, size_of(tmp))
 
 	return stk_block_nr
 }
@@ -241,7 +242,7 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 	if l := len(aad); l > 0 {
 		a_star: [BLOCK_SIZE]byte
 
-		copy_slice(a_star[:], aad)
+		copy(a_star[:], aad)
 		a_star[l] = 0x80
 
 		_ = bc_absorb(&st, auth[:], a_star[:], PREFIX_AD_FINAL, n)
@@ -263,7 +264,7 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		m_star[l] = 0x80
 
 		_ = bc_absorb(&st, auth[:], m_star[:], PREFIX_MSG_FINAL, n)
@@ -288,21 +289,21 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		_ = bc_encrypt(&st, m_star[:], m_star[:], &q_iv, &auth, n)
 
-		copy_slice(dst[n*BLOCK_SIZE:], m_star[:])
+		copy(dst[n*BLOCK_SIZE:], m_star[:])
 
-		mem.zero_explicit(&m_star, size_of(m_star))
+		crypto.zero_explicit(&m_star, size_of(m_star))
 	}
 
-	copy_slice(tag, auth[:])
+	copy(tag, auth[:])
 
-	mem.zero_explicit(&st.q_stk, size_of(st.q_stk))
-	mem.zero_explicit(&st.q_b, size_of(st.q_b))
+	crypto.zero_explicit(&st.q_stk, size_of(st.q_stk))
+	crypto.zero_explicit(&st.q_b, size_of(st.q_b))
 }
 
-@(private)
+@(private, require_results)
 d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	st: State_SW = ---
 	st.ctx = ctx
@@ -321,7 +322,7 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	enc_plaintext(&q_iv, iv)
 
 	auth: [TAG_SIZE]byte
-	copy_slice(auth[:], tag)
+	copy(auth[:], tag)
 
 	m := ciphertext
 	n := bc_encrypt(&st, dst, m, &q_iv, &auth, 0)
@@ -329,12 +330,12 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		_ = bc_encrypt(&st, m_star[:], m_star[:], &q_iv, &auth, n)
 
-		copy_slice(dst[n*BLOCK_SIZE:], m_star[:])
+		copy(dst[n*BLOCK_SIZE:], m_star[:])
 
-		mem.zero_explicit(&m_star, size_of(m_star))
+		crypto.zero_explicit(&m_star, size_of(m_star))
 	}
 
 	// Associated data
@@ -353,7 +354,7 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(aad); l > 0 {
 		a_star: [BLOCK_SIZE]byte
 
-		copy_slice(a_star[:], aad)
+		copy(a_star[:], aad)
 		a_star[l] = 0x80
 
 		_ = bc_absorb(&st, auth[:], a_star[:], PREFIX_AD_FINAL, n)
@@ -375,12 +376,12 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		m_star[l] = 0x80
 
 		_ = bc_absorb(&st, auth[:], m_star[:], PREFIX_MSG_FINAL, n)
 
-		mem.zero_explicit(&m_star, size_of(m_star))
+		crypto.zero_explicit(&m_star, size_of(m_star))
 	}
 	bc_final(&st, auth[:], iv)
 
@@ -389,9 +390,9 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	// else return false
 	ok := crypto.compare_constant_time(auth[:], tag) == 1
 
-	mem.zero_explicit(&auth, size_of(auth))
-	mem.zero_explicit(&st.q_stk, size_of(st.q_stk))
-	mem.zero_explicit(&st.q_b, size_of(st.q_b))
+	crypto.zero_explicit(&auth, size_of(auth))
+	crypto.zero_explicit(&st.q_stk, size_of(st.q_stk))
+	crypto.zero_explicit(&st.q_b, size_of(st.q_b))
 
 	return ok
 }

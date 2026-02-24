@@ -1,3 +1,5 @@
+
+
 import "core:io"
 import "core:time"
 import "base:runtime"
@@ -65,7 +67,7 @@ File_Flag :: enum {
     Trunc,
     Sparse,
     Inheritable,
-
+    Non_Blocking,
     Unbuffered_IO,
 }
 
@@ -160,15 +162,15 @@ open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Defau
 }
 
 // 
-// open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm := 0o777, allocator: runtime.Allocator) -> (^File, Error) {
+// open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm := 0o777) -> (^File, Error) {
 //  if buffer_size == 0 {
-//      return _open(name, flags, perm, allocator)
+//      return _open(name, flags, perm)
 //  }
-//  return _open_buffered(name, buffer_size, flags, perm, allocator)
+//  return _open_buffered(name, buffer_size, flags, perm)
 // }
 
 /*
-    Returns a new `^File` with the given file descriptor `handle` and `name`.
+    `new_file` returns a new `^File` with the given file descriptor `handle` and `name`.
     The return value will only be `nil` IF the `handle` is not a valid file descriptor.
 */
 
@@ -533,6 +535,11 @@ is_directory :: proc(path: string) -> bool {
 /*
     `copy_file` copies a file from `src_path` to `dst_path` and returns an error if any was encountered.
 */
+
+is_tty :: proc(f: ^File) -> bool {
+    return _is_tty(f)
+}
+
 copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> Error {
     when #defined(_copy_file_native) {
         return _copy_file_native(dst_path, src_path)

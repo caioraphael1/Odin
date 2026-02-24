@@ -1,8 +1,10 @@
 #+build amd64
+
+
 import "base:intrinsics"
+import "core:crypto"
 import "core:crypto/aes"
 import "core:encoding/endian"
-import "core:mem"
 import "core:simd/x86"
 
 @(private)
@@ -128,7 +130,7 @@ absorb_hw :: proc(st: ^State_HW, aad: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // AAD is not confidential.
-		copy_slice(tmp[:], ai)
+		copy(tmp[:], ai)
 		switch st.rate {
 		case _RATE_128L:
 			absorb_hw_128l(st, tmp[:])
@@ -138,7 +140,7 @@ absorb_hw :: proc(st: ^State_HW, aad: []byte) #no_bounds_check {
 	}
 }
 
-@(private = "file", enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2", require_results)
 z_hw_128l :: #force_inline proc(st: ^State_HW) -> (x86.__m128i, x86.__m128i) {
 	z0 := x86._mm_xor_si128(
 		st.s6,
@@ -157,7 +159,7 @@ z_hw_128l :: #force_inline proc(st: ^State_HW) -> (x86.__m128i, x86.__m128i) {
 	return z0, z1
 }
 
-@(private = "file", enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2", require_results)
 z_hw_256 :: #force_inline proc(st: ^State_HW) -> x86.__m128i {
 	return x86._mm_xor_si128(
 		st.s1,
@@ -220,14 +222,14 @@ enc_hw :: proc(st: ^State_HW, dst, src: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // Ciphertext is not confidential.
-		copy_slice(tmp[:], xi)
+		copy(tmp[:], xi)
 		switch st.rate {
 		case _RATE_128L:
 			enc_hw_128l(st, tmp[:], tmp[:])
 		case _RATE_256:
 			enc_hw_256(st, tmp[:], tmp[:])
 		}
-		copy_slice(ci, tmp[:l])
+		copy(ci, tmp[:l])
 	}
 }
 
@@ -259,10 +261,10 @@ dec_hw_256 :: #force_inline proc(st: ^State_HW, xi, ci: []byte) #no_bounds_check
 @(private = "file", enable_target_feature = "sse2,aes")
 dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bounds_check {
 	tmp: [_RATE_128L]byte
-	defer mem.zero_explicit(&tmp, size_of(tmp))
+	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z0, z1 := z_hw_128l(st)
-	copy_slice(tmp[:], cn)
+	copy(tmp[:], cn)
 
 	t0 := intrinsics.unaligned_load((^x86.__m128i)(&tmp[0]))
 	t1 := intrinsics.unaligned_load((^x86.__m128i)(&tmp[16]))
@@ -271,7 +273,7 @@ dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bou
 
 	intrinsics.unaligned_store((^x86.__m128i)(&tmp[0]), out0)
 	intrinsics.unaligned_store((^x86.__m128i)(&tmp[16]), out1)
-	copy_slice(xn, tmp[:])
+	copy(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_128L; off += 1 {
 		tmp[off] = 0
@@ -284,16 +286,16 @@ dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bou
 @(private = "file", enable_target_feature = "sse2,aes")
 dec_partial_hw_256 :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bounds_check {
 	tmp: [_RATE_256]byte
-	defer mem.zero_explicit(&tmp, size_of(tmp))
+	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z := z_hw_256(st)
-	copy_slice(tmp[:], cn)
+	copy(tmp[:], cn)
 
 	cn_ := intrinsics.unaligned_load((^x86.__m128i)(&tmp[0]))
 	xn_ := x86._mm_xor_si128(cn_, z)
 
 	intrinsics.unaligned_store((^x86.__m128i)(&tmp[0]), xn_)
-	copy_slice(xn, tmp[:])
+	copy(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_256; off += 1 {
 		tmp[off] = 0
@@ -383,5 +385,5 @@ finalize_hw :: proc(st: ^State_HW, tag: []byte, ad_len, msg_len: int) {
 
 @(private)
 reset_state_hw :: proc(st: ^State_HW) {
-	mem.zero_explicit(st, size_of(st^))
+	crypto.zero_explicit(st, size_of(st^))
 }

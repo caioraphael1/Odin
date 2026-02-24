@@ -4,15 +4,6 @@ import "base:intrinsics"
 import "base:runtime"
 import "core:strings"
 
-RunLoopMode :: ^String
-
-@(link_prefix="NS")
-foreign Foundation {
-    RunLoopCommonModes:       RunLoopMode
-    DefaultRunLoopMode:       RunLoopMode
-    EventTrackingRunLoopMode: RunLoopMode
-    ModalPanelRunLoopMode:    RunLoopMode
-}
 
 ActivationPolicy :: enum UInteger {
     Regular    = 0,
@@ -202,6 +193,11 @@ Application_postEvent :: proc "c" (self: ^Application, event: ^Event, atStart: B
 @(objc_type=Application, objc_name="updateWindows")
 Application_updateWindows :: proc "c" (self: ^Application) {
     msgSend(nil, self, "updateWindows")
+}
+
+@(objc_type=Application, objc_name="sendAction")
+Application_sendAction :: proc "c" (self: ^Application, action: SEL, to: id, from: id) {
+    msgSend(nil, self, "sendAction:to:from:", action, to, from)
 }
 
 

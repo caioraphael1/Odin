@@ -1,27 +1,26 @@
 #+build windows
 #+private
-foreign import Kernel32 "system:Kernel32.lib"
 
-import os "core:os/os2"
+foreign import Kernel32 "system:Kernel32.lib"
 
 LPSYSTEM_INFO :: ^SYSTEM_INFO
 SYSTEM_INFO :: struct {
-	using DUMMYUNIONNAME: struct #raw_union {
-		dwOemId: u32,
-		using DUMMYSTRUCTNAME:struct {
-			wProcessorArchitecture: u16,
-			wReserved: u16,
-		},
-	},
-	dwPageSize:                  u32,
-	lpMinimumApplicationAddress: rawptr,
-	lpMaximumApplicationAddress: rawptr,
-	dwActiveProcessorMask:       uint,
-	dwNumberOfProcessors:        u32,
-	dwProcessorType:             u32,
-	dwAllocationGranularity:     u32,
-	wProcessorLevel:             u16,
-	wProcessorRevision:          u16,
+    using DUMMYUNIONNAME: struct #raw_union {
+        dwOemId: u32,
+        using DUMMYSTRUCTNAME:struct {
+            wProcessorArchitecture: u16,
+            wReserved: u16,
+        },
+    },
+    dwPageSize:                  u32,
+    lpMinimumApplicationAddress: rawptr,
+    lpMaximumApplicationAddress: rawptr,
+    dwActiveProcessorMask:       uint,
+    dwNumberOfProcessors:        u32,
+    dwProcessorType:             u32,
+    dwAllocationGranularity:     u32,
+    wProcessorLevel:             u16,
+    wProcessorRevision:          u16,
 }
 
 MEM_COMMIT      :: 0x00001000
@@ -60,128 +59,135 @@ ERROR_COMMITMENT_LIMIT :: 1455
 
 @(default_calling_convention="system")
 foreign Kernel32 {
-	GetSystemInfo  :: proc(lpSystemInfo: LPSYSTEM_INFO) ---
-	VirtualAlloc   :: proc(lpAddress: rawptr, dwSize: uint, flAllocationType: u32, flProtect: u32) -> rawptr ---
-	VirtualFree    :: proc(lpAddress: rawptr, dwSize: uint, dwFreeType: u32) -> b32 ---
-	VirtualProtect :: proc(lpAddress: rawptr, dwSize: uint, flNewProtect: u32, lpflOldProtect: ^u32) -> b32 ---
-	GetLastError   :: proc() -> u32 ---
+    GetSystemInfo  :: proc(lpSystemInfo: LPSYSTEM_INFO) ---
+    VirtualAlloc   :: proc(lpAddress: rawptr, dwSize: uint, flAllocationType: u32, flProtect: u32) -> rawptr ---
+    VirtualFree    :: proc(lpAddress: rawptr, dwSize: uint, dwFreeType: u32) -> b32 ---
+    VirtualProtect :: proc(lpAddress: rawptr, dwSize: uint, flNewProtect: u32, lpflOldProtect: ^u32) -> b32 ---
+    GetLastError   :: proc() -> u32 ---
 
-	CreateFileMappingW :: proc(
-		hFile:                   rawptr,
-		lpFileMappingAttributes: rawptr,
-		flProtect:               u32,
-		dwMaximumSizeHigh:       u32,
-		dwMaximumSizeLow:        u32,
-		lpName:                  cstring16,
-	) -> rawptr ---
+    CreateFileMappingW :: proc(
+        hFile:                   rawptr,
+        lpFileMappingAttributes: rawptr,
+        flProtect:               u32,
+        dwMaximumSizeHigh:       u32,
+        dwMaximumSizeLow:        u32,
+        lpName:                  cstring16,
+    ) -> rawptr ---
 
-	MapViewOfFile :: proc(
-		hFileMappingObject:   rawptr,
-		dwDesiredAccess:      u32,
-		dwFileOffsetHigh:     u32,
-		dwFileOffsetLow:      u32,
-		dwNumberOfBytesToMap: uint,
-	) -> rawptr ---
+    MapViewOfFile :: proc(
+        hFileMappingObject:   rawptr,
+        dwDesiredAccess:      u32,
+        dwFileOffsetHigh:     u32,
+        dwFileOffsetLow:      u32,
+        dwNumberOfBytesToMap: uint,
+    ) -> rawptr ---
+
+    UnmapViewOfFile :: proc(lpBaseAddress: rawptr) -> b32 ---
 }
 
 @(no_sanitize_address)
 _reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
-	result := VirtualAlloc(nil, size, MEM_RESERVE, PAGE_READWRITE)
-	if result == nil {
-		err = .Out_Of_Memory
-		return
-	}
-	data = ([^]byte)(result)[:size]
-	return
+    result := VirtualAlloc(nil, size, MEM_RESERVE, PAGE_READWRITE)
+    if result == nil {
+        err = .Out_Of_Memory
+        return
+    }
+    data = ([^]byte)(result)[:size]
+    return
 }
 
 @(no_sanitize_address)
 _commit :: proc(data: rawptr, size: uint) -> Allocator_Error {
-	result := VirtualAlloc(data, size, MEM_COMMIT, PAGE_READWRITE)
-	if result == nil {
-		switch err := GetLastError(); err {
-		case 0:
-			return .Invalid_Argument
-		case ERROR_INVALID_ADDRESS, ERROR_COMMITMENT_LIMIT:
-			return .Out_Of_Memory
-		}
+    result := VirtualAlloc(data, size, MEM_COMMIT, PAGE_READWRITE)
+    if result == nil {
+        switch err := GetLastError(); err {
+        case 0:
+            return .Invalid_Argument
+        case ERROR_INVALID_ADDRESS, ERROR_COMMITMENT_LIMIT:
+            return .Out_Of_Memory
+        }
 
-		return .Out_Of_Memory
-	}
-	return nil
+        return .Out_Of_Memory
+    }
+    return nil
 }
 
 @(no_sanitize_address)
 _decommit :: proc(data: rawptr, size: uint) {
-	_ = VirtualFree(data, size, MEM_DECOMMIT)
+    _ = VirtualFree(data, size, MEM_DECOMMIT)
 }
 
 @(no_sanitize_address)
 _release :: proc(data: rawptr, size: uint) {
-	_ = VirtualFree(data, 0, MEM_RELEASE)
+    _ = VirtualFree(data, 0, MEM_RELEASE)
 }
 
 @(no_sanitize_address)
 _protect :: proc(data: rawptr, size: uint, flags: Protect_Flags) -> bool {
-	pflags: u32
-	pflags = PAGE_NOACCESS
-	switch flags {
-	case {}:                        pflags = PAGE_NOACCESS
-	case {.Read}:                   pflags = PAGE_READONLY
-	case {.Read, .Write}:           pflags = PAGE_READWRITE
-	case {.Write}:                  pflags = PAGE_WRITECOPY
-	case {.Execute}:                pflags = PAGE_EXECUTE
-	case {.Execute, .Read}:         pflags = PAGE_EXECUTE_READ
-	case {.Execute, .Read, .Write}: pflags = PAGE_EXECUTE_READWRITE
-	case {.Execute, .Write}:        pflags = PAGE_EXECUTE_WRITECOPY
-	case: 
-		return false
-	}
-	
-	
-	old_protect: u32
-	ok := VirtualProtect(data, size, pflags, &old_protect)
-	return bool(ok)
+    pflags: u32
+    pflags = PAGE_NOACCESS
+    switch flags {
+    case {}:                        pflags = PAGE_NOACCESS
+    case {.Read}:                   pflags = PAGE_READONLY
+    case {.Read, .Write}:           pflags = PAGE_READWRITE
+    case {.Write}:                  pflags = PAGE_WRITECOPY
+    case {.Execute}:                pflags = PAGE_EXECUTE
+    case {.Execute, .Read}:         pflags = PAGE_EXECUTE_READ
+    case {.Execute, .Read, .Write}: pflags = PAGE_EXECUTE_READWRITE
+    case {.Execute, .Write}:        pflags = PAGE_EXECUTE_WRITECOPY
+    case: 
+        return false
+    }
+    
+    
+    old_protect: u32
+    ok := VirtualProtect(data, size, pflags, &old_protect)
+    return bool(ok)
 }
 
 
 @(no_sanitize_address)
 _platform_memory_init :: proc() {
-	sys_info: SYSTEM_INFO
-	GetSystemInfo(&sys_info)
-	DEFAULT_PAGE_SIZE = max(DEFAULT_PAGE_SIZE, uint(sys_info.dwPageSize))
-	
-	// is power of two
-	assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
+    sys_info: SYSTEM_INFO
+    GetSystemInfo(&sys_info)
+    DEFAULT_PAGE_SIZE = max(DEFAULT_PAGE_SIZE, uint(sys_info.dwPageSize))
+    
+    // is power of two
+    assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
 }
 
 
 @(no_sanitize_address)
-_map_file :: proc(fd: ^os.File, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
-	page_flags: u32
-	if flags == {.Read} {
-		page_flags = PAGE_READONLY
-	} else if flags == {.Write} {
-		page_flags = PAGE_READWRITE
-	} else if flags == {.Read, .Write} {
-		page_flags = PAGE_READWRITE
-	} else {
-		page_flags = PAGE_NOACCESS
-	}
-	maximum_size := transmute([2]u32)size
-	handle := CreateFileMappingW(rawptr(fd), nil, page_flags, maximum_size[1], maximum_size[0], nil)
-	if handle == nil {
-		return nil, .Map_Failure
-	}
+_map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+    page_flags: u32
+    if flags == {.Read} {
+        page_flags = PAGE_READONLY
+    } else if flags == {.Write} {
+        page_flags = PAGE_READWRITE
+    } else if flags == {.Read, .Write} {
+        page_flags = PAGE_READWRITE
+    } else {
+        page_flags = PAGE_NOACCESS
+    }
+    maximum_size := transmute([2]u32)size
+    handle := CreateFileMappingW(rawptr(fd), nil, page_flags, maximum_size[1], maximum_size[0], nil)
+    if handle == nil {
+        return nil, .Map_Failure
+    }
 
-	desired_access: u32
-	if .Read in flags {
-		desired_access |= FILE_MAP_READ
-	}
-	if .Write in flags {
-		desired_access |= FILE_MAP_WRITE
-	}
+    desired_access: u32
+    if .Read in flags {
+        desired_access |= FILE_MAP_READ
+    }
+    if .Write in flags {
+        desired_access |= FILE_MAP_WRITE
+    }
 
-	file_data := MapViewOfFile(handle, desired_access, 0, 0, uint(size))
-	return ([^]byte)(file_data)[:size], nil
+    file_data := MapViewOfFile(handle, desired_access, 0, 0, uint(size))
+    return ([^]byte)(file_data)[:size], nil
+}
+
+@(no_sanitize_address)
+_unmap_file :: proc(data: []byte) {
+    _ = UnmapViewOfFile(raw_data(data))
 }

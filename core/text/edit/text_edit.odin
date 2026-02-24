@@ -5,6 +5,8 @@ Based off the articles by rxi:
 - [[ https://rxi.github.io/textbox_behaviour.html ]]
 - [[ https://rxi.github.io/a_simple_undo_system.html ]]
 */
+
+
 import "base:runtime"
 import "core:time"
 import "core:mem"
@@ -22,6 +24,7 @@ State :: struct {
 
 	up_index, down_index: int, // multi-lines
 
+	translate_by_grapheme: bool, // translates by codepoint by default
 
 	// undo
 	undo: [dynamic]^Undo_State,
@@ -75,12 +78,12 @@ init :: proc(s: ^State, undo_text_allocator, undo_state_allocator: runtime.Alloc
 	s.redo.allocator = undo_state_allocator
 }
 
-// clear undo|redo strings and _ = delete_slice their stacks
+// clear undo|redo strings and delete their stacks
 destroy :: proc(s: ^State) {
 	undo_clear(s, &s.undo)
 	undo_clear(s, &s.redo)
-	_ = delete_slice(s.undo)
-	_ = delete_slice(s.redo)
+	delete(s.undo)
+	delete(s.redo)
 	s.builder = nil
 }
 
@@ -124,7 +127,7 @@ setup_once :: proc(s: ^State, builder: ^strings.Builder) {
 // clear builder&selection and the undo|redo stacks
 clear_all :: proc(s: ^State) -> (cleared: bool) {
 	if s.builder != nil && len(s.builder.buf) > 0 {
-		clear_dynamic_array(&s.builder.buf)
+		clear(&s.builder.buf)
 		s.selection = {}
 		cleared = true
 	}
@@ -144,7 +147,7 @@ undo_state_push :: proc(s: ^State, undo: ^[dynamic]^Undo_State) -> mem.Allocator
 	item.selection = s.selection
 	item.len = len(text)
 	#no_bounds_check {
-		runtime.copy_slice(item.text[:len(text)], text)
+		runtime.copy(item.text[:len(text)], text)
 	}
 	append(undo, item) or_return
 	return nil
@@ -160,7 +163,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 			strings.builder_reset(s.builder)
 			strings.write_string(s.builder, string(item.text[:item.len]))
 		}
-		_ = free(item, s.undo_text_allocator)
+		free(item, s.undo_text_allocator)
 	}
 }
 
@@ -168,7 +171,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 undo_clear :: proc(s: ^State, undo: ^[dynamic]^Undo_State) {
 	for len(undo) > 0 {
 		item := pop(undo)
-		_ = free(item, s.undo_text_allocator)
+		free(item, s.undo_text_allocator)
 	}
 }
 
@@ -271,7 +274,7 @@ sorted_selection :: proc(s: ^State) -> (lo, hi: int) {
 	return
 }
 
-// _ = delete_slice the current selection range and set the proper selection afterwards
+// delete the current selection range and set the proper selection afterwards
 selection_delete :: proc(s: ^State) {
 	lo, hi := sorted_selection(s)
 	remove(s, lo, hi)
@@ -300,14 +303,32 @@ translate_position :: proc(s: ^State, t: Translation) -> int {
 	case .End:
 		pos = len(buf)
 	case .Left:
-		pos -= 1
-		for pos >= 0 && is_continuation_byte(buf[pos]) {
+		if s.translate_by_grapheme {
+			// TODO(bill): determine if there is a faster way to determine the last grapheme
+			// rather than iterate across the entire string (which may be very slow)
+			it := utf8.decode_grapheme_iterator_make(string(buf[:pos]))
+			g: utf8.Grapheme
+			for {
+				_, g = utf8.decode_grapheme_iterate(&it) or_break
+			}
+			pos -= max(g.width, 1)
+		} else {
 			pos -= 1
+			for pos >= 0 && is_continuation_byte(buf[pos]) {
+				pos -= 1
+			}
 		}
 	case .Right:
-		pos += 1
-		for pos < len(buf) && is_continuation_byte(buf[pos]) {
+		if s.translate_by_grapheme {
+			it := utf8.decode_grapheme_iterator_make(string(buf[pos:]))
+
+			_, g, _ := utf8.decode_grapheme_iterate(&it)
+			pos += max(g.width, 1)
+		} else {
 			pos += 1
+			for pos < len(buf) && is_continuation_byte(buf[pos]) {
+				pos += 1
+			}
 		}
 	case .Up:
 		pos = s.up_index
@@ -384,9 +405,9 @@ current_selected_text :: proc(s: ^State) -> string {
 	return ""
 }
 
-// copy & _ = delete_slice the current selection when copy_slice() succeeds
+// copy & delete the current selection when copy() succeeds
 cut :: proc(s: ^State) -> bool {
-	if copy_slice(s) {
+	if copy(s) {
 		selection_delete(s)
 		return true
 	}
@@ -458,7 +479,7 @@ perform_command :: proc(s: ^State, cmd: Command) {
 	case .Redo:              undo(s, &s.redo, &s.undo)
 	case .New_Line:          input_text(s, "\n")
 	case .Cut:               cut(s)
-	case .Copy:              copy_slice(s)
+	case .Copy:              copy(s)
 	case .Paste:             paste(s)
 	case .Select_All:        s.selection = {len(s.builder.buf) if s.builder != nil else 0, 0}
 	case .Backspace:         delete_to(s, .Left)

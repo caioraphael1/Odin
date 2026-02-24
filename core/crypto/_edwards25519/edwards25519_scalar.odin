@@ -1,5 +1,6 @@
+
+
 import field "core:crypto/_fiat/field_scalar25519"
-import "core:mem"
 
 Scalar :: field.Montgomery_Domain_Field_Element
 
@@ -17,24 +18,24 @@ sc_set_u64 :: proc(sc: ^Scalar, i: u64) {
 	tmp := field.Non_Montgomery_Domain_Field_Element{i, 0, 0, 0}
 	field.fe_to_montgomery(sc, &tmp)
 
-	mem.zero_explicit(&tmp, size_of(tmp))
+	zero_explicit(&tmp, size_of(tmp))
 }
 
 
 sc_set_bytes :: proc(sc: ^Scalar, b: []byte) -> bool {
-	ensure(len(b) == 32, "edwards25519: invalid scalar size")
+	ensure_contextless(len(b) == 32, "edwards25519: invalid scalar size")
 	b_ := (^[32]byte)(raw_data(b))
 	return field.fe_from_bytes(sc, b_)
 }
 
 sc_set_bytes_rfc8032 :: proc(sc: ^Scalar, b: []byte) {
-	ensure(len(b) == 32, "edwards25519: invalid scalar size")
+	ensure_contextless(len(b) == 32, "edwards25519: invalid scalar size")
 	b_ := (^[32]byte)(raw_data(b))
 	field.fe_from_bytes_rfc8032(sc, b_)
 }
 
 sc_clear :: proc(sc: ^Scalar) {
-	mem.zero_explicit(sc, size_of(Scalar))
+	zero_explicit(sc, size_of(Scalar))
 }
 
 sc_set :: field.fe_set

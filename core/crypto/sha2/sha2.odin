@@ -5,6 +5,8 @@ See:
 - [[ https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf ]]
 - [[ https://datatracker.ietf.org/doc/html/rfc3874 ]]
 */
+
+
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.
@@ -13,9 +15,9 @@ See:
         zhibog, dotbmp:  Initial implementation.
 */
 
+@(require) import "core:crypto"
 @(require) import "core:encoding/endian"
 import "core:math/bits"
-@(require) import "core:mem"
 
 // DIGEST_SIZE_224 is the SHA-224 digest size in bytes.
 DIGEST_SIZE_224 :: 28
@@ -168,7 +170,7 @@ update :: proc(ctx: ^$T, data: []byte) {
 	ctx.length += u64(len(data))
 
 	if ctx.bitlength > 0 {
-		n := copy_slice(ctx.block[ctx.bitlength:], data[:])
+		n := copy(ctx.block[ctx.bitlength:], data[:])
 		ctx.bitlength += u64(n)
 		if ctx.bitlength == CURR_BLOCK_SIZE {
 			sha2_transf(ctx, ctx.block[:])
@@ -182,7 +184,7 @@ update :: proc(ctx: ^$T, data: []byte) {
 		data = data[n:]
 	}
 	if len(data) > 0 {
-		ctx.bitlength = u64(copy_slice(ctx.block[:], data[:]))
+		ctx.bitlength = u64(copy(ctx.block[:], data[:]))
 	}
 }
 
@@ -258,7 +260,7 @@ reset :: proc(ctx: ^$T) {
 		return
 	}
 
-	mem.zero_explicit(ctx, size_of(ctx^))
+	crypto.zero_explicit(ctx, size_of(ctx^))
 }
 
 /*

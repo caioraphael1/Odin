@@ -1,10 +1,11 @@
 #+build amd64
+
+
 import "base:intrinsics"
 import "core:crypto"
 import "core:crypto/_aes"
 import "core:crypto/_aes/hw_intel"
 import "core:encoding/endian"
-import "core:mem"
 import "core:simd/x86"
 
 @(private)
@@ -19,11 +20,11 @@ gcm_seal_hw :: proc(ctx: ^Context_Impl_Hardware, dst, tag, iv, aad, plaintext: [
 	hw_intel.ghash(s[:], h[:], aad)
 	gctr_hw(ctx, dst, &s, plaintext, &h, &j0, true)
 	final_ghash_hw(&s, &h, &j0_enc, len(aad), len(plaintext))
-	copy_slice(tag, s[:])
+	copy(tag, s[:])
 
-	mem.zero_explicit(&h, len(h))
-	mem.zero_explicit(&j0, len(j0))
-	mem.zero_explicit(&j0_enc, len(j0_enc))
+	zero_explicit(&h, len(h))
+	zero_explicit(&j0, len(j0))
+	zero_explicit(&j0_enc, len(j0_enc))
 }
 
 @(private)
@@ -40,13 +41,13 @@ gcm_open_hw :: proc(ctx: ^Context_Impl_Hardware, dst, iv, aad, ciphertext, tag: 
 
 	ok := crypto.compare_constant_time(s[:], tag) == 1
 	if !ok {
-		mem.zero_explicit(raw_data(dst), len(dst))
+		zero_explicit(raw_data(dst), len(dst))
 	}
 
-	mem.zero_explicit(&h, len(h))
-	mem.zero_explicit(&j0, len(j0))
-	mem.zero_explicit(&j0_enc, len(j0_enc))
-	mem.zero_explicit(&s, len(s))
+	zero_explicit(&h, len(h))
+	zero_explicit(&j0, len(j0))
+	zero_explicit(&j0_enc, len(j0_enc))
+	zero_explicit(&s, len(s))
 
 	return ok
 }
@@ -65,7 +66,7 @@ init_ghash_hw :: proc(
 	// Define a block, J0, as follows:
 	if l := len(iv); l == GCM_IV_SIZE {
 		// if len(IV) = 96, then let J0 = IV || 0^31 || 1
-		copy_slice(j0[:], iv)
+		copy(j0[:], iv)
 		j0[_aes.GHASH_BLOCK_SIZE - 1] = 1
 	} else {
 		// If len(IV) != 96, then let s = 128 ceil(len(IV)/128) - len(IV),
@@ -213,9 +214,9 @@ gctr_hw :: proc(
 			xor_blocks_hw(dst, src, blks[:1])
 		} else {
 			blk: [BLOCK_SIZE]byte
-			copy_slice(blk[:], src)
+			copy(blk[:], src)
 			xor_blocks_hw(blk[:], blk[:], blks[:1])
-			copy_slice(dst, blk[:l])
+			copy(dst, blk[:l])
 		}
 		if is_seal {
 			hw_intel.ghash(s[:], h[:], dst[:l])
@@ -226,8 +227,8 @@ gctr_hw :: proc(
 		n -= l
 	}
 
-	mem.zero_explicit(&blks, size_of(blks))
-	mem.zero_explicit(&sks, size_of(sks))
+	zero_explicit(&blks, size_of(blks))
+	zero_explicit(&sks, size_of(sks))
 }
 
 // BUG: Sticking this in gctr_hw (like the other implementations) crashes

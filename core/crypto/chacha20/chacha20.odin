@@ -5,9 +5,11 @@ See:
 - [[ https://datatracker.ietf.org/doc/html/rfc8439 ]]
 - [[ https://datatracker.ietf.org/doc/draft-irtf-cfrg-xchacha/03/ ]]
 */
+
+
 import "core:bytes"
+import "core:crypto"
 import "core:crypto/_chacha20"
-import "core:mem"
 
 // KEY_SIZE is the (X)ChaCha20 key size in bytes.
 KEY_SIZE :: _chacha20.KEY_SIZE
@@ -38,7 +40,7 @@ init :: proc(ctx: ^Context, key, iv: []byte, impl := DEFAULT_IMPLEMENTATION) {
 		sub_key := ctx._state._buffer[:KEY_SIZE]
 		hchacha20(sub_key, k, n, ctx._impl)
 		k = sub_key
-		copy_slice(sub_iv[4:], n[16:])
+		copy(sub_iv[4:], n[16:])
 		n = sub_iv[:]
 	}
 
@@ -48,7 +50,7 @@ init :: proc(ctx: ^Context, key, iv: []byte, impl := DEFAULT_IMPLEMENTATION) {
 		// The sub-key is stored in the keystream buffer.  While
 		// this will be overwritten in most circumstances, explicitly
 		// clear it out early.
-		mem.zero_explicit(&ctx._state._buffer, KEY_SIZE)
+		crypto.zero_explicit(&ctx._state._buffer, KEY_SIZE)
 	}
 }
 
@@ -131,7 +133,7 @@ keystream_bytes :: proc(ctx: ^Context, dst: []byte) {
 		// Process partial blocks from the buffered keystream.
 		to_copy := min(_chacha20.BLOCK_SIZE - st._off, remaining)
 		buffered_keystream := st._buffer[st._off:]
-		copy_slice(dst[:to_copy], buffered_keystream[:to_copy])
+		copy(dst[:to_copy], buffered_keystream[:to_copy])
 		st._off += to_copy
 		dst = dst[to_copy:]
 		remaining -= to_copy

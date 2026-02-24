@@ -1,9 +1,14 @@
-import "base:runtime"
 
+
+import "base:runtime"
+import "core:slice"
 import "core:strings"
+import "core:unicode/utf8"
+
 
 Path_Separator        :: _Path_Separator        // OS-Specific
 Path_Separator_String :: _Path_Separator_String // OS-Specific
+Path_Separator_Chars  :: `/\`
 Path_List_Separator   :: _Path_List_Separator   // OS-Specific
 
 #assert(_Path_Separator <= rune(0x7F), "The system-specific path separator rune is expected to be within the 7-bit ASCII character set.")
@@ -17,6 +22,51 @@ is_path_separator :: proc(c: byte) -> bool {
     return _is_path_separator(c)
 }
 
+/*
+Returns the result of replacing each path separator character in the path
+with the `new_sep` rune.
+
+*Allocates Using Provided Allocator*
+*/
+replace_path_separators :: proc(path: string, new_sep: rune, allocator: runtime.Allocator) -> (new_path: string, err: Error) {
+    length       := len(path)
+    rep_b, rep_w := utf8.encode_rune(new_sep)
+
+    byte_oriented := rep_w == 1
+
+    for r in path {
+        if r == '/' || r == '\\' {
+            length += rep_w - 1
+        }
+        if r > rune(0x7f) {
+            byte_oriented = false
+        }
+    }
+
+    buf := make_slice([]u8, length, allocator) or_return
+
+    if byte_oriented {
+        // Neither replacement rune or any other rune in the path takes up more than 1 byte
+        str := transmute([]byte)path
+        #no_bounds_check for b, i in str {
+            buf[i] = u8(new_sep) if b == '/' || b == '\\' else b
+        }
+    } else {
+        i: int
+        for r in path {
+            if r == '/' || r == '\\' {
+                copy_slice(buf[i:], rep_b[:rep_w])
+                i += rep_w
+            } else {
+                r_b, r_w := utf8.encode_rune(r)
+                copy_slice(buf[i:], r_b[:r_w])
+                i += r_w
+            }
+        }
+    }
+    return string(buf), nil
+}
+
 mkdir :: make_directory
 
 /*
@@ -24,7 +74,7 @@ Make a new directory.
 
 If `path` is relative, it will be relative to the process's current working directory.
 */
-make_directory :: proc(name: string, perm: int = 0o755) -> Error {
+make_directory :: proc(name: string, perm := Permissions_Default_Directory) -> Error {
     return _mkdir(name, perm)
 }
 
@@ -35,7 +85,7 @@ Make a new directory, creating new intervening directories when needed.
 
 If `path` is relative, it will be relative to the process's current working directory.
 */
-make_directory_all :: proc(path: string, perm: int = 0o755) -> Error {
+make_directory_all :: proc(path: string, perm := Permissions_Default_Directory) -> Error {
     return _mkdir_all(path, perm)
 }
 
@@ -112,7 +162,7 @@ This will remove duplicate separators and unneeded references to the current or
 parent directory.
 */
 
-clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: string, err: Error) {
+clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: string, err: runtime.Allocator_Error) {
     if path == "" || path == "." {
         return strings.clone(".", allocator)
     }
@@ -313,6 +363,139 @@ split_path :: proc(path: string) -> (dir, filename: string) {
     return _split_path(path)
 }
 
+
+/*
+Gets the file name and extension from a path.
+
+e.g.
+    'path/to/name.tar.gz' -> 'name.tar.gz'
+    'path/to/name.txt'    -> 'name.txt'
+    'path/to/name'        -> 'name'
+
+Returns "." if the path is an empty string.
+*/
+base :: proc(path: string) -> string {
+    if path == "" {
+        return "."
+    }
+
+    _, file := split_path(path)
+    return file
+}
+
+/*
+Gets the name of a file from a path.
+
+The stem of a file is such that `stem(path)` + `ext(path)` = `base(path)`.
+
+Only the last dot is considered when splitting the file extension.
+See `short_stem`.
+
+e.g.
+    'name.tar.gz' -> 'name.tar'
+    'name.txt'    -> 'name'
+
+Returns an empty string if there is no stem. e.g: '.gitignore'.
+Returns an empty string if there's a trailing path separator.
+*/
+stem :: proc(path: string) -> string {
+    // If the last character is a path separator, there is no file.
+    if is_path_separator(path[len(path) - 1]) {
+        return ""
+    }
+
+    // Get the base path.
+    p := base(path)
+    if i := strings.last_index_any(p, Path_Separator_Chars); i != -1 {
+        p = p[i+1:]
+    }
+
+    if i := strings.last_index_byte(p, '.'); i != -1 {
+        return p[:i]
+    }
+    return p
+}
+
+/*
+Gets the name of a file from a path.
+
+The short stem is such that `short_stem(path)` + `long_ext(path)` = `base(path)`,
+where `long_ext` is the extension returned by `split_filename_all`.
+
+The first dot is used to split off the file extension, unlike `stem` which uses the last dot.
+
+e.g.
+    'name.tar.gz' -> 'name'
+    'name.txt'    -> 'name'
+
+Returns an empty string if there is no stem. e.g: '.gitignore'.
+Returns an empty string if there's a trailing path separator.
+*/
+short_stem :: proc(path: string) -> string {
+    s := stem(path)
+    if i := strings.index_byte(s, '.'); i != -1 {
+        return s[:i]
+    }
+    return s
+}
+
+/*
+Gets the file extension from a path, including the dot.
+
+The file extension is such that `stem_path(path)` + `ext(path)` = `base(path)`.
+
+Only the last dot is considered when splitting the file extension.
+See `long_ext`.
+
+e.g.
+    'name.tar.gz' -> '.gz'
+    'name.txt'    -> '.txt'
+
+Returns an empty string if there is no dot.
+Returns an empty string if there is a trailing path separator.
+*/
+ext :: proc(path: string) -> string {
+    for i := len(path)-1; i >= 0 && !is_path_separator(path[i]); i -= 1 {
+        if path[i] == '.' {
+            return path[i:]
+        }
+    }
+    return ""
+}
+
+/*
+Gets the file extension from a path, including the dot.
+
+The long file extension is such that `short_stem(path)` + `long_ext(path)` = `base(path)`.
+
+The first dot is used to split off the file extension, unlike `ext` which uses the last dot.
+
+e.g.
+    'name.tar.gz' -> '.tar.gz'
+    'name.txt'    -> '.txt'
+
+Returns an empty string if there is no dot.
+Returns an empty string if there is a trailing path separator.
+*/
+long_ext :: proc(path: string) -> string {
+    if len(path) > 0 && is_path_separator(path[len(path) - 1]) {
+        // NOTE(tetra): Trailing separator
+        return ""
+    }
+
+    // NOTE(tetra): Get the basename
+    path := path
+    if i := strings.last_index_any(path, Path_Separator_Chars); i != -1 {
+        path = path[i+1:]
+    }
+
+    if i := strings.index_byte(path, '.'); i != -1 {
+        return path[i:]
+    }
+
+    return ""
+}
+
 /*
 Join all `elems` with the system's path separator and normalize the result.
 
@@ -321,7 +504,7 @@ Join all `elems` with the system's path separator and normalize the result.
 For example, `join_path({"/home", "foo", "bar.txt"})` will result in `"/home/foo/bar.txt"`.
 */
 
-join_path :: proc(elems: []string, allocator: runtime.Allocator) -> (joined: string, err: Error) {
+join_path :: proc(elems: []string, allocator: runtime.Allocator) -> (joined: string, err: runtime.Allocator_Error) {
     for e, i in elems {
         if e != "" {
             runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
@@ -457,4 +640,350 @@ split_path_list :: proc(path: string, allocator: runtime.Allocator) -> (list: []
     }
 
     return list, nil
+}
+
+/*
+`match` states whether "name" matches the shell pattern
+
+Pattern syntax is:
+    pattern:
+        {term}
+    term:
+        '*'         matches any sequence of non-/ characters
+        '?'             matches any single non-/ character
+        '[' ['^']  { character-range } ']'
+                                        character classification (cannot be empty)
+        c               matches character c (c != '*', '?', '\\', '[')
+        '\\' c          matches character c
+
+    character-range
+        c               matches character c (c != '\\', '-', ']')
+        '\\' c          matches character c
+        lo '-' hi       matches character c for lo <= c <= hi
+
+`match` requires that the pattern matches the entirety of the name, not just a substring.
+The only possible error returned is `.Syntax_Error` or an allocation error.
+
+NOTE(bill): This is effectively the shell pattern matching system found
+*/
+match :: proc(pattern, name: string) -> (matched: bool, err: Error) {
+    pattern, name := pattern, name
+    pattern_loop: for len(pattern) > 0 {
+        star: bool
+        chunk: string
+        star, chunk, pattern = scan_chunk(pattern)
+        if star && chunk == "" {
+            return !strings.contains(name, _Path_Separator_String), nil
+        }
+
+        t, ok := match_chunk(chunk, name) or_return
+
+        if ok && (len(t) == 0 || len(pattern) > 0) {
+            name = t
+            continue
+        }
+
+        if star {
+            for i := 0; i < len(name) && name[i] != _Path_Separator; i += 1 {
+                t, ok = match_chunk(chunk, name[i+1:]) or_return
+                if ok {
+                    if len(pattern) == 0 && len(t) > 0 {
+                        continue
+                    }
+                    name = t
+                    continue pattern_loop
+                }
+            }
+        }
+
+        return false, nil
+    }
+
+    return len(name) == 0, nil
+}
+
+// glob returns the names of all files matching pattern or nil if there are no matching files
+// The syntax of patterns is the same as "match".
+// The pattern may describe hierarchical names such as /usr/*/bin (assuming '/' is a separator)
+//
+// glob ignores file system errors
+//
+glob :: proc(pattern: string, allocator: runtime.Allocator) -> (matches: []string, err: Error) {
+    _split :: proc(path: string) -> (dir, file: string) {
+        vol := volume_name(path)
+        i := len(path) - 1
+        for i >= len(vol) && !is_path_separator(path[i]) {
+            i -= 1
+        }
+        return path[:i+1], path[i+1:]
+    }
+
+    if !has_meta(pattern) {
+        // TODO(bill): os.lstat on here to check for error
+        m, _ := make_slice([]string, 1, allocator)
+        m[0] = pattern
+        return m[:], nil
+    }
+
+    // NOTE(Jeroen): For `glob`, we need this version of `split`, which leaves the trailing `/` on `dir`.
+    dir, file := _split(pattern)
+
+    temp_buf: [8]byte
+    vol_len:  int
+    vol_len, dir = clean_glob_path(dir, temp_buf[:])
+
+    if !has_meta(dir[vol_len:]) {
+        m, e := _glob(dir, file, nil, allocator)
+        return m[:], e
+    }
+
+    m := glob(dir, allocator) or_return
+    defer {
+        for s in m {
+            _ = delete_string(s, allocator)
+        }
+        _ = delete_slice(m, allocator)
+    }
+
+    dmatches, _ := make_dynamic_array_len_cap([dynamic]string, 0, 0, allocator)
+    for d in m {
+        dmatches, err = _glob(d, file, &dmatches, allocator)
+        if err != nil {
+            break
+        }
+    }
+    if len(dmatches) > 0 {
+        matches = dmatches[:]
+    }
+    return
+}
+
+/*
+    Returns leading volume name.
+
+    e.g.
+        "C:\foo\bar\baz" will return "C:" on Windows.
+        Everything else will be "".
+*/
+volume_name :: proc(path: string) -> string {
+    when ODIN_OS == .Windows {
+        return path[:_volume_name_len(path)]
+    } else {
+        return ""
+    }
+}
+
+@(private="file")
+scan_chunk :: proc(pattern: string) -> (star: bool, chunk, rest: string) {
+    pattern := pattern
+    for len(pattern) > 0 && pattern[0] == '*' {
+        pattern = pattern[1:]
+        star = true
+    }
+
+    in_range, i := false, 0
+
+    scan_loop: for i = 0; i < len(pattern); i += 1 {
+        switch pattern[i] {
+        case '\\':
+            when ODIN_OS != .Windows {
+                if i+1 < len(pattern) {
+                    i += 1
+                }
+            }
+        case '[':
+            in_range = true
+        case ']':
+            in_range = false
+        case '*':
+            in_range or_break scan_loop
+
+        }
+    }
+    return star, pattern[:i], pattern[i:]
+}
+
+@(private="file")
+match_chunk :: proc(chunk, s: string) -> (rest: string, ok: bool, err: Error) {
+    slash_equal :: proc(a, b: u8) -> bool {
+        switch a {
+        case '/':  return b == '/' || b == '\\'
+        case '\\': return b == '/' || b == '\\'
+        case: return a == b
+        }
+    }
+
+    chunk, s := chunk, s
+    for len(chunk) > 0 {
+        if len(s) == 0 {
+            return
+        }
+        switch chunk[0] {
+        case '[':
+            r, w := utf8.decode_rune_in_string(s)
+            s = s[w:]
+            chunk = chunk[1:]
+            is_negated := false
+            if len(chunk) > 0 && chunk[0] == '^' {
+                is_negated = true
+                chunk = chunk[1:]
+            }
+            match := false
+            range_count := 0
+            for {
+                if len(chunk) > 0 && chunk[0] == ']' && range_count > 0 {
+                    chunk = chunk[1:]
+                    break
+                }
+                lo, hi: rune
+                if lo, chunk, err = get_escape(chunk); err != nil {
+                    return
+                }
+                hi = lo
+                if chunk[0] == '-' {
+                    if hi, chunk, err = get_escape(chunk[1:]); err != nil {
+                        return
+                    }
+                }
+
+                if lo <= r && r <= hi {
+                    match = true
+                }
+                range_count += 1
+            }
+            if match == is_negated {
+                return
+            }
+
+        case '?':
+            if s[0] == _Path_Separator {
+                return
+            }
+            _, w := utf8.decode_rune_in_string(s)
+            s = s[w:]
+            chunk = chunk[1:]
+
+        case '\\':
+            when ODIN_OS != .Windows {
+                chunk = chunk[1:]
+                if len(chunk) == 0 {
+                    err = .Pattern_Syntax_Error
+                    return
+                }
+            }
+            fallthrough
+        case:
+            if !slash_equal(chunk[0], s[0]) {
+                return
+            }
+            s = s[1:]
+            chunk = chunk[1:]
+
+        }
+    }
+    return s, true, nil
+}
+
+@(private="file")
+get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Error) {
+    if len(chunk) == 0 || chunk[0] == '-' || chunk[0] == ']' {
+        err = .Pattern_Syntax_Error
+        return
+    }
+    chunk := chunk
+    if chunk[0] == '\\' && ODIN_OS != .Windows {
+        chunk = chunk[1:]
+        if len(chunk) == 0 {
+            err = .Pattern_Syntax_Error
+            return
+        }
+    }
+
+    w: int
+    r, w = utf8.decode_rune_in_string(chunk)
+    if r == utf8.RUNE_ERROR && w == 1 {
+        err = .Pattern_Syntax_Error
+    }
+
+    next_chunk = chunk[w:]
+    if len(next_chunk) == 0 {
+        err = .Pattern_Syntax_Error
+    }
+
+    return
+}
+
+// Internal implementation of `glob`, not meant to be used by the user. Prefer `glob`.
+_glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: runtime.Allocator) -> (m: [dynamic]string, e: Error) {
+    if matches != nil {
+        m = matches^
+    } else {
+        m, _ = make_dynamic_array_len_cap([dynamic]string, 0, 0, allocator)
+    }
+
+
+    d := open(dir, O_RDONLY, allocator = allocator) or_return
+    defer _ = close(d)
+
+    file_info := fstat(d, allocator) or_return
+    defer file_info_delete(file_info, allocator)
+
+    if file_info.type != .Directory {
+        return
+    }
+
+    fis, _ := read_dir(d, -1, allocator)
+    slice.sort_by(fis, proc(a, b: File_Info) -> bool {
+        return a.name < b.name
+    })
+    defer file_info_slice_delete(fis, allocator)
+
+    for fi in fis {
+        matched := match(pattern, fi.name) or_return
+        if matched {
+            matched_path := join_path({dir, fi.name}, allocator) or_return
+            _ = append(&m, matched_path)
+        }
+    }
+    return
+}
+
+@(private)
+has_meta :: proc(path: string) -> bool {
+    when ODIN_OS == .Windows {
+        CHARS :: `*?[`
+    } else {
+        CHARS :: `*?[\`
+    }
+    return strings.contains_any(path, CHARS)
+}
+
+@(private)
+clean_glob_path :: proc(path: string, temp_buf: []byte) -> (int, string) {
+    when ODIN_OS == .Windows {
+        vol_len := _volume_name_len(path)
+        switch {
+        case path == "":
+            return 0, "."
+        case vol_len+1 == len(path) && is_path_separator(path[len(path)-1]): // /, \, C:\, C:/
+            return vol_len+1, path
+        case vol_len == len(path) && len(path) == 2: // C:
+            copy_from_string(temp_buf[:], path)
+            temp_buf[2] = '.'
+            return vol_len, string(temp_buf[:3])
+        }
+
+        if vol_len >= len(path) {
+            vol_len = len(path) -1
+        }
+        return vol_len, path[:len(path)-1]
+    } else {
+        switch path {
+        case "":
+            return 0, "."
+        case Path_Separator_String:
+            return 0, path
+        }
+        return 0, path[:len(path)-1]
+    }
 }

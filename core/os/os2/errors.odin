@@ -1,5 +1,7 @@
-import "base:runtime"
+
+
 import "core:io"
+import "base:runtime"
 
 /*
     General errors that are common within this package which cannot
@@ -22,6 +24,7 @@ General_Error :: enum u32 {
     Invalid_Command,
 
     Pattern_Has_Separator,
+    Pattern_Syntax_Error, // Indicates an error in `glob` or `match` pattern.
 
     No_HOME_Variable,
     Env_Var_Not_Found,
@@ -72,6 +75,7 @@ error_string :: proc(ferr: Error) -> string {
         case .Invalid_Callback:       return "invalid callback"
         case .Invalid_Command:        return "invalid command"
         case .Pattern_Has_Separator:  return "pattern has separator"
+        case .Pattern_Syntax_Error:   return "glob pattern syntax error"
         case .No_HOME_Variable:       return "no $HOME variable"
         case .Env_Var_Not_Found:      return "environment variable not found"
         }

@@ -4,9 +4,11 @@ Ristretto255 prime-order group.
 See:
 - [[ https://www.rfc-editor.org/rfc/rfc9496 ]]
 */
+
+
+import "core:crypto"
 import grp "core:crypto/_edwards25519"
 import field "core:crypto/_fiat/field_curve25519"
-import "core:mem"
 
 // ELEMENT_SIZE is the size of a byte-encoded ristretto255 group element.
 ELEMENT_SIZE :: 32
@@ -69,7 +71,7 @@ Group_Element :: struct {
 
 // ge_clear clears ge to the uninitialized state.
 ge_clear :: proc(ge: ^Group_Element) {
-	mem.zero_explicit(ge, size_of(Group_Element))
+	crypto.zero_explicit(ge, size_of(Group_Element))
 }
 
 // ge_set sets `ge = a`.

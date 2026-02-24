@@ -18,42 +18,43 @@ accomplish common tasks.
   (default), or or read at once.
 
 Example:
-    package hash_example
+	package hash_example
 
-    import "core:crypto/hash"
+	import "core:crypto/hash"
 
-    main :: proc() {
-        input := "Feed the fire."
+	main :: proc() {
+		input := "Feed the fire."
 
-        // Compute the digest, using the high level API.
-        returned_digest := hash.hash(hash.Algorithm.SHA512_256, input)
-        defer _ = delete_slice(returned_digest)
+		// Compute the digest, using the high level API.
+		returned_digest := hash.hash(hash.Algorithm.SHA512_256, input)
+		defer delete(returned_digest)
 
-        // Variant that takes a destination buffer, instead of returning
-        // the digest.
-        digest := make_slice([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // note: Destination buffer has to be at least as big as the digest size of the hash.
-        defer _ = delete_slice(digest)
-        hash.hash(hash.Algorithm.BLAKE2B, input, digest)
-    }
+		// Variant that takes a destination buffer, instead of returning
+		// the digest.
+		digest := make([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // @note: Destination buffer has to be at least as big as the digest size of the hash.
+		defer delete(digest)
+		hash.hash(hash.Algorithm.BLAKE2B, input, digest)
+	}
 
 A generic low level API is provided supporting the init/update/final interface
 that is typical with cryptographic hash function implementations.
 
 Example:
-    package hash_example
+	package hash_example
 
-    import "core:crypto/hash"
+	import "core:crypto/hash"
 
-    main :: proc() {
-        input := "Let the cinders burn."
+	main :: proc() {
+		input := "Let the cinders burn."
 
-        // Compute the digest, using the low level API.
-        ctx: hash.Context
-        digest := make_slice([]byte, hash.DIGEST_SIZES[hash.Algorithm.SHA3_512])
-        defer _ = delete_slice(digest)
+		// Compute the digest, using the low level API.
+		ctx: hash.Context
+		digest := make([]byte, hash.DIGEST_SIZES[hash.Algorithm.SHA3_512])
+		defer delete(digest)
 
-        hash.init(&ctx, hash.Algorithm.SHA3_512)
-        hash.update(&ctx, transmute([]byte)input)
-        hash.final(&ctx, digest)
-    }
+		hash.init(&ctx, hash.Algorithm.SHA3_512)
+		hash.update(&ctx, transmute([]byte)input)
+		hash.final(&ctx, digest)
+	}
 */
+

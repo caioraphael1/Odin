@@ -1,4 +1,6 @@
 #+private
+
+
 /*
 	(c) Copyright 2024 Feoramund <rune@swevencraft.org>.
 	Made available under Odin's license.
@@ -67,7 +69,7 @@ runner_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, tex
 
 	now := time.now()
 
-	_ = append(log_messages, Log_Message {
+	append(log_messages, Log_Message {
 		level = level,
 		text = format_log_text(level, text, options, location, now),
 		time = now,
@@ -75,7 +77,7 @@ runner_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, tex
 	})
 }
 
-format_log_text :: proc(level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location: runtime.Source_Code_Location, at_time: time.Time, allocator : mem.Allocator) -> string{
+format_log_text :: proc(level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location: runtime.Source_Code_Location, at_time: time.Time, allocator: mem.Allocator) -> string{
 	backing: [1024]byte
 	buf := strings.builder_from_bytes(backing[:])
 

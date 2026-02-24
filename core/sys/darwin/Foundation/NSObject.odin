@@ -1,3 +1,5 @@
+
+
 import "base:intrinsics"
 
 methodSignatureForSelector :: proc "c" (obj: ^Object, selector: SEL) -> rawptr {
@@ -77,6 +79,12 @@ debugDescription :: proc "c" (self: ^Object) -> ^String {
 		return msgSend(^String, self, "debugDescription")
 	}
 	return nil
+}
+
+
+@(objc_type=Object, objc_name="performSelectorOnMainThread")
+performSelectorOnMainThread :: proc "c" (self: ^Object, aSelector: SEL, arg: id, wait: BOOL) {
+	msgSend(^String, self, "performSelectorOnMainThread:withObject:waitUntilDone:", aSelector, arg, wait)
 }
 
 bridgingCast :: proc "c" ($T: typeid, obj: ^Object) where intrinsics.type_is_pointer(T), intrinsics.type_is_subtype_of(T, ^Object) {

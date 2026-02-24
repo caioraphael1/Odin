@@ -1,9 +1,12 @@
+#+build !freestanding
+#+build !js
+
 import "core:io"
-import "core:os"
+import os "core:os/os2"
 import "core:strings"
 
 stdio_writer :: proc() -> io.Writer {
-	return io.to_writer(os.stream_from_handle(os.stdout))
+	return os.to_stream(os.stdout)
 }
 
 strings_builder_writer :: proc(b: ^strings.Builder) -> io.Writer {

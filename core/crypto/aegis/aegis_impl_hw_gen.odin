@@ -1,4 +1,6 @@
 #+build !amd64
+
+
 @(private = "file")
 ERR_HW_NOT_SUPPORTED :: "crypto/aegis: hardware implementation unsupported"
 
@@ -13,30 +15,30 @@ is_hardware_accelerated :: proc() -> bool {
 
 @(private)
 init_hw :: proc(ctx: ^Context, st: ^State_HW, iv: []byte) {
-	panic(ERR_HW_NOT_SUPPORTED)
+	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
 absorb_hw :: proc(st: ^State_HW, aad: []byte) {
-	panic(ERR_HW_NOT_SUPPORTED)
+	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
 enc_hw :: proc(st: ^State_HW, dst, src: []byte) {
-	panic(ERR_HW_NOT_SUPPORTED)
+	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
 dec_hw :: proc(st: ^State_HW, dst, src: []byte) {
-	panic(ERR_HW_NOT_SUPPORTED)
+	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
 finalize_hw :: proc(st: ^State_HW, tag: []byte, ad_len, msg_len: int) {
-	panic(ERR_HW_NOT_SUPPORTED)
+	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
 reset_state_hw :: proc(st: ^State_HW) {
-	panic(ERR_HW_NOT_SUPPORTED)
+	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }

@@ -1,9 +1,10 @@
+
+
 import "core:bytes"
 import "core:crypto"
 import "core:crypto/_aes"
 import "core:crypto/_aes/ct64"
 import "core:encoding/endian"
-import "core:mem"
 
 // GCM_IV_SIZE is the default size of the GCM IV in bytes.
 GCM_IV_SIZE :: 12
@@ -55,11 +56,11 @@ seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []byte) {
 	ct64.ghash(s[:], h[:], aad)
 	gctr_ct64(ctx, dst, &s, plaintext, &h, &j0, true)
 	final_ghash_ct64(&s, &h, &j0_enc, len(aad), len(plaintext))
-	copy_slice(tag, s[:])
+	copy(tag, s[:])
 
-	mem.zero_explicit(&h, len(h))
-	mem.zero_explicit(&j0, len(j0))
-	mem.zero_explicit(&j0_enc, len(j0_enc))
+	zero_explicit(&h, len(h))
+	zero_explicit(&j0, len(j0))
+	zero_explicit(&j0_enc, len(j0_enc))
 }
 
 // open_gcm authenticates the aad and ciphertext, and decrypts the ciphertext,
@@ -92,13 +93,13 @@ open_gcm :: proc(ctx: ^Context_GCM, dst, iv, aad, ciphertext, tag: []byte) -> bo
 
 	ok := crypto.compare_constant_time(s[:], tag) == 1
 	if !ok {
-		mem.zero_explicit(raw_data(dst), len(dst))
+		zero_explicit(raw_data(dst), len(dst))
 	}
 
-	mem.zero_explicit(&h, len(h))
-	mem.zero_explicit(&j0, len(j0))
-	mem.zero_explicit(&j0_enc, len(j0_enc))
-	mem.zero_explicit(&s, len(s))
+	zero_explicit(&h, len(h))
+	zero_explicit(&j0, len(j0))
+	zero_explicit(&j0_enc, len(j0_enc))
+	zero_explicit(&s, len(s))
 
 	return ok
 }
@@ -137,7 +138,7 @@ init_ghash_ct64 :: proc(
 	// Define a block, J0, as follows:
 	if l := len(iv); l == GCM_IV_SIZE {
 		// if len(IV) = 96, then let J0 = IV || 0^31 || 1
-		copy_slice(j0[:], iv)
+		copy(j0[:], iv)
 		j0[_aes.GHASH_BLOCK_SIZE - 1] = 1
 	} else {
 		// If len(IV) != 96, then let s = 128 ceil(len(IV)/128) - len(IV),
@@ -198,7 +199,7 @@ gctr_ct64 :: proc(
 
 		// Pre-copy the IV to all the counter blocks.
 		ctrs[i] = tmp[i][:]
-		copy_slice(ctrs[i], iv[:GCM_IV_SIZE])
+		copy(ctrs[i], iv[:GCM_IV_SIZE])
 	}
 
 	impl := &ctx._impl.(ct64.Context)
@@ -247,6 +248,6 @@ gctr_ct64 :: proc(
 		}
 	}
 
-	mem.zero_explicit(&tmp, size_of(tmp))
-	mem.zero_explicit(&tmp2, size_of(tmp2))
+	zero_explicit(&tmp, size_of(tmp))
+	zero_explicit(&tmp2, size_of(tmp2))
 }

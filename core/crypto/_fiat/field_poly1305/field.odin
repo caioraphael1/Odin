@@ -1,5 +1,7 @@
+
+
+import "core:crypto"
 import "core:encoding/endian"
-import "core:mem"
 
 fe_relax_cast :: #force_inline proc(
 	arg1: ^Tight_Field_Element,
@@ -26,7 +28,7 @@ fe_from_bytes :: #force_inline proc(
 	// makes implementing the actual MAC block processing considerably
 	// neater.
 
-	ensure(len(arg1) == 16, "poly1305: invalid field element size")
+	ensure_contextless(len(arg1) == 16, "poly1305: invalid field element size")
 
 	// While it may be unwise to do deserialization here on our
 	// own when fiat-crypto provides equivalent functionality,
@@ -55,7 +57,7 @@ fe_from_u64s :: proc(out1: ^Tight_Field_Element, lo, hi: u64) {
 	_fe_from_bytes(out1, &tmp)
 
 	// This routine is only used to deserialize `r` which is confidential.
-	mem.zero_explicit(&tmp, size_of(tmp))
+	crypto.zero_explicit(&tmp, size_of(tmp))
 }
 
 fe_zero :: proc(out1: ^Tight_Field_Element) {

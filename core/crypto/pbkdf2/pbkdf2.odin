@@ -3,10 +3,12 @@
 
 See: [[ https://www.rfc-editor.org/rfc/rfc2898 ]]
 */
+
+
+import "core:crypto"
 import "core:crypto/hash"
 import "core:crypto/hmac"
 import "core:encoding/endian"
-import "core:mem"
 
 // derive invokes PBKDF2-HMAC with the specified hash algorithm, password,
 // salt, iteration count, and outputs the derived key to dst.
@@ -69,10 +71,10 @@ derive :: proc(
 	if r > 0 {
 		tmp: [hash.MAX_DIGEST_SIZE]byte
 		blk := tmp[:h_len]
-		defer mem.zero_explicit(raw_data(blk), h_len)
+		defer crypto.zero_explicit(raw_data(blk), h_len)
 
 		_F(&base, salt, iterations, u32(l + 1), blk)
-		copy_slice(dst_blk, blk)
+		copy(dst_blk, blk)
 	}
 }
 
@@ -82,7 +84,7 @@ _F :: proc(base: ^hmac.Context, salt: []byte, c: u32, i: u32, dst_blk: []byte) {
 
 	tmp: [hash.MAX_DIGEST_SIZE]byte
 	u := tmp[:h_len]
-	defer mem.zero_explicit(raw_data(u), h_len)
+	defer crypto.zero_explicit(raw_data(u), h_len)
 
 	// F (P, S, c, i) = U_1 \xor U_2 \xor ... \xor U_c
 	//
@@ -104,7 +106,7 @@ _F :: proc(base: ^hmac.Context, salt: []byte, c: u32, i: u32, dst_blk: []byte) {
 	endian.unchecked_put_u32be(u, i) // Use u as scratch space.
 	hmac.update(&prf, u[:4])
 	hmac.final(&prf, u)
-	copy_slice(dst_blk, u)
+	copy(dst_blk, u)
 
 	// U_2 ... U_c: U_n = PRF (P, U_(n-1))
 	for _ in 1 ..< c {

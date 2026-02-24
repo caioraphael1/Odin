@@ -39,12 +39,7 @@ _VEC_TWO: simd.u64x4 : {2, 0, 2, 0}
 is_performant :: proc() -> bool {
 	req_features :: info.CPU_Features{.avx, .avx2}
 
-	features, ok := info.cpu.features.?
-	if !ok {
-		return false
-	}
-
-	return features >= req_features
+	return info.cpu_features() >= req_features
 }
 
 @(private = "file")

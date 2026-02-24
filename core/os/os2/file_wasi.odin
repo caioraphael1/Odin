@@ -1,4 +1,4 @@
-#+private
+
 import "base:runtime"
 
 import "core:io"
@@ -38,7 +38,6 @@ init_std_files :: proc() {
             data = impl,
             procedure = _file_stream_proc,
         }
-        impl.file.fstat = _fstat
         return &impl.file
     }
 
@@ -181,8 +180,9 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: run
     if .Trunc  in flags { oflags += {.TRUNC} }
 
     fdflags: wasi.fdflags_t
-    if .Append in flags { fdflags += {.APPEND} }
-    if .Sync   in flags { fdflags += {.SYNC} }
+    if .Append       in flags { fdflags += {.APPEND} }
+    if .Sync         in flags { fdflags += {.SYNC} }
+    if .Non_Blocking in flags { fdflags += {.NONBLOCK} }
 
     // NOTE: rights are adjusted to what this package's functions might want to call.
     rights: wasi.rights_t
@@ -216,7 +216,6 @@ _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -
         data = impl,
         procedure = _file_stream_proc,
     }
-    impl.file.fstat = _fstat
 
     return &impl.file, nil
 }
@@ -266,6 +265,10 @@ __fd :: proc(f: ^File) -> wasi.fd_t {
         return (^File_Impl)(f.impl).fd
     }
     return -1
+}
+
+_is_tty :: proc(f: ^File) -> bool {
+    return false
 }
 
 _name :: proc(f: ^File) -> string {
@@ -551,6 +554,10 @@ _file_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, 
 
     case .Query:
         return io.query_utility({.Read, .Read_At, .Write, .Write_At, .Seek, .Size, .Flush, .Close, .Destroy, .Query})
+
+    case .Fstat:
+        err = file_stream_fstat_utility(f, p, allocator)
+        return
 
     case:
         return 0, .Unsupported

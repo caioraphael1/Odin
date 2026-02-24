@@ -46,7 +46,7 @@ _getchar :: proc() -> c.int {
 @(private="file")
 foreign odin_env {
     @(link_name="write")
-    __write :: proc "contextless" (fd: u32, p: []byte) ---
+    __write :: proc(fd: u32, p: []byte) ---
 }
 
 @(private="file")

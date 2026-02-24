@@ -207,7 +207,7 @@ read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime
 }
 
 // Recursively copies a directory to `dst` from `src`
-copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runtime.Allocator) -> Error {
+copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, allocator: runtime.Allocator) -> Error {
     when #defined(_copy_directory_all_native) {
         return _copy_directory_all_native(dst, src, dst_perm)
     } else {
@@ -216,7 +216,7 @@ copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runti
 }
 
 @(private)
-_copy_directory_all :: proc(dst, src: string, dst_perm := 0o755, allocator: runtime.Allocator) -> Error {
+_copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, allocator: runtime.Allocator) -> Error {
     err := make_directory(dst, dst_perm)
     if err != nil && err != .Exist {
         return err

@@ -24,8 +24,7 @@ GA_Pixel   :: image.GA_Pixel
 RGB_Pixel  :: image.RGB_Pixel
 RGBA_Pixel :: image.RGBA_Pixel
 
-save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}, allocator : mem.Allocator) -> (err: Error) {
-
+save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}, allocator: mem.Allocator) -> (err: Error) {
 
     if img == nil {
         return .Invalid_Input_Image
@@ -88,8 +87,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     return nil
 }
 
-load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
-
+load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
     options := options
 
     if .alpha_premultiply in options {
@@ -150,7 +148,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         // Intentionally blank
     case .Uncompressed_Black_White:
         black_white  = true
-        dest_depth   = 24
+        dest_depth   = 8 if .do_not_expand_grayscale in options else 24
     case .Uncompressed_Color_Mapped:
         color_mapped = true
     case .Compressed_Color_Mapped:
@@ -159,7 +157,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     case .Compressed_Black_White:
         black_white  = true
         rle_encoding = true
-        dest_depth   = 24
+        dest_depth   = 8 if .do_not_expand_grayscale in options else 24
 
     case:
         return nil, .Unsupported_Format
@@ -178,6 +176,9 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     }
 
     switch dest_depth {
+    case 8: // R8
+        src_channels = 1
+        dest_channels = 1
     case 15: // B5G5R5
         src_channels  = 2
         dest_channels = 3
@@ -371,7 +372,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     return img, nil
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []byte, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }

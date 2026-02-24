@@ -13,7 +13,7 @@ Example:
 
     // For PPM writer
     import "core:mem"
-    import "core:os"
+    import os "core:os/os2"
 
     main :: proc() {
         track := mem.Tracking_Allocator{}

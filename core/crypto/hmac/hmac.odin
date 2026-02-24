@@ -4,9 +4,10 @@
 See:
 - [[ https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf ]]
 */
+
+
 import "core:crypto"
 import "core:crypto/hash"
-import "core:mem"
 
 // sum will compute the HMAC with the specified algorithm and key
 // over msg, and write the computed tag to dst.  It requires that
@@ -124,7 +125,7 @@ _init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 	kLen := len(key)
 	B := hash.BLOCK_SIZES[algorithm]
 	K0 := K0_buf[:B]
-	defer mem.zero_explicit(raw_data(K0), B)
+	defer crypto.zero_explicit(raw_data(K0), B)
 
 	switch {
 	case kLen == B, kLen < B:
@@ -136,7 +137,7 @@ _init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 		// bytes x’00’).
 		//
 		// K0 is zero-initialized, so the copy handles both cases.
-		copy_slice(K0, key)
+		copy(K0, key)
 	case kLen > B:
 		// If the length of K > B: hash K to obtain an L byte string,
 		// then append (B-L) zeros to create a B-byte string K0
@@ -155,7 +156,7 @@ _init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 	hash.init(&ctx._i_hash, algorithm)
 
 	kPad := kPad_buf[:B]
-	defer mem.zero_explicit(raw_data(kPad), B)
+	defer crypto.zero_explicit(raw_data(kPad), B)
 
 	for v, i in K0 {
 		kPad[i] = v ~ _I_PAD

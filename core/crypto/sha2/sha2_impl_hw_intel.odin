@@ -1,4 +1,6 @@
 #+build amd64
+
+
 // Based on the public domain code by Jeffrey Walton, though
 // realistically, there only is one sensible way to write this
 // and Intel's whitepaper covers it.
@@ -50,18 +52,13 @@ K_15 :: simd.u64x2{0xa4506ceb90befffa, 0xc67178f2bef9a3f7}
 // is_hardware_accelerated_256 returns true iff hardware accelerated
 // SHA-224/SHA-256 is supported.
 is_hardware_accelerated_256 :: proc() -> bool {
-	features, ok := info.cpu.features.?
-	if !ok {
-		return false
-	}
-
 	req_features :: info.CPU_Features{
 		.sse2,
 		.ssse3,
 		.sse41,
 		.sha,
 	}
-	return features >= req_features
+	return info.cpu_features() >= req_features
 }
 
 @(private, enable_target_feature="sse2,ssse3,sse4.1,sha")

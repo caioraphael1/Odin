@@ -1,3 +1,5 @@
+
+
 import "base:intrinsics"
 import "core:mem"
 import "core:fmt"
@@ -25,12 +27,11 @@ new_from_pos_and_end_node :: proc($T: typeid, pos: tokenizer.Pos, end: ^Node) ->
     return new(T, pos, end != nil ? end.end : pos)
 }
 
-
 clone_array :: proc(array: $A/[]^$T) -> A {
     if len(array) == 0 {
         return nil
     }
-    res, _ := make(A, len(array))
+    res := make(A, len(array))
     for elem, i in array {
         res[i] = (^T)(clone(elem))
     }
@@ -41,7 +42,7 @@ clone_dynamic_array :: proc(array: $A/[dynamic]^$T) -> A {
     if len(array) == 0 {
         return nil
     }
-    res, _ := make(A, len(array))
+    res := make(A, len(array))
     for elem, i in array {
         res[i] = (^T)(clone(elem))
     }
@@ -85,7 +86,7 @@ clone_node :: proc(node: ^Node) -> ^Node {
     if node.derived != nil {
         src = (^rawptr)(&node.derived)^
     }
-    mem.copy_slice(res, src, size)
+    mem.copy(res, src, size)
     res_ptr_any: any
     res_ptr_any.data = &res
     res_ptr_any.id = ti.id
@@ -224,6 +225,7 @@ clone_node :: proc(node: ^Node) -> ^Node {
             r.body = clone(r.body)
         case ^Range_Stmt:
             r.label = clone(r.label)
+            r.init = clone(r.init)
             r.vals = clone(r.vals)
             r.expr = clone(r.expr)
             r.body = clone(r.body)

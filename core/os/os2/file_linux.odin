@@ -1,9 +1,10 @@
-#+private
+
 import "base:runtime"
 import "core:io"
 import "core:time"
 import "core:sync"
 import "core:sys/linux"
+import "core:sys/posix"
 
 // Most implementations will EINVAL at some point when doing big writes.
 // In practice a read/write call would probably never read/write these big buffers all at once,
@@ -80,6 +81,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: run
     if .Excl in flags          { sys_flags += {.EXCL} }
     if .Sync in flags          { sys_flags += {.DSYNC} }
     if .Trunc in flags         { sys_flags += {.TRUNC} }
+    if .Non_Blocking in flags  { sys_flags += {.NONBLOCK} }
     if .Inheritable in flags   { sys_flags -= {.CLOEXEC} }
 
     fd, errno := linux.open(name_cstr, sys_flags, transmute(linux.Mode)transmute(u32)perm)
@@ -169,6 +171,17 @@ _fd :: proc(f: ^File) -> uintptr {
     }
     impl := (^File_Impl)(f.impl)
     return uintptr(impl.fd)
+}
+
+_is_tty :: proc(f: ^File) -> bool {
+    if f == nil || f.impl == nil {
+        return false
+    }
+    impl := (^File_Impl)(f.impl)
+
+    // TODO: Replace `posix.isatty` with `tcgetattr(fd, &termios) == 0`
+    is_tty := posix.isatty(posix.FD(impl.fd))
+    return bool(is_tty)
 }
 
 _name :: proc(f: ^File) -> string {
@@ -430,7 +443,7 @@ _exists :: proc(name: string) -> bool {
     return linux.access(name_cstr, linux.F_OK) == .NONE
 }
 
-/* For reading Linux system files that stat to size 0 */
+
 
 
 _read_entire_pseudo_file_string :: proc(name: string, allocator: runtime.Allocator) -> (b: []u8, e: Error) {

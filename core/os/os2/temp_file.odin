@@ -56,7 +56,7 @@ make_directory_temp :: proc(dir, pattern: string, allocator: runtime.Allocator) 
     attempts := 0
     for {
         name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
-        err = make_directory(name, 0o700)
+        err = make_directory(name, Permissions_Default_Directory)
         if err == nil {
             return clone_string(name, allocator)
         }

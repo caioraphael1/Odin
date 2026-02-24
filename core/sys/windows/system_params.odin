@@ -1,4 +1,6 @@
 #+build windows
+
+
 // Parameter for SystemParametersInfo.
 SPI_GETBEEP               :: 0x0001
 SPI_SETBEEP               :: 0x0002

@@ -1,8 +1,9 @@
+
+
 import "core:bytes"
 import "core:crypto/_aes/ct64"
 import "core:encoding/endian"
 import "core:math/bits"
-import "core:mem"
 
 // CTR_IV_SIZE is the size of the CTR mode IV in bytes.
 CTR_IV_SIZE :: 16
@@ -101,7 +102,7 @@ keystream_bytes_ctr :: proc(ctx: ^Context_CTR, dst: []byte) {
 		// Process partial blocks from the buffered keystream.
 		to_copy := min(BLOCK_SIZE - ctx._off, remaining)
 		buffered_keystream := ctx._buffer[ctx._off:]
-		copy_slice(dst[:to_copy], buffered_keystream[:to_copy])
+		copy(dst[:to_copy], buffered_keystream[:to_copy])
 		ctx._off += to_copy
 		dst = dst[to_copy:]
 		remaining -= to_copy
@@ -115,7 +116,7 @@ reset_ctr :: proc(ctx: ^Context_CTR) {
 	ctx._off = 0
 	ctx._ctr_hi = 0
 	ctx._ctr_lo = 0
-	mem.zero_explicit(&ctx._buffer, size_of(ctx._buffer))
+	zero_explicit(&ctx._buffer, size_of(ctx._buffer))
 	ctx._is_initialized = false
 }
 
@@ -170,7 +171,7 @@ ctr_blocks :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) #no_boun
 	// Write back the counter.
 	ctx._ctr_hi, ctx._ctr_lo = ctr_hi, ctr_lo
 
-	mem.zero_explicit(&tmp, size_of(tmp))
+	zero_explicit(&tmp, size_of(tmp))
 }
 
 @(private)
@@ -189,7 +190,7 @@ xor_blocks :: #force_inline proc(dst, src: []byte, blocks: [][]byte) {
 				}
 		}
 		for i in 0 ..< len(blocks) {
-			copy_slice(dst[i * BLOCK_SIZE:], blocks[i])
+			copy(dst[i * BLOCK_SIZE:], blocks[i])
 		}
 	}
 }

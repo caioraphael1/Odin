@@ -1,3 +1,4 @@
+
 import "core:mem"
 import "core:bytes"
 
@@ -18,7 +19,7 @@ register :: proc(kind: Which_File_Type, loader: Loader_Proc, destroyer: Destroy_
 	_internal_destroyers[kind] = destroyer
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []byte, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
 	loader := _internal_loaders[which(data)]
 	if loader == nil {
 
@@ -35,11 +36,10 @@ load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allo
 }
 
 
-destroy :: proc(img: ^Image, allocator : mem.Allocator) {
+destroy :: proc(img: ^Image, allocator: mem.Allocator) {
 	if img == nil {
 		return
 	}
-	
 	destroyer := _internal_destroyers[img.which]
 	if destroyer != nil {
 		destroyer(img)
@@ -84,7 +84,7 @@ which_bytes :: proc(data: []byte) -> Which_File_Type {
 			return v
 		}
 		get16le :: #force_inline  proc(s: ^string) -> u16 {
-			v := u16(s[0]) | u16(s[1])<<16
+			v := u16(s[0]) | u16(s[1])<<8
 			s^ = s[2:]
 			return v
 		}

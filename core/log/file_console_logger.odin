@@ -1,13 +1,14 @@
 #+build !freestanding
 #+build !orca
+#+build !js
+
 import "base:runtime"
 import "core:fmt"
 import "core:strings"
 import os "core:os/os2"
-
+import "core:terminal"
 import "core:terminal/ansi"
 import "core:time"
-import "core:sync"
 
 Level_Headers := [?]string{
      0..<10 = "[DEBUG] --- ",
@@ -34,7 +35,7 @@ Default_File_Logger_Opts :: Options{
 
 
 File_Console_Logger_Data :: struct {
-    file_handle:  ^os.File,
+    file_handle: ^os.File,
     ident: string,
 }
 
@@ -89,9 +90,7 @@ _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text
     do_location_header(options, &buf, location)
 
     if .Thread_Id in options {
-        // NOTE(Oskar): not using context.thread_id here since that could be
-        // incorrect when replacing context for a thread.
-        fmt.sbprintf(&buf, "[{}] ", sync.current_thread_id())
+        fmt.sbprintf(&buf, "[{}] ", os.get_current_thread_id())
     }
 
     if ident != "" {

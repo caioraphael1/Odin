@@ -1,3 +1,7 @@
+#+build !freestanding
+#+build !js
+
+import "base:runtime"
 import os "core:os/os2"
 import "core:strings"
 
@@ -7,6 +11,7 @@ import "core:strings"
 // - [[ https://github.com/termstandard/colors ]]
 // - [[ https://invisible-island.net/ncurses/terminfo.src.html ]]
 
+@(private)
 get_no_color :: proc() -> bool {
     buf: [128]u8
     if no_color, err := os.lookup_env_buf(buf[:], "NO_COLOR"); err == nil {
@@ -15,6 +20,7 @@ get_no_color :: proc() -> bool {
     return false
 }
 
+@(private)
 get_environment_color :: proc() -> Color_Depth {
     buf: [128]u8
     // `COLORTERM` is non-standard but widespread and unambiguous.

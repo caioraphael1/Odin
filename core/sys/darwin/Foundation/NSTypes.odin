@@ -1,4 +1,6 @@
+
 import "base:intrinsics"
+import CF "core:sys/darwin/CoreFoundation"
 
 @(private) msgSend :: intrinsics.objc_send
 
@@ -32,17 +34,11 @@ ComparisonResult :: enum Integer {
 
 NotFound :: IntegerMax
 
-Float :: distinct (f32 when size_of(uint) == 4 else f64)
+Float :: CF.CGFloat
 
-Point :: struct {
-	x: Float,
-	y: Float,
-}
+Point :: CF.CGPoint
 
-Size :: struct {
-	width:  Float,
-	height: Float,
-}
+Size :: CF.CGSize
 
 when size_of(UInteger) == 8 {
 	_UINTEGER_ENCODING :: "Q"

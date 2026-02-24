@@ -554,7 +554,7 @@ CP_UTF8  :: 65001
 CP_UTF16 :: 1200
 CP_ACP   :: 0
 
-make_fourcc :: proc "contextless" (ch0, ch1, ch2, ch3: u32) -> u32 {
+make_fourcc :: proc(ch0, ch1, ch2, ch3: u32) -> u32 {
     return ch0 | (ch1 << 8) | (ch2 << 16) | (ch3 << 24)
 }
 

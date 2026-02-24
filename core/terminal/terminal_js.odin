@@ -1,8 +1,8 @@
 #+private
 #+build js
-import "core:os"
 
-_is_terminal :: proc(handle: os.Handle) -> bool {
+
+_is_terminal :: proc(handle: any) -> bool {
 	return true
 }
 

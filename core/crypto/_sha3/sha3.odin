@@ -1,3 +1,5 @@
+
+
 /*
     Copyright 2021 zhibog
     Made available under Odin's license.
@@ -14,7 +16,7 @@
 */
 
 import "core:math/bits"
-import "core:mem"
+import "core:crypto"
 
 ROUNDS :: 24
 
@@ -132,8 +134,8 @@ init :: proc(ctx: ^Context) {
 }
 
 update :: proc(ctx: ^Context, data: []byte) {
-	ensure(ctx.is_initialized)
-	ensure(!ctx.is_finalized)
+	ensure_contextless(ctx.is_initialized)
+	ensure_contextless(!ctx.is_finalized)
 
 	j := ctx.pt
 	for i := 0; i < len(data); i += 1 {
@@ -148,8 +150,8 @@ update :: proc(ctx: ^Context, data: []byte) {
 }
 
 final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
-	ensure(ctx.is_initialized)
-	ensure(len(hash) >= ctx.mdlen, "crypto/sha3: invalid destination digest size")
+	ensure_contextless(ctx.is_initialized)
+	ensure_contextless(len(hash) >= ctx.mdlen, "crypto/sha3: invalid destination digest size")
 
 	ctx := ctx
 	if finalize_clone {
@@ -177,12 +179,12 @@ reset :: proc(ctx: ^Context) {
 		return
 	}
 
-	mem.zero_explicit(ctx, size_of(ctx^))
+	crypto.zero_explicit(ctx, size_of(ctx^))
 }
 
 shake_xof :: proc(ctx: ^Context) {
-	ensure(ctx.is_initialized)
-	ensure(!ctx.is_finalized)
+	ensure_contextless(ctx.is_initialized)
+	ensure_contextless(!ctx.is_finalized)
 
 	ctx.st.b[ctx.pt] ~= ctx.dsbyte
 	ctx.st.b[ctx.rsiz - 1] ~= 0x80
@@ -193,8 +195,8 @@ shake_xof :: proc(ctx: ^Context) {
 }
 
 shake_out :: proc(ctx: ^Context, hash: []byte) {
-	ensure(ctx.is_initialized)
-	ensure(ctx.is_finalized)
+	ensure_contextless(ctx.is_initialized)
+	ensure_contextless(ctx.is_finalized)
 
 	j := ctx.pt
 	for i := 0; i < len(hash); i += 1 {

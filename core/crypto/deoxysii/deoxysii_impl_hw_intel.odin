@@ -1,8 +1,9 @@
 #+build amd64
+
+
 import "base:intrinsics"
 import "core:crypto"
 import "core:crypto/aes"
-import "core:mem"
 import "core:simd"
 import "core:simd/x86"
 
@@ -26,7 +27,7 @@ is_hardware_accelerated :: proc() -> bool {
 	return aes.is_hardware_accelerated()
 }
 
-@(private = "file", enable_target_feature = "sse4.1")
+@(private = "file", enable_target_feature = "sse4.1", require_results)
 auth_tweak :: #force_inline proc(
 	prefix:   x86.__m128i,
 	block_nr: int,
@@ -34,7 +35,7 @@ auth_tweak :: #force_inline proc(
 	return x86._mm_insert_epi64(prefix, i64(intrinsics.byte_swap(u64(block_nr))), 1)
 }
 
-@(private = "file", enable_target_feature = "sse2")
+@(private = "file", enable_target_feature = "sse2", require_results)
 enc_tweak :: #force_inline proc(
 	tag:      x86.__m128i,
 	block_nr: int,
@@ -45,12 +46,12 @@ enc_tweak :: #force_inline proc(
 	)
 }
 
-@(private = "file", enable_target_feature = "ssse3")
+@(private = "file", enable_target_feature = "ssse3", require_results)
 h_ :: #force_inline proc(tk1: x86.__m128i) -> x86.__m128i {
 	return transmute(x86.__m128i)h(transmute(simd.u8x16)tk1)
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes")
+@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
 bc_x4 :: #force_inline proc(
 	ctx: ^Context,
 	s_0, s_1, s_2, s_3:                 x86.__m128i,
@@ -92,7 +93,7 @@ bc_x4 :: #force_inline proc(
 	return s_0, s_1, s_2, s_3
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes")
+@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
 bc_x1 :: #force_inline proc(
 	ctx:   ^Context,
 	s:     x86.__m128i,
@@ -118,7 +119,7 @@ bc_x1 :: #force_inline proc(
 	return s
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,sse4.1,aes")
+@(private = "file", enable_target_feature = "sse2,ssse3,sse4.1,aes", require_results)
 bc_absorb :: proc(
 	ctx:          ^Context,
 	tag:          x86.__m128i,
@@ -169,7 +170,7 @@ bc_absorb :: proc(
 	return tag, stk_block_nr
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes")
+@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
 bc_final :: proc(
 	ctx: ^Context,
 	tag: x86.__m128i,
@@ -178,14 +179,14 @@ bc_final :: proc(
 	tmp: [BLOCK_SIZE]byte
 
 	tmp[0] = PREFIX_TAG << PREFIX_SHIFT
-	copy_slice(tmp[1:], iv)
+	copy(tmp[1:], iv)
 
 	tweak := intrinsics.unaligned_load((^x86.__m128i)(&tmp))
 
 	return bc_x1(ctx, tag, tweak)
 }
 
-@(private = "file", enable_target_feature = "sse2,ssse3,aes")
+@(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
 bc_encrypt :: proc(
 	ctx:          ^Context,
 	dst:          []byte,
@@ -267,7 +268,7 @@ bc_encrypt :: proc(
 @(private)
 e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_check {
 	tmp: [BLOCK_SIZE]byte
-	copy_slice(tmp[1:], iv)
+	copy(tmp[1:], iv)
 	iv_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(&tmp)))
 
 	// Algorithm 3
@@ -290,7 +291,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	if l := len(aad); l > 0 {
 		a_star: [BLOCK_SIZE]byte
 
-		copy_slice(a_star[:], aad)
+		copy(a_star[:], aad)
 		a_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, a_star[:], _PREFIX_AD_FINAL, n)
@@ -312,7 +313,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		m_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, m_star[:], _PREFIX_MSG_FINAL, n)
@@ -334,19 +335,19 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		_ = bc_encrypt(ctx, m_star[:], m_star[:], iv_, auth, n)
 
-		copy_slice(dst[n*BLOCK_SIZE:], m_star[:])
+		copy(dst[n*BLOCK_SIZE:], m_star[:])
 	}
 
 	intrinsics.unaligned_store((^x86.__m128i)(raw_data(tag)), auth)
 }
 
-@(private)
+@(private, require_results)
 d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	tmp: [BLOCK_SIZE]byte
-	copy_slice(tmp[1:], iv)
+	copy(tmp[1:], iv)
 	iv_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(&tmp)))
 
 	// Algorithm 4
@@ -367,12 +368,12 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		_ = bc_encrypt(ctx, m_star[:], m_star[:], iv_, auth, n)
 
-		copy_slice(dst[n*BLOCK_SIZE:], m_star[:])
+		copy(dst[n*BLOCK_SIZE:], m_star[:])
 
-		mem.zero_explicit(&m_star, size_of(m_star))
+		crypto.zero_explicit(&m_star, size_of(m_star))
 	}
 
 	// Associated data
@@ -391,7 +392,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(aad); l > 0 {
 		a_star: [BLOCK_SIZE]byte
 
-		copy_slice(a_star[:], aad)
+		copy(a_star[:], aad)
 		a_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, a_star[:], _PREFIX_AD_FINAL, n)
@@ -413,7 +414,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	if l := len(m); l > 0 {
 		m_star: [BLOCK_SIZE]byte
 
-		copy_slice(m_star[:], m)
+		copy(m_star[:], m)
 		m_star[l] = 0x80
 
 		auth, _ = bc_absorb(ctx, auth, m_star[:], _PREFIX_MSG_FINAL, n)
@@ -426,7 +427,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	intrinsics.unaligned_store((^x86.__m128i)(raw_data(&tmp)), auth)
 	ok := crypto.compare_constant_time(tmp[:], tag) == 1
 
-	mem.zero_explicit(&tmp, size_of(tmp))
+	crypto.zero_explicit(&tmp, size_of(tmp))
 
 	return ok
 }

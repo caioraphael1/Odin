@@ -1,6 +1,5 @@
 #+private
-// Only for types and constants.
-import "core:os"
+
 
 // Package is `#+no-instrumentation`, safe to use.
 import "core:sys/linux"
@@ -8,10 +7,11 @@ import "core:sys/linux"
 MAX_RW :: 0x7fffffff
 
 @(no_instrumentation)
-_write :: proc(fd: os.Handle, data: []byte) -> (n: int, err: os.Error) #no_bounds_check /* bounds check would segfault instrumentation */ {
+_write :: proc(fd: uintptr, data: []byte) #no_bounds_check /* bounds check would segfault instrumentation */ {
+	n: int
 	for n < len(data) {
 		chunk := data[:min(len(data), MAX_RW)]
-		n += linux.write(linux.Fd(fd), chunk) or_return
+		n += linux.write(linux.Fd(fd), chunk) or_break
 	}
 	return
 }

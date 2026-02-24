@@ -1,4 +1,6 @@
 #+build windows
+
+
 foreign import shlwapi "system:shlwapi.lib"
 
 @(default_calling_convention="system")

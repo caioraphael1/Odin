@@ -5192,7 +5192,7 @@ MESSAGE_ID :: enum u32 {
 	D3D11_5_MESSAGES_END,
 }
 
-CalcSubresource :: #force_inline proc "contextless" (MipSlice: UINT, ArraySlice: UINT, MipLevels: UINT) -> UINT {
+CalcSubresource :: #force_inline proc(MipSlice: UINT, ArraySlice: UINT, MipLevels: UINT) -> UINT {
 	return MipSlice + ArraySlice * MipLevels
 }
 

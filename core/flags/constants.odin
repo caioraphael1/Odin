@@ -1,3 +1,4 @@
+
 import "core:time"
 
 // Set to true to compile with support for core named types disabled, as a
@@ -9,8 +10,7 @@ NO_CORE_NAMED_TYPES :: #config(ODIN_CORE_FLAGS_NO_CORE_NAMED_TYPES, false)
 IMPORTING_TIME      :: #config(ODIN_CORE_FLAGS_USE_TIME, time.IS_SUPPORTED)
 
 // Override support for parsing `net` types.
-// TODO: Update this when the BSDs are supported.
-IMPORTING_NET       :: #config(ODIN_CORE_FLAGS_USE_NET, ODIN_OS == .Windows || ODIN_OS == .Linux || ODIN_OS == .Darwin || ODIN_OS == .FreeBSD)
+IMPORTING_NET       :: #config(ODIN_CORE_FLAGS_USE_NET, ODIN_OS == .Windows || ODIN_OS == .Linux || ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD)
 
 TAG_ARGS          :: "args"
 SUBTAG_NAME       :: "name"

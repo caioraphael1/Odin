@@ -1,59 +1,60 @@
 #+private
+
 import "base:runtime"
 import os "core:os/os2"
 import "core:sys/windows"
 
 _is_terminal :: proc(f: ^os.File) -> bool {
-	is_tty := windows.GetFileType(windows.HANDLE(os.fd(f))) == windows.FILE_TYPE_CHAR
-	return is_tty
+    return os.is_tty(f)
 }
-
-
 
 old_modes: [2]struct{
-	handle: windows.DWORD,
-	mode:   windows.DWORD,
+    handle: windows.DWORD,
+    mode:   windows.DWORD,
 } = {
-	{ windows.STD_OUTPUT_HANDLE, 0 },
-	{ windows.STD_ERROR_HANDLE,  0 },
+    {windows.STD_OUTPUT_HANDLE, 0},
+    {windows.STD_ERROR_HANDLE, 0},
 }
 
+// @(init)
 _init_terminal :: proc() {
-	vtp_enabled: bool
+    vtp_enabled: bool
 
-	for &v in old_modes {
-		handle := windows.GetStdHandle(v.handle)
-		if handle == windows.INVALID_HANDLE || handle == nil {
-			return
-		}
-		if windows.GetConsoleMode(handle, &v.mode) {
+    for &v in old_modes {
+        handle := windows.GetStdHandle(v.handle)
+        if handle == windows.INVALID_HANDLE || handle == nil {
+            return
+        }
+        if windows.GetConsoleMode(handle, &v.mode) {
 			_ = windows.SetConsoleMode(handle, v.mode | windows.ENABLE_PROCESSED_OUTPUT | windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
 
-			new_mode: windows.DWORD
+            new_mode: windows.DWORD
 			_ = windows.GetConsoleMode(handle, &new_mode)
 
-			if new_mode & (windows.ENABLE_PROCESSED_OUTPUT | windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0 {
-				vtp_enabled = true
-			}
-		}
-	}
+            if new_mode & (windows.ENABLE_PROCESSED_OUTPUT | windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0 {
+                vtp_enabled = true
+            }
+        }
+    }
 
-	if vtp_enabled {
-		// This color depth is available on Windows 10 since build 10586.
-		color_depth = .Four_Bit
-	} else {
-		// The user may be on a non-default terminal emulator.
-		color_depth = get_environment_color()
-	}
+    if vtp_enabled {
+        // This color depth is available on Windows 10 since build 10586.
+        color_depth = .Four_Bit
+    } else {
+
+        // The user may be on a non-default terminal emulator.
+        color_depth = get_environment_color()
+    }
 }
 
+// @(fini)
 _fini_terminal :: proc() {
-	for v in old_modes {
-		handle := windows.GetStdHandle(v.handle)
-		if handle == windows.INVALID_HANDLE || handle == nil {
-			return
-		}
-		
-		_ = windows.SetConsoleMode(handle, v.mode)
-	}
+    for v in old_modes {
+        handle := windows.GetStdHandle(v.handle)
+        if handle == windows.INVALID_HANDLE || handle == nil {
+            return
+        }
+        
+        _ = windows.SetConsoleMode(handle, v.mode)
+    }
 }

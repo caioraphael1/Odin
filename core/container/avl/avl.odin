@@ -1,8 +1,9 @@
 // A non-intrusive and non-recursive implementation of `AVL` trees.
+
+
 @(require) import "base:intrinsics"
 @(require) import "base:runtime"
 import "core:slice"
-import "core:mem"
 
 // Originally based on the CC0 implementation by Eric Biggers
 // See: https://github.com/ebiggers/avl_tree/
@@ -58,7 +59,6 @@ Iterator :: struct($Value: typeid) {
     _direction:   Direction,
     _called_next: bool,
 }
-
 
 // init_cmp initializes a tree.
 init_cmp :: proc(
@@ -185,7 +185,7 @@ remove_node :: proc(t: ^$T/Tree($Value), node: ^Node(Value), call_on_remove: boo
         if call_on_remove && t.on_remove != nil {
             t.on_remove(node.value, t.user_data)
         }
-        _ = free(node, t._node_allocator)
+        free(node, t._node_allocator)
     }
 
     parent: ^Node(Value)

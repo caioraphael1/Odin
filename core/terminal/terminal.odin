@@ -1,5 +1,5 @@
 // Interaction with the command line interface (`CLI`) of the system.
-import os "core:os/os2"
+
 
 /*
 This describes the range of colors that a terminal is capable of supporting.
@@ -13,14 +13,13 @@ Color_Depth :: enum {
 }
 
 /*
-Returns true if the file `handle` is attached to a terminal.
+Returns true if the `File` is attached to a terminal.
 
 This is normally true for `os.stdout` and `os.stderr` unless they are
 redirected to a file.
 */
-
-is_terminal :: proc(handle: ^os.File) -> bool {
-	return _is_terminal(handle)
+is_terminal :: proc(f: $T) -> bool {
+	return _is_terminal(f)
 }
 
 /*

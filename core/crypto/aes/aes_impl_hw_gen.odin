@@ -1,4 +1,6 @@
 #+build !amd64
+
+
 @(private = "file")
 ERR_HW_NOT_SUPPORTED :: "crypto/aes: hardware implementation unsupported"
 

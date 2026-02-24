@@ -1,4 +1,6 @@
 #+build windows, darwin, linux, freebsd, openbsd, netbsd, haiku
+
+
 import "core:c"
 import "core:c/libc"
 
@@ -16,6 +18,7 @@ get_errno :: #force_inline proc() -> Errno {
 set_errno :: #force_inline proc(err: Errno) {
     libc.errno()^ = i32(err)
 }
+
 
 Errno :: enum c.int {
     NONE            = 0,

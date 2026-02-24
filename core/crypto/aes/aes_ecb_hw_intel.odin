@@ -1,4 +1,6 @@
 #+build amd64
+
+
 import "base:intrinsics"
 import "core:crypto/_aes"
 import "core:simd/x86"

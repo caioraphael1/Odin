@@ -1,4 +1,5 @@
 // This package helps break dependency cycles for the regular expression engine.
+
 /*
 	(c) Copyright 2024 Feoramund <rune@swevencraft.org>.
 	Made available under Odin's license.
@@ -11,6 +12,8 @@
 MAX_CAPTURE_GROUPS :: max(#config(ODIN_REGEX_MAX_CAPTURE_GROUPS, 10), 10)
 MAX_PROGRAM_SIZE   :: int(max(i16))
 MAX_CLASSES        :: int(max(u8))
+
+ODIN_DEBUG_REGEX :: #config(ODIN_DEBUG_REGEX, false)
 
 Flag :: enum u8 {
 	// Multiline: treat `^` and `$` as if they also match newlines.

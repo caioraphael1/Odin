@@ -1,4 +1,6 @@
 // A Lua-like string match algorithm.
+
+
 import "base:runtime"
 import "core:unicode"
 import "core:unicode/utf8"
@@ -753,7 +755,7 @@ gsub_builder :: proc(builder: ^strings.Builder, haystack, pattern, replace: stri
 
 // uses temp builder to build initial string - then allocates the result
 
-gsub_allocator :: proc(haystack, pattern, replace: string, allocator : mem.Allocator) -> string {
+gsub_allocator :: proc(haystack, pattern, replace: string, allocator: mem.Allocator) -> string {
     builder := strings.builder_make(0, 256, runtime.temp_allocator)
     return gsub_builder(&builder, haystack, pattern, replace)
 }
@@ -790,7 +792,6 @@ gsub_with :: proc(haystack, pattern: string, data: rawptr, call: Gsub_Proc) {
         haystack = haystack[cap.byte_end:]
     }
 }
-
 
 
 // iterative find with zeroth capture only
@@ -841,12 +842,10 @@ pattern_case_insensitive_builder :: proc(builder: ^strings.Builder, pattern: str
 }
 
 
-pattern_case_insensitive_allocator :: proc(pattern: string, cap: int = 256, allocator : mem.Allocator) -> string {
+pattern_case_insensitive_allocator :: proc(pattern: string, cap: int = 256, allocator: mem.Allocator) -> string {
     builder := strings.builder_make(0, cap, runtime.temp_allocator)
     return pattern_case_insensitive_builder(&builder, pattern)  
 }
-
-
 
 // Matcher helper struct that stores optional data you might want to use or not
 // as lua is far more dynamic this helps dealing with too much data

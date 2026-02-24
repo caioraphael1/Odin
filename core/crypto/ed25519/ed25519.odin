@@ -6,10 +6,11 @@ See:
 - [[ https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf ]]
 - [[ https://eprint.iacr.org/2020/1244.pdf ]]
 */
+
+
 import "core:crypto"
 import grp "core:crypto/_edwards25519"
 import "core:crypto/sha2"
-import "core:mem"
 
 // PRIVATE_KEY_SIZE is the byte-encoded private key size.
 PRIVATE_KEY_SIZE :: 32
@@ -46,6 +47,25 @@ Public_Key :: struct {
 	_is_initialized: bool,
 }
 
+// private_key_generate uses the system entropy source to generate a new
+// Private_Key.  This will only fail iff the system entropy source is
+// missing or broken.
+private_key_generate :: proc(priv_key: ^Private_Key) -> bool {
+	private_key_clear(priv_key)
+
+	if !crypto.HAS_RAND_BYTES {
+		return false
+	}
+
+	b: [PRIVATE_KEY_SIZE]byte
+	defer crypto.zero_explicit(&b, size_of(b))
+
+	crypto.rand_bytes(b[:])
+	private_key_set_bytes(priv_key, b[:])
+
+	return true
+}
+
 // private_key_set_bytes decodes a byte-encoded private key, and returns
 // true iff the operation was successful.
 private_key_set_bytes :: proc(priv_key: ^Private_Key, b: []byte) -> bool {
@@ -60,8 +80,8 @@ private_key_set_bytes :: proc(priv_key: ^Private_Key, b: []byte) -> bool {
 	sha2.update(&ctx, b)
 	sha2.final(&ctx, h_bytes[:])
 
-	copy_slice(priv_key._b[:], b)
-	copy_slice(priv_key._hdigest2[:], h_bytes[32:])
+	copy(priv_key._b[:], b)
+	copy(priv_key._hdigest2[:], h_bytes[32:])
 	grp.sc_set_bytes_rfc8032(&priv_key._s, h_bytes[:32])
 
 	// Derive the corresponding public key.
@@ -82,12 +102,12 @@ private_key_bytes :: proc(priv_key: ^Private_Key, dst: []byte) {
 	ensure(priv_key._is_initialized, "crypto/ed25519: uninitialized private key")
 	ensure(len(dst) == PRIVATE_KEY_SIZE, "crypto/ed25519: invalid destination size")
 
-	copy_slice(dst, priv_key._b[:])
+	copy(dst, priv_key._b[:])
 }
 
 // private_key_clear clears priv_key to the uninitialized state.
 private_key_clear :: proc(priv_key: ^Private_Key) {
-	mem.zero_explicit(priv_key, size_of(Private_Key))
+	crypto.zero_explicit(priv_key, size_of(Private_Key))
 }
 
 // sign writes the signature by priv_key over msg to sig.
@@ -158,7 +178,7 @@ public_key_set_bytes :: proc(pub_key: ^Public_Key, b: []byte) -> bool {
 		return false
 	}
 
-	copy_slice(pub_key._b[:], b)
+	copy(pub_key._b[:], b)
 	grp.ge_negate(&pub_key._neg_A, &A)
 	pub_key._is_valid = !grp.ge_is_small_order(&A)
 	pub_key._is_initialized = true
@@ -168,10 +188,10 @@ public_key_set_bytes :: proc(pub_key: ^Public_Key, b: []byte) -> bool {
 
 // public_key_set_priv sets pub_key to the public component of priv_key.
 public_key_set_priv :: proc(pub_key: ^Public_Key, priv_key: ^Private_Key) {
-	ensure(priv_key._is_initialized, "crypto/ed25519: uninitialized public key")
+	ensure(priv_key._is_initialized, "crypto/ed25519: uninitialized private key")
 
 	src := &priv_key._pub_key
-	copy_slice(pub_key._b[:], src._b[:])
+	copy(pub_key._b[:], src._b[:])
 	grp.ge_set(&pub_key._neg_A, &src._neg_A)
 	pub_key._is_valid = src._is_valid
 	pub_key._is_initialized = src._is_initialized
@@ -182,7 +202,7 @@ public_key_bytes :: proc(pub_key: ^Public_Key, dst: []byte) {
 	ensure(pub_key._is_initialized, "crypto/ed25519: uninitialized public key")
 	ensure(len(dst) == PUBLIC_KEY_SIZE, "crypto/ed25519: invalid destination size")
 
-	copy_slice(dst, pub_key._b[:])
+	copy(dst, pub_key._b[:])
 }
 
 // public_key_equal returns true iff pub_key is equal to other.

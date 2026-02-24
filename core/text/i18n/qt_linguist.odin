@@ -1,169 +1,156 @@
+
 /*
-    A parser for Qt Linguist TS files.
+	A parser for Qt Linguist TS files.
 
-    Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+	Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
+	Made available under Odin's license.
 
-    A from-scratch implementation based after the specification found here:
-        https://doc.qt.io/qt-5/linguist-ts-file-format.html
+	A from-scratch implementation based after the specification found here:
+		https://doc.qt.io/qt-5/linguist-ts-file-format.html
 
-    List of contributors:
-        Jeroen van Rijn: Initial implementation.
+	List of contributors:
+		Jeroen van Rijn: Initial implementation.
 */
-import "core:os"
 import "core:encoding/xml"
 import "core:strings"
 
 TS_XML_Options := xml.Options{
-    flags = {
-        .Input_May_Be_Modified,
-        .Must_Have_Prolog,
-        .Must_Have_DocType,
-        .Ignore_Unsupported,
-        .Unbox_CDATA,
-        .Decode_SGML_Entities,
-    },
-    expected_doctype = "TS",
+	flags = {
+		.Input_May_Be_Modified,
+		.Must_Have_Prolog,
+		.Must_Have_DocType,
+		.Ignore_Unsupported,
+		.Unbox_CDATA,
+		.Decode_SGML_Entities,
+	},
+	expected_doctype = "TS",
 }
 
-parse_qt_linguist_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator : mem.Allocator) -> (translation: ^Translation, err: Error) {
+parse_qt_linguist_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator: mem.Allocator) -> (translation: ^Translation, err: Error) {
+	context.allocator = allocator
 
+	get_str :: proc(val: xml.Value, intern: ^strings.Intern) -> (str: string, err: Error) {
+		v, ok := val.(string)
+		if ok {
+			if intern != nil {
+				v, _ = strings.intern_get(intern, v)
+			}
+			return v, .None
+		}
+		return "", .Bad_Str
+	}
 
-    get_str :: proc(val: xml.Value, intern: ^strings.Intern) -> (str: string, err: Error) {
-        v, ok := val.(string)
-        if ok {
-            if intern != nil {
-                v, _ = strings.intern_get(intern, v)
-            }
-            return v, .None
-        }
-        return "", .Bad_Str
-    }
+	get_id :: proc(val: xml.Value) -> (str: xml.Element_ID, err: Error) {
+		v, ok := val.(xml.Element_ID)
+		if ok {
+			return v, .None
+		}
+		return 0, .Bad_Id
+	}
 
-    get_id :: proc(val: xml.Value) -> (str: xml.Element_ID, err: Error) {
-        v, ok := val.(xml.Element_ID)
-        if ok {
-            return v, .None
-        }
-        return 0, .Bad_Id
-    }
+	ts, xml_err := xml.parse(data, TS_XML_Options)
+	defer xml.destroy(ts)
 
-    ts, xml_err := xml.parse(data, TS_XML_Options)
-    defer xml.destroy(ts)
+	if xml_err != .None || ts.element_count < 1 || ts.elements[0].ident != "TS" || len(ts.elements[0].value) == 0 {
+		return nil, .TS_File_Parse_Error
+	}
 
-    if xml_err != .None || ts.element_count < 1 || ts.elements[0].ident != "TS" || len(ts.elements[0].value) == 0 {
-        return nil, .TS_File_Parse_Error
-    }
+	// Initalize Translation, interner and optional pluralizer.
+	translation = new(Translation)
+	translation.pluralize = pluralizer
+	strings.intern_init(&translation.intern, allocator, allocator)
 
-    /*
-        Initalize Translation, interner and optional pluralizer.
-    */
-    translation = new(Translation)
-    translation.pluralize = pluralizer
-    strings.intern_init(&translation.intern, allocator, allocator)
+	section: ^Section
 
-    section: ^Section
+	for value in ts.elements[0].value {
+		child_id := get_id(value) or_return
 
-    for value in ts.elements[0].value {
-        child_id := get_id(value) or_return
+		// These should be <context>s.
+		if ts.elements[child_id].ident != "context" {
+			return translation, .TS_File_Expected_Context
+		}
 
-        // These should be <context>s.
+		// Find section name.
+		section_name_id, section_name_found := xml.find_child_by_ident(ts, child_id, "name")
+		if !section_name_found {
+			return translation, .TS_File_Expected_Context_Name,
+		}
 
-        if ts.elements[child_id].ident != "context" {
-            return translation, .TS_File_Expected_Context
-        }
+		section_name, _ := strings.intern_get(&translation.intern, "")
+		if !options.merge_sections {
+			section_name = get_str(ts.elements[section_name_id].value[0], &translation.intern) or_return
+		}
 
-        // Find section name.
-        section_name_id, section_name_found := xml.find_child_by_ident(ts, child_id, "name")
-        if !section_name_found {
-            return translation, .TS_File_Expected_Context_Name,
-        }
+		if section_name not_in translation.k_v {
+			translation.k_v[section_name] = {}
+		}
+		section = &translation.k_v[section_name]
 
-        section_name, _ := strings.intern_get(&translation.intern, "")
-        if !options.merge_sections {
-            section_name = get_str(ts.elements[section_name_id].value[0], &translation.intern) or_return
-        }
+		// Find messages in section.
+		nth: int
+		for {
+			message_id := xml.find_child_by_ident(ts, child_id, "message", nth) or_break
 
-        if section_name not_in translation.k_v {
-            translation.k_v[section_name] = {}
-        }
-        section = &translation.k_v[section_name]
+			numerus_tag, _ := xml.find_attribute_val_by_key(ts, message_id, "numerus")
+			has_plurals := numerus_tag == "yes"
 
-        // Find messages in section.
-        nth: int
-        for {
-            message_id := xml.find_child_by_ident(ts, child_id, "message", nth) or_break
+			// We must have a <source> = key
+			source_id, source_found := xml.find_child_by_ident(ts, message_id, "source")
+			if !source_found {
+				return translation, .TS_File_Expected_Source
+			}
 
-            numerus_tag, _ := xml.find_attribute_val_by_key(ts, message_id, "numerus")
-            has_plurals := numerus_tag == "yes"
+			// We must have a <translation>
+			translation_id, translation_found := xml.find_child_by_ident(ts, message_id, "translation")
+			if !translation_found {
+				return translation, .TS_File_Expected_Translation
+			}
 
-            // We must have a <source> = key
-            source_id, source_found := xml.find_child_by_ident(ts, message_id, "source")
-            if !source_found {
-                return translation, .TS_File_Expected_Source
-            }
+			source := get_str(ts.elements[source_id].value[0], &translation.intern) or_return
 
-            // We must have a <translation>
-            translation_id, translation_found := xml.find_child_by_ident(ts, message_id, "translation")
-            if !translation_found {
-                return translation, .TS_File_Expected_Translation
-            }
+			xlat := ""
+			if !has_plurals {
+				xlat = get_str(ts.elements[translation_id].value[0], &translation.intern) or_return
+			}
 
-            source := get_str(ts.elements[source_id].value[0], &translation.intern) or_return
+			if source in section {
+				return translation, .Duplicate_Key
+			}
 
-            xlat := ""
-            if !has_plurals {
-                xlat = get_str(ts.elements[translation_id].value[0], &translation.intern) or_return
-            }
+			if has_plurals {
+				if xlat != "" {
+					return translation, .TS_File_Expected_NumerusForm
+				}
 
-            if source in section {
-                return translation, .Duplicate_Key
-            }
+				num_plurals: int
+				for {
+					xml.find_child_by_ident(ts, translation_id, "numerusform", num_plurals) or_break
+					num_plurals += 1
+				}
 
-            if has_plurals {
-                if xlat != "" {
-                    return translation, .TS_File_Expected_NumerusForm
-                }
+				if num_plurals < 2 {
+					return translation, .TS_File_Expected_NumerusForm
+				}
+				section[source] = make([]string, num_plurals)
 
-                num_plurals: int
-                for {
-                    xml.find_child_by_ident(ts, translation_id, "numerusform", num_plurals) or_break
-                    num_plurals += 1
-                }
+				num_plurals = 0
+				for {
+					numerus_id := xml.find_child_by_ident(ts, translation_id, "numerusform", num_plurals) or_break
+					numerus := get_str(ts.elements[numerus_id].value[0], &translation.intern) or_return
+					section[source][num_plurals] = numerus
 
-                if num_plurals < 2 {
-                    return translation, .TS_File_Expected_NumerusForm
-                }
-                section[source] = make_slice([]string, num_plurals)
+					num_plurals += 1
+				}
+			} else {
+				// Single translation
+				section[source] = make([]string, 1)
+				section[source][0] = xlat
+			}
 
-                num_plurals = 0
-                for {
-                    numerus_id := xml.find_child_by_ident(ts, translation_id, "numerusform", num_plurals) or_break
-                    numerus := get_str(ts.elements[numerus_id].value[0], &translation.intern) or_return
-                    section[source][num_plurals] = numerus
+			nth += 1
+		}
+	}
 
-                    num_plurals += 1
-                }
-            } else {
-                // Single translation
-                section[source] = make_slice([]string, 1)
-                section[source][0] = xlat
-            }
-
-            nth += 1
-        }
-    }
-
-    return
+	return
 }
-
-parse_qt_linguist_file :: proc(filename: string, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator : mem.Allocator) -> (translation: ^Translation, err: Error) {
-
-
-    data, data_ok := os.read_entire_file(filename)
-    if !data_ok { return {}, .File_Error }
-
-    return parse_qt_linguist_from_bytes(data, options, pluralizer, allocator)
-}
-
 

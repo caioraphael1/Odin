@@ -1,3 +1,4 @@
+
 import "base:intrinsics"
 import "base:runtime"
 
@@ -5,79 +6,82 @@ import "base:runtime"
 The state for a PCG64 RXS-M-XS pseudorandom generator.
 */
 PCG_Random_State :: struct {
-	state: u64,
-	inc:   u64,
+    state: u64,
+    inc:   u64,
 }
 
 pcg_random_generator_proc :: proc(data: rawptr, mode: runtime.Random_Generator_Mode, p: []byte) {
-	
-	read_u64 :: proc(r: ^PCG_Random_State) -> u64 {
-		old_state := r.state
-		r.state = old_state * 6364136223846793005 + (r.inc|1)
-		xor_shifted := (((old_state >> 59) + 5) ~ old_state) * 12605985483714917081
-		rot := (old_state >> 59)
-		return (xor_shifted >> rot) | (xor_shifted << ((-rot) & 63))
-	}
+    read_u64 :: proc(r: ^PCG_Random_State) -> u64 {
+        old_state := r.state
+        r.state = old_state * 6364136223846793005 + (r.inc|1)
+        xor_shifted := (((old_state >> 59) + 5) ~ old_state) * 12605985483714917081
+        rot := (old_state >> 59)
+        return (xor_shifted >> rot) | (xor_shifted << ((-rot) & 63))
+    }
 
-	@(thread_local)
-	global_rand_seed: PCG_Random_State
+    @(thread_local)
+    global_rand_seed: PCG_Random_State
 
-	init :: proc(r: ^PCG_Random_State, seed: u64) {
-		seed := seed
-		if seed == 0 {
-			seed = u64(intrinsics.read_cycle_counter())
-		}
-		r.state = 0
-		r.inc = (seed << 1) | 1
-		_ = read_u64(r)
-		r.state += seed
-		_ = read_u64(r)
-	}
+    init :: proc(r: ^PCG_Random_State, seed: u64) {
+        seed := seed
+        if seed == 0 {
+            seed = u64(intrinsics.read_cycle_counter())
+        }
+        r.state = 0
+        r.inc = (seed << 1) | 1
+        _ = read_u64(r)
+        r.state += seed
+        _ = read_u64(r)
+    }
 
-	r: ^PCG_Random_State = ---
-	if data == nil {
-		r = &global_rand_seed
-	} else {
-		r = cast(^PCG_Random_State)data
-	}
+    r: ^PCG_Random_State = ---
+    if data == nil {
+        r = &global_rand_seed
+    } else {
+        r = cast(^PCG_Random_State)data
+    }
 
-	switch mode {
-	case .Read:
-		if r.state == 0 && r.inc == 0 {
-			init(r, 0)
-		}
+    switch mode {
+    case .Read:
+        if r.state == 0 && r.inc == 0 {
+            init(r, 0)
+        }
 
-		switch len(p) {
-		case size_of(u64):
-			// Fast path for a 64-bit destination.
-			intrinsics.unaligned_store((^u64)(raw_data(p)), read_u64(r))
-		case:
-			// All other cases.
-			pos := i8(0)
-			val := u64(0)
-			for &v in p {
-				if pos == 0 {
-					val = read_u64(r)
-					pos = 8
-				}
-				v = byte(val)
-				val >>= 8
-				pos -= 1
-			}
-		}
+        switch len(p) {
+        case size_of(u64):
+            // Fast path for a 64-bit destination.
+            intrinsics.unaligned_store((^u64)(raw_data(p)), read_u64(r))
+        case:
+            // All other cases.
+            n := len(p) / size_of(u64)
+            buff := ([^]u64)(raw_data(p))[:n]
+            for &e in buff {
+                intrinsics.unaligned_store(&e, read_u64(r))
+            }
+            // Handle remaining bytes
+            rem := len(p) % size_of(u64)
+            if rem > 0 {
+                val := read_u64(r)
+                tail := p[len(p) - rem:]
+                for &b in tail {
+                    b = byte(val)
+                    val >>= 8
+                }
+            }
+        }
 
-	case .Reset:
-		seed: u64
-		runtime.mem_copy_non_overlapping(&seed, raw_data(p), min(size_of(seed), len(p)))
-		init(r, seed)
+    case .Reset:
+        seed: u64
+        runtime.mem_copy_non_overlapping(&seed, raw_data(p), min(size_of(seed), len(p)))
+        init(r, seed)
 
-	case .Query_Info:
-		if len(p) != size_of(Generator_Query_Info) {
-			return
-		}
-		info := (^Generator_Query_Info)(raw_data(p))
-		info^ += {.Uniform, .Resettable}
-	}
+    case .Query_Info:
+        if len(p) != size_of(Generator_Query_Info) {
+            return
+        }
+        info := (^Generator_Query_Info)(raw_data(p))
+        info^ += {.Uniform, .Resettable}
+    }
 }
 
 /*
@@ -96,10 +100,9 @@ Inputs:
 Returns:
 - A `Generator` instance.
 */
-
 pcg_random_generator :: proc(state: ^PCG_Random_State = nil) -> Generator {
-	return {
-		procedure = pcg_random_generator_proc,
-		data = state,
-	}
+    return {
+        procedure = pcg_random_generator_proc,
+        data = state,
+    }
 }

@@ -3,9 +3,11 @@
 
 See: [[ https://www.rfc-editor.org/rfc/rfc5869 ]]
 */
+
+
+import "core:crypto"
 import "core:crypto/hash"
 import "core:crypto/hmac"
-import "core:mem"
 
 // extract_and_expand derives output keying material (OKM) via the
 // HKDF-Extract and HKDF-Expand algorithms, with the specified has
@@ -16,7 +18,7 @@ extract_and_expand :: proc(algorithm: hash.Algorithm, salt, ikm, info, dst: []by
 
 	tmp: [hash.MAX_DIGEST_SIZE]byte
 	prk := tmp[:h_len]
-	defer mem.zero_explicit(raw_data(prk), h_len)
+	defer crypto.zero_explicit(raw_data(prk), h_len)
 
 	extract(algorithm, salt, ikm, prk)
 	expand(algorithm, prk, info, dst)
@@ -81,10 +83,10 @@ expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []byte) {
 	if r > 0 {
 		tmp: [hash.MAX_DIGEST_SIZE]byte
 		blk := tmp[:h_len]
-		defer mem.zero_explicit(raw_data(blk), h_len)
+		defer crypto.zero_explicit(raw_data(blk), h_len)
 
 		_F(&base, prev, info, n + 1, blk)
-		copy_slice(dst_blk, blk)
+		copy(dst_blk, blk)
 	}
 }
 

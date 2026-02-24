@@ -1,4 +1,6 @@
 #+build windows
+
+
 // https://learn.microsoft.com/en-us/windows/win32/api/winerror/
 
 //  Values are 32 bit values laid out as follows:
@@ -246,6 +248,13 @@ E_HANDLE       :: 0x80070006 // Handle that is not valid
 E_OUTOFMEMORY  :: 0x8007000E // Failed to allocate necessary memory
 E_INVALIDARG   :: 0x80070057 // One or more arguments are not valid
 
+SEC_E_INCOMPLETE_MESSAGE :: 0x80090318
+
+SEC_I_INCOMPLETE_CREDENTIALS :: 0x00090320
+SEC_I_CONTINUE_NEEDED        :: 0x00090312
+SEC_I_CONTEXT_EXPIRED        :: 0x00090317
+SEC_I_RENEGOTIATE            :: 0x00090321
+
 // Severity values
 SEVERITY :: enum DWORD {
 	SUCCESS = 0,
@@ -492,9 +501,9 @@ System_Error :: enum DWORD {
 	IS_JOINED = 0x86,
 	// An attempt was made to use a JOIN or SUBST command on a drive that has already been substituted.
 	IS_SUBSTED = 0x87,
-	// The system tried to _ = delete_slice the JOIN of a drive that is not joined.
+	// The system tried to delete the JOIN of a drive that is not joined.
 	NOT_JOINED = 0x88,
-	// The system tried to _ = delete_slice the substitution of a drive that is not substituted.
+	// The system tried to delete the substitution of a drive that is not substituted.
 	NOT_SUBSTED = 0x89,
 	// The system tried to join a drive to a directory on a joined drive.
 	JOIN_TO_JOIN = 0x8A,
@@ -1721,7 +1730,7 @@ System_Error :: enum DWORD {
 	PROCESS_IS_PROTECTED = 0x50D,
 	// The service notification client is lagging too far behind the current state of services in the machine.
 	SERVICE_NOTIFY_CLIENT_LAGGING = 0x50E,
-	// The requested file operation failed because the storage quota was exceeded. To free up disk space, move files to a different location or _ = delete_slice unnecessary files. For more information, contact your system administrator.
+	// The requested file operation failed because the storage quota was exceeded. To free up disk space, move files to a different location or delete unnecessary files. For more information, contact your system administrator.
 	DISK_QUOTA_EXCEEDED = 0x50F,
 	// The requested file operation failed because the storage policy blocks that type of file. For more information, contact your system administrator.
 	CONTENT_BLOCKED = 0x510,
@@ -3294,7 +3303,7 @@ System_Error :: enum DWORD {
 	LOG_METADATA_INCONSISTENT = 0x19D6,
 	// Log service encountered an attempt to erroneous allocate or dispose reservation space.
 	LOG_RESERVATION_INVALID = 0x19D7,
-	// Log service cannot _ = delete_slice log file or file system container.
+	// Log service cannot delete log file or file system container.
 	LOG_CANT_DELETE = 0x19D8,
 	// Log service has reached the maximum allowable containers allocated to a log file.
 	LOG_CONTAINER_LIMIT_EXCEEDED = 0x19D9,
@@ -3942,7 +3951,7 @@ System_Error :: enum DWORD {
 	DS_NAME_REFERENCE_INVALID = 0x20B5,
 	// A cross reference already exists.
 	DS_CROSS_REF_EXISTS = 0x20B6,
-	// It is not permitted to _ = delete_slice a master cross reference.
+	// It is not permitted to delete a master cross reference.
 	DS_CANT_DEL_MASTER_CROSSREF = 0x20B7,
 	// Subtree notifications are only supported on NC heads.
 	DS_SUBTREE_NOTIFY_NOT_NC_HEAD = 0x20B8,
@@ -3988,7 +3997,7 @@ System_Error :: enum DWORD {
 	DS_RECALCSCHEMA_FAILED = 0x20CC,
 	// The tree deletion is not finished. The request must be made again to continue deleting the tree.
 	DS_TREE_DELETE_NOT_FINISHED = 0x20CD,
-	// The requested _ = delete_slice operation could not be performed.
+	// The requested delete operation could not be performed.
 	DS_CANT_DELETE = 0x20CE,
 	// Cannot read the governs class identifier for the schema record.
 	DS_ATT_SCHEMA_REQ_ID = 0x20CF,
@@ -4198,7 +4207,7 @@ System_Error :: enum DWORD {
 	DS_NO_TREE_DELETE_ABOVE_NC = 0x2135,
 	// The directory service failed to lock a tree in preparation for a tree deletion because the tree was in use.
 	DS_COULDNT_LOCK_TREE_FOR_DELETE = 0x2136,
-	// The directory service failed to identify the list of objects to _ = delete_slice while attempting a tree deletion.
+	// The directory service failed to identify the list of objects to delete while attempting a tree deletion.
 	DS_COULDNT_IDENTIFY_OBJECTS_FOR_TREE_DELETE = 0x2137,
 	// Security Accounts Manager initialization failed because of the following error: %1. Error Status: 0x%2. Please shutdown this system and reboot into Directory Services Restore Mode, check the event log for more detailed information.
 	DS_SAM_INIT_FAILURE = 0x2138,
@@ -4312,7 +4321,7 @@ System_Error :: enum DWORD {
 	DS_MUST_BE_RUN_ON_DST_DC = 0x216E,
 	// For security reasons, the source DC must be NT4SP4 or greater.
 	DS_SRC_DC_MUST_BE_SP4_OR_GREATER = 0x216F,
-	// Critical Directory Service System objects cannot be deleted during tree _ = delete_slice operations. The tree _ = delete_slice may have been partially performed.
+	// Critical Directory Service System objects cannot be deleted during tree delete operations. The tree delete may have been partially performed.
 	DS_CANT_TREE_DELETE_CRITICAL_OBJ = 0x2170,
 	// Directory Services could not start because of the following error: %1. Error Status: 0x%2. Please click OK to shutdown the system. You can use the recovery console to diagnose the system further.
 	DS_INIT_FAILURE_CONSOLE = 0x2171,
@@ -4665,7 +4674,7 @@ System_Error :: enum DWORD {
 	DNS_ERROR_NEED_WINS_SERVERS = 0x2590,
 	// NBTSTAT initialization call failed.
 	DNS_ERROR_NBSTAT_INIT_FAILED = 0x2591,
-	// Invalid _ = delete_slice of start of authority (SOA).
+	// Invalid delete of start of authority (SOA).
 	DNS_ERROR_SOA_DELETE_INVALID = 0x2592,
 	// A conditional forwarding zone already exists for that name.
 	DNS_ERROR_FORWARDER_ALREADY_EXISTS = 0x2593,
@@ -5158,7 +5167,7 @@ System_Error :: enum DWORD {
 	IPSEC_IKE_NEGOTIATION_DISABLED = 0x363B,
 	// Reached maximum quick mode limit for the main mode. New main mode will be started.
 	IPSEC_IKE_QM_LIMIT = 0x363C,
-	// Main mode SA lifetime expired or peer sent a main mode _ = delete_slice.
+	// Main mode SA lifetime expired or peer sent a main mode delete.
 	IPSEC_IKE_MM_EXPIRED = 0x363D,
 	// Main mode SA assumed to be invalid because peer stopped responding.
 	IPSEC_IKE_PEER_MM_ASSUMED_INVALID = 0x363E,
@@ -5183,7 +5192,7 @@ System_Error :: enum DWORD {
 	// Too many dynamically added IKEEXT filters were detected.
 	IPSEC_IKE_TOO_MANY_FILTERS = 0x3648,
 	// IPSEC_IKE_NEG_STATUS_END = = 0x364A,
-	IPSEC_IKE_NEG_STATUS_END = 0x3649, // NAP reauth succeeded and must _ = delete_slice the dummy NAP IKEv2 tunnel.
+	IPSEC_IKE_NEG_STATUS_END = 0x3649, // NAP reauth succeeded and must delete the dummy NAP IKEv2 tunnel.
  // Error in assigning inner IP address to initiator in tunnel mode.
 	IPSEC_IKE_INNER_IP_ASSIGNMENT_FAILURE = 0x364B,
 	// Require configuration payload missing.
@@ -5734,13 +5743,13 @@ System_Error :: enum DWORD {
 	STATE_OPEN_CONTAINER_FAILED = 0x3DBC,
 	// State Manager failed to create the container.
 	STATE_CREATE_CONTAINER_FAILED = 0x3DBD,
-	// State Manager failed to _ = delete_slice the container.
+	// State Manager failed to delete the container.
 	STATE_DELETE_CONTAINER_FAILED = 0x3DBE,
 	// State Manager failed to read the setting.
 	STATE_READ_SETTING_FAILED = 0x3DBF,
 	// State Manager failed to write the setting.
 	STATE_WRITE_SETTING_FAILED = 0x3DC0,
-	// State Manager failed to _ = delete_slice the setting.
+	// State Manager failed to delete the setting.
 	STATE_DELETE_SETTING_FAILED = 0x3DC1,
 	// State Manager failed to query the setting.
 	STATE_QUERY_SETTING_FAILED = 0x3DC2,

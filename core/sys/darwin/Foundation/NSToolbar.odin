@@ -1,3 +1,6 @@
+
+@(objc_class = "NSToolbar")
+
 Toolbar :: struct { using _: Object }
 
 @(objc_type = Toolbar, objc_name = "alloc", objc_is_class_method = true)

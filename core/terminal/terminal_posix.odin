@@ -1,11 +1,11 @@
 #+private
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
-import "base:runtime"
-import "core:os"
-import "core:sys/posix"
 
-_is_terminal :: proc(handle: os.Handle) -> bool {
-	return bool(posix.isatty(posix.FD(handle)))
+import "base:runtime"
+import os "core:os/os2"
+
+_is_terminal :: proc(f: ^os.File) -> bool {
+	return os.is_tty(f)
 }
 
 _init_terminal :: proc() {

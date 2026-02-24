@@ -319,17 +319,7 @@ platform_count_lsb :: #force_inline proc(a: $T) -> (count: int)
     return int(intrinsics.count_trailing_zeros(a)) if a > 0 else 0
 }
 
-int_random_digit :: proc() -> (res: DIGIT) {
-    when _DIGIT_BITS == 60 { // DIGIT = u64
-        return DIGIT(rnd.uint64()) & _MASK
-    } else when _DIGIT_BITS == 28 { // DIGIT = u32
-        return DIGIT(rnd.uint32()) & _MASK
-    } else {
-        panic("Unsupported DIGIT size.")
-    }
-
-    return 0 // We shouldn't get here.
-}
+int_random_digit :: internal_int_random_digit
 
 int_random :: proc(dest: ^Int, bits: int, allocator: runtime.Allocator) -> (err: Error) {
     /*

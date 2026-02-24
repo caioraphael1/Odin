@@ -1,8 +1,8 @@
 #+build !js
-package fontstash
+
 
 import "core:log"
-import "core:os"
+import os "core:os/os2"
 import "core:mem"
 
 // 'fontIndex' controls which font you want to load within a multi-font format such

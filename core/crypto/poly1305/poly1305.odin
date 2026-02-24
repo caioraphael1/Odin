@@ -4,11 +4,12 @@
 See:
 - [[ https://datatracker.ietf.org/doc/html/rfc8439 ]]
 */
+
+
 import "core:crypto"
 import field "core:crypto/_fiat/field_poly1305"
 import "core:encoding/endian"
 import "core:math/bits"
-import "core:mem"
 
 // KEY_SIZE is the Poly1305 key size in bytes.
 KEY_SIZE :: 32
@@ -112,7 +113,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 	if msg_len > 0 {
 		// TODO: While -donna does it this way, I'm fairly sure that
 		// `ctx._leftover == 0` is an invariant at this point.
-		copy_slice(ctx._buffer[ctx._leftover:], msg)
+		copy(ctx._buffer[ctx._leftover:], msg)
 		ctx._leftover = ctx._leftover + msg_len
 	}
 }
@@ -153,10 +154,10 @@ final :: proc(ctx: ^Context, dst: []byte) {
 // reset sanitizes the Context.  The Context must be re-initialized to
 // be used again.
 reset :: proc(ctx: ^Context) {
-	mem.zero_explicit(&ctx._r, size_of(ctx._r))
-	mem.zero_explicit(&ctx._a, size_of(ctx._a))
-	mem.zero_explicit(&ctx._s, size_of(ctx._s))
-	mem.zero_explicit(&ctx._buffer, size_of(ctx._buffer))
+	crypto.zero_explicit(&ctx._r, size_of(ctx._r))
+	crypto.zero_explicit(&ctx._a, size_of(ctx._a))
+	crypto.zero_explicit(&ctx._s, size_of(ctx._s))
+	crypto.zero_explicit(&ctx._buffer, size_of(ctx._buffer))
 
 	ctx._is_initialized = false
 }

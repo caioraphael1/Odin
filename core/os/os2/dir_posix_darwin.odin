@@ -2,7 +2,7 @@
 import "base:runtime"
 import "core:sys/darwin"
 
-_copy_directory_all_native :: proc(dst, src: string, dst_perm := 0o755) -> (err: Error) {
+_copy_directory_all_native :: proc(dst, src: string, dst_perm := Permissions_Default) -> (err: Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
 	csrc := clone_to_cstring(src, runtime.temp_allocator) or_return

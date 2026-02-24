@@ -1,5 +1,6 @@
-#+private
 #+build darwin, netbsd, freebsd, openbsd
+
+
 import "base:runtime"
 
 import "core:io"
@@ -59,12 +60,13 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: run
 		}
 	}
 
-	if .Append      in flags { sys_flags += {.APPEND} }
-	if .Create      in flags { sys_flags += {.CREAT} }
-	if .Excl        in flags { sys_flags += {.EXCL} }
-	if .Sync        in flags { sys_flags += {.DSYNC} }
-	if .Trunc       in flags { sys_flags += {.TRUNC} }
-	if .Inheritable in flags { sys_flags -= {.CLOEXEC} }
+	if .Append       in flags { sys_flags += {.APPEND} }
+	if .Create       in flags { sys_flags += {.CREAT} }
+	if .Excl         in flags { sys_flags += {.EXCL} }
+	if .Sync         in flags { sys_flags += {.DSYNC} }
+	if .Trunc        in flags { sys_flags += {.TRUNC} }
+	if .Non_Blocking in flags { sys_flags += {.NONBLOCK} }
+	if .Inheritable  in flags { sys_flags -= {.CLOEXEC} }
 
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 	cname := clone_to_cstring(name, runtime.temp_allocator) or_return
@@ -156,6 +158,13 @@ __fd :: proc(f: ^File) -> posix.FD {
 		return (^File_Impl)(f.impl).fd
 	}
 	return -1
+}
+
+_is_tty :: proc(f: ^File) -> bool {
+	context = runtime.default_context()
+	fd     := _fd(f)
+	is_tty := posix.isatty(posix.FD(fd))
+	return bool(is_tty)
 }
 
 _name :: proc(f: ^File) -> string {

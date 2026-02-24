@@ -3,7 +3,7 @@ A small `GZIP` unpacker.
 
 Example:
 	import "core:bytes"
-	import "core:os"
+	import os "core:os/os2"
 	import "core:compress"
 	import "core:fmt"
 

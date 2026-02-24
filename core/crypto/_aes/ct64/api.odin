@@ -1,5 +1,5 @@
-import "base:intrinsics"
-import "core:mem"
+
+import "core:crypto"
 
 STRIDE :: 4
 
@@ -80,5 +80,5 @@ decrypt_blocks :: proc(ctx: ^Context, dst, src: [][]byte) {
 // reset sanitizes the Context.  The Context must be re-initialized to
 // be used again.
 reset :: proc(ctx: ^Context) {
-    mem.zero_explicit(ctx, size_of(ctx))
+    crypto.zero_explicit(ctx, size_of(ctx))
 }

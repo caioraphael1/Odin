@@ -1,6 +1,9 @@
+
+
+import "core:crypto"
+import subtle "core:crypto/_subtle"
 import "core:encoding/endian"
 import "core:math/bits"
-import "core:mem"
 
 @(private, rodata)
 _TWO_168 := Montgomery_Domain_Field_Element {
@@ -18,7 +21,7 @@ _TWO_336 := Montgomery_Domain_Field_Element {
 }
 
 fe_clear :: proc(arg1: ^Montgomery_Domain_Field_Element) {
-	mem.zero_explicit(arg1, size_of(Montgomery_Domain_Field_Element))
+	crypto.zero_explicit(arg1, size_of(Montgomery_Domain_Field_Element))
 }
 
 fe_from_bytes :: proc(
@@ -32,7 +35,7 @@ fe_from_bytes :: proc(
 		endian.unchecked_get_u64le(arg1[16:]),
 		endian.unchecked_get_u64le(arg1[24:]),
 	}
-	defer mem.zero_explicit(&tmp, size_of(tmp))
+	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	// Check that tmp is in the the range [0, ELL).
 	if !unsafe_assume_canonical {
@@ -55,7 +58,7 @@ fe_from_bytes_rfc8032 :: proc(
 	arg1: ^[32]byte,
 ) {
 	tmp: [64]byte
-	copy_slice(tmp[:], arg1[:])
+	copy(tmp[:], arg1[:])
 
 	// Apply "clamping" as in RFC 8032.
 	tmp[0] &= 248
@@ -64,7 +67,7 @@ fe_from_bytes_rfc8032 :: proc(
 
 	fe_from_bytes_wide(out1, &tmp)
 
-	mem.zero_explicit(&tmp, size_of(tmp))
+	crypto.zero_explicit(&tmp, size_of(tmp))
 }
 
 fe_from_bytes_wide :: proc(
@@ -92,17 +95,17 @@ fe_from_bytes_wide :: proc(
 @(private)
 _fe_from_bytes_short :: proc(out1: ^Montgomery_Domain_Field_Element, arg1: []byte) {
 	// INVARIANT: len(arg1) < 32.
-	ensure(len(arg1) < 32, "edwards25519: oversized short scalar")
+	ensure_contextless(len(arg1) < 32, "edwards25519: oversized short scalar")
 
 	tmp: [32]byte
-	copy_slice(tmp[:], arg1)
+	copy(tmp[:], arg1)
 
 	_ = fe_from_bytes(out1, &tmp, true)
-	mem.zero_explicit(&tmp, size_of(tmp))
+	crypto.zero_explicit(&tmp, size_of(tmp))
 }
 
 fe_to_bytes :: proc(out1: []byte, arg1: ^Montgomery_Domain_Field_Element) {
-	ensure(len(out1) == 32, "edwards25519: oversized scalar output buffer")
+	ensure_contextless(len(out1) == 32, "edwards25519: oversized scalar output buffer")
 
 	tmp: Non_Montgomery_Domain_Field_Element
 	fe_from_montgomery(&tmp, arg1)
@@ -112,20 +115,18 @@ fe_to_bytes :: proc(out1: []byte, arg1: ^Montgomery_Domain_Field_Element) {
 	endian.unchecked_put_u64le(out1[16:], tmp[2])
 	endian.unchecked_put_u64le(out1[24:], tmp[3])
 
-	mem.zero_explicit(&tmp, size_of(tmp))
+	crypto.zero_explicit(&tmp, size_of(tmp))
 }
 
 fe_equal :: proc(arg1, arg2: ^Montgomery_Domain_Field_Element) -> int {
 	tmp: Montgomery_Domain_Field_Element
 	fe_sub(&tmp, arg1, arg2)
 
-	// This will only underflow iff arg1 == arg2, and we return the borrow,
-	// which will be 1.
-	_, borrow := bits.sub_u64(fe_non_zero(&tmp), 1, 0)
+	is_eq := subtle.eq(fe_non_zero(&tmp), 0)
 
 	fe_clear(&tmp)
 
-	return int(borrow)
+	return int(is_eq)
 }
 
 fe_zero :: proc(out1: ^Montgomery_Domain_Field_Element) {

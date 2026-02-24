@@ -1,6 +1,8 @@
+
+
+import "core:crypto"
 import aes "core:crypto/_aes/ct64"
 import "core:encoding/endian"
-import "core:mem"
 
 // This uses the bitlsiced 64-bit general purpose register SWAR AES
 // round function.  The intermediate state is stored in interleaved
@@ -203,7 +205,7 @@ absorb_sw :: proc(st: ^State_SW, aad: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // AAD is not confidential.
-		copy_slice(tmp[:], ai)
+		copy(tmp[:], ai)
 		switch st.rate {
 		case _RATE_128L:
 			absorb_sw_128l(st, tmp[:])
@@ -213,7 +215,7 @@ absorb_sw :: proc(st: ^State_SW, aad: []byte) #no_bounds_check {
 	}
 }
 
-@(private = "file")
+@(private = "file", require_results)
 z_sw_128l :: proc(st: ^State_SW) -> (u64, u64, u64, u64) {
 	z0_0, z0_1 := aes.and_interleaved(st.s2_0, st.s2_1, st.s3_0, st.s3_1)
 	z0_0, z0_1 = aes.xor_interleaved(st.s1_0, st.s1_1, z0_0, z0_1)
@@ -226,7 +228,7 @@ z_sw_128l :: proc(st: ^State_SW) -> (u64, u64, u64, u64) {
 	return z0_0, z0_1, z1_0, z1_1
 }
 
-@(private = "file")
+@(private = "file", require_results)
 z_sw_256 :: proc(st: ^State_SW) -> (u64, u64) {
 	z_0, z_1 := aes.and_interleaved(st.s2_0, st.s2_1, st.s3_0, st.s3_1)
 	z_0, z_1 = aes.xor_interleaved(st.s5_0, st.s5_1, z_0, z_1)
@@ -283,14 +285,14 @@ enc_sw :: proc(st: ^State_SW, dst, src: []byte) #no_bounds_check {
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
 		tmp: [_RATE_MAX]byte // Ciphertext is not confidential.
-		copy_slice(tmp[:], xi)
+		copy(tmp[:], xi)
 		switch st.rate {
 		case _RATE_128L:
 			enc_sw_128l(st, tmp[:], tmp[:])
 		case _RATE_256:
 			enc_sw_256(st, tmp[:], tmp[:])
 		}
-		copy_slice(ci, tmp[:l])
+		copy(ci, tmp[:l])
 	}
 }
 
@@ -322,10 +324,10 @@ dec_sw_256 :: #force_inline proc(st: ^State_SW, xi, ci: []byte) #no_bounds_check
 @(private = "file")
 dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 	tmp: [_RATE_128L]byte
-	defer mem.zero_explicit(&tmp, size_of(tmp))
+	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z0_0, z0_1, z1_0, z1_1 := z_sw_128l(st)
-	copy_slice(tmp[:], cn)
+	copy(tmp[:], cn)
 
 	t0_0, t0_1 := aes.load_interleaved(tmp[:16])
 	t1_0, t1_1 := aes.load_interleaved(tmp[16:])
@@ -334,7 +336,7 @@ dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 
 	aes.store_interleaved(tmp[:16], out0_0, out0_1)
 	aes.store_interleaved(tmp[16:], out1_0, out1_1)
-	copy_slice(xn, tmp[:])
+	copy(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_128L; off += 1 {
 		tmp[off] = 0
@@ -347,16 +349,16 @@ dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 @(private = "file")
 dec_partial_sw_256 :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 	tmp: [_RATE_256]byte
-	defer mem.zero_explicit(&tmp, size_of(tmp))
+	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z_0, z_1 := z_sw_256(st)
-	copy_slice(tmp[:], cn)
+	copy(tmp[:], cn)
 
 	cn_0, cn_1 := aes.load_interleaved(tmp[:])
 	xn_0, xn_1 := aes.xor_interleaved(cn_0, cn_1, z_0, z_1)
 
 	aes.store_interleaved(tmp[:], xn_0, xn_1)
-	copy_slice(xn, tmp[:])
+	copy(xn, tmp[:])
 
 	for off := len(xn); off < _RATE_256; off += 1 {
 		tmp[off] = 0
@@ -446,5 +448,5 @@ finalize_sw :: proc(st: ^State_SW, tag: []byte, ad_len, msg_len: int) {
 
 @(private)
 reset_state_sw :: proc(st: ^State_SW) {
-	mem.zero_explicit(st, size_of(st^))
+	crypto.zero_explicit(st, size_of(st^))
 }

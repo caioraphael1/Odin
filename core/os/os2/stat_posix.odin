@@ -1,5 +1,7 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
+
+
 import "base:runtime"
 
 import "core:sys/posix"
@@ -132,4 +134,8 @@ _lstat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, er
 
 _same_file :: proc(fi1, fi2: File_Info) -> bool {
 	return fi1.fullpath == fi2.fullpath
+}
+
+_is_reserved_name :: proc(path: string) -> bool {
+	return false
 }

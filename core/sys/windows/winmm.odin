@@ -1,4 +1,6 @@
 #+build windows
+
+
 foreign import winmm "system:Winmm.lib"
 
 MMRESULT :: UINT
@@ -10,28 +12,28 @@ foreign winmm {
 	timeEndPeriod   :: proc(uPeriod: UINT) -> MMRESULT ---
 	timeGetTime     :: proc() -> DWORD ---
 
-	waveOutGetNumDevs :: proc() -> UINT ---
-	waveOutGetDevCapsW :: proc(uDeviceID: UINT_PTR, pwoc: LPWAVEOUTCAPSW, cbwoc: UINT) -> MMRESULT ---
-	waveOutGetVolume :: proc(hwo: HWAVEOUT, pdwVolume: LPDWORD) -> MMRESULT ---
-	waveOutSetVolume :: proc(hwo: HWAVEOUT, dwVolume: DWORD) -> MMRESULT ---
-	waveOutGetErrorTextW :: proc(mmrError: MMRESULT, pszText: LPWSTR, cchText: UINT) -> MMRESULT ---
-	waveOutOpen :: proc(phwo: LPHWAVEOUT, uDeviceID: UINT, pwfx: LPCWAVEFORMATEX, dwCallback: DWORD_PTR, dwInstance: DWORD_PTR, fdwOpen: DWORD) -> MMRESULT ---
-	waveOutClose :: proc(hwo: HWAVEOUT) -> MMRESULT ---
-	waveOutPrepareHeader :: proc(hwo: HWAVEOUT, pwh: LPWAVEHDR, cbwh: UINT) -> MMRESULT ---
+	waveOutGetNumDevs      :: proc() -> UINT ---
+	waveOutGetDevCapsW     :: proc(uDeviceID: UINT_PTR, pwoc: LPWAVEOUTCAPSW, cbwoc: UINT) -> MMRESULT ---
+	waveOutGetVolume       :: proc(hwo: HWAVEOUT, pdwVolume: LPDWORD) -> MMRESULT ---
+	waveOutSetVolume       :: proc(hwo: HWAVEOUT, dwVolume: DWORD) -> MMRESULT ---
+	waveOutGetErrorTextW   :: proc(mmrError: MMRESULT, pszText: LPWSTR, cchText: UINT) -> MMRESULT ---
+	waveOutOpen            :: proc(phwo: LPHWAVEOUT, uDeviceID: UINT, pwfx: LPCWAVEFORMATEX, dwCallback: DWORD_PTR, dwInstance: DWORD_PTR, fdwOpen: DWORD) -> MMRESULT ---
+	waveOutClose           :: proc(hwo: HWAVEOUT) -> MMRESULT ---
+	waveOutPrepareHeader   :: proc(hwo: HWAVEOUT, pwh: LPWAVEHDR, cbwh: UINT) -> MMRESULT ---
 	waveOutUnprepareHeader :: proc(hwo: HWAVEOUT, pwh: LPWAVEHDR, cbwh: UINT) -> MMRESULT ---
-	waveOutWrite :: proc(hwo: HWAVEOUT, pwh: LPWAVEHDR, cbwh: UINT) -> MMRESULT ---
-	waveOutPause :: proc(hwo: HWAVEOUT) -> MMRESULT ---
-	waveOutRestart :: proc(hwo: HWAVEOUT) -> MMRESULT ---
-	waveOutReset :: proc(hwo: HWAVEOUT) -> MMRESULT ---
-	waveOutBreakLoop :: proc(hwo: HWAVEOUT) -> MMRESULT ---
-	waveOutGetPosition :: proc(hwo: HWAVEOUT, pmmt: LPMMTIME, cbmmt: UINT) -> MMRESULT ---
-	waveOutGetPitch :: proc(hwo: HWAVEOUT, pdwPitch: LPDWORD) -> MMRESULT ---
-	waveOutSetPitch :: proc(hwo: HWAVEOUT, pdwPitch: DWORD) -> MMRESULT ---
+	waveOutWrite           :: proc(hwo: HWAVEOUT, pwh: LPWAVEHDR, cbwh: UINT) -> MMRESULT ---
+	waveOutPause           :: proc(hwo: HWAVEOUT) -> MMRESULT ---
+	waveOutRestart         :: proc(hwo: HWAVEOUT) -> MMRESULT ---
+	waveOutReset           :: proc(hwo: HWAVEOUT) -> MMRESULT ---
+	waveOutBreakLoop       :: proc(hwo: HWAVEOUT) -> MMRESULT ---
+	waveOutGetPosition     :: proc(hwo: HWAVEOUT, pmmt: LPMMTIME, cbmmt: UINT) -> MMRESULT ---
+	waveOutGetPitch        :: proc(hwo: HWAVEOUT, pdwPitch: LPDWORD) -> MMRESULT ---
+	waveOutSetPitch        :: proc(hwo: HWAVEOUT, pdwPitch: DWORD) -> MMRESULT ---
 	waveOutGetPlaybackRate :: proc(hwo: HWAVEOUT, pdwRate: LPDWORD) -> MMRESULT ---
 	waveOutSetPlaybackRate :: proc(hwo: HWAVEOUT, pdwRate: DWORD) -> MMRESULT ---
-	waveOutGetID :: proc(hwo: HWAVEOUT, puDeviceID: LPUINT) -> MMRESULT ---
+	waveOutGetID           :: proc(hwo: HWAVEOUT, puDeviceID: LPUINT) -> MMRESULT ---
 
-	waveInGetNumDevs :: proc() -> UINT ---
+	waveInGetNumDevs  :: proc() -> UINT ---
 	waveInGetDevCapsW :: proc(uDeviceID: UINT_PTR, pwic: LPWAVEINCAPSW, cbwic: UINT) -> MMRESULT ---
 
 	PlaySoundW :: proc(pszSound: LPCWSTR, hmod: HMODULE, fdwSound: DWORD) -> BOOL ---
@@ -77,7 +79,7 @@ MMSYSERR_BADDB        :: MMSYSERR_BASE + 14 /* bad registry database */
 MMSYSERR_KEYNOTFOUND  :: MMSYSERR_BASE + 15 /* registry key not found */
 MMSYSERR_READERROR    :: MMSYSERR_BASE + 16 /* registry read error */
 MMSYSERR_WRITEERROR   :: MMSYSERR_BASE + 17 /* registry write error */
-MMSYSERR_DELETEERROR  :: MMSYSERR_BASE + 18 /* registry _ = delete_slice error */
+MMSYSERR_DELETEERROR  :: MMSYSERR_BASE + 18 /* registry delete error */
 MMSYSERR_VALNOTFOUND  :: MMSYSERR_BASE + 19 /* registry value not found */
 MMSYSERR_NODRIVERCB   :: MMSYSERR_BASE + 20 /* driver does not call DriverCallback */
 MMSYSERR_MOREDATA     :: MMSYSERR_BASE + 21 /* more data to be returned */
@@ -270,10 +272,10 @@ LPHWAVEOUT :: ^HWAVEOUT
 MMTIME :: struct {
 	wType: MMTIME_TYPE,
 	u: struct #raw_union {
-		ms: DWORD,
-		sample: DWORD,
-		cb: DWORD,
-		ticks: DWORD,
+		ms:     DWORD `raw_union_tag:"wType=TIME_MS"`,
+		sample: DWORD `raw_union_tag:"wType=TIME_SAMPLES"`,
+		cb:     DWORD `raw_union_tag:"wType=TIME_BYTES"`,
+		ticks:  DWORD `raw_union_tag:"wType=TIME_TICKS"`,
 		smpte: struct {
 			hour: BYTE,
 			min: BYTE,
@@ -282,10 +284,10 @@ MMTIME :: struct {
 			fps: BYTE,
 			dummy: BYTE,
 			pad: [2]BYTE,
-		},
+		} `raw_union_tag:"wType=TIME_SMPTE"`,
 		midi: struct {
 			songptrpos: DWORD,
-		},
+		} `raw_union_tag:"wType=TIME_MIDI"`,
 	},
 }
 LPMMTIME :: ^MMTIME
@@ -305,12 +307,13 @@ MMTIME_TYPE :: enum UINT {
 	TIME_TICKS   = 0x0020,
 }
 
-MAXPNAMELEN :: 32
+MAXPNAMELEN    :: 32
 MAXERRORLENGTH :: 256
-MMVERSION :: UINT
+MMVERSION      :: UINT
 
 // Input is four characters string
 // Output is little-endian u32 representation
+
 MAKEFOURCC :: #force_inline proc(s: [4]byte) -> DWORD {
 	return (DWORD(s[0])) | (DWORD(s[1]) << 8) | (DWORD(s[2]) << 16) | (DWORD(s[3]) << 24 )
 }

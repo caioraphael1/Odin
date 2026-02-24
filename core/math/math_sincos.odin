@@ -1,4 +1,5 @@
-import "core:math/bits"
+
+import "base:intrinsics"
 
 // The original C code, the long comment, and the constants
 // below were from http://netlib.sandia.gov/cephes/cmath/sin.c,
@@ -273,16 +274,16 @@ _trig_reduce_f64 :: proc(x: f64) -> (j: u64, z: f64) #no_bounds_check {
     z1 := (bd_pi4[digit+1] << bitshift) | (bd_pi4[digit+2] >> (64 - bitshift))
     z2 := (bd_pi4[digit+2] << bitshift) | (bd_pi4[digit+3] >> (64 - bitshift))
     // Multiply mantissa by the digits and extract the upper two digits (hi, lo).
-    z2hi, _ := bits.mul_u64(z2, ix)
-    z1hi, z1lo := bits.mul_u64(z1, ix)
+    z2hi, _ := mul_u64(z2, ix)
+    z1hi, z1lo := mul_u64(z1, ix)
     z0lo := z0 * ix
-    lo, c := bits.add_u64(z1lo, z2hi, 0)
-    hi, _ := bits.add_u64(z0lo, z1hi, c)
+    lo, c := add_u64(z1lo, z2hi, 0)
+    hi, _ := add_u64(z0lo, z1hi, c)
     // The top 3 bits are j.
     j = hi >> 61
     // Extract the fraction and find its magnitude.
     hi = hi<<3 | lo>>61
-    lz := uint(bits.leading_zeros(hi))
+    lz := uint(intrinsics.count_leading_zeros(hi))
     e := u64(BIAS - (lz + 1))
     // Clear implicit mantissa bit and shift into place.
     hi = (hi << (lz + 1)) | (lo >> (64 - (lz + 1)))
@@ -298,4 +299,18 @@ _trig_reduce_f64 :: proc(x: f64) -> (j: u64, z: f64) #no_bounds_check {
     }
     // Multiply the fractional part by pi/4.
     return j, z * PI4
+
+    add_u64 :: proc(x, y, carry: u64) -> (sum, carry_out: u64) {
+        tmp_carry, tmp_carry2: bool
+        sum, tmp_carry  = intrinsics.overflow_add(x, y)
+        sum, tmp_carry2 = intrinsics.overflow_add(sum, carry)
+        carry_out = u64(tmp_carry | tmp_carry2)
+        return
+    }
+
+    mul_u64 :: proc(x, y: u64) -> (hi, lo: u64) {
+        prod_wide := u128(x) * u128(y)
+        hi, lo = u64(prod_wide>>64), u64(prod_wide)
+        return
+    }
 }

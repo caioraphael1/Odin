@@ -6,6 +6,8 @@
 #+build !openbsd
 #+build !netbsd
 #+build !haiku
+
+
 /*
 	(c) Copyright 2024 Feoramund <rune@swevencraft.org>.
 	Made available under Odin's license.

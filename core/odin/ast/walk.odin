@@ -1,3 +1,5 @@
+
+
 import "core:fmt"
 
 // A Visitor's visit procedure is invoked for each node encountered by walk
@@ -220,6 +222,9 @@ walk :: proc(v: ^Visitor, node: ^Node) {
 		if n.label != nil {
 			walk(v, n.label)
 		}
+		if n.init != nil {
+			walk(v, n.init)
+		}
 		for val in n.vals {
 			if val != nil {
 				walk(v, val)
@@ -426,6 +431,6 @@ walk :: proc(v: ^Visitor, node: ^Node) {
 		fmt.panicf("ast.walk: unexpected node type %T", n)
 	}
 
-	_ = v->visit(nil)
+	v->visit(nil)
 }
 
