@@ -1,5 +1,5 @@
 import "base:runtime"
-import os "core:os/os2"
+import "core:os"
 
 Map_File_Error :: enum {
     None,

@@ -1,7 +1,7 @@
 import "base:runtime"
 import "core:fmt"
 import "core:terminal"
-import os "core:os/os2"
+import "core:os"
 
 
 default_logger: Logger

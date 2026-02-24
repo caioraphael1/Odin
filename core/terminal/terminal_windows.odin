@@ -1,7 +1,7 @@
 #+private
 
 import "base:runtime"
-import os "core:os/os2"
+import "core:os"
 import "core:sys/windows"
 
 _is_terminal :: proc(f: ^os.File) -> bool {

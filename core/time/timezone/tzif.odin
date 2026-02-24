@@ -2,7 +2,7 @@ import "base:intrinsics"
 
 import "core:slice"
 import "core:strings"
-import os "core:os/os2"
+import "core:os"
 import "core:strconv"
 import "core:time/datetime"
 import "base:runtime"

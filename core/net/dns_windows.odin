@@ -23,7 +23,7 @@
 import "base:runtime"
 
 import "core:mem"
-import os "core:os/os2"
+import "core:os"
 import "core:strings"
 import "core:sync"
 

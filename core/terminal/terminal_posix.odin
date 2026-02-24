@@ -2,7 +2,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 
 import "base:runtime"
-import os "core:os/os2"
+import "core:os"
 
 _is_terminal :: proc(f: ^os.File) -> bool {
 	return os.is_tty(f)

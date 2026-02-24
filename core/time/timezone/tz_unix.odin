@@ -1,6 +1,6 @@
 #+build darwin, linux, freebsd, openbsd, netbsd
 #+private
-import os "core:os/os2"
+import "core:os"
 import "core:strings"
 import "core:path/filepath"
 import "core:time/datetime"

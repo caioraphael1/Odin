@@ -1,5 +1,5 @@
 #+build !js
-import os "core:os/os2"
+import "core:os"
 
 
 load_from_file :: proc(filename: string, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {

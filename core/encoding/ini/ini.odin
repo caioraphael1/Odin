@@ -4,7 +4,7 @@ import "base:intrinsics"
 import "core:strings"
 import "core:strconv"
 import "core:io"
-import os "core:os/os2"
+import "core:os"
 import "core:fmt"
 _ :: fmt
 

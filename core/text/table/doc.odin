@@ -189,7 +189,7 @@ Example:
 
     import "core:fmt"
     import "core:io"
-    import os "core:os/os2"
+    import "core:os"
     import "core:text/table"
 
     scripts :: proc(w: io.Writer) {
@@ -268,7 +268,7 @@ Example:
 
     import "core:fmt"
     import "core:io"
-    import os "core:os/os2"
+    import "core:os"
     import "core:text/table"
 
     box_drawing :: proc(w: io.Writer) {

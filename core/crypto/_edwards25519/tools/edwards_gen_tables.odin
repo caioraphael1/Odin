@@ -5,7 +5,7 @@ import scalar "core:crypto/_fiat/field_scalar25519"
 import "core:encoding/endian"
 import "core:fmt"
 import path "core:path/filepath"
-import os "core:os/os2"
+import "core:os"
 import "core:strings"
 
 // Yes this leaks memory, fite me IRL.

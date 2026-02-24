@@ -1,5 +1,5 @@
 #+build !js
-import os "core:os/os2"
+import "core:os"
 import "core:bytes"
 
 

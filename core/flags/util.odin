@@ -1,7 +1,7 @@
 
 
 import          "core:fmt"
-@(require) import os "core:os/os2"
+@(require) import "core:os"
 @(require) import "core:path/filepath"
 import          "core:strings"
 

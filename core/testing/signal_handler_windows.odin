@@ -14,7 +14,7 @@
 import "base:runtime"
 import "base:intrinsics"
 
-import os "core:os/os2"
+import "core:os"
 import "core:sync"
 import "core:c/libc"
 import "core:strconv"

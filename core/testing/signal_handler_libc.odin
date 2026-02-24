@@ -13,7 +13,7 @@
 
 import "base:intrinsics"
 import "core:c/libc"
-import os "core:os/os2"
+import "core:os"
 import "core:sync"
 import "core:terminal/ansi"
 

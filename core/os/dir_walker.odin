@@ -116,7 +116,7 @@ Example:
 
     import "core:fmt"
     import "core:strings"
-    import os "core:os/os2"
+    import "core:os"
 
     main :: proc() {
         w := os.walker_create("core")

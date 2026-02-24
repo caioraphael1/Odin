@@ -2,7 +2,7 @@
 #+build !js
 #+build !orca
 import "base:runtime"
-import os "core:os/os2"
+import "core:os"
 import "core:io"
 import "core:bufio"
 

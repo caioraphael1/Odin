@@ -2,7 +2,7 @@
 #+build !js
 
 import "core:io"
-import os "core:os/os2"
+import "core:os"
 import "core:strings"
 
 stdio_writer :: proc() -> io.Writer {

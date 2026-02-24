@@ -4,7 +4,7 @@
 @(require) import "core:container/bit_array"
 @(require) import "core:fmt"
 @(require) import "core:mem"
-@(require) import os "core:os/os2"
+@(require) import "core:os"
 @(require) import "core:reflect"
 @(require) import "core:strconv"
 @(require) import "core:strings"

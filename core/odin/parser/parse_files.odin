@@ -4,7 +4,7 @@ import "core:odin/tokenizer"
 import "core:odin/ast"
 import "core:path/filepath"
 import "core:fmt"
-import os "core:os/os2"
+import "core:os"
 import "core:slice"
 import "core:strings"
 

@@ -9,7 +9,7 @@ Example:
     import "base:runtime"
 
     import "core:fmt"
-    import os "core:os/os2"
+    import "core:os"
     import "core:sys/linux"
     import "core:sys/linux/uring"
 

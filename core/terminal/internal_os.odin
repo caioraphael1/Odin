@@ -2,7 +2,7 @@
 #+build !js
 
 import "base:runtime"
-import os "core:os/os2"
+import "core:os"
 import "core:strings"
 
 // Reference documentation:

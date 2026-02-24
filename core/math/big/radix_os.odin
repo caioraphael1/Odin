@@ -18,7 +18,7 @@
 */
 
 import "base:runtime"
-import os "core:os/os2"
+import "core:os"
 
 /*
 	We might add functions to read and write byte-encoded Ints from/to files, using `int_to_bytes_*` functions.

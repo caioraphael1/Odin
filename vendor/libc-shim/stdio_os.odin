@@ -3,7 +3,7 @@
 
 import "core:io"
 import "core:c"
-import os "core:os/os2"
+import "core:os"
 
 _fopen :: proc(path, _mode: cstring) -> FILE {
 	flags: os.File_Flags

@@ -159,7 +159,7 @@ Example:
     package main
 
     import    "core:fmt"
-    import os "core:os/os2"
+    import "core:os"
 
     main :: proc() {
         f, oerr := os.open("core")

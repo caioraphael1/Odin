@@ -2,7 +2,7 @@
 #+build !js
 
 
-import os "core:os/os2"
+import "core:os"
 
 // Load an XML file
 load_from_file :: proc(filename: string, options := DEFAULT_OPTIONS, error_handler := default_error_handler, allocator: mem.Allocator) -> (doc: ^Document, err: Error) {

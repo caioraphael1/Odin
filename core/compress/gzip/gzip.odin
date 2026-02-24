@@ -14,7 +14,7 @@
 
 import "core:compress/zlib"
 import "core:compress"
-import os "core:os/os2"
+import "core:os"
 import "core:io"
 import "core:bytes"
 import "core:hash"
