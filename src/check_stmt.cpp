@@ -447,20 +447,20 @@ gb_internal Type *check_assignment_variable(CheckerContext *ctx, Operand *lhs, O
         return nullptr;
     }
 
-    Ast *ident_node = nullptr;
+        Ast *ident_node = nullptr;
 
-    if (node->kind == Ast_Ident) {
-        ident_node = node;
-    } else if (node->kind == Ast_IndexExpr && node->IndexExpr.expr->kind == Ast_Ident) {
-        ident_node = node->IndexExpr.expr;
-    }
-    if (ident_node != nullptr) {
-        ast_node(i, Ident, ident_node);
-        e = scope_lookup(ctx->scope, i->token.string, i->hash);
-        if (e != nullptr && e->kind == Entity_Variable) {
-            used = (e->flags & EntityFlag_Used) != 0; // NOTE(bill): Make backup just in case
+        if (node->kind == Ast_Ident) {
+            ident_node = node;
+        } else if (node->kind == Ast_IndexExpr && node->IndexExpr.expr->kind == Ast_Ident) {
+            ident_node = node->IndexExpr.expr;
         }
-    }
+        if (ident_node != nullptr) {
+            ast_node(i, Ident, ident_node);
+            e = scope_lookup(ctx->scope, i->token.string, i->hash);
+            if (e != nullptr && e->kind == Entity_Variable) {
+                used = (e->flags & EntityFlag_Used) != 0; // NOTE(bill): Make backup just in case
+            }
+        }
 
     if (e != nullptr && used) {
         e->flags |= EntityFlag_Used;
@@ -848,6 +848,10 @@ gb_internal void error_var_decl_identifier(Ast *name) {
     defer (gb_string_free(s));
 
     error(name, "A variable declaration must be an identifier, got '%s'", s);
+    if (name->kind == Ast_Implicit) {
+        String imp = name->Implicit.string;
+        error_line("\tNote: '%.*s' is a reserved keyword\n", LIT(imp));
+    }
 }
 
 gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags) {
@@ -985,7 +989,9 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
             error(operand.expr, "Cannot iterate over '%s' of type '%s' in an '#unroll for' statement", s, t);
             gb_string_free(t);
             gb_string_free(s);
-        } else if (operand.mode != Addressing_Constant && unroll_count <= 0) {
+        } else if (operand.mode != Addressing_Constant && (
+                unroll_count <= 0 &&
+                compare_exact_values(Token_CmpEq, inline_for_depth, exact_value_i64(0)))) {
             error(operand.expr, "An '#unroll for' expression must be known at compile time");
         }
     }
@@ -1661,10 +1667,16 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
 
     TEMPORARY_ALLOCATOR_GUARD();
 
-    u32 new_flags = mod_flags | Stmt_BreakAllowed | Stmt_ContinueAllowed;
 
     check_open_scope(ctx, node);
     check_label(ctx, rs->label, node);
+
+    Operand init = {};
+    if (rs->init != nullptr) {
+        check_stmt(ctx, rs->init, mod_flags);
+    }
+
+    u32 new_flags = mod_flags | Stmt_BreakAllowed | Stmt_ContinueAllowed;
 
     auto vals = array_make<Type *>(temporary_allocator(), 0, 2);
     auto entities = array_make<Entity *>(temporary_allocator(), 0, 2);
@@ -1680,6 +1692,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
     bool is_range = false;
     bool is_possibly_addressable = true;
     isize max_val_count = 2;
+
     if (is_ast_range(expr)) {
         ast_node(ie, BinaryExpr, expr);
         Operand x = {};
@@ -1840,7 +1853,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                         error_line("\tMultiple return valued parameters in a range statement are limited to a minimum of 1 usable values with a trailing boolean for the conditional, got %td\n", count);
                         break;
                     }
-                    enum : isize {MAXIMUM_COUNT = 100};
+                    enum : isize {MAXIMUM_COUNT = 20};
                     if (count > MAXIMUM_COUNT) {
                         ERROR_BLOCK();
                         check_not_tuple(ctx, &operand);
@@ -1856,7 +1869,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                         break;
                     }
 
-                    max_val_count = count;
+                    max_val_count = count-1;
 
                     for (Entity *e : t->Tuple.variables) {
                         array_add(&vals, e->type);
@@ -2910,10 +2923,12 @@ gb_internal void check_stmt_internal(CheckerContext *ctx, Ast *node, u32 flags) 
             error(us->token, "Empty 'using' list");
             return;
         }
-        if (check_vet_flags(node) & VetFlag_UsingStmt) {
+
+        u64 feature_flags = check_feature_flags(ctx, node);
+        if ((feature_flags & OptInFeatureFlag_UsingStmt) == 0) {
             ERROR_BLOCK();
-            error(node, "'using' as a statement is not allowed when '-vet' or '-vet-using' is applied");
-            error_line("\t'using' is considered bad practice to use as a statement outside of immediate refactoring\n");
+            error(node, "'using' has been disallowed as it is considered bad practice to use as a statement outside of immediate refactoring");
+            error_line("\tIf you do require it for refactoring purposes or legacy code, it can be enabled on a per-file basis with '#+feature using-stmt'\n");
         }
 
         for (Ast *expr : us->list) {
@@ -2930,6 +2945,9 @@ gb_internal void check_stmt_internal(CheckerContext *ctx, Ast *node, u32 flags) 
                 e = check_selector(ctx, &o, expr, nullptr);
                 is_selector = true;
                 break;
+            case Ast_Implicit:
+                error(us->token, "'using' applied to an implicit value");
+                continue;
             default:
                 error(us->token, "'using' can only be applied to an entity, got %.*s", LIT(ast_strings[expr->kind]));
                 continue;

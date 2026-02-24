@@ -14,59 +14,59 @@ struct TypeAndValue;
 
 // ExprInfo stores information used for "untyped" expressions
 struct ExprInfo {
-    AddressingMode mode;
-    bool is_lhs; // Debug info
-    Type *         type;
-    ExactValue     value;
+	AddressingMode mode;
+	bool is_lhs; // Debug info
+	Type *         type;
+	ExactValue     value;
 };
 
 gb_internal gb_inline ExprInfo *make_expr_info(AddressingMode mode, Type *type, ExactValue const &value, bool is_lhs) {
-    ExprInfo *ei = gb_alloc_item(permanent_allocator(), ExprInfo);
-    ei->mode   = mode;
-    ei->type   = type;
-    ei->value  = value;
-    ei->is_lhs = is_lhs;
-    return ei;
+	ExprInfo *ei = gb_alloc_item(permanent_allocator(), ExprInfo);
+	ei->mode   = mode;
+	ei->type   = type;
+	ei->value  = value;
+	ei->is_lhs = is_lhs;
+	return ei;
 }
 
 
 
 
 enum ExprKind {
-    Expr_Expr,
-    Expr_Stmt,
+	Expr_Expr,
+	Expr_Stmt,
 };
 
 // Statements and Declarations
 enum StmtFlag {
-    Stmt_BreakAllowed       = 1<<0,
-    Stmt_ContinueAllowed    = 1<<1,
-    Stmt_FallthroughAllowed = 1<<2,
+	Stmt_BreakAllowed       = 1<<0,
+	Stmt_ContinueAllowed    = 1<<1,
+	Stmt_FallthroughAllowed = 1<<2,
 
-    Stmt_TypeSwitch = 1<<4,
+	Stmt_TypeSwitch = 1<<4,
 
-    Stmt_CheckScopeDecls = 1<<5,
+	Stmt_CheckScopeDecls = 1<<5,
 };
 
 enum BuiltinProcPkg {
-    BuiltinProcPkg_builtin,
-    BuiltinProcPkg_intrinsics,
-    BuiltinProcPkg_COUNT
+	BuiltinProcPkg_builtin,
+	BuiltinProcPkg_intrinsics,
+	BuiltinProcPkg_COUNT
 };
 
 String builtin_proc_pkg_name[BuiltinProcPkg_COUNT] = {
-    str_lit("builtin"),
-    str_lit("intrinsics"),
+	str_lit("builtin"),
+	str_lit("intrinsics"),
 };
 
 struct BuiltinProc {
-    String   name;
-    isize    arg_count;
-    bool     variadic;
-    ExprKind kind;
-    BuiltinProcPkg pkg;
-    bool diverging;
-    bool ignore_results; // ignores require results handling
+	String   name;
+	isize    arg_count;
+	bool     variadic;
+	ExprKind kind;
+	BuiltinProcPkg pkg;
+	bool diverging;
+	bool ignore_results; // ignores require results handling
 };
 
 
@@ -79,96 +79,97 @@ struct BuiltinProc {
 // addressing modes
 // Its zero-value is a valid "invalid operand"
 struct Operand {
-    AddressingMode mode;
-    Type *         type;
-    ExactValue     value;
-    Ast *      expr;
-    BuiltinProcId  builtin_id;
-    Entity *       proc_group;
+	AddressingMode mode;
+	Type *         type;
+	ExactValue     value;
+	Ast *      expr;
+	BuiltinProcId  builtin_id;
+	Entity *       proc_group;
 };
 
 
 struct BlockLabel {
-    String   name;
-    Ast *label; //  Ast_Label;
+	String   name;
+	Ast *label; //  Ast_Label;
 };
 
 enum DeferredProcedureKind {
-    DeferredProcedure_none,
-    DeferredProcedure_in,
-    DeferredProcedure_out,
-    DeferredProcedure_in_out,
+	DeferredProcedure_none,
+	DeferredProcedure_in,
+	DeferredProcedure_out,
+	DeferredProcedure_in_out,
 
-    DeferredProcedure_in_by_ptr,
-    DeferredProcedure_out_by_ptr,
-    DeferredProcedure_in_out_by_ptr,
+	DeferredProcedure_in_by_ptr,
+	DeferredProcedure_out_by_ptr,
+	DeferredProcedure_in_out_by_ptr,
 };
 struct DeferredProcedure {
-    DeferredProcedureKind kind;
-    Entity *entity;
+	DeferredProcedureKind kind;
+	Entity *entity;
 };
 
 
 enum InstrumentationFlag : i32 {
-    Instrumentation_Enabled  = -1,
-    Instrumentation_Default  = 0,
-    Instrumentation_Disabled = +1,
+	Instrumentation_Enabled  = -1,
+	Instrumentation_Default  = 0,
+	Instrumentation_Disabled = +1,
 };
 
 struct AttributeContext {
-    String  link_name;
-    String  link_prefix;
-    String  link_suffix;
-    String  link_section;
-    String  linkage;
-    isize   init_expr_list_count;
-    String  thread_local_model;
-    String  deprecated_message;
-    String  warning_message;
-    DeferredProcedure deferred_procedure;
-    bool    is_export             : 1;
-    bool    is_static             : 1;
+	String  link_name;
+	String  link_prefix;
+	String  link_suffix;
+	String  link_section;
+	String  linkage;
+	isize   init_expr_list_count;
+	String  thread_local_model;
+	String  deprecated_message;
+	String  warning_message;
+	DeferredProcedure deferred_procedure;
+	bool    is_export             : 1;
+	bool    is_static             : 1;
     bool    optional_results      : 1;
-    bool    require_declaration   : 1;
-    bool    has_disabled_proc     : 1;
-    bool    disabled_proc         : 1;
-    bool    test                  : 1;
-    bool    set_cold              : 1;
-    bool    entry_point_only      : 1;
-    bool    instrumentation_enter : 1;
-    bool    instrumentation_exit  : 1;
-    bool    no_sanitize_address   : 1;
-    bool    no_sanitize_memory    : 1;
-    bool    rodata                : 1;
-    bool    ignore_duplicates     : 1;
-    u32 optimization_mode; // ProcedureOptimizationMode
-    i64 foreign_import_priority_index;
-    String extra_linker_flags;
-    InstrumentationFlag no_instrumentation;
+	bool    require_declaration   : 1;
+	bool    has_disabled_proc     : 1;
+	bool    disabled_proc         : 1;
+	bool    test                  : 1;
+	bool    set_cold              : 1;
+	bool    entry_point_only      : 1;
+	bool    instrumentation_enter : 1;
+	bool    instrumentation_exit  : 1;
+	bool    no_sanitize_address   : 1;
+	bool    no_sanitize_memory    : 1;
+	bool    no_sanitize_thread    : 1;
+	bool    rodata                : 1;
+	bool    ignore_duplicates     : 1;
+	u32 optimization_mode; // ProcedureOptimizationMode
+	i64 foreign_import_priority_index;
+	String extra_linker_flags;
+	InstrumentationFlag no_instrumentation;
 
-    String  objc_class;
-    String  objc_name;
-    String  objc_selector;
-    Type *  objc_type;
-    Type *  objc_superclass;
-    Type *  objc_ivar;
-    Entity *objc_context_provider;
-    bool    objc_is_class_method;
-    bool    objc_is_implementation;     // This struct or proc provides a class/method implementation, not a binding to an existing type.
-    bool    objc_is_disabled_implement; // This means the method explicitly set @objc_implement to false so it won't be inferred from the class' attribute.
+	String  objc_class;
+	String  objc_name;
+	String  objc_selector;
+	Type *  objc_type;
+	Type *  objc_superclass;
+	Type *  objc_ivar;
+	Entity *objc_context_provider;
+	bool    objc_is_class_method;
+	bool    objc_is_implementation;     // This struct or proc provides a class/method implementation, not a binding to an existing type.
+	bool    objc_is_disabled_implement; // This means the method explicitly set @objc_implement to false so it won't be inferred from the class' attribute.
 
-    String require_target_feature; // required by the target micro-architecture
-    String enable_target_feature;  // will be enabled for the procedure only
+	String require_target_feature; // required by the target micro-architecture
+	String enable_target_feature;  // will be enabled for the procedure only
 
-    bool   raddbg_type_view;
-    String raddbg_type_view_string;
+	bool   raddbg_type_view;
+	String raddbg_type_view_string;
 };
 
 gb_internal gb_inline AttributeContext make_attribute_context(String link_prefix, String link_suffix) {
-    AttributeContext ac = {};
-    ac.link_prefix = link_prefix;
-    ac.link_suffix = link_suffix;
-    return ac;
+	AttributeContext ac = {};
+	ac.link_prefix = link_prefix;
+	ac.link_suffix = link_suffix;
+	return ac;
 }
 
 #define DECL_ATTRIBUTE_PROC(_name) bool _name(CheckerContext *c, Ast *elem, String name, Ast *value, AttributeContext *ac)
@@ -179,127 +180,127 @@ gb_internal void check_decl_attributes(CheckerContext *c, Array<Ast *> const &at
 #include "name_canonicalization.hpp"
 
 enum ProcCheckedState : u8 {
-    ProcCheckedState_Unchecked,
-    ProcCheckedState_InProgress,
-    ProcCheckedState_Checked,
+	ProcCheckedState_Unchecked,
+	ProcCheckedState_InProgress,
+	ProcCheckedState_Checked,
 
-    ProcCheckedState_COUNT
+	ProcCheckedState_COUNT
 };
 
 char const *ProcCheckedState_strings[ProcCheckedState_COUNT] {
-    "Unchecked",
-    "In Progress",
-    "Checked",
+	"Unchecked",
+	"In Progress",
+	"Checked",
 };
 
 struct VariadicReuseData {
-    Type *slice_type; // ..elem_type
-    i64 max_count;
+	Type *slice_type; // ..elem_type
+	i64 max_count;
 };
 
 // DeclInfo is used to store information of certain declarations to allow for "any order" usage
 struct DeclInfo {
-    DeclInfo *    parent; // NOTE(bill): only used for procedure literals at the moment
+	DeclInfo *    parent; // NOTE(bill): only used for procedure literals at the moment
 
-    BlockingMutex next_mutex;
-    DeclInfo *    next_child;
-    DeclInfo *    next_sibling;
+	BlockingMutex next_mutex;
+	DeclInfo *    next_child;
+	DeclInfo *    next_sibling;
 
-    Scope *       scope;
+	Scope *       scope;
 
-    std::atomic<Entity *> entity;
+	std::atomic<Entity *> entity;
 
-    Ast *         decl_node;
-    Ast *         type_expr;
-    Ast *         init_expr;
-    Array<Ast *>  attributes;
-    Ast *         proc_lit;      // Ast_ProcLit
-    Type *        gen_proc_type; // Precalculated
+	Ast *         decl_node;
+	Ast *         type_expr;
+	Ast *         init_expr;
+	Array<Ast *>  attributes;
+	Ast *         proc_lit;      // Ast_ProcLit
+	Type *        gen_proc_type; // Precalculated
 
-    Entity *     para_poly_original;
+	Entity *     para_poly_original;
 
-    bool          is_using;
-    bool          where_clauses_evaluated;
-    bool          foreign_optional_results;
-    std::atomic<ProcCheckedState> proc_checked_state;
+	bool                          is_using;
+	std::atomic<bool>             where_clauses_evaluated;
+	bool                          foreign_optional_results;
+	std::atomic<ProcCheckedState> proc_checked_state;
 
-    BlockingMutex proc_checked_mutex;
-    isize         defer_used;
-    bool          defer_use_checked;
+	BlockingMutex     proc_checked_mutex;
+	isize             defer_used;
+	std::atomic<bool> defer_use_checked;
 
-    CommentGroup *comment;
-    CommentGroup *docs;
+	CommentGroup *comment;
+	CommentGroup *docs;
 
-    RwMutex          deps_mutex;
-    PtrSet<Entity *> deps;
+	RwMutex          deps_mutex;
+	PtrSet<Entity *> deps;
 
-    RwMutex type_info_deps_mutex;
-    TypeSet type_info_deps;
+	RwMutex type_info_deps_mutex;
+	TypeSet type_info_deps;
 
-    BlockingMutex type_and_value_mutex;
+	BlockingMutex type_and_value_mutex;
 
-    Array<BlockLabel> labels;
+	Array<BlockLabel> labels;
 
-    i32 scope_index;
+	i32 scope_index;
 
-    Array<VariadicReuseData> variadic_reuses;
-    i64 variadic_reuse_max_bytes;
-    i64 variadic_reuse_max_align;
+	Array<VariadicReuseData> variadic_reuses;
+	i64 variadic_reuse_max_bytes;
+	i64 variadic_reuse_max_align;
 
-    // NOTE(bill): this is to prevent a race condition since these procedure literals can be created anywhere at any time
-    struct lbModule *code_gen_module;
+	// NOTE(bill): this is to prevent a race condition since these procedure literals can be created anywhere at any time
+	struct lbModule *code_gen_module;
 };
 
 // ProcInfo stores the information needed for checking a procedure
 struct ProcInfo {
-    AstFile * file;
-    Token     token;
-    DeclInfo *decl;
-    Type *    type; // Type_Procedure
-    Ast *     body; // Ast_BlockStmt
-    u64       tags;
-    bool      generated_from_polymorphic;
-    Ast *     poly_def_node;
+	AstFile * file;
+	Token     token;
+	DeclInfo *decl;
+	Type *    type; // Type_Procedure
+	Ast *     body; // Ast_BlockStmt
+	u64       tags;
+	bool      generated_from_polymorphic;
+	Ast *     poly_def_node;
 };
 
 
 
 enum ScopeFlag : i32 {
-    ScopeFlag_Pkg     = 1<<1,
-    ScopeFlag_Builtin = 1<<2,
-    ScopeFlag_Global  = 1<<3,
-    ScopeFlag_File    = 1<<4,
-    ScopeFlag_Init    = 1<<5,
-    ScopeFlag_Proc    = 1<<6,
-    ScopeFlag_Type    = 1<<7,
+	ScopeFlag_Pkg     = 1<<1,
+	ScopeFlag_Builtin = 1<<2,
+	ScopeFlag_Global  = 1<<3,
+	ScopeFlag_File    = 1<<4,
+	ScopeFlag_Init    = 1<<5,
+	ScopeFlag_Proc    = 1<<6,
+	ScopeFlag_Type    = 1<<7,
 
-    ScopeFlag_HasBeenImported = 1<<10, // This is only applicable to file scopes
+	ScopeFlag_HasBeenImported = 1<<10, // This is only applicable to file scopes
 
-    ScopeFlag_ContextDefined = 1<<16,
+	ScopeFlag_ContextDefined = 1<<16,
 };
 
 enum { DEFAULT_SCOPE_CAPACITY = 32 };
 
 struct Scope {
-    Ast *         node;
-    Scope *       parent;
-    std::atomic<Scope *> next;
-    std::atomic<Scope *> head_child;
+	Ast *         node;
+	Scope *       parent;
+	std::atomic<Scope *> next;
+	std::atomic<Scope *> head_child;
 
-    i32 index; // within a procedure
+	i32 index; // within a procedure
 
-    RwMutex mutex;
-    StringMap<Entity *> elements;
-    PtrSet<Scope *> imported;
+	RwMutex mutex;
+	StringMap<Entity *> elements;
+	PtrSet<Scope *> imported;
 
-    DeclInfo *decl_info;
+	DeclInfo *decl_info;
 
-    i32             flags; // ScopeFlag
-    union {
-        AstPackage *pkg;
-        AstFile *   file;
-        Entity *    procedure_entity;
-    };
+	i32             flags; // ScopeFlag
+	union {
+		AstPackage *pkg;
+		AstFile *   file;
+		Entity *    procedure_entity;
+	};
 };
 
 
@@ -309,12 +310,12 @@ struct EntityGraphNode;
 typedef PtrSet<EntityGraphNode *> EntityGraphNodeSet;
 
 struct EntityGraphNode {
-    Entity *entity; // Procedure, Variable, Constant
+	Entity *entity; // Procedure, Variable, Constant
 
-    EntityGraphNodeSet pred;
-    EntityGraphNodeSet succ;
-    isize index; // Index in array/queue
-    isize dep_count;
+	EntityGraphNodeSet pred;
+	EntityGraphNodeSet succ;
+	isize index; // Index in array/queue
+	isize dep_count;
 };
 
 
@@ -324,27 +325,27 @@ typedef PtrSet<ImportGraphNode *> ImportGraphNodeSet;
 
 
 struct ImportGraphNode {
-    AstPackage *       pkg;
-    Scope *            scope;
-    ImportGraphNodeSet pred;
-    ImportGraphNodeSet succ;
-    isize              index; // Index in array/queue
-    isize              dep_count;
+	AstPackage *       pkg;
+	Scope *            scope;
+	ImportGraphNodeSet pred;
+	ImportGraphNodeSet succ;
+	isize              index; // Index in array/queue
+	isize              dep_count;
 };
 
 enum EntityVisiblityKind {
-    EntityVisiblity_Public,
-    EntityVisiblity_PrivateToPackage,
-    EntityVisiblity_PrivateToFile,
+	EntityVisiblity_Public,
+	EntityVisiblity_PrivateToPackage,
+	EntityVisiblity_PrivateToFile,
 };
 
 
 struct ForeignContext {
-    Ast *                 curr_library;
-    ProcCallingConvention default_cc;
-    String                link_prefix;
-    String                link_suffix;
-    EntityVisiblityKind   visibility_kind;
+	Ast *                 curr_library;
+	ProcCallingConvention default_cc;
+	String                link_prefix;
+	String                link_suffix;
+	EntityVisiblityKind   visibility_kind;
     bool                  optional_results;
 };
 
@@ -352,228 +353,228 @@ typedef Array<Entity *> CheckerTypePath;
 typedef Array<Type *>   CheckerPolyPath;
 
 struct AtomOpMapEntry {
-    u32  kind;
-    Ast *node;
+	u32  kind;
+	Ast *node;
 };
 
 
 struct CheckerContext;
 
 struct UntypedExprInfo {
-    Ast *expr;
-    ExprInfo *info;
+	Ast *expr;
+	ExprInfo *info;
 };
 
 typedef PtrMap<Ast *, ExprInfo *> UntypedExprInfoMap; 
 
 enum ObjcMsgKind : u32 {
-    ObjcMsg_normal,
-    ObjcMsg_fpret,
-    ObjcMsg_fp2ret,
-    ObjcMsg_stret,
+	ObjcMsg_normal,
+	ObjcMsg_fpret,
+	ObjcMsg_fp2ret,
+	ObjcMsg_stret,
 };
 struct ObjcMsgData {
-    ObjcMsgKind kind;
-    Type *proc_type;
+	ObjcMsgKind kind;
+	Type *proc_type;
 };
 
 struct ObjcMethodData {
-    AttributeContext ac;
-    Entity *proc_entity;
+	AttributeContext ac;
+	Entity *proc_entity;
 };
 
 enum LoadFileTier {
-    LoadFileTier_Invalid,
-    LoadFileTier_Exists,
-    LoadFileTier_Contents,
+	LoadFileTier_Invalid,
+	LoadFileTier_Exists,
+	LoadFileTier_Contents,
 };
 
 struct LoadFileCache {
-    LoadFileTier   tier;
-    bool           exists;
-    String         path;
-    gbFileError    file_error;
-    String         data;
-    StringMap<u64> hashes;
+	LoadFileTier   tier;
+	bool           exists;
+	String         path;
+	gbFileError    file_error;
+	String         data;
+	StringMap<u64> hashes;
 };
 
 
 struct LoadDirectoryFile {
-    String file_name;
-    String data;
+	String file_name;
+	String data;
 };
 
 struct LoadDirectoryCache {
-    String                 path;
-    gbFileError            file_error;
-    Array<LoadFileCache *> files;
+	String                 path;
+	gbFileError            file_error;
+	Array<LoadFileCache *> files;
 };
 
 
 struct GenProcsData {
-    Array<Entity *> procs;
-    RwMutex         mutex;
+	Array<Entity *> procs;
+	RwMutex         mutex;
 };
 
 struct GenTypesData {
-    Array<Entity *> types;
-    RecursiveMutex  mutex;
+	Array<Entity *> types;
+	RecursiveMutex  mutex;
 };
 
 struct Defineable {
-    String        name;
-    ExactValue    default_value;
-    TokenPos      pos;
-    CommentGroup *docs;
+	String        name;
+	ExactValue    default_value;
+	TokenPos      pos;
+	CommentGroup *docs;
 
-    // These strings are only computed from previous fields when defineables are being shown or exported.
-    String default_value_str;
-    String pos_str;
+	// These strings are only computed from previous fields when defineables are being shown or exported.
+	String default_value_str;
+	String pos_str;
 };
 
 struct RaddbgTypeView {
-    Type * type;
-    String view;
+	Type * type;
+	String view;
 };
 
 // CheckerInfo stores all the symbol information for a type-checked program
 struct CheckerInfo {
-    Checker *checker;
+	Checker *checker;
 
-    StringMap<AstFile *>    files;    // Key (full path)
-    StringMap<AstPackage *> packages; // Key (full path)
-    Array<DeclInfo *>       variable_init_order;
+	StringMap<AstFile *>    files;    // Key (full path)
+	StringMap<AstPackage *> packages; // Key (full path)
+	Array<DeclInfo *>       variable_init_order;
 
-    AstPackage *          builtin_package;
-    AstPackage *          runtime_package;
-    AstPackage *          init_package;
-    Scope *               init_scope;
-    Entity *              entry_point;
+	AstPackage *          builtin_package;
+	AstPackage *          runtime_package;
+	AstPackage *          init_package;
+	Scope *               init_scope;
+	Entity *              entry_point;
 
-    RwMutex minimum_dependency_type_info_mutex;
-    PtrMap</*type info hash*/u64, /*min dep index*/isize> min_dep_type_info_index_map;
+	RwMutex minimum_dependency_type_info_mutex;
+	PtrMap</*type info hash*/u64, /*min dep index*/isize> min_dep_type_info_index_map;
 
-    RWSpinLock      min_dep_type_info_set_mutex;
-    TypeSet             min_dep_type_info_set;
-    Array<TypeInfoPair> type_info_types_hash_map; // 2 * type_info_types.count
-
-
-    Array<Entity *> testing_procedures;
-
-    Array<Entity *> definitions;
-    Array<Entity *> entities;
-    Array<Entity *> required_foreign_imports_through_force;
-
-    BlockingMutex     defineables_mutex;
-    Array<Defineable> defineables;
+	RWSpinLock	    min_dep_type_info_set_mutex;
+	TypeSet             min_dep_type_info_set;
+	Array<TypeInfoPair> type_info_types_hash_map; // 2 * type_info_types.count
 
 
-    // Below are accessed within procedures
-    RwMutex            global_untyped_mutex;
-    UntypedExprInfoMap global_untyped; // NOTE(bill): This needs to be a map and not on the Ast
-                                       // as it needs to be iterated across afterwards
-    BlockingMutex builtin_mutex;
+	Array<Entity *> testing_procedures;
 
-    BlockingMutex type_and_value_mutex;
+	Array<Entity *> definitions;
+	Array<Entity *> entities;
+	Array<Entity *> required_foreign_imports_through_force;
 
-    RecursiveMutex lazy_mutex; // Mutex required for lazy type checking of specific files
-
-
-    // BlockingMutex type_info_mutex; // NOT recursive
-    // Array<TypeInfoPair> type_info_types;
-    // PtrMap<Type *, isize> type_info_map;
-    // TypeSet type_info_set;
-
-    BlockingMutex foreign_mutex; // NOT recursive
-    StringMap<Entity *> foreigns;
-
-    MPSCQueue<Entity *> definition_queue;
-    MPSCQueue<Entity *> entity_queue;
-    MPSCQueue<Entity *> required_global_variable_queue;
-    MPSCQueue<Entity *> required_foreign_imports_through_force_queue;
-    MPSCQueue<Entity *> foreign_imports_to_check_fullpaths;
-    MPSCQueue<Entity *> foreign_decls_to_check;
-
-    MPSCQueue<RaddbgTypeView> raddbg_type_views_queue;
-    Array<RaddbgTypeView> raddbg_type_views;
-
-    MPSCQueue<Ast *> intrinsics_entry_point_usage;
-
-    BlockingMutex objc_objc_msgSend_mutex;
-    PtrMap<Ast *, ObjcMsgData> objc_msgSend_types;
-
-    BlockingMutex objc_class_name_mutex;
-    StringSet obcj_class_name_set;
-    MPSCQueue<Entity *> objc_class_implementations;
-
-    BlockingMutex objc_method_mutex;
-    PtrMap<Type *, Array<ObjcMethodData>> objc_method_implementations;
+	BlockingMutex     defineables_mutex;
+	Array<Defineable> defineables;
 
 
-    BlockingMutex load_file_mutex;
-    StringMap<LoadFileCache *> load_file_cache;
+	// Below are accessed within procedures
+	RwMutex            global_untyped_mutex;
+	UntypedExprInfoMap global_untyped; // NOTE(bill): This needs to be a map and not on the Ast
+	                                   // as it needs to be iterated across afterwards
+	BlockingMutex builtin_mutex;
 
-    MPSCQueue<ProcInfo *> all_procedures_queue;
-    Array<ProcInfo *> all_procedures;
+	BlockingMutex type_and_value_mutex;
 
-    BlockingMutex instrumentation_mutex;
-    Entity *instrumentation_enter_entity;
-    Entity *instrumentation_exit_entity;
+	RecursiveMutex lazy_mutex; // Mutex required for lazy type checking of specific files
 
 
-    BlockingMutex                       load_directory_mutex;
-    StringMap<LoadDirectoryCache *>     load_directory_cache;
-    PtrMap<Ast *, LoadDirectoryCache *> load_directory_map; // Key: Ast_CallExpr *
+	// BlockingMutex type_info_mutex; // NOT recursive
+	// Array<TypeInfoPair> type_info_types;
+	// PtrMap<Type *, isize> type_info_map;
+	// TypeSet type_info_set;
+
+	BlockingMutex foreign_mutex; // NOT recursive
+	StringMap<Entity *> foreigns;
+
+	MPSCQueue<Entity *> definition_queue;
+	MPSCQueue<Entity *> entity_queue;
+	MPSCQueue<Entity *> required_global_variable_queue;
+	MPSCQueue<Entity *> required_foreign_imports_through_force_queue;
+	MPSCQueue<Entity *> foreign_imports_to_check_fullpaths;
+	MPSCQueue<Entity *> foreign_decls_to_check;
+
+	MPSCQueue<RaddbgTypeView> raddbg_type_views_queue;
+	Array<RaddbgTypeView> raddbg_type_views;
+
+	MPSCQueue<Ast *> intrinsics_entry_point_usage;
+
+	BlockingMutex objc_objc_msgSend_mutex;
+	PtrMap<Ast *, ObjcMsgData> objc_msgSend_types;
+
+	BlockingMutex objc_class_name_mutex;
+	StringSet obcj_class_name_set;
+	MPSCQueue<Entity *> objc_class_implementations;
+
+	BlockingMutex objc_method_mutex;
+	PtrMap<Type *, Array<ObjcMethodData>> objc_method_implementations;
+
+
+	BlockingMutex load_file_mutex;
+	StringMap<LoadFileCache *> load_file_cache;
+
+	MPSCQueue<ProcInfo *> all_procedures_queue;
+	Array<ProcInfo *> all_procedures;
+
+	BlockingMutex instrumentation_mutex;
+	Entity *instrumentation_enter_entity;
+	Entity *instrumentation_exit_entity;
+
+
+	BlockingMutex                       load_directory_mutex;
+	StringMap<LoadDirectoryCache *>     load_directory_cache;
+	PtrMap<Ast *, LoadDirectoryCache *> load_directory_map; // Key: Ast_CallExpr *
 
 
 };
 
 struct CheckerContext {
-    // Order matters here
-    BlockingMutex  mutex;
-    Checker *      checker;
-    CheckerInfo *  info;
+	// Order matters here
+	BlockingMutex  mutex;
+	Checker *      checker;
+	CheckerInfo *  info;
 
-    AstPackage *   pkg;
-    AstFile *      file;
-    Scope *        scope;
-    DeclInfo *     decl;
+	AstPackage *   pkg;
+	AstFile *      file;
+	Scope *        scope;
+	DeclInfo *     decl;
 
-    // Order doesn't matter after this
-    u32            state_flags;
-    bool           in_defer;
-    Type *         type_hint;
-    Ast *          type_hint_expr;
+	// Order doesn't matter after this
+	u32            state_flags;
+	bool           in_defer;
+	Type *         type_hint;
+	Ast *          type_hint_expr;
 
-    String         proc_name;
-    DeclInfo *     curr_proc_decl;
-    Type *         curr_proc_sig;
-    ProcCallingConvention curr_proc_calling_convention;
-    bool           in_proc_sig;
-    ForeignContext foreign_context;
+	String         proc_name;
+	DeclInfo *     curr_proc_decl;
+	Type *         curr_proc_sig;
+	ProcCallingConvention curr_proc_calling_convention;
+	bool           in_proc_sig;
+	ForeignContext foreign_context;
 
-    CheckerTypePath *type_path;
-    isize            type_level;
+	CheckerTypePath *type_path;
+	isize            type_level;
 
-    UntypedExprInfoMap *untyped;
+	UntypedExprInfoMap *untyped;
 
 #define MAX_INLINE_FOR_DEPTH 1024ll
-    i64 inline_for_depth;
+	i64 inline_for_depth;
 
-    u32        stmt_flags;
-    bool       in_enum_type;
-    bool       in_proc_group;
-    bool       collect_delayed_decls;
-    bool       allow_polymorphic_types;
-    bool       disallow_polymorphic_return_types; // NOTE(zen3ger): no poly type decl in return types
-    bool       no_polymorphic_errors;
-    bool       hide_polymorphic_errors;
-    bool       in_polymorphic_specialization;
-    bool       allow_arrow_right_selector_expr;
-    u8         bit_field_bit_size;
-    Scope *    polymorphic_scope;
+	u32        stmt_flags;
+	bool       in_enum_type;
+	bool       in_proc_group;
+	bool       collect_delayed_decls;
+	bool       allow_polymorphic_types;
+	bool       disallow_polymorphic_return_types; // NOTE(zen3ger): no poly type decl in return types
+	bool       no_polymorphic_errors;
+	bool       hide_polymorphic_errors;
+	bool       in_polymorphic_specialization;
+	bool       allow_arrow_right_selector_expr;
+	u8         bit_field_bit_size;
+	Scope *    polymorphic_scope;
 
-    Ast *assignment_lhs_hint;
+	Ast *assignment_lhs_hint;
 };
 
 gb_internal u64 check_vet_flags(CheckerContext *c);
@@ -581,21 +582,21 @@ gb_internal u64 check_vet_flags(Ast *node);
 
 
 struct Checker {
-    Parser *    parser;
-    CheckerInfo info;
+	Parser *    parser;
+	CheckerInfo info;
 
-    CheckerContext builtin_ctx;
+	CheckerContext builtin_ctx;
 
-    MPSCQueue<Entity *> procs_with_deferred_to_check;
-    MPSCQueue<Entity *> procs_with_objc_context_provider_to_check;
-    Array<ProcInfo *> procs_to_check;
+	MPSCQueue<Entity *> procs_with_deferred_to_check;
+	MPSCQueue<Entity *> procs_with_objc_context_provider_to_check;
+	Array<ProcInfo *> procs_to_check;
 
-    BlockingMutex nested_proc_lits_mutex;
-    Array<DeclInfo *> nested_proc_lits;
+	BlockingMutex nested_proc_lits_mutex;
+	Array<DeclInfo *> nested_proc_lits;
 
 
-    MPSCQueue<UntypedExprInfo> global_untyped_queue;
-    MPSCQueue<Type *> soa_types_to_complete;
+	MPSCQueue<UntypedExprInfo> global_untyped_queue;
+	MPSCQueue<Type *> soa_types_to_complete;
 };
 
 
@@ -626,7 +627,7 @@ gb_internal void    scope_lookup_parent (Scope *s, String const &name, Scope **s
 gb_internal Entity *scope_insert (Scope *s, Entity *entity);
 
 
-gb_internal void      add_type_and_value      (CheckerContext *c, Ast *expression, AddressingMode mode, Type *type, ExactValue const &value, bool use_mutex=true);
+gb_internal void      add_type_and_value      (CheckerContext *c, Ast *expression, AddressingMode mode, Type *type, ExactValue const &value);
 gb_internal ExprInfo *check_get_expr_info     (CheckerContext *c, Ast *expr);
 gb_internal void      add_untyped             (CheckerContext *c, Ast *expression, AddressingMode mode, Type *basic_type, ExactValue const &value);
 gb_internal void      add_entity_use          (CheckerContext *c, Ast *identifier, Entity *entity);
@@ -653,6 +654,7 @@ gb_internal void destroy_checker_type_path(CheckerTypePath *tp, gbAllocator allo
 gb_internal void    check_type_path_push(CheckerContext *c, Entity *e);
 gb_internal Entity *check_type_path_pop (CheckerContext *c);
 
+gb_internal void init_core_context(Checker *c);
 gb_internal void init_mem_allocator(Checker *c);
 
 gb_internal void add_untyped_expressions(CheckerInfo *cinfo, UntypedExprInfoMap *untyped);

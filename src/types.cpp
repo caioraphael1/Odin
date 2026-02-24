@@ -163,27 +163,28 @@ struct TypeStruct {
     bool            is_packed                   : 1;
     bool            is_raw_union                : 1;
     bool            is_all_or_none              : 1;
+    bool            is_simple                   : 1;
     bool            is_poly_specialized         : 1;
 
     std::atomic<bool> are_offsets_being_processed;
 };
 
 struct TypeUnion {
-    Slice<Type *> variants;
+    Slice<Type *>    variants;
 
-    Ast *         node;
-    Scope *       scope;
+    Ast *            node;
+    Scope *          scope;
 
-    i64           variant_block_size;
-    i64           custom_align;
-    Type *        polymorphic_params; // Type_Tuple
-    Type *        polymorphic_parent;
-    Wait_Signal   polymorphic_wait_signal;
+    std::atomic<i64> variant_block_size;
+    i64              custom_align;
+    Type *           polymorphic_params; // Type_Tuple
+    Type *           polymorphic_parent;
+    Wait_Signal      polymorphic_wait_signal;
 
-    i16           tag_size;
-    bool          is_polymorphic;
-    bool          is_poly_specialized;
-    UnionTypeKind kind;
+    std::atomic<i16> tag_size;
+    bool             is_polymorphic;
+    bool             is_poly_specialized;
+    UnionTypeKind    kind;
 };
 
 struct TypeProc {
@@ -2691,12 +2692,16 @@ gb_internal bool is_type_simple_compare(Type *t) {
     case Type_SoaPointer:
     case Type_Proc:
     case Type_BitSet:
+    case Type_BitField:
         return true;
 
     case Type_Matrix:
         return is_type_simple_compare(t->Matrix.elem);
 
     case Type_Struct:
+        if (t->Struct.is_simple) {
+            return true;
+        }
         for_array(i, t->Struct.fields) {
             Entity *f = t->Struct.fields[i];
             if (!is_type_simple_compare(f->type)) {
@@ -2718,6 +2723,16 @@ gb_internal bool is_type_simple_compare(Type *t) {
     case Type_SimdVector:
         return is_type_simple_compare(t->SimdVector.elem);
 
+    case Type_Tuple:
+        if (t->Tuple.variables.count == 1) {
+            return is_type_simple_compare(t->Tuple.variables[0]->type);
+        }
+        break;
+
+    case Type_Slice:
+    case Type_DynamicArray:
+    case Type_Map:
+        return false;
     }
 
     return false;
@@ -2747,12 +2762,16 @@ gb_internal bool is_type_nearly_simple_compare(Type *t) {
     case Type_SoaPointer:
     case Type_Proc:
     case Type_BitSet:
+    case Type_BitField:
         return true;
 
     case Type_Matrix:
         return is_type_nearly_simple_compare(t->Matrix.elem);
 
     case Type_Struct:
+        if (t->Struct.is_simple) {
+            return true;
+        }
         for_array(i, t->Struct.fields) {
             Entity *f = t->Struct.fields[i];
             if (!is_type_nearly_simple_compare(f->type)) {
@@ -2773,6 +2792,17 @@ gb_internal bool is_type_nearly_simple_compare(Type *t) {
 
     case Type_SimdVector:
         return is_type_nearly_simple_compare(t->SimdVector.elem);
+
+    case Type_Tuple:
+        if (t->Tuple.variables.count == 1) {
+            return is_type_nearly_simple_compare(t->Tuple.variables[0]->type);
+        }
+        break;
+
+    case Type_Slice:
+    case Type_DynamicArray:
+    case Type_Map:
+        return false;
 
     }
 
@@ -4268,17 +4298,17 @@ gb_internal i64 *type_set_offsets_of(Slice<Entity *> const &fields, bool is_pack
 gb_internal bool type_set_offsets(Type *t) {
     t = base_type(t);
     if (t->kind == Type_Struct) {
-        if (t->Struct.are_offsets_being_processed.load()) {
-            return true;
-        }
+        // if (t->Struct.are_offsets_being_processed.load()) {
+        //  return true;
+        // }
         MUTEX_GUARD(&t->Struct.offset_mutex);
         if (!t->Struct.are_offsets_set) {
             t->Struct.are_offsets_being_processed.store(true);
             t->Struct.offsets = type_set_offsets_of(t->Struct.fields, t->Struct.is_packed, t->Struct.is_raw_union, t->Struct.custom_min_field_align, t->Struct.custom_max_field_align);
             t->Struct.are_offsets_being_processed.store(false);
             t->Struct.are_offsets_set = true;
-            return true;
         }
+        return true;
     } else if (is_type_tuple(t)) {
         MUTEX_GUARD(&t->Tuple.mutex);
         if (!t->Tuple.are_offsets_set) {
@@ -4286,8 +4316,8 @@ gb_internal bool type_set_offsets(Type *t) {
             t->Tuple.offsets = type_set_offsets_of(t->Tuple.variables, t->Tuple.is_packed, false, 1, 0);
             t->Tuple.are_offsets_being_processed.store(false);
             t->Tuple.are_offsets_set = true;
-            return true;
         }
+        return true;
     } else {
         GB_PANIC("Invalid type for setting offsets");
     }
@@ -5089,9 +5119,11 @@ gb_internal gbString write_type_to_string(gbString str, Type *type, bool shortha
             str = gb_string_appendc(str, ")");
         }
 
-        if (type->Struct.is_packed)    str = gb_string_appendc(str, " #packed");
-        if (type->Struct.is_raw_union) str = gb_string_appendc(str, " #raw_union");
+        if (type->Struct.is_packed)         str = gb_string_appendc(str, " #packed");
+        if (type->Struct.is_raw_union)      str = gb_string_appendc(str, " #raw_union");
         if (type->Struct.custom_align != 0) str = gb_string_append_fmt(str, " #align %d", cast(int)type->Struct.custom_align);
+        if (type->Struct.is_all_or_none)    str = gb_string_appendc(str, " #all_or_none");
+        if (type->Struct.is_simple)         str = gb_string_appendc(str, " #simple");
 
         str = gb_string_appendc(str, " {");
 
@@ -5200,29 +5232,12 @@ gb_internal gbString write_type_to_string(gbString str, Type *type, bool shortha
     case Type_Proc:
         str = gb_string_appendc(str, "proc");
 
-        switch (type->Proc.calling_convention) {
-        case ProcCC_Odin:
-            break;
-        case ProcCC_CDecl:
-            str = gb_string_appendc(str, " \"c\" ");
-            break;
-        case ProcCC_StdCall:
-            str = gb_string_appendc(str, " \"std\" ");
-            break;
-        case ProcCC_FastCall:
-            str = gb_string_appendc(str, " \"fastcall\" ");
-            break;
-            break;
-        case ProcCC_None:
-            str = gb_string_appendc(str, " \"none\" ");
-            break;
-        // case ProcCC_VectorCall:
-        //  str = gb_string_appendc(str, " \"vectorcall\" ");
-        //  break;
-        // case ProcCC_ClrCall:
-        //  str = gb_string_appendc(str, " \"clrcall\" ");
-        //  break;
+        if (type->Proc.calling_convention != ProcCC_Odin) {
+            str = gb_string_appendc(str, " \"");
+            str = gb_string_appendc(str, proc_calling_convention_strings[type->Proc.calling_convention]);
+            str = gb_string_appendc(str, "\" ");
         }
+
         str = gb_string_appendc(str, "(");
         if (type->Proc.params) {
             str = write_type_to_string(str, type->Proc.params, shorthand, allow_polymorphic);
