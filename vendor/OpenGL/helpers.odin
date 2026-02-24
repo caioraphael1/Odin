@@ -1,10 +1,11 @@
 // OpenGL function pointer loader implemented in Odin. Supports the `core` profile up to version 4.6.
 // Helper for loading shaders into a program
 
-import "core:os"
-import "core:fmt"
-import "core:strings"
-import "base:runtime"
+import    "core:os"
+import    "core:fmt"
+import    "core:strings"
+@(require) import "core:time"
+import    "base:runtime"
 _ :: fmt
 _ :: runtime
 
@@ -148,7 +149,10 @@ create_and_link_program :: proc(shader_ids: []u32, binary_retrievable := false) 
 }
 
 load_compute_file :: proc(filename: string, binary_retrievable := false) -> (program_id: u32, ok: bool) {
-    cs_data := os.read_entire_file(filename) or_return
+    cs_data, cs_data_err := os.read_entire_file_from_path(filename, allocator)
+    if cs_data_err != nil {
+        return 0, false
+    }
     defer _ = delete_slice(cs_data)
 
     // Create the shaders
@@ -162,12 +166,18 @@ load_compute_source :: proc(cs_data: string, binary_retrievable := false) -> (pr
     return create_and_link_program([]u32{compute_shader_id}, binary_retrievable)
 }
 
-load_shaders_file :: proc(vs_filename, fs_filename: string, binary_retrievable := false) -> (program_id: u32, ok: bool) {
-    vs_data := os.read_entire_file(vs_filename) or_return
-    defer _ = delete_slice(vs_data)
+load_shaders_file :: proc(vs_filename, fs_filename: string, binary_retrievable := false, allocator: mem.Allocator) -> (program_id: u32, ok: bool) {
+    vs_data, vs_data_err := os.read_entire_file_from_path(vs_filename, allocator)
+    if vs_data_err != nil {
+        return 0, false
+    }
+    defer _ = delete_slice(vs_data, allocator)
     
-    fs_data := os.read_entire_file(fs_filename) or_return
-    defer _ = delete_slice(fs_data)
+    fs_data, fs_data_err := os.read_entire_file_from_path(fs_filename, allocator)
+    if fs_data_err != nil {
+        return 0, false
+    }
+    defer _ = delete_slice(fs_data, allocator)
 
     return load_shaders_source(string(vs_data), string(fs_data), binary_retrievable)
 }
@@ -188,14 +198,14 @@ when ODIN_OS == .Windows {
     update_shader_if_changed :: proc(
         vertex_name, fragment_name: string, 
         program: u32, 
-        last_vertex_time, last_fragment_time: os.File_Time,
+        last_vertex_time, last_fragment_time: time.Time,
     ) -> (
         old_program: u32, 
-        current_vertex_time, current_fragment_time: os.File_Time, 
+        current_vertex_time, current_fragment_time: time.Time,
         updated: bool,
     ) {
-        current_vertex_time, _ = os.last_write_time_by_name(vertex_name)
-        current_fragment_time, _ = os.last_write_time_by_name(fragment_name)
+        current_vertex_time, _   = os.modification_time_by_path(vertex_name)
+        current_fragment_time, _ = os.modification_time_by_path(fragment_name)
         old_program = program
 
         if current_vertex_time != last_vertex_time || current_fragment_time != last_fragment_time {
@@ -216,13 +226,13 @@ when ODIN_OS == .Windows {
     update_shader_if_changed_compute :: proc(
         compute_name: string, 
         program: u32, 
-        last_compute_time: os.File_Time,
+        last_compute_time: time.Time,
     ) -> (
         old_program: u32, 
-        current_compute_time: os.File_Time, 
+        current_compute_time: time.Time,
         updated: bool,
     ) {
-        current_compute_time, _ = os.last_write_time_by_name(compute_name)
+        current_compute_time, _ = os.modification_time_by_path(compute_name)
         old_program = program
 
         if current_compute_time != last_compute_time {
@@ -377,9 +387,9 @@ Uniforms :: map[string]Uniform_Info
 
 destroy_uniforms :: proc(u: Uniforms) {
     for _, v in u {
-        _ = delete_slice(v.name)
+        delete(v.name)
     }
-    _ = delete_slice(u)
+    delete(u)
 }
 
 get_uniforms_from_program :: proc(program: u32) -> (uniforms: Uniforms) {
@@ -387,7 +397,7 @@ get_uniforms_from_program :: proc(program: u32) -> (uniforms: Uniforms) {
     GetProgramiv(program, ACTIVE_UNIFORMS, &uniform_count)
 
     if uniform_count > 0 {
-        _ = reserve_dynamic_array(&uniforms, int(uniform_count))
+        reserve(&uniforms, int(uniform_count))
     }
 
     for i in 0..<uniform_count {

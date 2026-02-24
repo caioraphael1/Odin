@@ -1,20 +1,26 @@
+
 import "base:runtime"
 
+g_context: runtime.Context
 
-g_ctx: runtime.Context
-
+@(private="file", init)
+wgpu_init_allocator :: proc() {
+    if g_context.allocator.procedure == nil {
+        g_context = runtime.default_context()
+    }
+}
 
 @(private="file", export)
 wgpu_alloc :: proc(size: i32) -> [^]byte {
-	context = g_ctx
-	bytes, err := runtime.mem_alloc(int(size), 16)
-	assert(err == nil, "wgpu_alloc failed")
-	return raw_data(bytes)
+    context = g_context
+    bytes, err := runtime.mem_alloc(int(size), 16)
+    assert(err == nil, "wgpu_alloc failed")
+    return raw_data(bytes)
 }
 
 @(private="file", export)
 wgpu_free :: proc(ptr: rawptr) {
-	context = g_ctx
-	err := free(ptr)
-	assert(err == nil, "wgpu_free failed")
+    context = g_context
+    err := free(ptr)
+    assert(err == nil, "wgpu_free failed")
 }
