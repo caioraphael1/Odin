@@ -1,4 +1,4 @@
-
+package odin_ast
 
 import "core:fmt"
 

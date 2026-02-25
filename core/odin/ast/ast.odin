@@ -1,5 +1,5 @@
 // Abstract Syntax Tree for the `Odin` parser packages.
-
+package odin_ast
 
 import "core:odin/tokenizer"
 

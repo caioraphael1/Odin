@@ -1,4 +1,4 @@
-
+package odin_ast
 
 @(require) import "base:intrinsics"
 import "core:mem"

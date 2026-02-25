@@ -1,4 +1,4 @@
-
+package odin_parser
 
 import "core:odin/tokenizer"
 import "core:odin/ast"
