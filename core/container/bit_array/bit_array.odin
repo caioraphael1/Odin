@@ -310,7 +310,7 @@ init :: proc(res: ^Bit_Array, max_index: int, min_index: int = 0, allocator: mem
 	legs := size_in_bits >> INDEX_SHIFT
 	if size_in_bits & INDEX_MASK > 0 { legs += 1 }
 
-	bits, err := make([dynamic]u64, legs, allocator)
+	bits, err := make_dynamic_array([dynamic]u64, legs, allocator)
 	ok = err == nil
 
 	res.bits         = bits

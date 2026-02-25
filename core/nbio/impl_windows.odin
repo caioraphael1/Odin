@@ -433,7 +433,7 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
 
 		cwd_len := win.GetCurrentDirectoryW(0, nil)
 		assert(cwd_len > 0)
-		cwd_buf, cwd_err := make([]u16, cwd_len, l.allocator)
+		cwd_buf, cwd_err := make_slice([]u16, cwd_len, l.allocator)
 		if cwd_err != nil { return INVALID_HANDLE, .Allocation_Failed }
 		cwd_len = win.GetCurrentDirectoryW(cwd_len, raw_data(cwd_buf))
 		assert(int(cwd_len) == len(cwd_buf)-1)
@@ -594,7 +594,7 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
 			return strings.replace_all(path, `/`, `\`)
 		}
 
-		path_buf, err := make([]byte, len(PREFIX)+len(path)+1, allocator)
+		path_buf, err := make_slice([]byte, len(PREFIX)+len(path)+1, allocator)
 		if err != nil { return }
 		defer if !allocated { delete(path_buf, allocator) }
 

@@ -63,7 +63,7 @@ _format_hex :: proc(buf: []byte, val: uintptr, allocator: runtime.Allocator) -> 
 
 _format_missing_proc :: proc(addr: uintptr, allocator: runtime.Allocator) -> string {
 	PREFIX :: "proc:0x"
-	buf, buf_err := make([]byte, len(PREFIX) + 16, allocator)
+	buf, buf_err := make_slice([]byte, len(PREFIX) + 16, allocator)
 	copy(buf, PREFIX)
 
 	if buf_err != nil {

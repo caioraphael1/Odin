@@ -49,7 +49,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 		delete(hosts)
 	}
 
-	host_overrides := make([dynamic]DNS_Record)
+	host_overrides := make_dynamic_array([dynamic]DNS_Record)
 	for host in hosts {
 		if host.name != hostname {
 			continue

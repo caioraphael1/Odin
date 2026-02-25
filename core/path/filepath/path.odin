@@ -4,6 +4,7 @@
 
 import "core:os"
 import "core:strings"
+import "core:mem"
 
 SEPARATOR_CHARS :: `/\`
 
@@ -21,20 +22,20 @@ Relative_Error :: enum {
     On failure, the `Relative_Error` will be state it cannot compute the necessary relative path.
 */
 rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string, Relative_Error) {
-    context.allocator = allocator
-    base_clean, base_err     := clean(base_path,   allocator)
+    base_clean, base_err     := os.clean_path(base_path,   allocator)
     if base_err   != nil { return "", .Cannot_Relate}
-    target_clean, target_err := clean(target_path, allocator)
+    target_clean, target_err := os.clean_path(target_path, allocator)
     if target_err != nil { return "", .Cannot_Relate}
-    defer delete(base_clean,   allocator)
-    defer delete(target_clean, allocator)
+    defer _ = delete_string(base_clean,   allocator)
+    defer _ = delete_string(target_clean, allocator)
 
     if strings.equal_fold(target_clean, base_clean) {
-        return strings.clone(".", allocator), .None
+        dot_cloned, _ := strings.clone(".", allocator)
+        return dot_cloned, .None
     }
 
-    base_vol   := volume_name(base_clean)
-    target_vol := volume_name(target_clean)
+    base_vol   := os.volume_name(base_clean)
+    target_vol := os.volume_name(target_clean)
     base   := base_clean  [len(base_vol):]
     target := target_clean[len(target_vol):]
     if base == "." {
@@ -77,34 +78,36 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
         if tl != t0 {
             size += 1 + tl - t0
         }
-        buf := make([]byte, size, allocator)
-        n := copy(buf, "..")
+        buf, _ := make_slice([]byte, size, allocator)
+        n := copy_from_string(buf, "..")
         for _ in 0..<seps {
             buf[n] = SEPARATOR
-            copy(buf[n+1:], "..")
+            copy_from_string(buf[n+1:], "..")
             n += 3
         }
         if t0 != tl {
             buf[n] = SEPARATOR
-            copy(buf[n+1:], target[t0:])
+            copy_from_string(buf[n+1:], target[t0:])
         }
         return string(buf), .None
     }
 
-    return strings.clone(target[t0:], allocator), .None
+    target_t0_clone, _ := strings.clone(target[t0:], allocator)
+
+    return target_t0_clone, .None
 }
 
 /*
     Returns all but the last element path, usually the path's directory. Once the final element has been removed,
-    `dir` calls `clean` on the path and trailing separators are removed. If the path consists purely of separators,
+    `dir` calls `os.clean_path` on the path and trailing separators are removed. If the path consists purely of separators,
     then `"."` is returned.
 */
 dir :: proc(path: string, allocator: mem.Allocator) -> string {
     i := len(path) - 1
-    for i > 0 && !is_separator(path[i]) {
+    for i > 0 && !os.is_path_separator(path[i]) {
         i -= 1
     }
-    res, dir_err := clean(path[:i], allocator)
+    res, dir_err := os.clean_path(path[:i], allocator)
 
     if dir_err != nil { return "" }
     return res

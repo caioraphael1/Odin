@@ -35,7 +35,7 @@ sum :: proc(sec_strength: int, dst, msg, key, domain_sep: []byte) {
 // strength, key and domain separator over msg and return true iff the
 // tag is valid.
 verify :: proc(sec_strength: int, tag, msg, key, domain_sep: []byte, allocator := runtime.temp_allocator) -> bool {
-	derived_tag := make([]byte, len(tag), allocator)
+	derived_tag := make_slice([]byte, len(tag), allocator)
 	defer(delete(derived_tag))
 
 	sum(sec_strength, derived_tag, msg, key, domain_sep)

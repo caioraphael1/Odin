@@ -7,90 +7,92 @@ import "core:fmt"
 import "core:os"
 import "core:slice"
 import "core:strings"
+import "core:mem"
+import "base:runtime"
 
-collect_package :: proc(path: string) -> (pkg: ^ast.Package, success: bool) {
-	NO_POS :: tokenizer.Pos{}
+collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Package, success: bool) {
+    NO_POS :: tokenizer.Pos{}
 
-	pkg_path, pkg_path_err := os.get_absolute_path(path, context.allocator)
-	if pkg_path_err != nil {
-		return
-	}
+    pkg_path, pkg_path_err := os.get_absolute_path(path, allocator)
+    if pkg_path_err != nil {
+        return
+    }
 
-	path_pattern := fmt.tprintf("%s/*.odin", pkg_path)
-	matches, err := filepath.glob(path_pattern)
-	defer delete(matches)
+    path_pattern := fmt.tprintf("%s/*.odin", pkg_path)
+    matches, err := os.glob(path_pattern, allocator)
+    defer _ = delete_slice(matches, allocator)
 
-	if err != nil {
-		return
-	}
+    if err != nil {
+        return
+    }
 
-	pkg = ast.new(ast.Package, NO_POS, NO_POS)
-	pkg.fullpath = pkg_path
+    pkg = ast.new_from_positions(ast.Package, NO_POS, NO_POS, allocator)
+    pkg.fullpath = pkg_path
 
-	for match in matches {
-		fullpath, fullpath_err := os.get_absolute_path(match, context.allocator)
-		if fullpath_err != nil {
-			return
-		}
+    for match in matches {
+        fullpath, fullpath_err := os.get_absolute_path(match, allocator)
+        if fullpath_err != nil {
+            return
+        }
 
-		src, src_err := os.read_entire_file(fullpath, context.allocator)
-		if src_err != nil {
-			delete(fullpath)
-			return
-		}
-		if strings.trim_space(string(src)) == "" {
-			delete(fullpath)
-			delete(src)
-			continue
-		}
+        src, src_err := os.read_entire_file_from_path(fullpath, allocator)
+        if src_err != nil {
+            _ = delete_string(fullpath, allocator)
+            return
+        }
+        if strings.trim_space(string(src)) == "" {
+            _ = delete_string(fullpath, allocator)
+            _ = delete_slice(src, allocator)
+            continue
+        }
 
-		file := ast.new(ast.File, NO_POS, NO_POS)
-		file.pkg = pkg
-		file.src = string(src)
-		file.fullpath = fullpath
-		pkg.files[fullpath] = file
-	}
+        file := ast.new_from_positions(ast.File, NO_POS, NO_POS, allocator)
+        file.pkg = pkg
+        file.src = string(src)
+        file.fullpath = fullpath
+        pkg.files[fullpath] = file
+    }
 
-	success = true
-	return
+    success = true
+    return
 }
 
-parse_package :: proc(pkg: ^ast.Package, p: ^Parser = nil) -> bool {
-	p := p
-	if p == nil {
-		p = &Parser{}
-		p^ = default_parser()
-	}
+parse_package :: proc(pkg: ^ast.Package, p: ^Parser, allocator: mem.Allocator) -> bool {
+    p := p
+    if p == nil {
+        p = &Parser{}
+        p^ = default_parser()
+    }
 
-	ok := true
+    ok := true
 
-	files := make([]^ast.File, len(pkg.files), runtime.temp_allocator)
-	i := 0
-	for _, file in pkg.files {
-		files[i] = file
-		i += 1
-	}
-	slice.sort(files)
+    files, _ := make_slice([]^ast.File, len(pkg.files), runtime.temp_allocator)
+    i := 0
+    for _, file in pkg.files {
+        files[i] = file
+        i += 1
+    }
+    slice.sort(files)
 
-	for file in files {
-		if !parse_file(p, file) {
-			ok = false
-		}
-		if pkg.name == "" {
-			pkg.name = file.pkg_decl.name
-		} else if pkg.name != file.pkg_decl.name {
-			error(p, file.pkg_decl.pos, "different package name, expected '%s', got '%s'", pkg.name, file.pkg_decl.name)
-		}
-	}
+    for file in files {
+        if !parse_file(p, file, allocator) {
+            ok = false
+        }
+        if pkg.name == "" {
+            pkg.name = file.pkg_decl.name
+        } else if pkg.name != file.pkg_decl.name {
+            error(p, file.pkg_decl.pos, "different package name, expected '%s', got '%s'", pkg.name, file.pkg_decl.name)
+        }
+    }
 
-	return ok
+    return ok
 }
 
-parse_package_from_path :: proc(path: string, p: ^Parser = nil) -> (pkg: ^ast.Package, ok: bool) {
-	pkg, ok = collect_package(path)
-	if !ok {
-		return
-	}
-	ok = parse_package(pkg, p)
-	return
+parse_package_from_path :: proc(path: string, p: ^Parser, allocator: mem.Allocator) -> (pkg: ^ast.Package, ok: bool) {
+    pkg, ok = collect_package(path, allocator)
+    if !ok {
+        return
+    }
+    ok = parse_package(pkg, p, allocator)
+    return
 }

@@ -290,7 +290,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
 		return s, false
 	}
 
-	t, err := make([]byte, len(s) + extra_bytes_needed, allocator, loc)
+	t, err := make_slice([]byte, len(s) + extra_bytes_needed, allocator, loc)
 	if err != nil {
 		return
 	}
@@ -358,7 +358,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 	// NOTE(bill): this does a two pass in order to minimize the allocations required
 	bytes_required := do_append(s, amp_idx, nil)
 
-	buf := make([dynamic]byte, 0, bytes_required, allocator, loc) or_return
+	buf := make_dynamic_array([dynamic]byte, 0, bytes_required, allocator, loc) or_return
 	was_allocation = true
 
 	_ = do_append(s, amp_idx, &buf)

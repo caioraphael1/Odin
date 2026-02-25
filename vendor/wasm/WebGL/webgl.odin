@@ -298,7 +298,7 @@ GetActiveAttribAlloc :: proc(program: Program, index: u32, allocator: runtime.Al
     _GetActiveAttrib(program, index, &info.size, &info.type, {}, &name_len)
 
     if name_len > 0 {
-        name_buf := make([]byte, name_len, allocator, loc)
+        name_buf := make_slice([]byte, name_len, allocator, loc)
         _GetActiveAttrib(program, index, &info.size, &info.type, name_buf, &name_len)
         assert(name_len == len(name_buf))
         info.name = string(name_buf[:name_len])
@@ -330,7 +330,7 @@ GetActiveUniformAlloc :: proc(program: Program, index: u32, allocator: runtime.A
     _GetActiveUniform(program, index, &info.size, &info.type, {}, &name_len)
 
     if name_len > 0 {
-        name_buf := make([]byte, name_len, allocator, loc)
+        name_buf := make_slice([]byte, name_len, allocator, loc)
         _GetActiveUniform(program, index, &info.size, &info.type, name_buf, &name_len)
         assert(name_len == len(name_buf))
         info.name = string(name_buf[:name_len])

@@ -133,7 +133,7 @@ GetActiveUniformBlockNameAlloc :: proc(program: Program, uniformBlockIndex: i32,
     _GetActiveUniformBlockName(program, uniformBlockIndex, {}, &n)
 
     if n > 0 {
-        buf := make([]byte, n, allocator, loc)
+        buf := make_slice([]byte, n, allocator, loc)
         _GetActiveUniformBlockName(program, uniformBlockIndex, buf, &n)
         assert(n == len(buf))
         return string(buf[:n])
