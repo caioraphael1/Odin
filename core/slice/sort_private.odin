@@ -80,9 +80,9 @@ _smoothsort :: proc(base: [^]byte, nel: uint, width: uint, cmp: Generic_Cmp, arg
         width := width
         for width != 0 {
             l := builtin.min(size_of(buf), int(width))
-            copy_slice(data[n][:l], data[0][:l])
+            slice_copy(data[n][:l], data[0][:l])
             for i in 0..<n {
-                copy_slice(data[i][:l], data[i+1][:l])
+                slice_copy(data[i][:l], data[i+1][:l])
                 data[i] = data[i][l:]
             }
             width -= uint(l)

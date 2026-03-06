@@ -27,28 +27,28 @@ Read_Op :: enum i8 {
 
 
 buffer_init :: proc(b: ^Buffer, buf: []byte, loc := #caller_location) {
-    _ = resize_dynamic_array(&b.buf, len(buf), loc=loc)
-    copy_slice(b.buf[:], buf)
+    _ = dyn_array_resize(&b.buf, len(buf), loc=loc)
+    slice_copy(b.buf[:], buf)
 }
 
 buffer_init_string :: proc(b: ^Buffer, s: string, loc := #caller_location) {
-    _ = resize_dynamic_array(&b.buf, len(s), loc=loc)
-    copy_from_string(b.buf[:], s)
+    _ = dyn_array_resize(&b.buf, len(s), loc=loc)
+    slice_copy_from_string(b.buf[:], s)
 }
 
 buffer_init_allocator :: proc(b: ^Buffer, len, cap: int, allocator: mem.Allocator, loc := #caller_location) {
     if b.buf == nil {
-        b.buf, _ = make_dynamic_array_len_cap([dynamic]byte, len, cap, allocator, loc)
+        b.buf, _ = dyn_array_create_len_cap([dynamic]byte, len, cap, allocator, loc)
         return
     }
 
     b.buf.allocator = allocator
-    _ = reserve_dynamic_array(&b.buf, cap)
-    _ = resize_dynamic_array(&b.buf, len)
+    _ = dyn_array_reserve(&b.buf, cap)
+    _ = dyn_array_resize(&b.buf, len)
 }
 
 buffer_destroy :: proc(b: ^Buffer) {
-    _ = delete_dynamic_array(b.buf)
+    _ = dyn_array_delete(b.buf)
     buffer_reset(b)
 }
 
@@ -76,7 +76,7 @@ buffer_capacity :: proc(b: ^Buffer) -> int {
 }
 
 buffer_reset :: proc(b: ^Buffer) {
-    clear_dynamic_array(&b.buf)
+    dyn_array_clear(&b.buf)
     b.off = 0
     b.last_read = .Invalid
 }
@@ -91,13 +91,13 @@ buffer_truncate :: proc(b: ^Buffer, n: int) {
     if n < 0 || n > buffer_length(b) {
         panic("bytes.truncate: truncation out of range")
     }
-    _ = resize_dynamic_array(&b.buf, b.off+n)
+    _ = dyn_array_resize(&b.buf, b.off+n)
 }
 
 @(private)
 _buffer_try_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> (int, bool) {
     if l := len(b.buf); n <= cap(b.buf)-l {
-        _ = resize_dynamic_array(&b.buf, l+n, loc=loc)
+        _ = dyn_array_resize(&b.buf, l+n, loc=loc)
         return l, true
     }
     return 0, false
@@ -115,22 +115,22 @@ _buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> int {
 
     if b.buf == nil && n <= SMALL_BUFFER_SIZE {
         // Fixes #2756 by preserving allocator if already set on Buffer via init_buffer_allocator
-        _ = reserve_dynamic_array(&b.buf, SMALL_BUFFER_SIZE, loc=loc)
-        _ = resize_dynamic_array(&b.buf, n, loc=loc)
+        _ = dyn_array_reserve(&b.buf, SMALL_BUFFER_SIZE, loc=loc)
+        _ = dyn_array_resize(&b.buf, n, loc=loc)
         return 0
     }
 
     c := cap(b.buf)
     if n <= c/2 - m {
-        copy_slice(b.buf[:], b.buf[b.off:])
+        slice_copy(b.buf[:], b.buf[b.off:])
     } else if c > max(int) - c - n {
         panic("bytes.Buffer: too large")
     } else {
-        _ = resize_dynamic_array(&b.buf, 2*c + n, loc=loc)
-        copy_slice(b.buf[:], b.buf[b.off:])
+        _ = dyn_array_resize(&b.buf, 2*c + n, loc=loc)
+        slice_copy(b.buf[:], b.buf[b.off:])
     }
     b.off = 0
-    _ = resize_dynamic_array(&b.buf, m+n, loc=loc)
+    _ = dyn_array_resize(&b.buf, m+n, loc=loc)
     return m
 }
 
@@ -139,7 +139,7 @@ buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) {
         panic("bytes.buffer_grow: negative count")
     }
     m := _buffer_grow(b, n, loc=loc)
-    _ = resize_dynamic_array(&b.buf, m, loc=loc)
+    _ = dyn_array_resize(&b.buf, m, loc=loc)
 }
 
 buffer_write_at :: proc(b: ^Buffer, p: []byte, offset: int, loc := #caller_location) -> (n: int, err: io.Error) {
@@ -158,7 +158,7 @@ buffer_write_at :: proc(b: ^Buffer, p: []byte, offset: int, loc := #caller_locat
     if len(b.buf) <= offset {
         return 0, .Short_Write
     }
-    return copy_slice(b.buf[offset:], p), nil
+    return slice_copy(b.buf[offset:], p), nil
 }
 
 
@@ -168,7 +168,7 @@ buffer_write :: proc(b: ^Buffer, p: []byte, loc := #caller_location) -> (n: int,
     if !ok {
         m = _buffer_grow(b, len(p), loc=loc)
     }
-    return copy_slice(b.buf[m:], p), nil
+    return slice_copy(b.buf[m:], p), nil
 }
 
 buffer_write_ptr :: proc(b: ^Buffer, ptr: rawptr, size: int, loc := #caller_location) -> (n: int, err: io.Error) {
@@ -181,7 +181,7 @@ buffer_write_string :: proc(b: ^Buffer, s: string, loc := #caller_location) -> (
     if !ok {
         m = _buffer_grow(b, len(s), loc=loc)
     }
-    return copy_from_string(b.buf[m:], s), nil
+    return slice_copy_from_string(b.buf[m:], s), nil
 }
 
 buffer_write_slice :: proc(b: ^Buffer, slice: $S/[]$T, loc := #caller_location) -> (n: int, err: io.Error) {
@@ -211,8 +211,8 @@ buffer_write_rune :: proc(b: ^Buffer, r: rune, loc := #caller_location) -> (n: i
     }
     res: [4]byte
     res, n = utf8.encode_rune(r)
-    copy_slice(b.buf[m:][:utf8.UTF_MAX], res[:n])
-    _ = resize_dynamic_array(&b.buf, m+n)
+    slice_copy(b.buf[m:][:utf8.UTF_MAX], res[:n])
+    _ = dyn_array_resize(&b.buf, m+n)
     return
 }
 
@@ -240,7 +240,7 @@ buffer_read :: proc(b: ^Buffer, p: []byte) -> (n: int, err: io.Error) {
         }
         return 0, .EOF
     }
-    n = copy_slice(p, b.buf[b.off:])
+    n = slice_copy(p, b.buf[b.off:])
     b.off += n
     if n > 0 {
         b.last_read = .Read
@@ -262,7 +262,7 @@ buffer_read_at :: proc(b: ^Buffer, p: []byte, offset: int) -> (n: int, err: io.E
         err = .EOF
         return
     }
-    n = copy_slice(p, b.buf[offset:])
+    n = slice_copy(p, b.buf[offset:])
     if n > 0 {
         b.last_read = .Read
     }
@@ -392,14 +392,14 @@ buffer_read_from :: proc(b: ^Buffer, r: io.Reader) -> (n: i64, err: io.Error) #n
     b.last_read = .Invalid
     for {
         i := _buffer_grow(b, MIN_READ)
-        _ = resize_dynamic_array(&b.buf, i)
+        _ = dyn_array_resize(&b.buf, i)
         m, e := io.read(r, b.buf[i:cap(b.buf)])
         if m < 0 {
             err = e if e != nil else .Negative_Read
             return
         }
 
-        _ = resize_dynamic_array(&b.buf, i+m)
+        _ = dyn_array_resize(&b.buf, i+m)
         n += i64(m)
         if e == .EOF {
             return

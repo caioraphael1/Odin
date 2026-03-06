@@ -220,7 +220,7 @@ __tick :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 	if n > 0 {
 		l.now = time.now()
 		for _ in 0 ..< n {
-			completed := queue.pop_front(&l.completed)
+			completed := queue.dyn_array_pop_front(&l.completed)
 			if completed._impl.removal == nil {
 				completed.cb(completed)
 			} else if completed._impl.removal != (^Operation)(REMOVED) {
@@ -307,7 +307,7 @@ __tick :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 	_flush_unqueued :: proc(l: ^Event_Loop) {
 		n := queue.len(l.unqueued)
 		for _ in 0..<n {
-			unqueued := queue.pop_front(&l.unqueued)
+			unqueued := queue.dyn_array_pop_front(&l.unqueued)
 
 			if unqueued._impl.removal != nil {
 				debug(unqueued.type, "was removed and has not been on the ring yet")

@@ -279,34 +279,34 @@ destroy_dns_records :: proc(records: []DNS_Record, allocator: mem.Allocator) {
     for rec in records {
         switch r in rec {
         case DNS_Record_IP4:
-            _ = delete_string(r.base.record_name, allocator)
+            _ = string_delete(r.base.record_name, allocator)
 
         case DNS_Record_IP6:
-            _ = delete_string(r.base.record_name, allocator)
+            _ = string_delete(r.base.record_name, allocator)
 
         case DNS_Record_CNAME:
-            _ = delete_string(r.base.record_name, allocator)
-            _ = delete_string(r.host_name, allocator)
+            _ = string_delete(r.base.record_name, allocator)
+            _ = string_delete(r.host_name, allocator)
 
         case DNS_Record_TXT:
-            _ = delete_string(r.base.record_name, allocator)
-            _ = delete_string(r.value, allocator)
+            _ = string_delete(r.base.record_name, allocator)
+            _ = string_delete(r.value, allocator)
 
         case DNS_Record_NS:
-            _ = delete_string(r.base.record_name, allocator)
-            _ = delete_string(r.host_name, allocator)
+            _ = string_delete(r.base.record_name, allocator)
+            _ = string_delete(r.host_name, allocator)
 
         case DNS_Record_MX:
-            _ = delete_string(r.base.record_name, allocator)
-            _ = delete_string(r.host_name, allocator)
+            _ = string_delete(r.base.record_name, allocator)
+            _ = string_delete(r.host_name, allocator)
 
         case DNS_Record_SRV:
-            _ = delete_string(r.record_name, allocator)
-            _ = delete_string(r.target, allocator)
+            _ = string_delete(r.record_name, allocator)
+            _ = string_delete(r.target, allocator)
         }
     }
 
-    _ = delete_slice(records, allocator)
+    _ = slice_delete(records, allocator)
 }
 
 /*
@@ -358,7 +358,7 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
     id_str := "nameserver"
     id_len := len(id_str)
 
-    _name_servers, _ := make_dynamic_array_len([dynamic]Endpoint, 0, allocator)
+    _name_servers, _ := dyn_array_create_len([dynamic]Endpoint, 0, allocator)
     for line in strings.split_lines_iterator(&resolv_str) {
         if len(line) == 0 || line[0] == '#' {
             continue
@@ -382,7 +382,7 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
             addr,
             53,
         }
-        _ = append(&_name_servers, endpoint)
+        _ = dyn_array_append(&_name_servers, endpoint)
     }
 
     return _name_servers[:]
@@ -392,14 +392,14 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
     s := bufio.scanner_init(&{}, stream, allocator)
     defer bufio.scanner_destroy(s)
 
-    _ = resize_dynamic_array(&s.buf, 256)
+    _ = dyn_array_resize(&s.buf, 256)
 
-    _hosts, _ := make_dynamic_array_len([dynamic]DNS_Host_Entry, 0, allocator)
+    _hosts, _ := dyn_array_create_len([dynamic]DNS_Host_Entry, 0, allocator)
     defer if !ok {
         for host in _hosts {
-            _ = delete_string(host.name, allocator)
+            _ = string_delete(host.name, allocator)
         }
-        _ = delete_dynamic_array(_hosts)
+        _ = dyn_array_delete(_hosts)
     }
 
     for bufio.scanner_scan(s) {
@@ -419,7 +419,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
             clone, alloc_err := strings.clone(hostname, allocator)
             if alloc_err != nil { return }
 
-            alloc_err = append(&_hosts, DNS_Host_Entry{clone, addr})
+            alloc_err = dyn_array_append(&_hosts, DNS_Host_Entry{clone, addr})
             if alloc_err != nil { return }
         }
     }
@@ -809,18 +809,18 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
         return
     }
 
-    _records, _ := make_dynamic_array_len([dynamic]DNS_Record, 0, allocator)
+    _records, _ := dyn_array_create_len([dynamic]DNS_Record, 0, allocator)
 
     dns_hdr_chunks := mem.slice_data_cast([]u16be, response[:HEADER_SIZE_BYTES])
     hdr := unpack_dns_header(dns_hdr_chunks[0], dns_hdr_chunks[1])
     if !hdr.is_response {
-        _ = delete_dynamic_array(_records)
+        _ = dyn_array_delete(_records)
         return
     }
 
     question_count := int(dns_hdr_chunks[2])
     if question_count != 1 {
-        _ = delete_dynamic_array(_records)
+        _ = dyn_array_delete(_records)
         return
     }
     answer_count := int(dns_hdr_chunks[3])
@@ -847,7 +847,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
         rec := parse_record(response, &cur_idx, filter, allocator) or_return
         if rec != nil {
-            _ = append(&_records, rec)
+            _ = dyn_array_append(&_records, rec)
         }
     }
 
@@ -858,7 +858,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
         rec := parse_record(response, &cur_idx, filter, allocator) or_return
         if rec != nil {
-            _ = append(&_records, rec)
+            _ = dyn_array_append(&_records, rec)
         }
     }
 
@@ -869,7 +869,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
         rec := parse_record(response, &cur_idx, filter, allocator) or_return
         if rec != nil {
-            _ = append(&_records, rec)
+            _ = dyn_array_append(&_records, rec)
         }
     }
     xid = hdr.id

@@ -7,7 +7,7 @@ import "core:bytes"
 load_from_file :: proc(filename: string, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
 
     data, data_err := os.read_entire_file_from_path(filename, allocator)
-    defer _ = delete_slice(data, allocator)
+    defer _ = slice_delete(data, allocator)
 
     if data_err == nil {
         return load_from_bytes(data, options)

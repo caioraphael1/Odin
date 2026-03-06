@@ -170,7 +170,7 @@ pool_remove :: proc(control: ^Allocator, pool: []u8) {
 }
 
 @(private)
-alloc_bytes_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: runtime.Allocator_Error) {
+runtime.mem_alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: runtime.Allocator_Error) {
     assert(control != nil)
     adjust := adjust_request_size(size, ALIGN_SIZE)
 
@@ -200,11 +200,11 @@ alloc_bytes_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> 
             }
 
             // Trying to allocate a new pool of `control.new_pool_size` bytes.
-            new_pool_buf := runtime.make_aligned([]byte, control.new_pool_size, ALIGN_SIZE, control.pool.allocator) or_return
+            new_pool_buf := runtime.slice_create_aligned([]byte, control.new_pool_size, ALIGN_SIZE, control.pool.allocator) or_return
 
             // Add new pool to control structure
             if pool_add_err := pool_add(control, new_pool_buf); pool_add_err != .None {
-                _ = delete_slice(new_pool_buf, control.pool.allocator)
+                _ = slice_delete(new_pool_buf, control.pool.allocator)
                 return nil, .Out_Of_Memory
             }
 
@@ -256,8 +256,8 @@ alloc_bytes_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> 
 }
 
 @(private)
-alloc_bytes :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: runtime.Allocator_Error) {
-    res, err = alloc_bytes_non_zeroed(control, size, align)
+runtime.mem_alloc :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: runtime.Allocator_Error) {
+    res, err = runtime.mem_alloc_non_zeroed(control, size, align)
     if err == nil {
         intrinsics.mem_zero(raw_data(res), len(res))
     }
@@ -290,7 +290,7 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
         free_with_size(control, ptr, old_size)
         return
     } else if ptr == nil {
-        return alloc_bytes(control, new_size, alignment)
+        return runtime.mem_alloc(control, new_size, alignment)
     }
 
     block := block_from_ptr(ptr)
@@ -305,9 +305,9 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
     min_size := min(curr_size, new_size, old_size)
 
     if adjust > curr_size && (!block_is_free(next) || adjust > combined) {
-        res = alloc_bytes(control, new_size, alignment) or_return
+        res = runtime.mem_alloc(control, new_size, alignment) or_return
         if res != nil {
-            copy_slice(res, ([^]byte)(ptr)[:min_size])
+            slice_copy(res, ([^]byte)(ptr)[:min_size])
             free_with_size(control, ptr, curr_size)
         }
         return
@@ -335,7 +335,7 @@ resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: 
         free_with_size(control, ptr, old_size)
         return
     } else if ptr == nil {
-        return alloc_bytes_non_zeroed(control, new_size, alignment)
+        return runtime.mem_alloc_non_zeroed(control, new_size, alignment)
     }
 
     block := block_from_ptr(ptr)
@@ -350,9 +350,9 @@ resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: 
     min_size := min(curr_size, new_size, old_size)
 
     if adjust > curr_size && (!block_is_free(next) || adjust > combined) {
-        res = alloc_bytes_non_zeroed(control, new_size, alignment) or_return
+        res = runtime.mem_alloc_non_zeroed(control, new_size, alignment) or_return
         if res != nil {
-            copy_slice(res, ([^]byte)(ptr)[:min_size])
+            slice_copy(res, ([^]byte)(ptr)[:min_size])
             free_with_size(control, ptr, old_size)
         }
         return

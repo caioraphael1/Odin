@@ -260,7 +260,7 @@ foreign lib {
 	 *  Note 1 : Each invocation to LZ4_compress_fast_continue() generates a new block.
 	 *           Each block has precise boundaries.
 	 *           Each block must be decompressed separately, calling LZ4_decompress_*() with relevant metadata.
-	 *           It's not possible to append blocks together and expect a single invocation of LZ4_decompress_*() to decompress them together.
+	 *           It's not possible to dyn_array_append blocks together and expect a single invocation of LZ4_decompress_*() to decompress them together.
 	 *
 	 *  Note 2 : The previous 64KB of source data is __assumed__ to remain present, unmodified, at same address in memory !
 	 *

@@ -25,7 +25,7 @@ init :: proc(pq: ^$Q/Priority_Queue($T), less: proc(a, b: T) -> bool, swap: proc
 	if pq.queue.allocator.procedure == nil {
 		pq.queue.allocator = allocator
 	}
-    _ = reserve_dynamic_array(pq, capacity) or_return
+    _ = dyn_array_reserve(pq, capacity) or_return
 	pq.less = less
 	pq.swap = swap
 	return .None
@@ -42,15 +42,15 @@ init_from_dynamic_array :: proc(pq: ^$Q/Priority_Queue($T), queue: [dynamic]T, l
 }
 
 destroy :: proc(pq: ^$Q/Priority_Queue($T)) {
-    clear_dynamic_array(pq)
-    _ = delete_slice(pq.queue)
+    dyn_array_clear(pq)
+    _ = slice_delete(pq.queue)
 }
 
 reserve :: proc(pq: ^$Q/Priority_Queue($T), capacity: int) -> (err: runtime.Allocator_Error) {
-    return builtin.reserve_dynamic_array(&pq.queue, capacity)
+    return builtin.dyn_array_reserve(&pq.queue, capacity)
 }
 clear :: proc(pq: ^$Q/Priority_Queue($T)) {
-    builtin.clear_dynamic_array(&pq.queue)
+    builtin.dyn_array_clear(&pq.queue)
 }
 len :: proc(pq: $Q/Priority_Queue($T)) -> int {
 	return builtin.len(pq.queue)
@@ -109,26 +109,26 @@ fix :: proc(pq: ^$Q/Priority_Queue($T), i: int) {
 }
 
 push :: proc(pq: ^$Q/Priority_Queue($T), value: T) -> (err: runtime.Allocator_Error) {
-	append(&pq.queue, value) or_return
+	dyn_array_append(&pq.queue, value) or_return
 	_shift_up(pq, builtin.len(pq.queue)-1)
 	return .None
 }
 
-pop :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T) {
+dyn_array_pop :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T) {
 	assert(condition=builtin.len(pq.queue)>0, loc=loc)
 	
 	n := builtin.len(pq.queue)-1
 	pq.swap(pq.queue[:], 0, n)
 	_shift_down(pq, 0, n)
-	return builtin.pop(&pq.queue)
+	return builtin.dyn_array_pop(&pq.queue)
 }
 
-pop_safe :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T, ok: bool) {
+dyn_array_pop_safe :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T, ok: bool) {
 	if builtin.len(pq.queue) > 0 {
 		n := builtin.len(pq.queue)-1
 		pq.swap(pq.queue[:], 0, n)
 		_shift_down(pq, 0, n)
-		return builtin.pop_safe(&pq.queue)
+		return builtin.dyn_array_pop_safe(&pq.queue)
 	}
 	return
 }
@@ -139,7 +139,7 @@ remove :: proc(pq: ^$Q/Priority_Queue($T), i: int) -> (value: T, ok: bool) {
 		pq.swap(pq.queue[:], i, n-1)
 		_shift_down(pq, i, n-1)
 		_shift_up(pq, i)
-		value, ok = builtin.pop(&pq.queue), true
+		value, ok = builtin.dyn_array_pop(&pq.queue), true
 	}
 	return
 }

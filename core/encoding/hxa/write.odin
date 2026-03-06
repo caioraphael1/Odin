@@ -48,7 +48,7 @@ write_internal :: proc(w: ^Writer, file: File) {
 			assert(size_of(T)*len(array) <= remaining)
 			ptr := raw_data(w.data[w.offset:])
 			dst := ([^]T)(ptr)[:len(array)]
-			copy_slice(dst, array)
+			slice_copy(dst, array)
 		}
 		w.offset += size_of(T)*len(array)
 	}
@@ -58,7 +58,7 @@ write_internal :: proc(w: ^Writer, file: File) {
 			assert(size_of(byte)*len(str) <= remaining)
 			ptr := raw_data(w.data[w.offset:])
 			dst := ([^]byte)(ptr)[:len(str)]
-			copy_slice(dst, str)
+			slice_copy(dst, str)
 		}
 		w.offset += size_of(byte)*len(str)
 	}

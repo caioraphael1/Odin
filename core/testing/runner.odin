@@ -313,7 +313,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 				find_test_by_name: for it in internal_tests {
 					if it.name == name {
 						found = true
-						_, alloc_error = append(&select_internal_tests, it)
+						_, alloc_error = dyn_array_append(&select_internal_tests, it)
 						fmt.assertf(alloc_error == nil, "Error appending to select internal tests: %v", alloc_error)
 						break find_test_by_name
 					}
@@ -324,7 +324,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 				find_test_by_pkg_and_name: for it in internal_tests {
 					if it.pkg == pkg && it.name == name {
 						found = true
-						_, alloc_error = append(&select_internal_tests, it)
+						_, alloc_error = dyn_array_append(&select_internal_tests, it)
 						fmt.assertf(alloc_error == nil, "Error appending to select internal tests: %v", alloc_error)
 						break find_test_by_pkg_and_name
 					}
@@ -394,7 +394,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	defer thread.pool_destroy(&pool)
 
 	task_channels: []Task_Channel = ---
-	task_channels, alloc_error = make_slice([]Task_Channel, thread_count)
+	task_channels, alloc_error = slice_create([]Task_Channel, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for update channels: %v", alloc_error)
 	defer delete(task_channels)
 
@@ -445,19 +445,19 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 
 
 	task_data_slots: []Task_Data = ---
-	task_data_slots, alloc_error = make_slice([]Task_Data, thread_count)
+	task_data_slots, alloc_error = slice_create([]Task_Data, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task data slots: %v", alloc_error)
 	defer delete(task_data_slots)
 
 	// Tests rotate through these allocators as they finish.
 	task_allocators: []mem.Rollback_Stack = ---
-	task_allocators, alloc_error = make_slice([]mem.Rollback_Stack, thread_count)
+	task_allocators, alloc_error = slice_create([]mem.Rollback_Stack, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task allocators: %v", alloc_error)
 	defer delete(task_allocators)
 
 	when TRACKING_MEMORY {
 		task_memory_trackers: []mem.Tracking_Allocator = ---
-		task_memory_trackers, alloc_error = make_slice([]mem.Tracking_Allocator, thread_count)
+		task_memory_trackers, alloc_error = slice_create([]mem.Tracking_Allocator, thread_count)
 		fmt.assertf(alloc_error == nil, "Error allocating memory for memory trackers: %v", alloc_error)
 		defer delete(task_memory_trackers)
 	}
@@ -479,7 +479,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	}
 
 	task_timeouts: [dynamic]Task_Timeout = ---
-	task_timeouts, alloc_error = make_dynamic_array([dynamic]Task_Timeout, 0, thread_count)
+	task_timeouts, alloc_error = dyn_array_create([dynamic]Task_Timeout, 0, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task timeouts: %v", alloc_error)
 	defer delete(task_timeouts)
 
@@ -489,12 +489,12 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	defer delete(failed_test_reason_map)
 
 	log_messages: [dynamic]Log_Message = ---
-	log_messages, alloc_error = make_dynamic_array([dynamic]Log_Message, 0, RESERVED_LOG_MESSAGES)
+	log_messages, alloc_error = dyn_array_create([dynamic]Log_Message, 0, RESERVED_LOG_MESSAGES)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for log message queue: %v", alloc_error)
 	defer delete(log_messages)
 
 	sorted_failed_test_reasons: [dynamic]int = ---
-	sorted_failed_test_reasons, alloc_error = make_dynamic_array([dynamic]int, 0, RESERVED_TEST_FAILURES)
+	sorted_failed_test_reasons, alloc_error = dyn_array_create([dynamic]int, 0, RESERVED_TEST_FAILURES)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for sorted failed test reasons: %v", alloc_error)
 	defer delete(sorted_failed_test_reasons)
 
@@ -703,7 +703,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					pkg.frame_ready = false
 
 				case Event_Set_Fail_Timeout:
-					_, alloc_error = append(&task_timeouts, Task_Timeout {
+					_, alloc_error = dyn_array_append(&task_timeouts, Task_Timeout {
 						test_index = task_channel.test_index,
 						at_time = event.at_time,
 						location = event.location,
@@ -711,7 +711,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					fmt.assertf(alloc_error == nil, "Error appending to task timeouts: %v", alloc_error)
 
 				case Event_Log_Message:
-					_, alloc_error = append(&log_messages, Log_Message {
+					_, alloc_error = dyn_array_append(&log_messages, Log_Message {
 						level = event.level,
 						text = event.formatted_text,
 						time = event.time,
@@ -739,7 +739,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 				continue check_timeouts
 			}
 
-			defer unordered_remove(&task_timeouts, i)
+			defer dyn_array_unordered_remove(&task_timeouts, i)
 
 			#no_bounds_check if report.all_test_states[timeout.test_index] > .Running {
 				continue check_timeouts
@@ -764,7 +764,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 			total_done_count += 1
 
 			now := time.now()
-			_, alloc_error = append(&log_messages, Log_Message {
+			_, alloc_error = dyn_array_append(&log_messages, Log_Message {
 				level = .Error,
 				text = format_log_text(.Error, ERROR_STRING_TIMEOUT, Default_Test_Logger_Opts, timeout.location, now),
 				time = now,
@@ -953,7 +953,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		}
 
 		for test_index in failed_test_reason_map {
-			_, alloc_error = append(&sorted_failed_test_reasons, test_index)
+			_, alloc_error = dyn_array_append(&sorted_failed_test_reasons, test_index)
 			fmt.assertf(alloc_error == nil, "Error appending to sorted failed test reasons: %v", alloc_error)
 		}
 
@@ -1034,7 +1034,7 @@ To partly mitigate this, redirect STDERR to a file or use the -define:ODIN_TEST_
 			}
 
 			tests := &json_report.packages[test.pkg]
-			append(tests, JSON_Test{name = test.name, success = state == .Successful})
+			dyn_array_append(tests, JSON_Test{name = test.name, success = state == .Successful})
 		}
 
 		json_report.total    = len(internal_tests)

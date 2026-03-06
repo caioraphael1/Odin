@@ -69,7 +69,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
             #partial switch ifaddr.dstaddr.sa_family {
             case .INET, .INET6:
                 broadcast := _sockaddr_basic_to_endpoint(ifaddr.dstaddr).address
-                append(&iface.multicast, broadcast)
+                dyn_array_append(&iface.multicast, broadcast)
             }
         }
 
@@ -78,7 +78,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
                 address = address,
                 netmask = netmask,
             }
-            append(&iface.unicast, lease)
+            dyn_array_append(&iface.unicast, lease)
         }
 
         /*
@@ -100,7 +100,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
         iface.link.state = state
     }
 
-    interfaces = make_slice([]Network_Interface, len(ifaces))
+    interfaces = slice_create([]Network_Interface, len(ifaces))
     i: int
     for _, iface in ifaces {
         interfaces[i] = iface

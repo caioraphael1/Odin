@@ -1,4 +1,5 @@
 import "core:mem"
+import "base:runtime"
 import "core:unicode/utf8"
 import "core:unicode/utf16"
 import "core:strconv"
@@ -183,12 +184,12 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
         for elem in array {
             destroy_value(elem, array.allocator, loc=loc)
         }
-        _ = delete_dynamic_array(array, loc)
+        _ = dyn_array_delete(array, loc)
     }
 
     for p.curr_token.kind != .Close_Bracket {
         elem := parse_value(p, loc) or_return
-        _ = append(&array, elem, loc)
+        _ = dyn_array_append(&array, elem, loc)
         
         if parse_comma(p) {
             break
@@ -202,7 +203,7 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
 
 @(private)
 bytes_make :: proc(size, alignment: int, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Error) {
-    b, berr := mem.alloc_bytes(size, alignment, allocator, loc)
+    b, berr := runtime.mem_alloc(size, alignment, allocator, loc)
     if berr != nil {
         if berr == .Out_Of_Memory {
             err = .Out_Of_Memory
@@ -217,7 +218,7 @@ bytes_make :: proc(size, alignment: int, allocator: mem.Allocator, loc := #calle
 clone_string :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (str: string, err: Error) {
     n := len(s)
     b := bytes_make(n+1, 1, allocator, loc) or_return
-    copy_from_string(b, s)
+    slice_copy_from_string(b, s)
     if len(b) > n {
         b[n] = 0
         str = string(b[:n])
@@ -240,14 +241,14 @@ parse_object_key :: proc(p: ^Parser, key_allocator: mem.Allocator, loc := #calle
 }
 
 parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_location) -> (obj: Object, err: Error) {
-    obj = make_map(Object, p.allocator, loc)
+    obj = map_create(Object, p.allocator, loc)
 
     defer if err != nil {
         for key, elem in obj {
-            _ = delete_string(key, p.allocator, loc)
+            _ = string_delete(key, p.allocator, loc)
             destroy_value(elem, p.allocator, loc=loc)
         }
-        _ = delete_map(obj, loc)
+        _ = map_delete(obj, loc)
     }
 
     for p.curr_token.kind != end_token {
@@ -257,7 +258,7 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
 
         if key in obj {
             err = .Duplicate_Object_Key
-            _ = delete_string(key, p.allocator, loc)
+            _ = string_delete(key, p.allocator, loc)
             return
         }
 
@@ -265,7 +266,7 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
         // inserting empty key/values into the object and for those we do not
         // want to allocate anything
         if key != "" {
-            reserve_error := reserve_map(&obj, len(obj) + 1, loc)
+            reserve_error := map_reserve(&obj, len(obj) + 1, loc)
             if reserve_error == mem.Allocator_Error.Out_Of_Memory {
                 return nil, .Out_Of_Memory
             }
@@ -361,7 +362,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
     }
 
     b := bytes_make(len(s) + 2*utf8.UTF_MAX, 1, allocator) or_return
-    w := copy_from_string(b, s[0:i])
+    w := slice_copy_from_string(b, s[0:i])
 
     if len(b) == 0 && allocator.data == nil {
         // `unmarshal_count_array` calls us with a nil allocator
@@ -421,7 +422,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
                 }
 
                 buf, buf_width := utf8.encode_rune(r)
-                copy_slice(b[w:], buf[:buf_width])
+                slice_copy(b[w:], buf[:buf_width])
                 w += buf_width
 
             case '0':
@@ -451,7 +452,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
                     i += 4
 
                     buf, buf_width := utf8.encode_rune(r)
-                    copy_slice(b[w:], buf[:buf_width])
+                    slice_copy(b[w:], buf[:buf_width])
                     w += buf_width
                 } else {
                     break loop
@@ -472,7 +473,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
 
             buf, buf_width := utf8.encode_rune(r)
             assert(buf_width <= width)
-            copy_slice(b[w:], buf[:buf_width])
+            slice_copy(b[w:], buf[:buf_width])
             w += buf_width
         }
     }

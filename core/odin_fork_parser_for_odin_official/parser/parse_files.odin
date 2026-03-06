@@ -20,7 +20,7 @@ collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Pa
 
     path_pattern := fmt.tprintf("%s/*.odin", pkg_path)
     matches, err := os.glob(path_pattern, allocator)
-    defer _ = delete_slice(matches, allocator)
+    defer _ = slice_delete(matches, allocator)
 
     if err != nil {
         return
@@ -37,12 +37,12 @@ collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Pa
 
         src, src_err := os.read_entire_file_from_path(fullpath, allocator)
         if src_err != nil {
-            _ = delete_string(fullpath, allocator)
+            _ = string_delete(fullpath, allocator)
             return
         }
         if strings.trim_space(string(src)) == "" {
-            _ = delete_string(fullpath, allocator)
-            _ = delete_slice(src, allocator)
+            _ = string_delete(fullpath, allocator)
+            _ = slice_delete(src, allocator)
             continue
         }
 
@@ -66,7 +66,7 @@ parse_package :: proc(pkg: ^ast.Package, p: ^Parser, allocator: mem.Allocator) -
 
     ok := true
 
-    files, _ := make_slice([]^ast.File, len(pkg.files), runtime.temp_allocator)
+    files, _ := slice_create([]^ast.File, len(pkg.files), runtime.temp_allocator)
     i := 0
     for _, file in pkg.files {
         files[i] = file

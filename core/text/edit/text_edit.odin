@@ -149,15 +149,15 @@ undo_state_push :: proc(s: ^State, undo: ^[dynamic]^Undo_State) -> mem.Allocator
 	#no_bounds_check {
 		runtime.copy(item.text[:len(text)], text)
 	}
-	append(undo, item) or_return
+	dyn_array_append(undo, item) or_return
 	return nil
 }
 
-// pop undo|redo state - push to redo|undo - set selection & text
+// dyn_array_pop undo|redo state - push to redo|undo - set selection & text
 undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 	if len(undo) > 0 {
 		undo_state_push(s, redo)
-		item := pop(undo)
+		item := dyn_array_pop(undo)
 		s.selection = item.selection
 		#no_bounds_check if s.builder != nil {
 			strings.builder_reset(s.builder)
@@ -170,7 +170,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 // iteratively clearn the undo|redo stack and free each allocated text state
 undo_clear :: proc(s: ^State, undo: ^[dynamic]^Undo_State) {
 	for len(undo) > 0 {
-		item := pop(undo)
+		item := dyn_array_pop(undo)
 		free(item, s.undo_text_allocator)
 	}
 }
@@ -234,13 +234,13 @@ input_rune :: proc(s: ^State, r: rune) {
 insert :: proc(s: ^State, at: int, text: string) -> int {
 	undo_check(s)
 	if s.builder != nil {
-		if ok, _ := inject_at(&s.builder.buf, at, text); !ok {
+		if ok, _ := dyn_array_inject_at(&s.builder.buf, at, text); !ok {
 			n := cap(s.builder.buf) - len(s.builder.buf)
 			assert(n < len(text))
 			for is_continuation_byte(text[n]) {
 				n -= 1
 			}
-			if ok2, _ := inject_at(&s.builder.buf, at, text[:n]); !ok2 {
+			if ok2, _ := dyn_array_inject_at(&s.builder.buf, at, text[:n]); !ok2 {
 				n = 0
 			}
 			return n
@@ -254,7 +254,7 @@ insert :: proc(s: ^State, at: int, text: string) -> int {
 remove :: proc(s: ^State, lo, hi: int) {
 	undo_check(s)
 	if s.builder != nil {
-		remove_range(&s.builder.buf, lo, hi)
+		dyn_array_remove_range(&s.builder.buf, lo, hi)
 	}
 }
 

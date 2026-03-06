@@ -104,7 +104,7 @@ import "base:runtime"
 main :: proc() {
     allocator := runtime.heap_allocator()
 
-    a := make_dynamic_array([dynamic]int, allocator)
+    a := dyn_array_create([dynamic]int, allocator)
         //  `make` *requires* an explicit allocator. If not complied, there will be a compile-time error.
     defer delete_dynamic_array(a)
         // No need to be explicit about the allocator here, as a `[dynamic]` array stores the allocator.
@@ -137,7 +137,7 @@ main :: proc() {
 ```odin
 main :: proc() {
     a: [dynamic]int
-    append(&a, 1)
+    dyn_array_append(&a, 1)
         // Runtime assertion, indicating that no allocator was used for `a` and the array should be initialized. 
 }
 ```

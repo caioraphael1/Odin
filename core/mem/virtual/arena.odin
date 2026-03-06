@@ -1,5 +1,7 @@
 import "core:mem"
+import "base:intrinsics"
 import "core:sync"
+import "base:runtime"
 
 // import "base:sanitizer"
 
@@ -30,12 +32,12 @@ Arena :: struct {
 
 
 // 1 MiB should be enough to start with
-DEFAULT_ARENA_STATIC_COMMIT_SIZE         :: mem.Megabyte
-DEFAULT_ARENA_GROWING_COMMIT_SIZE        :: 8*mem.Megabyte
+DEFAULT_ARENA_STATIC_COMMIT_SIZE         :: runtime.Megabyte
+DEFAULT_ARENA_GROWING_COMMIT_SIZE        :: 8 * runtime.Megabyte
 DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE :: DEFAULT_ARENA_STATIC_COMMIT_SIZE
 
 // 1 GiB on 64-bit systems, 128 MiB on 32-bit systems by default
-DEFAULT_ARENA_STATIC_RESERVE_SIZE :: mem.Gigabyte when size_of(uintptr) == 8 else 128 * mem.Megabyte
+DEFAULT_ARENA_STATIC_RESERVE_SIZE :: runtime.Gigabyte when size_of(uintptr) == 8 else 128 * mem.Megabyte
 
 
 
@@ -194,7 +196,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
             curr_block_used := int(arena.curr_block.used)
             arena.curr_block.used = 0
             // sanitizer.address_unpoison(arena.curr_block.base[:curr_block_used])
-            mem.zero(arena.curr_block.base, curr_block_used)
+            intrinsics.mem_zero(arena.curr_block.base, curr_block_used)
             // sanitizer.address_poison(arena.curr_block.base[:arena.curr_block.committed])
         }
         arena.total_used = 0
@@ -205,7 +207,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
 }
 
 // Frees all of the memory allocated by the arena and zeros all of the values of an arena.
-// A buffer based arena does not `_ = delete_slice` the provided `[]byte` bufffer.
+// A buffer based arena does not `_ = slice_delete` the provided `[]byte` bufffer.
 @(no_sanitize_address)
 arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
     sync.mutex_guard(&arena.mutex)
@@ -341,7 +343,7 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         if new_memory == nil {
             return
         }
-        copy_slice(new_memory, old_data[:old_size])
+        slice_copy(new_memory, old_data[:old_size])
         // sanitizer.address_poison(old_data[:old_size])
         return new_memory, nil
     case .Query_Features:

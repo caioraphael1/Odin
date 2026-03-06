@@ -313,9 +313,9 @@ _iterate_gpus :: proc(it: ^GPU_Iterator, minimum_vram := i64(256 * 1024 * 1024))
         }
     }
 
-    n := copy_from_string(buf_key[:], GPU_ROOT_KEY)
+    n := slice_copy_from_string(buf_key[:], GPU_ROOT_KEY)
     buf_key[n] = '\\'
-    copy_from_string(buf_key[n+1:], leaf)
+    slice_copy_from_string(buf_key[n+1:], leaf)
 
     key_len := len(GPU_ROOT_KEY) + len(leaf) + 1
 

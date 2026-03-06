@@ -43,7 +43,7 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: runtime.
         }
     }
 
-    buf := make_slice([]u8, length, allocator) or_return
+    buf := slice_create([]u8, length, allocator) or_return
 
     if byte_oriented {
         // Neither replacement rune or any other rune in the path takes up more than 1 byte
@@ -55,11 +55,11 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: runtime.
         i: int
         for r in path {
             if r == '/' || r == '\\' {
-                copy_slice(buf[i:], rep_b[:rep_w])
+                slice_copy(buf[i:], rep_b[:rep_w])
                 i += rep_w
             } else {
                 r_b, r_w := utf8.encode_rune(r)
-                copy_slice(buf[i:], r_b[:r_w])
+                slice_copy(buf[i:], r_b[:r_w])
                 i += r_w
             }
         }
@@ -171,7 +171,7 @@ clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: stri
 
     // The extra byte is to simplify appending path elements by letting the
     // loop to end each with a separator. We'll trim the last one when we're done.
-    buffer := make_slice([]u8, len(path) + 1, runtime.temp_allocator) or_return
+    buffer := slice_create([]u8, len(path) + 1, runtime.temp_allocator) or_return
 
     // This is the only point where Windows and POSIX differ, as Windows has
     // alphabet-based volumes for root paths.
@@ -210,7 +210,7 @@ clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: stri
                 }
             case:
                 // Copy the path element verbatim and add a separator.
-                copy_from_string(buffer[buffer_i:], elem)
+                slice_copy_from_string(buffer[buffer_i:], elem)
                 buffer_i += len(elem)
                 buffer[buffer_i] = _Path_Separator
                 buffer_i += 1
@@ -228,8 +228,8 @@ clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: stri
         return strings.clone(".", allocator)
     }
 
-    compact := make_slice([]u8, buffer_i, allocator) or_return
-    copy_slice(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
+    compact := slice_create([]u8, buffer_i, allocator) or_return
+    slice_copy(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
     return string(compact), nil
 }
 
@@ -327,7 +327,7 @@ get_relative_path :: proc(base, target: string, allocator: runtime.Allocator) ->
     }
 
     // Build the string.
-    buf := make_slice([]u8, size, allocator) or_return
+    buf := slice_create([]u8, size, allocator) or_return
     n := 0
     if seps > 0 {
         buf[0] = '.'
@@ -345,7 +345,7 @@ get_relative_path :: proc(base, target: string, allocator: runtime.Allocator) ->
             buf[n] = _Path_Separator
             n += 1
         }
-        copy_from_string(buf[n:], trailing)
+        slice_copy_from_string(buf[n:], trailing)
     }
 
     path = string(buf)
@@ -575,10 +575,10 @@ join_filename :: proc(base: string, ext: string, allocator: runtime.Allocator) -
         return strings.clone(base, allocator)
     }
 
-    buf := make_slice([]u8, len(base) + 1 + len(ext), allocator) or_return
-    copy_from_string(buf, base)
+    buf := slice_create([]u8, len(base) + 1 + len(ext), allocator) or_return
+    slice_copy_from_string(buf, base)
     buf[len(base)] = '.'
-    copy_from_string(buf[1+len(base):], ext)
+    slice_copy_from_string(buf[1+len(base):], ext)
 
     return string(buf), nil
 }
@@ -615,7 +615,7 @@ split_path_list :: proc(path: string, allocator: runtime.Allocator) -> (list: []
     }
 
     start, quote = 0, false
-    list = make_slice([]string, count + 1, allocator) or_return
+    list = slice_create([]string, count + 1, allocator) or_return
     index := 0
     for i := 0; i < len(path); i += 1 {
         c := path[i]
@@ -720,7 +720,7 @@ glob :: proc(pattern: string, allocator: runtime.Allocator) -> (matches: []strin
 
     if !has_meta(pattern) {
         // TODO(bill): os.lstat on here to check for error
-        m, _ := make_slice([]string, 1, allocator)
+        m, _ := slice_create([]string, 1, allocator)
         m[0] = pattern
         return m[:], nil
     }
@@ -740,12 +740,12 @@ glob :: proc(pattern: string, allocator: runtime.Allocator) -> (matches: []strin
     m := glob(dir, allocator) or_return
     defer {
         for s in m {
-            _ = delete_string(s, allocator)
+            _ = string_delete(s, allocator)
         }
-        _ = delete_slice(m, allocator)
+        _ = slice_delete(m, allocator)
     }
 
-    dmatches, _ := make_dynamic_array_len_cap([dynamic]string, 0, 0, allocator)
+    dmatches, _ := dyn_array_create_len_cap([dynamic]string, 0, 0, allocator)
     for d in m {
         dmatches, err = _glob(d, file, &dmatches, allocator)
         if err != nil {
@@ -918,7 +918,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: runtim
     if matches != nil {
         m = matches^
     } else {
-        m, _ = make_dynamic_array_len_cap([dynamic]string, 0, 0, allocator)
+        m, _ = dyn_array_create_len_cap([dynamic]string, 0, 0, allocator)
     }
 
 
@@ -942,7 +942,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: runtim
         matched := match(pattern, fi.name) or_return
         if matched {
             matched_path := join_path({dir, fi.name}, allocator) or_return
-            _ = append(&m, matched_path)
+            _ = dyn_array_append(&m, matched_path)
         }
     }
     return
@@ -968,7 +968,7 @@ clean_glob_path :: proc(path: string, temp_buf: []byte) -> (int, string) {
         case vol_len+1 == len(path) && is_path_separator(path[len(path)-1]): // /, \, C:\, C:/
             return vol_len+1, path
         case vol_len == len(path) && len(path) == 2: // C:
-            copy_from_string(temp_buf[:], path)
+            slice_copy_from_string(temp_buf[:], path)
             temp_buf[2] = '.'
             return vol_len, string(temp_buf[:3])
         }

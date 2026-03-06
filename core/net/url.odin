@@ -45,11 +45,11 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
         s = s[:i]
         if query_str != "" {
             queries_parts, _ := strings.split(query_str, "&", allocator)
-            defer _ = delete_slice(queries_parts, allocator)
-            queries, _ = make_map_cap(map[string]string, len(queries_parts), allocator)
+            defer _ = slice_delete(queries_parts, allocator)
+            queries, _ = map_create_cap(map[string]string, len(queries_parts), allocator)
             for q in queries_parts {
                 parts, _ := strings.split(q, "=", allocator)
-                defer _ = delete_slice(parts, allocator)
+                defer _ = slice_delete(parts, allocator)
                 switch len(parts) {
                 case 1:  queries[parts[0]] = ""        // NOTE(tetra): Query not set to anything, was but present.
                 case 2:  queries[parts[0]] = parts[1]  // NOTE(tetra): Query set to something.
@@ -212,8 +212,8 @@ base64url_decode :: proc(s: string, allocator: mem.Allocator) -> []byte {
         padding += 1;
     }
 
-    temp := make_slice([]byte, size, runtime.temp_allocator);
-    copy_slice(temp, transmute([]byte) s);
+    temp := slice_create([]byte, size, runtime.temp_allocator);
+    slice_copy(temp, transmute([]byte) s);
 
     for b, i in temp {
         switch b {

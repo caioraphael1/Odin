@@ -74,8 +74,8 @@ unicode_width_proc :: proc(str: string) -> (width: int) {
 
 init_with_allocator :: proc(tbl: ^Table, format_allocator := runtime.temp_allocator, table_allocator : mem.Allocator) -> ^Table {
     tbl.table_allocator = table_allocator
-    tbl.cells = make_dynamic_array([dynamic]Cell, tbl.table_allocator)
-    tbl.colw = make_dynamic_array([dynamic]int, tbl.table_allocator)
+    dyn_array_init(&tbl.cells, tbl.table_allocator)
+    dyn_array_init(&tbl.colw, tbl.table_allocator)
     tbl.format_allocator = format_allocator
     return tbl
 }
@@ -88,8 +88,8 @@ init_with_mem_arena :: proc(tbl: ^Table, format_arena: ^mem.Arena, table_allocat
 
 destroy :: proc(tbl: ^Table) {
     _ = free_all(tbl.format_allocator)
-    _ = delete_slice(tbl.cells)
-    _ = delete_slice(tbl.colw)
+    _ = slice_delete(tbl.cells)
+    _ = slice_delete(tbl.colw)
 }
 
 caption :: proc(tbl: ^Table, value: string) {
@@ -104,7 +104,7 @@ padding :: proc(tbl: ^Table, lpad, rpad: int) {
 get_cell :: proc(tbl: ^Table, row, col: int, loc := #caller_location) -> ^Cell {
     assert(col >= 0 && col < tbl.nr_cols, "cell column out of range", loc)
     assert(row >= 0 && row < tbl.nr_rows, "cell row out of range", loc)
-    _ = resize_dynamic_array(&tbl.cells, tbl.nr_cols * tbl.nr_rows)
+    _ = dyn_array_resize(&tbl.cells, tbl.nr_cols * tbl.nr_rows)
     return &tbl.cells[row*tbl.nr_cols + col]
 }
 
@@ -279,7 +279,7 @@ first_row :: proc(tbl: ^Table) -> int {
 }
 
 build :: proc(tbl: ^Table, width_proc: Width_Proc) {
-    _ = resize_dynamic_array(&tbl.colw, tbl.nr_cols)
+    _ = dyn_array_resize(&tbl.colw, tbl.nr_cols)
     mem.zero_slice(tbl.colw[:])
 
     for row in 0..<tbl.nr_rows {

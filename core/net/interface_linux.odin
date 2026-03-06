@@ -41,7 +41,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     //  We're going to have to iterate over a list and coalesce information as we go.
     // */
     // ifaces: map[string]^Network_Interface
-    // defer _ = delete_slice(ifaces)
+    // defer _ = slice_delete(ifaces)
 
     // for ifaddr := head; ifaddr != nil; ifaddr = ifaddr.next {
     //  adapter_name := string(ifaddr.name)
@@ -93,7 +93,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     //      switch int(ifaddr.broadcast_or_dest.sa_family) {
     //      case os.AF_INET, os.AF_INET6:
     //          broadcast := _sockaddr_basic_to_endpoint(ifaddr.broadcast_or_dest).address
-    //          _ = append(&iface.multicast, broadcast)
+    //          _ = dyn_array_append(&iface.multicast, broadcast)
     //      case:
     //      }
     //  }
@@ -103,7 +103,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     //          address = address,
     //          netmask = netmask,
     //      }
-    //      _ = append(&iface.unicast, lease)
+    //      _ = dyn_array_append(&iface.unicast, lease)
     //  }
 
     //  /*
@@ -133,9 +133,9 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     // /*
     //  Turn the map into a slice to return.
     // */
-    // _interfaces := make_dynamic_array([dynamic]Network_Interface, 0, allocator)
+    // _interfaces := dyn_array_create([dynamic]Network_Interface, 0, allocator)
     // for _, iface in ifaces {
-    //  _ = append(&_interfaces, iface^)
+    //  _ = dyn_array_append(&_interfaces, iface^)
     //  free(iface)
     // }
     // return _interfaces[:], {}

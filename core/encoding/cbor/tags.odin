@@ -197,7 +197,7 @@ tag_big_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, tnr: Tag_Number, v
     switch &dst in v {
     case big.Int:
         bytes := err_conv(_decode_bytes(d, add)) or_return
-        defer _ = delete_slice(bytes)
+        defer _ = slice_delete(bytes)
 
         if err := big.int_from_bytes_big(&dst, bytes); err != nil {
             return .Bad_Tag_Value
@@ -297,7 +297,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
     }
 
     bytes := string(err_conv(_decode_bytes(d, add, allocator=runtime.temp_allocator)) or_return)
-    defer _ = delete_slice(bytes, runtime.temp_allocator)
+    defer _ = slice_delete(bytes, runtime.temp_allocator)
 
     #partial switch t in ti.variant {
     case reflect.Type_Info_String:
@@ -346,7 +346,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
         if base64.decoded_len(bytes) > t.count { return _unsupported(v, hdr) }
         
         slice := ([^]byte)(v.data)[:len(bytes)]
-        copy_slice(slice, base64.decode(bytes) or_return)
+        slice_copy(slice, base64.decode(bytes) or_return)
         return
     }
 

@@ -4,7 +4,7 @@ import "base:runtime"
 /*
 Rollback stack default block size.
 */
-ROLLBACK_STACK_DEFAULT_BLOCK_SIZE :: 4 * Megabyte
+ROLLBACK_STACK_DEFAULT_BLOCK_SIZE :: 4 * runtime.Megabyte
 
 /*
 Rollback stack max head block size.
@@ -16,7 +16,7 @@ valid, so long as the block allocator can handle it.
 This is because allocations over the block size are not split up if the item
 within is freed; they are immediately returned to the block allocator.
 */
-ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE :: 2 * Gigabyte
+ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE :: 2 * runtime.Gigabyte
 
 /*
 Allocation header of the rollback stack allocator.

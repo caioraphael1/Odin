@@ -30,10 +30,9 @@ Returns:
 - res: The new Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_make :: proc(allocator: mem.Allocator) -> Builder {
-    return Builder{ 
-        buf = make_dynamic_array([dynamic]byte, allocator)
-    }
+builder_make :: proc(allocator: mem.Allocator) -> (builder: Builder) {
+    builder.buf.allocator = allocator
+    return
 }
 /*
 Produces a Builder with specified length and capacity `len`.
@@ -49,7 +48,7 @@ Returns:
 */
 builder_make_len :: proc(len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
-        buf = make_dynamic_array_len([dynamic]byte, len, allocator, loc) or_return
+        buf = dyn_array_create_len([dynamic]byte, len, allocator, loc) or_return
     }, nil
 }
 /*
@@ -68,7 +67,7 @@ Returns:
 */
 builder_make_len_cap :: proc(len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
-        buf = make_dynamic_array_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
+        buf = dyn_array_create_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
     }, nil
 }
 
@@ -87,7 +86,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init :: proc(b: ^Builder, allocator: mem.Allocator) {
-    b.buf = make_dynamic_array([dynamic]byte, allocator)
+    dyn_array_init(&b.buf, allocator)
 }
 
 /*
@@ -106,7 +105,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init_len :: proc(b: ^Builder, len: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    b.buf = make_dynamic_array_len([dynamic]byte, len, allocator, loc) or_return
+    b.buf = dyn_array_create_len([dynamic]byte, len, allocator, loc) or_return
     return nil
 }
 
@@ -125,7 +124,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init_len_cap :: proc(b: ^Builder, len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    b.buf = make_dynamic_array_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
+    b.buf = dyn_array_create_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
     return nil
 }
 
@@ -183,7 +182,7 @@ Inputs:
 - b: A pointer to the Builder
 */
 builder_destroy :: proc(b: ^Builder) {
-    _ = delete_dynamic_array(b.buf)
+    _ = dyn_array_delete(b.buf)
     b.buf = nil
 }
 /*
@@ -194,7 +193,7 @@ Inputs:
 - cap: The desired capacity for the Builder's buffer
 */
 builder_grow :: proc(b: ^Builder, cap: int) {
-    _ = reserve_dynamic_array(&b.buf, cap)
+    _ = dyn_array_reserve(&b.buf, cap)
 }
 /*
 Clears the Builder byte buffer content (sets len to zero)
@@ -203,7 +202,7 @@ Inputs:
 - b: A pointer to the Builder
 */
 builder_reset :: proc(b: ^Builder) {
-    clear_dynamic_array(&b.buf)
+    dyn_array_clear(&b.buf)
 }
 /*
 Creates a Builder from a slice of bytes with the same slice length as its capacity. Used in fmt.bprint*
@@ -264,8 +263,8 @@ Returns:
 - res: A cstring of the Builder's buffer
 */
 unsafe_to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring) {
-    _ = append(&b.buf, 0, loc)
-    pop(&b.buf)
+    _ = dyn_array_append(&b.buf, 0, loc)
+    dyn_array_pop(&b.buf)
     return cstring(raw_data(b.buf))
 }
 /*
@@ -280,11 +279,11 @@ Returns:
 */
 to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
     len_before := len(b.buf)
-    append(&b.buf, 0, loc) or_return
+    dyn_array_append(&b.buf, 0, loc) or_return
     if len(b.buf) - len_before != 1 {
         return nil, .Out_Of_Memory
     }
-    pop(&b.buf)
+    dyn_array_pop(&b.buf)
     #no_bounds_check {
         assert(b.buf[len(b.buf)] == 0)
     }
@@ -358,7 +357,7 @@ Output:
 @(optional_results)
 write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: int) {
     n0 := len(b.buf)
-    _ = append(&b.buf, x, loc)
+    _ = dyn_array_append(&b.buf, x, loc)
     n1 := len(b.buf)
     return n1-n0
 }
@@ -389,7 +388,7 @@ Returns:
 @(optional_results)
 write_bytes :: proc(b: ^Builder, x: []byte, loc := #caller_location) -> (n: int) {
     n0 := len(b.buf)
-    _ = append_many(&b.buf, ..x, loc=loc)
+    _ = dyn_array_append_many(&b.buf, ..x, loc=loc)
     n1 := len(b.buf)
     return n1-n0
 }
@@ -491,7 +490,7 @@ Output:
 @(optional_results)
 write_string :: proc(b: ^Builder, s: string, loc := #caller_location) -> (n: int) {
     n0 := len(b.buf)
-    _ = append_string(&b.buf, s, loc)
+    _ = dyn_array_append_string(&b.buf, s, loc)
     n1 := len(b.buf)
     return n1-n0
 }
@@ -857,9 +856,9 @@ builder_replace :: proc(b: ^Builder, old, new: string, n: int, loc := #caller_lo
                 break
             }
 
-            resize_dynamic_array(&b.buf, len(b.buf)+len(new), loc) or_return
-            copy_slice(b.buf[i+len(new):], b.buf[i:])
-            copy_from_string(b.buf[i:], new)
+            dyn_array_resize(&b.buf, len(b.buf)+len(new), loc) or_return
+            slice_copy(b.buf[i+len(new):], b.buf[i:])
+            slice_copy_from_string(b.buf[i:], new)
             replaced += 1
         }
     } else {
@@ -874,21 +873,21 @@ builder_replace :: proc(b: ^Builder, old, new: string, n: int, loc := #caller_lo
             }
 
             if len(new) >= len(old) {
-                resize_dynamic_array(&b.buf, len(b.buf) + len(new)-len(old)) or_return
+                dyn_array_resize(&b.buf, len(b.buf) + len(new)-len(old)) or_return
             }
 
             cur := b.buf[i+j:]
             src := cur[len(old):]
             dst := cur[len(new):]
-            copy_slice(dst, src)
-            copy_from_string(cur, new)
+            slice_copy(dst, src)
+            slice_copy_from_string(cur, new)
 
             i += j+len(new)
 
             replaced += 1
 
             if len(new) < len(old) {
-                resize_dynamic_array(&b.buf, len(b.buf) + len(new)-len(old)) or_return
+                dyn_array_resize(&b.buf, len(b.buf) + len(new)-len(old)) or_return
             }
         }
     }

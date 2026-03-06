@@ -87,10 +87,10 @@ foreign lib {
 		e: posix.Errno
 
 		buffer: [dynamic]byte
-		defer _ = delete_slice(buffer)
+		defer _ = slice_delete(buffer)
 
 		for {
-			mem_err := resize_dynamic_array(&buffer, length)
+			mem_err := dyn_array_resize(&buffer, length)
 			assert(mem_err == nil)
 
 			e = posix.getgrnam_r("nobody", &result, raw_data(buffer), len(buffer), &resultp)

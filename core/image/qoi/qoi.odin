@@ -50,7 +50,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	// Calculate and allocate maximum size. We'll reclaim space to actually written output at the end.
 	max_size := pixels * (img.channels + 1) + size_of(image.QOI_Header) + size_of(u64be)
 
-	if resize_dynamic_array(&output.buf, max_size) != nil {
+	if dyn_array_resize(&output.buf, max_size) != nil {
 		return .Unable_To_Allocate_Or_Resize
 	}
 
@@ -63,7 +63,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	}
 	header_bytes := transmute([size_of(image.QOI_Header)]u8)header
 
-	copy_slice(output.buf[written:], header_bytes[:])
+	slice_copy(output.buf[written:], header_bytes[:])
 	written += size_of(image.QOI_Header)
 
 	/*
@@ -136,13 +136,13 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 					} else {
 						// Write RGB literal
 						output.buf[written] = u8(QOI_Opcode_Tag.RGB)
-						copy_slice(output.buf[written + 1:], pix[:3])
+						slice_copy(output.buf[written + 1:], pix[:3])
 						written += 4
 					}
 				} else {
 					// Write RGBA literal
 					output.buf[written] = u8(QOI_Opcode_Tag.RGBA)
-					copy_slice(output.buf[written + 1:], pix[:])
+					slice_copy(output.buf[written + 1:], pix[:])
 					written += 5
 				}
 			}
@@ -151,10 +151,10 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	}
 
 	trailer := []u8{0, 0, 0, 0, 0, 0, 0, 1}
-	copy_slice(output.buf[written:], trailer[:])
+	slice_copy(output.buf[written:], trailer[:])
 	written += len(trailer)
 
-	_ = resize_dynamic_array(&output.buf, written)
+	_ = dyn_array_resize(&output.buf, written)
 	return nil
 }
 
@@ -226,7 +226,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
 	bytes_needed := image.compute_buffer_size(int(header.width), int(header.height), img.channels, 8)
 
-	if resize_dynamic_array(&img.pixels.buf, bytes_needed) != nil {
+	if dyn_array_resize(&img.pixels.buf, bytes_needed) != nil {
 		return img, .Unable_To_Allocate_Or_Resize
 	}
 
@@ -292,7 +292,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 						return img, .Corrupt
 					} else {
 						#no_bounds_check for _ in 0..<length {
-							copy_slice(pixels, pix[:img.channels])
+							slice_copy(pixels, pix[:img.channels])
 							pixels = pixels[img.channels:]
 						}
 					}
@@ -305,7 +305,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 		}
 
 		#no_bounds_check {
-			copy_slice(pixels, pix[:img.channels])
+			slice_copy(pixels, pix[:img.channels])
 			pixels = pixels[img.channels:]
 		}
 	}

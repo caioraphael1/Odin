@@ -1464,7 +1464,7 @@ internal_int_pow :: proc(dest, base: ^Int, power: int, allocator: mem.Allocator)
         /*
             Any base to the power one is itself.
         */
-        return copy_slice(dest, base, allocator = allocator)
+        return slice_copy(dest, base, allocator = allocator)
     case 2:
         return #force_inline internal_sqr(dest, base, allocator)
     }
@@ -2077,7 +2077,7 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
     */
     if cap == 0 {
         mem_err: mem.Allocator_Error
-        a.digit, mem_err = make_dynamic_array([dynamic]DIGIT, needed, allocator)
+        a.digit, mem_err = dyn_array_create([dynamic]DIGIT, needed, allocator)
         if mem_err != nil {
             return cast(Error)mem_err
         }
@@ -2085,12 +2085,12 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
         /*
             `[dynamic]DIGIT` already knows what allocator was used for it, so resize will do the right thing.
         */
-        _ = resize_dynamic_array(&a.digit, needed)
+        _ = dyn_array_resize(&a.digit, needed)
     } else if cap > needed {
         /*
             Same applies to builtin.shrink here as resize above
         */
-        builtin.shrink_dynamic_array(&a.digit, needed)
+        builtin.dyn_array_shrink(&a.digit, needed)
     }
     /*
         Let's see if the allocation/resize worked as expected.

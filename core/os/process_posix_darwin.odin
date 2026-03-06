@@ -153,7 +153,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             break args
         }
 
-        buf := runtime.make_aligned([]byte, length, 4, runtime.temp_allocator)
+        buf := runtime.slice_create_aligned([]byte, length, 4, runtime.temp_allocator)
         if sysctl(raw_data(mib), 3, raw_data(buf), &length, nil, 0) != .OK {
             if err == nil {
                 err = _get_platform_error()
@@ -190,9 +190,9 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             argv.allocator = allocator
 
             defer if err != nil {
-                for arg in argv { _ = delete_slice(arg, allocator) }
-                _ = delete_slice(argv)
-                _ = delete_slice(command_line)
+                for arg in argv { _ = slice_delete(arg, allocator) }
+                _ = slice_delete(argv)
+                _ = slice_delete(command_line)
             }
 
             _, _ = bytes.split_iterator(&buf, {0})
@@ -202,14 +202,14 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             for arg in bytes.split_iterator(&buf, {0}) {
                 if .Command_Line in selection {
                     if !first_arg {
-                        append(&command_line, ' ') or_return
+                        dyn_array_append(&command_line, ' ') or_return
                     }
-                    append(&command_line, ..arg) or_return
+                    dyn_array_append(&command_line, ..arg) or_return
                 }
 
                 if .Command_Args in selection {
                     sarg := clone_string(string(arg), allocator) or_return
-                    append(&argv, sarg) or_return
+                    dyn_array_append(&argv, sarg) or_return
                 }
 
                 first_arg = false
@@ -234,14 +234,14 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             environment.allocator = allocator
 
             defer if err != nil {
-                for entry in environment { _ = delete_slice(entry, allocator) }
-                _ = delete_slice(environment)
+                for entry in environment { _ = slice_delete(entry, allocator) }
+                _ = slice_delete(environment)
             }
 
             for entry in bytes.split_iterator(&buf, {0}) {
                 if bytes.index_byte(entry, '=') > -1 {
                     sentry := clone_string(string(entry), allocator) or_return
-                    append(&environment, sentry) or_return
+                    dyn_array_append(&environment, sentry) or_return
                 }
             }
 
@@ -267,14 +267,14 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buffer := make_slice([]i32, ret, runtime.temp_allocator)
+    buffer := slice_create([]i32, ret, runtime.temp_allocator)
     ret = darwin.proc_listallpids(raw_data(buffer), ret*size_of(i32))
     if ret < 0 {
         err = _get_platform_error()
         return
     }
 
-    list = make_slice([]int, ret, allocator) or_return
+    list = slice_create([]int, ret, allocator) or_return
     #no_bounds_check for &entry, i in list {
         entry = int(buffer[i])
     }

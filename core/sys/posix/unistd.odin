@@ -138,7 +138,7 @@ foreign lib {
 
 	Example:
 		block: [64]byte
-        copy_slice(block[:], "Hello, World!")
+        slice_copy(block[:], "Hello, World!")
 
 		posix.set_errno(.NONE)
 		posix.encrypt(raw_data(block[:]), decode=false)
@@ -395,7 +395,7 @@ foreign lib {
 			fmt.panicf("getgroups failure: %v", posix.strerror(posix.errno()))
 		}
 
-        groups := make_slice([]posix.gid_t, length) or_else panic("allocation failure")
+        groups := slice_create([]posix.gid_t, length) or_else panic("allocation failure")
 		if posix.getgroups(length, raw_data(groups)) != length {
 			fmt.panicf("getgroups failure: %v", posix.strerror(posix.errno()))
 		}
@@ -440,7 +440,7 @@ foreign lib {
 
 	Example:
 		max := posix.sysconf(posix._SC_LOGIN_NAME_MAX)+1
-        buf := make_slice([]byte, max)
+        buf := slice_create([]byte, max)
 		posix.getlogin_r(raw_data(buf), uint(len(max)))
 		fmt.printfln("login: %v", cstring(buf))
 

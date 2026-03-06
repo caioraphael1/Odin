@@ -131,7 +131,7 @@ decode_rune_in_string :: proc(s: string16) -> (r: rune, width: int) {
 string_to_runes :: proc(s: string16, allocator: runtime.Allocator) -> (runes: []rune) {
     n := rune_count_in_string(s)
 
-    runes, _ = make_slice([]rune, n, allocator)
+    runes, _ = slice_create([]rune, n, allocator)
     i := 0
     for r in s {
         runes[i] = r
@@ -184,7 +184,7 @@ decode_to_utf8 :: proc(d: []byte, s: []u16) -> (n: int) {
         }
         
         b, w := utf8.encode_rune(rune(r))
-        n += copy_slice(d[n:], b[:w])
+        n += slice_copy(d[n:], b[:w])
     }
     return
 }

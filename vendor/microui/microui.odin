@@ -258,7 +258,7 @@ push :: #force_inline proc(stk: ^$T/Stack($V,$N), val: V) {
     stk.items[stk.idx] = val 
     stk.idx += 1 
 }
-pop  :: #force_inline proc(stk: ^$T/Stack($V,$N)) { 
+dyn_array_pop  :: #force_inline proc(stk: ^$T/Stack($V,$N)) { 
     assert(stk.idx > 0) 
     stk.idx -= 1 
 }
@@ -445,7 +445,7 @@ push_id_uintptr :: #force_inline proc(ctx: ^Context, ptr: uintptr)             {
 push_id_bytes   :: #force_inline proc(ctx: ^Context, bytes: []byte)            { push(&ctx.id_stack, get_id(ctx, bytes))      }
 
 pop_id :: proc(ctx: ^Context) {
-    pop(&ctx.id_stack)
+    dyn_array_pop(&ctx.id_stack)
 }
 
 push_clip_rect :: proc(ctx: ^Context, rect: Rect) {
@@ -454,7 +454,7 @@ push_clip_rect :: proc(ctx: ^Context, rect: Rect) {
 }
 
 pop_clip_rect :: proc(ctx: ^Context) {
-    pop(&ctx.clip_stack)
+    dyn_array_pop(&ctx.clip_stack)
 }
 
 get_clip_rect :: proc(ctx: ^Context) -> Rect {
@@ -494,9 +494,9 @@ pop_container :: proc(ctx: ^Context) {
     layout := get_layout(ctx)
     cnt.content_size.x = layout.max.x - layout.body.x
     cnt.content_size.y = layout.max.y - layout.body.y
-    /* pop container, layout and id */
-    pop(&ctx.container_stack)
-    pop(&ctx.layout_stack)
+    /* dyn_array_pop container, layout and id */
+    dyn_array_pop(&ctx.container_stack)
+    dyn_array_pop(&ctx.layout_stack)
     pop_id(ctx)
 }
 
@@ -690,7 +690,7 @@ draw_text :: proc(ctx: ^Context, font: Font, str: string, pos: Vec2, color: Colo
     text_cmd.font = font
     /* copy string */
     dst_str := ([^]byte)(text_cmd)[size_of(Command_Text):][:len(str)]
-    copy_slice(dst_str, str)
+    slice_copy(dst_str, str)
     text_cmd.str = string(dst_str)
     /* reset clipping if it was set */
     if clipped != .NONE {
@@ -727,7 +727,7 @@ layout_begin_column :: proc(ctx: ^Context) {
 
 layout_end_column :: proc(ctx: ^Context) {
     b := get_layout(ctx)
-    pop(&ctx.layout_stack)
+    dyn_array_pop(&ctx.layout_stack)
     /* inherit position/next_row/max from child layout if they are greater */
     a := get_layout(ctx)
     a.position.x = max(a.position.x, b.position.x + b.body.x - a.body.x)
@@ -746,7 +746,7 @@ layout_row :: proc(ctx: ^Context, widths: []i32, height: i32 = 0) {
     layout := get_layout(ctx)
     items := len(widths)
     if len(widths) > 0 {
-        items = copy_slice(layout.widths[:], widths[:])
+        items = slice_copy(layout.widths[:], widths[:])
     }
     layout.items = i32(items)
     layout.position = Vec2{layout.indent, layout.next_row}
@@ -992,7 +992,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
     if ctx.focus_id == id {
         /* create a builder backed by the user's buffer */
         builder := strings.builder_from_bytes(textbuf)
-        _ = non_zero_resize_dynamic_array(&builder.buf, textlen^)
+        _ = dyn_array_resize_non_zero(&builder.buf, textlen^)
         ctx.textbox_state.builder = &builder
         if ctx.textbox_state.id != u64(id) {
             ctx.textbox_state.id = u64(id)
@@ -1024,7 +1024,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
         }
         /* handle ctrl+c */
         if .C in ctx.key_pressed_bits && .CTRL in ctx.key_down_bits && .ALT not_in ctx.key_down_bits {
-            textedit.copy_slice(&ctx.textbox_state)
+            textedit.slice_copy(&ctx.textbox_state)
         }
         /* handle ctrl+v */
         if .V in ctx.key_pressed_bits && .CTRL in ctx.key_down_bits && .ALT not_in ctx.key_down_bits {
@@ -1065,7 +1065,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
                 textedit.move_to(&ctx.textbox_state, .End)
             }
         }
-        /* handle backspace/_ = delete_slice */
+        /* handle backspace/_ = slice_delete */
         if .BACKSPACE in ctx.key_pressed_bits && textlen^ > 0 {
             move: textedit.Translation = .Word_Left if .CTRL in ctx.key_down_bits else .Left
             textedit.delete_to(&ctx.textbox_state, move)
@@ -1397,7 +1397,7 @@ end_root_container :: proc(ctx: ^Context) {
     cnt := get_current_container(ctx)
     cnt.tail = push_jump(ctx, nil)
     cnt.head.variant.(^Command_Jump).dst = &ctx.command_list.items[ctx.command_list.idx]
-    /* pop base clip rect and container */
+    /* dyn_array_pop base clip rect and container */
     pop_clip_rect(ctx)
     pop_container(ctx)
 }

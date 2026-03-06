@@ -53,13 +53,72 @@ sqrt :: proc(x: $T) -> T where type_is_float(T) || (type_is_simd_vector(T) && ty
 
 fused_mul_add :: proc(a, b, c: $T) -> T where type_is_float(T) || (type_is_simd_vector(T) && type_is_float(type_elem_type(T))) ---
 
+/*
+Copy bytes from one memory range to another.
+This procedure copies `len` bytes of data, from the memory range pointed to by
+the `src` pointer into the memory range pointed to by the `dst` pointer, and
+returns the `dst` pointer.
+*/
 mem_copy                 :: proc(dst, src: rawptr, len: int) ---
+
+/*
+Copy bytes between two non-overlapping memory ranges.
+This procedure copies `len` bytes of data, from the memory range pointed to by
+the `src` pointer into the memory range pointed to by the `dst` pointer, and
+returns the `dst` pointer.
+This is a slightly more optimized version of the `copy` procedure that requires
+that memory ranges specified by the parameters to this procedure are not
+overlapping. If the memory ranges specified by `dst` and `src` pointers overlap,
+the behavior of this function may be unpredictable.
+*/
 mem_copy_non_overlapping :: proc(dst, src: rawptr, len: int) ---
+
+/*
+Set each byte of a memory range to zero.
+This procedure copies the value `0` into the `len` bytes of a memory range,
+starting at address `data`.
+This procedure returns the pointer to `data`.
+*/
 mem_zero                 :: proc(ptr: rawptr, len: int) ---
 mem_zero_volatile        :: proc(ptr: rawptr, len: int) ---
 
-// prefer [^]T operations if possible
+/*
+Offset a given pointer by a given amount.
+
+This procedure offsets the pointer `ptr` to an object of type `T`, by the amount
+of bytes specified by `offset * size_of(T)`, and returns the pointer `ptr`.
+
+**Note**: Prefer to use multipointer types, if possible.
+*/
 ptr_offset :: proc(ptr: ^$T, offset: int) -> ^T ---
+
+/*
+Subtract two pointers of the same type, and return the number of `T` between them.
+
+This procedure subtracts pointer `b` from pointer `a`, both of type `^T`,
+and returns an integer count of the `T` between them.
+
+**Inputs**
+- `a`: A pointer to a type T
+- `b`: A pointer to a type T
+
+**Returns**
+- `a` - `b` in items of T as an `int`.
+
+Example:
+
+    import "core:mem"
+    import "core:fmt"
+
+    ptr_sub_example :: proc() {
+        arr: [2]int
+        fmt.println(mem.ptr_sub(&arr[1], &arr[0]))
+    }
+
+Output:
+
+    1
+*/
 ptr_sub    :: proc(a, b: ^$T) -> int ---
 
 unaligned_load           :: proc(src: ^$T) -> T ---
@@ -341,7 +400,7 @@ simd_nearest :: proc(a: #simd[N]any_float) -> #simd[N]any_float ---
 
 simd_to_bits :: proc(v: #simd[N]T) -> #simd[N]Integer where size_of(T) == size_of(Integer), type_is_unsigned(Integer) ---
 
-// equivalent to a swizzle with descending indices, e.g. reserve_dynamic_array(a, 3, 2, 1, 0)
+// equivalent to a swizzle with descending indices, e.g. dyn_array_reserve(a, 3, 2, 1, 0)
 simd_lanes_reverse :: proc(a: #simd[N]T) -> #simd[N]T ---
 
 simd_lanes_rotate_left  :: proc(a: #simd[N]T, $offset: int) -> #simd[N]T ---

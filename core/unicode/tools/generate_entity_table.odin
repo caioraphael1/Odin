@@ -150,7 +150,7 @@ main :: proc() {
 			if category_string, category_ok := xml.find_attribute_val_by_key(doc, unicodedata, "category"); category_ok {
 				// These should only consist of a single rune.
 				assert(codepoint2 == 0)
-				append(&characters, Character{
+				dyn_array_append(&characters, Character{
 					codepoint   = rune(codepoint),
 					description = description,
 					category    = category_string,
@@ -186,7 +186,7 @@ main :: proc() {
 			}
 
 			entity_map[name] = e
-			append(&entities, e)
+			dyn_array_append(&entities, e)
 		}
 	}
 

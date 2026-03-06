@@ -270,7 +270,7 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
         str = clone_string(token.text, p.allocator) or_return
     }
     defer if !ok || (val.id != string && val.id != cstring) {
-        _ = delete_string(str, p.allocator)
+        _ = string_delete(str, p.allocator)
     }
 
     switch &dst in val {
@@ -398,7 +398,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
     
     #partial switch token.kind {
     case .Null:
-        mem.zero(v.data, ti.size)
+        intrinsics.mem_zero(v.data, ti.size)
         _, _ = advance_token(p)
         return
     case .False, .True:
@@ -531,7 +531,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         
         struct_loop: for p.curr_token.kind != end_token {
             key := parse_object_key(p, p.allocator) or_return
-            defer _ = delete_string(key, p.allocator)
+            defer _ = string_delete(key, p.allocator)
             
             unmarshal_expect_token(p, .Colon)                       
 
@@ -642,7 +642,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         }
         
         elem_backing := bytes_make(t.value.size, t.value.align, p.allocator) or_return
-        defer _ = delete_slice(elem_backing, p.allocator)
+        defer _ = slice_delete(elem_backing, p.allocator)
         
         map_backing_value := any{raw_data(elem_backing), t.value.id}
         
@@ -653,7 +653,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
             mem.zero_slice(elem_backing)
             if uerr := unmarshal_value(p, map_backing_value); uerr != nil {
-                _ = delete_string(key, p.allocator)
+                _ = string_delete(key, p.allocator)
                 return uerr
             }
 
@@ -678,12 +678,12 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
             set_ptr := runtime.__dynamic_map_set_without_hash(raw_map, t.map_info, key_ptr, map_backing_value.data)
             if set_ptr == nil {
-                _ = delete_string(key, p.allocator)
+                _ = string_delete(key, p.allocator)
             } 
 
             // there's no need to keep string value on the heap, since it was copied into map 
             if reflect.is_integer(t.key) {
-                _ = delete_string(key, p.allocator)
+                _ = string_delete(key, p.allocator)
             }
             
             if parse_comma(p) {
@@ -698,7 +698,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         enumerated_array_loop: for p.curr_token.kind != end_token {
             key, _ := parse_object_key(p, p.allocator)
             unmarshal_expect_token(p, .Colon)
-            defer _ = delete_string(key, p.allocator)
+            defer _ = string_delete(key, p.allocator)
 
             index := -1
             for name, i in enum_type.names {

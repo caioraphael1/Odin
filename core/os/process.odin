@@ -16,14 +16,14 @@ Arguments to the current process.
 args: []string
 
 init_args :: proc(allocator: runtime.Allocator) {
-    args, _ = make_slice([]string, len(runtime.args__), allocator)
+    args, _ = slice_create([]string, len(runtime.args__), allocator)
     for rt_arg, i in runtime.args__ {
         args[i] = string(rt_arg)
     }
 }
 
 fini_args :: proc(allocator: runtime.Allocator) {
-    _ = delete_slice(args, allocator)
+    _ = slice_delete(args, allocator)
 }
 
 /*
@@ -248,18 +248,18 @@ allocator. The allocator needs to be the same allocator that was supplied
 to the `process_info` function.
 */
 free_process_info :: proc(pi: Process_Info, allocator: runtime.Allocator) {
-    _ = delete_string(pi.executable_path, allocator)
-    _ = delete_string(pi.command_line, allocator)
+    _ = string_delete(pi.executable_path, allocator)
+    _ = string_delete(pi.command_line, allocator)
     for a in pi.command_args {
-        _ = delete_string(a, allocator)
+        _ = string_delete(a, allocator)
     }
-    _ = delete_slice(pi.command_args, allocator)
+    _ = slice_delete(pi.command_args, allocator)
     for s in pi.environment {
-        _ = delete_string(s, allocator)
+        _ = string_delete(s, allocator)
     }
-    _ = delete_slice(pi.environment, allocator)
-    _ = delete_string(pi.working_dir, allocator)
-    _ = delete_string(pi.username, allocator)
+    _ = slice_delete(pi.environment, allocator)
+    _ = string_delete(pi.working_dir, allocator)
+    _ = string_delete(pi.username, allocator)
 }
 
 /*
@@ -421,7 +421,7 @@ process_exec :: proc(
 
                 switch err {
                 case nil:
-                    err = append_many(&stdout_b, ..buf[:n])
+                    err = dyn_array_append_many(&stdout_b, ..buf[:n])
                 case .EOF, .Broken_Pipe:
                     stdout_done = true
                     err = nil
@@ -437,7 +437,7 @@ process_exec :: proc(
 
                 switch err {
                 case nil:
-                    err = append_many(&stderr_b, ..buf[:n])
+                    err = dyn_array_append_many(&stderr_b, ..buf[:n])
                 case .EOF, .Broken_Pipe:
                     stderr_done = true
                     err = nil

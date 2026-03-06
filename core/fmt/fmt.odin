@@ -1227,11 +1227,11 @@ _fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, units: st
     abs, neg := strconv.is_integer_negative(u, is_signed, bit_size)
 
     // Default to a precision of 2, but if less than a kb, 0
-    prec := fi.prec if (fi.prec_set || abs < mem.Kilobyte) else 2
+    prec := fi.prec if (fi.prec_set || abs < runtime.Kilobyte) else 2
 
     div, off, unit_len := 1, 0, 1
-    for n := abs; n >= mem.Kilobyte; n /= mem.Kilobyte {
-        div *= mem.Kilobyte
+    for n := abs; n >= runtime.Kilobyte; n /= runtime.Kilobyte {
+        div *= runtime.Kilobyte
         off += 4
 
         // First iteration is slightly different because you go from
@@ -1258,7 +1258,7 @@ _fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, units: st
     str := strconv.write_float(buf[:], amt, 'f', prec, 64)
 
     // Add the unit at the end.
-    copy_from_string(buf[len(str):], units[off:off+unit_len])
+    slice_copy_from_string(buf[len(str):], units[off:off+unit_len])
     str = string(buf[:len(str)+unit_len])
 
     if !fi.plus {
@@ -2574,7 +2574,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
                 prec = 3
                 // U+00B5 'µ' micro sign == 0xC2 0xB5
                 w -= 1 // Need room for two bytes
-                    copy_from_string(buf[w:], "µ")
+                    slice_copy_from_string(buf[w:], "µ")
             case:
                 prec = 6
                 buf[w] = 'm'

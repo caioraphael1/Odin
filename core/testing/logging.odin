@@ -69,7 +69,7 @@ runner_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, tex
 
 	now := time.now()
 
-	append(log_messages, Log_Message {
+	dyn_array_append(log_messages, Log_Message {
 		level = level,
 		text = format_log_text(level, text, options, location, now),
 		time = now,

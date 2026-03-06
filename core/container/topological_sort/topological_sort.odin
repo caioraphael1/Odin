@@ -24,15 +24,15 @@ make_relations :: proc(sorter: ^$S/Sorter($K)) -> (r: Relations(K)) {
 
 
 init :: proc(sorter: ^$S/Sorter($K)) {
-    sorter.relations = make_map(map[K]Relations(K))
+    sorter.relations = map_create(map[K]Relations(K))
     // sorter.dependents_allocator = context.allocator
 }
 
 destroy :: proc(sorter: ^$S/Sorter($K)) {
     for _, v in sorter.relations {
-        _ = delete_slice(v.dependents)
+        _ = slice_delete(v.dependents)
     }
-    _ = delete_slice(sorter.relations)
+    _ = slice_delete(sorter.relations)
 }
 
 add_key :: proc(sorter: ^$S/Sorter($K), key: K) -> bool {
@@ -73,7 +73,7 @@ sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: [dynamic]K) {
 
     for k, v in relations {
         if v.dependencies == 0 {
-            _ = append(&sorted, k)
+            _ = dyn_array_append(&sorted, k)
         }
     }
 
@@ -82,14 +82,14 @@ sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: [dynamic]K) {
             relation := &relations[k]
             relation.dependencies -= 1
             if relation.dependencies == 0 {
-                _ = append(&sorted, k)
+                _ = dyn_array_append(&sorted, k)
             }
         }
     }
 
     for k, v in relations {
         if v.dependencies != 0 {
-            _ = append(&cycled, k)
+            _ = dyn_array_append(&cycled, k)
         }
     }
 

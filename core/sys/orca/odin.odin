@@ -17,8 +17,8 @@ log_typed :: proc(level: log_level, msg: cstring, loc := #caller_location) {
 }
 
 odin_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location := #caller_location) {
-    cbuf := make_slice([]byte, len(text)+1, runtime.temp_allocator)
-    copy_slice(cbuf, text)
+    cbuf := slice_create([]byte, len(text)+1, runtime.temp_allocator)
+    slice_copy(cbuf, text)
     ctext := cstring(raw_data(cbuf))
 
     switch level {

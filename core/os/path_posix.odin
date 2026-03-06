@@ -9,132 +9,132 @@ _Path_Separator_String :: "/"
 _Path_List_Separator   :: ':'
 
 _is_path_separator :: proc(c: byte) -> bool {
-	return c == _Path_Separator
+    return c == _Path_Separator
 }
 
 _mkdir :: proc(name: string, perm: int) -> (err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-	cname := clone_to_cstring(name, runtime.temp_allocator) or_return
-	if posix.mkdir(cname, transmute(posix.mode_t)posix._mode_t(perm)) != .OK {
-		return _get_platform_error()
-	}
-	return nil
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    cname := clone_to_cstring(name, runtime.temp_allocator) or_return
+    if posix.mkdir(cname, transmute(posix.mode_t)posix._mode_t(perm)) != .OK {
+        return _get_platform_error()
+    }
+    return nil
 }
 
 _mkdir_all :: proc(path: string, perm: int) -> Error {
-	if path == "" {
-		return .Invalid_Path
-	}
+    if path == "" {
+        return .Invalid_Path
+    }
 
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-	if exists(path) {
-		return .Exist
-	}
+    if exists(path) {
+        return .Exist
+    }
 
-	clean_path := clean_path(path, runtime.temp_allocator) or_return
-	return internal_mkdir_all(clean_path, perm)
+    clean_path := clean_path(path, runtime.temp_allocator) or_return
+    return internal_mkdir_all(clean_path, perm)
 
-	internal_mkdir_all :: proc(path: string, perm: int) -> Error {
-		dir, file := split_path(path)
-		if file != path && dir != "/" {
-			if len(dir) > 1 && dir[len(dir) - 1] == '/' {
-				dir = dir[:len(dir) - 1]
-			}
-			internal_mkdir_all(dir, perm) or_return
-		}
+    internal_mkdir_all :: proc(path: string, perm: int) -> Error {
+        dir, file := split_path(path)
+        if file != path && dir != "/" {
+            if len(dir) > 1 && dir[len(dir) - 1] == '/' {
+                dir = dir[:len(dir) - 1]
+            }
+            internal_mkdir_all(dir, perm) or_return
+        }
 
-		err := _mkdir(path, perm)
-		if err == .Exist { err = nil }
-		return err
-	}
+        err := _mkdir(path, perm)
+        if err == .Exist { err = nil }
+        return err
+    }
 }
 
 _remove_all :: proc(path: string) -> (err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-	cpath := clone_to_cstring(path, runtime.temp_allocator) or_return
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    cpath := clone_to_cstring(path, runtime.temp_allocator) or_return
 
-	dir := posix.opendir(cpath)
-	if dir == nil {
-		return _get_platform_error()
-	}
-	defer posix.closedir(dir)
+    dir := posix.opendir(cpath)
+    if dir == nil {
+        return _get_platform_error()
+    }
+    defer posix.closedir(dir)
 
-	for {
-		posix.set_errno(.NONE)
-		entry := posix.readdir(dir)
-		if entry == nil {
-			if errno := posix.errno(); errno != .NONE {
-				return _get_platform_error()
-			} else {
-				break
-			}
-		}
+    for {
+        posix.set_errno(.NONE)
+        entry := posix.readdir(dir)
+        if entry == nil {
+            if errno := posix.errno(); errno != .NONE {
+                return _get_platform_error()
+            } else {
+                break
+            }
+        }
 
-		cname := cstring(raw_data(entry.d_name[:]))
-		if cname == "." || cname == ".." {
-			continue
-		}
+        cname := cstring(raw_data(entry.d_name[:]))
+        if cname == "." || cname == ".." {
+            continue
+        }
 
-		fullpath, _ := concatenate({path, "/", string(cname), "\x00"}, runtime.temp_allocator)
-		if entry.d_type == .DIR {
-			_remove_all(fullpath[:len(fullpath)-1]) or_return
-		} else {
-			if posix.unlink(cstring(raw_data(fullpath))) != .OK {
-				return _get_platform_error()
-			}
-		}
-	}
+        fullpath, _ := concatenate({path, "/", string(cname), "\x00"}, runtime.temp_allocator)
+        if entry.d_type == .DIR {
+            _remove_all(fullpath[:len(fullpath)-1]) or_return
+        } else {
+            if posix.unlink(cstring(raw_data(fullpath))) != .OK {
+                return _get_platform_error()
+            }
+        }
+    }
 
-	if posix.rmdir(cpath) != .OK {
-		return _get_platform_error()
-	}
-	return nil
+    if posix.rmdir(cpath) != .OK {
+        return _get_platform_error()
+    }
+    return nil
 }
 
 _get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-	buf: [dynamic]byte
-	buf.allocator = runtime.temp_allocator
-	size := uint(posix.PATH_MAX)
+    buf: [dynamic]byte
+    buf.allocator = runtime.temp_allocator
+    size := uint(posix.PATH_MAX)
 
-	cwd: cstring
-	for ; cwd == nil; size *= 2 {
-		_ = resize_dynamic_array(&buf, size)
+    cwd: cstring
+    for ; cwd == nil; size *= 2 {
+        _ = dyn_array_resize(&buf, size)
 
-		cwd = posix.getcwd(raw_data(buf), len(buf))
-		if cwd == nil && posix.errno() != .ERANGE {
-			err = _get_platform_error()
-			return
-		}
-	}
+        cwd = posix.getcwd(raw_data(buf), len(buf))
+        if cwd == nil && posix.errno() != .ERANGE {
+            err = _get_platform_error()
+            return
+        }
+    }
 
-	return clone_string(string(cwd), allocator)
+    return clone_string(string(cwd), allocator)
 }
 
 _set_working_directory :: proc(dir: string) -> (err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-	cdir := clone_to_cstring(dir, runtime.temp_allocator) or_return
-	if posix.chdir(cdir) != .OK {
-		err = _get_platform_error()
-	}
-	return
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    cdir := clone_to_cstring(dir, runtime.temp_allocator) or_return
+    if posix.chdir(cdir) != .OK {
+        err = _get_platform_error()
+    }
+    return
 }
 
 _get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absolute_path: string, err: Error) {
-	rel := path
-	if rel == "" {
-		rel = "."
-	}
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-	rel_cstr := clone_to_cstring(rel, runtime.temp_allocator) or_return
-	path_ptr := posix.realpath(rel_cstr, nil)
-	if path_ptr == nil {
-		return "", _get_platform_error()
-	}
-	defer posix.free(path_ptr)
+    rel := path
+    if rel == "" {
+        rel = "."
+    }
+    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    rel_cstr := clone_to_cstring(rel, runtime.temp_allocator) or_return
+    path_ptr := posix.realpath(rel_cstr, nil)
+    if path_ptr == nil {
+        return "", _get_platform_error()
+    }
+    defer posix.free(path_ptr)
 
-	path_str := clone_string(string(path_ptr), allocator) or_return
-	return path_str, nil
+    path_str := clone_string(string(path_ptr), allocator) or_return
+    return path_str, nil
 }

@@ -122,21 +122,21 @@ FontContext :: struct {
 Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
     ctx.userData = ctx
     ctx.location = loc
-    ctx.fonts    = make_dynamic_array([dynamic]Font, 0, 8)
+    dyn_array_init(&ctx.fonts, 0, 8)
 
     ctx.itw, ctx.ith = 1.0 / f32(w), 1.0 / f32(h)
 
-    ctx.textureData = make_slice([]byte, w * h)
+    ctx.textureData = slice_create([]byte, w * h)
     
     ctx.width  = w
     ctx.height = h
-    ctx.nodes  = make_dynamic_array([dynamic]AtlasNode, 0, INIT_ATLAS_NODES)
+    dyn_array_init(&ctx.nodes, 0, INIT_ATLAS_NODES)
     __dirtyRectReset(ctx)
 
-    ctx.states = make_slice([]State, MAX_STATES)
+    ctx.states = slice_create([]State, MAX_STATES)
 
     // NOTE NECESSARY
-    _ = append(&ctx.nodes, AtlasNode{
+    _ = dyn_array_append(&ctx.nodes, AtlasNode{
         width = i16(w),
     })
 
@@ -149,17 +149,17 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
 Destroy :: proc(ctx: ^FontContext) {
     for font in ctx.fonts {
         if font.freeLoadedData {
-            _ = delete_slice(font.loadedData)
+            _ = slice_delete(font.loadedData)
         }
 
-        _ = delete_slice(font.name)
-        _ = delete_slice(font.glyphs)
+        _ = slice_delete(font.name)
+        _ = slice_delete(font.glyphs)
     }
 
-    _ = delete_slice(ctx.states)
-    _ = delete_slice(ctx.textureData)
-    _ = delete_slice(ctx.fonts)
-    _ = delete_slice(ctx.nodes)
+    _ = slice_delete(ctx.states)
+    _ = slice_delete(ctx.textureData)
+    _ = slice_delete(ctx.fonts)
+    _ = slice_delete(ctx.nodes)
 }
 
 Reset :: proc(ctx: ^FontContext) {
@@ -177,7 +177,7 @@ Reset :: proc(ctx: ^FontContext) {
 }
 
 __atlasInsertNode :: proc(ctx: ^FontContext, idx: int, x, y, w: int) {
-    inject_at(&ctx.nodes, idx, AtlasNode{
+    dyn_array_inject_at(&ctx.nodes, idx, AtlasNode{
         x     = i16(x),
         y     = i16(y),
         width = i16(w),
@@ -189,7 +189,7 @@ __atlasRemoveNode :: proc(ctx: ^FontContext, idx: int) {
         return
     }
 
-    ordered_remove(&ctx.nodes, idx)
+    dyn_array_ordered_remove(&ctx.nodes, idx)
 }
 
 __atlasExpand :: proc(ctx: ^FontContext, w, h: int) {
@@ -202,10 +202,10 @@ __atlasExpand :: proc(ctx: ^FontContext, w, h: int) {
 
 __atlasReset :: proc(ctx: ^FontContext, w, h: int) {
     ctx.width, ctx.height = w, h
-    clear_dynamic_array(&ctx.nodes)
+    dyn_array_clear(&ctx.nodes)
 
     // init root node
-    _ = append(&ctx.nodes, AtlasNode{
+    _ = dyn_array_append(&ctx.nodes, AtlasNode{
         width = i16(w),
     })
 }
@@ -332,7 +332,7 @@ AddFontMem :: proc(
     freeLoadedData: bool,
     fontIndex:      int = 0,
 ) -> int {
-    _ = append(&ctx.fonts, Font{})
+    _ = dyn_array_append(&ctx.fonts, Font{})
     res := &ctx.fonts[len(ctx.fonts) - 1]
     res.loadedData     = data
     res.freeLoadedData = freeLoadedData
@@ -349,7 +349,7 @@ AddFontMem :: proc(
     res.ascender   = f32(ascent) / fh
     res.descender  = f32(descent) / fh
     res.lineHeight = (fh + f32(line_gap)) / fh
-    res.glyphs     = make_dynamic_array([dynamic]Glyph, 0, INIT_GLYPHS)
+    dyn_array_init(&res.glyphs, 0, INIT_GLYPHS)
 
     __lutReset(res)
     return len(ctx.fonts) - 1
@@ -372,7 +372,7 @@ AddFallbackFont :: proc(ctx: ^FontContext, base, fallback: int) -> bool {
 ResetFallbackFont :: proc(ctx: ^FontContext, base: int) {
     base_font := __getFont(ctx, base)
     base_font.nfallbacks = 0
-    clear_dynamic_array(&base_font.glyphs)
+    dyn_array_clear(&base_font.glyphs)
     __lutReset(base_font)
 }
 
@@ -489,7 +489,7 @@ __getGlyph :: proc(
     }
     
     // Init glyph.
-    _ = append(&font.glyphs, Glyph{
+    _ = dyn_array_append(&font.glyphs, Glyph{
         codepoint = codepoint,
         isize     = isize,
         blurSize  = blurSize,
@@ -631,23 +631,23 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloc
         ctx.callbackResize(ctx.userData, w, h)
     }
 
-    data := make_slice([]byte, w * h, allocator)
+    data := slice_create([]byte, w * h, allocator)
 
     for i in 0..<ctx.height {
         dst := &data[i * w]
         src := &ctx.textureData[i * ctx.width]
-        mem.copy_slice(dst, src, ctx.width)
+        mem.slice_copy(dst, src, ctx.width)
 
         if w > ctx.width {
-            mem.set(&data[i * w + ctx.width], 0, w - ctx.width)
+            runtime.memset(&data[i * w + ctx.width], 0, w - ctx.width)
         }
     }
 
     if h > ctx.height {
-        mem.set(&data[ctx.height * w], 0, (h - ctx.height) * w)
+        runtime.memset(&data[ctx.height * w], 0, (h - ctx.height) * w)
     }
 
-    _ = delete_slice(ctx.textureData)
+    _ = slice_delete(ctx.textureData)
     ctx.textureData = data
 
     // increase atlas size
@@ -677,8 +677,8 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloca
         slice.zero(ctx.textureData)
     } else {
         // realloc
-        _ = delete_slice(ctx.textureData, allocator)
-        ctx.textureData = make_slice([]byte, width * height, allocator)
+        _ = slice_delete(ctx.textureData, allocator)
+        ctx.textureData = slice_create([]byte, width * height, allocator)
     }
 
     ctx.dirtyRect[0] = f32(width)
@@ -688,7 +688,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloca
 
     // reset fonts
     for &font in ctx.fonts {
-        clear_dynamic_array(&font.glyphs)
+        dyn_array_clear(&font.glyphs)
         __lutReset(&font)
     }
 
@@ -883,7 +883,7 @@ PushState :: proc(using ctx: ^FontContext, loc := #caller_location) #no_bounds_c
     state_count += 1
 }
 
-// pop a state 
+// dyn_array_pop a state 
 PopState :: proc(using ctx: ^FontContext) {
     if state_count <= 1 {
         log.error("FONTSTASH: state underflow! to many pops were called")

@@ -30,7 +30,7 @@ clone_array :: proc(array: $A/[]^$T, allocator: mem.Allocator) -> A {
     if len(array) == 0 {
         return nil
     }
-    res, _ := make_slice(A, len(array), allocator)
+    res, _ := slice_create(A, len(array), allocator)
     for elem, i in array {
         res[i] = (^T)(clone_node(elem, allocator))
     }
@@ -41,7 +41,7 @@ clone_dynamic_array :: proc(array: $A/[dynamic]^$T, allocator: mem.Allocator) ->
     if len(array) == 0 {
         return nil
     }
-    res, _ := make_dynamic_array_len(A, len(array), allocator)
+    res, _ := dyn_array_create_len(A, len(array), allocator)
     for elem, i in array {
         res[i] = (^T)(clone_node(elem, allocator))
     }
@@ -85,7 +85,7 @@ clone_node :: proc(node: ^Node, allocator: mem.Allocator) -> ^Node {
     if node.derived != nil {
         src = (^rawptr)(&node.derived)^
     }
-    mem.copy(res, src, size)
+    intrinsics.mem_copy(res, src, size)
     res_ptr_any: any
     res_ptr_any.data = &res
     res_ptr_any.id = ti.id

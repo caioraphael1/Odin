@@ -114,7 +114,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
         // edge case handling for signed numbers
         buf[i] = '-'
         i += 1
-        i += copy_slice(buf[i:], _power_of_two_table[Integer_Width])
+        i += slice_copy(buf[i:], _power_of_two_table[Integer_Width])
     } else {
         if x.i < 0 {
             buf[i] = '-'
@@ -147,7 +147,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
         }
     }
 
-    n := copy_slice(dst, buf[:i])
+    n := slice_copy(dst, buf[:i])
     return string(dst[:i])
 }
 
@@ -156,8 +156,8 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
 to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator: runtime.Allocator) -> string {
     buf: [48]byte
     s := write(buf[:], x)
-    str := make_slice([]byte, len(s), allocator)
-    copy_slice(str, s)
+    str := slice_create([]byte, len(s), allocator)
+    slice_copy(str, s)
     return string(str)
 }
 
@@ -295,7 +295,3 @@ _power_of_two_table := [129]string{
     "170141183460469231731687303715884105728",
 }
 
-@(deprecated="Use write instead")
-append :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
-    return write(dst, x)
-}

@@ -19,7 +19,7 @@ create_temp_file :: proc(dir, pattern: string, allocator: runtime.Allocator) -> 
     prefix = temp_join_path(dir, prefix, runtime.temp_allocator) or_return
 
     rand_buf: [10]byte
-    name_buf, _ := make_slice([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
+    name_buf, _ := slice_create([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
 
     attempts := 0
     for {
@@ -51,7 +51,7 @@ make_directory_temp :: proc(dir, pattern: string, allocator: runtime.Allocator) 
     prefix = temp_join_path(dir, prefix, runtime.temp_allocator) or_return
 
     rand_buf: [10]byte
-    name_buf, _ := make_slice([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
+    name_buf, _ := slice_create([]byte, len(prefix)+len(rand_buf)+len(suffix), runtime.temp_allocator)
 
     attempts := 0
     for {

@@ -78,8 +78,8 @@ Destroy the tracking allocator.
 */
 @(no_sanitize_address)
 tracking_allocator_destroy :: proc(t: ^Tracking_Allocator) {
-    _ = delete_map(t.allocation_map)
-    _ = delete_dynamic_array(t.bad_free_array)
+    _ = map_delete(t.allocation_map)
+    _ = dyn_array_delete(t.bad_free_array)
 }
 
 /*
@@ -93,8 +93,8 @@ the totals intact.
 @(no_sanitize_address)
 tracking_allocator_clear :: proc(t: ^Tracking_Allocator) {
     sync.mutex_lock(&t.mutex)
-    clear_map(&t.allocation_map)
-    clear_dynamic_array(&t.bad_free_array)
+    map_clear(&t.allocation_map)
+    dyn_array_clear(&t.bad_free_array)
     t.current_memory_allocated = 0
     sync.mutex_unlock(&t.mutex)
 }
@@ -107,8 +107,8 @@ Reset all of a Tracking Allocator's allocation data back to zero.
 @(no_sanitize_address)
 tracking_allocator_reset :: proc(t: ^Tracking_Allocator) {
     sync.mutex_lock(&t.mutex)
-    clear_map(&t.allocation_map)
-    clear_dynamic_array(&t.bad_free_array)
+    map_clear(&t.allocation_map)
+    dyn_array_clear(&t.bad_free_array)
     t.total_memory_allocated = 0
     t.total_allocation_count = 0
     t.total_memory_freed = 0
@@ -141,7 +141,7 @@ then you must make sure to check Tracking_Allocator.bad_free_array at some point
 */
 @(no_sanitize_address)
 tracking_allocator_bad_free_callback_add_to_array :: proc(t: ^Tracking_Allocator, memory: rawptr, location: runtime.Source_Code_Location) {
-    _ = append(&t.bad_free_array, Tracking_Allocator_Bad_Free_Entry {
+    _ = dyn_array_append(&t.bad_free_array, Tracking_Allocator_Bad_Free_Entry {
         memory = memory,
         location = location,
     })
@@ -258,10 +258,10 @@ tracking_allocator_proc :: proc(
         if old_memory != nil && old_memory in data.allocation_map {
             track_free(data, &data.allocation_map[old_memory])
         }
-        delete_key(&data.allocation_map, old_memory)
+        map_delete_key(&data.allocation_map, old_memory)
     case .Free_All:
         if data.clear_on_free_all {
-            clear_map(&data.allocation_map)
+            map_clear(&data.allocation_map)
             data.current_memory_allocated = 0
         }
     case .Resize, .Resize_Non_Zeroed:
@@ -269,7 +269,7 @@ tracking_allocator_proc :: proc(
             track_free(data, &data.allocation_map[old_memory])
         }
         if old_memory != result_ptr {
-            delete_key(&data.allocation_map, old_memory)
+            map_delete_key(&data.allocation_map, old_memory)
         }
         data.allocation_map[result_ptr] = Tracking_Allocator_Entry{
             memory = result_ptr,

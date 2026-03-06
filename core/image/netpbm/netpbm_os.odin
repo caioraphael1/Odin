@@ -5,7 +5,7 @@ import "core:os"
 load_from_file :: proc(filename: string, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
 
 
-    data, ok := os.read_entire_file(filename); defer _ = delete_slice(data)
+    data, ok := os.read_entire_file(filename); defer _ = slice_delete(data)
     if !ok {
         err = .Unable_To_Read_File
         return
@@ -18,7 +18,7 @@ load_from_file :: proc(filename: string, allocator : mem.Allocator) -> (img: ^Im
 save_to_file :: proc(filename: string, img: ^Image, custom_info: Info = {}, allocator : mem.Allocator) -> (err: Error) {
 
 
-    data: []byte; defer _ = delete_slice(data)
+    data: []byte; defer _ = slice_delete(data)
     data = save_to_buffer(img, custom_info) or_return
 
     if ok := os.write_entire_file(filename, data); !ok {

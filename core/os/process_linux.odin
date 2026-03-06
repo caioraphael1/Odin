@@ -79,15 +79,15 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
     }
     defer linux.close(dir_fd)
 
-    dynamic_list := make_dynamic_array([dynamic]int, runtime.temp_allocator) or_return
+    dynamic_list := dyn_array_create([dynamic]int, runtime.temp_allocator) or_return
 
-    buf := make_dynamic_array([dynamic]u8, 128, 128, runtime.temp_allocator) or_return
+    buf := dyn_array_create([dynamic]u8, 128, 128, runtime.temp_allocator) or_return
     loop: for {
         buflen: int
         buflen, errno = linux.getdents(dir_fd, buf[:])
         #partial switch errno {
         case .EINVAL:
-            _ = resize_dynamic_array(&buf, len(buf) * 2)
+            _ = dyn_array_resize(&buf, len(buf) * 2)
             continue loop
         case .NONE:
             if buflen == 0 { break loop }
@@ -100,7 +100,7 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
             d_name_str := linux.dirent_name(d)
 
             if pid, ok := strconv.parse_int(d_name_str); ok {
-                _ = append(&dynamic_list, pid)
+                _ = dyn_array_append(&dynamic_list, pid)
             }
         }
     }
@@ -234,12 +234,12 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                 }
                 if .Command_Args in selection {
                     if i == 1 {
-                        command_args_list = make_dynamic_array([dynamic]string, allocator) or_return
+                        dyn_array_init(&command_args_list, allocator) or_return
                         info.fields += {.Command_Args}
                     }
                     if i > 0 {
                         arg := strings.clone(cmdline[:terminator], allocator) or_return
-                        append(&command_args_list, arg) or_return
+                        dyn_array_append(&command_args_list, arg) or_return
                     }
                 }
 
@@ -355,14 +355,14 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if env_bytes, env_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator); env_err == nil {
             env := string(env_bytes)
 
-            env_list := make_dynamic_array([dynamic]string, allocator) or_return
+            env_list := dyn_array_create([dynamic]string, allocator) or_return
             for len(env) > 0 {
                 terminator := strings.index_byte(env, 0)
                 if terminator <= 0 {
                     break
                 }
                 e := strings.clone(env[:terminator], allocator) or_return
-                append(&env_list, e) or_return
+                dyn_array_append(&env_list, e) or_return
                 env = env[terminator + 1:]
             }
             info.environment = env_list[:]
@@ -464,7 +464,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
 
     // args and environment need to be a list of cstrings
     // that are terminated by a nil pointer.
-    cargs := make_slice([]cstring, len(desc.command) + 1, runtime.temp_allocator) or_return
+    cargs := slice_create([]cstring, len(desc.command) + 1, runtime.temp_allocator) or_return
     for command, i in desc.command {
         cargs[i] = clone_to_cstring(command, runtime.temp_allocator) or_return
     }
@@ -475,7 +475,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         // take this process's current environment
         env = raw_data(export_cstring_environment(runtime.temp_allocator))
     } else {
-        cenv := make_slice([]cstring, len(desc.env) + 1, runtime.temp_allocator) or_return
+        cenv := slice_create([]cstring, len(desc.env) + 1, runtime.temp_allocator) or_return
         for env, i in desc.env {
             cenv[i] = clone_to_cstring(env, runtime.temp_allocator) or_return
         }

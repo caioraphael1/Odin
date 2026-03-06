@@ -132,7 +132,7 @@ _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Rea
     f, err = _open(name, flags, perm, allocator)
     if f != nil && err == nil {
         impl := (^File_Impl)(f.impl)
-        impl.buffer = make_slice([]byte, buffer_size, allocator)
+        impl.buffer = slice_create([]byte, buffer_size, allocator)
         f.stream.procedure = _file_stream_buffered_proc
     }
     return
@@ -143,8 +143,8 @@ _destroy :: proc(f: ^File_Impl) -> Error {
         return nil
     }
     a := f.allocator
-    err0 := _ = delete_slice(f.name, a)
-    err1 := _ = delete_slice(f.buffer, a)
+    err0 := _ = slice_delete(f.name, a)
+    err1 := _ = slice_delete(f.buffer, a)
     err2 := free(f, a)
     err0 or_return
     err1 or_return
@@ -342,16 +342,16 @@ _symlink :: proc(old_name, new_name: string) -> Error {
 
 _read_link_cstr :: proc(name_cstr: cstring, allocator: runtime.Allocator) -> (string, Error) {
     bufsz : uint = 256
-    buf := make_slice([]byte, bufsz, allocator)
+    buf := slice_create([]byte, bufsz, allocator)
     for {
         sz, errno := linux.readlink(name_cstr, buf[:])
         if errno != .NONE {
-            _ = delete_slice(buf, allocator)
+            _ = slice_delete(buf, allocator)
             return "", _get_platform_error(errno)
         } else if sz == int(bufsz) {
             bufsz *= 2
-            _ = delete_slice(buf, allocator)
-            buf = make_slice([]byte, bufsz, allocator)
+            _ = slice_delete(buf, allocator)
+            buf = slice_create([]byte, bufsz, allocator)
         } else {
             return string(buf[:sz]), nil
         }
@@ -460,15 +460,15 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Alloc
     defer linux.close(fd)
 
     BUF_SIZE_STEP :: 128
-    contents := make_dynamic_array([dynamic]u8, 0, BUF_SIZE_STEP, allocator)
+    contents := dyn_array_create([dynamic]u8, 0, BUF_SIZE_STEP, allocator)
 
     n: int
     i: int
     for {
-        _ = resize_dynamic_array(&contents, i + BUF_SIZE_STEP)
+        _ = dyn_array_resize(&contents, i + BUF_SIZE_STEP)
         n, errno = linux.read(fd, contents[i:i+BUF_SIZE_STEP])
         if errno != .NONE {
-            _ = delete_slice(contents)
+            _ = slice_delete(contents)
             return nil, _get_platform_error(errno)
         }
         if n < BUF_SIZE_STEP {
@@ -477,7 +477,7 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Alloc
         i += BUF_SIZE_STEP
     }
 
-    _ = resize_dynamic_array(&contents, i + n)
+    _ = dyn_array_resize(&contents, i + n)
     return contents[:], nil
 }
 

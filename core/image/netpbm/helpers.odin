@@ -20,7 +20,7 @@ destroy :: proc(img: ^image.Image) -> bool {
 
 header_destroy :: proc(header: ^Header) {
 	if header.format == .P7 && header.tupltype != "" {
-		_ = delete_slice(header.tupltype)
+		_ = slice_delete(header.tupltype)
 		header.tupltype = ""
 	}
 }

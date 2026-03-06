@@ -31,7 +31,7 @@ Example:
 
 		str_buf: [len(STR) * N]u8
 		for i in 0..<N {
-			copy_slice(str_buf[i*len(STR):], STR)
+			slice_copy(str_buf[i*len(STR):], STR)
 		}
 
 		parser := parser_new(DEFAULT_OPTIONS)

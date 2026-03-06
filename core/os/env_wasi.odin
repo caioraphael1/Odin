@@ -31,15 +31,15 @@ build_env :: proc(allocator: runtime.Allocator) -> (err: Error) {
         return _get_platform_error(_err)
     }
 
-    g_env = make_map(map[string]string, num_envs, allocator) or_return
-    defer if err != nil { _ = delete_slice(g_env) }
+    g_env = map_create(map[string]string, num_envs, allocator) or_return
+    defer if err != nil { _ = slice_delete(g_env) }
 
-    g_env_buf = make_slice([]byte, size_of_envs, allocator) or_return
-    defer if err != nil { _ = delete_slice(g_env_buf, allocator) }
+    g_env_buf = slice_create([]byte, size_of_envs, allocator) or_return
+    defer if err != nil { _ = slice_delete(g_env_buf, allocator) }
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    envs := make_slice([]cstring, num_envs, runtime.temp_allocator) or_return
+    envs := slice_create([]cstring, num_envs, runtime.temp_allocator) or_return
 
     _err = wasi.environ_get(raw_data(envs), raw_data(g_env_buf))
     if _err != nil {
@@ -60,7 +60,7 @@ delete_string_if_not_original :: proc(str: string, allocator: runtime.Allocator)
     end   := start + uintptr(len(g_env_buf))
     ptr   := uintptr(raw_data(str))
     if ptr < start || ptr > end {
-        _ = delete_slice(str, allocator)
+        _ = slice_delete(str, allocator)
     }
 }
 
@@ -85,7 +85,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
     if len(key) + 1 > len(buf) {
         return "", .Buffer_Full
     } else {
-        copy_slice(buf, key)
+        slice_copy(buf, key)
     }
 
     sync.shared_guard(&g_env_mutex)
@@ -98,7 +98,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
         if len(val) > len(buf) {
             return "", .Buffer_Full
         } else {
-            copy_slice(buf, val)
+            slice_copy(buf, val)
             return string(buf[:len(val)]), nil
         }
     }
@@ -110,7 +110,7 @@ _set_env :: proc(key, value: string, allocator: runtime.Allocator) -> (err: Erro
     sync.mutex_guard(&g_env_mutex)
 
     defer if err != nil {
-        delete_key(&g_env, key)
+        map_delete_key(&g_env, key)
     }
 
     key_ptr, value_ptr, just_inserted := map_entry(&g_env, key) or_return
@@ -118,7 +118,7 @@ _set_env :: proc(key, value: string, allocator: runtime.Allocator) -> (err: Erro
     if just_inserted {
         key_ptr^ = clone_string(key,allocator) or_return
         defer if err != nil {
-            _ = delete_slice(key_ptr^, allocator)
+            _ = slice_delete(key_ptr^, allocator)
         }
         value_ptr^ = clone_string(value, allocator) or_return
         return
@@ -138,7 +138,7 @@ _unset_env :: proc(key: string) -> bool {
 
     sync.mutex_guard(&g_env_mutex)
 
-    dkey, dval := delete_key(&g_env, key)
+    dkey, dval := map_delete_key(&g_env, key)
     delete_string_if_not_original(dkey)
     delete_string_if_not_original(dval)
     return true
@@ -152,10 +152,10 @@ _clear_env :: proc(allocator: runtime.Allocator) {
         delete_string_if_not_original(v)
     }
 
-    _ = delete_slice(g_env_buf, allocator)
+    _ = slice_delete(g_env_buf, allocator)
     g_env_buf = {}
 
-    clear_dynamic_array(&g_env)
+    dyn_array_clear(&g_env)
 
     g_env_built = true
 }
@@ -166,16 +166,16 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
 
     sync.shared_guard(&g_env_mutex)
 
-    envs := make_dynamic_array([dynamic]string, 0, len(g_env), allocator) or_return
+    envs := dyn_array_create([dynamic]string, 0, len(g_env), allocator) or_return
     defer if err != nil {
         for env in envs {
-            _ = delete_slice(env, allocator)
+            _ = slice_delete(env, allocator)
         }
-        _ = delete_slice(envs)
+        _ = slice_delete(envs)
     }
 
     for k, v in g_env {
-        _ = append(&envs, concatenate({k, "=", v}, allocator) or_return)
+        _ = dyn_array_append(&envs, concatenate({k, "=", v}, allocator) or_return)
     }
 
     environ = envs[:]

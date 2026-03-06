@@ -190,7 +190,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc :
 
     if has_size && size > 0 {
         total: int
-        data = make_slice([]byte, size, allocator, loc) or_return
+        data = slice_create([]byte, size, allocator, loc) or_return
         for total < len(data) {
             n: int
             n, err = read(f, data[total:])
@@ -206,13 +206,13 @@ read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc :
         return
     } else {
         buffer: [1024]u8
-        out_buffer, _ := make_dynamic_array_len_cap([dynamic]u8, 0, 0, allocator, loc)
+        out_buffer, _ := dyn_array_create_len_cap([dynamic]u8, 0, 0, allocator, loc)
         total := 0
         for {
             n: int
             n, err = read(f, buffer[:])
             total += n
-            append_many(&out_buffer, ..buffer[:n], loc=loc) or_return
+            dyn_array_append_many(&out_buffer, ..buffer[:n], loc=loc) or_return
             if err != nil {
                 if err == .EOF || err == .Broken_Pipe {
                     err = nil

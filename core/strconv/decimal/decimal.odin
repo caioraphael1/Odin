@@ -134,13 +134,13 @@ decimal_to_string :: proc(buf: []byte, a: ^Decimal) -> string {
         b[w] = '0'; w += 1
         b[w] = '.'; w += 1
         w += digit_zero(b[w : w-a.decimal_point])
-        w += copy_slice(b[w:], a.digits[0:a.count])
+        w += slice_copy(b[w:], a.digits[0:a.count])
     } else if a.decimal_point < a.count {
-        w += copy_slice(b[w:], a.digits[0:a.decimal_point])
+        w += slice_copy(b[w:], a.digits[0:a.decimal_point])
         b[w] = '.'; w += 1
-        w += copy_slice(b[w:], a.digits[a.decimal_point : a.count])
+        w += slice_copy(b[w:], a.digits[a.decimal_point : a.count])
     } else {
-        w += copy_slice(b[w:], a.digits[0:a.count])
+        w += slice_copy(b[w:], a.digits[0:a.count])
         w += digit_zero(b[w : w+a.decimal_point-a.count])
     }
 

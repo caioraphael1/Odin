@@ -143,7 +143,7 @@ _get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, er
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     sz_utf16 := win32.GetCurrentDirectoryW(0, nil)
-    dir_buf_wstr := make_slice([]u16, sz_utf16, runtime.temp_allocator) or_return
+    dir_buf_wstr := slice_create([]u16, sz_utf16, runtime.temp_allocator) or_return
 
     sz_utf16 = win32.GetCurrentDirectoryW(win32.DWORD(len(dir_buf_wstr)), raw_data(dir_buf_wstr))
     assert(int(sz_utf16)+1 == len(dir_buf_wstr)) // the second time, it _excludes_ the NUL.
@@ -171,7 +171,7 @@ _set_working_directory :: proc(dir: string) -> (err: Error) {
 _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := make_dynamic_array_len([dynamic]u16, 512, runtime.temp_allocator) or_return
+    buf := dyn_array_create_len([dynamic]u16, 512, runtime.temp_allocator) or_return
     for {
         ret := win32.GetModuleFileNameW(nil, raw_data(buf), win32.DWORD(len(buf)))
         if ret == 0 {
@@ -180,7 +180,7 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
         }
 
         if ret == win32.DWORD(len(buf)) && win32.GetLastError() == win32.ERROR_INSUFFICIENT_BUFFER {
-            resize_dynamic_array(&buf, len(buf)*2) or_return
+            dyn_array_resize(&buf, len(buf)*2) or_return
             continue
         }
 
@@ -206,7 +206,7 @@ _fix_long_path_internal :: proc(path: string) -> string {
     }
 
     // When using win32 to create a directory, the path
-    // cannot be too long that you cannot append an 8.3
+    // cannot be too long that you cannot dyn_array_append an 8.3
     // file name, because MAX_PATH is 260, 260-12 = 248
     if len(path) < 248 {
         return path
@@ -224,8 +224,8 @@ _fix_long_path_internal :: proc(path: string) -> string {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
     PREFIX :: `\\?`
-    path_buf, _ := make_slice([]byte, len(PREFIX)+len(path)+1, runtime.temp_allocator)
-    copy_from_string(path_buf, PREFIX)
+    path_buf, _ := slice_create([]byte, len(PREFIX)+len(path)+1, runtime.temp_allocator)
+    slice_copy_from_string(path_buf, PREFIX)
     n := len(path)
     r, w := 0, len(PREFIX)
     for r < n {
@@ -269,7 +269,7 @@ _clean_path_handle_start :: proc(path: string, buffer: []u8) -> (rooted: bool, s
             // Take `C:` to `C:\`.
             start += 1
         }
-        copy_from_string(buffer, path[:start])
+        slice_copy_from_string(buffer, path[:start])
         for n in 0..<start {
             if _is_path_separator(buffer[n]) {
                 buffer[n] = _Path_Separator
@@ -312,7 +312,7 @@ _get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absol
         return "", _get_platform_error()
     }
 
-    buf := make_slice([]u16, n, runtime.temp_allocator) or_return
+    buf := slice_create([]u16, n, runtime.temp_allocator) or_return
     n = win32.GetFullPathNameW(cstring16(raw_data(rel_utf16)), u32(n), cstring16(raw_data(buf)), nil)
     if n == 0 {
         return "", _get_platform_error()

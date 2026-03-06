@@ -125,12 +125,12 @@ print_error :: proc(f: ^File, ferr: Error, msg: string) {
 
     // msg + ": " + err_str + '\n'
     length := len(msg) + 2 + len(err_str) + 1
-    buf, _ := make_slice([]u8, length, runtime.temp_allocator)
+    buf, _ := slice_create([]u8, length, runtime.temp_allocator)
 
-    copy_from_string(buf, msg)
+    slice_copy_from_string(buf, msg)
     buf[len(msg)] = ':'
     buf[len(msg) + 1] = ' '
-    copy_from_string(buf[len(msg) + 2:], err_str)
+    slice_copy_from_string(buf[len(msg) + 2:], err_str)
     buf[length - 1] = '\n'
     _, _ = write(f, buf)
 }

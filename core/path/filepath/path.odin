@@ -26,8 +26,8 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
     if base_err   != nil { return "", .Cannot_Relate}
     target_clean, target_err := os.clean_path(target_path, allocator)
     if target_err != nil { return "", .Cannot_Relate}
-    defer _ = delete_string(base_clean,   allocator)
-    defer _ = delete_string(target_clean, allocator)
+    defer _ = string_delete(base_clean,   allocator)
+    defer _ = string_delete(target_clean, allocator)
 
     if strings.equal_fold(target_clean, base_clean) {
         dot_cloned, _ := strings.clone(".", allocator)
@@ -78,16 +78,16 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
         if tl != t0 {
             size += 1 + tl - t0
         }
-        buf, _ := make_slice([]byte, size, allocator)
-        n := copy_from_string(buf, "..")
+        buf, _ := slice_create([]byte, size, allocator)
+        n := slice_copy_from_string(buf, "..")
         for _ in 0..<seps {
             buf[n] = SEPARATOR
-            copy_from_string(buf[n+1:], "..")
+            slice_copy_from_string(buf[n+1:], "..")
             n += 3
         }
         if t0 != tl {
             buf[n] = SEPARATOR
-            copy_from_string(buf[n+1:], target[t0:])
+            slice_copy_from_string(buf[n+1:], target[t0:])
         }
         return string(buf), .None
     }

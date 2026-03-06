@@ -1505,7 +1505,7 @@ foreign lib {
     TextInsert    :: proc(text, insert: cstring, position: c.int) -> [^]byte ---                 // Insert text in a position (WARNING: memory must be freed!)
     TextJoin      :: proc(textList: [^]cstring, count: c.int, delimiter: cstring) -> cstring --- // Join text strings with delimiter
     TextSplit     :: proc(text: cstring, delimiter: byte, count: ^c.int) -> [^]cstring ---       // Split text into multiple strings
-    TextAppend    :: proc(text: [^]byte, append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
+    TextAppend    :: proc(text: [^]byte, dyn_array_append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
     TextFindIndex :: proc(text, find: cstring) -> c.int ---                                      // Find first text occurrence within a string
     TextToUpper   :: proc(text: cstring) -> cstring ---                                          // Get upper case version of provided string
     TextToLower   :: proc(text: cstring) -> cstring ---                                          // Get lower case version of provided string

@@ -217,12 +217,59 @@ Raw_Quaternion256_Vector_Scalar :: struct {vector: [3]f64, scalar: f64}
 // CONSTANTS
 //--------------------------------------------------------------------------------------------------
 
+/*
+The size, in bytes, of a single byte.
+
+This constant is equal to the value of `1`.
+*/
 Byte     :: 1
+
+/*
+The size, in bytes, of one kilobyte.
+
+This constant is equal to the amount of bytes in one kilobyte (also known as
+kibibyte), which is equal to 1024 bytes.
+*/
 Kilobyte :: 1024 * Byte
+
+/*
+The size, in bytes, of one megabyte.
+
+This constant is equal to the amount of bytes in one megabyte (also known as
+mebibyte), which is equal to 1024 kilobyte.
+*/
 Megabyte :: 1024 * Kilobyte
+
+/*
+The size, in bytes, of one gigabyte.
+
+This constant is equal to the amount of bytes in one gigabyte (also known as
+gibiibyte), which is equal to 1024 megabytes.
+*/
 Gigabyte :: 1024 * Megabyte
+
+/*
+The size, in bytes, of one terabyte.
+
+This constant is equal to the amount of bytes in one terabyte (also known as
+tebiibyte), which is equal to 1024 gigabytes.
+*/
 Terabyte :: 1024 * Gigabyte
+
+/*
+The size, in bytes, of one petabyte.
+
+This constant is equal to the amount of bytes in one petabyte (also known as
+pebiibyte), which is equal to 1024 terabytes.
+*/
 Petabyte :: 1024 * Terabyte
+
+/*
+The size, in bytes, of one exabyte.
+
+This constant is equal to the amount of bytes in one exabyte (also known as
+exbibyte), which is equal to 1024 petabytes.
+*/
 Exabyte  :: 1024 * Petabyte
 
 /*
@@ -654,43 +701,43 @@ when !ODIN_NO_RTTI {
     typeid_base_without_enum :: typeid_core
 }
 
+/*
+Recovers the containing/parent struct from a pointer to one of its fields.
+Works by "walking back" to the struct's starting address using the offset between the field and the struct.
 
-//--------------------------------------------------------------------------------------------------
-// Assertions
-//--------------------------------------------------------------------------------------------------
+Inputs:
+- ptr: Pointer to the field of a container struct
+- T: The type of the container struct
+- field_name: The name of the field in the `T` struct
 
-debug_trap         :: intrinsics.debug_trap
-trap               :: intrinsics.trap
+Returns:
+- A pointer to the container struct based on a pointer to a field in it
 
-Assertion_Failure_Proc :: #type proc(prefix, message: string, loc: Source_Code_Location) -> !
-assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
+Example:
+    package container_of
+    import "base:runtime"
 
-
-default_assertion_failure_proc :: proc(prefix, message: string, loc: Source_Code_Location) -> ! {
-    when ODIN_OS == .Freestanding {
-        // Do nothing
-    } else {
-        when ODIN_OS != .Orca && !ODIN_DISABLE_ASSERT {
-            print_caller_location(loc)
-            print_string(" ")
-        }
-        print_string(prefix)
-        if len(message) > 0 {
-            print_string(": ")
-            print_string(message)
-        }
-
-        when ODIN_OS == .Orca {
-            assert_fail(
-                cstring(raw_data(loc.file_path)),
-                cstring(raw_data(loc.procedure)),
-                loc.line,
-                "",
-                cstring(raw_data(orca_stderr_buffer[:orca_stderr_buffer_idx])),
-            )
-        } else {
-            print_byte('\n')
-        }
+    Node :: struct {
+        value: int,
+        prev:  ^Node,
+        next:  ^Node,
     }
-    trap()
+
+    main :: proc() {
+        node: Node
+        field_ptr := &node.next
+        container_struct_ptr: ^Node = runtime.container_of(field_ptr, Node, "next")
+        assert(container_struct_ptr == &node)
+        assert(uintptr(field_ptr) - uintptr(container_struct_ptr) == size_of(node.value) + size_of(node.prev))
+    }
+
+Output:
+    ^Node
+*/
+@(builtin)
+container_of :: #force_inline proc(ptr: $P/^$Field_Type, $T: typeid, $field_name: string) -> ^T
+    where intrinsics.type_has_field(T, field_name),
+          intrinsics.type_field_type(T, field_name) == Field_Type {
+    offset :: offset_of_by_string(T, field_name)
+    return (^T)(uintptr(ptr) - offset) if ptr != nil else nil
 }

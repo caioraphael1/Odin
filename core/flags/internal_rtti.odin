@@ -133,7 +133,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
 			cstr_ptr := (^cstring)(ptr)
 			if cstr_ptr != nil {
 				// Prevent memory leaks from us setting this value multiple times.
-                _ = delete_cstring(cstr_ptr^, allocator)
+                _ = cstring_delete(cstr_ptr^, allocator)
 			}
             cstr_ptr^, _ = strings.clone_to_cstring(str, allocator)
 		} else {
@@ -434,14 +434,14 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^runt
 		ptr := cast(^runtime.Raw_Dynamic_Array)ptr
 
 		// Try to convert the value first.
-		elem_backing, alloc_error := mem.alloc_bytes(specific_type_info.elem.size, specific_type_info.elem.align)
+		elem_backing, alloc_error := runtime.mem_alloc(specific_type_info.elem.size, specific_type_info.elem.align)
 		if alloc_error != nil {
 			return Parse_Error {
 				alloc_error,
 				"Failed to allocate element backing for dynamic array.",
 			}
 		}
-        defer _ = delete_slice(elem_backing, allocator)
+        defer _ = slice_delete(elem_backing, allocator)
 		parse_and_set_pointer_by_type(raw_data(elem_backing), str, specific_type_info.elem, arg_tag) or_return
 
 		if !runtime.__dynamic_array_resize(ptr, specific_type_info.elem.size, specific_type_info.elem.align, ptr.len + 1) {
@@ -456,7 +456,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^runt
 		subptr := rawptr(
 			uintptr(ptr.data) +
 			uintptr((ptr.len - 1) * specific_type_info.elem.size))
-		mem.copy(subptr, raw_data(elem_backing), len(elem_backing))
+		intrinsics.mem_copy(subptr, raw_data(elem_backing), len(elem_backing))
 
 	case runtime.Type_Info_Enum:
 		// This is a nameless enum.

@@ -67,7 +67,7 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 	packages: [dynamic]Package_Run
 
 	report.all_tests = internal_tests
-	report.all_test_states = make_slice([]Test_State, len(internal_tests)) or_return
+	report.all_test_states = slice_create([]Test_State, len(internal_tests)) or_return
 
 	// First, figure out what belongs where.
 	#no_bounds_check cur_pkg := internal_tests[0].pkg
@@ -77,7 +77,7 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 	for it, index in internal_tests {
 		if cur_pkg != it.pkg {
 			#no_bounds_check { 
-				append(&packages, Package_Run {
+				dyn_array_append(&packages, Package_Run {
 					name = cur_pkg,
 					tests = report.all_tests[pkg_start:index],
 					test_states = report.all_test_states[pkg_start:index],
@@ -97,7 +97,7 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 
 	// Handle the last (or only) package.
 	#no_bounds_check {
-		append(&packages, Package_Run {
+		dyn_array_append(&packages, Package_Run {
 			name = cur_pkg,
 			header = cur_pkg,
 			tests = report.all_tests[pkg_start:],
@@ -128,7 +128,7 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 	// because its capacity has been shrunk to its length, it was allocated by
 	// the caller's context allocator, and it will be deallocated by the same.
 	//
-	// `delete_slice` is equivalent to `delete_dynamic_array` in this case.
+	// `slice_delete` is equivalent to `dyn_array_delete` in this case.
 	report.packages = packages[:]
 
 	return

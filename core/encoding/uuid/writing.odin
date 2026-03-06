@@ -93,7 +93,7 @@ to_string_allocated :: proc(
     str: string,
     error: runtime.Allocator_Error,
 ) {
-    buf := make_slice([]byte, EXPECTED_LENGTH, allocator, loc) or_return
+    buf := slice_create([]byte, EXPECTED_LENGTH, allocator, loc) or_return
     builder := strings.builder_from_bytes(buf[:])
     unsafe_write(strings.to_writer(&builder), id)
     return strings.to_string(builder), nil

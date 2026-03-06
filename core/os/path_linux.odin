@@ -52,10 +52,10 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     }
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
     // need something we can edit, and use to generate cstrings
-    path_bytes := make_slice([]u8, len(path) + 1, runtime.temp_allocator)
+    path_bytes := slice_create([]u8, len(path) + 1, runtime.temp_allocator)
 
     // zero terminate the byte slice to make it a valid cstring
-    copy_slice(path_bytes, path)
+    slice_copy(path_bytes, path)
     path_bytes[len(path)] = 0
 
     dfd: linux.Fd
@@ -78,16 +78,16 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 _remove_all :: proc(path: string) -> Error {
     remove_all_dir :: proc(dfd: linux.Fd) -> Error {
         n := 64
-        buf := make_slice([]u8, n)
-        defer _ = delete_slice(buf)
+        buf := slice_create([]u8, n)
+        defer _ = slice_delete(buf)
 
         loop: for {
             buflen, errno := linux.getdents(dfd, buf[:])
             #partial switch errno {
             case .EINVAL:
-                _ = delete_slice(buf)
+                _ = slice_delete(buf)
                 n *= 2
-                buf = make_slice([]u8, n)
+                buf = slice_create([]u8, n)
                 continue loop
             case .NONE:
                 if buflen == 0 { break loop }
@@ -151,7 +151,7 @@ _get_working_directory :: proc(allocator: runtime.Allocator) -> (string, Error) 
     // The largest value I could find was 4096, so might as well use the page size.
     // NOTE(jason): Avoiding libc, so just use 4096 directly
     PATH_MAX :: 4096
-    buf := make_dynamic_array([dynamic]u8, PATH_MAX, allocator)
+    buf := dyn_array_create([dynamic]u8, PATH_MAX, allocator)
     for {
         #no_bounds_check n, errno := linux.getcwd(buf[:])
         if errno == .NONE {
@@ -160,7 +160,7 @@ _get_working_directory :: proc(allocator: runtime.Allocator) -> (string, Error) 
         if errno != .ERANGE {
             return "", _get_platform_error(errno)
         }
-        _ = resize_dynamic_array(&buf, len(buf)+PATH_MAX)
+        _ = dyn_array_resize(&buf, len(buf)+PATH_MAX)
     }
     unreachable()
 }
@@ -175,7 +175,7 @@ _set_working_directory :: proc(dir: string) -> Error {
 _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := make_dynamic_array([dynamic]byte, 1024, runtime.temp_allocator) or_return
+    buf := dyn_array_create([dynamic]byte, 1024, runtime.temp_allocator) or_return
     for {
         n, errno := linux.readlink("/proc/self/exe", buf[:])
         if errno != .NONE {
@@ -187,7 +187,7 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
             return clone_string(string(buf[:n]), allocator)
         }
 
-        _ = resize_dynamic_array(&buf, len(buf)*2) or_return
+        _ = dyn_array_resize(&buf, len(buf)*2) or_return
     }
 }
 
@@ -195,12 +195,12 @@ _get_full_path :: proc(fd: linux.Fd, allocator: runtime.Allocator) -> (fullpath:
     PROC_FD_PATH :: "/proc/self/fd/"
 
     buf: [32]u8
-    copy_slice(buf[:], PROC_FD_PATH)
+    slice_copy(buf[:], PROC_FD_PATH)
 
     strconv.write_int(buf[len(PROC_FD_PATH):], i64(fd), 10)
 
     if fullpath, err = _read_link_cstr(cstring(&buf[0]), allocator); err != nil || fullpath[0] != '/' {
-        _ = delete_slice(fullpath, allocator)
+        _ = slice_delete(fullpath, allocator)
         fullpath = ""
     }
     return

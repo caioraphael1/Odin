@@ -71,7 +71,7 @@ lookahead_reader_consume :: proc(lr: ^Lookahead_Reader, n: int) -> io.Error {
     case lr.n < n:
         return .Short_Buffer
     }
-    copy_slice(lr.buf, lr.buf[n:lr.n])
+    slice_copy(lr.buf, lr.buf[n:lr.n])
     lr.n -= n
     return nil
 }

@@ -27,10 +27,10 @@ foreign lib {
 		table.header(&tbl, "input", "dirname", "basename")
 
 		for test in tests {
-			din := strings.clone_to_cstring(test); defer _ = delete_slice(din)
+			din := strings.clone_to_cstring(test); defer _ = slice_delete(din)
 			dir := strings.clone_from_cstring(posix.dirname(din))
 
-			bin  := strings.clone_to_cstring(test); defer _ = delete_slice(bin)
+			bin  := strings.clone_to_cstring(test); defer _ = slice_delete(bin)
 			base := strings.clone_from_cstring(posix.basename(bin))
 			table.row(&tbl, test, dir, base)
 		}

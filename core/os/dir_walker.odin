@@ -73,8 +73,8 @@ walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
         return
     }
 
-    _ = resize_dynamic_array(&w.err.path, len(path))
-    copy_from_string(w.err.path[:], path)
+    _ = dyn_array_resize(&w.err.path, len(path))
+    slice_copy_from_string(w.err.path[:], path)
 
     w.err.err = err
 }
@@ -85,18 +85,18 @@ walker_clear :: proc(w: ^Walker, allocator: runtime.Allocator) {
     w.skip_dir = false
 
     w.err.path.allocator = allocator
-    clear_dynamic_array(&w.err.path)
+    dyn_array_clear(&w.err.path)
 
     w.todo.data.allocator = allocator
-    for path in queue.pop_front_safe(&w.todo) {
-        _ = delete_string(path, allocator)
+    for path in queue.dyn_array_pop_front_safe(&w.todo) {
+        _ = string_delete(path, allocator)
     }
 }
 
 walker_destroy :: proc(w: ^Walker, allocator: runtime.Allocator) {
     walker_clear(w, allocator)
     queue.destroy(&w.todo)
-    _ = delete_dynamic_array(w.err.path)
+    _ = dyn_array_delete(w.err.path)
     read_directory_iterator_destroy(&w.iter, allocator)
 }
 
@@ -156,7 +156,7 @@ walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info,
     if w.skip_dir {
         w.skip_dir = false
         if skip, sok := queue.pop_back_safe(&w.todo); sok {
-            _ = delete_string(skip,  allocator)
+            _ = string_delete(skip,  allocator)
         }
     }
 
@@ -165,7 +165,7 @@ walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info,
             return
         }
 
-        next := queue.pop_front(&w.todo)
+        next := queue.dyn_array_pop_front(&w.todo)
 
         handle, err := open(next, allocator = allocator)
         if err != nil {
@@ -175,7 +175,7 @@ walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info,
 
         read_directory_iterator_init(&w.iter, handle, allocator)
 
-        _ = delete_string(next, allocator)
+        _ = string_delete(next, allocator)
     }
 
     info, _, iter_ok := read_directory_iterator(&w.iter, allocator)

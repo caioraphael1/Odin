@@ -47,7 +47,7 @@ GenerateReport :: proc "c" (instance: Instance) -> (report: GlobalReport) {
 
 InstanceEnumerateAdapters :: proc(instance: Instance, options: ^InstanceEnumerateAdapterOptions = nil, allocator: mem.Allocator) -> (adapters: []Adapter) {
     count := RawInstanceEnumerateAdapters(instance, options, nil)
-    adapters = make_slice([]Adapter, count, allocator)
+    adapters = slice_create([]Adapter, count, allocator)
     RawInstanceEnumerateAdapters(instance, options, raw_data(adapters))
     return
 }

@@ -15,7 +15,7 @@ Parse a slice of command-line arguments into an annotated struct.
 *Allocates Using Provided Allocator*
 
 By default, this proc will only allocate memory outside of its lifetime if it
-has to append to a dynamic array, set a map value, or set a cstring.
+has to dyn_array_append to a dynamic array, set a map value, or set a cstring.
 
 The program is expected to free any allocations on `model` as a result of parsing.
 

@@ -96,7 +96,7 @@ _set_working_directory :: proc(dir: string, allocator: runtime.Allocator) -> (er
     }
 
     if _working_dir.path != "" {
-        _ = delete_slice(_working_dir.path, _working_dir.allocator)
+        _ = slice_delete(_working_dir.path, _working_dir.allocator)
         _working_dir.allocator = {}
     }
 

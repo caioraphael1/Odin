@@ -116,21 +116,21 @@ create :: proc(
     result.flags = flags
 
     if len(class_data) > 0 {
-        result.class_data, _ = make_slice([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
+        result.class_data, _ = slice_create([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
     }
     for data, i in class_data {
         if len(data.runes) > 0 {
-            result.class_data[i].runes, _ = make_slice([]rune, len(data.runes), allocator)
-            copy_slice(result.class_data[i].runes, data.runes[:])
+            result.class_data[i].runes, _ = slice_create([]rune, len(data.runes), allocator)
+            slice_copy(result.class_data[i].runes, data.runes[:])
         }
         if len(data.ranges) > 0 {
-            result.class_data[i].ranges, _ = make_slice([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
-            copy_slice(result.class_data[i].ranges, data.ranges[:])
+            result.class_data[i].ranges, _ = slice_create([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
+            slice_copy(result.class_data[i].ranges, data.ranges[:])
         }
     }
 
-    result.program, _ = make_slice([]virtual_machine.Opcode, len(program), allocator)
-    copy_slice(result.program, program[:])
+    result.program, _ = slice_create([]virtual_machine.Opcode, len(program), allocator)
+    slice_copy(result.program, program[:])
 
     return
 }
@@ -322,8 +322,8 @@ match_and_allocate_capture :: proc(
         }
 
         if num_groups > 0 {
-            capture.groups, _ = make_slice([]string, num_groups, allocator)
-            capture.pos, _ = make_slice([][2]int, num_groups, allocator)
+            capture.groups, _ = slice_create([]string, num_groups, allocator)
+            capture.pos, _ = slice_create([][2]int, num_groups, allocator)
             n := 0
 
             #no_bounds_check for i := 0; i < len(saved); i += 2 {
@@ -532,8 +532,8 @@ Returns:
 */
 
 preallocate_capture :: proc(allocator: runtime.Allocator) -> (result: Capture) {
-    result.pos   , _ = make_slice([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
-    result.groups, _ = make_slice([]string, common.MAX_CAPTURE_GROUPS, allocator)
+    result.pos   , _ = slice_create([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
+    result.groups, _ = slice_create([]string, common.MAX_CAPTURE_GROUPS, allocator)
     return
 }
 
@@ -547,12 +547,12 @@ Inputs:
 - allocator: 
 */
 destroy_regex :: proc(regex: Regular_Expression, allocator: runtime.Allocator) {
-    _ = delete_slice(regex.program, allocator)
+    _ = slice_delete(regex.program, allocator)
     for data in regex.class_data {
-        _ = delete_slice(data.runes, allocator)
-        _ = delete_slice(data.ranges, allocator)
+        _ = slice_delete(data.runes, allocator)
+        _ = slice_delete(data.ranges, allocator)
     }
-    _ = delete_slice(regex.class_data, allocator)
+    _ = slice_delete(regex.class_data, allocator)
 }
 
 /*
@@ -565,8 +565,8 @@ Inputs:
 - allocator:
 */
 destroy_capture :: proc(capture: Capture, allocator: runtime.Allocator) {
-    _ = delete_slice(capture.groups, allocator)
-    _ = delete_slice(capture.pos, allocator)
+    _ = slice_delete(capture.groups, allocator)
+    _ = slice_delete(capture.pos, allocator)
 }
 
 /*

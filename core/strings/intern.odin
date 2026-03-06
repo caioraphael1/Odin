@@ -34,7 +34,7 @@ Returns:
 */
 intern_init :: proc(m: ^Intern, allocator: mem.Allocator, map_allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     m.allocator = allocator
-    m.entries = make_map_cap(map[string]^Intern_Entry, 16, map_allocator, loc) or_return
+    m.entries = map_create_cap(map[string]^Intern_Entry, 16, map_allocator, loc) or_return
     return nil
 }
 /*
@@ -47,7 +47,7 @@ intern_destroy :: proc(m: ^Intern) {
     for _, value in m.entries {
         _ = free(value, m.allocator)
     }
-    _ = delete_map(m.entries)
+    _ = map_delete(m.entries)
 }
 /*
 Returns an interned copy of the given text, adding it to the map if not already present.
@@ -115,7 +115,7 @@ _intern_get_entry :: proc(m: ^Intern, text: string) -> (new_entry: ^Intern_Entry
     new_entry = (^Intern_Entry)(raw_data(bytes))
 
     new_entry.len = len(text)
-    copy_from_string(new_entry.str[:new_entry.len], text)
+    slice_copy_from_string(new_entry.str[:new_entry.len], text)
     new_entry.str[new_entry.len] = 0
 
     key := string(new_entry.str[:new_entry.len])

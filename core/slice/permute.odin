@@ -32,7 +32,7 @@ make_permutation_iterator :: proc(
     error: runtime.Allocator_Error,
 ) {
     iter.slice = slice
-    iter.counters = make_slice([]int, len(iter.slice), allocator) or_return
+    iter.counters = slice_create([]int, len(iter.slice), allocator) or_return
 
     return
 }
@@ -47,7 +47,7 @@ destroy_permutation_iterator :: proc(
     iter: Permutation_Iterator($T),
     allocator: runtime.Allocator,
 ) {
-    _ = delete_slice(iter.counters, allocator = allocator)
+    _ = slice_delete(iter.counters, allocator = allocator)
 }
 /*
 Permute a slice in-place.

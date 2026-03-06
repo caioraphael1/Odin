@@ -225,7 +225,7 @@ Allocates a new chunk if necessary. Existing elements aren't moved, and their po
 
 **Inputs**
 - `x`: Pointer to the exponential array
-- `value`: The element to append
+- `value`: The element to dyn_array_append
 
 **Returns**
 - number of elements added (always 1 on success)
@@ -266,11 +266,11 @@ Append multiple elements to the end of the exponential array.
 
 **Inputs**
 - `x`: Pointer to the exponential array
-- `values`: The elements to append
+- `values`: The elements to dyn_array_append
 
 **Returns**
 - number of elements successfully added
-- allocation error if chunk allocation failed (partial append possible)
+- allocation error if chunk allocation failed (partial dyn_array_append possible)
 */
 array_push_back_elems :: proc(x: ^$X/Array($T, $SHIFT), values: ..T, loc := #caller_location) -> (n: int, err: runtime.Allocator_Error) {
 	for value in values {
@@ -289,7 +289,7 @@ retain a reference to the newly added element.
 
 **Inputs**
 - `x`: Pointer to the exponential array
-- `value`: The element to append
+- `value`: The element to dyn_array_append
 
 **Returns**
 - a stable pointer to the newly added element
@@ -323,7 +323,7 @@ array_push_back_elem_and_get_ptr :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc
 	return
 }
 
-// `pop` will remove and return the end value of an exponential array `x` and reduces the length of the array by 1.
+// `dyn_array_pop` will remove and return the end value of an exponential array `x` and reduces the length of the array by 1.
 //
 // Note: If the exponential array has no elements (`xar.len(x) == 0`), this procedure will panic.
 array_pop :: proc(x: ^$X/Array($T, $SHIFT), loc := #caller_location) -> (val: T) {
@@ -334,7 +334,7 @@ array_pop :: proc(x: ^$X/Array($T, $SHIFT), loc := #caller_location) -> (val: T)
 	return x.chunks[chunk_idx][elem_idx]
 }
 
-// `pop_safe` trys to remove and return the end value of dynamic array `x` and reduces the length of the array by 1.
+// `dyn_array_pop_safe` trys to remove and return the end value of dynamic array `x` and reduces the length of the array by 1.
 // If the operation is not possible, it will return false.
 array_pop_safe :: proc(x: ^$X/Array($T, $SHIFT)) -> (val: T, ok: bool) {
 	if x.len == 0 {
@@ -350,11 +350,11 @@ array_pop_safe :: proc(x: ^$X/Array($T, $SHIFT)) -> (val: T, ok: bool) {
 }
 
 /*
-	`unordered_remove` removed the element at the specified `index`. It does so by replacing the current end value
+	`dyn_array_unordered_remove` removed the element at the specified `index`. It does so by replacing the current end value
 	with the old value, and reducing the length of the exponential array by 1.
 
 	Note: This is an O(1) operation.
-	Note: This is currently no procedure that is the equivalent of an "ordered_remove"
+	Note: This is currently no procedure that is the equivalent of an "dyn_array_ordered_remove"
 	Note: If the index is out of bounds, this procedure will panic.
 
 	Note: Pointers to the last element become invalid (it gets moved). Pointers to other elements remain valid.
@@ -371,7 +371,7 @@ array_pop_safe :: proc(x: ^$X/Array($T, $SHIFT)) -> (val: T, ok: bool) {
 			xar.push_back(&x, 20)
 			xar.push_back(&x, 30)
 
-			xar.unordered_remove(&x, 0)  // Removes 10, replaces with 30
+			xar.dyn_array_unordered_remove(&x, 0)  // Removes 10, replaces with 30
 
 			// Array now contains [30, 20]
 			fmt.println(xar.get(&x, 0))  // 30

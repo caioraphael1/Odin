@@ -140,7 +140,7 @@ decode_rune_in_bytes :: proc(s: []u8) -> (rune, int) {
 string_to_runes :: proc(s: string, allocator: runtime.Allocator) -> (runes: []rune) {
     n := rune_count_in_string(s)
 
-    runes, _ = make_slice([]rune, n, allocator)
+    runes, _ = slice_create([]rune, n, allocator)
     i := 0
     for r in s {
         runes[i] = r
@@ -156,11 +156,11 @@ runes_to_string :: proc(runes: []rune, allocator: runtime.Allocator) -> string {
         byte_count += w
     }
 
-    bytes, _ := make_slice([]byte, byte_count, allocator)
+    bytes, _ := slice_create([]byte, byte_count, allocator)
     offset := 0
     for r in runes {
         b, w := encode_rune(r)
-        copy_slice(bytes[offset:], b[:w])
+        slice_copy(bytes[offset:], b[:w])
         offset += w
     }
 

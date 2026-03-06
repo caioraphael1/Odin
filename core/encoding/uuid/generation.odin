@@ -178,7 +178,7 @@ Example:
 
     for i: u16 = 0; i < 1000; i += 1 {
         my_uuid := uuid.generate_v7_counter(i)
-        _ = append(&batch, my_uuid)
+        _ = dyn_array_append(&batch, my_uuid)
     }
 
 Inputs:

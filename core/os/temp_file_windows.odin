@@ -9,7 +9,7 @@ _temp_dir :: proc(allocator: runtime.Allocator) -> (string, runtime.Allocator_Er
     }
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    b, _ := make_slice([]u16, max(win32.MAX_PATH, n), runtime.temp_allocator)
+    b, _ := slice_create([]u16, max(win32.MAX_PATH, n), runtime.temp_allocator)
     n = win32.GetTempPathW(u32(len(b)), cstring16(raw_data(b)))
 
     if n == 3 && b[1] == ':' && b[2] == '\\' {

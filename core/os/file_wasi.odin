@@ -79,7 +79,7 @@ init_preopens :: proc(allocator: runtime.Allocator) {
     }
 
     alloc_err: runtime.Allocator_Error
-    preopens, alloc_err = make_slice([]Preopen, n, allocator)
+    preopens, alloc_err = slice_create([]Preopen, n, allocator)
     if alloc_err != nil {
         print_error(stderr, alloc_err, "could not allocate memory for wasi preopens")
         return
@@ -94,7 +94,7 @@ init_preopens :: proc(allocator: runtime.Allocator) {
         switch desc.tag {
         case .DIR:
             buf: []byte
-            buf, alloc_err = make_slice([]byte, desc.dir.pr_name_len, allocator)
+            buf, alloc_err = slice_create([]byte, desc.dir.pr_name_len, allocator)
             if alloc_err != nil {
                 print_error(stderr, alloc_err, "could not allocate memory for wasi preopen dir name")
                 continue loop
@@ -251,7 +251,7 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
         err = _get_platform_error(errno)
     }
 
-    _ = delete_slice(f.name, f.allocator)
+    _ = slice_delete(f.name, f.allocator)
     _ = free(f, f.allocator)
     return
 }
@@ -358,7 +358,7 @@ _read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, er
         return
     }
 
-    buf := make_slice([]byte, n, allocator) or_return
+    buf := slice_create([]byte, n, allocator) or_return
 
     _, _err = wasi.path_readlink(dir_fd, relative, buf)
     s = string(buf)

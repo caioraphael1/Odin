@@ -71,8 +71,8 @@ _sort_by_indices :: proc(data, sorted: $T/[]$E, indices: []int) {
 
 sort_by_indices_overwrite :: proc(data: $T/[]$E, indices: []int) {
     assert(len(data) == len(indices))
-    temp := make_slice([]E, len(data), context.allocator)
-    defer _ = delete_slice(temp)
+    temp := slice_create([]E, len(data), context.allocator)
+    defer _ = slice_delete(temp)
     for v, i in indices {
         temp[i] = data[v]
     }
@@ -99,7 +99,7 @@ sort_from_permutation_indices :: proc(data: $T/[]$E, indices: []int) {
 // sort sorts a slice and returns a slice of the original indices
 // This sort is not guaranteed to be stable
 sort_with_indices :: proc(data: $T/[]$E, allocator: mem.Allocator) -> (indices: []int) where ORD(E) {
-    indices = make_slice([]int, len(data), allocator)
+    indices = slice_create([]int, len(data), allocator)
     when size_of(E) != 0 {
         if n := len(data); n > 1 {
             for _, idx in indices {
@@ -172,7 +172,7 @@ sort_by_with_data :: proc(data: $T/[]$E, less: proc(i, j: E, user_data: rawptr) 
 // sort_by sorts a slice with a given procedure to test whether two values are ordered "i < j"
 // This sort is not guaranteed to be stable
 sort_by_with_indices :: proc(data: $T/[]$E, less: proc(i, j: E) -> bool, allocator: mem.Allocator) -> (indices : []int) {
-    indices = make_slice([]int, len(data), allocator)
+    indices = slice_create([]int, len(data), allocator)
     when size_of(E) != 0 {
         if n := len(data); n > 1 {
             for _, idx in indices {
@@ -204,7 +204,7 @@ sort_by_with_indices :: proc(data: $T/[]$E, less: proc(i, j: E) -> bool, allocat
 }
 
 sort_by_with_indices_with_data :: proc(data: $T/[]$E, less: proc(i, j: E, user_data: rawptr) -> bool, user_data: rawptr, allocator: mem.Allocator) -> (indices : []int) {
-    indices = make_slice([]int, len(data), allocator)
+    indices = slice_create([]int, len(data), allocator)
     when size_of(E) != 0 {
         if n := len(data); n > 1 {
             for _, idx in indices {

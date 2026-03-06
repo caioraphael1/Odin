@@ -40,16 +40,16 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtim
 
     for entry_fd == -1 {
         if len(it.impl.dirent_backing) == 0 {
-            it.impl.dirent_backing = make_slice([]u8, 512, allocator)
+            it.impl.dirent_backing = slice_create([]u8, 512, allocator)
         }
 
         loop: for {
             buflen, errno := linux.getdents(linux.Fd(dfd), it.impl.dirent_backing[:])
             #partial switch errno {
             case .EINVAL:
-                _ = delete_slice(it.impl.dirent_backing, allocator)
+                _ = slice_delete(it.impl.dirent_backing, allocator)
                 n := len(it.impl.dirent_backing) * 2
-                it.impl.dirent_backing = make_slice([]u8, n, allocator)
+                it.impl.dirent_backing = slice_create([]u8, n, allocator)
                 continue
             case .NONE:
                 if buflen == 0 {
@@ -114,6 +114,6 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator
         return
     }
 
-    _ = delete_slice(it.impl.dirent_backing, allocator)
+    _ = slice_delete(it.impl.dirent_backing, allocator)
     file_info_delete(it.impl.prev_fi, allocator)
 }

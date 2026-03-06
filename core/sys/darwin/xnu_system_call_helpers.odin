@@ -24,7 +24,7 @@ Open_Flags_Enum :: enum u8 {
     RDWR, /* open for reading and writing */
 
     NONBLOCK, /* no delay */
-    APPEND, /* set append mode */
+    APPEND, /* set dyn_array_append mode */
     CREAT, /* create if nonexistant */
     TRUNC, /* truncate to zero length */
     EXCL, /* error if already exists */
@@ -114,8 +114,8 @@ _sys_open_mode :: #force_inline proc(mode: Open_Flags) -> u32 {
 
 @(private)
 clone_to_cstring :: proc(s: string, allocator: runtime.Allocator, loc := #caller_location) -> cstring {
-    c := make_slice([]byte, len(s)+1, allocator, loc)
-    copy_slice(c, s)
+    c := slice_create([]byte, len(s)+1, allocator, loc)
+    slice_copy(c, s)
     c[len(s)] = 0
     return cstring(&c[0])
 }

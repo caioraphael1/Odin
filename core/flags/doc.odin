@@ -68,7 +68,7 @@ It accepts a string of flags that can be mixed together:
 - r: read
 - w: write
 - c: create, create the file if it doesn't exist
-- a: append, add any new writes to the end of the file
+- a: dyn_array_append, add any new writes to the end of the file
 - t: truncate, erase the file on open
 
 

@@ -131,7 +131,7 @@ parse_qt_linguist_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTI
 				if num_plurals < 2 {
 					return translation, .TS_File_Expected_NumerusForm
 				}
-				section[source] = make_slice([]string, num_plurals)
+				section[source] = slice_create([]string, num_plurals)
 
 				num_plurals = 0
 				for {
@@ -143,7 +143,7 @@ parse_qt_linguist_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTI
 				}
 			} else {
 				// Single translation
-				section[source] = make_slice([]string, 1)
+				section[source] = slice_create([]string, 1)
 				section[source][0] = xlat
 			}
 

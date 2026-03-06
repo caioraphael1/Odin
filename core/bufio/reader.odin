@@ -33,7 +33,7 @@ reader_init :: proc(b: ^Reader, rd: io.Reader, size: int = DEFAULT_BUF_SIZE, all
     size = max(size, MIN_READ_BUFFER_SIZE)
     reader_reset(b, rd)
     b.buf_allocator = allocator
-    b.buf, _ = make_slice([]byte, size, allocator, loc)
+    b.buf, _ = slice_create([]byte, size, allocator, loc)
 }
 
 // reader_init initializes using a user provided bytes buffer `buf`
@@ -45,7 +45,7 @@ reader_init_with_buf :: proc(b: ^Reader, rd: io.Reader, buf: []byte) {
 
 // reader_destroy destroys the underlying buffer with its associated allocator IFF that allocator has been set
 reader_destroy :: proc(b: ^Reader) {
-    _ = delete_slice(b.buf, b.buf_allocator)
+    _ = slice_delete(b.buf, b.buf_allocator)
     b^ = {}
 }
 
@@ -66,7 +66,7 @@ reader_reset :: proc(b: ^Reader, r: io.Reader) {
 @(private)
 _reader_read_new_chunk :: proc(b: ^Reader) -> io.Error {
     if b.r > 0 {
-        copy_slice(b.buf, b.buf[b.r:b.w])
+        slice_copy(b.buf, b.buf[b.r:b.w])
         b.w -= b.r
         b.r = 0
     }
@@ -212,7 +212,7 @@ reader_read :: proc(b: ^Reader, p: []byte) -> (n: int, err: io.Error) {
         b.w += n
     }
 
-    n = copy_slice(p, b.buf[b.r:b.w])
+    n = slice_copy(p, b.buf[b.r:b.w])
     b.r += n
     b.last_byte = int(b.buf[b.r-1])
     b.last_rune_size = -1
@@ -418,9 +418,9 @@ reader_read_bytes :: proc(b: ^Reader, delim: byte, allocator: mem.Allocator) -> 
             break
         }
 
-        _ = append_many(&full, ..frag)
+        _ = dyn_array_append_many(&full, ..frag)
     }
-    _ = append_many(&full, ..frag)
+    _ = dyn_array_append_many(&full, ..frag)
     return full[:], err
 }
 

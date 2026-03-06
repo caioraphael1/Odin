@@ -171,8 +171,8 @@ initialize_symbols :: proc(
 
 		// No valid symbol override tag found, fall back to `<symbol_prefix>name`.
 		if len(prefixed_name) == 0 {
-			offset := copy_slice(prefixed_symbol_buf[:], symbol_prefix)
-			copy_slice(prefixed_symbol_buf[offset:], field.name)
+			offset := slice_copy(prefixed_symbol_buf[:], symbol_prefix)
+			slice_copy(prefixed_symbol_buf[offset:], field.name)
 			prefixed_name = string(prefixed_symbol_buf[:len(symbol_prefix) + len(field.name)])
 		}
 

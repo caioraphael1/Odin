@@ -49,7 +49,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 		delete(hosts)
 	}
 
-	host_overrides := make_dynamic_array([dynamic]DNS_Record)
+	host_overrides := dyn_array_create([dynamic]DNS_Record)
 	for host in hosts {
 		if host.name != hostname {
 			continue
@@ -63,7 +63,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 				},
 				address = host.addr.(IP4_Address),
 			}
-			append(&host_overrides, record)
+			dyn_array_append(&host_overrides, record)
 		} else if type == .IP6 && family_from_address(host.addr) == .IP6 {
 			record := DNS_Record_IP6{
 				base = {
@@ -72,7 +72,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 				},
 				address = host.addr.(IP6_Address),
 			}
-			append(&host_overrides, record)
+			dyn_array_append(&host_overrides, record)
 		}
 	}
 

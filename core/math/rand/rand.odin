@@ -1026,7 +1026,7 @@ Example:
     perm_example :: proc() -> (err: mem.Allocator_Error) {
         data := rand.perm(4) or_return
         fmt.println(data)
-        defer _ = delete_slice(data, context.allocator)
+        defer _ = slice_delete(data, context.allocator)
 
         return
     }
@@ -1039,7 +1039,7 @@ Possible Output:
 */
 
 perm :: proc(n: int, allocator: mem.Allocator, gen: runtime.Random_Generator) -> (res: []int, err: mem.Allocator_Error) {
-    m := make_slice([]int, n, allocator) or_return
+    m := slice_create([]int, n, allocator) or_return
     for i := 0; i < n; i += 1 {
         j := int_max(i+1, gen)
         m[i] = m[j]

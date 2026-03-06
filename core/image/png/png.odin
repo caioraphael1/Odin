@@ -208,9 +208,9 @@ copy_chunk :: proc(src: image.PNG_Chunk, allocator : mem.Allocator) -> (dest: im
 
     dest.header = src.header
     dest.crc    = src.crc
-    dest.data   = make_slice([]u8, dest.header.length, allocator) or_return
+    dest.data   = slice_create([]u8, dest.header.length, allocator) or_return
 
-    copy_slice(dest.data[:], src.data[:])
+    slice_copy(dest.data[:], src.data[:])
     return
 }
 
@@ -221,9 +221,9 @@ append_chunk :: proc(list: ^[dynamic]image.PNG_Chunk, src: image.PNG_Chunk, allo
 
     c := copy_chunk(src, allocator) or_return
     length := len(list)
-    _ = append(list, c)
+    _ = dyn_array_append(list, c)
     if len(list) != length + 1 {
-        // Resize during append failed.
+        // Resize during dyn_array_append failed.
         return .Unable_To_Allocate_Or_Resize
     }
 
@@ -721,7 +721,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         // We need to create a new image buffer
         dest_raw_size := compute_buffer_size(int(header.width), int(header.height), out_image_channels, 8)
         t := bytes.Buffer{}
-        if resize_dynamic_array(&t.buf, dest_raw_size) != nil {
+        if dyn_array_resize(&t.buf, dest_raw_size) != nil {
             return {}, .Unable_To_Allocate_Or_Resize
         }
 
@@ -791,7 +791,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         // We need to create a new image buffer
         dest_raw_size := compute_buffer_size(int(header.width), int(header.height), out_image_channels, 16)
         t := bytes.Buffer{}
-        if resize_dynamic_array(&t.buf, dest_raw_size) != nil {
+        if dyn_array_resize(&t.buf, dest_raw_size) != nil {
             return {}, .Unable_To_Allocate_Or_Resize
         }
 
@@ -990,7 +990,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         // We need to create a new image buffer
         dest_raw_size := compute_buffer_size(int(header.width), int(header.height), out_image_channels, 8)
         t := bytes.Buffer{}
-        if resize_dynamic_array(&t.buf, dest_raw_size) != nil {
+        if dyn_array_resize(&t.buf, dest_raw_size) != nil {
             return {}, .Unable_To_Allocate_Or_Resize
         }
 
@@ -1215,7 +1215,7 @@ defilter_8 :: proc(params: ^Filter_Params) -> (ok: bool) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // Apron so we don't need to special case first rows.
-    up := make_slice([]u8, row_stride, runtime.temp_allocator)
+    up := slice_create([]u8, row_stride, runtime.temp_allocator)
     ok = true
 
     for _ in 0..<height {
@@ -1224,7 +1224,7 @@ defilter_8 :: proc(params: ^Filter_Params) -> (ok: bool) {
         filter := Row_Filter(src[0]); src = src[1:]
         switch filter {
         case .None:
-            copy_slice(dest, src[:row_stride])
+            slice_copy(dest, src[:row_stride])
         case .Sub:
             for i := 0; i < channels; i += 1 {
                 dest[i] = src[i]
@@ -1282,7 +1282,7 @@ defilter_less_than_8 :: proc(params: ^Filter_Params) -> bool #no_bounds_check {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // Apron so we don't need to special case first rows.
-    up := make_slice([]u8, row_stride_out, runtime.temp_allocator)
+    up := slice_create([]u8, row_stride_out, runtime.temp_allocator)
 
     #no_bounds_check for _ in 0..<height {
         nk := row_stride_in - channels
@@ -1292,7 +1292,7 @@ defilter_less_than_8 :: proc(params: ^Filter_Params) -> bool #no_bounds_check {
         filter := Row_Filter(src[0]); src = src[1:]
         switch filter {
         case .None:
-            copy_slice(dest, src[:row_stride_in])
+            slice_copy(dest, src[:row_stride_in])
         case .Sub:
             for i in 0..=channels {
                 dest[i] = src[i]
@@ -1437,7 +1437,7 @@ defilter_16 :: proc(params: ^Filter_Params) -> bool {
 
     // TODO: See about doing a Duff's #unroll where practicable
     // Apron so we don't need to special case first rows.
-    up := make_slice([]u8, row_stride, runtime.temp_allocator)
+    up := slice_create([]u8, row_stride, runtime.temp_allocator)
 
     for y := 0; y < height; y += 1 {
         nk := row_stride - stride
@@ -1445,7 +1445,7 @@ defilter_16 :: proc(params: ^Filter_Params) -> bool {
         filter := Row_Filter(src[0]); src = src[1:]
         switch filter {
         case .None:
-            copy_slice(dest, src[:row_stride])
+            slice_copy(dest, src[:row_stride])
         case .Sub:
             for i := 0; i < stride; i += 1 {
                 dest[i] = src[i]
@@ -1498,7 +1498,7 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
     bytes_per_channel := depth == 16 ? 2 : 1
 
     num_bytes := compute_buffer_size(width, height, channels, depth == 16 ? 16 : 8)
-    if resize_dynamic_array(&img.pixels.buf, num_bytes) != nil {
+    if dyn_array_resize(&img.pixels.buf, num_bytes) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
 
@@ -1540,7 +1540,7 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
             if x > 0 && y > 0 {
                 temp: bytes.Buffer
                 temp_len := compute_buffer_size(x, y, channels, depth == 16 ? 16 : 8)
-                if resize_dynamic_array(&temp.buf, temp_len) != nil {
+                if dyn_array_resize(&temp.buf, temp_len) != nil {
                     return .Unable_To_Allocate_Or_Resize
                 }
 

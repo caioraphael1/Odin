@@ -28,17 +28,17 @@ version_check :: proc() {
     version(&v.x, &v.y, &v.z)
     if v != BINDINGS_VERSION {
         buf: [1024]byte
-        n := copy_slice(buf[:],  "miniaudio version mismatch: ")
-        n += copy_slice(buf[n:], "bindings are for version ")
-        n += copy_slice(buf[n:], BINDINGS_VERSION_STRING)
-        n += copy_slice(buf[n:], ", but version ")
-        n += copy_slice(buf[n:], string(version_string()))
-        n += copy_slice(buf[n:], " is linked, make sure to compile the correct miniaudio version by going to `vendor/miniaudio/src` ")
+        n := slice_copy(buf[:],  "miniaudio version mismatch: ")
+        n += slice_copy(buf[n:], "bindings are for version ")
+        n += slice_copy(buf[n:], BINDINGS_VERSION_STRING)
+        n += slice_copy(buf[n:], ", but version ")
+        n += slice_copy(buf[n:], string(version_string()))
+        n += slice_copy(buf[n:], " is linked, make sure to compile the correct miniaudio version by going to `vendor/miniaudio/src` ")
 
         when ODIN_OS == .Windows {
-            n += copy_slice(buf[n:], "and executing `build.bat`")
+            n += slice_copy(buf[n:], "and executing `build.bat`")
         } else {
-            n += copy_slice(buf[n:], "and executing `make`")
+            n += slice_copy(buf[n:], "and executing `make`")
         }
 
         panic(string(buf[:n]))

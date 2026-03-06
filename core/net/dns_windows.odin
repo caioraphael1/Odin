@@ -38,7 +38,7 @@ _init_dns_configuration :: proc() {
     sync.once_do_without_data(&dns_config_initialized, proc() {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
         val := os.replace_environment_placeholders(dns_configuration.hosts_file, runtime.temp_allocator)
-        copy_from_string(dns_configuration.hosts_file_buf[:], val)
+        slice_copy_from_string(dns_configuration.hosts_file_buf[:], val)
         dns_configuration.hosts_file = string(dns_configuration.hosts_file_buf[:len(val)])
     })
 }
@@ -75,7 +75,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
         count += 1
     }
 
-    recs, _ := make_dynamic_array_len_cap([dynamic]DNS_Record, 0, count, allocator)
+    recs, _ := dyn_array_create_len_cap([dynamic]DNS_Record, 0, count, allocator)
     if recs == nil {
         return nil, .System_Error // return no results if OOM.
     }
@@ -99,7 +99,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
                 base    = base_record,
                 address = addr,
             }
-            _ = append(&recs, record)
+            _ = dyn_array_append(&recs, record)
 
         case .IP6:
             addr := IP6_Address(transmute([8]u16be) r.Data.AAAA)
@@ -107,7 +107,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
                 base    = base_record,
                 address = addr,
             }
-            _ = append(&recs, record)
+            _ = dyn_array_append(&recs, record)
 
         case .CNAME:
             data_clone, _ := strings.clone(string(r.Data.CNAME), allocator)
@@ -115,7 +115,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
                 base      = base_record,
                 host_name = data_clone,
             }
-            _ = append(&recs, record)
+            _ = dyn_array_append(&recs, record)
 
         case .TXT:
             n := r.Data.TXT.dwStringCount
@@ -128,7 +128,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
                     base  = base_record,
                     value = cstr_clone,
                 }
-                _ = append(&recs, record)
+                _ = dyn_array_append(&recs, record)
             }
 
         case .NS:
@@ -137,7 +137,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
                 base      = base_record,
                 host_name = ns_clone,
             }
-            _ = append(&recs, record)
+            _ = dyn_array_append(&recs, record)
 
         case .MX:
             /*
@@ -153,7 +153,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
                 host_name  = name_exchange_clone,
                 preference = int(r.Data.MX.wPreference),
             }
-            _ = append(&recs, record)
+            _ = dyn_array_append(&recs, record)
 
         case .SRV:
             // NOTE(tetra): Srv record name should be of the form '_servicename._protocol.hostname'
@@ -181,7 +181,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
 
             name_target_clone, _ := strings.clone(string(r.Data.SRV.pNameTarget), allocator)
 
-            _ = append(&recs, DNS_Record_SRV {
+            _ = dyn_array_append(&recs, DNS_Record_SRV {
                 base          = base_record,
                 target        = name_target_clone, // The target hostname/address that the service can be found on
                 port          = int(r.Data.SRV.wPort),

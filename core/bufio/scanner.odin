@@ -59,11 +59,11 @@ scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []byte) -> ^Sca
     s.split = scan_lines
     s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
     s.buf = mem.buffer_from_slice(buf)
-    _ = resize_dynamic_array(&s.buf, cap(s.buf))
+    _ = dyn_array_resize(&s.buf, cap(s.buf))
     return s
 }
 scanner_destroy :: proc(s: ^Scanner) {
-    _ = delete_dynamic_array(s.buf)
+    _ = dyn_array_delete(s.buf)
 }
 
 
@@ -163,7 +163,7 @@ scan :: proc(s: ^Scanner) -> bool {
 
         // More data must be required to be read
         if s.start > 0 && (s.end == len(s.buf) || s.start > len(s.buf)/2) {
-            copy_slice(s.buf[:], s.buf[s.start:s.end])
+            slice_copy(s.buf[:], s.buf[s.start:s.end])
             s.end -= s.start
             s.start = 0
         }
@@ -191,7 +191,7 @@ scan :: proc(s: ^Scanner) -> bool {
 
             old_size := len(s.buf)
             new_size = min(new_size, s.max_token_size)
-            _ = resize_dynamic_array(&s.buf, new_size)
+            _ = dyn_array_resize(&s.buf, new_size)
             s.end -= s.start
             s.start = 0
 

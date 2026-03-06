@@ -72,7 +72,7 @@ generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: int)
         } else {
             s = "+Inf"
         }
-        n := copy_from_string(buf, s)
+        n := slice_copy_from_string(buf, s)
         return buf[:n]
 
     case 0: // denormalized
@@ -141,7 +141,7 @@ format_digits :: proc(buf: []byte, shortest: bool, neg: bool, digs: Decimal_Slic
         return b.b[:b.n]
     }
     add_bytes :: proc(buf: ^Buffer, bytes: ..byte) {
-        buf.n += copy_slice(buf.b[buf.n:], bytes)
+        buf.n += slice_copy(buf.b[buf.n:], bytes)
     }
 
     b := Buffer{b = buf}

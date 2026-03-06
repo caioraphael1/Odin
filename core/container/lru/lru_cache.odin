@@ -37,8 +37,8 @@ init :: proc(c: ^$C/Cache($Key, $Value), capacity: int, entries_allocator: runti
 
 // destroy deinitializes a Cachem
 destroy :: proc(c: ^$C/Cache($Key, $Value), call_on_remove: bool) {
-	clear_dynamic_array(c, call_on_remove)
-	_ = delete_slice(c.entries)
+	dyn_array_clear(c, call_on_remove)
+	_ = slice_delete(c.entries)
 }
 
 // clear the contents of a Cache
@@ -49,7 +49,7 @@ clear :: proc(c: ^$C/Cache($Key, $Value), call_on_remove: bool) {
 		}
 		_ = free(node, c.node_allocator)
 	}
-	runtime.clear_dynamic_array(&c.entries)
+	runtime.dyn_array_clear(&c.entries)
 	c.head = nil
 	c.tail = nil
 	c.count = 0
@@ -151,7 +151,7 @@ _remove_node :: proc(c: ^$C/Cache($Key, $Value), node: ^Node(Key, Value)) {
 	node.prev = nil
 	node.next = nil
 
-	delete_key(&c.entries, node.key)
+	map_delete_key(&c.entries, node.key)
 
 	_call_on_remove(c, node)
 }

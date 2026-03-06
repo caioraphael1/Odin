@@ -15,7 +15,7 @@ _multi_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
         r := mr.readers[0]
         n, err = _i64_err(read(r, p))
         if err == .EOF {
-            ordered_remove(&mr.readers, 0)
+            dyn_array_ordered_remove(&mr.readers, 0)
         }
         if n > 0 || err != .EOF {
             if err == .EOF && len(mr.readers) > 0 {
@@ -30,14 +30,14 @@ _multi_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 
 
 multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: runtime.Allocator) -> (r: Reader) {
-    all_readers, _ := make_dynamic_array_len_cap([dynamic]Reader, 0, len(readers), allocator)
+    all_readers, _ := dyn_array_create_len_cap([dynamic]Reader, 0, len(readers), allocator)
 
     for w in readers {
         if w.procedure == _multi_reader_proc {
             other := (^Multi_Reader)(w.data)
-            _ = append_many(&all_readers, ..other.readers[:])
+            _ = dyn_array_append_many(&all_readers, ..other.readers[:])
         } else {
-            _ = append(&all_readers, w)
+            _ = dyn_array_append(&all_readers, w)
         }
     }
 
@@ -49,7 +49,7 @@ multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: runti
 }
 
 multi_reader_destroy :: proc(mr: ^Multi_Reader) {
-    _ = delete_dynamic_array(mr.readers)
+    _ = dyn_array_delete(mr.readers)
 }
 
 
@@ -80,14 +80,14 @@ _multi_writer_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 
 
 multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: runtime.Allocator) -> (out: Writer) {
-    mw.writers, _ = make_dynamic_array_len_cap([dynamic]Writer, 0, len(writers), allocator)
+    mw.writers, _ = dyn_array_create_len_cap([dynamic]Writer, 0, len(writers), allocator)
 
     for w in writers {
         if w.procedure == _multi_writer_proc {
             other := (^Multi_Writer)(w.data)
-            _ = append_many(&mw.writers, ..other.writers[:])
+            _ = dyn_array_append_many(&mw.writers, ..other.writers[:])
         } else {
-            _ = append(&mw.writers, w)
+            _ = dyn_array_append(&mw.writers, w)
         }
     }
 
@@ -97,5 +97,5 @@ multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: runti
 }
 
 multi_writer_destroy :: proc(mw: ^Multi_Writer) {
-    _ = delete_dynamic_array(mw.writers)
+    _ = dyn_array_delete(mw.writers)
 }

@@ -9,7 +9,7 @@ import "core:mem"
 load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> (name_servers: []Endpoint, ok: bool) {
     res, err := os.read_entire_file_from_path(resolv_conf_path, allocator)
     if err != nil { return }
-    defer _ = delete_slice(res, allocator)
+    defer _ = slice_delete(res, allocator)
     resolv_str := string(res)
 
     return parse_resolv_conf(resolv_str, allocator), true

@@ -428,7 +428,7 @@ fill :: proc(array: $T/[]$E, value: E) #no_bounds_check {
     }
     array[0] = value
     for i := 1; i < len(array); i *= 2 {
-        copy_slice(array[i:], array[:i])
+        slice_copy(array[i:], array[:i])
     }
 }
 
@@ -463,7 +463,7 @@ concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err:
     res = make(T, n, allocator) or_return
     i := 0
     for s in a {
-        i += copy_slice(res[i:], s)
+        i += slice_copy(res[i:], s)
     }
     return
 }
@@ -471,8 +471,8 @@ concatenate :: proc(a: []$T/[]$E, allocator: runtime.Allocator) -> (res: T, err:
 // copies a slice into a new slice
 
 clone :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([]E, runtime.Allocator_Error) {
-    d, err := make_slice([]E, len(a), allocator, loc)
-    copy_slice(d[:], a)
+    d, err := slice_create([]E, len(a), allocator, loc)
+    slice_copy(d[:], a)
     return d, err
 }
 
@@ -480,8 +480,8 @@ clone :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location)
 // copies slice into a new dynamic array
 
 clone_to_dynamic :: proc(a: $T/[]$E, allocator: runtime.Allocator, loc := #caller_location) -> ([dynamic]E, runtime.Allocator_Error) {
-    d, err := make_dynamic_array([dynamic]E, len(a), allocator, loc)
-    copy_slice(d[:], a)
+    d, err := dyn_array_create([dynamic]E, len(a), allocator, loc)
+    slice_copy(d[:], a)
     return d, err
 }
 to_dynamic :: clone_to_dynamic
@@ -583,7 +583,7 @@ as_ptr :: proc(array: $T/[]$E) -> [^]E {
 
 
 mapper :: proc(s: $S/[]$U, f: proc(U) -> $V, allocator: runtime.Allocator) -> (r: []V, err: runtime.Allocator_Error) {
-    r = make_slice([]V, len(s), allocator) or_return
+    r = slice_create([]V, len(s), allocator) or_return
     for v, i in s {
         r[i] = f(v)
     }
@@ -610,10 +610,10 @@ reduce_reverse :: proc(s: $S/[]$U, initializer: $V, f: proc(V, U) -> V) -> V {
 
 
 filter :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) {
-    r := make_dynamic_array([dynamic]U, 0, 0, allocator) or_return
+    r := dyn_array_create([dynamic]U, 0, 0, allocator) or_return
     for v in s {
         if f(v) {
-            _ = append(&r, v)
+            _ = dyn_array_append(&r, v)
         }
     }
     return r[:], nil
@@ -621,11 +621,11 @@ filter :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> 
 
 
 filter_reverse :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Allocator) -> (res: S, err: runtime.Allocator_Error) {
-    r := make_dynamic_array([dynamic]U, 0, 0, allocator) or_return
+    r := dyn_array_create([dynamic]U, 0, 0, allocator) or_return
     for i := len(s)-1; i >= 0; i -= 1 {
         #no_bounds_check v := s[i]
         if f(v) {
-            _ = append(&r, v)
+            _ = dyn_array_append(&r, v)
         }
     }
     return r[:], nil
@@ -635,7 +635,7 @@ filter_reverse :: proc(s: $S/[]$U, f: proc(U) -> bool, allocator: runtime.Alloca
 scanner :: proc (s: $S/[]$U, initializer: $V, f: proc(V, U) -> V, allocator: runtime.Allocator) -> (res: []V, err: runtime.Allocator_Error) {
     if len(s) == 0 { return }
 
-    res = make_slice([]V, len(s), allocator) or_return
+    res = slice_create([]V, len(s), allocator) or_return
     p := as_ptr(s)
     q := as_ptr(res)
     r := initializer
@@ -660,9 +660,9 @@ repeat :: proc(s: $S/[]$U, count: int, allocator: runtime.Allocator) -> (b: S, e
     }
 
     b = make(S, len(s)*count, allocator) or_return
-    i := copy_slice(b, s)
+    i := slice_copy(b, s)
     for i < len(b) { // 2^N trick to reduce the need to copy
-        copy_slice(b[i:], b[:i])
+        slice_copy(b[i:], b[:i])
         i *= 2
     }
     return
@@ -917,7 +917,7 @@ bitset_to_enum_slice_with_buffer :: proc(buf: []$E, bs: $T) -> (slice: []E) wher
 //    sl := slice.bitset_to_enum_slice(bs)
 
 bitset_to_enum_slice_with_make :: proc(bs: $T, $E: typeid, allocator: runtime.Allocator) -> (slice: []E) where intrinsics.type_is_enum(E), intrinsics.type_bit_set_elem_type(T) == E {
-    buf := make_slice([]E, card(bs), allocator)
+    buf := slice_create([]E, card(bs), allocator)
     return bitset_to_enum_slice(buf, bs)
 }
 

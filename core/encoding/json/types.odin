@@ -96,31 +96,31 @@ destroy_value :: proc(value: Value, allocator: runtime.Allocator, loc := #caller
     #partial switch v in value {
     case Object:
         for key, elem in v {
-            _ = delete_string(key, allocator, loc)
+            _ = string_delete(key, allocator, loc)
             destroy_value(elem, allocator, loc)
         }
-        _ = delete_map(v, loc)
+        _ = map_delete(v, loc)
     case Array:
         for elem in v {
             destroy_value(elem, allocator, loc)
         }
-        _ = delete_dynamic_array(v, loc)
+        _ = dyn_array_delete(v, loc)
     case String:
-        _ = delete_string(v, allocator, loc)
+        _ = string_delete(v, allocator, loc)
     }
 }
 
 clone_value :: proc(value: Value, allocator: runtime.Allocator) -> Value {
     #partial switch &v in value {
     case Object:
-        new_o, _ := make_map_cap(Object, len(v), allocator)
+        new_o, _ := map_create_cap(Object, len(v), allocator)
         for key, elem in v {
             k_clone,    _ := strings.clone(key, allocator)
             new_o[k_clone] = clone_value(elem, allocator)
         }
         return new_o
     case Array:
-        new_a, _ := make_dynamic_array_len(Array, len(v), allocator)
+        new_a, _ := dyn_array_create_len(Array, len(v), allocator)
         for elem, idx in v {
             new_a[idx] = clone_value(elem, allocator)
         }

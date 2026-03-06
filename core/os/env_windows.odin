@@ -20,7 +20,7 @@ _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: 
         return "", true
     }
 
-    b, _ := make_slice([]u16, n+1, runtime.temp_allocator)
+    b, _ := slice_create([]u16, n+1, runtime.temp_allocator)
 
     n = win32.GetEnvironmentVariableW(wkey, raw_data(b), u32(len(b)))
     if n == 0 {
@@ -114,12 +114,12 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
         }
     }
 
-    r := make_dynamic_array_len_cap([dynamic]string, 0, n, allocator) or_return
+    r := dyn_array_create_len_cap([dynamic]string, 0, n, allocator) or_return
     defer if err != nil {
         for e in r {
-            _ = delete_string(e, allocator)
+            _ = string_delete(e, allocator)
         }
-        _ = delete_dynamic_array(r)
+        _ = dyn_array_delete(r)
     }
     for from, i, p := 0, 0, envs; true; i += 1 {
         c := ([^]u16)(p)[i]
@@ -129,7 +129,7 @@ _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error
             }
             w := ([^]u16)(p)[from:i]
             s := win32_utf16_u16_to_utf8(w, allocator) or_return
-            _ = append(&r, s)
+            _ = dyn_array_append(&r, s)
             from = i + 1
         }
     }

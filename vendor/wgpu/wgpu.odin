@@ -1696,10 +1696,10 @@ CreateInstance :: proc "c" (/* NULLABLE */ descriptor: /* const */ ^InstanceDesc
 
         if v.xyz != BINDINGS_VERSION.xyz {
             buf: [1024]byte
-            n := copy_slice(buf[:],  "wgpu-native version mismatch: ")
-            n += copy_slice(buf[n:], "bindings are for version ")
-            n += copy_slice(buf[n:], BINDINGS_VERSION_STRING)
-            n += copy_slice(buf[n:], ", but a different version is linked")
+            n := slice_copy(buf[:],  "wgpu-native version mismatch: ")
+            n += slice_copy(buf[n:], "bindings are for version ")
+            n += slice_copy(buf[n:], BINDINGS_VERSION_STRING)
+            n += slice_copy(buf[n:], ", but a different version is linked")
             panic(string(buf[:n]))
         }
     }
@@ -1802,7 +1802,7 @@ DeviceCreateBufferWithDataSlice :: proc "c" (device: Device, descriptor: /* cons
     })
 
     mapping := BufferGetMappedRangeSlice(buf, 0, T, len(data))
-    copy_slice(mapping, data)
+    slice_copy(mapping, data)
 
     BufferUnmap(buf)
     return

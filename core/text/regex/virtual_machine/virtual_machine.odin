@@ -632,18 +632,18 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 
     sizing := len(code) >> 6 + (1 if len(code) & 0x3F > 0 else 0)
     assert(sizing > 0)
-    vm.busy_map, _ = make_slice([]u64, sizing, allocator)
+    vm.busy_map, _ = slice_create([]u64, sizing, allocator)
 
     max_possible_threads := max(1, opcode_count(vm.code) - 1)
 
-    vm.threads, _ = make_multi_pointer([^]Thread, max_possible_threads, allocator)
-    vm.next_threads, _ = make_multi_pointer([^]Thread, max_possible_threads, allocator)
+    vm.threads, _ = multi_pointer_create([^]Thread, max_possible_threads, allocator)
+    vm.next_threads, _ = multi_pointer_create([^]Thread, max_possible_threads, allocator)
 
     return
 }
 
 destroy :: proc(vm: Machine, allocator: mem.Allocator) {
-    _ = delete_slice(vm.busy_map, allocator)
+    _ = slice_delete(vm.busy_map, allocator)
     _ = free(vm.threads, allocator)
     _ = free(vm.next_threads, allocator)
 }

@@ -99,7 +99,7 @@ _destroy :: proc(l: ^Event_Loop) {
 __tick :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 	l.now = time.now()
 
-	for op in queue.pop_front_safe(&l.completed) {
+	for op in queue.dyn_array_pop_front_safe(&l.completed) {
 		if !op._impl.removed {
 			op.cb(op)
 		}

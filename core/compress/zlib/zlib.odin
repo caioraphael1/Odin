@@ -140,7 +140,7 @@ grow_buffer :: proc(buf: ^[dynamic]u8) -> (err: compress.Error) {
         Double until we reach the maximum allowed.
     */
     new_size := min(len(buf) << 1, compress.COMPRESS_OUTPUT_ALLOCATE_MAX)
-    return resize_dynamic_array(buf, new_size)
+    return dyn_array_resize(buf, new_size)
 }
 
 /*
@@ -494,7 +494,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
         /*
             Try to pre-allocate the output buffer.
         */
-        _ = reserve_dynamic_array(&z.output.buf, expected_output_size) or_return
+        _ = dyn_array_reserve(&z.output.buf, expected_output_size) or_return
         _ = resize (&z.output.buf, expected_output_size) or_return
     }
 
@@ -638,7 +638,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
     }
 
     if int(z.bytes_written) != len(z.output.buf) {
-        _ = resize_dynamic_array(&z.output.buf, int(z.bytes_written)) or_return
+        _ = dyn_array_resize(&z.output.buf, int(z.bytes_written)) or_return
     }
 
     return nil

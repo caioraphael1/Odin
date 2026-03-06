@@ -97,7 +97,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
         _ = win32.FindClose(it.impl.find_handle)
     }
     if it.impl.path != "" {
-        _ = delete_string(it.impl.path, allocator)
+        _ = string_delete(it.impl.path, allocator)
     }
 
     if !is_directory(impl.name) {
@@ -108,8 +108,8 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     wpath := string16(impl.wname)
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    wpath_search, _ := make_slice([]u16, len(wpath)+3, runtime.temp_allocator)
-    copy_from_string16(wpath_search, wpath)
+    wpath_search, _ := slice_create([]u16, len(wpath)+3, runtime.temp_allocator)
+    slice_copy_from_string16(wpath_search, wpath)
     wpath_search[len(wpath)+0] = '\\'
     wpath_search[len(wpath)+1] = '*'
     wpath_search[len(wpath)+2] = 0
@@ -137,6 +137,6 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator
         return
     }
     file_info_delete(it.impl.prev_fi, allocator)
-    _ = delete_string(it.impl.path, allocator)
+    _ = string_delete(it.impl.path, allocator)
     _ = win32.FindClose(it.impl.find_handle)
 }

@@ -18,8 +18,8 @@ region_load_from_buffer :: proc(buffer: []u8, reg: string, allocator: runtime.Al
 }
 
 rrule_destroy :: proc(rrule: datetime.TZ_RRule, allocator: runtime.Allocator) {
-    _ = delete_string(rrule.std_name, allocator)
-    _ = delete_string(rrule.dst_name, allocator)
+    _ = string_delete(rrule.std_name, allocator)
+    _ = string_delete(rrule.dst_name, allocator)
 }
 
 region_destroy :: proc(region: ^datetime.TZ_Region, allocator: runtime.Allocator) {
@@ -28,11 +28,11 @@ region_destroy :: proc(region: ^datetime.TZ_Region, allocator: runtime.Allocator
     }
 
     for name in region.shortnames {
-        _ = delete_string(name, allocator)
+        _ = string_delete(name, allocator)
     }
-    _ = delete_slice(region.shortnames, allocator)
-    _ = delete_slice(region.records, allocator)
-    _ = delete_string(region.name, allocator)
+    _ = slice_delete(region.shortnames, allocator)
+    _ = slice_delete(region.records, allocator)
+    _ = string_delete(region.name, allocator)
     rrule_destroy(region.rrule, allocator)
     _ = free(region, allocator)
 }

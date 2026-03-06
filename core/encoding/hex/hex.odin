@@ -21,7 +21,7 @@ Returns:
 - err: An optional allocator error if one occured, `.None` otherwise
 */
 encode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: runtime.Allocator_Error) {
-    res, err = make_slice([]byte, len(src) * 2, allocator, loc)
+    res, err = slice_create([]byte, len(src) * 2, allocator, loc)
     #no_bounds_check for i, j := 0, 0; i < len(src); i += 1 {
         v := src[i]
         res[j]   = LOWER[v>>4]
@@ -63,7 +63,7 @@ Returns:
 - err: An optional allocator error if one occured, `.None` otherwise
 */
 encode_upper :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: runtime.Allocator_Error) {
-    res, err = make_slice([]byte, len(src) * 2, allocator, loc)
+    res, err = slice_create([]byte, len(src) * 2, allocator, loc)
     #no_bounds_check for i, j := 0, 0; i < len(src); i += 1 {
         v := src[i]
         res[j]   = UPPER[v>>4]
@@ -109,7 +109,7 @@ decode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -
         return
     }
 
-    dst, _ = make_slice([]byte, len(src) / 2, allocator, loc)
+    dst, _ = slice_create([]byte, len(src) / 2, allocator, loc)
     #no_bounds_check for i, j := 0, 1; j < len(src); j += 2 {
         p := src[j-1]
         q := src[j]

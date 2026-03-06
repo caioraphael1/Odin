@@ -48,7 +48,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 	}
 
 	// Allocate and get the entries.
-	buf, alloc_err := make_slice([]byte, needed)
+	buf, alloc_err := slice_create([]byte, needed)
 	if alloc_err != nil {
 		return nil, .Allocation_Failure
 	}
@@ -157,7 +157,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 			}
 
 			if address_set {
-				append(&interface.unicast, lease)
+				dyn_array_append(&interface.unicast, lease)
 			}
 
 			if_builder[ifam.index] = interface
@@ -169,7 +169,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 	// Remove any interfaces that were allocated but had no name.
 	#no_bounds_check for i := len(if_builder) - 1; i >= 0; i -= 1 {
 		if len(if_builder[i].adapter_name) == 0 {
-			ordered_remove(&if_builder, i)
+			dyn_array_ordered_remove(&if_builder, i)
 		}
 	}
 

@@ -28,7 +28,7 @@ have to be precomputed, sorted and only then written to the output.
 Empty flags will do nothing extra to the value.
 
 The allocations for the `.Deterministic_Map_Sorting` flag are done using the given `temp_allocator`.
-but are followed by the necessary `_ = delete_slice` and `free` calls if the allocator supports them.
+but are followed by the necessary `_ = slice_delete` and `free` calls if the allocator supports them.
 This is helpful when the CBOR size is so big that you don't want to collect all the temporary
 allocations until the end.
 */
@@ -357,14 +357,14 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
 
             switch info.key.id {
             case string:
-                entries := make_dynamic_array([dynamic]Encoded_Entry_Fast(^[]byte), 0, map_cap, e.temp_allocator) or_return
-                defer _ = delete_slice(entries)
+                entries := dyn_array_create([dynamic]Encoded_Entry_Fast(^[]byte), 0, map_cap, e.temp_allocator) or_return
+                defer _ = slice_delete(entries)
 
                 for bucket_index in 0..<map_cap {
                     runtime.map_hash_is_valid(hs[bucket_index]) or_continue
 
                     key := (^[]byte)(runtime.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    _ = append(&entries, Encoded_Entry_Fast(^[]byte){
+                    _ = dyn_array_append(&entries, Encoded_Entry_Fast(^[]byte){
                         pre_key = pre_key(e, string(key^)),
                         key     = key,
                         val_idx = bucket_index,
@@ -391,14 +391,14 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
                 return
 
             case cstring:
-                entries := make_dynamic_array([dynamic]Encoded_Entry_Fast(^cstring), 0, map_cap, e.temp_allocator) or_return
-                defer _ = delete_slice(entries)
+                entries := dyn_array_create([dynamic]Encoded_Entry_Fast(^cstring), 0, map_cap, e.temp_allocator) or_return
+                defer _ = slice_delete(entries)
 
                 for bucket_index in 0..<map_cap {
                     runtime.map_hash_is_valid(hs[bucket_index]) or_continue
 
                     key := (^cstring)(runtime.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    _ = append(&entries, Encoded_Entry_Fast(^cstring){
+                    _ = dyn_array_append(&entries, Encoded_Entry_Fast(^cstring){
                         pre_key = pre_key(e, string(key^)),
                         key     = key,
                         val_idx = bucket_index,
@@ -427,8 +427,8 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
                 return
 
             case:
-                entries := make_dynamic_array([dynamic]Encoded_Entry, 0, map_cap, e.temp_allocator) or_return
-                defer _ = delete_slice(entries)
+                entries := dyn_array_create([dynamic]Encoded_Entry, 0, map_cap, e.temp_allocator) or_return
+                defer _ = slice_delete(entries)
 
                 for bucket_index in 0..<map_cap {
                     runtime.map_hash_is_valid(hs[bucket_index]) or_continue
@@ -436,7 +436,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
                     key := rawptr(runtime.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
                     key_builder := strings.builder_make(0, 8, e.temp_allocator) or_return
                     marshal_into(Encoder{e.flags, strings.to_stream(&key_builder), e.temp_allocator}, any{ key, info.key.id }) or_return
-                    append(&entries, Encoded_Entry{ &key_builder.buf, bucket_index }) or_return
+                    dyn_array_append(&entries, Encoded_Entry{ &key_builder.buf, bucket_index }) or_return
                 }
 
                 slice.sort_by_cmp(entries[:], proc(a, b: Encoded_Entry) -> slice.Ordering {
@@ -445,7 +445,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
 
                 for entry in entries {
                     _ = io.write_full(e.writer, entry.key[:]) or_return
-                    _ = delete_slice(entry.key^)
+                    _ = slice_delete(entry.key^)
 
                     value := rawptr(runtime.map_cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
                     marshal_into(e, any{ value, info.value.id }) or_return
@@ -504,8 +504,8 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
                 name:  []byte,
                 field: int,
             }
-            entries := make_dynamic_array([dynamic]Name, 0, n, e.temp_allocator) or_return
-            defer _ = delete_slice(entries)
+            entries := dyn_array_create([dynamic]Name, 0, n, e.temp_allocator) or_return
+            defer _ = slice_delete(entries)
 
             for _, i in info.names[:info.field_count] {
                 fname := field_name(info, i)
@@ -515,7 +515,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
 
                 key_builder := strings.builder_make(e.temp_allocator) or_return
                 err_conv(_encode_text(Encoder{e.flags, strings.to_stream(&key_builder), e.temp_allocator}, fname)) or_return
-                append(&entries, Name{key_builder.buf[:], i}) or_return
+                dyn_array_append(&entries, Name{key_builder.buf[:], i}) or_return
             }
 
             // Sort lexicographic on the bytes of the key.

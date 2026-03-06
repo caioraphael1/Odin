@@ -100,7 +100,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
         for remaining := p_len; remaining > 0; {
             sz := min(remaining, RNG_OUTPUT_PER_ITER - r._off)
             #no_bounds_check {
-                copy_slice(p_[:sz], r._buf[r._off:])
+                slice_copy(p_[:sz], r._buf[r._off:])
                 p_ = p_[sz:]
                 remaining -= sz
             }
@@ -131,7 +131,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
         // decide to provide arbitrary seeds are on their own as far
         // as ensuring high-quality entropy.
         intrinsics.mem_zero(raw_data(next_seed), RNG_SEED_SIZE)
-        copy_slice(next_seed, p)
+        slice_copy(next_seed, p)
         r._seeded = true
         r._off = RNG_OUTPUT_PER_ITER // Force a refill.
 

@@ -101,7 +101,7 @@ decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator
     it := decode_grapheme_iterator_make(str)
     for _, grapheme in decode_grapheme_iterate(&it) {
         if track_graphemes {
-            _ = append(&graphemes, grapheme)
+            _ = dyn_array_append(&graphemes, grapheme)
         }
     }
 

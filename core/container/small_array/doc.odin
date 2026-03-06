@@ -18,11 +18,11 @@ Example:
         // pre-pending
         small_array.push_front(&result, 'H')
         // removing elements
-        small_array.ordered_remove(&result, 4)
+        small_array.dyn_array_ordered_remove(&result, 4)
         // resizing to the desired length (the capacity will stay unchanged)
-        small_array.resize_dynamic_array(&result, 7)
+        small_array.dyn_array_resize(&result, 7)
         // inserting elements
-        small_array.inject_at(&result, 'p', 5)
+        small_array.dyn_array_inject_at(&result, 'p', 5)
         // updating elements
         small_array.set(&result, 3, 'l')
         // getting pointers to elements

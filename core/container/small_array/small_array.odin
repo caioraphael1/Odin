@@ -239,7 +239,7 @@ Example:
         fmt.println(small_array.slice(&a))
 
         // resizing makes the change visible
-        small_array.non_zero_resize_dynamic_array(&a, 100)
+        small_array.dyn_array_resize_non_zero(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -280,10 +280,10 @@ Example:
         small_array.push_back(&a, 2)
         fmt.println(small_array.slice(&a))
 
-        small_array.resize_dynamic_array(&a, 1)
+        small_array.dyn_array_resize(&a, 1)
         fmt.println(small_array.slice(&a))
 
-        small_array.resize_dynamic_array(&a, 100)
+        small_array.dyn_array_resize(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -324,10 +324,10 @@ Example:
         small_array.push_back(&a, 2)
         fmt.println(small_array.slice(&a))
 
-        small_array.non_zero_resize_dynamic_array(&a, 1)
+        small_array.dyn_array_resize_non_zero(&a, 1)
         fmt.println(small_array.slice(&a))
 
-        small_array.non_zero_resize_dynamic_array(&a, 100)
+        small_array.dyn_array_resize_non_zero(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -346,7 +346,7 @@ Attempts to add the given element to the end.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to append
+- `item`: The item to dyn_array_append
 
 **Returns** 
 - true if there was enough space to fit the element, false otherwise
@@ -388,7 +388,7 @@ through get_ptr(_save) to reference incorrect elements.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to append
+- `item`: The item to dyn_array_append
 
 **Returns** 
 - true if there was enough space to fit the element, false otherwise
@@ -416,7 +416,7 @@ push_front :: proc(a: ^$A/Small_Array($N, $T), item: T) -> bool {
     if a.len < cap(a^) {
         a.len += 1
         data := slice(a)
-        copy_slice(data[1:], data[:])
+        slice_copy(data[1:], data[:])
         data[0] = item
         return true
     }
@@ -482,7 +482,7 @@ Example:
         small_array.push(&a, 0, 1, 2)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.pop_front(&a)
+        small_array.dyn_array_pop_front(&a)
         fmt.println("AFTER: ", small_array.slice(&a))
     }
 
@@ -491,11 +491,11 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER:  [1, 2]
 */
-pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
+dyn_array_pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
     assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
-    copy_slice(s[:], s[1:])
+    slice_copy(s[:], s[1:])
     a.len -= 1
     return item
 }
@@ -537,7 +537,7 @@ pop_back_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
 
 /*
 Attempts to remove and return the first element of the small array.
-Unlike `pop_front`, it does not assume that the array is non-empty.
+Unlike `dyn_array_pop_front`, it does not assume that the array is non-empty.
 
 Note: Performing this operation will cause pointers obtained
 through get_ptr(_save) to reference incorrect elements.
@@ -557,18 +557,18 @@ Example:
         a: small_array.Small_Array(3, int)
         small_array.push(&a, 1)
 
-        el, ok := small_array.pop_front_safe(&a)
+        el, ok := small_array.dyn_array_pop_front_safe(&a)
         assert(ok, "there was an element in the array")
 
         el, ok = small_array.pop_front_(&a)
         assert(!ok, "there was NO element in the array")
     }
 */
-pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
+dyn_array_pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[0]
         s := slice(a)
-        copy_slice(s[:], s[1:])
+        slice_copy(s[:], s[1:])
         a.len -= 1
         ok = true
     }
@@ -630,7 +630,7 @@ Example:
         small_array.push(&a, 0, 1, 2, 3)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.ordered_remove(&a, 1)
+        small_array.dyn_array_ordered_remove(&a, 1)
         fmt.println("AFTER :", small_array.slice(&a))
     }
 
@@ -639,10 +639,10 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : [0, 2, 3]
 */
-ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
+dyn_array_ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
     runtime.bounds_check_error_loc(loc, index, a.len)
     if index+1 < a.len {
-        copy_slice(a.data[index:], a.data[index+1:])
+        slice_copy(a.data[index:], a.data[index+1:])
     }
     a.len -= 1
 }
@@ -664,7 +664,7 @@ Example:
         small_array.push(&a, 0, 1, 2, 3)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.unordered_remove(&a, 1)
+        small_array.dyn_array_unordered_remove(&a, 1)
         fmt.println("AFTER :", small_array.slice(&a))
     }
 
@@ -673,7 +673,7 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : [0, 3, 2]
 */
-unordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
+dyn_array_unordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
     runtime.bounds_check_error_loc(loc, index, a.len)
     n := a.len-1
     if index != n {
@@ -698,7 +698,7 @@ Example:
         small_array.push(&a, 0, 1, 2, 3)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.clear_dynamic_array(&a)
+        small_array.dyn_array_clear(&a)
         fmt.println("AFTER :", small_array.slice(&a))
     }
 
@@ -709,16 +709,16 @@ Output:
 
 */
 clear :: proc(a: ^$A/Small_Array($N, $T)) {
-    _ = resize_dynamic_array(a, 0)
+    _ = dyn_array_resize(a, 0)
 }
 
 /*
-Attempts to append all elements to the small-array returning
+Attempts to dyn_array_append all elements to the small-array returning
 false if there is not enough space to fit all of them.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to append
+- `item`: The item to dyn_array_append
 - ..:
 
 **Returns**
@@ -741,7 +741,7 @@ Output:
 */
 push_back_many :: proc(a: ^$A/Small_Array($N, $T), items: ..T) -> bool {
     if a.len + builtin.len(items) <= cap(a^) {
-        n := copy_slice(a.data[a.len:], items[:])
+        n := slice_copy(a.data[a.len:], items[:])
         a.len += n
         return true
     }
@@ -770,7 +770,7 @@ Example:
     inject_at_example :: proc() {
         arr: small_array.Small_Array(100, rune)
         small_array.push(&arr,  'A', 'C', 'D')
-        small_array.inject_at(&arr, 'B', 1)
+        small_array.dyn_array_inject_at(&arr, 'B', 1)
         fmt.println(small_array.slice(&arr))
     }
 
@@ -778,7 +778,7 @@ Output:
 
     [A, B, C, D]
 */
-inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> bool #no_bounds_check {
+dyn_array_inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> bool #no_bounds_check {
     if a.len < cap(a^) && index >= 0 && index <= len(a^) {
         a.len += 1
         for i := a.len - 1; i >= index + 1; i -= 1 {
@@ -790,15 +790,15 @@ inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> bool #no_b
     return false
 }
 
-append      :: push_back
-append_many :: push_back_many
+dyn_array_append      :: push_back
+dyn_array_append_many :: push_back_many
 
 /*
-Tries to append the element(s) to the small-array.
+Tries to dyn_array_append the element(s) to the small-array.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to append
+- `item`: The item to dyn_array_append
 - ..:
 
 **Returns**

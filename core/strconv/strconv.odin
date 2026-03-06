@@ -1473,9 +1473,9 @@ Output:
 write_bool :: proc(buf: []byte, b: bool) -> string {
     n := 0
     if b {
-        n = copy_from_string(buf, "true")
+        n = slice_copy_from_string(buf, "true")
     } else {
-        n = copy_from_string(buf, "false")
+        n = slice_copy_from_string(buf, "false")
     }
     return string(buf[:n])
 }
@@ -1612,7 +1612,7 @@ quote :: proc(buf: []byte, str: string) -> string {
         if i^ >= len(buf) {
             return
         }
-        n := copy_slice(buf[i^:], bytes[:])
+        n := slice_copy(buf[i^:], bytes[:])
         i^ += n
     }
 
@@ -1671,20 +1671,20 @@ Output:
 quote_rune :: proc(buf: []byte, r: rune) -> string {
     write_byte :: proc(buf: []byte, i: ^int, bytes: ..byte) {
         if i^ < len(buf) {
-            n := copy_slice(buf[i^:], bytes[:])
+            n := slice_copy(buf[i^:], bytes[:])
             i^ += n
         }
     }
     write_string :: proc(buf: []byte, i: ^int, s: string) {
         if i^ < len(buf) {
-            n := copy_from_string(buf[i^:], s)
+            n := slice_copy_from_string(buf[i^:], s)
             i^ += n
         }
     }
     write_rune :: proc(buf: []byte, i: ^int, r: rune) {
         if i^ < len(buf) {
             b, w := utf8.encode_rune(r)
-            n := copy_slice(buf[i^:], b[:w])
+            n := slice_copy(buf[i^:], b[:w])
             i^ += n
         }
     }
@@ -1930,12 +1930,12 @@ unquote_string :: proc(lit: string, allocator: runtime.Allocator) -> (res: strin
     }
 
     buf_len := 3*len(s) / 2
-    buf, _ := make_slice([]byte, buf_len, allocator)
+    buf, _ := slice_create([]byte, buf_len, allocator)
     offset := 0
     for len(s) > 0 {
         r, multiple_bytes, tail_string, ok := unquote_char(s, byte(quote))
         if !ok {
-            _ = delete_slice(buf, allocator)
+            _ = slice_delete(buf, allocator)
             return s, false, false
         }
         s = tail_string
@@ -1944,7 +1944,7 @@ unquote_string :: proc(lit: string, allocator: runtime.Allocator) -> (res: strin
             offset += 1
         } else {
             b, w := utf8.encode_rune(r)
-            copy_slice(buf[offset:], b[:w])
+            slice_copy(buf[offset:], b[:w])
             offset += w
         }
     }

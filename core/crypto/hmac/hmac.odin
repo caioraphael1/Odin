@@ -131,7 +131,7 @@ _init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 	case kLen == B, kLen < B:
 		// If the length of K = B: set K0 = K.
 		//
-		// If the length of K < B: append zeros to the end of K to
+		// If the length of K < B: dyn_array_append zeros to the end of K to
 		// create a B-byte string K0 (e.g., if K is 20 bytes in
 		// length and B = 64, then K will be appended with 44 zero
 		// bytes x’00’).
@@ -140,7 +140,7 @@ _init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 		copy(K0, key)
 	case kLen > B:
 		// If the length of K > B: hash K to obtain an L byte string,
-		// then append (B-L) zeros to create a B-byte string K0
+		// then dyn_array_append (B-L) zeros to create a B-byte string K0
 		// (i.e., K0 = H(K) || 00...00).
 		tmpCtx := &ctx._o_hash // Saves allocating a hash.Context.
 		hash.init(tmpCtx, algorithm)

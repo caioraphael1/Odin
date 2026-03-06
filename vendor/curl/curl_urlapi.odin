@@ -65,7 +65,7 @@ UFlag :: enum c.uint {
 	DISALLOW_USER      =  5,  /* no user+password allowed */
 	URLDECODE          =  6,  /* URL decode on get */
 	URLENCODE          =  7,  /* URL encode on set */
-	APPENDQUERY        =  8,  /* append a form style part */
+	APPENDQUERY        =  8,  /* dyn_array_append a form style part */
 	GUESS_SCHEME       =  9,  /* legacy curl-style guessing */
 	NO_AUTHORITY       =  10, /* Allow empty authority when the
 	                             scheme is unknown. */

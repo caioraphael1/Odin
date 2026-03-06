@@ -11,8 +11,8 @@ Frame_Location :: struct {
 
 delete_frame_location :: proc(fl: Frame_Location) -> runtime.Allocator_Error {
 	allocator := fl.allocator
-    _ = delete_slice(fl.loc.procedure, allocator) or_return
-    _ = delete_slice(fl.loc.file_path, allocator) or_return
+    _ = slice_delete(fl.loc.procedure, allocator) or_return
+    _ = slice_delete(fl.loc.file_path, allocator) or_return
 	return nil
 }
 
@@ -63,7 +63,7 @@ _format_hex :: proc(buf: []byte, val: uintptr, allocator: runtime.Allocator) -> 
 
 _format_missing_proc :: proc(addr: uintptr, allocator: runtime.Allocator) -> string {
 	PREFIX :: "proc:0x"
-	buf, buf_err := make_slice([]byte, len(PREFIX) + 16, allocator)
+	buf, buf_err := slice_create([]byte, len(PREFIX) + 16, allocator)
 	copy(buf, PREFIX)
 
 	if buf_err != nil {

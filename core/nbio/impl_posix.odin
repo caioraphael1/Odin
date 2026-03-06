@@ -116,7 +116,7 @@ _init :: proc(l: ^Event_Loop, allocator: mem.Allocator) -> (rerr: General_Error)
 
 	l.kqueue = kqueue
 
-	sa.append(&l.pending, kq.KEvent{
+	sa.dyn_array_append(&l.pending, kq.KEvent{
 		ident  = IDENT_WAKE_UP,
 		filter = .User,
 		flags  = {.Add, .Enable, .Clear},
@@ -142,7 +142,7 @@ __tick :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 		debug("processing", n, "already completed")
 
 		for _ in 0 ..< n {
-			op := queue.pop_front(&l.completed)
+			op := queue.dyn_array_pop_front(&l.completed)
 			handle_completed(op)
 		}
 
@@ -178,8 +178,8 @@ __tick :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 		results := kevent(l, results_buf[:], ts_pointer) or_return
 
 		sa.clear(&l.pending)
-		for overflow in queue.pop_front_safe(&l.overflow) {
-			sa.append(&l.pending, overflow) or_break
+		for overflow in queue.dyn_array_pop_front_safe(&l.overflow) {
+			sa.dyn_array_append(&l.pending, overflow) or_break
 		}
 
 		l.now = time.now()
@@ -254,7 +254,7 @@ __tick :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 				continue
 			}
 
-			_, del := delete_key(&l.submitted, Queue_Identifier{ ident = event.ident, filter = event.filter })
+			_, del := map_delete_key(&l.submitted, Queue_Identifier{ ident = event.ident, filter = event.filter })
 			assert(del != nil)
 
 			for next := op; next != nil; next = next._impl.next {
@@ -1180,9 +1180,9 @@ add_pending :: proc(op: ^Operation, filter: kq.Filter, ident: uintptr) {
 }
 
 append_pending :: #force_inline proc(l: ^Event_Loop, ev: kq.KEvent) {
-	if !sa.append(&l.pending, ev) {
+	if !sa.dyn_array_append(&l.pending, ev) {
 		warn("queue is full, adding to overflow, should QUEUE_SIZE be increased?")
-		_, err := queue.append(&l.overflow, ev)
+		_, err := queue.dyn_array_append(&l.overflow, ev)
 		ensure(err == nil, "allocation failure")
 	}
 }
@@ -1317,7 +1317,7 @@ timeout_and_delete :: proc(target: ^Operation) {
 				flags  = {.Add, .Enable, .One_Shot},
 				udata  = target._impl.next,
 			}
-			if !sa.append(&target.l.pending, ev) {
+			if !sa.dyn_array_append(&target.l.pending, ev) {
 				warn("just removed the head operation of a list of multiple, and the queue is full, have to force this update through inefficiently")
 				// This has to happen the next time we submit or we could have udata pointing wrong.
 				// Very inefficient but probably never hit.
@@ -1340,7 +1340,7 @@ timeout_and_delete :: proc(target: ^Operation) {
 	} else if .For_Kernel in target._impl.flags {
 		debug("adding delete event")
 
-		_, dval := delete_key(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
+		_, dval := map_delete_key(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
 		assert(dval != nil)
 
 		append_pending(target.l, kq.KEvent{

@@ -24,7 +24,7 @@ import "core:mem"
 
 _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network_Interface, err: Interfaces_Error) {
     buf: []u8
-    defer _ = delete_slice(buf, allocator)
+    defer _ = slice_delete(buf, allocator)
 
     buf_size: u32
     res:      u32
@@ -44,8 +44,8 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
         switch res {
         case 111: // ERROR_BUFFER_OVERFLOW:
-            _ = delete_slice(buf, allocator)
-            buf, _ = make_slice([]u8, buf_size, allocator)
+            _ = slice_delete(buf, allocator)
+            buf, _ = slice_create([]u8, buf_size, allocator)
         case 0:
             break gaa
         case:
@@ -58,7 +58,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
         return {}, .Unable_To_Enumerate_Network_Interfaces
     }
 
-    _interfaces, _ := make_dynamic_array_len([dynamic]Network_Interface, 0, allocator)
+    _interfaces, _ := dyn_array_create_len([dynamic]Network_Interface, 0, allocator)
     for adapter := (^sys.IP_Adapter_Addresses)(raw_data(buf)); adapter != nil; adapter = adapter.Next {
         friendly_name, err1 := sys.wstring_to_utf8_alloc(sys.wstring(adapter.FriendlyName), 256, allocator)
         if err1 != nil { return {}, .Allocation_Failure }
@@ -105,22 +105,22 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
                 },
                 address_duplication = Address_Duplication(u_addr.DadState),
             }
-            _ = append(&interface.unicast, lease)
+            _ = dyn_array_append(&interface.unicast, lease)
         }
 
         for a_addr := (^sys.IP_ADAPTER_ANYCAST_ADDRESS_XP)(adapter.FirstAnycastAddress); a_addr != nil; a_addr = a_addr.Next {
             addr := parse_socket_address(a_addr.Address)
-            _ = append(&interface.anycast, addr.address)
+            _ = dyn_array_append(&interface.anycast, addr.address)
         }
 
         for m_addr := (^sys.IP_ADAPTER_MULTICAST_ADDRESS_XP)(adapter.FirstMulticastAddress); m_addr != nil; m_addr = m_addr.Next {
             addr := parse_socket_address(m_addr.Address)
-            _ = append(&interface.multicast, addr.address)
+            _ = dyn_array_append(&interface.multicast, addr.address)
         }
 
         for g_addr := (^sys.IP_ADAPTER_GATEWAY_ADDRESS_LH)(adapter.FirstGatewayAddress); g_addr != nil; g_addr = g_addr.Next {
             addr := parse_socket_address(g_addr.Address)
-            _ = append(&interface.gateways, addr.address)
+            _ = dyn_array_append(&interface.gateways, addr.address)
         }
 
         interface.dhcp_v4 = parse_socket_address(adapter.Dhcpv4Server).address
@@ -139,7 +139,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
         interface.tunnel_type = Tunnel_Type(adapter.TunnelType)
 
-        _ = append(&_interfaces, interface)
+        _ = dyn_array_append(&_interfaces, interface)
     }
 
     return _interfaces[:], {}

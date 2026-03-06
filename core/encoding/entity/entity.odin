@@ -290,7 +290,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
 		return s, false
 	}
 
-	t, err := make_slice([]byte, len(s) + extra_bytes_needed, allocator, loc)
+	t, err := slice_create([]byte, len(s) + extra_bytes_needed, allocator, loc)
 	if err != nil {
 		return
 	}
@@ -326,23 +326,23 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 		s, amp_idx := s, amp_idx
 
 		n += len(s[:amp_idx])
-		if buf != nil { append(buf, s[:amp_idx]) }
+		if buf != nil { dyn_array_append(buf, s[:amp_idx]) }
 		s = s[amp_idx:]
 		for len(s) > 0 {
 			b, w, j := unescape_entity(s)
 			n += w
-			if buf != nil { append(buf, ..b[:w]) }
+			if buf != nil { dyn_array_append(buf, ..b[:w]) }
 
 			s = s[j:]
 
 			amp_idx = strings.index_byte(s, '&')
 			if amp_idx < 0 {
 				n += len(s)
-				if buf != nil { append(buf, s) }
+				if buf != nil { dyn_array_append(buf, s) }
 				break
 			}
 			n += amp_idx
-			if buf != nil { append(buf, s[:amp_idx]) }
+			if buf != nil { dyn_array_append(buf, s[:amp_idx]) }
 			s = s[amp_idx:]
 		}
 
@@ -358,7 +358,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 	// NOTE(bill): this does a two pass in order to minimize the allocations required
 	bytes_required := do_append(s, amp_idx, nil)
 
-	buf := make_dynamic_array([dynamic]byte, 0, bytes_required, allocator, loc) or_return
+	buf := dyn_array_create([dynamic]byte, 0, bytes_required, allocator, loc) or_return
 	was_allocation = true
 
 	_ = do_append(s, amp_idx, &buf)

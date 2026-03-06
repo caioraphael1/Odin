@@ -215,7 +215,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     block_width: int
     block_height: int
     blocks: []Block
-    defer _ = delete_slice(blocks)
+    defer _ = slice_delete(blocks)
 
     loop: for {
         // Loop until we find 0xFF.
@@ -233,14 +233,14 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         case .SOI:
             return img, .Duplicate_SOI_Marker
         case .APP0:
-            ident := make_dynamic_array([dynamic]byte, 0, 16, runtime.temp_allocator) or_return
+            ident := dyn_array_create([dynamic]byte, 0, 16, runtime.temp_allocator) or_return
             length := cast(int)((compress.read_data(ctx, u16be) or_return) - 2)
             for {
                 b := compress.read_u8_from_memory(ctx) or_return
                 if b == 0x00 {
                     break
                 }
-                append(&ident, b) or_return
+                dyn_array_append(&ident, b) or_return
             }
             if slice.equal(ident[:], image.JFIF_Magic[:]) {
                 if length != 14 {
@@ -271,8 +271,8 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     thumb_pixels := slice.reinterpret([]image.RGB_Pixel, compress.read_slice_from_memory(ctx, x_thumbnail * y_thumbnail) or_return)
 
                     if .return_metadata in options {
-                        thumbnail = make_slice([]image.RGB_Pixel, x_thumbnail * y_thumbnail) or_return
-                        copy_slice(thumbnail, thumb_pixels)
+                        thumbnail = slice_create([]image.RGB_Pixel, x_thumbnail * y_thumbnail) or_return
+                        slice_copy(thumbnail, thumb_pixels)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -308,8 +308,8 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     thumbnail_jpeg := compress.read_slice(ctx, thumbnail_len) or_return
 
                     if .return_metadata in options {
-                        thumbnail = make_slice([]byte, thumbnail_len) or_return
-                        copy_slice(thumbnail, thumbnail_jpeg)
+                        thumbnail = slice_create([]byte, thumbnail_len) or_return
+                        slice_copy(thumbnail, thumbnail_jpeg)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -331,8 +331,8 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail * 3) or_return
 
                     if .return_metadata in options {
-                        thumbnail = make_slice([]byte, x_thumbnail * y_thumbnail * 3) or_return
-                        copy_slice(thumbnail, pixels)
+                        thumbnail = slice_create([]byte, x_thumbnail * y_thumbnail * 3) or_return
+                        slice_copy(thumbnail, pixels)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -355,7 +355,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     old_pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail) or_return
 
                     if .return_metadata in options {
-                        pixels := make_slice([]byte, x_thumbnail * y_thumbnail * 3) or_return
+                        pixels := slice_create([]byte, x_thumbnail * y_thumbnail * 3) or_return
                         for i in 0..<x_thumbnail*y_thumbnail {
                             pixel := palette[old_pixels[i]]
                             pixels[i] = pixel.r
@@ -398,13 +398,13 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 info = img.metadata.(^image.JPEG_Info)
             }
 
-            ident := make_dynamic_array([dynamic]byte, 0, 16, runtime.temp_allocator) or_return
+            ident := dyn_array_create([dynamic]byte, 0, 16, runtime.temp_allocator) or_return
             for {
                 b := compress.read_u8_from_memory(ctx) or_return
                 if b == 0x00 {
                     break
                 }
-                append(&ident, b) or_return
+                dyn_array_append(&ident, b) or_return
             }
 
             if slice.equal(ident[:], image.Exif_Magic[:]) {
@@ -441,10 +441,10 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                 // - 2 for the NUL byte and padding byte
                 data := compress.read_slice(ctx, length - len(ident) - 2) or_return
-                exif.data = make_slice([]byte, len(data)) or_return
-                copy_slice(exif.data, data)
+                exif.data = slice_create([]byte, len(data)) or_return
+                slice_copy(exif.data, data)
 
-                append(&info.exif, exif) or_return
+                dyn_array_append(&info.exif, exif) or_return
                 img.metadata = info
             } else {
                 // - 1 for the NUL byte
@@ -456,7 +456,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             comment := string(compress.read_slice(ctx, cast(int)length) or_return)
             if .return_metadata in options {
                 if info, ok := img.metadata.(^image.JPEG_Info); ok {
-                    append(&info.comments, strings.clone(comment)) or_return
+                    dyn_array_append(&info.comments, strings.clone(comment)) or_return
                 }
             }
         case .DQT:
@@ -521,7 +521,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 }
 
                 symbols := compress.read_slice(ctx, cast(int)num_symbols) or_return
-                copy_slice(huffman[type][index].symbols[:], symbols)
+                slice_copy(huffman[type][index].symbols[:], symbols)
 
                 length -= cast(u16be)(1 + HUFFMAN_MAX_BITS + num_symbols)
 
@@ -707,7 +707,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             Ah_Al := compress.read_u8_from_memory(ctx) or_return
             _ = Ah_Al
 
-            blocks = make_slice([]Block, block_height * block_width) or_return
+            blocks = slice_create([]Block, block_height * block_width) or_return
 
             previous_dc: [Component]i16
 
@@ -957,7 +957,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 orig_channels += 1
             }
 
-            if resize_dynamic_array(&img.pixels.buf, img.width * img.height * img.channels) != nil {
+            if dyn_array_resize(&img.pixels.buf, img.width * img.height * img.channels) != nil {
                 return img, .Unable_To_Allocate_Or_Resize
             }
 
@@ -1068,21 +1068,21 @@ destroy :: proc(img: ^Image) {
 
     if v, ok := img.metadata.(^image.JPEG_Info); ok {
         if jfxx, jfxx_ok := v.jfxx_app0.?; jfxx_ok {
-            _ = delete_slice(jfxx.thumbnail)
+            _ = slice_delete(jfxx.thumbnail)
         }
         if jfif, jfif_ok := v.jfif_app0.?; jfif_ok {
-            _ = delete_slice(jfif.thumbnail)
+            _ = slice_delete(jfif.thumbnail)
         }
 
         for comment in v.comments {
-            _ = delete_slice(comment)
+            _ = slice_delete(comment)
         }
-        _ = delete_slice(v.comments)
+        _ = slice_delete(v.comments)
 
         for exif in v.exif {
-            _ = delete_slice(exif.data)
+            _ = slice_delete(exif.data)
         }
-        _ = delete_slice(v.exif)
+        _ = slice_delete(v.exif)
 
         _ = free(v)
     }

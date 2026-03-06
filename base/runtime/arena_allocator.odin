@@ -254,7 +254,7 @@ arena_allocator_proc :: proc(
         if new_memory == nil {
             return
         }
-        copy_slice(new_memory, old_data[:old_size])
+        slice_copy(new_memory, old_data[:old_size])
         return new_memory, nil
     case .Query_Features:
         set := (^Allocator_Mode_Set)(old_memory)

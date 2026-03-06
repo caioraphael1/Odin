@@ -50,19 +50,19 @@ _wasi_setup_args :: proc() {
 	}
 
 	err: Allocator_Error
-	if args__, err = make_slice([]cstring, num_of_args); err != nil {
+	if args__, err = slice_create([]cstring, num_of_args); err != nil {
 		return
 	}
 
 	args_buf: []byte
-	if args_buf, err = make_slice([]byte, size_of_args); err != nil {
-		_ = delete_slice(args__)
+	if args_buf, err = slice_create([]byte, size_of_args); err != nil {
+		_ = slice_delete(args__)
 		return
 	}
 
 	if errno := args_get(raw_data(args__), raw_data(args_buf)); errno != 0 {
-		_ = delete_slice(args__)
-		_ = delete_slice(args_buf)
+		_ = slice_delete(args__)
+		_ = slice_delete(args_buf)
 	}
 }
 

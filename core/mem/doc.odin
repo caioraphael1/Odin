@@ -88,7 +88,7 @@ used to denote the count of objects.
 
 The allocation procedures use the following conventions:
 
-- If the name contains `alloc_bytes` or `resize_bytes`, then the procedure takes
+- If the name contains `runtime.mem_alloc` or `resize_bytes`, then the procedure takes
   in slice parameters and returns slices.
 - If the procedure name contains `alloc` or `resize`, then the procedure takes
   in a raw pointer and returns raw pointers.
@@ -101,5 +101,5 @@ Higher-level allocation procedures follow the following naming scheme:
 - `new`: Allocates a single object
 - `free`: Free a single object (opposite of `new`)
 - `make`: Allocate a group of objects
-- `delete_slice`: Free a group of objects (opposite of `make`)
+- `slice_delete`: Free a group of objects (opposite of `make`)
 */

@@ -51,7 +51,7 @@ full_path_from_name :: proc(name: string, allocator: runtime.Allocator) -> (path
     if n == 0 {
         return "", _get_platform_error()
     }
-    buf, _ := make_slice([]u16, n+1, runtime.temp_allocator)
+    buf, _ := slice_create([]u16, n+1, runtime.temp_allocator)
     n = win32.GetFullPathNameW(cstring16(raw_data(p)), u32(len(buf)), cstring16(raw_data(buf)), nil)
     if n == 0 {
         return "", _get_platform_error()
@@ -137,7 +137,7 @@ _cleanpath_from_handle :: proc(f: ^File, allocator: runtime.Allocator) -> (strin
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf, _ := make_slice([]u16, max(n, 260)+1, runtime.temp_allocator)
+    buf, _ := slice_create([]u16, max(n, 260)+1, runtime.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(h, cstring16(raw_data(buf)), u32(len(buf)), 0)
     return _cleanpath_from_buf(string16(buf[:n]), allocator)
 }
@@ -155,7 +155,7 @@ _cleanpath_from_handle_u16 :: proc(f: ^File) -> ([]u16, Error) {
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    buf, _ := make_slice([]u16, max(n, 260)+1, runtime.temp_allocator)
+    buf, _ := slice_create([]u16, max(n, 260)+1, runtime.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(h, cstring16(raw_data(buf)), u32(len(buf)), 0)
     return _cleanpath_strip_prefix(buf[:n]), nil
 }
