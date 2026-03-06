@@ -30,10 +30,10 @@ Returns:
 - res: The new Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_make :: proc(allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
+builder_make :: proc(allocator: mem.Allocator) -> Builder {
     return Builder{ 
-        buf = make_dynamic_array([dynamic]byte, allocator, loc) or_return
-    }, nil
+        buf = make_dynamic_array([dynamic]byte, allocator)
+    }
 }
 /*
 Produces a Builder with specified length and capacity `len`.
@@ -86,9 +86,8 @@ Returns:
 - res: A pointer to the initialized Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_init :: proc(b: ^Builder, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    b.buf = make_dynamic_array([dynamic]byte, allocator, loc) or_return
-    return nil
+builder_init :: proc(b: ^Builder, allocator: mem.Allocator) {
+    b.buf = make_dynamic_array([dynamic]byte, allocator)
 }
 
 /*

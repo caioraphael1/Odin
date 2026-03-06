@@ -128,7 +128,7 @@ register_user_formatter :: proc(id: typeid, formatter: User_Formatter) -> Regist
 
 aprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
     str: strings.Builder
-    _ = strings.builder_init(&str, allocator)
+    strings.builder_init(&str, allocator)
     return sbprint(&str, ..args, sep=sep)
 }
 //  Creates a formatted string with a newline character at the end
@@ -144,7 +144,7 @@ aprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
 
 aprintln :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
     str: strings.Builder
-    _ = strings.builder_init(&str, allocator)
+    strings.builder_init(&str, allocator)
     return sbprintln(&str, ..args, sep=sep)
 }
 //  Creates a formatted string using a format string and arguments
@@ -161,7 +161,7 @@ aprintln :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
 
 aprintf :: proc(fmt: string, args: []any, allocator: mem.Allocator, newline := false) -> string {
     str: strings.Builder
-    _ = strings.builder_init(&str, allocator)
+    strings.builder_init(&str, allocator)
     return sbprintf(&str, fmt, ..args, newline=newline)
 }
 //  Creates a formatted string using a format string and arguments, followed by a newline.
@@ -191,7 +191,7 @@ aprintfln :: proc(fmt: string, args: []any, allocator: mem.Allocator) -> string 
 
 tprint :: proc(args: ..any, sep := " ") -> string {
     str: strings.Builder
-    _ = strings.builder_init(&str, runtime.temp_allocator)
+    strings.builder_init(&str, runtime.temp_allocator)
     return sbprint(&str, ..args, sep=sep)
 }
 //  Creates a formatted string with a newline character at the end
@@ -207,7 +207,7 @@ tprint :: proc(args: ..any, sep := " ") -> string {
 
 tprintln :: proc(args: ..any, sep := " ") -> string {
     str: strings.Builder
-    _ = strings.builder_init(&str, runtime.temp_allocator)
+    strings.builder_init(&str, runtime.temp_allocator)
     return sbprintln(&str, ..args, sep=sep)
 }
 //  Creates a formatted string using a format string and arguments
@@ -224,7 +224,7 @@ tprintln :: proc(args: ..any, sep := " ") -> string {
 
 tprintf :: proc(fmt: string, args: ..any, newline := false, loc := #caller_location) -> string {
     str: strings.Builder
-    _ = strings.builder_init(&str, runtime.temp_allocator, loc = loc)
+    strings.builder_init(&str, runtime.temp_allocator)
     return sbprintf(&str, fmt, ..args, newline=newline)
 }
 //  Creates a formatted string using a format string and arguments, followed by a newline.
@@ -359,7 +359,7 @@ panicf :: proc(fmt: string, args: ..any, loc := #caller_location) -> ! {
 
 caprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> cstring {
     str: strings.Builder
-    _ = strings.builder_init(&str, allocator)
+    strings.builder_init(&str, allocator)
     sbprint(&str, ..args, sep=sep)
     strings.write_byte(&str, 0)
     s := strings.to_string(str)
@@ -380,7 +380,7 @@ caprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> cstring {
 
 caprintf :: proc(format: string, args: []any, allocator: mem.Allocator, newline := false) -> cstring {
     str: strings.Builder
-    _ = strings.builder_init(&str, allocator)
+    strings.builder_init(&str, allocator)
     _ = sbprintf(&str, format, ..args, newline=newline)
     strings.write_byte(&str, 0)
     s := strings.to_string(str)

@@ -268,6 +268,9 @@ make_aligned :: proc($T: typeid/[]$E, #any_int len: int, alignment: int, allocat
 
 _make_aligned_type_erased :: proc(slice: rawptr, elem_size: int, len: int, alignment: int, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
     make_slice_error_loc(loc, len)
+    if len == 0 {
+        return nil
+    }
     data, err := mem_alloc_bytes(elem_size*len, alignment, allocator, loc)
     if data == nil && elem_size != 0 {
         return err
@@ -291,8 +294,8 @@ make_slice :: proc($T: typeid/[]$E, #any_int len: int, allocator: Allocator, loc
 //
 // Note: Prefer using the procedure group `make`.
 @(builtin)
-make_dynamic_array :: proc($T: typeid/[dynamic]$E, allocator: Allocator, loc := #caller_location) -> (array: T, err: Allocator_Error) {
-    err = _make_dynamic_array_len_cap((^Raw_Dynamic_Array)(&array), size_of(E), align_of(E), 0, 0, allocator, loc)
+make_dynamic_array :: proc($T: typeid/[dynamic]$E, allocator: Allocator) -> (array: T) {
+    array.allocator = allocator
     return
 }
 // `make_dynamic_array_len` allocates and initializes a dynamic array. Like `new`, the first argument is a type, not a value.
@@ -317,13 +320,13 @@ make_dynamic_array_len_cap :: proc($T: typeid/[dynamic]$E, #any_int len: int, #a
 
 _make_dynamic_array_len_cap :: proc(array: ^Raw_Dynamic_Array, size_of_elem, align_of_elem: int, #any_int len: int, #any_int cap: int, allocator: Allocator, loc := #caller_location) -> (err: Allocator_Error) {
     make_dynamic_array_error_loc(loc, len, cap)
+    assert(cap > 0, "Capacity must be greater than zero")
     array.allocator = allocator // initialize allocator before just in case it fails to allocate any memory
     data := mem_alloc_bytes(size_of_elem*cap, align_of_elem, allocator, loc) or_return
     use_zero := data == nil && size_of_elem != 0
     array.data = raw_data(data)
     array.len = 0 if use_zero else len
     array.cap = 0 if use_zero else cap
-    array.allocator = allocator
     return
 }
 

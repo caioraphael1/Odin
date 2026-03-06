@@ -67,7 +67,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
     path := path
 
     sb: strings.Builder
-    _ = strings.builder_init(&sb, allocator)
+    strings.builder_init(&sb, allocator)
 
     for len(path) > 0 {
         switch path[0] {

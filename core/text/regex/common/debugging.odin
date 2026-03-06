@@ -12,7 +12,7 @@ import "core:strings"
 import "core:mem"
 
 write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
-    sb, _ := strings.builder_make(allocator)
+    sb := strings.builder_make(allocator)
     defer strings.builder_destroy(&sb)
 
     sbw := strings.to_writer(&sb)

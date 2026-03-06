@@ -86,12 +86,12 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
         return
     }
 
-    list_d := make_dynamic_array([dynamic]int, allocator) or_return
+    list_d := make_dynamic_array([dynamic]int, allocator)
 
     entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
     status := win32.Process32FirstW(snap, &entry)
     for status {
-        _ = append(&list_d, int(entry.th32ProcessID))
+        append(&list_d, int(entry.th32ProcessID)) or_return
         status = win32.Process32NextW(snap, &entry)
     }
     list = list_d[:]
@@ -744,7 +744,7 @@ _build_command_line :: proc(command: []string, allocator: runtime.Allocator) -> 
             strings.write_byte(builder, b)
         }
     }
-    builder, _ := strings.builder_make(allocator)
+    builder := strings.builder_make(allocator)
     for arg, i in command {
         if i != 0 {
             strings.write_byte(&builder, ' ')
@@ -822,7 +822,7 @@ _parse_environment_block :: proc(block: [^]u16, allocator: runtime.Allocator) ->
 }
 
 _build_environment_block :: proc(environment: []string, allocator: runtime.Allocator) -> string {
-    builder, _ := strings.builder_make(allocator)
+    builder := strings.builder_make(allocator)
     loop: #reverse for kv, cur_idx in environment {
         eq_idx := strings.index_byte(kv, '=')
         assert(eq_idx >= 0, "Malformed environment string. Expected '=' to separate keys and values")

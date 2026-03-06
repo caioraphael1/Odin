@@ -35,7 +35,7 @@ _os_version :: proc (allocator: runtime.Allocator, loc := #caller_location) -> (
     res.kernel.major = int(osvi.dwMajorVersion)
     res.kernel.minor = int(osvi.dwBuildNumber)
 
-    b, _ := strings.builder_make(allocator, loc)
+    b := strings.builder_make(allocator)
 
     strings.write_string(&b, "Windows ")
 

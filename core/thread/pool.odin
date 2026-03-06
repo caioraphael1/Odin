@@ -74,8 +74,8 @@ pool_thread_runner :: proc(t: ^Thread) {
 pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
     pool.allocator = allocator
     _ = queue.init(&pool.tasks, allocator = allocator)
-    pool.tasks_done, _ = make_dynamic_array([dynamic]Task, allocator)
-    pool.threads, _    = make_slice([]^Thread, max(thread_count, 1), allocator)
+    pool.tasks_done = make_dynamic_array([dynamic]Task, allocator)
+    pool.threads, _ = make_slice([]^Thread, max(thread_count, 1), allocator)
 
     pool.is_running = true
 

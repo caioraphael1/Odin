@@ -2922,7 +2922,7 @@ Output:
     abc1    abc2    abc3
 
 */
-expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
+expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res: string, err: io.Error) {
     if tab_size <= 0 {
         panic("tab size must be positive")
     }
@@ -2932,7 +2932,7 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
     }
 
     b: Builder
-    builder_init(&b, allocator) or_return
+    builder_init(&b, allocator)
     writer := to_writer(&b)
     str := s
     column: int
@@ -2944,7 +2944,7 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
             expand := tab_size - column%tab_size
 
             for i := 0; i < expand; i += 1 {
-                _ = io.write_byte(writer, ' ')
+                io.write_byte(writer, ' ') or_return
             }
 
             column += expand
@@ -2955,7 +2955,7 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
                 column += w
             }
 
-            _, _ = io.write_rune(writer, r)
+            _ = io.write_rune(writer, r) or_return
         }
 
         str = str[w:]
