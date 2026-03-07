@@ -142,7 +142,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
         debug("processing", n, "already completed")
 
         for _ in 0 ..< n {
-            op := queue.dyn_array_pop_front(&l.completed)
+            op := queue.dyn_array.pop_front(&l.completed)
             handle_completed(op)
         }
 

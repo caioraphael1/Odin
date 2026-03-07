@@ -74,7 +74,7 @@ gen_tables :: proc($CURVE: string) {
 		os.exit(1);
 	}
 	bld: strings_tools.Builder
-	w := strings.to_writer(&bld)
+	w := strings_tools.to_writer(&bld)
 
 	fmt.wprintln(w, "package _weierstrass")
 	fmt.wprintln(w, "")

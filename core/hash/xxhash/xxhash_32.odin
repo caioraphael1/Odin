@@ -195,13 +195,13 @@ XXH32 :: proc(input: []u8, seed := XXH32_DEFAULT_SEED) -> (digest: XXH32_hash) {
 	******   Hash streaming   ******
 */
 XXH32_create_state :: proc(allocator: mem.Allocator) -> (res: ^XXH32_state, err: Error) {
-	state := new(XXH32_state, allocator)
+	state := mem.new(XXH32_state, allocator)
 	XXH32_reset_state(state)
 	return state, .None if state != nil else .Error
 }
 
 XXH32_destroy_state :: proc(state: ^XXH32_state, allocator: mem.Allocator) -> (err: Error) {
-	_ = free(state, allocator)
+	_ = mem.free(state, allocator)
 	return .None
 }
 

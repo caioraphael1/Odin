@@ -104,7 +104,7 @@ delete_soa_slice :: proc(array: $T/#soa[]$E, allocator: mem.Allocator, loc := #c
     when field_count != 0 {
         array := array
         ptr := (^rawptr)(&array)^
-        _ = free(ptr, allocator, loc) or_return
+        _ = mem.free(ptr, allocator, loc) or_return
     }
     return nil
 }

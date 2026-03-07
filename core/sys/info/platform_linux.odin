@@ -31,7 +31,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
 		{
 			// Search the line in the file until we find "PRETTY_NAME="
-			_, _, post := strings.partition(release, `PRETTY_NAME="`)
+			_, _, post := strings_tools.partition(release, `PRETTY_NAME="`)
 			if len(post) > 0 {
 				end := strings.index_any(post, "\"\n")
 				if end > -1 && post[end] == '"' {
@@ -45,9 +45,9 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
 		{
 			// Search the line in the file until we find "VERSION="
-			_, _, post := strings.partition(release, `VERSION="`)
+			_, _, post := strings_tools.partition(release, `VERSION="`)
 			if len(post) > 0 {
-				pre, _, _ := strings.partition(post, ` `)
+				pre, _, _ := strings_tools.partition(post, ` `)
 				res.os = _parse_version(pre)
 			}
 		}
@@ -70,7 +70,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
 	// Parse the Linux version out of the release string
 	version_loop: {
-		version_num, _, version_suffix := strings.partition(release_str, "-")
+		version_num, _, version_suffix := strings_tools.partition(release_str, "-")
 		res.release = version_suffix
 		res.kernel = _parse_version(version_num)
 

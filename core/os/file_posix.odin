@@ -101,7 +101,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f
 }
 
 _new_file_internal :: proc(handle: posix.FD, allocator: mem.Allocator) -> ^File {
-    impl := new(File_Impl, allocator)
+    impl := mem.new(File_Impl, allocator)
     impl.file.impl = impl
     impl.fd = posix.FD(handle)
     impl.allocator = allocator
@@ -145,7 +145,7 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
     allocator := f.allocator
 
     _ = slice.delete(f.cname, allocator)
-    _ = free(f, allocator)
+    _ = mem.free(f, allocator)
     return
 }
 

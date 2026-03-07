@@ -77,13 +77,13 @@ join_url :: proc(scheme, host, path: string, queries: map[string]string, fragmen
 
     strings_tools.write_string(&b, scheme)
     strings_tools.write_string(&b, "://")
-    strings_tools.write_string(&b, strings.trim_space(host))
+    strings_tools.write_string(&b, strings_tools.trim_space(host))
 
     if path != "" {
         if path[0] != '/' {
             strings_tools.write_string(&b, "/")
         }
-        strings_tools.write_string(&b, strings.trim_space(path))
+        strings_tools.write_string(&b, strings_tools.trim_space(path))
     }
 
 
@@ -108,7 +108,7 @@ join_url :: proc(scheme, host, path: string, queries: map[string]string, fragmen
         if fragment[0] != '#' {
             strings_tools.write_string(&b, "#")
         }
-        strings_tools.write_string(&b, strings.trim_space(fragment))
+        strings_tools.write_string(&b, strings_tools.trim_space(fragment))
     }
 
     return strings_tools.to_string(b)

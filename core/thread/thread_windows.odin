@@ -1,6 +1,8 @@
 #+build windows
 #+private
 import "base:intrinsics"
+import "base:mem"
+
 import "core:sync"
 import win32 "core:sys/windows"
 
@@ -34,14 +36,14 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
         if .Self_Cleanup in sync.atomic_load(&t.flags) {
             _ = win32.CloseHandle(t.win32_thread)
             t.win32_thread = win32.INVALID_HANDLE
-            _ = free(t, t.creation_allocator)
+            _ = mem.free(t, t.creation_allocator)
         }
 
         return 0
     }
 
 
-    thread, _ := new(Thread, allocator)
+    thread, _ := mem.new(Thread, allocator)
     if thread == nil {
         return nil
     }
@@ -50,13 +52,13 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
     win32_thread := win32.CreateThread(
         lpThreadAttributes = nil,
         dwStackSize        = 0,
-        lpStartAddress     = __windows_thread_entry_proc,
+        lpStartAddress     = _windows_thread_entry_proc,
         lpParameter        = thread,
         dwCreationFlags    = win32.CREATE_SUSPENDED,
         lpThreadId         = &win32_thread_id,
     )
     if win32_thread == nil {
-        _ = free(thread, thread.creation_allocator)
+        _ = mem.free(thread, thread.creation_allocator)
         return nil
     }
     thread.procedure       = procedure
@@ -128,7 +130,7 @@ _join_multiple :: proc(threads: ..^Thread) {
 
 _destroy :: proc(thread: ^Thread) {
     _join(thread)
-    _ = free(thread, thread.creation_allocator)
+    _ = mem.free(thread, thread.creation_allocator)
 }
 
 

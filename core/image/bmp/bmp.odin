@@ -194,7 +194,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     */
 
     if img == nil {
-        img = new(Image)
+        img = mem.new(Image)
     }
     img.which = .BMP
 
@@ -733,9 +733,9 @@ destroy :: proc(img: ^Image) {
 
     bytes.buffer_destroy(&img.pixels)
     if v, ok := img.metadata.(^image.BMP_Info); ok {
-        _ = free(v)
+        _ = mem.free(v)
     }
-    _ = free(img)
+    _ = mem.free(img)
 }
 
 // @(init)

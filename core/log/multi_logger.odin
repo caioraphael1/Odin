@@ -1,4 +1,5 @@
-import "base:internal"
+import "base:mem"
+import "base:slice"
 
 
 Multi_Logger_Data :: struct {
@@ -6,7 +7,7 @@ Multi_Logger_Data :: struct {
 }
 
 create_multi_logger :: proc(logs: []Logger, allocator: mem.Allocator) -> Logger {
-    data, _ := new(Multi_Logger_Data, allocator)
+    data, _ := mem.new(Multi_Logger_Data, allocator)
     data.loggers, _ = slice.create([]Logger, len(logs), allocator)
     slice.copy(data.loggers, logs)
     return Logger{multi_logger_proc, data, Level.Debug, nil}
@@ -15,7 +16,7 @@ create_multi_logger :: proc(logs: []Logger, allocator: mem.Allocator) -> Logger 
 destroy_multi_logger :: proc(log: Logger, allocator: mem.Allocator) {
     data := (^Multi_Logger_Data)(log.data)
     _ = slice.delete(data.loggers, allocator)
-    _ = free(data, allocator)
+    _ = mem.free(data, allocator)
 }
 
 multi_logger_proc :: proc(logger_data: rawptr, level: Level, text: string,

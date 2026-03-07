@@ -2,7 +2,7 @@ import "base:mem"
 import "base:math"
 import "core:reflect"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 import "base:internal"
 import "base:intrinsics"
 
@@ -637,7 +637,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         if !reflect.is_string(t.key) && !reflect.is_integer(t.key) {
             return UNSUPPORTED_TYPE
         }
-        raw_map := (^mem.Raw_Map)(v.data)
+        raw_map := (^maps.Raw_Map)(v.data)
         if raw_map.allocator.procedure == nil {
             raw_map.allocator = p.allocator
         }
@@ -783,7 +783,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
     
     #partial switch t in ti.variant {
     case reflect.Type_Info_Slice:   
-        raw := (^mem.Raw_Slice)(v.data)
+        raw := (^slice.Raw_Slice)(v.data)
         data := bytes_make(t.elem.size * int(length), t.elem.align, p.allocator) or_return
         raw.data = raw_data(data)
         raw.len = int(length)
@@ -791,7 +791,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         return assign_array(p, raw.data, t.elem, length)
         
     case reflect.Type_Info_Dynamic_Array:
-        raw := (^mem.Raw_Dynamic_Array)(v.data)
+        raw := (^dyn_array.Raw_Dynamic_Array)(v.data)
         data := bytes_make(t.elem.size * int(length), t.elem.align, p.allocator) or_return
         raw.data = raw_data(data)
         raw.len = int(length)

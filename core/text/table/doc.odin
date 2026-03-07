@@ -128,7 +128,7 @@ Example:
             table.caption(&tbl, "Hellope!")
             table.row(&tbl, "Hellope", "World")
 
-            builder_writer := strings.to_writer(&string_buffer)
+            builder_writer := strings_tools.to_writer(&string_buffer)
 
             // The written table will be cached into the string builder after this call.
             table.write_plain_table(builder_writer, &tbl)

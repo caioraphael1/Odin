@@ -117,7 +117,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
     // Use this to make cstrings without copying.
     path_backing: [48]u8
-    path_builder := strings.builder_from_bytes(path_backing[:])
+    path_builder := strings_tools.builder_from_bytes(path_backing[:])
 
     strings_tools.write_string(&path_builder, "/proc/")
     strings.write_int(&path_builder, pid)
@@ -608,7 +608,7 @@ _process_state_update_times :: proc(state: ^Process_State) -> (err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     stat_path_buf: [48]u8
-    path_builder := strings.builder_from_bytes(stat_path_buf[:])
+    path_builder := strings_tools.builder_from_bytes(stat_path_buf[:])
     strings_tools.write_string(&path_builder, "/proc/")
     strings.write_int(&path_builder, int(state.pid))
     strings_tools.write_string(&path_builder, "/stat")

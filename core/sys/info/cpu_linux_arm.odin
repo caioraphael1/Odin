@@ -24,9 +24,9 @@ init_cpu_features :: proc() {
 
 	str := string(buf[:n])
 	for line in strings.split_lines_iterator(&str) {
-		key, _, value := strings.partition(line, ":")
-		key   = strings.trim_space(key)
-		value = strings.trim_space(value)
+		key, _, value := strings_tools.partition(line, ":")
+		key   = strings_tools.trim_space(key)
+		value = strings_tools.trim_space(value)
 
 		if key != "Features" { continue }
 
@@ -83,9 +83,9 @@ _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
 
 	str := string(buf[:n])
 	for line in strings.split_lines_iterator(&str) {
-		key, _, value := strings.partition(line, ":")
-		key   = strings.trim_space(key)
-		value = strings.trim_space(value)
+		key, _, value := strings_tools.partition(line, ":")
+		key   = strings_tools.trim_space(key)
+		value = strings_tools.trim_space(value)
 
 		if key == "cpu cores" && !physical_ok{
 			physical, physical_ok = strconv.parse_int(value)

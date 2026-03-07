@@ -1,6 +1,6 @@
 #+build !freestanding
 
-import "base:internal"
+import "base:mem"
 import "core:fmt"
 import "core:sync"
 
@@ -46,7 +46,7 @@ log_allocator :: proc(la: ^Log_Allocator) -> mem.Allocator {
     }
 }
 
-log_allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
+log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                            size, alignment: int,
                            old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, mem.Allocator_Error)  {
     la := (^Log_Allocator)(allocator_data)

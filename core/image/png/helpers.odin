@@ -39,9 +39,9 @@ destroy :: proc(img: ^Image) {
 			_ = slice.delete(chunk.data)
 		}
 		_ = slice.delete(v.chunks)
-		_ = free(v)
+		_ = mem.free(v)
 	}
-	_ = free(img)
+	_ = mem.free(img)
 }
 
 /*

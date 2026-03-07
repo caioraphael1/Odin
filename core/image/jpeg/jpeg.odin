@@ -199,7 +199,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         return img, .Invalid_Signature
     }
 
-    img = new(Image) or_return
+    img = mem.new(Image) or_return
     img.which = .JPEG
 
     expect_EOI := false
@@ -276,7 +276,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
-                            info = new(image.JPEG_Info) or_return
+                            info = mem.new(image.JPEG_Info) or_return
                         } else {
                             info = img.metadata.(^image.JPEG_Info)
                         }
@@ -313,7 +313,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
-                            info = new(image.JPEG_Info) or_return
+                            info = mem.new(image.JPEG_Info) or_return
                         } else {
                             info = img.metadata.(^image.JPEG_Info)
                         }
@@ -336,7 +336,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
-                            info = new(image.JPEG_Info) or_return
+                            info = mem.new(image.JPEG_Info) or_return
                         } else {
                             info = img.metadata.(^image.JPEG_Info)
                         }
@@ -365,7 +365,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
-                            info = new(image.JPEG_Info) or_return
+                            info = mem.new(image.JPEG_Info) or_return
                         } else {
                             info = img.metadata.(^image.JPEG_Info)
                         }
@@ -393,7 +393,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             }
             info: ^image.JPEG_Info
             if img.metadata == nil {
-                info = new(image.JPEG_Info) or_return
+                info = mem.new(image.JPEG_Info) or_return
             } else {
                 info = img.metadata.(^image.JPEG_Info)
             }
@@ -1084,9 +1084,9 @@ destroy :: proc(img: ^Image) {
         }
         _ = slice.delete(v.exif)
 
-        _ = free(v)
+        _ = mem.free(v)
     }
-    _ = free(img)
+    _ = mem.free(img)
 }
 
 // @(init)

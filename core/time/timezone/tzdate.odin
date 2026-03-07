@@ -34,7 +34,7 @@ region_destroy :: proc(region: ^datetime.TZ_Region, allocator: mem.Allocator) {
     _ = slice.delete(region.records, allocator)
     _ = strings.string_delete(region.name, allocator)
     rrule_destroy(region.rrule, allocator)
-    _ = free(region, allocator)
+    _ = mem.free(region, allocator)
 }
 
 

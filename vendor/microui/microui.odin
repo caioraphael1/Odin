@@ -328,7 +328,7 @@ init :: proc(
     ctx.draw_frame  = default_draw_frame
     ctx._style      = default_style
     ctx.style       = &ctx._style
-    ctx.text_input  = strings.builder_from_bytes(ctx._text_store[:])
+    ctx.text_input  = strings_tools.builder_from_bytes(ctx._text_store[:])
 
     ctx.textbox_state.set_clipboard       = set_clipboard
     ctx.textbox_state.get_clipboard       = get_clipboard
@@ -991,7 +991,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
 
     if ctx.focus_id == id {
         /* create a builder backed by the user's buffer */
-        builder := strings.builder_from_bytes(textbuf)
+        builder := strings_tools.builder_from_bytes(textbuf)
         _ = dyn_array.resize_non_zero(&builder.buf, textlen^)
         ctx.textbox_state.builder = &builder
         if ctx.textbox_state.id != u64(id) {

@@ -211,7 +211,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
     }
 
     if img == nil {
-        img = new(Image)
+        img = mem.new(Image)
     }
 
     defer if err != nil {
@@ -274,7 +274,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
     }
 
     if .return_metadata in options {
-        info := new(image.TGA_Info)
+        info := mem.new(image.TGA_Info)
         info.header   = header
         info.image_id = image_id
         if have_valid_footer {
@@ -390,13 +390,13 @@ destroy :: proc(img: ^Image) {
     bytes.buffer_destroy(&img.pixels)
     if v, ok := img.metadata.(^image.TGA_Info); ok {
         _ = slice.delete(v.image_id)
-        _ = free(v)
+        _ = mem.free(v)
     }
 
     // Make destroy idempotent
     img.width  = 0
     img.height = 0
-    _ = free(img)
+    _ = mem.free(img)
 }
 
 IMAGE_DESCRIPTOR_INTERLEAVING_MASK :: (1<<6) | (1<<7)

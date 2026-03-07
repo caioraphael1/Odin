@@ -7,7 +7,7 @@ import "core:reflect"
 import "core:odin/tokenizer"
 
 new_from_positions :: proc($T: typeid, pos, end: tokenizer.Pos, allocator: mem.Allocator) -> ^T {
-    n, _ := new(T, allocator)
+    n, _ := mem.new(T, allocator)
     n.pos = pos
     n.end = end
     n.derived = n

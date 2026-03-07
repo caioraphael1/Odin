@@ -65,7 +65,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 _ = subnode.inner.(^Node_Wildcard) or_break wrza
                 next_node := specific.nodes[i+1].(^Node_Anchor) or_break wrza
                 if next_node.start == false {
-                    specific.nodes[i], _ = new(Node_Match_All_And_Escape, allocator)
+                    specific.nodes[i], _ = mem.new(Node_Match_All_And_Escape, allocator)
                     dyn_array.ordered_remove(&specific.nodes, i + 1)
                     changes += 1
                     break
@@ -77,7 +77,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 next_node := specific.nodes[i+1].(^Node_Anchor) or_break wroa
                 if next_node.start == false {
                     specific.nodes[i] = subsubnode
-                    specific.nodes[i+1], _ = new(Node_Match_All_And_Escape, allocator)
+                    specific.nodes[i+1], _ = mem.new(Node_Match_All_And_Escape, allocator)
                     changes += 1
                     break
                 }
@@ -179,7 +179,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         if !specific.negating && len(specific.runes) == 1 && len(specific.ranges) == 0 {
             only_rune := specific.runes[0]
 
-            node, _ := new(Node_Rune, allocator)
+            node, _ := mem.new(Node_Rune, allocator)
             node.data = only_rune
 
             return node, changes + 1
@@ -290,7 +290,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         //
         // DO: `a|` => `a?`
         if specific.left != nil && specific.right == nil {
-            node, _ := new(Node_Optional, allocator)
+            node, _ := mem.new(Node_Optional, allocator)
             node.inner = specific.left
             return node, 1
         }
@@ -299,7 +299,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         //
         // DO: `|a` => `a??`
         if specific.right != nil && specific.left == nil {
-            node, _ := new(Node_Optional_Non_Greedy, allocator)
+            node, _ := mem.new(Node_Optional_Non_Greedy, allocator)
             node.inner = specific.right
             return node, 1
         }
@@ -324,7 +324,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 // * Alternation to Class
                 //
                 // DO: `a|b` => `[ab]`
-                node, _ := new(Node_Rune_Class, allocator)
+                node, _ := mem.new(Node_Rune_Class, allocator)
                 _ = dyn_array.append(&node.runes, left_rune.data)
                 _ = dyn_array.append(&node.runes, right_rune.data)
                 return node, 1
@@ -424,8 +424,8 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 
             if same_len > 0 {
                 // Dissolve this alternation into a concatenation.
-                cat_node, _ := new(Node_Concatenation, allocator)
-                group_node, _ := new(Node_Group, allocator)
+                cat_node, _ := mem.new(Node_Concatenation, allocator)
+                group_node, _ := mem.new(Node_Group, allocator)
                 _ = dyn_array.append(&cat_node.nodes, group_node)
 
                 // Turn the concatenation into the common suffix.
@@ -475,7 +475,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
             }
 
             if same_len > 0 {
-                cat_node, _ := new(Node_Concatenation, allocator)
+                cat_node, _ := mem.new(Node_Concatenation, allocator)
                 for i := 0; i < same_len; i += 1 {
                     _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes[i])
                 }
@@ -484,7 +484,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                     dyn_array.ordered_remove(&right_concatenation.nodes, 0)
                 }
 
-                group_node, _ := new(Node_Group, allocator)
+                group_node, _ := mem.new(Node_Group, allocator)
                 // (Re-using this alternation node.)
                 alter_node := specific
                 alter_node.left = left_concatenation

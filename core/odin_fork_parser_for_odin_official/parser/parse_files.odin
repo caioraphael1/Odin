@@ -40,7 +40,7 @@ collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Pa
             _ = strings.string_delete(fullpath, allocator)
             return
         }
-        if strings.trim_space(string(src)) == "" {
+        if strings_tools.trim_space(string(src)) == "" {
             _ = strings.string_delete(fullpath, allocator)
             _ = slice.delete(src, allocator)
             continue

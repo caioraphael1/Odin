@@ -93,9 +93,9 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: mem
 }
 
 _new_file :: proc(fd: uintptr, _: string, allocator: mem.Allocator) -> (f: ^File, err: Error) {
-    impl := new(File_Impl, allocator) or_return
+    impl := mem.new(File_Impl, allocator) or_return
     defer if err != nil {
-        _ = free(impl, allocator)
+        _ = mem.free(impl, allocator)
     }
     impl.file.impl = impl
     impl.fd = linux.Fd(fd)
@@ -145,7 +145,7 @@ _destroy :: proc(f: ^File_Impl) -> Error {
     a := f.allocator
     err0 := _ = slice.delete(f.name, a)
     err1 := _ = slice.delete(f.buffer, a)
-    err2 := free(f, a)
+    err2 := mem.free(f, a)
     err0 or_return
     err1 or_return
     err2 or_return

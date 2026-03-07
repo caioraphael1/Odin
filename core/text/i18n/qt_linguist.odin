@@ -56,7 +56,7 @@ parse_qt_linguist_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTI
 	}
 
 	// Initalize Translation, interner and optional pluralizer.
-	translation = new(Translation)
+	translation = mem.new(Translation)
 	translation.pluralize = pluralizer
 	strings.intern_init(&translation.intern, allocator, allocator)
 

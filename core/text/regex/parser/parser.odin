@@ -8,8 +8,9 @@
 
 import "base:intrinsics"
 import "base:mem"
+import "base:strings"
+
 import "core:strconv"
-import "core:strings"
 import "core:text/regex/common"
 import "core:text/regex/tokenizer"
 import "core:unicode"
@@ -206,14 +207,14 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             lower := unicode.to_lower(r)
             upper := unicode.to_upper(r)
             if lower != upper {
-                node, _ := new(Node_Rune_Class, allocator)
+                node, _ := mem.new(Node_Rune_Class, allocator)
                 _ = dyn_array.append(&node.runes, lower)
                 _ = dyn_array.append(&node.runes, upper)
                 return node, nil
             }
         }
 
-        node, _ := new(Node_Rune, allocator)
+        node, _ := mem.new(Node_Rune, allocator)
         node ^= { r }
         return node, nil
 
@@ -222,7 +223,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             return nil, nil
         }
 
-        node, _ := new(Node_Rune_Class, allocator)
+        node, _ := mem.new(Node_Rune_Class, allocator)
         node.runes.allocator  = allocator
         node.ranges.allocator = allocator
 
@@ -337,7 +338,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
         result = node
 
     case .Wildcard:
-        node, _ := new(Node_Wildcard, allocator)
+        node, _ := mem.new(Node_Wildcard, allocator)
         result = node
 
     case .Open_Paren:
@@ -350,7 +351,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
         }
         this_group := p.groups
 
-        node, _ := new(Node_Group, allocator)
+        node, _ := mem.new(Node_Group, allocator)
         node.capture = true
         node.capture_id = this_group
 
@@ -358,27 +359,27 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
         expect(p, .Close_Paren) or_return
         result = node
     case .Open_Paren_Non_Capture:
-        node, _ := new(Node_Group, allocator)
+        node, _ := mem.new(Node_Group, allocator)
         node.inner = parse_expression(p, 0, allocator) or_return
         expect(p, .Close_Paren) or_return
         result = node
     case .Close_Paren:
-        node, _ := new(Node_Rune, allocator)
+        node, _ := mem.new(Node_Rune, allocator)
         node ^= { ')' }
         return node, nil
         
     case .Anchor_Start:
-        node, _ := new(Node_Anchor, allocator)
+        node, _ := mem.new(Node_Anchor, allocator)
         node.start = true
         result = node
     case .Anchor_End:
-        node, _ := new(Node_Anchor, allocator)
+        node, _ := mem.new(Node_Anchor, allocator)
         result = node
     case .Word_Boundary:
-        node, _ := new(Node_Word_Boundary, allocator)
+        node, _ := mem.new(Node_Word_Boundary, allocator)
         result = node
     case .Non_Word_Boundary:
-        node, _ := new(Node_Word_Boundary, allocator)
+        node, _ := mem.new(Node_Word_Boundary, allocator)
         node.non_word = true
         result = node
 
@@ -395,7 +396,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             return nil, right_err
         }
 
-        node, _ := new(Node_Alternation, allocator)
+        node, _ := mem.new(Node_Alternation, allocator)
         node.right = right
         result = node
 
@@ -415,7 +416,7 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
         if p.cur_token.kind == .Close_Paren {
             // `(a|)`
             // parse_expression will fail, so intervene here.
-            node, _ := new(Node_Alternation, allocator)
+            node, _ := mem.new(Node_Alternation, allocator)
             node.left = left
             return node, nil
         }
@@ -433,7 +434,7 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
             return nil, right_err
         }
 
-        node, _ := new(Node_Alternation, allocator)
+        node, _ := mem.new(Node_Alternation, allocator)
         node.left = left
         node.right = right
         result = node
@@ -448,7 +449,7 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
             _ = dyn_array.append(&specific.nodes, right)
             result = specific
         case:
-            node, _ := new(Node_Concatenation, allocator)
+            node, _ := mem.new(Node_Concatenation, allocator)
             node.nodes.allocator = allocator
             _ = dyn_array.append(&node.nodes, left)
             _ = dyn_array.append(&node.nodes, right)
@@ -456,24 +457,24 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
         }
 
     case .Repeat_Zero:
-        node, _ := new(Node_Repeat_Zero, allocator)
+        node, _ := mem.new(Node_Repeat_Zero, allocator)
         node.inner = left
         result = node
     case .Repeat_Zero_Non_Greedy:
-        node, _ := new(Node_Repeat_Zero_Non_Greedy, allocator)
+        node, _ := mem.new(Node_Repeat_Zero_Non_Greedy, allocator)
         node.inner = left
         result = node
     case .Repeat_One:
-        node, _ := new(Node_Repeat_One, allocator)
+        node, _ := mem.new(Node_Repeat_One, allocator)
         node.inner = left
         result = node
     case .Repeat_One_Non_Greedy:
-        node, _ := new(Node_Repeat_One_Non_Greedy, allocator)
+        node, _ := mem.new(Node_Repeat_One_Non_Greedy, allocator)
         node.inner = left
         result = node
 
     case .Repeat_N:
-        node, _ := new(Node_Repeat_N, allocator)
+        node, _ := mem.new(Node_Repeat_N, allocator)
         node.inner = left
 
         comma := strings_tools.index_byte(token.text, ',')
@@ -535,11 +536,11 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
         result = node
 
     case .Optional:
-        node, _ := new(Node_Optional, allocator)
+        node, _ := mem.new(Node_Optional, allocator)
         node.inner = left
         result = node
     case .Optional_Non_Greedy:
-        node, _ := new(Node_Optional_Non_Greedy, allocator)
+        node, _ := mem.new(Node_Optional_Non_Greedy, allocator)
         node.inner = left
         result = node
 
@@ -571,7 +572,7 @@ parse_expression :: proc(p: ^Parser, rbp: int, allocator: mem.Allocator) -> (res
 
 parse :: proc(str: string, flags: common.Flags, allocator: mem.Allocator) -> (result: Node, err: Error) {
     if len(str) == 0 {
-        node, _ := new(Node_Group, allocator)
+        node, _ := mem.new(Node_Group, allocator)
         return node, nil
     }
 

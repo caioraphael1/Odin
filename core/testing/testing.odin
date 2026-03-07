@@ -172,7 +172,7 @@ This is a limitation for the sake of simplicity in the implementation, and you
 should consider breaking up your tests into smaller procedures if you need to
 check for asserts in more than 2 places.
 */
-expect_assert_from :: proc(t: ^T, expected_place: runtime.Source_Code_Location, caller_loc := #caller_location) {
+expect_assert_from :: proc(t: ^T, expected_place: internal.Source_Code_Location, caller_loc := #caller_location) {
     count := local_test_expected_failures.location_count
     if count == MAX_EXPECTED_ASSERTIONS_PER_TEST {
         panic("This test cannot handle that many expected assertions based on matching the location.", caller_loc)

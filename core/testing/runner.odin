@@ -122,7 +122,7 @@ when TRACKING_MEMORY && FAIL_ON_BAD_MEMORY {
 Task_Timeout :: struct {
 	test_index: int,
 	at_time: time.Time,
-	location: runtime.Source_Code_Location,
+	location: internal.Source_Code_Location,
 }
 
 run_test_task :: proc(task: thread.Task) {
@@ -207,7 +207,7 @@ parse_cli_options :: proc(argv: []string, opts: ^Options, stdout, stderr: io.Wri
 
 	for arg in argv {
 		if strings.starts_with(arg, "-tests:") {
-			_, _, tests := strings.partition(arg, ":")
+			_, _, tests := strings_tools.partition(arg, ":")
 			if len(tests) < 1 {
 				fmt.wprintln(stderr, "No test names specified for '-tests:'")
 				os.exit(-1)
@@ -301,7 +301,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 
 	if test_names != "" {
 		index_list := test_names
-		for selector in strings.split_iterator(&index_list, ",") {
+		for selector in strings_tools.split_iterator(&index_list, ",") {
 			// Temp allocator is fine since we just need to identify which test it's referring to.
 			split_selector := strings_tools.split(selector, ".", allocators.temp_allocator)
 

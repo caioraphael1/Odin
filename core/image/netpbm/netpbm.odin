@@ -26,7 +26,7 @@ ASCII   :: Formats{.P1, .P2, .P3}
 BINARY  :: Formats{.P4, .P5, .P6} + PAM + PFM
 
 load_from_bytes :: proc(data: []byte, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
-    img = new(Image)
+    img = mem.new(Image)
     img.which = .NetPBM
 
     header: Header; defer header_destroy(&header)
@@ -36,7 +36,7 @@ load_from_bytes :: proc(data: []byte, allocator : mem.Allocator) -> (img: ^Image
     img_data := data[header_size:]
     decode_image(img, header, img_data) or_return
 
-    info := new(Info)
+    info := mem.new(Info)
     info.header = header
     if header.format == .P7 && header.tupltype != "" {
         info.header.tupltype = strings.string_clone(header.tupltype)
@@ -387,7 +387,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
         }
 
         field, ok := strings.fields_iterator(&line)
-        value := strings.trim_space(line)
+        value := strings_tools.trim_space(line)
 
         // the field will change, but the logic stays the same
         current_field: ^int

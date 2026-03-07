@@ -460,7 +460,7 @@ delete_soa_dynamic_array :: proc(array: $T/#soa[dynamic]$E, loc := #caller_locat
         array := array
         ptr := (^rawptr)(&array)^
         footer := raw_soa_footer(&array)
-        _ = free(ptr, footer.allocator, loc) or_return
+        _ = mem.free(ptr, footer.allocator, loc) or_return
     }
     return nil
 }

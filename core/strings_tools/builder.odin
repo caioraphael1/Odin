@@ -233,7 +233,7 @@ Example:
     import "core:strings"
     builder_from_bytes_example :: proc() {
         bytes: [8]byte // <-- gets filled
-        builder := strings.builder_from_bytes(bytes[:])
+        builder := strings_tools.builder_from_bytes(bytes[:])
         strings_tools.write_byte(&builder, 'a')
         fmt.println(strings_tools.to_string(builder)) // -> "a"
         strings_tools.write_byte(&builder, 'b')

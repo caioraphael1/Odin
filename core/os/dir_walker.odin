@@ -170,7 +170,7 @@ walker_walk :: proc(w: ^Walker, allocator: mem.Allocator) -> (fi: File_Info, ok:
             return
         }
 
-        next := queue.dyn_array_pop_front(&w.todo)
+        next := queue.pop_front(&w.todo)
 
         handle, err := open(next, allocator = allocator)
         if err != nil {

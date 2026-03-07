@@ -355,7 +355,7 @@ foreign lib {
     realloc :: proc(p: rawptr, sz: c.size_t, pAllocationCallbacks: ^allocation_callbacks) -> rawptr ---
 
     /*
-    _ = free()
+    _ = mem.free()
     */
     free :: proc(p: rawptr, pAllocationCallbacks: ^allocation_callbacks) ---
 

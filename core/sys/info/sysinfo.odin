@@ -167,7 +167,7 @@ GPU_Iterator :: struct {
 _parse_version :: proc (str: string) -> (res: Version) {
     str := str
     i: int
-    for part in strings.split_iterator(&str, ".") {
+    for part in strings_tools.split_iterator(&str, ".") {
         defer i += 1
         dst: ^int
         switch i {

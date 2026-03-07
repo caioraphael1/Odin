@@ -38,7 +38,7 @@ collect_package :: proc(path: string) -> (pkg: ^ast.Package, success: bool) {
 			delete(fullpath)
 			return
 		}
-		if strings.trim_space(string(src)) == "" {
+		if strings_tools.trim_space(string(src)) == "" {
 			delete(fullpath)
 			delete(src)
 			continue

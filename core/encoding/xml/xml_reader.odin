@@ -172,10 +172,10 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 		data = bytes.clone(data)
 	}
 
-	t := new(Tokenizer)
+	t := mem.new(Tokenizer)
 	init(t, string(data), path, error_handler)
 
-	doc = new(Document)
+	doc = mem.new(Document)
 	doc.allocator = allocator
 	doc.tokenizer = t
 	doc.input     = data
@@ -387,8 +387,8 @@ destroy :: proc(doc: ^Document, allocator: mem.Allocator) {
 	}
     _ = slice.delete(doc.strings_to_free)
 
-    _ = free(doc.tokenizer)
-    _ = free(doc)
+    _ = mem.free(doc.tokenizer)
+    _ = mem.free(doc)
 }
 
 /*

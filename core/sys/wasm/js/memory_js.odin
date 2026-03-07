@@ -15,7 +15,7 @@ page_alloc :: proc(page_count: int) -> (data: []byte, err: mem.Allocator_Error) 
 }
 
 page_allocator :: proc() -> mem.Allocator {
-	procedure :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
+	procedure :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
 	                  size, alignment: int,
 	                  old_memory: rawptr, old_size: int,
 	                  location := #caller_location) -> ([]byte, mem.Allocator_Error) {

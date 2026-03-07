@@ -463,7 +463,7 @@ Example:
         small_array.push(&a, 0, 1, 2)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.dyn_array_pop_front(&a)
+        small_array.dyn_array.pop_front(&a)
         fmt.println("AFTER: ", small_array.slice(&a))
     }
 
@@ -472,7 +472,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER:  [1, 2]
 */
-dyn_array_pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
+dyn_array.pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
     assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
@@ -516,7 +516,7 @@ pop_back_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
 
 /*
 Attempts to remove and return the first element of the small array.
-Unlike `dyn_array_pop_front`, it does not assume that the array is non-empty.
+Unlike `dyn_array.pop_front`, it does not assume that the array is non-empty.
 
 Note: Performing this operation will cause pointers obtained
 through get_ptr(_save) to reference incorrect elements.

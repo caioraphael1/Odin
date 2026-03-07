@@ -310,7 +310,7 @@ Type_Flag_Bit_Set :: enum u32le {
 }
 
 from_array :: proc(base: ^Header_Base, a: $A/Array($T)) -> []T {
-	s: mem.Raw_Slice
+	s: slice.Raw_Slice
 	s.data = rawptr(uintptr(base) + uintptr(a.offset))
 	s.len = int(a.length)
 	return transmute([]T)s

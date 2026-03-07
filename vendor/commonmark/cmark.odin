@@ -491,7 +491,7 @@ free_cstring :: proc "c" (str: cstring) {
 
 // Wrap CMark allocator as Odin allocator
 @(private)
-cmark_allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
+cmark_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                              size, alignment: int,
                              old_memory: rawptr, old_size: int, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
 

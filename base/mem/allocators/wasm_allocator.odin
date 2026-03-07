@@ -150,7 +150,7 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: in
         return ([^]byte)(ptr)[:size], nil
 
     case .Free:
-        _ = free(a, old_memory, loc)
+        _ = mem.free(a, old_memory, loc)
         return nil, nil
 
     case .Free_All, .Query_Info:
@@ -835,7 +835,7 @@ aligned_realloc :: proc(a: ^WASM_Allocator, ptr: rawptr, alignment, size: uint, 
     }
 
     if size == 0 {
-        _ = free(a, ptr, loc)
+        _ = mem.free(a, ptr, loc)
         return nil
     }
 
@@ -860,7 +860,7 @@ aligned_realloc :: proc(a: ^WASM_Allocator, ptr: rawptr, alignment, size: uint, 
     newptr := aligned_alloc(a, alignment, size, loc)
     if newptr != nil {
         intrinsics.mem_copy(newptr, ptr, min(size, region.size - REGION_HEADER_SIZE))
-        _ = free(a, ptr, loc=loc)
+        _ = mem.free(a, ptr, loc=loc)
     }
 
     return newptr

@@ -126,13 +126,13 @@ destroy :: proc(control: ^Allocator) {
 
         // Free the allocation on the backing allocator
         _ = runtime.slice.delete(p.data, p.allocator)
-        _ = free(p, p.allocator)
+        _ = mem.free(p, p.allocator)
 
         p = next
     }
 }
 
-allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
+allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                        size, alignment: int,
                        old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, mem.Allocator_Error)  {
 

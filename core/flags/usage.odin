@@ -267,7 +267,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
             usage_builder, _ := strings_tools.builder_make(allocators.temp_allocator)
 
             strings_tools.write_byte(&usage_builder, '\n')
-            iter := strings.trim_space(flag.usage)
+            iter := strings_tools.trim_space(flag.usage)
             for line in strings.split_lines_iterator(&iter) {
                 strings_tools.write_string(&usage_builder, "\t\t")
                 strings_tools.write_string(&usage_builder, strings.trim_left_space(line))

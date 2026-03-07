@@ -5,9 +5,12 @@
 */
 
 import "base:intrinsics"
-import "core:sync"
 import "base:mem"
+import "base:slice"
+import "base:dyn_array"
 import "base:queue"
+
+import "core:sync"
 
 Task_Proc :: #type proc(task: Task)
 
@@ -81,7 +84,7 @@ pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 
     for _, i in pool.threads {
         t := create(pool_thread_runner, allocator = allocator)
-        data, _ := new(Pool_Thread_Data, allocator)
+        data, _ := mem.new(Pool_Thread_Data, allocator)
         data.pool = pool
         t.user_index = i
         t.data = data
@@ -95,7 +98,7 @@ pool_destroy :: proc(pool: ^Pool) {
 
     for &t in pool.threads {
         data := cast(^Pool_Thread_Data)t.data
-        _ = free(data, pool.allocator)
+        _ = mem.free(data, pool.allocator)
         destroy(t)
     }
 
@@ -303,7 +306,7 @@ pool_pop_waiting :: proc(pool: ^Pool) -> (task: Task, got_task: bool) {
     if queue.len(pool.tasks) != 0 {
         intrinsics.atomic_sub(&pool.num_waiting, 1)
         intrinsics.atomic_add(&pool.num_in_processing, 1)
-        task = queue.dyn_array_pop_front(&pool.tasks)
+        task = queue.pop_front(&pool.tasks)
         got_task = true
     }
 
@@ -315,7 +318,7 @@ pool_pop_done :: proc(pool: ^Pool) -> (task: Task, got_task: bool) {
     sync.mutex_guard(&pool.mutex)
 
     if len(pool.tasks_done) != 0 {
-        task = dyn_array_pop_front(&pool.tasks_done)
+        task = dyn_array.pop_front(&pool.tasks_done)
         got_task = true
         intrinsics.atomic_sub(&pool.num_done, 1)
     }

@@ -261,9 +261,9 @@ Example:
         queue.push_back(&q, 2)
         queue.push_back(&q, 3)
         // q.data is now [1, 2, 3, ...]
-        assert(queue.dyn_array_pop_front(&q) == 1)
-        assert(queue.dyn_array_pop_front(&q) == 2)
-        assert(queue.dyn_array_pop_front(&q) == 3)
+        assert(queue.dyn_array.pop_front(&q) == 1)
+        assert(queue.dyn_array.pop_front(&q) == 2)
+        assert(queue.dyn_array.pop_front(&q) == 3)
     }
 */
 push_back :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) {
@@ -321,9 +321,9 @@ Example:
         queue.push_front(&q, 3)
         // q.data is now [..., 3, 2, 1]
         log.infof("%#v", q)
-        assert(queue.dyn_array_pop_front(&q) == 3)
-        assert(queue.dyn_array_pop_front(&q) == 2)
-        assert(queue.dyn_array_pop_front(&q) == 1)
+        assert(queue.dyn_array.pop_front(&q) == 3)
+        assert(queue.dyn_array.pop_front(&q) == 2)
+        assert(queue.dyn_array.pop_front(&q) == 1)
     }
 */
 pop_back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
@@ -355,7 +355,7 @@ Pop an element from the front of the queue
 
 This will raise a bounds checking error if the queue is empty.
 */
-dyn_array_pop_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
+pop_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
     when !ODIN_NO_BOUNDS_CHECK {
         ensure(q.len > 0, "Queue is empty.", loc)
     }
@@ -440,7 +440,7 @@ enqueue     :: push_back
 
 append_many :: push_back_elems
 
-dequeue     :: dyn_array_pop_front
+dequeue     :: dyn_array.pop_front
 
 
 /*

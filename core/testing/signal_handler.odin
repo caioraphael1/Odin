@@ -20,13 +20,13 @@ local_test_expected_failures: struct {
 	messages:       [MAX_EXPECTED_ASSERTIONS_PER_TEST]string,
 
 	location_count: int,
-	locations:      [MAX_EXPECTED_ASSERTIONS_PER_TEST]runtime.Source_Code_Location,
+	locations:      [MAX_EXPECTED_ASSERTIONS_PER_TEST]internal.Source_Code_Location,
 }
 
 @(private, thread_local)
 local_test_assertion_raised: struct {
 	message: string,
-	location: runtime.Source_Code_Location,
+	location: internal.Source_Code_Location,
 }
 
 Stop_Reason :: enum {
@@ -38,7 +38,7 @@ Stop_Reason :: enum {
 	Unhandled_Trap,
 }
 
-test_assertion_failure_proc :: proc(prefix, message: string, loc: runtime.Source_Code_Location) -> ! {
+test_assertion_failure_proc :: proc(prefix, message: string, loc: internal.Source_Code_Location) -> ! {
 	if local_test_expected_failures.message_count + local_test_expected_failures.location_count > 0 {
 		local_test_assertion_raised = { message, loc }
 		log.debugf("%s\n\tmessage: %q\n\tlocation: %w", prefix, message, loc)

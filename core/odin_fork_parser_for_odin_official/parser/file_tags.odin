@@ -32,7 +32,7 @@ File_Tags :: struct {
 
 
 get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type, found_subtarget: runtime.Odin_Platform_Subtarget_Type) {
-    str_os, _, str_subtarget := strings.partition(str, ":")
+    str_os, _, str_subtarget := strings_tools.partition(str, ":")
 
     fields := reflect.enum_fields_zipped(runtime.Odin_OS_Type)
     for os in fields {

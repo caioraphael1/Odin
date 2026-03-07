@@ -1150,7 +1150,7 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
         _ = dyn_array.append(&d.attributes, attribute)
     case:
         error(p, decl.pos, "expected a value or foreign declaration after an attribute")
-        _ = free(attribute, allocator)
+        _ = mem.free(attribute, allocator)
         _ = dyn_array.delete(elems)
     }
     return decl

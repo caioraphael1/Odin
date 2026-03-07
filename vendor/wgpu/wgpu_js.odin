@@ -21,6 +21,6 @@ wgpu_alloc :: proc(size: i32) -> [^]byte {
 @(private="file", export)
 wgpu_free :: proc(ptr: rawptr) {
     context = g_context
-    err := free(ptr)
+    err := mem.free(ptr)
     assert(err == nil, "wgpu_free failed")
 }

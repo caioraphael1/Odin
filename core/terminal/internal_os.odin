@@ -2,8 +2,9 @@
 #+build !js
 
 import "base:internal"
+
 import "core:os"
-import "core:strings"
+import "core:strings_tools"
 
 // Reference documentation:
 //

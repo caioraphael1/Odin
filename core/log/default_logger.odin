@@ -1,4 +1,5 @@
 import "base:internal"
+
 import "core:fmt"
 import "core:terminal"
 import "core:os"
@@ -78,11 +79,11 @@ panicf :: proc(fmt_str: string, args: ..any, location := #caller_location) -> ! 
 assert :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         @(cold)
-        internal :: proc(message: string, loc: internal.Source_Code_Location) {
+        internal_assert :: proc(message: string, loc: internal.Source_Code_Location) {
             log(default_logger, .Fatal, message, location=loc)
             internal.assertion_failure_proc("internal assertion", message, loc)
         }
-        internal(message, loc)
+        internal_assert(message, loc)
     }
 }
 
@@ -94,34 +95,34 @@ assertf :: proc(condition: bool, fmt_str: string, args: ..any, loc := #caller_lo
         // execute speculatively, making it about an order of
         // magnitude faster
         @(cold)
-        internal :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
+        internal_assertf :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
             message := fmt.tprintf(fmt_str, ..args)
             log(default_logger, .Fatal, message, location=loc)
             internal.assertion_failure_proc("internal assertion", message, loc)
         }
-        internal(loc, fmt_str, ..args)
+        internal_assertf(loc, fmt_str, ..args)
     }
 }
 
 ensure :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         @(cold)
-        internal :: proc(message: string, loc: internal.Source_Code_Location) {
+        internal_ensure :: proc(message: string, loc: internal.Source_Code_Location) {
             log(default_logger, .Fatal, message, location=loc)
             internal.assertion_failure_proc("unsatisfied ensure", message, loc)
         }
-        internal(message, loc)
+        internal_ensure(message, loc)
     }
 }
 
 ensuref :: proc(condition: bool, fmt_str: string, args: ..any, loc := #caller_location) {
     if !condition {
         @(cold)
-        internal :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
+        internal_ensuref :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
             message := fmt.tprintf(fmt_str, ..args)
             log(default_logger, .Fatal, message, location=loc)
             internal.assertion_failure_proc("unsatisfied ensure", message, loc)
         }
-        internal(loc, fmt_str, ..args)
+        internal_ensuref(loc, fmt_str, ..args)
     }
 }

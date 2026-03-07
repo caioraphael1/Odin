@@ -31,7 +31,7 @@ Using one of these `Specification`s.
         * Quotes around object keys are optional if the keys are valid identifiers.
         * : can be replaced with =
 */
-import "core:strings"
+import "base:strings"
 import "base:internal"
 
 Specification :: enum {

@@ -38,7 +38,7 @@ mutex_allocator :: proc(m: ^Mutex_Allocator) -> mem.Allocator {
 
 mutex_allocator_proc :: proc(
     allocator_data: rawptr,
-    mode: runtime.Allocator_Mode,
+    mode: mem.Allocator_Mode,
     size: int,
     alignment: int,
     old_memory: rawptr,

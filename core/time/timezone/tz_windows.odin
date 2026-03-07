@@ -158,7 +158,7 @@ iana_to_windows_tz :: proc(iana_name: string, allocator: mem.Allocator) -> (name
     status: windows.UError 
 
     iana_name_wstr := windows.utf8_to_wstring_alloc(iana_name, allocator)
-    defer _ = free(rawptr(iana_name_wstr), allocator)
+    defer _ = mem.free(rawptr(iana_name_wstr), allocator)
 
     wintz_name_len := windows.ucal_getWindowsTimeZoneID(iana_name_wstr, -1, cstring16(raw_data(wintz_name_buffer[:])), len(wintz_name_buffer), &status)
     if status != .U_ZERO_ERROR {
@@ -290,7 +290,7 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
     defer _ = strings.string_delete(tz_key, allocator)
 
     tz_key_wstr := windows.utf8_to_wstring_alloc(tz_key, allocator)
-    defer _ = free(rawptr(tz_key_wstr), allocator)
+    defer _ = mem.free(rawptr(tz_key_wstr), allocator)
 
     key: windows.HKEY
     res := windows.RegOpenKeyExW(windows.HKEY_LOCAL_MACHINE, tz_key_wstr, 0, windows.KEY_READ, &key)

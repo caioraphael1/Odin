@@ -37,7 +37,7 @@ iterator_from_string :: proc(src: string, options := DEFAULT_OPTIONS) -> Iterato
 // They key and value may be quoted, which may require the use of `strconv.unquote_string`.
 iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
     for line_ in strings.split_lines_iterator(&it._src) {
-        line := strings.trim_space(line_)
+        line := strings_tools.trim_space(line_)
 
         if len(line) == 0 {
             continue
@@ -67,8 +67,8 @@ iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
             equal += 1
         }
 
-        key = strings.trim_space(line[:equal])
-        value = strings.trim_space(line[equal+1:])
+        key = strings_tools.trim_space(line[:equal])
+        value = strings_tools.trim_space(line[equal+1:])
         ok = true
         return
     }
@@ -129,7 +129,7 @@ load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DE
 
 save_map_to_string :: proc(m: Map, allocator: mem.Allocator) -> (data: string) {
     b := strings_tools.builder_make(allocator)
-    _, _ = write_map(strings.to_writer(&b), m)
+    _, _ = write_map(strings_tools.to_writer(&b), m)
     return strings_tools.to_string(b)
 }
 

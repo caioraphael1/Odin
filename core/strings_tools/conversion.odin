@@ -209,7 +209,7 @@ Example:
         s := "hello"
         b: strings_tools.Builder
         strings.builder_init_len(&b, len(s))
-        w := strings.to_writer(&b)
+        w := strings_tools.to_writer(&b)
         strings.string_case_iterator(w, s, my_callback)
     }
 

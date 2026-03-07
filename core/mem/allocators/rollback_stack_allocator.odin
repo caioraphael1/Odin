@@ -403,7 +403,7 @@ Destroy a rollback stack.
 rollback_stack_destroy :: proc(stack: ^Rollback_Stack) {
     if stack.block_allocator.procedure != nil {
         rb_free_all(stack)
-        _ = free(stack.head, stack.block_allocator)
+        _ = mem.free(stack.head, stack.block_allocator)
     }
     stack^ = {}
 }
@@ -450,7 +450,7 @@ rollback_stack_allocator :: proc(stack: ^Rollback_Stack) -> mem.Allocator {
 @(no_sanitize_address)
 rollback_stack_allocator_proc :: proc(
     allocator_data: rawptr,
-    mode: runtime.Allocator_Mode,
+    mode: mem.Allocator_Mode,
     size, alignment: int,
     old_memory: rawptr,
     old_size: int,

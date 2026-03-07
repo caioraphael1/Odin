@@ -266,26 +266,26 @@ destroy :: proc(val: Value, allocator: mem.Allocator) {
             destroy(entry.value)
         }
         _ = slice.delete(v^)
-        _ = free(v)
+        _ = mem.free(v)
     case ^Array:
         if v == nil { return }
         for entry in v {
             destroy(entry)
         }
         _ = slice.delete(v^)
-        _ = free(v)
+        _ = mem.free(v)
     case ^Text:
         if v == nil { return }
         _ = slice.delete(v^)
-        _ = free(v)
+        _ = mem.free(v)
     case ^Bytes:
         if v == nil { return }
         _ = slice.delete(v^)
-        _ = free(v)
+        _ = mem.free(v)
     case ^Tag:
         if v == nil { return }
         destroy(v.value)
-        _ = free(v)
+        _ = mem.free(v)
     }
 }
 
@@ -467,20 +467,20 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
         case json.Float:   return v, nil
         case json.Boolean: return v, nil
         case json.String:
-            container := new(Text) or_return
+            container := mem.new(Text) or_return
 
             // We need the string to have a nil byte at the end so we clone to cstring.
             container^ = string(strings.cstring_clone_from_string(v) or_return)
             return container, nil
         case json.Array:
-            arr  := new(Array) or_return
+            arr  := mem.new(Array) or_return
             arr^  = slice.create([]Value, len(v)) or_return
             for _, i in arr {
                 arr[i] = internal(v[i]) or_return
             }
             return arr, nil
         case json.Object:
-            m  := new(Map) or_return
+            m  := mem.new(Map) or_return
             dm := dyn_array.create([dynamic]Map_Entry, 0, len(v)) or_return
             for mkey, mval in v {
                 dyn_array.append(&dm, Map_Entry{from_json(mkey) or_return, from_json(mval) or_return}) or_return

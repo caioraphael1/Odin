@@ -1,9 +1,14 @@
 import "base:intrinsics"
 import "base:internal"
 import "base:mem"
-import "base:strings"
+import "base:mem/allocators"
 import "base:math"
+import "base:slice"
+import "base:dyn_array"
+import "base:maps"
+import "base:strings"
 
+import "core:strings_tools"
 import "core:math/bits"
 import "core:io"
 import "core:reflect"
@@ -252,7 +257,7 @@ tprintfln :: proc(fmt: string, args: ..any) -> string {
 // Returns: A formatted string
 //
 bprint :: proc(buf: []byte, args: ..any, sep := " ") -> string {
-    sb := strings.builder_from_bytes(buf)
+    sb := strings_tools.builder_from_bytes(buf)
     return sbprint(&sb, ..args, sep=sep)
 }
 // Creates a formatted string using a supplied buffer as the backing array, appends newline. Writes into the buffer.
@@ -265,7 +270,7 @@ bprint :: proc(buf: []byte, args: ..any, sep := " ") -> string {
 // Returns: A formatted string with a newline character at the end
 //
 bprintln :: proc(buf: []byte, args: ..any, sep := " ") -> string {
-    sb := strings.builder_from_bytes(buf)
+    sb := strings_tools.builder_from_bytes(buf)
     return sbprintln(&sb, ..args, sep=sep)
 }
 // Creates a formatted string using a supplied buffer as the backing array. Writes into the buffer.
@@ -279,7 +284,7 @@ bprintln :: proc(buf: []byte, args: ..any, sep := " ") -> string {
 // Returns: A formatted string
 //
 bprintf :: proc(buf: []byte, fmt: string, args: ..any, newline := false) -> string {
-    sb := strings.builder_from_bytes(buf)
+    sb := strings_tools.builder_from_bytes(buf)
     return sbprintf(&sb, fmt, ..args, newline=newline)
 }
 // Creates a formatted string using a supplied buffer as the backing array, followed by a newline. Writes into the buffer.
@@ -310,11 +315,11 @@ assertf :: proc(condition: bool, fmt: string, args: ..any, loc := #caller_locati
         // execute speculatively, making it about an order of
         // magnitude faster
         @(cold)
-        internal :: proc(loc: internal.Source_Code_Location, fmt: string, args: ..any) {
+        internal_assertf :: proc(loc: internal.Source_Code_Location, fmt: string, args: ..any) {
             message := tprintf(fmt, ..args)
             internal.assertion_failure_proc("internal assertion", message, loc)
         }
-        internal(loc, fmt, ..args)
+        internal_assertf(loc, fmt, ..args)
     }
 }
 // Runtime ensure with a formatted message
@@ -328,11 +333,11 @@ assertf :: proc(condition: bool, fmt: string, args: ..any, loc := #caller_locati
 ensuref :: proc(condition: bool, fmt: string, args: ..any, loc := #caller_location) {
     if !condition {
         @(cold)
-        internal :: proc(loc: internal.Source_Code_Location, fmt: string, args: ..any) {
+        internal_ensuref :: proc(loc: internal.Source_Code_Location, fmt: string, args: ..any) {
             message := tprintf(fmt, ..args)
             internal.assertion_failure_proc("unsatisfied ensure", message, loc)
         }
-        internal(loc, fmt, ..args)
+        internal_ensuref(loc, fmt, ..args)
     }
 }
 // Runtime panic with a formatted message
@@ -455,7 +460,7 @@ ctprintfln :: proc(format: string, args: ..any) -> cstring {
 //
 @(optional_results)
 sbprint :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string {
-    wprint(strings.to_writer(buf), ..args, sep=sep, flush=true)
+    wprint(strings_tools.to_writer(buf), ..args, sep=sep, flush=true)
     return strings_tools.to_string(buf^)
 }
 // Formats and writes to a strings_tools.Builder buffer using the default print settings
@@ -469,7 +474,7 @@ sbprint :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string 
 //
 @(optional_results)
 sbprintln :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string {
-    wprintln(strings.to_writer(buf), ..args, sep=sep, flush=true)
+    wprintln(strings_tools.to_writer(buf), ..args, sep=sep, flush=true)
     return strings_tools.to_string(buf^)
 }
 // Formats and writes to a strings_tools.Builder buffer according to the specified format string
@@ -484,7 +489,7 @@ sbprintln :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> strin
 //
 @(optional_results)
 sbprintf :: proc(buf: ^strings_tools.Builder, fmt: string, args: ..any, newline := false) -> string {
-    wprintf(strings.to_writer(buf), fmt, ..args, flush=true, newline=newline)
+    wprintf(strings_tools.to_writer(buf), fmt, ..args, flush=true, newline=newline)
     return strings_tools.to_string(buf^)
 }
 // Formats and writes to a strings_tools.Builder buffer according to the specified format string, followed by a newline.
@@ -1228,11 +1233,11 @@ _fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, units: st
     abs, neg := strconv.is_integer_negative(u, is_signed, bit_size)
 
     // Default to a precision of 2, but if less than a kb, 0
-    prec := fi.prec if (fi.prec_set || abs < internal.Kilobyte) else 2
+    prec := fi.prec if (fi.prec_set || abs < mem.Kilobyte) else 2
 
     div, off, unit_len := 1, 0, 1
-    for n := abs; n >= internal.Kilobyte; n /= internal.Kilobyte {
-        div *= internal.Kilobyte
+    for n := abs; n >= mem.Kilobyte; n /= mem.Kilobyte {
+        div *= mem.Kilobyte
         off += 4
 
         // First iteration is slightly different because you go from
@@ -1980,7 +1985,7 @@ handle_tag :: proc(state: ^Info_State, data: rawptr, info: reflect.Type_Info_Str
 
     tag := info.tags[idx]
     if vt, ok := reflect.struct_tag_lookup(reflect.Struct_Tag(tag), "fmt"); ok {
-        value := strings.trim_space(string(vt))
+        value := strings_tools.trim_space(string(vt))
         switch value {
         case "":  return false
         case "-": return true
@@ -1988,7 +1993,7 @@ handle_tag :: proc(state: ^Info_State, data: rawptr, info: reflect.Type_Info_Str
 
         fi := state
 
-        head, _, tail := strings.partition(value, ",")
+        head, _, tail := strings_tools.partition(value, ",")
 
         i := 0
         prefix_loop: for ; i < len(head); i += 1 {
@@ -2067,7 +2072,7 @@ _handle_raw_union_tag :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.
     tag_name: string
     for tag in info.tags[:info.field_count] {
         rut := reflect.struct_tag_lookup(reflect.Struct_Tag(tag), "raw_union_tag") or_continue
-        head_tag, match, _ := strings.partition(string(rut), "=")
+        head_tag, match, _ := strings_tools.partition(string(rut), "=")
         if match != "=" {
             continue
         }
@@ -2099,14 +2104,14 @@ _handle_raw_union_tag :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.
         for tag, index in info.tags[:info.field_count] {
             rut_list := reflect.struct_tag_lookup(reflect.Struct_Tag(tag), "raw_union_tag") or_continue
 
-            for rut in strings.split_iterator(&rut_list, ",") {
-                head_tag, match, tail_name := strings.partition(string(rut), "=")
+            for rut in strings_tools.split_iterator(&rut_list, ",") {
+                head_tag, match, tail_name := strings_tools.partition(string(rut), "=")
                 if head_tag != tag_name || match != "=" {
                     continue
                 }
 
                 // just ignore the `A.` prefix for `A.B` stuff entirely
-                if _, _, try_tail_name := strings.partition(string(rut), "."); try_tail_name != "" {
+                if _, _, try_tail_name := strings_tools.partition(string(rut), "."); try_tail_name != "" {
                     tail_name = try_tail_name
                 }
 
@@ -2125,14 +2130,14 @@ _handle_raw_union_tag :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.
         for tag, index in info.tags[:info.field_count] {
             rut_list := reflect.struct_tag_lookup(reflect.Struct_Tag(tag), "raw_union_tag") or_continue
 
-            for rut in strings.split_iterator(&rut_list, ",") {
-                head_tag, match, tail_name := strings.partition(string(rut), "=")
+            for rut in strings_tools.split_iterator(&rut_list, ",") {
+                head_tag, match, tail_name := strings_tools.partition(string(rut), "=")
                 if head_tag != tag_name || match != "=" {
                     continue
                 }
 
                 // just ignore the `A.` prefix for `A.B` stuff entirely
-                if _, _, try_tail_name := strings.partition(string(rut), "."); try_tail_name != "" {
+                if _, _, try_tail_name := strings_tools.partition(string(rut), "."); try_tail_name != "" {
                     tail_name = try_tail_name
                 }
 
@@ -2154,14 +2159,14 @@ _handle_raw_union_tag :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.
         for tag, index in info.tags[:info.field_count] {
             rut_list := reflect.struct_tag_lookup(reflect.Struct_Tag(tag), "raw_union_tag") or_continue
 
-            for rut in strings.split_iterator(&rut_list, ",") {
-                head_tag, match, tail_name := strings.partition(string(rut), "=")
+            for rut in strings_tools.split_iterator(&rut_list, ",") {
+                head_tag, match, tail_name := strings_tools.partition(string(rut), "=")
                 if head_tag != tag_name || match != "=" {
                     continue
                 }
 
                 // just ignore the `A.` prefix for `A.B` stuff entirely
-                if _, _, try_tail_name := strings.partition(string(rut), "."); try_tail_name != "" {
+                if _, _, try_tail_name := strings_tools.partition(string(rut), "."); try_tail_name != "" {
                     tail_name = try_tail_name
                 }
 
@@ -2299,7 +2304,7 @@ fmt_struct :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.Type_Info_S
         return
     }
     if .raw_union in info.flags {
-        if __handle_raw_union_tag(fi, v, the_verb, info, type_name) {
+        if _handle_raw_union_tag(fi, v, the_verb, info, type_name) {
             return
         }
         if type_name == "" {
@@ -2824,7 +2829,7 @@ fmt_bit_field :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Bi
     handle_bit_field_tag :: proc(data: rawptr, info: reflect.Type_Info_Bit_Field, idx: int, verb: ^rune) -> (do_continue: bool) {
         tag := info.tags[idx]
         if vt, ok := reflect.struct_tag_lookup(reflect.Struct_Tag(tag), "fmt"); ok {
-            value := strings.trim_space(string(vt))
+            value := strings_tools.trim_space(string(vt))
             switch value {
             case "": return false
             case "-": return true
@@ -3091,7 +3096,7 @@ fmt_map :: proc(fi: ^Info, v: any, info: internal.Type_Info_Map, verb: rune) {
             }
         }
 
-        m := (^mem.Raw_Map)(v.data)
+        m := (^maps.Raw_Map)(v.data)
         if m != nil {
             if info.map_info == nil {
                 return
@@ -3100,7 +3105,7 @@ fmt_map :: proc(fi: ^Info, v: any, info: internal.Type_Info_Map, verb: rune) {
             ks, vs, hs, _, _ := internal.map_kvh_data_dynamic(m^, info.map_info)
             j := 0
             for bucket_index in 0..<map_cap {
-                internal.maps.hash_is_valid(hs[bucket_index]) or_continue
+                maps.hash_is_valid(hs[bucket_index]) or_continue
 
                 if !do_trailing_comma && j > 0 { _, _ = io.write_string(fi.writer, ", ") }
                 if hash {
@@ -3199,7 +3204,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
 
     case internal.Type_Info_Slice:
-        slice := cast(^mem.Raw_Slice)v.data
+        slice := cast(^slice.Raw_Slice)v.data
         n := slice.len
         ptr := slice.data
         if ol, ok := fi.optional_len.?; ok {
@@ -3213,7 +3218,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
 
     case internal.Type_Info_Dynamic_Array:
-        array := cast(^mem.Raw_Dynamic_Array)v.data
+        array := cast(^dyn_array.Raw_Dynamic_Array)v.data
         n := array.len
         ptr := array.data
         if ol, ok := fi.optional_len.?; ok {

@@ -54,7 +54,7 @@ marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocat
 // Marshals the given value into a CBOR byte stream written to the given builder.
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_builder :: proc(b: ^strings_tools.Builder, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
-    return marshal_into_writer(strings.to_writer(b), v, flags)
+    return marshal_into_writer(strings_tools.to_writer(b), v, flags)
 }
 
 // Marshals the given value into a CBOR byte stream written to the given writer.
@@ -253,7 +253,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
             return err_conv(_encode_bytes(e, raw[:]))
         }
 
-        array := (^mem.Raw_Dynamic_Array)(v.data)
+        array := (^dyn_array.Raw_Dynamic_Array)(v.data)
         err_conv(_encode_u64(e, u64(array.len), .Array)) or_return
 
         if impl, ok := _tag_implementations_type[info.elem.id]; ok {
@@ -277,7 +277,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
             return err_conv(_encode_bytes(e, raw^))
         }
 
-        array := (^mem.Raw_Slice)(v.data)
+        array := (^slice.Raw_Slice)(v.data)
         err_conv(_encode_u64(e, u64(array.len), .Array)) or_return
 
         if impl, ok := _tag_implementations_type[info.elem.id]; ok {
@@ -296,7 +296,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
         return
 
     case runtime.Type_Info_Map:
-        m := (^mem.Raw_Map)(v.data)
+        m := (^maps.Raw_Map)(v.data)
         err_conv(_encode_u64(e, u64(runtime.maps.raw_map_len(m^)), .Map)) or_return
         if m != nil {
             if info.map_info == nil {

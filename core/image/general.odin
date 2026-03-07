@@ -46,7 +46,7 @@ destroy :: proc(img: ^Image, allocator: mem.Allocator) {
 	} else {
 		assert(img.metadata == nil)
 		bytes.buffer_destroy(&img.pixels)
-		_ = free(img)
+		_ = mem.free(img)
 	}
 }
 

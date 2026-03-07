@@ -7,15 +7,15 @@
         Feoramund: Initial implementation.
 */
 
-import "core:io"
-import "core:strings"
 import "base:mem"
+import "base:strings"
+import "core:io"
 
 write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
     sb := strings_tools.builder_make(allocator)
     defer strings.builder_destroy(&sb)
 
-    sbw := strings.to_writer(&sb)
+    sbw := strings_tools.to_writer(&sb)
     _, _ = io.write_int(sbw, n, 0x10)
 
     _, _ = io.write_string(w, "0x")

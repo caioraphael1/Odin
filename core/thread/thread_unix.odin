@@ -42,7 +42,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
             assert(res == nil)
 
             t.unix_thread = {}
-            _ = free(t, t.creation_allocator)
+            _ = mem.free(t, t.creation_allocator)
         }
 
         return nil
@@ -68,7 +68,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
         assert(res == nil)
     }
 
-    thread := new(Thread, allocator)
+    thread := mem.new(Thread, allocator)
     if thread == nil {
         return nil
     }
@@ -95,7 +95,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
 
     thread.procedure = procedure
     if posix.pthread_create(&thread.unix_thread, &attrs, __unix_thread_entry_proc, thread) != nil {
-        _ = free(thread, thread.creation_allocator)
+        _ = mem.free(thread, thread.creation_allocator)
         return nil
     }
     return thread
@@ -140,7 +140,7 @@ _join_multiple :: proc(threads: ..^Thread) {
 _destroy :: proc(t: ^Thread) {
     _join(t)
     t.unix_thread = {}
-    _ = free(t, t.creation_allocator)
+    _ = mem.free(t, t.creation_allocator)
 }
 
 _terminate :: proc(t: ^Thread, exit_code: int) {

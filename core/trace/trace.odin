@@ -5,7 +5,7 @@ import "base:internal"
 Frame :: distinct uintptr
 
 Frame_Location :: struct {
-	using loc: runtime.Source_Code_Location,
+	using loc: internal.Source_Code_Location,
 	allocator: mem.Allocator,
 }
 

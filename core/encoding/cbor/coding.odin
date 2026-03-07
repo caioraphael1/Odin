@@ -346,7 +346,7 @@ _encode_u64_exact :: proc(w: io.Writer, v: u64, major: Major = .Unsigned) -> (er
 }
 
 _decode_bytes_ptr :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem.Allocator, loc := #caller_location) -> (v: ^Bytes, err: Decode_Error) {
-    v = new(Bytes, allocator, loc) or_return
+    v = mem.new(Bytes, allocator, loc) or_return
     defer if err != nil { free(v, allocator, loc) }
 
     v^ = _decode_bytes(d, add, type, allocator, loc) or_return
@@ -405,7 +405,7 @@ _encode_bytes :: proc(e: Encoder, val: Bytes, major: Major = .Bytes) -> (err: En
 }
 
 _decode_text_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: ^Text, err: Decode_Error) {
-    v = new(Text, allocator, loc) or_return
+    v = mem.new(Text, allocator, loc) or_return
     defer if err != nil { free(v) }
 
     v^ = _decode_text(d, add, allocator, loc) or_return
@@ -421,7 +421,7 @@ _encode_text :: proc(e: Encoder, val: Text) -> Encode_Error {
 }
 
 _decode_array_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: ^Array, err: Decode_Error) {
-    v = new(Array, allocator, loc) or_return
+    v = mem.new(Array, allocator, loc) or_return
     defer if err != nil { free(v) }
 
     v^ = _decode_array(d, add, allocator, loc) or_return
@@ -464,7 +464,7 @@ _encode_array :: proc(e: Encoder, arr: Array) -> Encode_Error {
 }
 
 _decode_map_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: ^Map, err: Decode_Error) {
-    v = new(Map, allocator, loc) or_return
+    v = mem.new(Map, allocator, loc) or_return
     defer if err != nil { free(v) }
 
     v^ = _decode_map(d, add, allocator, loc) or_return
@@ -560,7 +560,7 @@ _decode_tag_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #
     tag := _decode_tag(d, add, allocator, loc) or_return
     if t, ok := tag.?; ok {
         defer if err != nil { destroy(t.value) }
-        tp := new(Tag, allocator, loc) or_return
+        tp := mem.new(Tag, allocator, loc) or_return
         tp^ = t
         return tp, nil
     }

@@ -187,12 +187,12 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 	}
 
 	if img == nil {
-		img = new(Image)
+		img = mem.new(Image)
 	}
 	img.which = .QOI
 
 	if .return_metadata in options {
-		info := new(image.QOI_Info)
+		info := mem.new(image.QOI_Info)
 		info.header  = header
 		img.metadata = info		
 	}
@@ -338,9 +338,9 @@ destroy :: proc(img: ^Image) {
 	bytes.buffer_destroy(&img.pixels)
 
 	if v, ok := img.metadata.(^image.QOI_Info); ok {
-		_ = free(v)
+		_ = mem.free(v)
 	}
-	_ = free(img)
+	_ = mem.free(img)
 }
 
 QOI_Opcode_Tag :: enum u8 {

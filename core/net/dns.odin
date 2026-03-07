@@ -405,7 +405,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
     for bufio.scanner_scan(s) {
         line := bufio.scanner_text(s)
 
-        line, _, _ = strings.partition(line, "#")
+        line, _, _ = strings_tools.partition(line, "#")
         (len(line) > 0) or_continue
 
         ip_str := strings.fields_iterator(&line) or_continue
@@ -434,7 +434,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
 // www.google.com -> 3www6google3com0
 encode_hostname :: proc(b: ^strings_tools.Builder, hostname: string) -> (ok: bool) {
     _hostname := hostname
-    for section in strings.split_iterator(&_hostname, ".") {
+    for section in strings_tools.split_iterator(&_hostname, ".") {
         if len(section) > LABEL_MAX {
             return
         }
@@ -597,7 +597,7 @@ validate_hostname :: proc(hostname: string) -> (ok: bool) {
     }
 
     _hostname := hostname
-    for label in strings.split_iterator(&_hostname, ".") {
+    for label in strings_tools.split_iterator(&_hostname, ".") {
         if len(label) > LABEL_MAX || len(label) == 0 {
             return
         }

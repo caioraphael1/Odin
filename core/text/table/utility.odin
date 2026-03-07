@@ -10,5 +10,5 @@ stdio_writer :: proc() -> io.Writer {
 }
 
 strings_builder_writer :: proc(b: ^strings_tools.Builder) -> io.Writer {
-	return strings.to_writer(b)
+	return strings_tools.to_writer(b)
 }

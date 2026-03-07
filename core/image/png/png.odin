@@ -348,11 +348,11 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     }
 
     if img == nil {
-        img = new(Image)
+        img = mem.new(Image)
     }
     img.which = .PNG
 
-    info := new(image.PNG_Info)
+    info := mem.new(image.PNG_Info)
     img.metadata = info
 
     signature, io_error := compress.read_data(ctx, Signature)

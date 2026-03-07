@@ -188,7 +188,7 @@ remove_node :: proc(t: ^$T/Tree($Key, $Value), node: ^$N/Node(Key, Value), call_
     if call_on_remove && t.on_remove != nil {
         t.on_remove(node.key, node.value, t.user_data)
     }
-    _ = free(node, t._node_allocator)
+    _ = mem.free(node, t._node_allocator)
     t._size -= 1
     return true
 }

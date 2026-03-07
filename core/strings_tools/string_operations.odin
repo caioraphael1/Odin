@@ -350,7 +350,7 @@ Splits the input string by the separator string in an iterator fashion.
 
 Example:
     text := "a.b.c.d.e"
-    for str in strings.split_iterator(&text, ".") {
+    for str in strings_tools.split_iterator(&text, ".") {
         fmt.println(str)
     }
 Output:
@@ -1511,11 +1511,11 @@ Splits the input string `str` by the separator `sep` string and returns 3 parts.
 
 Example:
     text := "testing this out"
-    head, match, tail := strings.partition(text, " this ") // -> head: "testing", match: " this ", tail: "out"
+    head, match, tail := strings_tools.partition(text, " this ") // -> head: "testing", match: " this ", tail: "out"
     fmt.println(head, match, tail)
-    head, match, tail = strings.partition(text, "hi") // -> head: "testing t", match: "hi", tail: "s out"
+    head, match, tail = strings_tools.partition(text, "hi") // -> head: "testing t", match: "hi", tail: "s out"
     fmt.println(head, match, tail)
-    head, match, tail = strings.partition(text, "xyz")    // -> head: "testing this out", match: "", tail: ""
+    head, match, tail = strings_tools.partition(text, "xyz")    // -> head: "testing this out", match: "", tail: ""
     fmt.println(head)
     fmt.println(match == "")
     fmt.println(tail == "")

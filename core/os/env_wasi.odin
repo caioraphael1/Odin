@@ -47,7 +47,7 @@ build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
     }
 
     for env in envs {
-        key, _, value := strings.partition(string(env), "=")
+        key, _, value := strings_tools.partition(string(env), "=")
         g_env[key] = value
     }
 

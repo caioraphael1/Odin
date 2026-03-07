@@ -144,7 +144,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             continue
 
         case .Save:
-            new_saved, _ := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
+            new_saved, _ := mem.new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
             new_saved ^= saved^
             saved = new_saved
 
@@ -338,7 +338,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
     }
 
     {
-        starter_saved, _ := new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
+        starter_saved, _ := mem.new([2 * common.MAX_CAPTURE_GROUPS]int, allocator)
         starter_saved ^= -1
 
         add_thread(vm, starter_saved, 0, allocator)
@@ -644,6 +644,6 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 
 destroy :: proc(vm: Machine, allocator: mem.Allocator) {
     _ = slice.delete(vm.busy_map, allocator)
-    _ = free(vm.threads, allocator)
-    _ = free(vm.next_threads, allocator)
+    _ = mem.free(vm.threads, allocator)
+    _ = mem.free(vm.next_threads, allocator)
 }

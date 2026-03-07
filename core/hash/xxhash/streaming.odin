@@ -128,7 +128,7 @@ XXH3_create_state :: proc(allocator: mem.Allocator) -> (res: ^XXH3_state, err: E
 }
 
 XXH3_destroy_state :: proc(state: ^XXH3_state, allocator: mem.Allocator) -> (err: Error) {
-    _ = free(state, allocator)
+    _ = mem.free(state, allocator)
     return .None
 }
 

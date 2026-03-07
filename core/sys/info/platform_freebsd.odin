@@ -42,7 +42,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
 	// Parse kernel version
 	release := string(cstring(raw_data(kernel_version_buf[:])))
-	version_bits, _, _ := strings.partition(release, "-")
+	version_bits, _, _ := strings_tools.partition(release, "-")
 	res.kernel = _parse_version(version_bits)
 	res.kernel.patch = revision
 

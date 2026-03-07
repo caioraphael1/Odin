@@ -52,8 +52,8 @@ when GL_DEBUG {
     @(private)
     check_error :: proc(
         id: u32, type: Shader_Type, status: u32,
-        iv_func: proc "c" (u32, u32, [^]i32, runtime.Source_Code_Location),
-        log_func: proc "c" (u32, i32, ^i32, [^]u8, runtime.Source_Code_Location), 
+        iv_func: proc "c" (u32, u32, [^]i32, internal.Source_Code_Location),
+        log_func: proc "c" (u32, i32, ^i32, [^]u8, internal.Source_Code_Location), 
         loc := #caller_location,
     ) -> (success: bool) {
         result, info_log_length: i32

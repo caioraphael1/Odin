@@ -151,8 +151,8 @@ redraw_package :: proc(w: io.Writer, report: Report, pkg: ^Package_Run) {
 	}
 
 	// Write the output line here so we can cache it.
-	line_builder := strings.builder_from_bytes(pkg.redraw_buffer[:])
-	line_writer  := strings.to_writer(&line_builder)
+	line_builder := strings_tools.builder_from_bytes(pkg.redraw_buffer[:])
+	line_writer  := strings_tools.to_writer(&line_builder)
 
 	highest_run_index: int
 	failed_count: int

@@ -3,10 +3,12 @@
 #+build !js
 
 import "base:internal"
+import "base:mem"
+import "base:strings"
+
 import "core:fmt"
-import "core:strings"
 import "core:os"
-import "core:terminal"
+import "core:strings_tools"
 import "core:terminal/ansi"
 import "core:time"
 
@@ -41,7 +43,7 @@ File_Console_Logger_Data :: struct {
 
 
 create_file_logger :: proc(h: ^os.File, lowest_level := Level.Debug, opt := Default_File_Logger_Opts, ident := "", allocator: mem.Allocator) -> Logger {
-    data, _ := new(File_Console_Logger_Data, allocator)
+    data, _ := mem.new(File_Console_Logger_Data, allocator)
     data.file_handle = h
     data.ident = ident
     return {
@@ -57,11 +59,11 @@ destroy_file_logger :: proc(log: Logger, allocator: mem.Allocator) {
     if data.file_handle != nil {
         _ = os.close(data.file_handle)
     }
-    _ = free(data, allocator)
+    _ = mem.free(data, allocator)
 }
 
 create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Console_Logger_Opts, ident := "", allocator: mem.Allocator) -> Logger {
-    data, _ := new(File_Console_Logger_Data, allocator)
+    data, _ := mem.new(File_Console_Logger_Data, allocator)
     data.file_handle = nil
     data.ident = ident
     return {
@@ -73,13 +75,13 @@ create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Consol
 }
 
 destroy_console_logger :: proc(log: Logger, allocator: mem.Allocator) {
-    _ = free(log.data, allocator)
+    _ = mem.free(log.data, allocator)
 }
 
 @(private)
-_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text: string, options: Options, location: runtime.Source_Code_Location) {
+_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text: string, options: Options, location: internal.Source_Code_Location) {
     backing: [1024]byte //NOTE(Hoej): 1024 might be too much for a header backing, unless somebody has really long paths.
-    buf := strings.builder_from_bytes(backing[:])
+    buf := strings_tools.builder_from_bytes(backing[:])
 
     do_level_header(options, &buf, level)
 

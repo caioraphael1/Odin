@@ -1,11 +1,11 @@
 import "base:mem"
-import "core:math/bits"
 import "base:internal"
+import "base:strings"
+import "base:slice"
+import "core:math/bits"
 import "core:strconv"
-import "core:strings"
 import "core:reflect"
 import "core:io"
-import "base:slice"
 
 Marshal_Data_Error :: enum {
     None,
@@ -152,7 +152,7 @@ marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc
 }
 
 marshal_to_builder :: proc(b: ^strings_tools.Builder, v: any, opt: ^Marshal_Options) -> Marshal_Error {
-    return marshal_to_writer(strings.to_writer(b), v, opt)
+    return marshal_to_writer(strings_tools.to_writer(b), v, opt)
 }
 
 marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: Marshal_Error) {
@@ -310,7 +310,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         
     case runtime.Type_Info_Dynamic_Array:
         opt_write_start(w, opt, '[') or_return
-        array := cast(^mem.Raw_Dynamic_Array)v.data
+        array := cast(^dyn_array.Raw_Dynamic_Array)v.data
         for i in 0..<array.len {
             opt_write_iteration(w, opt, i == 0) or_return
             data := uintptr(array.data) + uintptr(i*info.elem_size)
@@ -320,7 +320,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
     case runtime.Type_Info_Slice:
         opt_write_start(w, opt, '[') or_return
-        slice := cast(^mem.Raw_Slice)v.data
+        slice := cast(^slice.Raw_Slice)v.data
         for i in 0..<slice.len {
             opt_write_iteration(w, opt, i == 0) or_return
             data := uintptr(slice.data) + uintptr(i*info.elem_size)
@@ -329,7 +329,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         opt_write_end(w, opt, ']') or_return
 
     case runtime.Type_Info_Map:
-        m := (^mem.Raw_Map)(v.data)
+        m := (^maps.Raw_Map)(v.data)
         opt_write_start(w, opt, '{') or_return
 
         if m != nil {
@@ -474,7 +474,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                     continue
                 }
 
-                for flag in strings.split_iterator(&extra, ",") {
+                for flag in strings_tools.split_iterator(&extra, ",") {
                     switch flag {
                     case "omitempty":
                         omitempty = true
@@ -624,7 +624,7 @@ opt_write_comment :: proc(w: io.Writer, opt: ^Marshal_Options, comment: ^string)
 
     switch opt.spec {
     case .JSON5, .MJSON:
-        for line in strings.split_iterator(comment, "\n") {
+        for line in strings_tools.split_iterator(comment, "\n") {
             _ = io.write_string(w, "// ") or_return
             _ = io.write_string(w, line) or_return
             _ = io.write_rune(w, '\n') or_return

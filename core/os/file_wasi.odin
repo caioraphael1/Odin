@@ -204,7 +204,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f
         return
     }
 
-    impl := new(File_Impl, allocator) or_return
+    impl := mem.new(File_Impl, allocator) or_return
     defer if err != nil { free(impl, allocator) }
 
     impl.allocator = allocator
@@ -252,7 +252,7 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
     }
 
     _ = slice.delete(f.name, f.allocator)
-    _ = free(f, f.allocator)
+    _ = mem.free(f, f.allocator)
     return
 }
 

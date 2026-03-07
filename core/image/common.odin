@@ -807,7 +807,7 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
         return {}, false
     }
 
-    res = new(Image)
+    res = mem.new(Image)
     res.width         = img.width
     res.height        = img.height
     res.channels      = 1

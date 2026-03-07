@@ -332,7 +332,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
 
         decoded := base64.decode(bytes) or_return
         
-        raw           := (^mem.Raw_Dynamic_Array)(v.data)
+        raw           := (^dyn_array.Raw_Dynamic_Array)(v.data)
         raw.data       = raw_data(decoded)
         raw.len        = len(decoded)
         raw.cap        = len(decoded)

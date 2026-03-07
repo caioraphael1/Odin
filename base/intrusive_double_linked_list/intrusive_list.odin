@@ -154,7 +154,7 @@ Removes and returns the element at the front of the list with O(1) time complexi
 
 **Returns** The node member of the user-defined element structure, or `nil` if the list is empty
 */
-dyn_array_pop_front :: proc(list: ^List) -> ^Node {
+dyn_array.pop_front :: proc(list: ^List) -> ^Node {
     link := list.head
     if link == nil {
         return nil

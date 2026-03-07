@@ -125,7 +125,7 @@ main :: proc() {
 			os.exit(1)
 		}
 
-		r1, _, r2 := strings.partition(codepoint_string, "-")
+		r1, _, r2 := strings_tools.partition(codepoint_string, "-")
 
 		codepoint, codepoint2: int
 		codepoint, _ = strconv.parse_int(r1)
@@ -212,7 +212,7 @@ write_encoding_entitities_table :: proc(entities: []Entity, shortest_name, longe
 
 	generated_buf: strings_tools.Builder
 	defer strings.builder_destroy(&generated_buf)
-	w := strings.to_writer(&generated_buf)
+	w := strings_tools.to_writer(&generated_buf)
 
 	// Generate table.
 	fmt.wprintln(w, "package encoding_unicode_entity")

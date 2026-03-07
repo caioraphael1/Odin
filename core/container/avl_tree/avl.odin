@@ -150,7 +150,7 @@ find_or_insert :: proc(
     }
 
     parent := n
-    n = new(Node(Value), t._node_allocator) or_return
+    n = mem.new(Node(Value), t._node_allocator) or_return
     n.value = value
     n._parent = parent
     n_ptr^ = n

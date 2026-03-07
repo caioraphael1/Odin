@@ -12,7 +12,7 @@ destroy :: proc(img: ^image.Image) -> bool {
 	info := img.metadata.(^image.Netpbm_Info) or_return
 
 	header_destroy(&info.header)
-	_ = free(info)
+	_ = mem.free(info)
 	img.metadata = nil
 
 	return true

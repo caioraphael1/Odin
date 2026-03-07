@@ -51,7 +51,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     //      Else, create a new one.
     //  */
     //  if adapter_name not_in ifaces {
-    //      ifaces[adapter_name] = new(Network_Interface)
+    //      ifaces[adapter_name] = mem.new(Network_Interface)
     //      ifaces[adapter_name].adapter_name = strings.string_clone(adapter_name)
     //  }
     //  iface := ifaces[adapter_name]

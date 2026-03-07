@@ -38,7 +38,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 	buf := strings_tools.builder_make(allocators.temp_allocator)
 
 	paths := get_env("PATH", allocators.temp_allocator)
-	for dir in strings.split_iterator(&paths, ":") {
+	for dir in strings_tools.split_iterator(&paths, ":") {
 		strings.builder_reset(&buf)
 		strings_tools.write_string(&buf, dir)
 		strings_tools.write_string(&buf, "/")

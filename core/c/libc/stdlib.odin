@@ -182,6 +182,6 @@ aligned_free :: #force_inline proc "c" (ptr: rawptr) {
     } else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
         mem.free(ptr)
     } else {
-        _ = free(ptr)
+        _ = mem.free(ptr)
     }
 }
