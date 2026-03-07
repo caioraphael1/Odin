@@ -155,7 +155,7 @@ arena_static_reset_to :: proc(arena: ^Arena, pos: uint, loc := #caller_location)
         arena.curr_block.used = clamp(pos, 0, arena.curr_block.reserved)
 
         if prev_pos > pos {
-            mem.zero_slice(arena.curr_block.base[arena.curr_block.used:][:prev_pos-pos])
+            mem.slice.zero(arena.curr_block.base[arena.curr_block.used:][:prev_pos-pos])
         }
         arena.total_used = arena.curr_block.used
         // sanitizer.address_poison(arena.curr_block.base[:arena.curr_block.committed])
@@ -196,7 +196,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
             curr_block_used := int(arena.curr_block.used)
             arena.curr_block.used = 0
             // sanitizer.address_unpoison(arena.curr_block.base[:curr_block_used])
-            intrinsics.mem_zero(arena.curr_block.base, curr_block_used)
+            mem.zero(arena.curr_block.base, curr_block_used)
             // sanitizer.address_poison(arena.curr_block.base[:arena.curr_block.committed])
         }
         arena.total_used = 0
@@ -207,7 +207,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
 }
 
 // Frees all of the memory allocated by the arena and zeros all of the values of an arena.
-// A buffer based arena does not `_ = slice_delete` the provided `[]byte` bufffer.
+// A buffer based arena does not `_ = slice.delete` the provided `[]byte` bufffer.
 @(no_sanitize_address)
 arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
     sync.mutex_guard(&arena.mutex)
@@ -343,7 +343,7 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         if new_memory == nil {
             return
         }
-        slice_copy(new_memory, old_data[:old_size])
+        slice.copy(new_memory, old_data[:old_size])
         // sanitizer.address_poison(old_data[:old_size])
         return new_memory, nil
     case .Query_Features:
@@ -412,7 +412,7 @@ arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
         if block := arena.curr_block; block != nil {
             assert(block.used >= temp.used, "out of order use of arena_temp_end", loc)
             amount_to_zero := block.used-temp.used
-            mem.zero_slice(block.base[temp.used:][:amount_to_zero])
+            mem.slice.zero(block.base[temp.used:][:amount_to_zero])
             block.used = temp.used
             arena.total_used -= amount_to_zero
         }

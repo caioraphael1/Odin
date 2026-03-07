@@ -218,7 +218,7 @@ close :: proc(f: ^File) -> Error {
         if f.stream.procedure == nil {
             return .Unsupported
         }
-        _, err := f.stream.procedure(f, .Close, nil, 0, nil, internal.nil_allocator())
+        _, err := f.stream.procedure(f, .Close, nil, 0, nil, {})
         return err
     }
     return nil
@@ -239,7 +239,7 @@ seek :: proc(f: ^File, offset: i64, whence: io.Seek_From) -> (ret: i64, err: Err
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
-        return f.stream.procedure(f, .Seek, nil, offset, whence, internal.nil_allocator())
+        return f.stream.procedure(f, .Seek, nil, offset, whence, {})
     }
     return 0, .Invalid_File
 }
@@ -255,7 +255,7 @@ read :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Read, p, 0, nil, internal.nil_allocator())
+        n64, err = f.stream.procedure(f, .Read, p, 0, nil, {})
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -273,7 +273,7 @@ read_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Read_At, p, offset, nil, internal.nil_allocator())
+        n64, err = f.stream.procedure(f, .Read_At, p, offset, nil, {})
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -290,7 +290,7 @@ write :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Write, p, 0, nil, internal.nil_allocator())
+        n64, err = f.stream.procedure(f, .Write, p, 0, nil, {})
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -307,7 +307,7 @@ write_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Write_At, p, offset, nil, internal.nil_allocator())
+        n64, err = f.stream.procedure(f, .Write_At, p, offset, nil, {})
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -321,7 +321,7 @@ file_size :: proc(f: ^File) -> (n: i64, err: Error) {
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
-        n, err = f.stream.procedure(f, .Size, nil, 0, nil, internal.nil_allocator())
+        n, err = f.stream.procedure(f, .Size, nil, 0, nil, {})
         if err == .Unsupported {
             n = 0
             curr := seek(f, 0, .Current) or_return
@@ -342,7 +342,7 @@ flush :: proc(f: ^File) -> Error {
         if f.stream.procedure == nil {
             return .Unsupported
         }
-        _, err := f.stream.procedure(f, .Flush, nil, 0, nil, internal.nil_allocator())
+        _, err := f.stream.procedure(f, .Flush, nil, 0, nil, {})
         return err
     }
     return nil

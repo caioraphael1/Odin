@@ -1119,7 +1119,7 @@ set_union_value :: proc(dst: any, value: any) -> bool {
 	ti := internal.type_info_base(type_info_of(dst.id))
 	if info, ok := ti.variant.(internal.Type_Info_Union); ok {
 		if value.id == nil {
-			intrinsics.mem_zero(dst.data, ti.size)
+			mem.zero(dst.data, ti.size)
 			return true
 		}
 		if ti.id == internal.typeid_base(value.id) {

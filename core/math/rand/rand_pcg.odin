@@ -72,7 +72,7 @@ pcg_random_generator_proc :: proc(data: rawptr, mode: internal.Random_Generator_
 
     case .Reset:
         seed: u64
-        internal.mem_copy_non_overlapping(&seed, raw_data(p), min(size_of(seed), len(p)))
+        mem.copy_non_overlapping(&seed, raw_data(p), min(size_of(seed), len(p)))
         init(r, seed)
 
     case .Query_Info:

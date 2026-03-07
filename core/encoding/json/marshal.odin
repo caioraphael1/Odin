@@ -409,7 +409,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                         }
                     }
 
-                    _ = dyn_array_append(&sorted, Entry { key = name, value = any{value, info.value.id}})
+                    _ = dyn_array.append(&sorted, Entry { key = name, value = any{value, info.value.id}})
                 }
 
                 slice.sort_by(sorted[:], proc(i, j: Entry) -> bool { return i.key < j.key })

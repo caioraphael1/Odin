@@ -18,7 +18,7 @@ Example:
         // pre-pending
         small_array.push_front(&result, 'H')
         // removing elements
-        small_array.dyn_array_ordered_remove(&result, 4)
+        small_array.dyn_array.ordered_remove(&result, 4)
         // resizing to the desired length (the capacity will stay unchanged)
         small_array.dyn_array_resize(&result, 7)
         // inserting elements

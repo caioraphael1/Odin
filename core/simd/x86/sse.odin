@@ -386,7 +386,7 @@ _mm_load_ps :: #force_inline proc "c" (p: [^]f32) -> __m128 {
 @(enable_target_feature="sse")
 _mm_loadu_ps :: #force_inline proc "c" (p: [^]f32) -> __m128 {
 	dst := _mm_undefined_ps()
-	intrinsics.mem_copy_non_overlapping(&dst, p, size_of(__m128))
+	mem.copy_non_overlapping(&dst, p, size_of(__m128))
 	return dst
 }
 
@@ -421,7 +421,7 @@ _mm_store_ps :: #force_inline proc "c" (p: [^]f32, a: __m128) {
 @(enable_target_feature="sse")
 _mm_storeu_ps :: #force_inline proc "c" (p: [^]f32, a: __m128) {
 	b := a
-	intrinsics.mem_copy_non_overlapping(p, &b, size_of(__m128))
+	mem.copy_non_overlapping(p, &b, size_of(__m128))
 }
 @(enable_target_feature="sse")
 _mm_storer_ps :: #force_inline proc "c" (p: [^]f32, a: __m128) {

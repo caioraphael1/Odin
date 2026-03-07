@@ -24,7 +24,7 @@ import "base:mem"
 
 _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network_Interface, err: Interfaces_Error) {
     buf: []u8
-    defer _ = slice_delete(buf, allocator)
+    defer _ = slice.delete(buf, allocator)
 
     buf_size: u32
     res:      u32
@@ -44,7 +44,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
         switch res {
         case 111: // ERROR_BUFFER_OVERFLOW:
-            _ = slice_delete(buf, allocator)
+            _ = slice.delete(buf, allocator)
             buf, _ = slice_create([]u8, buf_size, allocator)
         case 0:
             break gaa
@@ -105,22 +105,22 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
                 },
                 address_duplication = Address_Duplication(u_addr.DadState),
             }
-            _ = dyn_array_append(&interface.unicast, lease)
+            _ = dyn_array.append(&interface.unicast, lease)
         }
 
         for a_addr := (^sys.IP_ADAPTER_ANYCAST_ADDRESS_XP)(adapter.FirstAnycastAddress); a_addr != nil; a_addr = a_addr.Next {
             addr := parse_socket_address(a_addr.Address)
-            _ = dyn_array_append(&interface.anycast, addr.address)
+            _ = dyn_array.append(&interface.anycast, addr.address)
         }
 
         for m_addr := (^sys.IP_ADAPTER_MULTICAST_ADDRESS_XP)(adapter.FirstMulticastAddress); m_addr != nil; m_addr = m_addr.Next {
             addr := parse_socket_address(m_addr.Address)
-            _ = dyn_array_append(&interface.multicast, addr.address)
+            _ = dyn_array.append(&interface.multicast, addr.address)
         }
 
         for g_addr := (^sys.IP_ADAPTER_GATEWAY_ADDRESS_LH)(adapter.FirstGatewayAddress); g_addr != nil; g_addr = g_addr.Next {
             addr := parse_socket_address(g_addr.Address)
-            _ = dyn_array_append(&interface.gateways, addr.address)
+            _ = dyn_array.append(&interface.gateways, addr.address)
         }
 
         interface.dhcp_v4 = parse_socket_address(adapter.Dhcpv4Server).address
@@ -139,7 +139,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 
         interface.tunnel_type = Tunnel_Type(adapter.TunnelType)
 
-        _ = dyn_array_append(&_interfaces, interface)
+        _ = dyn_array.append(&_interfaces, interface)
     }
 
     return _interfaces[:], {}

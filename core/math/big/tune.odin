@@ -60,7 +60,7 @@ print :: proc(name: string, a: ^Int, base := i8(10), print_name := true, newline
     assert_if_nil(a)
 
     as, err := itoa(a, base)
-    defer _ = slice_delete(as)
+    defer _ = slice.delete(as)
 
     cb := internal_count_bits(a)
     if print_name {

@@ -117,7 +117,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
     }
 
     FD_ZERO :: #force_inline proc(_p: ^fd_set) {
-        intrinsics.mem_zero(_p, size_of(fd_set))
+        mem.zero(_p, size_of(fd_set))
     }
 
 }

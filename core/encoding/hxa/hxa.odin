@@ -163,7 +163,7 @@ meta_destroy :: proc(meta: Meta, allocator: mem.Allocator, loc := #caller_locati
         for m in nested {
             meta_destroy(m, loc=loc)
         }
-        _ = slice_delete(nested, allocator, loc=loc)
+        _ = slice.delete(nested, allocator, loc=loc)
     }
 }
 nodes_destroy :: proc(nodes: []Node, allocator: mem.Allocator, loc := #caller_location) {
@@ -171,22 +171,22 @@ nodes_destroy :: proc(nodes: []Node, allocator: mem.Allocator, loc := #caller_lo
         for meta in node.meta_data {
             meta_destroy(meta, loc=loc)
         }
-        _ = slice_delete(node.meta_data, allocator, loc=loc)
+        _ = slice.delete(node.meta_data, allocator, loc=loc)
 
         switch n in node.content {
         case Node_Geometry:
-            _ = slice_delete(n.corner_stack, allocator, loc=loc)
-            _ = slice_delete(n.vertex_stack, allocator, loc=loc)
-            _ = slice_delete(n.edge_stack,   allocator, loc=loc)
-            _ = slice_delete(n.face_stack,   allocator, loc=loc)
+            _ = slice.delete(n.corner_stack, allocator, loc=loc)
+            _ = slice.delete(n.vertex_stack, allocator, loc=loc)
+            _ = slice.delete(n.edge_stack,   allocator, loc=loc)
+            _ = slice.delete(n.face_stack,   allocator, loc=loc)
         case Node_Image:
-            _ = slice_delete(n.image_stack,  allocator, loc=loc)
+            _ = slice.delete(n.image_stack,  allocator, loc=loc)
         }
     }
-    _ = slice_delete(nodes, allocator, loc=loc)
+    _ = slice.delete(nodes, allocator, loc=loc)
 }
 
 file_destroy :: proc(file: File, loc := #caller_location) {
     nodes_destroy(file.nodes, file.allocator, loc=loc)
-    _ = slice_delete(file.backing, file.allocator, loc=loc)
+    _ = slice.delete(file.backing, file.allocator, loc=loc)
 }

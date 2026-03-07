@@ -87,7 +87,7 @@ foreign lib {
 		e: posix.Errno
 
 		buffer: [dynamic]byte
-		defer _ = slice_delete(buffer)
+		defer _ = slice.delete(buffer)
 
 		for {
 			mem_err := dyn_array_resize(&buffer, length)

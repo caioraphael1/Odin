@@ -77,7 +77,7 @@ get :: proc(p: ^Pool($T)) -> (elem: ^T, err: mem.Allocator_Error) {
 }
 
 put :: proc(p: ^Pool($T), elem: ^T) {
-    intrinsics.mem_zero(elem, size_of(T))
+    mem.zero(elem, size_of(T))
     _poison_elem(p, elem)
 
     defer sync.atomic_sub_explicit(&p.num_outstanding, 1, .Relaxed)

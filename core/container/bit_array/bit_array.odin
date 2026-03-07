@@ -328,7 +328,7 @@ Inputs:
 */
 clear :: proc(ba: ^Bit_Array) {
     if ba == nil { return }
-    intrinsics.mem_zero(raw_data(ba.bits), builtin.len(ba.bits) * NUM_BITS / 8)
+    mem.zero(raw_data(ba.bits), builtin.len(ba.bits) * NUM_BITS / 8)
 }
 /*
 Gets the length of set and unset valid bits in the Bit_Array.

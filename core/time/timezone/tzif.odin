@@ -72,7 +72,7 @@ load_tzif_file :: proc(filename: string, region_name: string, allocator: mem.All
     tzif_data, err := os.read_entire_file_from_path(filename, allocator)
     if err != nil do return nil, false
 
-    defer _ = slice_delete(tzif_data, allocator)
+    defer _ = slice.delete(tzif_data, allocator)
     return parse_tzif(tzif_data, region_name, allocator)
 }
 
@@ -586,7 +586,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
         for name in ltt_names {
             _ = string_delete(name, allocator)
         }
-        _ = dyn_array_delete(ltt_names) 
+        _ = dyn_array.delete(ltt_names) 
     }
 
     for ltt in local_time_types {
@@ -596,13 +596,13 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
         ltt_name, err = strings.clone_from_cstring_bounded(name, len(timezone_string_table), allocator)
         if err != nil { return }
 
-        _ = dyn_array_append(&ltt_names, ltt_name)
+        _ = dyn_array.append(&ltt_names, ltt_name)
     }
 
     records: []datetime.TZ_Record
     records, err = slice_create([]datetime.TZ_Record, len(transition_times), allocator)
     if err != nil { return }
-    defer if err != nil { _ = slice_delete(records, allocator) }
+    defer if err != nil { _ = slice.delete(records, allocator) }
 
     for trans_time, idx in transition_times {
         trans_idx := transition_types[idx]

@@ -118,7 +118,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
         // edge case handling for signed numbers
         buf[i] = '-'
         i += 1
-        i += slice_copy(buf[i:], _power_of_two_table[Integer_Width])
+        i += slice.copy(buf[i:], _power_of_two_table[Integer_Width])
     } else {
         if x.i < 0 {
             buf[i] = '-'
@@ -151,7 +151,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
         }
     }
 
-    n := slice_copy(dst, buf[:i])
+    n := slice.copy(dst, buf[:i])
     return string(dst[:i])
 }
 
@@ -161,7 +161,7 @@ to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator: mem.Allocat
     buf: [48]byte
     s := write(buf[:], x)
     str := slice_create([]byte, len(s), allocator)
-    slice_copy(str, s)
+    slice.copy(str, s)
     return string(str)
 }
 

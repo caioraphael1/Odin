@@ -121,16 +121,16 @@ create :: proc(
     for data, i in class_data {
         if len(data.runes) > 0 {
             result.class_data[i].runes, _ = slice_create([]rune, len(data.runes), allocator)
-            slice_copy(result.class_data[i].runes, data.runes[:])
+            slice.copy(result.class_data[i].runes, data.runes[:])
         }
         if len(data.ranges) > 0 {
             result.class_data[i].ranges, _ = slice_create([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
-            slice_copy(result.class_data[i].ranges, data.ranges[:])
+            slice.copy(result.class_data[i].ranges, data.ranges[:])
         }
     }
 
     result.program, _ = slice_create([]virtual_machine.Opcode, len(program), allocator)
-    slice_copy(result.program, program[:])
+    slice.copy(result.program, program[:])
 
     return
 }
@@ -547,12 +547,12 @@ Inputs:
 - allocator: 
 */
 destroy_regex :: proc(regex: Regular_Expression, allocator: mem.Allocator) {
-    _ = slice_delete(regex.program, allocator)
+    _ = slice.delete(regex.program, allocator)
     for data in regex.class_data {
-        _ = slice_delete(data.runes, allocator)
-        _ = slice_delete(data.ranges, allocator)
+        _ = slice.delete(data.runes, allocator)
+        _ = slice.delete(data.ranges, allocator)
     }
-    _ = slice_delete(regex.class_data, allocator)
+    _ = slice.delete(regex.class_data, allocator)
 }
 
 /*
@@ -565,8 +565,8 @@ Inputs:
 - allocator:
 */
 destroy_capture :: proc(capture: Capture, allocator: mem.Allocator) {
-    _ = slice_delete(capture.groups, allocator)
-    _ = slice_delete(capture.pos, allocator)
+    _ = slice.delete(capture.groups, allocator)
+    _ = slice.delete(capture.pos, allocator)
 }
 
 /*

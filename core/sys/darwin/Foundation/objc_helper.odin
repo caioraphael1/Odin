@@ -89,7 +89,7 @@ register_subclass :: proc(
     p_super_vtable := ([^]u8)(cls)[super_vtable_offset:]
     p_proto_vtable := ([^]u8)(cls)[ptoto_vtable_offset:]
 
-    intrinsics.mem_zero(p_info, size_of(Class_VTable_Info))
+    mem.zero(p_info, size_of(Class_VTable_Info))
 
     // Assign the context
     p_info._context = _context.? or_else context

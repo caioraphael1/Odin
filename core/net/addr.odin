@@ -526,7 +526,7 @@ map_to_ip6 :: proc(addr: Address) -> Address {
     addr4_u16 := transmute([2]u16be) addr4
     addr6: IP6_Address
     addr6[5] = 0xffff
-    slice_copy(addr6[6:], addr4_u16[:])
+    slice.copy(addr6[6:], addr4_u16[:])
     return addr6
 }
 

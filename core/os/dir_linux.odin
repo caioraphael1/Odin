@@ -47,7 +47,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Al
             buflen, errno := linux.getdents(linux.Fd(dfd), it.impl.dirent_backing[:])
             #partial switch errno {
             case .EINVAL:
-                _ = slice_delete(it.impl.dirent_backing, allocator)
+                _ = slice.delete(it.impl.dirent_backing, allocator)
                 n := len(it.impl.dirent_backing) * 2
                 it.impl.dirent_backing = slice_create([]u8, n, allocator)
                 continue
@@ -114,6 +114,6 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator
         return
     }
 
-    _ = slice_delete(it.impl.dirent_backing, allocator)
+    _ = slice.delete(it.impl.dirent_backing, allocator)
     file_info_delete(it.impl.prev_fi, allocator)
 }

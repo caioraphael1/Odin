@@ -1505,7 +1505,7 @@ foreign lib {
     TextInsert    :: proc(text, insert: cstring, position: c.int) -> [^]byte ---                 // Insert text in a position (WARNING: memory must be freed!)
     TextJoin      :: proc(textList: [^]cstring, count: c.int, delimiter: cstring) -> cstring --- // Join text strings with delimiter
     TextSplit     :: proc(text: cstring, delimiter: byte, count: ^c.int) -> [^]cstring ---       // Split text into multiple strings
-    TextAppend    :: proc(text: [^]byte, dyn_array_append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
+    TextAppend    :: proc(text: [^]byte, dyn_array.append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
     TextFindIndex :: proc(text, find: cstring) -> c.int ---                                      // Find first text occurrence within a string
     TextToUpper   :: proc(text: cstring) -> cstring ---                                          // Get upper case version of provided string
     TextToLower   :: proc(text: cstring) -> cstring ---                                          // Get lower case version of provided string
@@ -1730,7 +1730,7 @@ TextFormat :: proc(text: cstring, args: ..any) -> cstring {
     @(static) index: u32
     
     buffer := buffers[index][:]
-    mem.zero_slice(buffer)
+    mem.slice.zero(buffer)
     
     index = (index+1)%MAX_TEXTFORMAT_BUFFERS
     
@@ -1771,7 +1771,7 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.slice_of_bytes(ptr, size)
+        data = mem.slice.bytes(ptr, size)
         return
     case .Free:
         MemFree(old_memory)
@@ -1783,7 +1783,7 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.slice_of_bytes(ptr, size)
+        data = mem.slice.bytes(ptr, size)
         return
     
     case .Free_All, .Query_Features, .Query_Info:

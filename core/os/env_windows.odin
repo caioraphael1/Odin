@@ -120,7 +120,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
         for e in r {
             _ = string_delete(e, allocator)
         }
-        _ = dyn_array_delete(r)
+        _ = dyn_array.delete(r)
     }
     for from, i, p := 0, 0, envs; true; i += 1 {
         c := ([^]u16)(p)[i]
@@ -130,7 +130,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
             }
             w := ([^]u16)(p)[from:i]
             s := win32_utf16_u16_to_utf8(w, allocator) or_return
-            _ = dyn_array_append(&r, s)
+            _ = dyn_array.append(&r, s)
             from = i + 1
         }
     }

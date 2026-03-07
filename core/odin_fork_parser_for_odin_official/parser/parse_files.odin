@@ -20,7 +20,7 @@ collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Pa
 
     path_pattern := fmt.tprintf("%s/*.odin", pkg_path)
     matches, err := os.glob(path_pattern, allocator)
-    defer _ = slice_delete(matches, allocator)
+    defer _ = slice.delete(matches, allocator)
 
     if err != nil {
         return
@@ -42,7 +42,7 @@ collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Pa
         }
         if strings.trim_space(string(src)) == "" {
             _ = string_delete(fullpath, allocator)
-            _ = slice_delete(src, allocator)
+            _ = slice.delete(src, allocator)
             continue
         }
 

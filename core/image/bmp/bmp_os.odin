@@ -7,7 +7,7 @@ load_from_file :: proc(filename: string, options := Options{}, allocator : mem.A
 
 
     data, ok := os.read_entire_file(filename)
-    defer _ = slice_delete(data)
+    defer _ = slice.delete(data)
 
     if ok {
         return load_from_bytes(data, options)

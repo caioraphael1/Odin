@@ -63,7 +63,7 @@ when ODIN_NO_CRT {
 
         if v, idx := _lookup(key); idx != -1 {
             if len(buf) >= len(v) {
-                slice_copy(buf, v)
+                slice.copy(buf, v)
                 return string(buf[:len(v)]), nil
             }
             return "", .Buffer_Full
@@ -98,10 +98,10 @@ when ODIN_NO_CRT {
                     }
                     v_addr = &k_addr[len(key) + 1]
                 }
-                intrinsics.mem_copy_non_overlapping(v_addr, raw_data(v_new), len(v_new))
+                mem.copy_non_overlapping(v_addr, raw_data(v_new), len(v_new))
                 v_addr[len(v_new)] = 0
 
-                _ = dyn_array_append(&_env, string(k_addr[:kv_size]))
+                _ = dyn_array.append(&_env, string(k_addr[:kv_size]))
                 return nil
             }
         }
@@ -110,14 +110,14 @@ when ODIN_NO_CRT {
         if k_addr == nil {
             return .Out_Of_Memory
         }
-        intrinsics.mem_copy_non_overlapping(k_addr, raw_data(key), len(key))
+        mem.copy_non_overlapping(k_addr, raw_data(key), len(key))
         k_addr[len(key)] = '='
 
         val_slice := k_addr[len(key) + 1:]
-        intrinsics.mem_copy_non_overlapping(&val_slice[0], raw_data(v_new), len(v_new))
+        mem.copy_non_overlapping(&val_slice[0], raw_data(v_new), len(v_new))
         val_slice[len(v_new)] = 0
 
-        _ = dyn_array_append(&_env, string(k_addr[:kv_size - 1]))
+        _ = dyn_array.append(&_env, string(k_addr[:kv_size - 1]))
         return nil
     }
 
@@ -154,7 +154,7 @@ when ODIN_NO_CRT {
                 runtime.heap_free(raw_data(kv))
             }
         }
-        dyn_array_clear(&_env)
+        dyn_array.clear(&_env)
 
         // nothing resides in the original environment either
         intrinsics.atomic_store_explicit(&_org_env_begin, ~uintptr(0), .Release)
@@ -170,14 +170,14 @@ when ODIN_NO_CRT {
         env := dyn_array_create([dynamic]string, 0, len(_env), allocator) or_return
         defer if err != nil {
             for e in env {
-                _ = slice_delete(e, allocator)
+                _ = slice.delete(e, allocator)
             }
-            _ = slice_delete(env)
+            _ = slice.delete(env)
         }
 
         for entry in _env {
             s := clone_string(entry, allocator) or_return
-            _ = dyn_array_append(&env, s)
+            _ = dyn_array.append(&env, s)
         }
         environ = env[:]
         return
@@ -218,7 +218,7 @@ when ODIN_NO_CRT {
             bytes := ([^]u8)(cstring_env[i])
             n := len(cstring_env[i])
             _org_env_end = uintptr(&bytes[n])
-            _ = dyn_array_append(&_env, string(bytes[:n]))
+            _ = dyn_array.append(&_env, string(bytes[:n]))
         }
     }
 
@@ -277,7 +277,7 @@ when ODIN_NO_CRT {
         if len(key) + 1 > len(buf) {
             return "", .Buffer_Full
         } else {
-            slice_copy(buf, key)
+            slice.copy(buf, key)
         }
 
         cval := posix.getenv(cstring(raw_data(buf)))
@@ -291,7 +291,7 @@ when ODIN_NO_CRT {
             if len(value) > len(buf) {
                 return "", .Buffer_Full
             } else {
-                slice_copy(buf, value)
+                slice.copy(buf, value)
                 return string(buf[:len(value)]), nil
             }
         }
@@ -336,13 +336,13 @@ when ODIN_NO_CRT {
         r := dyn_array_create([dynamic]string, 0, n, allocator) or_return
         defer if err != nil {
             for e in r {
-                _ = slice_delete(e, allocator)
+                _ = slice.delete(e, allocator)
             }
-            _ = slice_delete(r)
+            _ = slice.delete(r)
         }
 
         for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-            _ = dyn_array_append(&r, strings.clone(string(entry), allocator) or_return)
+            _ = dyn_array.append(&r, strings.clone(string(entry), allocator) or_return)
         }
 
         environ = r[:]
@@ -354,9 +354,9 @@ when ODIN_NO_CRT {
     export_cstring_environment :: proc(allocator: mem.Allocator) -> []cstring {
         env := dyn_array_create([dynamic]cstring, allocator)
         for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-            _ = dyn_array_append(&env, entry)
+            _ = dyn_array.append(&env, entry)
         }
-        _ = dyn_array_append(&env, nil)
+        _ = dyn_array.append(&env, nil)
         return env[:]
     }
 }

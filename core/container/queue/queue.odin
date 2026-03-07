@@ -43,7 +43,7 @@ Note that procedures which need space to work (`push_back`, ...) will fail if
 the backing slice runs out of space.
 */
 init_from_slice :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
-    dyn_array_clear(q)
+    dyn_array.clear(q)
     q.data = transmute([dynamic]T)internal.Raw_Dynamic_Array{
         data = raw_data(backing),
         len = builtin.len(backing),
@@ -62,7 +62,7 @@ effectively creating a full queue from the slice. As such, no procedures will
 be able to add more elements to the queue until some are taken off.
 */
 init_with_contents :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
-    dyn_array_clear(q)
+    dyn_array.clear(q)
     q.data = transmute([dynamic]T)internal.Raw_Dynamic_Array{
         data = raw_data(backing),
         len = builtin.len(backing),
@@ -81,7 +81,7 @@ Note that this procedure should not be used on queues setup with
 track of the allocator state of the underlying `backing` slice.
 */
 destroy :: proc(q: ^$Q/Queue($T)) {
-    _ = dyn_array_delete(q.data)
+    _ = dyn_array.delete(q.data)
 }
 
 /*
@@ -132,13 +132,13 @@ shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
     if q.len > 0 && q.offset > 0 {
         // Make the array contiguous again.
         buffer := slice_create([]T, q.len, internal.temp_allocator)
-        defer _ = slice_delete(buffer, internal.temp_allocator)
+        defer _ = slice.delete(buffer, internal.temp_allocator)
 
         right := uint(builtin.len(q.data)) - q.offset
-        slice_copy(buffer[:],      q.data[q.offset:])
-        slice_copy(buffer[right:], q.data[:q.offset])
+        slice.copy(buffer[:],      q.data[q.offset:])
+        slice.copy(buffer[right:], q.data[:q.offset])
 
-        slice_copy(q.data[:], buffer[:])
+        slice.copy(q.data[:], buffer[:])
 
         q.offset = 0
     }
@@ -406,8 +406,8 @@ push_back_elems :: proc(q: ^$Q/Queue($T), elems: ..T, loc := #caller_location) -
     if insert_from + insert_to > sz {
         insert_to = sz - insert_from
     }
-    slice_copy(q.data[insert_from:], elems[:insert_to])
-    slice_copy(q.data[:insert_from], elems[insert_to:])
+    slice.copy(q.data[insert_from:], elems[:insert_to])
+    slice.copy(q.data[:insert_from], elems[insert_to:])
     q.len += n
     return true, nil
 }
@@ -444,7 +444,7 @@ consume_back :: proc(q: ^$Q/Queue($T), n: int, loc := #caller_location) {
 
 
 push        :: push_back
-dyn_array_append      :: push_back
+dyn_array.append      :: push_back
 enqueue     :: push_back
 
 dyn_array_append_many :: push_back_elems
@@ -469,7 +469,7 @@ _grow :: proc(q: ^$Q/Queue($T), min_capacity: uint = 0, loc := #caller_location)
     builtin.dyn_array_resize(&q.data, int(new_capacity), loc) or_return
     if q.offset + q.len > n {
         diff := n - q.offset
-        slice_copy(q.data[new_capacity-diff:], q.data[q.offset:][:diff])
+        slice.copy(q.data[new_capacity-diff:], q.data[q.offset:][:diff])
         q.offset += new_capacity - n
     }
     return nil

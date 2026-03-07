@@ -39,7 +39,7 @@ reader_read :: proc(r: ^Reader, p: []byte) -> (n: int, err: io.Error) {
         return 0, .EOF
     }
     r.prev_rune = -1
-    n = slice_copy(p, r.s[r.i:])
+    n = slice.copy(p, r.s[r.i:])
     r.i += i64(n)
     return
 }
@@ -53,7 +53,7 @@ reader_read_at :: proc(r: ^Reader, p: []byte, off: i64) -> (n: int, err: io.Erro
     if off >= i64(len(r.s)) {
         return 0, .EOF
     }
-    n = slice_copy(p, r.s[off:])
+    n = slice.copy(p, r.s[off:])
     if n < len(p) {
         err = .EOF
     }

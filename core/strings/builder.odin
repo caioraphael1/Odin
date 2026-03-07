@@ -182,7 +182,7 @@ Inputs:
 - b: A pointer to the Builder
 */
 builder_destroy :: proc(b: ^Builder) {
-    _ = dyn_array_delete(b.buf)
+    _ = dyn_array.delete(b.buf)
     b.buf = nil
 }
 /*
@@ -202,7 +202,7 @@ Inputs:
 - b: A pointer to the Builder
 */
 builder_reset :: proc(b: ^Builder) {
-    dyn_array_clear(&b.buf)
+    dyn_array.clear(&b.buf)
 }
 /*
 Creates a Builder from a slice of bytes with the same slice length as its capacity. Used in fmt.bprint*
@@ -263,8 +263,8 @@ Returns:
 - res: A cstring of the Builder's buffer
 */
 unsafe_to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring) {
-    _ = dyn_array_append(&b.buf, 0, loc)
-    dyn_array_pop(&b.buf)
+    _ = dyn_array.append(&b.buf, 0, loc)
+    dyn_array.pop(&b.buf)
     return cstring(raw_data(b.buf))
 }
 /*
@@ -279,11 +279,11 @@ Returns:
 */
 to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
     len_before := len(b.buf)
-    dyn_array_append(&b.buf, 0, loc) or_return
+    dyn_array.append(&b.buf, 0, loc) or_return
     if len(b.buf) - len_before != 1 {
         return nil, .Out_Of_Memory
     }
-    dyn_array_pop(&b.buf)
+    dyn_array.pop(&b.buf)
     #no_bounds_check {
         assert(b.buf[len(b.buf)] == 0)
     }
@@ -357,7 +357,7 @@ Output:
 @(optional_results)
 write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: int) {
     n0 := len(b.buf)
-    _ = dyn_array_append(&b.buf, x, loc)
+    _ = dyn_array.append(&b.buf, x, loc)
     n1 := len(b.buf)
     return n1-n0
 }
@@ -857,7 +857,7 @@ builder_replace :: proc(b: ^Builder, old, new: string, n: int, loc := #caller_lo
             }
 
             dyn_array_resize(&b.buf, len(b.buf)+len(new), loc) or_return
-            slice_copy(b.buf[i+len(new):], b.buf[i:])
+            slice.copy(b.buf[i+len(new):], b.buf[i:])
             slice_copy_from_string(b.buf[i:], new)
             replaced += 1
         }
@@ -879,7 +879,7 @@ builder_replace :: proc(b: ^Builder, old, new: string, n: int, loc := #caller_lo
             cur := b.buf[i+j:]
             src := cur[len(old):]
             dst := cur[len(new):]
-            slice_copy(dst, src)
+            slice.copy(dst, src)
             slice_copy_from_string(cur, new)
 
             i += j+len(new)

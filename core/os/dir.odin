@@ -41,7 +41,7 @@ read_directory :: proc(f: ^File, n: int, allocator: mem.Allocator) -> (files: []
 
         _ = read_directory_iterator_error(&it) or_break
 
-        _ = dyn_array_append(&dfi, file_info_clone(fi, allocator) or_return)
+        _ = dyn_array.append(&dfi, file_info_clone(fi, allocator) or_return)
     }
 
     _ = read_directory_iterator_error(&it) or_return
@@ -109,7 +109,7 @@ For an example on how to use the iterator, see `read_directory_iterator`.
 read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: mem.Allocator) {
     it.err.err = nil
     it.err.path.allocator = allocator
-    dyn_array_clear(&it.err.path)
+    dyn_array.clear(&it.err.path)
 
     it.f = f
     it.index = 0
@@ -125,7 +125,7 @@ read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator:
         return
     }
 
-    _ = dyn_array_delete(it.err.path)
+    _ = dyn_array.delete(it.err.path)
 
     _read_directory_iterator_destroy(it, allocator)
 }

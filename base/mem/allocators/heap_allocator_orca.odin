@@ -1,5 +1,6 @@
 #+build orca
 #+private
+
 foreign {
     @(link_name="malloc")   _orca_malloc   :: proc "c" (size: int) -> rawptr ---
     @(link_name="calloc")   _orca_calloc   :: proc "c" (num, size: int) -> rawptr ---

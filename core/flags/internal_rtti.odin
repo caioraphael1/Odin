@@ -434,14 +434,14 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^runt
         ptr := cast(^runtime.Raw_Dynamic_Array)ptr
 
         // Try to convert the value first.
-        elem_backing, alloc_error := runtime.mem_alloc(specific_type_info.elem.size, specific_type_info.elem.align)
+        elem_backing, alloc_error := mem.alloc(specific_type_info.elem.size, specific_type_info.elem.align)
         if alloc_error != nil {
             return Parse_Error {
                 alloc_error,
                 "Failed to allocate element backing for dynamic array.",
             }
         }
-        defer _ = slice_delete(elem_backing, allocator)
+        defer _ = slice.delete(elem_backing, allocator)
         parse_and_set_pointer_by_type(raw_data(elem_backing), str, specific_type_info.elem, arg_tag) or_return
 
         if !runtime._dyn_array_resize((^Raw_Dynamic_Array)ptr, specific_type_info.elem.size, specific_type_info.elem.align, ptr.len + 1, false) {

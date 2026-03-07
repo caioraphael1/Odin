@@ -23,7 +23,7 @@ init_args :: proc(allocator: mem.Allocator) {
 }
 
 fini_args :: proc(allocator: mem.Allocator) {
-    _ = slice_delete(args, allocator)
+    _ = slice.delete(args, allocator)
 }
 
 /*
@@ -253,11 +253,11 @@ free_process_info :: proc(pi: Process_Info, allocator: mem.Allocator) {
     for a in pi.command_args {
         _ = string_delete(a, allocator)
     }
-    _ = slice_delete(pi.command_args, allocator)
+    _ = slice.delete(pi.command_args, allocator)
     for s in pi.environment {
         _ = string_delete(s, allocator)
     }
-    _ = slice_delete(pi.environment, allocator)
+    _ = slice.delete(pi.environment, allocator)
     _ = string_delete(pi.working_dir, allocator)
     _ = string_delete(pi.username, allocator)
 }

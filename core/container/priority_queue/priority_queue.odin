@@ -42,15 +42,15 @@ init_from_dynamic_array :: proc(pq: ^$Q/Priority_Queue($T), queue: [dynamic]T, l
 }
 
 destroy :: proc(pq: ^$Q/Priority_Queue($T)) {
-    dyn_array_clear(pq)
-    _ = slice_delete(pq.queue)
+    dyn_array.clear(pq)
+    _ = slice.delete(pq.queue)
 }
 
 reserve :: proc(pq: ^$Q/Priority_Queue($T), capacity: int) -> (err: mem.Allocator_Error) {
     return builtin.dyn_array_reserve(&pq.queue, capacity)
 }
 clear :: proc(pq: ^$Q/Priority_Queue($T)) {
-    builtin.dyn_array_clear(&pq.queue)
+    builtin.dyn_array.clear(&pq.queue)
 }
 len :: proc(pq: $Q/Priority_Queue($T)) -> int {
 	return builtin.len(pq.queue)
@@ -109,18 +109,18 @@ fix :: proc(pq: ^$Q/Priority_Queue($T), i: int) {
 }
 
 push :: proc(pq: ^$Q/Priority_Queue($T), value: T) -> (err: mem.Allocator_Error) {
-	dyn_array_append(&pq.queue, value) or_return
+	dyn_array.append(&pq.queue, value) or_return
 	_shift_up(pq, builtin.len(pq.queue)-1)
 	return .None
 }
 
-dyn_array_pop :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T) {
+dyn_array.pop :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T) {
 	assert(condition=builtin.len(pq.queue)>0, loc=loc)
 	
 	n := builtin.len(pq.queue)-1
 	pq.swap(pq.queue[:], 0, n)
 	_shift_down(pq, 0, n)
-	return builtin.dyn_array_pop(&pq.queue)
+	return builtin.dyn_array.pop(&pq.queue)
 }
 
 dyn_array_pop_safe :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T, ok: bool) {
@@ -139,7 +139,7 @@ remove :: proc(pq: ^$Q/Priority_Queue($T), i: int) -> (value: T, ok: bool) {
 		pq.swap(pq.queue[:], i, n-1)
 		_shift_down(pq, i, n-1)
 		_shift_up(pq, i)
-		value, ok = builtin.dyn_array_pop(&pq.queue), true
+		value, ok = builtin.dyn_array.pop(&pq.queue), true
 	}
 	return
 }

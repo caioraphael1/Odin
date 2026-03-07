@@ -161,7 +161,7 @@ runes_to_string :: proc(runes: []rune, allocator: mem.Allocator) -> string {
     offset := 0
     for r in runes {
         b, w := encode_rune(r)
-        slice_copy(bytes[offset:], b[:w])
+        slice.copy(bytes[offset:], b[:w])
         offset += w
     }
 

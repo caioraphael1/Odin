@@ -207,7 +207,7 @@ _fix_long_path_internal :: proc(path: string) -> string {
     }
 
     // When using win32 to create a directory, the path
-    // cannot be too long that you cannot dyn_array_append an 8.3
+    // cannot be too long that you cannot dyn_array.append an 8.3
     // file name, because MAX_PATH is 260, 260-12 = 248
     if len(path) < 248 {
         return path

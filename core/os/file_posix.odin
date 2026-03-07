@@ -28,7 +28,7 @@ init_std_files :: proc() {
     new_std :: proc(impl: ^File_Impl, fd: posix.FD, name: cstring) -> ^File {
         impl.file.impl = impl
         impl.fd = fd
-        impl.allocator = runtime.nil_allocator()
+        impl.allocator = {}
         impl.cname = name
         impl.name  = string(name)
         impl.file.stream = {
@@ -144,7 +144,7 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
 
     allocator := f.allocator
 
-    _ = slice_delete(f.cname, allocator)
+    _ = slice.delete(f.cname, allocator)
     _ = free(f, allocator)
     return
 }
@@ -233,7 +233,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
 
     buf: [dynamic]byte
     buf.allocator = allocator
-    defer if err != nil { _ = slice_delete(buf) }
+    defer if err != nil { _ = slice.delete(buf) }
 
     // Loop this because the file might've grown between lstat() and readlink().
     for {

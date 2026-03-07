@@ -45,7 +45,7 @@ _standard_stream_init :: proc() {
     new_std :: proc(impl: ^File_Impl, fd: linux.Fd, name: string) -> ^File {
         impl.file.impl = impl
         impl.fd = linux.Fd(fd)
-        impl.allocator = runtime.nil_allocator()
+        impl.allocator = {}
         impl.name = name
         impl.file.stream = {
             data = impl,
@@ -143,8 +143,8 @@ _destroy :: proc(f: ^File_Impl) -> Error {
         return nil
     }
     a := f.allocator
-    err0 := _ = slice_delete(f.name, a)
-    err1 := _ = slice_delete(f.buffer, a)
+    err0 := _ = slice.delete(f.name, a)
+    err1 := _ = slice.delete(f.buffer, a)
     err2 := free(f, a)
     err0 or_return
     err1 or_return
@@ -346,11 +346,11 @@ _read_link_cstr :: proc(name_cstr: cstring, allocator: mem.Allocator) -> (string
     for {
         sz, errno := linux.readlink(name_cstr, buf[:])
         if errno != .NONE {
-            _ = slice_delete(buf, allocator)
+            _ = slice.delete(buf, allocator)
             return "", _get_platform_error(errno)
         } else if sz == int(bufsz) {
             bufsz *= 2
-            _ = slice_delete(buf, allocator)
+            _ = slice.delete(buf, allocator)
             buf = slice_create([]byte, bufsz, allocator)
         } else {
             return string(buf[:sz]), nil
@@ -468,7 +468,7 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: mem.Allocator
         _ = dyn_array_resize(&contents, i + BUF_SIZE_STEP)
         n, errno = linux.read(fd, contents[i:i+BUF_SIZE_STEP])
         if errno != .NONE {
-            _ = slice_delete(contents)
+            _ = slice.delete(contents)
             return nil, _get_platform_error(errno)
         }
         if n < BUF_SIZE_STEP {

@@ -104,7 +104,7 @@ failed :: proc(t: ^T) -> bool {
 //
 // For almost every usual case, `defer` should be preferable and sufficient.
 cleanup :: proc(t: ^T, procedure: proc(rawptr), user_data: rawptr) {
-    dyn_array_append(&t.cleanups, Internal_Cleanup{procedure, user_data, context})
+    dyn_array.append(&t.cleanups, Internal_Cleanup{procedure, user_data, context})
 }
 
 expect :: proc(t: ^T, ok: bool, msg := "", expr := #caller_expression(ok), loc := #caller_location) -> bool {

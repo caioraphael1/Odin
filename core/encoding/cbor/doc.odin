@@ -118,7 +118,7 @@ Example:
                 }
 
                 bytes := cbor.err_conv(cbor._decode_bytes(d, add, maj)) or_return
-                intrinsics.mem_copy_non_overlapping(v.data, raw_data(bytes), len(bytes))
+                mem.copy_non_overlapping(v.data, raw_data(bytes), len(bytes))
                 return nil
             },
         }, RAW_TAG_NR, "raw")
@@ -138,7 +138,7 @@ Example:
         // Marshal the struct into binary CBOR.
         binary, err := cbor.marshal(data, cbor.ENCODE_FULLY_DETERMINISTIC)
         fmt.assertf(err == nil, "marshal error: %v", err)
-        defer _ = slice_delete(binary)
+        defer _ = slice.delete(binary)
 
         // Decode the binary data into a `cbor.Value`.
         decoded, derr := cbor.decode(string(binary))
@@ -148,7 +148,7 @@ Example:
         // Turn the CBOR into a human readable representation defined as the diagnostic format in [[RFC 8949 Section 8;https://www.rfc-editor.org/rfc/rfc8949.html#name-diagnostic-notation]].
         diagnosis, eerr := cbor.to_diagnostic_format(decoded)
         fmt.assertf(eerr == nil, "to diagnostic error: %v", eerr)
-        defer _ = slice_delete(diagnosis)
+        defer _ = slice.delete(diagnosis)
 
         fmt.println(diagnosis)
     }

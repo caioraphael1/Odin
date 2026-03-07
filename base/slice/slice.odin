@@ -43,7 +43,7 @@ create_over_aligned :: proc(
     size := size_of(E)*len + alignment-1
     original_data, err = create([]byte, size, allocator, loc)
     if err == nil {
-        ptr := align_forward(raw_data(original_data), uintptr(alignment))
+        ptr := mem.align_forward(raw_data(original_data), uintptr(alignment))
         slice = ([^]E)(ptr)[:len]
     }
     return
@@ -71,7 +71,7 @@ delete :: proc(array: $T/[]$E, allocator: mem.Allocator, loc := #caller_location
 
 zero :: proc(array: $T/[]$E) #no_bounds_check {
     if len(array) > 0 {
-        intrinsics.mem_zero(raw_data(array), size_of(E)*len(array))
+        mem.zero(raw_data(array), size_of(E)*len(array))
     }
 }
 
@@ -149,7 +149,7 @@ has a new size, specified by `new_size` and and is aligned on a boundary
 specified by `alignment`.
 
 If the `old_data` parameter is `nil`, `resize()` acts just like
-`mem_alloc()`, allocating `new_size` bytes, aligned on a boundary specified
+`mem.alloc()`, allocating `new_size` bytes, aligned on a boundary specified
 by `alignment`.
 
 If the `new_size` parameter is `0`, `resize()` acts just like
@@ -329,7 +329,7 @@ copy_from_string16 :: #force_inline proc(dst: $T/[]$E/u16, src: $S/string16) -> 
 _rawptr_mem_copy :: proc(dst, src: rawptr, dst_len, src_len, elem_size: int) -> int {
     n := min(dst_len, src_len)
     if n > 0 {
-        intrinsics.mem_copy(dst, src, n*elem_size)
+        mem.copy(dst, src, n*elem_size)
     }
     return n
 }

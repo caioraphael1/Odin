@@ -1,5 +1,4 @@
 import "base:internal"
-import "base:intrinsics"
 
 
 DEFAULT_ALIGNMENT :: internal.DEFAULT_ALIGNMENT
@@ -325,7 +324,7 @@ alloc_raw :: proc(size: int, alignment: int = DEFAULT_ALIGNMENT, allocator: Allo
     return raw_data(data), err
 }
 
-alloc_non_zero :: internal.mem_alloc_non_zeroed
+alloc_non_zeroed :: internal.mem_alloc_non_zeroed
 
 
 resize          :: proc(ptr: rawptr, old_size, new_size: int, alignment: int = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
@@ -375,9 +374,9 @@ _resize :: #force_no_inline proc(ptr: rawptr, old_size, new_size: int, alignment
         if err != nil {
             return
         }
-        // slice_copy(data, ([^]byte)(ptr)[:old_size])
+        // slice.copy(data, ([^]byte)(ptr)[:old_size])
             // (2026-03-06) Replaced by:
-        intrinsics.mem_copy(raw_data(data), ptr, old_size)
+        copy(raw_data(data), ptr, old_size)
 
         _, err = allocator.procedure(allocator.data, .Free, 0, 0, ptr, old_size, loc)
     }

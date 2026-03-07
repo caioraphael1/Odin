@@ -86,7 +86,7 @@ walker_clear :: proc(w: ^Walker, allocator: mem.Allocator) {
     w.skip_dir = false
 
     w.err.path.allocator = allocator
-    dyn_array_clear(&w.err.path)
+    dyn_array.clear(&w.err.path)
 
     w.todo.data.allocator = allocator
     for path in queue.dyn_array_pop_front_safe(&w.todo) {
@@ -97,7 +97,7 @@ walker_clear :: proc(w: ^Walker, allocator: mem.Allocator) {
 walker_destroy :: proc(w: ^Walker, allocator: mem.Allocator) {
     walker_clear(w, allocator)
     queue.destroy(&w.todo)
-    _ = dyn_array_delete(w.err.path)
+    _ = dyn_array.delete(w.err.path)
     read_directory_iterator_destroy(&w.iter, allocator)
 }
 

@@ -91,7 +91,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
     entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
     status := win32.Process32FirstW(snap, &entry)
     for status {
-        dyn_array_append(&list_d, int(entry.th32ProcessID)) or_return
+        dyn_array.append(&list_d, int(entry.th32ProcessID)) or_return
         status = win32.Process32NextW(snap, &entry)
     }
     list = list_d[:]
@@ -730,7 +730,7 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
         for arg in argv {
             _ = string_delete(arg, allocator)
         }
-        _ = slice_delete(argv, allocator)
+        _ = slice.delete(argv, allocator)
     }
     for arg_w, i in argv_w[:argc] {
         argv[i] = win32_wstring_to_utf8(arg_w, allocator) or_return
@@ -802,7 +802,7 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
         for env in envs {
             _ = string_delete(env, allocator)
         }
-        _ = slice_delete(envs, allocator)
+        _ = slice.delete(envs, allocator)
     }
 
     env_idx := 0

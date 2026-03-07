@@ -13,7 +13,7 @@ wgpu_init_allocator :: proc() {
 @(private="file", export)
 wgpu_alloc :: proc(size: i32) -> [^]byte {
     context = g_context
-    bytes, err := runtime.mem_alloc(int(size), 16)
+    bytes, err := mem.alloc(int(size), 16)
     assert(err == nil, "wgpu_alloc failed")
     return raw_data(bytes)
 }

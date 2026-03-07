@@ -136,13 +136,13 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
                 b |= (v << bit)
 
                 if bit == 0 {
-                    _ = dyn_array_append(&data.buf, b)
+                    _ = dyn_array.append(&data.buf, b)
                     b = 0
                 }
             }
 
             if b != 0 {
-                _ = dyn_array_append(&data.buf, b)
+                _ = dyn_array.append(&data.buf, b)
                 b = 0
             }
         }
@@ -153,7 +153,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
         pixels := img.pixels.buf[:]
 
         _ = dyn_array_resize(&data.buf, len(header_buf) + len(pixels))
-        mem.slice_copy(raw_data(data.buf[len(header_buf):]), raw_data(pixels), len(pixels))
+        mem.slice.copy(raw_data(data.buf[len(header_buf):]), raw_data(pixels), len(pixels))
 
         // convert from native endianness
         if img.depth == 16 {
@@ -181,9 +181,9 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
         for y in 0 ..< img.height {
             for x in 0 ..< img.width {
                 i := y * img.width + x
-                _ = dyn_array_append(&data.buf, '0' if pixels[i] == 0 else '1')
+                _ = dyn_array.append(&data.buf, '0' if pixels[i] == 0 else '1')
             }
-            _ = dyn_array_append(&data.buf, '\n')
+            _ = dyn_array.append(&data.buf, '\n')
         }
 
     // Token ASCII
@@ -570,7 +570,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator : mem.
 
     // Simple binary
     case .P5, .P6, .P7, .Pf, .PF:
-        slice_copy(img.pixels.buf[:], data[:])
+        slice.copy(img.pixels.buf[:], data[:])
 
         // convert to native endianness
         if header.format in PFM {

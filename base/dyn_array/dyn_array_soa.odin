@@ -481,9 +481,9 @@ into_dynamic_soa :: proc(array: $T/#soa[]$E) -> #soa[dynamic]E {
     d: #soa[dynamic]E
     footer := raw_soa_footer_dynamic_array(&d)
     footer^ = {
-        cap = len(array),
-        len = 0,
-        allocator = nil_allocator(),
+        cap       = len(array),
+        len       = 0,
+        allocator = {},
     }
 
     field_count := uintptr(len(E) when intrinsics.type_is_array(E) else intrinsics.type_struct_field_count(E))
@@ -491,7 +491,7 @@ into_dynamic_soa :: proc(array: $T/#soa[]$E) -> #soa[dynamic]E {
     array := array
     dynamic_data := ([^]rawptr)(&d)[:field_count]
     slice_data   := ([^]rawptr)(&array)[:field_count]
-    slice_copy(dynamic_data, slice_data)
+    slice.copy(dynamic_data, slice_data)
 
     return d
 }

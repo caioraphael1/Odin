@@ -31,7 +31,7 @@ preopens: []Preopen
 init_std_files :: proc() {
     new_std :: proc(impl: ^File_Impl, fd: wasi.fd_t, name: string) -> ^File {
         impl.file.impl = impl
-        impl.allocator = runtime.nil_allocator()
+        impl.allocator = {}
         impl.fd = fd
         impl.name  = string(name)
         impl.file.stream = {
@@ -251,7 +251,7 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
         err = _get_platform_error(errno)
     }
 
-    _ = slice_delete(f.name, f.allocator)
+    _ = slice.delete(f.name, f.allocator)
     _ = free(f, f.allocator)
     return
 }

@@ -405,7 +405,7 @@ _private_int_mul_comba :: proc(dest, a, b: ^Int, digits: int, allocator: mem.All
 	/*
 		Now extract the previous digit [below the carry].
 	*/
-	slice_copy(dest.digit[0:], W[:pa])	
+	slice.copy(dest.digit[0:], W[:pa])	
 
 	/*
 		Clear unused digits [that existed in the old copy of dest].
@@ -804,7 +804,7 @@ _private_int_sqr_karatsuba :: proc(dest, src: ^Int, allocator: mem.Allocator) ->
 	x1.used = src.used - B
 
 	#force_inline internal_copy_digits(x0, src, x0.used)
-	#force_inline intrinsics.mem_copy_non_overlapping(&x1.digit[0], &src.digit[B], size_of(DIGIT) * x1.used)
+	#force_inline mem.copy_non_overlapping(&x1.digit[0], &src.digit[B], size_of(DIGIT) * x1.used)
 	#force_inline internal_clamp(x0)
 
 	/*
@@ -868,9 +868,9 @@ _private_int_sqr_toom :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err
 	a1.used = B
 	a2.used = src.used - 2 * B
 
-	#force_inline intrinsics.mem_copy_non_overlapping(&a0.digit[0], &src.digit[    0], size_of(DIGIT) * a0.used)
-	#force_inline intrinsics.mem_copy_non_overlapping(&a1.digit[0], &src.digit[    B], size_of(DIGIT) * a1.used)
-	#force_inline intrinsics.mem_copy_non_overlapping(&a2.digit[0], &src.digit[2 * B], size_of(DIGIT) * a2.used)
+	#force_inline mem.copy_non_overlapping(&a0.digit[0], &src.digit[    0], size_of(DIGIT) * a0.used)
+	#force_inline mem.copy_non_overlapping(&a1.digit[0], &src.digit[    B], size_of(DIGIT) * a1.used)
+	#force_inline mem.copy_non_overlapping(&a2.digit[0], &src.digit[2 * B], size_of(DIGIT) * a2.used)
 
 	internal_clamp(a0)
 	internal_clamp(a1)
@@ -2309,7 +2309,7 @@ _private_int_dr_reduce :: proc(x, n: ^Int, k: DIGIT, allocator: mem.Allocator) -
 		/*
 			Zero words above m.
 		*/
-		mem.zero_slice(x.digit[m + 1:][:x.used - m])
+		mem.slice.zero(x.digit[m + 1:][:x.used - m])
 
 		/*
 			Clamp, sub and return.
@@ -3102,7 +3102,7 @@ _private_copy_digits :: proc(dest, src: ^Int, digits: int, offset := int(0)) -> 
 	}
 
 	digits = min(digits, len(src.digit), len(dest.digit))
-	intrinsics.mem_copy_non_overlapping(&dest.digit[0], &src.digit[offset], size_of(DIGIT) * digits)
+	mem.copy_non_overlapping(&dest.digit[0], &src.digit[offset], size_of(DIGIT) * digits)
 	return nil
 }
 
@@ -3139,7 +3139,7 @@ _private_int_shl_leg :: proc(quotient: ^Int, digits: int, allocator: mem.Allocat
 	}
 
 	quotient.used += digits
-	mem.zero_slice(quotient.digit[:digits])
+	mem.slice.zero(quotient.digit[:digits])
 	return nil
 }
 

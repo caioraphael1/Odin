@@ -1,5 +1,3 @@
-import "base:intrinsics"
-
 
 Random_Generator_Mode :: enum {
     Read,

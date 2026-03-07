@@ -326,23 +326,23 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 		s, amp_idx := s, amp_idx
 
 		n += len(s[:amp_idx])
-		if buf != nil { dyn_array_append(buf, s[:amp_idx]) }
+		if buf != nil { dyn_array.append(buf, s[:amp_idx]) }
 		s = s[amp_idx:]
 		for len(s) > 0 {
 			b, w, j := unescape_entity(s)
 			n += w
-			if buf != nil { dyn_array_append(buf, ..b[:w]) }
+			if buf != nil { dyn_array.append(buf, ..b[:w]) }
 
 			s = s[j:]
 
 			amp_idx = strings.index_byte(s, '&')
 			if amp_idx < 0 {
 				n += len(s)
-				if buf != nil { dyn_array_append(buf, s) }
+				if buf != nil { dyn_array.append(buf, s) }
 				break
 			}
 			n += amp_idx
-			if buf != nil { dyn_array_append(buf, s[:amp_idx]) }
+			if buf != nil { dyn_array.append(buf, s[:amp_idx]) }
 			s = s[amp_idx:]
 		}
 

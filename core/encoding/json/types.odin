@@ -104,7 +104,7 @@ destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_loc
         for elem in v {
             destroy_value(elem, allocator, loc)
         }
-        _ = dyn_array_delete(v, loc)
+        _ = dyn_array.delete(v, loc)
     case String:
         _ = string_delete(v, allocator, loc)
     }

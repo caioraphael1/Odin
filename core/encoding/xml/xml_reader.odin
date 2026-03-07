@@ -205,7 +205,7 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 				if element == 0 { // First Element
 					parent = element
 				} else {
-                    _ = dyn_array_append(&doc.elements[parent].value, element)
+                    _ = dyn_array.append(&doc.elements[parent].value, element)
 				}
 
 				doc.elements[element].parent = parent
@@ -292,13 +292,13 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 
 					if .Intern_Comments in opts.flags {
                         if len(doc.elements) == 0 {
-                            _ = dyn_array_append(&doc.comments, comment)
+                            _ = dyn_array.append(&doc.comments, comment)
 						} else {
 							el := new_element(doc)
 							doc.elements[el].parent = element
 							doc.elements[el].kind   = .Comment
-                            _ = dyn_array_append(&doc.elements[el].value, comment)
-                            _ = dyn_array_append(&doc.elements[element].value, el)
+                            _ = dyn_array.append(&doc.elements[el].value, comment)
+                            _ = dyn_array.append(&doc.elements[element].value, el)
 						}
 					}
 
@@ -373,19 +373,19 @@ destroy :: proc(doc: ^Document, allocator: mem.Allocator) {
     if doc == nil { return }
 
 	for el in doc.elements {
-        _ = slice_delete(el.attribs)
-        _ = slice_delete(el.value)
+        _ = slice.delete(el.attribs)
+        _ = slice.delete(el.value)
 	}
-    _ = slice_delete(doc.elements)
+    _ = slice.delete(doc.elements)
 
-    _ = slice_delete(doc.prologue)
-    _ = slice_delete(doc.comments)
-    _ = slice_delete(doc.input)
+    _ = slice.delete(doc.prologue)
+    _ = slice.delete(doc.comments)
+    _ = slice.delete(doc.input)
 
 	for s in doc.strings_to_free {
-        _ = slice_delete(s)
+        _ = slice.delete(s)
 	}
-    _ = slice_delete(doc.strings_to_free)
+    _ = slice.delete(doc.strings_to_free)
 
     _ = free(doc.tokenizer)
     _ = free(doc)
@@ -422,7 +422,7 @@ parse_attribute :: proc(doc: ^Document) -> (attr: Attribute, offset: int, err: E
 
 	normalized, normalize_err := entity.decode_xml(value.text, {.Normalize_Whitespace}, doc.allocator)
 	if normalize_err == .None {
-        _ = dyn_array_append(&doc.strings_to_free, normalized)
+        _ = dyn_array.append(&doc.strings_to_free, normalized)
 		value.text = normalized
 	}
 
@@ -450,7 +450,7 @@ parse_attributes :: proc(doc: ^Document, attribs: ^Attributes) -> (err: Error) {
 	for peek(t).kind == .Ident {
 		attr, offset := parse_attribute(doc)                  or_return
 		check_duplicate_attributes(t, attribs^, attr, offset) or_return
-        _ = dyn_array_append(attribs, attr)
+        _ = dyn_array.append(attribs, attr)
 	}
 	skip_whitespace(t)
 	return .None
@@ -555,7 +555,7 @@ parse_body :: proc(doc: ^Document, element: Element_ID, opts: Options) -> (err: 
 	needs_processing |= .Decode_SGML_Entities in opts.flags
 
 	if !needs_processing {
-        _ = dyn_array_append(&doc.elements[element].value, body_text)
+        _ = dyn_array.append(&doc.elements[element].value, body_text)
 		return
 	}
 
@@ -577,10 +577,10 @@ parse_body :: proc(doc: ^Document, element: Element_ID, opts: Options) -> (err: 
 
 	decoded, decode_err := entity.decode_xml(body_text, decode_opts)
 	if decode_err == .None {
-        _ = dyn_array_append(&doc.elements[element].value, decoded)
-        _ = dyn_array_append(&doc.strings_to_free, decoded)
+        _ = dyn_array.append(&doc.elements[element].value, decoded)
+        _ = dyn_array.append(&doc.strings_to_free, decoded)
 	} else {
-        _ = dyn_array_append(&doc.elements[element].value, body_text)
+        _ = dyn_array.append(&doc.elements[element].value, body_text)
 	}
 
 	return

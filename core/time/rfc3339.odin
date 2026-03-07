@@ -295,7 +295,7 @@ time_to_rfc3339 :: proc(time: Time, utc_offset : int = 0, include_nanos := true,
         return "", false
     }
 
-    slice_copy(res_as_slice, temp_string[:offset])
+    slice.copy(res_as_slice, temp_string[:offset])
 
     return string(res_as_slice), true
 }

@@ -137,7 +137,7 @@ main :: proc() {
 ```odin
 main :: proc() {
     a: [dynamic]int
-    dyn_array_append(&a, 1)
+    dyn_array.append(&a, 1)
         // Runtime assertion, indicating that no allocator was used for `a` and the array should be initialized. 
 }
 ```

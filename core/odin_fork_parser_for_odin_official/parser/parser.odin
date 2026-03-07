@@ -165,7 +165,7 @@ parse_file :: proc(p: ^Parser, file: ^ast.File, allocator: mem.Allocator) -> boo
         if p.curr_tok.kind == .Comment {
             consume_comment_groups(p, p.prev_tok, allocator)
         } else if p.curr_tok.kind == .File_Tag {
-            _ = dyn_array_append(&p.file.tags, p.curr_tok)
+            _ = dyn_array.append(&p.file.tags, p.curr_tok)
             _ = advance_token(p, allocator)
         } else {
             if invalid_pre_package_token == nil {
@@ -220,7 +220,7 @@ parse_file :: proc(p: ^Parser, file: ^ast.File, allocator: mem.Allocator) -> boo
         stmt := parse_stmt(p, allocator)
         if stmt != nil {
             if _, ok := stmt.derived.(^ast.Empty_Stmt); !ok {
-                _ = dyn_array_append(&p.file.decls, stmt)
+                _ = dyn_array.append(&p.file.decls, stmt)
                 if es, es_ok := stmt.derived.(^ast.Expr_Stmt); es_ok && es.expr != nil {
                     if _, pl_ok := es.expr.derived.(^ast.Proc_Lit); pl_ok {
                         error(p, stmt.pos, "procedure literal evaluated but not used")
@@ -334,13 +334,13 @@ consume_comment_group :: proc(p: ^Parser, n: int, allocator: mem.Allocator) -> (
         p.curr_tok.pos.line <= end_line+n {
         comment: tokenizer.Token
         comment, end_line = consume_comment(p)
-        _ = dyn_array_append(&list, comment)
+        _ = dyn_array.append(&list, comment)
     }
 
     if len(list) > 0 && !p.peeking {
         comments = ast.new_from_positions(ast.Comment_Group, list[0].pos, end_pos(list[len(list)-1]), allocator)
         comments.list = list[:]
-        _ = dyn_array_append(&p.file.comments, comments)
+        _ = dyn_array.append(&p.file.comments, comments)
     }
 
     return
@@ -684,7 +684,7 @@ parse_stmt_list :: proc(p: ^Parser, allocator: mem.Allocator) -> []^ast.Stmt {
         stmt := parse_stmt(p, allocator)
         if stmt != nil {
             if _, ok := stmt.derived.(^ast.Empty_Stmt); !ok {
-                _ = dyn_array_append(&list, stmt)
+                _ = dyn_array.append(&list, stmt)
                 if es, es_ok := stmt.derived.(^ast.Expr_Stmt); es_ok && es.expr != nil {
                     if _, pl_ok := es.expr.derived.(^ast.Proc_Lit); pl_ok {
                         error(p, stmt.pos, "procedure literal evaluated but not used")
@@ -1068,7 +1068,7 @@ parse_switch_stmt :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Stmt {
 
     for p.curr_tok.kind == .Case {
         clause := parse_case_clause(p, is_type_switch, allocator)
-        _ = dyn_array_append(&clauses, clause)
+        _ = dyn_array.append(&clauses, clause)
     }
 
     close := expect_token(p, .Close_Brace, allocator)
@@ -1100,7 +1100,7 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
 
     if p.curr_tok.kind == .Ident {
         elem := parse_ident(p, allocator)
-        _ = dyn_array_append(&elems, elem)
+        _ = dyn_array.append(&elems, elem)
     } else {
         open = expect_token(p, open_kind, allocator)
         p.expr_level += 1
@@ -1118,7 +1118,7 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
 
                 elem = fv
             }
-            _ = dyn_array_append(&elems, elem)
+            _ = dyn_array.append(&elems, elem)
 
             allow_token(p, .Comma, allocator) or_break
         }
@@ -1138,20 +1138,20 @@ parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind:
     #partial switch d in decl.derived_stmt {
     case ^ast.Value_Decl:
         if d.docs == nil { d.docs = docs }
-        _ = dyn_array_append(&d.attributes, attribute)
+        _ = dyn_array.append(&d.attributes, attribute)
     case ^ast.Foreign_Block_Decl:
         if d.docs == nil { d.docs = docs }
-        _ = dyn_array_append(&d.attributes, attribute)
+        _ = dyn_array.append(&d.attributes, attribute)
     case ^ast.Foreign_Import_Decl:
         if d.docs == nil { d.docs = docs }
-        _ = dyn_array_append(&d.attributes, attribute)
+        _ = dyn_array.append(&d.attributes, attribute)
     case ^ast.Import_Decl:
         if d.docs == nil { d.docs = docs }
-        _ = dyn_array_append(&d.attributes, attribute)
+        _ = dyn_array.append(&d.attributes, attribute)
     case:
         error(p, decl.pos, "expected a value or foreign declaration after an attribute")
         _ = free(attribute, allocator)
-        _ = dyn_array_delete(elems)
+        _ = dyn_array.delete(elems)
     }
     return decl
 
@@ -1198,7 +1198,7 @@ parse_foreign_block :: proc(p: ^Parser, tok: tokenizer.Token, allocator: mem.All
     for p.curr_tok.kind != .Close_Brace && p.curr_tok.kind != .EOF {
         decl := parse_foreign_block_decl(p, allocator)
         if decl != nil {
-            _ = dyn_array_append(&decls, decl)
+            _ = dyn_array.append(&decls, decl)
         }
     }
     close := expect_token(p, .Close_Brace, allocator)
@@ -1241,7 +1241,7 @@ parse_foreign_decl :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Decl {
             for p.curr_tok.kind != .Close_Brace &&
                 p.curr_tok.kind != .EOF {
                 path := parse_expr(p, false, allocator)
-                _ = dyn_array_append(&fullpaths, path)
+                _ = dyn_array.append(&fullpaths, path)
 
                 allow_token(p, .Comma, allocator) or_break
             }
@@ -1251,7 +1251,7 @@ parse_foreign_decl :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Decl {
             _ = dyn_array_reserve(&fullpaths, 1)
             bl := ast.new_from_positions(ast.Basic_Lit, path.pos, end_pos(path), allocator)
             bl.tok = path
-            _ = dyn_array_append(&fullpaths, bl)
+            _ = dyn_array.append(&fullpaths, bl)
         }
 
         if len(fullpaths) == 0 {
@@ -1307,7 +1307,7 @@ parse_unrolled_for_loop :: proc(p: ^Parser, inline_tok: tokenizer.Token, allocat
                     arg = fv
                 }
 
-                _ = dyn_array_append(&args, arg)
+                _ = dyn_array.append(&args, arg)
 
                 allow_token(p, .Comma, allocator) or_break
             }
@@ -1430,7 +1430,7 @@ parse_stmt :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Stmt {
         results: [dynamic]^ast.Expr
         for p.curr_tok.kind != .Semicolon && p.curr_tok.kind != .Close_Brace {
             result := parse_expr(p, false, allocator)
-            _ = dyn_array_append(&results, result)
+            _ = dyn_array.append(&results, result)
             if p.curr_tok.kind != .Comma ||
                p.curr_tok.kind == .EOF {
                 break
@@ -1771,7 +1771,7 @@ convert_to_ident_list :: proc(p: ^Parser, list: []Expr_And_Flags, ignore_flags, 
             id = ast.new_from_positions(ast.Ident, ident.expr.pos, ident.expr.end, allocator)
         }
 
-        _ = dyn_array_append(&idents, id)
+        _ = dyn_array.append(&idents, id)
     }
 
     return idents[:]
@@ -1933,10 +1933,10 @@ parse_ident_list :: proc(p: ^Parser, allow_poly_names: bool, allocator: mem.Allo
             }
             poly_name := ast.new_from_pos_and_end_node(ast.Poly_Type, tok.pos, ident, allocator)
             poly_name.type = ident
-            _ = dyn_array_append(&list, poly_name)
+            _ = dyn_array.append(&list, poly_name)
         } else {
             ident := parse_ident(p, allocator)
-            _ = dyn_array_append(&list, ident)
+            _ = dyn_array.append(&list, ident)
         }
         if p.curr_tok.kind != .Comma ||
            p.curr_tok.kind == .EOF {
@@ -2045,7 +2045,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
         field.docs    = docs
         field.flags   = flags
         field.comment = p.line_comment
-        _ = dyn_array_append(fields, field)
+        _ = dyn_array.append(fields, field)
 
         return ok
     }
@@ -2058,7 +2058,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
     fields: [dynamic]^ast.Field
 
     list: [dynamic]Expr_And_Flags
-    defer _ = dyn_array_delete(list)
+    defer _ = dyn_array.delete(list)
 
     seen_ellipsis := false
 
@@ -2080,7 +2080,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
         }
 
         eaf := Expr_And_Flags{param, prefix_flags}
-        _ = dyn_array_append(&list, eaf)
+        _ = dyn_array.append(&list, eaf)
         allow_token(p, .Comma, allocator) or_break
     }
 
@@ -2108,7 +2108,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
             field.docs    = docs
             field.flags   = flags
             field.comment = p.line_comment
-            _ = dyn_array_append(&fields, field)
+            _ = dyn_array.append(&fields, field)
         }
     } else {
         names := convert_to_ident_list(p, list[:], true, allow_poly_names, allocator)
@@ -2500,7 +2500,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
             for p.curr_tok.kind != .Close_Brace &&
                 p.curr_tok.kind != .EOF {
                 elem := parse_expr(p, false, allocator)
-                _ = dyn_array_append(&args, elem)
+                _ = dyn_array.append(&args, elem)
 
                 allow_token(p, .Comma, allocator) or_break
             }
@@ -2872,7 +2872,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
         for p.curr_tok.kind != .Close_Brace && p.curr_tok.kind != .EOF {
             type := parse_type(p, allocator)
             if _, ok := type.derived.(^ast.Bad_Expr); !ok {
-                _ = dyn_array_append(&variants, type)
+                _ = dyn_array.append(&variants, type)
             }
             allow_token(p, .Comma, allocator) or_break
         }
@@ -2988,7 +2988,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
             field.docs     = docs
             field.comments = p.line_comment
 
-            _ = dyn_array_append(&fields, field)
+            _ = dyn_array.append(&fields, field)
 
             if !ok {
                 break
@@ -3014,7 +3014,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
         if allow_token(p, .Open_Paren, allocator) {
             for p.curr_tok.kind != .Close_Paren && p.curr_tok.kind != .EOF {
                 t := parse_type(p, allocator)
-                _ = dyn_array_append(&param_types, t)
+                _ = dyn_array.append(&param_types, t)
                 if p.curr_tok.kind != .Comma ||
                    p.curr_tok.kind == .EOF {
                     break
@@ -3147,7 +3147,7 @@ parse_elem_list :: proc(p: ^Parser, allocator: mem.Allocator) -> []^ast.Expr {
             elem = fv
         }
 
-        _ = dyn_array_append(&elems, elem)
+        _ = dyn_array.append(&elems, elem)
 
         allow_token(p, .Comma, allocator) or_break
     }
@@ -3219,7 +3219,7 @@ parse_call_expr :: proc(p: ^Parser, operand: ^ast.Expr, allocator: mem.Allocator
             error(p, arg.pos, "Positional arguments are not allowed after '..'")
         }
 
-        _ = dyn_array_append(&args, arg)
+        _ = dyn_array.append(&args, arg)
 
         if ellipsis.pos.line != 0 {
             seen_ellipsis = true
@@ -3631,7 +3631,7 @@ parse_expr_list :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ([]^
     list.allocator = allocator
     for {
         expr := parse_expr(p, lhs, allocator)
-        _ = dyn_array_append(&list, expr)
+        _ = dyn_array.append(&list, expr)
         if p.curr_tok.kind != .Comma || p.curr_tok.kind == .EOF {
             break
         }
@@ -3855,7 +3855,7 @@ parse_import_decl :: proc(p: ^Parser, kind: Import_Decl_Kind, allocator: mem.All
     if p.curr_proc != nil {
         error(p, decl.pos, "import declarations cannot be used within a procedure, it must be done at the file scope")
     } else {
-        _ = dyn_array_append(&p.file.imports, decl)
+        _ = dyn_array.append(&p.file.imports, decl)
     }
     _ = expect_semicolon(p, decl, allocator)
     decl.comment = p.line_comment

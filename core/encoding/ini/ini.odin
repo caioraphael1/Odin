@@ -109,7 +109,7 @@ load_map_from_string :: proc(src: string, allocator: mem.Allocator, options := D
         if options.key_lower_case {
             old_key := new_key
             new_key = strings.to_lower(key) or_return
-            _ = slice_delete(old_key) or_return
+            _ = slice.delete(old_key) or_return
         }
         pairs[new_key] = unquote(value) or_return
     }
@@ -118,7 +118,7 @@ load_map_from_string :: proc(src: string, allocator: mem.Allocator, options := D
 
 load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: mem.Allocator_Error, ok: bool) {
     data := os.read_entire_file(path, allocator) or_return
-    defer _ = slice_delete(data, allocator)
+    defer _ = slice.delete(data, allocator)
     m, err = load_map_from_string(string(data), allocator, options)
     ok = err == nil
     defer if !ok {
@@ -137,13 +137,13 @@ map_delete :: proc(m: Map) {
     allocator := m.allocator
     for section, pairs in m {
         for key, value in pairs {
-            _ = slice_delete(key, allocator)
-            _ = slice_delete(value, allocator)
+            _ = slice.delete(key, allocator)
+            _ = slice.delete(value, allocator)
         }
-        _ = slice_delete(section)
-        _ = slice_delete(pairs)
+        _ = slice.delete(section)
+        _ = slice.delete(pairs)
     }
-    _ = slice_delete(m)
+    _ = slice.delete(m)
 }
 
 write_section :: proc(w: io.Writer, name: string, n_written: ^int = nil) -> (n: int, err: io.Error) {

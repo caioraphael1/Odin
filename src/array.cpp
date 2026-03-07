@@ -147,17 +147,17 @@ gb_internal Slice<T> slice_clone_from_array(gbAllocator const &allocator, Array<
 
 
 template <typename T>
-gb_internal void slice_copy(Slice<T> *slice, Slice<T> const &data) {
+gb_internal void slice.copy(Slice<T> *slice, Slice<T> const &data) {
 	isize n = gb_min(slice->count, data.count);
 	gb_memmove(slice->data, data.data, gb_size_of(T)*n);
 }
 template <typename T>
-gb_internal void slice_copy(Slice<T> *slice, Slice<T> const &data, isize offset) {
+gb_internal void slice.copy(Slice<T> *slice, Slice<T> const &data, isize offset) {
 	isize n = gb_clamp(slice->count-offset, 0, data.count);
 	gb_memmove(slice->data+offset, data.data, gb_size_of(T)*n);
 }
 template <typename T>
-gb_internal void slice_copy(Slice<T> *slice, Slice<T> const &data, isize offset, isize count) {
+gb_internal void slice.copy(Slice<T> *slice, Slice<T> const &data, isize offset, isize count) {
 	isize n = gb_clamp(slice->count-offset, 0, gb_min(data.count, count));
 	gb_memmove(slice->data+offset, data.data, gb_size_of(T)*n);
 }

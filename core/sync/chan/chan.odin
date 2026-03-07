@@ -557,7 +557,7 @@ send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
         c.did_read = false
         defer c.did_read = false
 
-        mem.slice_copy(c.unbuffered_data, msg_in, int(c.msg_size))
+        mem.slice.copy(c.unbuffered_data, msg_in, int(c.msg_size))
 
         c.w_waiting += 1
 
@@ -635,7 +635,7 @@ recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
 
         msg := raw_queue_pop(c.queue)
         if msg != nil {
-            mem.slice_copy(msg_out, msg, int(c.msg_size))
+            mem.slice.copy(msg_out, msg, int(c.msg_size))
         }
 
         if c.w_waiting > 0 {
@@ -655,7 +655,7 @@ recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> (ok: bool) {
             return
         }
 
-        mem.slice_copy(msg_out, c.unbuffered_data, int(c.msg_size))
+        mem.slice.copy(msg_out, c.unbuffered_data, int(c.msg_size))
         c.w_waiting -= 1
 
         c.did_read = true
@@ -722,7 +722,7 @@ try_send_raw :: proc(c: ^Raw_Chan, msg_in: rawptr) -> (ok: bool) {
             return false
         }
 
-        mem.slice_copy(c.unbuffered_data, msg_in, int(c.msg_size))
+        mem.slice.copy(c.unbuffered_data, msg_in, int(c.msg_size))
         c.w_waiting += 1
         if c.r_waiting > 0 {
             sync.signal(&c.r_cond)
@@ -772,7 +772,7 @@ try_recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> bool {
 
         msg := raw_queue_pop(c.queue)
         if msg != nil {
-            mem.slice_copy(msg_out, msg, int(c.msg_size))
+            mem.slice.copy(msg_out, msg, int(c.msg_size))
         }
 
         if c.w_waiting > 0 {
@@ -786,7 +786,7 @@ try_recv_raw :: proc(c: ^Raw_Chan, msg_out: rawptr) -> bool {
             return false
         }
 
-        mem.slice_copy(msg_out, c.unbuffered_data, int(c.msg_size))
+        mem.slice.copy(msg_out, c.unbuffered_data, int(c.msg_size))
         c.w_waiting -= 1
 
         sync.signal(&c.w_cond)
@@ -1283,7 +1283,7 @@ raw_queue_push :: proc(q: ^Raw_Queue, data: rawptr) -> bool {
     }
 
     val_ptr := q.data[pos*q.size:]
-    mem.slice_copy(val_ptr, data, q.size)
+    mem.slice.copy(val_ptr, data, q.size)
     q.len += 1
     return true
 }

@@ -20,7 +20,7 @@ MenuItem_registerActionCallback :: proc "c" (name: cstring, callback: MenuItemCa
     sel: SEL
     if n > 0 && s[n-1] != ':' {
         col_name := intrinsics.alloca(n+2, 1)
-        builtin.slice_copy(col_name[:n], s)
+        builtin.slice.copy(col_name[:n], s)
         col_name[n] = ':'
         col_name[n+1] = 0
         sel = __sel_registerName(cstring(col_name))

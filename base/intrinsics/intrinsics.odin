@@ -71,7 +71,7 @@ that memory ranges specified by the parameters to this procedure are not
 overlapping. If the memory ranges specified by `dst` and `src` pointers overlap,
 the behavior of this function may be unpredictable.
 */
-mem_copy_non_overlapping :: proc(dst, src: rawptr, len: int) ---
+mem.copy_non_overlapping :: proc(dst, src: rawptr, len: int) ---
 
 /*
 Set each byte of a memory range to zero.

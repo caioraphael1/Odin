@@ -717,7 +717,7 @@ File_Status_Flag :: enum c.int {
 
 	/**/
 	NONBLOCK        = 0x0004,     /* no delay */
-	APPEND          = 0x0008,     /* set dyn_array_append mode */
+	APPEND          = 0x0008,     /* set dyn_array.append mode */
 	SHLOCK          = 0x0010,     /* open with shared file lock */
 	EXLOCK          = 0x0020,     /* open with exclusive file lock */
 	ASYNC           = 0x0040,     /* signal pgrp when data ready */
@@ -761,7 +761,7 @@ File_Status_Index :: enum c.int {
 	   read or write call returns -1 with the error EAGAIN. */
 	NONBLOCK        = 2,
 
-	/* Force each write to dyn_array_append at the end of file; corresponds
+	/* Force each write to dyn_array.append at the end of file; corresponds
 	   to the O_APPEND flag of open(2). */
 	APPEND          = 3,
 

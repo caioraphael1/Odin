@@ -90,7 +90,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 	// Handle leftover
 	if ctx._leftover > 0 {
 		want := min(_BLOCK_SIZE - ctx._leftover, msg_len)
-		slice_copy(ctx._buffer[ctx._leftover:], msg[:want])
+		slice.copy(ctx._buffer[ctx._leftover:], msg[:want])
 		msg_len = msg_len - want
 		msg = msg[want:]
 		ctx._leftover = ctx._leftover + want

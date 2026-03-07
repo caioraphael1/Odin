@@ -65,7 +65,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     }
     header_bytes := transmute([size_of(image.TGA_Header)]u8)header
 
-    slice_copy(output.buf[written:], header_bytes[:])
+    slice.copy(output.buf[written:], header_bytes[:])
     written += size_of(image.TGA_Header)
 
     /*
@@ -238,7 +238,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
     }
 
     color_map := slice_create([]RGBA_Pixel, header.color_map_length)
-    defer _ = slice_delete(color_map)
+    defer _ = slice.delete(color_map)
 
     if color_mapped {
         switch header.color_map_depth {
@@ -363,7 +363,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
             }
 
             // Write pixel
-            slice_copy(img.pixels.buf[offset:], pixel[:dest_channels])
+            slice.copy(img.pixels.buf[offset:], pixel[:dest_channels])
             offset += dest_channels if origin_is_left else -dest_channels
             rle_repetition_count -= 1
         }
@@ -389,7 +389,7 @@ destroy :: proc(img: ^Image) {
 
     bytes.buffer_destroy(&img.pixels)
     if v, ok := img.metadata.(^image.TGA_Info); ok {
-        _ = slice_delete(v.image_id)
+        _ = slice.delete(v.image_id)
         _ = free(v)
     }
 

@@ -55,7 +55,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     path_bytes := slice_create([]u8, len(path) + 1, runtime.temp_allocator)
 
     // zero terminate the byte slice to make it a valid cstring
-    slice_copy(path_bytes, path)
+    slice.copy(path_bytes, path)
     path_bytes[len(path)] = 0
 
     dfd: linux.Fd
@@ -79,13 +79,13 @@ _remove_all :: proc(path: string) -> Error {
     remove_all_dir :: proc(dfd: linux.Fd) -> Error {
         n := 64
         buf := slice_create([]u8, n)
-        defer _ = slice_delete(buf)
+        defer _ = slice.delete(buf)
 
         loop: for {
             buflen, errno := linux.getdents(dfd, buf[:])
             #partial switch errno {
             case .EINVAL:
-                _ = slice_delete(buf)
+                _ = slice.delete(buf)
                 n *= 2
                 buf = slice_create([]u8, n)
                 continue loop
@@ -195,12 +195,12 @@ _get_full_path :: proc(fd: linux.Fd, allocator: mem.Allocator) -> (fullpath: str
     PROC_FD_PATH :: "/proc/self/fd/"
 
     buf: [32]u8
-    slice_copy(buf[:], PROC_FD_PATH)
+    slice.copy(buf[:], PROC_FD_PATH)
 
     strconv.write_int(buf[len(PROC_FD_PATH):], i64(fd), 10)
 
     if fullpath, err = _read_link_cstr(cstring(&buf[0]), allocator); err != nil || fullpath[0] != '/' {
-        _ = slice_delete(fullpath, allocator)
+        _ = slice.delete(fullpath, allocator)
         fullpath = ""
     }
     return

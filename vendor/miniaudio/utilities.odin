@@ -251,8 +251,8 @@ A paged audio buffer is made up of a linked list of pages. It's expandable, but 
 can be used for cases where audio data is streamed in asynchronously while allowing data to be read
 at the same time.
 
-This is lock-free, but not 100% thread safe. You can dyn_array_append a page and read from the buffer across
-simultaneously across different threads, however only one thread at a time can dyn_array_append, and only one
+This is lock-free, but not 100% thread safe. You can dyn_array.append a page and read from the buffer across
+simultaneously across different threads, however only one thread at a time can dyn_array.append, and only one
 thread at a time can read and seek.
 */
 paged_audio_buffer_page :: struct {

@@ -190,9 +190,9 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             argv.allocator = allocator
 
             defer if err != nil {
-                for arg in argv { _ = slice_delete(arg, allocator) }
-                _ = slice_delete(argv)
-                _ = slice_delete(command_line)
+                for arg in argv { _ = slice.delete(arg, allocator) }
+                _ = slice.delete(argv)
+                _ = slice.delete(command_line)
             }
 
             _, _ = bytes.split_iterator(&buf, {0})
@@ -202,14 +202,14 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             for arg in bytes.split_iterator(&buf, {0}) {
                 if .Command_Line in selection {
                     if !first_arg {
-                        dyn_array_append(&command_line, ' ') or_return
+                        dyn_array.append(&command_line, ' ') or_return
                     }
-                    dyn_array_append(&command_line, ..arg) or_return
+                    dyn_array.append(&command_line, ..arg) or_return
                 }
 
                 if .Command_Args in selection {
                     sarg := clone_string(string(arg), allocator) or_return
-                    dyn_array_append(&argv, sarg) or_return
+                    dyn_array.append(&argv, sarg) or_return
                 }
 
                 first_arg = false
@@ -234,14 +234,14 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             environment.allocator = allocator
 
             defer if err != nil {
-                for entry in environment { _ = slice_delete(entry, allocator) }
-                _ = slice_delete(environment)
+                for entry in environment { _ = slice.delete(entry, allocator) }
+                _ = slice.delete(environment)
             }
 
             for entry in bytes.split_iterator(&buf, {0}) {
                 if bytes.index_byte(entry, '=') > -1 {
                     sentry := clone_string(string(entry), allocator) or_return
-                    dyn_array_append(&environment, sentry) or_return
+                    dyn_array.append(&environment, sentry) or_return
                 }
             }
 

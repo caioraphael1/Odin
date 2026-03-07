@@ -1,5 +1,4 @@
 #+private
-import "base:builtin"
 @(require) import "base:intrinsics"
 
 
@@ -77,7 +76,7 @@ _smoothsort :: proc(base: [^]byte, nel: uint, width: uint, cmp: Generic_Cmp, arg
         data[n] = raw_data(buf[:])
         width := width
         for width != 0 {
-            l := builtin.min(size_of(buf), int(width))
+            l := min(size_of(buf), int(width))
             copy(data[n][:l], data[0][:l])
             for i in 0..<n {
                 copy(data[i][:l], data[i+1][:l])

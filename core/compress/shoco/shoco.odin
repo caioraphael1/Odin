@@ -189,7 +189,7 @@ compress_string_to_buffer :: proc(input: string, output: []u8, model := DEFAULT_
     validate_model(model) or_return
 
     indices := slice_create([]i16, model.max_successor_n + 1)
-    defer _ = slice_delete(indices)
+    defer _ = slice.delete(indices)
 
     last_resort := false
 

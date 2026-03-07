@@ -132,16 +132,16 @@ scalarmult :: proc(dst, scalar, point: []byte) {
 
 	// "clamp" the scalar
 	e: [56]byte = ---
-	slice_copy(e[:], scalar)
+	slice.copy(e[:], scalar)
 	e[0] &= 252
 	e[55] |= 128
 
 	p: [56]byte = ---
-	slice_copy(p[:], point)
+	slice.copy(p[:], point)
 
 	d: [56]byte = ---
 	_scalarmult(&d, &e, &p)
-	slice_copy(dst, d[:])
+	slice.copy(dst, d[:])
 
 	crypto.zero_explicit(&e, size_of(e))
 	crypto.zero_explicit(&d, size_of(d))

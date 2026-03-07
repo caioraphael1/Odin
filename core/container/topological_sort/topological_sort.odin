@@ -30,9 +30,9 @@ init :: proc(sorter: ^$S/Sorter($K)) {
 
 destroy :: proc(sorter: ^$S/Sorter($K)) {
     for _, v in sorter.relations {
-        _ = slice_delete(v.dependents)
+        _ = slice.delete(v.dependents)
     }
-    _ = slice_delete(sorter.relations)
+    _ = slice.delete(sorter.relations)
 }
 
 add_key :: proc(sorter: ^$S/Sorter($K), key: K) -> bool {
@@ -73,7 +73,7 @@ sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: [dynamic]K) {
 
     for k, v in relations {
         if v.dependencies == 0 {
-            _ = dyn_array_append(&sorted, k)
+            _ = dyn_array.append(&sorted, k)
         }
     }
 
@@ -82,14 +82,14 @@ sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: [dynamic]K) {
             relation := &relations[k]
             relation.dependencies -= 1
             if relation.dependencies == 0 {
-                _ = dyn_array_append(&sorted, k)
+                _ = dyn_array.append(&sorted, k)
             }
         }
     }
 
     for k, v in relations {
         if v.dependencies != 0 {
-            _ = dyn_array_append(&cycled, k)
+            _ = dyn_array.append(&cycled, k)
         }
     }
 

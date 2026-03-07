@@ -28,7 +28,7 @@ Read_Op :: enum i8 {
 
 buffer_init :: proc(b: ^Buffer, buf: []byte, loc := #caller_location) {
     _ = dyn_array_resize(&b.buf, len(buf), loc=loc)
-    slice_copy(b.buf[:], buf)
+    slice.copy(b.buf[:], buf)
 }
 
 buffer_init_string :: proc(b: ^Buffer, s: string, loc := #caller_location) {
@@ -48,7 +48,7 @@ buffer_init_allocator :: proc(b: ^Buffer, len, cap: int, allocator: mem.Allocato
 }
 
 buffer_destroy :: proc(b: ^Buffer) {
-    _ = dyn_array_delete(b.buf)
+    _ = dyn_array.delete(b.buf)
     buffer_reset(b)
 }
 
@@ -76,7 +76,7 @@ buffer_capacity :: proc(b: ^Buffer) -> int {
 }
 
 buffer_reset :: proc(b: ^Buffer) {
-    dyn_array_clear(&b.buf)
+    dyn_array.clear(&b.buf)
     b.off = 0
     b.last_read = .Invalid
 }
@@ -122,12 +122,12 @@ _buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> int {
 
     c := cap(b.buf)
     if n <= c/2 - m {
-        slice_copy(b.buf[:], b.buf[b.off:])
+        slice.copy(b.buf[:], b.buf[b.off:])
     } else if c > max(int) - c - n {
         panic("bytes.Buffer: too large")
     } else {
         _ = dyn_array_resize(&b.buf, 2*c + n, loc=loc)
-        slice_copy(b.buf[:], b.buf[b.off:])
+        slice.copy(b.buf[:], b.buf[b.off:])
     }
     b.off = 0
     _ = dyn_array_resize(&b.buf, m+n, loc=loc)
@@ -158,7 +158,7 @@ buffer_write_at :: proc(b: ^Buffer, p: []byte, offset: int, loc := #caller_locat
     if len(b.buf) <= offset {
         return 0, .Short_Write
     }
-    return slice_copy(b.buf[offset:], p), nil
+    return slice.copy(b.buf[offset:], p), nil
 }
 
 
@@ -168,7 +168,7 @@ buffer_write :: proc(b: ^Buffer, p: []byte, loc := #caller_location) -> (n: int,
     if !ok {
         m = _buffer_grow(b, len(p), loc=loc)
     }
-    return slice_copy(b.buf[m:], p), nil
+    return slice.copy(b.buf[m:], p), nil
 }
 
 buffer_write_ptr :: proc(b: ^Buffer, ptr: rawptr, size: int, loc := #caller_location) -> (n: int, err: io.Error) {
@@ -211,7 +211,7 @@ buffer_write_rune :: proc(b: ^Buffer, r: rune, loc := #caller_location) -> (n: i
     }
     res: [4]byte
     res, n = utf8.encode_rune(r)
-    slice_copy(b.buf[m:][:utf8.UTF_MAX], res[:n])
+    slice.copy(b.buf[m:][:utf8.UTF_MAX], res[:n])
     _ = dyn_array_resize(&b.buf, m+n)
     return
 }
@@ -240,7 +240,7 @@ buffer_read :: proc(b: ^Buffer, p: []byte) -> (n: int, err: io.Error) {
         }
         return 0, .EOF
     }
-    n = slice_copy(p, b.buf[b.off:])
+    n = slice.copy(p, b.buf[b.off:])
     b.off += n
     if n > 0 {
         b.last_read = .Read
@@ -262,7 +262,7 @@ buffer_read_at :: proc(b: ^Buffer, p: []byte, offset: int) -> (n: int, err: io.E
         err = .EOF
         return
     }
-    n = slice_copy(p, b.buf[offset:])
+    n = slice.copy(p, b.buf[offset:])
     if n > 0 {
         b.last_read = .Read
     }

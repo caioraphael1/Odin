@@ -37,8 +37,8 @@ init :: proc(c: ^$C/Cache($Key, $Value), capacity: int, entries_allocator: mem.A
 
 // destroy deinitializes a Cachem
 destroy :: proc(c: ^$C/Cache($Key, $Value), call_on_remove: bool) {
-	dyn_array_clear(c, call_on_remove)
-	_ = slice_delete(c.entries)
+	dyn_array.clear(c, call_on_remove)
+	_ = slice.delete(c.entries)
 }
 
 // clear the contents of a Cache
@@ -49,7 +49,7 @@ clear :: proc(c: ^$C/Cache($Key, $Value), call_on_remove: bool) {
 		}
 		_ = free(node, c.node_allocator)
 	}
-	runtime.dyn_array_clear(&c.entries)
+	runtime.dyn_array.clear(&c.entries)
 	c.head = nil
 	c.tail = nil
 	c.count = 0

@@ -91,7 +91,7 @@ pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 
 pool_destroy :: proc(pool: ^Pool) {
     queue.destroy(&pool.tasks)
-    _ = dyn_array_delete(pool.tasks_done)
+    _ = dyn_array.delete(pool.tasks_done)
 
     for &t in pool.threads {
         data := cast(^Pool_Thread_Data)t.data
@@ -99,7 +99,7 @@ pool_destroy :: proc(pool: ^Pool) {
         destroy(t)
     }
 
-    _ = slice_delete(pool.threads, pool.allocator)
+    _ = slice.delete(pool.threads, pool.allocator)
 }
 
 pool_start :: proc(pool: ^Pool) {
@@ -184,7 +184,7 @@ pool_stop_task :: proc(pool: ^Pool, user_index: int, exit_code: int = 1, allocat
         if data.task.user_index == user_index && data.task.procedure != nil {
             terminate(t, exit_code)
 
-            _ = dyn_array_append(&pool.tasks_done, data.task)
+            _ = dyn_array.append(&pool.tasks_done, data.task)
             intrinsics.atomic_add(&pool.num_done, 1)
             intrinsics.atomic_sub(&pool.num_outstanding, 1)
             intrinsics.atomic_sub(&pool.num_in_processing, 1)
@@ -218,7 +218,7 @@ pool_stop_all_tasks :: proc(pool: ^Pool, exit_code: int = 1, allocator: mem.Allo
         if data.task.procedure != nil {
             terminate(t, exit_code)
 
-            _ = dyn_array_append(&pool.tasks_done, data.task)
+            _ = dyn_array.append(&pool.tasks_done, data.task)
             intrinsics.atomic_add(&pool.num_done, 1)
             intrinsics.atomic_sub(&pool.num_outstanding, 1)
             intrinsics.atomic_sub(&pool.num_in_processing, 1)
@@ -251,7 +251,7 @@ pool_shutdown :: proc(pool: ^Pool, exit_code: int = 1) {
 
         data := cast(^Pool_Thread_Data)t.data
         if data.task.procedure != nil {
-            _ = dyn_array_append(&pool.tasks_done, data.task)
+            _ = dyn_array.append(&pool.tasks_done, data.task)
             intrinsics.atomic_add(&pool.num_done, 1)
             intrinsics.atomic_sub(&pool.num_outstanding, 1)
             intrinsics.atomic_sub(&pool.num_in_processing, 1)
@@ -329,7 +329,7 @@ pool_do_work :: proc(pool: ^Pool, task: Task) {
 
     sync.mutex_guard(&pool.mutex)
 
-    _ = dyn_array_append(&pool.tasks_done, task)
+    _ = dyn_array.append(&pool.tasks_done, task)
     intrinsics.atomic_add(&pool.num_done, 1)
     intrinsics.atomic_sub(&pool.num_outstanding, 1)
     intrinsics.atomic_sub(&pool.num_in_processing, 1)

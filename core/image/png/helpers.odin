@@ -36,9 +36,9 @@ destroy :: proc(img: ^Image) {
 
 	if v, ok := img.metadata.(^image.PNG_Info); ok {
 		for chunk in v.chunks {
-			_ = slice_delete(chunk.data)
+			_ = slice.delete(chunk.data)
 		}
-		_ = slice_delete(v.chunks)
+		_ = slice.delete(v.chunks)
 		_ = free(v)
 	}
 	_ = free(img)
@@ -188,10 +188,10 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 }
 
 text_destroy :: proc(text: Text) {
-	_ = slice_delete(text.keyword)
-	_ = slice_delete(text.keyword_localized)
-	_ = slice_delete(text.language)
-	_ = slice_delete(text.text)
+	_ = slice.delete(text.keyword)
+	_ = slice.delete(text.keyword_localized)
+	_ = slice.delete(text.language)
+	_ = slice.delete(text.text)
 }
 
 iccp :: proc(c: image.PNG_Chunk) -> (res: iCCP, ok: bool) {
@@ -224,9 +224,9 @@ iccp :: proc(c: image.PNG_Chunk) -> (res: iCCP, ok: bool) {
 }
 
 iccp_destroy :: proc(i: iCCP) {
-	_ = slice_delete(i.name)
+	_ = slice.delete(i.name)
 
-	_ = slice_delete(i.profile)
+	_ = slice.delete(i.profile)
 
 }
 
@@ -303,7 +303,7 @@ splt :: proc(c: image.PNG_Chunk) -> (res: sPLT, ok: bool) {
 }
 
 splt_destroy :: proc(s: sPLT) {
-	_ = slice_delete(s.name)
+	_ = slice.delete(s.name)
 }
 
 sbit :: proc(c: image.PNG_Chunk) -> (res: [4]u8, ok: bool) {

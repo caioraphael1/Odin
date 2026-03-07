@@ -1,8 +1,9 @@
 #+build js
 #+private
-foreign import "odin_env"
 
 _HAS_RAND_BYTES :: true
+
+foreign import "odin_env"
 
 _rand_bytes :: proc(dst: []byte) {
     foreign odin_env {

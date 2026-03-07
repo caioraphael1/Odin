@@ -63,7 +63,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	}
 	header_bytes := transmute([size_of(image.QOI_Header)]u8)header
 
-	slice_copy(output.buf[written:], header_bytes[:])
+	slice.copy(output.buf[written:], header_bytes[:])
 	written += size_of(image.QOI_Header)
 
 	/*
@@ -136,13 +136,13 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 					} else {
 						// Write RGB literal
 						output.buf[written] = u8(QOI_Opcode_Tag.RGB)
-						slice_copy(output.buf[written + 1:], pix[:3])
+						slice.copy(output.buf[written + 1:], pix[:3])
 						written += 4
 					}
 				} else {
 					// Write RGBA literal
 					output.buf[written] = u8(QOI_Opcode_Tag.RGBA)
-					slice_copy(output.buf[written + 1:], pix[:])
+					slice.copy(output.buf[written + 1:], pix[:])
 					written += 5
 				}
 			}
@@ -151,7 +151,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	}
 
 	trailer := []u8{0, 0, 0, 0, 0, 0, 0, 1}
-	slice_copy(output.buf[written:], trailer[:])
+	slice.copy(output.buf[written:], trailer[:])
 	written += len(trailer)
 
 	_ = dyn_array_resize(&output.buf, written)
@@ -292,7 +292,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 						return img, .Corrupt
 					} else {
 						#no_bounds_check for _ in 0..<length {
-							slice_copy(pixels, pix[:img.channels])
+							slice.copy(pixels, pix[:img.channels])
 							pixels = pixels[img.channels:]
 						}
 					}
@@ -305,7 +305,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 		}
 
 		#no_bounds_check {
-			slice_copy(pixels, pix[:img.channels])
+			slice.copy(pixels, pix[:img.channels])
 			pixels = pixels[img.channels:]
 		}
 	}

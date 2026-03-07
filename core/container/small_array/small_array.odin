@@ -297,7 +297,7 @@ resize :: proc(a: ^$A/Small_Array($N, $T), length: int) {
     prev_len := a.len
     a.len = min(length, builtin.len(a.data))
     if prev_len < a.len {
-        intrinsics.mem_zero(&a.data[prev_len], size_of(T)*(a.len-prev_len))
+        mem.zero(&a.data[prev_len], size_of(T)*(a.len-prev_len))
     }
 }
 
@@ -346,7 +346,7 @@ Attempts to add the given element to the end.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to dyn_array_append
+- `item`: The item to dyn_array.append
 
 **Returns** 
 - true if there was enough space to fit the element, false otherwise
@@ -388,7 +388,7 @@ through get_ptr(_save) to reference incorrect elements.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to dyn_array_append
+- `item`: The item to dyn_array.append
 
 **Returns** 
 - true if there was enough space to fit the element, false otherwise
@@ -416,7 +416,7 @@ push_front :: proc(a: ^$A/Small_Array($N, $T), item: T) -> bool {
     if a.len < cap(a^) {
         a.len += 1
         data := slice(a)
-        slice_copy(data[1:], data[:])
+        slice.copy(data[1:], data[:])
         data[0] = item
         return true
     }
@@ -495,7 +495,7 @@ dyn_array_pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location)
     assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
-    slice_copy(s[:], s[1:])
+    slice.copy(s[:], s[1:])
     a.len -= 1
     return item
 }
@@ -568,7 +568,7 @@ dyn_array_pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bo
     if N > 0 && a.len > 0 {
         item = a.data[0]
         s := slice(a)
-        slice_copy(s[:], s[1:])
+        slice.copy(s[:], s[1:])
         a.len -= 1
         ok = true
     }
@@ -630,7 +630,7 @@ Example:
         small_array.push(&a, 0, 1, 2, 3)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.dyn_array_ordered_remove(&a, 1)
+        small_array.dyn_array.ordered_remove(&a, 1)
         fmt.println("AFTER :", small_array.slice(&a))
     }
 
@@ -639,10 +639,10 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : [0, 2, 3]
 */
-dyn_array_ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
+dyn_array.ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
     runtime.bounds_check_error_loc(loc, index, a.len)
     if index+1 < a.len {
-        slice_copy(a.data[index:], a.data[index+1:])
+        slice.copy(a.data[index:], a.data[index+1:])
     }
     a.len -= 1
 }
@@ -698,7 +698,7 @@ Example:
         small_array.push(&a, 0, 1, 2, 3)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.dyn_array_clear(&a)
+        small_array.dyn_array.clear(&a)
         fmt.println("AFTER :", small_array.slice(&a))
     }
 
@@ -713,12 +713,12 @@ clear :: proc(a: ^$A/Small_Array($N, $T)) {
 }
 
 /*
-Attempts to dyn_array_append all elements to the small-array returning
+Attempts to dyn_array.append all elements to the small-array returning
 false if there is not enough space to fit all of them.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to dyn_array_append
+- `item`: The item to dyn_array.append
 - ..:
 
 **Returns**
@@ -741,7 +741,7 @@ Output:
 */
 push_back_many :: proc(a: ^$A/Small_Array($N, $T), items: ..T) -> bool {
     if a.len + builtin.len(items) <= cap(a^) {
-        n := slice_copy(a.data[a.len:], items[:])
+        n := slice.copy(a.data[a.len:], items[:])
         a.len += n
         return true
     }
@@ -790,15 +790,15 @@ dyn_array_inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> 
     return false
 }
 
-dyn_array_append      :: push_back
+dyn_array.append      :: push_back
 dyn_array_append_many :: push_back_many
 
 /*
-Tries to dyn_array_append the element(s) to the small-array.
+Tries to dyn_array.append the element(s) to the small-array.
 
 **Inputs**
 - `a`: A pointer to the small-array
-- `item`: The item to dyn_array_append
+- `item`: The item to dyn_array.append
 - ..:
 
 **Returns**

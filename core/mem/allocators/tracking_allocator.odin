@@ -80,7 +80,7 @@ Destroy the tracking allocator.
 @(no_sanitize_address)
 tracking_allocator_destroy :: proc(t: ^Tracking_Allocator) {
     _ = map_delete(t.allocation_map)
-    _ = dyn_array_delete(t.bad_free_array)
+    _ = dyn_array.delete(t.bad_free_array)
 }
 
 /*
@@ -95,7 +95,7 @@ the totals intact.
 tracking_allocator_clear :: proc(t: ^Tracking_Allocator) {
     sync.mutex_lock(&t.mutex)
     map_clear(&t.allocation_map)
-    dyn_array_clear(&t.bad_free_array)
+    dyn_array.clear(&t.bad_free_array)
     t.current_memory_allocated = 0
     sync.mutex_unlock(&t.mutex)
 }
@@ -109,7 +109,7 @@ Reset all of a Tracking mem.Allocator's allocation data back to zero.
 tracking_allocator_reset :: proc(t: ^Tracking_Allocator) {
     sync.mutex_lock(&t.mutex)
     map_clear(&t.allocation_map)
-    dyn_array_clear(&t.bad_free_array)
+    dyn_array.clear(&t.bad_free_array)
     t.total_memory_allocated = 0
     t.total_allocation_count = 0
     t.total_memory_freed = 0
@@ -142,7 +142,7 @@ then you must make sure to check Tracking_Allocator.bad_free_array at some point
 */
 @(no_sanitize_address)
 tracking_allocator_bad_free_callback_add_to_array :: proc(t: ^Tracking_Allocator, memory: rawptr, location: runtime.Source_Code_Location) {
-    _ = dyn_array_append(&t.bad_free_array, Tracking_Allocator_Bad_Free_Entry {
+    _ = dyn_array.append(&t.bad_free_array, Tracking_Allocator_Bad_Free_Entry {
         memory = memory,
         location = location,
     })

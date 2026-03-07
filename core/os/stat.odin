@@ -36,7 +36,7 @@ file_info_slice_delete :: proc(infos: []File_Info, allocator: mem.Allocator) {
     #reverse for info in infos {
         file_info_delete(info, allocator)
     }
-    _ = slice_delete(infos, allocator)
+    _ = slice.delete(infos, allocator)
 }
 
 file_info_delete :: proc(fi: File_Info, allocator: mem.Allocator) {

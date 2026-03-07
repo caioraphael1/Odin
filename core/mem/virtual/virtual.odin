@@ -82,8 +82,8 @@ memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags
     committed := committed
     reserved  := reserved
 
-    committed = align_formula(committed, page_size)
-    reserved  = align_formula(reserved, page_size)
+    committed = mem.align_formula(committed, page_size)
+    reserved  = mem.align_formula(reserved, page_size)
     committed = clamp(committed, 0, reserved)
     
     total_size     := reserved + alignment + size_of(Platform_Memory_Block)
@@ -141,7 +141,7 @@ alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint,
             // TODO(bill): determine a better heuristic for this behaviour
             extra_size := max(size, block.committed>>1)
             platform_total_commit := base_offset + block.used + extra_size
-            platform_total_commit = align_formula(platform_total_commit, DEFAULT_PAGE_SIZE)
+            platform_total_commit = mem.align_formula(platform_total_commit, DEFAULT_PAGE_SIZE)
             platform_total_commit = min(max(platform_total_commit, default_commit_size), pmblock.reserved)
 
             assert(pmblock.committed <= pmblock.reserved)

@@ -116,7 +116,7 @@ _init :: proc(l: ^Event_Loop, allocator: mem.Allocator) -> (rerr: General_Error)
 
     l.kqueue = kqueue
 
-    sa.dyn_array_append(&l.pending, kq.KEvent{
+    sa.dyn_array.append(&l.pending, kq.KEvent{
         ident  = IDENT_WAKE_UP,
         filter = .User,
         flags  = {.Add, .Enable, .Clear},
@@ -179,7 +179,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 
         sa.clear(&l.pending)
         for overflow in queue.dyn_array_pop_front_safe(&l.overflow) {
-            sa.dyn_array_append(&l.pending, overflow) or_break
+            sa.dyn_array.append(&l.pending, overflow) or_break
         }
 
         l.now = time.now()
@@ -1180,9 +1180,9 @@ add_pending :: proc(op: ^Operation, filter: kq.Filter, ident: uintptr) {
 }
 
 append_pending :: #force_inline proc(l: ^Event_Loop, ev: kq.KEvent) {
-    if !sa.dyn_array_append(&l.pending, ev) {
+    if !sa.dyn_array.append(&l.pending, ev) {
         warn("queue is full, adding to overflow, should QUEUE_SIZE be increased?")
-        _, err := queue.dyn_array_append(&l.overflow, ev)
+        _, err := queue.dyn_array.append(&l.overflow, ev)
         ensure(err == nil, "allocation failure")
     }
 }
@@ -1317,7 +1317,7 @@ timeout_and_delete :: proc(target: ^Operation) {
                 flags  = {.Add, .Enable, .One_Shot},
                 udata  = target._impl.next,
             }
-            if !sa.dyn_array_append(&target.l.pending, ev) {
+            if !sa.dyn_array.append(&target.l.pending, ev) {
                 warn("just removed the head operation of a list of multiple, and the queue is full, have to force this update through inefficiently")
                 // This has to happen the next time we submit or we could have udata pointing wrong.
                 // Very inefficient but probably never hit.

@@ -471,7 +471,7 @@ foreign {
 	str8_to_cstring :: proc(arena: ^arena, string: str8) -> cstring ---
 	// Push a string element to the back of a string list. This creates a `oc_str8_elt` element referring to the contents of the input string, and links that element at the end of the string list.
 	str8_list_push :: proc(arena: ^arena, list: ^str8_list, str: str8) ---
-	// Build a string from a null-terminated format string an variadic arguments, and dyn_array_append it to a string list.
+	// Build a string from a null-terminated format string an variadic arguments, and dyn_array.append it to a string list.
 	str8_list_pushf :: proc(arena: ^arena, list: ^str8_list, format: cstring, #c_vararg args: ..any) ---
 	// Build a string by combining the elements of a string list with a prefix, a suffix, and separators.
 	str8_list_collate :: proc(arena: ^arena, list: str8_list, prefix: str8, separator: str8, suffix: str8) -> str8 ---
@@ -1169,7 +1169,7 @@ file :: distinct u64
 // The type of file open flags describing file open options.
 // Flags for the `oc_file_open()` function.
 file_open_flag :: enum u16 {
-	// Open the file in 'dyn_array_append' mode. All writes dyn_array_append data at the end of the file.
+	// Open the file in 'dyn_array.append' mode. All writes dyn_array.append data at the end of the file.
 	APPEND = 0,
 	// Truncate the file to 0 bytes when opening.
 	TRUNCATE,

@@ -32,7 +32,7 @@ dynamic_destroy :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type)) {
 
 dynamic_add :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), item: T, loc := #caller_location) -> (handle: Handle_Type, err: mem.Allocator_Error) {
     if xar.len(m.unused_items) > 0 {
-        i := xar.dyn_array_pop(&m.unused_items)
+        i := xar.dyn_array.pop(&m.unused_items)
         ptr := xar.get_ptr_unsafe(&m.items, i)
         prev_gen := ptr.handle.gen
         ptr^ = item
@@ -44,10 +44,10 @@ dynamic_add :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), item: T, loc :=
 
     if xar.len(m.items) == 0 {
         // initialize the zero-value sentinel
-        xar.dyn_array_append(&m.items, T{}, loc) or_return
+        xar.dyn_array.append(&m.items, T{}, loc) or_return
     }
 
-    _ = xar.dyn_array_append(&m.items, item, loc) or_return
+    _ = xar.dyn_array.append(&m.items, item, loc) or_return
     i := xar.len(m.items)-1
 
     ptr := xar.get_ptr_unsafe(&m.items, i)
@@ -74,7 +74,7 @@ dynamic_remove :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), h: Handle_Ty
     }
 
     if item := xar.get_ptr(&m.items, h.idx); item.handle == h {
-        xar.dyn_array_append(&m.unused_items, u32(h.idx), loc) or_return
+        xar.dyn_array.append(&m.unused_items, u32(h.idx), loc) or_return
         item.handle.idx = 0
         return true, nil
     }

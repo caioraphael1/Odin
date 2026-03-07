@@ -306,7 +306,7 @@ destroy_dns_records :: proc(records: []DNS_Record, allocator: mem.Allocator) {
         }
     }
 
-    _ = slice_delete(records, allocator)
+    _ = slice.delete(records, allocator)
 }
 
 /*
@@ -382,7 +382,7 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
             addr,
             53,
         }
-        _ = dyn_array_append(&_name_servers, endpoint)
+        _ = dyn_array.append(&_name_servers, endpoint)
     }
 
     return _name_servers[:]
@@ -399,7 +399,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
         for host in _hosts {
             _ = string_delete(host.name, allocator)
         }
-        _ = dyn_array_delete(_hosts)
+        _ = dyn_array.delete(_hosts)
     }
 
     for bufio.scanner_scan(s) {
@@ -419,7 +419,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
             clone, alloc_err := strings.clone(hostname, allocator)
             if alloc_err != nil { return }
 
-            alloc_err = dyn_array_append(&_hosts, DNS_Host_Entry{clone, addr})
+            alloc_err = dyn_array.append(&_hosts, DNS_Host_Entry{clone, addr})
             if alloc_err != nil { return }
         }
     }
@@ -814,13 +814,13 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
     dns_hdr_chunks := mem.slice_data_cast([]u16be, response[:HEADER_SIZE_BYTES])
     hdr := unpack_dns_header(dns_hdr_chunks[0], dns_hdr_chunks[1])
     if !hdr.is_response {
-        _ = dyn_array_delete(_records)
+        _ = dyn_array.delete(_records)
         return
     }
 
     question_count := int(dns_hdr_chunks[2])
     if question_count != 1 {
-        _ = dyn_array_delete(_records)
+        _ = dyn_array.delete(_records)
         return
     }
     answer_count := int(dns_hdr_chunks[3])
@@ -847,7 +847,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
         rec := parse_record(response, &cur_idx, filter, allocator) or_return
         if rec != nil {
-            _ = dyn_array_append(&_records, rec)
+            _ = dyn_array.append(&_records, rec)
         }
     }
 
@@ -858,7 +858,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
         rec := parse_record(response, &cur_idx, filter, allocator) or_return
         if rec != nil {
-            _ = dyn_array_append(&_records, rec)
+            _ = dyn_array.append(&_records, rec)
         }
     }
 
@@ -869,7 +869,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
         rec := parse_record(response, &cur_idx, filter, allocator) or_return
         if rec != nil {
-            _ = dyn_array_append(&_records, rec)
+            _ = dyn_array.append(&_records, rec)
         }
     }
     xid = hdr.id

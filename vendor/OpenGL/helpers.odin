@@ -62,7 +62,7 @@ when GL_DEBUG {
 
         if result == 0 {
             if log_func == GetShaderInfoLog {
-                _ = slice_delete(last_compile_error_message)
+                _ = slice.delete(last_compile_error_message)
                 last_compile_error_message = slice_create([]byte, info_log_length)
                 last_compile_error_type = type
 
@@ -70,7 +70,7 @@ when GL_DEBUG {
                 //fmt.printf_err("Error in %v:\n%s", type, string(last_compile_error_message[0:len(last_compile_error_message)-1]));
             } else {
 
-                _ = slice_delete(last_link_error_message)
+                _ = slice.delete(last_link_error_message)
                 last_link_error_message = slice_create([]byte, info_log_length)
                 last_compile_error_type = type
 
@@ -96,14 +96,14 @@ when GL_DEBUG {
 
         if result == 0 {
             if log_func == GetShaderInfoLog {
-                _ = slice_delete(last_compile_error_message)
+                _ = slice.delete(last_compile_error_message)
                 last_compile_error_message = slice_create([]u8, info_log_length)
                 last_link_error_type = type
 
                 log_func(id, i32(info_log_length), nil, raw_data(last_compile_error_message))
                 fmt.eprintf("Error in %v:\n%s", type, string(last_compile_error_message[0:len(last_compile_error_message)-1]))
             } else {
-                _ = slice_delete(last_link_error_message)
+                _ = slice.delete(last_link_error_message)
                 last_link_error_message = slice_create([]u8, info_log_length)
                 last_link_error_type = type
 
@@ -153,7 +153,7 @@ load_compute_file :: proc(filename: string, binary_retrievable := false) -> (pro
     if cs_data_err != nil {
         return 0, false
     }
-    defer _ = slice_delete(cs_data)
+    defer _ = slice.delete(cs_data)
 
     // Create the shaders
     compute_shader_id := compile_shader_from_source(string(cs_data), Shader_Type(COMPUTE_SHADER)) or_return
@@ -171,13 +171,13 @@ load_shaders_file :: proc(vs_filename, fs_filename: string, binary_retrievable :
     if vs_data_err != nil {
         return 0, false
     }
-    defer _ = slice_delete(vs_data, allocator)
+    defer _ = slice.delete(vs_data, allocator)
     
     fs_data, fs_data_err := os.read_entire_file_from_path(fs_filename, allocator)
     if fs_data_err != nil {
         return 0, false
     }
-    defer _ = slice_delete(fs_data, allocator)
+    defer _ = slice.delete(fs_data, allocator)
 
     return load_shaders_source(string(vs_data), string(fs_data), binary_retrievable)
 }

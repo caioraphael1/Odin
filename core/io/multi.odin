@@ -16,7 +16,7 @@ _multi_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
         r := mr.readers[0]
         n, err = _i64_err(read(r, p))
         if err == .EOF {
-            dyn_array_ordered_remove(&mr.readers, 0)
+            dyn_array.ordered_remove(&mr.readers, 0)
         }
         if n > 0 || err != .EOF {
             if err == .EOF && len(mr.readers) > 0 {
@@ -38,7 +38,7 @@ multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: mem.A
             other := (^Multi_Reader)(w.data)
             _ = dyn_array_append_many(&all_readers, ..other.readers[:])
         } else {
-            _ = dyn_array_append(&all_readers, w)
+            _ = dyn_array.append(&all_readers, w)
         }
     }
 
@@ -50,7 +50,7 @@ multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: mem.A
 }
 
 multi_reader_destroy :: proc(mr: ^Multi_Reader) {
-    _ = dyn_array_delete(mr.readers)
+    _ = dyn_array.delete(mr.readers)
 }
 
 
@@ -88,7 +88,7 @@ multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: mem.A
             other := (^Multi_Writer)(w.data)
             _ = dyn_array_append_many(&mw.writers, ..other.writers[:])
         } else {
-            _ = dyn_array_append(&mw.writers, w)
+            _ = dyn_array.append(&mw.writers, w)
         }
     }
 
@@ -98,5 +98,5 @@ multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: mem.A
 }
 
 multi_writer_destroy :: proc(mw: ^Multi_Writer) {
-    _ = dyn_array_delete(mw.writers)
+    _ = dyn_array.delete(mw.writers)
 }

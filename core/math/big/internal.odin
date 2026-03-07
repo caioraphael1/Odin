@@ -970,7 +970,7 @@ internal_int_mod_bits :: proc(remainder, numerator: ^Int, bits: int, allocator: 
         Zero remainder. Special case, can't use `internal_zero_unused`.
     */
     if zero_count > 0 {
-        mem.zero_slice(remainder.digit[zero_count:])
+        mem.slice.zero(remainder.digit[zero_count:])
     }
 
     /*
@@ -1464,7 +1464,7 @@ internal_int_pow :: proc(dest, base: ^Int, power: int, allocator: mem.Allocator)
         /*
             Any base to the power one is itself.
         */
-        return slice_copy(dest, base, allocator = allocator)
+        return slice.copy(dest, base, allocator = allocator)
     case 2:
         return #force_inline internal_sqr(dest, base, allocator)
     }
@@ -1755,7 +1755,7 @@ internal_int_destroy :: proc(integers: []^Int, allocator: mem.Allocator) {
 
     for &a in integers {
         if internal_int_allocated_cap(a) > 0 {
-            mem.zero_slice(a.digit[:])
+            mem.slice.zero(a.digit[:])
             _ = free(&a.digit[0], allocator)
         }
         a = &Int{}
@@ -2109,7 +2109,7 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
 internal_int_clear :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     raw := transmute(mem.Raw_Dynamic_Array)a.digit
     if raw.cap != 0 {
-        mem.zero_slice(a.digit[:a.used])
+        mem.slice.zero(a.digit[:a.used])
     }
     a.sign = .Zero_or_Positive
     a.used = 0
@@ -2169,7 +2169,7 @@ internal_int_power_of_two :: proc(a: ^Int, power: int, allocator: mem.Allocator)
     /*
         Zero the entirety.
     */
-    mem.zero_slice(a.digit[:])
+    mem.slice.zero(a.digit[:])
 
     /*
         Set the bit.
@@ -2828,7 +2828,7 @@ internal_int_zero_unused :: #force_inline proc(dest: ^Int, old_used := -1) {
         Zero remainder.
     */
     if zero_count > 0 && dest.used < len(dest.digit) {
-        mem.zero_slice(dest.digit[dest.used:][:zero_count])
+        mem.slice.zero(dest.digit[dest.used:][:zero_count])
     }
 }
 

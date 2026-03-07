@@ -1,8 +1,6 @@
 // Utility procedures for working with slices, including sorting and searching them.
 @(require) import "base:intrinsics"
-@(require) import "base:builtin"
 @(require) import "base:mem"
-
 
 
 swap :: proc(array: $T/[]$E, a, b: int) {
@@ -64,8 +62,7 @@ Example:
     assert(index == 1 && found == true)
 */
 
-linear_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool)
-    where intrinsics.type_is_comparable(T) {
+linear_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool) where intrinsics.type_is_comparable(T) {
     for x, i in array {
         if x == key {
             return i, true
@@ -127,8 +124,7 @@ Example:
     assert(index == 1 && found == true)
 */
 
-linear_search_reverse :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool)
-    where intrinsics.type_is_comparable(T) {
+linear_search_reverse :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool) where intrinsics.type_is_comparable(T) {
     #reverse for x, i in array {
         if x == key {
             return i, true
@@ -195,8 +191,7 @@ Example:
     assert(index >= 1 && index <= 4 && found == true)
 */
 
-binary_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool)
-    where intrinsics.type_is_ordered(T) #no_bounds_check {
+binary_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool) where intrinsics.type_is_ordered(T) #no_bounds_check {
     return binary_search_by(array, key, cmp_proc(T))
 }
 

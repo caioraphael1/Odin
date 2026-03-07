@@ -36,13 +36,13 @@ SIMD_REG_SIZE_128 :: 16
 
 clone :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     c, _ := slice_create([]byte, len(s), allocator, loc)
-    slice_copy(c, s)
+    slice.copy(c, s)
     return c[:len(s)]
 }
 
 clone_safe :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: mem.Allocator_Error) {
     c := slice_create([]byte, len(s), allocator, loc) or_return
-    slice_copy(c, s)
+    slice.copy(c, s)
     return c[:len(s)], nil
 }
 
@@ -174,10 +174,10 @@ join :: proc(a: [][]byte, sep: []byte, allocator: mem.Allocator, loc := #caller_
     }
 
     b, _ := slice_create([]byte, n, allocator)
-    i := slice_copy(b, a[0])
+    i := slice.copy(b, a[0])
     for s in a[1:] {
-        i += slice_copy(b[i:], sep)
-        i += slice_copy(b[i:], s)
+        i += slice.copy(b[i:], sep)
+        i += slice.copy(b[i:], s)
     }
     return b
 }
@@ -193,10 +193,10 @@ join_safe :: proc(a: [][]byte, sep: []byte, allocator: mem.Allocator, loc := #ca
     }
 
     b := slice_create([]byte, n, allocator) or_return
-    i := slice_copy(b, a[0])
+    i := slice.copy(b, a[0])
     for s in a[1:] {
-        i += slice_copy(b[i:], sep)
-        i += slice_copy(b[i:], s)
+        i += slice.copy(b[i:], sep)
+        i += slice.copy(b[i:], s)
     }
     return b, nil
 }
@@ -213,7 +213,7 @@ concatenate :: proc(a: [][]byte, allocator: mem.Allocator, loc := #caller_locati
     b, _ := slice_create([]byte, n, allocator)
     i := 0
     for s in a {
-        i += slice_copy(b[i:], s)
+        i += slice.copy(b[i:], s)
     }
     return b
 }
@@ -230,7 +230,7 @@ concatenate_safe :: proc(a: [][]byte, allocator: mem.Allocator, loc := #caller_l
     b := slice_create([]byte, n, allocator) or_return
     i := 0
     for s in a {
-        i += slice_copy(b[i:], s)
+        i += slice.copy(b[i:], s)
     }
     return b, nil
 }
@@ -782,9 +782,9 @@ repeat :: proc(s: []byte, count: int, allocator: mem.Allocator, loc := #caller_l
     }
 
     b, _ := slice_create([]byte, len(s)*count, allocator)
-    i := slice_copy(b, s)
+    i := slice.copy(b, s)
     for i < len(b) { // 2^N trick to reduce the need to copy
-        slice_copy(b[i:], b[:i])
+        slice.copy(b[i:], b[:i])
         i *= 2
     }
     return b
@@ -826,11 +826,11 @@ replace :: proc(s, old, new: []byte, n: int, allocator: mem.Allocator, loc := #c
         } else {
             j += index(s[start:], old)
         }
-        w += slice_copy(t[w:], s[start:j])
-        w += slice_copy(t[w:], new)
+        w += slice.copy(t[w:], s[start:j])
+        w += slice.copy(t[w:], new)
         start = j + len(old)
     }
-    w += slice_copy(t[w:], s[start:])
+    w += slice.copy(t[w:], s[start:])
     output = t[0:w]
     return
 }
@@ -1231,7 +1231,7 @@ reverse :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) ->
     for len(str) > 0 {
         _, w := utf8.decode_rune_in_bytes(str)
         i -= w
-        slice_copy(buf[i:], str[:w])
+        slice.copy(buf[i:], str[:w])
         str = str[w:]
     }
     return buf
@@ -1441,7 +1441,7 @@ fields_proc :: proc(s: []byte, f: proc(rune) -> bool, allocator: mem.Allocator, 
         end = offset
         if f(r) {
             if start >= 0 {
-                _ = dyn_array_append(&subslices, s[start : end], loc)
+                _ = dyn_array.append(&subslices, s[start : end], loc)
                 // -1 could be used, but just speed it up through bitwise not
                 // gotta love 2's complement
                 start = ~start
@@ -1454,7 +1454,7 @@ fields_proc :: proc(s: []byte, f: proc(rune) -> bool, allocator: mem.Allocator, 
     }
 
     if start >= 0 {
-        _ = dyn_array_append(&subslices, s[start : len(s)], loc)
+        _ = dyn_array.append(&subslices, s[start : len(s)], loc)
     }
 
     return subslices[:]

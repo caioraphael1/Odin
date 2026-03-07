@@ -136,7 +136,7 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
     ctx.states = slice_create([]State, MAX_STATES)
 
     // NOTE NECESSARY
-    _ = dyn_array_append(&ctx.nodes, AtlasNode{
+    _ = dyn_array.append(&ctx.nodes, AtlasNode{
         width = i16(w),
     })
 
@@ -149,17 +149,17 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
 Destroy :: proc(ctx: ^FontContext) {
     for font in ctx.fonts {
         if font.freeLoadedData {
-            _ = slice_delete(font.loadedData)
+            _ = slice.delete(font.loadedData)
         }
 
-        _ = slice_delete(font.name)
-        _ = slice_delete(font.glyphs)
+        _ = slice.delete(font.name)
+        _ = slice.delete(font.glyphs)
     }
 
-    _ = slice_delete(ctx.states)
-    _ = slice_delete(ctx.textureData)
-    _ = slice_delete(ctx.fonts)
-    _ = slice_delete(ctx.nodes)
+    _ = slice.delete(ctx.states)
+    _ = slice.delete(ctx.textureData)
+    _ = slice.delete(ctx.fonts)
+    _ = slice.delete(ctx.nodes)
 }
 
 Reset :: proc(ctx: ^FontContext) {
@@ -189,7 +189,7 @@ __atlasRemoveNode :: proc(ctx: ^FontContext, idx: int) {
         return
     }
 
-    dyn_array_ordered_remove(&ctx.nodes, idx)
+    dyn_array.ordered_remove(&ctx.nodes, idx)
 }
 
 __atlasExpand :: proc(ctx: ^FontContext, w, h: int) {
@@ -202,10 +202,10 @@ __atlasExpand :: proc(ctx: ^FontContext, w, h: int) {
 
 __atlasReset :: proc(ctx: ^FontContext, w, h: int) {
     ctx.width, ctx.height = w, h
-    dyn_array_clear(&ctx.nodes)
+    dyn_array.clear(&ctx.nodes)
 
     // init root node
-    _ = dyn_array_append(&ctx.nodes, AtlasNode{
+    _ = dyn_array.append(&ctx.nodes, AtlasNode{
         width = i16(w),
     })
 }
@@ -332,7 +332,7 @@ AddFontMem :: proc(
     freeLoadedData: bool,
     fontIndex:      int = 0,
 ) -> int {
-    _ = dyn_array_append(&ctx.fonts, Font{})
+    _ = dyn_array.append(&ctx.fonts, Font{})
     res := &ctx.fonts[len(ctx.fonts) - 1]
     res.loadedData     = data
     res.freeLoadedData = freeLoadedData
@@ -372,7 +372,7 @@ AddFallbackFont :: proc(ctx: ^FontContext, base, fallback: int) -> bool {
 ResetFallbackFont :: proc(ctx: ^FontContext, base: int) {
     base_font := __getFont(ctx, base)
     base_font.nfallbacks = 0
-    dyn_array_clear(&base_font.glyphs)
+    dyn_array.clear(&base_font.glyphs)
     __lutReset(base_font)
 }
 
@@ -489,7 +489,7 @@ __getGlyph :: proc(
     }
     
     // Init glyph.
-    _ = dyn_array_append(&font.glyphs, Glyph{
+    _ = dyn_array.append(&font.glyphs, Glyph{
         codepoint = codepoint,
         isize     = isize,
         blurSize  = blurSize,
@@ -636,7 +636,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloc
     for i in 0..<ctx.height {
         dst := &data[i * w]
         src := &ctx.textureData[i * ctx.width]
-        mem.slice_copy(dst, src, ctx.width)
+        mem.slice.copy(dst, src, ctx.width)
 
         if w > ctx.width {
             runtime.memset(&data[i * w + ctx.width], 0, w - ctx.width)
@@ -647,7 +647,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloc
         runtime.memset(&data[ctx.height * w], 0, (h - ctx.height) * w)
     }
 
-    _ = slice_delete(ctx.textureData)
+    _ = slice.delete(ctx.textureData)
     ctx.textureData = data
 
     // increase atlas size
@@ -677,7 +677,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloca
         slice.zero(ctx.textureData)
     } else {
         // realloc
-        _ = slice_delete(ctx.textureData, allocator)
+        _ = slice.delete(ctx.textureData, allocator)
         ctx.textureData = slice_create([]byte, width * height, allocator)
     }
 
@@ -688,7 +688,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloca
 
     // reset fonts
     for &font in ctx.fonts {
-        dyn_array_clear(&font.glyphs)
+        dyn_array.clear(&font.glyphs)
         __lutReset(&font)
     }
 
@@ -883,7 +883,7 @@ PushState :: proc(using ctx: ^FontContext, loc := #caller_location) #no_bounds_c
     state_count += 1
 }
 
-// dyn_array_pop a state 
+// dyn_array.pop a state 
 PopState :: proc(using ctx: ^FontContext) {
     if state_count <= 1 {
         log.error("FONTSTASH: state underflow! to many pops were called")

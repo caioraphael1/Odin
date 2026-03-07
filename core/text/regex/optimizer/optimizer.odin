@@ -66,7 +66,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 next_node := specific.nodes[i+1].(^Node_Anchor) or_break wrza
                 if next_node.start == false {
                     specific.nodes[i], _ = new(Node_Match_All_And_Escape, allocator)
-                    dyn_array_ordered_remove(&specific.nodes, i + 1)
+                    dyn_array.ordered_remove(&specific.nodes, i + 1)
                     changes += 1
                     break
                 }
@@ -89,7 +89,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
             subnode, subnode_changes := optimize_subtree(specific.nodes[i], flags, allocator)
             changes += subnode_changes
             if subnode == nil {
-                dyn_array_ordered_remove(&specific.nodes, i)
+                dyn_array.ordered_remove(&specific.nodes, i)
                 i -= 1
                 changes += 1
             } else {
@@ -166,9 +166,9 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         }
 
         if len(runes_seen) != len(specific.runes) {
-            dyn_array_clear(&specific.runes)
+            dyn_array.clear(&specific.runes)
             for key in runes_seen {
-                _ = dyn_array_append(&specific.runes, key)
+                _ = dyn_array.append(&specific.runes, key)
             }
             changes += 1
         }
@@ -203,23 +203,23 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 
                 if r == new_range.lower - 1 {
                     new_range.lower -= 1
-                    dyn_array_ordered_remove(&specific.runes, i)
+                    dyn_array.ordered_remove(&specific.runes, i)
                     i -= 1
                     changes += 1
                 } else if r == new_range.upper + 1 {
                     new_range.upper += 1
-                    dyn_array_ordered_remove(&specific.runes, i)
+                    dyn_array.ordered_remove(&specific.runes, i)
                     i -= 1
                     changes += 1
                 } else if new_range.lower != new_range.upper {
-                    _ = dyn_array_append(&specific.ranges, new_range)
+                    _ = dyn_array.append(&specific.ranges, new_range)
                     new_range = { -1, -1 }
                     changes += 1
                 }
             }
 
             if new_range.lower != new_range.upper {
-                _ = dyn_array_append(&specific.ranges, new_range)
+                _ = dyn_array.append(&specific.ranges, new_range)
                 changes += 1
             }
         }
@@ -231,7 +231,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
             #no_bounds_check for i := 0; i < len(specific.runes); i += 1 {
                 r := specific.runes[i]
                 if range.lower <= r && r <= range.upper {
-                    dyn_array_ordered_remove(&specific.runes, i)
+                    dyn_array.ordered_remove(&specific.runes, i)
                     i -= 1
                     changes += 1
                 }
@@ -253,7 +253,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                    left_range.upper == right_range.lower - 1 ||
                    left_range.lower <= right_range.lower && right_range.lower <= left_range.upper {
                     left_range.upper = max(left_range.upper, right_range.upper)
-                    dyn_array_ordered_remove(&specific.ranges, j)
+                    dyn_array.ordered_remove(&specific.ranges, j)
                     j -= 1
                     changes += 1
                 } else {
@@ -325,8 +325,8 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 //
                 // DO: `a|b` => `[ab]`
                 node, _ := new(Node_Rune_Class, allocator)
-                _ = dyn_array_append(&node.runes, left_rune.data)
-                _ = dyn_array_append(&node.runes, right_rune.data)
+                _ = dyn_array.append(&node.runes, left_rune.data)
+                _ = dyn_array.append(&node.runes, right_rune.data)
                 return node, 1
             }
         }
@@ -341,10 +341,10 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         right_class, right_is_class := specific.right.(^Node_Rune_Class)
         if left_is_class && right_is_class {
             for r in right_class.runes {
-                _ = dyn_array_append(&left_class.runes, r)
+                _ = dyn_array.append(&left_class.runes, r)
             }
             for range in right_class.ranges {
-                _ = dyn_array_append(&left_class.ranges, range)
+                _ = dyn_array.append(&left_class.ranges, range)
             }
             return left_class, 1
         }
@@ -353,7 +353,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         //
         // DO: `[a-b]|c` => `[a-bc]`
         if left_is_class && right_is_rune {
-            _ = dyn_array_append(&left_class.runes, right_rune.data)
+            _ = dyn_array.append(&left_class.runes, right_rune.data)
             return left_class, 1
         }
 
@@ -361,7 +361,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         //
         // DO: `a|[b-c]` => `[b-ca]`
         if left_is_rune && right_is_class {
-            _ = dyn_array_append(&right_class.runes, left_rune.data)
+            _ = dyn_array.append(&right_class.runes, left_rune.data)
             return right_class, 1
         }
 
@@ -426,17 +426,17 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 // Dissolve this alternation into a concatenation.
                 cat_node, _ := new(Node_Concatenation, allocator)
                 group_node, _ := new(Node_Group, allocator)
-                _ = dyn_array_append(&cat_node.nodes, group_node)
+                _ = dyn_array.append(&cat_node.nodes, group_node)
 
                 // Turn the concatenation into the common suffix.
                 for i := left_len - same_len; i < left_len; i += 1 {
-                    _ = dyn_array_append(&cat_node.nodes, left_concatenation.nodes[i])
+                    _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes[i])
                 }
 
                 // Construct the group of alternating prefixes.
                 for i := same_len; i > 0; i -= 1 {
-                    dyn_array_pop(&left_concatenation.nodes)
-                    dyn_array_pop(&right_concatenation.nodes)
+                    dyn_array.pop(&left_concatenation.nodes)
+                    dyn_array.pop(&right_concatenation.nodes)
                 }
 
                 // (Re-using this alternation node.)
@@ -477,11 +477,11 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
             if same_len > 0 {
                 cat_node, _ := new(Node_Concatenation, allocator)
                 for i := 0; i < same_len; i += 1 {
-                    _ = dyn_array_append(&cat_node.nodes, left_concatenation.nodes[i])
+                    _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes[i])
                 }
                 for i := same_len; i > 0; i -= 1 {
-                    dyn_array_ordered_remove(&left_concatenation.nodes, 0)
-                    dyn_array_ordered_remove(&right_concatenation.nodes, 0)
+                    dyn_array.ordered_remove(&left_concatenation.nodes, 0)
+                    dyn_array.ordered_remove(&right_concatenation.nodes, 0)
                 }
 
                 group_node, _ := new(Node_Group, allocator)
@@ -491,7 +491,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 alter_node.right = right_concatenation
                 group_node.inner = alter_node
 
-                _ = dyn_array_append(&cat_node.nodes, group_node)
+                _ = dyn_array.append(&cat_node.nodes, group_node)
                 return cat_node, 1
             }
         }

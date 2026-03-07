@@ -141,7 +141,7 @@ int_itoa_raw :: proc(a: ^Int, radix: i8, buffer: []u8, size := int(-1), zero_ter
 		written = len(buffer) - available
 		if written < size {
 			diff := size - written
-            mem.slice_copy(&buffer[0], &buffer[diff], written)
+            mem.slice.copy(&buffer[0], &buffer[diff], written)
 		}
 		return written, nil
 	}
@@ -174,7 +174,7 @@ int_itoa_raw :: proc(a: ^Int, radix: i8, buffer: []u8, size := int(-1), zero_ter
 		written = len(buffer) - available
 		if written < size {
 			diff := size - written
-            mem.slice_copy(&buffer[0], &buffer[diff], written)
+            mem.slice.copy(&buffer[0], &buffer[diff], written)
 		}
 		return written, nil
 	}
@@ -215,7 +215,7 @@ int_itoa_raw :: proc(a: ^Int, radix: i8, buffer: []u8, size := int(-1), zero_ter
 		written = len(buffer) - available
 		if written < size {
 			diff := size - written
-            mem.slice_copy(&buffer[0], &buffer[diff], written)
+            mem.slice.copy(&buffer[0], &buffer[diff], written)
 		}
 		return written, nil
 	}
@@ -634,7 +634,7 @@ _itoa_raw_full :: proc(a: ^Int, radix: i8, buffer: []u8, zero_terminate := false
 	written = len(buffer) - available
 	if written < len(buffer) {
 		diff := len(buffer) - written
-        mem.slice_copy(&buffer[0], &buffer[diff], written)
+        mem.slice.copy(&buffer[0], &buffer[diff], written)
 	}
 	return written, nil
 }
@@ -681,7 +681,7 @@ _itoa_raw_old :: proc(a: ^Int, radix: i8, buffer: []u8, zero_terminate := false,
 	written = len(buffer) - available
 	if written < len(buffer) {
 		diff := len(buffer) - written
-        mem.slice_copy(&buffer[0], &buffer[diff], written)
+        mem.slice.copy(&buffer[0], &buffer[diff], written)
 	}
 	return written, nil
 }

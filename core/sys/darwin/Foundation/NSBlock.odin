@@ -98,7 +98,7 @@ internal_block_literal_make :: proc (is_global: bool, user_data: rawptr, user_pr
 		// malloc blocks are created by calling 'copy' on a stack block
 		bl: Internal_Block_Literal
 		_init(&bl, false, user_data, user_proc, invoke)
-		return auto_cast slice_copy(cast(^Copying(Block))(&bl)), .None
+		return auto_cast slice.copy(cast(^Copying(Block))(&bl)), .None
 	}
 }
 

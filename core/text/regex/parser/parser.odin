@@ -207,8 +207,8 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             upper := unicode.to_upper(r)
             if lower != upper {
                 node, _ := new(Node_Rune_Class, allocator)
-                _ = dyn_array_append(&node.runes, lower)
-                _ = dyn_array_append(&node.runes, upper)
+                _ = dyn_array.append(&node.runes, lower)
+                _ = dyn_array.append(&node.runes, upper)
                 return node, nil
             }
         }
@@ -245,41 +245,41 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
                 // @MetaCharacter
                 // NOTE: These must be kept in sync with the tokenizer.
                 switch next_r {
-                case 'f': _ = dyn_array_append(&node.runes, '\f')
-                case 'n': _ = dyn_array_append(&node.runes, '\n')
-                case 'r': _ = dyn_array_append(&node.runes, '\r')
-                case 't': _ = dyn_array_append(&node.runes, '\t')
+                case 'f': _ = dyn_array.append(&node.runes, '\f')
+                case 'n': _ = dyn_array.append(&node.runes, '\n')
+                case 'r': _ = dyn_array.append(&node.runes, '\r')
+                case 't': _ = dyn_array.append(&node.runes, '\t')
 
                 case 'd':
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{ '0', '9' })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{ '0', '9' })
                 case 's':
-                    _ = dyn_array_append(&node.runes, '\t')
-                    _ = dyn_array_append(&node.runes, '\n')
-                    _ = dyn_array_append(&node.runes, '\f')
-                    _ = dyn_array_append(&node.runes, '\r')
-                    _ = dyn_array_append(&node.runes, ' ')
+                    _ = dyn_array.append(&node.runes, '\t')
+                    _ = dyn_array.append(&node.runes, '\n')
+                    _ = dyn_array.append(&node.runes, '\f')
+                    _ = dyn_array.append(&node.runes, '\r')
+                    _ = dyn_array.append(&node.runes, ' ')
                 case 'w':
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{ '0', '9' })
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{ 'A', 'Z' })
-                    _ = dyn_array_append(&node.runes, '_')
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{ 'a', 'z' })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{ '0', '9' })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{ 'A', 'Z' })
+                    _ = dyn_array.append(&node.runes, '_')
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{ 'a', 'z' })
                 case 'D':
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{  '9' + 1, max(rune) })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{  '9' + 1, max(rune) })
                 case 'S':
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{        0, '\t' - 1  })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{        0, '\t' - 1  })
                     // \t and \n are adjacent.
-                    _ = dyn_array_append(&node.runes, '\x0b') // Vertical Tab
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{ '\r' + 1,  ' ' - 1  })
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{  ' ' + 1, max(rune) })
+                    _ = dyn_array.append(&node.runes, '\x0b') // Vertical Tab
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{ '\r' + 1,  ' ' - 1  })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{  ' ' + 1, max(rune) })
                 case 'W':
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{  '9' + 1,  'A' - 1  })
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{  'Z' + 1,  '_' - 1  })
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{  '_' + 1,  'a' - 1  })
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{  'z' + 1, max(rune) })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{        0,  '0' - 1  })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{  '9' + 1,  'A' - 1  })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{  'Z' + 1,  '_' - 1  })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{  '_' + 1,  'a' - 1  })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{  'z' + 1, max(rune) })
                 case:
-                    _ = dyn_array_append(&node.runes, next_r)
+                    _ = dyn_array.append(&node.runes, next_r)
                 }
                 continue
             }
@@ -287,20 +287,20 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             if r == '-' && len(node.runes) > 0 {
                 next_r, next_size := utf8.decode_rune_in_string(token.text[i:])
                 if next_size > 0 {
-                    last := dyn_array_pop(&node.runes)
+                    last := dyn_array.pop(&node.runes)
                     i += next_size
 
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{ last, next_r })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{ last, next_r })
                     continue
                 }
             }
 
-            _ = dyn_array_append(&node.runes, r)
+            _ = dyn_array.append(&node.runes, r)
         }
 
         if .Case_Insensitive in p.flags {
             // These two loops cannot be in the form of `for x in y` because
-            // they _ = dyn_array_append to the data that they iterate over.
+            // they _ = dyn_array.append to the data that they iterate over.
             length := len(node.runes)
             #no_bounds_check for i := 0; i < length; i += 1 {
                 r := node.runes[i]
@@ -309,9 +309,9 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
 
                 if lower != upper {
                     if lower != r {
-                        _ = dyn_array_append(&node.runes, lower)
+                        _ = dyn_array.append(&node.runes, lower)
                     } else {
-                        _ = dyn_array_append(&node.runes, upper)
+                        _ = dyn_array.append(&node.runes, upper)
                     }
                 }
             }
@@ -329,7 +329,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
                 if min_lower != min_upper && max_lower != max_upper {
                     range.lower = min_lower
                     range.upper = max_lower
-                    _ = dyn_array_append(&node.ranges, Rune_Class_Range{ min_upper, max_upper })
+                    _ = dyn_array.append(&node.ranges, Rune_Class_Range{ min_upper, max_upper })
                 }
             }
         }
@@ -445,13 +445,13 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
         // to how the parsing direction works.
         #partial switch specific in left {
         case ^Node_Concatenation:
-            _ = dyn_array_append(&specific.nodes, right)
+            _ = dyn_array.append(&specific.nodes, right)
             result = specific
         case:
             node, _ := new(Node_Concatenation, allocator)
             node.nodes.allocator = allocator
-            _ = dyn_array_append(&node.nodes, left)
-            _ = dyn_array_append(&node.nodes, right)
+            _ = dyn_array.append(&node.nodes, left)
+            _ = dyn_array.append(&node.nodes, right)
             result = node
         }
 

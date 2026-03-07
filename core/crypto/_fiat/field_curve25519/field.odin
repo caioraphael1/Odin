@@ -34,7 +34,7 @@ fe_from_bytes :: proc(out1: ^Tight_Field_Element, arg1: ^[32]byte) {
 	// Ignore the unused bit by copying the input and masking the bit off
 	// prior to deserialization.
 	tmp1: [32]byte = ---
-	slice_copy(tmp1[:], arg1[:])
+	slice.copy(tmp1[:], arg1[:])
 	tmp1[31] &= 127
 
 	_fe_from_bytes(out1, &tmp1)

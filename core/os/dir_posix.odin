@@ -36,7 +36,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
             ok = true
             return
         }
-        slice_copy(it.impl.fullpath[n:], sname)
+        slice.copy(it.impl.fullpath[n:], sname)
 
         stat: posix.stat_t
         if posix.fstatat(posix.dirfd(it.impl.dir), cname, &stat, { .SYMLINK_NOFOLLOW }) != .OK {
@@ -61,14 +61,14 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 
     // NOTE: Allow calling `init` to target a new directory with the same iterator.
     it.impl.fullpath.allocator = allocator
-    dyn_array_clear(&it.impl.fullpath)
+    dyn_array.clear(&it.impl.fullpath)
     if err := dyn_array_reserve(&it.impl.fullpath, len(impl.name)+128); err != nil {
         read_directory_iterator_set_error(it, name(f), err)
         return
     }
 
-    _ = dyn_array_append(&it.impl.fullpath, impl.name)
-    _ = dyn_array_append(&it.impl.fullpath, "/")
+    _ = dyn_array.append(&it.impl.fullpath, impl.name)
+    _ = dyn_array.append(&it.impl.fullpath, "/")
 
     // `fdopendir` consumes the file descriptor so we need to `dup` it.
     dupfd := posix.dup(impl.fd)
@@ -98,5 +98,5 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator) {
     }
 
     posix.closedir(it.impl.dir)
-    _ = slice_delete(it.impl.fullpath)
+    _ = slice.delete(it.impl.fullpath)
 }

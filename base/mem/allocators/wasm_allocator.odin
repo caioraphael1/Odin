@@ -1,4 +1,5 @@
 #+build wasm32, wasm64p32
+
 import "base:intrinsics"
 
 /*
@@ -116,7 +117,7 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: in
         if ptr == nil {
             return nil, .Out_Of_Memory
         }
-        intrinsics.mem_zero(ptr, size)
+        mem.zero(ptr, size)
         return ([^]byte)(ptr)[:size], nil
 
     case .Alloc_Non_Zeroed:
@@ -136,7 +137,7 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: in
 
         if size > old_size {
             new_region := raw_data(bytes[old_size:])
-            intrinsics.mem_zero(new_region, size - old_size)
+            mem.zero(new_region, size - old_size)
         }
 
         return bytes, nil
@@ -156,7 +157,7 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: in
         return nil, .Mode_Not_Implemented
 
     case .Query_Features:
-        set := (^Allocator_Mode_Set)(old_memory)
+        set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {
             set^ = {.Alloc, .Alloc_Non_Zeroed, .Free, .Resize, .Resize_Non_Zeroed, .Query_Features }
         }
@@ -506,7 +507,7 @@ claim_more_memory :: proc(a: ^WASM_Allocator, num_bytes: uint) -> bool {
     }
 
     num_bytes := num_bytes
-    num_bytes  = align_forward(num_bytes, a.alignment)
+    num_bytes  = mem.align_forward(num_bytes, a.alignment)
 
     start_ptr := alloc(a, uint(num_bytes))
     if start_ptr == nil { return false }
@@ -562,7 +563,7 @@ validate_alloc_size :: proc(size: uint) -> uint {
     // NOTE: emmalloc aligns this forward on pointer size, but I think that is a mistake and will
     // do bad on wasm64p32.
 
-    validated_size := size > SMALLEST_ALLOCATION_SIZE ? align_forward(size, size_of(uint)) : SMALLEST_ALLOCATION_SIZE
+    validated_size := size > SMALLEST_ALLOCATION_SIZE ? mem.align_forward(size, size_of(uint)) : SMALLEST_ALLOCATION_SIZE
     assert(validated_size >= size) // Assert we haven't wrapped.
 
     return validated_size
@@ -576,7 +577,7 @@ allocate_memory :: proc(a: ^WASM_Allocator, alignment: uint, size: uint, loc := 
         free_region := free_region
 
         payload_start_ptr := uintptr(region_payload_start_ptr(free_region))
-        payload_start_ptr_aligned := align_forward(payload_start_ptr, uintptr(alignment))
+        payload_start_ptr_aligned := mem.align_forward(payload_start_ptr, uintptr(alignment))
         payload_end_ptr := uintptr(region_payload_end_ptr(free_region))
 
         if payload_start_ptr_aligned + uintptr(size) > payload_end_ptr {

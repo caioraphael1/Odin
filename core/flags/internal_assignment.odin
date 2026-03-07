@@ -191,7 +191,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
             key_ptr = &key_cstr
         }
         defer if key_cstr != nil {
-            _ = slice_delete(key_cstr)
+            _ = slice.delete(key_cstr)
         }
 
         raw_map := (^runtime.Raw_Map)(cast(uintptr)model + field.offset)
@@ -214,7 +214,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
 
         if value_ptr == nil {
             alloc_error: mem.Allocator_Error = ---
-            elem_backing, alloc_error = runtime.mem_alloc(specific_type_info.value.size, specific_type_info.value.align)
+            elem_backing, alloc_error = mem.alloc(specific_type_info.value.size, specific_type_info.value.align)
             if elem_backing == nil {
                 return Parse_Error {
                     alloc_error,
@@ -247,7 +247,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
                 value_ptr,
             )
 
-            _ = slice_delete(elem_backing)
+            _ = slice.delete(elem_backing)
         }
 
         register_field(parser, field, index)

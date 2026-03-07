@@ -101,16 +101,16 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 
 	if cfg.salt != nil {
 		when T == Blake2s_Context {
-			slice_copy(p[16:], cfg.salt)
+			slice.copy(p[16:], cfg.salt)
 		} else when T == Blake2b_Context {
-			slice_copy(p[32:], cfg.salt)
+			slice.copy(p[32:], cfg.salt)
 		}
 	}
 	if cfg.person != nil {
 		when T == Blake2s_Context {
-			slice_copy(p[24:], cfg.person)
+			slice.copy(p[24:], cfg.person)
 		} else when T == Blake2b_Context {
-			slice_copy(p[48:], cfg.person)
+			slice.copy(p[48:], cfg.person)
 		}
 	}
 
@@ -145,18 +145,18 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 		}
 	}
 
-	intrinsics.mem_zero(&ctx.x, size_of(ctx.x)) // Done with the scratch space, no barrier.
+	mem.zero(&ctx.x, size_of(ctx.x)) // Done with the scratch space, no barrier.
 
 	if cfg.tree != nil && cfg.tree.(Blake2_Tree).is_last_node {
 		ctx.is_last_node = true
 	}
 	if len(cfg.key) > 0 {
-		slice_copy(ctx.padded_key[:], cfg.key)
+		slice.copy(ctx.padded_key[:], cfg.key)
 		update(ctx, ctx.padded_key[:])
 		ctx.is_keyed = true
 	}
-	slice_copy(ctx.ih[:], ctx.h[:])
-	slice_copy(ctx.h[:], ctx.ih[:])
+	slice.copy(ctx.ih[:], ctx.h[:])
+	slice.copy(ctx.h[:], ctx.ih[:])
 	if ctx.is_keyed {
 		update(ctx, ctx.padded_key[:])
 	}
@@ -178,7 +178,7 @@ update :: proc(ctx: ^$T, p: []byte) {
 
 	left := block_size - ctx.nx
 	if len(p) > left {
-		slice_copy(ctx.x[ctx.nx:], p[:left])
+		slice.copy(ctx.x[ctx.nx:], p[:left])
 		p = p[left:]
 		blocks(ctx, ctx.x[:])
 		ctx.nx = 0
@@ -191,7 +191,7 @@ update :: proc(ctx: ^$T, p: []byte) {
 		blocks(ctx, p[:n])
 		p = p[n:]
 	}
-	ctx.nx += slice_copy(ctx.x[ctx.nx:], p)
+	ctx.nx += slice.copy(ctx.x[ctx.nx:], p)
 }
 
 final :: proc(ctx: ^$T, hash: []byte, finalize_clone: bool = false) {
@@ -250,7 +250,7 @@ blake2s_final :: proc(ctx: ^Blake2s_Context, hash: []byte) {
 	for i := 0; i < BLAKE2S_SIZE / 4; i += 1 {
 		endian.unchecked_put_u32le(dst[i * 4:], ctx.h[i])
 	}
-	slice_copy(hash, dst[:])
+	slice.copy(hash, dst[:])
 }
 
 @(private)
@@ -278,7 +278,7 @@ blake2b_final :: proc(ctx: ^Blake2b_Context, hash: []byte) {
 	for i := 0; i < BLAKE2B_SIZE / 8; i += 1 {
 		endian.unchecked_put_u64le(dst[i * 8:], ctx.h[i])
 	}
-	slice_copy(hash, dst[:])
+	slice.copy(hash, dst[:])
 }
 
 @(private)

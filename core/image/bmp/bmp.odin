@@ -74,7 +74,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 
     header_bytes := transmute([size_of(image.BMP_Header)]u8)header
     written += int(total_header_size)
-    slice_copy(output.buf[:], header_bytes[:written])
+    slice.copy(output.buf[:], header_bytes[:written])
 
     switch img.channels {
     case 3:
@@ -141,7 +141,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
     // Read file header (14) + info size (4)
     stub_data := compress.read_slice(ctx, INFO_STUB_SIZE) or_return
-    slice_copy(info_buf[:], stub_data[:])
+    slice.copy(info_buf[:], stub_data[:])
     stub_info := transmute(image.BMP_Header)info_buf
 
     if stub_info.magic != .Bitmap {
@@ -178,7 +178,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
         to_read   := int(stub_info.info_size) - size_of(image.BMP_Version)
         info_data := compress.read_slice(ctx, to_read) or_return
-        slice_copy(info_buf[INFO_STUB_SIZE:], info_data[:])
+        slice.copy(info_buf[INFO_STUB_SIZE:], info_data[:])
 
         // Update info struct with the rest of the data we read
         info = transmute(image.BMP_Header)info_buf
@@ -572,7 +572,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
         }
 
         data := slice_create([]u8, int(pixel_size) + 4)
-        defer _ = slice_delete(data)
+        defer _ = slice.delete(data)
 
         for i in 0..<pixel_size {
             data[i] = image.read_u8_from_memory(ctx) or_return
@@ -646,7 +646,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
         }
 
         data := slice_create([]u8, int(pixel_size) + 4)
-        defer _ = slice_delete(data)
+        defer _ = slice.delete(data)
 
         for i in 0..<pixel_size {
             data[i] = image.read_u8_from_memory(ctx) or_return

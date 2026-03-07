@@ -34,23 +34,23 @@ map_clear :: proc(m: ^$T/map[$K]$V) {
     if m == nil {
         return
     }
-    map_clear_dynamic((^Raw_Map)(m), map_info(T))
+    map_clear_dynamic((^Raw_Map)(m), intrinsics.type_map_info(T))
 }
 
 // `map_delete` will try to free the underlying data of the passed map, with the given `allocator` if the allocator supports this operation.
 map_delete :: proc(m: $T/map[$K]$V, loc := #caller_location) -> mem.Allocator_Error {
-    return internal.map_free_dynamic(transmute(Raw_Map)m, map_info(T), loc)
+    return internal.map_free_dynamic(transmute(Raw_Map)m, intrinsics.type_map_info(T), loc)
 }
 
 // `map_reserve` will try to reserve memory of a passed map to the requested element count (setting the `cap`).
 map_reserve :: proc(m: ^$T/map[$K]$V, #any_int capacity: int, loc := #caller_location) -> mem.Allocator_Error {
-    return __dynamic_map_reserve((^Raw_Map)(m), map_info(T), uint(capacity), loc)
+    return __dynamic_map_reserve((^Raw_Map)(m), intrinsics.type_map_info(T), uint(capacity), loc)
 }
 
 // Shrinks the capacity of a map down to the current length.
 map_shrink :: proc(m: ^$T/map[$K]$V, loc := #caller_location) -> (did_shrink: bool, err: mem.Allocator_Error) {
     if m != nil {
-        return map_shrink_dynamic((^Raw_Map)(m), map_info(T), loc)
+        return map_shrink_dynamic((^Raw_Map)(m), intrinsics.type_map_info(T), loc)
     }
     return
 }
@@ -58,7 +58,7 @@ map_shrink :: proc(m: ^$T/map[$K]$V, loc := #caller_location) -> (did_shrink: bo
 @(optional_results)
 map_insert :: proc(m: ^$T/map[$K]$V, key: K, value: V, loc := #caller_location) -> (ptr: ^V) {
     key, value := key, value
-    return (^V)(dynamic_map_set_without_hash((^Raw_Map)(m), map_info(T), rawptr(&key), rawptr(&value), loc))
+    return (^V)(dynamic_map_set_without_hash((^Raw_Map)(m), intrinsics.type_map_info(T), rawptr(&key), rawptr(&value), loc))
 }
 
 // Explicitly inserts a key and value into a map `m`, the same as `map_insert`, but the return values differ.
@@ -67,7 +67,7 @@ map_insert :: proc(m: ^$T/map[$K]$V, key: K, value: V, loc := #caller_location) 
 // - `found_previous` will be true a previous key was found
 map_upsert :: proc(m: ^$T/map[$K]$V, key: K, value: V, loc := #caller_location) -> (prev_key: K, value_ptr: ^V, found_previous: bool) {
     key, value := key, value
-    kp, vp := dynamic_map_set_extra_without_hash((^Raw_Map)(m), map_info(T), rawptr(&key), rawptr(&value), loc)
+    kp, vp := dynamic_map_set_extra_without_hash((^Raw_Map)(m), intrinsics.type_map_info(T), rawptr(&key), rawptr(&value), loc)
     if kp != nil {
         prev_key = (^K)(kp)^
         found_previous = true
@@ -82,7 +82,7 @@ map_upsert :: proc(m: ^$T/map[$K]$V, key: K, value: V, loc := #caller_location) 
 map_delete_key :: proc(m: ^$T/map[$K]$V, key: K) -> (deleted_key: K, deleted_value: V) {
     if m != nil {
         key := key
-        old_k, old_v, ok := map_erase_dynamic((^Raw_Map)(m), map_info(T), uintptr(&key))
+        old_k, old_v, ok := map_erase_dynamic((^Raw_Map)(m), intrinsics.type_map_info(T), uintptr(&key))
         if ok {
             deleted_key   = (^K)(old_k)^
             deleted_value = (^V)(old_v)^
@@ -106,7 +106,7 @@ map_entry :: proc(m: ^$T/map[$K]$V, key: K, loc := #caller_location) -> (key_ptr
     zero: V
 
     _key_ptr, _value_ptr: rawptr
-    _key_ptr, _value_ptr, just_inserted, err = dynamic_map_entry((^Raw_Map)(m), map_info(T), &key, &zero, loc)
+    _key_ptr, _value_ptr, just_inserted, err = dynamic_map_entry((^Raw_Map)(m), intrinsics.type_map_info(T), &key, &zero, loc)
 
     key_ptr   = (^K)(_key_ptr)
     value_ptr = (^V)(_value_ptr)
@@ -260,18 +260,13 @@ map_hash_is_valid :: #force_inline proc(hash: Map_Hash) -> bool {
 }
 
 
-// The Map_Info structure is basically a pseudo-table of information for a given K and V pair.
-// map_info :: proc($T: typeid/map[$K]$V) -> ^Map_Info {...}
-map_info :: intrinsics.type_map_info
-
-
 map_kvh_data_values_dynamic :: proc(m: Raw_Map, #no_alias info: ^Map_Info) -> (vs: uintptr) {
     capacity := uintptr(1) << internal.map_log2_cap(m)
     return internal.map_cell_index_dynamic(internal.map_data(m), info.ks, capacity) // Skip past ks to get start of vs
 }
 
 map_total_allocation_size_from_value :: #force_inline proc(m: $M/map[$K]$V) -> uintptr {
-    return map_total_allocation_size(uintptr(cap(m)), map_info(M))
+    return map_total_allocation_size(uintptr(cap(m)), intrinsics.type_map_info(M))
 }
 
 
@@ -473,7 +468,7 @@ dynamic_map_set_extra_without_hash :: proc(#no_alias m: ^Raw_Map, #no_alias info
 
 dynamic_map_set_extra :: proc(#no_alias m: ^Raw_Map, #no_alias info: ^Map_Info, hash: Map_Hash, key, value: rawptr, loc := #caller_location) -> (prev_key_ptr, value_ptr: rawptr) {
     if prev_key_ptr, value_ptr = dynamic_map_get_key_and_value(m, info, hash, key); value_ptr != nil {
-        intrinsics.mem_copy_non_overlapping(value_ptr, value, info.vs.size_of_type)
+        mem.copy_non_overlapping(value_ptr, value, info.vs.size_of_type)
         return
     }
 

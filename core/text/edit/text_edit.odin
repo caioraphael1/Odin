@@ -149,15 +149,15 @@ undo_state_push :: proc(s: ^State, undo: ^[dynamic]^Undo_State) -> mem.Allocator
 	#no_bounds_check {
 		runtime.copy(item.text[:len(text)], text)
 	}
-	dyn_array_append(undo, item) or_return
+	dyn_array.append(undo, item) or_return
 	return nil
 }
 
-// dyn_array_pop undo|redo state - push to redo|undo - set selection & text
+// dyn_array.pop undo|redo state - push to redo|undo - set selection & text
 undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 	if len(undo) > 0 {
 		undo_state_push(s, redo)
-		item := dyn_array_pop(undo)
+		item := dyn_array.pop(undo)
 		s.selection = item.selection
 		#no_bounds_check if s.builder != nil {
 			strings.builder_reset(s.builder)
@@ -170,7 +170,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 // iteratively clearn the undo|redo stack and free each allocated text state
 undo_clear :: proc(s: ^State, undo: ^[dynamic]^Undo_State) {
 	for len(undo) > 0 {
-		item := dyn_array_pop(undo)
+		item := dyn_array.pop(undo)
 		free(item, s.undo_text_allocator)
 	}
 }

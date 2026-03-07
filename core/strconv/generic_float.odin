@@ -141,7 +141,7 @@ format_digits :: proc(buf: []byte, shortest: bool, neg: bool, digs: Decimal_Slic
         return b.b[:b.n]
     }
     add_bytes :: proc(buf: ^Buffer, bytes: ..byte) {
-        buf.n += slice_copy(buf.b[buf.n:], bytes)
+        buf.n += slice.copy(buf.b[buf.n:], bytes)
     }
 
     b := Buffer{b = buf}

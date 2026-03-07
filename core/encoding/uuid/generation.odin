@@ -34,7 +34,7 @@ generate_v1 :: proc(clock_seq: u16, node: Maybe([6]u8) = nil, timestamp: Maybe(t
 
     if realized_node, ok := node.?; ok {
         mutable_node := realized_node
-        runtime.mem_copy_non_overlapping(&result[10], &mutable_node[0], 6)
+        runtime.mem.copy_non_overlapping(&result[10], &mutable_node[0], 6)
     } else {
         assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
         bytes_generated := rand.read(result[10:])
@@ -110,7 +110,7 @@ generate_v6 :: proc(clock_seq: Maybe(u16) = nil, node: Maybe([6]u8) = nil, times
 
     if realized_node, ok := node.?; ok {
         mutable_node := realized_node
-        runtime.mem_copy_non_overlapping(&result[10], &mutable_node[0], 6)
+        runtime.mem.copy_non_overlapping(&result[10], &mutable_node[0], 6)
     } else {
         assert(.Cryptographic in runtime.random_generator_query_info(runtime.global_random_generator), NO_CSPRNG_ERROR)
         bytes_generated := rand.read(result[10:])
@@ -178,7 +178,7 @@ Example:
 
     for i: u16 = 0; i < 1000; i += 1 {
         my_uuid := uuid.generate_v7_counter(i)
-        _ = dyn_array_append(&batch, my_uuid)
+        _ = dyn_array.append(&batch, my_uuid)
     }
 
 Inputs:
@@ -266,7 +266,7 @@ generate_v8_hash_bytes :: proc(
     hash.update(&hash_context, name[:])
     hash.final(&hash_context, digest[:])
 
-    runtime.mem_copy_non_overlapping(&result, &digest, 16)
+    runtime.mem.copy_non_overlapping(&result, &digest, 16)
 
     result[VERSION_BYTE_INDEX] &= 0x0F
     result[VERSION_BYTE_INDEX] |= 0x80

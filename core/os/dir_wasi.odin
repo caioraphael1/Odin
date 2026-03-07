@@ -43,7 +43,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
             ok = true
             return
         }
-        slice_copy(it.impl.fullpath[n:], name)
+        slice.copy(it.impl.fullpath[n:], name)
 
         stat, err := wasi.path_filestat_get(_fd_specific(it.f), {}, name)
         if err != nil {
@@ -79,7 +79,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     }
     buf.allocator = allocator
 
-    defer if it.err.err != nil { _ = slice_delete(buf) }
+    defer if it.err.err != nil { _ = slice.delete(buf) }
 
     for {
         if err := dyn_array_resize_non_zero(&buf, 512 if len(buf) == 0 else len(buf)*2); err != nil {
@@ -104,19 +104,19 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 
     // NOTE: Allow calling `init` to target a new directory with the same iterator.
     it.impl.fullpath.allocator = allocator
-    dyn_array_clear(&it.impl.fullpath)
+    dyn_array.clear(&it.impl.fullpath)
     if err := dyn_array_reserve(&it.impl.fullpath, len(impl.name)+128); err != nil {
         read_directory_iterator_set_error(it, name(f), err)
         return
     }
 
-    _ = dyn_array_append(&it.impl.fullpath, impl.name)
-    _ = dyn_array_append(&it.impl.fullpath, "/")
+    _ = dyn_array.append(&it.impl.fullpath, impl.name)
+    _ = dyn_array.append(&it.impl.fullpath, "/")
 
     return
 }
 
 _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) {
-    _ = slice_delete(it.impl.buf, allocator)
-    _ = slice_delete(it.impl.fullpath)
+    _ = slice.delete(it.impl.buf, allocator)
+    _ = slice.delete(it.impl.fullpath)
 }

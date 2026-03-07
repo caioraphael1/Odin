@@ -124,7 +124,7 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
                 groups_loop: for {
                     index_start := len(build_project_name_strings)
 
-                    defer _ = dyn_array_append(build_project_names, build_project_name_strings[index_start:])
+                    defer _ = dyn_array.append(build_project_names, build_project_name_strings[index_start:])
 
                     for {
                         skip_whitespace(text, &i)
@@ -143,15 +143,15 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
                         }
 
                         _ = scan_value(text, &i)
-                        _ = dyn_array_append(build_project_name_strings, text[name_start:i])
+                        _ = dyn_array.append(build_project_name_strings, text[name_start:i])
                     }
 
-                    _ = dyn_array_append(build_project_names, build_project_name_strings[index_start:])
+                    _ = dyn_array.append(build_project_names, build_project_name_strings[index_start:])
                 }
             case "build":
 
                 if len(build_kinds) > 0 {
-                    _ = dyn_array_append(build_kinds, BUILD_KIND_NEWLINE_MARKER)
+                    _ = dyn_array.append(build_kinds, BUILD_KIND_NEWLINE_MARKER)
                 }
 
                 kinds_loop: for {
@@ -161,7 +161,7 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
                     arch_positive: runtime.Odin_Arch_Types
                     arch_negative: runtime.Odin_Arch_Types
 
-                    defer _ = dyn_array_append(build_kinds, Build_Kind{
+                    defer _ = dyn_array.append(build_kinds, Build_Kind{
                         os   = (os_positive   == {} ? runtime.ALL_ODIN_OS_TYPES   : os_positive)  -os_negative,
                         arch = (arch_positive == {} ? runtime.ALL_ODIN_ARCH_TYPES : arch_positive)-arch_negative,
                     })
@@ -239,7 +239,7 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
 
     _, _ = dyn_array_shrink(&build_kinds)
     _, _ = dyn_array_shrink(&build_project_names)
-    _ = dyn_array_delete(build_project_name_strings)
+    _ = dyn_array.delete(build_project_name_strings)
 
     tags.build = build_kinds[:]
     tags.build_project_name = build_project_names[:]

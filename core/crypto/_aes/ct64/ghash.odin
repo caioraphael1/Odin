@@ -84,7 +84,7 @@ ghash :: proc(dst, key, data: []byte) {
 			l -= _aes.GHASH_BLOCK_SIZE
 		} else {
 			tmp: [_aes.GHASH_BLOCK_SIZE]byte
-			slice_copy(tmp[:], buf)
+			slice.copy(tmp[:], buf)
 			src = tmp[:]
 			l = 0
 		}

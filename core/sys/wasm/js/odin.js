@@ -2147,7 +2147,7 @@ function odinSetupDefaultImports(wasmMemoryInterface, consoleElement, memory) {
 
 /**
  * @param {string} wasmPath                          - Path to the WASM module to run
- * @param {?HTMLPreElement} consoleElement           - Optional console/pre element to dyn_array_append output to, in addition to the console
+ * @param {?HTMLPreElement} consoleElement           - Optional console/pre element to dyn_array.append output to, in addition to the console
  * @param {any} extraForeignImports                  - Imports, in addition to the default runtime to provide the module
  * @param {?WasmMemoryInterface} wasmMemoryInterface - Optional memory to use instead of the defaults
  * @param {?int} intSize                             - Size (in bytes) of the integer type, should be 4 on `js_wasm32` and 8 on `js_wasm64p32`

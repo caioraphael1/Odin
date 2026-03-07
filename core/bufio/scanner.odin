@@ -63,7 +63,7 @@ scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []byte) -> ^Sca
     return s
 }
 scanner_destroy :: proc(s: ^Scanner) {
-    _ = dyn_array_delete(s.buf)
+    _ = dyn_array.delete(s.buf)
 }
 
 
@@ -163,7 +163,7 @@ scan :: proc(s: ^Scanner) -> bool {
 
         // More data must be required to be read
         if s.start > 0 && (s.end == len(s.buf) || s.start > len(s.buf)/2) {
-            slice_copy(s.buf[:], s.buf[s.start:s.end])
+            slice.copy(s.buf[:], s.buf[s.start:s.end])
             s.end -= s.start
             s.start = 0
         }

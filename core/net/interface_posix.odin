@@ -69,7 +69,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
             #partial switch ifaddr.dstaddr.sa_family {
             case .INET, .INET6:
                 broadcast := _sockaddr_basic_to_endpoint(ifaddr.dstaddr).address
-                dyn_array_append(&iface.multicast, broadcast)
+                dyn_array.append(&iface.multicast, broadcast)
             }
         }
 
@@ -78,7 +78,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
                 address = address,
                 netmask = netmask,
             }
-            dyn_array_append(&iface.unicast, lease)
+            dyn_array.append(&iface.unicast, lease)
         }
 
         /*

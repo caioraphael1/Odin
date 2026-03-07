@@ -45,7 +45,7 @@ reader_init_with_buf :: proc(b: ^Reader, rd: io.Reader, buf: []byte) {
 
 // reader_destroy destroys the underlying buffer with its associated allocator IFF that allocator has been set
 reader_destroy :: proc(b: ^Reader) {
-    _ = slice_delete(b.buf, b.buf_allocator)
+    _ = slice.delete(b.buf, b.buf_allocator)
     b^ = {}
 }
 
@@ -66,7 +66,7 @@ reader_reset :: proc(b: ^Reader, r: io.Reader) {
 @(private)
 _reader_read_new_chunk :: proc(b: ^Reader) -> io.Error {
     if b.r > 0 {
-        slice_copy(b.buf, b.buf[b.r:b.w])
+        slice.copy(b.buf, b.buf[b.r:b.w])
         b.w -= b.r
         b.r = 0
     }
@@ -212,7 +212,7 @@ reader_read :: proc(b: ^Reader, p: []byte) -> (n: int, err: io.Error) {
         b.w += n
     }
 
-    n = slice_copy(p, b.buf[b.r:b.w])
+    n = slice.copy(p, b.buf[b.r:b.w])
     b.r += n
     b.last_byte = int(b.buf[b.r-1])
     b.last_rune_size = -1

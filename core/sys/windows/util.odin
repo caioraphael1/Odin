@@ -92,7 +92,7 @@ utf8_to_utf16_alloc :: proc(s: string, allocator: mem.Allocator) -> []u16 {
 
     n1 := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cstr, c_int(len(s)), raw_data(text), n)
     if n1 == 0 {
-        _ = slice_delete(text, allocator)
+        _ = slice.delete(text, allocator)
         return nil
     }
 
@@ -156,7 +156,7 @@ wstring_to_utf8_alloc :: proc(s: wstring, N: int, allocator: mem.Allocator) -> (
 
     n1 := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, c_int(N), raw_data(text), n, nil, nil)
     if n1 == 0 {
-        _ = slice_delete(text, allocator)
+        _ = slice.delete(text, allocator)
         return
     }
 

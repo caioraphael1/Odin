@@ -98,7 +98,7 @@ OPEN_FLAG_RDWR   :: 0x0002 /* open for reading and writing */
 MASK_ACCMODE      :: 0x0003 
 
 OPEN_FLAG_NONBLOCK     :: 0x00000004 /* no delay */
-OPEN_FLAG_APPEND       :: 0x00000008 /* set dyn_array_append mode */
+OPEN_FLAG_APPEND       :: 0x00000008 /* set dyn_array.append mode */
 OPEN_FLAG_CREAT        :: 0x00000200 /* create if nonexistant */
 OPEN_FLAG_TRUNC        :: 0x00000400 /* truncate to zero length */
 OPEN_FLAG_EXCL         :: 0x00000800 /* error if already exists */

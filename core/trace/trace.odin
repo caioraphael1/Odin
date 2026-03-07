@@ -11,8 +11,8 @@ Frame_Location :: struct {
 
 delete_frame_location :: proc(fl: Frame_Location) -> mem.Allocator_Error {
 	allocator := fl.allocator
-    _ = slice_delete(fl.loc.procedure, allocator) or_return
-    _ = slice_delete(fl.loc.file_path, allocator) or_return
+    _ = slice.delete(fl.loc.procedure, allocator) or_return
+    _ = slice.delete(fl.loc.file_path, allocator) or_return
 	return nil
 }
 

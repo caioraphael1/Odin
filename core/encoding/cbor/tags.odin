@@ -197,7 +197,7 @@ tag_big_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, tnr: Tag_Number, v
     switch &dst in v {
     case big.Int:
         bytes := err_conv(_decode_bytes(d, add)) or_return
-        defer _ = slice_delete(bytes)
+        defer _ = slice.delete(bytes)
 
         if err := big.int_from_bytes_big(&dst, bytes); err != nil {
             return .Bad_Tag_Value
@@ -222,23 +222,23 @@ tag_big_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_E
             return _encode_u8(e.writer, 0, .Bytes)
         }
 
-        // NOTE: using the panic_allocator because all procedures should only allocate if the Int
+        // NOTE: using no allocator because all procedures should only allocate if the Int
         // is uninitialized (which we checked).
 
-        is_neg, err := big.is_negative(&vv, mem.panic_allocator())
+        is_neg, err := big.is_negative(&vv, {})
         assert(err == nil, "should only error if not initialized, which has been checked")
         
         tnr: u8 = TAG_NEGATIVE_BIG_NR if is_neg else TAG_UNSIGNED_BIG_NR
         _encode_u8(e.writer, tnr, .Tag) or_return
 
-        size_in_bytes, berr := big.int_to_bytes_size(&vv, false, mem.panic_allocator())
+        size_in_bytes, berr := big.int_to_bytes_size(&vv, false, {})
         assert(berr == nil, "should only error if not initialized, which has been checked")
         assert(size_in_bytes >= 0)
 
         err_conv(_encode_u64(e, u64(size_in_bytes), .Bytes)) or_return
 
         for offset := (size_in_bytes*8)-8; offset >= 0; offset -= 8 {
-            bits, derr := big.int_bitfield_extract(&vv, offset, 8, mem.panic_allocator())
+            bits, derr := big.int_bitfield_extract(&vv, offset, 8, {})
             assert(derr == nil, "should only error if not initialized or invalid argument (offset and count), which won't happen")
 
             _ = io.write_full(e.writer, {u8(bits & 255)}) or_return
@@ -297,7 +297,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
     }
 
     bytes := string(err_conv(_decode_bytes(d, add, allocator=runtime.temp_allocator)) or_return)
-    defer _ = slice_delete(bytes, runtime.temp_allocator)
+    defer _ = slice.delete(bytes, runtime.temp_allocator)
 
     #partial switch t in ti.variant {
     case reflect.Type_Info_String:
@@ -346,7 +346,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
         if base64.decoded_len(bytes) > t.count { return _unsupported(v, hdr) }
         
         slice := ([^]byte)(v.data)[:len(bytes)]
-        slice_copy(slice, base64.decode(bytes) or_return)
+        slice.copy(slice, base64.decode(bytes) or_return)
         return
     }
 

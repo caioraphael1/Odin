@@ -138,7 +138,7 @@ foreign lib {
 
 	Example:
 		block: [64]byte
-        slice_copy(block[:], "Hello, World!")
+        slice.copy(block[:], "Hello, World!")
 
 		posix.set_errno(.NONE)
 		posix.encrypt(raw_data(block[:]), decode=false)

@@ -265,22 +265,22 @@ destroy :: proc(val: Value, allocator: mem.Allocator) {
             destroy(entry.key)
             destroy(entry.value)
         }
-        _ = slice_delete(v^)
+        _ = slice.delete(v^)
         _ = free(v)
     case ^Array:
         if v == nil { return }
         for entry in v {
             destroy(entry)
         }
-        _ = slice_delete(v^)
+        _ = slice.delete(v^)
         _ = free(v)
     case ^Text:
         if v == nil { return }
-        _ = slice_delete(v^)
+        _ = slice.delete(v^)
         _ = free(v)
     case ^Bytes:
         if v == nil { return }
-        _ = slice_delete(v^)
+        _ = slice.delete(v^)
         _ = free(v)
     case ^Tag:
         if v == nil { return }
@@ -483,7 +483,7 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
             m  := new(Map) or_return
             dm := dyn_array_create([dynamic]Map_Entry, 0, len(v)) or_return
             for mkey, mval in v {
-                dyn_array_append(&dm, Map_Entry{from_json(mkey) or_return, from_json(mval) or_return}) or_return
+                dyn_array.append(&dm, Map_Entry{from_json(mkey) or_return, from_json(mval) or_return}) or_return
             }
             m^ = dm[:]
             return m, nil
@@ -561,9 +561,9 @@ to_json :: proc(val: Value, allocator: mem.Allocator) -> (json.Value, mem.Alloca
                 arr := make(json.Array, 0, len(v)) or_return
                 for entry in v {
                     entry_arr := make(json.Array, 0, 2) or_return
-                    dyn_array_append(&entry_arr, internal(entry.key) or_return) or_return
-                    dyn_array_append(&entry_arr, internal(entry.value) or_return) or_return
-                    dyn_array_append(&arr, entry_arr) or_return
+                    dyn_array.append(&entry_arr, internal(entry.key) or_return) or_return
+                    dyn_array.append(&entry_arr, internal(entry.value) or_return) or_return
+                    dyn_array.append(&arr, entry_arr) or_return
                 }
                 return arr, nil
             }
@@ -571,7 +571,7 @@ to_json :: proc(val: Value, allocator: mem.Allocator) -> (json.Value, mem.Alloca
         case ^Array:
             arr := make(json.Array, 0, len(v)) or_return
             for entry in v {
-                dyn_array_append(&arr, internal(entry) or_return) or_return
+                dyn_array.append(&arr, internal(entry) or_return) or_return
             }
             return arr, nil
 

@@ -21,7 +21,7 @@ local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool)
 
 			return
 		}
-		defer _ = slice_delete(path, allocator)
+		defer _ = slice.delete(path, allocator)
 
 		// FreeBSD makes me sad.
 		// This is a hackaround, because FreeBSD copies rather than softlinks their local timezone file,
@@ -53,7 +53,7 @@ local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool)
 	}
 
 	if local_str == "" {
-		_ = slice_delete(local_str, allocator)
+		_ = slice.delete(local_str, allocator)
 
 		str, err := strings.clone("UTC", allocator)
 		if err != nil { return }
@@ -72,17 +72,17 @@ _region_load :: proc(_reg_str: string, allocator: mem.Allocator) -> (out_reg: ^d
 	if reg_str == "local" {
 		local_name := local_tz_name(allocator) or_return
 		if local_name == "UTC" {
-			_ = slice_delete(local_name, allocator)
+			_ = slice.delete(local_name, allocator)
 			return nil, true
 		}
 
 		reg_str = local_name
 	}
-	defer if _reg_str == "local" { _ = slice_delete(reg_str, allocator) }
+	defer if _reg_str == "local" { _ = slice.delete(reg_str, allocator) }
 
 	db_path := "/usr/share/zoneinfo"
 	region_path := filepath.join({db_path, reg_str}, allocator)
-	defer _ = slice_delete(region_path, allocator)
+	defer _ = slice.delete(region_path, allocator)
 
 	return load_tzif_file(region_path, reg_str, allocator)
 }

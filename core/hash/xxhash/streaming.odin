@@ -149,7 +149,7 @@ XXH3_reset_internal :: proc(state: ^XXH3_state, seed: XXH64_hash, secret: []u8, 
         Set members from buffered_size to stripes_per_block (excluded) to 0
     */
     offset  := rawptr(uintptr(state) + uintptr(init_start))
-    intrinsics.mem_zero(offset, init_length)
+    mem.zero(offset, init_length)
 
     state.acc[0] = XXH_PRIME32_3
     state.acc[1] = XXH_PRIME64_1

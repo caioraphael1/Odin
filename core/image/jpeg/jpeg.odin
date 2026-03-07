@@ -215,7 +215,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     block_width: int
     block_height: int
     blocks: []Block
-    defer _ = slice_delete(blocks)
+    defer _ = slice.delete(blocks)
 
     loop: for {
         // Loop until we find 0xFF.
@@ -240,7 +240,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 if b == 0x00 {
                     break
                 }
-                dyn_array_append(&ident, b) or_return
+                dyn_array.append(&ident, b) or_return
             }
             if slice.equal(ident[:], image.JFIF_Magic[:]) {
                 if length != 14 {
@@ -272,7 +272,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                     if .return_metadata in options {
                         thumbnail = slice_create([]image.RGB_Pixel, x_thumbnail * y_thumbnail) or_return
-                        slice_copy(thumbnail, thumb_pixels)
+                        slice.copy(thumbnail, thumb_pixels)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -309,7 +309,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                     if .return_metadata in options {
                         thumbnail = slice_create([]byte, thumbnail_len) or_return
-                        slice_copy(thumbnail, thumbnail_jpeg)
+                        slice.copy(thumbnail, thumbnail_jpeg)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -332,7 +332,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                     if .return_metadata in options {
                         thumbnail = slice_create([]byte, x_thumbnail * y_thumbnail * 3) or_return
-                        slice_copy(thumbnail, pixels)
+                        slice.copy(thumbnail, pixels)
 
                         info: ^image.JPEG_Info
                         if img.metadata == nil {
@@ -404,7 +404,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 if b == 0x00 {
                     break
                 }
-                dyn_array_append(&ident, b) or_return
+                dyn_array.append(&ident, b) or_return
             }
 
             if slice.equal(ident[:], image.Exif_Magic[:]) {
@@ -442,9 +442,9 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 // - 2 for the NUL byte and padding byte
                 data := compress.read_slice(ctx, length - len(ident) - 2) or_return
                 exif.data = slice_create([]byte, len(data)) or_return
-                slice_copy(exif.data, data)
+                slice.copy(exif.data, data)
 
-                dyn_array_append(&info.exif, exif) or_return
+                dyn_array.append(&info.exif, exif) or_return
                 img.metadata = info
             } else {
                 // - 1 for the NUL byte
@@ -456,7 +456,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             comment := string(compress.read_slice(ctx, cast(int)length) or_return)
             if .return_metadata in options {
                 if info, ok := img.metadata.(^image.JPEG_Info); ok {
-                    dyn_array_append(&info.comments, strings.clone(comment)) or_return
+                    dyn_array.append(&info.comments, strings.clone(comment)) or_return
                 }
             }
         case .DQT:
@@ -521,7 +521,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 }
 
                 symbols := compress.read_slice(ctx, cast(int)num_symbols) or_return
-                slice_copy(huffman[type][index].symbols[:], symbols)
+                slice.copy(huffman[type][index].symbols[:], symbols)
 
                 length -= cast(u16be)(1 + HUFFMAN_MAX_BITS + num_symbols)
 
@@ -1068,21 +1068,21 @@ destroy :: proc(img: ^Image) {
 
     if v, ok := img.metadata.(^image.JPEG_Info); ok {
         if jfxx, jfxx_ok := v.jfxx_app0.?; jfxx_ok {
-            _ = slice_delete(jfxx.thumbnail)
+            _ = slice.delete(jfxx.thumbnail)
         }
         if jfif, jfif_ok := v.jfif_app0.?; jfif_ok {
-            _ = slice_delete(jfif.thumbnail)
+            _ = slice.delete(jfif.thumbnail)
         }
 
         for comment in v.comments {
-            _ = slice_delete(comment)
+            _ = slice.delete(comment)
         }
-        _ = slice_delete(v.comments)
+        _ = slice.delete(v.comments)
 
         for exif in v.exif {
-            _ = slice_delete(exif.data)
+            _ = slice.delete(exif.data)
         }
-        _ = slice_delete(v.exif)
+        _ = slice.delete(v.exif)
 
         _ = free(v)
     }

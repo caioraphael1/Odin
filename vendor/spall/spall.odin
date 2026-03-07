@@ -213,8 +213,8 @@ _build_begin :: #force_inline proc(buffer: []u8, name: string, args: string, ts:
     ev.ts   = u64le(ts)
     ev.name_len = u8(name_len)
     ev.args_len = u8(args_len)
-    intrinsics.mem_copy_non_overlapping(raw_data(buffer[size_of(Begin_Event):]), raw_data(name), name_len)
-    intrinsics.mem_copy_non_overlapping(raw_data(buffer[size_of(Begin_Event)+name_len:]), raw_data(args), args_len)
+    mem.copy_non_overlapping(raw_data(buffer[size_of(Begin_Event):]), raw_data(name), name_len)
+    mem.copy_non_overlapping(raw_data(buffer[size_of(Begin_Event)+name_len:]), raw_data(args), args_len)
     ok = true
 
     return
@@ -250,7 +250,7 @@ _build_name_event :: #force_inline proc(buffer: []u8, name: string, type: Manual
 
     ev.type = type
     ev.name_len = u8(name_len)
-    intrinsics.mem_copy_non_overlapping(raw_data(buffer[size_of(Name_Event):]), raw_data(name), name_len)
+    mem.copy_non_overlapping(raw_data(buffer[size_of(Name_Event):]), raw_data(name), name_len)
     ok = true
 
     return

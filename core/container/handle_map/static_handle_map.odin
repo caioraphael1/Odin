@@ -134,9 +134,9 @@ static_cap :: proc(m: $H/Static_Handle_Map($N, $T, $Handle_Type)) -> uint {
 }
 
 // `clear` the handle map by zeroing all of the memory.
-// Internally this does not do `m^ = {}` but rather uses `intrinsics.mem_zero` explicitly improve performance.
+// Internally this does not do `m^ = {}` but rather uses `mem.zero` explicitly improve performance.
 static_clear :: proc(m: ^$H/Static_Handle_Map($N, $T, $Handle_Type)) {
-    intrinsics.mem_zero(m, size_of(m^))
+    mem.zero(m, size_of(m^))
 }
 
 // An iterator for a handle map.

@@ -16,7 +16,7 @@ _load_library :: proc(path: string, global_symbols: bool, allocator: mem.Allocat
 	}
 
 	cpath := strings.clone_to_cstring(path, allocator)
-	defer _ = slice_delete(cpath, allocator)
+	defer _ = slice.delete(cpath, allocator)
 
 	lib := posix.dlopen(cpath, flags)
 	return Library(lib), lib != nil
@@ -28,7 +28,7 @@ _unload_library :: proc(library: Library) -> bool {
 
 _symbol_address :: proc(library: Library, symbol: string, allocator: mem.Allocator) -> (ptr: rawptr, found: bool) {
 	csymbol := strings.clone_to_cstring(symbol, allocator)
-	defer _ = slice_delete(csymbol, allocator)
+	defer _ = slice.delete(csymbol, allocator)
 
 	ptr   = posix.dlsym(posix.Symbol_Table(library), csymbol)
 	found = ptr != nil

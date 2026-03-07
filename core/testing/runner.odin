@@ -313,7 +313,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 				find_test_by_name: for it in internal_tests {
 					if it.name == name {
 						found = true
-						_, alloc_error = dyn_array_append(&select_internal_tests, it)
+						_, alloc_error = dyn_array.append(&select_internal_tests, it)
 						fmt.assertf(alloc_error == nil, "Error appending to select internal tests: %v", alloc_error)
 						break find_test_by_name
 					}
@@ -324,7 +324,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 				find_test_by_pkg_and_name: for it in internal_tests {
 					if it.pkg == pkg && it.name == name {
 						found = true
-						_, alloc_error = dyn_array_append(&select_internal_tests, it)
+						_, alloc_error = dyn_array.append(&select_internal_tests, it)
 						fmt.assertf(alloc_error == nil, "Error appending to select internal tests: %v", alloc_error)
 						break find_test_by_pkg_and_name
 					}
@@ -703,7 +703,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					pkg.frame_ready = false
 
 				case Event_Set_Fail_Timeout:
-					_, alloc_error = dyn_array_append(&task_timeouts, Task_Timeout {
+					_, alloc_error = dyn_array.append(&task_timeouts, Task_Timeout {
 						test_index = task_channel.test_index,
 						at_time = event.at_time,
 						location = event.location,
@@ -711,7 +711,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					fmt.assertf(alloc_error == nil, "Error appending to task timeouts: %v", alloc_error)
 
 				case Event_Log_Message:
-					_, alloc_error = dyn_array_append(&log_messages, Log_Message {
+					_, alloc_error = dyn_array.append(&log_messages, Log_Message {
 						level = event.level,
 						text = event.formatted_text,
 						time = event.time,
@@ -764,7 +764,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 			total_done_count += 1
 
 			now := time.now()
-			_, alloc_error = dyn_array_append(&log_messages, Log_Message {
+			_, alloc_error = dyn_array.append(&log_messages, Log_Message {
 				level = .Error,
 				text = format_log_text(.Error, ERROR_STRING_TIMEOUT, Default_Test_Logger_Opts, timeout.location, now),
 				time = now,
@@ -953,7 +953,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		}
 
 		for test_index in failed_test_reason_map {
-			_, alloc_error = dyn_array_append(&sorted_failed_test_reasons, test_index)
+			_, alloc_error = dyn_array.append(&sorted_failed_test_reasons, test_index)
 			fmt.assertf(alloc_error == nil, "Error appending to sorted failed test reasons: %v", alloc_error)
 		}
 
@@ -1034,7 +1034,7 @@ To partly mitigate this, redirect STDERR to a file or use the -define:ODIN_TEST_
 			}
 
 			tests := &json_report.packages[test.pkg]
-			dyn_array_append(tests, JSON_Test{name = test.name, success = state == .Successful})
+			dyn_array.append(tests, JSON_Test{name = test.name, success = state == .Successful})
 		}
 
 		json_report.total    = len(internal_tests)

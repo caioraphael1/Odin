@@ -44,7 +44,7 @@ init_std_files :: proc() {
     new_std :: proc(impl: ^File_Impl, code: u32, name: string) -> ^File {
         impl.file.impl = impl
 
-        impl.allocator = internal.nil_allocator()
+        impl.allocator = {}
         impl.fd = win32.GetStdHandle(code)
         impl.name = name
         impl.wname = nil
@@ -256,8 +256,8 @@ _destroy :: proc(f: ^File_Impl) -> Error {
 
     free(rawptr(f.wname), f.allocator) or_return
     string_delete(f.name, f.allocator) or_return
-    slice_delete(f.r_buf, f.allocator) or_return
-    slice_delete(f.w_buf, f.allocator) or_return
+    slice.delete(f.r_buf, f.allocator) or_return
+    slice.delete(f.w_buf, f.allocator) or_return
     free(f, f.allocator) or_return
     return nil
 }
@@ -708,7 +708,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
         err = _get_platform_error()
         return
     }
-    mem.zero_slice(rdb_buf[:min(bytes_returned+1, len(rdb_buf))])
+    mem.slice.zero(rdb_buf[:min(bytes_returned+1, len(rdb_buf))])
 
 
     rdb := (^win32.REPARSE_DATA_BUFFER)(&rdb_buf[0])
@@ -892,7 +892,7 @@ win32_utf8_to_utf16 :: proc(s: string, allocator: mem.Allocator) -> (ws: []u16, 
 
     n1 := win32.MultiByteToWideChar(win32.CP_UTF8, win32.MB_ERR_INVALID_CHARS, cstr, i32(len(s)), raw_data(text), n)
     if n1 == 0 {
-        _ = slice_delete(text, allocator)
+        _ = slice.delete(text, allocator)
         return
     }
 
@@ -933,7 +933,7 @@ win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: mem.Allocator) -> (
 
     n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
     if n1 == 0 {
-        _ = slice_delete(text, allocator)
+        _ = slice.delete(text, allocator)
         return
     }
 
@@ -967,7 +967,7 @@ win32_utf16_u16_to_utf8 :: proc(s: []u16, allocator: mem.Allocator) -> (res: str
 
     n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
     if n1 == 0 {
-        _ = slice_delete(text, allocator)
+        _ = slice.delete(text, allocator)
         return
     }
 

@@ -398,7 +398,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
     
     #partial switch token.kind {
     case .Null:
-        intrinsics.mem_zero(v.data, ti.size)
+        mem.zero(v.data, ti.size)
         _, _ = advance_token(p)
         return
     case .False, .True:
@@ -537,7 +537,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
             field_used_bytes := (reflect.size_of_typeid(ti.id)+7)/8
             field_used := intrinsics.alloca(field_used_bytes + 1, 1) // + 1 to not overflow on size_of 0 types.
-            intrinsics.mem_zero(field_used, field_used_bytes)
+            mem.zero(field_used, field_used_bytes)
 
             use_field_idx := -1
             
@@ -622,7 +622,8 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
                 // NOTE(bill): prevent possible memory leak if a string is unquoted
                 allocator := p.allocator
                 defer p.allocator = allocator
-                p.allocator = mem.nil_allocator()
+                p.allocator = {}
+                    // (2026-03-07) It was a nil allocator.
 
                 _ = parse_value(p) or_return
                 if parse_comma(p) {
@@ -642,7 +643,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         }
         
         elem_backing := bytes_make(t.value.size, t.value.align, p.allocator) or_return
-        defer _ = slice_delete(elem_backing, p.allocator)
+        defer _ = slice.delete(elem_backing, p.allocator)
         
         map_backing_value := any{raw_data(elem_backing), t.value.id}
         
@@ -651,7 +652,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             unmarshal_expect_token(p, .Colon)
             
 
-            mem.zero_slice(elem_backing)
+            mem.slice.zero(elem_backing)
             if uerr := unmarshal_value(p, map_backing_value); uerr != nil {
                 _ = string_delete(key, p.allocator)
                 return uerr
@@ -735,7 +736,8 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 @(private)
 unmarshal_count_array :: proc(p: ^Parser) -> (length: uintptr) {
     p_backup := p^
-    p.allocator = mem.nil_allocator()
+    p.allocator = {}
+        // (2026-03-07) it was a nil allocator
     unmarshal_expect_token(p, .Open_Bracket)
     array_length_loop: for p.curr_token.kind != .Close_Bracket {
         _, _ = parse_value(p)

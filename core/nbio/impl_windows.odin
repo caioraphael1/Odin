@@ -411,7 +411,7 @@ _exec :: proc(op: ^Operation) {
         debug("exec", op.type, "pending")
     case .Done:
         debug("exec", op.type, "done immediately")
-        _, err := queue.dyn_array_append(&op.l.completed, op) // Got result, handle it next tick.
+        _, err := queue.dyn_array.append(&op.l.completed, op) // Got result, handle it next tick.
         ensure(err == nil, "allocation failure")
     }
 }

@@ -42,12 +42,12 @@ destroy_interfaces :: proc(interfaces: []Network_Interface, allocator: mem.Alloc
 
         _ = string_delete(i.physical_address, allocator)
 
-        _ = dyn_array_delete(i.unicast)
-        _ = dyn_array_delete(i.multicast)
-        _ = dyn_array_delete(i.anycast)
-        _ = dyn_array_delete(i.gateways)
+        _ = dyn_array.delete(i.unicast)
+        _ = dyn_array.delete(i.multicast)
+        _ = dyn_array.delete(i.anycast)
+        _ = dyn_array.delete(i.gateways)
     }
-    _ = slice_delete(interfaces, allocator)
+    _ = slice.delete(interfaces, allocator)
 }
 
 /*

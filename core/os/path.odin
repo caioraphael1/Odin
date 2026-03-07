@@ -56,11 +56,11 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allo
         i: int
         for r in path {
             if r == '/' || r == '\\' {
-                slice_copy(buf[i:], rep_b[:rep_w])
+                slice.copy(buf[i:], rep_b[:rep_w])
                 i += rep_w
             } else {
                 r_b, r_w := utf8.encode_rune(r)
-                slice_copy(buf[i:], r_b[:r_w])
+                slice.copy(buf[i:], r_b[:r_w])
                 i += r_w
             }
         }
@@ -230,7 +230,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
     }
 
     compact := slice_create([]u8, buffer_i, allocator) or_return
-    slice_copy(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
+    slice.copy(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
     return string(compact), nil
 }
 
@@ -743,7 +743,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
         for s in m {
             _ = string_delete(s, allocator)
         }
-        _ = slice_delete(m, allocator)
+        _ = slice.delete(m, allocator)
     }
 
     dmatches, _ := dyn_array_create_len_cap([dynamic]string, 0, 0, allocator)
@@ -943,7 +943,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
         matched := match(pattern, fi.name) or_return
         if matched {
             matched_path := join_path({dir, fi.name}, allocator) or_return
-            _ = dyn_array_append(&m, matched_path)
+            _ = dyn_array.append(&m, matched_path)
         }
     }
     return

@@ -152,7 +152,7 @@ Returns:
 */
 clone_from_bytes :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     c := slice_create([]byte, len(s)+1, allocator, loc) or_return
-    slice_copy(c, s)
+    slice.copy(c, s)
     c[len(s)] = 0
     return string(c[:len(s)]), nil
 }
@@ -1997,7 +1997,7 @@ repeat :: proc(s: string, count: int, allocator: mem.Allocator, loc := #caller_l
     b := slice_create([]byte, len(s)*count, allocator, loc) or_return
     i := slice_copy_from_string(b, s)
     for i < len(b) { // 2^N trick to reduce the need to slice_copy_from_string
-        slice_copy(b[i:], b[:i])
+        slice.copy(b[i:], b[:i])
         i *= 2
     }
     return string(b), nil
@@ -2717,10 +2717,10 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
                 break
             }
             part := it[:i]
-            _ = dyn_array_append(&results, part)
+            _ = dyn_array.append(&results, part)
             it = it[i+w:]
         }
-        _ = dyn_array_append(&results, it)
+        _ = dyn_array.append(&results, it)
     }
     assert(len(results) == n)
     return results[:], nil
@@ -3237,7 +3237,7 @@ fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, 
         end = offset
         if f(r) {
             if start >= 0 {
-                _ = dyn_array_append(&substrings, s[start : end])
+                _ = dyn_array.append(&substrings, s[start : end])
                 // -1 could be used, but just speed it up through bitwise not
                 // gotta love 2's complement
                 start = ~start
@@ -3250,7 +3250,7 @@ fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, 
     }
 
     if start >= 0 {
-        _ = dyn_array_append(&substrings, s[start : len(s)])
+        _ = dyn_array.append(&substrings, s[start : len(s)])
     }
 
     return substrings[:], nil
@@ -3344,7 +3344,7 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
     }
 
     defer if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-        _ = slice_delete(costs, allocator)
+        _ = slice.delete(costs, allocator)
     }
 
     i: int

@@ -1,349 +1,228 @@
-import "base:mem"
 import "base:intrinsics"
-// import "base:sanitizer"
+import "base:mem"
+import "base:slice"
 
-DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE: uint : #config(DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE, 4 * Megabyte)
 
-Memory_Block :: struct {
-    prev:      ^Memory_Block,
-    allocator: mem.Allocator,
-    base:      [^]byte,
-    used:      uint,
-    capacity:  uint,
-}
-
-// NOTE: This is a growing arena that is only used for the default arena_temp allocator.
-// For your own growing arena needs, prefer `Arena` from `core:mem/virtual`.
+/*
+Arena allocator data.
+*/
 Arena :: struct {
-    backing_allocator:  mem.Allocator,
-
-    curr_block:         ^Memory_Block,
-
-    total_used:         uint,
-    total_capacity:     uint,
-
-    minimum_block_size: uint,
-
-    temp_count:         uint,
+    data:       []byte,
+    offset:     int,
+    peak_used:  int,
+    temp_count: int,
 }
 
+/*
+Arena allocator.
 
-@(private)
-safe_add :: #force_inline proc(x, y: uint) -> (uint, bool) {
-    z, did_overflow := intrinsics.overflow_add(x, y)
-    return z, !did_overflow
-}
+The arena allocator (also known as a linear allocator, bump allocator,
+region allocator) is an allocator that uses a single backing buffer for
+allocations.
 
+The buffer is used contiguously, from start to end. Each subsequent allocation
+occupies the next adjacent region of memory in the buffer. Since the arena
+allocator does not keep track of any metadata associated with the allocations
+and their locations, it is impossible to free individual allocations.
 
-memory_block_alloc :: proc(allocator: mem.Allocator, capacity: uint, alignment: uint, loc := #caller_location) -> (block: ^Memory_Block, err: mem.Allocator_Error) {
-    total_size  := uint(capacity + max(alignment, size_of(Memory_Block)))
-    base_offset := uintptr(max(alignment, size_of(Memory_Block)))
-
-    min_alignment: int = max(16, align_of(Memory_Block), int(alignment))
-    data := mem_alloc(int(total_size), min_alignment, allocator, loc) or_return
-    block = (^Memory_Block)(raw_data(data))
-    end := uintptr(raw_data(data)[len(data):])
-
-    block.allocator = allocator
-    block.base = ([^]byte)(uintptr(block) + base_offset)
-    block.capacity = uint(end - uintptr(block.base))
-
-    // sanitizer.address_poison(block.base, block.capacity)
-
-    // Should be zeroed
-    assert(block.used == 0)
-    assert(block.prev == nil)
-    return
-}
-
-
-memory_block_dealloc :: proc(block_to_free: ^Memory_Block, loc := #caller_location) {
-    if block_to_free != nil {
-
-        allocator := block_to_free.allocator
-        // sanitizer.address_unpoison(block_to_free.base, block_to_free.capacity)
-        _ = free(block_to_free, allocator, loc)
-    }
-}
-
-
-alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint) -> (data: []byte, err: mem.Allocator_Error) {
-    calc_alignment_offset :: proc(block: ^Memory_Block, alignment: uintptr) -> uint {
-        alignment_offset := uint(0)
-        ptr := uintptr(block.base[block.used:])
-        mask := alignment-1
-        if ptr & mask != 0 {
-            alignment_offset = uint(alignment - (ptr & mask))
-        }
-        return alignment_offset
-
-    }
-    if block == nil {
-        return nil, .Out_Of_Memory
-    }
-    alignment_offset := calc_alignment_offset(block, uintptr(alignment))
-    size, size_ok := safe_add(min_size, alignment_offset)
-    if !size_ok {
-        err = .Out_Of_Memory
-        return
-    }
-
-    if to_be_used, ok := safe_add(block.used, size); !ok || to_be_used > block.capacity {
-        err = .Out_Of_Memory
-        return
-    }
-    data = block.base[block.used+alignment_offset:][:min_size]
-    // sanitizer.address_unpoison(block.base[block.used:block.used+size])
-    block.used += size
-    return
-}
-
-
-arena_alloc :: proc(arena: ^Arena, size, alignment: uint, loc := #caller_location) -> (data: []byte, err: mem.Allocator_Error) {
-    align_forward_uint :: proc(ptr, align: uint) -> uint {
-        p := ptr
-        modulo := p & (align-1)
-        if modulo != 0 {
-            p += align - modulo
-        }
-        return p
-    }
-
-    assert(alignment & (alignment-1) == 0, "non-power of two alignment", loc)
-
-    size := size
-    if size == 0 {
-        return
-    }
-
-    prev_used := 0 if arena.curr_block == nil else arena.curr_block.used
-    data, err = alloc_from_memory_block(arena.curr_block, size, alignment)
-    if err == .Out_Of_Memory {
-        if arena.minimum_block_size == 0 {
-            arena.minimum_block_size = DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE
-        }
-
-        needed := align_forward_uint(size, alignment)
-        block_size := max(needed, arena.minimum_block_size)
-
-        assert(arena.backing_allocator.procedure != nil, 
-            "mem.Allocator not initialized. Use runtime.arena_init(arena, size, backing_allocator)")
-
-        new_block := memory_block_alloc(arena.backing_allocator, block_size, alignment, loc) or_return
-        new_block.prev = arena.curr_block
-        arena.curr_block = new_block
-        arena.total_capacity += new_block.capacity
-        prev_used = 0
-        data, err = alloc_from_memory_block(arena.curr_block, size, alignment)
-    }
-    arena.total_used += arena.curr_block.used - prev_used
-    return
-}
-
-// `arena_init` will initialize the arena with a usable block.
-// This procedure is not necessary to use the Arena as the default zero as `arena_alloc` will set things up if necessary
-arena_init :: proc(arena: ^Arena, size: uint, backing_allocator: mem.Allocator, loc := #caller_location) -> mem.Allocator_Error {
-    arena^ = {}
-    arena.backing_allocator = backing_allocator
-    arena.minimum_block_size = max(size, 1<<12) // minimum block size of 4 KiB
-    new_block := memory_block_alloc(arena.backing_allocator, arena.minimum_block_size, 0, loc) or_return
-    arena.curr_block = new_block
-    arena.total_capacity += new_block.capacity
-    return nil
-}
-
-
-arena_free_last_memory_block :: proc(arena: ^Arena, loc := #caller_location) {
-    if free_block := arena.curr_block; free_block != nil {
-        arena.curr_block = free_block.prev
-
-        arena.total_capacity -= free_block.capacity
-        memory_block_dealloc(free_block, loc)
-    }
-}
-
-// `arena_free_all` will free all but the first memory block, and then reset the memory block
-arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
-    for arena.curr_block != nil && arena.curr_block.prev != nil {
-        arena_free_last_memory_block(arena, loc)
-    }
-
-    if arena.curr_block != nil {
-        intrinsics.mem_zero(arena.curr_block.base, arena.curr_block.used)
-        arena.curr_block.used = 0
-        // sanitizer.address_poison(arena.curr_block.base, arena.curr_block.capacity)
-    }
-    arena.total_used = 0
-}
-
-arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
-    for arena.curr_block != nil {
-        free_block := arena.curr_block
-        arena.curr_block = free_block.prev
-
-        arena.total_capacity -= free_block.capacity
-        memory_block_dealloc(free_block, loc)
-    }
-    arena.total_used = 0
-    arena.total_capacity = 0
-}
-
-
+The arena allocator can be used for temporary allocations in frame-based memory
+management. Games are one example of such applications. A global arena can be
+used for any temporary memory allocations, and at the end of each frame all
+temporary allocations are freed. Since no temporary object is going to live
+longer than a frame, no lifetimes are violated.
+*/
 arena_allocator :: proc(arena: ^Arena) -> mem.Allocator {
     return {
-        procedure = arena_allocator_proc, 
-        data      = arena,
+        procedure = arena_allocator_proc,
+        data = arena,
     }
 }
 
+/*
+Initialize an arena.
+
+This procedure initializes the arena `a` with memory region `data` as its
+backing buffer.
+*/
+arena_init :: proc(a: ^Arena, data: []byte) {
+    a.data       = data
+    a.offset     = 0
+    a.peak_used  = 0
+    a.temp_count = 0
+    // sanitizer.address_poison(a.data)
+}
+
+/*
+Allocate memory from an arena.
+
+This procedure allocates `size` bytes of memory aligned on a boundary specified
+by `alignment` from an arena `a`. The allocated memory is zero-initialized.
+This procedure returns a pointer to the newly allocated memory region.
+*/
+arena_alloc :: proc(
+    a:        ^Arena,
+    size:     int,
+    alignment := mem.DEFAULT_ALIGNMENT,
+    loc       := #caller_location,
+    ) -> (rawptr, mem.Allocator_Error) {
+    bytes, err := arena_alloc_bytes(a, size, alignment, loc)
+    return raw_data(bytes), err
+}
+
+/*
+Allocate memory from an arena.
+
+This procedure allocates `size` bytes of memory aligned on a boundary specified
+by `alignment` from an arena `a`. The allocated memory is zero-initialized.
+This procedure returns a slice of the newly allocated memory region.
+*/
+arena_alloc_bytes :: proc(
+    a:        ^Arena,
+    size:     int,
+    alignment := mem.DEFAULT_ALIGNMENT,
+    loc       := #caller_location,
+    ) -> ([]byte, mem.Allocator_Error) {
+    bytes, err := arena_alloc_bytes_non_zeroed(a, size, alignment, loc)
+    if bytes != nil {
+        slice.zero(bytes)
+    }
+    return bytes, err
+}
+
+/*
+Allocate non-initialized memory from an arena.
+
+This procedure allocates `size` bytes of memory aligned on a boundary specified
+by `alignment` from an arena `a`. The allocated memory is not explicitly
+zero-initialized. This procedure returns a pointer to the newly allocated
+memory region.
+*/
+arena_alloc_non_zeroed :: proc(
+    a:        ^Arena,
+    size:     int,
+    alignment := mem.DEFAULT_ALIGNMENT,
+    loc       := #caller_location,
+    ) -> (rawptr, mem.Allocator_Error) {
+    bytes, err := arena_alloc_bytes_non_zeroed(a, size, alignment, loc)
+    return raw_data(bytes), err
+}
+
+/*
+Allocate non-initialized memory from an arena.
+
+This procedure allocates `size` bytes of memory aligned on a boundary specified
+by `alignment` from an arena `a`. The allocated memory is not explicitly
+zero-initialized. This procedure returns a slice of the newly allocated
+memory region.
+*/
+arena_alloc_bytes_non_zeroed :: proc(
+    a:        ^Arena,
+    size:     int,
+    alignment := mem.DEFAULT_ALIGNMENT,
+    loc       := #caller_location
+    ) -> ([]byte, mem.Allocator_Error) {
+    if a.data == nil {
+        panic("Allocation on uninitialized Arena allocator.", loc)
+    }
+    #no_bounds_check end := &a.data[a.offset]
+    ptr := mem.align_forward(end, uintptr(alignment))
+    total_size := size + intrinsics.ptr_sub((^byte)(ptr), (^byte)(end))
+    if a.offset + total_size > len(a.data) {
+        return nil, .Out_Of_Memory
+    }
+    a.offset += total_size
+    a.peak_used = max(a.peak_used, a.offset)
+    result := slice.bytes(ptr, size)
+    // ensure_poisoned(result)
+    // sanitizer.address_unpoison(result)
+    return result, nil
+}
+
+/*
+Free all memory back to the arena allocator.
+*/
+arena_free_all :: proc(a: ^Arena) {
+    a.offset = 0
+    // sanitizer.address_poison(a.data)
+}
 
 arena_allocator_proc :: proc(
-    allocator_data:  rawptr,
-    mode:            Allocator_Mode,
-    size, alignment: int,
-    old_memory:      rawptr,
-    old_size:        int,
-    loc              := #caller_location,
-    ) -> (data: []byte, err: mem.Allocator_Error) {
-    arena := (^Arena)(allocator_data)
-
-    size, alignment := uint(size), uint(alignment)
-    old_size := uint(old_size)
-
+    allocator_data: rawptr,
+    mode:           mem.Allocator_Mode,
+    size:           int,
+    alignment:      int,
+    old_memory:     rawptr,
+    old_size:       int,
+    loc := #caller_location,
+    ) -> ([]byte, mem.Allocator_Error)  {
+    arena := cast(^Arena)allocator_data
     switch mode {
-    case .Alloc, .Alloc_Non_Zeroed:
-        return arena_alloc(arena, size, alignment, loc)
+    case .Alloc:
+        return arena_alloc_bytes(arena, size, alignment, loc)
+    case .Alloc_Non_Zeroed:
+        return arena_alloc_bytes_non_zeroed(arena, size, alignment, loc)
     case .Free:
-        err = .Mode_Not_Implemented
+        return nil, .Mode_Not_Implemented
     case .Free_All:
-        arena_free_all(arena, loc)
-    case .Resize, .Resize_Non_Zeroed:
-        old_data := ([^]byte)(old_memory)
-
-        switch {
-        case old_data == nil:
-            return arena_alloc(arena, size, alignment, loc)
-        case size == old_size:
-            // return old memory
-            data = old_data[:size]
-            return
-        case size == 0:
-            err = .Mode_Not_Implemented
-            return
-        case uintptr(old_data) & uintptr(alignment-1) == 0:
-            if size < old_size {
-                // shrink data in-place
-                data = old_data[:size]
-                return
-            }
-
-            if block := arena.curr_block; block != nil {
-                start := uint(uintptr(old_memory)) - uint(uintptr(block.base))
-                old_end := start + old_size
-                new_end := start + size
-                if start < old_end && old_end == block.used && new_end <= block.capacity {
-                    // grow data in-place, adjusting next allocation
-                    block.used = uint(new_end)
-                    data = block.base[start:new_end]
-                    // sanitizer.address_unpoison(data)
-                    return
-                }
-            }
-        }
-
-        new_memory := arena_alloc(arena, size, alignment, loc) or_return
-        if new_memory == nil {
-            return
-        }
-        slice_copy(new_memory, old_data[:old_size])
-        return new_memory, nil
+        arena_free_all(arena)
+    case .Resize:
+        return default_resize_bytes_align(slice.bytes(old_memory, old_size), size, alignment, arena_allocator(arena), loc)
+    case .Resize_Non_Zeroed:
+        return default_resize_bytes_align_non_zeroed(slice.bytes(old_memory, old_size), size, alignment, arena_allocator(arena), loc)
     case .Query_Features:
-        set := (^Allocator_Mode_Set)(old_memory)
+        set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {
-            set^ = {.Alloc, .Alloc_Non_Zeroed, .Free_All, .Resize, .Query_Features}
+            set^ = {.Alloc, .Alloc_Non_Zeroed, .Free_All, .Resize, .Resize_Non_Zeroed, .Query_Features}
         }
+        return nil, nil
     case .Query_Info:
-        err = .Mode_Not_Implemented
+        return nil, .Mode_Not_Implemented
     }
-
-    return
+    return nil, nil
 }
 
+/*
+Temporary memory region of an `Arena` allocator.
 
+Temporary memory regions of an arena act as "save-points" for the allocator.
+When one is created, the subsequent allocations are done inside the temporary
+memory region. When `end_arena_temp_memory` is called, the arena is rolled
+back, and all of the memory that was allocated from the arena will be freed.
 
-Arena_Temp :: struct {
-    arena: ^Arena,
-    block: ^Memory_Block,
-    used:  uint,
+Multiple temporary memory regions can exist at the same time for an arena.
+*/
+Arena_Temp_Memory :: struct {
+    arena:       ^Arena,
+    prev_offset: int,
 }
 
-@(deferred_out=arena_temp_end, optional_results)
-ARENA_TEMP_GUARD :: #force_inline proc(arena: ^Arena, ignore := false, loc := #caller_location) -> (Arena_Temp, Source_Code_Location) {
-    if ignore {
-        return {}, loc
-    }
-    return arena_temp_begin(arena, loc), loc
+/*
+Start a temporary memory region.
+
+This procedure creates a temporary memory region. After a temporary memory
+region is created, all allocations are said to be *inside* the temporary memory
+region, until `end_arena_temp_memory` is called.
+*/
+
+begin_arena_temp_memory :: proc(a: ^Arena) -> Arena_Temp_Memory {
+    tmp: Arena_Temp_Memory
+    tmp.arena = a
+    tmp.prev_offset = a.offset
+    a.temp_count += 1
+    return tmp
 }
 
+/*
+End a temporary memory region.
 
-arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (arena_temp: Arena_Temp) {
-    assert(arena != nil, "nil arena", loc)
-
-    arena_temp.arena = arena
-    arena_temp.block = arena.curr_block
-    if arena.curr_block != nil {
-        arena_temp.used = arena.curr_block.used
-    }
-    arena.temp_count += 1
-    return
+This procedure ends the temporary memory region for an arena. All of the
+allocations *inside* the temporary memory region will be freed to the arena.
+*/
+end_arena_temp_memory :: proc(tmp: Arena_Temp_Memory) {
+    assert(tmp.arena.offset >= tmp.prev_offset)
+    assert(tmp.arena.temp_count > 0)
+    // sanitizer.address_poison(tmp.arena.data[tmp.prev_offset:tmp.arena.offset])
+    tmp.arena.offset = tmp.prev_offset
+    tmp.arena.temp_count -= 1
 }
 
-arena_temp_end :: proc(arena_temp: Arena_Temp, loc := #caller_location) {
-    if arena_temp.arena == nil {
-        assert(arena_temp.block == nil)
-        assert(arena_temp.used == 0)
-        return
-    }
-    arena := arena_temp.arena
-
-    if arena_temp.block != nil {
-        memory_block_found := false
-        for block := arena.curr_block; block != nil; block = block.prev {
-            if block == arena_temp.block {
-                memory_block_found = true
-                break
-            }
-        }
-        if !memory_block_found {
-            assert(arena.curr_block == arena_temp.block, "memory block stored within Arena_Temp not owned by Arena", loc)
-        }
-
-        for arena.curr_block != arena_temp.block {
-            arena_free_last_memory_block(arena)
-        }
-
-        if block := arena.curr_block; block != nil {
-            assert(block.used >= arena_temp.used, "out of order use of arena_temp_end", loc)
-            amount_to_zero := block.used-arena_temp.used
-            intrinsics.mem_zero(block.base[arena_temp.used:], amount_to_zero)
-            // sanitizer.address_poison(block.base[arena_temp.used:block.capacity])
-            block.used = arena_temp.used
-            arena.total_used -= amount_to_zero
-        }
-    }
-
-    assert(arena.temp_count > 0, "double-use of arena_temp_end", loc)
-    arena.temp_count -= 1
-}
-
-arena_temp_ignore :: proc(arena_temp: Arena_Temp, loc := #caller_location) {
-    assert(arena_temp.arena != nil, "nil arena", loc)
-    arena := arena_temp.arena
-
-    assert(arena.temp_count > 0, "double-use of arena_temp_end", loc)
-    arena.temp_count -= 1
-}
-
-arena_check_temp :: proc(arena: ^Arena, loc := #caller_location) {
-    assert(arena.temp_count == 0, "Arena_Temp not been ended", loc)
-}

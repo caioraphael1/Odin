@@ -1026,7 +1026,7 @@ Example:
     perm_example :: proc() -> (err: mem.Allocator_Error) {
         data := rand.perm(4) or_return
         fmt.println(data)
-        defer _ = slice_delete(data, context.allocator)
+        defer _ = slice.delete(data, context.allocator)
 
         return
     }

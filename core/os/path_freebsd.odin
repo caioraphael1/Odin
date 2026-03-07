@@ -14,7 +14,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
     assert(size > 0)
 
     buf := slice_create([]byte, size, allocator) or_return
-    defer if err != nil { _ = slice_delete(buf, allocator) }
+    defer if err != nil { _ = slice.delete(buf, allocator) }
 
     assert(uint(len(buf)) == size)
 

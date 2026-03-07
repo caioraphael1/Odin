@@ -12,7 +12,7 @@ import "core:strings"
 @(require, linkage="strong", link_name="malloc")
 malloc :: proc "c" (size: uint) -> rawptr {
     context = g_ctx
-    ptr, err := runtime.mem_alloc_non_zeroed(int(size))
+    ptr, err := mem.alloc_non_zeroed(int(size))
     assert(err == nil, "allocation failure")
     return raw_data(ptr)
 }
@@ -20,7 +20,7 @@ malloc :: proc "c" (size: uint) -> rawptr {
 @(require, linkage="strong", link_name="aligned_alloc")
 aligned_alloc :: proc "c" (alignment: uint, size: uint) -> rawptr {
     context = g_ctx
-    ptr, err := runtime.mem_alloc_non_zeroed(int(size), int(alignment))
+    ptr, err := mem.alloc_non_zeroed(int(size), int(alignment))
     assert(err == nil, "allocation failure")
     return raw_data(ptr)
 }

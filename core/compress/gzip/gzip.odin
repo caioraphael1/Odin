@@ -104,7 +104,7 @@ GZIP_MAX_PAYLOAD_SIZE :: i64(max(u32le))
 
 load_from_file :: proc(filename: string, buf: ^bytes.Buffer, expected_output_size := -1, allocator: mem.Allocator) -> (err: Error) {
     data, ok := os.read_entire_file(filename)
-    defer _ = slice_delete(data)
+    defer _ = slice.delete(data)
 
     err = E_General.File_Not_Found
     if ok {

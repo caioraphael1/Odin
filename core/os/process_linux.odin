@@ -100,7 +100,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
             d_name_str := linux.dirent_name(d)
 
             if pid, ok := strconv.parse_int(d_name_str); ok {
-                _ = dyn_array_append(&dynamic_list, pid)
+                _ = dyn_array.append(&dynamic_list, pid)
             }
         }
     }
@@ -239,7 +239,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                     }
                     if i > 0 {
                         arg := strings.clone(cmdline[:terminator], allocator) or_return
-                        dyn_array_append(&command_args_list, arg) or_return
+                        dyn_array.append(&command_args_list, arg) or_return
                     }
                 }
 
@@ -362,7 +362,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                     break
                 }
                 e := strings.clone(env[:terminator], allocator) or_return
-                dyn_array_append(&env_list, e) or_return
+                dyn_array.append(&env_list, e) or_return
                 env = env[terminator + 1:]
             }
             info.environment = env_list[:]

@@ -210,7 +210,7 @@ copy_chunk :: proc(src: image.PNG_Chunk, allocator : mem.Allocator) -> (dest: im
     dest.crc    = src.crc
     dest.data   = slice_create([]u8, dest.header.length, allocator) or_return
 
-    slice_copy(dest.data[:], src.data[:])
+    slice.copy(dest.data[:], src.data[:])
     return
 }
 
@@ -221,9 +221,9 @@ append_chunk :: proc(list: ^[dynamic]image.PNG_Chunk, src: image.PNG_Chunk, allo
 
     c := copy_chunk(src, allocator) or_return
     length := len(list)
-    _ = dyn_array_append(list, c)
+    _ = dyn_array.append(list, c)
     if len(list) != length + 1 {
-        // Resize during dyn_array_append failed.
+        // Resize during dyn_array.append failed.
         return .Unable_To_Allocate_Or_Resize
     }
 
@@ -1224,7 +1224,7 @@ defilter_8 :: proc(params: ^Filter_Params) -> (ok: bool) {
         filter := Row_Filter(src[0]); src = src[1:]
         switch filter {
         case .None:
-            slice_copy(dest, src[:row_stride])
+            slice.copy(dest, src[:row_stride])
         case .Sub:
             for i := 0; i < channels; i += 1 {
                 dest[i] = src[i]
@@ -1292,7 +1292,7 @@ defilter_less_than_8 :: proc(params: ^Filter_Params) -> bool #no_bounds_check {
         filter := Row_Filter(src[0]); src = src[1:]
         switch filter {
         case .None:
-            slice_copy(dest, src[:row_stride_in])
+            slice.copy(dest, src[:row_stride_in])
         case .Sub:
             for i in 0..=channels {
                 dest[i] = src[i]
@@ -1445,7 +1445,7 @@ defilter_16 :: proc(params: ^Filter_Params) -> bool {
         filter := Row_Filter(src[0]); src = src[1:]
         switch filter {
         case .None:
-            slice_copy(dest, src[:row_stride])
+            slice.copy(dest, src[:row_stride])
         case .Sub:
             for i := 0; i < stride; i += 1 {
                 dest[i] = src[i]

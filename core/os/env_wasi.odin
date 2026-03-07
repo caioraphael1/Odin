@@ -32,10 +32,10 @@ build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
     }
 
     g_env = map_create(map[string]string, num_envs, allocator) or_return
-    defer if err != nil { _ = slice_delete(g_env) }
+    defer if err != nil { _ = slice.delete(g_env) }
 
     g_env_buf = slice_create([]byte, size_of_envs, allocator) or_return
-    defer if err != nil { _ = slice_delete(g_env_buf, allocator) }
+    defer if err != nil { _ = slice.delete(g_env_buf, allocator) }
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
@@ -60,7 +60,7 @@ delete_string_if_not_original :: proc(str: string, allocator: mem.Allocator) {
     end   := start + uintptr(len(g_env_buf))
     ptr   := uintptr(raw_data(str))
     if ptr < start || ptr > end {
-        _ = slice_delete(str, allocator)
+        _ = slice.delete(str, allocator)
     }
 }
 
@@ -85,7 +85,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
     if len(key) + 1 > len(buf) {
         return "", .Buffer_Full
     } else {
-        slice_copy(buf, key)
+        slice.copy(buf, key)
     }
 
     sync.shared_guard(&g_env_mutex)
@@ -98,7 +98,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
         if len(val) > len(buf) {
             return "", .Buffer_Full
         } else {
-            slice_copy(buf, val)
+            slice.copy(buf, val)
             return string(buf[:len(val)]), nil
         }
     }
@@ -118,7 +118,7 @@ _set_env :: proc(key, value: string, allocator: mem.Allocator) -> (err: Error) {
     if just_inserted {
         key_ptr^ = clone_string(key,allocator) or_return
         defer if err != nil {
-            _ = slice_delete(key_ptr^, allocator)
+            _ = slice.delete(key_ptr^, allocator)
         }
         value_ptr^ = clone_string(value, allocator) or_return
         return
@@ -152,10 +152,10 @@ _clear_env :: proc(allocator: mem.Allocator) {
         delete_string_if_not_original(v)
     }
 
-    _ = slice_delete(g_env_buf, allocator)
+    _ = slice.delete(g_env_buf, allocator)
     g_env_buf = {}
 
-    dyn_array_clear(&g_env)
+    dyn_array.clear(&g_env)
 
     g_env_built = true
 }
@@ -169,13 +169,13 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
     envs := dyn_array_create([dynamic]string, 0, len(g_env), allocator) or_return
     defer if err != nil {
         for env in envs {
-            _ = slice_delete(env, allocator)
+            _ = slice.delete(env, allocator)
         }
-        _ = slice_delete(envs)
+        _ = slice.delete(envs)
     }
 
     for k, v in g_env {
-        _ = dyn_array_append(&envs, concatenate({k, "=", v}, allocator) or_return)
+        _ = dyn_array.append(&envs, concatenate({k, "=", v}, allocator) or_return)
     }
 
     environ = envs[:]

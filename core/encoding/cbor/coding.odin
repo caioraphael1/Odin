@@ -181,7 +181,7 @@ have to be precomputed, sorted and only then written to the output.
 Empty flags will do nothing extra to the value.
 
 The allocations for the `.Deterministic_Map_Sorting` flag are done using the given temp_allocator.
-but are followed by the necessary `_ = slice_delete` and `free` calls if the allocator supports them.
+but are followed by the necessary `_ = slice.delete` and `free` calls if the allocator supports them.
 This is helpful when the CBOR size is so big that you don't want to collect all the temporary
 allocations until the end.
 */
@@ -433,7 +433,7 @@ _decode_array :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #ca
     array := dyn_array_create([dynamic]Value, 0, scap, allocator, loc) or_return
     defer if err != nil {
         for entry in array { destroy(entry, allocator) }
-        _ = slice_delete(array, loc)
+        _ = slice.delete(array, loc)
     }
     
     for i := 0; n == -1 || i < n; i += 1 {
@@ -445,7 +445,7 @@ _decode_array :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #ca
             return
         }
 
-        dyn_array_append(&array, val) or_return
+        dyn_array.append(&array, val) or_return
     }
 
     if .Shrink_Excess in d.flags { dyn_array_shrink(&array) }
@@ -479,7 +479,7 @@ _decode_map :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #call
             destroy(entry.key)
             destroy(entry.value)
         }
-        _ = slice_delete(items, loc)
+        _ = slice.delete(items, loc)
     }
 
     for i := 0; n == -1 || i < n; i += 1 {
@@ -492,7 +492,7 @@ _decode_map :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #call
 
         value := _decode_from_decoder(d, {}, allocator, loc) or_return
 
-        dyn_array_append(&items, Map_Entry{
+        dyn_array.append(&items, Map_Entry{
             key   = key,
             value = value,
         }, loc) or_return
@@ -527,7 +527,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
     }
 
     entries := slice_create([]Map_Entry_With_Key, len(m), e.temp_allocator) or_return
-    defer _ = slice_delete(entries, e.temp_allocator)
+    defer _ = slice.delete(entries, e.temp_allocator)
 
     for &entry, i in entries {
         entry.entry = m[i]
@@ -548,7 +548,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
 
     for entry in entries {
         _ = io.write_full(e.writer, entry.encoded_key) or_return
-        _ = slice_delete(entry.encoded_key, e.temp_allocator)
+        _ = slice.delete(entry.encoded_key, e.temp_allocator)
 
         encode(e, entry.entry.value) or_return
     }

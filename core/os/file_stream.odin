@@ -72,7 +72,7 @@ file_io_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte
     file_stream_mode := transmute(File_Stream_Mode)mode
 
     ferr: Error
-    n, ferr = f.stream.procedure(f, file_stream_mode, p, offset, whence, internal.nil_allocator())
+    n, ferr = f.stream.procedure(f, file_stream_mode, p, offset, whence, {})
     err = error_to_io_error(ferr)
     return
 }
@@ -82,7 +82,7 @@ file_stream_fstat_utility :: proc(f: ^File_Impl, p: []byte, allocator: mem.Alloc
     fi: File_Info
     if len(p) >= size_of(fi) {
         fi, err = _fstat(&f.file, allocator)
-        internal.mem_copy_non_overlapping(raw_data(p), &fi, size_of(fi))
+        mem.copy_non_overlapping(raw_data(p), &fi, size_of(fi))
     } else {
         err = .Short_Buffer
     }

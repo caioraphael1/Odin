@@ -49,7 +49,7 @@ is_integer_negative :: proc(x: u64, is_signed: bool, bit_size: int) -> (u: u64, 
 Writes the string representation of an integer to a buffer with specified base, flags, and digit set.
 
 **Inputs**
-- buf: The buffer to dyn_array_append the integer representation to
+- buf: The buffer to dyn_array.append the integer representation to
 - x: The integer value to convert
 - base: The base for the integer representation (2 <= base <= MAX_BASE)
 - is_signed: A boolean indicating if the input should be treated as a signed integer
@@ -98,7 +98,7 @@ write_bits :: proc(buf: []byte, x: u64, base: int, is_signed: bool, bit_size: in
     }
 
     out := a[i:]
-    slice_copy(buf, out)
+    slice.copy(buf, out)
     return string(buf[0:len(out)])
 }
 /*
@@ -147,7 +147,7 @@ is_integer_negative_128 :: proc(x: u128, is_signed: bool, bit_size: int) -> (u: 
 Writes the string representation of a 128-bit integer to a buffer with specified base, flags, and digit set.
 
 **Inputs**
-- buf: The buffer to dyn_array_append the integer representation to
+- buf: The buffer to dyn_array.append the integer representation to
 - x: The 128-bit integer value to convert
 - base: The base for the integer representation (2 <= base <= MAX_BASE)
 - is_signed: A boolean indicating if the input should be treated as a signed integer
@@ -203,6 +203,6 @@ write_bits_128 :: proc(buf: []byte, x: u128, base: int, is_signed: bool, bit_siz
     }
 
     out := a[i:]
-    slice_copy(buf, out)
+    slice.copy(buf, out)
     return string(buf[0:len(out)])
 }

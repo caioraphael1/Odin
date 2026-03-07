@@ -126,7 +126,7 @@ which_bytes :: proc(data: []byte) -> Which_File_Type {
 	}
 
 	header: [128]byte
-	slice_copy(header[:], data)
+	slice.copy(header[:], data)
 	s := string(header[:])
 
 	switch {

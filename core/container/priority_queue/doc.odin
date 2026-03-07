@@ -34,7 +34,7 @@ Example:
         // Drain jobs in order of importance
         last: Printer_Job
         for pq.len(q) > 0 {
-            v := pq.dyn_array_pop(&q)
+            v := pq.dyn_array.pop(&q)
             assert(v.weight >= last.weight)
             last = v
         }

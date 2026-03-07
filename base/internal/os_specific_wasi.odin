@@ -49,13 +49,13 @@ _wasi_setup_args :: proc() {
 
     args_buf: []byte
     if args_buf, err = slice_create([]byte, size_of_args); err != nil {
-        _ = slice_delete(args__)
+        _ = slice.delete(args__)
         return
     }
 
     if errno := args_get(raw_data(args__), raw_data(args_buf)); errno != 0 {
-        _ = slice_delete(args__)
-        _ = slice_delete(args_buf)
+        _ = slice.delete(args__)
+        _ = slice.delete(args_buf)
     }
 }
 

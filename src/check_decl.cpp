@@ -1549,7 +1549,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
         if (ln == "memcpy" ||
             ln == "memmove" ||
             ln == "mem_copy" ||
-            ln == "mem_copy_non_overlapping") {
+            ln == "mem.copy_non_overlapping") {
             e->Procedure.is_memcpy_like = true;
         }
     }

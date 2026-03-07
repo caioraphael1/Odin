@@ -1611,7 +1611,7 @@ quote :: proc(buf: []byte, str: string) -> string {
         if i^ >= len(buf) {
             return
         }
-        n := slice_copy(buf[i^:], bytes[:])
+        n := slice.copy(buf[i^:], bytes[:])
         i^ += n
     }
 
@@ -1670,7 +1670,7 @@ Output:
 quote_rune :: proc(buf: []byte, r: rune) -> string {
     write_byte :: proc(buf: []byte, i: ^int, bytes: ..byte) {
         if i^ < len(buf) {
-            n := slice_copy(buf[i^:], bytes[:])
+            n := slice.copy(buf[i^:], bytes[:])
             i^ += n
         }
     }
@@ -1683,7 +1683,7 @@ quote_rune :: proc(buf: []byte, r: rune) -> string {
     write_rune :: proc(buf: []byte, i: ^int, r: rune) {
         if i^ < len(buf) {
             b, w := utf8.encode_rune(r)
-            n := slice_copy(buf[i^:], b[:w])
+            n := slice.copy(buf[i^:], b[:w])
             i^ += n
         }
     }
@@ -1934,7 +1934,7 @@ unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, a
     for len(s) > 0 {
         r, multiple_bytes, tail_string, ok := unquote_char(s, byte(quote))
         if !ok {
-            _ = slice_delete(buf, allocator)
+            _ = slice.delete(buf, allocator)
             return s, false, false
         }
         s = tail_string
@@ -1943,7 +1943,7 @@ unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, a
             offset += 1
         } else {
             b, w := utf8.encode_rune(r)
-            slice_copy(buf[offset:], b[:w])
+            slice.copy(buf[offset:], b[:w])
             offset += w
         }
     }

@@ -427,7 +427,7 @@ _mm_load_si128 :: #force_inline proc "c" (mem_addr: ^__m128i) -> __m128i {
 @(enable_target_feature="sse2")
 _mm_loadu_si128 :: #force_inline proc "c" (mem_addr: ^__m128i) -> __m128i {
 	dst := _mm_undefined_si128()
-	intrinsics.mem_copy_non_overlapping(&dst, mem_addr, size_of(__m128i))
+	mem.copy_non_overlapping(&dst, mem_addr, size_of(__m128i))
 	return dst
 }
 @(enable_target_feature="sse2")
@@ -445,7 +445,7 @@ _mm_storeu_si128 :: #force_inline proc "c" (mem_addr: ^__m128i, a: __m128i) {
 @(enable_target_feature="sse2")
 _mm_storel_epi64 :: #force_inline proc "c" (mem_addr: ^__m128i, a: __m128i) {
 	a := a
-	intrinsics.mem_copy_non_overlapping(mem_addr, &a, 8)
+	mem.copy_non_overlapping(mem_addr, &a, 8)
 }
 @(enable_target_feature="sse2")
 _mm_stream_si128 :: #force_inline proc "c" (mem_addr: ^__m128i, a: __m128i) {
@@ -938,7 +938,7 @@ _mm_loadr_pd :: #force_inline proc "c" (mem_addr: ^f64) -> __m128d {
 @(enable_target_feature="sse2")
 _mm_loadu_pd :: #force_inline proc "c" (mem_addr: ^f64) -> __m128d {
 	dst := _mm_undefined_pd()
-	intrinsics.mem_copy_non_overlapping(&dst, mem_addr, size_of(__m128d))
+	mem.copy_non_overlapping(&dst, mem_addr, size_of(__m128d))
 	return dst
 }
 @(enable_target_feature="sse2")

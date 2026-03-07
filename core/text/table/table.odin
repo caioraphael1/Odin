@@ -88,8 +88,8 @@ init_with_mem_arena :: proc(tbl: ^Table, format_arena: ^mem.Arena, table_allocat
 
 destroy :: proc(tbl: ^Table) {
     _ = free_all(tbl.format_allocator)
-    _ = slice_delete(tbl.cells)
-    _ = slice_delete(tbl.colw)
+    _ = slice.delete(tbl.cells)
+    _ = slice.delete(tbl.colw)
 }
 
 caption :: proc(tbl: ^Table, value: string) {
@@ -280,7 +280,7 @@ first_row :: proc(tbl: ^Table) -> int {
 
 build :: proc(tbl: ^Table, width_proc: Width_Proc) {
     _ = dyn_array_resize(&tbl.colw, tbl.nr_cols)
-    mem.zero_slice(tbl.colw[:])
+    mem.slice.zero(tbl.colw[:])
 
     for row in 0..<tbl.nr_rows {
         for col in 0..<tbl.nr_cols {

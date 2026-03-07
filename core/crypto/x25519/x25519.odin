@@ -109,7 +109,7 @@ scalarmult :: proc(dst, scalar, point: []byte) {
 
 	// "clamp" the scalar
 	e: [32]byte = ---
-	slice_copy(e[:], scalar)
+	slice.copy(e[:], scalar)
 	e[0] &= 248
 	e[31] &= 127
 	e[31] |= 64

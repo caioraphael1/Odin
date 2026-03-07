@@ -32,7 +32,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
     if len(key) + 1 > len(buf) {
         return "", .Buffer_Full
     } else {
-        slice_copy(buf, key)
+        slice.copy(buf, key)
     }
 
     cval := posix.getenv(cstring(raw_data(buf)))
@@ -46,7 +46,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
         if len(value) > len(buf) {
             return "", .Buffer_Full
         } else {
-            slice_copy(buf, value)
+            slice.copy(buf, value)
             return string(buf[:len(value)]), nil
         }
     }
@@ -89,13 +89,13 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
     r := dyn_array_create([dynamic]string, 0, n, allocator) or_return
     defer if err != nil {
         for e in r {
-            _ = slice_delete(e, allocator)
+            _ = slice.delete(e, allocator)
         }
-        _ = slice_delete(r)
+        _ = slice.delete(r)
     }
 
     for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-        _ = dyn_array_append(&r, strings.clone(string(entry), allocator) or_return)
+        _ = dyn_array.append(&r, strings.clone(string(entry), allocator) or_return)
     }
 
     environ = r[:]

@@ -9,7 +9,7 @@ template <typename U, typename V>
 gb_internal gb_inline U const &bit_cast(V const &v) { return reinterpret_cast<U const &>(v); }
 
 
-gb_internal gb_inline i64 align_formula(i64 size, i64 align) {
+gb_internal gb_inline i64 mem.align_formula(i64 size, i64 align) {
 	i64 result = size + align-1;
 	return result - (i64)((u64)result%(u64)align);
 }

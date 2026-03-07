@@ -345,7 +345,7 @@ __floattidf :: proc "c" (a: i128) -> f64 {
     return transmute(f64)fb
 }
 
-@(link_name="__floattidf_unsigned", linkage=RUNTIME_LINKAGE, require=RUNTIME_REQUIRE)
+@(linkage=RUNTIME_LINKAGE, require=RUNTIME_REQUIRE)
 __floattidf_unsigned :: proc "c" (a: u128) -> f64 {
     DBL_MANT_DIG :: 53
     if a == 0 {

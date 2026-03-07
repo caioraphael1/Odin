@@ -10372,7 +10372,7 @@ gb_internal ExprKind check_selector_call_expr(CheckerContext *c, Operand *o, Ast
 
     auto modified_args = permanent_slice_make<Ast *>(ce->args.count+1);
     modified_args[0] = first_arg;
-    slice_copy(&modified_args, ce->args, 1);
+    slice.copy(&modified_args, ce->args, 1);
     ce->args = modified_args;
     se->modified_call = true;
 

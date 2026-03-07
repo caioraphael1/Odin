@@ -59,14 +59,14 @@ strncpy :: proc "c" (dst: [^]byte, src: cstring, count: uint) -> cstring {
     icount := int(count)
     assert_contextless(icount >= 0)
     cnt := min(len(src), icount)
-    intrinsics.mem_copy_non_overlapping(dst, rawptr(src), cnt)
-    intrinsics.mem_zero(dst, icount-cnt)
+    mem.copy_non_overlapping(dst, rawptr(src), cnt)
+    mem.zero(dst, icount-cnt)
     return cstring(dst)
 }
 
 @(require, linkage="strong", link_name="strcpy")
 strcpy :: proc "c" (dst: [^]byte, src: cstring) -> cstring {
-    intrinsics.mem_copy_non_overlapping(dst, rawptr(src), len(src)+1)
+    mem.copy_non_overlapping(dst, rawptr(src), len(src)+1)
     return cstring(dst)
 }
 

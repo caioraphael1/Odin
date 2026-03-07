@@ -1,6 +1,7 @@
 import "base:intrinsics"
 import "base:slice"
 import "base:internal"
+import "base:mem"
 
 // This is an implementation of the Chacha8Rand DRBG, as specified
 // in https://github.com/C2SP/C2SP/blob/main/chacha8rand.md
@@ -102,7 +103,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
         for remaining := p_len; remaining > 0; {
             sz := min(remaining, RNG_OUTPUT_PER_ITER - r._off)
             #no_bounds_check {
-                slice.slice_copy(p_[:sz], r._buf[r._off:])
+                slice.copy(p_[:sz], r._buf[r._off:])
                 p_ = p_[sz:]
                 remaining -= sz
             }
@@ -110,7 +111,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
             new_off := r._off + rounded_sz
             #no_bounds_check if new_off < RNG_OUTPUT_PER_ITER {
                 // Erasure (backtrack resistance)
-                intrinsics.mem_zero(raw_data(r._buf[r._off:]), rounded_sz)
+                mem.zero(raw_data(r._buf[r._off:]), rounded_sz)
                 r._off = new_off
             } else {
                 // Can omit erasure since we are overwriting the entire
@@ -132,8 +133,8 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
         // re-seeding (as it makes testing easier), but callers that
         // decide to provide arbitrary seeds are on their own as far
         // as ensuring high-quality entropy.
-        intrinsics.mem_zero(raw_data(next_seed), RNG_SEED_SIZE)
-        slice.slice_copy(next_seed, p)
+        mem.zero(raw_data(next_seed), RNG_SEED_SIZE)
+        slice.copy(next_seed, p)
         r._seeded = true
         r._off = RNG_OUTPUT_PER_ITER // Force a refill.
 

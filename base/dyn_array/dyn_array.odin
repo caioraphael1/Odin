@@ -1,6 +1,7 @@
 import "base:mem"
 import "base:intrinsics"
 import "base:internal"
+import "base:slice"
 
 
 DEFAULT_DYNAMIC_ARRAY_CAPACITY :: 8
@@ -118,7 +119,7 @@ _append :: #force_no_inline proc(array: ^Raw_Dynamic_Array, size_of_elem, align_
         data := ([^]byte)(array.data)
         assert(data != nil, loc=loc)
         data = data[array.len*size_of_elem:]
-        intrinsics.mem_copy_non_overlapping(data, arg_ptr, size_of_elem)
+        mem.copy_non_overlapping(data, arg_ptr, size_of_elem)
         array.len += 1
     }
     return
@@ -209,7 +210,7 @@ inject_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcast arg
 
     resize(array, new_size, loc) or_return
     when size_of(E) != 0 {
-        slice_copy(array[index + m:], array[index:])
+        slice.copy(array[index + m:], array[index:])
         array[index] = arg
     }
     ok = true
@@ -235,8 +236,8 @@ inject_many_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcas
 
     _ = resize(array, new_size, loc) or_return
     when size_of(E) != 0 {
-        slice_copy(array[index + m:], array[index:])
-        slice_copy(array[index:], args)
+        slice.copy(array[index + m:], array[index:])
+        slice.copy(array[index:], args)
     }
     ok = true
     return
@@ -260,8 +261,8 @@ inject_string_at :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: st
     new_size := n + m
 
     _ = resize(array, new_size, loc) or_return
-    slice_copy(array[index+m:], array[index:])
-    slice_copy(array[index:], arg)
+    slice.copy(array[index+m:], array[index:])
+    slice.copy(array[index:], arg)
     ok = true
     return
 }
@@ -287,11 +288,11 @@ assign_many_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcas
     if len(args) == 0 {
         ok = true
     } else if new_size < len(array) {
-        slice_copy(array[index:], args)
+        slice.copy(array[index:], args)
         ok = true
     } else {
         _ = resize(array, new_size, loc) or_return
-        slice_copy(array[index:], args)
+        slice.copy(array[index:], args)
         ok = true
     }
     return
@@ -304,11 +305,11 @@ assign_string_at :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: st
     if len(arg) == 0 {
         ok = true
     } else if new_size < len(array) {
-        slice_copy(array[index:], arg)
+        slice.copy(array[index:], arg)
         ok = true
     } else {
         _ = resize(array, new_size, loc) or_return
-        slice_copy(array[index:], arg)
+        slice.copy(array[index:], arg)
         ok = true
     }
     return
@@ -333,9 +334,9 @@ unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #ca
 // Note: If the elements do not have to remain in their order, prefer `unordered_remove`.
 // Note: If the index is out of bounds, this procedure will panic.
 ordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #caller_location) #no_bounds_check {
-    bounds_check_error_loc(loc, index, len(array))
+    internal.bounds_check_error_loc(loc, index, len(array))
     if index+1 < len(array) {
-        slice_copy(array[index:], array[index+1:])
+        slice.copy(array[index:], array[index+1:])
     }
     (^Raw_Dynamic_Array)(array).len -= 1
 }
@@ -348,7 +349,7 @@ remove_range :: proc(array: ^$D/[dynamic]$T, #any_int lo, hi: int, loc := #calle
     n := max(hi-lo, 0)
     if n > 0 {
         if hi != len(array) {
-            slice_copy(array[lo:], array[hi:])
+            slice.copy(array[lo:], array[hi:])
         }
         (^Raw_Dynamic_Array)(array).len -= n
     }
@@ -366,7 +367,7 @@ pop :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #no_bou
 
 _raw_dyn_array_pop :: proc(res: rawptr, array: ^Raw_Dynamic_Array, elem_size: int, loc := #caller_location) {
     end := rawptr(uintptr(array.data) + uintptr(elem_size*(array.len-1)))
-    intrinsics.mem_copy_non_overlapping(res, end, elem_size)
+    mem.copy_non_overlapping(res, end, elem_size)
     array.len -= 1
 }
 
@@ -387,7 +388,7 @@ pop_front :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #
     assert(len(array) > 0, loc=loc)
     res = array[0]
     if len(array) > 1 {
-        slice_copy(array[0:], array[1:])
+        slice.copy(array[0:], array[1:])
     }
     (^Raw_Dynamic_Array)(array).len -= 1
     return res
@@ -401,7 +402,7 @@ pop_front_safe :: proc(array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_
     }
     res, ok = array[0], true
     if len(array) > 1 {
-        slice_copy(array[0:], array[1:])
+        slice.copy(array[0:], array[1:])
     }
     (^Raw_Dynamic_Array)(array).len -= 1
     return
@@ -474,7 +475,7 @@ _resize :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_elem, align_of_e
 
     if should_zero && a.len < length {
         num_reused := min(a.cap, length) - a.len
-        intrinsics.mem_zero(([^]byte)(a.data)[a.len*size_of_elem:], num_reused*size_of_elem)
+        mem.zero(([^]byte)(a.data)[a.len*size_of_elem:], num_reused*size_of_elem)
     }
 
     if length <= a.cap {

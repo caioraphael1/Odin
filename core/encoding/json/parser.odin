@@ -184,12 +184,12 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
         for elem in array {
             destroy_value(elem, array.allocator, loc=loc)
         }
-        _ = dyn_array_delete(array, loc)
+        _ = dyn_array.delete(array, loc)
     }
 
     for p.curr_token.kind != .Close_Bracket {
         elem := parse_value(p, loc) or_return
-        _ = dyn_array_append(&array, elem, loc)
+        _ = dyn_array.append(&array, elem, loc)
         
         if parse_comma(p) {
             break
@@ -203,7 +203,7 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
 
 @(private)
 bytes_make :: proc(size, alignment: int, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Error) {
-    b, berr := runtime.mem_alloc(size, alignment, allocator, loc)
+    b, berr := mem.alloc(size, alignment, allocator, loc)
     if berr != nil {
         if berr == .Out_Of_Memory {
             err = .Out_Of_Memory
@@ -422,7 +422,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
                 }
 
                 buf, buf_width := utf8.encode_rune(r)
-                slice_copy(b[w:], buf[:buf_width])
+                slice.copy(b[w:], buf[:buf_width])
                 w += buf_width
 
             case '0':
@@ -452,7 +452,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
                     i += 4
 
                     buf, buf_width := utf8.encode_rune(r)
-                    slice_copy(b[w:], buf[:buf_width])
+                    slice.copy(b[w:], buf[:buf_width])
                     w += buf_width
                 } else {
                     break loop
@@ -473,7 +473,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
 
             buf, buf_width := utf8.encode_rune(r)
             assert(buf_width <= width)
-            slice_copy(b[w:], buf[:buf_width])
+            slice.copy(b[w:], buf[:buf_width])
             w += buf_width
         }
     }

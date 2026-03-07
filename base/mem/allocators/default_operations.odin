@@ -1,4 +1,5 @@
 import "base:mem"
+import "base:slice"
 
 /*
 Default resize procedure.
@@ -107,29 +108,29 @@ _default_resize_bytes_align :: #force_inline proc(
     old_size := len(old_data)
     if old_memory == nil {
         if should_zero {
-            return mem_alloc(new_size, alignment, allocator, loc)
+            return mem.alloc(new_size, alignment, allocator, loc)
         } else {
-            return mem_alloc_non_zeroed(new_size, alignment, allocator, loc)
+            return mem.alloc_non_zeroed(new_size, alignment, allocator, loc)
         }
     }
     if new_size == 0 {
-        err := mem_free_bytes(old_data, allocator, loc)
+        err := mem.free_bytes(old_data, allocator, loc)
         return nil, err
     }
-    if new_size == old_size && is_aligned(old_memory, alignment) {
+    if new_size == old_size && mem.is_aligned(old_memory, alignment) {
         return old_data, .None
     }
     new_memory : []byte
     err : mem.Allocator_Error
     if should_zero {
-        new_memory, err = mem_alloc(new_size, alignment, allocator, loc)
+        new_memory, err = mem.alloc(new_size, alignment, allocator, loc)
     } else {
-        new_memory, err = mem_alloc_non_zeroed(new_size, alignment, allocator, loc)
+        new_memory, err = mem.alloc_non_zeroed(new_size, alignment, allocator, loc)
     }
     if new_memory == nil || err != nil {
         return nil, err
     }
-    runtime.slice_copy(new_memory, old_data)
-    _ = mem_free_bytes(old_data, allocator, loc)
+    slice.copy(new_memory, old_data)
+    _ = mem.free_bytes(old_data, allocator, loc)
     return new_memory, err
 }

@@ -2662,14 +2662,6 @@ gb_internal int print_show_help(String const arg0, String command, String option
     }
 
     if (check) {
-        if (print_flag("-default-to-nil-allocator")) {
-            print_usage_line(2, "Sets the default allocator to be the nil_allocator, an allocator which does nothing.");
-        }
-
-        if (print_flag("-default-to-panic-allocator")) {
-            print_usage_line(2, "Sets the default allocator to be the panic_allocator, an allocator which calls panic() on any allocation attempt.");
-        }
-
         if (print_flag("-define:<name>=<value>")) {
             print_usage_line(2, "Defines a scalar boolean, integer or string as global constant.");
             print_usage_line(2, "Example: -define:SPAM=123");
