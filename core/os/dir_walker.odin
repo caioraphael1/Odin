@@ -138,7 +138,7 @@ Example:
 
 
             // Skip a directory:
-            if strings.has_suffix(info.fullpath, ".git") {
+            if strings.string_has_suffix(info.fullpath, ".git") {
                 os.walker_skip_dir(&w)
                 continue
             }

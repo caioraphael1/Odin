@@ -1,3 +1,5 @@
+@(require) import "base:mem"
+
 // 7.22 General utilities
 
 when ODIN_OS == .Windows {
@@ -8,8 +10,6 @@ when ODIN_OS == .Windows {
     foreign import libc "system:c"
 }
 
-@(require)
-import "base:runtime"
 
 when ODIN_OS == .Windows {
     RAND_MAX :: 0x7fff
@@ -162,7 +162,7 @@ aligned_alloc :: #force_inline proc "c" (alignment, size: size_t) -> rawptr {
         }
         return _aligned_malloc(size=size, alignment=alignment)
     } else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
-        data, _ := runtime.mem_alloc_bytes(auto_cast size, auto_cast alignment)
+        data, _ := mem.alloc(auto_cast size, auto_cast alignment)
         return raw_data(data)
     } else {
         foreign libc {
@@ -180,7 +180,7 @@ aligned_free :: #force_inline proc "c" (ptr: rawptr) {
         }
         _aligned_free(ptr)
     } else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
-        runtime.free(ptr)
+        mem.free(ptr)
     } else {
         _ = free(ptr)
     }

@@ -265,18 +265,18 @@ Allocator_Proc :: internal.Allocator_Proc
 
 // @(builtin)
 new :: proc($T: typeid, allocator: Allocator, loc := #caller_location) -> (t: ^T, err: Allocator_Error) {
-    t = (^T)(raw_data(mem_alloc_bytes(size_of(T), align_of(T), allocator, loc) or_return))
+    t = (^T)(raw_data(alloc(size_of(T), align_of(T), allocator, loc) or_return))
     return
 }
 
 new_aligned :: proc($T: typeid, alignment: int, allocator: Allocator, loc := #caller_location) -> (t: ^T, err: Allocator_Error) {
-    t = (^T)(raw_data(mem_alloc_bytes(size_of(T), alignment, allocator, loc) or_return))
+    t = (^T)(raw_data(alloc(size_of(T), alignment, allocator, loc) or_return))
     return
 }
 
 // @(builtin)
 new_clone :: proc(data: $T, allocator: Allocator, loc := #caller_location) -> (t: ^T, err: Allocator_Error) {
-    t = (^T)(raw_data(mem_alloc_bytes(size_of(T), align_of(T), allocator, loc) or_return))
+    t = (^T)(raw_data(alloc(size_of(T), align_of(T), allocator, loc) or_return))
     if t != nil {
         t^ = data
     }

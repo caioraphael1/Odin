@@ -110,10 +110,10 @@ gb_internal void odin_doc_writer_start_writing(OdinDocWriter *w) {
     w->state = OdinDocWriterState_Writing;
 
     string_map_clear(&w->string_cache);
-    map_clear(&w->file_cache);
-    map_clear(&w->pkg_cache);
-    map_clear(&w->entity_cache);
-    map_clear(&w->type_cache);
+    maps.clear(&w->file_cache);
+    maps.clear(&w->pkg_cache);
+    maps.clear(&w->entity_cache);
+    maps.clear(&w->type_cache);
 
     isize total_size = odin_doc_writer_calc_total_size(w);
     total_size = align_formula_isize(total_size, 8);

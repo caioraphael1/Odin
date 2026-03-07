@@ -3099,7 +3099,7 @@ fmt_map :: proc(fi: ^Info, v: any, info: internal.Type_Info_Map, verb: rune) {
             ks, vs, hs, _, _ := internal.map_kvh_data_dynamic(m^, info.map_info)
             j := 0
             for bucket_index in 0..<map_cap {
-                internal.map_hash_is_valid(hs[bucket_index]) or_continue
+                internal.maps.hash_is_valid(hs[bucket_index]) or_continue
 
                 if !do_trailing_comma && j > 0 { _, _ = io.write_string(fi.writer, ", ") }
                 if hash {

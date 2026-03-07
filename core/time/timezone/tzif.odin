@@ -377,7 +377,7 @@ parse_posix_tz :: proc(posix_tz: string, allocator: mem.Allocator) -> (out: date
     std_offset *= -1
     str = str[idx2:]
 
-    std_name_str, err := strings.clone(std_name, allocator)
+    std_name_str, err := strings.string_clone(std_name, allocator)
     if err != nil { return }
     defer if !ok { _ = string_delete(std_name_str, allocator) }
 
@@ -416,7 +416,7 @@ parse_posix_tz :: proc(posix_tz: string, allocator: mem.Allocator) -> (out: date
     str = str[idx4:]
 
     dst_name_str: string
-    dst_name_str, err = strings.clone(dst_name, allocator)
+    dst_name_str, err = strings.string_clone(dst_name, allocator)
     if err != nil { return }
 
     return datetime.TZ_RRule{
@@ -624,7 +624,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
     }
 
     region_name_out: string
-    region_name_out, err = strings.clone(region_name, allocator)
+    region_name_out, err = strings.string_clone(region_name, allocator)
     if err != nil { return }
     defer if err != nil { _ = string_delete(region_name_out, allocator) }
 

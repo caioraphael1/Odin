@@ -165,7 +165,7 @@ parent directory.
 
 clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, err: mem.Allocator_Error) {
     if path == "" || path == "." {
-        return strings.clone(".", allocator)
+        return strings.string_clone(".", allocator)
     }
 
     internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
@@ -226,7 +226,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
     }
 
     if buffer_i == 0 {
-        return strings.clone(".", allocator)
+        return strings.string_clone(".", allocator)
     }
 
     compact := slice.create([]u8, buffer_i, allocator) or_return
@@ -269,10 +269,10 @@ reference to the parent directory (`".."`). Use `get_working_directory` with
 
 get_relative_path :: proc(base, target: string, allocator: mem.Allocator) -> (path: string, err: Error) {
     if _are_paths_identical(base, target) {
-        return strings.clone(".", allocator)
+        return strings.string_clone(".", allocator)
     }
     if base == "." {
-        return strings.clone(target, allocator)
+        return strings.string_clone(target, allocator)
     }
 
     // This is the first point where Windows and POSIX differ, as Windows has
@@ -280,7 +280,7 @@ get_relative_path :: proc(base, target: string, allocator: mem.Allocator) -> (pa
     if !_get_relative_path_handle_start(base, target) {
         return "", .Invalid_Path
     }
-    if strings.has_prefix(base, "..") && (len(base) == 2 || _is_path_separator(base[2])) {
+    if strings.string_has_prefix(base, "..") && (len(base) == 2 || _is_path_separator(base[2])) {
         // We could do the work for the user of getting absolute paths for both
         // arguments, but that could make something costly (repeatedly
         // normalizing paths) convenient, when it would be better for the user
@@ -509,7 +509,7 @@ join_path :: proc(elems: []string, allocator: mem.Allocator) -> (joined: string,
     for e, i in elems {
         if e != "" {
             internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-            p := strings.join(elems[i:], Path_Separator_String, internal.temp_allocator) or_return
+            p := strings.string_join(elems[i:], Path_Separator_String, internal.temp_allocator) or_return
             return clean_path(p, allocator)
         }
     }
@@ -571,9 +571,9 @@ For example, `join_filename("foo", "tar.gz")` will result in `"foo.tar.gz"`.
 
 join_filename :: proc(base: string, ext: string, allocator: mem.Allocator) -> (joined: string, err: Error) {
     if len(base) == 0 {
-        return strings.clone(ext, allocator)
+        return strings.string_clone(ext, allocator)
     } else if len(ext) == 0 {
-        return strings.clone(base, allocator)
+        return strings.string_clone(base, allocator)
     }
 
     buf := slice.create([]u8, len(base) + 1 + len(ext), allocator) or_return
@@ -635,7 +635,7 @@ split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []stri
     for s0, i in list {
         s, new := strings.replace_all(s0, `"`, ``, allocator)
         if !new {
-            s = strings.clone(s, allocator) or_return
+            s = strings.string_clone(s, allocator) or_return
         }
         list[i] = s
     }

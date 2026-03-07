@@ -79,9 +79,9 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
     }
     defer linux.close(dir_fd)
 
-    dynamic_list := dyn_array_create([dynamic]int, runtime.temp_allocator) or_return
+    dynamic_list := dyn_array.create([dynamic]int, runtime.temp_allocator) or_return
 
-    buf := dyn_array_create([dynamic]u8, 128, 128, runtime.temp_allocator) or_return
+    buf := dyn_array.create([dynamic]u8, 128, 128, runtime.temp_allocator) or_return
     loop: for {
         buflen: int
         buflen, errno = linux.getdents(dir_fd, buf[:])
@@ -157,7 +157,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
             n = strings.index_byte(passwd, ':')
             if uid, ok := strconv.parse_int(passwd[:n]); ok && uid == int(s.uid) {
-                info.username = strings.clone(username, allocator) or_return
+                info.username = strings.string_clone(username, allocator) or_return
                 info.fields += {.Username}
                 break
             } else if !ok {
@@ -202,7 +202,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
             cwd, cwd_err = _read_link_cstr(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator) // allowed to fail
             if cwd_err == nil && .Working_Dir in selection {
-                info.working_dir = strings.clone(cwd, allocator) or_return
+                info.working_dir = strings.string_clone(cwd, allocator) or_return
                 info.fields += {.Working_Dir}
             } else if cwd_err != nil {
                 err = cwd_err
@@ -238,7 +238,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                         info.fields += {.Command_Args}
                     }
                     if i > 0 {
-                        arg := strings.clone(cmdline[:terminator], allocator) or_return
+                        arg := strings.string_clone(cmdline[:terminator], allocator) or_return
                         dyn_array.append(&command_args_list, arg) or_return
                     }
                 }
@@ -339,7 +339,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         strings.write_string(&path_builder, "/exe")
 
         if exe_bytes, exe_err := _read_link(strings.to_string(path_builder), runtime.temp_allocator); exe_err == nil {
-            info.executable_path = strings.clone(string(exe_bytes), allocator) or_return
+            info.executable_path = strings.string_clone(string(exe_bytes), allocator) or_return
             info.fields += {.Executable_Path}
         } else {
             err = exe_err
@@ -355,13 +355,13 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if env_bytes, env_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator); env_err == nil {
             env := string(env_bytes)
 
-            env_list := dyn_array_create([dynamic]string, allocator) or_return
+            env_list := dyn_array.create([dynamic]string, allocator) or_return
             for len(env) > 0 {
                 terminator := strings.index_byte(env, 0)
                 if terminator <= 0 {
                     break
                 }
-                e := strings.clone(env[:terminator], allocator) or_return
+                e := strings.string_clone(env[:terminator], allocator) or_return
                 dyn_array.append(&env_list, e) or_return
                 env = env[terminator + 1:]
             }
@@ -412,7 +412,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     dir_fd := linux.AT_FDCWD
     errno: linux.Errno
     if desc.working_dir != "" {
-        dir_cstr := clone_to_cstring(desc.working_dir, runtime.temp_allocator) or_return
+        dir_cstr := strings.cstring_clone_from_string(desc.working_dir, runtime.temp_allocator) or_return
         if dir_fd, errno = linux.open(dir_cstr, _OPENDIR_FLAGS); errno != .NONE {
             return process, _get_platform_error(errno)
         }
@@ -456,7 +456,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
             }
         }
     } else {
-        exe_path = clone_to_cstring(executable_name, runtime.temp_allocator) or_return
+        exe_path = strings.cstring_clone_from_string(executable_name, runtime.temp_allocator) or_return
         if linux.access(exe_path, linux.X_OK) != .NONE {
             return process, .Not_Exist
         }
@@ -466,7 +466,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     // that are terminated by a nil pointer.
     cargs := slice.create([]cstring, len(desc.command) + 1, runtime.temp_allocator) or_return
     for command, i in desc.command {
-        cargs[i] = clone_to_cstring(command, runtime.temp_allocator) or_return
+        cargs[i] = strings.cstring_clone_from_string(command, runtime.temp_allocator) or_return
     }
 
     // Use current process' environment if description didn't provide it.
@@ -477,7 +477,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     } else {
         cenv := slice.create([]cstring, len(desc.env) + 1, runtime.temp_allocator) or_return
         for env, i in desc.env {
-            cenv[i] = clone_to_cstring(env, runtime.temp_allocator) or_return
+            cenv[i] = strings.cstring_clone_from_string(env, runtime.temp_allocator) or_return
         }
         env = &cenv[0]
     }

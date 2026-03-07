@@ -52,7 +52,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     //  */
     //  if adapter_name not_in ifaces {
     //      ifaces[adapter_name] = new(Network_Interface)
-    //      ifaces[adapter_name].adapter_name = strings.clone(adapter_name)
+    //      ifaces[adapter_name].adapter_name = strings.string_clone(adapter_name)
     //  }
     //  iface := ifaces[adapter_name]
 
@@ -133,7 +133,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     // /*
     //  Turn the map into a slice to return.
     // */
-    // _interfaces := dyn_array_create([dynamic]Network_Interface, 0, allocator)
+    // _interfaces := dyn_array.create([dynamic]Network_Interface, 0, allocator)
     // for _, iface in ifaces {
     //  _ = dyn_array.append(&_interfaces, iface^)
     //  free(iface)

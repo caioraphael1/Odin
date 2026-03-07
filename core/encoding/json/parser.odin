@@ -241,14 +241,14 @@ parse_object_key :: proc(p: ^Parser, key_allocator: mem.Allocator, loc := #calle
 }
 
 parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_location) -> (obj: Object, err: Error) {
-    obj = map_create(Object, p.allocator, loc)
+    obj = maps.create(Object, p.allocator, loc)
 
     defer if err != nil {
         for key, elem in obj {
             _ = string_delete(key, p.allocator, loc)
             destroy_value(elem, p.allocator, loc=loc)
         }
-        _ = map_delete(obj, loc)
+        _ = maps.delete(obj, loc)
     }
 
     for p.curr_token.kind != end_token {
@@ -266,7 +266,7 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
         // inserting empty key/values into the object and for those we do not
         // want to allocate anything
         if key != "" {
-            reserve_error := map_reserve(&obj, len(obj) + 1, loc)
+            reserve_error := maps.reserve(&obj, len(obj) + 1, loc)
             if reserve_error == mem.Allocator_Error.Out_Of_Memory {
                 return nil, .Out_Of_Memory
             }

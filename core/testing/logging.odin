@@ -51,7 +51,7 @@ test_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text:
 		t.error_count += 1
 	}
 
-	cloned_text, clone_error := strings.clone(text, t._log_allocator)
+	cloned_text, clone_error := strings.string_clone(text, t._log_allocator)
 	assert(clone_error == nil, "Error while cloning string in test thread logger proc.")
 
 	now := time.now()

@@ -39,7 +39,7 @@ load_from_bytes :: proc(data: []byte, allocator : mem.Allocator) -> (img: ^Image
     info := new(Info)
     info.header = header
     if header.format == .P7 && header.tupltype != "" {
-        info.header.tupltype = strings.clone(header.tupltype)
+        info.header.tupltype = strings.string_clone(header.tupltype)
     }
     img.metadata = info
 
@@ -440,7 +440,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
         return
     }
 
-    header.tupltype = strings.clone(strings.to_string(tupltype))
+    header.tupltype = strings.string_clone(strings.to_string(tupltype))
     err = Format_Error.None
     return
 }

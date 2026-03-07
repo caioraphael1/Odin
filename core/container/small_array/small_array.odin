@@ -1,6 +1,6 @@
 import "base:builtin"
 @(require) import "base:intrinsics"
-@(require) import "base:runtime"
+@(require) import "base:internal"
 
 /*
 A fixed-size stack-allocated array operated on in a dynamic fashion.
@@ -639,8 +639,8 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : [0, 2, 3]
 */
-dyn_array.ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
-    runtime.bounds_check_error_loc(loc, index, a.len)
+ordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
+    internal.bounds_check_error_loc(loc, index, a.len)
     if index+1 < a.len {
         slice.copy(a.data[index:], a.data[index+1:])
     }
@@ -674,7 +674,7 @@ Output:
     AFTER : [0, 3, 2]
 */
 dyn_array_unordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
-    runtime.bounds_check_error_loc(loc, index, a.len)
+    internal.bounds_check_error_loc(loc, index, a.len)
     n := a.len-1
     if index != n {
         a.data[index] = a.data[n]
@@ -790,8 +790,8 @@ dyn_array_inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> 
     return false
 }
 
-dyn_array.append      :: push_back
-dyn_array.append_many :: push_back_many
+append      :: push_back
+append_many :: push_back_many
 
 /*
 Tries to dyn_array.append the element(s) to the small-array.

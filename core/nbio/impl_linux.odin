@@ -375,7 +375,7 @@ _open_sync :: proc(l: ^Event_Loop, path: string, dir: Handle, mode: File_Flags, 
         return
     }
 
-    cpath, cerr := strings.clone_to_cstring(path, l.allocator)
+    cpath, cerr := strings.strings.cstring_clone_from_string(path, l.allocator)
     if cerr != nil {
         err = .Allocation_Failed
         return
@@ -1314,7 +1314,7 @@ open_exec :: proc(op: ^Operation) {
     if .Trunc       in op.open.mode { sys_flags += {.TRUNC} }
     // if .Inheritable in op.open.mode { sys_flags -= {.CLOEXEC} }
 
-    cpath, err := strings.clone_to_cstring(op.open.path, op.l.allocator)
+    cpath, err := strings.strings.cstring_clone_from_string(op.open.path, op.l.allocator)
     if err != nil {
         op.open.err = .Allocation_Failed
         queue.push_back(&op.l.completed, op)

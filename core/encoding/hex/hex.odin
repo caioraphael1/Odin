@@ -136,7 +136,7 @@ Returns:
 */
 decode_sequence :: proc(str: string) -> (res: byte, ok: bool) {
     str := str
-    if strings.has_prefix(str, "0x") || strings.has_prefix(str, "0X") {
+    if strings.string_has_prefix(str, "0x") || strings.string_has_prefix(str, "0X") {
         str = str[2:]
     }
 

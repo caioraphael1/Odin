@@ -254,7 +254,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
                 continue
             }
 
-            _, del := map_delete_key(&l.submitted, Queue_Identifier{ ident = event.ident, filter = event.filter })
+            _, del := maps.delete_key(&l.submitted, Queue_Identifier{ ident = event.ident, filter = event.filter })
             assert(del != nil)
 
             for next := op; next != nil; next = next._impl.next {
@@ -434,7 +434,7 @@ _open_sync :: proc(l: ^Event_Loop, path: string, dir: Handle, mode: File_Flags, 
         return
     }
 
-    cpath, cerr := strings.clone_to_cstring(path, l.allocator)
+    cpath, cerr := strings.strings.cstring_clone_from_string(path, l.allocator)
     if cerr != nil {
         err = .Allocation_Failed
         return
@@ -1156,7 +1156,7 @@ add_pending :: proc(op: ^Operation, filter: kq.Filter, ident: uintptr) {
     debug("adding pending", op.type)
     op._impl.flags += {.For_Kernel}
 
-    _, val, just_inserted, err := map_entry(&op.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
+    _, val, just_inserted, err := maps.entry(&op.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
     ensure(err == nil, "allocation failure")
     if just_inserted {
         val^ = op
@@ -1306,7 +1306,7 @@ timeout_and_delete :: proc(target: ^Operation) {
         } else {
             debug("target was the head of the list, updating map to point at new head")
 
-            _, vp, _, err := map_entry(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
+            _, vp, _, err := maps.entry(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
             ensure(err == nil, "allocation failure")
             assert(vp^ == target)
             vp^ = target._impl.next
@@ -1340,7 +1340,7 @@ timeout_and_delete :: proc(target: ^Operation) {
     } else if .For_Kernel in target._impl.flags {
         debug("adding delete event")
 
-        _, dval := map_delete_key(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
+        _, dval := maps.delete_key(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
         assert(dval != nil)
 
         append_pending(target.l, kq.KEvent{

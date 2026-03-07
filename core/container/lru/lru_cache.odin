@@ -151,7 +151,7 @@ _remove_node :: proc(c: ^$C/Cache($Key, $Value), node: ^Node(Key, Value)) {
 	node.prev = nil
 	node.next = nil
 
-	map_delete_key(&c.entries, node.key)
+	maps.delete_key(&c.entries, node.key)
 
 	_call_on_remove(c, node)
 }

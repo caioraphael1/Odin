@@ -22,7 +22,7 @@ _unload_library :: proc(library: Library) -> bool {
 }
 
 _symbol_address :: proc(library: Library, symbol: string, allocator: mem.Allocator) -> (ptr: rawptr, found: bool) {
-	c_str := strings.clone_to_cstring(symbol, allocator)
+	c_str := strings.strings.cstring_clone_from_string(symbol, allocator)
 	defer _ = slice.delete(c_str, allocator)
 	ptr = win32.GetProcAddress(cast(win32.HMODULE)library, c_str)
 	found = ptr != nil

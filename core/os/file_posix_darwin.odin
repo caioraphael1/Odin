@@ -13,14 +13,14 @@ _posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocato
 		return
 	}
 
-	return clone_to_cstring(string(cstring(&buf[0])), allocator)
+	return strings.cstring_clone_from_string(string(cstring(&buf[0])), allocator)
 }
 
 _copy_file_native :: proc(dst_path, src_path: string) -> (err: Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-	csrc := clone_to_cstring(src_path, runtime.temp_allocator) or_return
-	cdst := clone_to_cstring(dst_path, runtime.temp_allocator) or_return
+	csrc := strings.cstring_clone_from_string(src_path, runtime.temp_allocator) or_return
+	cdst := strings.cstring_clone_from_string(dst_path, runtime.temp_allocator) or_return
 
 	// Disallow directories, as specified by the generic implementation.
 

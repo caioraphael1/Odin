@@ -408,7 +408,7 @@ get_uniforms_from_program :: proc(program: u32) -> (uniforms: Uniforms) {
         GetActiveUniform(program, u32(i), 256, &length, &uniform_info.size, cast(^u32)&uniform_info.kind, &cname[0])
 
         uniform_info.location = GetUniformLocation(program, cstring(&cname[0]))
-        uniform_info.name = strings.clone(string(cname[:length])) // @NOTE: These need to be freed
+        uniform_info.name = strings.string_clone(string(cname[:length])) // @NOTE: These need to be freed
         uniforms[uniform_info.name] = uniform_info
     }
 

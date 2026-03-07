@@ -86,7 +86,7 @@ Visual :: struct {
 	green_mask:            uint,
 	blue_mask:             uint,
 	bits_per_rgb:          i32,
-	map_entries:           i32,
+	maps.entries:           i32,
 }
 
 Depth :: struct {

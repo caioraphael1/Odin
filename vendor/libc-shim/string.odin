@@ -87,12 +87,12 @@ strncmp :: proc "c" (lhs: cstring, rhs: cstring, count: uint) -> i32 {
     assert_contextless(icount >= 0)
     lhss := strings.string_from_null_terminated_ptr(([^]byte)(lhs), icount)
     rhss := strings.string_from_null_terminated_ptr(([^]byte)(rhs), icount)
-    return i32(strings.compare(lhss, rhss))
+    return i32(strings.string_compare(lhss, rhss))
 }
 
 @(require, linkage="strong", link_name="strcmp")
 strcmp :: proc "c" (lhs: cstring, rhs: cstring) -> i32 {
-    return i32(strings.compare(string(lhs), string(rhs)))
+    return i32(strings.string_compare(string(lhs), string(rhs)))
 }
 
 @(require, linkage="strong", link_name="strstr")

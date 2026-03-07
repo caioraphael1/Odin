@@ -34,7 +34,7 @@ clone_string :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: 
 
 
 
-clone_to_cstring :: proc(s: string, allocator: mem.Allocator) -> (res: cstring, err: mem.Allocator_Error) {
+strings.cstring_clone_from_string :: proc(s: string, allocator: mem.Allocator) -> (res: cstring, err: mem.Allocator_Error) {
     res = "" // do not use a `nil` cstring
     buf := slice.create([]byte, len(s)+1, allocator) or_return
     slice.copy_from_string(buf, s)

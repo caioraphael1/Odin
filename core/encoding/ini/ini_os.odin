@@ -14,7 +14,7 @@ load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DE
 	m, err = load_map_from_string(string(data), allocator, options)
 	ok = err == nil
 	defer if !ok {
-		map_delete(m)
+		maps.delete(m)
 	}
 	return
 }

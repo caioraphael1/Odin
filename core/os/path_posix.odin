@@ -14,7 +14,7 @@ _is_path_separator :: proc(c: byte) -> bool {
 
 _mkdir :: proc(name: string, perm: int) -> (err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    cname := clone_to_cstring(name, runtime.temp_allocator) or_return
+    cname := strings.cstring_clone_from_string(name, runtime.temp_allocator) or_return
     if posix.mkdir(cname, transmute(posix.mode_t)posix._mode_t(perm)) != .OK {
         return _get_platform_error()
     }
@@ -52,7 +52,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 
 _remove_all :: proc(path: string) -> (err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    cpath := clone_to_cstring(path, runtime.temp_allocator) or_return
+    cpath := strings.cstring_clone_from_string(path, runtime.temp_allocator) or_return
 
     dir := posix.opendir(cpath)
     if dir == nil {
@@ -115,7 +115,7 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: E
 
 _set_working_directory :: proc(dir: string) -> (err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    cdir := clone_to_cstring(dir, runtime.temp_allocator) or_return
+    cdir := strings.cstring_clone_from_string(dir, runtime.temp_allocator) or_return
     if posix.chdir(cdir) != .OK {
         err = _get_platform_error()
     }
@@ -128,7 +128,7 @@ _get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_
         rel = "."
     }
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-    rel_cstr := clone_to_cstring(rel, runtime.temp_allocator) or_return
+    rel_cstr := strings.cstring_clone_from_string(rel, runtime.temp_allocator) or_return
     path_ptr := posix.realpath(rel_cstr, nil)
     if path_ptr == nil {
         return "", _get_platform_error()

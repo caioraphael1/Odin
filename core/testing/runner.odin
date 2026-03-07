@@ -479,7 +479,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	}
 
 	task_timeouts: [dynamic]Task_Timeout = ---
-	task_timeouts, alloc_error = dyn_array_create([dynamic]Task_Timeout, 0, thread_count)
+	task_timeouts, alloc_error = dyn_array.create([dynamic]Task_Timeout, 0, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task timeouts: %v", alloc_error)
 	defer delete(task_timeouts)
 
@@ -489,12 +489,12 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	defer delete(failed_test_reason_map)
 
 	log_messages: [dynamic]Log_Message = ---
-	log_messages, alloc_error = dyn_array_create([dynamic]Log_Message, 0, RESERVED_LOG_MESSAGES)
+	log_messages, alloc_error = dyn_array.create([dynamic]Log_Message, 0, RESERVED_LOG_MESSAGES)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for log message queue: %v", alloc_error)
 	defer delete(log_messages)
 
 	sorted_failed_test_reasons: [dynamic]int = ---
-	sorted_failed_test_reasons, alloc_error = dyn_array_create([dynamic]int, 0, RESERVED_TEST_FAILURES)
+	sorted_failed_test_reasons, alloc_error = dyn_array.create([dynamic]int, 0, RESERVED_TEST_FAILURES)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for sorted failed test reasons: %v", alloc_error)
 	defer delete(sorted_failed_test_reasons)
 

@@ -17,7 +17,7 @@ Parser :: struct {
 parse_one_odin_arg :: proc(model: ^$T, parser: ^Parser, arg: string) -> (error: Error) {
 	arg := arg
 
-	if strings.has_prefix(arg, "-") {
+	if strings.string_has_prefix(arg, "-") {
 		arg = arg[1:]
 
 		flag: string
@@ -81,11 +81,11 @@ parse_one_unix_arg :: proc(model: ^$T, parser: ^Parser, arg: string) -> (
 ) {
 	arg := arg
 
-	if strings.has_prefix(arg, "-") {
+	if strings.string_has_prefix(arg, "-") {
 		// -flag
 		arg = arg[1:]
 
-		if strings.has_prefix(arg, "-") {
+		if strings.string_has_prefix(arg, "-") {
 			// Allow `--` to function as `-`.
 			arg = arg[1:]
 

@@ -187,7 +187,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
         if reflect.is_cstring(specific_type_info.key) {
             // We clone the key here, because it's liable to be a slice of an
             // Odin string, and we need to put a NUL terminator in it.
-            key_cstr, _ = strings.clone_to_cstring(key)
+            key_cstr, _ = strings.strings.cstring_clone_from_string(key)
             key_ptr = &key_cstr
         }
         defer if key_cstr != nil {

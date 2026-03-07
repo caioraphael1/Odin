@@ -1,3 +1,5 @@
+import "base:slice"
+
 import "core:io"
 import "core:unicode/utf8"
 

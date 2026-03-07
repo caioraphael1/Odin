@@ -1,15 +1,15 @@
 // A selection of cryptography algorithms and useful helper routines.
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:rand"
+import "base:internal"
+import "base:mem"
 import subtle "core:crypto/_subtle"
 
 // Omit large precomputed tables, trading off performance for size.
 COMPACT_IMPLS: bool : #config(ODIN_CRYPTO_COMPACT, false)
 
-// HAS_RAND_BYTES is true iff the runtime provides a cryptographic
-// entropy source.
-HAS_RAND_BYTES :: runtime.HAS_RAND_BYTES
+HAS_RAND_BYTES :: rand.HAS_RAND_BYTES
 
 // compare_constant_time returns 1 iff a and b are equal, 0 otherwise.
 //
@@ -92,7 +92,7 @@ This procedure copies value specified by the `value` parameter into each of the
 This procedure returns the pointer to `data`.
 */
 set :: proc(data: rawptr, value: byte, len: int) -> rawptr {
-    return runtime.memset(data, i32(value), len)
+    return internal.memset(data, i32(value), len)
 }
 
 // rand_bytes fills the dst buffer with cryptographic entropy taken from
@@ -104,29 +104,29 @@ set :: proc(data: rawptr, value: byte, len: int) -> rawptr {
 // `HAS_RAND_BYTES` boolean constant.
 rand_bytes :: proc (dst: []byte) {
     // zero-fill the buffer first
-    zero_explicit(raw_data(dst), len(dst))
+    mem.zero_explicit(raw_data(dst), len(dst))
 
-    runtime.rand_bytes(dst)
+    rand.rand_bytes(dst)
 }
 
-// random_generator returns a `runtime.Random_Generator` backed by the
+// random_generator returns a `rand.Random_Generator` backed by the
 // system entropy source.
 //
 // Support for the system entropy source can be checked with the
 // `HAS_RAND_BYTES` boolean constant.
-random_generator :: proc() -> runtime.Random_Generator {
+random_generator :: proc() -> rand.Random_Generator {
     return {
-        procedure = proc(data: rawptr, mode: runtime.Random_Generator_Mode, p: []byte) {
+        procedure = proc(data: rawptr, mode: rand.Random_Generator_Mode, p: []byte) {
             switch mode {
             case .Read:
                 rand_bytes(p)
             case .Reset:
                 // do nothing
             case .Query_Info:
-                if len(p) != size_of(runtime.Random_Generator_Query_Info) {
+                if len(p) != size_of(rand.Random_Generator_Query_Info) {
                     return
                 }
-                info := (^runtime.Random_Generator_Query_Info)(raw_data(p))
+                info := (^rand.Random_Generator_Query_Info)(raw_data(p))
                 info^ += {.Uniform, .Cryptographic, .External_Entropy}
             }
         },

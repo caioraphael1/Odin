@@ -280,7 +280,7 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
     case cstring:  
         if str == "" {
             a_err: mem.Allocator_Error
-            dst, a_err = strings.clone_to_cstring("", p.allocator)
+            dst, a_err = strings.strings.cstring_clone_from_string("", p.allocator)
             #partial switch a_err {
             case nil:
                 // okay
@@ -677,7 +677,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
                 case: return UNSUPPORTED_TYPE
             }
 
-            set_ptr := runtime.dynamic_map_set_without_hash(raw_map, t.map_info, key_ptr, map_backing_value.data)
+            set_ptr := runtime.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_ptr, map_backing_value.data)
             if set_ptr == nil {
                 _ = string_delete(key, p.allocator)
             } 

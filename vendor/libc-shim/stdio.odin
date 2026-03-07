@@ -284,7 +284,7 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
         switch t {
         case 's', 'c', '[':
             if t == 'c' || t == 's' {
-                runtime.memset(&scanset, -1, size_of(scanset))
+                internal.memset(&scanset, -1, size_of(scanset))
                 scanset[0] = 0
                 if t == 's' {
                     scanset['\t'] = 0
@@ -302,7 +302,7 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
                     invert = 1
                 }
 
-                runtime.memset(&scanset, i32(invert), size_of(scanset))
+                internal.memset(&scanset, i32(invert), size_of(scanset))
                 scanset[0] = 0
                 if p[0] == '-' {
                     p = p[1:]

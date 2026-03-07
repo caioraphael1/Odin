@@ -26,7 +26,7 @@ pos_compare :: proc(lhs, rhs: Pos) -> int {
 	if lhs.column != rhs.column {
 		return -1 if (lhs.column < rhs.column) else +1
 	}
-	return strings.compare(lhs.file, rhs.file)
+	return strings.string_compare(lhs.file, rhs.file)
 }
 
 Token_Kind :: enum u32 {

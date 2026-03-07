@@ -104,12 +104,12 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     }
 
     cwd: cstring; if desc.working_dir != "" {
-        cwd = clone_to_cstring(desc.working_dir, runtime.temp_allocator) or_return
+        cwd = strings.cstring_clone_from_string(desc.working_dir, runtime.temp_allocator) or_return
     }
 
     cmd := slice.create([]cstring, len(desc.command) + 1, runtime.temp_allocator)
     for part, i in desc.command {
-        cmd[i] = clone_to_cstring(part, runtime.temp_allocator) or_return
+        cmd[i] = strings.cstring_clone_from_string(part, runtime.temp_allocator) or_return
     }
 
     env: [^]cstring
@@ -119,7 +119,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     } else {
         cenv := slice.create([]cstring, len(desc.env) + 1, runtime.temp_allocator)
         for env, i in desc.env {
-            cenv[i] = clone_to_cstring(env, runtime.temp_allocator) or_return
+            cenv[i] = strings.cstring_clone_from_string(env, runtime.temp_allocator) or_return
         }
         env = raw_data(cenv)
     }

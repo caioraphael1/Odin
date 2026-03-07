@@ -99,7 +99,7 @@ destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_loc
             _ = string_delete(key, allocator, loc)
             destroy_value(elem, allocator, loc)
         }
-        _ = map_delete(v, loc)
+        _ = maps.delete(v, loc)
     case Array:
         for elem in v {
             destroy_value(elem, allocator, loc)
@@ -113,9 +113,9 @@ destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_loc
 clone_value :: proc(value: Value, allocator: mem.Allocator) -> Value {
     #partial switch &v in value {
     case Object:
-        new_o, _ := map_create_cap(Object, len(v), allocator)
+        new_o, _ := maps.create_cap(Object, len(v), allocator)
         for key, elem in v {
-            k_clone,    _ := strings.clone(key, allocator)
+            k_clone,    _ := strings.string_clone(key, allocator)
             new_o[k_clone] = clone_value(elem, allocator)
         }
         return new_o
@@ -126,7 +126,7 @@ clone_value :: proc(value: Value, allocator: mem.Allocator) -> Value {
         }
         return new_a
     case String:
-        v_clone, _ := strings.clone(v, allocator)
+        v_clone, _ := strings.string_clone(v, allocator)
         return v_clone
     }
 

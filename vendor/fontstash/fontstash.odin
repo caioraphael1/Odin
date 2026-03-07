@@ -336,7 +336,7 @@ AddFontMem :: proc(
     res := &ctx.fonts[len(ctx.fonts) - 1]
     res.loadedData     = data
     res.freeLoadedData = freeLoadedData
-    res.name           = strings.clone(name)
+    res.name           = strings.string_clone(name)
 
     num_fonts := stbtt.GetNumberOfFonts(raw_data(data))
     font_index_clamped := num_fonts > 0 ? clamp(i32(fontIndex), 0, num_fonts-1) : 0
@@ -639,12 +639,12 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloc
         mem.slice.copy(dst, src, ctx.width)
 
         if w > ctx.width {
-            runtime.memset(&data[i * w + ctx.width], 0, w - ctx.width)
+            internal.memset(&data[i * w + ctx.width], 0, w - ctx.width)
         }
     }
 
     if h > ctx.height {
-        runtime.memset(&data[ctx.height * w], 0, (h - ctx.height) * w)
+        internal.memset(&data[ctx.height * w], 0, (h - ctx.height) * w)
     }
 
     _ = slice.delete(ctx.textureData)

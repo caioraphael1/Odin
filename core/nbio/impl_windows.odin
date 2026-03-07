@@ -590,7 +590,7 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
     
     _normalize_path :: proc(path: string, allocator: mem.Allocator) -> (fixed: string, allocated: bool) {
         // An UNC path or relative, just replace slashes.
-        if strings.has_prefix(path, `\\`) || !filepath.is_abs(path) {
+        if strings.string_has_prefix(path, `\\`) || !filepath.is_abs(path) {
             return strings.replace_all(path, `/`, `\`)
         }
 

@@ -30,7 +30,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
     defer _ = string_delete(target_clean, allocator)
 
     if strings.equal_fold(target_clean, base_clean) {
-        dot_cloned, _ := strings.clone(".", allocator)
+        dot_cloned, _ := strings.string_clone(".", allocator)
         return dot_cloned, .None
     }
 
@@ -92,7 +92,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
         return string(buf), .None
     }
 
-    target_t0_clone, _ := strings.clone(target[t0:], allocator)
+    target_t0_clone, _ := strings.string_clone(target[t0:], allocator)
 
     return target_t0_clone, .None
 }

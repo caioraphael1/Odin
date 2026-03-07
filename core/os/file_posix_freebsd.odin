@@ -41,5 +41,5 @@ _posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocato
 		return
 	}
 
-	return clone_to_cstring(string(cstring(&kinfo.path[0])), allocator)
+	return strings.cstring_clone_from_string(string(cstring(&kinfo.path[0])), allocator)
 }

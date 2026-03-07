@@ -31,7 +31,7 @@ get_jump_targets :: proc(code: []Opcode) -> (jump_targets: map[int]int) {
 
 trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
     jump_targets := get_jump_targets(code)
-    defer _ = map_delete(jump_targets)
+    defer _ = maps.delete(jump_targets)
 
     iter := virtual_machine.Opcode_Iterator{ code, 0 }
     for opcode, pc in virtual_machine.iterate_opcodes(&iter) {

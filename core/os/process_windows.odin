@@ -86,7 +86,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
         return
     }
 
-    list_d := dyn_array_create([dynamic]int, allocator)
+    list_d := dyn_array.create([dynamic]int, allocator)
 
     entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
     status := win32.Process32FirstW(snap, &entry)
@@ -716,7 +716,7 @@ _get_process_user :: proc(process_handle: win32.HANDLE, allocator: mem.Allocator
     }
     username := win32_utf16_u16_to_utf8(username_w[:username_chrs], internal.temp_allocator) or_return
     domain   := win32_utf16_u16_to_utf8(domain_w[:domain_chrs], internal.temp_allocator) or_return
-    return strings.concatenate({domain, "\\", username}, allocator)
+    return strings.string_concatenate({domain, "\\", username}, allocator)
 }
 
 _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> (argv: []string, err: Error) {

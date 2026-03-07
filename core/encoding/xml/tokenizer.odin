@@ -267,7 +267,7 @@ scan_comment :: proc(t: ^Tokenizer) -> (comment: string, err: Error) {
 
 // Skip CDATA
 skip_cdata :: proc(t: ^Tokenizer) -> (err: Error) {
-	if s := string(t.src[t.offset:]); !strings.has_prefix(s, CDATA_START) {
+	if s := string(t.src[t.offset:]); !strings.string_has_prefix(s, CDATA_START) {
 		return .None
 	}
 
@@ -282,7 +282,7 @@ skip_cdata :: proc(t: ^Tokenizer) -> (err: Error) {
 		}
 
 		// Scan until the end of a CDATA tag.
-		if s := string(t.src[t.read_offset:]); strings.has_prefix(s, CDATA_END) {
+		if s := string(t.src[t.read_offset:]); strings.string_has_prefix(s, CDATA_END) {
 			t.read_offset += len(CDATA_END)
 			break cdata_scan
 		}

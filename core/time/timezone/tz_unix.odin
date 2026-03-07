@@ -14,7 +14,7 @@ local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool)
 		if err != nil {
 			// If we can't find /etc/localtime, fallback to UTC
 			if err == .ENOENT {
-				str, err2 := strings.clone("UTC", allocator)
+				str, err2 := strings.string_clone("UTC", allocator)
 				if err2 != nil { return }
 				return str, true
 			}
@@ -42,7 +42,7 @@ local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool)
 		}
 
 		if strings.contains(upper_path_chunk, "zoneinfo") {
-			region_str, err := strings.clone(path_file, allocator)
+			region_str, err := strings.string_clone(path_file, allocator)
 			if err != nil { return }
 			return region_str, true
 		} else {
@@ -55,7 +55,7 @@ local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool)
 	if local_str == "" {
 		_ = slice.delete(local_str, allocator)
 
-		str, err := strings.clone("UTC", allocator)
+		str, err := strings.string_clone("UTC", allocator)
 		if err != nil { return }
 		return str, true
 	}

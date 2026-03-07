@@ -199,7 +199,7 @@ REG_TZI_FORMAT :: struct #packed {
 }
 
 generate_rrule_from_tzi :: proc(tzi: ^REG_TZI_FORMAT, abbrevs: TZ_Abbrev, allocator: mem.Allocator) -> (rrule: datetime.TZ_RRule, ok: bool) {
-    std_name, err := strings.clone(abbrevs.std, allocator)
+    std_name, err := strings.string_clone(abbrevs.std, allocator)
     if err != nil { return }
     defer if err != nil { _ = string_delete(std_name, allocator) }
 
@@ -220,7 +220,7 @@ generate_rrule_from_tzi :: proc(tzi: ^REG_TZI_FORMAT, abbrevs: TZ_Abbrev, alloca
     }
 
     dst_name: string
-    dst_name, err = strings.clone(abbrevs.dst, allocator)
+    dst_name, err = strings.string_clone(abbrevs.dst, allocator)
     if err != nil { return }
     defer if err != nil { _ = string_delete(dst_name, allocator) }
 
@@ -264,7 +264,7 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
         }
     } else {
         wintz_name = iana_to_windows_tz(reg_str, allocator) or_return
-        iana_name, _ = strings.clone(reg_str, allocator)
+        iana_name, _ = strings.string_clone(reg_str, allocator)
     }
     defer _ = string_delete(wintz_name, allocator)
     defer _ = string_delete(iana_name, allocator)
@@ -286,7 +286,7 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
     }
 
     key_base := `SOFTWARE\Microsoft\Windows NT\CurrentVersion\Time Zones`
-    tz_key, _ := strings.join({key_base, wintz_name}, "\\", allocator = allocator)
+    tz_key, _ := strings.string_join({key_base, wintz_name}, "\\", allocator = allocator)
     defer _ = string_delete(tz_key, allocator)
 
     tz_key_wstr := windows.utf8_to_wstring_alloc(tz_key, allocator)
@@ -307,7 +307,7 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
 
     rrule := generate_rrule_from_tzi(&tzi, abbrevs, allocator) or_return
 
-    region_name, err := strings.clone(iana_name, allocator)
+    region_name, err := strings.string_clone(iana_name, allocator)
     if err != nil { return }
     defer if err != nil { _ = string_delete(region_name, allocator) }
 

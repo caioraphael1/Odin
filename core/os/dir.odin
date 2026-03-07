@@ -241,9 +241,9 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
 
         dyn_array_resize_non_zero(&dst_buf, 0) or_return
         dyn_array.reserve(&dst_buf, len(abs_dst) + len(Path_Separator_String) + len(rel)) or_return
-        dyn_array_append_string(&dst_buf, abs_dst) or_return
-        dyn_array_append_string(&dst_buf, Path_Separator_String) or_return
-        dyn_array_append_string(&dst_buf, rel) or_return
+        dyn_array.append_string(&dst_buf, abs_dst) or_return
+        dyn_array.append_string(&dst_buf, Path_Separator_String) or_return
+        dyn_array.append_string(&dst_buf, rel) or_return
 
         if info.type == .Directory {
             err = make_directory(string(dst_buf[:]), dst_perm)

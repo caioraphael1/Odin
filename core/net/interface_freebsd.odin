@@ -84,7 +84,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
 			resize(&if_builder, max(len(if_builder), 1 + cast(int)ifm.index))
 			interface := if_builder[ifm.index]
 
-			interface.adapter_name = strings.clone_from_bytes(dl.data[0:dl.nlen])
+			interface.adapter_name = strings.strings.string_clone_from_bytes(dl.data[0:dl.nlen])
 			interface.mtu = if_data.mtu
 
 			switch if_data.link_state {

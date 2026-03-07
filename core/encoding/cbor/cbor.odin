@@ -470,7 +470,7 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
             container := new(Text) or_return
 
             // We need the string to have a nil byte at the end so we clone to cstring.
-            container^ = string(strings.clone_to_cstring(v) or_return)
+            container^ = string(strings.strings.cstring_clone_from_string(v) or_return)
             return container, nil
         case json.Array:
             arr  := new(Array) or_return
@@ -481,7 +481,7 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
             return arr, nil
         case json.Object:
             m  := new(Map) or_return
-            dm := dyn_array_create([dynamic]Map_Entry, 0, len(v)) or_return
+            dm := dyn_array.create([dynamic]Map_Entry, 0, len(v)) or_return
             for mkey, mval in v {
                 dyn_array.append(&dm, Map_Entry{from_json(mkey) or_return, from_json(mval) or_return}) or_return
             }
@@ -527,8 +527,8 @@ to_json :: proc(val: Value, allocator: mem.Allocator) -> (json.Value, mem.Alloca
         case Undefined: return json.Null{}, nil
         case Nil:       return json.Null{}, nil
 
-        case ^Bytes: return json.String(strings.clone(string(v^)) or_return), nil
-        case ^Text:  return json.String(strings.clone(v^) or_return),         nil
+        case ^Bytes: return json.String(strings.string_clone(string(v^)) or_return), nil
+        case ^Text:  return json.String(strings.string_clone(v^) or_return),         nil
 
         case ^Map:
             keys_all_strings :: proc(m: ^Map) -> bool {
@@ -577,8 +577,8 @@ to_json :: proc(val: Value, allocator: mem.Allocator) -> (json.Value, mem.Alloca
 
         case ^Tag:
             obj := make(json.Object, 2) or_return
-            obj[strings.clone("number") or_return] = internal(v.number) or_return
-            obj[strings.clone("value") or_return]  = internal(v.value) or_return
+            obj[strings.string_clone("number") or_return] = internal(v.number) or_return
+            obj[strings.string_clone("value") or_return]  = internal(v.value) or_return
             return obj, nil
 
         case: return json.Null{}, nil

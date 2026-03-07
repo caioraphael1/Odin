@@ -1897,7 +1897,7 @@ Output:
 NOTE: If unquoting is unsuccessful, the allocated memory for the result will be freed.
 */
 unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, allocated, success: bool) {
-    contains_rune :: proc(s: string, r: rune) -> int {
+    strings.string_contain_rune :: proc(s: string, r: rune) -> int {
         for c, offset in s {
             if c == r {
                 return offset
@@ -1921,11 +1921,11 @@ unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, a
     }
     s = s[1:len(s)-1]
 
-    if contains_rune(s, '\n') >= 0 {
+    if strings.string_contain_rune(s, '\n') >= 0 {
         return s, false, false
     }
 
-    if contains_rune(s, '\\') < 0 && contains_rune(s, quote) < 0 {
+    if strings.string_contain_rune(s, '\\') < 0 && strings.string_contain_rune(s, quote) < 0 {
         if quote == '"' {
             return s, false, true
         }

@@ -430,7 +430,7 @@ _decode_array_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc :=
 
 _decode_array :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: Array, err: Decode_Error) {
     n, scap := _decode_len_container(d, add) or_return
-    array := dyn_array_create([dynamic]Value, 0, scap, allocator, loc) or_return
+    array := dyn_array.create([dynamic]Value, 0, scap, allocator, loc) or_return
     defer if err != nil {
         for entry in array { destroy(entry, allocator) }
         _ = slice.delete(array, loc)
@@ -473,7 +473,7 @@ _decode_map_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #
 
 _decode_map :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: Map, err: Decode_Error) {
     n, scap := _decode_len_container(d, add) or_return
-    items := dyn_array_create([dynamic]Map_Entry, 0, scap, allocator, loc) or_return
+    items := dyn_array.create([dynamic]Map_Entry, 0, scap, allocator, loc) or_return
     defer if err != nil { 
         for entry in items {
             destroy(entry.key)

@@ -2,6 +2,8 @@
 
 import "base:builtin"
 import "base:intrinsics"
+import "base:mem"
+import "base:dyn_array"
 
 /*
     Note that these constants are dependent on the backing being a u64.
@@ -201,12 +203,11 @@ set :: proc(ba: ^Bit_Array, #any_int index: uint, set_to: bool = true, allocator
     idx := int(index) - ba.bias
 
     if ba == nil || int(index) < ba.bias { return false }
-    context.allocator = allocator
 
     leg_index := idx >> INDEX_SHIFT
     bit_index := idx &  INDEX_MASK
 
-    resize_if_needed(ba, leg_index) or_return
+    resize_if_needed(ba, leg_index, allocator) or_return
 
     ba.length = max(1 + idx, ba.length)
 
@@ -280,11 +281,11 @@ create :: proc(max_index: int, min_index: int = 0, allocator: mem.Allocator) -> 
 
     if size_in_bits < 0 { return {}, false }
 
-    res = new(Bit_Array, allocator)
+    res, _ = mem.new(Bit_Array, allocator)
     ok  = init(res, max_index, min_index, allocator)
     res.free_pointer = true
 
-    if !ok { free(res, allocator) }
+    if !ok { _ = mem.free(res, allocator) }
 
     return
 }
@@ -310,7 +311,7 @@ init :: proc(res: ^Bit_Array, max_index: int, min_index: int = 0, allocator: mem
     legs := size_in_bits >> INDEX_SHIFT
     if size_in_bits & INDEX_MASK > 0 { legs += 1 }
 
-    bits, err := dyn_array_create([dynamic]u64, legs, allocator)
+    bits, err := dyn_array.create_len([dynamic]u64, legs, allocator)
     ok = err == nil
 
     res.bits         = bits
@@ -369,8 +370,8 @@ shrink :: proc(ba: ^Bit_Array) #no_bounds_check {
         }
         ba.length += NUM_BITS - int(intrinsics.count_leading_zeros(ba.bits[legs_needed - 1]))
     }
-    resize(&ba.bits, legs_needed)
-    builtin.shrink(&ba.bits)
+    _ = dyn_array.resize(&ba.bits, legs_needed)
+    _, _ = dyn_array.shrink(&ba.bits)
 }
 /*
 Deallocates the Bit_Array and its backing storage
@@ -380,9 +381,9 @@ Inputs:
 */
 destroy :: proc(ba: ^Bit_Array) {
     if ba == nil { return }
-    delete(ba.bits)
+    _ = dyn_array.delete(ba.bits)
     if ba.free_pointer { // Only free if this Bit_Array was created using `create`, not when on the stack.
-        free(ba)
+        _ = mem.free(ba, ba.bits.allocator)
     }
 }
 /*
@@ -393,10 +394,9 @@ destroy :: proc(ba: ^Bit_Array) {
 resize_if_needed :: proc(ba: ^Bit_Array, legs: int, allocator: mem.Allocator) -> (ok: bool) {
     if ba == nil { return false }
 
-    context.allocator = allocator
 
     if legs + 1 > builtin.len(ba.bits) {
-        resize(&ba.bits, legs + 1)
+        _ = dyn_array.resize(&ba.bits, legs + 1)
     }
     return builtin.len(ba.bits) > legs
 }

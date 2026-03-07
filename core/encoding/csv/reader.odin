@@ -460,7 +460,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
     for idx, i in r.field_indices {
         field := str[pre_idx:idx]
         if !r.reuse_record_buffer {
-            field, _ = strings.clone(field, allocator)
+            field, _ = strings.string_clone(field, allocator)
         }
         dst[i] = field
         pre_idx = idx

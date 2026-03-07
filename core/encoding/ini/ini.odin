@@ -52,7 +52,7 @@ iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
             continue
         }
 
-        if it.options.comment != "" && strings.has_prefix(line, it.options.comment) {
+        if it.options.comment != "" && strings.string_has_prefix(line, it.options.comment) {
             continue
         }
 
@@ -84,14 +84,14 @@ load_map_from_string :: proc(src: string, allocator: mem.Allocator, options := D
         if len(val) > 0 && (val[0] == '"' || val[0] == '\'') {
             v, allocated, ok := strconv.unquote_string(val)
             if !ok {
-                return strings.clone(val)
+                return strings.string_clone(val)
             }
             if allocated {
                 return v, nil
             }
-            return strings.clone(v), nil
+            return strings.string_clone(v), nil
         }
-        return strings.clone(val)
+        return strings.string_clone(val)
     }
 
     it := iterator_from_string(src, options)
@@ -99,7 +99,7 @@ load_map_from_string :: proc(src: string, allocator: mem.Allocator, options := D
     for key, value in iterate(&it) {
         section := it.section
         if section not_in m {
-            section = strings.clone(section) or_return
+            section = strings.string_clone(section) or_return
             m[section] = {}
         }
 
@@ -122,7 +122,7 @@ load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DE
     m, err = load_map_from_string(string(data), allocator, options)
     ok = err == nil
     defer if !ok {
-        map_delete(m)
+        maps.delete(m)
     }
     return
 }
@@ -133,7 +133,7 @@ save_map_to_string :: proc(m: Map, allocator: mem.Allocator) -> (data: string) {
     return strings.to_string(b)
 }
 
-map_delete :: proc(m: Map) {
+maps.delete :: proc(m: Map) {
     allocator := m.allocator
     for section, pairs in m {
         for key, value in pairs {

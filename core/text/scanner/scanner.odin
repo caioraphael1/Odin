@@ -38,7 +38,7 @@ position_to_string :: proc(pos: Position, allocator := runtime.temp_allocator) -
 	if position_is_valid(pos) {
 		return fmt.aprintf("%s(%d:%d)", s, pos.line, pos.column)
 	} else {
-		return strings.clone(s)
+		return strings.string_clone(s)
 	}
 }
 
@@ -652,14 +652,14 @@ token_text :: proc(s: ^Scanner) -> string {
 token_string :: proc(tok: rune, allocator: mem.Allocator) -> string {
 	
 	switch tok {
-	case EOF:        return strings.clone("EOF")
-	case Ident:      return strings.clone("Ident")
-	case Int:        return strings.clone("Int")
-	case Float:      return strings.clone("Float")
-	case Char:       return strings.clone("Char")
-	case String:     return strings.clone("String")
-	case Raw_String: return strings.clone("Raw_String")
-	case Comment:    return strings.clone("Comment")
+	case EOF:        return strings.string_clone("EOF")
+	case Ident:      return strings.string_clone("Ident")
+	case Int:        return strings.string_clone("Int")
+	case Float:      return strings.string_clone("Float")
+	case Char:       return strings.string_clone("Char")
+	case String:     return strings.string_clone("String")
+	case Raw_String: return strings.string_clone("Raw_String")
+	case Comment:    return strings.string_clone("Comment")
 	}
 	return fmt.aprintf("%q", tok)
 }

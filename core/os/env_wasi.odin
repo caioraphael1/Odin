@@ -31,7 +31,7 @@ build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
         return _get_platform_error(_err)
     }
 
-    g_env = map_create(map[string]string, num_envs, allocator) or_return
+    g_env = maps.create(map[string]string, num_envs, allocator) or_return
     defer if err != nil { _ = slice.delete(g_env) }
 
     g_env_buf = slice.create([]byte, size_of_envs, allocator) or_return
@@ -110,10 +110,10 @@ _set_env :: proc(key, value: string, allocator: mem.Allocator) -> (err: Error) {
     sync.mutex_guard(&g_env_mutex)
 
     defer if err != nil {
-        map_delete_key(&g_env, key)
+        maps.delete_key(&g_env, key)
     }
 
-    key_ptr, value_ptr, just_inserted := map_entry(&g_env, key) or_return
+    key_ptr, value_ptr, just_inserted := maps.entry(&g_env, key) or_return
 
     if just_inserted {
         key_ptr^ = clone_string(key,allocator) or_return
@@ -138,7 +138,7 @@ _unset_env :: proc(key: string) -> bool {
 
     sync.mutex_guard(&g_env_mutex)
 
-    dkey, dval := map_delete_key(&g_env, key)
+    dkey, dval := maps.delete_key(&g_env, key)
     delete_string_if_not_original(dkey)
     delete_string_if_not_original(dval)
     return true
@@ -166,7 +166,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
 
     sync.shared_guard(&g_env_mutex)
 
-    envs := dyn_array_create([dynamic]string, 0, len(g_env), allocator) or_return
+    envs := dyn_array.create([dynamic]string, 0, len(g_env), allocator) or_return
     defer if err != nil {
         for env in envs {
             _ = slice.delete(env, allocator)

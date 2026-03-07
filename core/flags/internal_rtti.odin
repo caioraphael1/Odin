@@ -135,7 +135,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
                 // Prevent memory leaks from us setting this value multiple times.
                 _ = cstring_delete(cstr_ptr^, allocator)
             }
-            cstr_ptr^, _ = strings.clone_to_cstring(str, allocator)
+            cstr_ptr^, _ = strings.strings.cstring_clone_from_string(str, allocator)
         } else {
             (^string)(ptr)^ = str
         }

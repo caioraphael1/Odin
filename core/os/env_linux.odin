@@ -167,7 +167,7 @@ when ODIN_NO_CRT {
         }
         sync.mutex_guard(&_env_mutex)
 
-        env := dyn_array_create([dynamic]string, 0, len(_env), allocator) or_return
+        env := dyn_array.create([dynamic]string, 0, len(_env), allocator) or_return
         defer if err != nil {
             for e in env {
                 _ = slice.delete(e, allocator)
@@ -257,14 +257,14 @@ when ODIN_NO_CRT {
 
         runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-        ckey := strings.clone_to_cstring(key, runtime.temp_allocator)
+        ckey := strings.strings.cstring_clone_from_string(key, runtime.temp_allocator)
         cval := posix.getenv(ckey)
         if cval == nil {
             return
         }
 
         found = true
-        value = strings.clone(string(cval), allocator) // NOTE(laytan): what if allocation fails?
+        value = strings.string_clone(string(cval), allocator) // NOTE(laytan): what if allocation fails?
 
         return
     }
@@ -300,8 +300,8 @@ when ODIN_NO_CRT {
     _set_env :: proc(key, value: string) -> (err: Error) {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-        ckey := strings.clone_to_cstring(key,   runtime.runtime.temp_allocator) or_return
-        cval := strings.clone_to_cstring(value, runtime.runtime.temp_allocator) or_return
+        ckey := strings.strings.cstring_clone_from_string(key,   runtime.runtime.temp_allocator) or_return
+        cval := strings.strings.cstring_clone_from_string(value, runtime.runtime.temp_allocator) or_return
 
         if posix.setenv(ckey, cval, true) != nil {
             posix_errno := posix.errno()
@@ -314,7 +314,7 @@ when ODIN_NO_CRT {
     _unset_env :: proc(key: string) -> (ok: bool) {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-        ckey := strings.clone_to_cstring(key, runtime.runtime.temp_allocator)
+        ckey := strings.strings.cstring_clone_from_string(key, runtime.runtime.temp_allocator)
 
         ok = posix.unsetenv(ckey) == .OK
         return
@@ -333,7 +333,7 @@ when ODIN_NO_CRT {
         n := 0
         for entry := posix.environ[0]; entry != nil; n, entry = n+1, posix.environ[n] {}
 
-        r := dyn_array_create([dynamic]string, 0, n, allocator) or_return
+        r := dyn_array.create([dynamic]string, 0, n, allocator) or_return
         defer if err != nil {
             for e in r {
                 _ = slice.delete(e, allocator)
@@ -342,7 +342,7 @@ when ODIN_NO_CRT {
         }
 
         for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
-            _ = dyn_array.append(&r, strings.clone(string(entry), allocator) or_return)
+            _ = dyn_array.append(&r, strings.string_clone(string(entry), allocator) or_return)
         }
 
         environ = r[:]
@@ -352,7 +352,7 @@ when ODIN_NO_CRT {
 
 
     export_cstring_environment :: proc(allocator: mem.Allocator) -> []cstring {
-        env := dyn_array_create([dynamic]cstring, allocator)
+        env := dyn_array.create([dynamic]cstring, allocator)
         for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
             _ = dyn_array.append(&env, entry)
         }

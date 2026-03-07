@@ -69,7 +69,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
         dns_suffix, err3  :=  sys.wstring_to_utf8_alloc(sys.wstring(adapter.DnsSuffix), 256, allocator)
         if err3 != nil { return {}, .Allocation_Failure }
 
-        adapter_name_clone, _ := strings.clone(string(adapter.AdapterName), allocator)
+        adapter_name_clone, _ := strings.string_clone(string(adapter.AdapterName), allocator)
 
         interface := Network_Interface{
             adapter_name  = adapter_name_clone,

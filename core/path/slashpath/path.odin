@@ -24,7 +24,7 @@ is_abs :: proc(path: string) -> bool {
 // If the path is all slashes, it returns "/"
 base :: proc(path: string, new := false, allocator: mem.Allocator) -> (last_element: string) {
     defer if new {
-        last_element, _ = strings.clone(last_element, allocator)
+        last_element, _ = strings.string_clone(last_element, allocator)
     }
 
     if path == "" {
@@ -86,7 +86,7 @@ split_elements :: proc(path: string, allocator: mem.Allocator) -> []string {
 //
 clean :: proc(path: string, allocator: mem.Allocator) -> string {
     if path == "" {
-        clone, _ := strings.clone(".", allocator)
+        clone, _ := strings.string_clone(".", allocator)
         return clone
     }
 
@@ -138,7 +138,7 @@ clean :: proc(path: string, allocator: mem.Allocator) -> string {
 
     if out.w == 0 {
         _ = slice.delete(out.b, allocator)
-        clone, _ := strings.clone(".", allocator)
+        clone, _ := strings.string_clone(".", allocator)
         return clone
     }
 
@@ -150,7 +150,7 @@ join :: proc(elems: []string, allocator: mem.Allocator) -> string {
     for elem, i in elems {
         if elem != "" {
             runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-            s, _ := strings.join(elems[i:], "/", runtime.temp_allocator)
+            s, _ := strings.string_join(elems[i:], "/", runtime.temp_allocator)
             return clean(s, allocator)
         }
     }
@@ -165,7 +165,7 @@ ext :: proc(path: string, new := false, allocator: mem.Allocator) -> string {
         if path[i] == '.' {
             res := path[i:]
             if new {
-                res, _ = strings.clone(res, allocator)
+                res, _ = strings.string_clone(res, allocator)
             }
             return res
         }
@@ -179,7 +179,7 @@ name :: proc(path: string, new := false, allocator: mem.Allocator) -> (name: str
     name = file
 
     defer if new {
-        name, _ = strings.clone(name, allocator)
+        name, _ = strings.string_clone(name, allocator)
     }
 
     for i := len(file)-1; i >= 0 && !is_separator(file[i]); i -= 1 {
@@ -227,7 +227,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: mem.Allocator) 
 @(private)
 lazy_buffer_string :: proc(lb: ^Lazy_Buffer, allocator: mem.Allocator) -> string {
     if lb.b == nil {
-        clone, _ := strings.clone(lb.s[:lb.w], allocator)
+        clone, _ := strings.string_clone(lb.s[:lb.w], allocator)
         return clone
     }
     return string(lb.b[:lb.w])

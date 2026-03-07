@@ -209,7 +209,7 @@ _WindowDelegateInternal :: struct {
 }
 
 window_delegate_register_and_alloc :: proc(template: WindowDelegateTemplate, class_name: string, delegate_context: Maybe(runtime.Context)) -> ^WindowDelegate {
-    class := __objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.clone_to_cstring(class_name, runtime.temp_allocator), 0); if class == nil {
+    class := __objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.strings.cstring_clone_from_string(class_name, runtime.temp_allocator), 0); if class == nil {
         // Class already registered
         return nil
     }

@@ -24,7 +24,7 @@ make_relations :: proc(sorter: ^$S/Sorter($K)) -> (r: Relations(K)) {
 
 
 init :: proc(sorter: ^$S/Sorter($K)) {
-    sorter.relations = map_create(map[K]Relations(K))
+    sorter.relations = maps.create(map[K]Relations(K))
     // sorter.dependents_allocator = context.allocator
 }
 
@@ -50,7 +50,7 @@ add_dependency :: proc(sorter: ^$S/Sorter($K), key, dependency: K) -> bool {
 
     find := &sorter.relations[dependency]
     if find == nil {
-        find = map_insert(&sorter.relations, dependency, make_relations(sorter))
+        find = maps.insert(&sorter.relations, dependency, make_relations(sorter))
     }
 
     if find.dependents[key] {
@@ -60,7 +60,7 @@ add_dependency :: proc(sorter: ^$S/Sorter($K), key, dependency: K) -> bool {
 
     find = &sorter.relations[key]
     if find == nil {
-        find = map_insert(&sorter.relations, key, make_relations(sorter))
+        find = maps.insert(&sorter.relations, key, make_relations(sorter))
     }
 
     find.dependencies += 1

@@ -69,8 +69,8 @@ _open_file_dialog :: proc(title: string, dir: string,
     }
 
     filter: string
-    filter = strings.join(filters, "\u0000", runtime.temp_allocator)
-    filter = strings.concatenate({filter, "\u0000"}, runtime.temp_allocator)
+    filter = strings.string_join(filters, "\u0000", runtime.temp_allocator)
+    filter = strings.string_concatenate({filter, "\u0000"}, runtime.temp_allocator)
 
     ofn := OPENFILENAMEW{
         lStructSize     = size_of(OPENFILENAMEW),

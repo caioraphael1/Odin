@@ -244,7 +244,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
         if i == divider_index {
             SPACING :: 2 // Number of spaces before the '|' from below.
             strings.write_byte(&builder, '\t')
-            spacing, _ := strings.repeat(" ", SPACING + longest_flag_length, runtime.temp_allocator)
+            spacing, _ := strings.string_repeat(" ", SPACING + longest_flag_length, runtime.temp_allocator)
             strings.write_string(&builder, spacing)
             strings.write_string(&builder, "|\n")
         }
@@ -262,7 +262,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
             strings.write_string(&builder, flag.type_description)
         }
 
-        if strings.contains_rune(flag.usage, '\n') {
+        if strings.strings.string_contain_rune(flag.usage, '\n') {
             // Multi-line usage documentation. Let's make it look nice.
             usage_builder, _ := strings.builder_make(runtime.temp_allocator)
 
@@ -277,7 +277,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
             strings.write_string(&builder, strings.to_string(usage_builder))
         } else {
             // Single-line usage documentation.
-            spacing, _ := strings.repeat(" ",
+            spacing, _ := strings.string_repeat(" ",
                 (longest_flag_length) - flag.full_length,
                 runtime.temp_allocator)
 

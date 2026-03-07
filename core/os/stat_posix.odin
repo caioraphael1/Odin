@@ -70,7 +70,7 @@ _stat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Er
 	}
 
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-	cname := clone_to_cstring(name, runtime.temp_allocator) or_return
+	cname := strings.cstring_clone_from_string(name, runtime.temp_allocator) or_return
 
 	fd := posix.open(cname, {})
 	if fd == -1 {
@@ -122,7 +122,7 @@ _lstat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: E
 	}
 
 	stat: posix.stat_t
-	c_fullpath := clone_to_cstring(fullpath, runtime.temp_allocator) or_return
+	c_fullpath := strings.cstring_clone_from_string(fullpath, runtime.temp_allocator) or_return
 	if posix.lstat(c_fullpath, &stat) != .OK {
 		err = _get_platform_error()
 		return

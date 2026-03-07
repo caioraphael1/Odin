@@ -304,7 +304,7 @@ length :: proc(val: any) -> int {
 		return (^internal.Raw_Dynamic_Array)(val.data).len
 
 	case Type_Info_Map:
-		return internal.map_len((^internal.Raw_Map)(val.data)^)
+		return internal.maps.raw_map_len((^internal.Raw_Map)(val.data)^)
 
 	case Type_Info_String:
 		switch a.encoding {

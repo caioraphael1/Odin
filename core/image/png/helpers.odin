@@ -99,8 +99,8 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 
 		fields := bytes.split(c.data, sep=[]u8{0}, allocator=runtime.temp_allocator)
 		if len(fields) == 2 {
-			res.keyword = strings.clone(string(fields[0]))
-			res.text    = strings.clone(string(fields[1]))
+			res.keyword = strings.string_clone(string(fields[0]))
+			res.text    = strings.string_clone(string(fields[1]))
 		} else {
 			ok = false
 		}
@@ -123,8 +123,8 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 			ok = false; return
 		}
 
-		res.keyword = strings.clone(string(fields[0]))
-		res.text = strings.clone(bytes.buffer_to_string(&buf))
+		res.keyword = strings.string_clone(string(fields[0]))
+		res.text = strings.string_clone(bytes.buffer_to_string(&buf))
 		return
 	case .iTXt:
 		ok = true
@@ -138,7 +138,7 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 			// At a minimum, including the \0 following the keyword, we require 5 more bytes.
 			ok = false;	return
 		}
-		res.keyword = strings.clone(string(c.data[:null]))
+		res.keyword = strings.string_clone(string(c.data[:null]))
 		rest := c.data[null+1:]
 
 		compression_flag := rest[:1][0]
@@ -157,17 +157,17 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 		if null == -1 {
 			ok = false; return
 		}
-		res.language = strings.clone(string(rest[:null]))
+		res.language = strings.string_clone(string(rest[:null]))
 		rest = rest[null+1:]
 
 		null = strings.index_byte(string(rest), 0)
 		if null == -1 {
 			ok = false; return
 		}
-		res.keyword_localized = strings.clone(string(rest[:null]))
+		res.keyword_localized = strings.string_clone(string(rest[:null]))
 		rest = rest[null+1:]
 		if compression_flag == 0 {
-			res.text = strings.clone(string(rest))
+			res.text = strings.string_clone(string(rest))
 		} else {
 			// Set up ZLIB context and decompress text payload.
 			buf: bytes.Buffer
@@ -178,7 +178,7 @@ text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 				ok = false; return
 			}
 
-			res.text = strings.clone(bytes.buffer_to_string(&buf))
+			res.text = strings.string_clone(bytes.buffer_to_string(&buf))
 		}
 		return
 	case:
@@ -217,7 +217,7 @@ iccp :: proc(c: image.PNG_Chunk) -> (res: iCCP, ok: bool) {
 		return
 	}
 
-	res.name = strings.clone(string(fields[0]))
+	res.name = strings.string_clone(string(fields[0]))
 	res.profile = bytes.buffer_to_bytes(&buf)
 	ok = true
 	return
@@ -296,7 +296,7 @@ splt :: proc(c: image.PNG_Chunk) -> (res: sPLT, ok: bool) {
 		res.entries = mem.slice_data_cast([][4]u16, data)
 	}
 
-	res.name = strings.clone(string(fields[0]))
+	res.name = strings.string_clone(string(fields[0]))
 	res.used = u16(count)
 	ok = true
 	return

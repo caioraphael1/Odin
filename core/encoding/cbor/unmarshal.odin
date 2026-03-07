@@ -728,7 +728,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
         unknown := length == -1
         if !unknown {
             // Reserve space before setting so we can return allocation errors and be efficient on big maps.
-            new_len := uintptr(min(scap, runtime.map_len(raw_map^)+length))
+            new_len := uintptr(min(scap, runtime.maps.raw_map_len(raw_map^)+length))
             runtime.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
         }
 
@@ -745,7 +745,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
         for idx := 0; unknown || idx < length; idx += 1 {
             if unknown || idx > scap {
                 // Reserve space for new element so we can return allocator errors.
-                new_len := uintptr(runtime.map_len(raw_map^)+1)
+                new_len := uintptr(runtime.maps.raw_map_len(raw_map^)+1)
                 runtime.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
             }
 
@@ -755,13 +755,13 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
             mem.slice.zero(elem_backing)
             _unmarshal_value(d, map_backing_value, _decode_header(r) or_return) or_return
 
-            set_ptr := runtime.dynamic_map_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)
+            set_ptr := runtime.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)
             // We already reserved space for it, so this shouldn't fail.
             assert(set_ptr != nil)
         }
     
         if .Shrink_Excess in d.flags {
-            _, _ = runtime.map_shrink_dynamic(raw_map, t.map_info)
+            _, _ = runtime.maps.shrink_dynamic(raw_map, t.map_info)
         }
         return
 

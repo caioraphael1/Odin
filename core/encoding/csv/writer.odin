@@ -43,7 +43,7 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
 				}
 			}
 		case:
-			if strings.contains_rune(field, w.comma) {
+			if strings.strings.string_contain_rune(field, w.comma) {
 				return true
 			}
 			if strings.contains_any(field, CHAR_SET) {
@@ -53,7 +53,7 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
 
 		// Leading spaces need quoting
 		r, _ := utf8.decode_rune_in_string(field)
-		return strings.is_space(r)
+		return strings.rune_is_space(r)
 	}
 
 	if !is_valid_delim(w.comma) {

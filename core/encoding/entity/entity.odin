@@ -118,7 +118,7 @@ decode_xml :: proc(input: string, options := XML_Decode_Options{}, allocator: me
 		case ']':
 			// If we're unboxing _and_ decoding CDATA, we'll have to check for the end tag.
 			if in_data {
-				if strings.has_prefix(t.src[t.offset:], CDATA_END) {
+				if strings.string_has_prefix(t.src[t.offset:], CDATA_END) {
 					in_data = false
 					t.read_offset += len(CDATA_END) - 1
 				}
@@ -183,7 +183,7 @@ decode_xml :: proc(input: string, options := XML_Decode_Options{}, allocator: me
 			}
 		}
 	}
-	return strings.clone(strings.to_string(builder), allocator), err
+	return strings.string_clone(strings.to_string(builder), allocator), err
 }
 
 advance :: proc(t: ^Tokenizer) -> (err: Error) {
@@ -358,7 +358,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 	// NOTE(bill): this does a two pass in order to minimize the allocations required
 	bytes_required := do_append(s, amp_idx, nil)
 
-	buf := dyn_array_create([dynamic]byte, 0, bytes_required, allocator, loc) or_return
+	buf := dyn_array.create([dynamic]byte, 0, bytes_required, allocator, loc) or_return
 	was_allocation = true
 
 	_ = do_append(s, amp_idx, &buf)
@@ -541,7 +541,7 @@ _handle_xml_special :: proc(t: ^Tokenizer, builder: ^strings.Builder, options: X
 	if t.read_offset + len(CDATA_START) >= len(t.src) { return false, .None }
 
 	s := string(t.src[t.offset:])
-	if strings.has_prefix(s, CDATA_START) {
+	if strings.string_has_prefix(s, CDATA_START) {
 		if .Unbox_CDATA in options && .Decode_CDATA in options {
 			// We're unboxing _and_ decoding CDATA
 			t.read_offset += len(CDATA_START) - 1
@@ -559,7 +559,7 @@ _handle_xml_special :: proc(t: ^Tokenizer, builder: ^strings.Builder, options: X
 			}
 
 			// Scan until the end of a CDATA tag.
-			if s = string(t.src[t.read_offset:]); strings.has_prefix(s, CDATA_END) {
+			if s = string(t.src[t.read_offset:]); strings.string_has_prefix(s, CDATA_END) {
 				t.read_offset += len(CDATA_END)
 				cdata := string(t.src[start_offset:t.read_offset])
 
@@ -573,7 +573,7 @@ _handle_xml_special :: proc(t: ^Tokenizer, builder: ^strings.Builder, options: X
 		}
 
 
-	} else if strings.has_prefix(s, COMMENT_START) {
+	} else if strings.string_has_prefix(s, COMMENT_START) {
 		t.read_offset += len(COMMENT_START)
 		// Comment is passed through by default.
 		offset := t.offset

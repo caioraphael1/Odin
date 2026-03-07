@@ -15,7 +15,7 @@ _load_library :: proc(path: string, global_symbols: bool, allocator: mem.Allocat
 		flags += posix.RTLD_LOCAL
 	}
 
-	cpath := strings.clone_to_cstring(path, allocator)
+	cpath := strings.strings.cstring_clone_from_string(path, allocator)
 	defer _ = slice.delete(cpath, allocator)
 
 	lib := posix.dlopen(cpath, flags)
@@ -27,7 +27,7 @@ _unload_library :: proc(library: Library) -> bool {
 }
 
 _symbol_address :: proc(library: Library, symbol: string, allocator: mem.Allocator) -> (ptr: rawptr, found: bool) {
-	csymbol := strings.clone_to_cstring(symbol, allocator)
+	csymbol := strings.strings.cstring_clone_from_string(symbol, allocator)
 	defer _ = slice.delete(csymbol, allocator)
 
 	ptr   = posix.dlsym(posix.Symbol_Table(library), csymbol)

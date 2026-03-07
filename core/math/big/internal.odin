@@ -2077,7 +2077,7 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
     */
     if cap == 0 {
         mem_err: mem.Allocator_Error
-        a.digit, mem_err = dyn_array_create([dynamic]DIGIT, needed, allocator)
+        a.digit, mem_err = dyn_array.create([dynamic]DIGIT, needed, allocator)
         if mem_err != nil {
             return cast(Error)mem_err
         }

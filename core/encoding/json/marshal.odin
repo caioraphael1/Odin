@@ -342,7 +342,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
             if !opt.sort_maps_by_key {
                 i := 0
                 for bucket_index in 0..<map_cap {
-                    runtime.map_hash_is_valid(hs[bucket_index]) or_continue
+                    runtime.maps.hash_is_valid(hs[bucket_index]) or_continue
 
                     opt_write_iteration(w, opt, i == 0) or_return
                     i += 1
@@ -386,7 +386,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                 // and sort it, then output the result.
                 sorted, _ := dyn_array.create_len_cap([dynamic]Entry, 0, map_cap, runtime.temp_allocator)
                 for bucket_index in 0..<map_cap {
-                    runtime.map_hash_is_valid(hs[bucket_index]) or_continue
+                    runtime.maps.hash_is_valid(hs[bucket_index]) or_continue
 
                     key   := rawptr(runtime.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
                     value := rawptr(runtime.map_cell_index_dynamic(vs, info.map_info.vs, bucket_index))

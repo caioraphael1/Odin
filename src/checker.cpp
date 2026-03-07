@@ -5701,7 +5701,7 @@ gb_internal void check_export_entities(Checker *c) {
 
     for (isize i = 0; i < thread_count; i++) {
         auto *wd = &collect_entity_worker_data[i];
-        map_clear(&wd->untyped);
+        maps.clear(&wd->untyped);
         init_checker_context(&wd->ctx, c);
     }
 
@@ -6293,7 +6293,7 @@ gb_internal bool consume_proc_info(Checker *c, ProcInfo *pi, UntypedExprInfoMap 
         }
     }
     if (untyped) {
-        map_clear(untyped);
+        maps.clear(untyped);
     }
     if (check_proc_info(c, pi, untyped)) {
         total_bodies_checked.fetch_add(1, std::memory_order_relaxed);
@@ -6327,7 +6327,7 @@ gb_internal WORKER_TASK_PROC(check_proc_info_worker_proc) {
             return 1;
         }
     }
-    map_clear(untyped);
+    maps.clear(untyped);
     if (check_proc_info(c, pi, untyped)) {
         total_bodies_checked.fetch_add(1, std::memory_order_relaxed);
         return 0;
@@ -6389,7 +6389,7 @@ gb_internal void add_untyped_expressions(CheckerInfo *cinfo, UntypedExprInfoMap 
             mpsc_enqueue(&cinfo->checker->global_untyped_queue, UntypedExprInfo{expr, info});
         }
     }
-    map_clear(untyped);
+    maps.clear(untyped);
 }
 
 gb_internal Type *tuple_to_pointers(Type *ot) {
@@ -7392,7 +7392,7 @@ gb_internal void check_parsed_files(Checker *c) {
         array_sort(type_info_types, type_info_pair_cmp);
 
         array_init(&c->info.type_info_types_hash_map, heap_allocator(), type_info_types.count*2 + 1);
-        map_reserve(&c->info.min_dep_type_info_index_map, type_info_types.count);
+        maps.reserve(&c->info.min_dep_type_info_index_map, type_info_types.count);
 
         isize hash_map_len = c->info.type_info_types_hash_map.count;
         for (auto const &tt : type_info_types) {

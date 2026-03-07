@@ -38,9 +38,9 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     for ifaddr := head; ifaddr != nil; ifaddr = ifaddr.next {
         adapter_name := string(ifaddr.name)
 
-        key_ptr, iface, inserted, mem_err := map_entry(&ifaces, adapter_name)
+        key_ptr, iface, inserted, mem_err := maps.entry(&ifaces, adapter_name)
         if mem_err == nil && inserted {
-            key_ptr^, mem_err = strings.clone(adapter_name)
+            key_ptr^, mem_err = strings.string_clone(adapter_name)
             iface.adapter_name = key_ptr^
         }
         if mem_err != nil {

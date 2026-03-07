@@ -329,7 +329,7 @@ _iterate_gpus :: proc(it: ^GPU_Iterator, minimum_vram := i64(256 * 1024 * 1024))
 
     // Real devices tend to have a matching PCI device
     matching,   _ := read_reg_string(sys.HKEY_LOCAL_MACHINE, key, "MatchingDeviceId", it._buffer[:100])
-    if !strings.has_prefix(matching, "PCI\\VEN") {
+    if !strings.string_has_prefix(matching, "PCI\\VEN") {
         return
     }
 

@@ -106,7 +106,7 @@ resolve_ip4 :: proc(hostname_and_maybe_port: string) -> (ep4: Endpoint, err: Net
     case Host:
         recs: []DNS_Record
 
-        if ODIN_OS != .Windows && strings.has_suffix(t.hostname, ".local") {
+        if ODIN_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
             recs, _ = get_dns_records_from_nameservers(t.hostname, .IP4, {IP4_mDNS_Broadcast}, nil, runtime.temp_allocator)
         } else {
             recs, _ = get_dns_records_from_os(t.hostname, .IP4, runtime.temp_allocator)
@@ -140,7 +140,7 @@ resolve_ip6 :: proc(hostname_and_maybe_port: string) -> (ep6: Endpoint, err: Net
     case Host:
         recs: []DNS_Record
 
-        if ODIN_OS != .Windows && strings.has_suffix(t.hostname, ".local") {
+        if ODIN_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
             recs, _ = get_dns_records_from_nameservers(t.hostname, .IP6, {IP6_mDNS_Broadcast}, nil, runtime.temp_allocator)
         } else {
             recs, _ = get_dns_records_from_os(t.hostname, .IP6, runtime.temp_allocator)
@@ -364,7 +364,7 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
             continue
         }
 
-        if len(line) < id_len || strings.compare(line[:id_len], id_str) != 0 {
+        if len(line) < id_len || strings.string_compare(line[:id_len], id_str) != 0 {
             continue
         }
 
@@ -416,7 +416,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
         for hostname in strings.fields_iterator(&line) {
             (len(hostname) > 0) or_continue
 
-            clone, alloc_err := strings.clone(hostname, allocator)
+            clone, alloc_err := strings.string_clone(hostname, allocator)
             if alloc_err != nil { return }
 
             alloc_err = dyn_array.append(&_hosts, DNS_Host_Entry{clone, addr})
@@ -582,7 +582,7 @@ decode_hostname :: proc(packet: []u8, start_idx: int, allocator: mem.Allocator) 
         return
     }
 
-    b_clone, _ := strings.clone(strings.to_string(b), allocator)
+    b_clone, _ := strings.string_clone(strings.to_string(b), allocator)
     return b_clone, out_size, true
 }
 
@@ -649,7 +649,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 
             addr := (^IP4_Address)(raw_data(data))^
             
-            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+            srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
 
             _record = DNS_Record_IP4{
                 base = DNS_Record_Base{
@@ -666,7 +666,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 
             addr := (^IP6_Address)(raw_data(data))^
 
-            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+            srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
 
             _record = DNS_Record_IP6{
                 base = DNS_Record_Base{
@@ -679,7 +679,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
         case .CNAME:
             hostname, _ := decode_hostname(packet, data_off, allocator) or_return
 
-            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+            srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
 
             _record = DNS_Record_CNAME{
                 base = DNS_Record_Base{
@@ -690,9 +690,9 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
             }
 
         case .TXT:
-            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+            srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
 
-            data_clone, _ := strings.clone(string(data), allocator)
+            data_clone, _ := strings.string_clone(string(data), allocator)
 
             _record = DNS_Record_TXT{
                 base = DNS_Record_Base{
@@ -704,7 +704,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
 
         case .NS:
             name, _ := decode_hostname(packet, data_off, allocator) or_return
-            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+            srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
 
             _record = DNS_Record_NS{
                 base = DNS_Record_Base{
@@ -738,7 +738,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
             }
             service_name, protocol_name := parts[0], parts[1]
 
-            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+            srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
 
             _record = DNS_Record_SRV{
                 base = DNS_Record_Base{
@@ -761,7 +761,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
             preference: u16be = mem.slice_data_cast([]u16be, data)[0]
             hostname, _ := decode_hostname(packet, data_off + size_of(u16be), allocator) or_return
 
-            srv_record_name_clone, _ := strings.clone(srv_record_name, allocator)
+            srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
 
             _record = DNS_Record_MX{
                 base = DNS_Record_Base{

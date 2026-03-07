@@ -233,7 +233,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
     } else {
         if .return_metadata in options {
             id := strings.trim_right_null(string(_id))
-            image_id = strings.clone(id)
+            image_id = strings.string_clone(id)
         }
     }
 
