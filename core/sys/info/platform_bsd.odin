@@ -1,6 +1,6 @@
 #+build openbsd, netbsd
 
-import "base:runtime"
+import "base:internal"
 import "core:strings"
 import sys "core:sys/unix"
 
@@ -20,7 +20,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 		return
 	}
 	os_type := string(cstring(raw_data(kernel_version_buf[:])))
-	strings.write_string(&b, os_type)
+	strings_tools.write_string(&b, os_type)
 
 	mib = []i32{sys.CTL_KERN, sys.KERN_OSRELEASE}
 	if !sys.sysctl(mib, &kernel_version_buf) {
@@ -29,7 +29,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
 	strings.write_rune(&b, ' ')
 	version := string(cstring(raw_data(kernel_version_buf[:])))
-	strings.write_string(&b, version)
+	strings_tools.write_string(&b, version)
 
 	// Parse kernel version
 	res.kernel = _parse_version(version)
@@ -41,7 +41,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 		return
 	}
 	res.kernel.patch = revision
-	strings.write_string(&b, ", build ")
+	strings_tools.write_string(&b, ", build ")
 	strings.write_int(&b, revision)
 
 	// Finalize pretty name.

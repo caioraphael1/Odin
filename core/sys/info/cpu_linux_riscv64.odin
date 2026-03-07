@@ -2,7 +2,7 @@
 #+build linux
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import "core:sys/linux"
 import "core:strconv"
 import "core:strings"

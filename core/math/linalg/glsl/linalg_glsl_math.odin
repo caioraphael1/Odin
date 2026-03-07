@@ -1,4 +1,4 @@
-import "core:math"
+import "base:math"
 
  cos_f32         :: proc "c" (x: f32) -> f32 { return math.cos(x) }
  sin_f32         :: proc "c" (x: f32) -> f32 { return math.sin(x) }

@@ -1,8 +1,11 @@
 
 import "base:internal"
+import "base:mem"
+import "base:mem/allocators"
+import "base:slice"
+import "base:strings"
 
 import "core:io"
-import "base:mem"
 import "core:sync"
 import "core:time"
 import "core:unicode/utf16"
@@ -82,9 +85,9 @@ _open_internal :: proc(name: string, flags: File_Flags, perm: Permissions) -> (h
         err = .Not_Exist
         return
     }
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    path := _fix_long_path(name, internal.temp_allocator) or_return
+    path := _fix_long_path(name, allocators.temp_allocator) or_return
     access: u32
     switch flags & {.Read, .Write} {
     case {.Read}:         access = win32.FILE_GENERIC_READ
@@ -164,16 +167,16 @@ _new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f
     if handle == INVALID_HANDLE {
         return
     }
-    impl := new(File_Impl, allocator) or_return
+    impl := mem.new(File_Impl, allocator) or_return
     defer if err != nil {
-        _ = free(impl, allocator)
+        _ = mem.free(impl, allocator)
     }
 
     impl.file.impl = impl
 
     impl.allocator = allocator
     impl.fd = rawptr(handle)
-    impl.name = clone_string(name, impl.allocator) or_return
+    impl.name = strings.string_clone(name, impl.allocator) or_return
     impl.wname = win32_utf8_to_wstring(name, impl.allocator) or_return
 
     handle := _handle(&impl.file)
@@ -254,11 +257,11 @@ _destroy :: proc(f: ^File_Impl) -> Error {
         return nil
     }
 
-    free(rawptr(f.wname), f.allocator) or_return
-    string_delete(f.name, f.allocator) or_return
+    mem.free(rawptr(f.wname), f.allocator) or_return
+    strings.string_delete(f.name, f.allocator) or_return
     slice.delete(f.r_buf, f.allocator) or_return
     slice.delete(f.w_buf, f.allocator) or_return
-    free(f, f.allocator) or_return
+    mem.free(f, f.allocator) or_return
     return nil
 }
 
@@ -559,8 +562,8 @@ _truncate :: proc(f: ^File, size: i64) -> Error {
 }
 
 _remove :: proc(name: string) -> Error {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    p := _fix_long_path(name, internal.temp_allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    p := _fix_long_path(name, allocators.temp_allocator) or_return
     err, err1: Error
     if !win32.DeleteFileW(p) {
         err = _get_platform_error()
@@ -597,9 +600,9 @@ _remove :: proc(name: string) -> Error {
 }
 
 _rename :: proc(old_path, new_path: string) -> Error {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    from := _fix_long_path(old_path, internal.temp_allocator) or_return
-    to   := _fix_long_path(new_path, internal.temp_allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    from := _fix_long_path(old_path, allocators.temp_allocator) or_return
+    to   := _fix_long_path(new_path, allocators.temp_allocator) or_return
     if win32.MoveFileExW(from, to, win32.MOVEFILE_REPLACE_EXISTING) {
         return nil
     }
@@ -608,9 +611,9 @@ _rename :: proc(old_path, new_path: string) -> Error {
 }
 
 _link :: proc(old_name, new_name: string) -> Error {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    o := _fix_long_path(old_name, internal.temp_allocator) or_return
-    n := _fix_long_path(new_name, internal.temp_allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    o := _fix_long_path(old_name, allocators.temp_allocator) or_return
+    n := _fix_long_path(new_name, allocators.temp_allocator) or_return
     if win32.CreateHardLinkW(n, o, nil) {
         return nil
     }
@@ -671,9 +674,9 @@ _normalize_link_path :: proc(p: []u16, allocator: mem.Allocator) -> (str: string
         return "", _get_platform_error()
     }
 
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf, _ := slice.create([]u16, n+1, internal.temp_allocator)
+    buf, _ := slice.create([]u16, n+1, allocators.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(handle, cstring16(raw_data(buf)), u32(len(buf)), win32.VOLUME_NAME_DOS)
     if n == 0 {
         return "", _get_platform_error()
@@ -697,9 +700,9 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
     @(thread_local)
     rdb_buf: [MAXIMUM_REPARSE_DATA_BUFFER_SIZE]byte
 
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    p      := _fix_long_path(name, internal.temp_allocator) or_return
+    p      := _fix_long_path(name, allocators.temp_allocator) or_return
     handle := _open_sym_link(p) or_return
     defer _ = win32.CloseHandle(handle)
 
@@ -708,7 +711,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
         err = _get_platform_error()
         return
     }
-    mem.slice.zero(rdb_buf[:min(bytes_returned+1, len(rdb_buf))])
+    slice.zero(rdb_buf[:min(bytes_returned+1, len(rdb_buf))])
 
 
     rdb := (^win32.REPARSE_DATA_BUFFER)(&rdb_buf[0])
@@ -774,8 +777,8 @@ _fchown :: proc(f: ^File, uid, gid: int) -> Error {
 }
 
 _chdir :: proc(name: string) -> Error {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    p := _fix_long_path(name, internal.temp_allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    p := _fix_long_path(name, allocators.temp_allocator) or_return
     if !win32.SetCurrentDirectoryW(p) {
         return _get_platform_error()
     }
@@ -823,8 +826,8 @@ _fchtimes :: proc(f: ^File, atime, mtime: time.Time) -> Error {
 }
 
 _exists :: proc(path: string) -> bool {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    wpath, _ := _fix_long_path(path, internal.temp_allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    wpath, _ := _fix_long_path(path, allocators.temp_allocator)
     attribs := win32.GetFileAttributesW(wpath)
     return attribs != win32.INVALID_FILE_ATTRIBUTES
 }

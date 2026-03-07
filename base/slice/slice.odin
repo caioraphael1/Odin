@@ -388,7 +388,7 @@ The length is rounded down to the nearest whole number of items.
 Example:
 
     import "core:fmt"
-    import "core:slice"
+    import "base:slice"
 
     i64s_as_i32s :: proc() {
         large_items := []i64{1, 2, 3, 4}

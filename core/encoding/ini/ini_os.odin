@@ -2,7 +2,7 @@
 #+build !js
 
 
-import "base:runtime"
+import "base:internal"
 import "core:os"
 
 load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: mem.Allocator_Error, ok: bool) {

@@ -1,6 +1,6 @@
 #+build !netbsd
 #+build !openbsd
-import "base:runtime"
+import "base:internal"
 import "core:net"
 
 Unified_Parse_Error_Reason :: union #shared_nil {

@@ -1,6 +1,6 @@
 #+private
 #+build netbsd, openbsd, freebsd
-import "base:runtime"
+import "base:internal"
 
 _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
 	err = .Unsupported

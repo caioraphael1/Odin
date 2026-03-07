@@ -7,7 +7,7 @@
 import "base:intrinsics"
 import "core:sync"
 import "base:mem"
-import "core:container/queue"
+import "base:queue"
 
 Task_Proc :: #type proc(task: Task)
 
@@ -74,7 +74,7 @@ pool_thread_runner :: proc(t: ^Thread) {
 pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
     pool.allocator = allocator
     _ = queue.init(&pool.tasks, allocator = allocator)
-    dyn_array_init(&pool.tasks_done, allocator)
+    dyn_array.init(&pool.tasks_done, allocator)
     pool.threads, _ = slice.create([]^Thread, max(thread_count, 1), allocator)
 
     pool.is_running = true

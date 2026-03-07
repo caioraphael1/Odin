@@ -1,5 +1,5 @@
 import "base:rand"
-import "core:math"
+import "base:math"
 
 
 // norm_float64 returns a normally distributed f64 in the range -max(f64) through +max(f64) inclusive,

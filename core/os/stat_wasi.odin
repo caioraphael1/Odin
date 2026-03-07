@@ -1,7 +1,7 @@
 #+private
 
 
-import "base:runtime"
+import "base:internal"
 
 import "core:sys/wasm/wasi"
 import "core:time"
@@ -45,7 +45,7 @@ _fstat :: proc(f: ^File, allocator: mem.Allocator) -> (fi: File_Info, err: Error
 		return
 	}
 
-	fullpath := clone_string(impl.name, allocator) or_return
+	fullpath := strings.string_clone(impl.name, allocator) or_return
 	return internal_stat(stat, fullpath), nil
 }
 
@@ -68,7 +68,7 @@ _stat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Er
 	}
 
 	// NOTE: wasi doesn't really do full paths afact.
-	fullpath := clone_string(name, allocator) or_return
+	fullpath := strings.string_clone(name, allocator) or_return
 	return internal_stat(stat, fullpath), nil
 }
 
@@ -91,7 +91,7 @@ _lstat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: E
 	}
 
 	// NOTE: wasi doesn't really do full paths afact.
-	fullpath := clone_string(name, allocator) or_return
+	fullpath := strings.string_clone(name, allocator) or_return
 	return internal_stat(stat, fullpath), nil
 }
 

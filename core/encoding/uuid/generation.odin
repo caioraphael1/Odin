@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 import "core:crypto/hash"
 import "core:math/rand"
 import "core:time"
@@ -236,7 +236,7 @@ Example:
 
     generate_v8_hash_bytes_example :: proc() {
         my_uuid := uuid.generate_v8_hash(uuid.Namespace_DNS, "www.odin-lang.org", .SHA256)
-        my_uuid_string := uuid.to_string(my_uuid, runtime.temp_allocator)
+        my_uuid_string := uuid.to_string(my_uuid, allocators.temp_allocator)
         fmt.println(my_uuid_string)
     }
 
@@ -302,7 +302,7 @@ Example:
 
     generate_v8_hash_string_example :: proc() {
         my_uuid := uuid.generate_v8_hash(uuid.Namespace_DNS, "www.odin-lang.org", .SHA256)
-        my_uuid_string := uuid.to_string(my_uuid, runtime.temp_allocator)
+        my_uuid_string := uuid.to_string(my_uuid, allocators.temp_allocator)
         fmt.println(my_uuid_string)
     }
 

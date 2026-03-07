@@ -476,7 +476,7 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
         node, _ := new(Node_Repeat_N, allocator)
         node.inner = left
 
-        comma := strings.index_byte(token.text, ',')
+        comma := strings_tools.index_byte(token.text, ',')
 
         switch comma {
         case -1: // {N}

@@ -1,4 +1,4 @@
-import "core:math"
+import "base:math"
 import "core:math/bits"
 
 // The original C code, the long comment, and the constants

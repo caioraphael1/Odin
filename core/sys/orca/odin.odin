@@ -1,6 +1,6 @@
 // File contains Odin specific helpers.
 
-import "base:runtime"
+import "base:internal"
 
 create_odin_logger :: proc(lowest := runtime.Logger_Level.Debug, ident := "") -> runtime.Logger {
     return runtime.Logger{odin_logger_proc, nil, lowest, {}}
@@ -17,7 +17,7 @@ log_typed :: proc(level: log_level, msg: cstring, loc := #caller_location) {
 }
 
 odin_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location := #caller_location) {
-    cbuf := slice.create([]byte, len(text)+1, runtime.temp_allocator)
+    cbuf := slice.create([]byte, len(text)+1, allocators.temp_allocator)
     slice.copy(cbuf, text)
     ctext := cstring(raw_data(cbuf))
 

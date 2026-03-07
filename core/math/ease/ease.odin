@@ -1,5 +1,5 @@
 // Easing procedures used for animations.
-@(require) import "core:math"
+@(require) import "base:math"
 import "base:intrinsics"
 
 @(private) PI_2 :: math.PI / 2

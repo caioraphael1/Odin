@@ -2,6 +2,9 @@
 
 import "base:internal"
 import "base:mem"
+import "base:slice"
+import "base:dyn_array"
+
 import "core:strconv"
 import "core:unicode/utf8"
 

@@ -1,10 +1,10 @@
 // A (very small) subset of a libc implementation over Odin libraries for use with `vendor:*` packages.
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 import "core:c"
-import "core:slice"
+import "base:slice"
 import "core:sort"
 import "core:strconv"
 import "core:strings"

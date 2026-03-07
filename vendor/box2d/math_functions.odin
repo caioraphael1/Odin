@@ -1,5 +1,5 @@
 import "core:c"
-import "core:math"
+import "base:math"
 
 EPSILON :: math.F32_EPSILON
 

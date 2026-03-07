@@ -1,5 +1,5 @@
 #+build !windows
-import "base:runtime"
+import "base:internal"
 import "core:strings"
 
 _user_cache_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
@@ -122,7 +122,7 @@ _xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: mem.All
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
 	if xdg_key == "" { // Darwin doesn't have XDG paths.
-		dir = get_env("HOME", runtime.temp_allocator)
+		dir = get_env("HOME", allocators.temp_allocator)
 		if dir == "" {
 			err = .No_HOME_Variable
 			return
@@ -136,7 +136,7 @@ _xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: mem.All
 		}
 
 		if dir == "" {
-			dir = get_env("HOME", runtime.temp_allocator)
+			dir = get_env("HOME", allocators.temp_allocator)
 			if dir == "" {
 				err = .No_HOME_Variable
 				return
@@ -150,9 +150,9 @@ _xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: mem.All
 // If `<config-dir>/user-dirs.dirs` doesn't exist, or `xdg_key` can't be found there: returns `""`
 _xdg_user_dirs_lookup :: proc(xdg_key: string, allocator: mem.Allocator) -> (dir: string, err: Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-	config_dir      := user_config_dir(runtime.temp_allocator) or_return
-	user_dirs_path  := concatenate({config_dir, "/user-dirs.dirs"}, runtime.temp_allocator) or_return
-	content         := read_entire_file(user_dirs_path, runtime.temp_allocator) or_return
+	config_dir      := user_config_dir(allocators.temp_allocator) or_return
+	user_dirs_path  := concatenate({config_dir, "/user-dirs.dirs"}, allocators.temp_allocator) or_return
+	content         := read_entire_file(user_dirs_path, allocators.temp_allocator) or_return
 
 	xdg_dirs := string(content)
 	for line in strings.split_lines_iterator(&xdg_dirs) {

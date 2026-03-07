@@ -1,6 +1,10 @@
 import "base:internal"
 import "base:mem"
-import "core:container/queue"
+import "base:slice"
+import "base:dyn_array"
+import "base:strings"
+
+import "base:queue"
 
 /*
 A recursive directory walker.
@@ -18,7 +22,7 @@ Walker :: struct {
 }
 
 walker_init_path :: proc(w: ^Walker, path: string, allocator: mem.Allocator) {
-    cloned_path, err := clone_string(path, allocator)
+    cloned_path, err := strings.string_clone(path, allocator)
     if err != nil {
         walker_set_error(w, path, err)
         return
@@ -35,7 +39,7 @@ walker_init_path :: proc(w: ^Walker, path: string, allocator: mem.Allocator) {
 walker_init_file :: proc(w: ^Walker, f: ^File, allocator: mem.Allocator) {
     handle, err := clone(f, allocator)
     if err != nil {
-        path, _ := clone_string(name(f), allocator)
+        path, _ := strings.string_clone(name(f), allocator)
         walker_set_error(w, path, err)
         return
     }
@@ -90,7 +94,7 @@ walker_clear :: proc(w: ^Walker, allocator: mem.Allocator) {
 
     w.todo.data.allocator = allocator
     for path in queue.dyn_array_pop_front_safe(&w.todo) {
-        _ = string_delete(path, allocator)
+        _ = strings.string_delete(path, allocator)
     }
 }
 
@@ -157,7 +161,7 @@ walker_walk :: proc(w: ^Walker, allocator: mem.Allocator) -> (fi: File_Info, ok:
     if w.skip_dir {
         w.skip_dir = false
         if skip, sok := queue.pop_back_safe(&w.todo); sok {
-            _ = string_delete(skip,  allocator)
+            _ = strings.string_delete(skip,  allocator)
         }
     }
 
@@ -176,7 +180,7 @@ walker_walk :: proc(w: ^Walker, allocator: mem.Allocator) -> (fi: File_Info, ok:
 
         read_directory_iterator_init(&w.iter, handle, allocator)
 
-        _ = string_delete(next, allocator)
+        _ = strings.string_delete(next, allocator)
     }
 
     info, _, iter_ok := read_directory_iterator(&w.iter, allocator)
@@ -192,7 +196,7 @@ walker_walk :: proc(w: ^Walker, allocator: mem.Allocator) -> (fi: File_Info, ok:
     }
 
     if info.type == .Directory {
-        path, err := clone_string(info.fullpath, allocator)
+        path, err := strings.string_clone(info.fullpath, allocator)
         if err != nil {
             walker_set_error(w, "", err)
             return

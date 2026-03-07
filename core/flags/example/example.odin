@@ -1,5 +1,5 @@
 
-import "base:runtime"
+import "base:internal"
 import "core:flags"
 import "core:fmt"
 import "core:net"

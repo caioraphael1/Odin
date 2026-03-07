@@ -1,6 +1,6 @@
 import "base:builtin"
 import "base:intrinsics"
-import "core:math"
+import "base:math"
 
 
 F16_EPSILON :: 1e-3

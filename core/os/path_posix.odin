@@ -1,6 +1,6 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-import "base:runtime"
+import "base:internal"
 
 import "core:sys/posix"
 
@@ -14,7 +14,7 @@ _is_path_separator :: proc(c: byte) -> bool {
 
 _mkdir :: proc(name: string, perm: int) -> (err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    cname := strings.cstring_clone_from_string(name, runtime.temp_allocator) or_return
+    cname := strings.cstring_clone_from_string(name, allocators.temp_allocator) or_return
     if posix.mkdir(cname, transmute(posix.mode_t)posix._mode_t(perm)) != .OK {
         return _get_platform_error()
     }
@@ -32,7 +32,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
         return .Exist
     }
 
-    clean_path := clean_path(path, runtime.temp_allocator) or_return
+    clean_path := clean_path(path, allocators.temp_allocator) or_return
     return internal_mkdir_all(clean_path, perm)
 
     internal_mkdir_all :: proc(path: string, perm: int) -> Error {
@@ -52,7 +52,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 
 _remove_all :: proc(path: string) -> (err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    cpath := strings.cstring_clone_from_string(path, runtime.temp_allocator) or_return
+    cpath := strings.cstring_clone_from_string(path, allocators.temp_allocator) or_return
 
     dir := posix.opendir(cpath)
     if dir == nil {
@@ -76,7 +76,7 @@ _remove_all :: proc(path: string) -> (err: Error) {
             continue
         }
 
-        fullpath, _ := concatenate({path, "/", string(cname), "\x00"}, runtime.temp_allocator)
+        fullpath, _ := concatenate({path, "/", string(cname), "\x00"}, allocators.temp_allocator)
         if entry.d_type == .DIR {
             _remove_all(fullpath[:len(fullpath)-1]) or_return
         } else {
@@ -96,7 +96,7 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: E
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     buf: [dynamic]byte
-    buf.allocator = runtime.temp_allocator
+    buf.allocator = allocators.temp_allocator
     size := uint(posix.PATH_MAX)
 
     cwd: cstring
@@ -110,12 +110,12 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: E
         }
     }
 
-    return clone_string(string(cwd), allocator)
+    return strings.string_clone(string(cwd), allocator)
 }
 
 _set_working_directory :: proc(dir: string) -> (err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    cdir := strings.cstring_clone_from_string(dir, runtime.temp_allocator) or_return
+    cdir := strings.cstring_clone_from_string(dir, allocators.temp_allocator) or_return
     if posix.chdir(cdir) != .OK {
         err = _get_platform_error()
     }
@@ -128,13 +128,13 @@ _get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_
         rel = "."
     }
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-    rel_cstr := strings.cstring_clone_from_string(rel, runtime.temp_allocator) or_return
+    rel_cstr := strings.cstring_clone_from_string(rel, allocators.temp_allocator) or_return
     path_ptr := posix.realpath(rel_cstr, nil)
     if path_ptr == nil {
         return "", _get_platform_error()
     }
     defer posix.free(path_ptr)
 
-    path_str := clone_string(string(path_ptr), allocator) or_return
+    path_str := strings.string_clone(string(path_ptr), allocator) or_return
     return path_str, nil
 }

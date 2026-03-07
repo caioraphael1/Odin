@@ -3,7 +3,7 @@
 
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import "core:strings"
 import "core:c"
 
@@ -154,14 +154,14 @@ _resolve :: proc(ctx: ^Context, frame: Frame, allocator: mem.Allocator) -> Frame
             frame := &btc.frame
 
             if file != nil {
-                frame.file_path = strings.strings.string_clone_from_cstring(file, btc.allocator)
+                frame.file_path = strings.string_clone_from_cstring(file, btc.allocator)
             } else if info: Dl_info; dladdr(rawptr(address), &info) != 0 && info.dli_fname != "" {
-                frame.file_path = strings.strings.string_clone_from_cstring(info.dli_fname, btc.allocator)
+                frame.file_path = strings.string_clone_from_cstring(info.dli_fname, btc.allocator)
             }
             if symbol != nil {
-                frame.procedure = strings.strings.string_clone_from_cstring(symbol, btc.allocator)
+                frame.procedure = strings.string_clone_from_cstring(symbol, btc.allocator)
             } else if info: Dl_info; dladdr(rawptr(address), &info) != 0 && info.dli_sname != "" {
-                frame.procedure = strings.strings.string_clone_from_cstring(info.dli_sname, btc.allocator)
+                frame.procedure = strings.string_clone_from_cstring(info.dli_sname, btc.allocator)
             } else {
                 frame.procedure = _format_missing_proc(address, btc.allocator)
             }
@@ -183,7 +183,7 @@ _resolve :: proc(ctx: ^Context, frame: Frame, allocator: mem.Allocator) -> Frame
             if symbol != nil {
                 btc := (^Backtrace_Context)(data)
                 context = btc.rt_ctx
-                btc.frame.procedure = strings.strings.string_clone_from_cstring(symbol, btc.allocator)
+                btc.frame.procedure = strings.string_clone_from_cstring(symbol, btc.allocator)
             }
         },
         nil,

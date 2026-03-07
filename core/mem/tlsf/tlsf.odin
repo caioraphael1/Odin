@@ -9,7 +9,7 @@
 */
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 Error :: enum byte {
     None                      = 0,

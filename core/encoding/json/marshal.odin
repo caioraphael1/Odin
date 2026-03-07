@@ -1,11 +1,11 @@
 import "base:mem"
 import "core:math/bits"
-import "base:runtime"
+import "base:internal"
 import "core:strconv"
 import "core:strings"
 import "core:reflect"
 import "core:io"
-import "core:slice"
+import "base:slice"
 
 Marshal_Data_Error :: enum {
     None,
@@ -133,7 +133,7 @@ register_user_marshaler :: proc(id: typeid, marshaler: User_Marshaler) -> Regist
 }
 
 marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Marshal_Error) {
-    b := strings.builder_make(allocator)
+    b := strings_tools.builder_make(allocator)
     defer if err != nil {
         strings.builder_destroy(&b)
     }
@@ -151,7 +151,7 @@ marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc
     return data, nil
 }
 
-marshal_to_builder :: proc(b: ^strings.Builder, v: any, opt: ^Marshal_Options) -> Marshal_Error {
+marshal_to_builder :: proc(b: ^strings_tools.Builder, v: any, opt: ^Marshal_Options) -> Marshal_Error {
     return marshal_to_writer(strings.to_writer(b), v, opt)
 }
 
@@ -384,7 +384,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
                 // If we are sorting the map by key, then we temp alloc an array
                 // and sort it, then output the result.
-                sorted, _ := dyn_array.create_len_cap([dynamic]Entry, 0, map_cap, runtime.temp_allocator)
+                sorted, _ := dyn_array.create_len_cap([dynamic]Entry, 0, map_cap, allocators.temp_allocator)
                 for bucket_index in 0..<map_cap {
                     runtime.maps.hash_is_valid(hs[bucket_index]) or_continue
 

@@ -1,7 +1,7 @@
 #+build js
 #+private
 import "core:time/datetime"
-import "base:runtime"
+import "base:internal"
 
 local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool) {
 	return

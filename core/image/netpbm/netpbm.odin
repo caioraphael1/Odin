@@ -6,7 +6,7 @@ import "base:mem"
 import "core:strconv"
 import "core:strings"
 import "core:unicode"
-import "base:runtime"
+import "base:internal"
 
 Image        :: image.Image
 Format       :: image.Netpbm_Format
@@ -91,8 +91,8 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
     }
 
     // we will write to a string builder
-    data: strings.Builder
-    _ = strings.builder_init(&data)
+    data: strings_tools.Builder
+    _ = strings_tools.builder_init(&data)
 
     // all PNM headers start with the format
     fmt.sbprintf(&data, "%s\n", header.format)
@@ -372,8 +372,8 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     // string buffer for the tupltype
-    tupltype: strings.Builder
-    _ = strings.builder_init(&tupltype, runtime.temp_allocator)
+    tupltype: strings_tools.Builder
+    _ = strings_tools.builder_init(&tupltype, allocators.temp_allocator)
     defer strings.builder_destroy(&tupltype)
     fmt.sbprint(&tupltype, "")
 

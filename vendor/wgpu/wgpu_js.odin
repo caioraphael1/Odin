@@ -1,5 +1,5 @@
 
-import "base:runtime"
+import "base:internal"
 
 g_context: runtime.Context
 

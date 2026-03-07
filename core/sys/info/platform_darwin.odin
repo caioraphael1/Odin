@@ -1,12 +1,12 @@
 
-import    "base:runtime"
+import    "base:internal"
 import    "core:strings"
 import    "core:sys/unix"
 import NS "core:sys/darwin/Foundation"
 
 @(private)
 _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
-	ws :: strings.write_string
+	ws :: strings_tools.write_string
 	wi :: strings.write_int
 
 	b := strings.builder_make_none(allocator = allocator, loc = loc)

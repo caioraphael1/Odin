@@ -1,5 +1,5 @@
 #+private
-import "base:runtime"
+import "base:internal"
 
 import "core:c"
 import "core:sys/posix"

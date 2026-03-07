@@ -1,4 +1,4 @@
-import "core:math"
+import "base:math"
 import "core:math/linalg"
 
 EPSILON :: 0.000001

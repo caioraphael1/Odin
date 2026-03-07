@@ -4,7 +4,7 @@
 */
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 /*
 	TODO: Make the tunables runtime adjustable where practical.

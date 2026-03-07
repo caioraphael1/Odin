@@ -118,7 +118,7 @@ Example:
     import "core:text/table"
 
     main :: proc() {
-        string_buffer := strings.builder_make()
+        string_buffer := strings_tools.builder_make()
         defer strings.builder_destroy(&string_buffer)
 
         {

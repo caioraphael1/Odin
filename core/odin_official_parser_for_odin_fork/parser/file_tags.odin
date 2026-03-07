@@ -1,6 +1,6 @@
 package odin_parser
 
-import "base:runtime"
+import "base:internal"
 import "core:strings"
 import "core:reflect"
 
@@ -35,7 +35,7 @@ get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type
 
 	fields := reflect.enum_fields_zipped(runtime.Odin_OS_Type)
 	for os in fields {
-		if strings.equal_fold(os.name, str_os) {
+		if strings_tools.equal_fold(os.name, str_os) {
 			found_os = runtime.Odin_OS_Type(os.value)
 			break
 		}
@@ -43,7 +43,7 @@ get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type
 	if str_subtarget != "" {
 		st_fields := reflect.enum_fields_zipped(runtime.Odin_Platform_Subtarget_Type)
 		for subtarget in st_fields {
-			if strings.equal_fold(subtarget.name, str_subtarget) {
+			if strings_tools.equal_fold(subtarget.name, str_subtarget) {
 				found_subtarget = runtime.Odin_Platform_Subtarget_Type(subtarget.value)
 				break
 			}
@@ -56,7 +56,7 @@ get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type
 get_build_arch_from_string :: proc(str: string) -> runtime.Odin_Arch_Type {
 	fields := reflect.enum_fields_zipped(runtime.Odin_Arch_Type)
 	for os in fields {
-		if strings.equal_fold(os.name, str) {
+		if strings_tools.equal_fold(os.name, str) {
 			return runtime.Odin_Arch_Type(os.value)
 		}
 	}

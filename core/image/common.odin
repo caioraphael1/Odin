@@ -11,7 +11,7 @@ import "core:bytes"
 import "base:mem"
 import "core:io"
 import "core:compress"
-import "base:runtime"
+import "base:internal"
 
 /*
     67_108_864 pixels max by default.

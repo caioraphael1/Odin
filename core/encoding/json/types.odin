@@ -32,7 +32,7 @@ Using one of these `Specification`s.
         * : can be replaced with =
 */
 import "core:strings"
-import "base:runtime"
+import "base:internal"
 
 Specification :: enum {
     JSON,
@@ -96,7 +96,7 @@ destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_loc
     #partial switch v in value {
     case Object:
         for key, elem in v {
-            _ = string_delete(key, allocator, loc)
+            _ = strings.string_delete(key, allocator, loc)
             destroy_value(elem, allocator, loc)
         }
         _ = maps.delete(v, loc)
@@ -106,7 +106,7 @@ destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_loc
         }
         _ = dyn_array.delete(v, loc)
     case String:
-        _ = string_delete(v, allocator, loc)
+        _ = strings.string_delete(v, allocator, loc)
     }
 }
 

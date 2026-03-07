@@ -1,5 +1,5 @@
 #+private
-import "core:container/bit_array"
+import "base:bit_array"
 import "core:strconv"
 import "core:strings"
 
@@ -133,7 +133,7 @@ parse_requirements :: proc(str: string) -> (minimum, maximum: int, ok: bool) {
 		return 1, max(int), true
 	}
 
-	if less_than := strings.index_byte(str, '<'); less_than != -1 {
+	if less_than := strings_tools.index_byte(str, '<'); less_than != -1 {
 		if len(str) == 1 {
 			return 0, 0, false
 		}

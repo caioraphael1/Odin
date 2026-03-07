@@ -4,7 +4,7 @@ import "base:intrinsics"
 import "core:crypto"
 import aes "core:crypto/_aes/ct64"
 import "core:encoding/endian"
-import "core:simd"
+import "base:simd"
 
 // This uses the bitlsiced 64-bit general purpose register SWAR AES
 // round function.  The encryption pass skips orthogonalizing the

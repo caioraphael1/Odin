@@ -82,7 +82,7 @@ main :: proc() {
         fmt.eprintfln("Join path error for edwards25519_table.odin: %v", err);
         os.exit(1);
     }
-    bld: strings.Builder
+    bld: strings_tools.Builder
     w := strings.to_writer(&bld)
 
     fmt.wprintln(w, "package _edwards25519")

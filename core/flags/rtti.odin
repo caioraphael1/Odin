@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 /*
 Handle setting custom data types.

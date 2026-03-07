@@ -3,7 +3,7 @@
 import "core:strings"
 import "core:sys/windows"
 import "core:time/datetime"
-import "base:runtime"
+import "base:internal"
 
 TZ_Abbrev :: struct {
     std: string,
@@ -201,7 +201,7 @@ REG_TZI_FORMAT :: struct #packed {
 generate_rrule_from_tzi :: proc(tzi: ^REG_TZI_FORMAT, abbrevs: TZ_Abbrev, allocator: mem.Allocator) -> (rrule: datetime.TZ_RRule, ok: bool) {
     std_name, err := strings.string_clone(abbrevs.std, allocator)
     if err != nil { return }
-    defer if err != nil { _ = string_delete(std_name, allocator) }
+    defer if err != nil { _ = strings.string_delete(std_name, allocator) }
 
     if (tzi.std_date.month == 0) {
         return datetime.TZ_RRule{
@@ -222,7 +222,7 @@ generate_rrule_from_tzi :: proc(tzi: ^REG_TZI_FORMAT, abbrevs: TZ_Abbrev, alloca
     dst_name: string
     dst_name, err = strings.string_clone(abbrevs.dst, allocator)
     if err != nil { return }
-    defer if err != nil { _ = string_delete(dst_name, allocator) }
+    defer if err != nil { _ = strings.string_delete(dst_name, allocator) }
 
     return datetime.TZ_RRule{
         has_dst = true,
@@ -259,15 +259,15 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
         iana_name = local_tz_name(allocator) or_return
         wintz_name, ok = iana_to_windows_tz(iana_name, allocator)
         if !ok {
-            _ = string_delete(iana_name, allocator)
+            _ = strings.string_delete(iana_name, allocator)
             return
         }
     } else {
         wintz_name = iana_to_windows_tz(reg_str, allocator) or_return
         iana_name, _ = strings.string_clone(reg_str, allocator)
     }
-    defer _ = string_delete(wintz_name, allocator)
-    defer _ = string_delete(iana_name, allocator)
+    defer _ = strings.string_delete(wintz_name, allocator)
+    defer _ = strings.string_delete(iana_name, allocator)
 
     abbrevs: TZ_Abbrev
     abbrevs_ok: bool
@@ -287,7 +287,7 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
 
     key_base := `SOFTWARE\Microsoft\Windows NT\CurrentVersion\Time Zones`
     tz_key, _ := strings.string_join({key_base, wintz_name}, "\\", allocator = allocator)
-    defer _ = string_delete(tz_key, allocator)
+    defer _ = strings.string_delete(tz_key, allocator)
 
     tz_key_wstr := windows.utf8_to_wstring_alloc(tz_key, allocator)
     defer _ = free(rawptr(tz_key_wstr), allocator)
@@ -309,7 +309,7 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
 
     region_name, err := strings.string_clone(iana_name, allocator)
     if err != nil { return }
-    defer if err != nil { _ = string_delete(region_name, allocator) }
+    defer if err != nil { _ = strings.string_delete(region_name, allocator) }
 
     region: ^datetime.TZ_Region
     region, err = new_clone(datetime.TZ_Region{

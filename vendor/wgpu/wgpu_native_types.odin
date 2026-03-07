@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 BINDINGS_VERSION        :: [4]u8{27, 0, 2, 0}
 BINDINGS_VERSION_STRING :: "27.0.2.0"

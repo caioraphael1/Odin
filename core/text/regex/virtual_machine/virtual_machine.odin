@@ -9,7 +9,7 @@
 import "base:intrinsics"
 @(require) import "core:io"
 import "base:mem"
-import "core:slice"
+import "base:slice"
 import "core:text/regex/common"
 import "core:text/regex/parser"
 import "core:unicode/utf8"

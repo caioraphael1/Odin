@@ -7,11 +7,11 @@
 #+private
 
 
-import "core:container/avl"
+import "core:container/avl_tree"
 import "core:container/pool"
-import "core:container/queue"
+import "base:queue"
 import "base:mem"
-import "core:slice"
+import "base:slice"
 import "core:time"
 
 _FULLY_SUPPORTED :: false

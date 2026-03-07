@@ -5,7 +5,7 @@ import "core:fmt"
 import "core:time"
 
 doc_print :: proc(doc: ^xml.Document) {
-    buf: strings.Builder
+    buf: strings_tools.Builder
     defer strings.builder_destroy(&buf)
     w := strings.to_writer(&buf)
 

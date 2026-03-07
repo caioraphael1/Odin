@@ -2,7 +2,7 @@
 #+build windows
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 import win32 "core:sys/windows"
 

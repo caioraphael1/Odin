@@ -1,7 +1,7 @@
 #+build wasm32, wasm64p32
 
 
-import "base:runtime"
+import "base:internal"
 
 @(private)
 _ram_stats :: proc() -> (total_ram, free_ram, total_swap, free_swap: i64, ok: bool) {

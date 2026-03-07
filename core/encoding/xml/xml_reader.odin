@@ -8,7 +8,7 @@
 	- Jeroen van Rijn: Initial implementation.
 */
 
-import    "base:runtime"
+import    "base:internal"
 import    "core:bytes"
 import    "core:encoding/entity"
 import    "base:intrinsics"
@@ -180,7 +180,7 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 	doc.tokenizer = t
 	doc.input     = data
 
-    dyn_array_init(&doc.elements, 1024, 1024, allocator)
+    dyn_array.init(&doc.elements, 1024, 1024, allocator)
 
 	err = .Unexpected_Token
 	element, parent: Element_ID
@@ -321,7 +321,7 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 				next := scan(t)
 				#partial switch next.kind {
 				case .Ident:
-					if len(next.text) == 3 && strings.equal_fold(next.text, "xml") {
+					if len(next.text) == 3 && strings_tools.equal_fold(next.text, "xml") {
 						parse_prologue(doc) or_return
 					} else if len(doc.prologue) > 0 {
 						// We've already seen a prologue.
@@ -474,7 +474,7 @@ parse_prologue :: proc(doc: ^Document) -> (err: Error) {
 
 		case "encoding":
             runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-            switch strings.to_lower(attr.val, runtime.temp_allocator) {
+            switch strings.to_lower(attr.val, allocators.temp_allocator) {
 			case "utf-8", "utf8":
 				doc.encoding = .UTF_8
 

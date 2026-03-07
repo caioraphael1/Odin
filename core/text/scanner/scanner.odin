@@ -6,7 +6,7 @@
 //
 // By default, a Scanner skips white space and Odin comments and recognizes all literals defined by the Odin programming language specification.
 // A Scanner may be customized to recognize only a subset of those literals and to recognize different identifiers and white space characters.
-import "base:runtime"
+import "base:internal"
 import "core:fmt"
 import "core:strings"
 import "core:unicode"
@@ -28,7 +28,7 @@ position_is_valid :: proc(pos: Position) -> bool {
 }
 
 
-position_to_string :: proc(pos: Position, allocator := runtime.temp_allocator) -> string {
+position_to_string :: proc(pos: Position, allocator := allocators.temp_allocator) -> string {
 	s := pos.filename
 	if s == "" {
 		s = "<input>"
@@ -647,7 +647,7 @@ token_text :: proc(s: ^Scanner) -> string {
 }
 
 // token_string returns a printable string for a token or Unicode character
-// By default, it uses the runtime.temp_allocator to produce the string
+// By default, it uses the allocators.temp_allocator to produce the string
 
 token_string :: proc(tok: rune, allocator: mem.Allocator) -> string {
 	

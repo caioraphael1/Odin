@@ -1,11 +1,11 @@
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 import "core:bytes"
 import "core:io"
 import "base:mem"
 import "core:reflect"
-import "core:slice"
+import "base:slice"
 import "core:strconv"
 import "core:strings"
 import "core:unicode/utf8"
@@ -36,7 +36,7 @@ allocations until the end.
 // Marshals the given value into a CBOR byte stream (allocated using the given allocator).
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Marshal_Error) {
-    b, alloc_err := strings.builder_make(allocator, loc=loc)
+    b, alloc_err := strings_tools.builder_make(allocator, loc=loc)
     // The builder as a stream also returns .EOF if it ran out of memory so this is consistent.
     if alloc_err != nil {
         return nil, .EOF
@@ -53,14 +53,14 @@ marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocat
 
 // Marshals the given value into a CBOR byte stream written to the given builder.
 // See docs on the `marshal_into` proc group for more info.
-marshal_into_builder :: proc(b: ^strings.Builder, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
+marshal_into_builder :: proc(b: ^strings_tools.Builder, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
     return marshal_into_writer(strings.to_writer(b), v, flags)
 }
 
 // Marshals the given value into a CBOR byte stream written to the given writer.
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_writer :: proc(w: io.Writer, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
-    encoder := Encoder{flags, w, runtime.temp_allocator}
+    encoder := Encoder{flags, w, allocators.temp_allocator}
     return marshal_into_encoder(encoder, v)
 }
 
@@ -434,7 +434,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
                     runtime.maps.hash_is_valid(hs[bucket_index]) or_continue
 
                     key := rawptr(runtime.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    key_builder := strings.builder_make(0, 8, e.temp_allocator) or_return
+                    key_builder := strings_tools.builder_make(0, 8, e.temp_allocator) or_return
                     marshal_into(Encoder{e.flags, strings.to_stream(&key_builder), e.temp_allocator}, any{ key, info.key.id }) or_return
                     dyn_array.append(&entries, Encoded_Entry{ &key_builder.buf, bucket_index }) or_return
                 }
@@ -513,7 +513,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
                     continue
                 }
 
-                key_builder := strings.builder_make(e.temp_allocator) or_return
+                key_builder := strings_tools.builder_make(e.temp_allocator) or_return
                 err_conv(_encode_text(Encoder{e.flags, strings.to_stream(&key_builder), e.temp_allocator}, fname)) or_return
                 dyn_array.append(&entries, Name{key_builder.buf[:], i}) or_return
             }
@@ -566,7 +566,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
         case reflect.Type_Info_Named:
             err_conv(_encode_text(e, vt.name)) or_return
         case:
-            builder := strings.builder_make(e.temp_allocator) or_return
+            builder := strings_tools.builder_make(e.temp_allocator) or_return
             defer strings.builder_destroy(&builder)
             reflect.write_type(&builder, vti)
             err_conv(_encode_text(e, strings.to_string(builder))) or_return

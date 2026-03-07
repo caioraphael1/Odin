@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 /*
 	With `n` items, calculate how many ways that `r` of them can be ordered.

@@ -1,5 +1,4 @@
-import "base:runtime"
-_ :: runtime
+@(require) import "base:internal"
 
 // The `new` procedure allocates memory for a type `T` from a `virtual.Arena`. The second argument is a type,
 // not a value, and the value return is a pointer to a newly allocated value of that type using the specified allocator.

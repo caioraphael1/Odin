@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 
 Multi_Logger_Data :: struct {

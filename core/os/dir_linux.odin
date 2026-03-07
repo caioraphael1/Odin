@@ -1,5 +1,5 @@
 #+private
-import "base:runtime"
+import "base:internal"
 import "core:sys/linux"
 
 Read_Directory_Iterator_Impl :: struct {
@@ -78,7 +78,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Al
 
     if err != nil {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-        path, _ := _get_full_path(entry_fd, runtime.temp_allocator)
+        path, _ := _get_full_path(entry_fd, allocators.temp_allocator)
         read_directory_iterator_set_error(it, path, err)
     }
 

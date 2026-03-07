@@ -2,7 +2,7 @@
 //
 // This package does not deal with Windows/NT paths with volume letters or backslashes
 // To manipulate operating system specific paths, use the path/filepath package
-import "base:runtime"
+import "base:internal"
 import "core:strings"
 import "base:mem"
 
@@ -150,7 +150,7 @@ join :: proc(elems: []string, allocator: mem.Allocator) -> string {
     for elem, i in elems {
         if elem != "" {
             runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-            s, _ := strings.string_join(elems[i:], "/", runtime.temp_allocator)
+            s, _ := strings.string_join(elems[i:], "/", allocators.temp_allocator)
             return clean(s, allocator)
         }
     }

@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 import "core:sys/darwin"
 import "core:sys/posix"
@@ -7,7 +7,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 	buffer: [darwin.PIDPATHINFO_MAXSIZE]byte = ---
 	ret := darwin.proc_pidpath(posix.getpid(), raw_data(buffer[:]), len(buffer))
 	if ret > 0 {
-		return clone_string(string(buffer[:ret]), allocator)
+		return strings.string_clone(string(buffer[:ret]), allocator)
 	}
 
 	err = _get_platform_error()

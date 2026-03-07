@@ -2,7 +2,7 @@
 // These are the mathematical inverses of the corresponding easing functions,
 // allowing you to reverse the transformation:
 //    if y = ease_fn(x), then x = ease_fn_inverse(y) + some_imprecision
-@(require) import "core:math"
+@(require) import "base:math"
 import "base:intrinsics"
 
 // Helper for handling negative bases with fractional exponents

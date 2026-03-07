@@ -1,6 +1,6 @@
 import "base:builtin"
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import "base:mem"
 import "core:sync"
 import "core:math/rand"

@@ -1,6 +1,6 @@
 #+build linux, darwin, freebsd, openbsd, netbsd, haiku
 #+private
-import "base:runtime"
+import "base:internal"
 import "core:sync"
 import "core:sys/posix"
 

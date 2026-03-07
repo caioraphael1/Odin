@@ -1,7 +1,7 @@
 
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 import "core:container/pool"
 import "core:net"

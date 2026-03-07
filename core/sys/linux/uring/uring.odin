@@ -1,6 +1,6 @@
 
 
-import "core:math"
+import "base:math"
 import "core:sync"
 import "core:sys/linux"
 

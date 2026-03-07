@@ -1,9 +1,9 @@
 // Timezone lookup.
 import "core:fmt"
-import "core:slice"
+import "base:slice"
 import "core:time"
 import "core:time/datetime"
-import "base:runtime"
+import "base:internal"
 
 region_load :: proc(reg: string, allocator: mem.Allocator) ->  (out_reg: ^datetime.TZ_Region, ok: bool) {
     return _region_load(reg, allocator)
@@ -18,8 +18,8 @@ region_load_from_buffer :: proc(buffer: []u8, reg: string, allocator: mem.Alloca
 }
 
 rrule_destroy :: proc(rrule: datetime.TZ_RRule, allocator: mem.Allocator) {
-    _ = string_delete(rrule.std_name, allocator)
-    _ = string_delete(rrule.dst_name, allocator)
+    _ = strings.string_delete(rrule.std_name, allocator)
+    _ = strings.string_delete(rrule.dst_name, allocator)
 }
 
 region_destroy :: proc(region: ^datetime.TZ_Region, allocator: mem.Allocator) {
@@ -28,11 +28,11 @@ region_destroy :: proc(region: ^datetime.TZ_Region, allocator: mem.Allocator) {
     }
 
     for name in region.shortnames {
-        _ = string_delete(name, allocator)
+        _ = strings.string_delete(name, allocator)
     }
     _ = slice.delete(region.shortnames, allocator)
     _ = slice.delete(region.records, allocator)
-    _ = string_delete(region.name, allocator)
+    _ = strings.string_delete(region.name, allocator)
     rrule_destroy(region.rrule, allocator)
     _ = free(region, allocator)
 }

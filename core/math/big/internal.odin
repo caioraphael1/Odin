@@ -26,7 +26,7 @@
 
 import "base:builtin"
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import "base:mem"
 import rnd "core:math/rand"
 

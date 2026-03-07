@@ -2,7 +2,7 @@
 Stack trace library. Only works when debug symbols are enabled using `-debug`.
 
 Example:
-    import "base:runtime"
+    import "base:internal"
     import "core:debug/trace"
 
     import "core:fmt"
@@ -25,7 +25,7 @@ Example:
             runtime.print_string("Debug Trace:\n")
             frames := trace.frames(ctx, 1, buf[:])
             for f, i in frames {
-                fl := trace.resolve(ctx, f, runtime.temp_allocator)
+                fl := trace.resolve(ctx, f, allocators.temp_allocator)
                 if fl.loc.file_path == "" && fl.loc.line == 0 {
                     continue
                 }

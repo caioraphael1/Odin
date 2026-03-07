@@ -5,10 +5,10 @@ import "core:odin/ast"
 import "core:path/filepath"
 import "core:fmt"
 import "core:os"
-import "core:slice"
+import "base:slice"
 import "core:strings"
 import "base:mem"
-import "base:runtime"
+import "base:internal"
 
 collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Package, success: bool) {
     NO_POS :: tokenizer.Pos{}
@@ -37,11 +37,11 @@ collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Pa
 
         src, src_err := os.read_entire_file_from_path(fullpath, allocator)
         if src_err != nil {
-            _ = string_delete(fullpath, allocator)
+            _ = strings.string_delete(fullpath, allocator)
             return
         }
         if strings.trim_space(string(src)) == "" {
-            _ = string_delete(fullpath, allocator)
+            _ = strings.string_delete(fullpath, allocator)
             _ = slice.delete(src, allocator)
             continue
         }
@@ -66,7 +66,7 @@ parse_package :: proc(pkg: ^ast.Package, p: ^Parser, allocator: mem.Allocator) -
 
     ok := true
 
-    files, _ := slice.create([]^ast.File, len(pkg.files), runtime.temp_allocator)
+    files, _ := slice.create([]^ast.File, len(pkg.files), allocators.temp_allocator)
     i := 0
     for _, file in pkg.files {
         files[i] = file

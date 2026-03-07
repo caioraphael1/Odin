@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 import "core:strings"
 import "core:sys/posix"
@@ -18,7 +18,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 			return
 		}
 		defer posix.free(real)
-		return clone_string(string(real), allocator)
+		return strings.string_clone(string(real), allocator)
 	} 
 
 	arg := runtime.args__[0]
@@ -35,14 +35,14 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-	buf := strings.builder_make(runtime.temp_allocator)
+	buf := strings_tools.builder_make(allocators.temp_allocator)
 
-	paths := get_env("PATH", runtime.temp_allocator)
+	paths := get_env("PATH", allocators.temp_allocator)
 	for dir in strings.split_iterator(&paths, ":") {
 		strings.builder_reset(&buf)
-		strings.write_string(&buf, dir)
-		strings.write_string(&buf, "/")
-		strings.write_string(&buf, sarg)
+		strings_tools.write_string(&buf, dir)
+		strings_tools.write_string(&buf, "/")
+		strings_tools.write_string(&buf, sarg)
 
 		cpath := strings.to_cstring(&buf) or_return
 		if posix.access(cpath, {.X_OK}) == .OK {

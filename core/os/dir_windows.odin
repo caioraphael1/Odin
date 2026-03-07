@@ -1,6 +1,10 @@
 #+private
 import "base:internal"
 import "base:mem"
+import "base:mem/allocators"
+import "base:slice"
+import "base:strings"
+
 import "core:time"
 import win32 "core:sys/windows"
 
@@ -14,8 +18,8 @@ find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, al
         return
     }
 
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-    path := concatenate({base_path, `\`, win32_wstring_to_utf8(cstring16(raw_data(d.cFileName[:])), internal.temp_allocator) or_else ""}, allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    path := strings.string_concatenate({base_path, `\`, win32_wstring_to_utf8(cstring16(raw_data(d.cFileName[:])), allocators.temp_allocator) or_else ""}, allocator) or_return
 
     handle := win32.HANDLE(_open_internal(path, {.Read}, Permissions_Read_Write_All) or_else 0)
     defer _ = win32.CloseHandle(handle)
@@ -98,7 +102,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
         _ = win32.FindClose(it.impl.find_handle)
     }
     if it.impl.path != "" {
-        _ = string_delete(it.impl.path, allocator)
+        _ = strings.string_delete(it.impl.path, allocator)
     }
 
     if !is_directory(impl.name) {
@@ -107,9 +111,9 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     }
 
     wpath := string16(impl.wname)
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    wpath_search, _ := slice.create([]u16, len(wpath)+3, internal.temp_allocator)
+    wpath_search, _ := slice.create([]u16, len(wpath)+3, allocators.temp_allocator)
     slice_copy_from_string16(wpath_search, wpath)
     wpath_search[len(wpath)+0] = '\\'
     wpath_search[len(wpath)+1] = '*'
@@ -138,6 +142,6 @@ _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator
         return
     }
     file_info_delete(it.impl.prev_fi, allocator)
-    _ = string_delete(it.impl.path, allocator)
+    _ = strings.string_delete(it.impl.path, allocator)
     _ = win32.FindClose(it.impl.find_handle)
 }

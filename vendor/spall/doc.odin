@@ -6,7 +6,7 @@ See: [[ https://gravitymoth.com/spall/ ]]
 Example:
     package main
 
-    import "base:runtime"
+    import "base:internal"
     import "core:prof/spall"
     import "core:sync"
 

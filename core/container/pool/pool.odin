@@ -1,16 +1,4 @@
 
-import "base:intrinsics"
-import "base:runtime"
-import "base:sanitizer"
-import "core:sync"
-
-_ :: sanitizer
-_ :: sync
-
-DEFAULT_BLOCK_SIZE :: _DEFAULT_BLOCK_SIZE
-
-Pool_Arena :: _Pool_Arena
-
 /*
 A thread-safe (between init and destroy) object pool backed by virtual growing arena returning stable pointers.
 The element type requires an intrusive link node.
@@ -23,6 +11,16 @@ Example:
     p: pool.Pool(Elem)
     pool.init(&p, "link")
 */
+import "base:intrinsics"
+import "base:internal"
+@(require) import "base:sanitizer"
+@(require) import "core:sync"
+
+
+DEFAULT_BLOCK_SIZE :: _DEFAULT_BLOCK_SIZE
+
+Pool_Arena :: _Pool_Arena
+
 Pool :: struct($T: typeid) {
     arena:           Pool_Arena,
     num_outstanding: int,

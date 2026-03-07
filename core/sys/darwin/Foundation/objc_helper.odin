@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 import "base:intrinsics"
 
 Subclasser_Proc :: proc(cls: Class, vtable: rawptr)

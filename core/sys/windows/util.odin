@@ -2,8 +2,9 @@
 
 
 import "base:internal"
-import "base:mem"
 import "base:intrinsics"
+import "base:mem"
+import "base:slice"
 
 L :: intrinsics.constant_utf16_cstring
 
@@ -291,7 +292,7 @@ _add_user :: proc(servername: string, username: string, password: string) -> (ok
         // Create account on this computer
         servername_w = nil
     } else {
-        server := utf8_to_utf16_alloc(servername, internal.temp_allocator)
+        server := utf8_to_utf16_alloc(servername, allocators.temp_allocator)
         servername_w = wstring(&server[0])
     }
 
@@ -305,8 +306,8 @@ _add_user :: proc(servername: string, username: string, password: string) -> (ok
         return .BadPassword
     }
 
-    username_w = utf8_to_utf16_alloc(username, internal.temp_allocator)
-    password_w = utf8_to_utf16_alloc(password, internal.temp_allocator)
+    username_w = utf8_to_utf16_alloc(username, allocators.temp_allocator)
+    password_w = utf8_to_utf16_alloc(password, allocators.temp_allocator)
 
 
     level  := DWORD(1)
@@ -335,7 +336,7 @@ _add_user :: proc(servername: string, username: string, password: string) -> (ok
 
 get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: string, sid := SID{}, ok: bool) {
 
-    username_w := utf8_to_utf16_alloc(username, internal.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, allocators.temp_allocator)
     cbsid: DWORD
     computer_name_size: DWORD
     pe_use := SID_NAME_USE.SidTypeUser
@@ -354,7 +355,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
         return "", {}, false
     }
 
-    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), internal.temp_allocator)
+    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), allocators.temp_allocator)
 
     res = LookupAccountNameW(
         nil,
@@ -369,7 +370,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
     if !res {
         return "", {}, false
     }
-    computer_name = utf16_to_utf8_alloc(cname_w, internal.temp_allocator) or_else ""
+    computer_name = utf16_to_utf8_alloc(cname_w, allocators.temp_allocator) or_else ""
 
     ok = true
     return
@@ -377,7 +378,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
 
 get_sid :: proc(username: string, sid: ^SID) -> (ok: bool) {
 
-    username_w := utf8_to_utf16_alloc(username, internal.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, allocators.temp_allocator)
     cbsid: DWORD
     computer_name_size: DWORD
     pe_use := SID_NAME_USE.SidTypeUser
@@ -396,7 +397,7 @@ get_sid :: proc(username: string, sid: ^SID) -> (ok: bool) {
         return false
     }
 
-    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), internal.temp_allocator)
+    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), allocators.temp_allocator)
 
     res = LookupAccountNameW(
         nil,
@@ -419,7 +420,7 @@ add_user_to_group :: proc(sid: ^SID, group: string) -> (ok: NET_API_STATUS) {
     group_member := LOCALGROUP_MEMBERS_INFO_0{
         sid = sid,
     }
-    group_name := utf8_to_utf16_alloc(group, internal.temp_allocator)
+    group_name := utf8_to_utf16_alloc(group, allocators.temp_allocator)
     ok = NetLocalGroupAddMembers(
         nil,
         wstring(&group_name[0]),
@@ -434,7 +435,7 @@ add_del_from_group :: proc(sid: ^SID, group: string) -> (ok: NET_API_STATUS) {
     group_member := LOCALGROUP_MEMBERS_INFO_0{
         sid = sid,
     }
-    group_name := utf8_to_utf16_alloc(group, internal.temp_allocator)
+    group_name := utf8_to_utf16_alloc(group, allocators.temp_allocator)
     ok = NetLocalGroupDelMembers(
         nil,
         cstring16(&group_name[0]),
@@ -446,7 +447,7 @@ add_del_from_group :: proc(sid: ^SID, group: string) -> (ok: NET_API_STATUS) {
 }
 
 add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
-    username_w := utf8_to_utf16_alloc(username, internal.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, allocators.temp_allocator)
 
     sid := SID{}
     ok = get_sid(username, &sid)
@@ -461,7 +462,7 @@ add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
     }
     defer _ = LocalFree(rawptr(sb))
 
-    pszProfilePath, _ := slice.create([]u16, 257, internal.temp_allocator)
+    pszProfilePath, _ := slice.create([]u16, 257, allocators.temp_allocator)
     res2 := CreateProfile(
         sb,
         cstring16(&username_w[0]),
@@ -471,7 +472,7 @@ add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
     if res2 != 0 {
         return false, ""
     }
-    profile_path = wstring_to_utf8_alloc(wstring(&pszProfilePath[0]), 257, internal.temp_allocator) or_else ""
+    profile_path = wstring_to_utf8_alloc(wstring(&pszProfilePath[0]), 257, allocators.temp_allocator) or_else ""
 
     return true, profile_path
 }
@@ -541,10 +542,10 @@ delete_user :: proc(servername: string, username: string) -> (ok: bool) {
         // Delete account on this computer
         servername_w = nil
     } else {
-        server := utf8_to_utf16_alloc(servername, internal.temp_allocator)
+        server := utf8_to_utf16_alloc(servername, allocators.temp_allocator)
         servername_w = wstring(&server[0])
     }
-    username_w := utf8_to_utf16_alloc(username, internal.temp_allocator)
+    username_w := utf8_to_utf16_alloc(username, allocators.temp_allocator)
 
     res := NetUserDel(
         servername_w,
@@ -567,14 +568,14 @@ run_as_user :: proc(username, password, application, commandline: string, pi: ^P
 
     */
 
-    username_w    := utf8_to_utf16_alloc(username, internal.temp_allocator)
-    domain_w      := utf8_to_utf16_alloc(".", internal.temp_allocator)
-    password_w    := utf8_to_utf16_alloc(password, internal.temp_allocator)
-    app_w         := utf8_to_utf16_alloc(application, internal.temp_allocator)
+    username_w    := utf8_to_utf16_alloc(username, allocators.temp_allocator)
+    domain_w      := utf8_to_utf16_alloc(".", allocators.temp_allocator)
+    password_w    := utf8_to_utf16_alloc(password, allocators.temp_allocator)
+    app_w         := utf8_to_utf16_alloc(application, allocators.temp_allocator)
 
     commandline_w: []u16 = {0}
     if len(commandline) > 0 {
-        commandline_w = utf8_to_utf16_alloc(commandline, internal.temp_allocator)
+        commandline_w = utf8_to_utf16_alloc(commandline, allocators.temp_allocator)
     }
 
     user_token: HANDLE

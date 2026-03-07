@@ -55,7 +55,7 @@ Open_Save_Mode :: enum {
 _open_file_dialog :: proc(title: string, dir: string,
                           filters: []string, default_filter: u32,
                           flags: u32, default_ext: string,
-                          mode: Open_Save_Mode, allocator := runtime.temp_allocator) -> (path: string, ok: bool = true) {
+                          mode: Open_Save_Mode, allocator := allocators.temp_allocator) -> (path: string, ok: bool = true) {
 
     file_buf := slice.create([]u16, MAX_PATH_WIDE)
     defer if !ok {
@@ -69,18 +69,18 @@ _open_file_dialog :: proc(title: string, dir: string,
     }
 
     filter: string
-    filter = strings.string_join(filters, "\u0000", runtime.temp_allocator)
-    filter = strings.string_concatenate({filter, "\u0000"}, runtime.temp_allocator)
+    filter = strings.string_join(filters, "\u0000", allocators.temp_allocator)
+    filter = strings.string_concatenate({filter, "\u0000"}, allocators.temp_allocator)
 
     ofn := OPENFILENAMEW{
         lStructSize     = size_of(OPENFILENAMEW),
         lpstrFile       = wstring(&file_buf[0]),
         nMaxFile        = MAX_PATH_WIDE,
-        lpstrTitle      = utf8_to_wstring_alloc(title, runtime.temp_allocator),
-        lpstrFilter     = utf8_to_wstring_alloc(filter, runtime.temp_allocator),
-        lpstrInitialDir = utf8_to_wstring_alloc(dir, runtime.temp_allocator),
+        lpstrTitle      = utf8_to_wstring_alloc(title, allocators.temp_allocator),
+        lpstrFilter     = utf8_to_wstring_alloc(filter, allocators.temp_allocator),
+        lpstrInitialDir = utf8_to_wstring_alloc(dir, allocators.temp_allocator),
         nFilterIndex    = u32(clamp(default_filter, 1, filter_len / 2)),
-        lpstrDefExt     = utf8_to_wstring_alloc(default_ext, runtime.temp_allocator),
+        lpstrDefExt     = utf8_to_wstring_alloc(default_ext, allocators.temp_allocator),
         Flags           = u32(flags),
     }
 
@@ -105,7 +105,7 @@ _open_file_dialog :: proc(title: string, dir: string,
 
 select_file_to_open :: proc(title := OPEN_TITLE, dir := ".",
                             filters := []string{"All Files", "*.*"}, default_filter := u32(1),
-                            flags := OPEN_FLAGS, allocator := runtime.temp_allocator) -> (path: string, ok: bool) {
+                            flags := OPEN_FLAGS, allocator := allocators.temp_allocator) -> (path: string, ok: bool) {
 
     path, ok = _open_file_dialog(title, dir, filters, default_filter, flags, "", Open_Save_Mode.Open, allocator)
     return
@@ -114,7 +114,7 @@ select_file_to_open :: proc(title := OPEN_TITLE, dir := ".",
 select_file_to_save :: proc(title := SAVE_TITLE, dir := ".",
                             filters := []string{"All Files", "*.*"}, default_filter := u32(1),
                             flags := SAVE_FLAGS, default_ext := SAVE_EXT,
-                            allocator := runtime.temp_allocator) -> (path: string, ok: bool) {
+                            allocator := allocators.temp_allocator) -> (path: string, ok: bool) {
 
     path, ok = _open_file_dialog(title, dir, filters, default_filter, flags, default_ext, Open_Save_Mode.Save, allocator)
     return

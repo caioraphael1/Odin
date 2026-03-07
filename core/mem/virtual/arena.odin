@@ -1,7 +1,7 @@
 import "base:mem"
 import "base:intrinsics"
 import "core:sync"
-import "base:runtime"
+import "base:internal"
 
 // import "base:sanitizer"
 

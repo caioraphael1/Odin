@@ -1,4 +1,4 @@
-import "core:math"
+import "base:math"
 import "base:builtin"
 import "base:intrinsics"
 @(require) import "base:internal"

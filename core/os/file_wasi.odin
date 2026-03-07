@@ -1,5 +1,5 @@
 
-import "base:runtime"
+import "base:internal"
 
 import "core:io"
 import "core:sys/wasm/wasi"
@@ -209,7 +209,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f
 
     impl.allocator = allocator
     // NOTE: wasi doesn't really do full paths afact.
-    impl.name = clone_string(name, allocator) or_return
+    impl.name = strings.string_clone(name, allocator) or_return
     impl.fd = wasi.fd_t(handle)
     impl.file.impl = impl
     impl.file.stream = {

@@ -21,7 +21,7 @@
 		Feoramund:       FreeBSD platform code
 */
 
-import "base:runtime"
+import "base:internal"
 
 /*
 	TUNEABLES - See also top of `dns.odin` for DNS configuration.

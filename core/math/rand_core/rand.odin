@@ -1,7 +1,7 @@
 // Random number generators.
 import "base:intrinsics"
 import "base:rand"
-import "core:math"
+import "base:math"
 import "base:mem"
 import "base:slice"
 

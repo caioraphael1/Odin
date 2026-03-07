@@ -1,5 +1,5 @@
 #+private
-import "base:runtime"
+import "base:internal"
 
 import "core:sys/darwin"
 import "core:sys/posix"
@@ -19,8 +19,8 @@ _posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocato
 _copy_file_native :: proc(dst_path, src_path: string) -> (err: Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-	csrc := strings.cstring_clone_from_string(src_path, runtime.temp_allocator) or_return
-	cdst := strings.cstring_clone_from_string(dst_path, runtime.temp_allocator) or_return
+	csrc := strings.cstring_clone_from_string(src_path, allocators.temp_allocator) or_return
+	cdst := strings.cstring_clone_from_string(dst_path, allocators.temp_allocator) or_return
 
 	// Disallow directories, as specified by the generic implementation.
 

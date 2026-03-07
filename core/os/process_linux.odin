@@ -2,11 +2,11 @@
 #+private file
 
 
-import "base:runtime"
+import "base:internal"
 import "base:intrinsics"
 
 import "core:time"
-import "core:slice"
+import "base:slice"
 import "core:strings"
 import "core:strconv"
 import "core:sys/linux"
@@ -79,9 +79,9 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
     }
     defer linux.close(dir_fd)
 
-    dynamic_list := dyn_array.create([dynamic]int, runtime.temp_allocator) or_return
+    dynamic_list := dyn_array.create([dynamic]int, allocators.temp_allocator) or_return
 
-    buf := dyn_array.create([dynamic]u8, 128, 128, runtime.temp_allocator) or_return
+    buf := dyn_array.create([dynamic]u8, 128, 128, allocators.temp_allocator) or_return
     loop: for {
         buflen: int
         buflen, errno = linux.getdents(dir_fd, buf[:])
@@ -119,7 +119,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     path_backing: [48]u8
     path_builder := strings.builder_from_bytes(path_backing[:])
 
-    strings.write_string(&path_builder, "/proc/")
+    strings_tools.write_string(&path_builder, "/proc/")
     strings.write_int(&path_builder, pid)
     proc_fd, errno := linux.open(strings.to_cstring(&path_builder) or_return, _OPENDIR_FLAGS)
     if errno != .NONE {
@@ -137,7 +137,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
         passwd_bytes: []u8
         passwd_err: Error
-        passwd_bytes, passwd_err = _read_entire_pseudo_file_cstring("/etc/passwd", runtime.temp_allocator)
+        passwd_bytes, passwd_err = _read_entire_pseudo_file_cstring("/etc/passwd", allocators.temp_allocator)
         if passwd_err != nil {
             err = passwd_err
             break username_if
@@ -145,7 +145,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
         passwd := string(passwd_bytes)
         for len(passwd) > 0 {
-            n := strings.index_byte(passwd, ':')
+            n := strings_tools.index_byte(passwd, ':')
             if n < 0 {
                 break
             }
@@ -153,9 +153,9 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             passwd = passwd[n+1:]
 
             // skip password field
-            passwd = passwd[strings.index_byte(passwd, ':') + 1:]
+            passwd = passwd[strings_tools.index_byte(passwd, ':') + 1:]
 
-            n = strings.index_byte(passwd, ':')
+            n = strings_tools.index_byte(passwd, ':')
             if uid, ok := strconv.parse_int(passwd[:n]); ok && uid == int(s.uid) {
                 info.username = strings.string_clone(username, allocator) or_return
                 info.fields += {.Username}
@@ -165,7 +165,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                 break username_if
             }
 
-            eol := strings.index_byte(passwd, '\n')
+            eol := strings_tools.index_byte(passwd, '\n')
             if eol < 0 {
                 break
             }
@@ -175,18 +175,18 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
     cmdline_if: if selection & {.Working_Dir, .Command_Line, .Command_Args} != {} {
         strings.builder_reset(&path_builder)
-        strings.write_string(&path_builder, "/proc/")
+        strings_tools.write_string(&path_builder, "/proc/")
         strings.write_int(&path_builder, pid)
-        strings.write_string(&path_builder, "/cmdline")
+        strings_tools.write_string(&path_builder, "/cmdline")
 
-        cmdline_bytes, cmdline_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator)
+        cmdline_bytes, cmdline_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator)
         if cmdline_err != nil || len(cmdline_bytes) == 0 {
             err = cmdline_err
             break cmdline_if
         }
         cmdline := string(cmdline_bytes)
 
-        terminator := strings.index_byte(cmdline, 0)
+        terminator := strings_tools.index_byte(cmdline, 0)
         assert(terminator > 0)
 
         // command_line_exec := cmdline[:terminator]
@@ -196,11 +196,11 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         cwd_err: Error
         if .Working_Dir in selection {
             strings.builder_reset(&path_builder)
-            strings.write_string(&path_builder, "/proc/")
+            strings_tools.write_string(&path_builder, "/proc/")
             strings.write_int(&path_builder, pid)
-            strings.write_string(&path_builder, "/cwd")
+            strings_tools.write_string(&path_builder, "/cwd")
 
-            cwd, cwd_err = _read_link_cstr(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator) // allowed to fail
+            cwd, cwd_err = _read_link_cstr(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator) // allowed to fail
             if cwd_err == nil && .Working_Dir in selection {
                 info.working_dir = strings.string_clone(cwd, allocator) or_return
                 info.fields += {.Working_Dir}
@@ -213,28 +213,28 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if selection & {.Command_Line, .Command_Args} != {} {
             // skip to first arg
             //cmdline = cmdline[terminator + 1:]
-            command_line_builder: strings.Builder
+            command_line_builder: strings_tools.Builder
             command_args_list: [dynamic]string
 
             if .Command_Line in selection {
-                command_line_builder = strings.builder_make(allocator) or_return
+                command_line_builder = strings_tools.builder_make(allocator) or_return
                 info.fields += {.Command_Line}
             }
 
             for i := 0; len(cmdline) > 0; i += 1 {
-                if terminator = strings.index_byte(cmdline, 0); terminator < 0 {
+                if terminator = strings_tools.index_byte(cmdline, 0); terminator < 0 {
                     break
                 }
 
                 if .Command_Line in selection {
                     if i > 0 {
-                        strings.write_byte(&command_line_builder, ' ')
+                        strings_tools.write_byte(&command_line_builder, ' ')
                     }
-                    strings.write_string(&command_line_builder, cmdline[:terminator])
+                    strings_tools.write_string(&command_line_builder, cmdline[:terminator])
                 }
                 if .Command_Args in selection {
                     if i == 1 {
-                        dyn_array_init(&command_args_list, allocator) or_return
+                        dyn_array.init(&command_args_list, allocator) or_return
                         info.fields += {.Command_Args}
                     }
                     if i > 0 {
@@ -252,11 +252,11 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
     stat_if: if selection & {.PPid, .Priority} != {} {
         strings.builder_reset(&path_builder)
-        strings.write_string(&path_builder, "/proc/")
+        strings_tools.write_string(&path_builder, "/proc/")
         strings.write_int(&path_builder, pid)
-        strings.write_string(&path_builder, "/stat")
+        strings_tools.write_string(&path_builder, "/stat")
 
-        proc_stat_bytes, stat_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator)
+        proc_stat_bytes, stat_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator)
         if stat_err != nil {
             err = stat_err
             break stat_if
@@ -267,7 +267,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
         // Skip to the first field after the executable name
         stats: string
-        if start := strings.last_index_byte(string(proc_stat_bytes), ')'); start != -1 {
+        if start := strings_tools.last_index_byte(string(proc_stat_bytes), ')'); start != -1 {
             stats = string(proc_stat_bytes[start + 2:])
         } else {
             break stat_if
@@ -295,7 +295,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             Nice,
             //... etc,
         }
-        stat_fields := strings.split(stats, " ", runtime.temp_allocator) or_return
+        stat_fields := strings.split(stats, " ", allocators.temp_allocator) or_return
 
         if len(stat_fields) <= int(Fields.Nice) {
             break stat_if
@@ -334,11 +334,11 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         */
 
         strings.builder_reset(&path_builder)
-        strings.write_string(&path_builder, "/proc/")
+        strings_tools.write_string(&path_builder, "/proc/")
         strings.write_int(&path_builder, pid)
-        strings.write_string(&path_builder, "/exe")
+        strings_tools.write_string(&path_builder, "/exe")
 
-        if exe_bytes, exe_err := _read_link(strings.to_string(path_builder), runtime.temp_allocator); exe_err == nil {
+        if exe_bytes, exe_err := _read_link(strings.to_string(path_builder), allocators.temp_allocator); exe_err == nil {
             info.executable_path = strings.string_clone(string(exe_bytes), allocator) or_return
             info.fields += {.Executable_Path}
         } else {
@@ -348,16 +348,16 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
     if .Environment in selection {
         strings.builder_reset(&path_builder)
-        strings.write_string(&path_builder, "/proc/")
+        strings_tools.write_string(&path_builder, "/proc/")
         strings.write_int(&path_builder, pid)
-        strings.write_string(&path_builder, "/environ")
+        strings_tools.write_string(&path_builder, "/environ")
 
-        if env_bytes, env_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator); env_err == nil {
+        if env_bytes, env_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator); env_err == nil {
             env := string(env_bytes)
 
             env_list := dyn_array.create([dynamic]string, allocator) or_return
             for len(env) > 0 {
-                terminator := strings.index_byte(env, 0)
+                terminator := strings_tools.index_byte(env, 0)
                 if terminator <= 0 {
                     break
                 }
@@ -412,7 +412,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     dir_fd := linux.AT_FDCWD
     errno: linux.Errno
     if desc.working_dir != "" {
-        dir_cstr := strings.cstring_clone_from_string(desc.working_dir, runtime.temp_allocator) or_return
+        dir_cstr := strings.cstring_clone_from_string(desc.working_dir, allocators.temp_allocator) or_return
         if dir_fd, errno = linux.open(dir_cstr, _OPENDIR_FLAGS); errno != .NONE {
             return process, _get_platform_error(errno)
         }
@@ -424,18 +424,18 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     // search PATH if just a plain name is provided
     exe_path: cstring
     executable_name := desc.command[0]
-    if strings.index_byte(executable_name, '/') < 0 {
-        path_env := get_env("PATH", runtime.temp_allocator)
-        path_dirs := split_path_list(path_env, runtime.temp_allocator) or_return
+    if strings_tools.index_byte(executable_name, '/') < 0 {
+        path_env := get_env("PATH", allocators.temp_allocator)
+        path_dirs := split_path_list(path_env, allocators.temp_allocator) or_return
 
-        exe_builder := strings.builder_make(runtime.temp_allocator) or_return
+        exe_builder := strings_tools.builder_make(allocators.temp_allocator) or_return
 
         found: bool
         for dir in path_dirs {
             strings.builder_reset(&exe_builder)
-            strings.write_string(&exe_builder, dir)
-            strings.write_byte(&exe_builder, '/')
-            strings.write_string(&exe_builder, executable_name)
+            strings_tools.write_string(&exe_builder, dir)
+            strings_tools.write_byte(&exe_builder, '/')
+            strings_tools.write_string(&exe_builder, executable_name)
 
             exe_path = strings.to_cstring(&exe_builder) or_return
             stat := linux.Stat{}
@@ -447,8 +447,8 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         if !found {
             // check in cwd to match windows behavior
             strings.builder_reset(&exe_builder)
-            strings.write_string(&exe_builder, "./")
-            strings.write_string(&exe_builder, executable_name)
+            strings_tools.write_string(&exe_builder, "./")
+            strings_tools.write_string(&exe_builder, executable_name)
 
             exe_path = strings.to_cstring(&exe_builder) or_return
             if linux.access(exe_path, linux.X_OK) != .NONE {
@@ -456,7 +456,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
             }
         }
     } else {
-        exe_path = strings.cstring_clone_from_string(executable_name, runtime.temp_allocator) or_return
+        exe_path = strings.cstring_clone_from_string(executable_name, allocators.temp_allocator) or_return
         if linux.access(exe_path, linux.X_OK) != .NONE {
             return process, .Not_Exist
         }
@@ -464,20 +464,20 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
 
     // args and environment need to be a list of cstrings
     // that are terminated by a nil pointer.
-    cargs := slice.create([]cstring, len(desc.command) + 1, runtime.temp_allocator) or_return
+    cargs := slice.create([]cstring, len(desc.command) + 1, allocators.temp_allocator) or_return
     for command, i in desc.command {
-        cargs[i] = strings.cstring_clone_from_string(command, runtime.temp_allocator) or_return
+        cargs[i] = strings.cstring_clone_from_string(command, allocators.temp_allocator) or_return
     }
 
     // Use current process' environment if description didn't provide it.
     env: [^]cstring
     if desc.env == nil {
         // take this process's current environment
-        env = raw_data(export_cstring_environment(runtime.temp_allocator))
+        env = raw_data(export_cstring_environment(allocators.temp_allocator))
     } else {
-        cenv := slice.create([]cstring, len(desc.env) + 1, runtime.temp_allocator) or_return
+        cenv := slice.create([]cstring, len(desc.env) + 1, allocators.temp_allocator) or_return
         for env, i in desc.env {
-            cenv[i] = strings.cstring_clone_from_string(env, runtime.temp_allocator) or_return
+            cenv[i] = strings.cstring_clone_from_string(env, allocators.temp_allocator) or_return
         }
         env = &cenv[0]
     }
@@ -609,31 +609,31 @@ _process_state_update_times :: proc(state: ^Process_State) -> (err: Error) {
 
     stat_path_buf: [48]u8
     path_builder := strings.builder_from_bytes(stat_path_buf[:])
-    strings.write_string(&path_builder, "/proc/")
+    strings_tools.write_string(&path_builder, "/proc/")
     strings.write_int(&path_builder, int(state.pid))
-    strings.write_string(&path_builder, "/stat")
+    strings_tools.write_string(&path_builder, "/stat")
 
     stat_buf: []u8
-    stat_buf, err = _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, runtime.temp_allocator)
+    stat_buf, err = _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator)
     if err != nil {
         return
     }
 
     // ')' will be the end of the executable name (item 2)
-    idx := strings.last_index_byte(string(stat_buf), ')')
+    idx := strings_tools.last_index_byte(string(stat_buf), ')')
     stats := string(stat_buf[idx + 2:])
 
     // utime and stime are the 14 and 15th items, respectively, and we are
     // currently on item 3. Skip 11 items here.
     for _ in 0..<11 {
-        stats = stats[strings.index_byte(stats, ' ') + 1:]
+        stats = stats[strings_tools.index_byte(stats, ' ') + 1:]
     }
 
-    idx = strings.index_byte(stats, ' ')
+    idx = strings_tools.index_byte(stats, ' ')
     utime_str := stats[:idx]
 
     stats = stats[idx + 1:]
-    stime_str := stats[:strings.index_byte(stats, ' ')]
+    stime_str := stats[:strings_tools.index_byte(stats, ' ')]
 
     utime, stime: int
     ok: bool

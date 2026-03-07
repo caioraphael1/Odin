@@ -1,5 +1,5 @@
 #+build !freestanding, wasm32, wasm64p32
-import "base:runtime"
+import "base:internal"
 import "base:mem"
 import "core:sync"
 

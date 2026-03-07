@@ -11,7 +11,7 @@
 		blob1807:    Windows Win32 API rewrite.
 */
 
-import "base:runtime"
+import "base:internal"
 import "base:intrinsics"
 
 import "core:os"

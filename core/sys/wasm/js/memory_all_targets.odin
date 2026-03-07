@@ -1,6 +1,6 @@
 #+build !js
 
-import "base:runtime"
+import "base:internal"
 
 PAGE_SIZE :: 64 * 1024
 page_alloc :: proc(page_count: int) -> (data: []byte, err: mem.Allocator_Error) {

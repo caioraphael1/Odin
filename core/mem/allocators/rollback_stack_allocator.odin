@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 import "base:mem"
 // import "base:sanitizer"
 

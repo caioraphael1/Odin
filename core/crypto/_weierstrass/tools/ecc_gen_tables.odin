@@ -73,7 +73,7 @@ gen_tables :: proc($CURVE: string) {
 		fmt.eprintfln("Join path error for %s: %v", fn_, err);
 		os.exit(1);
 	}
-	bld: strings.Builder
+	bld: strings_tools.Builder
 	w := strings.to_writer(&bld)
 
 	fmt.wprintln(w, "package _weierstrass")

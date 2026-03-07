@@ -1,7 +1,7 @@
 import "base:mem"
 import "base:intrinsics"
 // import "base:sanitizer"
-@(require) import "base:runtime"
+@(require) import "base:internal"
 
 DEFAULT_PAGE_SIZE := uint(4096)
 

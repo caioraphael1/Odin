@@ -6,7 +6,7 @@
 #+build !windows
 #+private
 
-import "base:runtime"
+import "base:internal"
 
 _Pool_Arena :: runtime.Arena
 

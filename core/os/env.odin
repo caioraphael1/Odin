@@ -1,6 +1,9 @@
 import "base:internal"
 import "base:mem"
-import "core:strings"
+import "base:mem/allocators"
+import "base:strings"
+
+import "core:strings_tools"
 
 // `get_env` retrieves the value of the environment variable named by the key
 // It returns the value, which will be empty if the variable is not present
@@ -67,8 +70,8 @@ environ :: proc(allocator: mem.Allocator) -> ([]string, Error) {
 replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator) -> (res: string) {
     path := path
 
-    sb: strings.Builder
-    strings.builder_init(&sb, allocator)
+    sb: strings_tools.Builder
+    strings_tools.builder_init(&sb, allocator)
 
     for len(path) > 0 {
         switch path[0] {
@@ -77,8 +80,8 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
                 for r, i in path[1:] {
                     if r == '%' {
                         env_key := path[1:i+1]
-                        env_val := get_env_alloc(env_key, internal.temp_allocator)
-                        strings.write_string(&sb, env_val)
+                        env_val := get_env_alloc(env_key, allocators.temp_allocator)
+                        strings_tools.write_string(&sb, env_val)
                         path = path[i+1:] // % is part of key, so skip 1 character extra
                     }
                 }
@@ -98,8 +101,8 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
                     }
                 }
                 if len(env_key) > 0 {
-                    env_val := get_env(env_key, internal.temp_allocator)
-                    strings.write_string(&sb, env_val)
+                    env_val := get_env(env_key, allocators.temp_allocator)
+                    strings_tools.write_string(&sb, env_val)
                     path = path[len(env_key):]
                 }
 

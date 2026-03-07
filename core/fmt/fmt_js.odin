@@ -1,10 +1,9 @@
 #+build js
 
 foreign import "odin_env"
-
 @(private="file")
 foreign odin_env {
-	write :: proc(fd: u32, p: []byte) ---
+    write :: proc(fd: u32, p: []byte) ---
 }
 
 stdout :: u32(1)
@@ -19,49 +18,49 @@ buf: [BUF_SIZE]byte
 
 @(private="file")
 get_fd :: proc(f: any, loc := #caller_location) -> (fd: u32) {
-	if _fd, _ok := f.(u32); _ok {
-		fd = _fd
-	}
-	if fd != 1 && fd != 2 {
-		panic("`fmt.fprint` variant called with invalid file descriptor for JS, only 1 (stdout) and 2 (stderr) are supported", loc)
-	}
-	return fd
+    if _fd, _ok := f.(u32); _ok {
+        fd = _fd
+    }
+    if fd != 1 && fd != 2 {
+        panic("`fmt.fprint` variant called with invalid file descriptor for JS, only 1 (stdout) and 2 (stderr) are supported", loc)
+    }
+    return fd
 }
 
 // fprint formats using the default print settings and writes to fd
 // flush is ignored
 fprint :: proc(f: any, args: ..any, sep := " ", flush := true, loc := #caller_location) -> (n: int) {
-	fd := get_fd(f)
-	s := bprint(buf[:], ..args, sep=sep)
-	n = len(s)
-	write(fd, transmute([]byte)s)
-	return n
+    fd := get_fd(f)
+    s := bprint(buf[:], ..args, sep=sep)
+    n = len(s)
+    write(fd, transmute([]byte)s)
+    return n
 }
 
 // fprintln formats using the default print settings and writes to fd, followed by a newline
 // flush is ignored
 fprintln :: proc(f: any, args: ..any, sep := " ", flush := true, loc := #caller_location) -> (n: int) {
-	fd := get_fd(f)
-	s := bprintln(buf[:], ..args, sep=sep)
-	n = len(s)
-	write(fd, transmute([]byte)s)
-	return n
+    fd := get_fd(f)
+    s := bprintln(buf[:], ..args, sep=sep)
+    n = len(s)
+    write(fd, transmute([]byte)s)
+    return n
 }
 
 // fprintf formats according to the specified format string and writes to fd
 // flush is ignored
 fprintf :: proc(f: any, fmt: string, args: ..any, flush := true, newline := false, loc := #caller_location) -> (n: int) {
-	fd := get_fd(f)
-	s := bprintf(buf[:], fmt, ..args, newline=newline)
-	n = len(s)
-	write(fd, transmute([]byte)s)
-	return n
+    fd := get_fd(f)
+    s := bprintf(buf[:], fmt, ..args, newline=newline)
+    n = len(s)
+    write(fd, transmute([]byte)s)
+    return n
 }
 
 // fprintfln formats according to the specified format string and writes to fd, followed by a newline.
 // flush is ignored
 fprintfln :: proc(f: any, fmt: string, args: ..any, flush := true, loc := #caller_location) -> int {
-	return fprintf(f, fmt, ..args, flush=flush, newline=true, loc=loc)
+    return fprintf(f, fmt, ..args, flush=flush, newline=true, loc=loc)
 }
 
 // print formats using the default print settings and writes to stdout

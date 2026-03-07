@@ -1,5 +1,5 @@
 #+private
-import "base:internal"
+import "base:mem"
 import win32 "core:sys/windows"
 
 _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {

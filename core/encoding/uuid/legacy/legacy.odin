@@ -2,7 +2,7 @@
 Versions 3 and 5 of `UUID` generation, both of which use legacy (`MD5` + `SHA1`) hashes.
 Those are known these days to no longer be secure.
 */
-import "base:runtime"
+import "base:internal"
 import "core:crypto/legacy/md5"
 import "core:crypto/legacy/sha1"
 import "core:encoding/uuid"

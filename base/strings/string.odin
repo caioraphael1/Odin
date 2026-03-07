@@ -9,6 +9,17 @@ string_from_ptr :: proc(ptr: ^byte, len: int) -> (res: string) {
     return transmute(string)Raw_String{ ptr, len }
 }
 
+string_from_null_terminated_bytes :: proc(b: []byte) -> (res: string) {
+    s := string(b)
+    i := 0
+    for ; i < len(s); i += 1 {
+        if s[i] == 0 {
+            break
+        }
+    }
+    return s[:i]
+}
+
 string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     c := slice.create([]byte, len(s), allocator, loc) or_return
     slice.copy_from_string(c, s)
@@ -64,6 +75,18 @@ string_concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller
     }
     return string(b), nil
 }
+
+
+strings_concatenate_from_buffer :: proc(buf: []byte, strings: ..string) -> string {
+    n := 0
+    for s in strings {
+        (n < len(buf)) or_break
+        n += slice.copy_from_string(buf[n:], s)
+    }
+    n = min(len(buf), n)
+    return string(buf[:n])
+}
+
 
 /*
 Joins a slice of strings `a` with a `sep` string

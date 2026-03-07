@@ -1,7 +1,7 @@
 
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import "core:strings"
 import "core:sys/linux"
 
@@ -15,7 +15,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	pretty_parse: {
 		fd, errno := linux.open("/etc/os-release", {})
 		if errno != .NONE {
-			strings.write_string(&b, "Unknown Linux Distro")
+			strings_tools.write_string(&b, "Unknown Linux Distro")
 			break pretty_parse
 		}
 
@@ -24,7 +24,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 		os_release_buf: [2048]u8
 		n, read_errno := linux.read(fd, os_release_buf[:])
 		if read_errno != .NONE {
-			strings.write_string(&b, "Unknown Linux Distro")
+			strings_tools.write_string(&b, "Unknown Linux Distro")
 			break pretty_parse
 		}
 		release := string(os_release_buf[:n])
@@ -35,11 +35,11 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 			if len(post) > 0 {
 				end := strings.index_any(post, "\"\n")
 				if end > -1 && post[end] == '"' {
-					strings.write_string(&b, post[:end])
+					strings_tools.write_string(&b, post[:end])
 				}
 			}
 			if strings.builder_len(b) == 0 {
-				strings.write_string(&b, "Unknown Linux Distro")
+				strings_tools.write_string(&b, "Unknown Linux Distro")
 			}
 		}
 
@@ -58,12 +58,12 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	uname_errno := linux.uname(&uts)
 	assert(uname_errno == .NONE, "This should never happen!")
 	// Append the system name (typically "Linux") and kernel release (looks like 6.5.2-arch1-1)
-	strings.write_string(&b, ", ")
-	strings.write_string(&b, string(cstring(&uts.sysname[0])))
+	strings_tools.write_string(&b, ", ")
+	strings_tools.write_string(&b, string(cstring(&uts.sysname[0])))
 	strings.write_rune(&b, ' ')
 
 	release_i := strings.builder_len(b)
-	strings.write_string(&b, string(cstring(&uts.release[0])))
+	strings_tools.write_string(&b, string(cstring(&uts.release[0])))
 	release_str := string(b.buf[release_i:])
 
 	res.full = strings.to_string(b)

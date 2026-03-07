@@ -1,11 +1,11 @@
 #+private
-import "base:runtime"
+import "base:internal"
 
 _temp_dir :: proc(allocator: mem.Allocator) -> (string, mem.Allocator_Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-	tmpdir := get_env("TMPDIR", runtime.temp_allocator)
+	tmpdir := get_env("TMPDIR", allocators.temp_allocator)
 	if tmpdir == "" {
 		tmpdir = "/tmp"
 	}
-	return clone_string(tmpdir, allocator)
+	return strings.string_clone(tmpdir, allocator)
 }

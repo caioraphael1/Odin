@@ -1,7 +1,7 @@
 foreign import "webgl2"
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import glm "core:math/linalg/glsl"
 
 Query             :: distinct u32

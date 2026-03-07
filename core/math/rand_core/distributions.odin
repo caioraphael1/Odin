@@ -1,5 +1,5 @@
 import "base:rand"
-import "core:math"
+import "base:math"
 
 float64_uniform :: float64_range
 float32_uniform :: float32_range

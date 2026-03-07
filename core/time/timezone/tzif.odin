@@ -1,11 +1,11 @@
 import "base:intrinsics"
 
-import "core:slice"
+import "base:slice"
 import "core:strings"
 import "core:os"
 import "core:strconv"
 import "core:time/datetime"
-import "base:runtime"
+import "base:internal"
 
 // Implementing RFC8536 [https://datatracker.ietf.org/doc/html/rfc8536]
 
@@ -379,7 +379,7 @@ parse_posix_tz :: proc(posix_tz: string, allocator: mem.Allocator) -> (out: date
 
     std_name_str, err := strings.string_clone(std_name, allocator)
     if err != nil { return }
-    defer if !ok { _ = string_delete(std_name_str, allocator) }
+    defer if !ok { _ = strings.string_delete(std_name_str, allocator) }
 
     if len(str) == 0 {
         return datetime.TZ_RRule{
@@ -584,7 +584,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
     if err != nil { return }
     defer if err != nil {
         for name in ltt_names {
-            _ = string_delete(name, allocator)
+            _ = strings.string_delete(name, allocator)
         }
         _ = dyn_array.delete(ltt_names) 
     }
@@ -619,14 +619,14 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
     rrule, ok2 := parse_posix_tz(footer_str, allocator)
     if !ok2 { return }
     defer if err != nil {
-        _ = string_delete(rrule.std_name, allocator)
-        _ = string_delete(rrule.dst_name, allocator)
+        _ = strings.string_delete(rrule.std_name, allocator)
+        _ = strings.string_delete(rrule.dst_name, allocator)
     }
 
     region_name_out: string
     region_name_out, err = strings.string_clone(region_name, allocator)
     if err != nil { return }
-    defer if err != nil { _ = string_delete(region_name_out, allocator) }
+    defer if err != nil { _ = strings.string_delete(region_name_out, allocator) }
 
     region: ^datetime.TZ_Region
     region, err = new_clone(datetime.TZ_Region{

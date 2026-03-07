@@ -2,7 +2,7 @@
 import "base:intrinsics"
 import "core:crypto/_chacha20"
 import chacha_simd128 "core:crypto/_chacha20/simd128"
-import "core:simd"
+import "base:simd"
 import "core:sys/info"
 
 // This is loosely based on Ted Krovetz's public domain C intrinsic

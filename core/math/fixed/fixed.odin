@@ -5,7 +5,7 @@ Example:
     5/10000
 */
 import "base:internal"
-@(require) import "core:math"
+@(require) import "base:math"
 @(require) import "core:strconv"
 @(require) import "base:intrinsics"
 

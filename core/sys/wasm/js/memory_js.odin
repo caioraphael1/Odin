@@ -1,6 +1,6 @@
 #+build js wasm32, js wasm64p32
 
-import "base:runtime"
+import "base:internal"
 import "base:intrinsics"
 
 PAGE_SIZE :: 64 * 1024

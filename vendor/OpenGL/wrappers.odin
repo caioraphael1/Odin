@@ -1,6 +1,6 @@
 #assert(size_of(bool) == size_of(u8))
 
-import "base:runtime"
+import "base:internal"
 import "core:fmt"
 _ :: runtime
 _ :: fmt

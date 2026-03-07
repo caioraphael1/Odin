@@ -159,7 +159,7 @@ entries :: proc(m: $M/map[$K]$V, allocator: mem.Allocator, loc := #caller_locati
 
 entry_infos :: proc(m: $M/map[$K]$V, allocator: mem.Allocator, loc := #caller_location) -> (entries: []Map_Entry_Info(K, V), err: mem.Allocator_Error) #no_bounds_check {
     m := m
-    rm := (^internal.Raw_Map)(&m)
+    rm := (^maps.Raw_Map)(&m)
 
     info := internal.type_info_base(type_info_of(M)).variant.(internal.Type_Info_Map)
     if info.map_info != nil {

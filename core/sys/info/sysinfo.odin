@@ -91,7 +91,7 @@ Inputs:
 - allocator:  A `mem.Allocator` on which the version strings will be freed
 */
 destroy_os_version :: proc(version: OS_Version, allocator: mem.Allocator) {
-    _ = string_delete(version.full, allocator)
+    _ = strings.string_delete(version.full, allocator)
     // `version.release` is part of `version.full` and does not need to be freed separately.
 }
 

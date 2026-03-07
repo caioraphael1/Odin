@@ -8,7 +8,7 @@
 
 import "base:intrinsics"
 @(require) import "core:io"
-import "core:slice"
+import "base:slice"
 import "base:mem"
 import "core:text/regex/common"
 import "core:text/regex/parser"

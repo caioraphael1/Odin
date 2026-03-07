@@ -1,5 +1,5 @@
 
-import "base:runtime"
+import "base:internal"
 
 @(require, linkage="strong", link_name="__odin_libc_assert_fail")
 __odin_libc_assert_fail :: proc "c" (func: cstring, file: cstring, line: i32, expr: cstring) -> ! {

@@ -1,4 +1,4 @@
-import "core:math"
+import "base:math"
 
 EaseLinearNone  :: proc(t, b, c, d: f32) -> f32 { return (c*t/d + b) }
 EaseLinearIn    :: proc(t, b, c, d: f32) -> f32 { return (c*t/d + b) }

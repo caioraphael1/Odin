@@ -1,10 +1,10 @@
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 import "core:bytes"
 import "core:encoding/endian"
 import "core:io"
-import "core:slice"
+import "base:slice"
 import "core:strings"
 import "base:mem"
 
@@ -72,7 +72,7 @@ Decodes both deterministic and non-deterministic CBOR into a `Value` variant.
 `Text` and `Bytes` can safely be cast to cstrings because of an added 0 byte.
 
 Allocations are done using the given allocator,
-*no* allocations are done on the `runtime.temp_allocator`.
+*no* allocations are done on the `allocators.temp_allocator`.
 
 A value can be (fully and recursively) deallocated using the `destroy` proc in this package.
 
@@ -190,21 +190,21 @@ allocations until the end.
 // Encodes the CBOR value into binary CBOR allocated on the given allocator.
 // See the docs on the proc group `encode_into` for more info.
 encode_into_bytes :: proc(v: Value, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Encode_Error) {
-    b := strings.builder_make(allocator, loc) or_return
+    b := strings_tools.builder_make(allocator, loc) or_return
     encode_into_builder(&b, v, flags, temp_allocator) or_return
     return b.buf[:], nil
 }
 
 // Encodes the CBOR value into binary CBOR written to the given builder.
 // See the docs on the proc group `encode_into` for more info.
-encode_into_builder :: proc(b: ^strings.Builder, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
+encode_into_builder :: proc(b: ^strings_tools.Builder, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
     return encode_into_writer(strings.to_stream(b), v, flags, loc=loc)
 }
 
 // Encodes the CBOR value into binary CBOR written to the given writer.
 // See the docs on the proc group `encode_into` for more info.
 encode_into_writer :: proc(w: io.Writer, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
-    return encode_into_encoder(Encoder{flags, w, runtime.temp_allocator }, v, loc=loc)
+    return encode_into_encoder(Encoder{flags, w, allocators.temp_allocator }, v, loc=loc)
 }
 
 // Encodes the CBOR value into binary CBOR written to the given encoder.
@@ -213,7 +213,7 @@ encode_into_encoder :: proc(e: Encoder, v: Value, loc := #caller_location) -> En
     e := e
 
     if e.temp_allocator.procedure == nil {
-        e.temp_allocator = runtime.temp_allocator
+        e.temp_allocator = allocators.temp_allocator
     }
 
     if .Self_Described_CBOR in e.flags {
@@ -358,7 +358,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
     add := add
     n, scap := _decode_len_str(d, add) or_return
     
-    buf := strings.builder_make(0, scap, allocator, loc) or_return
+    buf := strings_tools.builder_make(0, scap, allocator, loc) or_return
     defer if err != nil { strings.builder_destroy(&buf) }
     buf_stream := strings.to_stream(&buf)
 
@@ -391,7 +391,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
     v = buf.buf[:]
 
     // Write zero byte so this can be converted to cstring.
-    strings.write_byte(&buf, 0)
+    strings_tools.write_byte(&buf, 0)
 
     if .Shrink_Excess in d.flags { dyn_array_shrink(&buf.buf) }
     return
@@ -532,7 +532,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
     for &entry, i in entries {
         entry.entry = m[i]
 
-        buf := strings.builder_make(e.temp_allocator) or_return
+        buf := strings_tools.builder_make(e.temp_allocator) or_return
         
         ke := e
         ke.writer = strings.to_stream(&buf)

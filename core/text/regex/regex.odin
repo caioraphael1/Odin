@@ -6,7 +6,7 @@
         Feoramund: Initial implementation.
 */
 
-import "base:runtime"
+import "base:internal"
 import "base:mem"
 import "core:text/regex/common"
 import "core:text/regex/compiler"
@@ -103,13 +103,13 @@ create :: proc(
     program: [dynamic]virtual_machine.Opcode = ---
     class_data: [dynamic]parser.Rune_Class_Data = ---
 
-    ast := parser.parse(pattern, flags, runtime.temp_allocator) or_return
+    ast := parser.parse(pattern, flags, allocators.temp_allocator) or_return
 
     if .No_Optimization not_in flags {
-        ast, _ = optimizer.optimize(ast, flags, runtime.temp_allocator)
+        ast, _ = optimizer.optimize(ast, flags, allocators.temp_allocator)
     }
 
-    program, class_data = compiler.compile(ast, flags, runtime.temp_allocator) or_return
+    program, class_data = compiler.compile(ast, flags, allocators.temp_allocator) or_return
 
     // When that's successful, re-allocate all at once with the permanent
     // allocator so everything can be tightly packed.
@@ -268,7 +268,7 @@ create_iterator :: proc(
 ) -> (result: Match_Iterator, err: Error) {
     result.regex         = create(pattern, flags, allocator) or_return
     result.capture       = preallocate_capture(allocator)
-    result.temp          = runtime.temp_allocator
+    result.temp          = allocators.temp_allocator
     result.vm            = virtual_machine.create(result.regex.program, str, allocator)
     result.vm.class_data = result.regex.class_data
     result.threads       = max(1, virtual_machine.opcode_count(result.vm.code) - 1)
@@ -302,13 +302,13 @@ match_and_allocate_capture :: proc(
 
     saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
 
-    vm := virtual_machine.create(regex.program, str, runtime.temp_allocator)
+    vm := virtual_machine.create(regex.program, str, allocators.temp_allocator)
     vm.class_data = regex.class_data
 
     if .Unicode in regex.flags {
-        saved, success = virtual_machine.run(&vm, true, runtime.temp_allocator)
+        saved, success = virtual_machine.run(&vm, true, allocators.temp_allocator)
     } else {
-        saved, success = virtual_machine.run(&vm, false, runtime.temp_allocator)
+        saved, success = virtual_machine.run(&vm, false, allocators.temp_allocator)
     }
 
     if saved != nil {
@@ -375,13 +375,13 @@ match_with_preallocated_capture :: proc(
 
     saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
 
-    vm := virtual_machine.create(regex.program, str, runtime.temp_allocator)
+    vm := virtual_machine.create(regex.program, str, allocators.temp_allocator)
     vm.class_data = regex.class_data
 
     if .Unicode in regex.flags {
-        saved, success = virtual_machine.run(&vm, true, runtime.temp_allocator)
+        saved, success = virtual_machine.run(&vm, true, allocators.temp_allocator)
     } else {
-        saved, success = virtual_machine.run(&vm, false, runtime.temp_allocator)
+        saved, success = virtual_machine.run(&vm, false, allocators.temp_allocator)
     }
 
     if saved != nil {

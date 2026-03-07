@@ -10,7 +10,7 @@
     List of contributors:
         Jeroen van Rijn: Initial implementation.
 */
-import "base:runtime"
+import "base:internal"
 import "core:os"
 
 @(private)

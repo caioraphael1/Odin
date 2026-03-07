@@ -6,7 +6,7 @@
 // It's only here so importing `core:os` on wasm panics cleanly,
 // without spamming about all sorts of missing procs and types.
 
-import "base:runtime"
+import "base:internal"
 import "core:time"
 
 

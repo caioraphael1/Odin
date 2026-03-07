@@ -2,7 +2,7 @@
 
 import sys "core:sys/unix"
 import "core:strings"
-import "base:runtime"
+import "base:internal"
 
 @(private)
 _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
@@ -19,7 +19,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
 	pretty_name := string(cstring(raw_data(kernel_version_buf[:])))
 	pretty_name  = strings.trim(pretty_name, "\n")
-	strings.write_string(&b, pretty_name)
+	strings_tools.write_string(&b, pretty_name)
 
 	// Retrieve kernel revision using `sysctl`, e.g. 199506
 	mib = []i32{sys.CTL_KERN, sys.KERN_OSREV}
@@ -28,7 +28,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 		return
 	}
 
-	strings.write_string(&b, ", revision ")
+	strings_tools.write_string(&b, ", revision ")
 	strings.write_int(&b, revision)
 
 	// Finalize pretty name.

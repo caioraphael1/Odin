@@ -1,12 +1,12 @@
 // An Odin-native source port of [[ Fontstash ; https://github.com/memononen/fontstash ]].
 #+vet !using-param
-import "base:runtime"
+import "base:internal"
 
 import "core:log"
 import "base:mem"
-import "core:math"
+import "base:math"
 import "core:strings"
-import "core:slice"
+import "base:slice"
 
 import stbtt "vendor:stb/truetype"
 
@@ -122,7 +122,7 @@ FontContext :: struct {
 Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
     ctx.userData = ctx
     ctx.location = loc
-    dyn_array_init(&ctx.fonts, 0, 8)
+    dyn_array.init(&ctx.fonts, 0, 8)
 
     ctx.itw, ctx.ith = 1.0 / f32(w), 1.0 / f32(h)
 
@@ -130,7 +130,7 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
     
     ctx.width  = w
     ctx.height = h
-    dyn_array_init(&ctx.nodes, 0, INIT_ATLAS_NODES)
+    dyn_array.init(&ctx.nodes, 0, INIT_ATLAS_NODES)
     __dirtyRectReset(ctx)
 
     ctx.states = slice.create([]State, MAX_STATES)
@@ -349,7 +349,7 @@ AddFontMem :: proc(
     res.ascender   = f32(ascent) / fh
     res.descender  = f32(descent) / fh
     res.lineHeight = (fh + f32(line_gap)) / fh
-    dyn_array_init(&res.glyphs, 0, INIT_GLYPHS)
+    dyn_array.init(&res.glyphs, 0, INIT_GLYPHS)
 
     __lutReset(res)
     return len(ctx.fonts) - 1

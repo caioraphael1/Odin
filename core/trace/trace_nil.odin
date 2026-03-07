@@ -3,7 +3,7 @@
 #+build !darwin
 
 
-import "base:runtime"
+import "base:internal"
 
 _Context :: struct {
 }

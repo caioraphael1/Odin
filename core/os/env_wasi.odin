@@ -1,5 +1,5 @@
 #+private
-import "base:runtime"
+import "base:internal"
 
 import "core:strings"
 import "core:sync"
@@ -39,7 +39,7 @@ build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    envs := slice.create([]cstring, num_envs, runtime.temp_allocator) or_return
+    envs := slice.create([]cstring, num_envs, allocators.temp_allocator) or_return
 
     _err = wasi.environ_get(raw_data(envs), raw_data(g_env_buf))
     if _err != nil {
@@ -73,7 +73,7 @@ _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: stri
     sync.shared_guard(&g_env_mutex)
 
     value = g_env[key] or_return
-    value, _ = clone_string(value, allocator)
+    value, _ = strings.string_clone(value, allocator)
     return
 }
 
@@ -116,17 +116,17 @@ _set_env :: proc(key, value: string, allocator: mem.Allocator) -> (err: Error) {
     key_ptr, value_ptr, just_inserted := maps.entry(&g_env, key) or_return
 
     if just_inserted {
-        key_ptr^ = clone_string(key,allocator) or_return
+        key_ptr^ = strings.string_clone(key,allocator) or_return
         defer if err != nil {
             _ = slice.delete(key_ptr^, allocator)
         }
-        value_ptr^ = clone_string(value, allocator) or_return
+        value_ptr^ = strings.string_clone(value, allocator) or_return
         return
     }
 
     delete_string_if_not_original(value_ptr^)
 
-    value_ptr^ = clone_string(value, allocator) or_return
+    value_ptr^ = strings.string_clone(value, allocator) or_return
     return
 }
 

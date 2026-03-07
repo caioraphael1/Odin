@@ -3,11 +3,14 @@
 import "base:internal"
 import "base:mem"
 import "base:intrinsics"
-import "core:simd"
+import "base:simd"
+import "base:slice"
+import "base:strings"
+import "base:dyn_array"
+
 import "core:unicode"
 import "core:unicode/utf8"
-import "base:slice"
-import "base:dyn_array"
+
 
 when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
     @(private)
@@ -50,7 +53,7 @@ clone_safe :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location)
 
 ptr_from_slice :: ptr_from_bytes
 ptr_from_bytes :: proc(str: []byte) -> ^byte {
-    d := transmute(internal.Raw_String)str
+    d := transmute(strings.Raw_String)str
     return d.data
 }
 
@@ -81,7 +84,7 @@ compare :: proc(lhs, rhs: []byte) -> int {
     return res
 }
 
-strings.string_contain_rune :: proc(s: []byte, r: rune) -> int {
+string_contain_rune :: proc(s: []byte, r: rune) -> int {
     for c, offset in string(s) {
         if c == r {
             return offset

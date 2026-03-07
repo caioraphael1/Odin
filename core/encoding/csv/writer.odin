@@ -43,10 +43,10 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
 				}
 			}
 		case:
-			if strings.strings.string_contain_rune(field, w.comma) {
+			if strings.string_contain_rune(field, w.comma) {
 				return true
 			}
-			if strings.contains_any(field, CHAR_SET) {
+			if strings_tools.contains_any(field, CHAR_SET) {
 				return true
 			}
 		}

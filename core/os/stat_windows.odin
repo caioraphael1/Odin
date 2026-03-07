@@ -1,8 +1,12 @@
 #+private
 import "base:internal"
 import "base:mem"
+import "base:mem/allocators"
+import "base:strings"
+import "base:slice"
+
+import "core:strings_tools"
 import "core:time"
-import "core:strings"
 import win32 "core:sys/windows"
 
 _fstat :: proc(f: ^File, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
@@ -44,15 +48,15 @@ full_path_from_name :: proc(name: string, allocator: mem.Allocator) -> (path: st
         name = "."
     }
 
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    p := win32_utf8_to_utf16(name, internal.temp_allocator) or_return
+    p := win32_utf8_to_utf16(name, allocators.temp_allocator) or_return
 
     n := win32.GetFullPathNameW(cstring16(raw_data(p)), 0, nil, nil)
     if n == 0 {
         return "", _get_platform_error()
     }
-    buf, _ := slice.create([]u16, n+1, internal.temp_allocator)
+    buf, _ := slice.create([]u16, n+1, allocators.temp_allocator)
     n = win32.GetFullPathNameW(cstring16(raw_data(p)), u32(len(buf)), cstring16(raw_data(buf)), nil)
     if n == 0 {
         return "", _get_platform_error()
@@ -64,9 +68,9 @@ internal_stat :: proc(name: string, create_file_attributes: u32, allocator: mem.
     if len(name) == 0 {
         return {}, .Not_Exist
     }
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    wname := _fix_long_path(name, internal.temp_allocator) or_return
+    wname := _fix_long_path(name, allocators.temp_allocator) or_return
     fa: win32.WIN32_FILE_ATTRIBUTE_DATA
     ok := win32.GetFileAttributesExW(wname, win32.GetFileExInfoStandard, &fa)
     if ok && fa.dwFileAttributes & win32.FILE_ATTRIBUTE_REPARSE_POINT == 0 {
@@ -136,9 +140,9 @@ _cleanpath_from_handle :: proc(f: ^File, allocator: mem.Allocator) -> (string, E
         return "", _get_platform_error()
     }
 
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf, _ := slice.create([]u16, max(n, 260)+1, internal.temp_allocator)
+    buf, _ := slice.create([]u16, max(n, 260)+1, allocators.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(h, cstring16(raw_data(buf)), u32(len(buf)), 0)
     return _cleanpath_from_buf(string16(buf[:n]), allocator)
 }
@@ -154,9 +158,9 @@ _cleanpath_from_handle_u16 :: proc(f: ^File) -> ([]u16, Error) {
         return nil, _get_platform_error()
     }
 
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    buf, _ := slice.create([]u16, max(n, 260)+1, internal.temp_allocator)
+    buf, _ := slice.create([]u16, max(n, 260)+1, allocators.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(h, cstring16(raw_data(buf)), u32(len(buf)), 0)
     return _cleanpath_strip_prefix(buf[:n]), nil
 }
@@ -317,7 +321,7 @@ _is_reserved_name :: proc(path: string) -> bool {
         return false
     }
     for reserved in reserved_names {
-        if strings.equal_fold(path, reserved) {
+        if strings_tools.equal_fold(path, reserved) {
             return true
         }
     }

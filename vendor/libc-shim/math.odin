@@ -1,7 +1,7 @@
 
 import "base:builtin"
 
-import "core:math"
+import "base:math"
 
 @(require, linkage="strong", link_name="sqrtf")
 sqrtf :: proc "c" (v: f32) -> f32 {

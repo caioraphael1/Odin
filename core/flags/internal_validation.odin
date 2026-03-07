@@ -1,7 +1,7 @@
 #+private
 
-@(require) import "base:runtime"
-@(require) import "core:container/bit_array"
+@(require) import "base:internal"
+@(require) import "base:bit_array"
 @(require) import "core:fmt"
 @(require) import "base:mem"
 @(require) import "core:os"

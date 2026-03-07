@@ -3,13 +3,13 @@
 
 import "base:intrinsics"
 
-import "core:container/avl"
+import "core:container/avl_tree"
 import "core:container/pool"
-import "core:container/queue"
+import "base:queue"
 import "base:mem"
 import "core:net"
 import "core:path/filepath"
-import "core:slice"
+import "base:slice"
 import "core:strings"
 import "core:sync"
 import "core:time"
@@ -591,7 +591,7 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
     _normalize_path :: proc(path: string, allocator: mem.Allocator) -> (fixed: string, allocated: bool) {
         // An UNC path or relative, just replace slashes.
         if strings.string_has_prefix(path, `\\`) || !filepath.is_abs(path) {
-            return strings.replace_all(path, `/`, `\`)
+            return strings_tools.replace_all(path, `/`, `\`)
         }
 
         path_buf, err := slice.create([]byte, len(PREFIX)+len(path)+1, allocator)

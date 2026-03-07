@@ -1,6 +1,6 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-import "base:runtime"
+import "base:internal"
 
 @(require)
 import "core:sys/posix"
@@ -11,8 +11,8 @@ _temp_dir :: proc(allocator: mem.Allocator) -> (string, mem.Allocator_Error) {
 	}
 
 	when #defined(posix.P_tmpdir) {
-		return clone_string(posix.P_tmpdir, allocator)
+		return strings.string_clone(posix.P_tmpdir, allocator)
 	}
 
-	return clone_string("/tmp/", allocator)
+	return strings.string_clone("/tmp/", allocator)
 }

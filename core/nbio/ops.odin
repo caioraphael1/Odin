@@ -4,7 +4,7 @@ import "base:intrinsics"
 
 import "core:container/pool"
 import "core:time"
-import "core:slice"
+import "base:slice"
 
 NO_TIMEOUT: time.Duration: -1 
 

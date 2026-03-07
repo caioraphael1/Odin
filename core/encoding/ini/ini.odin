@@ -1,5 +1,5 @@
 // Reader and writer for a variant of the `.ini` file format with `key = value` entries in `[sections]`.
-import "base:runtime"
+import "base:internal"
 import "base:intrinsics"
 import "core:strings"
 import "core:strconv"
@@ -44,7 +44,7 @@ iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
         }
 
         if line[0] == '[' {
-            end_idx := strings.index_byte(line, ']')
+            end_idx := strings_tools.index_byte(line, ']')
             if end_idx < 0 {
                 end_idx = len(line)
             }
@@ -57,9 +57,9 @@ iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
         }
 
         equal := strings.index(line, " =") // check for things keys that `ctrl+= = zoom_in`
-        quote := strings.index_byte(line, '"')
+        quote := strings_tools.index_byte(line, '"')
         if equal < 0 || quote > 0 && quote < equal {
-            equal = strings.index_byte(line, '=')
+            equal = strings_tools.index_byte(line, '=')
             if equal < 0 {
                 continue
             }
@@ -128,7 +128,7 @@ load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DE
 }
 
 save_map_to_string :: proc(m: Map, allocator: mem.Allocator) -> (data: string) {
-    b := strings.builder_make(allocator)
+    b := strings_tools.builder_make(allocator)
     _, _ = write_map(strings.to_writer(&b), m)
     return strings.to_string(b)
 }

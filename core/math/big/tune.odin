@@ -9,7 +9,7 @@
 */
 
 import "core:time"
-import "base:runtime"
+import "base:internal"
 
 print_value :: proc(name: string, value: i64) {
     runtime.print_string("\t")

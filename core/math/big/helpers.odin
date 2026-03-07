@@ -4,7 +4,7 @@
 */
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import rnd "core:math/rand"
 
 /*

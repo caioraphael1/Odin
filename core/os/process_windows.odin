@@ -2,7 +2,12 @@
 import "base:intrinsics"
 import "base:internal"
 import "base:mem"
-import "core:strings"
+import "base:mem/allocators"
+import "base:slice"
+import "base:dyn_array"
+import "base:strings"
+
+import "core:strings_tools"
 import win32 "core:sys/windows"
 import "core:time"
 
@@ -61,8 +66,8 @@ _get_processor_core_count :: proc() -> int {
 
     thread_count := 0
     if !result && win32.GetLastError() == 122 && length > 0 {
-        internal.TEMP_ALLOCATOR_TEMP_GUARD()
-        processors, _ := slice.create([]win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, length, internal.temp_allocator)
+        allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+        processors, _ := slice.create([]win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, length, allocators.temp_allocator)
 
         result = win32.GetLogicalProcessorInformation(&processors[0], &length)
         if result {
@@ -185,10 +190,10 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if err != nil {
             break read_peb
         }
-        internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+        allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
         if selection >= {.Command_Line, .Command_Args} {
-            internal.TEMP_ALLOCATOR_TEMP_GUARD()
-            cmdline_w := slice.create([]u16, process_params.CommandLine.Length, internal.temp_allocator) or_return
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+            cmdline_w := slice.create([]u16, process_params.CommandLine.Length, allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CommandLine.Buffer, cmdline_w)
             if err != nil {
                 break read_peb
@@ -203,9 +208,9 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             }
         }
         if .Environment in selection {
-            internal.TEMP_ALLOCATOR_TEMP_GUARD()
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             env_len := process_params.EnvironmentSize / 2
-            envs_w := slice.create([]u16, env_len, internal.temp_allocator) or_return
+            envs_w := slice.create([]u16, env_len, allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.Environment, envs_w)
             if err != nil {
                 break read_peb
@@ -214,8 +219,8 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             info.fields += {.Environment}
         }
         if .Working_Dir in selection {
-            internal.TEMP_ALLOCATOR_TEMP_GUARD()
-            cwd_w := slice.create([]u16, process_params.CurrentDirectoryPath.Length, internal.temp_allocator) or_return
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+            cwd_w := slice.create([]u16, process_params.CurrentDirectoryPath.Length, allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CurrentDirectoryPath.Buffer, cwd_w)
             if err != nil {
                 break read_peb
@@ -296,10 +301,10 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         if err != nil {
             break read_peb
         }
-        arena_temp, _ := internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+        arena_temp, _ := allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
         if selection >= {.Command_Line, .Command_Args} {
-            internal.TEMP_ALLOCATOR_TEMP_GUARD()
-            cmdline_w := slice.create([]u16, process_params.CommandLine.Length, internal.temp_allocator) or_return
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+            cmdline_w := slice.create([]u16, process_params.CommandLine.Length, allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CommandLine.Buffer, cmdline_w)
             if err != nil {
                 break read_peb
@@ -314,9 +319,9 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
             }
         }
         if .Environment in selection {
-            internal.TEMP_ALLOCATOR_TEMP_GUARD()
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             env_len := process_params.EnvironmentSize / 2
-            envs_w := slice.create([]u16, env_len, internal.temp_allocator) or_return
+            envs_w := slice.create([]u16, env_len, allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.Environment, envs_w)
             if err != nil {
                 break read_peb
@@ -325,8 +330,8 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
             info.fields += {.Environment}
         }
         if .Working_Dir in selection {
-            internal.TEMP_ALLOCATOR_TEMP_GUARD()
-            cwd_w := slice.create([]u16, process_params.CurrentDirectoryPath.Length, internal.temp_allocator) or_return
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+            cwd_w := slice.create([]u16, process_params.CurrentDirectoryPath.Length, allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CurrentDirectoryPath.Buffer, cwd_w)
             if err != nil {
                 break read_peb
@@ -444,15 +449,15 @@ _process_open :: proc(pid: int, flags: Process_Open_Flags) -> (process: Process,
 
 @(private)
 _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    command_line   := _build_command_line(desc.command, internal.temp_allocator)
-    command_line_w := win32_utf8_to_wstring(command_line, internal.temp_allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    command_line   := _build_command_line(desc.command, allocators.temp_allocator)
+    command_line_w := win32_utf8_to_wstring(command_line, allocators.temp_allocator) or_return
     environment := desc.env
     if desc.env == nil {
-        environment = environ(internal.temp_allocator) or_return
+        environment = environ(allocators.temp_allocator) or_return
     }
-    environment_block   := _build_environment_block(environment, internal.temp_allocator)
-    environment_block_w := win32_utf8_to_utf16(environment_block, internal.temp_allocator) or_return
+    environment_block   := _build_environment_block(environment, allocators.temp_allocator)
+    environment_block_w := win32_utf8_to_utf16(environment_block, allocators.temp_allocator) or_return
 
     stderr_handle: win32.HANDLE 
     stdout_handle: win32.HANDLE 
@@ -499,7 +504,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         stdin_handle = win32.HANDLE((^File_Impl)(desc.stdin.impl).fd)
     }
 
-    working_dir_w := (win32_utf8_to_wstring(desc.working_dir, internal.temp_allocator) or_else nil) if len(desc.working_dir) > 0 else nil
+    working_dir_w := (win32_utf8_to_wstring(desc.working_dir, allocators.temp_allocator) or_else nil) if len(desc.working_dir) > 0 else nil
     process_info: win32.PROCESS_INFORMATION
     ok := win32.CreateProcessW(
         nil,
@@ -683,7 +688,7 @@ _process_exe_by_pid :: proc(pid: int, allocator: mem.Allocator) -> (exe_path: st
 }
 
 _get_process_user :: proc(process_handle: win32.HANDLE, allocator: mem.Allocator) -> (full_username: string, err: Error) {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
     token_handle: win32.HANDLE
     if !win32.OpenProcessToken(process_handle, win32.TOKEN_QUERY, &token_handle) {
         err = _get_platform_error()
@@ -698,7 +703,7 @@ _get_process_user :: proc(process_handle: win32.HANDLE, allocator: mem.Allocator
         }
         err = nil
     }
-    token_user := (^win32.TOKEN_USER)(raw_data(slice.create([]u8, token_user_size, internal.temp_allocator) or_return))
+    token_user := (^win32.TOKEN_USER)(raw_data(slice.create([]u8, token_user_size, allocators.temp_allocator) or_return))
     if !win32.GetTokenInformation(token_handle, .TokenUser, token_user, token_user_size, &token_user_size) {
         err = _get_platform_error()
         return
@@ -714,8 +719,8 @@ _get_process_user :: proc(process_handle: win32.HANDLE, allocator: mem.Allocator
         err = _get_platform_error()
         return
     }
-    username := win32_utf16_u16_to_utf8(username_w[:username_chrs], internal.temp_allocator) or_return
-    domain   := win32_utf16_u16_to_utf8(domain_w[:domain_chrs], internal.temp_allocator) or_return
+    username := win32_utf16_u16_to_utf8(username_w[:username_chrs], allocators.temp_allocator) or_return
+    domain   := win32_utf16_u16_to_utf8(domain_w[:domain_chrs], allocators.temp_allocator) or_return
     return strings.string_concatenate({domain, "\\", username}, allocator)
 }
 
@@ -728,7 +733,7 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
     argv = slice.create([]string, argc, allocator) or_return
     defer if err != nil {
         for arg in argv {
-            _ = string_delete(arg, allocator)
+            _ = strings.string_delete(arg, allocator)
         }
         _ = slice.delete(argv, allocator)
     }
@@ -739,19 +744,19 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
 }
 
 _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> string {
-    _write_byte_n_times :: #force_inline proc(builder: ^strings.Builder, b: byte, n: int) {
+    _write_byte_n_times :: #force_inline proc(builder: ^strings_tools.Builder, b: byte, n: int) {
         for _ in 0 ..< n {
-            strings.write_byte(builder, b)
+            strings_tools.write_byte(builder, b)
         }
     }
-    builder := strings.builder_make(allocator)
+    builder := strings_tools.builder_make(allocator)
     for arg, i in command {
         if i != 0 {
-            strings.write_byte(&builder, ' ')
+            strings_tools.write_byte(&builder, ' ')
         }
         j := 0
-        if strings.contains_any(arg, "()[]{}^=;!'+,`~\" ") {
-            strings.write_byte(&builder, '"')
+        if strings_tools.contains_any(arg, "()[]{}^=;!'+,`~\" ") {
+            strings_tools.write_byte(&builder, '"')
             for j < len(arg) {
                 backslashes := 0
                 for j < len(arg) && arg[j] == '\\' {
@@ -763,16 +768,16 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> stri
                     break
                 } else if arg[j] == '"' {
                     _write_byte_n_times(&builder, '\\', 2*backslashes+1)
-                    strings.write_byte(&builder, arg[j])
+                    strings_tools.write_byte(&builder, arg[j])
                 } else {
                     _write_byte_n_times(&builder, '\\', backslashes)
-                    strings.write_byte(&builder, arg[j])
+                    strings_tools.write_byte(&builder, arg[j])
                 }
                 j += 1
             }
-            strings.write_byte(&builder, '"')
+            strings_tools.write_byte(&builder, '"')
         } else {
-            strings.write_string(&builder, arg)
+            strings_tools.write_string(&builder, arg)
         }
     }
     return strings.to_string(builder)
@@ -800,7 +805,7 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
     envs = slice.create([]string, env_count, allocator) or_return
     defer if err != nil {
         for env in envs {
-            _ = string_delete(env, allocator)
+            _ = strings.string_delete(env, allocator)
         }
         _ = slice.delete(envs, allocator)
     }
@@ -822,22 +827,22 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
 }
 
 _build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> string {
-    builder := strings.builder_make(allocator)
+    builder := strings_tools.builder_make(allocator)
     loop: #reverse for kv, cur_idx in environment {
-        eq_idx := strings.index_byte(kv, '=')
+        eq_idx := strings_tools.index_byte(kv, '=')
         assert(eq_idx >= 0, "Malformed environment string. Expected '=' to separate keys and values")
         key := kv[:eq_idx]
         for old_kv in environment[cur_idx+1:] {
-            old_key := old_kv[:strings.index_byte(old_kv, '=')]
+            old_key := old_kv[:strings_tools.index_byte(old_kv, '=')]
             if key == old_key {
                 continue loop
             }
         }
-        strings.write_string(&builder, kv)
-        strings.write_byte(&builder, 0)
+        strings_tools.write_string(&builder, kv)
+        strings_tools.write_byte(&builder, 0)
     }
     // Note(flysand): In addition to the NUL-terminator for each string, the
     // environment block itself is NUL-terminated.
-    strings.write_byte(&builder, 0)
+    strings_tools.write_byte(&builder, 0)
     return strings.to_string(builder)
 }

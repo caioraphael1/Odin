@@ -1,5 +1,5 @@
 #+private
-import "base:runtime"
+import "base:internal"
 
 import "core:strings"
 import "core:strconv"
@@ -17,7 +17,7 @@ _is_path_separator :: proc(c: byte) -> bool {
 
 _mkdir :: proc(path: string, perm: int) -> Error {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    path_cstr := strings.cstring_clone_from_string(path, runtime.temp_allocator) or_return
+    path_cstr := strings.cstring_clone_from_string(path, allocators.temp_allocator) or_return
     return _get_platform_error(linux.mkdir(path_cstr, transmute(linux.Mode)u32(perm)))
 }
 
@@ -52,7 +52,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     }
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
     // need something we can edit, and use to generate cstrings
-    path_bytes := slice.create([]u8, len(path) + 1, runtime.temp_allocator)
+    path_bytes := slice.create([]u8, len(path) + 1, allocators.temp_allocator)
 
     // zero terminate the byte slice to make it a valid cstring
     slice.copy(path_bytes, path)
@@ -128,7 +128,7 @@ _remove_all :: proc(path: string) -> Error {
     }
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    path_cstr := strings.cstring_clone_from_string(path, runtime.temp_allocator) or_return
+    path_cstr := strings.cstring_clone_from_string(path, allocators.temp_allocator) or_return
 
     fd, errno := linux.open(path_cstr, _OPENDIR_FLAGS)
     #partial switch errno {
@@ -168,14 +168,14 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (string, Error) {
 _set_working_directory :: proc(dir: string) -> Error {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    dir_cstr := strings.cstring_clone_from_string(dir, runtime.temp_allocator) or_return
+    dir_cstr := strings.cstring_clone_from_string(dir, allocators.temp_allocator) or_return
     return _get_platform_error(linux.chdir(dir_cstr))
 }
 
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := dyn_array.create([dynamic]byte, 1024, runtime.temp_allocator) or_return
+    buf := dyn_array.create([dynamic]byte, 1024, allocators.temp_allocator) or_return
     for {
         n, errno := linux.readlink("/proc/self/exe", buf[:])
         if errno != .NONE {
@@ -184,7 +184,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
         }
 
         if n < len(buf) {
-            return clone_string(string(buf[:n]), allocator)
+            return strings.string_clone(string(buf[:n]), allocator)
         }
 
         _ = dyn_array.resize(&buf, len(buf)*2) or_return
@@ -214,7 +214,7 @@ _get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    fd, errno := linux.open(strings.cstring_clone_from_string(path, runtime.temp_allocator) or_return, {})
+    fd, errno := linux.open(strings.cstring_clone_from_string(path, allocators.temp_allocator) or_return, {})
     if errno != nil {
         err = _get_platform_error(errno)
         return

@@ -8,7 +8,7 @@
 // See: https://github.com/noloader/SHA-Intrinsics
 
 import "base:intrinsics"
-import "core:simd"
+import "base:simd"
 import "core:simd/x86"
 import "core:sys/info"
 

@@ -1,9 +1,18 @@
-import "base:intrinsics"
-import "core:reflect"
-import "base:runtime"
-_ :: intrinsics
-_ :: reflect
-_ :: runtime
+/*
+Cross-platform loading of shared libraries/DLLs and their symbols.
+
+The behaviour of dynamically loaded libraries is specific to the target platform of the program.
+For in depth detail on the underlying behaviour please refer to your target platform's documentation.
+
+For a full example, see: [[ core/dynlib/example; https://github.com/odin-lang/Odin/tree/master/core/dynlib/example ]]
+*/
+
+@(require) import "base:intrinsics"
+@(require) import "base:mem"
+import "base:mem/allocators"
+
+@(require) import "core:reflect"
+
 
 /*
 A handle to a dynamically loaded library.
@@ -27,21 +36,21 @@ On `linux`, `darwin`, `freebsd` and `openbsd` refer to `dlopen`.
 On `windows` refer to `LoadLibraryW`. Also temporarily needs an allocator to convert a string.
 
 Example:
-	import "core:dynlib"
-	import "core:fmt"
+    import "core:dynlib"
+    import "core:fmt"
 
-	load_my_library :: proc() {
-		LIBRARY_PATH :: "my_library.dll"
-		library, ok := dynlib.load_library(LIBRARY_PATH)
-		if ! ok {
-			fmt.eprintln(dynlib.last_error())
-			return
-		}
-		fmt.println("The library %q was successfully loaded", LIBRARY_PATH)
-	}
+    load_my_library :: proc() {
+        LIBRARY_PATH :: "my_library.dll"
+        library, ok := dynlib.load_library(LIBRARY_PATH)
+        if ! ok {
+            fmt.eprintln(dynlib.last_error())
+            return
+        }
+        fmt.println("The library %q was successfully loaded", LIBRARY_PATH)
+    }
 */
-load_library :: proc(path: string, global_symbols := false, allocator := runtime.temp_allocator) -> (library: Library, did_load: bool) {
-	return _load_library(path, global_symbols, allocator)
+load_library :: proc(path: string, global_symbols := false, allocator := allocators.temp_allocator) -> (library: Library, did_load: bool) {
+    return _load_library(path, global_symbols, allocator)
 }
 
 /*
@@ -52,26 +61,26 @@ On `linux`, `darwin`, `freebsd` and `openbsd` refer to `dlclose`.
 On `windows` refer to `FreeLibrary`.
 
 Example:
-	import "core:dynlib"
-	import "core:fmt"
+    import "core:dynlib"
+    import "core:fmt"
 
-	load_then_unload_my_library :: proc() {
-		LIBRARY_PATH :: "my_library.dll"
-		library, ok := dynlib.load_library(LIBRARY_PATH)
-		if ! ok {
-			fmt.eprintln(dynlib.last_error())
-			return
-		}
-		did_unload := dynlib.unload_library(library)
-		if ! did_unload {
-			fmt.eprintln(dynlib.last_error())
-			return
-		}
-		fmt.println("The library %q was successfully unloaded", LIBRARY_PATH)
-	}
+    load_then_unload_my_library :: proc() {
+        LIBRARY_PATH :: "my_library.dll"
+        library, ok := dynlib.load_library(LIBRARY_PATH)
+        if ! ok {
+            fmt.eprintln(dynlib.last_error())
+            return
+        }
+        did_unload := dynlib.unload_library(library)
+        if ! did_unload {
+            fmt.eprintln(dynlib.last_error())
+            return
+        }
+        fmt.println("The library %q was successfully unloaded", LIBRARY_PATH)
+    }
 */
 unload_library :: proc(library: Library) -> (did_unload: bool) {
-	return _unload_library(library)
+    return _unload_library(library)
 }
 
 /*
@@ -82,27 +91,27 @@ On `linux`, `darwin`, `freebsd` and `openbsd` refer to `dlsym`.
 On `windows` refer to `GetProcAddress`. Also temporarily needs an allocator to convert a string.
 
 Example:
-	import "core:dynlib"
-	import "core:fmt"
+    import "core:dynlib"
+    import "core:fmt"
 
-	find_a_in_my_library :: proc() {
-		LIBRARY_PATH :: "my_library.dll"
-		library, ok := dynlib.load_library(LIBRARY_PATH)
-		if ! ok {
-			fmt.eprintln(dynlib.last_error())
-			return
-		}
+    find_a_in_my_library :: proc() {
+        LIBRARY_PATH :: "my_library.dll"
+        library, ok := dynlib.load_library(LIBRARY_PATH)
+        if ! ok {
+            fmt.eprintln(dynlib.last_error())
+            return
+        }
 
-		a, found_a := dynlib.symbol_address(library, "a")
-		if found_a {
-			fmt.printf("The symbol %q was found at the address %v", "a", a)
-		} else {
-			fmt.eprintln(dynlib.last_error())
-		}
-	}
+        a, found_a := dynlib.symbol_address(library, "a")
+        if found_a {
+            fmt.printf("The symbol %q was found at the address %v", "a", a)
+        } else {
+            fmt.eprintln(dynlib.last_error())
+        }
+    }
 */
-symbol_address :: proc(library: Library, symbol: string, allocator := runtime.temp_allocator) -> (ptr: rawptr, found: bool) {
-	return _symbol_address(library, symbol, allocator)
+symbol_address :: proc(library: Library, symbol: string, allocator := allocators.temp_allocator) -> (ptr: rawptr, found: bool) {
+    return _symbol_address(library, symbol, allocator)
 }
 
 /*
@@ -121,70 +130,70 @@ Returns:
 See doc.odin for an example.
 */
 initialize_symbols :: proc(
-	symbol_table: ^$T, library_path: string,
-	symbol_prefix := "", handle_field_name := "__handle",
+    symbol_table: ^$T, library_path: string,
+    symbol_prefix := "", handle_field_name := "__handle",
 ) -> (count: int = -1, ok: bool = false) where intrinsics.type_is_struct(T) {
-	assert(symbol_table != nil)
+    assert(symbol_table != nil)
 
-	// First, (re)load the library.
-	handle: Library
-	for field in reflect.struct_fields_zipped(T) {
-		if field.name == handle_field_name {
-			field_ptr := rawptr(uintptr(symbol_table) + field.offset)
+    // First, (re)load the library.
+    handle: Library
+    for field in reflect.struct_fields_zipped(T) {
+        if field.name == handle_field_name {
+            field_ptr := rawptr(uintptr(symbol_table) + field.offset)
 
-			// We appear to be hot reloading. Unload previous incarnation of the library.
-			if old_handle := (^Library)(field_ptr)^; old_handle != nil {
-				unload_library(old_handle) or_return
-			}
+            // We appear to be hot reloading. Unload previous incarnation of the library.
+            if old_handle := (^Library)(field_ptr)^; old_handle != nil {
+                unload_library(old_handle) or_return
+            }
 
-			handle = load_library(library_path) or_return
-			(^Library)(field_ptr)^ = handle
-			break
-		}
-	}
+            handle = load_library(library_path) or_return
+            (^Library)(field_ptr)^ = handle
+            break
+        }
+    }
 
-	// No field for it in the struct.
-	if handle == nil {
-		handle = load_library(library_path) or_return
-	}
+    // No field for it in the struct.
+    if handle == nil {
+        handle = load_library(library_path) or_return
+    }
 
-	// Buffer to concatenate the prefix + symbol name.
-	prefixed_symbol_buf: [2048]u8 = ---
+    // Buffer to concatenate the prefix + symbol name.
+    prefixed_symbol_buf: [2048]u8 = ---
 
-	count = 0
-	for field in reflect.struct_fields_zipped(T) {
-		// If we're not the library handle, the field needs to be a pointer type, be it a procedure pointer or an exported global.
-		if field.name == handle_field_name || !(reflect.is_procedure(field.type) || reflect.is_pointer(field.type)) {
-			continue
-		}
+    count = 0
+    for field in reflect.struct_fields_zipped(T) {
+        // If we're not the library handle, the field needs to be a pointer type, be it a procedure pointer or an exported global.
+        if field.name == handle_field_name || !(reflect.is_procedure(field.type) || reflect.is_pointer(field.type)) {
+            continue
+        }
 
-		// Calculate address of struct member
-		field_ptr := rawptr(uintptr(symbol_table) + field.offset)
+        // Calculate address of struct member
+        field_ptr := rawptr(uintptr(symbol_table) + field.offset)
 
-		// Let's look up or construct the symbol name to find in the library
-		prefixed_name: string
+        // Let's look up or construct the symbol name to find in the library
+        prefixed_name: string
 
-		// Do we have a symbol override tag?
-		if override, tag_ok := reflect.struct_tag_lookup(field.tag, "dynlib"); tag_ok {
-			prefixed_name = override
-		}
+        // Do we have a symbol override tag?
+        if override, tag_ok := reflect.struct_tag_lookup(field.tag, "dynlib"); tag_ok {
+            prefixed_name = override
+        }
 
-		// No valid symbol override tag found, fall back to `<symbol_prefix>name`.
-		if len(prefixed_name) == 0 {
-			offset := slice.copy(prefixed_symbol_buf[:], symbol_prefix)
-			slice.copy(prefixed_symbol_buf[offset:], field.name)
-			prefixed_name = string(prefixed_symbol_buf[:len(symbol_prefix) + len(field.name)])
-		}
+        // No valid symbol override tag found, fall back to `<symbol_prefix>name`.
+        if len(prefixed_name) == 0 {
+            offset := slice.copy(prefixed_symbol_buf[:], symbol_prefix)
+            slice.copy(prefixed_symbol_buf[offset:], field.name)
+            prefixed_name = string(prefixed_symbol_buf[:len(symbol_prefix) + len(field.name)])
+        }
 
-		// Assign procedure (or global) pointer if found.
-		sym_ptr := symbol_address(handle, prefixed_name) or_continue
-		(^rawptr)(field_ptr)^ = sym_ptr
-		count += 1
-	}
-	return count, count > 0
+        // Assign procedure (or global) pointer if found.
+        sym_ptr := symbol_address(handle, prefixed_name) or_continue
+        (^rawptr)(field_ptr)^ = sym_ptr
+        count += 1
+    }
+    return count, count > 0
 }
 
 // Returns an error message for the last failed procedure call.
 last_error :: proc() -> string {
-	return _last_error()
+    return _last_error()
 }

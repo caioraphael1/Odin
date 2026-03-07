@@ -1,7 +1,7 @@
 #+private
 
 
-import "base:runtime"
+import "base:internal"
 
 import "core:bytes"
 import "core:sys/darwin"
@@ -110,7 +110,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                     break pidinfo
                 }
 
-                info.username = clone_string(string(pw.pw_name), allocator) or_return
+                info.username = strings.string_clone(string(pw.pw_name), allocator) or_return
                 info.fields += {.Username}
             }
         }
@@ -121,7 +121,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         ret := darwin.proc_pidinfo(posix.pid_t(pid), .VNODEPATHINFO, 0, &pinfo, size_of(pinfo))
         if ret > 0 {
             assert(ret == size_of(pinfo))
-            info.working_dir = clone_string(string(cstring(raw_data(pinfo.pvi_cdir.vip_path[:]))), allocator) or_return
+            info.working_dir = strings.string_clone(string(cstring(raw_data(pinfo.pvi_cdir.vip_path[:]))), allocator) or_return
             info.fields += {.Working_Dir}
         } else if err == nil {
             err = _get_platform_error()
@@ -132,7 +132,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         buffer: [darwin.PIDPATHINFO_MAXSIZE]byte = ---
         ret := darwin.proc_pidpath(posix.pid_t(pid), raw_data(buffer[:]), len(buffer))
         if ret > 0 {
-            info.executable_path = clone_string(string(buffer[:ret]), allocator) or_return
+            info.executable_path = strings.string_clone(string(buffer[:ret]), allocator) or_return
             info.fields += {.Executable_Path}
         } else if err == nil {
             err = _get_platform_error()
@@ -153,7 +153,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             break args
         }
 
-        buf := runtime.slice_create_aligned([]byte, length, 4, runtime.temp_allocator)
+        buf := runtime.slice_create_aligned([]byte, length, 4, allocators.temp_allocator)
         if sysctl(raw_data(mib), 3, raw_data(buf), &length, nil, 0) != .OK {
             if err == nil {
                 err = _get_platform_error()
@@ -208,7 +208,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
                 }
 
                 if .Command_Args in selection {
-                    sarg := clone_string(string(arg), allocator) or_return
+                    sarg := strings.string_clone(string(arg), allocator) or_return
                     dyn_array.append(&argv, sarg) or_return
                 }
 
@@ -240,7 +240,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
             for entry in bytes.split_iterator(&buf, {0}) {
                 if bytes.index_byte(entry, '=') > -1 {
-                    sentry := clone_string(string(entry), allocator) or_return
+                    sentry := strings.string_clone(string(entry), allocator) or_return
                     dyn_array.append(&environment, sentry) or_return
                 }
             }
@@ -267,7 +267,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buffer := slice.create([]i32, ret, runtime.temp_allocator)
+    buffer := slice.create([]i32, ret, allocators.temp_allocator)
     ret = darwin.proc_listallpids(raw_data(buffer), ret*size_of(i32))
     if ret < 0 {
         err = _get_platform_error()

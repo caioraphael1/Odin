@@ -2,6 +2,9 @@
 
 import "base:internal"
 import "base:mem"
+import "base:slice"
+import "base:strings"
+
 import "core:time"
 
 /*
@@ -248,18 +251,18 @@ allocator. The allocator needs to be the same allocator that was supplied
 to the `process_info` function.
 */
 free_process_info :: proc(pi: Process_Info, allocator: mem.Allocator) {
-    _ = string_delete(pi.executable_path, allocator)
-    _ = string_delete(pi.command_line, allocator)
+    _ = strings.string_delete(pi.executable_path, allocator)
+    _ = strings.string_delete(pi.command_line, allocator)
     for a in pi.command_args {
-        _ = string_delete(a, allocator)
+        _ = strings.string_delete(a, allocator)
     }
     _ = slice.delete(pi.command_args, allocator)
     for s in pi.environment {
-        _ = string_delete(s, allocator)
+        _ = strings.string_delete(s, allocator)
     }
     _ = slice.delete(pi.environment, allocator)
-    _ = string_delete(pi.working_dir, allocator)
-    _ = string_delete(pi.username, allocator)
+    _ = strings.string_delete(pi.working_dir, allocator)
+    _ = strings.string_delete(pi.username, allocator)
 }
 
 /*

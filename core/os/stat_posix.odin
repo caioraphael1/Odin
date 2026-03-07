@@ -2,7 +2,7 @@
 #+build darwin, netbsd, freebsd, openbsd
 
 
-import "base:runtime"
+import "base:internal"
 
 import "core:sys/posix"
 import "core:time"
@@ -59,7 +59,7 @@ _fstat :: proc(f: ^File, allocator: mem.Allocator) -> (fi: File_Info, err: Error
 		return
 	}
 
-	fullpath := clone_string(impl.name, allocator) or_return
+	fullpath := strings.string_clone(impl.name, allocator) or_return
 	return internal_stat(stat, fullpath), nil
 }
 
@@ -70,7 +70,7 @@ _stat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Er
 	}
 
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-	cname := strings.cstring_clone_from_string(name, runtime.temp_allocator) or_return
+	cname := strings.cstring_clone_from_string(name, allocators.temp_allocator) or_return
 
 	fd := posix.open(cname, {})
 	if fd == -1 {
@@ -103,32 +103,32 @@ _lstat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: E
 	// NOTE: This might not be correct when given "/symlink/foo.txt",
 	// you would want that to resolve "/symlink", but not resolve "foo.txt".
 
-	fullpath := clean_path(name, runtime.temp_allocator) or_return
+	fullpath := clean_path(name, allocators.temp_allocator) or_return
 	assert(len(fullpath) > 0)
 	switch {
 	case fullpath[0] == '/':
 		// nothing.
 	case fullpath == ".":
-		fullpath = getwd(runtime.temp_allocator) or_return
+		fullpath = getwd(allocators.temp_allocator) or_return
 	case len(fullpath) > 1 && fullpath[0] == '.' && fullpath[1] == '/':
 		fullpath = fullpath[2:]
 		fallthrough
 	case:
 		fullpath = concatenate({
-			getwd(runtime.temp_allocator) or_return,
+			getwd(allocators.temp_allocator) or_return,
 			"/",
 			fullpath,
-		}, runtime.temp_allocator) or_return
+		}, allocators.temp_allocator) or_return
 	}
 
 	stat: posix.stat_t
-	c_fullpath := strings.cstring_clone_from_string(fullpath, runtime.temp_allocator) or_return
+	c_fullpath := strings.cstring_clone_from_string(fullpath, allocators.temp_allocator) or_return
 	if posix.lstat(c_fullpath, &stat) != .OK {
 		err = _get_platform_error()
 		return
 	}
 
-	fullpath = clone_string(fullpath, allocator) or_return
+	fullpath = strings.string_clone(fullpath, allocator) or_return
 	return internal_stat(stat, fullpath), nil
 }
 

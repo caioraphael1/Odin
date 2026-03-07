@@ -34,7 +34,7 @@
     All computation occurs in 32-bit precision mode.                    */
 
 
-import "core:math"
+import "base:math"
 import win "core:sys/windows"
 
 foreign import xa2 "system:xaudio2.lib"

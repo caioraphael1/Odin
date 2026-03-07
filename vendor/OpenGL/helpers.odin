@@ -5,7 +5,7 @@ import    "core:os"
 import    "core:fmt"
 import    "core:strings"
 @(require) import "core:time"
-import    "base:runtime"
+import    "base:internal"
 _ :: fmt
 _ :: runtime
 

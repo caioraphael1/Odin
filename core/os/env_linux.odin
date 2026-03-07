@@ -1,9 +1,9 @@
 #+private
-import "base:runtime"
+import "base:internal"
 import "base:intrinsics"
 
 import "core:sync"
-import "core:slice"
+import "base:slice"
 import "core:strings"
 import "core:sys/linux"
 import "core:sys/posix"
@@ -51,7 +51,7 @@ when ODIN_NO_CRT {
 
         if v, idx := _lookup(key); idx != -1 {
             found = true
-            value, _ = clone_string(v, allocator)
+            value, _ = strings.string_clone(v, allocator)
         }
         return
     }
@@ -176,7 +176,7 @@ when ODIN_NO_CRT {
         }
 
         for entry in _env {
-            s := clone_string(entry, allocator) or_return
+            s := strings.string_clone(entry, allocator) or_return
             _ = dyn_array.append(&env, s)
         }
         environ = env[:]
@@ -230,7 +230,7 @@ when ODIN_NO_CRT {
     }
 
     _kv_from_entry :: #force_inline proc(entry: string) -> (k, v: string) {
-        eq_idx := strings.index_byte(entry, '=')
+        eq_idx := strings_tools.index_byte(entry, '=')
         if eq_idx == -1 {
             return entry, ""
         }
@@ -257,7 +257,7 @@ when ODIN_NO_CRT {
 
         runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-        ckey := strings.strings.cstring_clone_from_string(key, runtime.temp_allocator)
+        ckey := strings.cstring_clone_from_string(key, allocators.temp_allocator)
         cval := posix.getenv(ckey)
         if cval == nil {
             return
@@ -300,8 +300,8 @@ when ODIN_NO_CRT {
     _set_env :: proc(key, value: string) -> (err: Error) {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-        ckey := strings.strings.cstring_clone_from_string(key,   runtime.runtime.temp_allocator) or_return
-        cval := strings.strings.cstring_clone_from_string(value, runtime.runtime.temp_allocator) or_return
+        ckey := strings.cstring_clone_from_string(key,   runtime.allocators.temp_allocator) or_return
+        cval := strings.cstring_clone_from_string(value, runtime.allocators.temp_allocator) or_return
 
         if posix.setenv(ckey, cval, true) != nil {
             posix_errno := posix.errno()
@@ -314,7 +314,7 @@ when ODIN_NO_CRT {
     _unset_env :: proc(key: string) -> (ok: bool) {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-        ckey := strings.strings.cstring_clone_from_string(key, runtime.runtime.temp_allocator)
+        ckey := strings.cstring_clone_from_string(key, runtime.allocators.temp_allocator)
 
         ok = posix.unsetenv(ckey) == .OK
         return

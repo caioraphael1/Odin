@@ -36,7 +36,7 @@ Credits:
     Bugfixes:      Florian Behr & Jeroen van Rijn
     Additions:     Jeroen van Rijn
 */
-import "core:math"
+import "base:math"
 import "base:mem"
 
 Color  :: [4]u8

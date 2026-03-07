@@ -1,11 +1,11 @@
 #+build darwin, freebsd, openbsd, netbsd, linux, windows
 
-import "base:runtime"
+import "base:mem"
 import "core:mem/virtual"
 
 _Pool_Arena :: virtual.Arena
 
-_DEFAULT_BLOCK_SIZE :: runtime.Gigabyte
+_DEFAULT_BLOCK_SIZE :: mem.Gigabyte
 
 _pool_arena_init :: proc(arena: ^Pool_Arena, block_size: uint = DEFAULT_BLOCK_SIZE) -> (err: mem.Allocator_Error) {
     virtual.arena_init_growing(arena, block_size) or_return

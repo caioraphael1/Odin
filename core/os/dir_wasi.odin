@@ -1,6 +1,6 @@
 #+private
-import "base:runtime"
-import "core:slice"
+import "base:internal"
+import "base:slice"
 import "base:intrinsics"
 import "core:sys/wasm/wasi"
 

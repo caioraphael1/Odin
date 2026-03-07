@@ -296,7 +296,7 @@ stable_sort :: proc(data: $T/[]$E) where intrinsics.type_is_ordered(E) {
 Sorts a slice while maintaining the relative order of elements with the same key. Two items `i` and `j` are ordered if `less(i, j)` returns `true`.
 
 Example:
-    import "core:slice"
+    import "base:slice"
     import "core:fmt"
     
     main :: proc() {
@@ -331,7 +331,7 @@ stable_sort_by :: proc(data: $T/[]$E, less: proc(i, j: E) -> bool) {
 Sorts a slice while maintaining the relative order of elements with the same key. The ordering of the any two items is defined by the user-provided `cmp`.
 
 Example:
-    import "core:slice"
+    import "base:slice"
     import "core:fmt"
     
     main :: proc() {

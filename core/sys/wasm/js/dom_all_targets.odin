@@ -1,5 +1,5 @@
 #+build !js
-import "base:runtime"
+import "base:internal"
 
 
 get_element_value_string :: proc(id: string, buf: []byte) -> string {

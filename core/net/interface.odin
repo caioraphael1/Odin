@@ -35,12 +35,12 @@ enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network
 */
 destroy_interfaces :: proc(interfaces: []Network_Interface, allocator: mem.Allocator) {
     for i in interfaces {
-        _ = string_delete(i.adapter_name, allocator)
-        _ = string_delete(i.friendly_name, allocator)
-        _ = string_delete(i.description, allocator)
-        _ = string_delete(i.dns_suffix, allocator)
+        _ = strings.string_delete(i.adapter_name, allocator)
+        _ = strings.string_delete(i.friendly_name, allocator)
+        _ = strings.string_delete(i.description, allocator)
+        _ = strings.string_delete(i.dns_suffix, allocator)
 
-        _ = string_delete(i.physical_address, allocator)
+        _ = strings.string_delete(i.physical_address, allocator)
 
         _ = dyn_array.delete(i.unicast)
         _ = dyn_array.delete(i.multicast)
@@ -60,7 +60,7 @@ physical_address_to_string :: proc(phy_addr: []u8, allocator: mem.Allocator) -> 
         return ""
     }
 
-    buf: strings.Builder
+    buf: strings_tools.Builder
 
     for b, i in phy_addr {
         if i > 0 {

@@ -2,8 +2,12 @@
 
 import "base:internal"
 import "base:mem"
-import "core:slice"
-import "core:strings"
+import "base:mem/allocators"
+import "base:slice"
+import "base:dyn_array"
+import "base:strings"
+
+import "core:strings_tools"
 import "core:unicode/utf8"
 
 
@@ -168,11 +172,11 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
         return strings.string_clone(".", allocator)
     }
 
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     // The extra byte is to simplify appending path elements by letting the
     // loop to end each with a separator. We'll trim the last one when we're done.
-    buffer := slice.create([]u8, len(path) + 1, internal.temp_allocator) or_return
+    buffer := slice.create([]u8, len(path) + 1, allocators.temp_allocator) or_return
 
     // This is the only point where Windows and POSIX differ, as Windows has
     // alphabet-based volumes for root paths.
@@ -411,7 +415,7 @@ stem :: proc(path: string) -> string {
         p = p[i+1:]
     }
 
-    if i := strings.last_index_byte(p, '.'); i != -1 {
+    if i := strings_tools.last_index_byte(p, '.'); i != -1 {
         return p[:i]
     }
     return p
@@ -434,7 +438,7 @@ Returns an empty string if there's a trailing path separator.
 */
 short_stem :: proc(path: string) -> string {
     s := stem(path)
-    if i := strings.index_byte(s, '.'); i != -1 {
+    if i := strings_tools.index_byte(s, '.'); i != -1 {
         return s[:i]
     }
     return s
@@ -490,7 +494,7 @@ long_ext :: proc(path: string) -> string {
         path = path[i+1:]
     }
 
-    if i := strings.index_byte(path, '.'); i != -1 {
+    if i := strings_tools.index_byte(path, '.'); i != -1 {
         return path[i:]
     }
 
@@ -508,8 +512,8 @@ For example, `join_path({"/home", "foo", "bar.txt"})` will result in `"/home/foo
 join_path :: proc(elems: []string, allocator: mem.Allocator) -> (joined: string, err: mem.Allocator_Error) {
     for e, i in elems {
         if e != "" {
-            internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-            p := strings.string_join(elems[i:], Path_Separator_String, internal.temp_allocator) or_return
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+            p := strings.string_join(elems[i:], Path_Separator_String, allocators.temp_allocator) or_return
             return clean_path(p, allocator)
         }
     }
@@ -528,7 +532,7 @@ For example, `split_filename("foo.tar.gz")` will return `"foo.tar"` and `"gz"`.
 */
 
 split_filename :: proc(filename: string) -> (base, ext: string) {
-    i := strings.last_index_byte(filename, '.')
+    i := strings_tools.last_index_byte(filename, '.')
     if i <= 0 {
         return filename, ""
     }
@@ -547,9 +551,9 @@ For example, `split_filename_all("foo.tar.gz")` will return `"foo"` and `"tar.gz
 */
 
 split_filename_all :: proc(filename: string) -> (base, ext: string) {
-    i := strings.index_byte(filename, '.')
+    i := strings_tools.index_byte(filename, '.')
     if i == 0 {
-        j := strings.index_byte(filename[1:], '.')
+        j := strings_tools.index_byte(filename[1:], '.')
         if j != -1 {
             j += 1
         }
@@ -633,7 +637,7 @@ split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []stri
     list[index] = path[start:]
 
     for s0, i in list {
-        s, new := strings.replace_all(s0, `"`, ``, allocator)
+        s, new := strings_tools.replace_all(s0, `"`, ``, allocator)
         if !new {
             s = strings.string_clone(s, allocator) or_return
         }
@@ -741,7 +745,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
     m := glob(dir, allocator) or_return
     defer {
         for s in m {
-            _ = string_delete(s, allocator)
+            _ = strings.string_delete(s, allocator)
         }
         _ = slice.delete(m, allocator)
     }
@@ -956,7 +960,7 @@ has_meta :: proc(path: string) -> bool {
     } else {
         CHARS :: `*?[\`
     }
-    return strings.contains_any(path, CHARS)
+    return strings_tools.contains_any(path, CHARS)
 }
 
 @(private)

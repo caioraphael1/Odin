@@ -1,7 +1,7 @@
 // A Lua-like string match algorithm.
 
 
-import "base:runtime"
+import "base:internal"
 import "core:unicode"
 import "core:unicode/utf8"
 import "core:strings"
@@ -621,7 +621,7 @@ lmem_find :: proc(s1, s2: string) -> int {
         return -1
     }
 
-    init := strings.index_byte(s1, s2[0])
+    init := strings_tools.index_byte(s1, s2[0])
     end := init + l2
 
     for end <= l1 && init >= 0 {
@@ -630,7 +630,7 @@ lmem_find :: proc(s1, s2: string) -> int {
         if s1[init - 1:end] == s2 {
             return init - 1
         }
-        next := strings.index_byte(s1[init:], s2[0])
+        next := strings_tools.index_byte(s1[init:], s2[0])
 
         if next == -1 {
             return -1
@@ -723,7 +723,7 @@ gmatch :: proc(haystack: ^string, pattern: string, captures: ^[MAX_CAPTURES]Matc
 
 // gsub with builder, replace patterns found with the replace content
 
-gsub_builder :: proc(builder: ^strings.Builder, haystack, pattern, replace: string) -> string {
+gsub_builder :: proc(builder: ^strings_tools.Builder, haystack, pattern, replace: string) -> string {
     // find matches
     captures: [MAX_CAPTURES]Match
     haystack := haystack
@@ -740,23 +740,23 @@ gsub_builder :: proc(builder: ^strings.Builder, haystack, pattern, replace: stri
         cap := captures[0]
 
         // write front till capture
-        strings.write_string(builder, haystack[:cap.byte_start])
+        strings_tools.write_string(builder, haystack[:cap.byte_start])
 
         // write replacements
-        strings.write_string(builder, replace)
+        strings_tools.write_string(builder, replace)
 
         // advance string till end
         haystack = haystack[cap.byte_end:]
     }
 
-    strings.write_string(builder, haystack[:])
+    strings_tools.write_string(builder, haystack[:])
     return strings.to_string(builder^)
 }
 
 // uses temp builder to build initial string - then allocates the result
 
 gsub_allocator :: proc(haystack, pattern, replace: string, allocator: mem.Allocator) -> string {
-    builder := strings.builder_make(0, 256, runtime.temp_allocator)
+    builder := strings_tools.builder_make(0, 256, allocators.temp_allocator)
     return gsub_builder(&builder, haystack, pattern, replace)
 }
 
@@ -817,7 +817,7 @@ gfind :: proc(haystack: ^string, pattern: string, captures: ^[MAX_CAPTURES]Match
 
 // rebuilds a pattern into a case insensitive pattern
 
-pattern_case_insensitive_builder :: proc(builder: ^strings.Builder, pattern: string) -> string {
+pattern_case_insensitive_builder :: proc(builder: ^strings_tools.Builder, pattern: string) -> string {
     p := pattern
     last_percent: bool
 
@@ -826,10 +826,10 @@ pattern_case_insensitive_builder :: proc(builder: ^strings.Builder, pattern: str
 
         if unicode.is_alpha(char) && !last_percent {
             // write character class in manually
-            strings.write_byte(builder, '[')
+            strings_tools.write_byte(builder, '[')
             strings.write_rune(builder, unicode.to_lower(char))
             strings.write_rune(builder, unicode.to_upper(char))
-            strings.write_byte(builder, ']')
+            strings_tools.write_byte(builder, ']')
         } else {
             strings.write_rune(builder, char)
         }
@@ -843,7 +843,7 @@ pattern_case_insensitive_builder :: proc(builder: ^strings.Builder, pattern: str
 
 
 pattern_case_insensitive_allocator :: proc(pattern: string, cap: int = 256, allocator: mem.Allocator) -> string {
-    builder := strings.builder_make(0, cap, runtime.temp_allocator)
+    builder := strings_tools.builder_make(0, cap, allocators.temp_allocator)
     return pattern_case_insensitive_builder(&builder, pattern)  
 }
 

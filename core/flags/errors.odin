@@ -1,5 +1,5 @@
 
-import "base:runtime"
+import "base:internal"
 import "core:net"
 import "core:os"
 

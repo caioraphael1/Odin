@@ -1,4 +1,4 @@
-import "core:math"
+import "base:math"
 
  cos_half         :: proc "c" (x: half)    -> half { return math.cos(x) }
  sin_half         :: proc "c" (x: half)    -> half { return math.sin(x) }

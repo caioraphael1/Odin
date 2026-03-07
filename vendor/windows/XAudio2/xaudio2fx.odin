@@ -1,6 +1,6 @@
 #+build windows
 
-import "core:math"
+import "base:math"
 
 foreign import xa2 "system:xaudio2.lib"
 

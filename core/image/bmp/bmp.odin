@@ -4,7 +4,7 @@ import "core:bytes"
 import "core:compress"
 import "base:mem"
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 Error   :: image.Error
 Image   :: image.Image
@@ -265,7 +265,7 @@ is_os2 :: proc(version: image.BMP_Version) -> (res: bool) {
 make_output :: proc(img: ^Image, allocator : mem.Allocator) -> (err: Error) {
     assert(img != nil)
     bytes_needed := img.channels * img.height * img.width
-    dyn_array_init(&img.pixels.buf, bytes_needed, allocator)
+    dyn_array.init(&img.pixels.buf, bytes_needed, allocator)
     if len(img.pixels.buf) != bytes_needed {
         return .Unable_To_Allocate_Or_Resize
     }

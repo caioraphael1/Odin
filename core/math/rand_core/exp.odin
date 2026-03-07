@@ -1,5 +1,5 @@
 import "base:rand"
-import "core:math"
+import "base:math"
 
 
 // exp_float64 returns a exponential distribution in the range (0, max(f64)],

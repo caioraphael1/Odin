@@ -1,6 +1,6 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-import "base:runtime"
+import "base:internal"
 import "core:sys/posix"
 import "core:strings"
 
@@ -23,9 +23,9 @@ _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     r = _new_file_internal(fds[0], allocator)
     ri := (^File_Impl)(r.impl)
 
-    rname := strings.builder_make(allocator)
+    rname := strings_tools.builder_make(allocator)
     // TODO(laytan): is this on all the posix targets?
-    strings.write_string(&rname, "/dev/fd/")
+    strings_tools.write_string(&rname, "/dev/fd/")
     strings.write_int(&rname, int(fds[0]))
     ri.name  = strings.to_string(rname)
     ri.cname = strings.to_cstring(&rname) or_return
@@ -33,9 +33,9 @@ _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     w = _new_file_internal(fds[1], allocator)
     wi := (^File_Impl)(w.impl)
     
-    wname := strings.builder_make(allocator)
+    wname := strings_tools.builder_make(allocator)
     // TODO(laytan): is this on all the posix targets?
-    strings.write_string(&wname, "/dev/fd/")
+    strings_tools.write_string(&wname, "/dev/fd/")
     strings.write_int(&wname, int(fds[1]))
     wi.name  = strings.to_string(wname)
     wi.cname = strings.to_cstring(&wname) or_return

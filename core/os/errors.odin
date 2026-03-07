@@ -1,7 +1,10 @@
 
 
-import "core:io"
 import "base:internal"
+import "base:mem"
+import "base:slice"
+
+import "core:io"
 
 /*
     General errors that are common within this package which cannot
@@ -120,12 +123,12 @@ error_string :: proc(ferr: Error) -> string {
     `print_error` is a utility procedure which will print an error `ferr` to a specified file `f`.
 */
 print_error :: proc(f: ^File, ferr: Error, msg: string) {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     err_str := error_string(ferr)
 
     // msg + ": " + err_str + '\n'
     length := len(msg) + 2 + len(err_str) + 1
-    buf, _ := slice.create([]u8, length, internal.temp_allocator)
+    buf, _ := slice.create([]u8, length, allocators.temp_allocator)
 
     slice.copy_from_string(buf, msg)
     buf[len(msg)] = ':'

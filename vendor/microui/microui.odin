@@ -27,7 +27,7 @@ import "core:fmt"
 import "core:sort"
 import "core:strings"
 import "core:strconv"
-import "core:math"
+import "base:math"
 import textedit "core:text/edit"
 
 COMMAND_LIST_SIZE    :: #config(MICROUI_COMMAND_LIST_SIZE,    256 * 1024)
@@ -244,7 +244,7 @@ Context :: struct {
     mouse_released_bits:                 Mouse_Set,
     key_down_bits, key_pressed_bits:     Key_Set,
     _text_store:                         [MAX_TEXT_STORE]u8,
-    text_input:                          strings.Builder, // uses `_text_store` as backing store with nil_allocator.
+    text_input:                          strings_tools.Builder, // uses `_text_store` as backing store with nil_allocator.
     textbox_state:                       textedit.State,
     textbox_offset:                      i32,
 }
@@ -602,7 +602,7 @@ input_key_up :: proc(ctx: ^Context, key: Key) {
 }
 
 input_text :: proc(ctx: ^Context, text: string) {
-    strings.write_string(&ctx.text_input, text)
+    strings_tools.write_string(&ctx.text_input, text)
 }
 
 /*============================================================================

@@ -1,6 +1,6 @@
 
 
-import "base:runtime"
+import "base:internal"
 import "core:crypto"
 import "core:crypto/hash"
 import secec "core:crypto/_weierstrass"

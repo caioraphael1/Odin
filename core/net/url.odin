@@ -72,50 +72,50 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
 }
 
 join_url :: proc(scheme, host, path: string, queries: map[string]string, fragment: string, allocator: mem.Allocator) -> string {
-    b := strings.builder_make(allocator)
+    b := strings_tools.builder_make(allocator)
     strings.builder_grow(&b, len(scheme) + 3 + len(host) + 1 + len(path))
 
-    strings.write_string(&b, scheme)
-    strings.write_string(&b, "://")
-    strings.write_string(&b, strings.trim_space(host))
+    strings_tools.write_string(&b, scheme)
+    strings_tools.write_string(&b, "://")
+    strings_tools.write_string(&b, strings.trim_space(host))
 
     if path != "" {
         if path[0] != '/' {
-            strings.write_string(&b, "/")
+            strings_tools.write_string(&b, "/")
         }
-        strings.write_string(&b, strings.trim_space(path))
+        strings_tools.write_string(&b, strings.trim_space(path))
     }
 
 
     query_length := len(queries)
     if query_length > 0 {
-        strings.write_string(&b, "?")
+        strings_tools.write_string(&b, "?")
     }
     i := 0
     for query_name, query_value in queries {
-        strings.write_string(&b, query_name)
+        strings_tools.write_string(&b, query_name)
         if query_value != "" {
-            strings.write_string(&b, "=")
-            strings.write_string(&b, query_value)
+            strings_tools.write_string(&b, "=")
+            strings_tools.write_string(&b, query_value)
         }
         if i < query_length - 1 {
-            strings.write_string(&b, "&")
+            strings_tools.write_string(&b, "&")
         }
         i += 1
     }
 
     if fragment != "" {
         if fragment[0] != '#' {
-            strings.write_string(&b, "#")
+            strings_tools.write_string(&b, "#")
         }
-        strings.write_string(&b, strings.trim_space(fragment))
+        strings_tools.write_string(&b, strings.trim_space(fragment))
     }
 
     return strings.to_string(b)
 }
 
 percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
-    b := strings.builder_make(allocator)
+    b := strings_tools.builder_make(allocator)
     strings.builder_grow(&b, len(s) + 16) // NOTE(tetra): A reasonable number to allow for the number of things we need to escape.
 
     for ch in s {
@@ -128,7 +128,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
                 buf: [2]u8 = ---
                 t := strconv.write_int(buf[:], i64(byte), 16)
                 _, _ = strings.write_rune(&b, '%')
-                strings.write_string(&b, t)
+                strings_tools.write_string(&b, t)
             }
         }
     }
@@ -137,7 +137,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
 }
 
 percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (decoded_string: string, ok: bool) {
-    b := strings.builder_make(allocator)
+    b := strings_tools.builder_make(allocator)
     strings.builder_grow(&b, len(encoded_string))
     defer if !ok {
         strings.builder_destroy(&b)
@@ -146,13 +146,13 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
     s := encoded_string
 
     for len(s) > 0 {
-        i := strings.index_byte(s, '%')
+        i := strings_tools.index_byte(s, '%')
         if i == -1 {
-            strings.write_string(&b, s) // no '%'s; the string is already decoded
+            strings_tools.write_string(&b, s) // no '%'s; the string is already decoded
             break
         }
 
-        strings.write_string(&b, s[:i])
+        strings_tools.write_string(&b, s[:i])
         s = s[i:]
 
         if len(s) == 0 {
@@ -161,7 +161,7 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
         s = s[1:]
 
         if s[0] == '%' {
-            strings.write_byte(&b, '%')
+            strings_tools.write_byte(&b, '%')
             s = s[1:]
             continue
         }
@@ -171,7 +171,7 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
         }
 
         val := hex.decode_sequence(s[:2]) or_return
-        strings.write_byte(&b, val)
+        strings_tools.write_byte(&b, val)
         s = s[2:]
     }
 
@@ -212,7 +212,7 @@ base64url_decode :: proc(s: string, allocator: mem.Allocator) -> []byte {
         padding += 1;
     }
 
-    temp := slice.create([]byte, size, runtime.temp_allocator);
+    temp := slice.create([]byte, size, allocators.temp_allocator);
     slice.copy(temp, transmute([]byte) s);
 
     for b, i in temp {

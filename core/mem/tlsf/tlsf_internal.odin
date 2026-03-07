@@ -9,7 +9,7 @@
 
 import "base:intrinsics"
 // import "base:sanitizer"
-import "base:runtime"
+import "base:internal"
 
 // log2 of number of linear subdivisions of block sizes.
 // Larger values require more memory in the control structure.

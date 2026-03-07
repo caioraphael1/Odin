@@ -1,6 +1,6 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-import "base:runtime"
+import "base:internal"
 
 import "core:strings"
 import "core:sys/posix"
@@ -12,7 +12,7 @@ _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: stri
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    ckey := strings.strings.cstring_clone_from_string(key, runtime.temp_allocator)
+    ckey := strings.cstring_clone_from_string(key, allocators.temp_allocator)
     cval := posix.getenv(ckey)
     if cval == nil {
         return
@@ -55,8 +55,8 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
 _set_env :: proc(key, value: string) -> (err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    ckey := strings.strings.cstring_clone_from_string(key,   runtime.temp_allocator) or_return
-    cval := strings.strings.cstring_clone_from_string(value, runtime.temp_allocator) or_return
+    ckey := strings.cstring_clone_from_string(key,   allocators.temp_allocator) or_return
+    cval := strings.cstring_clone_from_string(value, allocators.temp_allocator) or_return
 
     if posix.setenv(ckey, cval, true) != nil {
         err = _get_platform_error_from_errno()
@@ -67,7 +67,7 @@ _set_env :: proc(key, value: string) -> (err: Error) {
 _unset_env :: proc(key: string) -> (ok: bool) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    ckey := strings.strings.cstring_clone_from_string(key, runtime.temp_allocator)
+    ckey := strings.cstring_clone_from_string(key, allocators.temp_allocator)
 
     ok = posix.unsetenv(ckey) == .OK
     return

@@ -1,7 +1,7 @@
 #+private
 
 import            "base:intrinsics"
-import            "base:runtime"
+import            "base:internal"
 import            "core:fmt"
 import            "base:mem"
 import            "core:net"
@@ -135,7 +135,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
                 // Prevent memory leaks from us setting this value multiple times.
                 _ = cstring_delete(cstr_ptr^, allocator)
             }
-            cstr_ptr^, _ = strings.strings.cstring_clone_from_string(str, allocator)
+            cstr_ptr^, _ = strings.cstring_clone_from_string(str, allocator)
         } else {
             (^string)(ptr)^ = str
         }
@@ -497,7 +497,7 @@ get_field_name :: proc(field: reflect.Struct_Field) -> string {
         }
     }
 
-    name, _ := strings.replace_all(field.name, "_", "-", runtime.temp_allocator)
+    name, _ := strings_tools.replace_all(field.name, "_", "-", allocators.temp_allocator)
     return name
 }
 

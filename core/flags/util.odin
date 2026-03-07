@@ -144,7 +144,7 @@ get_subtag :: proc(tag, id: string) -> (value: string, ok: bool) {
 	tag := tag
 
 	for subtag in strings.split_iterator(&tag, ",") {
-		if equals := strings.index_byte(subtag, '='); equals != -1 && id == subtag[:equals] {
+		if equals := strings_tools.index_byte(subtag, '='); equals != -1 && id == subtag[:equals] {
 			return subtag[1 + equals:], true
 		} else if id == subtag {
 			return "", true

@@ -1,6 +1,6 @@
 #+private
 
-import "base:runtime"
+import "base:internal"
 import "core:os"
 import "core:sys/windows"
 

@@ -1,5 +1,6 @@
 import "base:internal"
 import "base:mem"
+import "base:mem/allocators"
 
 @(private="file")
 MAX_ATTEMPTS :: 1<<13 // Should be enough for everyone, right?
@@ -14,13 +15,13 @@ MAX_ATTEMPTS :: 1<<13 // Should be enough for everyone, right?
 // The caller must `close` the file once finished with.
 
 create_temp_file :: proc(dir, pattern: string, allocator: mem.Allocator) -> (f: ^File, err: Error) {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    dir := dir if dir != "" else temp_directory(internal.temp_allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    dir := dir if dir != "" else temp_directory(allocators.temp_allocator) or_return
     prefix, suffix := _prefix_and_suffix(pattern) or_return
-    prefix = temp_join_path(dir, prefix, internal.temp_allocator) or_return
+    prefix = temp_join_path(dir, prefix, allocators.temp_allocator) or_return
 
     rand_buf: [10]byte
-    name_buf, _ := slice.create([]byte, len(prefix)+len(rand_buf)+len(suffix), internal.temp_allocator)
+    name_buf, _ := slice.create([]byte, len(prefix)+len(rand_buf)+len(suffix), allocators.temp_allocator)
 
     attempts := 0
     for {
@@ -46,20 +47,20 @@ mkdir_temp :: make_directory_temp
 // If `dir` is an empty tring, `temp_directory()` will be used.
 
 make_directory_temp :: proc(dir, pattern: string, allocator: mem.Allocator) -> (temp_path: string, err: Error) {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-    dir := dir if dir != "" else temp_directory(internal.temp_allocator) or_return
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    dir := dir if dir != "" else temp_directory(allocators.temp_allocator) or_return
     prefix, suffix := _prefix_and_suffix(pattern) or_return
-    prefix = temp_join_path(dir, prefix, internal.temp_allocator) or_return
+    prefix = temp_join_path(dir, prefix, allocators.temp_allocator) or_return
 
     rand_buf: [10]byte
-    name_buf, _ := slice.create([]byte, len(prefix)+len(rand_buf)+len(suffix), internal.temp_allocator)
+    name_buf, _ := slice.create([]byte, len(prefix)+len(rand_buf)+len(suffix), allocators.temp_allocator)
 
     attempts := 0
     for {
         name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
         err = make_directory(name, Permissions_Default_Directory)
         if err == nil {
-            return clone_string(name, allocator)
+            return strings.string_clone(name, allocator)
         }
         if err == .Exist {
             attempts += 1
@@ -69,7 +70,7 @@ make_directory_temp :: proc(dir, pattern: string, allocator: mem.Allocator) -> (
             return "", err
         }
         if err == .Not_Exist {
-            if _, serr := stat(dir, internal.temp_allocator); serr == .Not_Exist {
+            if _, serr := stat(dir, allocators.temp_allocator); serr == .Not_Exist {
                 return "", serr
             }
         }

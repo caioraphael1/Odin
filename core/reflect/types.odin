@@ -1,5 +1,5 @@
+import "core:strings_tools"
 import "core:io"
-import "core:strings"
 
 
 // Returns true when the `^Type_Info`s are semantically equivalent types
@@ -503,9 +503,9 @@ is_endian_big :: proc(info: ^Type_Info) -> bool {
 
 
 
-// Writes a typeid in standard (non-canonical) form to a `strings.Builder`
-write_typeid_builder :: proc(buf: ^strings.Builder, id: typeid, n_written: ^int = nil) -> (n: int, err: io.Error) {
-    return write_type_writer(strings.to_writer(buf), type_info_of(id))
+// Writes a typeid in standard (non-canonical) form to a `strings_tools.Builder`
+write_typeid_builder :: proc(buf: ^strings_tools.Builder, id: typeid, n_written: ^int = nil) -> (n: int, err: io.Error) {
+    return write_type_writer(strings_tools.to_writer(buf), type_info_of(id))
 }
 // Writes a typeid in standard (non-canonical) form to an `io.Writer`
 write_typeid_writer :: proc(writer: io.Writer, id: typeid, n_written: ^int = nil) -> (n: int, err: io.Error) {
@@ -513,9 +513,9 @@ write_typeid_writer :: proc(writer: io.Writer, id: typeid, n_written: ^int = nil
 }
 
 
-// Writes a `^Type_Info` in standard (non-canonical) form to a `strings.Builder`
-write_type_builder :: proc(buf: ^strings.Builder, ti: ^Type_Info) -> int {
-    n, _ := write_type_writer(strings.to_writer(buf), ti)
+// Writes a `^Type_Info` in standard (non-canonical) form to a `strings_tools.Builder`
+write_type_builder :: proc(buf: ^strings_tools.Builder, ti: ^Type_Info) -> int {
+    n, _ := write_type_writer(strings_tools.to_writer(buf), ti)
     return n
 }
 // Writes a `^Type_Info` in standard (non-canonical) form to an `io.Writer`

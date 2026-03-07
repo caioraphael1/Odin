@@ -1,8 +1,9 @@
 // Conversions to and from `string` representations of other data types like integers and booleans.
-import "core:unicode/utf8"
-import "decimal"
 import "base:slice"
 import "base:mem"
+import "base:strings"
+import "core:unicode/utf8"
+import "decimal"
 
 /*
 Parses a boolean value from the input string
@@ -1897,7 +1898,7 @@ Output:
 NOTE: If unquoting is unsuccessful, the allocated memory for the result will be freed.
 */
 unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, allocated, success: bool) {
-    strings.string_contain_rune :: proc(s: string, r: rune) -> int {
+    string_contain_rune :: proc(s: string, r: rune) -> int {
         for c, offset in s {
             if c == r {
                 return offset
@@ -1921,11 +1922,11 @@ unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, a
     }
     s = s[1:len(s)-1]
 
-    if strings.string_contain_rune(s, '\n') >= 0 {
+    if string_contain_rune(s, '\n') >= 0 {
         return s, false, false
     }
 
-    if strings.string_contain_rune(s, '\\') < 0 && strings.string_contain_rune(s, quote) < 0 {
+    if string_contain_rune(s, '\\') < 0 && string_contain_rune(s, quote) < 0 {
         if quote == '"' {
             return s, false, true
         }

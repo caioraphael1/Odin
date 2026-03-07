@@ -11,7 +11,7 @@
 */
 
 import            "base:intrinsics"
-import            "base:runtime"
+import            "base:internal"
 import            "core:bytes"
 @(require) import "core:encoding/base64"
 @(require) import "core:encoding/json"
@@ -21,7 +21,7 @@ import            "core:io"
 import            "core:math/rand"
 import            "base:mem"
 import            "core:os"
-import            "core:slice"
+import            "base:slice"
 @(require) import "core:strings"
 import            "core:sync/chan"
 import            "core:terminal"
@@ -159,7 +159,7 @@ run_test_task :: proc(task: thread.Task) {
 	}
 	rand.reset(data.t.seed)
 
-	free_all(runtime.temp_allocator)
+	free_all(allocators.temp_allocator)
 
 	data.it.p(&data.t)
 
@@ -203,7 +203,7 @@ Options :: struct {
 }
 
 parse_cli_options :: proc(argv: []string, opts: ^Options, stdout, stderr: io.Writer) {
-	test_names: strings.Builder
+	test_names: strings_tools.Builder
 
 	for arg in argv {
 		if strings.starts_with(arg, "-tests:") {
@@ -214,12 +214,12 @@ parse_cli_options :: proc(argv: []string, opts: ^Options, stdout, stderr: io.Wri
 			}
 
 			if strings.builder_len(test_names) > 0 {
-				strings.write_byte(&test_names, ',')
+				strings_tools.write_byte(&test_names, ',')
 			}
-			strings.write_string(&test_names, tests)
+			strings_tools.write_string(&test_names, tests)
 		} else if arg == "-help" {
 			exe_name := "test"
-			if path, err := os.get_executable_path(runtime.temp_allocator); err == nil {
+			if path, err := os.get_executable_path(allocators.temp_allocator); err == nil {
 				exe_name = slashpath.base(path)
 			}
 
@@ -303,7 +303,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		index_list := test_names
 		for selector in strings.split_iterator(&index_list, ",") {
 			// Temp allocator is fine since we just need to identify which test it's referring to.
-			split_selector := strings.split(selector, ".", runtime.temp_allocator)
+			split_selector := strings.split(selector, ".", allocators.temp_allocator)
 
 			found := false
 			switch len(split_selector) {
@@ -979,7 +979,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 					fmt.wprintf(clipboard_writer, "%s.%s,", it.pkg, it.name)
 				}
 
-				encoded_names := base64.encode(bytes.buffer_to_bytes(&clipboard_buffer), allocator = runtime.temp_allocator)
+				encoded_names := base64.encode(bytes.buffer_to_bytes(&clipboard_buffer), allocator = allocators.temp_allocator)
 
 				fmt.wprintf(batch_writer,
 					ansi.OSC + ansi.CLIPBOARD + ";c;%s" + ansi.ST + 

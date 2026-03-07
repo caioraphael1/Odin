@@ -4,7 +4,7 @@
 import "base:intrinsics"
 import "core:crypto"
 import "core:crypto/aes"
-import "core:simd"
+import "base:simd"
 import "core:simd/x86"
 
 // This processes a maximum of 4 blocks at a time, as that is suitable

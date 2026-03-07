@@ -1,8 +1,8 @@
-import "base:runtime"
+import "base:internal"
 
 import "core:encoding/base64"
 import "core:io"
-import "core:math"
+import "base:math"
 import "core:math/big"
 import "base:mem"
 import "core:reflect"
@@ -296,15 +296,15 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
         return .Bad_Tag_Value
     }
 
-    bytes := string(err_conv(_decode_bytes(d, add, allocator=runtime.temp_allocator)) or_return)
-    defer _ = slice.delete(bytes, runtime.temp_allocator)
+    bytes := string(err_conv(_decode_bytes(d, add, allocator=allocators.temp_allocator)) or_return)
+    defer _ = slice.delete(bytes, allocators.temp_allocator)
 
     #partial switch t in ti.variant {
     case reflect.Type_Info_String:
         assert(t.encoding == .UTF_8)
         if t.is_cstring {
             length  := base64.decoded_len(bytes)
-            builder := strings.builder_make(0, length+1)
+            builder := strings_tools.builder_make(0, length+1)
             base64.decode_into(strings.to_stream(&builder), bytes) or_return
 
             raw  := (^cstring)(v.data)

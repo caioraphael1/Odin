@@ -2,7 +2,9 @@
 
 import "base:internal"
 import "base:mem"
-import "core:strings"
+import "base:slice"
+import "base:strings"
+
 import "core:time"
 
 Fstat_Callback :: proc(f: ^File, allocator: mem.Allocator) -> (File_Info, Error)
@@ -40,7 +42,7 @@ file_info_slice_delete :: proc(infos: []File_Info, allocator: mem.Allocator) {
 }
 
 file_info_delete :: proc(fi: File_Info, allocator: mem.Allocator) {
-    _ = string_delete(fi.fullpath, allocator)
+    _ = strings.string_delete(fi.fullpath, allocator)
 }
 
 
@@ -97,8 +99,8 @@ last_write_time_by_name :: modification_time_by_path
 */
 
 modification_time :: proc(f: ^File) -> (time.Time, Error) {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := fstat(f, internal.temp_allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := fstat(f, allocators.temp_allocator)
     return fi.modification_time, err
 }
 
@@ -108,8 +110,8 @@ modification_time :: proc(f: ^File) -> (time.Time, Error) {
 */
 
 modification_time_by_path :: proc(path: string) -> (time.Time, Error) {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := stat(path, internal.temp_allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := stat(path, allocators.temp_allocator)
     return fi.modification_time, err
 }
 

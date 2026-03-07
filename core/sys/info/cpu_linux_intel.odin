@@ -1,6 +1,6 @@
 #+build i386, amd64
 #+build linux
-import "base:runtime"
+import "base:internal"
 import "core:sys/linux"
 import "core:strings"
 import "core:strconv"

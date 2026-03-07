@@ -1,5 +1,5 @@
 #+private
-import "base:runtime"
+import "base:internal"
 
 import "core:sync"
 import "core:sys/wasm/wasi"
@@ -46,7 +46,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
         return .Exist
     }
 
-    clean_path := clean_path(path, runtime.temp_allocator) or_return
+    clean_path := clean_path(path, allocators.temp_allocator) or_return
     return internal_mkdir_all(clean_path)
 }
 
@@ -85,7 +85,7 @@ _working_dir: struct {
 _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
     sync.mutex_guard(&_working_dir_mutex)
     _working_dir.allocator = allocator
-    return clone_string(_working_dir.path if _working_dir.path != "" else "/", _working_dir.allocator)
+    return strings.string_clone(_working_dir.path if _working_dir.path != "" else "/", _working_dir.allocator)
 }
 
 _set_working_directory :: proc(dir: string, allocator: mem.Allocator) -> (err: Error) {
@@ -100,19 +100,19 @@ _set_working_directory :: proc(dir: string, allocator: mem.Allocator) -> (err: E
         _working_dir.allocator = {}
     }
 
-    _working_dir.path = clone_string(dir, allocator) or_return
+    _working_dir.path = strings.string_clone(dir, allocator) or_return
     _working_dir.allocator = allocator
     return
 }
 
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     if len(args) <= 0 {
-        return clone_string("/", allocator)
+        return strings.string_clone("/", allocator)
     }
 
     arg := args[0]
     if len(arg) > 0 && (arg[0] == '.' || arg[0] == '/') {
-        return clone_string(arg, allocator)
+        return strings.string_clone(arg, allocator)
     }
 
     return concatenate({"/", arg}, allocator)

@@ -1,4 +1,4 @@
-import "core:math"
+import "base:math"
 
 
 euler_angles_from_matrix3_f16 :: proc(m: matrix[3, 3]f16, order: Euler_Angle_Order) -> (t1, t2, t3: f16) {

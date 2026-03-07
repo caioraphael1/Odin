@@ -20,7 +20,7 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "base:runtime"
+import "base:internal"
 
 import "base:mem"
 import "core:os"
@@ -37,7 +37,7 @@ import win "core:sys/windows"
 _init_dns_configuration :: proc() {
     sync.once_do_without_data(&dns_config_initialized, proc() {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-        val := os.replace_environment_placeholders(dns_configuration.hosts_file, runtime.temp_allocator)
+        val := os.replace_environment_placeholders(dns_configuration.hosts_file, allocators.temp_allocator)
         slice.copy_from_string(dns_configuration.hosts_file_buf[:], val)
         dns_configuration.hosts_file = string(dns_configuration.hosts_file_buf[:len(val)])
     })
@@ -50,7 +50,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
         options = {.MULTICAST_ONLY, .MULTICAST_WAIT} // 0x00020500
     }
 
-    host_cstr, _ := strings.strings.cstring_clone_from_string(hostname, runtime.temp_allocator)
+    host_cstr, _ := strings.cstring_clone_from_string(hostname, allocators.temp_allocator)
     rec: ^win.DNS_RECORD
     res := win.DnsQuery_UTF8(host_cstr, u16(type), options, nil, &rec, nil)
 
@@ -164,7 +164,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
             service_name, protocol_name: string
 
             s := base_record.record_name
-            i := strings.index_byte(s, '.')
+            i := strings_tools.index_byte(s, '.')
             if i > -1 {
                 service_name = s[:i]
                 s = s[len(service_name) + 1:]
@@ -172,7 +172,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
                 continue
             }
 
-            i  = strings.index_byte(s, '.')
+            i  = strings_tools.index_byte(s, '.')
             if i > -1 {
                 protocol_name = s[:i]
             } else {

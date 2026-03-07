@@ -30,7 +30,7 @@ strchr :: proc "c" (str: cstring, ch: i32) -> cstring {
         return cstring(raw_data(sstr)[len(sstr):])
     }
 
-    idx := strings.index_byte(sstr, bch)
+    idx := strings_tools.index_byte(sstr, bch)
     if idx < 0 {
         return nil
     }
@@ -46,7 +46,7 @@ strrchr :: proc "c" (str: cstring, ch: i32) -> cstring {
         return cstring(raw_data(sstr)[len(sstr):])
     }
 
-    idx := strings.last_index_byte(sstr, bch)
+    idx := strings_tools.last_index_byte(sstr, bch)
     if idx < 0 {
         return nil
     }

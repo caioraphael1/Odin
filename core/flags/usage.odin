@@ -1,8 +1,8 @@
-import "base:runtime"
+import "base:internal"
 import "core:fmt"
 import "core:io"
 import "core:reflect"
-import "core:slice"
+import "base:slice"
 import "core:strconv"
 import "core:strings"
 import "base:mem"
@@ -87,7 +87,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
         return
     }
 
-    builder, _ := strings.builder_make(allocator)
+    builder, _ := strings_tools.builder_make(allocator)
     defer strings.builder_destroy(&builder)
 
     flag_prefix, flag_assignment: string = ---, ---
@@ -196,28 +196,28 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
     if len(program) > 0 {
         keep_it_short := len(visible_flags) >= ONE_LINE_FLAG_CUTOFF_COUNT
 
-        strings.write_string(&builder, "Usage:\n\t")
-        strings.write_string(&builder, program)
+        strings_tools.write_string(&builder, "Usage:\n\t")
+        strings_tools.write_string(&builder, program)
 
         for flag in visible_flags {
             if keep_it_short && !(flag.is_required || flag.is_positional || flag.name == INTERNAL_OVERFLOW_FLAG) {
                 continue
             }
 
-            strings.write_byte(&builder, ' ')
+            strings_tools.write_byte(&builder, ' ')
 
             if flag.name == INTERNAL_OVERFLOW_FLAG {
-                strings.write_string(&builder, "...")
+                strings_tools.write_string(&builder, "...")
                 continue
             }
 
-            if !flag.is_required { strings.write_byte(&builder, '[') }
-            if !flag.is_positional { strings.write_string(&builder, flag_prefix) }
-            strings.write_string(&builder, flag.name)
-            if !flag.is_required { strings.write_byte(&builder, ']') }
+            if !flag.is_required { strings_tools.write_byte(&builder, '[') }
+            if !flag.is_positional { strings_tools.write_string(&builder, flag_prefix) }
+            strings_tools.write_string(&builder, flag.name)
+            if !flag.is_required { strings_tools.write_byte(&builder, ']') }
         }
 
-        strings.write_byte(&builder, '\n')
+        strings_tools.write_byte(&builder, '\n')
     }
 
     if len(visible_flags) == 0 {
@@ -226,7 +226,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
         return
     }
 
-    strings.write_string(&builder, "Flags:\n")
+    strings_tools.write_string(&builder, "Flags:\n")
     
     // Divide the positional/required arguments and the non-required arguments.
     divider_index := -1
@@ -243,48 +243,48 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
     for flag, i in visible_flags {
         if i == divider_index {
             SPACING :: 2 // Number of spaces before the '|' from below.
-            strings.write_byte(&builder, '\t')
-            spacing, _ := strings.string_repeat(" ", SPACING + longest_flag_length, runtime.temp_allocator)
-            strings.write_string(&builder, spacing)
-            strings.write_string(&builder, "|\n")
+            strings_tools.write_byte(&builder, '\t')
+            spacing, _ := strings.string_repeat(" ", SPACING + longest_flag_length, allocators.temp_allocator)
+            strings_tools.write_string(&builder, spacing)
+            strings_tools.write_string(&builder, "|\n")
         }
 
-        strings.write_byte(&builder, '\t')
+        strings_tools.write_byte(&builder, '\t')
 
         if flag.name == INTERNAL_OVERFLOW_FLAG {
-            strings.write_string(&builder, flag.type_description)
+            strings_tools.write_string(&builder, flag.type_description)
         } else {
-            strings.write_string(&builder, flag_prefix)
-            strings.write_string(&builder, flag.name)
+            strings_tools.write_string(&builder, flag_prefix)
+            strings_tools.write_string(&builder, flag.name)
             if !flag.is_boolean {
-                strings.write_string(&builder, flag_assignment)
+                strings_tools.write_string(&builder, flag_assignment)
             }
-            strings.write_string(&builder, flag.type_description)
+            strings_tools.write_string(&builder, flag.type_description)
         }
 
-        if strings.strings.string_contain_rune(flag.usage, '\n') {
+        if strings.string_contain_rune(flag.usage, '\n') {
             // Multi-line usage documentation. Let's make it look nice.
-            usage_builder, _ := strings.builder_make(runtime.temp_allocator)
+            usage_builder, _ := strings_tools.builder_make(allocators.temp_allocator)
 
-            strings.write_byte(&usage_builder, '\n')
+            strings_tools.write_byte(&usage_builder, '\n')
             iter := strings.trim_space(flag.usage)
             for line in strings.split_lines_iterator(&iter) {
-                strings.write_string(&usage_builder, "\t\t")
-                strings.write_string(&usage_builder, strings.trim_left_space(line))
-                strings.write_byte(&usage_builder, '\n')
+                strings_tools.write_string(&usage_builder, "\t\t")
+                strings_tools.write_string(&usage_builder, strings.trim_left_space(line))
+                strings_tools.write_byte(&usage_builder, '\n')
             }
 
-            strings.write_string(&builder, strings.to_string(usage_builder))
+            strings_tools.write_string(&builder, strings.to_string(usage_builder))
         } else {
             // Single-line usage documentation.
             spacing, _ := strings.string_repeat(" ",
                 (longest_flag_length) - flag.full_length,
-                runtime.temp_allocator)
+                allocators.temp_allocator)
 
-            strings.write_string(&builder, spacing)
-            strings.write_string(&builder, "  | ")
-            strings.write_string(&builder, flag.usage)
-            strings.write_byte(&builder, '\n')
+            strings_tools.write_string(&builder, spacing)
+            strings_tools.write_string(&builder, "  | ")
+            strings_tools.write_string(&builder, flag.usage)
+            strings_tools.write_byte(&builder, '\n')
         }
     }
 

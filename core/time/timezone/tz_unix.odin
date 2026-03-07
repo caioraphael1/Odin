@@ -4,7 +4,7 @@ import "core:os"
 import "core:strings"
 import "core:path/filepath"
 import "core:time/datetime"
-import "base:runtime"
+import "base:internal"
 
 local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool) {
 	local_str, ok := os.lookup_env_alloc("TZ", allocator)

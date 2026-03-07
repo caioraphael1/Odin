@@ -6,7 +6,7 @@ The following example shows a simple `cat` program implementation using the pack
 Example:
     package main
 
-    import "base:runtime"
+    import "base:internal"
 
     import "core:fmt"
     import "core:os"

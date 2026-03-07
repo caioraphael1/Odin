@@ -1,7 +1,7 @@
 foreign import "webgl"
 
 import glm "core:math/linalg/glsl"
-import "base:runtime"
+import "base:internal"
 
 Enum :: distinct u32
 

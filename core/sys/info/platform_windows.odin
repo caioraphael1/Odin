@@ -33,31 +33,31 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     res.kernel.major = int(osvi.dwMajorVersion)
     res.kernel.minor = int(osvi.dwBuildNumber)
 
-    b := strings.builder_make(allocator)
+    b := strings_tools.builder_make(allocator)
 
-    strings.write_string(&b, "Windows ")
+    strings_tools.write_string(&b, "Windows ")
 
     switch osvi.dwMajorVersion {
     case 10:
         switch osvi.wProductType {
         case 1: // VER_NT_WORKSTATION:
             if osvi.dwBuildNumber < 22000 {
-                strings.write_string(&b, "10 ")
+                strings_tools.write_string(&b, "10 ")
             } else {
-                strings.write_string(&b, "11 ")
+                strings_tools.write_string(&b, "11 ")
             }
             format_windows_product_type(&b, product_type)
 
         case: // Server or Domain Controller
             switch osvi.dwBuildNumber {
             case 14393:
-                strings.write_string(&b, "2016 Server")
+                strings_tools.write_string(&b, "2016 Server")
             case 17763:
-                strings.write_string(&b, "2019 Server")
+                strings_tools.write_string(&b, "2019 Server")
             case 20348:
-                strings.write_string(&b, "2022 Server")
+                strings_tools.write_string(&b, "2022 Server")
             case:
-                strings.write_string(&b, "Unknown Server")
+                strings_tools.write_string(&b, "Unknown Server")
             }
         }
 
@@ -66,48 +66,48 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
         case 0:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION
-                strings.write_string(&b, "Windows Vista ")
+                strings_tools.write_string(&b, "Windows Vista ")
                 format_windows_product_type(&b, product_type)
             case 3:
-                strings.write_string(&b, "Windows Server 2008")
+                strings_tools.write_string(&b, "Windows Server 2008")
             }
 
         case 1:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION:
-                strings.write_string(&b, "Windows 7 ")
+                strings_tools.write_string(&b, "Windows 7 ")
                 format_windows_product_type(&b, product_type)
             case 3:
-                strings.write_string(&b, "Windows Server 2008 R2")
+                strings_tools.write_string(&b, "Windows Server 2008 R2")
             }
 
         case 2:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION:
-                strings.write_string(&b, "Windows 8 ")
+                strings_tools.write_string(&b, "Windows 8 ")
                 format_windows_product_type(&b, product_type)
             case 3:
-                strings.write_string(&b, "Windows Server 2012")
+                strings_tools.write_string(&b, "Windows Server 2012")
             }
 
         case 3:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION:
-                strings.write_string(&b, "Windows 8.1 ")
+                strings_tools.write_string(&b, "Windows 8.1 ")
                 format_windows_product_type(&b, product_type)
             case 3:
-                strings.write_string(&b, "Windows Server 2012 R2")
+                strings_tools.write_string(&b, "Windows Server 2012 R2")
             }
         }
 
     case 5:
         switch osvi.dwMinorVersion {
         case 0:
-            strings.write_string(&b, "Windows 2000")
+            strings_tools.write_string(&b, "Windows 2000")
         case 1:
-            strings.write_string(&b, "Windows XP")
+            strings_tools.write_string(&b, "Windows XP")
         case 2:
-            strings.write_string(&b, "Windows Server 2003")
+            strings_tools.write_string(&b, "Windows Server 2003")
         }
     }
 
@@ -120,99 +120,99 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     // Finish the string
     res.full = strings.to_string(b)
 
-    format_windows_product_type :: proc (b: ^strings.Builder, prod_type: sys.Windows_Product_Type) {
+    format_windows_product_type :: proc (b: ^strings_tools.Builder, prod_type: sys.Windows_Product_Type) {
         #partial switch prod_type {
         case .ULTIMATE:
-            strings.write_string(b, "Ultimate")
+            strings_tools.write_string(b, "Ultimate")
 
         case .HOME_BASIC:
-            strings.write_string(b, "Home Basic")
+            strings_tools.write_string(b, "Home Basic")
 
         case .HOME_PREMIUM:
-            strings.write_string(b, "Home Premium")
+            strings_tools.write_string(b, "Home Premium")
 
         case .ENTERPRISE:
-            strings.write_string(b, "Enterprise")
+            strings_tools.write_string(b, "Enterprise")
 
         case .CORE:
-            strings.write_string(b, "Home Basic")
+            strings_tools.write_string(b, "Home Basic")
 
         case .HOME_BASIC_N:
-            strings.write_string(b, "Home Basic N")
+            strings_tools.write_string(b, "Home Basic N")
 
         case .EDUCATION:
-            strings.write_string(b, "Education")
+            strings_tools.write_string(b, "Education")
 
         case .EDUCATION_N:
-            strings.write_string(b, "Education N")
+            strings_tools.write_string(b, "Education N")
 
         case .BUSINESS:
-            strings.write_string(b, "Business")
+            strings_tools.write_string(b, "Business")
 
         case .STANDARD_SERVER:
-            strings.write_string(b, "Standard Server")
+            strings_tools.write_string(b, "Standard Server")
 
         case .DATACENTER_SERVER:
-            strings.write_string(b, "Datacenter")
+            strings_tools.write_string(b, "Datacenter")
 
         case .SMALLBUSINESS_SERVER:
-            strings.write_string(b, "Windows Small Business Server")
+            strings_tools.write_string(b, "Windows Small Business Server")
 
         case .ENTERPRISE_SERVER:
-            strings.write_string(b, "Enterprise Server")
+            strings_tools.write_string(b, "Enterprise Server")
 
         case .STARTER:
-            strings.write_string(b, "Starter")
+            strings_tools.write_string(b, "Starter")
 
         case .DATACENTER_SERVER_CORE:
-            strings.write_string(b, "Datacenter Server Core")
+            strings_tools.write_string(b, "Datacenter Server Core")
 
         case .STANDARD_SERVER_CORE:
-            strings.write_string(b, "Server Standard Core")
+            strings_tools.write_string(b, "Server Standard Core")
 
         case .ENTERPRISE_SERVER_CORE:
-            strings.write_string(b, "Enterprise Server Core")
+            strings_tools.write_string(b, "Enterprise Server Core")
 
         case .BUSINESS_N:
-            strings.write_string(b, "Business N")
+            strings_tools.write_string(b, "Business N")
 
         case .HOME_SERVER:
-            strings.write_string(b, "Home Server")
+            strings_tools.write_string(b, "Home Server")
 
         case .SERVER_FOR_SMALLBUSINESS:
-            strings.write_string(b, "Windows Server 2008 for Windows Essential Server Solutions")
+            strings_tools.write_string(b, "Windows Server 2008 for Windows Essential Server Solutions")
 
         case .SMALLBUSINESS_SERVER_PREMIUM:
-            strings.write_string(b, "Small Business Server Premium")
+            strings_tools.write_string(b, "Small Business Server Premium")
 
         case .HOME_PREMIUM_N:
-            strings.write_string(b, "Home Premium N")
+            strings_tools.write_string(b, "Home Premium N")
 
         case .ENTERPRISE_N:
-            strings.write_string(b, "Enterprise N")
+            strings_tools.write_string(b, "Enterprise N")
 
         case .ULTIMATE_N:
-            strings.write_string(b, "Ultimate N")
+            strings_tools.write_string(b, "Ultimate N")
 
         case .HYPERV:
-            strings.write_string(b, "HyperV")
+            strings_tools.write_string(b, "HyperV")
 
         case .STARTER_N:
-            strings.write_string(b, "Starter N")
+            strings_tools.write_string(b, "Starter N")
 
         case .PROFESSIONAL:
-            strings.write_string(b, "Professional")
+            strings_tools.write_string(b, "Professional")
 
         case .PROFESSIONAL_N:
-            strings.write_string(b, "Professional N")
+            strings_tools.write_string(b, "Professional N")
 
         case:
-            strings.write_string(b, "Unknown Edition")
+            strings_tools.write_string(b, "Unknown Edition")
         }
     }
 
     // Grab Windows DisplayVersion (like 20H02)
-    format_display_version :: proc (b: ^strings.Builder) -> (version: string) {
+    format_display_version :: proc (b: ^strings_tools.Builder) -> (version: string) {
         scratch: [512]u8
 
         if dv, ok := read_reg_string(
@@ -221,9 +221,9 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
             "DisplayVersion",
             scratch[:],
         ); ok {
-            strings.write_string(b, " (version: ")
+            strings_tools.write_string(b, " (version: ")
             l := strings.builder_len(b^)
-            strings.write_string(b, dv)
+            strings_tools.write_string(b, dv)
             version = strings.to_string(b^)[l:][:len(dv)]
             _, _ = strings.write_rune(b, ')')
         }
@@ -231,14 +231,14 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     }
 
     // Grab build number and UBR
-    format_build_number :: proc (b: ^strings.Builder, major_build: int) -> (ubr: int) {
+    format_build_number :: proc (b: ^strings_tools.Builder, major_build: int) -> (ubr: int) {
         if res, ok := read_reg_i32(
             sys.HKEY_LOCAL_MACHINE,
             "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
             "UBR",
         ); ok {
             ubr = int(res)
-            strings.write_string(b, ", build: ")
+            strings_tools.write_string(b, ", build: ")
             strings.write_int(b, major_build)
             _, _ = strings.write_rune(b, '.')
             strings.write_int(b, ubr)

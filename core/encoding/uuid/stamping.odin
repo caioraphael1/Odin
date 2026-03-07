@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 /*
 Stamp a 128-bit integer as being a valid version 8 UUID.

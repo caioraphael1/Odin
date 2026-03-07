@@ -7,7 +7,7 @@ Based off the articles by rxi:
 */
 
 
-import "base:runtime"
+import "base:internal"
 import "core:time"
 import "base:mem"
 import "core:strings"
@@ -20,7 +20,7 @@ State :: struct {
 	line_start, line_end: int,
 
 	// initialized each "frame" with `begin`
-	builder: ^strings.Builder, // let the caller store the text buffer data
+	builder: ^strings_tools.Builder, // let the caller store the text buffer data
 
 	up_index, down_index: int, // multi-lines
 
@@ -88,7 +88,7 @@ destroy :: proc(s: ^State) {
 }
 
 // Call at the beginning of each frame
-begin :: proc(s: ^State, id: u64, builder: ^strings.Builder) {
+begin :: proc(s: ^State, id: u64, builder: ^strings_tools.Builder) {
 	assert(builder != nil)
 	if s.id != 0 {
 		end(s)
@@ -116,7 +116,7 @@ update_time :: proc(s: ^State) {
 }
 
 // setup the builder, selection and undo|redo state once allowing to retain selection
-setup_once :: proc(s: ^State, builder: ^strings.Builder) {
+setup_once :: proc(s: ^State, builder: ^strings_tools.Builder) {
 	s.builder = builder
 	s.selection = { len(builder.buf), 0 }
 	undo_clear(s, &s.undo)
@@ -161,7 +161,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 		s.selection = item.selection
 		#no_bounds_check if s.builder != nil {
 			strings.builder_reset(s.builder)
-			strings.write_string(s.builder, string(item.text[:item.len]))
+			strings_tools.write_string(s.builder, string(item.text[:item.len]))
 		}
 		free(item, s.undo_text_allocator)
 	}

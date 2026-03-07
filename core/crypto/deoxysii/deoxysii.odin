@@ -10,7 +10,7 @@ import "base:intrinsics"
 import "core:bytes"
 import "core:crypto"
 import "core:crypto/aes"
-import "core:simd"
+import "base:simd"
 
 // KEY_SIZE is the Deoxys-II-256 key size in bytes.
 KEY_SIZE :: 32

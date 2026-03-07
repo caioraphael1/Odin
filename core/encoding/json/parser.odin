@@ -1,5 +1,5 @@
 import "base:mem"
-import "base:runtime"
+import "base:internal"
 import "core:unicode/utf8"
 import "core:unicode/utf16"
 import "core:strconv"
@@ -135,7 +135,7 @@ parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
     case .Ident:
         if p.spec == .MJSON {
             _, _ = advance_token(p)
-            return clone_string(token.text, p.allocator, loc)
+            return strings.string_clone(token.text, p.allocator, loc)
         }
         
     case .String:
@@ -215,7 +215,7 @@ bytes_make :: proc(size, alignment: int, allocator: mem.Allocator, loc := #calle
     return
 }
 
-clone_string :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (str: string, err: Error) {
+strings.string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (str: string, err: Error) {
     n := len(s)
     b := bytes_make(n+1, 1, allocator, loc) or_return
     slice.copy_from_string(b, s)
@@ -230,7 +230,7 @@ parse_object_key :: proc(p: ^Parser, key_allocator: mem.Allocator, loc := #calle
     tok := p.curr_token
     if p.spec != .JSON {
         if allow_token(p, .Ident) {
-            return clone_string(tok.text, key_allocator, loc)
+            return strings.string_clone(tok.text, key_allocator, loc)
         }
     }
     if tok_err := expect_token(p, .String); tok_err != nil {
@@ -245,7 +245,7 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
 
     defer if err != nil {
         for key, elem in obj {
-            _ = string_delete(key, p.allocator, loc)
+            _ = strings.string_delete(key, p.allocator, loc)
             destroy_value(elem, p.allocator, loc=loc)
         }
         _ = maps.delete(obj, loc)
@@ -258,7 +258,7 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
 
         if key in obj {
             err = .Duplicate_Object_Key
-            _ = string_delete(key, p.allocator, loc)
+            _ = strings.string_delete(key, p.allocator, loc)
             return
         }
 
@@ -358,7 +358,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
         i += w
     }
     if i == len(s) {
-        return clone_string(s, allocator, loc)
+        return strings.string_clone(s, allocator, loc)
     }
 
     b := bytes_make(len(s) + 2*utf8.UTF_MAX, 1, allocator) or_return

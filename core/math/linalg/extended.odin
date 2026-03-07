@@ -1,5 +1,5 @@
 import "base:builtin"
-import "core:math"
+import "base:math"
 
 import "base:intrinsics"
 

@@ -1,36 +1,36 @@
 #+build windows
 #+private
-import "base:runtime"
+import "base:mem"
 
 import win32 "core:sys/windows"
-import "core:strings"
+import "base:strings"
 import "core:reflect"
 
 _LIBRARY_FILE_EXTENSION :: "dll"
 
 _load_library :: proc(path: string, global_symbols: bool, allocator: mem.Allocator) -> (Library, bool) {
-	// NOTE(bill): 'global_symbols' is here only for consistency with POSIX which has RTLD_GLOBAL
-	wide_path := win32.utf8_to_wstring_alloc(path, allocator)
-	defer free(rawptr(wide_path), allocator)
-	handle := cast(Library)win32.LoadLibraryW(wide_path)
-	return handle, handle != nil
+    // NOTE(bill): 'global_symbols' is here only for consistency with POSIX which has RTLD_GLOBAL
+    wide_path := win32.utf8_to_wstring_alloc(path, allocator)
+    defer free(rawptr(wide_path), allocator)
+    handle := cast(Library)win32.LoadLibraryW(wide_path)
+    return handle, handle != nil
 }
 
 _unload_library :: proc(library: Library) -> bool {
-	ok := win32.FreeLibrary(cast(win32.HMODULE)library)
-	return bool(ok)
+    ok := win32.FreeLibrary(cast(win32.HMODULE)library)
+    return bool(ok)
 }
 
 _symbol_address :: proc(library: Library, symbol: string, allocator: mem.Allocator) -> (ptr: rawptr, found: bool) {
-	c_str := strings.strings.cstring_clone_from_string(symbol, allocator)
-	defer _ = slice.delete(c_str, allocator)
-	ptr = win32.GetProcAddress(cast(win32.HMODULE)library, c_str)
-	found = ptr != nil
-	return
+    c_str := strings.cstring_clone_from_string(symbol, allocator)
+    defer _ = slice.delete(c_str, allocator)
+    ptr = win32.GetProcAddress(cast(win32.HMODULE)library, c_str)
+    found = ptr != nil
+    return
 }
 
 _last_error :: proc() -> string {
-	err := win32.System_Error(win32.GetLastError())
-	err_msg := reflect.enum_string(err)
-	return "unknown" if err_msg == "" else err_msg
+    err := win32.System_Error(win32.GetLastError())
+    err_msg := reflect.enum_string(err)
+    return "unknown" if err_msg == "" else err_msg
 }

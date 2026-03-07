@@ -20,7 +20,7 @@
         Haesbaert:       Security fixes
 */
 
-@(require) import "base:runtime"
+@(require) import "base:internal"
 import "core:bufio"
 import "core:io"
 import "base:mem"
@@ -107,9 +107,9 @@ resolve_ip4 :: proc(hostname_and_maybe_port: string) -> (ep4: Endpoint, err: Net
         recs: []DNS_Record
 
         if ODIN_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
-            recs, _ = get_dns_records_from_nameservers(t.hostname, .IP4, {IP4_mDNS_Broadcast}, nil, runtime.temp_allocator)
+            recs, _ = get_dns_records_from_nameservers(t.hostname, .IP4, {IP4_mDNS_Broadcast}, nil, allocators.temp_allocator)
         } else {
-            recs, _ = get_dns_records_from_os(t.hostname, .IP4, runtime.temp_allocator)
+            recs, _ = get_dns_records_from_os(t.hostname, .IP4, allocators.temp_allocator)
         }
 
         if len(recs) == 0 {
@@ -141,9 +141,9 @@ resolve_ip6 :: proc(hostname_and_maybe_port: string) -> (ep6: Endpoint, err: Net
         recs: []DNS_Record
 
         if ODIN_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
-            recs, _ = get_dns_records_from_nameservers(t.hostname, .IP6, {IP6_mDNS_Broadcast}, nil, runtime.temp_allocator)
+            recs, _ = get_dns_records_from_nameservers(t.hostname, .IP6, {IP6_mDNS_Broadcast}, nil, allocators.temp_allocator)
         } else {
-            recs, _ = get_dns_records_from_os(t.hostname, .IP6, runtime.temp_allocator)
+            recs, _ = get_dns_records_from_os(t.hostname, .IP6, allocators.temp_allocator)
         }
 
         if len(recs) == 0 {
@@ -279,30 +279,30 @@ destroy_dns_records :: proc(records: []DNS_Record, allocator: mem.Allocator) {
     for rec in records {
         switch r in rec {
         case DNS_Record_IP4:
-            _ = string_delete(r.base.record_name, allocator)
+            _ = strings.string_delete(r.base.record_name, allocator)
 
         case DNS_Record_IP6:
-            _ = string_delete(r.base.record_name, allocator)
+            _ = strings.string_delete(r.base.record_name, allocator)
 
         case DNS_Record_CNAME:
-            _ = string_delete(r.base.record_name, allocator)
-            _ = string_delete(r.host_name, allocator)
+            _ = strings.string_delete(r.base.record_name, allocator)
+            _ = strings.string_delete(r.host_name, allocator)
 
         case DNS_Record_TXT:
-            _ = string_delete(r.base.record_name, allocator)
-            _ = string_delete(r.value, allocator)
+            _ = strings.string_delete(r.base.record_name, allocator)
+            _ = strings.string_delete(r.value, allocator)
 
         case DNS_Record_NS:
-            _ = string_delete(r.base.record_name, allocator)
-            _ = string_delete(r.host_name, allocator)
+            _ = strings.string_delete(r.base.record_name, allocator)
+            _ = strings.string_delete(r.host_name, allocator)
 
         case DNS_Record_MX:
-            _ = string_delete(r.base.record_name, allocator)
-            _ = string_delete(r.host_name, allocator)
+            _ = strings.string_delete(r.base.record_name, allocator)
+            _ = strings.string_delete(r.host_name, allocator)
 
         case DNS_Record_SRV:
-            _ = string_delete(r.record_name, allocator)
-            _ = string_delete(r.target, allocator)
+            _ = strings.string_delete(r.record_name, allocator)
+            _ = strings.string_delete(r.target, allocator)
         }
     }
 
@@ -397,7 +397,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
     _hosts, _ := dyn_array.create_len([dynamic]DNS_Host_Entry, 0, allocator)
     defer if !ok {
         for host in _hosts {
-            _ = string_delete(host.name, allocator)
+            _ = strings.string_delete(host.name, allocator)
         }
         _ = dyn_array.delete(_hosts)
     }
@@ -432,17 +432,17 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
 }
 
 // www.google.com -> 3www6google3com0
-encode_hostname :: proc(b: ^strings.Builder, hostname: string) -> (ok: bool) {
+encode_hostname :: proc(b: ^strings_tools.Builder, hostname: string) -> (ok: bool) {
     _hostname := hostname
     for section in strings.split_iterator(&_hostname, ".") {
         if len(section) > LABEL_MAX {
             return
         }
 
-        strings.write_byte(b, u8(len(section)))
-        strings.write_string(b, section)
+        strings_tools.write_byte(b, u8(len(section)))
+        strings_tools.write_string(b, section)
     }
-    strings.write_byte(b, 0)
+    strings_tools.write_byte(b, 0)
 
     return true
 }
@@ -562,7 +562,7 @@ decode_hostname :: proc(packet: []u8, start_idx: int, allocator: mem.Allocator) 
             }
 
             if labels_added > 0 {
-                strings.write_byte(&b, '.')
+                strings_tools.write_byte(&b, '.')
             }
             strings.write_bytes(&b, packet[cur_idx+1:idx2])
             print_size += label_size + 1
@@ -618,7 +618,7 @@ validate_hostname :: proc(hostname: string) -> (ok: bool) {
 parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil, allocator: mem.Allocator) -> (record: DNS_Record, ok: bool) {
     record_buf := packet[cur_off^:]
 
-    srv_record_name, hn_sz := decode_hostname(packet, cur_off^, runtime.temp_allocator) or_return
+    srv_record_name, hn_sz := decode_hostname(packet, cur_off^, allocators.temp_allocator) or_return
     // TODO(tetra): Not sure what we should call this.
     // Is it really only used in SRVs?
     // Maybe some refactoring is required?
@@ -732,7 +732,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
             // NOTE(Jeroen): Service Name and Protocol Name can probably just be string slices into the record name.
             // It's already cloned, after all. I wouldn't put them on the temp allocator like this.
 
-            parts, _ := strings.split_n(srv_record_name, ".", 3, runtime.temp_allocator)
+            parts, _ := strings.split_n(srv_record_name, ".", 3, allocators.temp_allocator)
             if len(parts) != 3 {
                 return
             }

@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 
 import "core:sys/freebsd"
 import "core:sys/posix"

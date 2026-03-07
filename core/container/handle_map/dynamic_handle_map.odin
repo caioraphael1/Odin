@@ -1,8 +1,8 @@
 
-import "base:runtime"
+import "base:internal"
 import "base:builtin"
 import "base:intrinsics"
-@(require) import "core:container/xar"
+@(require) import "base:xar"
 
 Dynamic_Handle_Map :: struct($T: typeid, $Handle_Type: typeid)
     where

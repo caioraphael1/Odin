@@ -21,7 +21,7 @@
 		Jeroen van Rijn: Initial implementation.
 */
 
-import "base:runtime"
+import "base:internal"
 import "core:unicode/utf8"
 import "core:unicode"
 import "core:strings"
@@ -29,7 +29,7 @@ import "core:strings"
 MAX_RUNE_CODEPOINT :: int(unicode.MAX_RUNE)
 
 write_rune   :: strings.write_rune
-write_string :: strings.write_string
+write_string :: strings_tools.write_string
 
 Error :: enum u8 {
 	None = 0,
@@ -84,7 +84,7 @@ decode_xml :: proc(input: string, options := XML_Decode_Options{}, allocator: me
 	l := len(input)
 	if l == 0 { return "", .None }
 
-	builder := strings.builder_make()
+	builder := strings_tools.builder_make()
 	defer strings.builder_destroy(&builder)
 
 	t := Tokenizer{src=input}
@@ -335,7 +335,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 
 			s = s[j:]
 
-			amp_idx = strings.index_byte(s, '&')
+			amp_idx = strings_tools.index_byte(s, '&')
 			if amp_idx < 0 {
 				n += len(s)
 				if buf != nil { dyn_array.append(buf, s) }
@@ -350,7 +350,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 	}
 
 	s := s
-	amp_idx := strings.index_byte(s, '&')
+	amp_idx := strings_tools.index_byte(s, '&')
 	if amp_idx < 0 {
 		return s, false, nil
 	}
@@ -536,7 +536,7 @@ _extract_xml_entity :: proc(t: ^Tokenizer) -> (entity: string, err: Error) {
 
 // Private XML helper for CDATA and comments.
 @(private="file")
-_handle_xml_special :: proc(t: ^Tokenizer, builder: ^strings.Builder, options: XML_Decode_Options) -> (in_data: bool, err: Error) {
+_handle_xml_special :: proc(t: ^Tokenizer, builder: ^strings_tools.Builder, options: XML_Decode_Options) -> (in_data: bool, err: Error) {
 	assert(t != nil && t.r == '<')
 	if t.read_offset + len(CDATA_START) >= len(t.src) { return false, .None }
 

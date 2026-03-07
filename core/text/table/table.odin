@@ -13,7 +13,7 @@ import "core:log"
 import "base:mem"
 import "core:mem/virtual"
 import "core:unicode/utf8"
-import "base:runtime"
+import "base:internal"
 
 Cell :: struct {
     text: string,
@@ -72,10 +72,10 @@ unicode_width_proc :: proc(str: string) -> (width: int) {
 }
 
 
-init_with_allocator :: proc(tbl: ^Table, format_allocator := runtime.temp_allocator, table_allocator : mem.Allocator) -> ^Table {
+init_with_allocator :: proc(tbl: ^Table, format_allocator := allocators.temp_allocator, table_allocator : mem.Allocator) -> ^Table {
     tbl.table_allocator = table_allocator
-    dyn_array_init(&tbl.cells, tbl.table_allocator)
-    dyn_array_init(&tbl.colw, tbl.table_allocator)
+    dyn_array.init(&tbl.cells, tbl.table_allocator)
+    dyn_array.init(&tbl.colw, tbl.table_allocator)
     tbl.format_allocator = format_allocator
     return tbl
 }

@@ -4,6 +4,7 @@ import "core:io"
 import "core:time"
 import "base:internal"
 import "base:mem"
+import "base:mem/allocators"
 
 /*
     Type representing a file handle.
@@ -510,8 +511,8 @@ exists :: proc(path: string) -> bool {
 */
 
 is_file :: proc(path: string) -> bool {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := stat(path, internal.temp_allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := stat(path, allocators.temp_allocator)
     if err != nil {
         return false
     }
@@ -525,8 +526,8 @@ is_dir :: is_directory
 */
 
 is_directory :: proc(path: string) -> bool {
-    internal.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := stat(path, internal.temp_allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := stat(path, allocators.temp_allocator)
     if err != nil {
         return false
     }

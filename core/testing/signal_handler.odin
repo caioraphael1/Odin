@@ -9,7 +9,7 @@
 		Feoramund:   Total rewrite.
 */
 
-import "base:runtime"
+import "base:internal"
 import "core:log"
 
 @(private, thread_local)

@@ -10,7 +10,7 @@
 		Feoramund:   Total rewrite.
 */
 
-import "base:runtime"
+import "base:internal"
 import "core:fmt"
 import "core:log"
 import "core:strings"
@@ -91,7 +91,7 @@ format_log_text :: proc(level: runtime.Logger_Level, text: string, options: runt
 	return fmt.aprintf("%s%s", strings.to_string(buf), text, allocator = allocator)
 }
 
-do_go_to_error_friendly_location :: proc(opts: log.Options, buf: ^strings.Builder, location := #caller_location) {
+do_go_to_error_friendly_location :: proc(opts: log.Options, buf: ^strings_tools.Builder, location := #caller_location) {
 	if log.Location_Header_Opts & opts == nil {
 		return
 	}

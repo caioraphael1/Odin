@@ -1,5 +1,5 @@
 import "core:c"
-import "base:runtime"
+import "base:internal"
 
 COMMONMARK_SHARED :: #config(COMMONMARK_SHARED, false)
 BINDING_VERSION :: Version_Info{major = 0, minor = 30, patch = 2}

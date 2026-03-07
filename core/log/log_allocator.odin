@@ -1,6 +1,6 @@
 #+build !freestanding
 
-import "base:runtime"
+import "base:internal"
 import "core:fmt"
 import "core:sync"
 

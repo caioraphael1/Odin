@@ -17,7 +17,7 @@
 		- Also look at extracting and splatting several digits at once.
 */
 
-import "base:runtime"
+import "base:internal"
 import "core:os"
 
 /*

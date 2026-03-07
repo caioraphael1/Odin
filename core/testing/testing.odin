@@ -10,7 +10,7 @@
 */
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import "core:log"
 import "core:reflect"
 import "core:sync"

@@ -2,7 +2,7 @@
 #+build darwin, netbsd, freebsd, openbsd
 
 
-import "base:runtime"
+import "base:internal"
 
 import "core:time"
 import "core:strings"
@@ -51,18 +51,18 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // search PATH if just a plain name is provided.
-    exe_builder := strings.builder_make(runtime.temp_allocator)
+    exe_builder := strings_tools.builder_make(allocators.temp_allocator)
     exe_name    := desc.command[0]
-    if strings.index_byte(exe_name, '/') < 0 {
-        path_env  := get_env("PATH", runtime.temp_allocator)
-        path_dirs := split_path_list(path_env, runtime.temp_allocator) or_return
+    if strings_tools.index_byte(exe_name, '/') < 0 {
+        path_env  := get_env("PATH", allocators.temp_allocator)
+        path_dirs := split_path_list(path_env, allocators.temp_allocator) or_return
 
         found: bool
         for dir in path_dirs {
             strings.builder_reset(&exe_builder)
-            strings.write_string(&exe_builder, dir)
-            strings.write_byte(&exe_builder, '/')
-            strings.write_string(&exe_builder, exe_name)
+            strings_tools.write_string(&exe_builder, dir)
+            strings_tools.write_byte(&exe_builder, '/')
+            strings_tools.write_string(&exe_builder, exe_name)
 
             if exe_fd := posix.open(strings.to_cstring(&exe_builder) or_return, {.CLOEXEC, .EXEC}); exe_fd == -1 {
                 continue
@@ -75,12 +75,12 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         if !found {
             // check in cwd to match windows behavior
             strings.builder_reset(&exe_builder)
-            strings.write_string(&exe_builder, desc.working_dir)
+            strings_tools.write_string(&exe_builder, desc.working_dir)
             if len(desc.working_dir) > 0 && desc.working_dir[len(desc.working_dir)-1] != '/' {
-            strings.write_byte(&exe_builder, '/')
+            strings_tools.write_byte(&exe_builder, '/')
             }
-            strings.write_string(&exe_builder, "./")
-            strings.write_string(&exe_builder, exe_name)
+            strings_tools.write_string(&exe_builder, "./")
+            strings_tools.write_string(&exe_builder, exe_name)
 
             // "hello/./world" is fine right?
 
@@ -93,7 +93,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         }
     } else {
         strings.builder_reset(&exe_builder)
-        strings.write_string(&exe_builder, exe_name)
+        strings_tools.write_string(&exe_builder, exe_name)
 
         if exe_fd := posix.open(strings.to_cstring(&exe_builder) or_return, {.CLOEXEC, .EXEC}); exe_fd == -1 {
             err = .Not_Exist
@@ -104,12 +104,12 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     }
 
     cwd: cstring; if desc.working_dir != "" {
-        cwd = strings.cstring_clone_from_string(desc.working_dir, runtime.temp_allocator) or_return
+        cwd = strings.cstring_clone_from_string(desc.working_dir, allocators.temp_allocator) or_return
     }
 
-    cmd := slice.create([]cstring, len(desc.command) + 1, runtime.temp_allocator)
+    cmd := slice.create([]cstring, len(desc.command) + 1, allocators.temp_allocator)
     for part, i in desc.command {
-        cmd[i] = strings.cstring_clone_from_string(part, runtime.temp_allocator) or_return
+        cmd[i] = strings.cstring_clone_from_string(part, allocators.temp_allocator) or_return
     }
 
     env: [^]cstring
@@ -117,9 +117,9 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         // take this process's current environment
         env = posix.environ
     } else {
-        cenv := slice.create([]cstring, len(desc.env) + 1, runtime.temp_allocator)
+        cenv := slice.create([]cstring, len(desc.env) + 1, allocators.temp_allocator)
         for env, i in desc.env {
-            cenv[i] = strings.cstring_clone_from_string(env, runtime.temp_allocator) or_return
+            cenv[i] = strings.cstring_clone_from_string(env, allocators.temp_allocator) or_return
         }
         env = raw_data(cenv)
     }

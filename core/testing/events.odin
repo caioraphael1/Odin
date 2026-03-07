@@ -9,7 +9,7 @@
 		Feoramund:   Total rewrite.
 */
 
-import "base:runtime"
+import "base:internal"
 import "core:sync/chan"
 import "core:time"
 

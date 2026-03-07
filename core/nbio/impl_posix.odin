@@ -4,14 +4,14 @@
 
 import    "core:c"
 import    "core:container/pool"
-import    "core:container/queue"
+import    "base:queue"
 import    "base:mem"
 import    "core:net"
 import    "core:strings"
 import    "core:sys/posix"
 import    "core:time"
 import kq "core:sys/kqueue"
-import sa "core:container/small_array"
+import sa "base:small_array"
 
 @(private)
 _FULLY_SUPPORTED :: true
@@ -434,7 +434,7 @@ _open_sync :: proc(l: ^Event_Loop, path: string, dir: Handle, mode: File_Flags, 
         return
     }
 
-    cpath, cerr := strings.strings.cstring_clone_from_string(path, l.allocator)
+    cpath, cerr := strings.cstring_clone_from_string(path, l.allocator)
     if cerr != nil {
         err = .Allocation_Failed
         return

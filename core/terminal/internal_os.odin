@@ -1,7 +1,7 @@
 #+build !freestanding
 #+build !js
 
-import "base:runtime"
+import "base:internal"
 import "core:os"
 import "core:strings"
 

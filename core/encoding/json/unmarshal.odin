@@ -1,9 +1,9 @@
 import "base:mem"
-import "core:math"
+import "base:math"
 import "core:reflect"
 import "core:strconv"
 import "core:strings"
-import "base:runtime"
+import "base:internal"
 import "base:intrinsics"
 
 Unmarshal_Data_Error :: enum {
@@ -267,10 +267,10 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
     case token.kind == .String:
         str = unquote_string(token, p.spec, p.allocator) or_return
     case:
-        str = clone_string(token.text, p.allocator) or_return
+        str = strings.string_clone(token.text, p.allocator) or_return
     }
     defer if !ok || (val.id != string && val.id != cstring) {
-        _ = string_delete(str, p.allocator)
+        _ = strings.string_delete(str, p.allocator)
     }
 
     switch &dst in val {
@@ -280,7 +280,7 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
     case cstring:  
         if str == "" {
             a_err: mem.Allocator_Error
-            dst, a_err = strings.strings.cstring_clone_from_string("", p.allocator)
+            dst, a_err = strings.cstring_clone_from_string("", p.allocator)
             #partial switch a_err {
             case nil:
                 // okay
@@ -293,7 +293,7 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
                 return
             }
         } else {
-            // NOTE: This is valid because 'clone_string' appends a NUL terminator
+            // NOTE: This is valid because 'strings.string_clone' appends a NUL terminator
             dst = cstring(raw_data(str)) 
         }
         ok = true
@@ -502,7 +502,7 @@ unmarshal_expect_token :: proc(p: ^Parser, kind: Token_Kind, loc := #caller_loca
 @(private)
 json_name_from_tag_value :: proc(value: string) -> (json_name, extra: string) {
     json_name = value
-    if comma_index := strings.index_byte(json_name, ','); comma_index >= 0 {
+    if comma_index := strings_tools.index_byte(json_name, ','); comma_index >= 0 {
         json_name = json_name[:comma_index]
         extra = value[1 + comma_index:]
     }
@@ -531,7 +531,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         
         struct_loop: for p.curr_token.kind != end_token {
             key := parse_object_key(p, p.allocator) or_return
-            defer _ = string_delete(key, p.allocator)
+            defer _ = strings.string_delete(key, p.allocator)
             
             unmarshal_expect_token(p, .Colon)                       
 
@@ -654,7 +654,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
             mem.slice.zero(elem_backing)
             if uerr := unmarshal_value(p, map_backing_value); uerr != nil {
-                _ = string_delete(key, p.allocator)
+                _ = strings.string_delete(key, p.allocator)
                 return uerr
             }
 
@@ -679,12 +679,12 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
             set_ptr := runtime.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_ptr, map_backing_value.data)
             if set_ptr == nil {
-                _ = string_delete(key, p.allocator)
+                _ = strings.string_delete(key, p.allocator)
             } 
 
             // there's no need to keep string value on the heap, since it was copied into map 
             if reflect.is_integer(t.key) {
-                _ = string_delete(key, p.allocator)
+                _ = strings.string_delete(key, p.allocator)
             }
             
             if parse_comma(p) {
@@ -699,7 +699,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         enumerated_array_loop: for p.curr_token.kind != end_token {
             key, _ := parse_object_key(p, p.allocator)
             unmarshal_expect_token(p, .Colon)
-            defer _ = string_delete(key, p.allocator)
+            defer _ = strings.string_delete(key, p.allocator)
 
             index := -1
             for name, i in enum_type.names {

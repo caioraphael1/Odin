@@ -1,5 +1,5 @@
 #+private
-import "base:runtime"
+import "base:internal"
 import "core:sys/linux"
 
 _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {

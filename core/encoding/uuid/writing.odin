@@ -1,5 +1,5 @@
 import "base:mem"
-import "base:runtime"
+import "base:internal"
 import "core:io"
 import "core:strconv"
 import "core:strings"

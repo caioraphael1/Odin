@@ -11,7 +11,7 @@
 */
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 /*
     ===========================

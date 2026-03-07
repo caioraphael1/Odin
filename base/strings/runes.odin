@@ -1,23 +1,4 @@
 
-// Returns true if is an ASCII space character ('\t', '\n', '\v', '\f', '\r', ' ')
-@(private) _ascii_space := [256]bool{'\t' = true, '\n' = true, '\v' = true, '\f' = true, '\r' = true, ' ' = true}
-
-/*
-Returns true when the `r` rune is an ASCII whitespace character.
-
-Inputs:
-- r: the rune to test
-
-Returns:
--res: `true` if `r` is a whitespace character, `false` if otherwise
-*/
-// rune_is_ascii_space :: proc(r: rune) -> (res: bool) {
-//     if r < utf8.RUNE_SELF {
-//         return _ascii_space[u8(r)]
-//     }
-//     return false
-// }
-
 /*
 Returns true when the `r` rune is an ASCII or UTF-8 whitespace character.
 */

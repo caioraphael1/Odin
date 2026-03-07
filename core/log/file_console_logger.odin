@@ -2,7 +2,7 @@
 #+build !orca
 #+build !js
 
-import "base:runtime"
+import "base:internal"
 import "core:fmt"
 import "core:strings"
 import "core:os"
@@ -119,7 +119,7 @@ console_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, opt
     _file_console_logger_proc(h, data.ident, level, text, options, location)
 }
 
-do_level_header :: proc(opts: Options, str: ^strings.Builder, level: Level) {
+do_level_header :: proc(opts: Options, str: ^strings_tools.Builder, level: Level) {
 
     RESET     :: ansi.CSI + ansi.RESET           + ansi.SGR
     RED       :: ansi.CSI + ansi.FG_RED          + ansi.SGR
@@ -145,7 +145,7 @@ do_level_header :: proc(opts: Options, str: ^strings.Builder, level: Level) {
     }
 }
 
-do_time_header :: proc(opts: Options, buf: ^strings.Builder, t: time.Time) {
+do_time_header :: proc(opts: Options, buf: ^strings_tools.Builder, t: time.Time) {
     when time.IS_SUPPORTED {
         if Full_Timestamp_Opts & opts != nil {
             fmt.sbprint(buf, "[")
@@ -163,7 +163,7 @@ do_time_header :: proc(opts: Options, buf: ^strings.Builder, t: time.Time) {
     }
 }
 
-do_location_header :: proc(opts: Options, buf: ^strings.Builder, location := #caller_location) {
+do_location_header :: proc(opts: Options, buf: ^strings_tools.Builder, location := #caller_location) {
     if Location_Header_Opts & opts == nil {
         return
     }
