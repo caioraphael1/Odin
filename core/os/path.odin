@@ -44,7 +44,7 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allo
         }
     }
 
-    buf := slice_create([]u8, length, allocator) or_return
+    buf := slice.create([]u8, length, allocator) or_return
 
     if byte_oriented {
         // Neither replacement rune or any other rune in the path takes up more than 1 byte
@@ -172,7 +172,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
 
     // The extra byte is to simplify appending path elements by letting the
     // loop to end each with a separator. We'll trim the last one when we're done.
-    buffer := slice_create([]u8, len(path) + 1, internal.temp_allocator) or_return
+    buffer := slice.create([]u8, len(path) + 1, internal.temp_allocator) or_return
 
     // This is the only point where Windows and POSIX differ, as Windows has
     // alphabet-based volumes for root paths.
@@ -211,7 +211,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
                 }
             case:
                 // Copy the path element verbatim and add a separator.
-                slice_copy_from_string(buffer[buffer_i:], elem)
+                slice.copy_from_string(buffer[buffer_i:], elem)
                 buffer_i += len(elem)
                 buffer[buffer_i] = _Path_Separator
                 buffer_i += 1
@@ -229,7 +229,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
         return strings.clone(".", allocator)
     }
 
-    compact := slice_create([]u8, buffer_i, allocator) or_return
+    compact := slice.create([]u8, buffer_i, allocator) or_return
     slice.copy(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
     return string(compact), nil
 }
@@ -328,7 +328,7 @@ get_relative_path :: proc(base, target: string, allocator: mem.Allocator) -> (pa
     }
 
     // Build the string.
-    buf := slice_create([]u8, size, allocator) or_return
+    buf := slice.create([]u8, size, allocator) or_return
     n := 0
     if seps > 0 {
         buf[0] = '.'
@@ -346,7 +346,7 @@ get_relative_path :: proc(base, target: string, allocator: mem.Allocator) -> (pa
             buf[n] = _Path_Separator
             n += 1
         }
-        slice_copy_from_string(buf[n:], trailing)
+        slice.copy_from_string(buf[n:], trailing)
     }
 
     path = string(buf)
@@ -576,10 +576,10 @@ join_filename :: proc(base: string, ext: string, allocator: mem.Allocator) -> (j
         return strings.clone(base, allocator)
     }
 
-    buf := slice_create([]u8, len(base) + 1 + len(ext), allocator) or_return
-    slice_copy_from_string(buf, base)
+    buf := slice.create([]u8, len(base) + 1 + len(ext), allocator) or_return
+    slice.copy_from_string(buf, base)
     buf[len(base)] = '.'
-    slice_copy_from_string(buf[1+len(base):], ext)
+    slice.copy_from_string(buf[1+len(base):], ext)
 
     return string(buf), nil
 }
@@ -616,7 +616,7 @@ split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []stri
     }
 
     start, quote = 0, false
-    list = slice_create([]string, count + 1, allocator) or_return
+    list = slice.create([]string, count + 1, allocator) or_return
     index := 0
     for i := 0; i < len(path); i += 1 {
         c := path[i]
@@ -721,7 +721,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
 
     if !has_meta(pattern) {
         // TODO(bill): os.lstat on here to check for error
-        m, _ := slice_create([]string, 1, allocator)
+        m, _ := slice.create([]string, 1, allocator)
         m[0] = pattern
         return m[:], nil
     }
@@ -746,7 +746,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
         _ = slice.delete(m, allocator)
     }
 
-    dmatches, _ := dyn_array_create_len_cap([dynamic]string, 0, 0, allocator)
+    dmatches, _ := dyn_array.create_len_cap([dynamic]string, 0, 0, allocator)
     for d in m {
         dmatches, err = _glob(d, file, &dmatches, allocator)
         if err != nil {
@@ -919,7 +919,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
     if matches != nil {
         m = matches^
     } else {
-        m, _ = dyn_array_create_len_cap([dynamic]string, 0, 0, allocator)
+        m, _ = dyn_array.create_len_cap([dynamic]string, 0, 0, allocator)
     }
 
 
@@ -969,7 +969,7 @@ clean_glob_path :: proc(path: string, temp_buf: []byte) -> (int, string) {
         case vol_len+1 == len(path) && is_path_separator(path[len(path)-1]): // /, \, C:\, C:/
             return vol_len+1, path
         case vol_len == len(path) && len(path) == 2: // C:
-            slice_copy_from_string(temp_buf[:], path)
+            slice.copy_from_string(temp_buf[:], path)
             temp_buf[2] = '.'
             return vol_len, string(temp_buf[:3])
         }

@@ -1,4 +1,5 @@
 import "core:io"
+import "base:slice"
 
 // Lookahead_Reader provides io lookahead.
 // This is useful for tokenizers/parsers.

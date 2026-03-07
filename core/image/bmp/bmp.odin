@@ -68,7 +68,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     }
     written := 0
 
-    if dyn_array_resize(&output.buf, int(header.size)) != nil {
+    if dyn_array.resize(&output.buf, int(header.size)) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
 
@@ -546,7 +546,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
     pixel_offset -= int(info.info_size) + FILE_HEADER_SIZE
 
     bytes_needed := size_of(RGB_Pixel) * img.height * img.width
-    if dyn_array_resize(&img.pixels.buf, bytes_needed) != nil {
+    if dyn_array.resize(&img.pixels.buf, bytes_needed) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
     out := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
@@ -571,7 +571,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
             return .Corrupt
         }
 
-        data := slice_create([]u8, int(pixel_size) + 4)
+        data := slice.create([]u8, int(pixel_size) + 4)
         defer _ = slice.delete(data)
 
         for i in 0..<pixel_size {
@@ -645,7 +645,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
             return .Corrupt
         }
 
-        data := slice_create([]u8, int(pixel_size) + 4)
+        data := slice.create([]u8, int(pixel_size) + 4)
         defer _ = slice.delete(data)
 
         for i in 0..<pixel_size {

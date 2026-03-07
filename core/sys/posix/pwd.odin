@@ -70,7 +70,7 @@ foreign lib {
 		resultp: ^posix.passwd
 		errno:   posix.Errno
 		for {
-			if err := dyn_array_resize(&buffer, length); err != nil {
+			if err := dyn_array.resize(&buffer, length); err != nil {
 				fmt.panicf("allocation failure: %v", err)
 			}
 

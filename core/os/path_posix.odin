@@ -101,7 +101,7 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: E
 
     cwd: cstring
     for ; cwd == nil; size *= 2 {
-        _ = dyn_array_resize(&buf, size)
+        _ = dyn_array.resize(&buf, size)
 
         cwd = posix.getcwd(raw_data(buf), len(buf))
         if cwd == nil && posix.errno() != .ERANGE {

@@ -21,7 +21,7 @@ _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: stri
         return "", true
     }
 
-    b, _ := slice_create([]u16, n+1, internal.temp_allocator)
+    b, _ := slice.create([]u16, n+1, internal.temp_allocator)
 
     n = win32.GetEnvironmentVariableW(wkey, raw_data(b), u32(len(b)))
     if n == 0 {
@@ -115,7 +115,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
         }
     }
 
-    r := dyn_array_create_len_cap([dynamic]string, 0, n, allocator) or_return
+    r := dyn_array.create_len_cap([dynamic]string, 0, n, allocator) or_return
     defer if err != nil {
         for e in r {
             _ = string_delete(e, allocator)

@@ -325,10 +325,10 @@ polar_complex128 :: proc(x: complex128) -> (r, θ: f64) {
 
 
 nan_complex32 :: proc() -> complex32 {
-    return complex(f16(math.nan())), f16(math.nan()))
+    return complex(f16(math.nan()), f16(math.nan()))
 }
 nan_complex64 :: proc() -> complex64 {
-    return complex(f32(math.nan())), f32(math.nan()))
+    return complex(f32(math.nan()), f32(math.nan()))
 }
 nan_complex128 :: proc() -> complex128 {
     return complex(math.nan(), math.nan())

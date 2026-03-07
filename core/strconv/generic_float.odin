@@ -1,4 +1,5 @@
 import "decimal"
+import "base:slice"
 
 Decimal_Slice :: struct {
     digits:        []byte,
@@ -72,7 +73,7 @@ generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: int)
         } else {
             s = "+Inf"
         }
-        n := slice_copy_from_string(buf, s)
+        n := slice.copy_from_string(buf, s)
         return buf[:n]
 
     case 0: // denormalized

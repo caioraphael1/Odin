@@ -115,7 +115,7 @@ _intern_get_entry :: proc(m: ^Intern, text: string) -> (new_entry: ^Intern_Entry
     new_entry = (^Intern_Entry)(raw_data(bytes))
 
     new_entry.len = len(text)
-    slice_copy_from_string(new_entry.str[:new_entry.len], text)
+    slice.copy_from_string(new_entry.str[:new_entry.len], text)
     new_entry.str[new_entry.len] = 0
 
     key := string(new_entry.str[:new_entry.len])

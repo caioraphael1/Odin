@@ -208,7 +208,7 @@ copy_chunk :: proc(src: image.PNG_Chunk, allocator : mem.Allocator) -> (dest: im
 
     dest.header = src.header
     dest.crc    = src.crc
-    dest.data   = slice_create([]u8, dest.header.length, allocator) or_return
+    dest.data   = slice.create([]u8, dest.header.length, allocator) or_return
 
     slice.copy(dest.data[:], src.data[:])
     return
@@ -721,7 +721,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         // We need to create a new image buffer
         dest_raw_size := compute_buffer_size(int(header.width), int(header.height), out_image_channels, 8)
         t := bytes.Buffer{}
-        if dyn_array_resize(&t.buf, dest_raw_size) != nil {
+        if dyn_array.resize(&t.buf, dest_raw_size) != nil {
             return {}, .Unable_To_Allocate_Or_Resize
         }
 
@@ -791,7 +791,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         // We need to create a new image buffer
         dest_raw_size := compute_buffer_size(int(header.width), int(header.height), out_image_channels, 16)
         t := bytes.Buffer{}
-        if dyn_array_resize(&t.buf, dest_raw_size) != nil {
+        if dyn_array.resize(&t.buf, dest_raw_size) != nil {
             return {}, .Unable_To_Allocate_Or_Resize
         }
 
@@ -990,7 +990,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         // We need to create a new image buffer
         dest_raw_size := compute_buffer_size(int(header.width), int(header.height), out_image_channels, 8)
         t := bytes.Buffer{}
-        if dyn_array_resize(&t.buf, dest_raw_size) != nil {
+        if dyn_array.resize(&t.buf, dest_raw_size) != nil {
             return {}, .Unable_To_Allocate_Or_Resize
         }
 
@@ -1215,7 +1215,7 @@ defilter_8 :: proc(params: ^Filter_Params) -> (ok: bool) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // Apron so we don't need to special case first rows.
-    up := slice_create([]u8, row_stride, runtime.temp_allocator)
+    up := slice.create([]u8, row_stride, runtime.temp_allocator)
     ok = true
 
     for _ in 0..<height {
@@ -1282,7 +1282,7 @@ defilter_less_than_8 :: proc(params: ^Filter_Params) -> bool #no_bounds_check {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // Apron so we don't need to special case first rows.
-    up := slice_create([]u8, row_stride_out, runtime.temp_allocator)
+    up := slice.create([]u8, row_stride_out, runtime.temp_allocator)
 
     #no_bounds_check for _ in 0..<height {
         nk := row_stride_in - channels
@@ -1437,7 +1437,7 @@ defilter_16 :: proc(params: ^Filter_Params) -> bool {
 
     // TODO: See about doing a Duff's #unroll where practicable
     // Apron so we don't need to special case first rows.
-    up := slice_create([]u8, row_stride, runtime.temp_allocator)
+    up := slice.create([]u8, row_stride, runtime.temp_allocator)
 
     for y := 0; y < height; y += 1 {
         nk := row_stride - stride
@@ -1498,7 +1498,7 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
     bytes_per_channel := depth == 16 ? 2 : 1
 
     num_bytes := compute_buffer_size(width, height, channels, depth == 16 ? 16 : 8)
-    if dyn_array_resize(&img.pixels.buf, num_bytes) != nil {
+    if dyn_array.resize(&img.pixels.buf, num_bytes) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
 
@@ -1540,7 +1540,7 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
             if x > 0 && y > 0 {
                 temp: bytes.Buffer
                 temp_len := compute_buffer_size(x, y, channels, depth == 16 ? 16 : 8)
-                if dyn_array_resize(&temp.buf, temp_len) != nil {
+                if dyn_array.resize(&temp.buf, temp_len) != nil {
                     return .Unable_To_Allocate_Or_Resize
                 }
 

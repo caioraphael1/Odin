@@ -50,7 +50,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	// Calculate and allocate maximum size. We'll reclaim space to actually written output at the end.
 	max_size := pixels * (img.channels + 1) + size_of(image.QOI_Header) + size_of(u64be)
 
-	if dyn_array_resize(&output.buf, max_size) != nil {
+	if dyn_array.resize(&output.buf, max_size) != nil {
 		return .Unable_To_Allocate_Or_Resize
 	}
 
@@ -154,7 +154,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	slice.copy(output.buf[written:], trailer[:])
 	written += len(trailer)
 
-	_ = dyn_array_resize(&output.buf, written)
+	_ = dyn_array.resize(&output.buf, written)
 	return nil
 }
 
@@ -226,7 +226,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
 	bytes_needed := image.compute_buffer_size(int(header.width), int(header.height), img.channels, 8)
 
-	if dyn_array_resize(&img.pixels.buf, bytes_needed) != nil {
+	if dyn_array.resize(&img.pixels.buf, bytes_needed) != nil {
 		return img, .Unable_To_Allocate_Or_Resize
 	}
 

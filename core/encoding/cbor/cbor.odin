@@ -474,7 +474,7 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
             return container, nil
         case json.Array:
             arr  := new(Array) or_return
-            arr^  = slice_create([]Value, len(v)) or_return
+            arr^  = slice.create([]Value, len(v)) or_return
             for _, i in arr {
                 arr[i] = internal(v[i]) or_return
             }

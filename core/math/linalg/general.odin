@@ -1,7 +1,7 @@
 import "core:math"
 import "base:builtin"
 import "base:intrinsics"
-@(require) import "base:runtime"
+@(require) import "base:internal"
 
 // Generic
 
@@ -155,7 +155,7 @@ quaternion_mul_quaternion :: proc(q1, q2: $Q) -> Q where intrinsics.type_is_quat
 }
 
 quaternionf16_mul_vec3 :: proc(q: $Q/quaternion64, v: $V/[3]$F/f16) -> V {
-    q := transmute(runtime.Raw_Quaternion64_Vector_Scalar)q
+    q := transmute(internal.Raw_Quaternion64_Vector_Scalar)q
     v := v
 
     t := vec3_cross(2*q.vector, v)
@@ -163,7 +163,7 @@ quaternionf16_mul_vec3 :: proc(q: $Q/quaternion64, v: $V/[3]$F/f16) -> V {
 }
 
 quaternionf32_mul_vec3 :: proc(q: $Q/quaternion128, v: $V/[3]$F/f32) -> V {
-    q := transmute(runtime.Raw_Quaternion128_Vector_Scalar)q
+    q := transmute(internal.Raw_Quaternion128_Vector_Scalar)q
     v := v
 
     t := vec3_cross(2*q.vector, v)
@@ -171,7 +171,7 @@ quaternionf32_mul_vec3 :: proc(q: $Q/quaternion128, v: $V/[3]$F/f32) -> V {
 }
 
 quaternionf64_mul_vec3 :: proc(q: $Q/quaternion256, v: $V/[3]$F/f64) -> V {
-    q := transmute(runtime.Raw_Quaternion256_Vector_Scalar)q
+    q := transmute(internal.Raw_Quaternion256_Vector_Scalar)q
     v := v
 
     t := vec3_cross(2*q.vector, v)

@@ -255,7 +255,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
             return
         }
 
-        _ = dyn_array_resize(&buf, bufsiz) or_return
+        _ = dyn_array.resize(&buf, bufsiz) or_return
 
         size := posix.readlink(cname, raw_data(buf), uint(bufsiz))
         if size < 0 {

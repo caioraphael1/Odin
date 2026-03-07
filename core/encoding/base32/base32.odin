@@ -61,7 +61,7 @@ DEC_TABLE := [256]u8 {
 
 encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> string {
 	out_length := (len(data) + 4) / 5 * 8
-    out, _ := slice_create([]byte, out_length, allocator)
+    out, _ := slice.create([]byte, out_length, allocator)
     _encode(out, data, ENC_TBL, allocator)
 	return string(out[:])
 }
@@ -190,7 +190,7 @@ decode :: proc(
 	// Calculate decoded length: 5 bytes for every 8 input chars
 	input_chars := data_len - padding_count
 	out_len := input_chars * 5 / 8
-    out, _ = slice_create([]byte, out_len, allocator)
+    out, _ = slice.create([]byte, out_len, allocator)
 	defer if err != .None {
         _ = slice.delete(out, allocator)
 	}

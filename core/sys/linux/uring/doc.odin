@@ -67,7 +67,7 @@ Example:
 
         file_sz := get_file_size(fd)
 
-        buffer^ = slice_create([]byte, file_sz)
+        buffer^ = slice.create([]byte, file_sz)
 
         _, ok := uring.read(ring, 0, fd, buffer^, 0)
         assert(ok, "could not get read sqe")

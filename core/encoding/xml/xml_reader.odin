@@ -598,7 +598,7 @@ new_element :: proc(doc: ^Document) -> (id: Element_ID) {
 		} else {
 			element_space += 65536
 		}
-        _ = dyn_array_resize(&doc.elements, element_space)
+        _ = dyn_array.resize(&doc.elements, element_space)
 	}
 
 	cur := doc.element_count

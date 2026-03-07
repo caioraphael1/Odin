@@ -2,6 +2,7 @@
 import "core:unicode/utf8"
 import "base:internal"
 import "base:mem"
+import "base:slice"
 
 REPLACEMENT_CHAR :: '\ufffd'
 MAX_RUNE         :: '\U0010ffff'
@@ -132,7 +133,7 @@ decode_rune_in_string :: proc(s: string16) -> (r: rune, width: int) {
 string_to_runes :: proc(s: string16, allocator: mem.Allocator) -> (runes: []rune) {
     n := rune_count_in_string(s)
 
-    runes, _ = slice_create([]rune, n, allocator)
+    runes, _ = slice.create([]rune, n, allocator)
     i := 0
     for r in s {
         runes[i] = r

@@ -2,6 +2,8 @@ import "core:io"
 import "base:mem"
 import "core:unicode/utf8"
 import "core:bytes"
+import "base:slice"
+import "base:dyn_array"
 
 // Reader is a buffered wrapper for an io.Reader
 Reader :: struct {
@@ -33,7 +35,7 @@ reader_init :: proc(b: ^Reader, rd: io.Reader, size: int = DEFAULT_BUF_SIZE, all
     size = max(size, MIN_READ_BUFFER_SIZE)
     reader_reset(b, rd)
     b.buf_allocator = allocator
-    b.buf, _ = slice_create([]byte, size, allocator, loc)
+    b.buf, _ = slice.create([]byte, size, allocator, loc)
 }
 
 // reader_init initializes using a user provided bytes buffer `buf`
@@ -418,9 +420,9 @@ reader_read_bytes :: proc(b: ^Reader, delim: byte, allocator: mem.Allocator) -> 
             break
         }
 
-        _ = dyn_array_append_many(&full, ..frag)
+        _ = dyn_array.append_many(&full, ..frag)
     }
-    _ = dyn_array_append_many(&full, ..frag)
+    _ = dyn_array.append_many(&full, ..frag)
     return full[:], err
 }
 

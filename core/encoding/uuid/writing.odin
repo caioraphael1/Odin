@@ -93,7 +93,7 @@ to_string_allocated :: proc(
     str: string,
     error: mem.Allocator_Error,
 ) {
-    buf := slice_create([]byte, EXPECTED_LENGTH, allocator, loc) or_return
+    buf := slice.create([]byte, EXPECTED_LENGTH, allocator, loc) or_return
     builder := strings.builder_from_bytes(buf[:])
     unsafe_write(strings.to_writer(&builder), id)
     return strings.to_string(builder), nil

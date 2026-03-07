@@ -280,10 +280,10 @@ Example:
         small_array.push_back(&a, 2)
         fmt.println(small_array.slice(&a))
 
-        small_array.dyn_array_resize(&a, 1)
+        small_array.dyn_array.resize(&a, 1)
         fmt.println(small_array.slice(&a))
 
-        small_array.dyn_array_resize(&a, 100)
+        small_array.dyn_array.resize(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -709,7 +709,7 @@ Output:
 
 */
 clear :: proc(a: ^$A/Small_Array($N, $T)) {
-    _ = dyn_array_resize(a, 0)
+    _ = dyn_array.resize(a, 0)
 }
 
 /*
@@ -791,7 +791,7 @@ dyn_array_inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> 
 }
 
 dyn_array.append      :: push_back
-dyn_array_append_many :: push_back_many
+dyn_array.append_many :: push_back_many
 
 /*
 Tries to dyn_array.append the element(s) to the small-array.

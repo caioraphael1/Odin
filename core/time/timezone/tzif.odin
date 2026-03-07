@@ -580,7 +580,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
         return nil, true
     }
 
-    ltt_names, err := dyn_array_create_len_cap([dynamic]string, 0, len(local_time_types), allocator)
+    ltt_names, err := dyn_array.create_len_cap([dynamic]string, 0, len(local_time_types), allocator)
     if err != nil { return }
     defer if err != nil {
         for name in ltt_names {
@@ -600,7 +600,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
     }
 
     records: []datetime.TZ_Record
-    records, err = slice_create([]datetime.TZ_Record, len(transition_times), allocator)
+    records, err = slice.create([]datetime.TZ_Record, len(transition_times), allocator)
     if err != nil { return }
     defer if err != nil { _ = slice.delete(records, allocator) }
 

@@ -358,7 +358,7 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
     id_str := "nameserver"
     id_len := len(id_str)
 
-    _name_servers, _ := dyn_array_create_len([dynamic]Endpoint, 0, allocator)
+    _name_servers, _ := dyn_array.create_len([dynamic]Endpoint, 0, allocator)
     for line in strings.split_lines_iterator(&resolv_str) {
         if len(line) == 0 || line[0] == '#' {
             continue
@@ -392,9 +392,9 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
     s := bufio.scanner_init(&{}, stream, allocator)
     defer bufio.scanner_destroy(s)
 
-    _ = dyn_array_resize(&s.buf, 256)
+    _ = dyn_array.resize(&s.buf, 256)
 
-    _hosts, _ := dyn_array_create_len([dynamic]DNS_Host_Entry, 0, allocator)
+    _hosts, _ := dyn_array.create_len([dynamic]DNS_Host_Entry, 0, allocator)
     defer if !ok {
         for host in _hosts {
             _ = string_delete(host.name, allocator)
@@ -809,7 +809,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
         return
     }
 
-    _records, _ := dyn_array_create_len([dynamic]DNS_Record, 0, allocator)
+    _records, _ := dyn_array.create_len([dynamic]DNS_Record, 0, allocator)
 
     dns_hdr_chunks := mem.slice_data_cast([]u16be, response[:HEADER_SIZE_BYTES])
     hdr := unpack_dns_header(dns_hdr_chunks[0], dns_hdr_chunks[1])

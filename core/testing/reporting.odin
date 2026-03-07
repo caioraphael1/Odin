@@ -67,7 +67,7 @@ make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: 
 	packages: [dynamic]Package_Run
 
 	report.all_tests = internal_tests
-	report.all_test_states = slice_create([]Test_State, len(internal_tests)) or_return
+	report.all_test_states = slice.create([]Test_State, len(internal_tests)) or_return
 
 	// First, figure out what belongs where.
 	#no_bounds_check cur_pkg := internal_tests[0].pkg

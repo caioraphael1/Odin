@@ -107,7 +107,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         cwd = clone_to_cstring(desc.working_dir, runtime.temp_allocator) or_return
     }
 
-    cmd := slice_create([]cstring, len(desc.command) + 1, runtime.temp_allocator)
+    cmd := slice.create([]cstring, len(desc.command) + 1, runtime.temp_allocator)
     for part, i in desc.command {
         cmd[i] = clone_to_cstring(part, runtime.temp_allocator) or_return
     }
@@ -117,7 +117,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         // take this process's current environment
         env = posix.environ
     } else {
-        cenv := slice_create([]cstring, len(desc.env) + 1, runtime.temp_allocator)
+        cenv := slice.create([]cstring, len(desc.env) + 1, runtime.temp_allocator)
         for env, i in desc.env {
             cenv[i] = clone_to_cstring(env, runtime.temp_allocator) or_return
         }

@@ -90,7 +90,7 @@ foreign lib {
 		defer _ = slice.delete(buffer)
 
 		for {
-			mem_err := dyn_array_resize(&buffer, length)
+			mem_err := dyn_array.resize(&buffer, length)
 			assert(mem_err == nil)
 
 			e = posix.getgrnam_r("nobody", &result, raw_data(buffer), len(buffer), &resultp)

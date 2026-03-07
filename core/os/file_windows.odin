@@ -207,8 +207,8 @@ _new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint, all
     f, err = _new_file(handle, name, allocator)
     if f != nil && err == nil {
         impl := (^File_Impl)(f.impl)
-        impl.r_buf, _ = slice_create([]byte, buffer_size, allocator)
-        impl.w_buf, _ = slice_create([]byte, buffer_size, allocator)
+        impl.r_buf, _ = slice.create([]byte, buffer_size, allocator)
+        impl.w_buf, _ = slice.create([]byte, buffer_size, allocator)
     }
     return
 }
@@ -673,7 +673,7 @@ _normalize_link_path :: proc(p: []u16, allocator: mem.Allocator) -> (str: string
 
     internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf, _ := slice_create([]u16, n+1, internal.temp_allocator)
+    buf, _ := slice.create([]u16, n+1, internal.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(handle, cstring16(raw_data(buf)), u32(len(buf)), win32.VOLUME_NAME_DOS)
     if n == 0 {
         return "", _get_platform_error()
@@ -888,7 +888,7 @@ win32_utf8_to_utf16 :: proc(s: string, allocator: mem.Allocator) -> (ws: []u16, 
         return nil, nil
     }
 
-    text := slice_create([]u16, n+1, allocator) or_return
+    text := slice.create([]u16, n+1, allocator) or_return
 
     n1 := win32.MultiByteToWideChar(win32.CP_UTF8, win32.MB_ERR_INVALID_CHARS, cstr, i32(len(s)), raw_data(text), n)
     if n1 == 0 {
@@ -929,7 +929,7 @@ win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: mem.Allocator) -> (
     // also be null terminated.
     // If N > 0 it assumes the wide string is not null terminated and the resulting string
     // will not be null terminated.
-    text := slice_create([]byte, n, allocator) or_return
+    text := slice.create([]byte, n, allocator) or_return
 
     n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
     if n1 == 0 {
@@ -963,7 +963,7 @@ win32_utf16_u16_to_utf8 :: proc(s: []u16, allocator: mem.Allocator) -> (res: str
     // also be null terminated.
     // If N > 0 it assumes the wide string is not null terminated and the resulting string
     // will not be null terminated.
-    text := slice_create([]byte, n, allocator) or_return
+    text := slice.create([]byte, n, allocator) or_return
 
     n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
     if n1 == 0 {

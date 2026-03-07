@@ -373,7 +373,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
                 if iter_n == -1 {
                     return nil, .Nested_Indefinite_Length
                 }
-                _ = dyn_array_reserve(&buf.buf, len(buf.buf) + iter_cap) or_return
+                _ = dyn_array.reserve(&buf.buf, len(buf.buf) + iter_cap) or_return
                 io.copy_n(buf_stream, d.reader, i64(iter_n)) or_return
 
             case .Other:
@@ -526,7 +526,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
         entry:       Map_Entry,
     }
 
-    entries := slice_create([]Map_Entry_With_Key, len(m), e.temp_allocator) or_return
+    entries := slice.create([]Map_Entry_With_Key, len(m), e.temp_allocator) or_return
     defer _ = slice.delete(entries, e.temp_allocator)
 
     for &entry, i in entries {

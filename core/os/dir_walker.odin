@@ -74,8 +74,8 @@ walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
         return
     }
 
-    _ = dyn_array_resize(&w.err.path, len(path))
-    slice_copy_from_string(w.err.path[:], path)
+    _ = dyn_array.resize(&w.err.path, len(path))
+    slice.copy_from_string(w.err.path[:], path)
 
     w.err.err = err
 }

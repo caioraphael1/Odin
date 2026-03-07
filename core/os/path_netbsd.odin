@@ -17,6 +17,6 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
             return clone_string(string(buf[:n]), allocator)
         }
 
-        _ = dyn_array_resize(&buf, len(buf)*2) or_return
+        _ = dyn_array.resize(&buf, len(buf)*2) or_return
     }
 }

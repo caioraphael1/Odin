@@ -6,6 +6,8 @@ import "base:intrinsics"
 import "core:simd"
 import "core:unicode"
 import "core:unicode/utf8"
+import "base:slice"
+import "base:dyn_array"
 
 when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
     @(private)
@@ -35,13 +37,13 @@ SCANNER_SENTINEL_MIN_128: simd.u8x16 : u8(0xff)
 SIMD_REG_SIZE_128 :: 16
 
 clone :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
-    c, _ := slice_create([]byte, len(s), allocator, loc)
+    c, _ := slice.create([]byte, len(s), allocator, loc)
     slice.copy(c, s)
     return c[:len(s)]
 }
 
 clone_safe :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: mem.Allocator_Error) {
-    c := slice_create([]byte, len(s), allocator, loc) or_return
+    c := slice.create([]byte, len(s), allocator, loc) or_return
     slice.copy(c, s)
     return c[:len(s)], nil
 }
@@ -70,7 +72,7 @@ truncate_to_rune :: proc(str: []byte, r: rune) -> []byte {
 // Compares two []byte, returning a value representing which one comes first lexiographically.
 // Returns: -1 for `lhs`, 1 for `rhs`, or 0 if they are equal.
 compare :: proc(lhs, rhs: []byte) -> int {
-    res := internal.compare(raw_data(lhs), raw_data(rhs), min(len(lhs), len(rhs)))
+    res := mem.compare(raw_data(lhs), raw_data(rhs), min(len(lhs), len(rhs)))
     if res == 0 && len(lhs) != len(rhs) {
         return len(lhs) <= len(rhs) ? -1 : +1
     } else if len(lhs) == 0 && len(rhs) == 0 {
@@ -173,7 +175,7 @@ join :: proc(a: [][]byte, sep: []byte, allocator: mem.Allocator, loc := #caller_
         n += len(s)
     }
 
-    b, _ := slice_create([]byte, n, allocator)
+    b, _ := slice.create([]byte, n, allocator)
     i := slice.copy(b, a[0])
     for s in a[1:] {
         i += slice.copy(b[i:], sep)
@@ -192,7 +194,7 @@ join_safe :: proc(a: [][]byte, sep: []byte, allocator: mem.Allocator, loc := #ca
         n += len(s)
     }
 
-    b := slice_create([]byte, n, allocator) or_return
+    b := slice.create([]byte, n, allocator) or_return
     i := slice.copy(b, a[0])
     for s in a[1:] {
         i += slice.copy(b[i:], sep)
@@ -210,7 +212,7 @@ concatenate :: proc(a: [][]byte, allocator: mem.Allocator, loc := #caller_locati
     for s in a {
         n += len(s)
     }
-    b, _ := slice_create([]byte, n, allocator)
+    b, _ := slice.create([]byte, n, allocator)
     i := 0
     for s in a {
         i += slice.copy(b[i:], s)
@@ -227,7 +229,7 @@ concatenate_safe :: proc(a: [][]byte, allocator: mem.Allocator, loc := #caller_l
     for s in a {
         n += len(s)
     }
-    b := slice_create([]byte, n, allocator) or_return
+    b := slice.create([]byte, n, allocator) or_return
     i := 0
     for s in a {
         i += slice.copy(b[i:], s)
@@ -250,7 +252,7 @@ _split :: proc(s, sep: []byte, sep_save, n: int, allocator: mem.Allocator, loc :
             n = l
         }
 
-        res, _ := dyn_array_create_len([dynamic][]byte, n, allocator)
+        res, _ := dyn_array.create_len([dynamic][]byte, n, allocator)
         for i := 0; i < n-1; i += 1 {
             _, w := utf8.decode_rune_in_bytes(s)
             res[i] = s[:w]
@@ -266,7 +268,7 @@ _split :: proc(s, sep: []byte, sep_save, n: int, allocator: mem.Allocator, loc :
         n = count(s, sep) + 1
     }
 
-    res, _ := dyn_array_create_len([dynamic][]byte, n, allocator)
+    res, _ := dyn_array.create_len([dynamic][]byte, n, allocator)
 
     n -= 1
 
@@ -781,7 +783,7 @@ repeat :: proc(s: []byte, count: int, allocator: mem.Allocator, loc := #caller_l
         panic("bytes: repeat count will cause an overflow")
     }
 
-    b, _ := slice_create([]byte, len(s)*count, allocator)
+    b, _ := slice.create([]byte, len(s)*count, allocator)
     i := slice.copy(b, s)
     for i < len(b) { // 2^N trick to reduce the need to copy
         slice.copy(b[i:], b[:i])
@@ -811,7 +813,7 @@ replace :: proc(s, old, new: []byte, n: int, allocator: mem.Allocator, loc := #c
     }
 
 
-    t, _ := slice_create([]byte, len(s) + byte_count*(len(new) - len(old)), allocator)
+    t, _ := slice.create([]byte, len(s) + byte_count*(len(new) - len(old)), allocator)
     was_allocation = true
 
     w := 0
@@ -1102,7 +1104,7 @@ split_multi :: proc(s: []byte, substrs: [][]byte, skip_empty := false, allocator
         return nil
     }
 
-    buf, _ := slice_create([][]byte, n, allocator)
+    buf, _ := slice.create([][]byte, n, allocator)
 
     n, i, l = 0, 0, 0
 
@@ -1225,7 +1227,7 @@ scrub :: proc(s: []byte, replacement: []byte, allocator: mem.Allocator, loc := #
 reverse :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     str := s
     n := len(str)
-    buf, _ := slice_create([]byte, n, allocator)
+    buf, _ := slice.create([]byte, n, allocator)
     i := n
 
     for len(str) > 0 {
@@ -1399,7 +1401,7 @@ fields :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> 
         return nil
     }
 
-    a, _ := slice_create([][]byte, n, allocator)
+    a, _ := slice.create([][]byte, n, allocator)
     na := 0
     field_start := 0
     i := 0
@@ -1434,7 +1436,7 @@ fields :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> 
 // fields_proc makes no guarantee about the order in which it calls f(ch)
 // it assumes that `f` always returns the same value for a given ch
 fields_proc :: proc(s: []byte, f: proc(rune) -> bool, allocator: mem.Allocator, loc := #caller_location) -> [][]byte #no_bounds_check {
-    subslices, _ := dyn_array_create_len_cap([dynamic][]byte, 0, 32, allocator, loc)
+    subslices, _ := dyn_array.create_len_cap([dynamic][]byte, 0, 32, allocator, loc)
 
     start, end := -1, -1
     for r, offset in string(s) {

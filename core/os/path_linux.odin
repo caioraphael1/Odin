@@ -52,7 +52,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     }
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
     // need something we can edit, and use to generate cstrings
-    path_bytes := slice_create([]u8, len(path) + 1, runtime.temp_allocator)
+    path_bytes := slice.create([]u8, len(path) + 1, runtime.temp_allocator)
 
     // zero terminate the byte slice to make it a valid cstring
     slice.copy(path_bytes, path)
@@ -78,7 +78,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 _remove_all :: proc(path: string) -> Error {
     remove_all_dir :: proc(dfd: linux.Fd) -> Error {
         n := 64
-        buf := slice_create([]u8, n)
+        buf := slice.create([]u8, n)
         defer _ = slice.delete(buf)
 
         loop: for {
@@ -87,7 +87,7 @@ _remove_all :: proc(path: string) -> Error {
             case .EINVAL:
                 _ = slice.delete(buf)
                 n *= 2
-                buf = slice_create([]u8, n)
+                buf = slice.create([]u8, n)
                 continue loop
             case .NONE:
                 if buflen == 0 { break loop }
@@ -160,7 +160,7 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (string, Error) {
         if errno != .ERANGE {
             return "", _get_platform_error(errno)
         }
-        _ = dyn_array_resize(&buf, len(buf)+PATH_MAX)
+        _ = dyn_array.resize(&buf, len(buf)+PATH_MAX)
     }
     unreachable()
 }
@@ -187,7 +187,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
             return clone_string(string(buf[:n]), allocator)
         }
 
-        _ = dyn_array_resize(&buf, len(buf)*2) or_return
+        _ = dyn_array.resize(&buf, len(buf)*2) or_return
     }
 }
 

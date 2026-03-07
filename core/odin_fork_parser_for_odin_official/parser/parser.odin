@@ -1038,8 +1038,8 @@ parse_switch_stmt :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Stmt {
             in_tok := expect_token(p, .In, allocator)
             is_type_switch = true
 
-            lhs, _ := slice_create([]^ast.Expr, 1, allocator)
-            rhs, _ := slice_create([]^ast.Expr, 1, allocator)
+            lhs, _ := slice.create([]^ast.Expr, 1, allocator)
+            rhs, _ := slice.create([]^ast.Expr, 1, allocator)
             lhs[0] = new_blank_ident(p, tok.pos, allocator)
             rhs[0] = parse_expr(p, true, allocator)
 
@@ -1248,7 +1248,7 @@ parse_foreign_decl :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Decl {
             _ = expect_token(p, .Close_Brace, allocator)
         } else {
             path := expect_token(p, .String, allocator)
-            _ = dyn_array_reserve(&fullpaths, 1)
+            _ = dyn_array.reserve(&fullpaths, 1)
             bl := ast.new_from_positions(ast.Basic_Lit, path.pos, end_pos(path), allocator)
             bl.tok = path
             _ = dyn_array.append(&fullpaths, bl)
@@ -1696,7 +1696,7 @@ convert_stmt_to_body :: proc(p: ^Parser, stmt: ^ast.Stmt, allocator: mem.Allocat
 
     bs := ast.new_from_pos_and_end_node(ast.Block_Stmt, stmt.pos, stmt, allocator)
     bs.open = stmt.pos
-    bs.stmts, _ = slice_create([]^ast.Stmt, 1, allocator)
+    bs.stmts, _ = slice.create([]^ast.Stmt, 1, allocator)
     bs.stmts[0] = stmt
     bs.close = stmt.end
     bs.uses_do = true
@@ -1742,7 +1742,7 @@ Expr_And_Flags :: struct {
 }
 
 convert_to_ident_list :: proc(p: ^Parser, list: []Expr_And_Flags, ignore_flags, allow_poly_names: bool, allocator: mem.Allocator) -> []^ast.Expr {
-    idents, _ := dyn_array_create_len_cap([dynamic]^ast.Expr, 0, len(list), allocator)
+    idents, _ := dyn_array.create_len_cap([dynamic]^ast.Expr, 0, len(list), allocator)
 
     for ident, i in list {
         if !ignore_flags {
@@ -2093,7 +2093,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
                 tok.text = "_"
             }
 
-            names, _ := slice_create([]^ast.Expr, 1, allocator)
+            names, _ := slice.create([]^ast.Expr, 1, allocator)
             names[0] = ast.new_from_positions(ast.Ident, tok.pos, end_pos(tok), allocator)
             #partial switch ident in names[0].derived_expr {
             case ^ast.Ident:
@@ -2157,7 +2157,7 @@ parse_results :: proc(p: ^Parser, allocator: mem.Allocator) -> (list: ^ast.Field
         field := new_ast_field(nil, type, nil, allocator)
 
         list = ast.new_from_positions(ast.Field_List, field.pos, field.end, allocator)
-        list.list, _ = slice_create([]^ast.Field, 1, allocator)
+        list.list, _ = slice.create([]^ast.Field, 1, allocator)
         list.list[0] = field
         return
     }
@@ -3679,7 +3679,7 @@ parse_simple_stmt :: proc(p: ^Parser, flags: Stmt_Allow_Flags, allocator: mem.Al
             expr := parse_expr(p, false, allocator)
             p.allow_range = prev_allow_range
 
-            rhs, _ := slice_create([]^ast.Expr, 1, allocator)
+            rhs, _ := slice.create([]^ast.Expr, 1, allocator)
             rhs[0] = expr
 
             stmt := ast.new_from_pos_and_end_node(ast.Assign_Stmt, lhs[0].pos, rhs[len(rhs)-1], allocator)

@@ -394,7 +394,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 	defer thread.pool_destroy(&pool)
 
 	task_channels: []Task_Channel = ---
-	task_channels, alloc_error = slice_create([]Task_Channel, thread_count)
+	task_channels, alloc_error = slice.create([]Task_Channel, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for update channels: %v", alloc_error)
 	defer delete(task_channels)
 
@@ -445,19 +445,19 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 
 
 	task_data_slots: []Task_Data = ---
-	task_data_slots, alloc_error = slice_create([]Task_Data, thread_count)
+	task_data_slots, alloc_error = slice.create([]Task_Data, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task data slots: %v", alloc_error)
 	defer delete(task_data_slots)
 
 	// Tests rotate through these allocators as they finish.
 	task_allocators: []mem.Rollback_Stack = ---
-	task_allocators, alloc_error = slice_create([]mem.Rollback_Stack, thread_count)
+	task_allocators, alloc_error = slice.create([]mem.Rollback_Stack, thread_count)
 	fmt.assertf(alloc_error == nil, "Error allocating memory for task allocators: %v", alloc_error)
 	defer delete(task_allocators)
 
 	when TRACKING_MEMORY {
 		task_memory_trackers: []mem.Tracking_Allocator = ---
-		task_memory_trackers, alloc_error = slice_create([]mem.Tracking_Allocator, thread_count)
+		task_memory_trackers, alloc_error = slice.create([]mem.Tracking_Allocator, thread_count)
 		fmt.assertf(alloc_error == nil, "Error allocating memory for memory trackers: %v", alloc_error)
 		defer delete(task_memory_trackers)
 	}

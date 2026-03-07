@@ -31,7 +31,7 @@ Example:
 
 		// Variant that takes a destination buffer, instead of returning
 		// the digest.
-		digest := slice_create([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // @note: Destination buffer has to be at least as big as the digest size of the hash.
+		digest := slice.create([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // @note: Destination buffer has to be at least as big as the digest size of the hash.
 		defer delete(digest)
 		hash.hash(hash.Algorithm.BLAKE2B, input, digest)
 	}
@@ -49,7 +49,7 @@ Example:
 
 		// Compute the digest, using the low level API.
 		ctx: hash.Context
-		digest := slice_create([]byte, hash.DIGEST_SIZES[hash.Algorithm.SHA3_512])
+		digest := slice.create([]byte, hash.DIGEST_SIZES[hash.Algorithm.SHA3_512])
 		defer delete(digest)
 
 		hash.init(&ctx, hash.Algorithm.SHA3_512)

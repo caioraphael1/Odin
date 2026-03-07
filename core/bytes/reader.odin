@@ -1,5 +1,6 @@
 import "core:io"
 import "core:unicode/utf8"
+import "base:slice"
 
 Reader :: struct {
     s:         []byte, // read-only buffer

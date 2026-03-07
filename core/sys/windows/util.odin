@@ -88,7 +88,7 @@ utf8_to_utf16_alloc :: proc(s: string, allocator: mem.Allocator) -> []u16 {
         return nil
     }
 
-    text, _ := slice_create([]u16, n+1, allocator)
+    text, _ := slice.create([]u16, n+1, allocator)
 
     n1 := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cstr, c_int(len(s)), raw_data(text), n)
     if n1 == 0 {
@@ -152,7 +152,7 @@ wstring_to_utf8_alloc :: proc(s: wstring, N: int, allocator: mem.Allocator) -> (
     // also be null terminated.
     // If N > 0 it assumes the wide string is not null terminated and the resulting string
     // will not be null terminated.
-    text := slice_create([]byte, n, allocator) or_return
+    text := slice.create([]byte, n, allocator) or_return
 
     n1 := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, c_int(N), raw_data(text), n, nil, nil)
     if n1 == 0 {
@@ -354,7 +354,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
         return "", {}, false
     }
 
-    cname_w, _ := slice_create([]u16, min(computer_name_size, 1), internal.temp_allocator)
+    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), internal.temp_allocator)
 
     res = LookupAccountNameW(
         nil,
@@ -396,7 +396,7 @@ get_sid :: proc(username: string, sid: ^SID) -> (ok: bool) {
         return false
     }
 
-    cname_w, _ := slice_create([]u16, min(computer_name_size, 1), internal.temp_allocator)
+    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), internal.temp_allocator)
 
     res = LookupAccountNameW(
         nil,
@@ -461,7 +461,7 @@ add_user_profile :: proc(username: string) -> (ok: bool, profile_path: string) {
     }
     defer _ = LocalFree(rawptr(sb))
 
-    pszProfilePath, _ := slice_create([]u16, 257, internal.temp_allocator)
+    pszProfilePath, _ := slice.create([]u16, 257, internal.temp_allocator)
     res2 := CreateProfile(
         sb,
         cstring16(&username_w[0]),

@@ -1,6 +1,7 @@
 import "base:internal"
 import "base:mem"
 import "core:unicode"
+import "base:dyn_array"
 
 ZERO_WIDTH_JOINER                 :: unicode.ZERO_WIDTH_JOINER
 is_control                        :: unicode.is_control

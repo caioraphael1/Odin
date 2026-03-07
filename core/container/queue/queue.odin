@@ -131,7 +131,7 @@ shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
 
     if q.len > 0 && q.offset > 0 {
         // Make the array contiguous again.
-        buffer := slice_create([]T, q.len, internal.temp_allocator)
+        buffer := slice.create([]T, q.len, internal.temp_allocator)
         defer _ = slice.delete(buffer, internal.temp_allocator)
 
         right := uint(builtin.len(q.data)) - q.offset
@@ -447,7 +447,7 @@ push        :: push_back
 dyn_array.append      :: push_back
 enqueue     :: push_back
 
-dyn_array_append_many :: push_back_elems
+dyn_array.append_many :: push_back_elems
 
 dequeue     :: dyn_array_pop_front
 
@@ -466,7 +466,7 @@ clear :: proc(q: ^$Q/Queue($T)) {
 _grow :: proc(q: ^$Q/Queue($T), min_capacity: uint = 0, loc := #caller_location) -> mem.Allocator_Error {
     new_capacity := max(min_capacity, uint(8), uint(builtin.len(q.data))*2)
     n := uint(builtin.len(q.data))
-    builtin.dyn_array_resize(&q.data, int(new_capacity), loc) or_return
+    builtin.dyn_array.resize(&q.data, int(new_capacity), loc) or_return
     if q.offset + q.len > n {
         diff := n - q.offset
         slice.copy(q.data[new_capacity-diff:], q.data[q.offset:][:diff])

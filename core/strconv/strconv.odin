@@ -1,6 +1,9 @@
 // Conversions to and from `string` representations of other data types like integers and booleans.
 import "core:unicode/utf8"
 import "decimal"
+import "base:slice"
+import "base:mem"
+
 /*
 Parses a boolean value from the input string
 
@@ -1472,9 +1475,9 @@ Output:
 write_bool :: proc(buf: []byte, b: bool) -> string {
     n := 0
     if b {
-        n = slice_copy_from_string(buf, "true")
+        n = slice.copy_from_string(buf, "true")
     } else {
-        n = slice_copy_from_string(buf, "false")
+        n = slice.copy_from_string(buf, "false")
     }
     return string(buf[:n])
 }
@@ -1676,7 +1679,7 @@ quote_rune :: proc(buf: []byte, r: rune) -> string {
     }
     write_string :: proc(buf: []byte, i: ^int, s: string) {
         if i^ < len(buf) {
-            n := slice_copy_from_string(buf[i^:], s)
+            n := slice.copy_from_string(buf[i^:], s)
             i^ += n
         }
     }
@@ -1929,7 +1932,7 @@ unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, a
     }
 
     buf_len := 3*len(s) / 2
-    buf, _ := slice_create([]byte, buf_len, allocator)
+    buf, _ := slice.create([]byte, buf_len, allocator)
     offset := 0
     for len(s) > 0 {
         r, multiple_bytes, tail_string, ok := unquote_char(s, byte(quote))

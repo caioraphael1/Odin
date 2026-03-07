@@ -27,7 +27,7 @@ read_directory :: proc(f: ^File, n: int, allocator: mem.Allocator) -> (files: []
     it := read_directory_iterator_create(f, allocator)
     defer _read_directory_iterator_destroy(&it, allocator)
 
-    dfi, _ := dyn_array_create_len_cap([dynamic]File_Info, 0, size, internal.temp_allocator)
+    dfi, _ := dyn_array.create_len_cap([dynamic]File_Info, 0, size, internal.temp_allocator)
     defer if err != nil {
         for fi in dfi {
             file_info_delete(fi, allocator)
@@ -144,8 +144,8 @@ read_directory_iterator_set_error :: proc(it: ^Read_Directory_Iterator, path: st
         return
     }
 
-    _ = dyn_array_resize(&it.err.path, len(path))
-    slice_copy_from_string(it.err.path[:], path)
+    _ = dyn_array.resize(&it.err.path, len(path))
+    slice.copy_from_string(it.err.path[:], path)
 
     it.err.err = err
 }
@@ -228,7 +228,7 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
     abs_src := get_absolute_path(src, internal.temp_allocator) or_return
     abs_dst := get_absolute_path(dst, internal.temp_allocator) or_return
 
-    dst_buf := dyn_array_create_len_cap([dynamic]byte, 0, len(abs_dst) + 256, internal.temp_allocator) or_return
+    dst_buf := dyn_array.create_len_cap([dynamic]byte, 0, len(abs_dst) + 256, internal.temp_allocator) or_return
 
     w: Walker
     walker_init_path(&w, src, allocator)
@@ -240,7 +240,7 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
         rel := strings.trim_prefix(info.fullpath, abs_src)
 
         dyn_array_resize_non_zero(&dst_buf, 0) or_return
-        dyn_array_reserve(&dst_buf, len(abs_dst) + len(Path_Separator_String) + len(rel)) or_return
+        dyn_array.reserve(&dst_buf, len(abs_dst) + len(Path_Separator_String) + len(rel)) or_return
         dyn_array_append_string(&dst_buf, abs_dst) or_return
         dyn_array_append_string(&dst_buf, Path_Separator_String) or_return
         dyn_array_append_string(&dst_buf, rel) or_return

@@ -218,7 +218,7 @@ bytes_make :: proc(size, alignment: int, allocator: mem.Allocator, loc := #calle
 clone_string :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (str: string, err: Error) {
     n := len(s)
     b := bytes_make(n+1, 1, allocator, loc) or_return
-    slice_copy_from_string(b, s)
+    slice.copy_from_string(b, s)
     if len(b) > n {
         b[n] = 0
         str = string(b[:n])
@@ -362,7 +362,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
     }
 
     b := bytes_make(len(s) + 2*utf8.UTF_MAX, 1, allocator) or_return
-    w := slice_copy_from_string(b, s[0:i])
+    w := slice.copy_from_string(b, s[0:i])
 
     if len(b) == 0 && allocator.data == nil {
         // `unmarshal_count_array` calls us with a nil allocator

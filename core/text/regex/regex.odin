@@ -116,20 +116,20 @@ create :: proc(
     result.flags = flags
 
     if len(class_data) > 0 {
-        result.class_data, _ = slice_create([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
+        result.class_data, _ = slice.create([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
     }
     for data, i in class_data {
         if len(data.runes) > 0 {
-            result.class_data[i].runes, _ = slice_create([]rune, len(data.runes), allocator)
+            result.class_data[i].runes, _ = slice.create([]rune, len(data.runes), allocator)
             slice.copy(result.class_data[i].runes, data.runes[:])
         }
         if len(data.ranges) > 0 {
-            result.class_data[i].ranges, _ = slice_create([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
+            result.class_data[i].ranges, _ = slice.create([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
             slice.copy(result.class_data[i].ranges, data.ranges[:])
         }
     }
 
-    result.program, _ = slice_create([]virtual_machine.Opcode, len(program), allocator)
+    result.program, _ = slice.create([]virtual_machine.Opcode, len(program), allocator)
     slice.copy(result.program, program[:])
 
     return
@@ -322,8 +322,8 @@ match_and_allocate_capture :: proc(
         }
 
         if num_groups > 0 {
-            capture.groups, _ = slice_create([]string, num_groups, allocator)
-            capture.pos, _ = slice_create([][2]int, num_groups, allocator)
+            capture.groups, _ = slice.create([]string, num_groups, allocator)
+            capture.pos, _ = slice.create([][2]int, num_groups, allocator)
             n := 0
 
             #no_bounds_check for i := 0; i < len(saved); i += 2 {
@@ -532,8 +532,8 @@ Returns:
 */
 
 preallocate_capture :: proc(allocator: mem.Allocator) -> (result: Capture) {
-    result.pos   , _ = slice_create([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
-    result.groups, _ = slice_create([]string, common.MAX_CAPTURE_GROUPS, allocator)
+    result.pos   , _ = slice.create([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
+    result.groups, _ = slice.create([]string, common.MAX_CAPTURE_GROUPS, allocator)
     return
 }
 

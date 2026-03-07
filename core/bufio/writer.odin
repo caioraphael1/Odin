@@ -2,7 +2,7 @@
 import "core:io"
 import "base:mem"
 import "core:unicode/utf8"
-// import "core:bytes"
+import "base:slice"
 
 // Writer is a buffered wrapper for an io.Writer
 Writer :: struct {
@@ -24,7 +24,7 @@ writer_init :: proc(b: ^Writer, wr: io.Writer, size: int = DEFAULT_BUF_SIZE, all
     size = max(size, MIN_READ_BUFFER_SIZE)
     writer_reset(b, wr)
     b.buf_allocator = allocator
-    b.buf, _ = slice_create([]byte, size, allocator)
+    b.buf, _ = slice.create([]byte, size, allocator)
 }
 
 // Initialized a Writer with a user provided buffer `buf`

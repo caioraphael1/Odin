@@ -40,7 +40,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Al
 
     for entry_fd == -1 {
         if len(it.impl.dirent_backing) == 0 {
-            it.impl.dirent_backing = slice_create([]u8, 512, allocator)
+            it.impl.dirent_backing = slice.create([]u8, 512, allocator)
         }
 
         loop: for {
@@ -49,7 +49,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Al
             case .EINVAL:
                 _ = slice.delete(it.impl.dirent_backing, allocator)
                 n := len(it.impl.dirent_backing) * 2
-                it.impl.dirent_backing = slice_create([]u8, n, allocator)
+                it.impl.dirent_backing = slice.create([]u8, n, allocator)
                 continue
             case .NONE:
                 if buflen == 0 {

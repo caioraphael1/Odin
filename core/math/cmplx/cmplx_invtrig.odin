@@ -28,11 +28,11 @@ acos_complex32 :: proc(x: complex32) -> complex32 {
     return complex32(acos_complex64(complex64(x)))
 }
 acos_complex64 :: proc(x: complex64) -> complex64 {
-    w := asin(x)
+    w := math.asin(x)
     return complex(math.PI/2 - real(w), -imag(w))
 }
 acos_complex128 :: proc(x: complex128) -> complex128 {
-    w := asin(x)
+    w := math.asin(x)
     return complex(math.PI/2 - real(w), -imag(w))
 }
 
@@ -44,7 +44,7 @@ acosh_complex64 :: proc(x: complex64) -> complex64 {
     if x == 0 {
         return complex(0, math.copy_sign(math.PI/2, imag(x)))
     }
-    w := acos(x)
+    w := math.acos(x)
     if imag(w) <= 0 {
         return complex(-imag(w), real(w))
     }
@@ -54,7 +54,7 @@ acosh_complex128 :: proc(x: complex128) -> complex128 {
     if x == 0 {
         return complex(0, math.copy_sign(math.PI/2, imag(x)))
     }
-    w := acos(x)
+    w := math.acos(x)
     if imag(w) <= 0 {
         return complex(-imag(w), real(w))
     }
@@ -70,7 +70,7 @@ asin_complex64 :: proc(x: complex64) -> complex64 {
 asin_complex128 :: proc(x: complex128) -> complex128 {
     switch re, im := real(x), imag(x); {
     case im == 0 && abs(re) <= 1:
-        return complex(math.asin(re), im)
+        return complex(math.math.asin(re), im)
     case re == 0 && abs(im) <= 1:
         return complex(re, math.asinh(im))
     case math.is_nan(im):
@@ -113,7 +113,7 @@ asinh_complex128 :: proc(x: complex128) -> complex128 {
     case im == 0 && abs(re) <= 1:
         return complex(math.asinh(re), im)
     case re == 0 && abs(im) <= 1:
-        return complex(re, math.asin(im))
+        return complex(re, math.math.asin(im))
     case math.is_inf(re, 0):
         switch {
         case math.is_inf(im, 0):

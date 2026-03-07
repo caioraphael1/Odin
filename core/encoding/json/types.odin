@@ -120,7 +120,7 @@ clone_value :: proc(value: Value, allocator: mem.Allocator) -> Value {
         }
         return new_o
     case Array:
-        new_a, _ := dyn_array_create_len(Array, len(v), allocator)
+        new_a, _ := dyn_array.create_len(Array, len(v), allocator)
         for elem, idx in v {
             new_a[idx] = clone_value(elem, allocator)
         }

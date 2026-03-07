@@ -3,6 +3,7 @@ import "base:intrinsics"
 import "base:rand"
 import "core:math"
 import "base:mem"
+import "base:slice"
 
 Generator :: rand.Random_Generator
 
@@ -1039,7 +1040,7 @@ Possible Output:
 */
 
 perm :: proc(n: int, allocator: mem.Allocator, gen: rand.Random_Generator) -> (res: []int, err: mem.Allocator_Error) {
-    m := slice_create([]int, n, allocator) or_return
+    m := slice.create([]int, n, allocator) or_return
     for i := 0; i < n; i += 1 {
         j := int_max(i+1, gen)
         m[i] = m[j]

@@ -75,7 +75,7 @@ pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
     pool.allocator = allocator
     _ = queue.init(&pool.tasks, allocator = allocator)
     dyn_array_init(&pool.tasks_done, allocator)
-    pool.threads, _ = slice_create([]^Thread, max(thread_count, 1), allocator)
+    pool.threads, _ = slice.create([]^Thread, max(thread_count, 1), allocator)
 
     pool.is_running = true
 

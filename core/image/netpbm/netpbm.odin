@@ -122,7 +122,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
         pixels := img.pixels.buf[:]
 
         p4_buffer_size := (img.width / 8 + 1) * img.height
-        _ = dyn_array_reserve(&data.buf, len(header_buf) + p4_buffer_size)
+        _ = dyn_array.reserve(&data.buf, len(header_buf) + p4_buffer_size)
 
         // we build up a byte value until it is completely filled
         // or we reach the end the row
@@ -152,7 +152,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
         header_buf := data.buf[:]
         pixels := img.pixels.buf[:]
 
-        _ = dyn_array_resize(&data.buf, len(header_buf) + len(pixels))
+        _ = dyn_array.resize(&data.buf, len(header_buf) + len(pixels))
         mem.slice.copy(raw_data(data.buf[len(header_buf):]), raw_data(pixels), len(pixels))
 
         // convert from native endianness

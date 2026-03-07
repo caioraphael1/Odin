@@ -523,7 +523,7 @@ print_type :: #force_no_inline proc(ti: ^Type_Info) {
 
 write_string :: proc(i: ^int, dst: []byte, src: string) -> bool {
     if i^ < len(dst) {
-        // i^ += slice_copy_from_string(dst[i^:], src)
+        // i^ += slice.copy_from_string(dst[i^:], src)
             // FIX:
         return true
     }

@@ -104,7 +104,7 @@ padding :: proc(tbl: ^Table, lpad, rpad: int) {
 get_cell :: proc(tbl: ^Table, row, col: int, loc := #caller_location) -> ^Cell {
     assert(col >= 0 && col < tbl.nr_cols, "cell column out of range", loc)
     assert(row >= 0 && row < tbl.nr_rows, "cell row out of range", loc)
-    _ = dyn_array_resize(&tbl.cells, tbl.nr_cols * tbl.nr_rows)
+    _ = dyn_array.resize(&tbl.cells, tbl.nr_cols * tbl.nr_rows)
     return &tbl.cells[row*tbl.nr_cols + col]
 }
 
@@ -279,7 +279,7 @@ first_row :: proc(tbl: ^Table) -> int {
 }
 
 build :: proc(tbl: ^Table, width_proc: Width_Proc) {
-    _ = dyn_array_resize(&tbl.colw, tbl.nr_cols)
+    _ = dyn_array.resize(&tbl.colw, tbl.nr_cols)
     mem.slice.zero(tbl.colw[:])
 
     for row in 0..<tbl.nr_rows {

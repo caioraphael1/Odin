@@ -27,8 +27,8 @@ _prefix_and_suffix :: proc(pattern: string) -> (prefix, suffix: string, err: Err
 
 
 clone_string :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    buf := slice_create([]byte, len(s), allocator) or_return
-    slice_copy_from_string(buf, s)
+    buf := slice.create([]byte, len(s), allocator) or_return
+    slice.copy_from_string(buf, s)
     return string(buf), nil
 }
 
@@ -36,8 +36,8 @@ clone_string :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: 
 
 clone_to_cstring :: proc(s: string, allocator: mem.Allocator) -> (res: cstring, err: mem.Allocator_Error) {
     res = "" // do not use a `nil` cstring
-    buf := slice_create([]byte, len(s)+1, allocator) or_return
-    slice_copy_from_string(buf, s)
+    buf := slice.create([]byte, len(s)+1, allocator) or_return
+    slice.copy_from_string(buf, s)
     buf[len(s)] = 0
     return cstring(&buf[0]), nil
 }
@@ -59,7 +59,7 @@ concatenate_strings_from_buffer :: proc(buf: []byte, strings: ..string) -> strin
     n := 0
     for s in strings {
         (n < len(buf)) or_break
-        n += slice_copy_from_string(buf[n:], s)
+        n += slice.copy_from_string(buf[n:], s)
     }
     n = min(len(buf), n)
     return string(buf[:n])
@@ -71,10 +71,10 @@ concatenate :: proc(strings: []string, allocator: mem.Allocator) -> (res: string
     for s in strings {
         n += len(s)
     }
-    buf := slice_create([]byte, n, allocator) or_return
+    buf := slice.create([]byte, n, allocator) or_return
     n = 0
     for s in strings {
-        n += slice_copy_from_string(buf[n:], s)
+        n += slice.copy_from_string(buf[n:], s)
     }
     return string(buf), nil
 }

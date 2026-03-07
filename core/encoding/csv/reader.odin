@@ -98,10 +98,10 @@ reader_init :: proc(reader: ^Reader, r: io.Reader, buffer_allocator: mem.Allocat
         reader.comma = ','
     }
 
-    _ = dyn_array_reserve(&reader.record_buffer, DEFAULT_RECORD_BUFFER_CAPACITY)
-    _ = dyn_array_reserve(&reader.raw_buffer,    0)
-    _ = dyn_array_reserve(&reader.field_indices, 0)
-    _ = dyn_array_reserve(&reader.last_record,   0)
+    _ = dyn_array.reserve(&reader.record_buffer, DEFAULT_RECORD_BUFFER_CAPACITY)
+    _ = dyn_array.reserve(&reader.raw_buffer,    0)
+    _ = dyn_array.reserve(&reader.field_indices, 0)
+    _ = dyn_array.reserve(&reader.last_record,   0)
     bufio.reader_init(&reader.r, r, allocator = buffer_allocator)
 }
 
@@ -150,7 +150,7 @@ iterator_last_error :: proc(r: Reader) -> (err: Error) {
 read :: proc(r: ^Reader, allocator: mem.Allocator) -> (record: []string, err: Error) {
     if r.reuse_record {
         record, err = _read_record(r, &r.last_record, allocator)
-        _ = dyn_array_resize(&r.last_record, len(record))
+        _ = dyn_array.resize(&r.last_record, len(record))
         slice.copy(r.last_record[:], record)
     } else {
         record, err = _read_record(r, nil, allocator)
@@ -235,10 +235,10 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
             line, err := bufio.reader_read_slice(&r.r, '\n')
             if err == .Buffer_Full {
                 dyn_array.clear(&r.raw_buffer)
-                _ = dyn_array_append_many(&r.raw_buffer, ..line)
+                _ = dyn_array.append_many(&r.raw_buffer, ..line)
                 for err == .Buffer_Full {
                     line, err = bufio.reader_read_slice(&r.r, '\n')
-                    _ = dyn_array_append_many(&r.raw_buffer, ..line)
+                    _ = dyn_array.append_many(&r.raw_buffer, ..line)
                 }
                 line = r.raw_buffer[:]
             }
@@ -291,7 +291,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
                 }
 
                 rune_buf, rune_len := utf8.encode_rune(cur)
-                _ = dyn_array_append_many(&r.raw_buffer, ..rune_buf[:rune_len])
+                _ = dyn_array.append_many(&r.raw_buffer, ..rune_buf[:rune_len])
             }
 
             return r.raw_buffer[:], err
@@ -375,7 +375,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
                     break parse_field
                 }
             }
-            _ = dyn_array_append_many(&r.record_buffer, ..field)
+            _ = dyn_array.append_many(&r.record_buffer, ..field)
             _ = dyn_array.append(&r.field_indices, len(r.record_buffer))
             if i >= 0 {
                 line = line[i+comma_len:]
@@ -389,7 +389,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
                 i := bytes.index_byte(line, '"')
                 switch {
                 case i >= 0:
-                    _ = dyn_array_append_many(&r.record_buffer, ..line[:i])
+                    _ = dyn_array.append_many(&r.record_buffer, ..line[:i])
                     line = line[i+quote_len:]
                     switch ch := next_rune(line); {
                     case ch == '"': // dyn_array.append quote
@@ -416,7 +416,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
                     }
 
                 case len(line) > 0:
-                    _ = dyn_array_append_many(&r.record_buffer, ..line)
+                    _ = dyn_array.append_many(&r.record_buffer, ..line)
                     if err_read != nil {
                         break parse_field
                     }
@@ -455,7 +455,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
         dst = &([dynamic]string){}
     }
     dyn_array.clear(dst)
-    _ = dyn_array_resize(dst, len(r.field_indices))
+    _ = dyn_array.resize(dst, len(r.field_indices))
     pre_idx: int
     for idx, i in r.field_indices {
         field := str[pre_idx:idx]

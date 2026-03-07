@@ -21,7 +21,7 @@ Example:
         spall_ctx = spall.context_create("trace_test.spall")
         defer spall.context_destroy(&spall_ctx)
 
-        buffer_backing := slice_create([]u8, spall.BUFFER_DEFAULT_SIZE)
+        buffer_backing := slice.create([]u8, spall.BUFFER_DEFAULT_SIZE)
         defer delete(buffer_backing)
 
         spall_buffer = spall.buffer_create(buffer_backing, u32(sync.current_thread_id()))

@@ -126,14 +126,14 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
 
     ctx.itw, ctx.ith = 1.0 / f32(w), 1.0 / f32(h)
 
-    ctx.textureData = slice_create([]byte, w * h)
+    ctx.textureData = slice.create([]byte, w * h)
     
     ctx.width  = w
     ctx.height = h
     dyn_array_init(&ctx.nodes, 0, INIT_ATLAS_NODES)
     __dirtyRectReset(ctx)
 
-    ctx.states = slice_create([]State, MAX_STATES)
+    ctx.states = slice.create([]State, MAX_STATES)
 
     // NOTE NECESSARY
     _ = dyn_array.append(&ctx.nodes, AtlasNode{
@@ -631,7 +631,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloc
         ctx.callbackResize(ctx.userData, w, h)
     }
 
-    data := slice_create([]byte, w * h, allocator)
+    data := slice.create([]byte, w * h, allocator)
 
     for i in 0..<ctx.height {
         dst := &data[i * w]
@@ -678,7 +678,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloca
     } else {
         // realloc
         _ = slice.delete(ctx.textureData, allocator)
-        ctx.textureData = slice_create([]byte, width * height, allocator)
+        ctx.textureData = slice.create([]byte, width * height, allocator)
     }
 
     ctx.dirtyRect[0] = f32(width)

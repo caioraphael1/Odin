@@ -16,7 +16,7 @@ Arguments to the current process.
 args: []string
 
 init_args :: proc(allocator: mem.Allocator) {
-    args, _ = slice_create([]string, len(internal.args__), allocator)
+    args, _ = slice.create([]string, len(internal.args__), allocator)
     for rt_arg, i in internal.args__ {
         args[i] = string(rt_arg)
     }
@@ -421,7 +421,7 @@ process_exec :: proc(
 
                 switch err {
                 case nil:
-                    err = dyn_array_append_many(&stdout_b, ..buf[:n])
+                    err = dyn_array.append_many(&stdout_b, ..buf[:n])
                 case .EOF, .Broken_Pipe:
                     stdout_done = true
                     err = nil
@@ -437,7 +437,7 @@ process_exec :: proc(
 
                 switch err {
                 case nil:
-                    err = dyn_array_append_many(&stderr_b, ..buf[:n])
+                    err = dyn_array.append_many(&stderr_b, ..buf[:n])
                 case .EOF, .Broken_Pipe:
                     stderr_done = true
                     err = nil

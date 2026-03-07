@@ -34,12 +34,12 @@ build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
     g_env = map_create(map[string]string, num_envs, allocator) or_return
     defer if err != nil { _ = slice.delete(g_env) }
 
-    g_env_buf = slice_create([]byte, size_of_envs, allocator) or_return
+    g_env_buf = slice.create([]byte, size_of_envs, allocator) or_return
     defer if err != nil { _ = slice.delete(g_env_buf, allocator) }
 
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    envs := slice_create([]cstring, num_envs, runtime.temp_allocator) or_return
+    envs := slice.create([]cstring, num_envs, runtime.temp_allocator) or_return
 
     _err = wasi.environ_get(raw_data(envs), raw_data(g_env_buf))
     if _err != nil {

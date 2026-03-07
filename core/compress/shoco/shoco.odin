@@ -174,10 +174,10 @@ decompress_slice_to_string :: proc(input: []u8, model := DEFAULT_MODEL, allocato
     max_output_size := decompress_bound(len(input), model)
 
     buf: [dynamic]u8
-    _ = dyn_array_resize(&buf, max_output_size) or_return
+    _ = dyn_array.resize(&buf, max_output_size) or_return
 
     length, result := decompress_slice_to_output_buffer(input, buf[:])
-    _ = dyn_array_resize(&buf, length) or_return
+    _ = dyn_array.resize(&buf, length) or_return
     return string(buf[:]), result
 }
 
@@ -188,7 +188,7 @@ compress_string_to_buffer :: proc(input: string, output: []u8, model := DEFAULT_
 
     validate_model(model) or_return
 
-    indices := slice_create([]i16, model.max_successor_n + 1)
+    indices := slice.create([]i16, model.max_successor_n + 1)
     defer _ = slice.delete(indices)
 
     last_resort := false
@@ -296,9 +296,9 @@ compress_string :: proc(input: string, model := DEFAULT_MODEL, allocator: mem.Al
     max_output_size := compress_bound(len(input))
 
     buf: [dynamic]u8
-    _ = dyn_array_resize(&buf, max_output_size) or_return
+    _ = dyn_array.resize(&buf, max_output_size) or_return
 
     length, result := compress_string_to_buffer(input, buf[:])
-    _ = dyn_array_resize(&buf, length) or_return
+    _ = dyn_array.resize(&buf, length) or_return
     return buf[:length], result
 }

@@ -3,6 +3,8 @@ import "core:io"
 import "base:mem"
 import "core:unicode/utf8"
 import "base:intrinsics"
+import "base:slice"
+import "base:dyn_array"
 
 // Extra errors returns by scanning procedures
 Scanner_Extra_Error :: enum i32 {
@@ -58,8 +60,8 @@ scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []byte) -> ^Sca
     s.r = r
     s.split = scan_lines
     s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
-    s.buf = mem.dyn_array_from_slice(buf)
-    _ = dyn_array_resize(&s.buf, cap(s.buf))
+    s.buf = dyn_array.from_slice(buf)
+    _ = dyn_array.resize(&s.buf, cap(s.buf))
     return s
 }
 scanner_destroy :: proc(s: ^Scanner) {
@@ -191,7 +193,7 @@ scan :: proc(s: ^Scanner) -> bool {
 
             old_size := len(s.buf)
             new_size = min(new_size, s.max_token_size)
-            _ = dyn_array_resize(&s.buf, new_size)
+            _ = dyn_array.resize(&s.buf, new_size)
             s.end -= s.start
             s.start = 0
 

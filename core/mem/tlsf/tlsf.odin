@@ -156,7 +156,7 @@ allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
         return nil, nil
 
     case .Resize:
-        return dyn_array_resize(control, old_memory, uint(old_size), uint(size), uint(alignment))
+        return dyn_array.resize(control, old_memory, uint(old_size), uint(size), uint(alignment))
 
     case .Resize_Non_Zeroed:
         return resize_non_zeroed(control, old_memory, uint(old_size), uint(size), uint(alignment))

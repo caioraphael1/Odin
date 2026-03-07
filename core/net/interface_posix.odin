@@ -100,7 +100,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
         iface.link.state = state
     }
 
-    interfaces = slice_create([]Network_Interface, len(ifaces))
+    interfaces = slice.create([]Network_Interface, len(ifaces))
     i: int
     for _, iface in ifaces {
         interfaces[i] = iface

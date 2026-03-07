@@ -160,7 +160,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
 to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator: mem.Allocator) -> string {
     buf: [48]byte
     s := write(buf[:], x)
-    str := slice_create([]byte, len(s), allocator)
+    str := slice.create([]byte, len(s), allocator)
     slice.copy(str, s)
     return string(str)
 }

@@ -53,7 +53,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     // Calculate and allocate necessary space.
     necessary := pixels * img.channels + size_of(image.TGA_Header)
 
-    if dyn_array_resize(&output.buf, necessary) != nil {
+    if dyn_array.resize(&output.buf, necessary) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
 
@@ -237,7 +237,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
         }
     }
 
-    color_map := slice_create([]RGBA_Pixel, header.color_map_length)
+    color_map := slice.create([]RGBA_Pixel, header.color_map_length)
     defer _ = slice.delete(color_map)
 
     if color_mapped {
@@ -290,7 +290,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
         return img, nil
     }
 
-    if dyn_array_resize(&img.pixels.buf, dest_channels * img.width * img.height) != nil {
+    if dyn_array.resize(&img.pixels.buf, dest_channels * img.width * img.height) != nil {
         return img, .Unable_To_Allocate_Or_Resize
     }
 

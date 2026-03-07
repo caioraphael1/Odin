@@ -62,9 +62,9 @@ from_slice :: proc(backing: $T/[]$E) -> [dynamic]E {
         data      = raw_data(backing),
         len       = 0,
         cap       = len(backing),
-        allocator = Allocator{
-            procedure = nil_allocator_proc,
-            data = nil,
+        allocator = {
+            procedure = {},
+            data      = nil,
         },
     }
 }

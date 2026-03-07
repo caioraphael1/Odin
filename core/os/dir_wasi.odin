@@ -105,7 +105,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     // NOTE: Allow calling `init` to target a new directory with the same iterator.
     it.impl.fullpath.allocator = allocator
     dyn_array.clear(&it.impl.fullpath)
-    if err := dyn_array_reserve(&it.impl.fullpath, len(impl.name)+128); err != nil {
+    if err := dyn_array.reserve(&it.impl.fullpath, len(impl.name)+128); err != nil {
         read_directory_iterator_set_error(it, name(f), err)
         return
     }

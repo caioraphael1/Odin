@@ -30,7 +30,7 @@ clone_array :: proc(array: $A/[]^$T, allocator: mem.Allocator) -> A {
     if len(array) == 0 {
         return nil
     }
-    res, _ := slice_create(A, len(array), allocator)
+    res, _ := slice.create(A, len(array), allocator)
     for elem, i in array {
         res[i] = (^T)(clone_node(elem, allocator))
     }
@@ -41,7 +41,7 @@ clone_dynamic_array :: proc(array: $A/[dynamic]^$T, allocator: mem.Allocator) ->
     if len(array) == 0 {
         return nil
     }
-    res, _ := dyn_array_create_len(A, len(array), allocator)
+    res, _ := dyn_array.create_len(A, len(array), allocator)
     for elem, i in array {
         res[i] = (^T)(clone_node(elem, allocator))
     }

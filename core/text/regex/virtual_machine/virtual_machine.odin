@@ -632,7 +632,7 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 
     sizing := len(code) >> 6 + (1 if len(code) & 0x3F > 0 else 0)
     assert(sizing > 0)
-    vm.busy_map, _ = slice_create([]u64, sizing, allocator)
+    vm.busy_map, _ = slice.create([]u64, sizing, allocator)
 
     max_possible_threads := max(1, opcode_count(vm.code) - 1)
 

@@ -21,8 +21,8 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-    c := slice_create([]byte, len(s), allocator, loc) or_return
-    slice_copy_from_string(c, s)
+    c := slice.create([]byte, len(s), allocator, loc) or_return
+    slice.copy_from_string(c, s)
     return string(c), nil
 }
 
@@ -41,8 +41,8 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone_to_cstring :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
-    c := slice_create([]byte, len(s)+1, allocator, loc) or_return
-    slice_copy_from_string(c, s)
+    c := slice.create([]byte, len(s)+1, allocator, loc) or_return
+    slice.copy_from_string(c, s)
     c[len(s)] = 0
     return cstring(&c[0]), nil
 }
@@ -151,7 +151,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 clone_from_bytes :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-    c := slice_create([]byte, len(s)+1, allocator, loc) or_return
+    c := slice.create([]byte, len(s)+1, allocator, loc) or_return
     slice.copy(c, s)
     c[len(s)] = 0
     return string(c[:len(s)]), nil
@@ -634,11 +634,11 @@ join :: proc(a: []string, sep: string, allocator: mem.Allocator, loc := #caller_
         n += len(s)
     }
 
-    b := slice_create([]byte, n, allocator, loc) or_return
-    i := slice_copy_from_string(b, a[0])
+    b := slice.create([]byte, n, allocator, loc) or_return
+    i := slice.copy_from_string(b, a[0])
     for s in a[1:] {
-        i += slice_copy_from_string(b[i:], sep)
-        i += slice_copy_from_string(b[i:], s)
+        i += slice.copy_from_string(b[i:], sep)
+        i += slice.copy_from_string(b[i:], s)
     }
     return string(b), nil
 }
@@ -680,10 +680,10 @@ concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller_locati
     for s in a {
         n += len(s)
     }
-    b := slice_create([]byte, n, allocator, loc) or_return
+    b := slice.create([]byte, n, allocator, loc) or_return
     i := 0
     for s in a {
-        i += slice_copy_from_string(b[i:], s)
+        i += slice.copy_from_string(b[i:], s)
     }
     return string(b), nil
 }
@@ -816,7 +816,7 @@ _split :: proc(s_, sep: string, sep_save, n_: int, allocator: mem.Allocator, loc
             n = l
         }
 
-        res = slice_create([]string, n, allocator, loc) or_return
+        res = slice.create([]string, n, allocator, loc) or_return
         for i := 0; i < n-1; i += 1 {
             _, w := utf8.decode_rune_in_string(s)
             res[i] = s[:w]
@@ -832,7 +832,7 @@ _split :: proc(s_, sep: string, sep_save, n_: int, allocator: mem.Allocator, loc
         n = count(s, sep) + 1
     }
 
-    res = slice_create([]string, n, allocator, loc) or_return
+    res = slice.create([]string, n, allocator, loc) or_return
 
     n -= 1
 
@@ -1994,9 +1994,9 @@ repeat :: proc(s: string, count: int, allocator: mem.Allocator, loc := #caller_l
         panic("strings: repeat count will cause an overflow")
     }
 
-    b := slice_create([]byte, len(s)*count, allocator, loc) or_return
-    i := slice_copy_from_string(b, s)
-    for i < len(b) { // 2^N trick to reduce the need to slice_copy_from_string
+    b := slice.create([]byte, len(s)*count, allocator, loc) or_return
+    i := slice.copy_from_string(b, s)
+    for i < len(b) { // 2^N trick to reduce the need to slice.copy_from_string
         slice.copy(b[i:], b[:i])
         i *= 2
     }
@@ -2093,7 +2093,7 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
     }
 
 
-    t, err := slice_create([]byte, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
+    t, err := slice.create([]byte, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
     if err != nil {
         return
     }
@@ -2111,11 +2111,11 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
         } else {
             j += index(s[start:], old)
         }
-        w += slice_copy_from_string(t[w:], s[start:j])
-        w += slice_copy_from_string(t[w:], new)
+        w += slice.copy_from_string(t[w:], s[start:j])
+        w += slice.copy_from_string(t[w:], new)
         start = j + len(old)
     }
-    w += slice_copy_from_string(t[w:], s[start:])
+    w += slice.copy_from_string(t[w:], s[start:])
     output = string(t[0:w])
     return
 }
@@ -2708,7 +2708,7 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
         it = it[i+w:]
     }
 
-    results := dyn_array_create_len_cap([dynamic]string, 0, n, allocator, loc) or_return
+    results := dyn_array.create_len_cap([dynamic]string, 0, n, allocator, loc) or_return
     {
         it := s
         for len(it) > 0 {
@@ -2879,13 +2879,13 @@ Output:
 reverse :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     str := s
     n := len(str)
-    buf := slice_create([]byte, n, allocator, loc) or_return
+    buf := slice.create([]byte, n, allocator, loc) or_return
     i := n
 
     for len(str) > 0 {
         _, w := utf8.decode_rune_in_string(str)
         i -= w
-        slice_copy_from_string(buf[i:], str[:w])
+        slice.copy_from_string(buf[i:], str[:w])
         str = str[w:]
     }
     return string(buf), nil
@@ -3186,7 +3186,7 @@ fields :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> 
         return nil, nil
     }
 
-    a := slice_create([]string, n, allocator, loc) or_return
+    a := slice.create([]string, n, allocator, loc) or_return
     na := 0
     field_start := 0
     i := 0
@@ -3230,7 +3230,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
-    substrings := dyn_array_create_len_cap([dynamic]string, 0, 32, allocator, loc) or_return
+    substrings := dyn_array.create_len_cap([dynamic]string, 0, 32, allocator, loc) or_return
 
     start, end := -1, -1
     for r, offset in s {
@@ -3335,7 +3335,7 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
     costs: []int
 
     if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-        costs = slice_create([]int, n + 1, allocator, loc) or_return
+        costs = slice.create([]int, n + 1, allocator, loc) or_return
         for k in 0..=n {
             costs[k] = k
         }

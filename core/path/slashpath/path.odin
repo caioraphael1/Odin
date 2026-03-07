@@ -218,7 +218,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: mem.Allocator) 
             lb.w += 1
             return
         }
-        lb.b, _ = slice_create([]byte, len(lb.s), allocator)
+        lb.b, _ = slice.create([]byte, len(lb.s), allocator)
         slice.copy(lb.b, lb.s[:lb.w])
     }
     lb.b[lb.w] = c

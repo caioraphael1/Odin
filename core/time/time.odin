@@ -532,10 +532,10 @@ to_string_hms_12 :: proc(t: Time, buf: []u8, ampm: [2]string = {" am", " pm"}) -
     buf[0] = '0' + u8(_h)
 
     if h < 13 {
-        slice_copy_from_string(buf[8:], ampm[0])
+        slice.copy_from_string(buf[8:], ampm[0])
         return string(buf[:MIN_HMS_LEN+len(ampm[0])])
     } else {
-        slice_copy_from_string(buf[8:], ampm[1])
+        slice.copy_from_string(buf[8:], ampm[1])
         return string(buf[:MIN_HMS_LEN+len(ampm[1])])
     }
 }

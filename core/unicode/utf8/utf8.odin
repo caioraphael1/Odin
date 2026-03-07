@@ -1,6 +1,7 @@
 // Procedures and constants to support text-encoding in the `UTF-8` character encoding.
 import "base:internal"
 import "base:mem"
+import "base:slice"
 
 RUNE_ERROR :: '\ufffd'
 RUNE_SELF  :: 0x80
@@ -141,7 +142,7 @@ decode_rune_in_bytes :: proc(s: []u8) -> (rune, int) {
 string_to_runes :: proc(s: string, allocator: mem.Allocator) -> (runes: []rune) {
     n := rune_count_in_string(s)
 
-    runes, _ = slice_create([]rune, n, allocator)
+    runes, _ = slice.create([]rune, n, allocator)
     i := 0
     for r in s {
         runes[i] = r
@@ -157,7 +158,7 @@ runes_to_string :: proc(runes: []rune, allocator: mem.Allocator) -> string {
         byte_count += w
     }
 
-    bytes, _ := slice_create([]byte, byte_count, allocator)
+    bytes, _ := slice.create([]byte, byte_count, allocator)
     offset := 0
     for r in runes {
         b, w := encode_rune(r)

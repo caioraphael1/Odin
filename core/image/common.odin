@@ -779,7 +779,7 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
     case 8:
         buffer_size := compute_buffer_size(img.width, img.height, 1, 8)
         t = bytes.Buffer{}
-        _ = dyn_array_resize(&t.buf, buffer_size)
+        _ = dyn_array.resize(&t.buf, buffer_size)
 
         i := bytes.buffer_to_bytes(&img.pixels)
         o := bytes.buffer_to_bytes(&t)
@@ -792,7 +792,7 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
     case 16:
         buffer_size := compute_buffer_size(img.width, img.height, 1, 16)
         t = bytes.Buffer{}
-        _ = dyn_array_resize(&t.buf, buffer_size)
+        _ = dyn_array.resize(&t.buf, buffer_size)
 
         i := mem.slice_data_cast([]u16, img.pixels.buf[:])
         o := mem.slice_data_cast([]u16, t.buf[:])
@@ -926,7 +926,7 @@ alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator : 
     buf := bytes.Buffer{}
 
     // Can we allocate the return buffer?
-    if dyn_array_resize(&buf.buf, bytes_wanted) != nil {
+    if dyn_array.resize(&buf.buf, bytes_wanted) != nil {
         _ = slice.delete(buf.buf)
         return false
     }
@@ -1116,7 +1116,7 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
     buf := bytes.Buffer{}
 
     // Can we allocate the return buffer?
-    if dyn_array_resize(&buf.buf, bytes_wanted) != nil {
+    if dyn_array.resize(&buf.buf, bytes_wanted) != nil {
         _ = slice.delete(buf.buf)
         return false
     }
@@ -1365,7 +1365,7 @@ apply_palette_rgb :: proc(img: ^Image, palette: [256]RGB_Pixel, allocator : mem.
     // Can we allocate the return buffer?
     buf := bytes.Buffer{}
     bytes_wanted := compute_buffer_size(img.width, img.height, 3, 8)
-    if dyn_array_resize(&buf.buf, bytes_wanted) != nil {
+    if dyn_array.resize(&buf.buf, bytes_wanted) != nil {
         _ = slice.delete(buf.buf)
         return false
     }
@@ -1402,7 +1402,7 @@ apply_palette_rgba :: proc(img: ^Image, palette: [256]RGBA_Pixel, allocator : me
     // Can we allocate the return buffer?
     buf := bytes.Buffer{}
     bytes_wanted := compute_buffer_size(img.width, img.height, 4, 8)
-    if dyn_array_resize(&buf.buf, bytes_wanted) != nil {
+    if dyn_array.resize(&buf.buf, bytes_wanted) != nil {
         _ = slice.delete(buf.buf)
         return false
     }
@@ -1505,7 +1505,7 @@ expand_grayscale :: proc(img: ^Image, allocator : mem.Allocator) -> (ok: bool) {
     // Can we allocate the return buffer?
     buf := bytes.Buffer{}
     bytes_wanted := compute_buffer_size(img.width, img.height, img.channels + 2, img.depth)
-    if dyn_array_resize(&buf.buf, bytes_wanted) != nil {
+    if dyn_array.resize(&buf.buf, bytes_wanted) != nil {
         _ = slice.delete(buf.buf)
         return false
     }

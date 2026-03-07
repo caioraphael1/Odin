@@ -282,7 +282,7 @@ year_range :: proc (#any_int year: i64, allocator: mem.Allocator) -> (range: []D
     is_leap := is_leap_year(year)
 
     days := 366 if is_leap else 365
-    range, _ = slice_create([]Date, days, allocator)
+    range, _ = slice.create([]Date, days, allocator)
 
     month_days := MONTH_DAYS
     if is_leap {

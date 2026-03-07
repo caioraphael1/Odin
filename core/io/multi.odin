@@ -1,5 +1,6 @@
 import "base:internal"
 import "base:mem"
+import "base:dyn_array"
 
 Multi_Reader :: struct {
     readers: [dynamic]Reader,
@@ -31,12 +32,12 @@ _multi_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 
 
 multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: mem.Allocator) -> (r: Reader) {
-    all_readers, _ := dyn_array_create_len_cap([dynamic]Reader, 0, len(readers), allocator)
+    all_readers, _ := dyn_array.create_len_cap([dynamic]Reader, 0, len(readers), allocator)
 
     for w in readers {
         if w.procedure == _multi_reader_proc {
             other := (^Multi_Reader)(w.data)
-            _ = dyn_array_append_many(&all_readers, ..other.readers[:])
+            _ = dyn_array.append_many(&all_readers, ..other.readers[:])
         } else {
             _ = dyn_array.append(&all_readers, w)
         }
@@ -81,12 +82,12 @@ _multi_writer_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 
 
 multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: mem.Allocator) -> (out: Writer) {
-    mw.writers, _ = dyn_array_create_len_cap([dynamic]Writer, 0, len(writers), allocator)
+    mw.writers, _ = dyn_array.create_len_cap([dynamic]Writer, 0, len(writers), allocator)
 
     for w in writers {
         if w.procedure == _multi_writer_proc {
             other := (^Multi_Writer)(w.data)
-            _ = dyn_array_append_many(&mw.writers, ..other.writers[:])
+            _ = dyn_array.append_many(&mw.writers, ..other.writers[:])
         } else {
             _ = dyn_array.append(&mw.writers, w)
         }

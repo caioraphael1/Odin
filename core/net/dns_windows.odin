@@ -38,7 +38,7 @@ _init_dns_configuration :: proc() {
     sync.once_do_without_data(&dns_config_initialized, proc() {
         runtime.TEMP_ALLOCATOR_TEMP_GUARD()
         val := os.replace_environment_placeholders(dns_configuration.hosts_file, runtime.temp_allocator)
-        slice_copy_from_string(dns_configuration.hosts_file_buf[:], val)
+        slice.copy_from_string(dns_configuration.hosts_file_buf[:], val)
         dns_configuration.hosts_file = string(dns_configuration.hosts_file_buf[:len(val)])
     })
 }
@@ -75,7 +75,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
         count += 1
     }
 
-    recs, _ := dyn_array_create_len_cap([dynamic]DNS_Record, 0, count, allocator)
+    recs, _ := dyn_array.create_len_cap([dynamic]DNS_Record, 0, count, allocator)
     if recs == nil {
         return nil, .System_Error // return no results if OOM.
     }

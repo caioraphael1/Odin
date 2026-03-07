@@ -29,12 +29,12 @@ new_clone :: proc(arena: ^Arena, data: $T, loc := #caller_location) -> (ptr: ^T,
     return
 }
 
-// `slice_create` allocates and initializes a slice. Like `new`, the second argument is a type, not a value.
+// `slice.create` allocates and initializes a slice. Like `new`, the second argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
 //
 // Note: Prefer using the procedure group `make`.
 
-slice_create :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, loc := #caller_location) -> (T, Allocator_Error) {
+slice.create :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, loc := #caller_location) -> (T, Allocator_Error) {
     return slice_create_aligned(arena, T, len, align_of(E), loc)
 }
 
@@ -57,7 +57,7 @@ slice_create_aligned :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, 
 // `multi_pointer_create` allocates and initializes a dynamic array. Like `new`, the second argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
 //
-// This is "similar" to doing `raw_data(slice_create([]E, len, allocator))`.
+// This is "similar" to doing `raw_data(slice.create([]E, len, allocator))`.
 //
 // Note: Prefer using the procedure group `make`.
 
