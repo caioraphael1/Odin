@@ -1,6 +1,5 @@
 
 import "base:intrinsics"
-import "base:rand"
 import "base:mem"
 
 /*
@@ -11,7 +10,7 @@ PCG_Random_State :: struct {
     inc:   u64,
 }
 
-pcg_random_generator_proc :: proc(data: rawptr, mode: rand.Random_Generator_Mode, p: []byte) {
+pcg_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []byte) {
     read_u64 :: proc(r: ^PCG_Random_State) -> u64 {
         old_state := r.state
         r.state = old_state * 6364136223846793005 + (r.inc|1)
@@ -77,10 +76,10 @@ pcg_random_generator_proc :: proc(data: rawptr, mode: rand.Random_Generator_Mode
         init(r, seed)
 
     case .Query_Info:
-        if len(p) != size_of(Generator_Query_Info) {
+        if len(p) != size_of(Random_Generator_Query_Info) {
             return
         }
-        info := (^Generator_Query_Info)(raw_data(p))
+        info := (^Random_Generator_Query_Info)(raw_data(p))
         info^ += {.Uniform, .Resettable}
     }
 }
@@ -99,9 +98,9 @@ Inputs:
 - state: Optional initial PRNG state.
 
 Returns:
-- A `Generator` instance.
+- A `Random_Generator` instance.
 */
-pcg_random_generator :: proc(state: ^PCG_Random_State = nil) -> Generator {
+pcg_random_generator :: proc(state: ^PCG_Random_State = nil) -> Random_Generator {
     return {
         procedure = pcg_random_generator_proc,
         data = state,

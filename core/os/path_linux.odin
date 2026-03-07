@@ -16,7 +16,7 @@ _is_path_separator :: proc(c: byte) -> bool {
 }
 
 _mkdir :: proc(path: string, perm: int) -> Error {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     path_cstr := strings.cstring_clone_from_string(path, allocators.temp_allocator) or_return
     return _get_platform_error(linux.mkdir(path_cstr, transmute(linux.Mode)u32(perm)))
 }
@@ -50,7 +50,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
         }
         return _get_platform_error(errno)
     }
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     // need something we can edit, and use to generate cstrings
     path_bytes := slice.create([]u8, len(path) + 1, allocators.temp_allocator)
 
@@ -127,7 +127,7 @@ _remove_all :: proc(path: string) -> Error {
         return nil
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     path_cstr := strings.cstring_clone_from_string(path, allocators.temp_allocator) or_return
 
     fd, errno := linux.open(path_cstr, _OPENDIR_FLAGS)
@@ -166,14 +166,14 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (string, Error) {
 }
 
 _set_working_directory :: proc(dir: string) -> Error {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     dir_cstr := strings.cstring_clone_from_string(dir, allocators.temp_allocator) or_return
     return _get_platform_error(linux.chdir(dir_cstr))
 }
 
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     buf := dyn_array.create([dynamic]byte, 1024, allocators.temp_allocator) or_return
     for {
@@ -212,7 +212,7 @@ _get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_
         rel = "."
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     fd, errno := linux.open(strings.cstring_clone_from_string(path, allocators.temp_allocator) or_return, {})
     if errno != nil {

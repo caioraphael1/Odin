@@ -1,6 +1,6 @@
 /*
 	Compute CRC-16 in the manner of CCITT (ITU-T V.41), using the 0x1021 polynomial.
-	Generator polynomial: x^16 + x^12 + x^5 + 1
+	Random_Generator polynomial: x^16 + x^12 + x^5 + 1
 
 	Used in the UDF (DVD *.iso) disk format's Volume Descriptor Tag,
 	and was more historically the ITU-T V.41 CRC-16 used in the XModem protocol,
@@ -64,7 +64,7 @@ crc64_xz :: proc(data: []byte, seed := u64(0)) -> u64 #no_bounds_check {
 	return u64(~result)
 }
 
-// Generator polynomial: x^64 + x^4 + x^3 + x + 1
+// Random_Generator polynomial: x^64 + x^4 + x^3 + x + 1
 @(optimization_mode="favor_size")
 crc64_iso_3306 :: proc(data: []byte, seed := u64(0)) -> u64 #no_bounds_check {
 

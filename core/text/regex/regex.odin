@@ -424,7 +424,7 @@ match_iterator :: proc(it: ^Match_Iterator) -> (result: Capture, index: int, ok:
         return
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     if it.idx > 0 {
         // Reset the state needed to `virtual_machine.run` again.

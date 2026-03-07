@@ -28,7 +28,7 @@ import "core:strings"
 
 MAX_RUNE_CODEPOINT :: int(unicode.MAX_RUNE)
 
-write_rune   :: strings.write_rune
+write_rune   :: strings_tools.write_rune
 write_string :: strings_tools.write_string
 
 Error :: enum u8 {
@@ -183,7 +183,7 @@ decode_xml :: proc(input: string, options := XML_Decode_Options{}, allocator: me
 			}
 		}
 	}
-	return strings.string_clone(strings.to_string(builder), allocator), err
+	return strings.string_clone(strings_tools.to_string(builder), allocator), err
 }
 
 advance :: proc(t: ^Tokenizer) -> (err: Error) {

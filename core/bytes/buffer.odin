@@ -1,8 +1,9 @@
-import "core:io"
-import "core:unicode/utf8"
 import "base:mem"
 import "base:dyn_array"
 import "base:slice"
+
+import "core:io"
+import "core:unicode/utf8"
 
 MIN_READ :: 512
 

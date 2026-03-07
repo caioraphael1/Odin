@@ -569,7 +569,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^runtime.Type_Info) -> (er
             builder := strings_tools.builder_make(e.temp_allocator) or_return
             defer strings.builder_destroy(&builder)
             reflect.write_type(&builder, vti)
-            err_conv(_encode_text(e, strings.to_string(builder))) or_return
+            err_conv(_encode_text(e, strings_tools.to_string(builder))) or_return
         }
 
         return marshal_into(e, any{v.data, vti.id})

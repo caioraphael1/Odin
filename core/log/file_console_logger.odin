@@ -97,7 +97,7 @@ _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text
         fmt.sbprintf(&buf, "[%s] ", ident)
     }
     //TODO(Hoej): When we have better atomics and such, make this thread-safe
-    fmt.fprintf(h, "%s%s\n", strings.to_string(buf), text)
+    fmt.fprintf(h, "%s%s\n", strings_tools.to_string(buf), text)
 }
 
 file_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, options: Options, location := #caller_location) {

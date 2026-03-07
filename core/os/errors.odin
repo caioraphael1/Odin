@@ -2,6 +2,7 @@
 
 import "base:internal"
 import "base:mem"
+import "base:mem/allocators"
 import "base:slice"
 
 import "core:io"

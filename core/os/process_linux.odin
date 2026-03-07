@@ -61,7 +61,7 @@ _get_processor_core_count :: proc() -> (core_count: int) {
 
 @(private)
 _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     dir_fd, errno := linux.open("/proc/", _OPENDIR_FLAGS)
     #partial switch errno {
@@ -111,7 +111,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
 
 @(private)
 _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     info.pid = pid
 
@@ -245,7 +245,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
                 cmdline = cmdline[terminator + 1:]
             }
-            info.command_line = strings.to_string(command_line_builder)
+            info.command_line = strings_tools.to_string(command_line_builder)
             info.command_args = command_args_list[:]
         }
     }
@@ -295,7 +295,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             Nice,
             //... etc,
         }
-        stat_fields := strings.split(stats, " ", allocators.temp_allocator) or_return
+        stat_fields := strings_tools.split(stats, " ", allocators.temp_allocator) or_return
 
         if len(stat_fields) <= int(Fields.Nice) {
             break stat_if
@@ -338,7 +338,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         strings.write_int(&path_builder, pid)
         strings_tools.write_string(&path_builder, "/exe")
 
-        if exe_bytes, exe_err := _read_link(strings.to_string(path_builder), allocators.temp_allocator); exe_err == nil {
+        if exe_bytes, exe_err := _read_link(strings_tools.to_string(path_builder), allocators.temp_allocator); exe_err == nil {
             info.executable_path = strings.string_clone(string(exe_bytes), allocator) or_return
             info.fields += {.Executable_Path}
         } else {
@@ -403,7 +403,7 @@ _process_open :: proc(pid: int, _: Process_Open_Flags) -> (process: Process, err
 
 @(private)
 _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     if len(desc.command) == 0 {
         return process, .Invalid_Command
@@ -605,7 +605,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
 }
 
 _process_state_update_times :: proc(state: ^Process_State) -> (err: Error) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     stat_path_buf: [48]u8
     path_builder := strings.builder_from_bytes(stat_path_buf[:])

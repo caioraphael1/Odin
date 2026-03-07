@@ -31,7 +31,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
         sname := string(cname)
 
         n := len(fimpl.name)+1
-        if err := dyn_array_resize_non_zero(&it.impl.fullpath, n+len(sname)); err != nil {
+        if err := dyn_array.resize_non_zero(&it.impl.fullpath, n+len(sname)); err != nil {
             read_directory_iterator_set_error(it, sname, err)
             ok = true
             return

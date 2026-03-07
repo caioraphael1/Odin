@@ -86,7 +86,7 @@ doc_hash :: proc(doc: ^xml.Document, print := false) -> (crc32: u32) {
     w := strings.to_writer(&buf)
 
     xml.print(w, doc)
-    tree := strings.to_string(buf)
+    tree := strings_tools.to_string(buf)
     if print { fmt.println(tree) }
     return hash.crc32(transmute([]u8)tree)
 }

@@ -96,7 +96,7 @@ to_string_allocated :: proc(
     buf := slice.create([]byte, EXPECTED_LENGTH, allocator, loc) or_return
     builder := strings.builder_from_bytes(buf[:])
     unsafe_write(strings.to_writer(&builder), id)
-    return strings.to_string(builder), nil
+    return strings_tools.to_string(builder), nil
 }
 
 /*
@@ -124,5 +124,5 @@ to_string_buffer :: proc(
     )
     builder := strings.builder_from_bytes(buffer)
     unsafe_write(strings.to_writer(&builder), id)
-    return strings.to_string(builder)
+    return strings_tools.to_string(builder)
 }

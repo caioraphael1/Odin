@@ -55,9 +55,9 @@ clone_from_cstring_bounded :: proc(ptr: cstring, len: int, allocator: mem.Alloca
 Returns true when the string `substr` is contained inside the string `s`
 
 Example:
-    fmt.println(strings.contains("testing", "test"))
-    fmt.println(strings.contains("testing", "ing"))
-    fmt.println(strings.contains("testing", "text"))
+    fmt.println(strings_tools.contains("testing", "test"))
+    fmt.println(strings_tools.contains("testing", "ing"))
+    fmt.println(strings_tools.contains("testing", "text"))
 Output:
     true
     true
@@ -231,7 +231,7 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
     s := "aaa.bbb.ccc.ddd.eee"    // 5 parts
-    ss := strings.split(s, ".")
+    ss := strings_tools.split(s, ".")
     fmt.println(ss)
 Output:
     ["aaa", "bbb", "ccc", "ddd", "eee"]
@@ -632,10 +632,10 @@ index :: proc(s, substr: string) -> (res: int) {
 Returns the last byte offset of the string `substr` in the string `s`, -1 when not found.
 
 Example:
-    fmt.println(strings.last_index("test", "t"))
-    fmt.println(strings.last_index("test", "te"))
-    fmt.println(strings.last_index("test", "st"))
-    fmt.println(strings.last_index("test", "tt"))
+    fmt.println(strings_tools.last_index("test", "t"))
+    fmt.println(strings_tools.last_index("test", "te"))
+    fmt.println(strings_tools.last_index("test", "st"))
+    fmt.println(strings_tools.last_index("test", "tt"))
 Output:
     3
     0
@@ -742,11 +742,11 @@ index_any :: proc(s, chars: string) -> (res: int) {
 Finds the last occurrence of any character in `chars` within `s`. Iterates in reverse.
 
 Example:
-    fmt.println(strings.last_index_any("test", "s"))
-    fmt.println(strings.last_index_any("test", "se"))
-    fmt.println(strings.last_index_any("test", "et"))
-    fmt.println(strings.last_index_any("test", "set"))
-    fmt.println(strings.last_index_any("test", "x"))
+    fmt.println(strings_tools.last_index_any("test", "s"))
+    fmt.println(strings_tools.last_index_any("test", "se"))
+    fmt.println(strings_tools.last_index_any("test", "et"))
+    fmt.println(strings_tools.last_index_any("test", "set"))
+    fmt.println(strings_tools.last_index_any("test", "x"))
 Output:
     2
     2
@@ -842,11 +842,11 @@ index_multi :: proc(s: string, substrs: []string) -> (idx: int, width: int) {
 Counts the number of non-overlapping occurrences of `substr` in `s`
 
 Example:
-    fmt.println(strings.count("abbccc", "a"))
-    fmt.println(strings.count("abbccc", "b"))
-    fmt.println(strings.count("abbccc", "c"))
-    fmt.println(strings.count("abbccc", "ab"))
-    fmt.println(strings.count("abbccc", " "))
+    fmt.println(strings_tools.count("abbccc", "a"))
+    fmt.println(strings_tools.count("abbccc", "b"))
+    fmt.println(strings_tools.count("abbccc", "c"))
+    fmt.println(strings_tools.count("abbccc", "ab"))
+    fmt.println(strings_tools.count("abbccc", " "))
 Output:
     1
     2
@@ -1087,8 +1087,8 @@ Example:
     import "core:strings"
 
     trim_prefix_example :: proc() {
-        fmt.println(strings.trim_prefix("testing", "test"))
-        fmt.println(strings.trim_prefix("testing", "abc"))
+        fmt.println(strings_tools.trim_prefix("testing", "test"))
+        fmt.println(strings_tools.trim_prefix("testing", "abc"))
     }
 
 Output:

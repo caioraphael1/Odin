@@ -86,7 +86,7 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
                     }
                 }
             } else {
-                strings.write_rune(&sb, rune(path[0]))
+                strings_tools.write_rune(&sb, rune(path[0]))
             }
 
         case '$': // Posix
@@ -107,14 +107,14 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
                 }
 
             } else {
-                _, _ = strings.write_rune(&sb, rune(path[0]))
+                _, _ = strings_tools.write_rune(&sb, rune(path[0]))
             }
 
         case:
-            _, _ = strings.write_rune(&sb, rune(path[0]))
+            _, _ = strings_tools.write_rune(&sb, rune(path[0]))
         }
 
         path = path[1:]
     }
-    return strings.to_string(sb)
+    return strings_tools.to_string(sb)
 }

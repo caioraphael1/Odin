@@ -1,6 +1,8 @@
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
+import "base:slice"
+import "base:strings"
 
 @(private="file")
 MAX_ATTEMPTS :: 1<<13 // Should be enough for everyone, right?
@@ -25,7 +27,7 @@ create_temp_file :: proc(dir, pattern: string, allocator: mem.Allocator) -> (f: 
 
     attempts := 0
     for {
-        name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
+        name := strings.strings_concatenate_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
         f, err = open(name, {.Read, .Write, .Create, .Excl}, Permissions_Read_Write_All, allocator)
         if err == .Exist {
             _ = close(f)
@@ -57,7 +59,7 @@ make_directory_temp :: proc(dir, pattern: string, allocator: mem.Allocator) -> (
 
     attempts := 0
     for {
-        name := concatenate_strings_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
+        name := strings.strings_concatenate_from_buffer(name_buf[:], prefix, random_string(rand_buf[:]), suffix)
         err = make_directory(name, Permissions_Default_Directory)
         if err == nil {
             return strings.string_clone(name, allocator)
@@ -103,8 +105,8 @@ temp_directory :: proc(allocator: mem.Allocator) -> (string, Error) {
 @(private="file")
 temp_join_path :: proc(dir, name: string, allocator: mem.Allocator) -> (string, mem.Allocator_Error) {
     if len(dir) > 0 && is_path_separator(dir[len(dir)-1]) {
-        return concatenate({dir, name}, allocator)
+        return strings.string_concatenate({dir, name}, allocator)
     }
 
-    return concatenate({dir, Path_Separator_String, name}, allocator)
+    return strings.string_concatenate({dir, Path_Separator_String, name}, allocator)
 }

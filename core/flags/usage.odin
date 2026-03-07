@@ -222,7 +222,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
 
     if len(visible_flags) == 0 {
         // No visible flags. An unusual situation, but prevent any extra work.
-        fmt.wprint(out, strings.to_string(builder))
+        fmt.wprint(out, strings_tools.to_string(builder))
         return
     }
 
@@ -274,7 +274,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
                 strings_tools.write_byte(&usage_builder, '\n')
             }
 
-            strings_tools.write_string(&builder, strings.to_string(usage_builder))
+            strings_tools.write_string(&builder, strings_tools.to_string(usage_builder))
         } else {
             // Single-line usage documentation.
             spacing, _ := strings.string_repeat(" ",
@@ -288,5 +288,5 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
         }
     }
 
-    fmt.wprint(out, strings.to_string(builder))
+    fmt.wprint(out, strings_tools.to_string(builder))
 }

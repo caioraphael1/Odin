@@ -60,13 +60,13 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	// Append the system name (typically "Linux") and kernel release (looks like 6.5.2-arch1-1)
 	strings_tools.write_string(&b, ", ")
 	strings_tools.write_string(&b, string(cstring(&uts.sysname[0])))
-	strings.write_rune(&b, ' ')
+	strings_tools.write_rune(&b, ' ')
 
 	release_i := strings.builder_len(b)
 	strings_tools.write_string(&b, string(cstring(&uts.release[0])))
 	release_str := string(b.buf[release_i:])
 
-	res.full = strings.to_string(b)
+	res.full = strings_tools.to_string(b)
 
 	// Parse the Linux version out of the release string
 	version_loop: {

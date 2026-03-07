@@ -75,7 +75,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     }
 
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
     info.pid = pid
 
     // Thought on errors is: allocation failures return immediately (also why the non-allocation stuff is done first),
@@ -265,7 +265,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
         return
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     buffer := slice.create([]i32, ret, allocators.temp_allocator)
     ret = darwin.proc_listallpids(raw_data(buffer), ret*size_of(i32))

@@ -1,4 +1,3 @@
-import "base:rand"
 import "base:math"
 
 
@@ -17,7 +16,7 @@ import "base:math"
 //    https://www.jstatsoft.org/article/view/v005i08 [web page]
 //
 
-norm_float64 :: proc(gen: rand.Random_Generator) -> f64 {
+norm_float64 :: proc(gen: Random_Generator) -> f64 {
     rn :: 3.442619855899
 
     @(static, rodata)

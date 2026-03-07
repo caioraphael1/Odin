@@ -1,5 +1,7 @@
 // `Time`-related procedures and types, including `sleep`, `now`, and string formatting of moments.
-import    "base:intrinsics"
+import "base:intrinsics"
+import "base:slice"
+
 import dt "core:time/datetime"
 
 /*

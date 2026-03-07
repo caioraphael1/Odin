@@ -5,6 +5,8 @@ import "base:slice"
 import "base:strings"
 import "base:dyn_array"
 
+import "core:strings_tools"
+
 read_dir :: read_directory
 
 /*
@@ -239,9 +241,9 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
     for info in walker_walk(&w, allocator) {
         _ = walker_error(&w) or_break
 
-        rel := strings.trim_prefix(info.fullpath, abs_src)
+        rel := strings_tools.trim_prefix(info.fullpath, abs_src)
 
-        dyn_array_resize_non_zero(&dst_buf, 0) or_return
+        dyn_array.resize_non_zero(&dst_buf, 0) or_return
         dyn_array.reserve(&dst_buf, len(abs_dst) + len(Path_Separator_String) + len(rel)) or_return
         dyn_array.append_string(&dst_buf, abs_dst) or_return
         dyn_array.append_string(&dst_buf, Path_Separator_String) or_return

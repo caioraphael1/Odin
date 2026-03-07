@@ -159,7 +159,7 @@ parse_ip6_address :: proc(address_and_maybe_port: string) -> (addr: IP6_Address,
         Do a pre-pass on the string that checks how many `:` and `.` we have,
         if they're in the right order, and if the things between them are digits as expected.
 
-        It's not strictly necessary considering we could use `strings.split`,
+        It's not strictly necessary considering we could use `strings_tools.split`,
         but this way we can avoid using an allocator and return earlier on bogus input. Win-win.
     */
     colon_count  := 0
@@ -202,7 +202,7 @@ parse_ip6_address :: proc(address_and_maybe_port: string) -> (addr: IP6_Address,
     // Assign the last piece string.
     pieces_temp[colon_count] = address[piece_start:]
 
-    // `pieces` now holds the same output as it would if had used `strings.split`.
+    // `pieces` now holds the same output as it would if had used `strings_tools.split`.
     pieces := pieces_temp[:colon_count + 1]
 
     // Check if we have what looks like an embedded IPv4 address.
@@ -427,7 +427,7 @@ parse_hostname_or_endpoint :: proc(endpoint_str: string) -> (target: Host_Or_End
 // Returns ok=false if port is not a number.
 split_port :: proc(endpoint_str: string) -> (addr_or_host: string, port: int, ok: bool) {
     // IP6 [addr_or_host]:port
-    if i := strings.last_index(endpoint_str, "]:"); i >= 0 {
+    if i := strings_tools.last_index(endpoint_str, "]:"); i >= 0 {
         addr_or_host = endpoint_str[1:i]
         port, ok = strconv.parse_int(endpoint_str[i+2:], 10)
 
@@ -437,9 +437,9 @@ split_port :: proc(endpoint_str: string) -> (addr_or_host: string, port: int, ok
         return
     }
 
-    if n := strings.count(endpoint_str, ":"); n == 1 {
+    if n := strings_tools.count(endpoint_str, ":"); n == 1 {
         // IP4 addr_or_host:port
-        i := strings.last_index(endpoint_str, ":")
+        i := strings_tools.last_index(endpoint_str, ":")
         assert(i != -1)
 
         addr_or_host = endpoint_str[:i]
@@ -474,7 +474,7 @@ join_port_allocator :: proc(address_or_host: string, port: int, allocator: mem.A
         strings_tools.write_string(&b, addr_or_host)
         strings_tools.write_string(&b, ":")
         strings.write_int(&b, port)
-        return strings.to_string(b)
+        return strings_tools.to_string(b)
     } else {
         return _join_port_internal(addr, port, &b)
     }
@@ -493,7 +493,7 @@ join_port_builder :: proc(address_or_host: string, port: int, b: ^strings_tools.
         strings_tools.write_string(b, addr_or_host)
         strings_tools.write_string(b, ":")
         strings.write_int(b, port)
-        return strings.to_string(b^)
+        return strings_tools.to_string(b^)
     } else {
         return _join_port_internal(addr, port, b)
     }
@@ -514,7 +514,7 @@ _join_port_internal :: proc(addr: Address, port: int, b: ^strings_tools.Builder)
         strings_tools.write_string(b, "]:")
         strings.write_int(b, port)
     }
-    return strings.to_string(b^)
+    return strings_tools.to_string(b^)
 }
 
 // TODO(tetra): Do we need this?
@@ -639,7 +639,7 @@ address_to_string_builder :: proc(addr: Address, b: ^strings_tools.Builder) -> s
             }
         }
     }
-    return strings.to_string(b^)
+    return strings_tools.to_string(b^)
 }
 
 // Returns a temporarily-allocated string representation of the endpoint.

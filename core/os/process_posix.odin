@@ -48,7 +48,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         return
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // search PATH if just a plain name is provided.
     exe_builder := strings_tools.builder_make(allocators.temp_allocator)

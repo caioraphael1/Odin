@@ -3,8 +3,10 @@ import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
 import "base:slice"
+import "base:dyn_array"
 import "base:strings"
 
+import "core:strings_tools"
 import win32 "core:sys/windows"
 
 _Path_Separator        :: '\\'

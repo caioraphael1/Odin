@@ -780,7 +780,7 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> stri
             strings_tools.write_string(&builder, arg)
         }
     }
-    return strings.to_string(builder)
+    return strings_tools.to_string(builder)
 }
 
 _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (envs: []string, err: Error) {
@@ -844,5 +844,5 @@ _build_environment_block :: proc(environment: []string, allocator: mem.Allocator
     // Note(flysand): In addition to the NUL-terminator for each string, the
     // environment block itself is NUL-terminated.
     strings_tools.write_byte(&builder, 0)
-    return strings.to_string(builder)
+    return strings_tools.to_string(builder)
 }

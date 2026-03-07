@@ -255,7 +255,7 @@ when ODIN_NO_CRT {
             return
         }
 
-        runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+        allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
         ckey := strings.cstring_clone_from_string(key, allocators.temp_allocator)
         cval := posix.getenv(ckey)
@@ -298,7 +298,7 @@ when ODIN_NO_CRT {
     }
 
     _set_env :: proc(key, value: string) -> (err: Error) {
-        runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+        allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
         ckey := strings.cstring_clone_from_string(key,   runtime.allocators.temp_allocator) or_return
         cval := strings.cstring_clone_from_string(value, runtime.allocators.temp_allocator) or_return
@@ -312,7 +312,7 @@ when ODIN_NO_CRT {
     }
 
     _unset_env :: proc(key: string) -> (ok: bool) {
-        runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+        allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
         ckey := strings.cstring_clone_from_string(key, runtime.allocators.temp_allocator)
 

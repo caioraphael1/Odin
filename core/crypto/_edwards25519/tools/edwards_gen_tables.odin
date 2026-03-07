@@ -133,5 +133,5 @@ main :: proc() {
 
     fmt.wprintln(w, "}")
 
-    _ = os.write_entire_file(fn, transmute([]byte)(strings.to_string(bld)))
+    _ = os.write_entire_file(fn, transmute([]byte)(strings_tools.to_string(bld)))
 }

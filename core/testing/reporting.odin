@@ -250,7 +250,7 @@ redraw_package :: proc(w: io.Writer, report: Report, pkg: ^Package_Run) {
 		)
 	}
 
-	pkg.redraw_string = strings.to_string(line_builder)
+	pkg.redraw_string = strings_tools.to_string(line_builder)
 	pkg.frame_ready = true
 	io.write_string(w, pkg.redraw_string)
 }

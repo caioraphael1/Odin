@@ -3,6 +3,7 @@
 import "base:internal"
 import "base:mem"
 import "base:slice"
+import "base:dyn_array"
 import "base:strings"
 
 import "core:time"

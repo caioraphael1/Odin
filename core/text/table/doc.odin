@@ -136,7 +136,7 @@ Example:
         // The table is inaccessible, now that we're back in the first-level scope.
 
         // But now the results are stored in the string builder, which can be converted to a string.
-        my_table_string := strings.to_string(string_buffer)
+        my_table_string := strings_tools.to_string(string_buffer)
 
         // Remember that the string's allocated backing data lives in the
         // builder and must still be freed.

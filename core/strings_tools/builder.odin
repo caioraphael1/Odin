@@ -235,9 +235,9 @@ Example:
         bytes: [8]byte // <-- gets filled
         builder := strings.builder_from_bytes(bytes[:])
         strings_tools.write_byte(&builder, 'a')
-        fmt.println(strings.to_string(builder)) // -> "a"
+        fmt.println(strings_tools.to_string(builder)) // -> "a"
         strings_tools.write_byte(&builder, 'b')
-        fmt.println(strings.to_string(builder)) // -> "ab"
+        fmt.println(strings_tools.to_string(builder)) // -> "ab"
     }
 
 Output:
@@ -364,7 +364,7 @@ Example:
         builder := strings_tools.builder_make()
         strings_tools.write_byte(&builder, 'a')        // 1
         strings_tools.write_byte(&builder, 'b')        // 1
-        fmt.println(strings.to_string(builder))  // -> ab
+        fmt.println(strings_tools.to_string(builder))  // -> ab
     }
 
 Output:
@@ -396,7 +396,7 @@ Example:
         builder := strings_tools.builder_make()
         bytes := [?]byte { 'a', 'b', 'c' }
         strings.write_bytes(&builder, bytes[:]) // 3
-        fmt.println(strings.to_string(builder)) // -> abc
+        fmt.println(strings_tools.to_string(builder)) // -> abc
     }
 
 NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` states the number actually written.
@@ -432,9 +432,9 @@ Example:
 
     write_rune_example :: proc() {
         builder := strings_tools.builder_make()
-        strings.write_rune(&builder, 'ä')     // 2 None
-        strings.write_rune(&builder, 'b')       // 1 None
-        fmt.println(strings.to_string(builder)) // -> äb
+        strings_tools.write_rune(&builder, 'ä')     // 2 None
+        strings_tools.write_rune(&builder, 'b')       // 1 None
+        fmt.println(strings_tools.to_string(builder)) // -> äb
     }
 
 Output:
@@ -468,7 +468,7 @@ Example:
         strings_tools.write_string(&builder, "abc")      // 3
         strings.write_quoted_rune(&builder, 'ä') // 4
         strings_tools.write_string(&builder, "abc")      // 3
-        fmt.println(strings.to_string(builder))    // -> abc'ä'abc
+        fmt.println(strings_tools.to_string(builder))    // -> abc'ä'abc
     }
 
 Output:
@@ -501,7 +501,7 @@ Example:
         builder := strings_tools.builder_make()
         strings_tools.write_string(&builder, "a")     // 1
         strings_tools.write_string(&builder, "bc")    // 2
-        fmt.println(strings.to_string(builder)) // -> abc
+        fmt.println(strings_tools.to_string(builder)) // -> abc
     }
 
 Output:
@@ -580,7 +580,7 @@ Example:
         strings.write_quoted_string(&builder, "a")        // 3
         strings.write_quoted_string(&builder, "bc", '\'') // 4
         strings.write_quoted_string(&builder, "xyz")      // 5
-        fmt.println(strings.to_string(builder))
+        fmt.println(strings_tools.to_string(builder))
     }
 
 Output:
@@ -616,7 +616,7 @@ Example:
         _, _ = strings.write_encoded_rune(&builder, 'a', false) // 1
         _, _ = strings.write_encoded_rune(&builder, '\"', true) // 3
         _, _ = strings.write_encoded_rune(&builder, 'x', false) // 1
-        fmt.println(strings.to_string(builder))
+        fmt.println(strings_tools.to_string(builder))
     }
 
 Output:
@@ -728,7 +728,7 @@ Example:
         strings.write_f32(&builder, 3.14159, 'f') // 6
         strings_tools.write_string(&builder, " - ")     // 3
         strings.write_f32(&builder, -0.123, 'e')  // 8
-        fmt.println(strings.to_string(builder))   // -> 3.14159012 - -1.23000003e-01
+        fmt.println(strings_tools.to_string(builder))   // -> 3.14159012 - -1.23000003e-01
     }
 
 Output:

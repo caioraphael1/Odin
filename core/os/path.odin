@@ -411,7 +411,7 @@ stem :: proc(path: string) -> string {
 
     // Get the base path.
     p := base(path)
-    if i := strings.last_index_any(p, Path_Separator_Chars); i != -1 {
+    if i := strings_tools.last_index_any(p, Path_Separator_Chars); i != -1 {
         p = p[i+1:]
     }
 
@@ -490,7 +490,7 @@ long_ext :: proc(path: string) -> string {
 
     // NOTE(tetra): Get the basename
     path := path
-    if i := strings.last_index_any(path, Path_Separator_Chars); i != -1 {
+    if i := strings_tools.last_index_any(path, Path_Separator_Chars); i != -1 {
         path = path[i+1:]
     }
 
@@ -678,7 +678,7 @@ match :: proc(pattern, name: string) -> (matched: bool, err: Error) {
         chunk: string
         star, chunk, pattern = scan_chunk(pattern)
         if star && chunk == "" {
-            return !strings.contains(name, _Path_Separator_String), nil
+            return !strings_tools.contains(name, _Path_Separator_String), nil
         }
 
         t, ok := match_chunk(chunk, name) or_return

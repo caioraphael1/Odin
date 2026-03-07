@@ -77,7 +77,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Al
     it.impl.prev_fi = fi
 
     if err != nil {
-        runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+        allocators.TEMP_ALLOCATOR_TEMP_GUARD()
         path, _ := _get_full_path(entry_fd, allocators.temp_allocator)
         read_directory_iterator_set_error(it, path, err)
     }

@@ -41,7 +41,7 @@ local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool)
 			return
 		}
 
-		if strings.contains(upper_path_chunk, "zoneinfo") {
+		if strings_tools.contains(upper_path_chunk, "zoneinfo") {
 			region_str, err := strings.string_clone(path_file, allocator)
 			if err != nil { return }
 			return region_str, true

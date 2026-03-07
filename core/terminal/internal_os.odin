@@ -33,13 +33,13 @@ get_environment_color :: proc() -> Color_Depth {
     }
 
     if term, err := os.lookup_env_buf(buf[:], "TERM"); err == nil {
-        if strings.contains(term, "-truecolor") {
+        if strings_tools.contains(term, "-truecolor") {
             return .True_Color
         }
-        if strings.contains(term, "-256color") {
+        if strings_tools.contains(term, "-256color") {
             return .Eight_Bit
         }
-        if strings.contains(term, "-16color") {
+        if strings_tools.contains(term, "-16color") {
             return .Four_Bit
         }
 

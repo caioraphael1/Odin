@@ -473,7 +473,7 @@ parse_prologue :: proc(doc: ^Document) -> (err: Error) {
 			}
 
 		case "encoding":
-            runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             switch strings.to_lower(attr.val, allocators.temp_allocator) {
 			case "utf-8", "utf8":
 				doc.encoding = .UTF_8

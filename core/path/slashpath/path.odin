@@ -3,8 +3,12 @@
 // This package does not deal with Windows/NT paths with volume letters or backslashes
 // To manipulate operating system specific paths, use the path/filepath package
 import "base:internal"
-import "core:strings"
 import "base:mem"
+import "base:mem/allocators"
+import "base:slice"
+import "base:strings"
+
+import "core:strings_tools"
 
 // is_separator checks whether the byte is a valid separator character
 is_separator :: proc(c: byte) -> bool {
@@ -38,7 +42,7 @@ base :: proc(path: string, new := false, allocator: mem.Allocator) -> (last_elem
     for len(path) > 0 && is_separator(path[len(path)-1]) {
         path = path[:len(path)-1]
     }
-    if i := strings.last_index(path, "/"); i >= 0 {
+    if i := strings_tools.last_index(path, "/"); i >= 0 {
         path = path[i+1:]
     }
 
@@ -66,13 +70,13 @@ dir :: proc(path: string, allocator: mem.Allocator) -> string {
 // If there is no slash in path, it returns an empty dir and file set to path
 // The returned values have the property that path = dir+file
 split :: proc(path: string) -> (dir, file: string) {
-    i := strings.last_index(path, "/")
+    i := strings_tools.last_index(path, "/")
     return path[:i+1], path[i+1:]
 }
 
 // split_elements splits the path elements into slices of the original path string
 split_elements :: proc(path: string, allocator: mem.Allocator) -> []string {
-    splitted, _ := strings.split(path, "/", allocator)
+    splitted, _ := strings_tools.split(path, "/", allocator)
     return splitted
 }
 
@@ -149,7 +153,7 @@ clean :: proc(path: string, allocator: mem.Allocator) -> string {
 join :: proc(elems: []string, allocator: mem.Allocator) -> string {
     for elem, i in elems {
         if elem != "" {
-            runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+            allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
             s, _ := strings.string_join(elems[i:], "/", allocators.temp_allocator)
             return clean(s, allocator)
         }
@@ -219,7 +223,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: mem.Allocator) 
             return
         }
         lb.b, _ = slice.create([]byte, len(lb.s), allocator)
-        slice.copy(lb.b, lb.s[:lb.w])
+        slice.copy_from_string(lb.b, lb.s[:lb.w])
     }
     lb.b[lb.w] = c
     lb.w += 1

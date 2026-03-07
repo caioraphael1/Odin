@@ -27,7 +27,7 @@ _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     // TODO(laytan): is this on all the posix targets?
     strings_tools.write_string(&rname, "/dev/fd/")
     strings.write_int(&rname, int(fds[0]))
-    ri.name  = strings.to_string(rname)
+    ri.name  = strings_tools.to_string(rname)
     ri.cname = strings.to_cstring(&rname) or_return
 
     w = _new_file_internal(fds[1], allocator)
@@ -37,7 +37,7 @@ _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     // TODO(laytan): is this on all the posix targets?
     strings_tools.write_string(&wname, "/dev/fd/")
     strings.write_int(&wname, int(fds[1]))
-    wi.name  = strings.to_string(wname)
+    wi.name  = strings_tools.to_string(wname)
     wi.cname = strings.to_cstring(&wname) or_return
 
     return

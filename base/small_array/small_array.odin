@@ -230,7 +230,7 @@ Example:
         fmt.println(small_array.slice(&a))
 
         // resizing makes the change visible
-        small_array.dyn_array_resize_non_zero(&a, 100)
+        small_array.dyn_array.resize_non_zero(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 
@@ -311,10 +311,10 @@ Example:
         small_array.push_back(&a, 2)
         fmt.println(small_array.slice(&a))
 
-        small_array.dyn_array_resize_non_zero(&a, 1)
+        small_array.dyn_array.resize_non_zero(&a, 1)
         fmt.println(small_array.slice(&a))
 
-        small_array.dyn_array_resize_non_zero(&a, 100)
+        small_array.dyn_array.resize_non_zero(&a, 100)
         fmt.println(small_array.slice(&a))
     }
 

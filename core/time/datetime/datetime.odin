@@ -7,6 +7,7 @@ Reingold & Dershowitz
 import "base:intrinsics"
 import "base:internal"
 import "base:mem"
+import "base:slice"
 
 /*
 Obtain an ordinal from a date.

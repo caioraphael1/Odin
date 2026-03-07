@@ -369,7 +369,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
     }
     length = header_end_index + len(HEADER_END)
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     // string buffer for the tupltype
     tupltype: strings_tools.Builder
@@ -440,7 +440,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
         return
     }
 
-    header.tupltype = strings.string_clone(strings.to_string(tupltype))
+    header.tupltype = strings.string_clone(strings_tools.to_string(tupltype))
     err = Format_Error.None
     return
 }

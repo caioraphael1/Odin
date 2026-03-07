@@ -32,7 +32,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	strings.write_int(&b, revision)
 
 	// Finalize pretty name.
-	res.full = strings.to_string(b)
+	res.full = strings_tools.to_string(b)
 
 	// Retrieve kernel release using `sysctl`, e.g. 13.1-RELEASE-p2
 	mib = []i32{sys.CTL_KERN, sys.KERN_OSRELEASE}

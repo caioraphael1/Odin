@@ -58,7 +58,7 @@ log :: proc(logger: Logger, level: Level, args: ..any, sep := " ", location := #
 	if level < logger.lowest_level {
 		return
 	}
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+	allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 	str := fmt.tprint(..args, sep=sep)
 	logger.procedure(logger.data, level, str, logger.options, location)
 }
@@ -70,7 +70,7 @@ logf :: proc(logger: Logger, level: Level, fmt_str: string, args: ..any, locatio
 	if level < logger.lowest_level {
 		return
 	}
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+	allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 	str := fmt.tprintf(fmt_str, ..args)
 	logger.procedure(logger.data, level, str, logger.options, location)
 }

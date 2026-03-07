@@ -114,7 +114,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     wpath_search, _ := slice.create([]u16, len(wpath)+3, allocators.temp_allocator)
-    slice_copy_from_string16(wpath_search, wpath)
+    slice.copy_from_string16(wpath_search, wpath)
     wpath_search[len(wpath)+0] = '\\'
     wpath_search[len(wpath)+1] = '*'
     wpath_search[len(wpath)+2] = 0

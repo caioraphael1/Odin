@@ -119,7 +119,7 @@ _user_home_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 }
 
 _xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: mem.Allocator) -> (dir: string, err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
 	if xdg_key == "" { // Darwin doesn't have XDG paths.
 		dir = get_env("HOME", allocators.temp_allocator)
@@ -149,7 +149,7 @@ _xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: mem.All
 
 // If `<config-dir>/user-dirs.dirs` doesn't exist, or `xdg_key` can't be found there: returns `""`
 _xdg_user_dirs_lookup :: proc(xdg_key: string, allocator: mem.Allocator) -> (dir: string, err: Error) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 	config_dir      := user_config_dir(allocators.temp_allocator) or_return
 	user_dirs_path  := concatenate({config_dir, "/user-dirs.dirs"}, allocators.temp_allocator) or_return
 	content         := read_entire_file(user_dirs_path, allocators.temp_allocator) or_return

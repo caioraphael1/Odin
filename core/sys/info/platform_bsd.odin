@@ -27,7 +27,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 		return
 	}
 
-	strings.write_rune(&b, ' ')
+	strings_tools.write_rune(&b, ' ')
 	version := string(cstring(raw_data(kernel_version_buf[:])))
 	strings_tools.write_string(&b, version)
 
@@ -45,7 +45,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	strings.write_int(&b, revision)
 
 	// Finalize pretty name.
-	res.full = strings.to_string(b)
+	res.full = strings_tools.to_string(b)
 
 	return res, true
 }

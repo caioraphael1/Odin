@@ -363,7 +363,7 @@ caprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> cstring {
     strings_tools.builder_init(&str, allocator)
     sbprint(&str, ..args, sep=sep)
     strings_tools.write_byte(&str, 0)
-    s := strings.to_string(str)
+    s := strings_tools.to_string(str)
     return cstring(raw_data(s))
 }
 
@@ -384,7 +384,7 @@ caprintf :: proc(format: string, args: []any, allocator: mem.Allocator, newline 
     strings_tools.builder_init(&str, allocator)
     _ = sbprintf(&str, format, ..args, newline=newline)
     strings_tools.write_byte(&str, 0)
-    s := strings.to_string(str)
+    s := strings_tools.to_string(str)
     return cstring(raw_data(s))
 }
 // Creates a formatted C string, followed by a newline.
@@ -456,7 +456,7 @@ ctprintfln :: proc(format: string, args: ..any) -> cstring {
 @(optional_results)
 sbprint :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string {
     wprint(strings.to_writer(buf), ..args, sep=sep, flush=true)
-    return strings.to_string(buf^)
+    return strings_tools.to_string(buf^)
 }
 // Formats and writes to a strings_tools.Builder buffer using the default print settings
 //
@@ -470,7 +470,7 @@ sbprint :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string 
 @(optional_results)
 sbprintln :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string {
     wprintln(strings.to_writer(buf), ..args, sep=sep, flush=true)
-    return strings.to_string(buf^)
+    return strings_tools.to_string(buf^)
 }
 // Formats and writes to a strings_tools.Builder buffer according to the specified format string
 //
@@ -485,7 +485,7 @@ sbprintln :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> strin
 @(optional_results)
 sbprintf :: proc(buf: ^strings_tools.Builder, fmt: string, args: ..any, newline := false) -> string {
     wprintf(strings.to_writer(buf), fmt, ..args, flush=true, newline=newline)
-    return strings.to_string(buf^)
+    return strings_tools.to_string(buf^)
 }
 // Formats and writes to a strings_tools.Builder buffer according to the specified format string, followed by a newline.
 //

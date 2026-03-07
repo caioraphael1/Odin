@@ -1,15 +1,9 @@
 // Random number generators.
 import "base:intrinsics"
-import "base:rand"
 import "base:math"
 import "base:mem"
 import "base:slice"
 
-Generator :: rand.Random_Generator
-
-Generator_Query_Info :: rand.Random_Generator_Query_Info
-
-Default_Random_State :: rand.Default_Random_State
 
 /*
 Returns an instance of the rand pseudorandom generator.  If no
@@ -32,19 +26,19 @@ Inputs:
 - state: Optional initial PRNG state.
 
 Returns:
-- A `Generator` instance.
+- A `Random_Generator` instance.
 */
 
 
 create_u64 :: proc(seed: u64) -> (state: Default_Random_State) {
     seed := seed
-    rand.default_random_generator_proc(&state, .Reset, ([^]byte)(&seed)[:size_of(seed)])
+    default_random_generator_proc(&state, .Reset, ([^]byte)(&seed)[:size_of(seed)])
     return
 }
 
 
 create_bytes :: proc(seed: []byte) -> (state: Default_Random_State) {
-    rand.default_random_generator_proc(&state, .Reset, seed)
+    default_random_generator_proc(&state, .Reset, seed)
     return
 }
 
@@ -58,8 +52,8 @@ Example:
     import "core:fmt"
 
     reset_example :: proc() {
-        rand.reset(1)
-        fmt.println(rand.uint64())
+        reset(1)
+        fmt.println(uint64())
     }
 
 Possible Output:
@@ -68,16 +62,16 @@ Possible Output:
 */
 
 
-reset_u64 :: proc(seed: u64, gen: rand.Random_Generator) {
-    rand.random_generator_reset_u64(gen, seed)
+reset_u64 :: proc(seed: u64, gen: Random_Generator) {
+    random_generator_reset_u64(gen, seed)
 }
 
-reset_bytes :: proc(bytes: []byte, gen: rand.Random_Generator) {
-    rand.random_generator_reset_bytes(gen, bytes)
+reset_bytes :: proc(bytes: []byte, gen: Random_Generator) {
+    random_generator_reset_bytes(gen, bytes)
 }
 
-query_info :: proc(gen: rand.Random_Generator) -> Generator_Query_Info {
-    return rand.random_generator_query_info(gen)
+query_info :: proc(gen: Random_Generator) -> Random_Generator_Query_Info {
+    return random_generator_query_info(gen)
 }
 
 
@@ -92,7 +86,7 @@ Example:
     import "core:fmt"
 
     uint32_example :: proc() {
-        fmt.println(rand.uint32())
+        fmt.println(uint32())
     }
 
 Possible Output:
@@ -102,7 +96,7 @@ Possible Output:
 
 */
 
-uint32 :: proc(gen: rand.Random_Generator) -> (val: u32) {return u32(uint64(gen))}
+uint32 :: proc(gen: Random_Generator) -> (val: u32) {return u32(uint64(gen))}
 
 /*
 Generates a random 64 bit value using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -115,7 +109,7 @@ Example:
     import "core:fmt"
 
     uint64_example :: proc() {
-        fmt.println(rand.uint64())
+        fmt.println(uint64())
     }
 
 Possible Output:
@@ -125,8 +119,8 @@ Possible Output:
 
 */
 
-uint64 :: proc(gen: rand.Random_Generator) -> (val: u64) {
-    ok := rand.random_generator_read_ptr(gen, &val, size_of(val))
+uint64 :: proc(gen: Random_Generator) -> (val: u64) {
+    ok := random_generator_read_ptr(gen, &val, size_of(val))
     assert(ok, "uninitialized gen/random_generator")
     return
 }
@@ -142,7 +136,7 @@ Example:
     import "core:fmt"
 
     uint128_example :: proc() {
-        fmt.println(rand.uint128())
+        fmt.println(uint128())
     }
 
 Possible Output:
@@ -152,7 +146,7 @@ Possible Output:
 
 */
 
-uint128 :: proc(gen: rand.Random_Generator) -> (val: u128) {
+uint128 :: proc(gen: Random_Generator) -> (val: u128) {
     a := u128(uint64(gen))
     b := u128(uint64(gen))
     return (a<<64) | b
@@ -170,7 +164,7 @@ Example:
     import "core:fmt"
 
     int31_example :: proc() {
-        fmt.println(rand.int31())
+        fmt.println(int31())
     }
 
 Possible Output:
@@ -179,7 +173,7 @@ Possible Output:
     389
 
 */
- int31  :: proc(gen: rand.Random_Generator) -> (val: i32)  { return i32(uint32(gen) << 1 >> 1) }
+ int31  :: proc(gen: Random_Generator) -> (val: i32)  { return i32(uint32(gen) << 1 >> 1) }
 
 /*
 Generates a random 63 bit value using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -193,7 +187,7 @@ Example:
     import "core:fmt"
 
     int63_example :: proc() {
-        fmt.println(rand.int63())
+        fmt.println(int63())
     }
 
 Possible Output:
@@ -202,7 +196,7 @@ Possible Output:
     389
 
 */
- int63  :: proc(gen: rand.Random_Generator) -> (val: i64)  { return i64(uint64(gen) << 1 >> 1) }
+ int63  :: proc(gen: Random_Generator) -> (val: i64)  { return i64(uint64(gen) << 1 >> 1) }
 
 /*
 Generates a random 127 bit value using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -216,7 +210,7 @@ Example:
     import "core:fmt"
 
     int127_example :: proc() {
-        fmt.println(rand.int127())
+        fmt.println(int127())
     }
 
 Possible Output:
@@ -225,7 +219,7 @@ Possible Output:
     389
 
 */
- int127 :: proc(gen: rand.Random_Generator) -> (val: i128) { return i128(uint128(gen) << 1 >> 1) }
+ int127 :: proc(gen: Random_Generator) -> (val: i128) { return i128(uint128(gen) << 1 >> 1) }
 
 /*
 Generates a random 31 bit value in the range `[0, n)` using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -243,7 +237,7 @@ Example:
     import "core:fmt"
 
     int31_max_example :: proc() {
-        fmt.println(rand.int31_max(16))
+        fmt.println(int31_max(16))
     }
 
 Possible Output:
@@ -253,7 +247,7 @@ Possible Output:
 
 */
 
-int31_max :: proc(n: i32, gen: rand.Random_Generator) -> (val: i32) {
+int31_max :: proc(n: i32, gen: Random_Generator) -> (val: i32) {
     if n <= 0 {
         panic("Invalid argument to int31_max")
     }
@@ -284,7 +278,7 @@ Example:
     import "core:fmt"
 
     int63_max_example :: proc() {
-        fmt.println(rand.int63_max(16))
+        fmt.println(int63_max(16))
     }
 
 Possible Output:
@@ -294,7 +288,7 @@ Possible Output:
 
 */
 
-int63_max :: proc(n: i64, gen: rand.Random_Generator) -> (val: i64) {
+int63_max :: proc(n: i64, gen: Random_Generator) -> (val: i64) {
     if n <= 0 {
         panic("Invalid argument to int63_max")
     }
@@ -325,7 +319,7 @@ Example:
     import "core:fmt"
 
     int127_max_example :: proc() {
-        fmt.println(rand.int127_max(16))
+        fmt.println(int127_max(16))
     }
 
 Possible Output:
@@ -335,7 +329,7 @@ Possible Output:
 
 */
 
-int127_max :: proc(n: i128, gen: rand.Random_Generator) -> (val: i128) {
+int127_max :: proc(n: i128, gen: Random_Generator) -> (val: i128) {
     if n <= 0 {
         panic("Invalid argument to int127_max")
     }
@@ -366,7 +360,7 @@ Example:
     import "core:fmt"
 
     int_max_example :: proc() {
-        fmt.println(rand.int_max(16))
+        fmt.println(int_max(16))
     }
 
 Possible Output:
@@ -376,7 +370,7 @@ Possible Output:
 
 */
 
-int_max :: proc(n: int, gen: rand.Random_Generator) -> (val: int) {
+int_max :: proc(n: int, gen: Random_Generator) -> (val: int) {
     if n <= 0 {
         panic("Invalid argument to int_max")
     }
@@ -403,7 +397,7 @@ Example:
     import "core:fmt"
 
     uint32_max_example :: proc() {
-        fmt.println(rand.uint32_max(16))
+        fmt.println(uint32_max(16))
     }
 
 Possible Output:
@@ -413,7 +407,7 @@ Possible Output:
 
 */
 
-uint32_max :: proc(n: u32, gen: rand.Random_Generator) -> (val: u32) {
+uint32_max :: proc(n: u32, gen: Random_Generator) -> (val: u32) {
     if n == 0 {
         panic("Invalid argument to uint32_max")
     }
@@ -444,7 +438,7 @@ Example:
     import "core:fmt"
 
     uint64_max_example :: proc() {
-        fmt.println(rand.uint64_max(16))
+        fmt.println(uint64_max(16))
     }
 
 Possible Output:
@@ -454,7 +448,7 @@ Possible Output:
 
 */
 
-uint64_max :: proc(n: u64, gen: rand.Random_Generator) -> (val: u64) {
+uint64_max :: proc(n: u64, gen: Random_Generator) -> (val: u64) {
     if n == 0 {
         panic("Invalid argument to uint64_max")
     }
@@ -485,7 +479,7 @@ Example:
     import "core:fmt"
 
     uint128_max_example :: proc() {
-        fmt.println(rand.uint128_max(16))
+        fmt.println(uint128_max(16))
     }
 
 Possible Output:
@@ -495,7 +489,7 @@ Possible Output:
 
 */
 
-uint128_max :: proc(n: u128, gen: rand.Random_Generator) -> (val: u128) {
+uint128_max :: proc(n: u128, gen: Random_Generator) -> (val: u128) {
     if n == 0 {
         panic("Invalid argument to uint128_max")
     }
@@ -526,7 +520,7 @@ Example:
     import "core:fmt"
 
     uint_max_example :: proc() {
-        fmt.println(rand.uint_max(16))
+        fmt.println(uint_max(16))
     }
 
 Possible Output:
@@ -536,7 +530,7 @@ Possible Output:
 
 */
 
-uint_max :: proc(n: uint, gen: rand.Random_Generator) -> (val: uint) {
+uint_max :: proc(n: uint, gen: Random_Generator) -> (val: uint) {
     if n <= 0 {
         panic("Invalid argument to uint_max")
     }
@@ -564,7 +558,7 @@ Example:
     import "core:fmt"
 
     uint32_range_example :: proc() {
-        fmt.println(rand.uint32_range(5,15))
+        fmt.println(uint32_range(5,15))
     }
 
 Possible Output:
@@ -573,7 +567,7 @@ Possible Output:
     13
 
 */
-uint32_range :: proc(lo, hi: u32, gen: rand.Random_Generator) -> (val: u32) {
+uint32_range :: proc(lo, hi: u32, gen: Random_Generator) -> (val: u32) {
     assert(lo < hi, "Invalid arguments to uint32_range: lo must be less than hi")
     range := hi - lo
     if (range & (range - 1)) == 0 {
@@ -604,7 +598,7 @@ Example:
     import "core:fmt"
 
     uint64_range_example :: proc() {
-        fmt.println(rand.uint64_range(5,15))
+        fmt.println(uint64_range(5,15))
     }
 
 Possible Output:
@@ -613,7 +607,7 @@ Possible Output:
     13
 
 */
-uint64_range :: proc(lo, hi: u64, gen: rand.Random_Generator) -> (val: u64) {
+uint64_range :: proc(lo, hi: u64, gen: Random_Generator) -> (val: u64) {
     assert(lo < hi, "Invalid arguments to uint64_range: lo must be less than hi")
     range := hi - lo
     if (range & (range - 1)) == 0 {
@@ -644,7 +638,7 @@ Example:
     import "core:fmt"
 
     uint128_range_example :: proc() {
-        fmt.println(rand.uint128_range(5,15))
+        fmt.println(uint128_range(5,15))
     }
 
 Possible Output:
@@ -653,7 +647,7 @@ Possible Output:
     13
 
 */
-uint128_range :: proc(lo, hi: u128, gen: rand.Random_Generator) -> (val: u128) {
+uint128_range :: proc(lo, hi: u128, gen: Random_Generator) -> (val: u128) {
     assert(lo < hi, "Invalid arguments to uint128_range: lo must be less than hi")
     range := hi - lo
     if (range & (range - 1)) == 0 {
@@ -684,7 +678,7 @@ Example:
     import "core:fmt"
 
     uint_range_example :: proc() {
-        fmt.println(rand.uint_range(5,15))
+        fmt.println(uint_range(5,15))
     }
 
 Possible Output:
@@ -694,7 +688,7 @@ Possible Output:
 
 */
 
-uint_range :: proc(lo, hi: uint, gen: rand.Random_Generator) -> (val: uint) {
+uint_range :: proc(lo, hi: uint, gen: Random_Generator) -> (val: uint) {
     assert(lo < hi, "Invalid arguments to uint_range: lo must be less than hi")
     when size_of(int) == 4 {
         return uint(uint32_range(u32(lo), u32(hi), gen))
@@ -720,7 +714,7 @@ Example:
     import "core:fmt"
 
     int32_range_example :: proc() {
-        fmt.println(rand.int32_range(-10,10))
+        fmt.println(int32_range(-10,10))
     }
 
 Possible Output:
@@ -729,7 +723,7 @@ Possible Output:
     -9
 
 */
-int32_range :: proc(lo, hi: i32, gen: rand.Random_Generator) -> (val: i32) {
+int32_range :: proc(lo, hi: i32, gen: Random_Generator) -> (val: i32) {
     assert(lo < hi, "Invalid arguments to int32_range: lo must be less than hi")
     range := u32(hi) - u32(lo)
     if (range & (range - 1)) == 0 {
@@ -760,7 +754,7 @@ Example:
     import "core:fmt"
 
     int64_range_example :: proc() {
-        fmt.println(rand.int64_range(-10,10))
+        fmt.println(int64_range(-10,10))
     }
 
 Possible Output:
@@ -769,7 +763,7 @@ Possible Output:
     -9
 
 */
-int64_range :: proc(lo, hi: i64, gen: rand.Random_Generator) -> (val: i64) {
+int64_range :: proc(lo, hi: i64, gen: Random_Generator) -> (val: i64) {
     assert(lo < hi, "Invalid arguments to int64_range: lo must be less than hi")
     range := u64(hi) - u64(lo)
     if (range & (range - 1)) == 0 {
@@ -800,7 +794,7 @@ Example:
     import "core:fmt"
 
     int128_range_example :: proc() {
-        fmt.println(rand.int128_range(-10,10))
+        fmt.println(int128_range(-10,10))
     }
 
 Possible Output:
@@ -809,7 +803,7 @@ Possible Output:
     -9
 
 */
-int128_range :: proc(lo, hi: i128, gen: rand.Random_Generator) -> (val: i128) {
+int128_range :: proc(lo, hi: i128, gen: Random_Generator) -> (val: i128) {
     assert(lo < hi, "Invalid arguments to int128_range: lo must be less than hi")
     range := u128(hi) - u128(lo)
     if (range & (range - 1)) == 0 {
@@ -840,7 +834,7 @@ Example:
     import "core:fmt"
 
     int_range_example :: proc() {
-        fmt.println(rand.int_range(-10,10))
+        fmt.println(int_range(-10,10))
     }
 
 Possible Output:
@@ -850,7 +844,7 @@ Possible Output:
 
 */
 
-int_range :: proc(lo, hi: int, gen: rand.Random_Generator) -> (val: int) {
+int_range :: proc(lo, hi: int, gen: Random_Generator) -> (val: int) {
     assert(lo < hi, "Invalid arguments to int_range: lo must be less than hi")
     when size_of(int) == 4 {
         return int(int32_range(i32(lo), i32(hi), gen))
@@ -870,7 +864,7 @@ Example:
     import "core:fmt"
 
     float64_example :: proc() {
-        fmt.println(rand.float64())
+        fmt.println(float64())
     }
 
 Possible Output:
@@ -879,7 +873,7 @@ Possible Output:
     0.511
 
 */
- float64 :: proc(gen: rand.Random_Generator) -> (val: f64) { return f64(int63_max(1<<53, gen)) / (1 << 53) }
+ float64 :: proc(gen: Random_Generator) -> (val: f64) { return f64(int63_max(1<<53, gen)) / (1 << 53) }
 
 /*
 Generates a random single floating point value in the range `[0, 1)` using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -892,7 +886,7 @@ Example:
     import "core:fmt"
 
     float32_example :: proc() {
-        fmt.println(rand.float32())
+        fmt.println(float32())
     }
 
 Possible Output:
@@ -901,7 +895,7 @@ Possible Output:
     0.511
 
 */
- float32 :: proc(gen: rand.Random_Generator) -> (val: f32) { return f32(int31_max(1<<24, gen)) / (1 << 24) }
+ float32 :: proc(gen: Random_Generator) -> (val: f32) { return f32(int31_max(1<<24, gen)) / (1 << 24) }
 
 /*
 Generates a random double floating point value in the range `[low, high)` using the provided random number generator. If no generator is provided the global random number generator will be used.
@@ -920,7 +914,7 @@ Example:
     import "core:fmt"
 
     float64_range_example :: proc() {
-        fmt.println(rand.float64_range(-10, 300))
+        fmt.println(float64_range(-10, 300))
     }
 
 Possible Output:
@@ -929,7 +923,7 @@ Possible Output:
     273.15
 
 */
- float64_range :: proc(low, high: f64, gen: rand.Random_Generator) -> (val: f64) {
+ float64_range :: proc(low, high: f64, gen: Random_Generator) -> (val: f64) {
     assert(low <= high, "low must be lower than or equal to high")
     val = (high-low)*float64(gen) + low
     if val >= high {
@@ -955,7 +949,7 @@ Example:
     import "core:fmt"
 
     float32_range_example :: proc() {
-        fmt.println(rand.float32_range(-10, 300))
+        fmt.println(float32_range(-10, 300))
     }
 
 Possible Output:
@@ -964,7 +958,7 @@ Possible Output:
     273.15
 
 */
- float32_range :: proc(low, high: f32, gen: rand.Random_Generator) -> (val: f32) {
+ float32_range :: proc(low, high: f32, gen: Random_Generator) -> (val: f32) {
     assert(low <= high, "low must be lower than or equal to high")
     val = (high-low)*float32(gen) + low
     if val >= high {
@@ -989,7 +983,7 @@ Example:
 
     read_example :: proc() {
         data: [8]byte
-        n := rand.read(data[:])
+        n := read(data[:])
         fmt.println(n)
         fmt.println(data)
     }
@@ -1001,8 +995,8 @@ Possible Output:
 
 */
 
-read :: proc(p: []byte, gen: rand.Random_Generator) -> (n: int) {
-    if !rand.random_generator_read_bytes(gen, p) {return 0}
+read :: proc(p: []byte, gen: Random_Generator) -> (n: int) {
+    if !random_generator_read_bytes(gen, p) {return 0}
     return len(p)
 }
 
@@ -1025,7 +1019,7 @@ Example:
     import "core:fmt"
 
     perm_example :: proc() -> (err: mem.Allocator_Error) {
-        data := rand.perm(4) or_return
+        data := perm(4) or_return
         fmt.println(data)
         defer _ = slice.delete(data, context.allocator)
 
@@ -1039,7 +1033,7 @@ Possible Output:
 
 */
 
-perm :: proc(n: int, allocator: mem.Allocator, gen: rand.Random_Generator) -> (res: []int, err: mem.Allocator_Error) {
+perm :: proc(n: int, allocator: mem.Allocator, gen: Random_Generator) -> (res: []int, err: mem.Allocator_Error) {
     m := slice.create([]int, n, allocator) or_return
     for i := 0; i < n; i += 1 {
         j := int_max(i+1, gen)
@@ -1062,7 +1056,7 @@ Example:
     shuffle_example :: proc() {
         data: [4]int = { 1, 2, 3, 4 }
         fmt.println(data) // the contents are in order
-        rand.shuffle(data[:])
+        shuffle(data[:])
         fmt.println(data) // the contents have been shuffled
     }
 
@@ -1072,7 +1066,7 @@ Possible Output:
     [2, 4, 3, 1]
 
 */
-shuffle :: proc(array: $T/[]$E, gen: rand.Random_Generator) {
+shuffle :: proc(array: $T/[]$E, gen: Random_Generator) {
     n := i64(len(array))
     if n < 2 {
         return
@@ -1105,10 +1099,10 @@ Example:
 
     choice_example :: proc() {
         data: [4]int = { 1, 2, 3, 4 }
-        fmt.println(rand.choice(data[:]))
-        fmt.println(rand.choice(data[:]))
-        fmt.println(rand.choice(data[:]))
-        fmt.println(rand.choice(data[:]))
+        fmt.println(choice(data[:]))
+        fmt.println(choice(data[:]))
+        fmt.println(choice(data[:]))
+        fmt.println(choice(data[:]))
     }
 
 Possible Output:
@@ -1120,7 +1114,7 @@ Possible Output:
 
 */
 
-choice :: proc(array: $T/[]$E, gen: rand.Random_Generator) -> (res: E) {
+choice :: proc(array: $T/[]$E, gen: Random_Generator) -> (res: E) {
     n := i64(len(array))
     if n < 1 {
         return E{}
@@ -1130,7 +1124,7 @@ choice :: proc(array: $T/[]$E, gen: rand.Random_Generator) -> (res: E) {
 
 
 
-choice_enum :: proc($T: typeid, gen: rand.Random_Generator) -> T where intrinsics.type_is_enum(T) {
+choice_enum :: proc($T: typeid, gen: Random_Generator) -> T where intrinsics.type_is_enum(T) {
     when size_of(T) <= 8 && len(T) == cap(T) {
         when intrinsics.type_is_unsigned(intrinsics.type_core_type(T)) &&
              u64(max(T)) > u64(max(i64)) {
@@ -1143,7 +1137,7 @@ choice_enum :: proc($T: typeid, gen: rand.Random_Generator) -> T where intrinsic
             return T(i)
         }
     } else {
-        values := rand.type_info_base(type_info_of(T)).variant.(rand.Type_Info_Enum).values
+        values := type_info_base(type_info_of(T)).variant.(Type_Info_Enum).values
         return T(choice(values))
     }
 }
@@ -1169,10 +1163,10 @@ Example:
             C,
         }
 
-        fmt.println(rand.choice_bit_set(bit_set[Flags]{}))
-        fmt.println(rand.choice_bit_set(bit_set[Flags]{.B}))
-        fmt.println(rand.choice_bit_set(bit_set[Flags]{.B, .C}))
-        fmt.println(rand.choice_bit_set(bit_set[0..<15]{5, 1, 4}))
+        fmt.println(choice_bit_set(bit_set[Flags]{}))
+        fmt.println(choice_bit_set(bit_set[Flags]{.B}))
+        fmt.println(choice_bit_set(bit_set[Flags]{.B, .C}))
+        fmt.println(choice_bit_set(bit_set[0..<15]{5, 1, 4}))
     }
 
 Possible Output:
@@ -1182,7 +1176,7 @@ Possible Output:
     5 true
 */
 
-choice_bit_set :: proc(set: $T/bit_set[$E], gen: rand.Random_Generator) -> (res: E, ok: bool) {
+choice_bit_set :: proc(set: $T/bit_set[$E], gen: Random_Generator) -> (res: E, ok: bool) {
     total_set := card(set)
     if total_set == 0 {
         return {}, false

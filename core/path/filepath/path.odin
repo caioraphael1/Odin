@@ -1,10 +1,12 @@
 // Process paths using either forward slashes or backslashes depending on the operating system.
 // To process paths such as URLs that depend on forward slashes regardless of the OS, use the slashpath package.
 
+import "base:mem"
+import "base:slice"
+import "base:strings"
 
 import "core:os"
-import "core:strings"
-import "base:mem"
+import "core:strings_tools"
 
 SEPARATOR_CHARS :: `/\`
 
@@ -73,7 +75,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
     }
 
     if b0 != bl {
-        seps := strings.count(base[b0:bl], SEPARATOR_STRING)
+        seps := strings_tools.count(base[b0:bl], SEPARATOR_STRING)
         size := 2 + seps*3
         if tl != t0 {
             size += 1 + tl - t0

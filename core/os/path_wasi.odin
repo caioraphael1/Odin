@@ -40,7 +40,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
         return .Invalid_Path
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     if exists(path) {
         return .Exist

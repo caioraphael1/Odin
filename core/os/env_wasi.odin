@@ -37,7 +37,7 @@ build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
     g_env_buf = slice.create([]byte, size_of_envs, allocator) or_return
     defer if err != nil { _ = slice.delete(g_env_buf, allocator) }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     envs := slice.create([]cstring, num_envs, allocators.temp_allocator) or_return
 

@@ -44,11 +44,11 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
         query_str := s[i+1:]
         s = s[:i]
         if query_str != "" {
-            queries_parts, _ := strings.split(query_str, "&", allocator)
+            queries_parts, _ := strings_tools.split(query_str, "&", allocator)
             defer _ = slice.delete(queries_parts, allocator)
             queries, _ = maps.create_cap(map[string]string, len(queries_parts), allocator)
             for q in queries_parts {
-                parts, _ := strings.split(q, "=", allocator)
+                parts, _ := strings_tools.split(q, "=", allocator)
                 defer _ = slice.delete(parts, allocator)
                 switch len(parts) {
                 case 1:  queries[parts[0]] = ""        // NOTE(tetra): Query not set to anything, was but present.
@@ -111,7 +111,7 @@ join_url :: proc(scheme, host, path: string, queries: map[string]string, fragmen
         strings_tools.write_string(&b, strings.trim_space(fragment))
     }
 
-    return strings.to_string(b)
+    return strings_tools.to_string(b)
 }
 
 percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
@@ -121,19 +121,19 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
     for ch in s {
         switch ch {
         case 'A'..='Z', 'a'..='z', '0'..='9', '-', '_', '.', '~':
-            _, _ = strings.write_rune(&b, ch)
+            _, _ = strings_tools.write_rune(&b, ch)
         case:
             bytes, n := utf8.encode_rune(ch)
             for byte in bytes[:n] {
                 buf: [2]u8 = ---
                 t := strconv.write_int(buf[:], i64(byte), 16)
-                _, _ = strings.write_rune(&b, '%')
+                _, _ = strings_tools.write_rune(&b, '%')
                 strings_tools.write_string(&b, t)
             }
         }
     }
 
-    return strings.to_string(b)
+    return strings_tools.to_string(b)
 }
 
 percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (decoded_string: string, ok: bool) {
@@ -176,7 +176,7 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
     }
 
     ok = true
-    decoded_string = strings.to_string(b)
+    decoded_string = strings_tools.to_string(b)
     return
 }
 

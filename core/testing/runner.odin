@@ -241,7 +241,7 @@ parse_cli_options :: proc(argv: []string, opts: ^Options, stdout, stderr: io.Wri
 		}
 	}
 
-	opts.test_names = strings.to_string(test_names)
+	opts.test_names = strings_tools.to_string(test_names)
 }
 
 runner :: proc(internal_tests: []Internal_Test) -> bool {
@@ -303,7 +303,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 		index_list := test_names
 		for selector in strings.split_iterator(&index_list, ",") {
 			// Temp allocator is fine since we just need to identify which test it's referring to.
-			split_selector := strings.split(selector, ".", allocators.temp_allocator)
+			split_selector := strings_tools.split(selector, ".", allocators.temp_allocator)
 
 			found := false
 			switch len(split_selector) {

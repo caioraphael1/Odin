@@ -290,11 +290,11 @@ named_xml_entity_to_rune :: proc(name: string) -> (decoded: [2]rune, rune_count:
 
 	fmt.println()
 	when ODIN_DEBUG {
-		fmt.println(strings.to_string(generated_buf))
+		fmt.println(strings_tools.to_string(generated_buf))
 		fmt.println()
 	}
 
-	written := os.write_entire_file(generated_filename, transmute([]byte)strings.to_string(generated_buf))
+	written := os.write_entire_file(generated_filename, transmute([]byte)strings_tools.to_string(generated_buf))
 
 	if written == nil {
 		fmt.printfln("Successfully written generated \"%v\".", generated_filename)

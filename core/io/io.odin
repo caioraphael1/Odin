@@ -2,6 +2,7 @@
 // The purpose of this package is wrap existing data structures and their
 // operations into an abstracted stream interface.
 import "base:intrinsics"
+
 import "core:unicode/utf8"
 import "core:unicode/utf16"
 

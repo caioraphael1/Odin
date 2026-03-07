@@ -1,7 +1,6 @@
 
 import "base:intrinsics"
 import "base:mem"
-import "base:rand"
 
 /*
 The state for a xoshiro256** pseudorandom generator.
@@ -10,7 +9,7 @@ Xoshiro256_Random_State :: struct {
     s: [4]u64,
 }
 
-xoshiro256_random_generator_proc :: proc(data: rawptr, mode: rand.Random_Generator_Mode, p: []byte) {
+xoshiro256_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []byte) {
     read_u64 :: proc(r: ^Xoshiro256_Random_State) -> u64 {
         // xoshiro256** output function and state transition
 
@@ -100,10 +99,10 @@ xoshiro256_random_generator_proc :: proc(data: rawptr, mode: rand.Random_Generat
         init(r, seed)
 
     case .Query_Info:
-        if len(p) != size_of(Generator_Query_Info) {
+        if len(p) != size_of(Random_Generator_Query_Info) {
             return
         }
-        info := (^Generator_Query_Info)(raw_data(p))
+        info := (^Random_Generator_Query_Info)(raw_data(p))
         info^ += {.Uniform, .Resettable}
     }
 }
@@ -119,9 +118,9 @@ Inputs:
 - state: Optional initial PRNG state.
 
 Returns:
-- A `Generator` instance.
+- A `Random_Generator` instance.
 */
-xoshiro256_random_generator :: proc(state: ^Xoshiro256_Random_State = nil) -> Generator {
+xoshiro256_random_generator :: proc(state: ^Xoshiro256_Random_State = nil) -> Random_Generator {
     return {
         procedure = xoshiro256_random_generator_proc,
         data = state,

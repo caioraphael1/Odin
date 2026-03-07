@@ -64,13 +64,13 @@ physical_address_to_string :: proc(phy_addr: []u8, allocator: mem.Allocator) -> 
 
     for b, i in phy_addr {
         if i > 0 {
-            _, _ = strings.write_rune(&buf, ':')
+            _, _ = strings_tools.write_rune(&buf, ':')
         }
 
         hi := rune(MAC_HEX[b >> 4])
         lo := rune(MAC_HEX[b & 15])
-        _, _ = strings.write_rune(&buf, hi)
-        _, _ = strings.write_rune(&buf, lo)
+        _, _ = strings_tools.write_rune(&buf, hi)
+        _, _ = strings_tools.write_rune(&buf, lo)
     }
-    return strings.to_string(buf)
+    return strings_tools.to_string(buf)
 }

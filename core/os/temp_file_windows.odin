@@ -1,6 +1,8 @@
 #+private
 import "base:mem"
 import "base:mem/allocators"
+import "base:slice"
+
 import win32 "core:sys/windows"
 
 _temp_dir :: proc(allocator: mem.Allocator) -> (string, mem.Allocator_Error) {

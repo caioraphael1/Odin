@@ -10,7 +10,7 @@ doc_print :: proc(doc: ^xml.Document) {
     w := strings.to_writer(&buf)
 
     xml.print(w, doc)
-    fmt.println(strings.to_string(buf))
+    fmt.println(strings_tools.to_string(buf))
 }
 
 _entities :: proc() {

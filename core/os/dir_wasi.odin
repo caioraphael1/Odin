@@ -38,7 +38,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
         }
 
         n := len(fimpl.name)+1
-        if alloc_err := dyn_array_resize_non_zero(&it.impl.fullpath, n+len(name)); alloc_err != nil {
+        if alloc_err := dyn_array.resize_non_zero(&it.impl.fullpath, n+len(name)); alloc_err != nil {
             read_directory_iterator_set_error(it, name, alloc_err)
             ok = true
             return
@@ -82,7 +82,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     defer if it.err.err != nil { _ = slice.delete(buf) }
 
     for {
-        if err := dyn_array_resize_non_zero(&buf, 512 if len(buf) == 0 else len(buf)*2); err != nil {
+        if err := dyn_array.resize_non_zero(&buf, 512 if len(buf) == 0 else len(buf)*2); err != nil {
             read_directory_iterator_set_error(it, name(f), err)
             return
         }
@@ -94,7 +94,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
         }
 
         if n < len(buf) {
-            _ = dyn_array_resize_non_zero(&buf, n)
+            _ = dyn_array.resize_non_zero(&buf, n)
             break
         }
 

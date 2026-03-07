@@ -582,7 +582,7 @@ decode_hostname :: proc(packet: []u8, start_idx: int, allocator: mem.Allocator) 
         return
     }
 
-    b_clone, _ := strings.string_clone(strings.to_string(b), allocator)
+    b_clone, _ := strings.string_clone(strings_tools.to_string(b), allocator)
     return b_clone, out_size, true
 }
 

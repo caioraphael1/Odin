@@ -228,7 +228,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
         }
     }
 
-    context.logger.procedure(context.logger.data, .Debug, strings.to_string(b), context.logger.options, location)
+    context.logger.procedure(context.logger.data, .Debug, strings_tools.to_string(b), context.logger.options, location)
 }
 
 warn :: proc(text: string, location := #caller_location) {

@@ -36,7 +36,7 @@ import win "core:sys/windows"
 @(private)
 _init_dns_configuration :: proc() {
     sync.once_do_without_data(&dns_config_initialized, proc() {
-        runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+        allocators.TEMP_ALLOCATOR_TEMP_GUARD()
         val := os.replace_environment_placeholders(dns_configuration.hosts_file, allocators.temp_allocator)
         slice.copy_from_string(dns_configuration.hosts_file_buf[:], val)
         dns_configuration.hosts_file = string(dns_configuration.hosts_file_buf[:len(val)])

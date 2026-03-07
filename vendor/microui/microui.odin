@@ -992,7 +992,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
     if ctx.focus_id == id {
         /* create a builder backed by the user's buffer */
         builder := strings.builder_from_bytes(textbuf)
-        _ = dyn_array_resize_non_zero(&builder.buf, textlen^)
+        _ = dyn_array.resize_non_zero(&builder.buf, textlen^)
         ctx.textbox_state.builder = &builder
         if ctx.textbox_state.id != u64(id) {
             ctx.textbox_state.id = u64(id)
@@ -1006,7 +1006,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
 
         /* handle text input */
         if strings.builder_len(ctx.text_input) > 0 {
-            if textedit.input_text(&ctx.textbox_state, strings.to_string(ctx.text_input)) > 0 {
+            if textedit.input_text(&ctx.textbox_state, strings_tools.to_string(ctx.text_input)) > 0 {
                 textlen^ = strings.builder_len(builder)
                 res += {.CHANGE}
             }

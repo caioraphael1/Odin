@@ -90,7 +90,7 @@ core_time :: proc(c: image.PNG_Chunk) -> (t: coretime.Time, ok: bool) {
 }
 
 text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
 	assert(len(c.data) == int(c.header.length))
 	#partial switch c.header.type {
@@ -195,7 +195,7 @@ text_destroy :: proc(text: Text) {
 }
 
 iccp :: proc(c: image.PNG_Chunk) -> (res: iCCP, ok: bool) {
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
 	fields := bytes.split_n(c.data, sep=[]u8{0}, n=3, allocator=allocators.temp_allocator)
 
@@ -259,7 +259,7 @@ splt :: proc(c: image.PNG_Chunk) -> (res: sPLT, ok: bool) {
 	if c.header.type != .sPLT {
 		return
 	}
-	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
 	fields := bytes.split_n(c.data, sep=[]u8{0}, n=2, allocator=allocators.temp_allocator)
 	if len(fields) != 2 {

@@ -88,7 +88,7 @@ format_log_text :: proc(level: runtime.Logger_Level, text: string, options: runt
 	} else {
 		log.do_location_header(options, &buf, location)
 	}
-	return fmt.aprintf("%s%s", strings.to_string(buf), text, allocator = allocator)
+	return fmt.aprintf("%s%s", strings_tools.to_string(buf), text, allocator = allocator)
 }
 
 do_go_to_error_friendly_location :: proc(opts: log.Options, buf: ^strings_tools.Builder, location := #caller_location) {
