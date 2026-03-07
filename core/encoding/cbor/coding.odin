@@ -6,7 +6,7 @@ import "core:encoding/endian"
 import "core:io"
 import "core:slice"
 import "core:strings"
-import "core:mem"
+import "base:mem"
 
 Encoder_Flag :: enum {
     // CBOR defines a tag header that also acts as a file/binary header,
@@ -38,7 +38,7 @@ ENCODE_SMALL :: Encoder_Flags{.Deterministic_Int_Size, .Deterministic_Float_Size
 Encoder :: struct {
     flags:          Encoder_Flags,
     writer:         io.Writer,
-    temp_allocator: runtime.Allocator,
+    temp_allocator: mem.Allocator,
 }
 
 Decoder_Flag :: enum {

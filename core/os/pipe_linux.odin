@@ -2,7 +2,7 @@
 import "base:runtime"
 import "core:sys/linux"
 
-_pipe :: proc(allocator: runtime.Allocator) -> (r, w: ^File, err: Error) {
+_pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     fds: [2]linux.Fd
     errno := linux.pipe2(&fds, {.CLOEXEC})
     if errno != .NONE {

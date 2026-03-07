@@ -1,5 +1,5 @@
 
-import "base:runtime"
+import "base:internal"
 import "core:strings"
 import "core:strconv"
 
@@ -70,14 +70,14 @@ Retrieves OS version information
 You can use `destroy_os_version` to free the results
 
 Inputs:
-- allocator:  A `runtime.Allocator` on which the version strings will be allocated
+- allocator:  A `mem.Allocator` on which the version strings will be allocated
 - loc:        The caller location
 
 Returns:
 - res:        An `OS_Version` struct
 - ok:         `true` when we could retrieve OS version information, `false` otherwise
 */
-os_version :: proc(allocator: runtime.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
+os_version :: proc(allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
     return _os_version(allocator = allocator, loc = loc)
 }
 
@@ -88,9 +88,9 @@ Releases an `OS_Version`'s strings
 
 Inputs:
 - version:    An `OS_Version` struct
-- allocator:  A `runtime.Allocator` on which the version strings will be freed
+- allocator:  A `mem.Allocator` on which the version strings will be freed
 */
-destroy_os_version :: proc(version: OS_Version, allocator: runtime.Allocator) {
+destroy_os_version :: proc(version: OS_Version, allocator: mem.Allocator) {
     _ = string_delete(version.full, allocator)
     // `version.release` is part of `version.full` and does not need to be freed separately.
 }

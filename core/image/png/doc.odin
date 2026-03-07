@@ -12,7 +12,7 @@ Example:
     import "core:fmt"
 
     // For PPM writer
-    import "core:mem"
+    import "base:mem"
     import "core:os"
 
     main :: proc() {

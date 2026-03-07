@@ -298,7 +298,7 @@ gb_internal cgValue cg_emit_comp_records(cgProcedure *p, TokenKind op_kind, cgVa
         args[0] = cg_emit_conv(p, left_ptr, t_rawptr);
         args[1] = cg_emit_conv(p, right_ptr, t_rawptr);
         args[2] = cg_const_int(p, t_int, type_size_of(type));
-        res = cg_emit_runtime_call(p, "memory_equal", args);
+        res = cg_emit_runtime_call(p, "__mem_equal", args);
     } else {
         cgProcedure *equal_proc = cg_equal_proc_for_type(p->module, type);
         cgValue value = cg_value(tb_inst_get_symbol_address(p->func, equal_proc->symbol), equal_proc->type);
@@ -378,7 +378,7 @@ gb_internal cgValue cg_emit_comp(cgProcedure *p, TokenKind op_kind, cgValue left
         // args[0] = lb_emit_conv(p, lhs, t_rawptr);
         // args[1] = lb_emit_conv(p, rhs, t_rawptr);
         // args[2] = lb_const_int(p->module, t_int, type_size_of(tl));
-        // lbValue val = lb_emit_runtime_call(p, "memory_compare", args);
+        // lbValue val = lb_emit_internal_call(p, "__mem_compare", args);
         // lbValue res = lb_emit_comp(p, op_kind, val, lb_const_nil(p->module, val.type));
         // return lb_emit_conv(p, res, t_bool);
     }
@@ -426,7 +426,7 @@ gb_internal cgValue cg_emit_comp(cgProcedure *p, TokenKind op_kind, cgValue left
         //      args[0] = lb_emit_conv(p, lhs, t_rawptr);
         //      args[1] = lb_emit_conv(p, rhs, t_rawptr);
         //      args[2] = lb_const_int(p->module, t_int, type_size_of(tl));
-        //      lbValue val = lb_emit_runtime_call(p, "memory_compare", args);
+        //      lbValue val = lb_emit_internal_call(p, "__mem_compare", args);
         //      lbValue res = lb_emit_comp(p, op_kind, val, lb_const_nil(p->module, val.type));
         //      return lb_emit_conv(p, res, t_bool);
         //  } else {
@@ -462,85 +462,85 @@ gb_internal cgValue cg_emit_comp(cgProcedure *p, TokenKind op_kind, cgValue left
             right = cg_emit_conv(p, right, t_string);
         }
 
-        char const *runtime_procedure = nullptr;
+        char const *internal_procedure = nullptr;
         switch (op_kind) {
-        case Token_CmpEq: runtime_procedure = "string_eq"; break;
-        case Token_NotEq: runtime_procedure = "string_ne"; break;
-        case Token_Lt:    runtime_procedure = "string_lt"; break;
-        case Token_Gt:    runtime_procedure = "string_gt"; break;
-        case Token_LtEq:  runtime_procedure = "string_le"; break;
-        case Token_GtEq:  runtime_procedure = "string_gt"; break;
+        case Token_CmpEq: internal_procedure = "__string_eq"; break;
+        case Token_NotEq: internal_procedure = "__string_ne"; break;
+        case Token_Lt:    internal_procedure = "__string_lt"; break;
+        case Token_Gt:    internal_procedure = "__string_gt"; break;
+        case Token_LtEq:  internal_procedure = "__string_le"; break;
+        case Token_GtEq:  internal_procedure = "__string_gt"; break;
         }
-        GB_ASSERT(runtime_procedure != nullptr);
+        GB_ASSERT(internal_procedure != nullptr);
 
         auto args = slice_make<cgValue>(permanent_allocator(), 2);
         args[0] = left;
         args[1] = right;
-        return cg_emit_runtime_call(p, runtime_procedure, args);
+        return cg_emit_runtime_call(p, internal_procedure, args);
     }
 
     if (is_type_complex(a)) {
-        char const *runtime_procedure = "";
+        char const *internal_procedure = "";
         i64 sz = 8*type_size_of(a);
         switch (sz) {
         case 32:
             switch (op_kind) {
-            case Token_CmpEq: runtime_procedure = "complex32_eq"; break;
-            case Token_NotEq: runtime_procedure = "complex32_ne"; break;
+            case Token_CmpEq: internal_procedure = "__complex32_eq"; break;
+            case Token_NotEq: internal_procedure = "__complex32_ne"; break;
             }
             break;
         case 64:
             switch (op_kind) {
-            case Token_CmpEq: runtime_procedure = "complex64_eq"; break;
-            case Token_NotEq: runtime_procedure = "complex64_ne"; break;
+            case Token_CmpEq: internal_procedure = "__complex64_eq"; break;
+            case Token_NotEq: internal_procedure = "__complex64_ne"; break;
             }
             break;
         case 128:
             switch (op_kind) {
-            case Token_CmpEq: runtime_procedure = "complex128_eq"; break;
-            case Token_NotEq: runtime_procedure = "complex128_ne"; break;
+            case Token_CmpEq: internal_procedure = "__complex128_eq"; break;
+            case Token_NotEq: internal_procedure = "__complex128_ne"; break;
             }
             break;
         }
-        GB_ASSERT(runtime_procedure != nullptr);
+        GB_ASSERT(internal_procedure != nullptr);
 
         GB_PANIC("TODO(bill): cg_emit_runtime_call");
         // auto args = array_make<lbValue>(permanent_allocator(), 2);
         // args[0] = left;
         // args[1] = right;
-        // return lb_emit_runtime_call(p, runtime_procedure, args);
+        // return lb_emit_internal_call(p, internal_procedure, args);
     }
 
     if (is_type_quaternion(a)) {
-        char const *runtime_procedure = "";
+        char const *internal_procedure = "";
         i64 sz = 8*type_size_of(a);
         switch (sz) {
         case 64:
             switch (op_kind) {
-            case Token_CmpEq: runtime_procedure = "quaternion64_eq"; break;
-            case Token_NotEq: runtime_procedure = "quaternion64_ne"; break;
+            case Token_CmpEq: internal_procedure = "__quaternion64_eq"; break;
+            case Token_NotEq: internal_procedure = "__quaternion64_ne"; break;
             }
             break;
         case 128:
             switch (op_kind) {
-            case Token_CmpEq: runtime_procedure = "quaternion128_eq"; break;
-            case Token_NotEq: runtime_procedure = "quaternion128_ne"; break;
+            case Token_CmpEq: internal_procedure = "__quaternion128_eq"; break;
+            case Token_NotEq: internal_procedure = "__quaternion128_ne"; break;
             }
             break;
         case 256:
             switch (op_kind) {
-            case Token_CmpEq: runtime_procedure = "quaternion256_eq"; break;
-            case Token_NotEq: runtime_procedure = "quaternion256_ne"; break;
+            case Token_CmpEq: internal_procedure = "__quaternion256_eq"; break;
+            case Token_NotEq: internal_procedure = "__quaternion256_ne"; break;
             }
             break;
         }
-        GB_ASSERT(runtime_procedure != nullptr);
+        GB_ASSERT(internal_procedure != nullptr);
 
         GB_PANIC("TODO(bill): cg_emit_runtime_call");
         // auto args = array_make<lbValue>(permanent_allocator(), 2);
         // args[0] = left;
         // args[1] = right;
-        // return lb_emit_runtime_call(p, runtime_procedure, args);
+        // return lb_emit_internal_call(p, internal_procedure, args);
     }
 
     if (is_type_bit_set(a)) {
@@ -835,7 +835,7 @@ gb_internal cgValue cg_emit_comp_against_nil(cgProcedure *p, TokenKind op_kind, 
         //  cgValue lhs = cg_address_from_load_or_generate_local(p, x);
         //  args[0] = cg_emit_conv(p, lhs, t_rawptr);
         //  args[1] = cg_const_int(p->module, t_int, type_size_of(t));
-        //  cgValue val = cg_emit_runtime_call(p, "memory_compare_zero", args);
+        //  cgValue val = cg_emit_runtime_call(p, "__mem_compare_zero", args);
         //  cgValue res = cg_emit_comp(p, op_kind, val, cg_const_int(p->module, t_int, 0));
         //  return res;
         // }
@@ -956,7 +956,7 @@ gb_internal cgValue cg_emit_conv(cgProcedure *p, cgValue value, Type *t) {
         cgValue c = cg_emit_conv(p, value, t_cstring);
         auto args = slice_make<cgValue>(temporary_allocator(), 1);
         args[0] = c;
-        cgValue s = cg_emit_runtime_call(p, "cstring_to_string", args);
+        cgValue s = cg_emit_runtime_call(p, "__cstring_to_string", args);
         return cg_emit_conv(p, s, dst);
     }
 
@@ -1038,11 +1038,11 @@ gb_internal cgValue cg_emit_conv(cgProcedure *p, cgValue value, Type *t) {
 
         //  auto args = array_make<lbValue>(temporary_allocator(), 1);
         //  args[0] = value;
-        //  char const *call = "fixunsdfdi";
+        //  char const *call = "__fixunsdfdi";
         //  if (is_type_unsigned(dst)) {
-        //      call = "fixunsdfti";
+        //      call = "__fixunsdfti";
         //  }
-        //  lbValue res_i128 = lb_emit_runtime_call(p, call, args);
+        //  lbValue res_i128 = lb_emit_internal_call(p, call, args);
         //  return lb_emit_conv(p, res_i128, t);
         // }
 
@@ -1067,11 +1067,11 @@ gb_internal cgValue cg_emit_conv(cgProcedure *p, cgValue value, Type *t) {
 
         //  auto args = array_make<lbValue>(temporary_allocator(), 1);
         //  args[0] = value;
-        //  char const *call = "floattidf";
+        //  char const *call = "__floattidf";
         //  if (is_type_unsigned(src)) {
-        //      call = "floattidf_unsigned";
+        //      call = "__floattidf_unsigned";
         //  }
-        //  lbValue res_f64 = lb_emit_runtime_call(p, call, args);
+        //  lbValue res_f64 = lb_emit_internal_call(p, call, args);
         //  return lb_emit_conv(p, res_f64, t);
         // }
 
@@ -2549,18 +2549,6 @@ cgAddr cg_build_addr_compound_lit(cgProcedure *p, Ast *expr) {
 
     case Type_Map: {
         GB_ASSERT(!build_context.no_dynamic_literals);
-        GB_PANIC("TODO(bill): map literals");
-
-        // cgValue err = cg_dynamic_map_reserve(p, v.addr, 2*cl->elems.count, pos);
-        // gb_unused(err);
-
-        // for (Ast *elem : cl->elems) {
-        //  ast_node(fv, FieldValue, elem);
-
-        //  cgValue key   = cg_build_expr(p, fv->field);
-        //  cgValue value = cg_build_expr(p, fv->value);
-        //  cg_internal_dynamic_map_set(p, v.addr, type, key, value, elem);
-        // }
         break;
     }
 
@@ -2625,45 +2613,6 @@ cgAddr cg_build_addr_compound_lit(cgProcedure *p, Ast *expr) {
 
     case Type_DynamicArray: {
         GB_ASSERT(!build_context.no_dynamic_literals);
-
-        Type *et = bt->DynamicArray.elem;
-        cgValue size  = cg_const_int(p, t_int, type_size_of(et));
-        cgValue align = cg_const_int(p, t_int, type_align_of(et));
-
-        i64 item_count = gb_max(cl->max_count, cl->elems.count);
-        {
-
-            auto args = slice_make<cgValue>(temporary_allocator(), 5);
-            args[0] = cg_emit_conv(p, cg_addr_get_ptr(p, v), t_rawptr);
-            args[1] = size;
-            args[2] = align;
-            args[3] = cg_const_int(p, t_int, item_count);
-            args[4] = cg_emit_source_code_location_as_global(p, proc_name, pos);
-            cg_emit_runtime_call(p, "__dynamic_array_reserve", args);
-        }
-
-        Type *array_type = alloc_type_array(et, item_count);
-        cgAddr items_addr = cg_add_local(p, array_type, nullptr, true);
-        cgValue items = cg_addr_get_ptr(p, items_addr);
-
-        auto temp_data = array_make<cgCompoundLitElemTempData>(temporary_allocator(), 0, cl->elems.count);
-        populate(p, cl->elems, &temp_data, type);
-
-        for_array(i, temp_data) {
-            temp_data[i].gep = cg_emit_array_epi(p, items, temp_data[i].elem_index);
-        }
-        assign_array(p, temp_data);
-
-        {
-            auto args = slice_make<cgValue>(temporary_allocator(), 6);
-            args[0] = cg_emit_conv(p, v.addr, t_rawptr);
-            args[1] = size;
-            args[2] = align;
-            args[3] = cg_emit_conv(p, items, t_rawptr);
-            args[4] = cg_const_int(p, t_int, item_count);
-            args[5] = cg_emit_source_code_location_as_global(p, proc_name, pos);
-            cg_emit_runtime_call(p, "__dynamic_array_append", args);
-        }
         break;
     }
 
@@ -2945,7 +2894,7 @@ gb_internal cgValue cg_build_unary_and(cgProcedure *p, Ast *expr) {
         //              args[4] = lb_typeid(p->module, src_type);
         //              args[5] = lb_typeid(p->module, dst_type);
         //          }
-        //          lb_emit_runtime_call(p, "type_assertion_check", args);
+        //          lb_emit_internal_call(p, "__type_assertion_check", args);
         //      }
 
         //      lbValue data_ptr = v;
@@ -2972,7 +2921,7 @@ gb_internal cgValue cg_build_unary_and(cgProcedure *p, Ast *expr) {
 
         //          args[4] = any_id;
         //          args[5] = id;
-        //          lb_emit_runtime_call(p, "type_assertion_check", args);
+        //          lb_emit_internal_call(p, "__type_assertion_check", args);
         //      }
 
         //      return lb_emit_conv(p, data_ptr, tv.type);
@@ -3073,7 +3022,7 @@ gb_internal cgValue cg_emit_cast_union(cgProcedure *p, cgValue value, Type *type
             args[5] = cg_typeid(p, dst_type);
             args[6] = cg_emit_conv(p, value_, t_rawptr);
         }
-        cg_emit_runtime_call(p, "type_assertion_check2", args);
+        cg_emit_runtime_call(p, "__type_assertion_check2", args);
 
         return cg_emit_load(p, gep0);
     }
@@ -3144,7 +3093,7 @@ gb_internal cgValue cg_emit_cast_any(cgProcedure *p, cgValue value, Type *type, 
             args[5] = dst_typeid;
             args[6] = cg_emit_struct_ev(p, value, 0);
         }
-        cg_emit_runtime_call(p, "type_assertion_check2", args);
+        cg_emit_runtime_call(p, "__type_assertion_check2", args);
 
         return cg_emit_load(p, gep0);
     }
@@ -3426,7 +3375,7 @@ gb_internal cgValue cg_gen_map_key_hash(cgProcedure *p, cgValue const &map_ptr, 
     Slice<cgValue> args = {};
     args = slice_make<cgValue>(temporary_allocator(), 1);
     args[0] = cg_map_data_uintptr(p, cg_emit_load(p, map_ptr));
-    cgValue seed = cg_emit_runtime_call(p, "map_seed_from_map_data", args);
+    cgValue seed = cg_emit_runtime_call(p, "__map_seed_from_map_data", args);
 
     args = slice_make<cgValue>(temporary_allocator(), 2);
     args[0] = key_ptr;

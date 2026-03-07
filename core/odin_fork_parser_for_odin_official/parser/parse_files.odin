@@ -7,7 +7,7 @@ import "core:fmt"
 import "core:os"
 import "core:slice"
 import "core:strings"
-import "core:mem"
+import "base:mem"
 import "base:runtime"
 
 collect_package :: proc(path: string, allocator: mem.Allocator) -> (pkg: ^ast.Package, success: bool) {

@@ -17,7 +17,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions) -> (f: ^File, 
     return nil, .Unsupported
 }
 
-_new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     return nil, .Unsupported
 }
 
@@ -65,7 +65,7 @@ _symlink :: proc(old_name, new_name: string) -> Error {
     return .Unsupported
 }
 
-_read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, err: Error) {
+_read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: Error) {
     return "", .Unsupported
 }
 

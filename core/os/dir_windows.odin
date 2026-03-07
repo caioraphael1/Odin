@@ -1,10 +1,11 @@
 #+private
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:time"
 import win32 "core:sys/windows"
 
 @(private="file")
-find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
     // Ignore "." and ".."
     if d.cFileName[0] == '.' && d.cFileName[1] == 0 {
         return
@@ -13,8 +14,8 @@ find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, al
         return
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-    path := concatenate({base_path, `\`, win32_wstring_to_utf8(cstring16(raw_data(d.cFileName[:])), runtime.temp_allocator) or_else ""}, allocator) or_return
+    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    path := concatenate({base_path, `\`, win32_wstring_to_utf8(cstring16(raw_data(d.cFileName[:])), internal.temp_allocator) or_else ""}, allocator) or_return
 
     handle := win32.HANDLE(_open_internal(path, {.Read}, Permissions_Read_Write_All) or_else 0)
     defer _ = win32.CloseHandle(handle)
@@ -32,7 +33,7 @@ find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, al
     if file_id_info: win32.FILE_ID_INFO; handle != nil && win32.GetFileInformationByHandleEx(handle, .FileIdInfo, &file_id_info, size_of(file_id_info)) {
         #assert(size_of(fi.inode) == size_of(file_id_info.FileId))
         #assert(size_of(fi.inode) == 16)
-        runtime.mem_copy_non_overlapping(&fi.inode, &file_id_info.FileId, 16)
+        internal.mem_copy_non_overlapping(&fi.inode, &file_id_info.FileId, 16)
     }
 
     return
@@ -48,7 +49,7 @@ Read_Directory_Iterator_Impl :: struct {
 
 
 
-_read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
+_read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) -> (fi: File_Info, index: int, ok: bool) {
     for !it.impl.no_more_files {
         err: Error
         file_info_delete(it.impl.prev_fi, allocator)
@@ -81,7 +82,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtim
     return
 }
 
-_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: runtime.Allocator) {
+_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: mem.Allocator) {
     it.impl.no_more_files = false
 
     if f == nil || f.impl == nil {
@@ -106,9 +107,9 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     }
 
     wpath := string16(impl.wname)
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    wpath_search, _ := slice_create([]u16, len(wpath)+3, runtime.temp_allocator)
+    wpath_search, _ := slice_create([]u16, len(wpath)+3, internal.temp_allocator)
     slice_copy_from_string16(wpath_search, wpath)
     wpath_search[len(wpath)+0] = '\\'
     wpath_search[len(wpath)+1] = '*'
@@ -132,7 +133,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     return
 }
 
-_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
+_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) {
     if it.f == nil {
         return
     }

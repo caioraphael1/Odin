@@ -9,7 +9,7 @@ truncate it from the encoded output.
 */
 
 import "base:runtime"
-import "core:mem"
+import "base:mem"
 import "core:io"
 import "core:strings"
 

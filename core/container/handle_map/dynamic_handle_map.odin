@@ -19,7 +19,7 @@ Dynamic_Handle_Map :: struct($T: typeid, $Handle_Type: typeid)
     unused_items: xar.Array(u32, 4),
 }
 
-dynamic_init :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), allocator: runtime.Allocator) {
+dynamic_init :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), allocator: mem.Allocator) {
     xar.init(&m.items,        allocator)
     xar.init(&m.unused_items, allocator)
 }
@@ -30,7 +30,7 @@ dynamic_destroy :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type)) {
 }
 
 
-dynamic_add :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), item: T, loc := #caller_location) -> (handle: Handle_Type, err: runtime.Allocator_Error) {
+dynamic_add :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), item: T, loc := #caller_location) -> (handle: Handle_Type, err: mem.Allocator_Error) {
     if xar.len(m.unused_items) > 0 {
         i := xar.dyn_array_pop(&m.unused_items)
         ptr := xar.get_ptr_unsafe(&m.items, i)
@@ -68,7 +68,7 @@ dynamic_get :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), h: Handle_Type)
     return nil, false
 }
 
-dynamic_remove :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), h: Handle_Type, loc := #caller_location) -> (found: bool, err: runtime.Allocator_Error) {
+dynamic_remove :: proc(m: ^$D/Dynamic_Handle_Map($T, $Handle_Type), h: Handle_Type, loc := #caller_location) -> (found: bool, err: mem.Allocator_Error) {
     if h.idx <= 0 || int(u32(h.idx)) >= xar.len(m.items) {
         return false, nil
     }

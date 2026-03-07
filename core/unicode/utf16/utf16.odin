@@ -1,6 +1,7 @@
 // Procedures and constants to support text-encoding in the `UTF-16` character encoding.
 import "core:unicode/utf8"
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 
 REPLACEMENT_CHAR :: '\ufffd'
 MAX_RUNE         :: '\U0010ffff'
@@ -128,7 +129,7 @@ decode_rune_in_string :: proc(s: string16) -> (r: rune, width: int) {
     return
 }
 
-string_to_runes :: proc(s: string16, allocator: runtime.Allocator) -> (runes: []rune) {
+string_to_runes :: proc(s: string16, allocator: mem.Allocator) -> (runes: []rune) {
     n := rune_count_in_string(s)
 
     runes, _ = slice_create([]rune, n, allocator)

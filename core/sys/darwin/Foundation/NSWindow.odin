@@ -209,7 +209,7 @@ _WindowDelegateInternal :: struct {
 }
 
 window_delegate_register_and_alloc :: proc(template: WindowDelegateTemplate, class_name: string, delegate_context: Maybe(runtime.Context)) -> ^WindowDelegate {
-    class := objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.clone_to_cstring(class_name, runtime.temp_allocator), 0); if class == nil {
+    class := __objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.clone_to_cstring(class_name, runtime.temp_allocator), 0); if class == nil {
         // Class already registered
         return nil
     }
@@ -218,360 +218,360 @@ window_delegate_register_and_alloc :: proc(template: WindowDelegateTemplate, cla
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillPositionSheetUsingRect(window, sheet, rect)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:willPositionSheet:usingRect:"), auto_cast windowWillPositionSheetUsingRect, _RECT_ENCODING+"@:@@"+_RECT_ENCODING)
+        __class_addMethod(class, intrinsics.objc_find_selector("window:willPositionSheet:usingRect:"), auto_cast windowWillPositionSheetUsingRect, _RECT_ENCODING+"@:@@"+_RECT_ENCODING)
     }
     if template.windowWillBeginSheet != nil {
         windowWillBeginSheet :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillBeginSheet(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillBeginSheet:"), auto_cast windowWillBeginSheet, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillBeginSheet:"), auto_cast windowWillBeginSheet, "v@:@")
     }
     if template.windowDidEndSheet != nil {
         windowDidEndSheet :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidEndSheet(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidEndSheet:"), auto_cast windowDidEndSheet, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidEndSheet:"), auto_cast windowDidEndSheet, "v@:@")
     }
     if template.windowWillResizeToSize != nil {
         windowWillResizeToSize :: proc "c" (self: id, cmd: SEL, sender: ^Window, frameSize: Size) -> Size {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillResizeToSize(sender, frameSize)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillResize:toSize:"), auto_cast windowWillResizeToSize, _SIZE_ENCODING+"@:@"+_SIZE_ENCODING)
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillResize:toSize:"), auto_cast windowWillResizeToSize, _SIZE_ENCODING+"@:@"+_SIZE_ENCODING)
     }
     if template.windowDidResize != nil {
         windowDidResize :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidResize(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidResize:"), auto_cast windowDidResize, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidResize:"), auto_cast windowDidResize, "v@:@")
     }
     if template.windowWillStartLiveResize != nil {
         windowWillStartLiveResize :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillStartLiveResize(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillStartLiveResize:"), auto_cast windowWillStartLiveResize, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillStartLiveResize:"), auto_cast windowWillStartLiveResize, "v@:@")
     }
     if template.windowDidEndLiveResize != nil {
         windowDidEndLiveResize :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidEndLiveResize(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidEndLiveResize:"), auto_cast windowDidEndLiveResize, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidEndLiveResize:"), auto_cast windowDidEndLiveResize, "v@:@")
     }
     if template.windowWillMiniaturize != nil {
         windowWillMiniaturize :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillMiniaturize(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillMiniaturize:"), auto_cast windowWillMiniaturize, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillMiniaturize:"), auto_cast windowWillMiniaturize, "v@:@")
     }
     if template.windowDidMiniaturize != nil {
         windowDidMiniaturize :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidMiniaturize(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidMiniaturize:"), auto_cast windowDidMiniaturize, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidMiniaturize:"), auto_cast windowDidMiniaturize, "v@:@")
     }
     if template.windowDidDeminiaturize != nil {
         windowDidDeminiaturize :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidDeminiaturize(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidDeminiaturize:"), auto_cast windowDidDeminiaturize, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidDeminiaturize:"), auto_cast windowDidDeminiaturize, "v@:@")
     }
     if template.windowWillUseStandardFrameDefaultFrame != nil {
         windowWillUseStandardFrameDefaultFrame :: proc(self: id, cmd: SEL, window: ^Window, newFrame: Rect) -> Rect {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillUseStandardFrameDefaultFrame(window, newFrame)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillUseStandardFrame:defaultFrame:"), auto_cast windowWillUseStandardFrameDefaultFrame, _RECT_ENCODING+"@:@"+_RECT_ENCODING)
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillUseStandardFrame:defaultFrame:"), auto_cast windowWillUseStandardFrameDefaultFrame, _RECT_ENCODING+"@:@"+_RECT_ENCODING)
     }
     if template.windowShouldZoomToFrame != nil {
         windowShouldZoomToFrame :: proc "c" (self: id, cmd: SEL, window: ^Window, newFrame: Rect) -> BOOL {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowShouldZoomToFrame(window, newFrame)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowShouldZoom:toFrame:"), auto_cast windowShouldZoomToFrame, "B@:@"+_RECT_ENCODING)
+        __class_addMethod(class, intrinsics.objc_find_selector("windowShouldZoom:toFrame:"), auto_cast windowShouldZoomToFrame, "B@:@"+_RECT_ENCODING)
     }
     if template.windowWillUseFullScreenContentSize != nil {
         windowWillUseFullScreenContentSize :: proc "c" (self: id, cmd: SEL, window: ^Window, proposedSize: Size) -> Size {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillUseFullScreenContentSize(window, proposedSize)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:willUseFullScreenContentSize:"), auto_cast windowWillUseFullScreenContentSize, _SIZE_ENCODING+"@:@"+_SIZE_ENCODING)
+        __class_addMethod(class, intrinsics.objc_find_selector("window:willUseFullScreenContentSize:"), auto_cast windowWillUseFullScreenContentSize, _SIZE_ENCODING+"@:@"+_SIZE_ENCODING)
     }
     if template.windowWillUseFullScreenPresentationOptions != nil {
         windowWillUseFullScreenPresentationOptions :: proc(self: id, cmd: SEL, window: ^Window, proposedOptions: ApplicationPresentationOptions) -> ApplicationPresentationOptions {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillUseFullScreenPresentationOptions(window, proposedOptions)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:willUseFullScreenPresentationOptions:"), auto_cast windowWillUseFullScreenPresentationOptions, _UINTEGER_ENCODING+"@:@"+_UINTEGER_ENCODING)
+        __class_addMethod(class, intrinsics.objc_find_selector("window:willUseFullScreenPresentationOptions:"), auto_cast windowWillUseFullScreenPresentationOptions, _UINTEGER_ENCODING+"@:@"+_UINTEGER_ENCODING)
     }
     if template.windowWillEnterFullScreen != nil {
         windowWillEnterFullScreen :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillEnterFullScreen(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillEnterFullScreen:"), auto_cast windowWillEnterFullScreen, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillEnterFullScreen:"), auto_cast windowWillEnterFullScreen, "v@:@")
     }
     if template.windowDidEnterFullScreen != nil {
         windowDidEnterFullScreen :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidEnterFullScreen(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidEnterFullScreen:"), auto_cast windowDidEnterFullScreen, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidEnterFullScreen:"), auto_cast windowDidEnterFullScreen, "v@:@")
     }
     if template.windowWillExitFullScreen != nil {
         windowWillExitFullScreen :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillExitFullScreen(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillExitFullScreen:"), auto_cast windowWillExitFullScreen, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillExitFullScreen:"), auto_cast windowWillExitFullScreen, "v@:@")
     }
     if template.windowDidExitFullScreen != nil {
         windowDidExitFullScreen :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidExitFullScreen(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidExitFullScreen:"), auto_cast windowDidExitFullScreen, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidExitFullScreen:"), auto_cast windowDidExitFullScreen, "v@:@")
     }
     if template.customWindowsToEnterFullScreenForWindow != nil {
         customWindowsToEnterFullScreenForWindow :: proc "c" (self: id, cmd: SEL, window: ^Window) -> ^Array {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.customWindowsToEnterFullScreenForWindow(window)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("customWindowsToEnterFullScreenForWindow:"), auto_cast customWindowsToEnterFullScreenForWindow, "@@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("customWindowsToEnterFullScreenForWindow:"), auto_cast customWindowsToEnterFullScreenForWindow, "@@:@")
     }
     if template.customWindowsToEnterFullScreenForWindowOnScreen != nil {
         customWindowsToEnterFullScreenForWindowOnScreen :: proc(self: id, cmd: SEL, window: ^Window, screen: ^Screen) -> ^Array {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.customWindowsToEnterFullScreenForWindowOnScreen(window, screen)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("customWindowsToEnterFullScreenForWindow:onScreen:"), auto_cast customWindowsToEnterFullScreenForWindowOnScreen, "@@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("customWindowsToEnterFullScreenForWindow:onScreen:"), auto_cast customWindowsToEnterFullScreenForWindowOnScreen, "@@:@@")
     }
     if template.windowStartCustomAnimationToEnterFullScreenWithDuration != nil {
         windowStartCustomAnimationToEnterFullScreenWithDuration :: proc "c" (self: id, cmd: SEL, window: ^Window, duration: TimeInterval) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowStartCustomAnimationToEnterFullScreenWithDuration(window, duration)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:startCustomAnimationToEnterFullScreenWithDuration:"), auto_cast windowStartCustomAnimationToEnterFullScreenWithDuration, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("window:startCustomAnimationToEnterFullScreenWithDuration:"), auto_cast windowStartCustomAnimationToEnterFullScreenWithDuration, "v@:@@")
     }
     if template.windowStartCustomAnimationToEnterFullScreenOnScreenWithDuration != nil {
         windowStartCustomAnimationToEnterFullScreenOnScreenWithDuration :: proc(self: id, cmd: SEL, window: ^Window, screen: ^Screen, duration: TimeInterval) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowStartCustomAnimationToEnterFullScreenOnScreenWithDuration(window, screen, duration)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:startCustomAnimationToEnterFullScreenOnScreen:withDuration:"), auto_cast windowStartCustomAnimationToEnterFullScreenOnScreenWithDuration, "v@:@@d")
+        __class_addMethod(class, intrinsics.objc_find_selector("window:startCustomAnimationToEnterFullScreenOnScreen:withDuration:"), auto_cast windowStartCustomAnimationToEnterFullScreenOnScreenWithDuration, "v@:@@d")
     }
     if template.windowDidFailToEnterFullScreen != nil {
         windowDidFailToEnterFullScreen :: proc "c" (self: id, cmd: SEL, window: ^Window) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidFailToEnterFullScreen(window)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidFailToEnterFullScreen:"), auto_cast windowDidFailToEnterFullScreen, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidFailToEnterFullScreen:"), auto_cast windowDidFailToEnterFullScreen, "v@:@")
     }
     if template.customWindowsToExitFullScreenForWindow != nil {
         customWindowsToExitFullScreenForWindow :: proc "c" (self: id, cmd: SEL, window: ^Window) -> ^Array {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.customWindowsToExitFullScreenForWindow(window)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("customWindowsToExitFullScreenForWindow:"), auto_cast customWindowsToExitFullScreenForWindow, "@@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("customWindowsToExitFullScreenForWindow:"), auto_cast customWindowsToExitFullScreenForWindow, "@@:@")
     }
     if template.windowStartCustomAnimationToExitFullScreenWithDuration != nil {
         windowStartCustomAnimationToExitFullScreenWithDuration :: proc "c" (self: id, cmd: SEL, window: ^Window, duration: TimeInterval) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowStartCustomAnimationToExitFullScreenWithDuration(window, duration)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:startCustomAnimationToExitFullScreenWithDuration:"), auto_cast windowStartCustomAnimationToExitFullScreenWithDuration, "v@:@d")
+        __class_addMethod(class, intrinsics.objc_find_selector("window:startCustomAnimationToExitFullScreenWithDuration:"), auto_cast windowStartCustomAnimationToExitFullScreenWithDuration, "v@:@d")
     }
     if template.windowDidFailToExitFullScreen != nil {
         windowDidFailToExitFullScreen :: proc "c" (self: id, cmd: SEL, window: ^Window) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidFailToExitFullScreen(window)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidFailToExitFullScreen:"), auto_cast windowDidFailToExitFullScreen, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidFailToExitFullScreen:"), auto_cast windowDidFailToExitFullScreen, "v@:@")
     }
     if template.windowWillMove != nil {
         windowWillMove :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillMove(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillMove:"), auto_cast windowWillMove, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillMove:"), auto_cast windowWillMove, "v@:@")
     }
     if template.windowDidMove != nil {
         windowDidMove :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidMove(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidMove:"), auto_cast windowDidMove, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidMove:"), auto_cast windowDidMove, "v@:@")
     }
     if template.windowDidChangeScreen != nil {
         windowDidChangeScreen :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidChangeScreen(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeScreen:"), auto_cast windowDidChangeScreen, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeScreen:"), auto_cast windowDidChangeScreen, "v@:@")
     }
     if template.windowDidChangeScreenProfile != nil {
         windowDidChangeScreenProfile :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidChangeScreenProfile(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeScreenProfile:"), auto_cast windowDidChangeScreenProfile, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeScreenProfile:"), auto_cast windowDidChangeScreenProfile, "v@:@")
     }
     if template.windowDidChangeBackingProperties != nil {
         windowDidChangeBackingProperties :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidChangeBackingProperties(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeBackingProperties:"), auto_cast windowDidChangeBackingProperties, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeBackingProperties:"), auto_cast windowDidChangeBackingProperties, "v@:@")
     }
     if template.windowShouldClose != nil {
         windowShouldClose :: proc "c" (self:id, cmd: SEL, sender: ^Window) -> BOOL {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowShouldClose(sender)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowShouldClose:"), auto_cast windowShouldClose, "B@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowShouldClose:"), auto_cast windowShouldClose, "B@:@")
     }
     if template.windowWillClose != nil {
         windowWillClose :: proc "c" (self:id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillClose(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillClose:"), auto_cast windowWillClose, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillClose:"), auto_cast windowWillClose, "v@:@")
     }
     if template.windowDidBecomeKey != nil {
         windowDidBecomeKey :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidBecomeKey(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidBecomeKey:"), auto_cast windowDidBecomeKey, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidBecomeKey:"), auto_cast windowDidBecomeKey, "v@:@")
     }
     if template.windowDidResignKey != nil {
         windowDidResignKey :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidResignKey(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidResignKey:"), auto_cast windowDidResignKey, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidResignKey:"), auto_cast windowDidResignKey, "v@:@")
     }
     if template.windowDidBecomeMain != nil {
         windowDidBecomeMain :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidBecomeMain(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidBecomeMain:"), auto_cast windowDidBecomeMain, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidBecomeMain:"), auto_cast windowDidBecomeMain, "v@:@")
     }
     if template.windowDidResignMain != nil {
         windowDidResignMain :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidResignMain(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidResignMain:"), auto_cast windowDidResignMain, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidResignMain:"), auto_cast windowDidResignMain, "v@:@")
     }
     if template.windowWillReturnFieldEditorToObject != nil {
         windowWillReturnFieldEditorToObject :: proc "c" (self:id, cmd: SEL, sender: ^Window, client: id) -> id {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillReturnFieldEditorToObject(sender, client)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillReturnFieldEditor:toObject:"), auto_cast windowWillReturnFieldEditorToObject, "@@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillReturnFieldEditor:toObject:"), auto_cast windowWillReturnFieldEditorToObject, "@@:@@")
     }
     if template.windowDidUpdate != nil {
         windowDidUpdate :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidUpdate(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidUpdate:"), auto_cast windowDidUpdate, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidUpdate:"), auto_cast windowDidUpdate, "v@:@")
     }
     if template.windowDidExpose != nil {
         windowDidExpose :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidExpose(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidExpose:"), auto_cast windowDidExpose, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidExpose:"), auto_cast windowDidExpose, "v@:@")
     }
     if template.windowDidChangeOcclusionState != nil {
         windowDidChangeOcclusionState :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidChangeOcclusionState(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeOcclusionState:"), auto_cast windowDidChangeOcclusionState, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidChangeOcclusionState:"), auto_cast windowDidChangeOcclusionState, "v@:@")
     }
     if template.windowShouldDragDocumentWithEventFromWithPasteboard != nil {
         windowShouldDragDocumentWithEventFromWithPasteboard :: proc "c" (self: id, cmd: SEL, window: ^Window, event: ^Event, dragImageLocation: Point, pasteboard: ^Pasteboard) -> BOOL {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowShouldDragDocumentWithEventFromWithPasteboard(window, event, dragImageLocation, pasteboard)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:shouldDragDocumentWithEvent:from:withPasteboard:"), auto_cast windowShouldDragDocumentWithEventFromWithPasteboard, "B@:@@"+_POINT_ENCODING+"@")
+        __class_addMethod(class, intrinsics.objc_find_selector("window:shouldDragDocumentWithEvent:from:withPasteboard:"), auto_cast windowShouldDragDocumentWithEventFromWithPasteboard, "B@:@@"+_POINT_ENCODING+"@")
     }
     if template.windowWillReturnUndoManager != nil {
         windowWillReturnUndoManager :: proc "c" (self: id, cmd: SEL, window: ^Window) -> ^UndoManager {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillReturnUndoManager(window)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillReturnUndoManager:"), auto_cast windowWillReturnUndoManager, "@@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillReturnUndoManager:"), auto_cast windowWillReturnUndoManager, "@@:@")
     }
     if template.windowShouldPopUpDocumentPathMenu != nil {
         windowShouldPopUpDocumentPathMenu :: proc "c" (self: id, cmd: SEL, window: ^Window, menu: ^Menu) -> BOOL {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowShouldPopUpDocumentPathMenu(window, menu)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:shouldPopUpDocumentPathMenu:"), auto_cast windowShouldPopUpDocumentPathMenu, "B@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("window:shouldPopUpDocumentPathMenu:"), auto_cast windowShouldPopUpDocumentPathMenu, "B@:@@")
     }
     if template.windowWillEncodeRestorableState != nil {
         windowWillEncodeRestorableState :: proc "c" (self: id, cmd: SEL, window: ^Window, state: ^Coder) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillEncodeRestorableState(window, state)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:willEncodeRestorableState:"), auto_cast windowWillEncodeRestorableState, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("window:willEncodeRestorableState:"), auto_cast windowWillEncodeRestorableState, "v@:@@")
     }
     if template.windowDidEncodeRestorableState != nil {
         windowDidEncodeRestorableState :: proc "c" (self: id, cmd: SEL, window: ^Window, state: ^Coder) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidEncodeRestorableState(window, state)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:didDecodeRestorableState:"), auto_cast windowDidEncodeRestorableState, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("window:didDecodeRestorableState:"), auto_cast windowDidEncodeRestorableState, "v@:@@")
     }
     if template.windowWillResizeForVersionBrowserWithMaxPreferredSizeMaxAllowedSize != nil {
         windowWillResizeForVersionBrowserWithMaxPreferredSizeMaxAllowedSize :: proc "c" (self: id, cmd: SEL, window: ^Window, maxPreferredFrameSize: Size, maxAllowedFrameSize: Size) -> Size {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             return del.windowWillResizeForVersionBrowserWithMaxPreferredSizeMaxAllowedSize(window, maxPreferredFrameSize, maxPreferredFrameSize)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("window:willResizeForVersionBrowserWithMaxPreferredSize:maxAllowedSize:"), auto_cast windowWillResizeForVersionBrowserWithMaxPreferredSizeMaxAllowedSize, _SIZE_ENCODING+"@:@"+_SIZE_ENCODING+_SIZE_ENCODING)
+        __class_addMethod(class, intrinsics.objc_find_selector("window:willResizeForVersionBrowserWithMaxPreferredSize:maxAllowedSize:"), auto_cast windowWillResizeForVersionBrowserWithMaxPreferredSizeMaxAllowedSize, _SIZE_ENCODING+"@:@"+_SIZE_ENCODING+_SIZE_ENCODING)
     }
     if template.windowWillEnterVersionBrowser != nil {
         windowWillEnterVersionBrowser :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillEnterVersionBrowser(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillEnterVersionBrowser:"), auto_cast windowWillEnterVersionBrowser, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillEnterVersionBrowser:"), auto_cast windowWillEnterVersionBrowser, "v@:@")
     }
     if template.windowDidEnterVersionBrowser != nil {
         windowDidEnterVersionBrowser :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidEnterVersionBrowser(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidEnterVersionBrowser:"), auto_cast windowDidEnterVersionBrowser, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidEnterVersionBrowser:"), auto_cast windowDidEnterVersionBrowser, "v@:@")
     }
     if template.windowWillExitVersionBrowser != nil {
         windowWillExitVersionBrowser :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowWillExitVersionBrowser(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowWillExitVersionBrowser:"), auto_cast windowWillExitVersionBrowser, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowWillExitVersionBrowser:"), auto_cast windowWillExitVersionBrowser, "v@:@")
     }
     if template.windowDidExitVersionBrowser != nil {
         windowDidExitVersionBrowser :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_WindowDelegateInternal)object_getIndexedIvars(self)
             del.windowDidExitVersionBrowser(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("windowDidExitVersionBrowser:"), auto_cast windowDidExitVersionBrowser, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("windowDidExitVersionBrowser:"), auto_cast windowDidExitVersionBrowser, "v@:@")
     }
 
-    objc_registerClassPair(class)
+    __objc_registerClassPair(class)
     del := class_createInstance(class, size_of(_WindowDelegateInternal))
     del_internal := cast(^_WindowDelegateInternal)object_getIndexedIvars(del)
     del_internal^ = {

@@ -1,7 +1,8 @@
 
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:io"
 
 // A subset of the io.Stream_Mode with added File specific modes
@@ -21,14 +22,14 @@ File_Stream_Mode :: enum {
 }
 #assert(intrinsics.type_is_superset_of(File_Stream_Mode, io.Stream_Mode))
 
-// Superset interface of io.Stream_Proc with the added `runtime.Allocator` parameter needed for the Fstat mode
+// Superset interface of io.Stream_Proc with the added `mem.Allocator` parameter needed for the Fstat mode
 File_Stream_Proc :: #type proc(
     stream_data: rawptr,
     mode:        File_Stream_Mode,
     p:           []byte,
     offset:      i64,
     whence:      io.Seek_From,
-    allocator:   runtime.Allocator,
+    allocator:   mem.Allocator,
 ) -> (n: i64, err: Error)
 
 File_Stream :: struct {
@@ -64,24 +65,24 @@ to_writer :: to_stream
 to_reader :: to_stream
 
 
-@(private="package")
+@(private)
 file_io_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     f := (^File)(stream_data)
 
     file_stream_mode := transmute(File_Stream_Mode)mode
 
     ferr: Error
-    n, ferr = f.stream.procedure(f, file_stream_mode, p, offset, whence, runtime.nil_allocator())
+    n, ferr = f.stream.procedure(f, file_stream_mode, p, offset, whence, internal.nil_allocator())
     err = error_to_io_error(ferr)
     return
 }
 
-@(private="package")
-file_stream_fstat_utility :: proc(f: ^File_Impl, p: []byte, allocator: runtime.Allocator) -> (err: Error) {
+@(private)
+file_stream_fstat_utility :: proc(f: ^File_Impl, p: []byte, allocator: mem.Allocator) -> (err: Error) {
     fi: File_Info
     if len(p) >= size_of(fi) {
         fi, err = _fstat(&f.file, allocator)
-        runtime.mem_copy_non_overlapping(raw_data(p), &fi, size_of(fi))
+        internal.mem_copy_non_overlapping(raw_data(p), &fi, size_of(fi))
     } else {
         err = .Short_Buffer
     }

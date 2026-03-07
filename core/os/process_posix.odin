@@ -34,11 +34,11 @@ _get_ppid :: proc() -> int {
     return int(posix.getppid())
 }
 
-_process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+_process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     return _process_info_by_pid(process.pid, selection, allocator)
 }
 
-_current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+_current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     return _process_info_by_pid(_get_pid(), selection, allocator)
 }
 

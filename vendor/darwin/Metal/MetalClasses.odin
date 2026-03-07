@@ -1,6 +1,6 @@
 // Bindings for [[ Metal ; https://developer.apple.com/documentation/metal ]].
 import NS "core:sys/darwin/Foundation"
-import "core:mem"
+import "base:mem"
 _ :: mem
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5572,11 +5572,11 @@ Device_newBufferWithBytesNoCopy :: #force_inline proc "c" (self: ^Device, bytes:
 }
 @(objc_type=Device, objc_name="newBufferWithSlice")
 Device_newBufferWithSlice :: #force_inline proc "c" (self: ^Device, slice: $S/[]$E, options: ResourceOptions) -> ^Buffer {
-    return Device_newBufferWithBytes(self, mem.slice_to_bytes(slice), options)
+    return Device_newBufferWithBytes(self, mem.slice_of_bytes_from_slice(slice), options)
 }
 @(objc_type=Device, objc_name="newBufferWithSliceNoCopy")
 Device_newBufferWithSliceNoCopy :: #force_inline proc "c" (self: ^Device, slice: $S/[]$E, options: ResourceOptions, deallocator: rawptr) -> ^Buffer {
-    return Device_newBufferWithBytesNoCopy(self, mem.slice_to_bytes(slice), options, deallocator)
+    return Device_newBufferWithBytesNoCopy(self, mem.slice_of_bytes_from_slice(slice), options, deallocator)
 }
 @(objc_type=Device, objc_name="newBufferWithLength")
 Device_newBufferWithLength :: #force_inline proc "c" (self: ^Device, length: NS.UInteger, options: ResourceOptions) -> ^Buffer {

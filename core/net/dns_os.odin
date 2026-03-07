@@ -4,7 +4,7 @@
 
 import "core:os"
 
-import "core:mem"
+import "base:mem"
 
 load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> (name_servers: []Endpoint, ok: bool) {
     res, err := os.read_entire_file_from_path(resolv_conf_path, allocator)

@@ -31,7 +31,7 @@ internal_stat :: proc(stat: wasi.filestat_t, fullpath: string) -> (fi: File_Info
 	return
 }
 
-_fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_fstat :: proc(f: ^File, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	if f == nil || f.impl == nil {
 		err = .Invalid_File
 		return
@@ -39,7 +39,7 @@ _fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: File_Info, err: E
 
 	impl := (^File_Impl)(f.impl)
 
-	stat, _err := wasi.fd_filestat_get(__fd(f))
+	stat, _err := wasi.fd_filestat_get(_fd_specific(f))
 	if _err != nil {
 		err = _get_platform_error(_err)
 		return
@@ -49,7 +49,7 @@ _fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: File_Info, err: E
 	return internal_stat(stat, fullpath), nil
 }
 
-_stat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_stat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	if name == "" {
 		err = .Invalid_Path
 		return
@@ -72,7 +72,7 @@ _stat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err
 	return internal_stat(stat, fullpath), nil
 }
 
-_lstat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_lstat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	if name == "" {
 		err = .Invalid_Path
 		return

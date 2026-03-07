@@ -1,9 +1,9 @@
 // A `string` builder, as well as procedures to manipulate `UTF-8` encoded strings.
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 import "core:bytes"
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:unicode"
 import "core:unicode/utf8"
 
@@ -474,10 +474,10 @@ prefix_length :: proc(a, b: string) -> (n: int) {
     RUNE_SELF  :: 0x80
     UTF_MAX    :: 4
 
-    n    = runtime.memory_prefix_length(raw_data(a), raw_data(b), min(len(a), len(b)))
+    n    = internal.memory_prefix_length(raw_data(a), raw_data(b), min(len(a), len(b)))
     lim := max(n - UTF_MAX + 1, 0)
     for l := n; l > lim; l -= 1 {
-        r, _ := runtime.string_decode_rune(a[l - 1:])
+        r, _ := internal.__string_decode_rune(a[l - 1:])
         if r != RUNE_ERROR {
             if l > 0 && (a[l - 1] & 0xc0 == 0xc0) {
                 return l - 1

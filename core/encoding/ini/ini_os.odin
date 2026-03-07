@@ -5,7 +5,7 @@
 import "base:runtime"
 import "core:os"
 
-load_map_from_path :: proc(path: string, allocator: runtime.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: runtime.Allocator_Error, ok: bool) {
+load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: mem.Allocator_Error, ok: bool) {
 	data, data_err := os.read_entire_file(path, allocator)
 	defer delete(data, allocator)
 	if data_err != nil {

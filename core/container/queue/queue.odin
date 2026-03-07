@@ -1,7 +1,6 @@
 // A dynamically resizable double-ended queue/ring-buffer.
 import "base:builtin"
-import "base:runtime"
-_ :: runtime
+@(require) import "base:internal"
 
 /*
 `Queue` is a dynamically resizable double-ended queue/ring-buffer.
@@ -21,9 +20,9 @@ DEFAULT_CAPACITY :: 16
 /*
 Initialize a `Queue` with a starting `capacity` and an `allocator`.
 */
-init :: proc(q: ^$Q/Queue($T), capacity := DEFAULT_CAPACITY, allocator: runtime.Allocator, loc := #caller_location) -> runtime.Allocator_Error {
+init :: proc(q: ^$Q/Queue($T), capacity := DEFAULT_CAPACITY, allocator: mem.Allocator, loc := #caller_location) -> mem.Allocator_Error {
     clear(q)
-    q.data = transmute([dynamic]T)runtime.Raw_Dynamic_Array{
+    q.data = transmute([dynamic]T)internal.Raw_Dynamic_Array{
         data = nil,
         len = 0,
         cap = 0,
@@ -45,11 +44,11 @@ the backing slice runs out of space.
 */
 init_from_slice :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
     dyn_array_clear(q)
-    q.data = transmute([dynamic]T)runtime.Raw_Dynamic_Array{
+    q.data = transmute([dynamic]T)internal.Raw_Dynamic_Array{
         data = raw_data(backing),
         len = builtin.len(backing),
         cap = builtin.len(backing),
-        allocator = {procedure=runtime.nil_allocator_proc, data=nil},
+        allocator = {procedure=internal.nil_allocator_proc, data=nil},
     }
     return true
 }
@@ -64,11 +63,11 @@ be able to add more elements to the queue until some are taken off.
 */
 init_with_contents :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
     dyn_array_clear(q)
-    q.data = transmute([dynamic]T)runtime.Raw_Dynamic_Array{
+    q.data = transmute([dynamic]T)internal.Raw_Dynamic_Array{
         data = raw_data(backing),
         len = builtin.len(backing),
         cap = builtin.len(backing),
-        allocator = {procedure=runtime.nil_allocator_proc, data=nil},
+        allocator = {procedure=internal.nil_allocator_proc, data=nil},
     }
     q.len = builtin.len(backing)
     return true
@@ -113,7 +112,7 @@ Reserve enough space in the queue for at least the specified capacity.
 
 This may return an error if allocation failed.
 */
-reserve :: proc(q: ^$Q/Queue($T), capacity: int, loc := #caller_location) -> runtime.Allocator_Error {
+reserve :: proc(q: ^$Q/Queue($T), capacity: int, loc := #caller_location) -> mem.Allocator_Error {
     if capacity > space(q^) {
         return _grow(q, uint(capacity), loc)
     }
@@ -126,14 +125,14 @@ Shrink a queue's dynamically allocated array.
 This has no effect if the queue was initialized with a backing slice.
 */
 shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
-    if q.data.allocator.procedure == runtime.nil_allocator_proc {
+    if q.data.allocator.procedure == internal.nil_allocator_proc {
         return
     }
 
     if q.len > 0 && q.offset > 0 {
         // Make the array contiguous again.
-        buffer := slice_create([]T, q.len, runtime.temp_allocator)
-        defer _ = slice_delete(buffer, runtime.temp_allocator)
+        buffer := slice_create([]T, q.len, internal.temp_allocator)
+        defer _ = slice_delete(buffer, internal.temp_allocator)
 
         right := uint(builtin.len(q.data)) - q.offset
         slice_copy(buffer[:],      q.data[q.offset:])
@@ -153,7 +152,7 @@ Get the element at index `i`.
 This will raise a bounds checking error if `i` is an invalid index.
 */
 get :: proc(q: ^$Q/Queue($T), #any_int i: int, loc := #caller_location) -> T {
-    runtime.bounds_check_error_loc(loc, i, int(q.len))
+    internal.bounds_check_error_loc(loc, i, int(q.len))
 
     idx := (uint(i)+q.offset)%builtin.len(q.data)
     return q.data[idx]
@@ -165,7 +164,7 @@ Get a pointer to the element at index `i`.
 This will raise a bounds checking error if `i` is an invalid index.
 */
 get_ptr :: proc(q: ^$Q/Queue($T), #any_int i: int, loc := #caller_location) -> ^T {
-    runtime.bounds_check_error_loc(loc, i, int(q.len))
+    internal.bounds_check_error_loc(loc, i, int(q.len))
 
     idx := (uint(i)+q.offset)%builtin.len(q.data)
     return &q.data[idx]
@@ -177,7 +176,7 @@ Set the element at index `i` to `val`.
 This will raise a bounds checking error if `i` is an invalid index.
 */
 set :: proc(q: ^$Q/Queue($T), #any_int i: int, val: T, loc := #caller_location) {
-    runtime.bounds_check_error_loc(loc, i, int(q.len))
+    internal.bounds_check_error_loc(loc, i, int(q.len))
 
     idx := (uint(i)+q.offset)%builtin.len(q.data)
     q.data[idx] = val
@@ -252,7 +251,7 @@ return false with an `Allocator_Error`.
 
 Example:
 
-    import "base:runtime"
+    import "base:internal"
     import "core:container/queue"
 
     // This demonstrates typical queue behavior (First-In First-Out).
@@ -268,7 +267,7 @@ Example:
         assert(queue.dyn_array_pop_front(&q) == 3)
     }
 */
-push_back :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bool, err: runtime.Allocator_Error) {
+push_back :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) {
     if space(q^) == 0 {
         _grow(q, loc = loc) or_return
     }
@@ -286,7 +285,7 @@ return false with an `Allocator_Error`.
 
 Example:
 
-    import "base:runtime"
+    import "base:internal"
     import "core:container/queue"
 
     // This demonstrates stack behavior (First-In Last-Out).
@@ -302,7 +301,7 @@ Example:
         assert(queue.pop_back(&q) == 1)
     }
 */
-push_front :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bool, err: runtime.Allocator_Error)  {
+push_front :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error)  {
     if space(q^) == 0 {
         _grow(q, loc = loc) or_return
     }
@@ -319,7 +318,7 @@ This will raise a bounds checking error if the queue is empty.
 
 Example:
 
-    import "base:runtime"
+    import "base:internal"
     import "core:container/queue"
 
     // This demonstrates stack behavior (First-In Last-Out) at the far end of the data array.
@@ -395,7 +394,7 @@ Push many elements at once to the back of the queue.
 If there is not enough space left and allocation fails to get more, this will
 return false with an `Allocator_Error`.
 */
-push_back_elems :: proc(q: ^$Q/Queue($T), elems: ..T, loc := #caller_location) -> (ok: bool, err: runtime.Allocator_Error)  {
+push_back_elems :: proc(q: ^$Q/Queue($T), elems: ..T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error)  {
     n := uint(builtin.len(elems))
     if space(q^) < int(n) {
         _grow(q, q.len + n, loc) or_return
@@ -464,7 +463,7 @@ clear :: proc(q: ^$Q/Queue($T)) {
 
 
 // Internal growing procedure
-_grow :: proc(q: ^$Q/Queue($T), min_capacity: uint = 0, loc := #caller_location) -> runtime.Allocator_Error {
+_grow :: proc(q: ^$Q/Queue($T), min_capacity: uint = 0, loc := #caller_location) -> mem.Allocator_Error {
     new_capacity := max(min_capacity, uint(8), uint(builtin.len(q.data))*2)
     n := uint(builtin.len(q.data))
     builtin.dyn_array_resize(&q.data, int(new_capacity), loc) or_return

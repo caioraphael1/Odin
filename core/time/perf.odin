@@ -1,11 +1,12 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "base:intrinsics"
 
 /*
 Type representing monotonic time, useful for measuring durations.
 */
 Tick :: struct {
-	_nsec: i64, // relative amount
+    _nsec: i64, // relative amount
 }
 
 /*
@@ -13,7 +14,7 @@ Obtain the current tick.
 */
 
 tick_now :: proc() -> Tick {
-	return _tick_now()
+    return _tick_now()
 }
 
 /*
@@ -21,7 +22,7 @@ Add duration to a tick.
 */
 
 tick_add :: proc(t: Tick, d: Duration) -> Tick {
-	return Tick{t._nsec + i64(d)}
+    return Tick{t._nsec + i64(d)}
 }
 
 /*
@@ -29,8 +30,8 @@ Obtain the difference between ticks.
 */
 
 tick_diff :: proc(start, end: Tick) -> Duration {
-	d := end._nsec - start._nsec
-	return Duration(d)
+    d := end._nsec - start._nsec
+    return Duration(d)
 }
 
 /*
@@ -46,13 +47,13 @@ might want to obtain time between multiple ticks at specific points.
 */
 
 tick_lap_time :: proc(prev: ^Tick) -> Duration {
-	d: Duration
-	t := tick_now()
-	if prev._nsec != 0 {
-		d = tick_diff(prev^, t)
-	}
-	prev^ = t
-	return d
+    d: Duration
+    t := tick_now()
+    if prev._nsec != 0 {
+        d = tick_diff(prev^, t)
+    }
+    prev^ = t
+    return d
 }
 
 /*
@@ -60,7 +61,7 @@ Obtain the duration since last tick.
 */
 
 tick_since :: proc(start: Tick) -> Duration {
-	return tick_diff(start, tick_now())
+    return tick_diff(start, tick_now())
 }
 
 /*
@@ -68,33 +69,33 @@ Capture the duration the code in the current scope takes to execute.
 */
 @(deferred_in_out=_tick_duration_end, optional_results)
 SCOPED_TICK_DURATION :: proc(d: ^Duration) -> Tick {
-	return tick_now()
+    return tick_now()
 }
 
 _tick_duration_end :: proc(d: ^Duration, t: Tick) {
-	d^ = tick_since(t)
+    d^ = tick_since(t)
 }
 
 when ODIN_ARCH == .amd64 {
-	@(private)
-	x86_has_invariant_tsc :: proc() -> bool {
-		eax, _, _, _ := intrinsics.x86_cpuid(0x80_000_000, 0)
+    @(private)
+    x86_has_invariant_tsc :: proc() -> bool {
+        eax, _, _, _ := intrinsics.x86_cpuid(0x80_000_000, 0)
 
-		// Is this processor *really* ancient?
-		if eax < 0x80_000_007 {
-			return false
-		}
+        // Is this processor *really* ancient?
+        if eax < 0x80_000_007 {
+            return false
+        }
 
-		// check if the invariant TSC bit is set
-		_, _, _, edx := intrinsics.x86_cpuid(0x80_000_007, 0)
-		return (edx & (1 << 8)) != 0
-	}
+        // check if the invariant TSC bit is set
+        _, _, _, edx := intrinsics.x86_cpuid(0x80_000_007, 0)
+        return (edx & (1 << 8)) != 0
+    }
 }
 
 when ODIN_OS != .Darwin && ODIN_OS != .Linux && ODIN_OS != .FreeBSD {
-	_get_tsc_frequency :: proc() -> (u64, bool) {
-		return 0, false
-	}
+    _get_tsc_frequency :: proc() -> (u64, bool) {
+        return 0, false
+    }
 }
 
 /*
@@ -106,13 +107,13 @@ TSC at a fixed frequency, independent of ACPI state, and CPU frequency.
 */
 
 has_invariant_tsc :: proc() -> bool {
-	when ODIN_ARCH == .amd64 {
-		return x86_has_invariant_tsc()
-	} else when ODIN_ARCH == .arm64 {
-		return true
-	}
+    when ODIN_ARCH == .amd64 {
+        return x86_has_invariant_tsc()
+    } else when ODIN_ARCH == .arm64 {
+        return true
+    }
 
-	return false
+    return false
 }
 
 /*
@@ -128,26 +129,26 @@ The duration of sleep can be controlled by `fallback_sleep` parameter.
 */
 
 tsc_frequency :: proc(fallback_sleep := 2 * Second) -> (u64, bool) {
-	if !has_invariant_tsc() {
-		return 0, false
-	}
+    if !has_invariant_tsc() {
+        return 0, false
+    }
 
-	hz, ok := _get_tsc_frequency()
-	if !ok {
-		// fallback to approximate TSC
-		tsc_begin := intrinsics.read_cycle_counter()
-		tick_begin := tick_now()
+    hz, ok := _get_tsc_frequency()
+    if !ok {
+        // fallback to approximate TSC
+        tsc_begin := intrinsics.read_cycle_counter()
+        tick_begin := tick_now()
 
-		sleep(fallback_sleep)
+        sleep(fallback_sleep)
 
-		tsc_end := intrinsics.read_cycle_counter()
-		tick_end := tick_now()
+        tsc_end := intrinsics.read_cycle_counter()
+        tick_end := tick_now()
 
-		time_diff := u128(duration_nanoseconds(tick_diff(tick_begin, tick_end)))
-		hz = u64((u128(tsc_end - tsc_begin) * 1_000_000_000) / time_diff)
-	}
+        time_diff := u128(duration_nanoseconds(tick_diff(tick_begin, tick_end)))
+        hz = u64((u128(tsc_end - tsc_begin) * 1_000_000_000) / time_diff)
+    }
 
-	return hz, true
+    return hz, true
 }
 
 // Benchmark helpers
@@ -156,42 +157,42 @@ tsc_frequency :: proc(fallback_sleep := 2 * Second) -> (u64, bool) {
 Errors returned by the `benchmark()` procedure.
 */
 Benchmark_Error :: enum {
-	Okay = 0,
-	Allocation_Error,
+    Okay = 0,
+    Allocation_Error,
 }
 
 /*
 Options for benchmarking.
 */
 Benchmark_Options :: struct {
-	// The initialization procedure. `benchmark()` will call this before taking measurements.
-	setup:     #type proc(options: ^Benchmark_Options, allocator: runtime.Allocator) -> (err: Benchmark_Error),
-	// The procedure to benchmark.
-	bench:     #type proc(options: ^Benchmark_Options, allocator: runtime.Allocator) -> (err: Benchmark_Error),
-	// The deinitialization procedure.
-	teardown:  #type proc(options: ^Benchmark_Options, allocator: runtime.Allocator) -> (err: Benchmark_Error),
-	// Field to be used by `bench()` procedure for any purpose.
-	rounds:    int,
-	// Field to be used by `bench()` procedure for any purpose.
-	bytes:     int,
-	// Field to be used by `bench()` procedure for any purpose.
-	input:     []u8,
-	// `bench()` writes to specify the count of elements processed.
-	count:     int,
-	// `bench()` writes to specify the number of bytes processed.
-	processed: int,
-	// `bench()` can write the output slice here.
-	output:    []u8, // Unused for hash benchmarks
-	// `bench()` can write the output hash here.
-	hash:      u128,
-	// `benchmark()` procedure will output the duration of benchmark
-	duration:             Duration,
-	// `benchmark()` procedure will output the average count of elements
-	// processed per second, using the `count` field of this struct.
-	rounds_per_second:    f64,
-	// `benchmark()` procedure will output the average number of megabytes
-	// processed per second, using the `processed` field of this struct.
-	megabytes_per_second: f64,
+    // The initialization procedure. `benchmark()` will call this before taking measurements.
+    setup:     #type proc(options: ^Benchmark_Options, allocator: mem.Allocator) -> (err: Benchmark_Error),
+    // The procedure to benchmark.
+    bench:     #type proc(options: ^Benchmark_Options, allocator: mem.Allocator) -> (err: Benchmark_Error),
+    // The deinitialization procedure.
+    teardown:  #type proc(options: ^Benchmark_Options, allocator: mem.Allocator) -> (err: Benchmark_Error),
+    // Field to be used by `bench()` procedure for any purpose.
+    rounds:    int,
+    // Field to be used by `bench()` procedure for any purpose.
+    bytes:     int,
+    // Field to be used by `bench()` procedure for any purpose.
+    input:     []u8,
+    // `bench()` writes to specify the count of elements processed.
+    count:     int,
+    // `bench()` writes to specify the number of bytes processed.
+    processed: int,
+    // `bench()` can write the output slice here.
+    output:    []u8, // Unused for hash benchmarks
+    // `bench()` can write the output hash here.
+    hash:      u128,
+    // `benchmark()` procedure will output the duration of benchmark
+    duration:             Duration,
+    // `benchmark()` procedure will output the average count of elements
+    // processed per second, using the `count` field of this struct.
+    rounds_per_second:    f64,
+    // `benchmark()` procedure will output the average number of megabytes
+    // processed per second, using the `processed` field of this struct.
+    megabytes_per_second: f64,
 }
 
 /*
@@ -208,27 +209,27 @@ can be obtained:
 In order to obtain these metrics, the `bench()` procedure writes to `options`
 struct the number of elements or bytes it has processed.
 */
-benchmark :: proc(options: ^Benchmark_Options, allocator: runtime.Allocator) -> (err: Benchmark_Error) {
-	assert(options != nil)
-	assert(options.bench != nil)
+benchmark :: proc(options: ^Benchmark_Options, allocator: mem.Allocator) -> (err: Benchmark_Error) {
+    assert(options != nil)
+    assert(options.bench != nil)
 
-	if options.setup != nil {
-		options->setup(allocator) or_return
-	}
+    if options.setup != nil {
+        options->setup(allocator) or_return
+    }
 
-	diff: Duration
-	{
-		SCOPED_TICK_DURATION(&diff)
-		options->bench(allocator) or_return
-	}
-	options.duration = diff
+    diff: Duration
+    {
+        SCOPED_TICK_DURATION(&diff)
+        options->bench(allocator) or_return
+    }
+    options.duration = diff
 
-	times_per_second            := f64(Second) / f64(diff)
-	options.rounds_per_second    = times_per_second * f64(options.count)
-	options.megabytes_per_second = f64(options.processed) / f64(1024 * 1024) * times_per_second
+    times_per_second            := f64(Second) / f64(diff)
+    options.rounds_per_second    = times_per_second * f64(options.count)
+    options.megabytes_per_second = f64(options.processed) / f64(1024 * 1024) * times_per_second
 
-	if options.teardown != nil {
-		options->teardown(allocator) or_return
-	}
-	return
+    if options.teardown != nil {
+        options->teardown(allocator) or_return
+    }
+    return
 }

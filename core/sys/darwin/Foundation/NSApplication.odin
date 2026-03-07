@@ -294,7 +294,7 @@ _ApplicationDelegateInternal :: struct {
 }
 
 application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTemplate, class_name: string, delegate_context: Maybe(runtime.Context)) -> ^ApplicationDelegate {
-    class := objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.clone_to_cstring(class_name, runtime.temp_allocator), 0); if class == nil {
+    class := __objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.clone_to_cstring(class_name, runtime.temp_allocator), 0); if class == nil {
         // Class already registered
         return nil
     }
@@ -303,318 +303,318 @@ application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTem
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillFinishLaunching(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationWillFinishLaunching:"), auto_cast applicationWillFinishLaunching, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationWillFinishLaunching:"), auto_cast applicationWillFinishLaunching, "v@:@")
     }
     if template.applicationDidFinishLaunching != nil {
         applicationDidFinishLaunching :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidFinishLaunching(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidFinishLaunching:"), auto_cast applicationDidFinishLaunching, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidFinishLaunching:"), auto_cast applicationDidFinishLaunching, "v@:@")
     }
     if template.applicationWillBecomeActive != nil {
         applicationWillBecomeActive :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillBecomeActive(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationWillBecomeActive:"), auto_cast applicationWillBecomeActive, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationWillBecomeActive:"), auto_cast applicationWillBecomeActive, "v@:@")
     }
     if template.applicationDidBecomeActive != nil {
         applicationDidBecomeActive :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidBecomeActive(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidBecomeActive:"), auto_cast applicationDidBecomeActive, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidBecomeActive:"), auto_cast applicationDidBecomeActive, "v@:@")
     }
     if template.applicationWillResignActive != nil {
         applicationWillResignActive :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillResignActive(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationWillResignActive:"), auto_cast applicationWillResignActive, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationWillResignActive:"), auto_cast applicationWillResignActive, "v@:@")
     }
     if template.applicationDidResignActive != nil {
         applicationDidResignActive :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidResignActive(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidResignActive:"), auto_cast applicationDidResignActive, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidResignActive:"), auto_cast applicationDidResignActive, "v@:@")
     }
     if template.applicationShouldTerminate != nil {
         applicationShouldTerminate :: proc "c" (self: id, cmd: SEL, sender: ^Application) -> ApplicationTerminateReply {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationShouldTerminate(sender)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationShouldTerminate:"), auto_cast applicationShouldTerminate, _UINTEGER_ENCODING+"@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationShouldTerminate:"), auto_cast applicationShouldTerminate, _UINTEGER_ENCODING+"@:@")
     }
     if template.applicationShouldTerminateAfterLastWindowClosed != nil {
         applicationShouldTerminateAfterLastWindowClosed :: proc "c" (self: id, cmd: SEL, sender: ^Application) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationShouldTerminateAfterLastWindowClosed(sender)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationShouldTerminateAfterLastWindowClosed:"), auto_cast applicationShouldTerminateAfterLastWindowClosed, "B@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationShouldTerminateAfterLastWindowClosed:"), auto_cast applicationShouldTerminateAfterLastWindowClosed, "B@:@")
     }
     if template.applicationWillTerminate != nil {
         applicationWillTerminate :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillTerminate(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationWillTerminate:"), auto_cast applicationWillTerminate, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationWillTerminate:"), auto_cast applicationWillTerminate, "v@:@")
     }
     if template.applicationWillHide != nil {
         applicationWillHide :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillHide(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationWillHide:"), auto_cast applicationWillHide, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationWillHide:"), auto_cast applicationWillHide, "v@:@")
     }
     if template.applicationDidHide != nil {
         applicationDidHide :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidHide(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidHide:"), auto_cast applicationDidHide, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidHide:"), auto_cast applicationDidHide, "v@:@")
     }
     if template.applicationWillUnhide != nil {
         applicationWillUnhide :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillUnhide(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationWillUnhide:"), auto_cast applicationWillUnhide, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationWillUnhide:"), auto_cast applicationWillUnhide, "v@:@")
     }
     if template.applicationDidUnhide != nil {
         applicationDidUnhide :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidUnhide(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidUnhide:"), auto_cast applicationDidUnhide, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidUnhide:"), auto_cast applicationDidUnhide, "v@:@")
     }
     if template.applicationWillUpdate != nil {
         applicationWillUpdate :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillUpdate(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationWillUpdate:"), auto_cast applicationWillUpdate, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationWillUpdate:"), auto_cast applicationWillUpdate, "v@:@")
     }
     if template.applicationDidUpdate != nil {
         applicationDidUpdate :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidUpdate(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidUpdate:"), auto_cast applicationDidUpdate, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidUpdate:"), auto_cast applicationDidUpdate, "v@:@")
     }
     if template.applicationShouldHandleReopenHasVisibleWindows != nil {
         applicationShouldHandleReopenHasVisibleWindows :: proc "c" (self: id, cmd: SEL, sender: ^Application, flag: BOOL) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationShouldHandleReopenHasVisibleWindows(sender, flag)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationShouldHandleReopen:hasVisibleWindows:"), auto_cast applicationShouldHandleReopenHasVisibleWindows, "B@:@B")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationShouldHandleReopen:hasVisibleWindows:"), auto_cast applicationShouldHandleReopenHasVisibleWindows, "B@:@B")
     }
     if template.applicationDockMenu != nil {
         applicationDockMenu :: proc "c" (self: id, cmd: SEL, sender: ^Application) -> ^Menu {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationDockMenu(sender)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDockMenu:"), auto_cast applicationDockMenu, "@@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDockMenu:"), auto_cast applicationDockMenu, "@@:@")
     }
     if template.applicationShouldAutomaticallyLocalizeKeyEquivalents != nil {
         applicationShouldAutomaticallyLocalizeKeyEquivalents :: proc "c" (self: id, cmd: SEL, application: ^Application) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationShouldAutomaticallyLocalizeKeyEquivalents(application)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationShouldAutomaticallyLocalizeKeyEquivalents:"), auto_cast applicationShouldAutomaticallyLocalizeKeyEquivalents, "B@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationShouldAutomaticallyLocalizeKeyEquivalents:"), auto_cast applicationShouldAutomaticallyLocalizeKeyEquivalents, "B@:@")
     }
     if template.applicationWillPresentError != nil {
         applicationWillPresentError :: proc "c" (self: id, cmd: SEL, application: ^Application, error: ^Error) -> ^Error {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationWillPresentError(application, error)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:willPresentError:"), auto_cast applicationWillPresentError, "@@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:willPresentError:"), auto_cast applicationWillPresentError, "@@:@@")
     }
     if template.applicationDidChangeScreenParameters != nil {
         applicationDidChangeScreenParameters :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidChangeScreenParameters(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidChangeScreenParameters:"), auto_cast applicationDidChangeScreenParameters, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidChangeScreenParameters:"), auto_cast applicationDidChangeScreenParameters, "v@:@")
     }
     if template.applicationWillContinueUserActivityWithType != nil {
         applicationWillContinueUserActivityWithType :: proc "c" (self: id, cmd: SEL, application: ^Application, userActivityType: ^String) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationWillContinueUserActivityWithType(application, userActivityType)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:willContinueUserActivityWithType:"), auto_cast applicationWillContinueUserActivityWithType, "B@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:willContinueUserActivityWithType:"), auto_cast applicationWillContinueUserActivityWithType, "B@:@@")
     }
     if template.applicationContinueUserActivityRestorationHandler != nil {
         applicationContinueUserActivityRestorationHandler :: proc "c" (self: id, cmd: SEL, application: ^Application, userActivity: ^UserActivity, restorationHandler: ^Block) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationContinueUserActivityRestorationHandler(application, userActivity, restorationHandler)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:continueUserActivity:restorationHandler:"), auto_cast applicationContinueUserActivityRestorationHandler, "B@:@@?")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:continueUserActivity:restorationHandler:"), auto_cast applicationContinueUserActivityRestorationHandler, "B@:@@?")
     }
     if template.applicationDidFailToContinueUserActivityWithTypeError != nil {
         applicationDidFailToContinueUserActivityWithTypeError :: proc "c" (self: id, cmd: SEL, application: ^Application, userActivityType: ^String, error: ^Error) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidFailToContinueUserActivityWithTypeError(application, userActivityType, error)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:didFailToContinueUserActivityWithType:error:"), auto_cast applicationDidFailToContinueUserActivityWithTypeError, "v@:@@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:didFailToContinueUserActivityWithType:error:"), auto_cast applicationDidFailToContinueUserActivityWithTypeError, "v@:@@@")
     }
     if template.applicationDidUpdateUserActivity != nil {
         applicationDidUpdateUserActivity :: proc "c" (self: id, cmd: SEL, application: ^Application, userActivity: ^UserActivity) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidUpdateUserActivity(application, userActivity)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:didUpdateUserActivity:"), auto_cast applicationDidUpdateUserActivity, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:didUpdateUserActivity:"), auto_cast applicationDidUpdateUserActivity, "v@:@@")
     }
     if template.applicationDidRegisterForRemoteNotificationsWithDeviceToken != nil {
         applicationDidRegisterForRemoteNotificationsWithDeviceToken :: proc "c" (self: id, cmd: SEL, application: ^Application, deviceToken: ^Data) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidRegisterForRemoteNotificationsWithDeviceToken(application, deviceToken)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:didRegisterForRemoteNotificationsWithDeviceToken:"), auto_cast applicationDidRegisterForRemoteNotificationsWithDeviceToken, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:didRegisterForRemoteNotificationsWithDeviceToken:"), auto_cast applicationDidRegisterForRemoteNotificationsWithDeviceToken, "v@:@@")
     }
     if template.applicationDidFailToRegisterForRemoteNotificationsWithError != nil {
         applicationDidFailToRegisterForRemoteNotificationsWithError :: proc "c" (self: id, cmd: SEL, application: ^Application, error: ^Error) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidFailToRegisterForRemoteNotificationsWithError(application, error)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:didFailToRegisterForRemoteNotificationsWithError:"), auto_cast applicationDidFailToRegisterForRemoteNotificationsWithError, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:didFailToRegisterForRemoteNotificationsWithError:"), auto_cast applicationDidFailToRegisterForRemoteNotificationsWithError, "v@:@@")
     }
     if template.applicationDidReceiveRemoteNotification != nil {
         applicationDidReceiveRemoteNotification :: proc "c" (self: id, cmd: SEL, application: ^Application, userInfo: ^Dictionary) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidReceiveRemoteNotification(application, userInfo)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:didReceiveRemoteNotification:"), auto_cast applicationDidReceiveRemoteNotification, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:didReceiveRemoteNotification:"), auto_cast applicationDidReceiveRemoteNotification, "v@:@@")
     }
     // if template.applicationUserDidAcceptCloudKitShareWithMetadata != nil {
     //  applicationUserDidAcceptCloudKitShareWithMetadata :: proc "c" (self: id, cmd: SEL, application: ^Application, metadata: ^CKShareMetadata) {
     //      del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
     //      del.applicationUserDidAcceptCloudKitShareWithMetadata(application, metadata)
     //  }
-    //  class_addMethod(class, intrinsics.objc_find_selector("application:userDidAcceptCloudKitShareWithMetadata:"), auto_cast applicationUserDidAcceptCloudKitShareWithMetadata, "v@:@@")
+    //  __class_addMethod(class, intrinsics.objc_find_selector("application:userDidAcceptCloudKitShareWithMetadata:"), auto_cast applicationUserDidAcceptCloudKitShareWithMetadata, "v@:@@")
     // }
     // if template.applicationHandlerForIntent != nil {
     //  applicationHandlerForIntent :: proc "c" (self: id, cmd: SEL, application: ^Application, intent: ^INIntent) -> id {
     //      del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
     //      return del.applicationHandlerForIntent(application, intent)
     //  }
-    //  class_addMethod(class, intrinsics.objc_find_selector("application:handlerForIntent:"), auto_cast applicationHandlerForIntent, "@@:@@")
+    //  __class_addMethod(class, intrinsics.objc_find_selector("application:handlerForIntent:"), auto_cast applicationHandlerForIntent, "@@:@@")
     // }
     if template.applicationOpenURLs != nil {
         applicationOpenURLs :: proc "c" (self: id, cmd: SEL, application: ^Application, urls: ^Array) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationOpenURLs(application, urls)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:openURLs:"), auto_cast applicationOpenURLs, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:openURLs:"), auto_cast applicationOpenURLs, "v@:@@")
     }
     if template.applicationOpenFile != nil {
         applicationOpenFile :: proc "c" (self: id, cmd: SEL, sender: ^Application, filename: ^String) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationOpenFile(sender, filename)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:openFile:"), auto_cast applicationOpenFile, "B@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:openFile:"), auto_cast applicationOpenFile, "B@:@@")
     }
     if template.applicationOpenFileWithoutUI != nil {
         applicationOpenFileWithoutUI :: proc "c" (self: id, cmd: SEL, sender: id, filename: ^String) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationOpenFileWithoutUI(sender, filename)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:openFileWithoutUI:"), auto_cast applicationOpenFileWithoutUI, "B@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:openFileWithoutUI:"), auto_cast applicationOpenFileWithoutUI, "B@:@@")
     }
     if template.applicationOpenTempFile != nil {
         applicationOpenTempFile :: proc "c" (self: id, cmd: SEL, sender: ^Application, filename: ^String) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationOpenTempFile(sender, filename)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:openTempFile:"), auto_cast applicationOpenTempFile, "B@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:openTempFile:"), auto_cast applicationOpenTempFile, "B@:@@")
     }
     if template.applicationOpenFiles != nil {
         applicationOpenFiles :: proc "c" (self: id, cmd: SEL, sender: ^Application, filenames: ^Array) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationOpenFiles(sender, filenames)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:openFiles:"), auto_cast applicationOpenFiles, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:openFiles:"), auto_cast applicationOpenFiles, "v@:@@")
     }
     if template.applicationShouldOpenUntitledFile != nil {
         applicationShouldOpenUntitledFile :: proc "c" (self: id, cmd: SEL, sender: ^Application) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationShouldOpenUntitledFile(sender)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationShouldOpenUntitledFile:"), auto_cast applicationShouldOpenUntitledFile, "B@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationShouldOpenUntitledFile:"), auto_cast applicationShouldOpenUntitledFile, "B@:@")
     }
     if template.applicationOpenUntitledFile != nil {
         applicationOpenUntitledFile :: proc "c" (self: id, cmd: SEL, sender: ^Application) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationOpenUntitledFile(sender)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationOpenUntitledFile:"), auto_cast applicationOpenUntitledFile, "B@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationOpenUntitledFile:"), auto_cast applicationOpenUntitledFile, "B@:@")
     }
     if template.applicationPrintFile != nil {
         applicationPrintFile :: proc "c" (self: id, cmd: SEL, sender: ^Application, filename: ^String) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationPrintFile(sender, filename)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:printFile:"), auto_cast applicationPrintFile, "B@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:printFile:"), auto_cast applicationPrintFile, "B@:@@")
     }
     if template.applicationPrintFilesWithSettingsShowPrintPanels != nil {
         applicationPrintFilesWithSettingsShowPrintPanels :: proc "c" (self: id, cmd: SEL, application: ^Application, fileNames: ^Array, printSettings: ^Dictionary, showPrintPanels: BOOL) -> ApplicationPrintReply {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationPrintFilesWithSettingsShowPrintPanels(application, fileNames, printSettings, showPrintPanels)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:printFiles:withSettings:showPrintPanels:"), auto_cast applicationPrintFilesWithSettingsShowPrintPanels, _UINTEGER_ENCODING+"@:@@@B")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:printFiles:withSettings:showPrintPanels:"), auto_cast applicationPrintFilesWithSettingsShowPrintPanels, _UINTEGER_ENCODING+"@:@@@B")
     }
     if template.applicationSupportsSecureRestorableState != nil {
         applicationSupportsSecureRestorableState :: proc "c" (self: id, cmd: SEL, app: ^Application) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationSupportsSecureRestorableState(app)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationSupportsSecureRestorableState:"), auto_cast applicationSupportsSecureRestorableState, "B@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationSupportsSecureRestorableState:"), auto_cast applicationSupportsSecureRestorableState, "B@:@")
     }
     if template.applicationProtectedDataDidBecomeAvailable != nil {
         applicationProtectedDataDidBecomeAvailable :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationProtectedDataDidBecomeAvailable(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationProtectedDataDidBecomeAvailable:"), auto_cast applicationProtectedDataDidBecomeAvailable, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationProtectedDataDidBecomeAvailable:"), auto_cast applicationProtectedDataDidBecomeAvailable, "v@:@")
     }
     if template.applicationProtectedDataWillBecomeUnavailable != nil {
         applicationProtectedDataWillBecomeUnavailable :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationProtectedDataWillBecomeUnavailable(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationProtectedDataWillBecomeUnavailable:"), auto_cast applicationProtectedDataWillBecomeUnavailable, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationProtectedDataWillBecomeUnavailable:"), auto_cast applicationProtectedDataWillBecomeUnavailable, "v@:@")
     }
     if template.applicationWillEncodeRestorableState != nil {
         applicationWillEncodeRestorableState :: proc "c" (self: id, cmd: SEL, app: ^Application, coder: ^Coder) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationWillEncodeRestorableState(app, coder)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:willEncodeRestorableState:"), auto_cast applicationWillEncodeRestorableState, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:willEncodeRestorableState:"), auto_cast applicationWillEncodeRestorableState, "v@:@@")
     }
     if template.applicationDidDecodeRestorableState != nil {
         applicationDidDecodeRestorableState :: proc "c" (self: id, cmd: SEL, app: ^Application, coder: ^Coder) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidDecodeRestorableState(app, coder)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:didDecodeRestorableState:"), auto_cast applicationDidDecodeRestorableState, "v@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:didDecodeRestorableState:"), auto_cast applicationDidDecodeRestorableState, "v@:@@")
     }
     if template.applicationDidChangeOcclusionState != nil {
         applicationDidChangeOcclusionState :: proc "c" (self: id, cmd: SEL, notification: ^Notification) {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             del.applicationDidChangeOcclusionState(notification)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("applicationDidChangeOcclusionState:"), auto_cast applicationDidChangeOcclusionState, "v@:@")
+        __class_addMethod(class, intrinsics.objc_find_selector("applicationDidChangeOcclusionState:"), auto_cast applicationDidChangeOcclusionState, "v@:@")
     }
     if template.applicationDelegateHandlesKey != nil {
         applicationDelegateHandlesKey :: proc "c" (self: id, cmd: SEL, sender: ^Application, key: ^String) -> BOOL {
             del := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(self)
             return del.applicationDelegateHandlesKey(sender, key)
         }
-        class_addMethod(class, intrinsics.objc_find_selector("application:delegateHandlesKey:"), auto_cast applicationDelegateHandlesKey, "B@:@@")
+        __class_addMethod(class, intrinsics.objc_find_selector("application:delegateHandlesKey:"), auto_cast applicationDelegateHandlesKey, "B@:@@")
     }
 
-    objc_registerClassPair(class)
+    __objc_registerClassPair(class)
     del := class_createInstance(class, size_of(_ApplicationDelegateInternal))
     del_internal := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(del)
     del_internal^ = {

@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:rand"
 import "core:math"
 
 float64_uniform :: float64_range
@@ -7,7 +7,7 @@ float32_uniform :: float32_range
 // Triangular Distribution
 // See: http://wikipedia.org/wiki/Triangular_distribution
 
-float64_triangular :: proc(lo, hi: f64, mode: Maybe(f64), gen: runtime.Random_Generator) -> f64 {
+float64_triangular :: proc(lo, hi: f64, mode: Maybe(f64), gen: rand.Random_Generator) -> f64 {
     if hi-lo == 0 {
         return lo
     }
@@ -25,7 +25,7 @@ float64_triangular :: proc(lo, hi: f64, mode: Maybe(f64), gen: runtime.Random_Ge
 // Triangular Distribution
 // See: http://wikipedia.org/wiki/Triangular_distribution
 
-float32_triangular :: proc(lo, hi: f32, mode: Maybe(f32), gen: runtime.Random_Generator) -> f32 {
+float32_triangular :: proc(lo, hi: f32, mode: Maybe(f32), gen: rand.Random_Generator) -> f32 {
     if hi-lo == 0 {
         return lo
     }
@@ -43,24 +43,24 @@ float32_triangular :: proc(lo, hi: f32, mode: Maybe(f32), gen: runtime.Random_Ge
 
 // Normal/Gaussian Distribution
 
-float64_normal :: proc(mean, stddev: f64, gen: runtime.Random_Generator) -> f64 {
+float64_normal :: proc(mean, stddev: f64, gen: rand.Random_Generator) -> f64 {
     return norm_float64(gen) * stddev + mean
 }
 // Normal/Gaussian Distribution
 
-float32_normal :: proc(mean, stddev: f32, gen: runtime.Random_Generator) -> f32 {
+float32_normal :: proc(mean, stddev: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_normal(f64(mean), f64(stddev), gen))
 }
 
 
 // Log Normal Distribution
 
-float64_log_normal :: proc(mean, stddev: f64, gen: runtime.Random_Generator) -> f64 {
+float64_log_normal :: proc(mean, stddev: f64, gen: rand.Random_Generator) -> f64 {
     return math.exp_f64(float64_normal(mean, stddev, gen))
 }
 // Log Normal Distribution
 
-float32_log_normal :: proc(mean, stddev: f32, gen: runtime.Random_Generator) -> f32 {
+float32_log_normal :: proc(mean, stddev: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_log_normal(f64(mean), f64(stddev), gen))
 }
 
@@ -71,7 +71,7 @@ float32_log_normal :: proc(mean, stddev: f32, gen: runtime.Random_Generator) -> 
 //     0 to positive infinity if lambda >  0
 //     negative infinity to 0 if lambda <= 0
 
-float64_exponential :: proc(lambda: f64, gen: runtime.Random_Generator) -> f64 {
+float64_exponential :: proc(lambda: f64, gen: rand.Random_Generator) -> f64 {
     return - math.ln(1 - float64(gen)) / lambda
 }
 // Exponential Distribution
@@ -80,7 +80,7 @@ float64_exponential :: proc(lambda: f64, gen: runtime.Random_Generator) -> f64 {
 //     0 to positive infinity if lambda >  0
 //     negative infinity to 0 if lambda <= 0
 
-float32_exponential :: proc(lambda: f32, gen: runtime.Random_Generator) -> f32 {
+float32_exponential :: proc(lambda: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_exponential(f64(lambda), gen))
 }
 
@@ -95,7 +95,7 @@ float32_exponential :: proc(lambda: f32, gen: runtime.Random_Generator) -> f32 {
 //
 // mean is alpha*beta, variance is math.pow(alpha*beta, 2)
 
-float64_gamma :: proc(alpha, beta: f64, gen: runtime.Random_Generator) -> f64 {
+float64_gamma :: proc(alpha, beta: f64, gen: rand.Random_Generator) -> f64 {
     if alpha <= 0 || beta <= 0 {
         panic(#procedure + ": alpha and beta must be > 0.0")
     }
@@ -161,7 +161,7 @@ float64_gamma :: proc(alpha, beta: f64, gen: runtime.Random_Generator) -> f64 {
 //
 // mean is alpha*beta, variance is math.pow(alpha*beta, 2)
 
-float32_gamma :: proc(alpha, beta: f32, gen: runtime.Random_Generator) -> f32 {
+float32_gamma :: proc(alpha, beta: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_gamma(f64(alpha), f64(beta), gen))
 }
 
@@ -172,7 +172,7 @@ float32_gamma :: proc(alpha, beta: f32, gen: runtime.Random_Generator) -> f32 {
 //
 // Return values range between 0 and 1
 
-float64_beta :: proc(alpha, beta: f64, gen: runtime.Random_Generator) -> f64 {
+float64_beta :: proc(alpha, beta: f64, gen: rand.Random_Generator) -> f64 {
     if alpha <= 0 || beta <= 0 {
         panic(#procedure + ": alpha and beta must be > 0.0")
     }
@@ -189,7 +189,7 @@ float64_beta :: proc(alpha, beta: f64, gen: runtime.Random_Generator) -> f64 {
 //
 // Return values range between 0 and 1
 
-float32_beta :: proc(alpha, beta: f32, gen: runtime.Random_Generator) -> f32 {
+float32_beta :: proc(alpha, beta: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_beta(f64(alpha), f64(beta), gen))
 }
 
@@ -197,26 +197,26 @@ float32_beta :: proc(alpha, beta: f32, gen: runtime.Random_Generator) -> f32 {
 // Pareto distribution, `alpha` is the shape parameter.
 // https://wikipedia.org/wiki/Pareto_distribution
 
-float64_pareto :: proc(alpha: f64, gen: runtime.Random_Generator) -> f64 {
+float64_pareto :: proc(alpha: f64, gen: rand.Random_Generator) -> f64 {
     return math.pow_f64(1 - float64(gen), -1.0 / alpha)
 }
 // Pareto distribution, `alpha` is the shape parameter.
 // https://wikipedia.org/wiki/Pareto_distribution
 
-float32_pareto :: proc(alpha, beta: f32, gen: runtime.Random_Generator) -> f32 {
+float32_pareto :: proc(alpha, beta: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_pareto(f64(alpha), gen))
 }
 
 
 // Weibull distribution, `alpha` is the scale parameter, `beta` is the shape parameter.
 
-float64_weibull :: proc(alpha, beta: f64, gen: runtime.Random_Generator) -> f64 {
+float64_weibull :: proc(alpha, beta: f64, gen: rand.Random_Generator) -> f64 {
     u := 1 - float64(gen)
     return alpha * math.pow_f64(-math.ln(u), 1.0/beta)
 }
 // Weibull distribution, `alpha` is the scale parameter, `beta` is the shape parameter.
 
-float32_weibull :: proc(alpha, beta: f32, gen: runtime.Random_Generator) -> f32 {
+float32_weibull :: proc(alpha, beta: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_weibull(f64(alpha), f64(beta), gen))
 }
 
@@ -226,7 +226,7 @@ float32_weibull :: proc(alpha, beta: f32, gen: runtime.Random_Generator) -> f32 
 // `kappa` is the concentration parameter which must be >= 0
 // When `kappa` is zero, the Distribution is a uniform Distribution over the range 0 to 2pi
 
-float64_von_mises :: proc(mean_angle, kappa: f64, gen: runtime.Random_Generator) -> f64 {
+float64_von_mises :: proc(mean_angle, kappa: f64, gen: rand.Random_Generator) -> f64 {
     // Fisher, N.I., "Statistical Analysis of Circular Data", Cambridge University Press, 1993.
 
     mu := mean_angle
@@ -262,7 +262,7 @@ float64_von_mises :: proc(mean_angle, kappa: f64, gen: runtime.Random_Generator)
 // `kappa` is the concentration parameter which must be >= 0
 // When `kappa` is zero, the Distribution is a uniform Distribution over the range 0 to 2pi
 
-float32_von_mises :: proc(mean_angle, kappa: f32, gen: runtime.Random_Generator) -> f32 {
+float32_von_mises :: proc(mean_angle, kappa: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_von_mises(f64(mean_angle), f64(kappa), gen))
 }
 
@@ -270,7 +270,7 @@ float32_von_mises :: proc(mean_angle, kappa: f32, gen: runtime.Random_Generator)
 // Cauchy-Lorentz Distribution
 // `x_0` is the location, `gamma` is the scale where `gamma` > 0
 
-float64_cauchy_lorentz :: proc(x_0, gamma: f64, gen: runtime.Random_Generator) -> f64 {
+float64_cauchy_lorentz :: proc(x_0, gamma: f64, gen: rand.Random_Generator) -> f64 {
     assert(gamma > 0)
 
     // Calculated from the inverse CDF
@@ -280,7 +280,7 @@ float64_cauchy_lorentz :: proc(x_0, gamma: f64, gen: runtime.Random_Generator) -
 // Cauchy-Lorentz Distribution
 // `x_0` is the location, `gamma` is the scale where `gamma` > 0
 
-float32_cauchy_lorentz :: proc(x_0, gamma: f32, gen: runtime.Random_Generator) -> f32 {
+float32_cauchy_lorentz :: proc(x_0, gamma: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_cauchy_lorentz(f64(x_0), f64(gamma), gen))
 }
 
@@ -288,14 +288,14 @@ float32_cauchy_lorentz :: proc(x_0, gamma: f32, gen: runtime.Random_Generator) -
 // Log Cauchy-Lorentz Distribution
 // `x_0` is the location, `gamma` is the scale where `gamma` > 0
 
-float64_log_cauchy_lorentz :: proc(x_0, gamma: f64, gen: runtime.Random_Generator) -> f64 {
+float64_log_cauchy_lorentz :: proc(x_0, gamma: f64, gen: rand.Random_Generator) -> f64 {
     assert(gamma > 0)
     return math.exp_f64(math.tan_f64(math.PI * (float64(gen) - 0.5))*gamma + x_0)
 }
 // Log Cauchy-Lorentz Distribution
 // `x_0` is the location, `gamma` is the scale where `gamma` > 0
 
-float32_log_cauchy_lorentz :: proc(x_0, gamma: f32, gen: runtime.Random_Generator) -> f32 {
+float32_log_cauchy_lorentz :: proc(x_0, gamma: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_log_cauchy_lorentz(f64(x_0), f64(gamma), gen))
 }
 
@@ -303,7 +303,7 @@ float32_log_cauchy_lorentz :: proc(x_0, gamma: f32, gen: runtime.Random_Generato
 // Laplace Distribution
 // `b` is the scale where `b` > 0
 
-float64_laplace :: proc(mean, b: f64, gen: runtime.Random_Generator) -> f64 {
+float64_laplace :: proc(mean, b: f64, gen: rand.Random_Generator) -> f64 {
     assert(b > 0)
     p := float64(gen)-0.5
     return -math.sign(p)*math.ln(1 - 2*abs(p))*b + mean
@@ -311,7 +311,7 @@ float64_laplace :: proc(mean, b: f64, gen: runtime.Random_Generator) -> f64 {
 // Laplace Distribution
 // `b` is the scale where `b` > 0
 
-float32_laplace :: proc(mean, b: f32, gen: runtime.Random_Generator) -> f32 {
+float32_laplace :: proc(mean, b: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_laplace(f64(mean), f64(b), gen))
 }
 
@@ -320,7 +320,7 @@ float32_laplace :: proc(mean, b: f32, gen: runtime.Random_Generator) -> f32 {
 // `eta` is the shape, `b` is the scale
 // Both `eta` and `b` must be > 0
 
-float64_gompertz :: proc(eta, b: f64, gen: runtime.Random_Generator) -> f64 {
+float64_gompertz :: proc(eta, b: f64, gen: rand.Random_Generator) -> f64 {
     if eta <= 0 || b <= 0 {
         panic(#procedure + ": eta and b must be > 0.0")
     }
@@ -332,6 +332,6 @@ float64_gompertz :: proc(eta, b: f64, gen: runtime.Random_Generator) -> f64 {
 // `eta` is the shape, `b` is the scale
 // Both `eta` and `b` must be > 0
 
-float32_gompertz :: proc(eta, b: f32, gen: runtime.Random_Generator) -> f32 {
+float32_gompertz :: proc(eta, b: f32, gen: rand.Random_Generator) -> f32 {
     return f32(float64_gompertz(f64(eta), f64(b), gen))
 }

@@ -10,7 +10,7 @@ Read_Directory_Iterator_Impl :: struct {
 }
 
 
-_read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
+_read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) -> (fi: File_Info, index: int, ok: bool) {
     scan_entries :: proc(it: ^Read_Directory_Iterator, dfd: linux.Fd, entries: []u8, offset: ^int) -> (fd: linux.Fd, file_name: string) {
         for d in linux.dirent_iterate_buf(entries, offset) {
             file_name = linux.dirent_name(d)
@@ -109,7 +109,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {
     }
 }
 
-_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
+_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) {
     if it == nil {
         return
     }

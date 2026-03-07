@@ -13,7 +13,7 @@ build_env :: proc() -> (err: Error) {
 }
 
 
-_lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
+_lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
     return
 }
 
@@ -36,6 +36,6 @@ _clear_env :: proc() {
 }
 
 
-_environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
+_environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
     return {}, .Unsupported
 }

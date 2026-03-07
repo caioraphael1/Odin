@@ -1,12 +1,10 @@
 
-import     "base:intrinsics"
-import     "base:runtime"
 import     "core:strings"
 import     "core:unicode/utf16"
 import sys "core:sys/windows"
 
 @(private)
-_os_version :: proc (allocator: runtime.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
+_os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
     /*
     NOTE(Jeroen):
         `GetVersionEx`  will return 6.2 for Windows 10 unless the program is manifested for Windows 10.

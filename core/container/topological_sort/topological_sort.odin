@@ -13,7 +13,7 @@ Relations :: struct($K: typeid) where intrinsics.type_is_valid_map_key(K) {
 
 Sorter :: struct(K: typeid) where intrinsics.type_is_valid_map_key(K)  {
     relations: map[K]Relations(K),
-    dependents_allocator: runtime.Allocator,
+    dependents_allocator: mem.Allocator,
 }
 
 @(private="file")

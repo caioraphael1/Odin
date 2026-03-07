@@ -9,7 +9,7 @@ import "core:sync"
 // The format can be changed by setting the `size_fmt: Log_Allocator_Format` field to either `Bytes` or `Human`.
 Log_Allocator :: struct {
     logger:    Logger,
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
     level:     Level,
     prefix:    string,
     lock:      sync.Mutex,
@@ -27,7 +27,7 @@ log_allocator_init :: proc(
     logger:    Logger, 
     level:     Level, 
     size_fmt   := Log_Allocator_Format.Bytes,
-    allocator: runtime.Allocator, 
+    allocator: mem.Allocator, 
     prefix     := "",
     ) {
     la.logger    = logger
@@ -39,8 +39,8 @@ log_allocator_init :: proc(
 }
 
 
-log_allocator :: proc(la: ^Log_Allocator) -> runtime.Allocator {
-    return runtime.Allocator{
+log_allocator :: proc(la: ^Log_Allocator) -> mem.Allocator {
+    return mem.Allocator{
         procedure = log_allocator_proc,
         data = la,
     }
@@ -48,7 +48,7 @@ log_allocator :: proc(la: ^Log_Allocator) -> runtime.Allocator {
 
 log_allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
                            size, alignment: int,
-                           old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, runtime.Allocator_Error)  {
+                           old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, mem.Allocator_Error)  {
     la := (^Log_Allocator)(allocator_data)
 
     if la.logger.procedure == nil || la.level < la.logger.lowest_level {

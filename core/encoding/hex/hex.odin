@@ -1,8 +1,8 @@
 // Encoding and decoding of hex-encoded binary, e.g. `0x23` -> `#`.
 
 
-import "base:runtime"
-import "core:mem"
+import "base:internal"
+import "base:mem"
 import "core:io"
 import "core:strings"
 
@@ -20,7 +20,7 @@ Returns:
 - res: The hex-encoded result
 - err: An optional allocator error if one occured, `.None` otherwise
 */
-encode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: runtime.Allocator_Error) {
+encode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
     res, err = slice_create([]byte, len(src) * 2, allocator, loc)
     #no_bounds_check for i, j := 0, 0; i < len(src); i += 1 {
         v := src[i]
@@ -62,7 +62,7 @@ Returns:
 - res: The hex-encoded result
 - err: An optional allocator error if one occured, `.None` otherwise
 */
-encode_upper :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: runtime.Allocator_Error) {
+encode_upper :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
     res, err = slice_create([]byte, len(src) * 2, allocator, loc)
     #no_bounds_check for i, j := 0, 0; i < len(src); i += 1 {
         v := src[i]

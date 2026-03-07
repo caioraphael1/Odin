@@ -17,7 +17,7 @@
 */
 
 import "base:intrinsics"
-import "core:mem"
+import "base:mem"
 
 /*
 	Multiplies |a| * |b| and only computes upto digs digits of result.

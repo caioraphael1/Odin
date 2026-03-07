@@ -493,7 +493,7 @@ free_cstring :: proc "c" (str: cstring) {
 @(private)
 cmark_allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
                              size, alignment: int,
-                             old_memory: rawptr, old_size: int, loc := #caller_location) -> (res: []byte, err: runtime.Allocator_Error) {
+                             old_memory: rawptr, old_size: int, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
 
     cmark_alloc := cast(^Allocator)allocator_data
     switch mode {
@@ -529,8 +529,8 @@ cmark_allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mod
     return nil, nil
 }
 
-get_default_mem_allocator_as_odin :: proc() -> runtime.Allocator {
-    return runtime.Allocator{
+get_default_mem_allocator_as_odin :: proc() -> mem.Allocator {
+    return mem.Allocator{
         procedure = cmark_allocator_proc,
         data = rawptr(get_default_mem_allocator()),
     }

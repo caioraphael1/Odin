@@ -9,7 +9,7 @@
 
 import "core:io"
 import "core:strings"
-import "core:mem"
+import "base:mem"
 
 write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
     sb := strings.builder_make(allocator)

@@ -38,12 +38,12 @@ _get_processor_core_count :: proc() -> int {
     return 1
 }
 
-_process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+_process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     err = .Unsupported
     return
 }
 
-_current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+_current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     err = .Unsupported
     return
 }
@@ -66,12 +66,12 @@ _process_terminate :: proc(process: Process) -> (err: Error) {
     return .Unsupported
 }
 
-_process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+_process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     err = .Unsupported
     return
 }
 
-_process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error) {
+_process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
     err = .Unsupported
     return
 }

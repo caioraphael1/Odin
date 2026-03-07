@@ -374,12 +374,12 @@ GuessTextPropertiesUtf8 :: proc(Utf8: string) -> (Direction: direction, Script: 
 
 
 
-AllocatorFromOdinAllocator :: proc(allocator: ^runtime.Allocator) -> (Allocator: allocator_function, AllocatorData: rawptr) {
+AllocatorFromOdinAllocator :: proc(allocator: ^mem.Allocator) -> (Allocator: allocator_function, AllocatorData: rawptr) {
     allocator_function :: proc "c" (Data: rawptr, Op: ^allocator_op) {
         if Data == nil {
             return
         }
-        allocator := (^runtime.Allocator)(Data)^
+        allocator := (^mem.Allocator)(Data)^
 
         switch Op.Kind {
         case .NONE:

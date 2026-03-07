@@ -1,8 +1,7 @@
-import "core:mem"
+import "base:mem"
 import "base:intrinsics"
 // import "base:sanitizer"
-import "base:runtime"
-_ :: runtime
+@(require) import "base:runtime"
 
 DEFAULT_PAGE_SIZE := uint(4096)
 

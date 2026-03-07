@@ -1,11 +1,11 @@
 
 
 import "core:io"
-import "base:runtime"
+import "base:internal"
 
 /*
     General errors that are common within this package which cannot
-    be categorized by `io.Error` nor `runtime.Allocator_Error`.
+    be categorized by `io.Error` nor `mem.Allocator_Error`.
 */
 General_Error :: enum u32 {
     None,
@@ -39,7 +39,7 @@ Platform_Error :: _Platform_Error
 Error :: union #shared_nil {
     General_Error,
     io.Error,
-    runtime.Allocator_Error,
+    mem.Allocator_Error,
     Platform_Error,
 }
 #assert(size_of(Error) == size_of(u64))
@@ -101,7 +101,7 @@ error_string :: proc(ferr: Error) -> string {
         case .Unsupported:       return "unsupported"
         case .Unknown: //
         }
-    case runtime.Allocator_Error:
+    case mem.Allocator_Error:
         switch e {
         case .None:                 return ""
         case .Out_Of_Memory:        return "out of memory"
@@ -120,12 +120,12 @@ error_string :: proc(ferr: Error) -> string {
     `print_error` is a utility procedure which will print an error `ferr` to a specified file `f`.
 */
 print_error :: proc(f: ^File, ferr: Error, msg: string) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
     err_str := error_string(ferr)
 
     // msg + ": " + err_str + '\n'
     length := len(msg) + 2 + len(err_str) + 1
-    buf, _ := slice_create([]u8, length, runtime.temp_allocator)
+    buf, _ := slice_create([]u8, length, internal.temp_allocator)
 
     slice_copy_from_string(buf, msg)
     buf[len(msg)] = ':'

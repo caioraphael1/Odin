@@ -12,7 +12,7 @@
 import "base:runtime"
 import "core:fmt"
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:path/filepath"
 import "core:strings"
 import "core:terminal/ansi"
@@ -61,7 +61,7 @@ Report :: struct {
 }
 
 // Organize all tests by package and sort out test state data.
-make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: runtime.Allocator_Error) {
+make_report :: proc(internal_tests: []Internal_Test) -> (report: Report, error: mem.Allocator_Error) {
 	assert(len(internal_tests) > 0, "make_report called with no tests")
 
 	packages: [dynamic]Package_Run

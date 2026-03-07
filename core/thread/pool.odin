@@ -6,7 +6,7 @@
 
 import "base:intrinsics"
 import "core:sync"
-import "core:mem"
+import "base:mem"
 import "core:container/queue"
 
 Task_Proc :: #type proc(task: Task)

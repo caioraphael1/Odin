@@ -5,14 +5,14 @@ Multi_Logger_Data :: struct {
     loggers: []Logger,
 }
 
-create_multi_logger :: proc(logs: []Logger, allocator: runtime.Allocator) -> Logger {
+create_multi_logger :: proc(logs: []Logger, allocator: mem.Allocator) -> Logger {
     data, _ := new(Multi_Logger_Data, allocator)
     data.loggers, _ = slice_create([]Logger, len(logs), allocator)
     slice_copy(data.loggers, logs)
     return Logger{multi_logger_proc, data, Level.Debug, nil}
 }
 
-destroy_multi_logger :: proc(log: Logger, allocator: runtime.Allocator) {
+destroy_multi_logger :: proc(log: Logger, allocator: mem.Allocator) {
     data := (^Multi_Logger_Data)(log.data)
     _ = slice_delete(data.loggers, allocator)
     _ = free(data, allocator)

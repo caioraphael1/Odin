@@ -145,7 +145,7 @@ _remove_all :: proc(path: string) -> Error {
     return _get_platform_error(linux.rmdir(path_cstr))
 }
 
-_get_working_directory :: proc(allocator: runtime.Allocator) -> (string, Error) {
+_get_working_directory :: proc(allocator: mem.Allocator) -> (string, Error) {
     // NOTE(tetra): I would use PATH_MAX here, but I was not able to find
     // an authoritative value for it across all systems.
     // The largest value I could find was 4096, so might as well use the page size.
@@ -172,7 +172,7 @@ _set_working_directory :: proc(dir: string) -> Error {
     return _get_platform_error(linux.chdir(dir_cstr))
 }
 
-_get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
+_get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     buf := dyn_array_create([dynamic]byte, 1024, runtime.temp_allocator) or_return
@@ -191,7 +191,7 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
     }
 }
 
-_get_full_path :: proc(fd: linux.Fd, allocator: runtime.Allocator) -> (fullpath: string, err: Error) {
+_get_full_path :: proc(fd: linux.Fd, allocator: mem.Allocator) -> (fullpath: string, err: Error) {
     PROC_FD_PATH :: "/proc/self/fd/"
 
     buf: [32]u8
@@ -206,7 +206,7 @@ _get_full_path :: proc(fd: linux.Fd, allocator: runtime.Allocator) -> (fullpath:
     return
 }
 
-_get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absolute_path: string, err: Error) {
+_get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_path: string, err: Error) {
     rel := path
     if rel == "" {
         rel = "."

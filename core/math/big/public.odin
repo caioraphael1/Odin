@@ -22,7 +22,7 @@ import "base:runtime"
 /*
     High-level addition. Handles sign.
 */
-int_add :: proc(dest, a, b: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_add :: proc(dest, a, b: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, a, b)
 
     internal_clear_if_uninitialized(dest, a, b, allocator = allocator) or_return
@@ -38,7 +38,7 @@ int_add :: proc(dest, a, b: ^Int, allocator: runtime.Allocator) -> (err: Error) 
 
     dest = a + digit;
 */
-int_add_digit :: proc(dest, a: ^Int, digit: DIGIT, allocator: runtime.Allocator) -> (err: Error) {
+int_add_digit :: proc(dest, a: ^Int, digit: DIGIT, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, a)
 
     internal_clear_if_uninitialized(a, allocator = allocator) or_return
@@ -56,7 +56,7 @@ int_add_digit :: proc(dest, a: ^Int, digit: DIGIT, allocator: runtime.Allocator)
 /*
     High-level subtraction, dest = number - decrease. Handles signs.
 */
-int_sub :: proc(dest, number, decrease: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_sub :: proc(dest, number, decrease: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, number, decrease)
 
     internal_clear_if_uninitialized(dest, number, decrease, allocator = allocator) or_return
@@ -72,7 +72,7 @@ int_sub :: proc(dest, number, decrease: ^Int, allocator: runtime.Allocator) -> (
 
     dest = a - digit;
 */
-int_sub_digit :: proc(dest, a: ^Int, digit: DIGIT, allocator: runtime.Allocator) -> (err: Error) {
+int_sub_digit :: proc(dest, a: ^Int, digit: DIGIT, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, a)
 
     internal_clear_if_uninitialized(a, allocator) or_return
@@ -91,7 +91,7 @@ int_sub_digit :: proc(dest, a: ^Int, digit: DIGIT, allocator: runtime.Allocator)
     dest = src  / 2
     dest = src >> 1
 */
-int_halve :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_halve :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, src)
 
     internal_clear_if_uninitialized(dest, src) or_return
@@ -108,7 +108,7 @@ int_halve :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error)
     dest = src  * 2
     dest = src << 1
 */
-int_double :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_double :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, src)
 
     internal_clear_if_uninitialized(dest, src) or_return
@@ -124,7 +124,7 @@ int_double :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error
 /*
     Multiply by a DIGIT.
 */
-int_mul_digit :: proc(dest, src: ^Int, multiplier: DIGIT, allocator: runtime.Allocator) -> (err: Error) {
+int_mul_digit :: proc(dest, src: ^Int, multiplier: DIGIT, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, src)
 
     internal_clear_if_uninitialized(src, dest) or_return
@@ -135,7 +135,7 @@ int_mul_digit :: proc(dest, src: ^Int, multiplier: DIGIT, allocator: runtime.All
 /*
     High level multiplication (handles sign).
 */
-int_mul :: proc(dest, src, multiplier: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_mul :: proc(dest, src, multiplier: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, src, multiplier)
 
     internal_clear_if_uninitialized(dest, src, multiplier, allocator = allocator) or_return
@@ -144,8 +144,8 @@ int_mul :: proc(dest, src, multiplier: ^Int, allocator: runtime.Allocator) -> (e
 }
 
 
-int_sqr :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) { return mul(dest, src, src, allocator) }
-rat_sqr :: proc(dest, src: ^Rat, allocator: runtime.Allocator) -> (err: Error) { return mul(dest, src, src, allocator) }
+int_sqr :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err: Error) { return mul(dest, src, src, allocator) }
+rat_sqr :: proc(dest, src: ^Rat, allocator: mem.Allocator) -> (err: Error) { return mul(dest, src, src, allocator) }
 
 
 
@@ -153,7 +153,7 @@ rat_sqr :: proc(dest, src: ^Rat, allocator: runtime.Allocator) -> (err: Error) {
     divmod.
     Both the quotient and remainder are optional and may be passed a nil.
 */
-int_divmod :: proc(quotient, remainder, numerator, denominator: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_divmod :: proc(quotient, remainder, numerator, denominator: ^Int, allocator: mem.Allocator) -> (err: Error) {
 
     /*
         Early out if neither of the results is wanted.
@@ -164,7 +164,7 @@ int_divmod :: proc(quotient, remainder, numerator, denominator: ^Int, allocator:
     return #force_inline internal_divmod(quotient, remainder, numerator, denominator)
 }
 
-int_divmod_digit :: proc(quotient, numerator: ^Int, denominator: DIGIT, allocator: runtime.Allocator) -> (remainder: DIGIT, err: Error) {
+int_divmod_digit :: proc(quotient, numerator: ^Int, denominator: DIGIT, allocator: mem.Allocator) -> (remainder: DIGIT, err: Error) {
     assert_if_nil(quotient, numerator)
 
     internal_clear_if_uninitialized(numerator) or_return
@@ -172,7 +172,7 @@ int_divmod_digit :: proc(quotient, numerator: ^Int, denominator: DIGIT, allocato
     return #force_inline internal_divmod(quotient, numerator, denominator)
 }
 
-int_div :: proc(quotient, numerator, denominator: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_div :: proc(quotient, numerator, denominator: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(quotient, numerator, denominator)
 
     internal_clear_if_uninitialized(numerator, denominator) or_return
@@ -180,7 +180,7 @@ int_div :: proc(quotient, numerator, denominator: ^Int, allocator: runtime.Alloc
     return #force_inline internal_divmod(quotient, nil, numerator, denominator, allocator)
 }
 
-int_div_digit :: proc(quotient, numerator: ^Int, denominator: DIGIT, allocator: runtime.Allocator) -> (err: Error) {
+int_div_digit :: proc(quotient, numerator: ^Int, denominator: DIGIT, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(quotient, numerator)
 
     internal_clear_if_uninitialized(numerator) or_return
@@ -195,7 +195,7 @@ int_div_digit :: proc(quotient, numerator: ^Int, denominator: DIGIT, allocator: 
     0 <= remainder < denominator if denominator > 0
     denominator < remainder <= 0 if denominator < 0
 */
-int_mod :: proc(remainder, numerator, denominator: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_mod :: proc(remainder, numerator, denominator: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(remainder, numerator, denominator)
 
     internal_clear_if_uninitialized(numerator, denominator) or_return
@@ -203,7 +203,7 @@ int_mod :: proc(remainder, numerator, denominator: ^Int, allocator: runtime.Allo
     return #force_inline internal_int_mod(remainder, numerator, denominator)
 }
 
-int_mod_digit :: proc(numerator: ^Int, denominator: DIGIT, allocator: runtime.Allocator) -> (remainder: DIGIT, err: Error) {
+int_mod_digit :: proc(numerator: ^Int, denominator: DIGIT, allocator: mem.Allocator) -> (remainder: DIGIT, err: Error) {
     return #force_inline internal_divmod(nil, numerator, denominator, allocator)
 }
 
@@ -212,7 +212,7 @@ int_mod_digit :: proc(numerator: ^Int, denominator: DIGIT, allocator: runtime.Al
 /*
     remainder = (number + addend) % modulus.
 */
-int_addmod :: proc(remainder, number, addend, modulus: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_addmod :: proc(remainder, number, addend, modulus: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(remainder, number, addend)
 
     internal_clear_if_uninitialized(number, addend, modulus) or_return
@@ -224,7 +224,7 @@ int_addmod :: proc(remainder, number, addend, modulus: ^Int, allocator: runtime.
 /*
     remainder = (number - decrease) % modulus.
 */
-int_submod :: proc(remainder, number, decrease, modulus: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_submod :: proc(remainder, number, decrease, modulus: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(remainder, number, decrease)
 
     internal_clear_if_uninitialized(number, decrease, modulus) or_return
@@ -236,7 +236,7 @@ int_submod :: proc(remainder, number, decrease, modulus: ^Int, allocator: runtim
 /*
     remainder = (number * multiplicand) % modulus.
 */
-int_mulmod :: proc(remainder, number, multiplicand, modulus: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_mulmod :: proc(remainder, number, multiplicand, modulus: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(remainder, number, multiplicand)
 
     internal_clear_if_uninitialized(number, multiplicand, modulus) or_return
@@ -248,7 +248,7 @@ int_mulmod :: proc(remainder, number, multiplicand, modulus: ^Int, allocator: ru
 /*
     remainder = (number * number) % modulus.
 */
-int_sqrmod :: proc(remainder, number, modulus: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_sqrmod :: proc(remainder, number, modulus: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(remainder, number, modulus)
 
     internal_clear_if_uninitialized(number, modulus) or_return
@@ -258,7 +258,7 @@ int_sqrmod :: proc(remainder, number, modulus: ^Int, allocator: runtime.Allocato
 
 
 
-int_factorial :: proc(res: ^Int, n: int, allocator: runtime.Allocator) -> (err: Error) {
+int_factorial :: proc(res: ^Int, n: int, allocator: mem.Allocator) -> (err: Error) {
     if n < 0 || n > FACTORIAL_MAX_N { return .Invalid_Argument }
     assert_if_nil(res)
 
@@ -282,7 +282,7 @@ int_factorial :: proc(res: ^Int, n: int, allocator: runtime.Allocator) -> (err: 
         k, start from previous result
 
 */
-int_choose_digit :: proc(res: ^Int, n, k: int, allocator: runtime.Allocator) -> (err: Error) {
+int_choose_digit :: proc(res: ^Int, n, k: int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(res)
 
     if n < 0 || n > FACTORIAL_MAX_N { return .Invalid_Argument }
@@ -308,7 +308,7 @@ int_choose_digit :: proc(res: ^Int, n, k: int, allocator: runtime.Allocator) -> 
 /*
     Function computing both GCD and (if target isn't `nil`) also LCM.
 */
-int_gcd_lcm :: proc(res_gcd, res_lcm, a, b: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_gcd_lcm :: proc(res_gcd, res_lcm, a, b: ^Int, allocator: mem.Allocator) -> (err: Error) {
     if res_gcd == nil && res_lcm == nil { return nil }
     assert_if_nil(a, b)
 
@@ -320,7 +320,7 @@ int_gcd_lcm :: proc(res_gcd, res_lcm, a, b: ^Int, allocator: runtime.Allocator) 
 /*
     Greatest Common Divisor.
 */
-int_gcd :: proc(res, a, b: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_gcd :: proc(res, a, b: ^Int, allocator: mem.Allocator) -> (err: Error) {
     return #force_inline int_gcd_lcm(res, nil, a, b, allocator)
 }
 
@@ -328,7 +328,7 @@ int_gcd :: proc(res, a, b: ^Int, allocator: runtime.Allocator) -> (err: Error) {
 /*
     Least Common Multiple.
 */
-int_lcm :: proc(res, a, b: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_lcm :: proc(res, a, b: ^Int, allocator: mem.Allocator) -> (err: Error) {
     return #force_inline int_gcd_lcm(nil, res, a, b, allocator)
 }
 
@@ -336,7 +336,7 @@ int_lcm :: proc(res, a, b: ^Int, allocator: runtime.Allocator) -> (err: Error) {
 /*
     remainder = numerator % (1 << bits)
 */
-int_mod_bits :: proc(remainder, numerator: ^Int, bits: int, allocator: runtime.Allocator) -> (err: Error) {
+int_mod_bits :: proc(remainder, numerator: ^Int, bits: int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(remainder, numerator)
 
     internal_clear_if_uninitialized(remainder, numerator) or_return
@@ -351,7 +351,7 @@ int_mod_bits :: proc(remainder, numerator: ^Int, bits: int, allocator: runtime.A
 /*
     Logs and roots and such.
 */
-int_log :: proc(a: ^Int, base: DIGIT, allocator: runtime.Allocator) -> (res: int, err: Error) {
+int_log :: proc(a: ^Int, base: DIGIT, allocator: mem.Allocator) -> (res: int, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -371,7 +371,7 @@ ilog2 :: proc(value: $T) -> (log2: T) {
 /*
     Calculate `dest = base^power` using a square-multiply algorithm.
 */
-int_pow :: proc(dest, base: ^Int, power: int, allocator: runtime.Allocator) -> (err: Error) {
+int_pow :: proc(dest, base: ^Int, power: int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, base)
 
     internal_clear_if_uninitialized(dest, base) or_return
@@ -382,7 +382,7 @@ int_pow :: proc(dest, base: ^Int, power: int, allocator: runtime.Allocator) -> (
 /*
     Calculate `dest = base^power` using a square-multiply algorithm.
 */
-int_pow_int :: proc(dest: ^Int, base, power: int, allocator: runtime.Allocator) -> (err: Error) {
+int_pow_int :: proc(dest: ^Int, base, power: int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest)
 
     return #force_inline internal_pow(dest, base, power, allocator)
@@ -396,7 +396,7 @@ small_pow :: proc(base: _WORD, exponent: _WORD) -> (result: _WORD) {
 /*
     This function is less generic than `root_n`, simpler and faster.
 */
-int_sqrt :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_sqrt :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(dest, src)
 
     internal_clear_if_uninitialized(dest, src) or_return
@@ -413,7 +413,7 @@ int_sqrt :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) 
     This algorithm uses Newton's approximation `x[i+1] = x[i] - f(x[i])/f'(x[i])`,
     which will find the root in `log(n)` time where each step involves a fair bit.
 */
-int_root_n :: proc(dest, src: ^Int, n: int, allocator: runtime.Allocator) -> (err: Error) {
+int_root_n :: proc(dest, src: ^Int, n: int, allocator: mem.Allocator) -> (err: Error) {
 
     /*
         Fast path for n == 2.
@@ -440,7 +440,7 @@ int_is_initialized :: proc(a: ^Int) -> bool {
     return #force_inline internal_int_is_initialized(a)
 }
 
-int_is_zero :: proc(a: ^Int, allocator: runtime.Allocator) -> (zero: bool, err: Error) {
+int_is_zero :: proc(a: ^Int, allocator: mem.Allocator) -> (zero: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -448,7 +448,7 @@ int_is_zero :: proc(a: ^Int, allocator: runtime.Allocator) -> (zero: bool, err: 
     return #force_inline internal_is_zero(a), nil
 }
 
-int_is_positive :: proc(a: ^Int, allocator: runtime.Allocator) -> (positive: bool, err: Error) {
+int_is_positive :: proc(a: ^Int, allocator: mem.Allocator) -> (positive: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -456,7 +456,7 @@ int_is_positive :: proc(a: ^Int, allocator: runtime.Allocator) -> (positive: boo
     return #force_inline internal_is_positive(a), nil
 }
 
-int_is_negative :: proc(a: ^Int, allocator: runtime.Allocator) -> (negative: bool, err: Error) {
+int_is_negative :: proc(a: ^Int, allocator: mem.Allocator) -> (negative: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -464,7 +464,7 @@ int_is_negative :: proc(a: ^Int, allocator: runtime.Allocator) -> (negative: boo
     return #force_inline internal_is_negative(a), nil
 }
 
-int_is_even :: proc(a: ^Int, allocator: runtime.Allocator) -> (even: bool, err: Error) {
+int_is_even :: proc(a: ^Int, allocator: mem.Allocator) -> (even: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -472,7 +472,7 @@ int_is_even :: proc(a: ^Int, allocator: runtime.Allocator) -> (even: bool, err: 
     return #force_inline internal_is_even(a), nil
 }
 
-int_is_odd :: proc(a: ^Int, allocator: runtime.Allocator) -> (odd: bool, err: Error) {
+int_is_odd :: proc(a: ^Int, allocator: mem.Allocator) -> (odd: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -484,7 +484,7 @@ platform_int_is_power_of_two :: #force_inline proc(a: int) -> bool {
     return ((a) != 0) && (((a) & ((a) - 1)) == 0)
 }
 
-int_is_power_of_two :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: bool, err: Error) {
+int_is_power_of_two :: proc(a: ^Int, allocator: mem.Allocator) -> (res: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -495,7 +495,7 @@ int_is_power_of_two :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: bool
 /*
     Compare two `Int`s, signed.
 */
-int_compare :: proc(a, b: ^Int, allocator: runtime.Allocator) -> (comparison: int, err: Error) {
+int_compare :: proc(a, b: ^Int, allocator: mem.Allocator) -> (comparison: int, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -506,7 +506,7 @@ int_compare :: proc(a, b: ^Int, allocator: runtime.Allocator) -> (comparison: in
 /*
     Compare an `Int` to an unsigned number upto the size of the backing type.
 */
-int_compare_digit :: proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (comparison: int, err: Error) {
+int_compare_digit :: proc(a: ^Int, b: DIGIT, allocator: mem.Allocator) -> (comparison: int, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -517,7 +517,7 @@ int_compare_digit :: proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (c
 /*
     Compare the magnitude of two `Int`s, unsigned.
 */
-int_compare_magnitude :: proc(a, b: ^Int, allocator: runtime.Allocator) -> (res: int, err: Error) {
+int_compare_magnitude :: proc(a, b: ^Int, allocator: mem.Allocator) -> (res: int, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -529,7 +529,7 @@ int_compare_magnitude :: proc(a, b: ^Int, allocator: runtime.Allocator) -> (res:
 /*
     bool := a < b
 */
-int_less_than :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (less_than: bool, err: Error) {
+int_less_than :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (less_than: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -543,7 +543,7 @@ int_less_than :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) ->
 /*
     bool := a < b
 */
-int_less_than_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (less_than: bool, err: Error) {
+int_less_than_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: mem.Allocator) -> (less_than: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -558,7 +558,7 @@ int_less_than_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runtime.
     bool := |a| < |b|
     Compares the magnitudes only, ignores the sign.
 */
-int_less_than_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (less_than: bool, err: Error) {
+int_less_than_abs :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (less_than: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -573,7 +573,7 @@ int_less_than_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator
 /*
     bool := a <= b
 */
-int_less_than_or_equal :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (less_than_or_equal: bool, err: Error) {
+int_less_than_or_equal :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (less_than_or_equal: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -587,7 +587,7 @@ int_less_than_or_equal :: #force_inline proc(a, b: ^Int, allocator: runtime.Allo
 /*
     bool := a <= b
 */
-int_less_than_or_equal_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (less_than_or_equal: bool, err: Error) {
+int_less_than_or_equal_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: mem.Allocator) -> (less_than_or_equal: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -602,7 +602,7 @@ int_less_than_or_equal_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator:
     bool := |a| <= |b|
     Compares the magnitudes only, ignores the sign.
 */
-int_less_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (less_than_or_equal: bool, err: Error) {
+int_less_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (less_than_or_equal: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -617,7 +617,7 @@ int_less_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.
 /*
     bool := a == b
 */
-int_equals :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (equals: bool, err: Error) {
+int_equals :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (equals: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -631,7 +631,7 @@ int_equals :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (e
 /*
     bool := a == b
 */
-int_equals_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (equals: bool, err: Error) {
+int_equals_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: mem.Allocator) -> (equals: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -646,7 +646,7 @@ int_equals_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runtime.All
     bool := |a| == |b|
     Compares the magnitudes only, ignores the sign.
 */
-int_equals_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (equals: bool, err: Error) {
+int_equals_abs :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (equals: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -661,7 +661,7 @@ int_equals_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -
 /*
     bool := a >= b
 */
-int_greater_than_or_equal :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (greater_than_or_equal: bool, err: Error) {
+int_greater_than_or_equal :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (greater_than_or_equal: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -675,7 +675,7 @@ int_greater_than_or_equal :: #force_inline proc(a, b: ^Int, allocator: runtime.A
 /*
     bool := a >= b
 */
-int_greater_than_or_equal_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (greater_than_or_equal: bool, err: Error) {
+int_greater_than_or_equal_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: mem.Allocator) -> (greater_than_or_equal: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -690,7 +690,7 @@ int_greater_than_or_equal_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocat
     bool := |a| >= |b|
     Compares the magnitudes only, ignores the sign.
 */
-int_greater_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (greater_than_or_equal: bool, err: Error) {
+int_greater_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (greater_than_or_equal: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -705,7 +705,7 @@ int_greater_than_or_equal_abs :: #force_inline proc(a, b: ^Int, allocator: runti
 /*
     bool := a > b
 */
-int_greater_than :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (greater_than: bool, err: Error) {
+int_greater_than :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (greater_than: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -719,7 +719,7 @@ int_greater_than :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator)
 /*
     bool := a > b
 */
-int_greater_than_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runtime.Allocator) -> (greater_than: bool, err: Error) {
+int_greater_than_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: mem.Allocator) -> (greater_than: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return
@@ -734,7 +734,7 @@ int_greater_than_digit :: #force_inline proc(a: ^Int, b: DIGIT, allocator: runti
     bool := |a| > |b|
     Compares the magnitudes only, ignores the sign.
 */
-int_greater_than_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Allocator) -> (greater_than: bool, err: Error) {
+int_greater_than_abs :: #force_inline proc(a, b: ^Int, allocator: mem.Allocator) -> (greater_than: bool, err: Error) {
     assert_if_nil(a, b)
 
     internal_clear_if_uninitialized(a, b) or_return
@@ -752,7 +752,7 @@ int_greater_than_abs :: #force_inline proc(a, b: ^Int, allocator: runtime.Alloca
     Returns `true` if `a` is a square, `false` if not.
     Assumes `a` not to be `nil` and to have been initialized.
 */
-int_is_square :: proc(a: ^Int, allocator: runtime.Allocator) -> (square: bool, err: Error) {
+int_is_square :: proc(a: ^Int, allocator: mem.Allocator) -> (square: bool, err: Error) {
     assert_if_nil(a)
 
     internal_clear_if_uninitialized(a) or_return

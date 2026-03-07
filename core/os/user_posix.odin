@@ -2,7 +2,7 @@
 import "base:runtime"
 import "core:strings"
 
-_user_cache_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_cache_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Library/Caches", allocator)
@@ -11,7 +11,7 @@ _user_cache_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Erro
 	}
 }
 
-_user_config_dir :: proc(allocator: runtime.Allocator, _roaming: bool) -> (dir: string, err: Error) {
+_user_config_dir :: proc(allocator: mem.Allocator, _roaming: bool) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Library/Application Support", allocator)
@@ -20,7 +20,7 @@ _user_config_dir :: proc(allocator: runtime.Allocator, _roaming: bool) -> (dir: 
 	}
 }
 
-_user_state_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_state_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Library/Application Support", allocator)
@@ -29,7 +29,7 @@ _user_state_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Erro
 	}
 }
 
-_user_log_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_log_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Library/Logs", allocator)
@@ -38,7 +38,7 @@ _user_log_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error)
 	}
 }
 
-_user_data_dir :: proc(allocator: runtime.Allocator, _roaming: bool) -> (dir: string, err: Error) {
+_user_data_dir :: proc(allocator: mem.Allocator, _roaming: bool) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Library/Application Support", allocator)
@@ -47,7 +47,7 @@ _user_data_dir :: proc(allocator: runtime.Allocator, _roaming: bool) -> (dir: st
 	}
 }
 
-_user_music_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_music_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Music", allocator)
@@ -56,7 +56,7 @@ _user_music_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Erro
 	}
 }
 
-_user_desktop_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_desktop_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Desktop", allocator)
@@ -65,7 +65,7 @@ _user_desktop_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Er
 	}
 }
 
-_user_documents_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_documents_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Documents", allocator)
@@ -74,7 +74,7 @@ _user_documents_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: 
 	}
 }
 
-_user_downloads_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_downloads_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Downloads", allocator)
@@ -83,7 +83,7 @@ _user_downloads_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: 
 	}
 }
 
-_user_pictures_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_pictures_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Pictures", allocator)
@@ -92,7 +92,7 @@ _user_pictures_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: E
 	}
 }
 
-_user_public_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_public_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Public", allocator)
@@ -101,7 +101,7 @@ _user_public_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Err
 	}
 }
 
-_user_videos_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_videos_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
 	case .Darwin:
 		return _xdg_lookup("", "/Movies", allocator)
@@ -110,7 +110,7 @@ _user_videos_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Err
 	}
 }
 
-_user_home_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_user_home_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	if v := get_env("HOME", allocator); v != "" {
 		return v, nil
 	}
@@ -118,7 +118,7 @@ _user_home_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error
 	return
 }
 
-_xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: mem.Allocator) -> (dir: string, err: Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
 	if xdg_key == "" { // Darwin doesn't have XDG paths.
@@ -148,7 +148,7 @@ _xdg_lookup :: proc(xdg_key: string, fallback_suffix: string, allocator: runtime
 }
 
 // If `<config-dir>/user-dirs.dirs` doesn't exist, or `xdg_key` can't be found there: returns `""`
-_xdg_user_dirs_lookup :: proc(xdg_key: string, allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_xdg_user_dirs_lookup :: proc(xdg_key: string, allocator: mem.Allocator) -> (dir: string, err: Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 	config_dir      := user_config_dir(runtime.temp_allocator) or_return
 	user_dirs_path  := concatenate({config_dir, "/user-dirs.dirs"}, runtime.temp_allocator) or_return

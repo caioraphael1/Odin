@@ -92,7 +92,7 @@ _remove_all :: proc(path: string) -> (err: Error) {
     return nil
 }
 
-_get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     buf: [dynamic]byte
@@ -122,7 +122,7 @@ _set_working_directory :: proc(dir: string) -> (err: Error) {
     return
 }
 
-_get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absolute_path: string, err: Error) {
+_get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_path: string, err: Error) {
     rel := path
     if rel == "" {
         rel = "."

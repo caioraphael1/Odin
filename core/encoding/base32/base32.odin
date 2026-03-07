@@ -13,7 +13,7 @@ As per RFC 4648:
 - Section 3.2: Padding requirements
 - Section 6: Base32 encoding specifics (including block size requirements)
 */
-import "core:mem"
+import "base:mem"
 
 Error :: enum {
 	None,

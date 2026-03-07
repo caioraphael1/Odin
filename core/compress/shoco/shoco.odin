@@ -11,7 +11,7 @@
 
 import "base:intrinsics"
 import "core:compress"
-import "core:mem"
+import "base:mem"
 
 Shoco_Pack :: struct {
     word:           u32,

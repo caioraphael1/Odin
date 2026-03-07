@@ -41,7 +41,7 @@ Log_Message :: struct {
 	time: time.Time,
 	// `text` may be allocated differently, depending on where a log message
 	// originates from.
-	allocator: runtime.Allocator,
+	allocator: mem.Allocator,
 }
 
 test_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location := #caller_location) {

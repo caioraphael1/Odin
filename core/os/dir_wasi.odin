@@ -45,7 +45,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
         }
         slice_copy(it.impl.fullpath[n:], name)
 
-        stat, err := wasi.path_filestat_get(__fd(it.f), {}, name)
+        stat, err := wasi.path_filestat_get(_fd_specific(it.f), {}, name)
         if err != nil {
             // Can't stat, fill what we have from dirent.
             stat = {
@@ -61,7 +61,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
     }
 }
 
-_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: runtime.Allocator) {
+_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: mem.Allocator) {
     // NOTE: Allow calling `init` to target a new directory with the same iterator.
     it.impl.off = 0
 
@@ -87,7 +87,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
             return
         }
 
-        n, err := wasi.fd_readdir(__fd(f), buf[:], 0)
+        n, err := wasi.fd_readdir(_fd_specific(f), buf[:], 0)
         if err != nil {
             read_directory_iterator_set_error(it, name(f), _get_platform_error(err))
             return
@@ -116,7 +116,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
     return
 }
 
-_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
+_read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) {
     _ = slice_delete(it.impl.buf, allocator)
     _ = slice_delete(it.impl.fullpath)
 }

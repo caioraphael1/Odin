@@ -5,7 +5,7 @@ import "base:runtime"
 import "core:strings"
 import "core:sys/posix"
 
-_lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
+_lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
     if key == "" {
         return
     }
@@ -82,7 +82,7 @@ _clear_env :: proc() {
     }
 }
 
-_environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
+_environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
     n := 0
     for entry := posix.environ[0]; entry != nil; n, entry = n+1, posix.environ[n] {}
 

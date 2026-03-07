@@ -48,32 +48,32 @@ uint_least64_t :: builtin.u64
 
 // Same on Windows, Linux, and FreeBSD
 when ODIN_ARCH == .i386 {
-	int_fast8_t    :: builtin.i8
-	uint_fast8_t   :: builtin.u8
-	int_fast16_t   :: builtin.i32
-	uint_fast16_t  :: builtin.u32
-	int_fast32_t   :: builtin.i32
-	uint_fast32_t  :: builtin.u32
-	int_fast64_t   :: builtin.i64
-	uint_fast64_t  :: builtin.u64
+    int_fast8_t    :: builtin.i8
+    uint_fast8_t   :: builtin.u8
+    int_fast16_t   :: builtin.i32
+    uint_fast16_t  :: builtin.u32
+    int_fast32_t   :: builtin.i32
+    uint_fast32_t  :: builtin.u32
+    int_fast64_t   :: builtin.i64
+    uint_fast64_t  :: builtin.u64
 } else when ODIN_ARCH == .amd64 {
-	int_fast8_t    :: builtin.i8
-	uint_fast8_t   :: builtin.u8
-	int_fast16_t   :: long
-	uint_fast16_t  :: ulong
-	int_fast32_t   :: long
-	uint_fast32_t  :: ulong
-	int_fast64_t   :: builtin.i64
-	uint_fast64_t  :: builtin.u64
+    int_fast8_t    :: builtin.i8
+    uint_fast8_t   :: builtin.u8
+    int_fast16_t   :: long
+    uint_fast16_t  :: ulong
+    int_fast32_t   :: long
+    uint_fast32_t  :: ulong
+    int_fast64_t   :: builtin.i64
+    uint_fast64_t  :: builtin.u64
 } else {
-	int_fast8_t    :: builtin.i8
-	uint_fast8_t   :: builtin.u8
-	int_fast16_t   :: builtin.i16
-	uint_fast16_t  :: builtin.u16
-	int_fast32_t   :: builtin.i32
-	uint_fast32_t  :: builtin.u32
-	int_fast64_t   :: builtin.i64
-	uint_fast64_t  :: builtin.u64
+    int_fast8_t    :: builtin.i8
+    uint_fast8_t   :: builtin.u8
+    int_fast16_t   :: builtin.i16
+    uint_fast16_t  :: builtin.u16
+    int_fast32_t   :: builtin.i32
+    uint_fast32_t  :: builtin.u32
+    int_fast64_t   :: builtin.i64
+    uint_fast64_t  :: builtin.u64
 }
 
 intptr_t       :: builtin.int
@@ -120,7 +120,7 @@ CHAR_BIT :: 8
 // The choice of 4096 bytes for storage of this type is more than enough on all
 // relevant platforms.
 va_list :: struct #align(16) {
-	_: [4096]u8,
+    _: [4096]u8,
 }
 
 FILE :: struct {}

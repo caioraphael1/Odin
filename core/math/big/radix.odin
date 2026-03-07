@@ -14,7 +14,7 @@
 		- Also look at extracting and splatting several digits at once.
 */
 
-import "core:mem"
+import "base:mem"
 import "base:intrinsics"
 
 

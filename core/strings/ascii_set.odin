@@ -17,15 +17,15 @@ Returns:
 - ok: false if any character in the input string is not a valid ASCII character.
 */
 ascii_set_make :: proc(chars: string) -> (as: Ascii_Set, ok: bool) #no_bounds_check {
-	for i in 0..<len(chars) {
-		c := chars[i]
-		if c >= utf8.RUNE_SELF {
-			return
-		}
-		as[c>>5] |= 1 << uint(c&31)
-	}
-	ok = true
-	return
+    for i in 0..<len(chars) {
+        c := chars[i]
+        if c >= utf8.RUNE_SELF {
+            return
+        }
+        as[c>>5] |= 1 << uint(c&31)
+    }
+    ok = true
+    return
 }
 /*
 Determines if a given char is contained within an Ascii_Set.
@@ -38,5 +38,5 @@ Returns:
 - res: A boolean indicating if the byte is contained in the Ascii_Set (true) or not (false).
 */
 ascii_set_contains :: proc(as: Ascii_Set, c: byte) -> (res: bool) #no_bounds_check {
-	return as[c>>5] & (1<<(c&31)) != 0
+    return as[c>>5] & (1<<(c&31)) != 0
 }

@@ -2,7 +2,7 @@
 import "core:bytes"
 import "core:fmt"
 import "core:image"
-import "core:mem"
+import "base:mem"
 import "core:strconv"
 import "core:strings"
 import "core:unicode"

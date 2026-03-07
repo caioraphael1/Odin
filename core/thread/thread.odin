@@ -1,9 +1,8 @@
 // Multi-threading operations to spawn threads and thread pools.
-import "base:runtime"
-import "core:mem"
-import "base:intrinsics"
+import "base:internal"
+import "base:mem"
+@(require) import "base:intrinsics"
 
-_ :: intrinsics
 
 /*
 Value, specifying whether `core:thread` functionality is available on the

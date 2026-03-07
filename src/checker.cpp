@@ -267,7 +267,7 @@ gb_internal Scope *create_scope_from_package(CheckerContext *c, AstPackage *pkg)
         s->flags |= ScopeFlag_Init;
     }
 
-    if (pkg->kind == Package_Runtime) {
+    if (pkg->kind == Package_Internal) {
         s->flags |= ScopeFlag_Global;
     }
 
@@ -749,7 +749,7 @@ gb_internal void check_scope_usage_internal(Checker *c, Scope *scope, u64 vet_fl
         bool vet_unused = (vet_flags & VetFlag_Unused) != 0;
         bool vet_shadowing = (vet_flags & (VetFlag_Shadowing|VetFlag_Using)) != 0;
         bool vet_unused_procedures = (vet_flags & VetFlag_UnusedProcedures) != 0;
-        if (vet_unused_procedures && e->pkg && e->pkg->kind == Package_Runtime) {
+        if (vet_unused_procedures && e->pkg && e->pkg->kind == Package_Internal) {
             vet_unused_procedures = false;
         }
 
@@ -884,8 +884,8 @@ gb_internal void add_type_info_dependency(CheckerInfo *info, DeclInfo *d, Type *
 }
 
 
-gb_internal AstPackage *get_runtime_package(CheckerInfo *info) {
-    String name = str_lit("runtime");
+gb_internal AstPackage *get_internal_package(CheckerInfo *info) {
+    String name = str_lit("internal");
     gbAllocator a = heap_allocator();
     String path = get_fullpath_base_collection(a, name, nullptr);
     defer (gb_free(a, path.text));
@@ -897,14 +897,14 @@ gb_internal AstPackage *get_runtime_package(CheckerInfo *info) {
         for (auto const &entry : info->packages) {
             gb_printf_err("%.*s\n", LIT(entry.key));
         }
-        GB_ASSERT_MSG(found != nullptr, "Missing core package %.*s", LIT(name));
+        GB_ASSERT_MSG(found != nullptr, "Missing package %.*s", LIT(name));
     }
     return *found;
 }
 
 gb_internal AstPackage *get_core_package(CheckerInfo *info, String name) {
-    if (name == "runtime") {
-        return get_runtime_package(info);
+    if (name == "internal") {
+        return get_internal_package(info);
     }
 
     gbAllocator a = heap_allocator();
@@ -918,15 +918,15 @@ gb_internal AstPackage *get_core_package(CheckerInfo *info, String name) {
         for (auto const &entry : info->packages) {
             gb_printf_err("%.*s\n", LIT(entry.key));
         }
-        GB_ASSERT_MSG(found != nullptr, "Missing core package %.*s", LIT(name));
+        GB_ASSERT_MSG(found != nullptr, "Missing package %.*s", LIT(name));
     }
     return *found;
 }
 
 
 gb_internal AstPackage *try_get_core_package(CheckerInfo *info, String name) {
-    if (name == "runtime") {
-        return get_runtime_package(info);
+    if (name == "internal") {
+        return get_internal_package(info);
     }
 
     gbAllocator a = heap_allocator();
@@ -2856,59 +2856,59 @@ gb_internal void generate_minimum_dependency_set_internal(Checker *c, Entity *st
 }
 
 gb_internal void generate_minimum_dependency_set(Checker *c, Entity *start) {
-#define FORCE_ADD_RUNTIME_ENTITIES(condition, ...) do {                                              \
+#define FORCE_ADD_INTERNAL_ENTITIES(condition, ...) do {                                              \
     if (condition) {                                                                             \
         String entities[] = {__VA_ARGS__};                                                   \
         for (isize i = 0; i < gb_count_of(entities); i++) {                                  \
-            force_add_dependency_entity(c, c->info.runtime_package->scope, entities[i]); \
+            force_add_dependency_entity(c, c->info.internal_package->scope, entities[i]); \
         }                                                                                    \
     }                                                                                            \
 } while (0)
 
-    // required runtime entities
-    FORCE_ADD_RUNTIME_ENTITIES(true,
+    // required internal entities
+    FORCE_ADD_INTERNAL_ENTITIES(true,
         // Odin types
         str_lit("Source_Code_Location"),
         str_lit("Allocator"),
 
-        // str_lit("cstring_to_string"),
+        // str_lit("__cstring_to_string"),
         str_lit("_cleanup_runtime"),
 
         // Pseudo-CRT required procedures
         str_lit("memset"),
 
         // Utility procedures
-        str_lit("memory_equal"),
-        str_lit("memory_compare"),
-        str_lit("memory_compare_zero"),
+        str_lit("__mem_equal"),
+        str_lit("__mem_compare"),
+        str_lit("__mem_compare_zero"),
     );
 
     // Only required if no CRT is present
-    FORCE_ADD_RUNTIME_ENTITIES(build_context.no_crt,
+    FORCE_ADD_INTERNAL_ENTITIES(build_context.no_crt,
         str_lit("memcpy"),
         str_lit("memmove"),
     );
 
-    FORCE_ADD_RUNTIME_ENTITIES(build_context.metrics.arch == TargetArch_arm32,
-        str_lit("aeabi_d2h")
+    FORCE_ADD_INTERNAL_ENTITIES(build_context.metrics.arch == TargetArch_arm32,
+        str_lit("__aeabi_d2h")
     );
 
-    FORCE_ADD_RUNTIME_ENTITIES(is_arch_wasm() && !build_context.tilde_backend,
+    FORCE_ADD_INTERNAL_ENTITIES(is_arch_wasm() && !build_context.tilde_backend,
     //  // Extended data type internal procedures
-    //  str_lit("umodti3"),
-    //  str_lit("udivti3"),
-    //  str_lit("modti3"),
-    //  str_lit("divti3"),
-    //  str_lit("fixdfti"),
-    //  str_lit("fixunsdfti"),
-    //  str_lit("fixunsdfdi"),
-    //  str_lit("floattidf"),
-    //  str_lit("floattidf_unsigned"),
-    //  str_lit("truncsfhf2"),
-    //  str_lit("truncdfhf2"),
-    //  str_lit("gnu_h2f_ieee"),
-    //  str_lit("gnu_f2h_ieee"),
-    //  str_lit("extendhfsf2"),
+    //  str_lit("__umodti3"),
+    //  str_lit("__udivti3"),
+    //  str_lit("__modti3"),
+    //  str_lit("__divti3"),
+    //  str_lit("__fixdfti"),
+    //  str_lit("__fixunsdfti"),
+    //  str_lit("__fixunsdfdi"),
+    //  str_lit("__floattidf"),
+    //  str_lit("__floattidf_unsigned"),
+    //  str_lit("__truncsfhf2"),
+    //  str_lit("__truncdfhf2"),
+    //  str_lit("__gnu_h2f_ieee"),
+    //  str_lit("__gnu_f2h_ieee"),
+    //  str_lit("__extendhfsf2"),
 
         // WASM Specific
         str_lit("__ashlti3"),
@@ -2916,7 +2916,7 @@ gb_internal void generate_minimum_dependency_set(Checker *c, Entity *start) {
         str_lit("__lshrti3"),
     );
 
-    FORCE_ADD_RUNTIME_ENTITIES(!build_context.no_rtti,
+    FORCE_ADD_INTERNAL_ENTITIES(!build_context.no_rtti,
         // Odin types
         str_lit("Type_Info"),
 
@@ -2925,24 +2925,24 @@ gb_internal void generate_minimum_dependency_set(Checker *c, Entity *start) {
         str_lit("__type_info_of"),
     );
 
-    FORCE_ADD_RUNTIME_ENTITIES(!build_context.no_entry_point,
+    FORCE_ADD_INTERNAL_ENTITIES(!build_context.no_entry_point,
         // Global variables
         str_lit("args__"),
     );
 
-    FORCE_ADD_RUNTIME_ENTITIES((build_context.no_crt && !is_arch_wasm()),
+    FORCE_ADD_INTERNAL_ENTITIES((build_context.no_crt && !is_arch_wasm()),
         // NOTE(bill): Only if these exist
         str_lit("_tls_index"),
         str_lit("_fltused"),
     );
 
-    FORCE_ADD_RUNTIME_ENTITIES(!build_context.no_bounds_check,
+    FORCE_ADD_INTERNAL_ENTITIES(!build_context.no_bounds_check,
         // Bounds checking related procedures
-        str_lit("bounds_check_error"),
-        str_lit("matrix_bounds_check_error"),
-        str_lit("slice_expr_error_hi"),
-        str_lit("slice_expr_error_lo_hi"),
-        str_lit("multi_pointer_slice_expr_error"),
+        str_lit("__bounds_check_error"),
+        str_lit("__matrix_bounds_check_error"),
+        str_lit("__slice_expr_error_hi"),
+        str_lit("__slice_expr_error_lo_hi"),
+        str_lit("__multi_pointer_slice_expr_error"),
     );
 
     add_dependency_to_set(c, c->info.instrumentation_enter_entity);
@@ -2953,7 +2953,7 @@ gb_internal void generate_minimum_dependency_set(Checker *c, Entity *start) {
     thread_pool_wait();
 
 
-#undef FORCE_ADD_RUNTIME_ENTITIES
+#undef FORCE_ADD_INTERNAL_ENTITIES
 }
 
 gb_internal gb_inline bool is_entity_a_dependency(Entity *e) {
@@ -3113,7 +3113,7 @@ gb_internal void check_single_global_entity(Checker *c, Entity *e, DeclInfo *d);
 
 
 gb_internal Entity *find_core_entity(Checker *c, String name) {
-    Entity *e = scope_lookup_current(c->info.runtime_package->scope, name);
+    Entity *e = scope_lookup_current(c->info.internal_package->scope, name);
     if (e == nullptr) {
         compiler_error("[find_core_entity] Could not find type declaration for '%.*s'\n"
 , LIT(name));
@@ -3123,7 +3123,7 @@ gb_internal Entity *find_core_entity(Checker *c, String name) {
 }
 
 gb_internal Type *find_core_type(Checker *c, String name) {
-    Entity *e = scope_lookup_current(c->info.runtime_package->scope, name);
+    Entity *e = scope_lookup_current(c->info.internal_package->scope, name);
     if (e == nullptr) {
         compiler_error("[find_core_type] Could not find type declaration for '%.*s'\n"
 , LIT(name));
@@ -4160,17 +4160,17 @@ gb_internal void check_decl_attributes(CheckerContext *c, Array<Ast *> const &at
     StringSet set = {};
     defer (string_set_destroy(&set));
 
-    bool is_runtime = false;
+    bool is_internal_package = false;
     if (c->scope && c->scope->file && (c->scope->flags & ScopeFlag_File) &&
         c->scope->file->pkg &&
-        c->scope->file->pkg->kind == Package_Runtime) {
-        is_runtime = true;
+        c->scope->file->pkg->kind == Package_Internal) {
+        is_internal_package = true;
     } else if (c->scope && c->scope->parent &&
         (c->scope->flags & ScopeFlag_Proc) &&
         (c->scope->parent->flags & ScopeFlag_File) &&
         c->scope->parent->file->pkg &&
-        c->scope->parent->file->pkg->kind == Package_Runtime) {
-        is_runtime = true;
+        c->scope->parent->file->pkg->kind == Package_Internal) {
+        is_internal_package = true;
     }
 
     for_array(i, attributes) {
@@ -4208,7 +4208,7 @@ gb_internal void check_decl_attributes(CheckerContext *c, Array<Ast *> const &at
                 continue;
             }
 
-            if (name == "builtin" && is_runtime) {
+            if (name == "builtin" && is_internal_package) {
                 continue;
             }
 
@@ -4349,7 +4349,7 @@ gb_internal void check_builtin_attributes(CheckerContext *ctx, Entity *e, Array<
     default:
         return;
     }
-    if (!((ctx->scope->flags&ScopeFlag_File) && ctx->scope->file->pkg->kind == Package_Runtime)) {
+    if (!((ctx->scope->flags&ScopeFlag_File) && ctx->scope->file->pkg->kind == Package_Internal)) {
         return;
     }
 
@@ -5096,8 +5096,8 @@ gb_internal Array<ImportPathItem> find_import_path(Checker *c, AstPackage *start
                     continue;
                 }
 
-                // if (pkg->kind == Package_Runtime) {
-                //  // NOTE(bill): Allow cyclic imports within the runtime package for the time being
+                // if (pkg->kind == Package_Internal) {
+                //  // NOTE(bill): Allow cyclic imports within the 'internal' package for the time being
                 //  continue;
                 // }
 
@@ -7193,15 +7193,15 @@ gb_internal void check_parsed_files(Checker *c) {
         string_map_set(&c->info.packages, p->fullpath, p);
                     // map                key          value
 
-        // Package_Runtime -> the base:runtime.
+        // Package_Internal -> the base:internal.
         // ScopeFlag_Init  -> the package of which odin.exe is being ran (odin run .)
         if (scope->flags&ScopeFlag_Init) {
             c->info.init_package = p;
             c->info.init_scope = scope;
         }
-        if (p->kind == Package_Runtime) {
-            GB_ASSERT(c->info.runtime_package == nullptr);
-            c->info.runtime_package = p;
+        if (p->kind == Package_Internal) {
+            GB_ASSERT(c->info.internal_package == nullptr);
+            c->info.internal_package = p;
         }
     }
 
@@ -7323,7 +7323,19 @@ gb_internal void check_parsed_files(Checker *c) {
                 }
             }
 
-            error(token, "Undefined entry point procedure 'main'");
+            begin_error_block();
+            global_error_collector.count.fetch_add(1);
+            mutex_lock(&global_error_collector.mutex);
+            if (global_error_collector.count > MAX_ERROR_COLLECTOR_COUNT()) {
+                print_all_errors();
+                gb_exit(1);
+            }
+            push_error_value({}, ErrorValue_Error);
+            error_out_empty();
+            error_out_coloured("Error: ", TerminalStyle_Normal, TerminalColour_Red);
+            error_line("Undefined entry point procedure 'main'\t");
+            try_pop_error_value();
+            mutex_unlock(&global_error_collector.mutex);
         }
     } else if (build_context.build_mode == BuildMode_DynamicLibrary && build_context.no_entry_point) {
         c->info.entry_point = nullptr;
@@ -7425,7 +7437,7 @@ gb_internal void check_parsed_files(Checker *c) {
         Ast *node = nullptr;
         while (mpsc_dequeue(&c->info.intrinsics_entry_point_usage, &node)) {
             if (c->info.entry_point == nullptr && node != nullptr) {
-                if (node->file()->pkg->kind != Package_Runtime) {
+                if (node->file()->pkg->kind != Package_Internal) {
                     error(node, "usage of intrinsics.__entry_point will be a no-op");
                 }
             }

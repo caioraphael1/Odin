@@ -8,7 +8,7 @@
         Benoit Jacquier: tga loader
 */
 
-import "core:mem"
+import "base:mem"
 import "core:image"
 import "core:bytes"
 import "core:compress"

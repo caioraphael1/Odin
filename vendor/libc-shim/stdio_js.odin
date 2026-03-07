@@ -25,7 +25,7 @@ _fread :: proc(buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
 }
 
 _fwrite :: proc(buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
-    fd, ok := __fd(file)
+    fd, ok := _fd_specific(file)
     if !ok {
         return 0
     }
@@ -50,7 +50,7 @@ foreign odin_env {
 }
 
 @(private="file")
-__fd :: proc(file: FILE) -> (u32, bool) {
+_fd_specific :: proc(file: FILE) -> (u32, bool) {
     switch (uint(uintptr(file))) {
     case 2: return 1, true // stdout
     case 3: return 2, true // stderr

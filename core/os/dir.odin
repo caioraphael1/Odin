@@ -1,4 +1,5 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:slice"
 import "core:strings"
 
@@ -9,7 +10,7 @@ read_dir :: read_directory
     This returns up to `n` entries OR all of them if `n <= 0`.
 */
 
-read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files: []File_Info, err: Error) {
+read_directory :: proc(f: ^File, n: int, allocator: mem.Allocator) -> (files: []File_Info, err: Error) {
     if f == nil {
         return nil, .Invalid_File
     }
@@ -21,12 +22,12 @@ read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files
         size = 100
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     it := read_directory_iterator_create(f, allocator)
     defer _read_directory_iterator_destroy(&it, allocator)
 
-    dfi, _ := dyn_array_create_len_cap([dynamic]File_Info, 0, size, runtime.temp_allocator)
+    dfi, _ := dyn_array_create_len_cap([dynamic]File_Info, 0, size, internal.temp_allocator)
     defer if err != nil {
         for fi in dfi {
             file_info_delete(fi, allocator)
@@ -53,7 +54,7 @@ read_directory :: proc(f: ^File, n: int, allocator: runtime.Allocator) -> (files
     Reads the file `f` (assuming it is a directory) and returns all of the unsorted directory entries.
 */
 
-read_all_directory :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: []File_Info, err: Error) {
+read_all_directory :: proc(f: ^File, allocator: mem.Allocator) -> (fi: []File_Info, err: Error) {
     return read_directory(f, -1, allocator)
 }
 
@@ -62,7 +63,7 @@ read_all_directory :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: []Fil
     This returns up to `n` entries OR all of them if `n <= 0`.
 */
 
-read_directory_by_path :: proc(path: string, n: int, allocator: runtime.Allocator) -> (fi: []File_Info, err: Error) {
+read_directory_by_path :: proc(path: string, n: int, allocator: mem.Allocator) -> (fi: []File_Info, err: Error) {
     f := open(path, allocator = allocator) or_return
     defer _ = close(f)
     return read_directory(f, n, allocator)
@@ -72,7 +73,7 @@ read_directory_by_path :: proc(path: string, n: int, allocator: runtime.Allocato
     Reads the named directory by path (assuming it is a directory) and returns all of the unsorted directory entries.
 */
 
-read_all_directory_by_path :: proc(path: string, allocator: runtime.Allocator) -> (fi: []File_Info, err: Error) {
+read_all_directory_by_path :: proc(path: string, allocator: mem.Allocator) -> (fi: []File_Info, err: Error) {
     return read_directory_by_path(path, -1, allocator)
 }
 
@@ -93,7 +94,7 @@ Creates a directory iterator with the given directory.
 
 For an example on how to use the iterator, see `read_directory_iterator`.
 */
-read_directory_iterator_create :: proc(f: ^File, allocator: runtime.Allocator) -> (it: Read_Directory_Iterator) {
+read_directory_iterator_create :: proc(f: ^File, allocator: mem.Allocator) -> (it: Read_Directory_Iterator) {
     read_directory_iterator_init(&it, f, allocator)
     return
 }
@@ -105,7 +106,7 @@ This procedure may be called on an existing iterator to reuse it for another dir
 
 For an example on how to use the iterator, see `read_directory_iterator`.
 */
-read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: runtime.Allocator) {
+read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: mem.Allocator) {
     it.err.err = nil
     it.err.path.allocator = allocator
     dyn_array_clear(&it.err.path)
@@ -119,7 +120,7 @@ read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, all
 /*
 Destroys a directory iterator.
 */
-read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) {
+read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) {
     if it == nil {
         return
     }
@@ -194,7 +195,7 @@ Example:
     }
 */
 
-read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime.Allocator) -> (fi: File_Info, index: int, ok: bool) {
+read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) -> (fi: File_Info, index: int, ok: bool) {
     if it.f == nil {
         return
     }
@@ -207,7 +208,7 @@ read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: runtime
 }
 
 // Recursively copies a directory to `dst` from `src`
-copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, allocator: runtime.Allocator) -> Error {
+copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, allocator: mem.Allocator) -> Error {
     when #defined(_copy_directory_all_native) {
         return _copy_directory_all_native(dst, src, dst_perm)
     } else {
@@ -216,18 +217,18 @@ copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, al
 }
 
 @(private)
-_copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, allocator: runtime.Allocator) -> Error {
+_copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, allocator: mem.Allocator) -> Error {
     err := make_directory(dst, dst_perm)
     if err != nil && err != .Exist {
         return err
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    abs_src := get_absolute_path(src, runtime.temp_allocator) or_return
-    abs_dst := get_absolute_path(dst, runtime.temp_allocator) or_return
+    abs_src := get_absolute_path(src, internal.temp_allocator) or_return
+    abs_dst := get_absolute_path(dst, internal.temp_allocator) or_return
 
-    dst_buf := dyn_array_create_len_cap([dynamic]byte, 0, len(abs_dst) + 256, runtime.temp_allocator) or_return
+    dst_buf := dyn_array_create_len_cap([dynamic]byte, 0, len(abs_dst) + 256, internal.temp_allocator) or_return
 
     w: Walker
     walker_init_path(&w, src, allocator)

@@ -1,4 +1,4 @@
-import "core:mem"
+import "base:mem"
 import "base:runtime"
 import "core:unicode/utf8"
 import "core:unicode/utf16"

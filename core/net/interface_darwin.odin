@@ -20,7 +20,7 @@
 
 import "core:strings"
 import "core:sys/posix"
-import "core:mem"
+import "base:mem"
 
 foreign import lib "system:System"
 

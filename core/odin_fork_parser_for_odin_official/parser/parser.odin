@@ -5,7 +5,7 @@ import "core:odin/ast"
 import "core:odin/tokenizer"
 
 import "core:fmt"
-import "core:mem"
+import "base:mem"
 
 Warning_Handler :: #type proc(pos: tokenizer.Pos, fmt: string, args: ..any)
 Error_Handler   :: #type proc(pos: tokenizer.Pos, fmt: string, args: ..any)

@@ -8,15 +8,15 @@
 
 import "base:runtime"
 
-_fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_fstat :: proc(f: ^File, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	return {}, .Unsupported
 }
 
-_stat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_stat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	return {}, .Unsupported
 }
 
-_lstat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_lstat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	return {}, .Unsupported
 }
 

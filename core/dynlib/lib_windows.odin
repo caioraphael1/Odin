@@ -8,7 +8,7 @@ import "core:reflect"
 
 _LIBRARY_FILE_EXTENSION :: "dll"
 
-_load_library :: proc(path: string, global_symbols: bool, allocator: runtime.Allocator) -> (Library, bool) {
+_load_library :: proc(path: string, global_symbols: bool, allocator: mem.Allocator) -> (Library, bool) {
 	// NOTE(bill): 'global_symbols' is here only for consistency with POSIX which has RTLD_GLOBAL
 	wide_path := win32.utf8_to_wstring_alloc(path, allocator)
 	defer free(rawptr(wide_path), allocator)
@@ -21,7 +21,7 @@ _unload_library :: proc(library: Library) -> bool {
 	return bool(ok)
 }
 
-_symbol_address :: proc(library: Library, symbol: string, allocator: runtime.Allocator) -> (ptr: rawptr, found: bool) {
+_symbol_address :: proc(library: Library, symbol: string, allocator: mem.Allocator) -> (ptr: rawptr, found: bool) {
 	c_str := strings.clone_to_cstring(symbol, allocator)
 	defer _ = slice_delete(c_str, allocator)
 	ptr = win32.GetProcAddress(cast(win32.HMODULE)library, c_str)

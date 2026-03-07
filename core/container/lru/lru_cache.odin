@@ -22,14 +22,14 @@ Cache :: struct($Key, $Value: typeid) where intrinsics.type_is_valid_map_key(Key
 	count:    int,
 	capacity: int,
 
-	node_allocator: runtime.Allocator,
+	node_allocator: mem.Allocator,
 
 	on_remove: proc(key: Key, value: Value, user_data: rawptr),
 	on_remove_user_data: rawptr,
 }
 
 // init initializes a Cache
-init :: proc(c: ^$C/Cache($Key, $Value), capacity: int, entries_allocator: runtime.Allocator, node_allocator: runtime.Allocator) {
+init :: proc(c: ^$C/Cache($Key, $Value), capacity: int, entries_allocator: mem.Allocator, node_allocator: mem.Allocator) {
 	c.entries.allocator = entries_allocator
 	c.node_allocator = node_allocator
 	c.capacity = capacity
@@ -56,7 +56,7 @@ clear :: proc(c: ^$C/Cache($Key, $Value), call_on_remove: bool) {
 }
 
 // set the given key value pair. This operation updates the recent usage of the item.
-set :: proc(c: ^$C/Cache($Key, $Value), key: Key, value: Value) -> runtime.Allocator_Error {
+set :: proc(c: ^$C/Cache($Key, $Value), key: Key, value: Value) -> mem.Allocator_Error {
 	if e, ok := c.entries[key]; ok {
 		e.value = value
 		_pop_node(c, e)

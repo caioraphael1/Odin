@@ -22,7 +22,7 @@ import "core:strings"
 import "core:strconv"
 import "core:unicode/utf8"
 import "core:encoding/hex"
-import "core:mem"
+import "base:mem"
 
 split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path: string, queries: map[string]string, fragment: string) {
     s := url

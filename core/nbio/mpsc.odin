@@ -13,7 +13,7 @@ Multi_Producer_Single_Consumer :: struct {
 	mask:   int,
 }
 
-mpsc_init :: proc(mpscq: ^Multi_Producer_Single_Consumer, cap: int, allocator: runtime.Allocator) -> runtime.Allocator_Error {
+mpsc_init :: proc(mpscq: ^Multi_Producer_Single_Consumer, cap: int, allocator: mem.Allocator) -> mem.Allocator_Error {
 	assert(runtime.is_power_of_two_int(cap), "cap must be a power of 2")
 	mpscq.buffer = slice_create([]rawptr, cap, allocator) or_return
 	mpscq.mask   = cap-1
@@ -21,7 +21,7 @@ mpsc_init :: proc(mpscq: ^Multi_Producer_Single_Consumer, cap: int, allocator: r
 	return nil
 }
 
-mpsc_destroy :: proc(mpscq: ^Multi_Producer_Single_Consumer, allocator: runtime.Allocator) {
+mpsc_destroy :: proc(mpscq: ^Multi_Producer_Single_Consumer, allocator: mem.Allocator) {
 	delete(mpscq.buffer, allocator)
 }
 

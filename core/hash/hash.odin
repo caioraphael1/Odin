@@ -1,4 +1,4 @@
-import "core:mem"
+import "base:mem"
 import "base:intrinsics"
 
 @(optimization_mode="favor_size")
@@ -224,7 +224,7 @@ murmur64b :: proc(data: []byte, seed := u64(0x9747b28c)) -> u64 {
 	h1 := u32(seed) ~ u32(len(data))
 	h2 := u32(seed) >> 32
 
-	data32 := mem.slice_ptr(cast(^u32)raw_data(data), len(data)/size_of(u32))
+	data32 := mem.slice_from_ptr(cast(^u32)raw_data(data), len(data)/size_of(u32))
 	len := len(data)
 	i := 0
 
@@ -259,7 +259,7 @@ murmur64b :: proc(data: []byte, seed := u64(0x9747b28c)) -> u64 {
 	}
 
 	// TODO(bill): Fix this
-	#no_bounds_check data8 := mem.slice_to_bytes(data32[i:])[:3]
+	#no_bounds_check data8 := mem.slice_of_bytes_from_slice(data32[i:])[:3]
 	switch len {
 	case 3:
 		h2 ~= u32(data8[2]) << 16

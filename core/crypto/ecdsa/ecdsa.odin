@@ -2,7 +2,7 @@
 
 import "core:crypto"
 import secec "core:crypto/_weierstrass"
-import "core:mem"
+import "base:mem"
 import "core:reflect"
 
 // Curve the curve identifier associated with a given Private_Key

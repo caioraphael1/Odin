@@ -6,7 +6,7 @@ import "core:path/filepath"
 import "core:time/datetime"
 import "base:runtime"
 
-local_tz_name :: proc(allocator: runtime.Allocator) -> (name: string, success: bool) {
+local_tz_name :: proc(allocator: mem.Allocator) -> (name: string, success: bool) {
 	local_str, ok := os.lookup_env_alloc("TZ", allocator)
 	if !ok {
 		orig_localtime_path := "/etc/localtime"
@@ -63,7 +63,7 @@ local_tz_name :: proc(allocator: runtime.Allocator) -> (name: string, success: b
 	return local_str, true
 }
 
-_region_load :: proc(_reg_str: string, allocator: runtime.Allocator) -> (out_reg: ^datetime.TZ_Region, success: bool) {
+_region_load :: proc(_reg_str: string, allocator: mem.Allocator) -> (out_reg: ^datetime.TZ_Region, success: bool) {
 	reg_str := _reg_str
 	if reg_str == "UTC" {
 		return nil, true

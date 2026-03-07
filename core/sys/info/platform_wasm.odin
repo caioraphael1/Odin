@@ -9,6 +9,6 @@ _ram_stats :: proc() -> (total_ram, free_ram, total_swap, free_swap: i64, ok: bo
 }
 
 @(private)
-_os_version :: proc(allocator: runtime.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
+_os_version :: proc(allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
     return {}, false
 }

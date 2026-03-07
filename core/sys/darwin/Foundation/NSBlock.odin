@@ -1,6 +1,6 @@
 import "base:intrinsics"
 import "base:builtin"
-import "core:mem"
+import "base:mem"
 
 @(objc_class="NSBlock")
 Block :: struct {using _: Object}

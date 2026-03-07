@@ -1,5 +1,5 @@
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:unicode"
 import "core:unicode/utf8"
 

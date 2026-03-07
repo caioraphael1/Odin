@@ -1,4 +1,5 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 
 Multi_Reader :: struct {
     readers: [dynamic]Reader,
@@ -29,7 +30,7 @@ _multi_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 }
 
 
-multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: runtime.Allocator) -> (r: Reader) {
+multi_reader_init :: proc(mr: ^Multi_Reader, readers: []Reader, allocator: mem.Allocator) -> (r: Reader) {
     all_readers, _ := dyn_array_create_len_cap([dynamic]Reader, 0, len(readers), allocator)
 
     for w in readers {
@@ -79,7 +80,7 @@ _multi_writer_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
 }
 
 
-multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: runtime.Allocator) -> (out: Writer) {
+multi_writer_init :: proc(mw: ^Multi_Writer, writers: []Writer, allocator: mem.Allocator) -> (out: Writer) {
     mw.writers, _ = dyn_array_create_len_cap([dynamic]Writer, 0, len(writers), allocator)
 
     for w in writers {

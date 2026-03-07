@@ -5,7 +5,7 @@ import "core:strings"
 import "base:runtime"
 
 @(private)
-_os_version :: proc (allocator: runtime.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
+_os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
 	res.platform = .FreeBSD
 
 	kernel_version_buf: [1024]u8

@@ -14,7 +14,7 @@ import "core:compress/zlib"
 import coretime "core:time"
 import "core:strings"
 import "core:bytes"
-import "core:mem"
+import "base:mem"
 import "base:runtime"
 
 /*

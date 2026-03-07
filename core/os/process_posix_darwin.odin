@@ -45,7 +45,7 @@ _get_processor_core_count :: proc() -> int {
     return 1
 }
 
-_process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+_process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     get_pidinfo :: proc(pid: int, selection: Process_Info_Fields) -> (ppid: u32, prio: Maybe(i32), uid: posix.uid_t, ok: bool) {
         // Short info is enough and requires less permissions if the priority isn't requested.
         if .Priority in selection {
@@ -258,7 +258,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     return
 }
 
-_process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error) {
+_process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
     ret := darwin.proc_listallpids(nil, 0)
     if ret < 0 {
         err = _get_platform_error()

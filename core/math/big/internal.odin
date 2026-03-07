@@ -27,7 +27,7 @@
 import "base:builtin"
 import "base:intrinsics"
 import "base:runtime"
-import "core:mem"
+import "base:mem"
 import rnd "core:math/rand"
 
 /*
@@ -1750,7 +1750,7 @@ internal_int_root_n :: proc(dest, src: ^Int, n: int, allocator: mem.Allocator) -
     Deallocates the backing memory of one or more `Int`s.
     Asssumes none of the `integers` to be a `nil`.
 */
-internal_int_destroy :: proc(integers: []^Int, allocator: runtime.Allocator) {
+internal_int_destroy :: proc(integers: []^Int, allocator: mem.Allocator) {
     integers := integers
 
     for &a in integers {

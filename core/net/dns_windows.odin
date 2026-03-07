@@ -22,7 +22,7 @@
 
 import "base:runtime"
 
-import "core:mem"
+import "base:mem"
 import "core:os"
 import "core:strings"
 import "core:sync"
@@ -120,7 +120,7 @@ _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: 
         case .TXT:
             n := r.Data.TXT.dwStringCount
             ptr := &r.Data.TXT.pStringArray
-            c_strs := mem.slice_ptr(ptr, int(n))
+            c_strs := mem.slice_from_ptr(ptr, int(n))
 
             for cstr in c_strs {
                 cstr_clone, _ := strings.clone(string(cstr), allocator)

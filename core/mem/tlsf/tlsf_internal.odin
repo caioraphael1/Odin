@@ -51,7 +51,7 @@ blocks below that size into the 0th first-level list.
 
 Pool :: struct {
     data:      []u8 `fmt:"-"`,
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
     next:      ^Pool,
 }
 
@@ -170,7 +170,7 @@ pool_remove :: proc(control: ^Allocator, pool: []u8) {
 }
 
 @(private)
-runtime.mem_alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: runtime.Allocator_Error) {
+runtime.mem_alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: mem.Allocator_Error) {
     assert(control != nil)
     adjust := adjust_request_size(size, ALIGN_SIZE)
 
@@ -256,7 +256,7 @@ runtime.mem_alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uin
 }
 
 @(private)
-runtime.mem_alloc :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: runtime.Allocator_Error) {
+runtime.mem_alloc :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: mem.Allocator_Error) {
     res, err = runtime.mem_alloc_non_zeroed(control, size, align)
     if err == nil {
         intrinsics.mem_zero(raw_data(res), len(res))
@@ -266,7 +266,7 @@ runtime.mem_alloc :: proc(control: ^Allocator, size: uint, align: uint) -> (res:
 
 
 @(no_sanitize_address)
-free_with_size :: proc(control: ^Allocator, ptr: rawptr, size: uint) {
+mem_free_with_size :: proc(control: ^Allocator, ptr: rawptr, size: uint) {
     assert(control != nil)
     // `size` is currently ignored
     if ptr == nil {
@@ -284,10 +284,10 @@ free_with_size :: proc(control: ^Allocator, ptr: rawptr, size: uint) {
 
 
 @(private)
-resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: runtime.Allocator_Error) {
+resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: mem.Allocator_Error) {
     assert(control != nil)
     if ptr != nil && new_size == 0 {
-        free_with_size(control, ptr, old_size)
+        mem_free_with_size(control, ptr, old_size)
         return
     } else if ptr == nil {
         return runtime.mem_alloc(control, new_size, alignment)
@@ -308,7 +308,7 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
         res = runtime.mem_alloc(control, new_size, alignment) or_return
         if res != nil {
             slice_copy(res, ([^]byte)(ptr)[:min_size])
-            free_with_size(control, ptr, curr_size)
+            mem_free_with_size(control, ptr, curr_size)
         }
         return
     }
@@ -329,10 +329,10 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
 }
 
 @(private)
-resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: runtime.Allocator_Error) {
+resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: mem.Allocator_Error) {
     assert(control != nil)
     if ptr != nil && new_size == 0 {
-        free_with_size(control, ptr, old_size)
+        mem_free_with_size(control, ptr, old_size)
         return
     } else if ptr == nil {
         return runtime.mem_alloc_non_zeroed(control, new_size, alignment)
@@ -353,7 +353,7 @@ resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: 
         res = runtime.mem_alloc_non_zeroed(control, new_size, alignment) or_return
         if res != nil {
             slice_copy(res, ([^]byte)(ptr)[:min_size])
-            free_with_size(control, ptr, old_size)
+            mem_free_with_size(control, ptr, old_size)
         }
         return
     }
@@ -519,7 +519,7 @@ adjust_request_size :: proc(size, align: uint) -> (adjusted: uint) {
 
 // Adjust an allocation size to be aligned to word size, and no smaller than internal minimum.
 @(private)
-adjust_request_size_with_err :: proc(size, align: uint) -> (adjusted: uint, err: runtime.Allocator_Error) {
+adjust_request_size_with_err :: proc(size, align: uint) -> (adjusted: uint, err: mem.Allocator_Error) {
     if size == 0 {
         return 0, nil
     }
@@ -781,7 +781,7 @@ block_locate_free :: proc(control: ^Allocator, size: uint) -> (block: ^Block_Hea
 }
 
 @(private, no_sanitize_address)
-block_prepare_used :: proc(control: ^Allocator, block: ^Block_Header, size: uint) -> (res: []byte, err: runtime.Allocator_Error) {
+block_prepare_used :: proc(control: ^Allocator, block: ^Block_Header, size: uint) -> (res: []byte, err: mem.Allocator_Error) {
     if block != nil {
         assert(size != 0, "Size must be non-zero")
         block_trim_free(control, block, size)

@@ -10,7 +10,7 @@
 import "core:io"
 import "core:fmt"
 import "core:log"
-import "core:mem"
+import "base:mem"
 import "core:mem/virtual"
 import "core:unicode/utf8"
 import "base:runtime"
@@ -41,8 +41,8 @@ Table :: struct {
     caption: string,
     nr_rows, nr_cols: int,
     has_header_row: bool,
-    table_allocator: runtime.Allocator,  // Used for allocating cells/colw
-    format_allocator: runtime.Allocator, // Used for allocating Cell.text when applicable
+    table_allocator: mem.Allocator,  // Used for allocating cells/colw
+    format_allocator: mem.Allocator, // Used for allocating Cell.text when applicable
 
     // The following are computed on build()
     colw: [dynamic]int, // Width of each column (excluding padding and borders)

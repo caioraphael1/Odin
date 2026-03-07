@@ -51,7 +51,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
     }
 }
 
-_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: runtime.Allocator) {
+_read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, allocator: mem.Allocator) {
     if f == nil || f.impl == nil {
         read_directory_iterator_set_error(it, "", .Invalid_File)
         return

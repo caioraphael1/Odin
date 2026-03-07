@@ -26,7 +26,7 @@ int_destroy :: proc(integers: ..^Int) {
 /*
     Helpers to set an `Int` to a specific value.
 */
-int_set_from_integer :: proc(dest: ^Int, src: $T, minimize := false, allocator: runtime.Allocator) -> (err: Error)
+int_set_from_integer :: proc(dest: ^Int, src: $T, minimize := false, allocator: mem.Allocator) -> (err: Error)
     where intrinsics.type_is_integer(T) {
     src := src
 
@@ -43,7 +43,7 @@ int_set_from_integer :: proc(dest: ^Int, src: $T, minimize := false, allocator: 
 /*
     Copy one `Int` to another.
 */
-int_copy :: proc(dest, src: ^Int, minimize := false, allocator: runtime.Allocator) -> (err: Error) {
+int_copy :: proc(dest, src: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         If dest == src, do nothing
     */
@@ -73,7 +73,7 @@ int_swap :: proc(a, b: ^Int) {
 /*
     Set `dest` to |`src`|.
 */
-int_abs :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_abs :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `src` is usable and `dest` isn't immutable.
     */
@@ -92,7 +92,7 @@ platform_abs :: proc(n: $T) -> T where intrinsics.type_is_integer(T) {
 /*
     Set `dest` to `-src`.
 */
-int_neg :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_neg :: proc(dest, src: ^Int, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `src` is usable and `dest` isn't immutable.
     */
@@ -108,11 +108,11 @@ int_neg :: proc(dest, src: ^Int, allocator: runtime.Allocator) -> (err: Error) {
 /*
     Helpers to extract values from the `Int`.
 */
-int_bitfield_extract_single :: proc(a: ^Int, offset: int, allocator: runtime.Allocator) -> (bit: _WORD, err: Error) {
+int_bitfield_extract_single :: proc(a: ^Int, offset: int, allocator: mem.Allocator) -> (bit: _WORD, err: Error) {
     return #force_inline int_bitfield_extract(a, offset, 1, allocator)
 }
 
-int_bitfield_extract :: proc(a: ^Int, offset, count: int, allocator: runtime.Allocator) -> (res: _WORD, err: Error) {
+int_bitfield_extract :: proc(a: ^Int, offset, count: int, allocator: mem.Allocator) -> (res: _WORD, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -125,7 +125,7 @@ int_bitfield_extract :: proc(a: ^Int, offset, count: int, allocator: runtime.All
 /*
     Resize backing store.
 */
-shrink :: proc(a: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+shrink :: proc(a: ^Int, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -135,7 +135,7 @@ shrink :: proc(a: ^Int, allocator: runtime.Allocator) -> (err: Error) {
     return #force_inline internal_shrink(a)
 }
 
-int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator: runtime.Allocator) -> (err: Error) {
+int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -147,7 +147,7 @@ int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator: runtime
 /*
     Clear `Int` and resize it to the default size.
 */
-int_clear :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (err: Error) {
+int_clear :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -158,7 +158,7 @@ int_clear :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (
 /*
     Set the `Int` to 1 and optionally shrink it to the minimum backing size.
 */
-int_one :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (err: Error) {
+int_one :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -169,7 +169,7 @@ int_one :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (er
 /*
     Set the `Int` to -1 and optionally shrink it to the minimum backing size.
 */
-int_minus_one :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (err: Error) {
+int_minus_one :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -181,7 +181,7 @@ int_minus_one :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) 
 /*
     Set the `Int` to Inf and optionally shrink it to the minimum backing size.
 */
-int_inf :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (err: Error) {
+int_inf :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -192,7 +192,7 @@ int_inf :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (er
 /*
     Set the `Int` to -Inf and optionally shrink it to the minimum backing size.
 */
-int_minus_inf :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (err: Error) {
+int_minus_inf :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -203,7 +203,7 @@ int_minus_inf :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) 
 /*
     Set the `Int` to NaN and optionally shrink it to the minimum backing size.
 */
-int_nan :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (err: Error) {
+int_nan :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -211,7 +211,7 @@ int_nan :: proc(a: ^Int, minimize := false, allocator: runtime.Allocator) -> (er
     return #force_inline internal_nan(a, minimize, allocator)
 }
 
-power_of_two :: proc(a: ^Int, power: int, allocator: runtime.Allocator) -> (err: Error) {
+power_of_two :: proc(a: ^Int, power: int, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -219,7 +219,7 @@ power_of_two :: proc(a: ^Int, power: int, allocator: runtime.Allocator) -> (err:
     return #force_inline internal_int_power_of_two(a, power, allocator)
 }
 
-int_get_u128 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: u128, err: Error) {
+int_get_u128 :: proc(a: ^Int, allocator: mem.Allocator) -> (res: u128, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -227,7 +227,7 @@ int_get_u128 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: u128, err: 
     return int_get(a, u128, allocator)
 }
 
-int_get_i128 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: i128, err: Error) {
+int_get_i128 :: proc(a: ^Int, allocator: mem.Allocator) -> (res: i128, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -235,7 +235,7 @@ int_get_i128 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: i128, err: 
     return int_get(a, i128, allocator)
 }
 
-int_get_u64 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: u64, err: Error) {
+int_get_u64 :: proc(a: ^Int, allocator: mem.Allocator) -> (res: u64, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -243,7 +243,7 @@ int_get_u64 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: u64, err: Er
     return int_get(a, u64, allocator)
 }
 
-int_get_i64 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: i64, err: Error) {
+int_get_i64 :: proc(a: ^Int, allocator: mem.Allocator) -> (res: i64, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -251,7 +251,7 @@ int_get_i64 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: i64, err: Er
     return int_get(a, i64, allocator)
 }
 
-int_get_u32 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: u32, err: Error) {
+int_get_u32 :: proc(a: ^Int, allocator: mem.Allocator) -> (res: u32, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -259,7 +259,7 @@ int_get_u32 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: u32, err: Er
     return int_get(a, u32, allocator)
 }
 
-int_get_i32 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: i32, err: Error) {
+int_get_i32 :: proc(a: ^Int, allocator: mem.Allocator) -> (res: i32, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -271,7 +271,7 @@ int_get_i32 :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: i32, err: Er
     TODO: Think about using `count_bits` to check if the value could be returned completely,
     and maybe return max(T), .Integer_Overflow if not?
 */
-int_get :: proc(a: ^Int, $T: typeid, allocator: runtime.Allocator) -> (res: T, err: Error) where intrinsics.type_is_integer(T) {
+int_get :: proc(a: ^Int, $T: typeid, allocator: mem.Allocator) -> (res: T, err: Error) where intrinsics.type_is_integer(T) {
     /*
         Check that `a` is usable.
     */
@@ -280,7 +280,7 @@ int_get :: proc(a: ^Int, $T: typeid, allocator: runtime.Allocator) -> (res: T, e
     return #force_inline internal_int_get(a, T)
 }
 
-int_get_float :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: f64, err: Error) {
+int_get_float :: proc(a: ^Int, allocator: mem.Allocator) -> (res: f64, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -292,7 +292,7 @@ int_get_float :: proc(a: ^Int, allocator: runtime.Allocator) -> (res: f64, err: 
 /*
     Count bits in an `Int`.
 */
-count_bits :: proc(a: ^Int, allocator: runtime.Allocator) -> (count: int, err: Error) {
+count_bits :: proc(a: ^Int, allocator: mem.Allocator) -> (count: int, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -305,7 +305,7 @@ count_bits :: proc(a: ^Int, allocator: runtime.Allocator) -> (count: int, err: E
     Returns the number of trailing zeroes before the first one.
     Differs from regular `ctz` in that 0 returns 0.
 */
-int_count_lsb :: proc(a: ^Int, allocator: runtime.Allocator) -> (count: int, err: Error) {
+int_count_lsb :: proc(a: ^Int, allocator: mem.Allocator) -> (count: int, err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -321,7 +321,7 @@ platform_count_lsb :: #force_inline proc(a: $T) -> (count: int)
 
 int_random_digit :: internal_int_random_digit
 
-int_random :: proc(dest: ^Int, bits: int, allocator: runtime.Allocator) -> (err: Error) {
+int_random :: proc(dest: ^Int, bits: int, allocator: mem.Allocator) -> (err: Error) {
     /*
         Check that `a` is usable.
     */
@@ -345,12 +345,12 @@ zero_unused :: proc(dest: ^Int, old_used := -1) {
     #force_inline internal_zero_unused(dest, old_used)
 }
 
-clear_if_uninitialized_single :: proc(arg: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+clear_if_uninitialized_single :: proc(arg: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(arg)
     return #force_inline internal_clear_if_uninitialized_single(arg, allocator)
 }
 
-clear_if_uninitialized_multi :: proc(args: []^Int, allocator: runtime.Allocator) -> (err: Error) {
+clear_if_uninitialized_multi :: proc(args: []^Int, allocator: mem.Allocator) -> (err: Error) {
     args := args
     assert_if_nil(..args)
 
@@ -375,7 +375,7 @@ error_if_immutable_multi :: proc(args: ..^Int) -> (err: Error) {
 /*
     Allocates several `Int`s at once.
 */
-int_init_multi :: proc(integers: []^Int, allocator: runtime.Allocator) -> (err: Error) {
+int_init_multi :: proc(integers: []^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(..integers)
 
     integers := integers
@@ -386,7 +386,7 @@ int_init_multi :: proc(integers: []^Int, allocator: runtime.Allocator) -> (err: 
 }
 
 
-copy_digits :: proc(dest, src: ^Int, digits: int, offset := int(0), allocator: runtime.Allocator) -> (err: Error) {
+copy_digits :: proc(dest, src: ^Int, digits: int, offset := int(0), allocator: mem.Allocator) -> (err: Error) {
 
     /*
         Check that `src` is usable and `dest` isn't immutable.
@@ -403,7 +403,7 @@ copy_digits :: proc(dest, src: ^Int, digits: int, offset := int(0), allocator: r
     This is used to ensure that leading zero digits are trimmed and the leading "used" digit will be non-zero.
     Typically very fast.  Also fixes the sign if there are no more leading digits.
 */
-clamp :: proc(a: ^Int, allocator: runtime.Allocator) -> (err: Error) {
+clamp :: proc(a: ^Int, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
     #force_inline internal_clear_if_uninitialized(a, allocator) or_return
 
@@ -421,7 +421,7 @@ clamp :: proc(a: ^Int, allocator: runtime.Allocator) -> (err: Error) {
 /*
     Size binary representation  
 */
-int_to_bytes_size :: proc(a: ^Int, signed := false, allocator: runtime.Allocator) -> (size_in_bytes: int, err: Error) {
+int_to_bytes_size :: proc(a: ^Int, signed := false, allocator: mem.Allocator) -> (size_in_bytes: int, err: Error) {
     assert_if_nil(a)
     #force_inline internal_clear_if_uninitialized(a, allocator) or_return
 
@@ -437,7 +437,7 @@ int_to_bytes_size :: proc(a: ^Int, signed := false, allocator: runtime.Allocator
     Return Little Endian binary representation of `a`, either signed or unsigned.
     If `a` is negative and we ask for the default unsigned representation, we return abs(a).
 */
-int_to_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_to_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
 
     size_in_bytes := int_to_bytes_size(a, signed, allocator) or_return
@@ -460,7 +460,7 @@ int_to_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: runt
     Return Big Endian binary representation of `a`, either signed or unsigned.
     If `a` is negative and we ask for the default unsigned representation, we return abs(a).
 */
-int_to_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_to_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
 
     size_in_bytes := int_to_bytes_size(a, signed, allocator) or_return
@@ -484,7 +484,7 @@ int_to_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime
     Return Python 3.x compatible Little Endian binary representation of `a`, either signed or unsigned.
     If `a` is negative when asking for an unsigned number, we return an error like Python does.
 */
-int_to_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_to_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
 
     if !signed && a.sign == .Negative { return .Invalid_Argument }
@@ -520,7 +520,7 @@ int_to_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, allocato
     Return Python 3.x compatible Big Endian binary representation of `a`, either signed or unsigned.
     If `a` is negative when asking for an unsigned number, we return an error like Python does.
 */
-int_to_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_to_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
 
     if !signed && a.sign == .Negative { return .Invalid_Argument }
@@ -550,7 +550,7 @@ int_to_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: 
     Read `Int` from a Big Endian binary representation.
     Sign is detected from the first byte if `signed` is true.
 */
-int_from_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_from_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
     buf := buf
     l := len(buf)
@@ -587,7 +587,7 @@ int_from_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: runti
     Read `Int` from a Big Endian Python binary representation.
     Sign is detected from the first byte if `signed` is true.
 */
-int_from_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_from_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
     buf := buf
     l := len(buf)
@@ -633,7 +633,7 @@ int_from_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator
     Read `Int` from a Little Endian binary representation.
     Sign is detected from the last byte if `signed` is true.
 */
-int_from_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_from_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
     buf := buf
     l := len(buf)
@@ -671,7 +671,7 @@ int_from_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: ru
     Read `Int` from a Little Endian Python binary representation.
     Sign is detected from the first byte if `signed` is true.
 */
-int_from_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: runtime.Allocator) -> (err: Error) {
+int_from_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
     buf := buf
     l := len(buf)
@@ -720,10 +720,10 @@ int_from_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, alloca
 INT_ONE, INT_ZERO, INT_MINUS_ONE, INT_INF, INT_MINUS_INF, INT_NAN := &Int{}, &Int{}, &Int{}, &Int{}, &Int{}, &Int{}
 
 @(private)
-constant_allocator: runtime.Allocator
+constant_allocator: mem.Allocator
 
 // @(init)
-initialize_constants :: proc(allocator: runtime.Allocator) {
+initialize_constants :: proc(allocator: mem.Allocator) {
     constant_allocator = allocator
 
     internal_int_set_from_integer(     INT_ZERO,  0, constant_allocator);      INT_ZERO.flags = {.Immutable}

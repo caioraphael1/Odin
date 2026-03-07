@@ -1,5 +1,5 @@
 
-import "core:mem"
+import "base:mem"
 import "core:bytes"
 
 Loader_Proc :: #type proc(data: []byte, options: Options, allocator: mem.Allocator) -> (img: ^Image, err: Error)

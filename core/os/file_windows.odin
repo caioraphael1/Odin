@@ -1,8 +1,8 @@
 
-import "base:runtime"
+import "base:internal"
 
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:sync"
 import "core:time"
 import "core:unicode/utf16"
@@ -28,7 +28,7 @@ File_Impl :: struct {
     wname: win32.wstring,
     kind: File_Impl_Kind,
 
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
 
     r_buf: []byte,
     w_buf: []byte,
@@ -44,7 +44,7 @@ init_std_files :: proc() {
     new_std :: proc(impl: ^File_Impl, code: u32, name: string) -> ^File {
         impl.file.impl = impl
 
-        impl.allocator = runtime.nil_allocator()
+        impl.allocator = internal.nil_allocator()
         impl.fd = win32.GetStdHandle(code)
         impl.name = name
         impl.wname = nil
@@ -82,9 +82,9 @@ _open_internal :: proc(name: string, flags: File_Flags, perm: Permissions) -> (h
         err = .Not_Exist
         return
     }
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    path := _fix_long_path(name, runtime.temp_allocator) or_return
+    path := _fix_long_path(name, internal.temp_allocator) or_return
     access: u32
     switch flags & {.Read, .Write} {
     case {.Read}:         access = win32.FILE_GENERIC_READ
@@ -154,13 +154,13 @@ _open_internal :: proc(name: string, flags: File_Flags, perm: Permissions) -> (h
 }
 
 
-_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     flags := flags if flags != nil else {.Read}
     handle := _open_internal(name, flags, perm) or_return
     return _new_file(handle, name, allocator)
 }
 
-_new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     if handle == INVALID_HANDLE {
         return
     }
@@ -196,14 +196,14 @@ _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -
 
 
 
-_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     assert(buffer_size > 0)
     flags := flags if flags != nil else {.Read}
     handle := _open_internal(name, flags, perm) or_return
     return _new_file_buffered(handle, name, buffer_size, allocator)
 }
 
-_new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     f, err = _new_file(handle, name, allocator)
     if f != nil && err == nil {
         impl := (^File_Impl)(f.impl)
@@ -213,7 +213,7 @@ _new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint, all
     return
 }
 
-_clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Error) {
+_clone :: proc(f: ^File, allocator: mem.Allocator) -> (clone: ^File, err: Error) {
     if f == nil || f.impl == nil {
         return
     }
@@ -559,8 +559,8 @@ _truncate :: proc(f: ^File, size: i64) -> Error {
 }
 
 _remove :: proc(name: string) -> Error {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    p := _fix_long_path(name, runtime.temp_allocator) or_return
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    p := _fix_long_path(name, internal.temp_allocator) or_return
     err, err1: Error
     if !win32.DeleteFileW(p) {
         err = _get_platform_error()
@@ -597,9 +597,9 @@ _remove :: proc(name: string) -> Error {
 }
 
 _rename :: proc(old_path, new_path: string) -> Error {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    from := _fix_long_path(old_path, runtime.temp_allocator) or_return
-    to   := _fix_long_path(new_path, runtime.temp_allocator) or_return
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    from := _fix_long_path(old_path, internal.temp_allocator) or_return
+    to   := _fix_long_path(new_path, internal.temp_allocator) or_return
     if win32.MoveFileExW(from, to, win32.MOVEFILE_REPLACE_EXISTING) {
         return nil
     }
@@ -608,9 +608,9 @@ _rename :: proc(old_path, new_path: string) -> Error {
 }
 
 _link :: proc(old_name, new_name: string) -> Error {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    o := _fix_long_path(old_name, runtime.temp_allocator) or_return
-    n := _fix_long_path(new_name, runtime.temp_allocator) or_return
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    o := _fix_long_path(old_name, internal.temp_allocator) or_return
+    n := _fix_long_path(new_name, internal.temp_allocator) or_return
     if win32.CreateHardLinkW(n, o, nil) {
         return nil
     }
@@ -632,7 +632,7 @@ _open_sym_link :: proc(p: cstring16) -> (handle: win32.HANDLE, err: Error) {
 
 }
 
-_normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: string, err: Error) {
+_normalize_link_path :: proc(p: []u16, allocator: mem.Allocator) -> (str: string, err: Error) {
     has_prefix :: proc(p: []u16, str: string) -> bool {
         if len(p) < len(str) {
             return false
@@ -671,9 +671,9 @@ _normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: st
         return "", _get_platform_error()
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf, _ := slice_create([]u16, n+1, runtime.temp_allocator)
+    buf, _ := slice_create([]u16, n+1, internal.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(handle, cstring16(raw_data(buf)), u32(len(buf)), win32.VOLUME_NAME_DOS)
     if n == 0 {
         return "", _get_platform_error()
@@ -691,15 +691,15 @@ _normalize_link_path :: proc(p: []u16, allocator: runtime.Allocator) -> (str: st
     return "", .Invalid_Path
 }
 
-_read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, err: Error) {
+_read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: Error) {
     MAXIMUM_REPARSE_DATA_BUFFER_SIZE :: 16 * 1024
 
     @(thread_local)
     rdb_buf: [MAXIMUM_REPARSE_DATA_BUFFER_SIZE]byte
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    p      := _fix_long_path(name, runtime.temp_allocator) or_return
+    p      := _fix_long_path(name, internal.temp_allocator) or_return
     handle := _open_sym_link(p) or_return
     defer _ = win32.CloseHandle(handle)
 
@@ -774,15 +774,15 @@ _fchown :: proc(f: ^File, uid, gid: int) -> Error {
 }
 
 _chdir :: proc(name: string) -> Error {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    p := _fix_long_path(name, runtime.temp_allocator) or_return
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    p := _fix_long_path(name, internal.temp_allocator) or_return
     if !win32.SetCurrentDirectoryW(p) {
         return _get_platform_error()
     }
     return nil
 }
 
-_chmod :: proc(name: string, mode: Permissions, allocator: runtime.Allocator) -> Error {
+_chmod :: proc(name: string, mode: Permissions, allocator: mem.Allocator) -> Error {
     f := open(name, {.Write}, allocator = allocator) or_return
     defer _ = close(f)
     return _fchmod(f, mode)
@@ -797,7 +797,7 @@ _lchown :: proc(name: string, uid, gid: int) -> Error {
 }
 
 
-_chtimes :: proc(name: string, atime, mtime: time.Time, allocator: runtime.Allocator) -> Error {
+_chtimes :: proc(name: string, atime, mtime: time.Time, allocator: mem.Allocator) -> Error {
     f := open(name, {.Write}, allocator = allocator) or_return
     defer _ = close(f)
     return _fchtimes(f, atime, mtime)
@@ -823,14 +823,14 @@ _fchtimes :: proc(f: ^File, atime, mtime: time.Time) -> Error {
 }
 
 _exists :: proc(path: string) -> bool {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    wpath, _ := _fix_long_path(path, runtime.temp_allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    wpath, _ := _fix_long_path(path, internal.temp_allocator)
     attribs := win32.GetFileAttributesW(wpath)
     return attribs != win32.INVALID_FILE_ATTRIBUTES
 }
 
-@(private="package")
-_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: runtime.Allocator) -> (n: i64, err: Error) {
+@(private)
+_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
     f := (^File_Impl)(stream_data)
     switch mode {
     case .Read:
@@ -869,14 +869,14 @@ _file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte
 
 
 
-@(private="package")
-win32_utf8_to_wstring :: proc(s: string, allocator: runtime.Allocator) -> (ws: cstring16, err: runtime.Allocator_Error) {
+@(private)
+win32_utf8_to_wstring :: proc(s: string, allocator: mem.Allocator) -> (ws: cstring16, err: mem.Allocator_Error) {
     ws = cstring16(raw_data(win32_utf8_to_utf16(s, allocator) or_return))
     return
 }
 
-@(private="package")
-win32_utf8_to_utf16 :: proc(s: string, allocator: runtime.Allocator) -> (ws: []u16, err: runtime.Allocator_Error) {
+@(private)
+win32_utf8_to_utf16 :: proc(s: string, allocator: mem.Allocator) -> (ws: []u16, err: mem.Allocator_Error) {
     if len(s) < 1 {
         return
     }
@@ -904,8 +904,8 @@ win32_utf8_to_utf16 :: proc(s: string, allocator: runtime.Allocator) -> (ws: []u
     return
 }
 
-@(private="package")
-win32_wstring_to_utf8 :: proc(s: cstring16, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
+@(private)
+win32_wstring_to_utf8 :: proc(s: cstring16, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     if s == nil || s == "" {
         return "", nil
     }
@@ -913,8 +913,8 @@ win32_wstring_to_utf8 :: proc(s: cstring16, allocator: runtime.Allocator) -> (re
 }
 
 
-@(private="package")
-win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
+@(private)
+win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     if len(s) == 0 {
         return
     }
@@ -947,8 +947,8 @@ win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: runtime.Allocator) 
     return
 }
 
-@(private="package")
-win32_utf16_u16_to_utf8 :: proc(s: []u16, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
+@(private)
+win32_utf16_u16_to_utf8 :: proc(s: []u16, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     if len(s) == 0 {
         return
     }

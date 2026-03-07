@@ -3,7 +3,7 @@ import "base:intrinsics"
 import "core:encoding/json"
 import "core:encoding/hex"
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:strconv"
 import "core:strings"
 

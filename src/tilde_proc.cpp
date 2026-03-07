@@ -359,7 +359,7 @@ gb_internal WORKER_TASK_PROC(cg_procedure_compile_worker_proc) {
 
     bool emit_asm = false;
     if (
-        // string_starts_with(p->name, str_lit("runtime@_windows_default_alloc_or_resize")) ||
+        // string_starts_with(p->name, str_lit("internal@_windows_default_alloc_or_resize")) ||
         false
     ) {
         emit_asm = true;
@@ -689,7 +689,7 @@ gb_internal cgValue cg_emit_call(cgProcedure * p, cgValue value, Slice<cgValue> 
 }
 
 gb_internal cgValue cg_emit_runtime_call(cgProcedure *p, char const *name, Slice<cgValue> const &args) {
-    AstPackage *pkg = p->module->info->runtime_package;
+    AstPackage *pkg = p->module->info->internal_package;
     Entity *e = scope_lookup_current(pkg->scope, make_string_c(name));
     cgValue value = cg_find_procedure_value_from_entity(p->module, e);
     return cg_emit_call(p, value, args);
@@ -1131,7 +1131,7 @@ gb_internal cgValue cg_simple_compare_hash(cgProcedure *p, Type *type, cgValue d
     args[0] = data;
     args[1] = seed;
     args[2] = cg_const_int(p, t_int, type_size_of(type));
-    return cg_emit_runtime_call(p, "default_hasher", args);
+    return cg_emit_runtime_call(p, "__default_hasher", args);
 }
 
 
@@ -1286,12 +1286,12 @@ gb_internal cgProcedure *cg_hasher_proc_for_type(cgModule *m, Type *type) {
     } else if (is_type_cstring(type)) {
         args[0] = data;
         args[1] = seed;
-        cgValue res = cg_emit_runtime_call(p, "default_hasher_cstring", args);
+        cgValue res = cg_emit_runtime_call(p, "__default_hasher_cstring", args);
         cg_build_return_stmt_internal_single(p, seed);
     } else if (is_type_string(type)) {
         args[0] = data;
         args[1] = seed;
-        cgValue res = cg_emit_runtime_call(p, "default_hasher_string", args);
+        cgValue res = cg_emit_runtime_call(p, "__default_hasher_string", args);
         cg_build_return_stmt_internal_single(p, seed);
     } else {
         GB_PANIC("Unhandled type for hasher: %s", type_to_string(type));

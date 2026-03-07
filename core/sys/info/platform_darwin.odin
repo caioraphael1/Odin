@@ -5,7 +5,7 @@ import    "core:sys/unix"
 import NS "core:sys/darwin/Foundation"
 
 @(private)
-_os_version :: proc (allocator: runtime.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
+_os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
 	ws :: strings.write_string
 	wi :: strings.write_int
 

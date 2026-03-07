@@ -25,7 +25,7 @@ freelist_clear :: proc(x: ^$X/Freelist_Array($T, $SHIFT)) {
 }
 
 
-freelist_push_with_index :: proc(x: ^$X/Freelist_Array($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, index: int, err: runtime.Allocator_Error) {
+freelist_push_with_index :: proc(x: ^$X/Freelist_Array($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, index: int, err: mem.Allocator_Error) {
     if x.freelist != nil {
         slot := x.freelist
         idx := freelist_index_of(x, slot)
@@ -39,7 +39,7 @@ freelist_push_with_index :: proc(x: ^$X/Freelist_Array($T, $SHIFT), value: T, lo
 }
 
 
-freelist_push :: proc(x: ^$X/Freelist_Array($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, err: runtime.Allocator_Error) {
+freelist_push :: proc(x: ^$X/Freelist_Array($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, err: mem.Allocator_Error) {
     ptr, _, err = freelist_push_with_index(x, value, loc)
     return
 }

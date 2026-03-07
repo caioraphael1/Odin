@@ -1,7 +1,7 @@
 import "base:builtin"
 import "base:intrinsics"
 import "core:math"
-import "core:mem"
+import "base:mem"
 
 Rat :: struct {
     a, b: Int,

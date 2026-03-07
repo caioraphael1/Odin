@@ -29,7 +29,7 @@ Tree :: struct($Value: typeid) {
     on_remove: proc(value: Value, user_data: rawptr),
 
     _root:           ^Node(Value),
-    _node_allocator: runtime.Allocator,
+    _node_allocator: mem.Allocator,
     _cmp_fn:         proc(a, b: Value) -> Ordering,
     _size:           int,
 }
@@ -134,7 +134,7 @@ find_or_insert :: proc(
 ) -> (
     n: ^Node(Value),
     inserted: bool,
-    err: runtime.Allocator_Error,
+    err: mem.Allocator_Error,
 ) {
     n_ptr := &t._root
     for n_ptr^ != nil {

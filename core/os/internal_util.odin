@@ -1,6 +1,7 @@
 #+private
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:math/rand"
 
 
@@ -25,7 +26,7 @@ _prefix_and_suffix :: proc(pattern: string) -> (prefix, suffix: string, err: Err
 }
 
 
-clone_string :: proc(s: string, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
+clone_string :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     buf := slice_create([]byte, len(s), allocator) or_return
     slice_copy_from_string(buf, s)
     return string(buf), nil
@@ -33,7 +34,7 @@ clone_string :: proc(s: string, allocator: runtime.Allocator) -> (res: string, e
 
 
 
-clone_to_cstring :: proc(s: string, allocator: runtime.Allocator) -> (res: cstring, err: runtime.Allocator_Error) {
+clone_to_cstring :: proc(s: string, allocator: mem.Allocator) -> (res: cstring, err: mem.Allocator_Error) {
     res = "" // do not use a `nil` cstring
     buf := slice_create([]byte, len(s)+1, allocator) or_return
     slice_copy_from_string(buf, s)
@@ -65,7 +66,7 @@ concatenate_strings_from_buffer :: proc(buf: []byte, strings: ..string) -> strin
 }
 
 
-concatenate :: proc(strings: []string, allocator: runtime.Allocator) -> (res: string, err: runtime.Allocator_Error) {
+concatenate :: proc(strings: []string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     n := 0
     for s in strings {
         n += len(s)
@@ -81,7 +82,7 @@ concatenate :: proc(strings: []string, allocator: runtime.Allocator) -> (res: st
 
 random_string :: proc(buf: []byte) -> string {
     for i := 0; i < len(buf); i += 16 {
-        n := rand.uint64(runtime.global_random_generator)
+        n := rand.uint64(internal.global_random_generator)
         end := min(i + 16, len(buf))
         for j := i; j < end; j += 1 {
             buf[j] = '0' + u8(n) % 10

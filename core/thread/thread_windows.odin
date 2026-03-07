@@ -1,7 +1,6 @@
 #+build windows
 #+private
 import "base:intrinsics"
-import "base:runtime"
 import "core:sync"
 import win32 "core:sys/windows"
 
@@ -20,10 +19,10 @@ _thread_priority_map := [Thread_Priority]i32{
     .High = +2,
 }
 
-_create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: runtime.Allocator) -> ^Thread {
+_create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: mem.Allocator) -> ^Thread {
     win32_thread_id: win32.DWORD
 
-    __windows_thread_entry_proc :: proc "system" (t_: rawptr) -> win32.DWORD {        
+    _windows_thread_entry_proc :: proc "system" (t_: rawptr) -> win32.DWORD {        
         t := (^Thread)(t_)
         for (.Started not_in sync.atomic_load(&t.flags)) {
             sync.sema_wait(&t.start_ok)

@@ -1,7 +1,7 @@
 package odin_ast
 
 @(require) import "base:intrinsics"
-import "core:mem"
+import "base:mem"
 import "core:fmt"
 import "core:reflect"
 import "core:odin/tokenizer"

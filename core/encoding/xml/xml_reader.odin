@@ -12,7 +12,7 @@ import    "base:runtime"
 import    "core:bytes"
 import    "core:encoding/entity"
 import    "base:intrinsics"
-import    "core:mem"
+import    "base:mem"
 import    "core:strings"
 
 likely :: intrinsics.expect

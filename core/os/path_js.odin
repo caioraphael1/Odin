@@ -28,7 +28,7 @@ _remove_all :: proc(path: string) -> (err: Error) {
 	return .Unsupported
 }
 
-_get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	return "", .Unsupported
 }
 
@@ -36,7 +36,7 @@ _set_working_directory :: proc(dir: string) -> (err: Error) {
 	return .Unsupported
 }
 
-_get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
+_get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
 	return "", .Unsupported
 }
 
@@ -52,7 +52,7 @@ _is_absolute_path :: proc(path: string) -> bool {
 	return false
 }
 
-_get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absolute_path: string, err: Error) {
+_get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_path: string, err: Error) {
 	return "", .Unsupported
 }
 

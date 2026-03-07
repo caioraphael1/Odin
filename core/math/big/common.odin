@@ -136,7 +136,7 @@ Error :: enum byte {
 	Okay = None,
 }
 
-#assert(intrinsics.type_is_superset_of(Error, runtime.Allocator_Error))
+#assert(intrinsics.type_is_superset_of(Error, mem.Allocator_Error))
 
 
 Error_String :: #sparse[Error]string{

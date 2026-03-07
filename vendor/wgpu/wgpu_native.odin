@@ -1,5 +1,5 @@
 #+build !js
-import "core:mem"
+import "base:mem"
 
 @(link_prefix="wgpu")
 foreign libwgpu {

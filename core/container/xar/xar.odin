@@ -71,7 +71,7 @@ MAX_SHIFT :: PLATFORM_BITS>>1
 Array :: struct($T: typeid, $SHIFT: uint) where 0 < SHIFT, SHIFT <= MAX_SHIFT {
 	chunks:    [(1 << (_LOG2_PLATFORM_BITS - intrinsics.constant_log2(SHIFT))) + 1][^]T,
 	len:       int,
-	allocator: runtime.Allocator,
+	allocator: mem.Allocator,
 }
 
 
@@ -97,7 +97,7 @@ array_destroy :: proc(x: ^$X/Array($T, $SHIFT)) {
 		if c != nil {
 			n := 1 << (SHIFT + uint(i if i > 0 else 1) - 1)
 			size_in_bytes := n * size_of(T)
-			runtime.free_with_size(c, size_in_bytes, x.allocator)
+			runtime.mem_free_with_size(c, size_in_bytes, x.allocator)
 		}
 	}
 	x^ = {}
@@ -246,7 +246,7 @@ Example:
 		fmt.println(xar.get(&x, 1))  // world
 	}
 */
-array_push_back_elem :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc := #caller_location) -> (n: int, err: runtime.Allocator_Error) {
+array_push_back_elem :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc := #caller_location) -> (n: int, err: mem.Allocator_Error) {
 	if x.allocator.procedure == nil {
 		// to minic `[dynamic]T` behaviour
 	}
@@ -272,7 +272,7 @@ Append multiple elements to the end of the exponential array.
 - number of elements successfully added
 - allocation error if chunk allocation failed (partial dyn_array_append possible)
 */
-array_push_back_elems :: proc(x: ^$X/Array($T, $SHIFT), values: ..T, loc := #caller_location) -> (n: int, err: runtime.Allocator_Error) {
+array_push_back_elems :: proc(x: ^$X/Array($T, $SHIFT), values: ..T, loc := #caller_location) -> (n: int, err: mem.Allocator_Error) {
 	for value in values {
 		n += array_push_back_elem(x, value, loc) or_return
 	}
@@ -307,7 +307,7 @@ Example:
 		ptr.field = 42  // Initialize in-place
 	}
 */
-array_push_back_elem_and_get_ptr :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, err: runtime.Allocator_Error) {
+array_push_back_elem_and_get_ptr :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, err: mem.Allocator_Error) {
 	if x.allocator.procedure == nil {
 		// to minic `[dynamic]T` behaviour
 		// x.allocator = context.allocator

@@ -5,7 +5,7 @@ import "core:reflect"
 import "core:slice"
 import "core:strconv"
 import "core:strings"
-import "core:mem"
+import "base:mem"
 
 /*
 Write out the documentation for the command-line arguments to a stream.

@@ -27,7 +27,7 @@ Parse_Error :: struct {
 
 Unified_Parse_Error_Reason :: union #shared_nil {
 	Parse_Error_Reason,
-	runtime.Allocator_Error,
+	mem.Allocator_Error,
 	net.Parse_Endpoint_Error,
 }
 

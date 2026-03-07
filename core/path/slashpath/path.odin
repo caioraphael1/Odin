@@ -4,7 +4,7 @@
 // To manipulate operating system specific paths, use the path/filepath package
 import "base:runtime"
 import "core:strings"
-import "core:mem"
+import "base:mem"
 
 // is_separator checks whether the byte is a valid separator character
 is_separator :: proc(c: byte) -> bool {
@@ -212,7 +212,7 @@ lazy_buffer_index :: proc(lb: ^Lazy_Buffer, i: int) -> byte {
     return lb.s[i]
 }
 @(private)
-lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: runtime.Allocator) {
+lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: mem.Allocator) {
     if lb.b == nil {
         if lb.w < len(lb.s) && lb.s[lb.w] == c {
             lb.w += 1
@@ -225,7 +225,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: runtime.Allocat
     lb.w += 1
 }
 @(private)
-lazy_buffer_string :: proc(lb: ^Lazy_Buffer, allocator: runtime.Allocator) -> string {
+lazy_buffer_string :: proc(lb: ^Lazy_Buffer, allocator: mem.Allocator) -> string {
     if lb.b == nil {
         clone, _ := strings.clone(lb.s[:lb.w], allocator)
         return clone

@@ -1,4 +1,4 @@
-import "core:mem"
+import "base:mem"
 
 LATEST_VERSION :: 3
 VERSION_API :: "0.3"

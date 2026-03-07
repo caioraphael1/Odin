@@ -4,7 +4,7 @@ import "base:runtime"
 
 import "core:sys/posix"
 
-_posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: runtime.Allocator) -> (path: cstring, err: Error) {
+_posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocator) -> (path: cstring, err: Error) {
 	runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 	cname := clone_to_cstring(name, runtime.temp_allocator) or_return
 

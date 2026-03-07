@@ -4,7 +4,7 @@ import "base:runtime"
 import "core:sys/darwin"
 import "core:sys/posix"
 
-_posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: runtime.Allocator) -> (path: cstring, err: Error) {
+_posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocator) -> (path: cstring, err: Error) {
 	F_GETPATH :: 50
 
 	buf: [posix.PATH_MAX]byte

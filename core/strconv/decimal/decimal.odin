@@ -248,30 +248,30 @@ shift_right :: proc(a: ^Decimal, k: uint) {
     trim(a)
 }
 
-import "base:runtime"
+import "base:internal"
 println :: proc(args: ..any) {
     for arg, i in args {
         if i != 0 {
-            runtime.print_string(" ")
+            internal.print_string(" ")
         }
         switch v in arg {
-        case string:  runtime.print_string(v)
-        case rune:    runtime.print_rune(v)
-        case int:     runtime.print_int(v)
-        case uint:    runtime.print_uint(v)
-        case u8:      runtime.print_u64(u64(v))
-        case u16:     runtime.print_u64(u64(v))
-        case u32:     runtime.print_u64(u64(v))
-        case u64:     runtime.print_u64(v)
-        case i8:      runtime.print_i64(i64(v))
-        case i16:     runtime.print_i64(i64(v))
-        case i32:     runtime.print_i64(i64(v))
-        case i64:     runtime.print_i64(v)
-        case uintptr: runtime.print_uintptr(v)
-        case bool:    runtime.print_string("true" if v else "false")
+        case string:  internal.print_string(v)
+        case rune:    internal.print_rune(v)
+        case int:     internal.print_int(v)
+        case uint:    internal.print_uint(v)
+        case u8:      internal.print_u64(u64(v))
+        case u16:     internal.print_u64(u64(v))
+        case u32:     internal.print_u64(u64(v))
+        case u64:     internal.print_u64(v)
+        case i8:      internal.print_i64(i64(v))
+        case i16:     internal.print_i64(i64(v))
+        case i32:     internal.print_i64(i64(v))
+        case i64:     internal.print_i64(v)
+        case uintptr: internal.print_uintptr(v)
+        case bool:    internal.print_string("true" if v else "false")
         }
     }
-    runtime.print_string("\n")
+    internal.print_string("\n")
 }
 
 @(private="file")

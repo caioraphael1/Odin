@@ -1,4 +1,5 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:unicode"
 
 ZERO_WIDTH_JOINER                 :: unicode.ZERO_WIDTH_JOINER
@@ -92,7 +93,7 @@ Returns:
 - width: The width of the string in number of monospace cells.
 */
 
-decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator: runtime.Allocator) -> (
+decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator: mem.Allocator) -> (
     graphemes:      [dynamic]Grapheme,
     grapheme_count: int,
     rune_count:     int,

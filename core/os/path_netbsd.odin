@@ -2,7 +2,7 @@ import "base:runtime"
 
 import "core:sys/posix"
 
-_get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
+_get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     buf := dyn_array_create([dynamic]byte, 1024, runtime.temp_allocator) or_return

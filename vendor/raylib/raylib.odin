@@ -87,7 +87,7 @@ Bindings for [[ raylib v5.5 ; https://www.raylib.com ]].
 */
 import "core:c"
 import "core:fmt"
-import "core:mem"
+import "base:mem"
 
 import "core:math/linalg"
 _ :: linalg
@@ -1771,7 +1771,7 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.byte_slice(ptr, size)
+        data = mem.slice_of_bytes(ptr, size)
         return
     case .Free:
         MemFree(old_memory)
@@ -1783,7 +1783,7 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.byte_slice(ptr, size)
+        data = mem.slice_of_bytes(ptr, size)
         return
     
     case .Free_All, .Query_Features, .Query_Info:

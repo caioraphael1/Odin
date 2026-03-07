@@ -48,7 +48,7 @@ Error :: union #shared_nil {
     GZIP_Error,
     ZIP_Error,
 
-    runtime.Allocator_Error,
+    mem.Allocator_Error,
 }
 
 General_Error :: enum {

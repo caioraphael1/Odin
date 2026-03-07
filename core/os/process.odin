@@ -1,7 +1,7 @@
 
 
-import "base:runtime"
-
+import "base:internal"
+import "base:mem"
 import "core:time"
 
 /*
@@ -15,14 +15,14 @@ Arguments to the current process.
 */
 args: []string
 
-init_args :: proc(allocator: runtime.Allocator) {
-    args, _ = slice_create([]string, len(runtime.args__), allocator)
-    for rt_arg, i in runtime.args__ {
+init_args :: proc(allocator: mem.Allocator) {
+    args, _ = slice_create([]string, len(internal.args__), allocator)
+    for rt_arg, i in internal.args__ {
         args[i] = string(rt_arg)
     }
 }
 
-fini_args :: proc(allocator: runtime.Allocator) {
+fini_args :: proc(allocator: mem.Allocator) {
     _ = slice_delete(args, allocator)
 }
 
@@ -30,7 +30,7 @@ fini_args :: proc(allocator: runtime.Allocator) {
 Exit the current process.
 */
 exit :: proc(code: int) -> ! {
-    runtime.exit(code)
+    internal.exit(code)
 }
 
 /*
@@ -128,7 +128,7 @@ get_processor_core_count :: proc() -> int {
 Obtain ID's of all processes running in the system.
 */
 
-process_list :: proc(allocator: runtime.Allocator) -> ([]int, Error) {
+process_list :: proc(allocator: mem.Allocator) -> ([]int, Error) {
     return _process_list(allocator)
 }
 
@@ -195,7 +195,7 @@ by the `selection` parameter. Always check whether the returned
 returned by this procedure.
 */
 
-process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
+process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
     return _process_info_by_pid(pid, selection, allocator)
 }
 
@@ -216,7 +216,7 @@ by the `selection` parameter. Always check whether the returned
 returned by this procedure.
 */
 
-process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
+process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
     return _process_info_by_handle(process, selection, allocator)
 }
 
@@ -236,7 +236,7 @@ by the `selection` parameter. Always check whether the returned
 returned by this procedure.
 */
 
-current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime.Allocator) -> (Process_Info, Error) {
+current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
     return _current_process_info(selection, allocator)
 }
 
@@ -247,7 +247,7 @@ This procedure frees the memory occupied by process info using the provided
 allocator. The allocator needs to be the same allocator that was supplied
 to the `process_info` function.
 */
-free_process_info :: proc(pi: Process_Info, allocator: runtime.Allocator) {
+free_process_info :: proc(pi: Process_Info, allocator: mem.Allocator) {
     _ = string_delete(pi.executable_path, allocator)
     _ = string_delete(pi.command_line, allocator)
     for a in pi.command_args {
@@ -372,7 +372,7 @@ returned. Make sure to call `delete` on these slices.
 
 process_exec :: proc(
     desc: Process_Desc,
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
     loc := #caller_location,
 ) -> (
     state: Process_State,

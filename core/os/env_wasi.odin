@@ -11,7 +11,7 @@ g_env_mutex: sync.RW_Mutex
 g_env_error: Error
 g_env_built: bool
 
-build_env :: proc(allocator: runtime.Allocator) -> (err: Error) {
+build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
     if g_env_built || g_env_error != nil {
         return g_env_error
     }
@@ -55,7 +55,7 @@ build_env :: proc(allocator: runtime.Allocator) -> (err: Error) {
     return
 }
 
-delete_string_if_not_original :: proc(str: string, allocator: runtime.Allocator) {
+delete_string_if_not_original :: proc(str: string, allocator: mem.Allocator) {
     start := uintptr(raw_data(g_env_buf))
     end   := start + uintptr(len(g_env_buf))
     ptr   := uintptr(raw_data(str))
@@ -65,7 +65,7 @@ delete_string_if_not_original :: proc(str: string, allocator: runtime.Allocator)
 }
 
 
-_lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
+_lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
     if err := build_env(); err != nil {
         return
     }
@@ -104,7 +104,7 @@ _lookup_env_buf :: proc(buf: []u8, key: string) -> (value: string, error: Error)
     }
 }
 
-_set_env :: proc(key, value: string, allocator: runtime.Allocator) -> (err: Error) {
+_set_env :: proc(key, value: string, allocator: mem.Allocator) -> (err: Error) {
     build_env() or_return
 
     sync.mutex_guard(&g_env_mutex)
@@ -144,7 +144,7 @@ _unset_env :: proc(key: string) -> bool {
     return true
 }
 
-_clear_env :: proc(allocator: runtime.Allocator) {
+_clear_env :: proc(allocator: mem.Allocator) {
     sync.mutex_guard(&g_env_mutex)
 
     for k, v in g_env {
@@ -161,7 +161,7 @@ _clear_env :: proc(allocator: runtime.Allocator) {
 }
 
 
-_environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
+_environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
     build_env() or_return
 
     sync.shared_guard(&g_env_mutex)

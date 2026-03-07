@@ -14,7 +14,7 @@ import "base:runtime"
 import "core:os"
 
 @(private)
-read_file :: proc(filename: string, allocator: runtime.Allocator) -> (data: []u8, err: Error) {
+read_file :: proc(filename: string, allocator: mem.Allocator) -> (data: []u8, err: Error) {
     file_data, file_err := os.read_entire_file(filename, allocator)
     if file_err != nil {
         return {}, .File_Error

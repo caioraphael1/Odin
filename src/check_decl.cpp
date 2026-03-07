@@ -1385,7 +1385,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
         return is_type_rawptr(p0) && is_type_rawptr(p1) && are_types_identical(p3, t_source_code_location);
     };
 
-    static char const *instrumentation_proc_type_str = "proc \"contextless\" (proc_address: rawptr, call_site_return_address: rawptr, loc: runtime.Source_Code_Location)";
+    static char const *instrumentation_proc_type_str = "proc \"contextless\" (proc_address: rawptr, call_site_return_address: rawptr, loc: internal.Source_Code_Location)";
 
     if (ac.instrumentation_enter && ac.instrumentation_exit) {
         error(e->token, "A procedure cannot be marked with both @(instrumentation_enter) and @(instrumentation_exit)");
@@ -1475,7 +1475,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
 
 
     if (e->pkg != nullptr && e->token.string == "main" && !build_context.no_entry_point) {
-        if (e->pkg->kind != Package_Runtime) {
+        if (e->pkg->kind != Package_Internal) {
             if (pt->param_count != 0 ||
                 pt->result_count != 0) {
                 gbString str = type_to_string(proc_type);
@@ -1595,7 +1595,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
                       "\tother at %s",
                       LIT(name), token_pos_to_string(pos));
             } else if (name == "main") {
-                if (d->entity.load()->pkg->kind != Package_Runtime) {
+                if (d->entity.load()->pkg->kind != Package_Internal) {
                     error(d->proc_lit, "The link name 'main' is reserved for internal use");
                 }
             } else {
@@ -1894,7 +1894,7 @@ gb_internal bool check_proc_body(CheckerContext *ctx_, Token token, DeclInfo *de
         decl->entity.load()->parent_proc_decl = decl->parent;
     }
 
-    if (ctx->pkg->name != "runtime") {
+    if (ctx->pkg->name != "internal") {
         switch (type->Proc.calling_convention) {
         case ProcCC_None:
             error(body, "Procedures with the calling convention \"none\" are not allowed a body");

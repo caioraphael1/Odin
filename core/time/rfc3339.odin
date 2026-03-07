@@ -2,7 +2,8 @@
 // See https://www.rfc-editor.org/rfc/rfc3339 for the definition
 
 import dt "core:time/datetime"
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 
 /*
 Parse an RFC 3339 string into time with a UTC offset applied to it.
@@ -202,7 +203,7 @@ The boolean `ok` is false if the `time` is not a valid datetime, or if allocatin
 - `include_nanos`: whether to include nanoseconds in the result.
 */
 
-time_to_rfc3339 :: proc(time: Time, utc_offset : int = 0, include_nanos := true, allocator: runtime.Allocator) -> (res: string, ok: bool) {
+time_to_rfc3339 :: proc(time: Time, utc_offset : int = 0, include_nanos := true, allocator: mem.Allocator) -> (res: string, ok: bool) {
     utc_offset := utc_offset
 
     // convert to datetime

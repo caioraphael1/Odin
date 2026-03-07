@@ -4,7 +4,7 @@
 
 import "core:os"
 import "core:strings"
-import "core:mem"
+import "base:mem"
 
 SEPARATOR_CHARS :: `/\`
 

@@ -11,7 +11,7 @@
 import "core:compress"
 
 import "base:intrinsics"
-import "core:mem"
+import "base:mem"
 import "core:io"
 import "core:hash"
 import "core:bytes"

@@ -1,4 +1,4 @@
-import "core:mem"
+import "base:mem"
 import "base:runtime"
 import "core:io"
 import "core:strconv"
@@ -91,7 +91,7 @@ to_string_allocated :: proc(
     loc := #caller_location,
 ) -> (
     str: string,
-    error: runtime.Allocator_Error,
+    error: mem.Allocator_Error,
 ) {
     buf := slice_create([]byte, EXPECTED_LENGTH, allocator, loc) or_return
     builder := strings.builder_from_bytes(buf[:])

@@ -1,10 +1,11 @@
 
 
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:strings"
 import "core:time"
 
-Fstat_Callback :: proc(f: ^File, allocator: runtime.Allocator) -> (File_Info, Error)
+Fstat_Callback :: proc(f: ^File, allocator: mem.Allocator) -> (File_Info, Error)
 
 /*
     `File_Info` describes a file and is returned from `stat`, `fstat`, and `lstat`.
@@ -24,26 +25,26 @@ File_Info :: struct {
 }
 
 
-file_info_clone :: proc(fi: File_Info, allocator: runtime.Allocator) -> (cloned: File_Info, err: runtime.Allocator_Error) {
+file_info_clone :: proc(fi: File_Info, allocator: mem.Allocator) -> (cloned: File_Info, err: mem.Allocator_Error) {
     cloned = fi
     cloned.fullpath = strings.clone(fi.fullpath, allocator) or_return
     _, cloned.name = split_path(cloned.fullpath)
     return
 }
 
-file_info_slice_delete :: proc(infos: []File_Info, allocator: runtime.Allocator) {
+file_info_slice_delete :: proc(infos: []File_Info, allocator: mem.Allocator) {
     #reverse for info in infos {
         file_info_delete(info, allocator)
     }
     _ = slice_delete(infos, allocator)
 }
 
-file_info_delete :: proc(fi: File_Info, allocator: runtime.Allocator) {
+file_info_delete :: proc(fi: File_Info, allocator: mem.Allocator) {
     _ = string_delete(fi.fullpath, allocator)
 }
 
 
-fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (File_Info, Error) {
+fstat :: proc(f: ^File, allocator: mem.Allocator) -> (File_Info, Error) {
     if f == nil {
         return {}, nil
     } else if f.stream.procedure != nil {
@@ -60,7 +61,7 @@ fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (File_Info, Error) {
     The resulting `File_Info` must be deleted with `file_info_delete`.
 */
 
-stat :: proc(name: string, allocator: runtime.Allocator) -> (File_Info, Error) {
+stat :: proc(name: string, allocator: mem.Allocator) -> (File_Info, Error) {
     return _stat(name, allocator)
 }
 
@@ -73,7 +74,7 @@ lstat :: stat_do_not_follow_links
     The resulting `File_Info` must be deleted with `file_info_delete`.
 */
 
-stat_do_not_follow_links :: proc(name: string, allocator: runtime.Allocator) -> (File_Info, Error) {
+stat_do_not_follow_links :: proc(name: string, allocator: mem.Allocator) -> (File_Info, Error) {
     return _lstat(name, allocator)
 }
 
@@ -96,8 +97,8 @@ last_write_time_by_name :: modification_time_by_path
 */
 
 modification_time :: proc(f: ^File) -> (time.Time, Error) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := fstat(f, runtime.temp_allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := fstat(f, internal.temp_allocator)
     return fi.modification_time, err
 }
 
@@ -107,8 +108,8 @@ modification_time :: proc(f: ^File) -> (time.Time, Error) {
 */
 
 modification_time_by_path :: proc(path: string) -> (time.Time, Error) {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := stat(path, runtime.temp_allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := stat(path, internal.temp_allocator)
     return fi.modification_time, err
 }
 

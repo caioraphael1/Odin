@@ -5,7 +5,7 @@ import "base:runtime"
 @(require)
 import "core:sys/posix"
 
-_temp_dir :: proc(allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) {
+_temp_dir :: proc(allocator: mem.Allocator) -> (string, mem.Allocator_Error) {
 	if tmp, ok := _lookup_env("TMPDIR", allocator); ok {
 		return tmp, nil
 	}

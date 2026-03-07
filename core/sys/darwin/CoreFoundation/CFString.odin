@@ -1,5 +1,5 @@
 import "core:c"
-import "core:mem"
+import "base:mem"
 
 foreign import CoreFoundation "system:CoreFoundation.framework"
 

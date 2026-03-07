@@ -4413,7 +4413,7 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
             struct {
                 data:      uintptr,           // 1 word
                 size:      uintptr,           // 1 word
-                allocator: runtime.Allocator, // 2 words
+                allocator: mem.Allocator, // 2 words
             }
         */
         return (1 + 1 + 2)*build_context.ptr_size;

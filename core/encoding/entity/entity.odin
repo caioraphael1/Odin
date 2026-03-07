@@ -320,7 +320,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
 
 
 
-unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (output: string, was_allocation: bool, err: runtime.Allocator_Error) {
+unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (output: string, was_allocation: bool, err: mem.Allocator_Error) {
 	
 	do_append :: proc(s: string, amp_idx: int, buf: ^[dynamic]byte) -> (n: int) {
 		s, amp_idx := s, amp_idx

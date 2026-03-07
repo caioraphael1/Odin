@@ -8,6 +8,6 @@
 
 import "base:runtime"
 
-_temp_dir :: proc(allocator: runtime.Allocator) -> (string, runtime.Allocator_Error) {
+_temp_dir :: proc(allocator: mem.Allocator) -> (string, mem.Allocator_Error) {
 	return "", .Mode_Not_Implemented
 }

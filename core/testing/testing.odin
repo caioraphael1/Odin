@@ -16,7 +16,7 @@ import "core:reflect"
 import "core:sync"
 import "core:sync/chan"
 import "core:time"
-import "core:mem"
+import "base:mem"
 
 _ :: reflect // alias reflect to nothing to force visibility for -vet
 _ :: mem     // in case TRACKING_MEMORY is not enabled
@@ -60,7 +60,7 @@ T :: struct {
     // This allocator is shared between the test runner and its threads for
     // cloning log strings, so they can outlive the lifetime of individual
     // tests during channel transmission.
-    _log_allocator: runtime.Allocator,
+    _log_allocator: mem.Allocator,
 
     _fail_now_called: bool,
 }

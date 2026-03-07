@@ -15,7 +15,7 @@ import "core:image"
 import "core:hash"
 import "core:bytes"
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "base:intrinsics"
 import "base:runtime"
 

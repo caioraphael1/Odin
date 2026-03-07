@@ -3,7 +3,7 @@ import "base:runtime"
 import "core:strings"
 import "core:sys/posix"
 
-_get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
+_get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
 	// OpenBSD does not have an API for this, we do our best below.
 
 	if len(runtime.args__) <= 0 {
@@ -11,7 +11,7 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
 		return
 	}
 
-	real :: proc(path: cstring, allocator: runtime.Allocator) -> (out: string, err: Error) {
+	real :: proc(path: cstring, allocator: mem.Allocator) -> (out: string, err: Error) {
 		real := posix.realpath(path)
 		if real == nil {
 			err = _get_platform_error()

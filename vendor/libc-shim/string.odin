@@ -3,7 +3,7 @@ import "base:intrinsics"
 
 import "core:c"
 import "core:strings"
-import "core:mem"
+import "base:mem"
 import "core:bytes"
 
 // NOTE: already defined by Odin.

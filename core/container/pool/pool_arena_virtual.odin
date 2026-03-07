@@ -7,12 +7,12 @@ _Pool_Arena :: virtual.Arena
 
 _DEFAULT_BLOCK_SIZE :: runtime.Gigabyte
 
-_pool_arena_init :: proc(arena: ^Pool_Arena, block_size: uint = DEFAULT_BLOCK_SIZE) -> (err: runtime.Allocator_Error) {
+_pool_arena_init :: proc(arena: ^Pool_Arena, block_size: uint = DEFAULT_BLOCK_SIZE) -> (err: mem.Allocator_Error) {
     virtual.arena_init_growing(arena, block_size) or_return
     return
 }
 
-_pool_arena_allocator :: proc(arena: ^Pool_Arena) -> runtime.Allocator {
+_pool_arena_allocator :: proc(arena: ^Pool_Arena) -> mem.Allocator {
     return virtual.arena_allocator(arena)
 }
 

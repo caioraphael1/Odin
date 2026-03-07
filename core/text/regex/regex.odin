@@ -7,7 +7,7 @@
 */
 
 import "base:runtime"
-import "core:mem"
+import "base:mem"
 import "core:text/regex/common"
 import "core:text/regex/compiler"
 import "core:text/regex/optimizer"
@@ -72,7 +72,7 @@ Match_Iterator :: struct {
     capture:  Capture,
     vm:       virtual_machine.Machine,
     idx:      int,
-    temp:     runtime.Allocator,
+    temp:     mem.Allocator,
     threads:  int,
     done:     bool,
 }
@@ -178,7 +178,7 @@ Returns:
 
 create_by_user :: proc(
     pattern: string,
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
 ) -> (result: Regular_Expression, err: Error) {
 
     if len(pattern) == 0 {
@@ -264,7 +264,7 @@ create_iterator :: proc(
     str:           string,
     pattern:       string,
     flags:         Flags = {},
-    allocator:     runtime.Allocator,
+    allocator:     mem.Allocator,
 ) -> (result: Match_Iterator, err: Error) {
     result.regex         = create(pattern, flags, allocator) or_return
     result.capture       = preallocate_capture(allocator)
@@ -297,7 +297,7 @@ Returns:
 match_and_allocate_capture :: proc(
     regex:         Regular_Expression,
     str:           string,
-    allocator:     runtime.Allocator,
+    allocator:     mem.Allocator,
 ) -> (capture: Capture, success: bool) {
 
     saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
@@ -531,7 +531,7 @@ Returns:
 - result: The `Capture` with the maximum number of groups allocated.
 */
 
-preallocate_capture :: proc(allocator: runtime.Allocator) -> (result: Capture) {
+preallocate_capture :: proc(allocator: mem.Allocator) -> (result: Capture) {
     result.pos   , _ = slice_create([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
     result.groups, _ = slice_create([]string, common.MAX_CAPTURE_GROUPS, allocator)
     return
@@ -546,7 +546,7 @@ Inputs:
 - regex: A regular expression.
 - allocator: 
 */
-destroy_regex :: proc(regex: Regular_Expression, allocator: runtime.Allocator) {
+destroy_regex :: proc(regex: Regular_Expression, allocator: mem.Allocator) {
     _ = slice_delete(regex.program, allocator)
     for data in regex.class_data {
         _ = slice_delete(data.runes, allocator)
@@ -564,7 +564,7 @@ Inputs:
 - capture: A `Capture`.
 - allocator:
 */
-destroy_capture :: proc(capture: Capture, allocator: runtime.Allocator) {
+destroy_capture :: proc(capture: Capture, allocator: mem.Allocator) {
     _ = slice_delete(capture.groups, allocator)
     _ = slice_delete(capture.pos, allocator)
 }
@@ -578,7 +578,7 @@ Inputs:
 - it: A `Match_Iterator`
 - allocator: 
 */
-destroy_iterator :: proc(it: Match_Iterator, allocator: runtime.Allocator) {
+destroy_iterator :: proc(it: Match_Iterator, allocator: mem.Allocator) {
     destroy_regex(it.regex, allocator)
     destroy_capture(it.capture, allocator)
     virtual_machine.destroy(it.vm, allocator)

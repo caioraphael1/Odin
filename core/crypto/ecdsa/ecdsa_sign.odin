@@ -12,7 +12,7 @@ import secec "core:crypto/_weierstrass"
 //
 // The signature format is ASN1. `SEQUECE `{ r INTEGER, s INTEGER }`.
 
-sign_asn1 :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg: []byte, allocator: runtime.Allocator, deterministic := !crypto.HAS_RAND_BYTES) -> ([]byte, bool) {
+sign_asn1 :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg: []byte, allocator: mem.Allocator, deterministic := !crypto.HAS_RAND_BYTES) -> ([]byte, bool) {
 	ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
 	ensure(priv_key._curve != .Invalid, "crypto/edsa: invalid curve")
 

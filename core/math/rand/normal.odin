@@ -1,4 +1,4 @@
-import "base:runtime"
+import "base:internal"
 import "core:math"
 
 
@@ -17,7 +17,7 @@ import "core:math"
 //    https://www.jstatsoft.org/article/view/v005i08 [web page]
 //
 
-norm_float64 :: proc(gen: runtime.Random_Generator) -> f64 {
+norm_float64 :: proc(gen: internal.Random_Generator) -> f64 {
     rn :: 3.442619855899
 
     @(static, rodata)

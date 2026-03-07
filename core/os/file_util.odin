@@ -1,6 +1,7 @@
 
 
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:strconv"
 import "core:unicode/utf8"
 
@@ -167,7 +168,7 @@ read_full :: proc(f: ^File, buf: []byte) -> (n: int, err: Error) {
     A slice of bytes and an error is returned, if any error is encountered.
 */
 
-read_entire_file_from_path :: proc(name: string, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
+read_entire_file_from_path :: proc(name: string, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
     f := open(name, allocator = allocator) or_return
     defer _ = close(f)
     return read_entire_file_from_file(f, allocator, loc)
@@ -178,7 +179,7 @@ read_entire_file_from_path :: proc(name: string, allocator: runtime.Allocator, l
     A slice of bytes and an error is returned, if any error is encountered.
 */
 
-read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
+read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
     size: int
     has_size := false
     if size64, serr := file_size(f); serr == nil {
@@ -231,7 +232,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: runtime.Allocator, loc :
     An error is returned if any is encountered.
 */
 
-write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: runtime.Allocator) -> Error {
+write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: mem.Allocator) -> Error {
     flags := O_WRONLY|O_CREATE
     if truncate {
         flags |= O_TRUNC
@@ -252,6 +253,6 @@ write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permiss
     An error is returned if any is encountered.
 */
 
-write_entire_file_from_string :: proc(name: string, data: string, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: runtime.Allocator) -> Error {
+write_entire_file_from_string :: proc(name: string, data: string, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: mem.Allocator) -> Error {
     return write_entire_file_from_bytes(name, transmute([]byte)data, perm, truncate, allocator)
 }

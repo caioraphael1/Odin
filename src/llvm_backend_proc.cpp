@@ -228,9 +228,9 @@ gb_internal lbProcedure *lb_create_procedure(lbModule *m, Entity *entity, bool i
         } else {
             LLVMSetLinkage(p->value, LLVMInternalLinkage);
 
-            // NOTE(bill): if a procedure is defined in package runtime and uses a custom link name,
+            // NOTE(bill): if a procedure is defined in package 'internal' and uses a custom link name,
             // then it is very likely it is required by LLVM and thus cannot have internal linkage
-            if (entity->pkg != nullptr && entity->pkg->kind == Package_Runtime && p->body != nullptr) {
+            if (entity->pkg != nullptr && entity->pkg->kind == Package_Internal && p->body != nullptr) {
                 GB_ASSERT(entity->kind == Entity_Procedure);
                 String link_name = entity->Procedure.link_name;
                 if (entity->flags & EntityFlag_CustomLinkName && 
@@ -290,7 +290,7 @@ gb_internal lbProcedure *lb_create_procedure(lbModule *m, Entity *entity, bool i
 
     // With LTO on all platforms, required procedures with external linkage need to be added to
     // llvm.used to survive linker-level dead code elimination. This is necessary because
-    // LLVM may generate implicit calls to runtime builtins (e.g., __extendhfsf2 for f16
+    // LLVM may generate implicit calls to internal builtins (e.g., __extendhfsf2 for f16
     // conversions) during instruction lowering, after the IR is finalized.
     if (build_context.lto_kind != LTO_None) {
         if (entity->flags & EntityFlag_Require) {
@@ -980,17 +980,17 @@ gb_internal lbValue lb_emit_call_internal(lbProcedure *p, lbValue value, lbValue
 }
 
 
-gb_internal lbValue lb_lookup_runtime_procedure(lbModule *m, String const &name) {
-    AstPackage *pkg = m->info->runtime_package;
+gb_internal lbValue lb_lookup_internal_procedure(lbModule *m, String const &name) {
+    AstPackage *pkg = m->info->internal_package;
     Entity *e = scope_lookup_current(pkg->scope, name);
     GB_ASSERT_MSG(e != nullptr, "Runtime procedure not found: %s", name);
     return lb_find_procedure_value_from_entity(m, e);
 }
 
 
-gb_internal lbValue lb_emit_runtime_call(lbProcedure *p, char const *c_name, Array<lbValue> const &args) {
+gb_internal lbValue lb_emit_internal_call(lbProcedure *p, char const *c_name, Array<lbValue> const &args) {
     String name = make_string_c(c_name);
-    lbValue proc = lb_lookup_runtime_procedure(p->module, name);
+    lbValue proc = lb_lookup_internal_procedure(p->module, name);
     return lb_emit_call(p, proc, args);
 }
 
@@ -2256,7 +2256,7 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
 
         auto args = array_make<lbValue>(permanent_allocator(), 1);
         args[0] = lb_build_expr(p, arg);
-        return lb_emit_runtime_call(p, "__type_info_of", args);
+        return lb_emit_internal_call(p, "__type_info_of", args);
     }
 
     case BuiltinProc_typeid_of: {
@@ -2607,9 +2607,9 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             auto args = array_make<lbValue>(permanent_allocator(), 1);
             args[0] = x;
             switch (sz) {
-            case 64:  return lb_emit_runtime_call(p, "abs_quaternion64", args);
-            case 128: return lb_emit_runtime_call(p, "abs_quaternion128", args);
-            case 256: return lb_emit_runtime_call(p, "abs_quaternion256", args);
+            case 64:  return lb_emit_internal_call(p, "__quaternion64_abs", args);
+            case 128: return lb_emit_internal_call(p, "__quaternion128_abs", args);
+            case 256: return lb_emit_internal_call(p, "__quaternion256_abs", args);
             }
             GB_PANIC("Unknown complex type");
         } else if (is_type_complex(t)) {
@@ -2617,9 +2617,9 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             auto args = array_make<lbValue>(permanent_allocator(), 1);
             args[0] = x;
             switch (sz) {
-            case 32:  return lb_emit_runtime_call(p, "abs_complex32",  args);
-            case 64:  return lb_emit_runtime_call(p, "abs_complex64",  args);
-            case 128: return lb_emit_runtime_call(p, "abs_complex128", args);
+            case 32:  return lb_emit_internal_call(p, "__complex32_abs",  args);
+            case 64:  return lb_emit_internal_call(p, "__complex64_abs",  args);
+            case 128: return lb_emit_internal_call(p, "__complex128_abs", args);
             }
             GB_PANIC("Unknown complex type");
         } else if (is_type_float(t)) {

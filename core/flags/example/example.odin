@@ -28,7 +28,7 @@ my_custom_type_setter :: proc(
 ) -> (
 	error: string,
 	handled: bool,
-	alloc_error: runtime.Allocator_Error,
+	alloc_error: mem.Allocator_Error,
 ) {
 	if data_type == Fixed_Point1_1 {
 		handled = true

@@ -4,7 +4,7 @@ import "base:runtime"
 import "core:c"
 import "core:sys/posix"
 
-_posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: runtime.Allocator) -> (path: cstring, err: Error) {
+_posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocator) -> (path: cstring, err: Error) {
 	// NOTE(Feoramund): The situation isn't ideal, but this was the best way I
 	// could find to implement this. There are a couple outstanding bug reports
 	// regarding the desire to retrieve an absolute path from a handle, but to

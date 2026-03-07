@@ -7,7 +7,7 @@
 */
 
 import "base:intrinsics"
-import "core:mem"
+import "base:mem"
 import "core:io"
 import "core:text/regex/common"
 import "core:text/regex/virtual_machine"

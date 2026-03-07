@@ -2,7 +2,7 @@
 import "core:image"
 import "core:bytes"
 import "core:compress"
-import "core:mem"
+import "base:mem"
 import "base:intrinsics"
 import "base:runtime"
 

@@ -1,4 +1,4 @@
-gb_internal GB_COMPARE_PROC(string_cmp) {
+gb_internal GB_COMPARE_PROC(__string_cmp) {
     String const &x = *(String *)a;
     String const &y = *(String *)b;
     return string_compare(x, y);
@@ -217,7 +217,7 @@ Array<String> cache_gather_files(Checker *c) {
         array_add(&files, cache->path);
     }
 
-    array_sort(files, string_cmp);
+    array_sort(files, __string_cmp);
 
     return files;
 }
@@ -253,7 +253,7 @@ Array<String> cache_gather_envs() {
         }
     #endif
     }
-    array_sort(envs, string_cmp);
+    array_sort(envs, __string_cmp);
     return envs;
 }
 

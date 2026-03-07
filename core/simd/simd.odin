@@ -19,7 +19,7 @@ This package implements procedures for working with vectors.
 */
 import "base:builtin"
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 /*
 Check if SIMD is software-emulated on a target platform.
@@ -29,7 +29,7 @@ at least 128-bit (or wider) SIMD. If the compile-time target lacks the hardware 
 for 128-bit SIMD, this value is `false`, and all SIMD operations will likely be
 emulated.
 */
-HAS_HARDWARE_SIMD :: runtime.HAS_HARDWARE_SIMD
+HAS_HARDWARE_SIMD :: internal.HAS_HARDWARE_SIMD
 
 /*
 Vector of 16 `u8` lanes (128 bits).
@@ -2441,7 +2441,7 @@ select :: intrinsics.simd_select
 /*
 Runtime Equivalent to Shuffle.
 
-Performs element-wise table lookups using runtime indices.
+Performs element-wise table lookups using internal indices.
 Each element in the indices vector selects an element from the table vector.
 The indices are automatically masked to prevent out-of-bounds access.
 

@@ -7,7 +7,7 @@
 */
 
 import "base:intrinsics"
-import "core:mem"
+import "base:mem"
 import "core:strconv"
 import "core:strings"
 import "core:text/regex/common"

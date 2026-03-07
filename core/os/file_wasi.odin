@@ -12,7 +12,7 @@ File_Impl :: struct {
     file:      File,
     name:      string,
     fd:        wasi.fd_t,
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
 }
 
 // WASI works with "preopened" directories, the environment retrieves directories
@@ -48,7 +48,7 @@ init_std_files :: proc() {
 }
 
 // @(init)
-init_preopens :: proc(allocator: runtime.Allocator) {
+init_preopens :: proc(allocator: mem.Allocator) {
     strip_prefixes :: proc(path: string) -> string {
         path := path
         loop: for len(path) > 0 {
@@ -78,7 +78,7 @@ init_preopens :: proc(allocator: runtime.Allocator) {
         }
     }
 
-    alloc_err: runtime.Allocator_Error
+    alloc_err: mem.Allocator_Error
     preopens, alloc_err = slice_create([]Preopen, n, allocator)
     if alloc_err != nil {
         print_error(stderr, alloc_err, "could not allocate memory for wasi preopens")
@@ -168,7 +168,7 @@ match_preopen :: proc(path: string) -> (wasi.fd_t, string, bool) {
     return match.fd, relative, true
 }
 
-_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     dir_fd, relative, ok := match_preopen(name)
     if !ok {
         return nil, .Invalid_Path
@@ -198,7 +198,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: run
     return _new_file(uintptr(fd), name, allocator)
 }
 
-_new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     if name == "" {
         err = .Invalid_Path
         return
@@ -220,7 +220,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -
     return &impl.file, nil
 }
 
-_clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Error) {
+_clone :: proc(f: ^File, allocator: mem.Allocator) -> (clone: ^File, err: Error) {
     if f == nil || f.impl == nil {
         return
     }
@@ -257,10 +257,10 @@ _close :: proc(f: ^File_Impl) -> (err: Error) {
 }
 
 _fd :: proc(f: ^File) -> uintptr {
-    return uintptr(__fd(f))
+    return uintptr(_fd_specific(f))
 }
 
-__fd :: proc(f: ^File) -> wasi.fd_t {
+_fd_specific :: proc(f: ^File) -> wasi.fd_t {
     if f != nil && f.impl != nil {
         return (^File_Impl)(f.impl).fd
     }
@@ -279,11 +279,11 @@ _name :: proc(f: ^File) -> string {
 }
 
 _sync :: proc(f: ^File) -> Error {
-    return _get_platform_error(wasi.fd_sync(__fd(f)))
+    return _get_platform_error(wasi.fd_sync(_fd_specific(f)))
 }
 
 _truncate :: proc(f: ^File, size: i64) -> Error {
-    return _get_platform_error(wasi.fd_filestat_set_size(__fd(f), wasi.filesize_t(size)))
+    return _get_platform_error(wasi.fd_filestat_set_size(_fd_specific(f), wasi.filesize_t(size)))
 }
 
 _remove :: proc(name: string) -> Error {
@@ -346,7 +346,7 @@ _symlink :: proc(old_name, new_name: string) -> Error {
     return _get_platform_error(wasi.path_symlink(src_relative, src_dir_fd, new_relative))
 }
 
-_read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, err: Error) {
+_read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: Error) {
     dir_fd, relative, ok := match_preopen(name)
     if !ok {
         return "", .Invalid_Path
@@ -410,7 +410,7 @@ _fchtimes :: proc(f: ^File, atime, mtime: time.Time) -> Error {
     _atime := wasi.timestamp_t(atime._nsec)
     _mtime := wasi.timestamp_t(mtime._nsec)
 
-    return _get_platform_error(wasi.fd_filestat_set_times(__fd(f), _atime, _mtime, {.ATIM, .MTIM}))
+    return _get_platform_error(wasi.fd_filestat_set_times(_fd_specific(f), _atime, _mtime, {.ATIM, .MTIM}))
 }
 
 _exists :: proc(path: string) -> bool {

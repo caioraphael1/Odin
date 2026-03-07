@@ -9,7 +9,7 @@ Based off the articles by rxi:
 
 import "base:runtime"
 import "core:time"
-import "core:mem"
+import "base:mem"
 import "core:strings"
 import "core:unicode/utf8"
 
@@ -29,7 +29,7 @@ State :: struct {
 	// undo
 	undo: [dynamic]^Undo_State,
 	redo: [dynamic]^Undo_State,
-	undo_text_allocator: runtime.Allocator,
+	undo_text_allocator: mem.Allocator,
 
 	id: u64, // useful for immediate mode GUIs
 
@@ -68,7 +68,7 @@ Translation :: enum u32 {
 // init the state to some timeout and set the respective allocators
 // - undo_state_allocator dictates the dynamic undo|redo arrays allocators
 // - undo_text_allocator is the allocator which allocates strings only
-init :: proc(s: ^State, undo_text_allocator, undo_state_allocator: runtime.Allocator, undo_timeout := DEFAULT_UNDO_TIMEOUT) {
+init :: proc(s: ^State, undo_text_allocator, undo_state_allocator: mem.Allocator, undo_timeout := DEFAULT_UNDO_TIMEOUT) {
 	s.undo_timeout = undo_timeout
 
 	// Used for allocating `Undo_State`

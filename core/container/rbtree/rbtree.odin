@@ -2,7 +2,7 @@
 @(require) import "base:intrinsics"
 @(require) import "base:runtime"
 import "core:slice"
-import "core:mem"
+import "base:mem"
 
 // Originally based on the CC0 implementation from literateprograms.org
 // But with API design mimicking `core:container/avl` for ease of use.
@@ -27,7 +27,7 @@ Tree :: struct($Key: typeid, $Value: typeid) {
     on_remove: proc(key: Key, value: Value, user_data: rawptr),
 
     _root:           ^Node(Key, Value),
-    _node_allocator: runtime.Allocator,
+    _node_allocator: mem.Allocator,
     _cmp_fn:         proc(Key, Key) -> Ordering,
     _size:           int,
 }
@@ -125,7 +125,7 @@ find_value :: proc(t: ^$T/Tree($Key, $Value), key: Key) -> (value: Value, ok: bo
 // find_or_insert attempts to insert the key-value pair into the tree, and returns
 // the node, a boolean indicating if a new node was inserted, and the
 // node allocator error if relevant. If the key is already present, the existing node is updated and returned.
-find_or_insert :: proc(t: ^$T/Tree($Key, $Value), key: Key, value: Value) -> (n: ^Node(Key, Value), inserted: bool, err: runtime.Allocator_Error) {
+find_or_insert :: proc(t: ^$T/Tree($Key, $Value), key: Key, value: Value) -> (n: ^Node(Key, Value), inserted: bool, err: mem.Allocator_Error) {
     n_ptr := &t._root
     for n_ptr^ != nil {
         n = n_ptr^

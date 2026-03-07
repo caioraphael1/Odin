@@ -649,7 +649,7 @@ token_text :: proc(s: ^Scanner) -> string {
 // token_string returns a printable string for a token or Unicode character
 // By default, it uses the runtime.temp_allocator to produce the string
 
-token_string :: proc(tok: rune, allocator: runtime.Allocator) -> string {
+token_string :: proc(tok: rune, allocator: mem.Allocator) -> string {
 	
 	switch tok {
 	case EOF:        return strings.clone("EOF")

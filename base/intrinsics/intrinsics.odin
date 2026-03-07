@@ -1,7 +1,7 @@
 // This is purely for documentation
 #+build ignore
 
-import "base:runtime"
+import "base:internal"
 
 // Package-Related
 is_package_imported :: proc(package_name: string) -> bool ---
@@ -107,7 +107,7 @@ and returns an integer count of the `T` between them.
 
 Example:
 
-    import "core:mem"
+    import "base:mem"
     import "core:fmt"
 
     ptr_sub_example :: proc() {
@@ -287,8 +287,8 @@ type_enum_is_contiguous :: proc($T: typeid) -> bool where type_is_enum(T) ---
 type_equal_proc  :: proc($T: typeid) -> (equal:  proc(rawptr, rawptr) -> bool)                 where type_is_comparable(T) ---
 type_hasher_proc :: proc($T: typeid) -> (hasher: proc(data: rawptr, seed: uintptr) -> uintptr) where type_is_comparable(T) ---
 
-type_map_info      :: proc($T: typeid/map[$K]$V) -> ^runtime.Map_Info ---
-type_map_cell_info :: proc($T: typeid)           -> ^runtime.Map_Cell_Info ---
+type_map_info      :: proc($T: typeid/map[$K]$V) -> ^internal.Map_Info ---
+type_map_cell_info :: proc($T: typeid)           -> ^internal.Map_Cell_Info ---
 
 type_convert_variants_to_pointers :: proc($T: typeid) -> typeid where type_is_union(T) ---
 type_merge :: proc($U, $V: typeid) -> typeid where type_is_union(U), type_is_union(V) ---
@@ -463,6 +463,6 @@ objc_super             :: proc(obj: ^$T) -> ^$U where type_is_subtype_of(T, objc
 
 valgrind_client_request :: proc(default: uintptr, request: uintptr, a0, a1, a2, a3, a4: uintptr) -> uintptr ---
 
-// Internal compiler use only
 
+// Internal compiler use only
 __entry_point :: proc() ---

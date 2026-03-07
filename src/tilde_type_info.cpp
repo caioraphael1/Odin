@@ -380,7 +380,7 @@ gb_internal void cg_setup_type_info_data(cgModule *m) {
     i64 global_type_info_data_entity_count = 0;
 
     // NOTE(bill): Set the type_table slice with the global backing array
-    TB_Global *type_table_slice = cast(TB_Global *)cg_find_symbol_from_entity(m, scope_lookup_current(m->info->runtime_package->scope, str_lit("type_table")));
+    TB_Global *type_table_slice = cast(TB_Global *)cg_find_symbol_from_entity(m, scope_lookup_current(m->info->internal_package->scope, str_lit("type_table")));
     GB_ASSERT(type_table_slice != nullptr);
 
     TB_Global *type_table_array = cast(TB_Global *)cg_find_symbol_from_entity(m, cg_global_type_info_data_entity);

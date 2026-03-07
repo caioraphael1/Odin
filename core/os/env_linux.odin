@@ -44,7 +44,7 @@ when ODIN_NO_CRT {
         return "", -1
     }
 
-    _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
+    _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
@@ -56,7 +56,7 @@ when ODIN_NO_CRT {
         return
     }
 
-    _lookup_env_buf :: proc(buf: []u8, key: string, allocator: runtime.Allocator) -> (value: string, err: Error) {
+    _lookup_env_buf :: proc(buf: []u8, key: string, allocator: mem.Allocator) -> (value: string, err: Error) {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
@@ -71,7 +71,7 @@ when ODIN_NO_CRT {
         return "", .Env_Var_Not_Found
     }
 
-    _set_env :: proc(key, v_new: string, allocator: runtime.Allocator) -> Error {
+    _set_env :: proc(key, v_new: string, allocator: mem.Allocator) -> Error {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
@@ -121,7 +121,7 @@ when ODIN_NO_CRT {
         return nil
     }
 
-    _unset_env :: proc(key: string, allocator: runtime.Allocator) -> bool {
+    _unset_env :: proc(key: string, allocator: mem.Allocator) -> bool {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
@@ -161,7 +161,7 @@ when ODIN_NO_CRT {
         _org_env_end = ~uintptr(0)
     }
 
-    _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
+    _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             _build_env(allocator)
         }
@@ -185,7 +185,7 @@ when ODIN_NO_CRT {
 
     // The entire environment is stored as 0 terminated strings,
     // so there is no need to clone/free individual variables
-    export_cstring_environment :: proc(allocator: runtime.Allocator) -> []cstring {
+    export_cstring_environment :: proc(allocator: mem.Allocator) -> []cstring {
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) == 0 {
             // The environment has not been modified, so we can just
             // send the original environment
@@ -205,7 +205,7 @@ when ODIN_NO_CRT {
         return env
     }
 
-    _build_env :: proc(allocator: runtime.Allocator) {
+    _build_env :: proc(allocator: mem.Allocator) {
         sync.mutex_guard(&_env_mutex)
         if intrinsics.atomic_load_explicit(&_org_env_begin, .Acquire) != 0 {
             return
@@ -250,7 +250,7 @@ when ODIN_NO_CRT {
 
 } else {
 
-    _lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
+    _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
         if key == "" {
             return
         }
@@ -329,7 +329,7 @@ when ODIN_NO_CRT {
         }
     }
 
-    _environ :: proc(allocator: runtime.Allocator) -> (environ: []string, err: Error) {
+    _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
         n := 0
         for entry := posix.environ[0]; entry != nil; n, entry = n+1, posix.environ[n] {}
 
@@ -351,7 +351,7 @@ when ODIN_NO_CRT {
 
 
 
-    export_cstring_environment :: proc(allocator: runtime.Allocator) -> []cstring {
+    export_cstring_environment :: proc(allocator: mem.Allocator) -> []cstring {
         env := dyn_array_create([dynamic]cstring, allocator)
         for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
             _ = dyn_array_append(&env, entry)

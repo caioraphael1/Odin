@@ -2,7 +2,8 @@
 
 import "core:io"
 import "core:time"
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 
 /*
     Type representing a file handle.
@@ -145,7 +146,7 @@ stderr: ^File = nil // OS-Specific
     And error is returned if any is encountered.
 */
 
-create :: proc(name: string, allocator: runtime.Allocator) -> (^File, Error) {
+create :: proc(name: string, allocator: mem.Allocator) -> (^File, Error) {
     return open(name, {.Read, .Write, .Create, .Trunc}, Permissions_Default_File, allocator = allocator)
 }
 
@@ -157,7 +158,7 @@ create :: proc(name: string, allocator: runtime.Allocator) -> (^File, Error) {
     And error is returned if any is encountered.
 */
 
-open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Default, allocator: runtime.Allocator) -> (^File, Error) {
+open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Default, allocator: mem.Allocator) -> (^File, Error) {
     return _open(name, flags, perm, allocator)
 }
 
@@ -174,7 +175,7 @@ open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Defau
     The return value will only be `nil` IF the `handle` is not a valid file descriptor.
 */
 
-new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) -> ^File {
+new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> ^File {
     file, err := _new_file(handle, name, allocator)
     if err != nil {
         panic(error_string(err))
@@ -186,7 +187,7 @@ new_file :: proc(handle: uintptr, name: string, allocator: runtime.Allocator) ->
     `clone` returns a new `^File` based on the passed file `f` with the same underlying file descriptor.
 */
 
-clone :: proc(f: ^File, allocator: runtime.Allocator) -> (^File, Error) {
+clone :: proc(f: ^File, allocator: mem.Allocator) -> (^File, Error) {
     return _clone(f, allocator)
 }
 
@@ -217,7 +218,7 @@ close :: proc(f: ^File) -> Error {
         if f.stream.procedure == nil {
             return .Unsupported
         }
-        _, err := f.stream.procedure(f, .Close, nil, 0, nil, runtime.nil_allocator())
+        _, err := f.stream.procedure(f, .Close, nil, 0, nil, internal.nil_allocator())
         return err
     }
     return nil
@@ -238,7 +239,7 @@ seek :: proc(f: ^File, offset: i64, whence: io.Seek_From) -> (ret: i64, err: Err
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
-        return f.stream.procedure(f, .Seek, nil, offset, whence, runtime.nil_allocator())
+        return f.stream.procedure(f, .Seek, nil, offset, whence, internal.nil_allocator())
     }
     return 0, .Invalid_File
 }
@@ -254,7 +255,7 @@ read :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Read, p, 0, nil, runtime.nil_allocator())
+        n64, err = f.stream.procedure(f, .Read, p, 0, nil, internal.nil_allocator())
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -272,7 +273,7 @@ read_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Read_At, p, offset, nil, runtime.nil_allocator())
+        n64, err = f.stream.procedure(f, .Read_At, p, offset, nil, internal.nil_allocator())
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -289,7 +290,7 @@ write :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Write, p, 0, nil, runtime.nil_allocator())
+        n64, err = f.stream.procedure(f, .Write, p, 0, nil, internal.nil_allocator())
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -306,7 +307,7 @@ write_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: int, err: Error) {
             return 0, .Unsupported
         }
         n64: i64
-        n64, err = f.stream.procedure(f, .Write_At, p, offset, nil, runtime.nil_allocator())
+        n64, err = f.stream.procedure(f, .Write_At, p, offset, nil, internal.nil_allocator())
         return int(n64), err
     }
     return 0, .Invalid_File
@@ -320,7 +321,7 @@ file_size :: proc(f: ^File) -> (n: i64, err: Error) {
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
-        n, err = f.stream.procedure(f, .Size, nil, 0, nil, runtime.nil_allocator())
+        n, err = f.stream.procedure(f, .Size, nil, 0, nil, internal.nil_allocator())
         if err == .Unsupported {
             n = 0
             curr := seek(f, 0, .Current) or_return
@@ -341,7 +342,7 @@ flush :: proc(f: ^File) -> Error {
         if f.stream.procedure == nil {
             return .Unsupported
         }
-        _, err := f.stream.procedure(f, .Flush, nil, 0, nil, runtime.nil_allocator())
+        _, err := f.stream.procedure(f, .Flush, nil, 0, nil, internal.nil_allocator())
         return err
     }
     return nil
@@ -395,7 +396,7 @@ symlink :: proc(old_name, new_name: string) -> Error {
 /*
     `read_link` returns the destinction of the named symbolic link `name`.
 */
-read_link :: proc(name: string, allocator: runtime.Allocator) -> (string, Error) {
+read_link :: proc(name: string, allocator: mem.Allocator) -> (string, Error) {
     return _read_link(name,allocator)
 }
 
@@ -419,7 +420,7 @@ chmod :: change_mode
     the file has a read-only attribute. Use `{.Read_User}` for a read-only file and
     `{.Read_User, .Write_User}` for a readable & writable file.
 */
-change_mode :: proc(name: string, mode: Permissions, allocator: runtime.Allocator) -> Error {
+change_mode :: proc(name: string, mode: Permissions, allocator: mem.Allocator) -> Error {
     return _chmod(name, mode, allocator)
 }
 
@@ -483,7 +484,7 @@ chtimes :: change_times
 /*
     Changes the access `atime` and modification `mtime` times of a named file.
 */
-change_times :: proc(name: string, atime, mtime: time.Time, allocator: runtime.Allocator) -> Error {
+change_times :: proc(name: string, atime, mtime: time.Time, allocator: mem.Allocator) -> Error {
     return _chtimes(name, atime, mtime, allocator)
 }
 
@@ -509,8 +510,8 @@ exists :: proc(path: string) -> bool {
 */
 
 is_file :: proc(path: string) -> bool {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := stat(path, runtime.temp_allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := stat(path, internal.temp_allocator)
     if err != nil {
         return false
     }
@@ -524,8 +525,8 @@ is_dir :: is_directory
 */
 
 is_directory :: proc(path: string) -> bool {
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD()
-    fi, err := stat(path, runtime.temp_allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD()
+    fi, err := stat(path, internal.temp_allocator)
     if err != nil {
         return false
     }
@@ -540,7 +541,7 @@ is_tty :: proc(f: ^File) -> bool {
     return _is_tty(f)
 }
 
-copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> Error {
+copy_file :: proc(dst_path, src_path: string, allocator: mem.Allocator) -> Error {
     when #defined(_copy_file_native) {
         return _copy_file_native(dst_path, src_path)
     } else {
@@ -549,7 +550,7 @@ copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> E
 }
 
 @(private)
-_copy_file :: proc(dst_path, src_path: string, allocator: runtime.Allocator) -> Error {
+_copy_file :: proc(dst_path, src_path: string, allocator: mem.Allocator) -> Error {
     src := open(src_path, allocator = allocator) or_return
     defer _ = close(src)
 

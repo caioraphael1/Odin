@@ -3,7 +3,7 @@ import "base:runtime"
 
 import "core:bytes"
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:reflect"
 import "core:slice"
 import "core:strconv"

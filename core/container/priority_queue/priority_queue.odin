@@ -21,7 +21,7 @@ default_swap_proc :: proc($T: typeid) -> proc(q: []T, i, j: int) {
 	}
 }
 
-init :: proc(pq: ^$Q/Priority_Queue($T), less: proc(a, b: T) -> bool, swap: proc(q: []T, i, j: int), capacity := DEFAULT_CAPACITY, allocator: runtime.Allocator) -> (err: runtime.Allocator_Error) {
+init :: proc(pq: ^$Q/Priority_Queue($T), less: proc(a, b: T) -> bool, swap: proc(q: []T, i, j: int), capacity := DEFAULT_CAPACITY, allocator: mem.Allocator) -> (err: mem.Allocator_Error) {
 	if pq.queue.allocator.procedure == nil {
 		pq.queue.allocator = allocator
 	}
@@ -46,7 +46,7 @@ destroy :: proc(pq: ^$Q/Priority_Queue($T)) {
     _ = slice_delete(pq.queue)
 }
 
-reserve :: proc(pq: ^$Q/Priority_Queue($T), capacity: int) -> (err: runtime.Allocator_Error) {
+reserve :: proc(pq: ^$Q/Priority_Queue($T), capacity: int) -> (err: mem.Allocator_Error) {
     return builtin.dyn_array_reserve(&pq.queue, capacity)
 }
 clear :: proc(pq: ^$Q/Priority_Queue($T)) {
@@ -108,7 +108,7 @@ fix :: proc(pq: ^$Q/Priority_Queue($T), i: int) {
 	}
 }
 
-push :: proc(pq: ^$Q/Priority_Queue($T), value: T) -> (err: runtime.Allocator_Error) {
+push :: proc(pq: ^$Q/Priority_Queue($T), value: T) -> (err: mem.Allocator_Error) {
 	dyn_array_append(&pq.queue, value) or_return
 	_shift_up(pq, builtin.len(pq.queue)-1)
 	return .None

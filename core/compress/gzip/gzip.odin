@@ -18,7 +18,7 @@ import "core:os"
 import "core:io"
 import "core:bytes"
 import "core:hash"
-import "core:mem"
+import "base:mem"
 
 Magic :: enum u16le {
     GZIP = 0x8b << 8 | 0x1f,

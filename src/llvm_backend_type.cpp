@@ -445,7 +445,7 @@ gb_internal void lb_setup_type_info_data_giant_array(lbModule *m, i64 global_typ
                 tag_type = t_type_info_integer;
 
                 lbValue is_signed = lb_const_bool(m, t_bool, (t->Basic.flags & BasicFlag_Unsigned) == 0);
-                // NOTE(bill): This is matches the runtime layout
+                // NOTE(bill): This is matches the 'internal' layout
                 u8 endianness_value = 0;
                 if (t->Basic.flags & BasicFlag_EndianLittle) {
                     endianness_value = 1;
@@ -479,7 +479,7 @@ gb_internal void lb_setup_type_info_data_giant_array(lbModule *m, i64 global_typ
                 {
                     tag_type = t_type_info_float;
 
-                    // NOTE(bill): This is matches the runtime layout
+                    // NOTE(bill): This is matches the 'internal' layout
                     u8 endianness_value = 0;
                     if (t->Basic.flags & BasicFlag_EndianLittle) {
                         endianness_value = 1;
@@ -1100,7 +1100,7 @@ gb_internal void lb_setup_type_info_data(lbModule *m) { // NOTE(bill): Setup typ
     i64 global_type_info_data_entity_count = 0;
 
     // NOTE(bill): Set the type_table slice with the global backing array
-    lbValue global_type_table = lb_find_runtime_value(m, str_lit("type_table"));
+    lbValue global_type_table = lb_find_internal_value(m, str_lit("type_table"));
     Type *type = base_type(lb_global_type_info_data_entity->type);
     GB_ASSERT(type->kind == Type_Array);
     global_type_info_data_entity_count = type->Array.count;

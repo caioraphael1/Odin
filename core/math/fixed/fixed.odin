@@ -1,9 +1,13 @@
-// Fixed-point rational numbers and conversion to/from `f64`.
-import "core:math"
-import "base:runtime"
-import "core:strconv"
-import "base:intrinsics"
-_, _, _ :: intrinsics, strconv, math
+/* 
+Fixed-point rational numbers and conversion to/from `f64`.
+Example:
+    3/2
+    5/10000
+*/
+import "base:internal"
+@(require) import "core:math"
+@(require) import "core:strconv"
+@(require) import "base:intrinsics"
 
 Fixed :: struct($Backing: typeid, $Fraction_Width: uint)
     where
@@ -153,7 +157,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
 
 
 
-to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator: runtime.Allocator) -> string {
+to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator: mem.Allocator) -> string {
     buf: [48]byte
     s := write(buf[:], x)
     str := slice_create([]byte, len(s), allocator)

@@ -3,7 +3,7 @@
 import "base:runtime"
 
 import "core:log"
-import "core:mem"
+import "base:mem"
 import "core:math"
 import "core:strings"
 import "core:slice"

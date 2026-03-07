@@ -23,7 +23,7 @@
 @(require) import "base:runtime"
 import "core:bufio"
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:strings"
 import "core:time"
 

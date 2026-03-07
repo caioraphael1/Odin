@@ -1209,12 +1209,12 @@ gb_internal void check_switch_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags
 
                 if (is_type_string16(x.type)) {
                     // NOTE(bill): Force dependency for strings here
-                    add_package_dependency(ctx, "runtime", "string16_le");
-                    add_package_dependency(ctx, "runtime", "string16_lt");
+                    add_package_dependency(ctx, "internal", "__string16_le");
+                    add_package_dependency(ctx, "internal", "__string16_lt");
                 } else if (is_type_string(x.type)) {
                     // NOTE(bill): Force dependency for strings here
-                    add_package_dependency(ctx, "runtime", "string_le");
-                    add_package_dependency(ctx, "runtime", "string_lt");
+                    add_package_dependency(ctx, "internal", "__string_le");
+                    add_package_dependency(ctx, "internal", "__string_lt");
                 }
 
             } else {
@@ -1757,18 +1757,18 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                     array_add(&vals, t_rune);
                     array_add(&vals, t_int);
                     if (is_reverse) {
-                        add_package_dependency(ctx, "runtime", "string16_decode_last_rune");
+                        add_package_dependency(ctx, "internal", "__string16_decode_last_rune");
                     } else {
-                        add_package_dependency(ctx, "runtime", "string16_decode_rune");
+                        add_package_dependency(ctx, "internal", "__string16_decode_rune");
                     }
                 } else if (t->Basic.kind == Basic_string || t->Basic.kind == Basic_UntypedString) {
                     is_possibly_addressable = false;
                     array_add(&vals, t_rune);
                     array_add(&vals, t_int);
                     if (is_reverse) {
-                        add_package_dependency(ctx, "runtime", "string_decode_last_rune");
+                        add_package_dependency(ctx, "internal", "__string_decode_last_rune");
                     } else {
-                        add_package_dependency(ctx, "runtime", "string_decode_rune");
+                        add_package_dependency(ctx, "internal", "__string_decode_rune");
                     }
                 }
                 break;

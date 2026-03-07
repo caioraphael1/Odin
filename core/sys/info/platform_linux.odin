@@ -6,7 +6,7 @@ import "core:strings"
 import "core:sys/linux"
 
 @(private)
-_os_version :: proc (allocator: runtime.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
+_os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
 	res.platform = .Linux
 
 	b := strings.builder_make_none(allocator = allocator, loc = loc)

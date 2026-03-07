@@ -1,4 +1,5 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:container/queue"
 
 /*
@@ -16,7 +17,7 @@ Walker :: struct {
     iter: Read_Directory_Iterator,
 }
 
-walker_init_path :: proc(w: ^Walker, path: string, allocator: runtime.Allocator) {
+walker_init_path :: proc(w: ^Walker, path: string, allocator: mem.Allocator) {
     cloned_path, err := clone_string(path, allocator)
     if err != nil {
         walker_set_error(w, path, err)
@@ -31,7 +32,7 @@ walker_init_path :: proc(w: ^Walker, path: string, allocator: runtime.Allocator)
     }
 }
 
-walker_init_file :: proc(w: ^Walker, f: ^File, allocator: runtime.Allocator) {
+walker_init_file :: proc(w: ^Walker, f: ^File, allocator: mem.Allocator) {
     handle, err := clone(f, allocator)
     if err != nil {
         path, _ := clone_string(name(f), allocator)
@@ -45,13 +46,13 @@ walker_init_file :: proc(w: ^Walker, f: ^File, allocator: runtime.Allocator) {
 }
 
 
-walker_create_path :: proc(path: string, allocator: runtime.Allocator) -> (w: Walker) {
+walker_create_path :: proc(path: string, allocator: mem.Allocator) -> (w: Walker) {
     walker_init_path(&w, path, allocator)
     return
 }
 
 
-walker_create_file :: proc(f: ^File, allocator: runtime.Allocator) -> (w: Walker) {
+walker_create_file :: proc(f: ^File, allocator: mem.Allocator) -> (w: Walker) {
     walker_init_file(&w, f, allocator)
     return
 }
@@ -80,7 +81,7 @@ walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
 }
 
 @(private)
-walker_clear :: proc(w: ^Walker, allocator: runtime.Allocator) {
+walker_clear :: proc(w: ^Walker, allocator: mem.Allocator) {
     w.iter.f = nil
     w.skip_dir = false
 
@@ -93,7 +94,7 @@ walker_clear :: proc(w: ^Walker, allocator: runtime.Allocator) {
     }
 }
 
-walker_destroy :: proc(w: ^Walker, allocator: runtime.Allocator) {
+walker_destroy :: proc(w: ^Walker, allocator: mem.Allocator) {
     walker_clear(w, allocator)
     queue.destroy(&w.todo)
     _ = dyn_array_delete(w.err.path)
@@ -152,7 +153,7 @@ Example:
     }
 */
 
-walker_walk :: proc(w: ^Walker, allocator: runtime.Allocator) -> (fi: File_Info, ok: bool) {
+walker_walk :: proc(w: ^Walker, allocator: mem.Allocator) -> (fi: File_Info, ok: bool) {
     if w.skip_dir {
         w.skip_dir = false
         if skip, sok := queue.pop_back_safe(&w.todo); sok {

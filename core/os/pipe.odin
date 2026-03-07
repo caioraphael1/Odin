@@ -1,4 +1,5 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 
 /*
 Create an anonymous pipe.
@@ -21,8 +22,8 @@ request. The other scenario is when a pipe has no data because the other end
 of the pipe was closed by the child process.
 */
 
-pipe :: proc(allocator: runtime.Allocator) -> (r, w: ^File, err: Error) {
-	return _pipe(allocator)
+pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
+    return _pipe(allocator)
 }
 
 /*
@@ -39,5 +40,5 @@ can be returned by this procedure. Handle these errors accordingly.
 */
 
 pipe_has_data :: proc(r: ^File) -> (ok: bool, err: Error) {
-	return _pipe_has_data(r)
+    return _pipe_has_data(r)
 }

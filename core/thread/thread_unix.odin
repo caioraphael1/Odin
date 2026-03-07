@@ -16,8 +16,8 @@ Thread_Os_Specific :: struct #align(16) {
 // Creates a thread which will run the given procedure.
 // It then waits for `start` to be called.
 //
-_create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: runtime.Allocator) -> ^Thread {
-    __unix_thread_entry_proc :: proc "c" (t: rawptr) -> rawptr {
+_create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: mem.Allocator) -> ^Thread {
+    _unix_thread_entry_proc :: proc "c" (t: rawptr) -> rawptr {
         t := (^Thread)(t)
 
         t.id = sync.current_thread_id()

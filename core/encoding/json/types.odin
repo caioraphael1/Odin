@@ -92,7 +92,7 @@ Error :: enum {
 
 
 
-destroy_value :: proc(value: Value, allocator: runtime.Allocator, loc := #caller_location) {
+destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_location) {
     #partial switch v in value {
     case Object:
         for key, elem in v {
@@ -110,7 +110,7 @@ destroy_value :: proc(value: Value, allocator: runtime.Allocator, loc := #caller
     }
 }
 
-clone_value :: proc(value: Value, allocator: runtime.Allocator) -> Value {
+clone_value :: proc(value: Value, allocator: mem.Allocator) -> Value {
     #partial switch &v in value {
     case Object:
         new_o, _ := map_create_cap(Object, len(v), allocator)

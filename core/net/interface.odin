@@ -19,7 +19,7 @@
 */
 
 import "core:strings"
-import "core:mem"
+import "base:mem"
 
 MAX_INTERFACE_ENUMERATION_TRIES :: 3
 

@@ -32,7 +32,7 @@ Pool :: struct($T: typeid) {
 }
 
 
-init :: proc(p: ^Pool($T), $link_field: string, block_size: uint = DEFAULT_BLOCK_SIZE) -> (err: runtime.Allocator_Error)
+init :: proc(p: ^Pool($T), $link_field: string, block_size: uint = DEFAULT_BLOCK_SIZE) -> (err: mem.Allocator_Error)
     where intrinsics.type_has_field(T, link_field),
           intrinsics.type_field_type(T, link_field) == ^T {
     p.link_off = offset_of_by_string(T, link_field)
@@ -57,7 +57,7 @@ destroy :: proc(p: ^Pool($T)) {
 }
 
 
-get :: proc(p: ^Pool($T)) -> (elem: ^T, err: runtime.Allocator_Error) {
+get :: proc(p: ^Pool($T)) -> (elem: ^T, err: mem.Allocator_Error) {
     defer sync.atomic_add_explicit(&p.num_outstanding, 1, .Relaxed)
 
     for {

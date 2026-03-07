@@ -260,7 +260,7 @@ struct OdinDocEntity {
 
 enum OdinDocPkgFlags : u32 {
     OdinDocPkgFlag_Builtin = 1<<0,
-    OdinDocPkgFlag_Runtime = 1<<1,
+    OdinDocPkgFlag_Internal = 1<<1,
     OdinDocPkgFlag_Init    = 1<<2,
 };
 

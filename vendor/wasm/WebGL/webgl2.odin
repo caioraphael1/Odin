@@ -124,7 +124,7 @@ GetActiveUniformBlockNameBuf :: proc(program: Program, uniformBlockIndex: i32, b
     return string(buf[:n])  
 }
 
-GetActiveUniformBlockNameAlloc :: proc(program: Program, uniformBlockIndex: i32, allocator: runtime.Allocator, loc := #caller_location) -> string {
+GetActiveUniformBlockNameAlloc :: proc(program: Program, uniformBlockIndex: i32, allocator: mem.Allocator, loc := #caller_location) -> string {
     foreign webgl2 {
         @(link_name="GetActiveUniformBlockName")
         _GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []byte, length: ^int) ---

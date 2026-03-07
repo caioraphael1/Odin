@@ -286,7 +286,7 @@ GetActiveAttribBuf :: proc(program: Program, index: u32, name_buf: []byte) -> (i
     return
 }
 
-GetActiveAttribAlloc :: proc(program: Program, index: u32, allocator: runtime.Allocator, loc := #caller_location) -> (info: ActiveInfo) {
+GetActiveAttribAlloc :: proc(program: Program, index: u32, allocator: mem.Allocator, loc := #caller_location) -> (info: ActiveInfo) {
     foreign webgl {
         @(link_name="GetActiveAttrib")
         _GetActiveAttrib :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []byte, name_len: ^int) ---
@@ -318,7 +318,7 @@ GetActiveUniformBuf :: proc(program: Program, index: u32, name_buf: []byte) -> (
     return
 }
 
-GetActiveUniformAlloc :: proc(program: Program, index: u32, allocator: runtime.Allocator, loc := #caller_location) -> (info: ActiveInfo) {
+GetActiveUniformAlloc :: proc(program: Program, index: u32, allocator: mem.Allocator, loc := #caller_location) -> (info: ActiveInfo) {
     foreign webgl {
         @(link_name="GetActiveUniform")
         _GetActiveUniform :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []byte, name_len: ^int) ---

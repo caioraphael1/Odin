@@ -2,7 +2,7 @@ import "base:intrinsics"
 import "base:runtime"
 
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:reflect"
 import "core:strings"
 import "core:unicode/utf8"
@@ -449,7 +449,8 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
                 if !growable { return true, .Out_Of_Memory }
 
                 cap := 2 * da.cap
-                ok := runtime.__dynamic_array_reserve(da, elemt.size, elemt.align, cap, loc)
+
+                ok := runtime._dyn_array_reserve((^Raw_Dynamic_Array)da, elemt.size, elemt.align, cap, false, loc)
                 
                 // NOTE: Might be lying here, but it is at least an allocator error.
                 if !ok { return false, .Out_Of_Memory }
@@ -484,7 +485,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         length, scap := err_conv(_decode_len_container(d, add)) or_return
 
         data := runtime.mem_alloc_non_zeroed(t.elem.size * scap, t.elem.align, allocator=allocator, loc=loc) or_return
-        defer if err != nil { _ = runtime.mem_free_bytes(data, allocator=allocator, loc=loc) }
+        defer if err != nil { _ = mem.free_bytes(data, allocator=allocator, loc=loc) }
 
         da := mem.Raw_Dynamic_Array{raw_data(data), 0, scap, /* context.allocator */ }
 
@@ -492,7 +493,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         if .Shrink_Excess in d.flags {
             // Ignoring an error here, but this is not critical to succeed.
-            _ = runtime.__dynamic_array_shrink(&da, t.elem.size, t.elem.align, da.len, loc=loc)
+            _ = runtime._dyn_array_shrink((^Raw_Dynamic_Array)(&da), t.elem.size, t.elem.align, da.len, loc=loc)
         }
 
         raw      := (^mem.Raw_Slice)(v.data)
@@ -504,7 +505,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         length, scap := err_conv(_decode_len_container(d, add)) or_return
 
         data := runtime.mem_alloc_non_zeroed(t.elem.size * scap, t.elem.align, loc=loc) or_return
-        defer if err != nil { _ = runtime.mem_free_bytes(data, allocator=allocator, loc=loc) }
+        defer if err != nil { _ = mem.free_bytes(data, allocator=allocator, loc=loc) }
 
         raw           := (^mem.Raw_Dynamic_Array)(v.data)
         raw.data       = raw_data(data) 
@@ -516,7 +517,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         if .Shrink_Excess in d.flags {
             // Ignoring an error here, but this is not critical to succeed.
-            _ = runtime.__dynamic_array_shrink(raw, t.elem.size, t.elem.align, raw.len, loc=loc)
+            _ = runtime._dyn_array_shrink((^Raw_Dynamic_Array)raw, t.elem.size, t.elem.align, raw.len, loc=loc)
         }
         return
 
@@ -754,7 +755,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
             mem.zero_slice(elem_backing)
             _unmarshal_value(d, map_backing_value, _decode_header(r) or_return) or_return
 
-            set_ptr := runtime.__dynamic_map_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)
+            set_ptr := runtime.dynamic_map_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)
             // We already reserved space for it, so this shouldn't fail.
             assert(set_ptr != nil)
         }

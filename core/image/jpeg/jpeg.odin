@@ -2,7 +2,7 @@
 import "core:bytes"
 import "core:compress"
 import "core:math"
-import "core:mem"
+import "base:mem"
 import "core:image"
 import "core:slice"
 import "core:strings"

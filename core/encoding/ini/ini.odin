@@ -79,8 +79,8 @@ iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
 
 Map :: distinct map[string]map[string]string
 
-load_map_from_string :: proc(src: string, allocator: runtime.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: runtime.Allocator_Error) {
-    unquote :: proc(val: string) -> (string, runtime.Allocator_Error) {
+load_map_from_string :: proc(src: string, allocator: mem.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: mem.Allocator_Error) {
+    unquote :: proc(val: string) -> (string, mem.Allocator_Error) {
         if len(val) > 0 && (val[0] == '"' || val[0] == '\'') {
             v, allocated, ok := strconv.unquote_string(val)
             if !ok {
@@ -116,7 +116,7 @@ load_map_from_string :: proc(src: string, allocator: runtime.Allocator, options 
     return
 }
 
-load_map_from_path :: proc(path: string, allocator: runtime.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: runtime.Allocator_Error, ok: bool) {
+load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DEFAULT_OPTIONS) -> (m: Map, err: mem.Allocator_Error, ok: bool) {
     data := os.read_entire_file(path, allocator) or_return
     defer _ = slice_delete(data, allocator)
     m, err = load_map_from_string(string(data), allocator, options)
@@ -127,7 +127,7 @@ load_map_from_path :: proc(path: string, allocator: runtime.Allocator, options :
     return
 }
 
-save_map_to_string :: proc(m: Map, allocator: runtime.Allocator) -> (data: string) {
+save_map_to_string :: proc(m: Map, allocator: mem.Allocator) -> (data: string) {
     b := strings.builder_make(allocator)
     _, _ = write_map(strings.to_writer(&b), m)
     return strings.to_string(b)

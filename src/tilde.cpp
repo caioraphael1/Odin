@@ -319,7 +319,7 @@ gb_internal bool cg_global_variables_create(cgModule *m, Array<cgGlobalVariable>
             if (build_context.command_kind == Command_test &&
                 (e->Procedure.is_export || e->Procedure.link_name.len > 0)) {
                 String link_name = e->Procedure.link_name;
-                if (e->pkg->kind == Package_Runtime) {
+                if (e->pkg->kind == Package_Internal) {
                     if (link_name == "main"           ||
                         link_name == "DllMain"        ||
                         link_name == "WinMain"        ||

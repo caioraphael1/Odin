@@ -17,7 +17,7 @@ File_Impl :: struct {
     file: File,
     name: string,
     fd: linux.Fd,
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
 
     buffer:   []byte,
     rw_mutex: sync.RW_Mutex, // read write calls
@@ -60,7 +60,7 @@ _standard_stream_init :: proc() {
     stderr = new_std(&files[2], 2, "/proc/self/fd/2")
 }
 
-_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
     name_cstr := clone_to_cstring(name, runtime.temp_allocator) or_return
 
@@ -92,7 +92,7 @@ _open :: proc(name: string, flags: File_Flags, perm: Permissions, allocator: run
     return _new_file(uintptr(fd), name, allocator)
 }
 
-_new_file :: proc(fd: uintptr, _: string, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_new_file :: proc(fd: uintptr, _: string, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     impl := new(File_Impl, allocator) or_return
     defer if err != nil {
         _ = free(impl, allocator)
@@ -108,7 +108,7 @@ _new_file :: proc(fd: uintptr, _: string, allocator: runtime.Allocator) -> (f: ^
     return &impl.file, nil
 }
 
-_clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Error) {
+_clone :: proc(f: ^File, allocator: mem.Allocator) -> (clone: ^File, err: Error) {
     if f == nil || f.impl == nil {
         return
     }
@@ -127,7 +127,7 @@ _clone :: proc(f: ^File, allocator: runtime.Allocator) -> (clone: ^File, err: Er
 
 
 
-_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: runtime.Allocator) -> (f: ^File, err: Error) {
+_open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: mem.Allocator) -> (f: ^File, err: Error) {
     assert(buffer_size > 0)
     f, err = _open(name, flags, perm, allocator)
     if f != nil && err == nil {
@@ -340,7 +340,7 @@ _symlink :: proc(old_name, new_name: string) -> Error {
     return _get_platform_error(linux.symlink(old_name_cstr, new_name_cstr))
 }
 
-_read_link_cstr :: proc(name_cstr: cstring, allocator: runtime.Allocator) -> (string, Error) {
+_read_link_cstr :: proc(name_cstr: cstring, allocator: mem.Allocator) -> (string, Error) {
     bufsz : uint = 256
     buf := slice_create([]byte, bufsz, allocator)
     for {
@@ -358,7 +358,7 @@ _read_link_cstr :: proc(name_cstr: cstring, allocator: runtime.Allocator) -> (st
     }
 }
 
-_read_link :: proc(name: string, allocator: runtime.Allocator) -> (s: string, e: Error) {
+_read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, e: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
     name_cstr := clone_to_cstring(name, runtime.temp_allocator) or_return
     return _read_link_cstr(name_cstr, allocator)
@@ -446,13 +446,13 @@ _exists :: proc(name: string) -> bool {
 
 
 
-_read_entire_pseudo_file_string :: proc(name: string, allocator: runtime.Allocator) -> (b: []u8, e: Error) {
+_read_entire_pseudo_file_string :: proc(name: string, allocator: mem.Allocator) -> (b: []u8, e: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
     name_cstr := clone_to_cstring(name, runtime.temp_allocator) or_return
     return _read_entire_pseudo_file_cstring(name_cstr, allocator)
 }
 
-_read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Allocator) -> ([]u8, Error) {
+_read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: mem.Allocator) -> ([]u8, Error) {
     fd, errno := linux.open(name, {})
     if errno != .NONE {
         return nil, _get_platform_error(errno)
@@ -481,8 +481,8 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: runtime.Alloc
     return contents[:], nil
 }
 
-@(private="package")
-_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: runtime.Allocator) -> (n: i64, err: Error) {
+@(private)
+_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
     f := (^File_Impl)(stream_data)
     switch mode {
     case .Read:
@@ -519,8 +519,8 @@ _file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte
 }
 
 
-@(private="package")
-_file_stream_buffered_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: runtime.Allocator) -> (n: i64, err: Error) {
+@(private)
+_file_stream_buffered_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
     f := (^File_Impl)(stream_data)
     switch mode {
     case .Read:

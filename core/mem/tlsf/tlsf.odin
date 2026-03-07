@@ -45,8 +45,8 @@ Allocator :: struct {
 #assert(size_of(Allocator) % ALIGN_SIZE == 0)
 
 
-allocator :: proc(t: ^Allocator) -> runtime.Allocator {
-    return runtime.Allocator{
+allocator :: proc(t: ^Allocator) -> mem.Allocator {
+    return mem.Allocator{
         procedure = allocator_proc,
         data      = t,
     }
@@ -87,7 +87,7 @@ init_from_buffer :: proc(control: ^Allocator, buf: []byte) -> Error {
 }
 
 
-init_from_allocator :: proc(control: ^Allocator, backing: runtime.Allocator, initial_pool_size: int, new_pool_size := 0) -> Error {
+init_from_allocator :: proc(control: ^Allocator, backing: mem.Allocator, initial_pool_size: int, new_pool_size := 0) -> Error {
     assert(control != nil)
     pool_bytes := uint(estimate_pool_size(1, initial_pool_size, ALIGN_SIZE))
     if pool_bytes < BLOCK_SIZE_MIN {
@@ -134,7 +134,7 @@ destroy :: proc(control: ^Allocator) {
 
 allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
                        size, alignment: int,
-                       old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, runtime.Allocator_Error)  {
+                       old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, mem.Allocator_Error)  {
 
     control := (^Allocator)(allocator_data)
     if control == nil {
@@ -148,7 +148,7 @@ allocator_proc :: proc(allocator_data: rawptr, mode: runtime.Allocator_Mode,
         return runtime.mem_alloc_non_zeroed(control, uint(size), uint(alignment))
 
     case .Free:
-        free_with_size(control, old_memory, uint(old_size))
+        mem_free_with_size(control, old_memory, uint(old_size))
         return nil, nil
 
     case .Free_All:

@@ -1,6 +1,6 @@
 
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
 
 /*
 The state for a xoshiro256** pseudorandom generator.
@@ -9,7 +9,7 @@ Xoshiro256_Random_State :: struct {
     s: [4]u64,
 }
 
-xoshiro256_random_generator_proc :: proc(data: rawptr, mode: runtime.Random_Generator_Mode, p: []byte) {
+xoshiro256_random_generator_proc :: proc(data: rawptr, mode: internal.Random_Generator_Mode, p: []byte) {
     read_u64 :: proc(r: ^Xoshiro256_Random_State) -> u64 {
         // xoshiro256** output function and state transition
 
@@ -95,7 +95,7 @@ xoshiro256_random_generator_proc :: proc(data: rawptr, mode: runtime.Random_Gene
 
     case .Reset:
         seed: u64 = 0
-        runtime.mem_copy_non_overlapping(&seed, raw_data(p), min(size_of(seed), len(p)))
+        internal.mem_copy_non_overlapping(&seed, raw_data(p), min(size_of(seed), len(p)))
         init(r, seed)
 
     case .Query_Info:

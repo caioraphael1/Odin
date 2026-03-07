@@ -1,5 +1,5 @@
 
-import "core:mem"
+import "base:mem"
 import "core:strconv"
 import "core:unicode/utf8"
 import "core:unicode/utf16"

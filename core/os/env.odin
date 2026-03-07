@@ -1,4 +1,5 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:strings"
 
 // `get_env` retrieves the value of the environment variable named by the key
@@ -6,7 +7,7 @@ import "core:strings"
 // To distinguish between an empty value and an unset value, use lookup_env
 // NOTE: the value will be allocated with the supplied allocator
 
-get_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> string {
+get_env_alloc :: proc(key: string, allocator: mem.Allocator) -> string {
     value, _ := lookup_env_alloc(key, allocator)
     return value
 }
@@ -26,7 +27,7 @@ get_env_buf :: proc(buf: []u8, key: string) -> string {
 // Otherwise the returned value will be empty and the boolean will be false
 // NOTE: the value will be allocated with the supplied allocator
 
-lookup_env_alloc :: proc(key: string, allocator: runtime.Allocator) -> (value: string, found: bool) {
+lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
     return _lookup_env_alloc(key, allocator)
 }
 
@@ -58,12 +59,12 @@ clear_env :: proc() {
 // environ returns a copy of strings representing the environment, in the form "key=value"
 // NOTE: the slice of strings and the strings with be allocated using the supplied allocator
 
-environ :: proc(allocator: runtime.Allocator) -> ([]string, Error) {
+environ :: proc(allocator: mem.Allocator) -> ([]string, Error) {
     return _environ(allocator)
 }
 
 // Always allocates for consistency.
-replace_environment_placeholders :: proc(path: string, allocator: runtime.Allocator) -> (res: string) {
+replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator) -> (res: string) {
     path := path
 
     sb: strings.Builder
@@ -76,7 +77,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
                 for r, i in path[1:] {
                     if r == '%' {
                         env_key := path[1:i+1]
-                        env_val := get_env_alloc(env_key, runtime.temp_allocator)
+                        env_val := get_env_alloc(env_key, internal.temp_allocator)
                         strings.write_string(&sb, env_val)
                         path = path[i+1:] // % is part of key, so skip 1 character extra
                     }
@@ -97,7 +98,7 @@ replace_environment_placeholders :: proc(path: string, allocator: runtime.Alloca
                     }
                 }
                 if len(env_key) > 0 {
-                    env_val := get_env(env_key, runtime.temp_allocator)
+                    env_val := get_env(env_key, internal.temp_allocator)
                     strings.write_string(&sb, env_val)
                     path = path[len(env_key):]
                 }

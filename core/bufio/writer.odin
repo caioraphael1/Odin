@@ -1,6 +1,6 @@
 
 import "core:io"
-import "core:mem"
+import "base:mem"
 import "core:unicode/utf8"
 // import "core:bytes"
 

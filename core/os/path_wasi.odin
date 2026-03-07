@@ -78,17 +78,17 @@ _remove_all :: proc(path: string) -> (err: Error) {
 
 _working_dir: struct {
     path:      string,
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
     mutex:     sync.Mutex,
 }
 
-_get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+_get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
     sync.mutex_guard(&_working_dir_mutex)
     _working_dir.allocator = allocator
     return clone_string(_working_dir.path if _working_dir.path != "" else "/", _working_dir.allocator)
 }
 
-_set_working_directory :: proc(dir: string, allocator: runtime.Allocator) -> (err: Error) {
+_set_working_directory :: proc(dir: string, allocator: mem.Allocator) -> (err: Error) {
     sync.mutex_guard(&_working_dir.mutex)
 
     if dir == _working_dir.path {
@@ -105,7 +105,7 @@ _set_working_directory :: proc(dir: string, allocator: runtime.Allocator) -> (er
     return
 }
 
-_get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
+_get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     if len(args) <= 0 {
         return clone_string("/", allocator)
     }
@@ -118,6 +118,6 @@ _get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err
     return concatenate({"/", arg}, allocator)
 }
 
-_get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absolute_path: string, err: Error) {
+_get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_path: string, err: Error) {
     return "", .Unsupported
 }

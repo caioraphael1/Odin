@@ -8,7 +8,7 @@ permutations_with_repetition :: int_pow_int
 /*
 	With `n` items, calculate how many ways that `r` of them can be ordered without any repeats.
 */
-permutations_without_repetition :: proc(dest: ^Int, n, r: int, allocator: runtime.Allocator) -> (error: Error)  {
+permutations_without_repetition :: proc(dest: ^Int, n, r: int, allocator: mem.Allocator) -> (error: Error)  {
 	if n == r {
 		return factorial(dest, n, allocator)
 	}
@@ -31,7 +31,7 @@ permutations_without_repetition :: proc(dest: ^Int, n, r: int, allocator: runtim
 
 	Also known as the multiset coefficient or (n multichoose k).
 */
-combinations_with_repetition :: proc(dest: ^Int, n, r: int, allocator: runtime.Allocator) -> (error: Error) {
+combinations_with_repetition :: proc(dest: ^Int, n, r: int, allocator: mem.Allocator) -> (error: Error) {
 	// (n + r - 1)!
 	// ------------
 	// r!  (n - 1)!
@@ -43,7 +43,7 @@ combinations_with_repetition :: proc(dest: ^Int, n, r: int, allocator: runtime.A
 
 	Also known as the binomial coefficient or (n choose k).
 */
-combinations_without_repetition :: proc(dest: ^Int, n, r: int, allocator: runtime.Allocator) -> (error: Error) {
+combinations_without_repetition :: proc(dest: ^Int, n, r: int, allocator: mem.Allocator) -> (error: Error) {
 	tmp_a, tmp_b := &Int{}, &Int{}
 	defer internal_destroy(tmp_a, tmp_b, allocator = allocator)
 

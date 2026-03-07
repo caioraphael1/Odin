@@ -5,7 +5,8 @@ Implemented using formulas from: Calendrical Calculations Ultimate Edition,
 Reingold & Dershowitz
 */
 import "base:intrinsics"
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 
 /*
 Obtain an ordinal from a date.
@@ -277,7 +278,7 @@ Obtain the range of dates for a given year.
 
 This procedure returns dates, for every day of a given year in a slice.
 */
-year_range :: proc (#any_int year: i64, allocator: runtime.Allocator) -> (range: []Date) {
+year_range :: proc (#any_int year: i64, allocator: mem.Allocator) -> (range: []Date) {
     is_leap := is_leap_year(year)
 
     days := 366 if is_leap else 365

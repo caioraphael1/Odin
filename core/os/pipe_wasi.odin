@@ -1,7 +1,7 @@
 #+private
 import "base:runtime"
 
-_pipe :: proc(allocator: runtime.Allocator) -> (r, w: ^File, err: Error) {
+_pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
 	err = .Unsupported
 	return
 }

@@ -45,7 +45,7 @@ internal_stat :: proc(stat: posix.stat_t, fullpath: string) -> (fi: File_Info) {
 	return
 }
 
-_fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_fstat :: proc(f: ^File, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	if f == nil || f.impl == nil {
 		err = .Invalid_File
 		return
@@ -63,7 +63,7 @@ _fstat :: proc(f: ^File, allocator: runtime.Allocator) -> (fi: File_Info, err: E
 	return internal_stat(stat, fullpath), nil
 }
 
-_stat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_stat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	if name == "" {
 		err = .Invalid_Path
 		return
@@ -90,7 +90,7 @@ _stat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err
 	return internal_stat(stat, string(fullpath)), nil
 }
 
-_lstat :: proc(name: string, allocator: runtime.Allocator) -> (fi: File_Info, err: Error) {
+_lstat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: Error) {
 	if name == "" {
 		err = .Invalid_Path
 		return

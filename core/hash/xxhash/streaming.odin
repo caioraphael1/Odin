@@ -8,7 +8,7 @@
         Jeroen van Rijn: Initial implementation.
 */
 
-import "core:mem"
+import "base:mem"
 import "base:intrinsics"
 
 /*

@@ -40,7 +40,7 @@ File_Console_Logger_Data :: struct {
 }
 
 
-create_file_logger :: proc(h: ^os.File, lowest_level := Level.Debug, opt := Default_File_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
+create_file_logger :: proc(h: ^os.File, lowest_level := Level.Debug, opt := Default_File_Logger_Opts, ident := "", allocator: mem.Allocator) -> Logger {
     data, _ := new(File_Console_Logger_Data, allocator)
     data.file_handle = h
     data.ident = ident
@@ -52,7 +52,7 @@ create_file_logger :: proc(h: ^os.File, lowest_level := Level.Debug, opt := Defa
     }
 }
 
-destroy_file_logger :: proc(log: Logger, allocator: runtime.Allocator) {
+destroy_file_logger :: proc(log: Logger, allocator: mem.Allocator) {
     data := cast(^File_Console_Logger_Data)log.data
     if data.file_handle != nil {
         _ = os.close(data.file_handle)
@@ -60,7 +60,7 @@ destroy_file_logger :: proc(log: Logger, allocator: runtime.Allocator) {
     _ = free(data, allocator)
 }
 
-create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Console_Logger_Opts, ident := "", allocator: runtime.Allocator) -> Logger {
+create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Console_Logger_Opts, ident := "", allocator: mem.Allocator) -> Logger {
     data, _ := new(File_Console_Logger_Data, allocator)
     data.file_handle = nil
     data.ident = ident
@@ -72,7 +72,7 @@ create_console_logger :: proc(lowest_level := Level.Debug, opt := Default_Consol
     }
 }
 
-destroy_console_logger :: proc(log: Logger, allocator: runtime.Allocator) {
+destroy_console_logger :: proc(log: Logger, allocator: mem.Allocator) {
     _ = free(log.data, allocator)
 }
 

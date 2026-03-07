@@ -8,7 +8,7 @@
 */
 
 import "core:bytes"
-import "core:mem"
+import "base:mem"
 import "core:io"
 import "core:compress"
 import "base:runtime"
@@ -174,7 +174,7 @@ Error :: union #shared_nil {
     compress.Deflate_Error,
     compress.ZLIB_Error,
     io.Error,
-    runtime.Allocator_Error,
+    mem.Allocator_Error,
 }
 
 General_Image_Error :: enum {

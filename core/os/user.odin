@@ -1,4 +1,5 @@
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 
 // ```
 // Windows:  C:\Users\Alice
@@ -6,8 +7,8 @@ import "base:runtime"
 // Linux:    /home/alice
 // ```
 
-user_home_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_home_dir(allocator)
+user_home_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_home_dir(allocator)
 }
 
 // Files that applications can regenerate/refetch at a loss of speed, e.g. shader caches
@@ -20,8 +21,8 @@ user_home_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error)
 // Linux:    /home/alice/.cache
 // ```
 
-user_cache_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_cache_dir(allocator)
+user_cache_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_cache_dir(allocator)
 }
 
 // User-hidden application data
@@ -34,8 +35,8 @@ user_cache_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error
 //
 // NOTE: (Windows only) `roaming` is for syncing across multiple devices within a *domain network*
 
-user_data_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir: string, err: Error) {
-	return _user_data_dir(allocator, roaming)
+user_data_dir :: proc(allocator: mem.Allocator, roaming := false) -> (dir: string, err: Error) {
+    return _user_data_dir(allocator, roaming)
 }
 
 // Non-essential application data, e.g. history, ui layout state
@@ -46,8 +47,8 @@ user_data_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir: s
 // Linux:    /home/alice/.local/state
 // ```
 
-user_state_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_state_dir(allocator)
+user_state_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_state_dir(allocator)
 }
 
 // Application log files
@@ -58,8 +59,8 @@ user_state_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error
 // Linux:    /home/alice/.local/state
 // ```
 
-user_log_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_log_dir(allocator)
+user_log_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_log_dir(allocator)
 }
 
 // Application settings/preferences
@@ -72,8 +73,8 @@ user_log_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) 
 //
 // NOTE: (Windows only) `roaming` is for syncing across multiple devices within a *domain network*
 
-user_config_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir: string, err: Error) {
-	return _user_config_dir(allocator, roaming)
+user_config_dir :: proc(allocator: mem.Allocator, roaming := false) -> (dir: string, err: Error) {
+    return _user_config_dir(allocator, roaming)
 }
 
 // ```
@@ -82,8 +83,8 @@ user_config_dir :: proc(allocator: runtime.Allocator, roaming := false) -> (dir:
 // Linux:    /home/alice/Music
 // ```
 
-user_music_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_music_dir(allocator)
+user_music_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_music_dir(allocator)
 }
 
 // ```
@@ -92,8 +93,8 @@ user_music_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error
 // Linux:    /home/alice/Desktop
 // ```
 
-user_desktop_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_desktop_dir(allocator)
+user_desktop_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_desktop_dir(allocator)
 }
 
 // ```
@@ -102,8 +103,8 @@ user_desktop_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Err
 // Linux:    /home/alice/Documents
 // ```
 
-user_documents_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_documents_dir(allocator)
+user_documents_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_documents_dir(allocator)
 }
 
 // ```
@@ -112,8 +113,8 @@ user_documents_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: E
 // Linux:    /home/alice/Downloads
 // ```
 
-user_downloads_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_downloads_dir(allocator)
+user_downloads_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_downloads_dir(allocator)
 }
 
 // ```
@@ -122,8 +123,8 @@ user_downloads_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: E
 // Linux:    /home/alice/Pictures
 // ```
 
-user_pictures_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_pictures_dir(allocator)
+user_pictures_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_pictures_dir(allocator)
 }
 
 // ```
@@ -132,8 +133,8 @@ user_pictures_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Er
 // Linux:    /home/alice/Public
 // ```
 
-user_public_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_public_dir(allocator)
+user_public_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_public_dir(allocator)
 }
 
 // ```
@@ -142,6 +143,6 @@ user_public_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Erro
 // Linux:    /home/alice/Videos
 // ```
 
-user_videos_dir :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
-	return _user_videos_dir(allocator)
+user_videos_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
+    return _user_videos_dir(allocator)
 }

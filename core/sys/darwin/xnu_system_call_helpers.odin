@@ -113,7 +113,7 @@ _sys_open_mode :: #force_inline proc(mode: Open_Flags) -> u32 {
 }
 
 @(private)
-clone_to_cstring :: proc(s: string, allocator: runtime.Allocator, loc := #caller_location) -> cstring {
+clone_to_cstring :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> cstring {
     c := slice_create([]byte, len(s)+1, allocator, loc)
     slice_copy(c, s)
     c[len(s)] = 0

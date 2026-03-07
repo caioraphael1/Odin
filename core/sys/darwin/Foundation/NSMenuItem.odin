@@ -23,12 +23,12 @@ MenuItem_registerActionCallback :: proc "c" (name: cstring, callback: MenuItemCa
         builtin.slice_copy(col_name[:n], s)
         col_name[n] = ':'
         col_name[n+1] = 0
-        sel = sel_registerName(cstring(col_name))
+        sel = __sel_registerName(cstring(col_name))
     } else {
-        sel = sel_registerName(name)
+        sel = __sel_registerName(name)
     }
     if callback != nil {
-        class_addMethod(intrinsics.objc_find_class("NSObject"), sel, auto_cast callback, "v@:@")
+        __class_addMethod(intrinsics.objc_find_class("NSObject"), sel, auto_cast callback, "v@:@")
     }
     return sel
 }

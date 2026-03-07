@@ -1,4 +1,4 @@
-import "core:mem"
+import "base:mem"
 
 // NOTE(bill): is_valid will not check for duplicate keys
 is_valid :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := false) -> bool {

@@ -1,5 +1,5 @@
-import "base:runtime"
-import "core:mem"
+import "base:internal"
+import "base:mem"
 
 // Custom string entry struct
 Intern_Entry :: struct {
@@ -16,7 +16,7 @@ Fields:
 - entries: A map of strings to interned string entries
 */
 Intern :: struct {
-    allocator: runtime.Allocator,
+    allocator: mem.Allocator,
     entries: map[string]^Intern_Entry,
 }
 /*
@@ -64,7 +64,7 @@ Returns:
 - str: The interned string
 - err: An allocator error if one occured, `nil` otherwise
 */
-intern_get :: proc(m: ^Intern, text: string) -> (str: string, err: runtime.Allocator_Error) {
+intern_get :: proc(m: ^Intern, text: string) -> (str: string, err: mem.Allocator_Error) {
     entry := _intern_get_entry(m, text) or_return
     #no_bounds_check return string(entry.str[:entry.len]), nil
 }
@@ -83,7 +83,7 @@ Returns:
 - str: The interned cstring
 - err: An allocator error if one occured, `nil` otherwise
 */
-intern_get_cstring :: proc(m: ^Intern, text: string) -> (str: cstring, err: runtime.Allocator_Error) {
+intern_get_cstring :: proc(m: ^Intern, text: string) -> (str: cstring, err: mem.Allocator_Error) {
     entry := _intern_get_entry(m, text) or_return
     return cstring(&entry.str[0]), nil
 }
@@ -102,7 +102,7 @@ Returns:
 - new_entry: The interned cstring
 - err: An allocator error if one occured, `nil` otherwise
 */
-_intern_get_entry :: proc(m: ^Intern, text: string) -> (new_entry: ^Intern_Entry, err: runtime.Allocator_Error) #no_bounds_check {
+_intern_get_entry :: proc(m: ^Intern, text: string) -> (new_entry: ^Intern_Entry, err: mem.Allocator_Error) #no_bounds_check {
     assert(m.allocator.procedure != nil)
 
     key_ptr, val_ptr, inserted := map_entry(&m.entries, text) or_return
@@ -111,7 +111,7 @@ _intern_get_entry :: proc(m: ^Intern, text: string) -> (new_entry: ^Intern_Entry
     }
 
     entry_size := int(offset_of(Intern_Entry, str)) + len(text) + 1
-    bytes := runtime.mem_alloc(entry_size, align_of(Intern_Entry), m.allocator) or_return
+    bytes := internal.mem_alloc(entry_size, align_of(Intern_Entry), m.allocator) or_return
     new_entry = (^Intern_Entry)(raw_data(bytes))
 
     new_entry.len = len(text)

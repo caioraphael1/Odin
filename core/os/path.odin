@@ -1,6 +1,7 @@
 
 
-import "base:runtime"
+import "base:internal"
+import "base:mem"
 import "core:slice"
 import "core:strings"
 import "core:unicode/utf8"
@@ -28,7 +29,7 @@ with the `new_sep` rune.
 
 *Allocates Using Provided Allocator*
 */
-replace_path_separators :: proc(path: string, new_sep: rune, allocator: runtime.Allocator) -> (new_path: string, err: Error) {
+replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allocator) -> (new_path: string, err: Error) {
     length       := len(path)
     rep_b, rep_w := utf8.encode_rune(new_sep)
 
@@ -106,7 +107,7 @@ Get the working directory of the current process.
 *Allocates Using Provided Allocator*
 */
 
-get_working_directory :: proc(allocator: runtime.Allocator) -> (dir: string, err: Error) {
+get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
     return _get_working_directory(allocator)
 }
 
@@ -127,7 +128,7 @@ Get the path for the currently running executable.
 *Allocates Using Provided Allocator*
 */
 
-get_executable_path :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
+get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     return _get_executable_path(allocator)
 }
 
@@ -137,7 +138,7 @@ Get the directory for the currently running executable.
 *Allocates Using Provided Allocator*
 */
 
-get_executable_directory :: proc(allocator: runtime.Allocator) -> (path: string, err: Error) {
+get_executable_directory :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     path = _get_executable_path(allocator) or_return
     path, _ = split_path(path)
     return
@@ -162,16 +163,16 @@ This will remove duplicate separators and unneeded references to the current or
 parent directory.
 */
 
-clean_path :: proc(path: string, allocator: runtime.Allocator) -> (cleaned: string, err: runtime.Allocator_Error) {
+clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, err: mem.Allocator_Error) {
     if path == "" || path == "." {
         return strings.clone(".", allocator)
     }
 
-    runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+    internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     // The extra byte is to simplify appending path elements by letting the
     // loop to end each with a separator. We'll trim the last one when we're done.
-    buffer := slice_create([]u8, len(path) + 1, runtime.temp_allocator) or_return
+    buffer := slice_create([]u8, len(path) + 1, internal.temp_allocator) or_return
 
     // This is the only point where Windows and POSIX differ, as Windows has
     // alphabet-based volumes for root paths.
@@ -247,7 +248,7 @@ Get the absolute path to `path` with respect to the process's current directory.
 *Allocates Using Provided Allocator*
 */
 
-get_absolute_path :: proc(path: string, allocator: runtime.Allocator) -> (absolute_path: string, err: Error) {
+get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_path: string, err: Error) {
     return _get_absolute_path(path, allocator)
 }
 
@@ -266,7 +267,7 @@ reference to the parent directory (`".."`). Use `get_working_directory` with
 `join_path` to construct absolute paths for both arguments instead.
 */
 
-get_relative_path :: proc(base, target: string, allocator: runtime.Allocator) -> (path: string, err: Error) {
+get_relative_path :: proc(base, target: string, allocator: mem.Allocator) -> (path: string, err: Error) {
     if _are_paths_identical(base, target) {
         return strings.clone(".", allocator)
     }
@@ -504,11 +505,11 @@ Join all `elems` with the system's path separator and normalize the result.
 For example, `join_path({"/home", "foo", "bar.txt"})` will result in `"/home/foo/bar.txt"`.
 */
 
-join_path :: proc(elems: []string, allocator: runtime.Allocator) -> (joined: string, err: runtime.Allocator_Error) {
+join_path :: proc(elems: []string, allocator: mem.Allocator) -> (joined: string, err: mem.Allocator_Error) {
     for e, i in elems {
         if e != "" {
-            runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
-            p := strings.join(elems[i:], Path_Separator_String, runtime.temp_allocator) or_return
+            internal.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+            p := strings.join(elems[i:], Path_Separator_String, internal.temp_allocator) or_return
             return clean_path(p, allocator)
         }
     }
@@ -568,7 +569,7 @@ Join `base` and `ext` with the system's filename extension separator.
 For example, `join_filename("foo", "tar.gz")` will result in `"foo.tar.gz"`.
 */
 
-join_filename :: proc(base: string, ext: string, allocator: runtime.Allocator) -> (joined: string, err: Error) {
+join_filename :: proc(base: string, ext: string, allocator: mem.Allocator) -> (joined: string, err: Error) {
     if len(base) == 0 {
         return strings.clone(ext, allocator)
     } else if len(ext) == 0 {
@@ -593,7 +594,7 @@ For example, there is the "PATH" environment variable on POSIX systems which
 this procedure can split into separate entries.
 */
 
-split_path_list :: proc(path: string, allocator: runtime.Allocator) -> (list: []string, err: Error) {
+split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []string, err: Error) {
     if path == "" {
         return nil, nil
     }
@@ -708,7 +709,7 @@ match :: proc(pattern, name: string) -> (matched: bool, err: Error) {
 //
 // glob ignores file system errors
 //
-glob :: proc(pattern: string, allocator: runtime.Allocator) -> (matches: []string, err: Error) {
+glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, err: Error) {
     _split :: proc(path: string) -> (dir, file: string) {
         vol := volume_name(path)
         i := len(path) - 1
@@ -914,7 +915,7 @@ get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Error) {
 }
 
 // Internal implementation of `glob`, not meant to be used by the user. Prefer `glob`.
-_glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: runtime.Allocator) -> (m: [dynamic]string, e: Error) {
+_glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Allocator) -> (m: [dynamic]string, e: Error) {
     if matches != nil {
         m = matches^
     } else {

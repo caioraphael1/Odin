@@ -64,10 +64,10 @@ View_setDelegate :: proc "c" (self: ^View, delegate: ^ViewDelegate) {
 
 	wrapper := NS.Value.valueWithPointer(delegate)
 
-	NS.class_addMethod(intrinsics.objc_find_class("NSValue"), intrinsics.objc_find_selector("drawInMTKView:"), auto_cast drawDispatch, "v@:@")
+	NS.__class_addMethod(intrinsics.objc_find_class("NSValue"), intrinsics.objc_find_selector("drawInMTKView:"), auto_cast drawDispatch, "v@:@")
 
 	cbparams :: "v@:@{CGSize=ff}" when size_of(NS.Float) == size_of(f32) else "v@:@{CGSize=dd}"
-	NS.class_addMethod(intrinsics.objc_find_class("NSValue"), intrinsics.objc_find_selector("mtkView:drawableSizeWillChange:"), auto_cast drawableSizeWillChange, cbparams)
+	NS.__class_addMethod(intrinsics.objc_find_class("NSValue"), intrinsics.objc_find_selector("mtkView:drawableSizeWillChange:"), auto_cast drawableSizeWillChange, cbparams)
 
 	msgSend(nil, self, "setDelegate:", wrapper)
 }

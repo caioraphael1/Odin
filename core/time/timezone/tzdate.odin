@@ -5,24 +5,24 @@ import "core:time"
 import "core:time/datetime"
 import "base:runtime"
 
-region_load :: proc(reg: string, allocator: runtime.Allocator) ->  (out_reg: ^datetime.TZ_Region, ok: bool) {
+region_load :: proc(reg: string, allocator: mem.Allocator) ->  (out_reg: ^datetime.TZ_Region, ok: bool) {
     return _region_load(reg, allocator)
 }
 
-region_load_from_file :: proc(file_path, reg: string, allocator: runtime.Allocator) ->  (out_reg: ^datetime.TZ_Region, ok: bool) {
+region_load_from_file :: proc(file_path, reg: string, allocator: mem.Allocator) ->  (out_reg: ^datetime.TZ_Region, ok: bool) {
     return load_tzif_file(file_path, reg, allocator)
 }
 
-region_load_from_buffer :: proc(buffer: []u8, reg: string, allocator: runtime.Allocator) ->  (out_reg: ^datetime.TZ_Region, ok: bool) {
+region_load_from_buffer :: proc(buffer: []u8, reg: string, allocator: mem.Allocator) ->  (out_reg: ^datetime.TZ_Region, ok: bool) {
     return parse_tzif(buffer, reg, allocator)
 }
 
-rrule_destroy :: proc(rrule: datetime.TZ_RRule, allocator: runtime.Allocator) {
+rrule_destroy :: proc(rrule: datetime.TZ_RRule, allocator: mem.Allocator) {
     _ = string_delete(rrule.std_name, allocator)
     _ = string_delete(rrule.dst_name, allocator)
 }
 
-region_destroy :: proc(region: ^datetime.TZ_Region, allocator: runtime.Allocator) {
+region_destroy :: proc(region: ^datetime.TZ_Region, allocator: mem.Allocator) {
     if region == nil {
         return
     }
@@ -309,7 +309,7 @@ dst_unsafe :: proc(dt: datetime.DateTime) -> bool {
     return record.dst
 }
 
-datetime_to_str :: proc(dt: datetime.DateTime, allocator: runtime.Allocator) -> string {
+datetime_to_str :: proc(dt: datetime.DateTime, allocator: mem.Allocator) -> string {
     if dt.tz == nil {
         _, ok := time.compound_to_time(dt)
         if !ok {

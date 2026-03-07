@@ -1,7 +1,7 @@
 import "base:builtin"
 import "base:intrinsics"
 import "base:runtime"
-import "core:mem"
+import "base:mem"
 import "core:sync"
 import "core:math/rand"
 
@@ -71,7 +71,7 @@ Example:
 */
 Raw_Chan :: struct {
     // Shared
-    allocator:       runtime.Allocator,
+    allocator:       mem.Allocator,
     allocation_size: int,
     msg_size:        u16,
     closed:          b16, // guarded by `mutex`
@@ -115,7 +115,7 @@ Example:
     }
 */
 
-create_unbuffered :: proc($C: typeid/Chan($T), allocator: runtime.Allocator) -> (c: C, err: runtime.Allocator_Error)
+create_unbuffered :: proc($C: typeid/Chan($T), allocator: mem.Allocator) -> (c: C, err: mem.Allocator_Error)
     where size_of(T) <= int(max(u16)) {
     c.impl, err = create_raw_unbuffered(size_of(T), align_of(T), allocator)
     return
@@ -146,7 +146,7 @@ Example:
     }
 */
 
-create_buffered :: proc($C: typeid/Chan($T), #any_int cap: int, allocator: runtime.Allocator) -> (c: C, err: runtime.Allocator_Error)
+create_buffered :: proc($C: typeid/Chan($T), #any_int cap: int, allocator: mem.Allocator) -> (c: C, err: mem.Allocator_Error)
     where size_of(T) <= int(max(u16)) {
     c.impl, err = create_raw_buffered(size_of(T), align_of(T), cap, allocator)
     return
@@ -179,7 +179,7 @@ Example:
     }
 */
 
-create_raw_unbuffered :: proc(#any_int msg_size, msg_alignment: int, allocator: runtime.Allocator) -> (c: ^Raw_Chan, err: runtime.Allocator_Error) {
+create_raw_unbuffered :: proc(#any_int msg_size, msg_alignment: int, allocator: mem.Allocator) -> (c: ^Raw_Chan, err: mem.Allocator_Error) {
     assert(msg_size <= int(max(u16)))
     align := max(align_of(Raw_Chan), msg_alignment)
 
@@ -224,7 +224,7 @@ Example:
     }
 */
 
-create_raw_buffered :: proc(#any_int msg_size, msg_alignment: int, #any_int cap: int, allocator: runtime.Allocator) -> (c: ^Raw_Chan, err: runtime.Allocator_Error) {
+create_raw_buffered :: proc(#any_int msg_size, msg_alignment: int, #any_int cap: int, allocator: mem.Allocator) -> (c: ^Raw_Chan, err: mem.Allocator_Error) {
     assert(msg_size <= int(max(u16)))
     if cap <= 0 {
         return create_raw_unbuffered(msg_size, msg_alignment, allocator)
@@ -263,10 +263,10 @@ Destroys the Channel.
 **Returns**:
 - An `Allocator_Error`
 */
-destroy :: proc(c: ^Raw_Chan) -> (err: runtime.Allocator_Error) {
+destroy :: proc(c: ^Raw_Chan) -> (err: mem.Allocator_Error) {
     if c != nil {
         allocator := c.allocator
-        err = mem.free_with_size(c, c.allocation_size, allocator)
+        err = mem.mem_free_with_size(c, c.allocation_size, allocator)
     }
     return
 }

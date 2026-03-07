@@ -22,7 +22,7 @@
 */
 
 //import "core:strings"
-import "core:mem"
+import "base:mem"
 
 
 // TODO(flysand): regression

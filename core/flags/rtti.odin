@@ -22,7 +22,7 @@ Custom_Type_Setter :: #type proc(
 ) -> (
 	error:       string,
 	handled:     bool,
-	alloc_error: runtime.Allocator_Error,
+	alloc_error: mem.Allocator_Error,
 )
 
 @(private)

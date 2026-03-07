@@ -1,7 +1,7 @@
-import "base:runtime"
+import "base:internal"
 import "core:unicode/utf8"
 import "core:strconv"
-import "core:mem"
+import "base:mem"
 import "core:io"
 /*
 Type definition for a procedure that flushes a Builder
@@ -235,7 +235,7 @@ Output:
 
 */
 builder_from_bytes :: proc(backing: []byte) -> (res: Builder) {
-    return Builder{ buf = mem.buffer_from_slice(backing) }
+    return Builder{ buf = mem.dyn_array_from_slice(backing) }
 }
 // Alias to `builder_from_bytes`
 builder_from_slice :: builder_from_bytes
@@ -509,7 +509,7 @@ pop_byte :: proc(b: ^Builder) -> (r: byte) {
     }
 
     r = b.buf[len(b.buf)-1]
-    d := (^runtime.Raw_Dynamic_Array)(&b.buf)
+    d := (^internal.Raw_Dynamic_Array)(&b.buf)
     d.len = max(d.len-1, 0)
     return
 }
@@ -529,7 +529,7 @@ pop_rune :: proc(b: ^Builder) -> (r: rune, width: int) {
     }
 
     r, width = utf8.decode_last_rune_in_bytes(b.buf[:])
-    d := (^runtime.Raw_Dynamic_Array)(&b.buf)
+    d := (^internal.Raw_Dynamic_Array)(&b.buf)
     d.len = max(d.len-width, 0)
     return
 }

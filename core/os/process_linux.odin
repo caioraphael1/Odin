@@ -13,42 +13,42 @@ import "core:sys/linux"
 
 PIDFD_UNASSIGNED  :: ~uintptr(0)
 
-@(private="package")
+@(private)
 _get_uid :: proc() -> int {
     return int(linux.getuid())
 }
 
-@(private="package")
+@(private)
 _get_euid :: proc() -> int {
     return int(linux.geteuid())
 }
 
-@(private="package")
+@(private)
 _get_gid :: proc() -> int {
     return int(linux.getgid())
 }
 
-@(private="package")
+@(private)
 _get_egid :: proc() -> int {
     return int(linux.getegid())
 }
 
-@(private="package")
+@(private)
 _get_pid :: proc() -> int {
     return int(linux.getpid())
 }
 
-@(private="package")
+@(private)
 _get_ppid :: proc() -> int {
     return int(linux.getppid())
 }
 
-@(private="package")
+@(private)
 _get_current_thread_id :: proc() -> int {
     return int(linux.gettid())
 }
 
-@(private="package")
+@(private)
 _get_processor_core_count :: proc() -> (core_count: int) {
     cpu_set: [128]u64
     if n, err := linux.sched_getaffinity(0, size_of(cpu_set), &cpu_set); err == nil {
@@ -59,8 +59,8 @@ _get_processor_core_count :: proc() -> (core_count: int) {
     return
 }
 
-@(private="package")
-_process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error) {
+@(private)
+_process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     dir_fd, errno := linux.open("/proc/", _OPENDIR_FLAGS)
@@ -109,8 +109,8 @@ _process_list :: proc(allocator: runtime.Allocator) -> (list: []int, err: Error)
     return
 }
 
-@(private="package")
-_process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+@(private)
+_process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     info.pid = pid
@@ -375,17 +375,17 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     return
 }
 
-@(private="package")
-_process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+@(private)
+_process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     return _process_info_by_pid(process.pid, selection, allocator)
 }
 
-@(private="package")
-_current_process_info :: proc(selection: Process_Info_Fields, allocator: runtime.Allocator) -> (info: Process_Info, err: Error) {
+@(private)
+_current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     return _process_info_by_pid(get_pid(), selection, allocator)
 }
 
-@(private="package")
+@(private)
 _process_open :: proc(pid: int, _: Process_Open_Flags) -> (process: Process, err: Error) {
     process.pid = pid
     process.handle = PIDFD_UNASSIGNED
@@ -401,7 +401,7 @@ _process_open :: proc(pid: int, _: Process_Open_Flags) -> (process: Process, err
     return
 }
 
-@(private="package")
+@(private)
 _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     runtime.TEMP_ALLOCATOR_TEMP_GUARD()
 
@@ -822,7 +822,7 @@ _timed_wait_on_pid :: proc(process: Process, timeout: time.Duration) -> (process
     return _reap_terminated(process)
 }
 
-@(private="package")
+@(private)
 _process_wait :: proc(process: Process, timeout: time.Duration) -> (Process_State, Error) {
     if timeout > 0 {
         if process.handle == PIDFD_UNASSIGNED {
@@ -868,12 +868,12 @@ _process_close :: proc(process: Process) -> Error {
     return _get_platform_error(linux.close(pidfd))
 }
 
-@(private="package")
+@(private)
 _process_kill :: proc(process: Process) -> Error {
     return _get_platform_error(linux.kill(linux.Pid(process.pid), .SIGKILL))
 }
 
-@(private="package")
+@(private)
 _process_terminate :: proc(process: Process) -> Error {
     return _get_platform_error(linux.kill(linux.Pid(process.pid), .SIGTERM))
 }

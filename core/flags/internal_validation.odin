@@ -3,7 +3,7 @@
 @(require) import "base:runtime"
 @(require) import "core:container/bit_array"
 @(require) import "core:fmt"
-@(require) import "core:mem"
+@(require) import "base:mem"
 @(require) import "core:os"
 @(require) import "core:reflect"
 @(require) import "core:strconv"

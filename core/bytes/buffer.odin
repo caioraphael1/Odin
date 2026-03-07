@@ -1,6 +1,6 @@
 import "core:io"
 import "core:unicode/utf8"
-import "core:mem"
+import "base:mem"
 
 MIN_READ :: 512
 
