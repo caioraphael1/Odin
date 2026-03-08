@@ -19,16 +19,15 @@ Parser :: struct {
     parse_integers: bool,
 }
 
-make_parser :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator) -> Parser {
-    return make_parser_from_string(string(data), spec, parse_integers, allocator)
+parser_create :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator) -> Parser {
+    return parser_create_from_string(string(data), spec, parse_integers, allocator)
 }
-make_parser_from_string :: proc(data: string, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator) -> Parser {
+parser_create_from_string :: proc(data: string, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator) -> Parser {
     p: Parser
-    p.tok = make_tokenizer(data, spec, parse_integers)
+    p.tok = tokenizer_create(data, spec, parse_integers)
     p.spec = spec
     p.allocator = allocator
-    internal.assert(p.allocator.procedure != nil)
-    _, _ = advance_token(&p)
+    _, _ = token_advance(&p)
     return p
 }
 
@@ -38,19 +37,19 @@ parse :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := fal
 }
 
 parse_string :: proc(data: string, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator, loc := #caller_location) -> (Value, Error) {
-    p := make_parser_from_string(data, spec, parse_integers, allocator)
+    p := parser_create_from_string(data, spec, parse_integers, allocator)
 
     switch p.spec {
     case .JSON:
         return parse_object(&p, loc)
     case .JSON5:
-        return parse_value(&p, loc)
+        return parse_value(&p, .Normal, loc)
     case .SJSON:
         #partial switch p.curr_token.kind {
         case .Ident, .String:
             return parse_object_body(&p, .EOF, loc)
         }
-        return parse_value(&p, loc)
+        return parse_value(&p, .Normal, loc)
     }
     return parse_object(&p, loc)
 }
@@ -61,7 +60,7 @@ token_end_pos :: proc(tok: Token) -> Pos {
     return end
 }
 
-advance_token :: proc(p: ^Parser) -> (Token, Error) {
+token_advance :: proc(p: ^Parser) -> (Token, Error) {
     err: Error
     p.prev_token = p.curr_token
     p.curr_token, err = get_token(&p.tok)
@@ -69,17 +68,17 @@ advance_token :: proc(p: ^Parser) -> (Token, Error) {
 }
 
 
-allow_token :: proc(p: ^Parser, kind: Token_Kind) -> bool {
+token_allow :: proc(p: ^Parser, kind: Token_Kind) -> bool {
     if p.curr_token.kind == kind {
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         return true
     }
     return false
 }
 
-expect_token :: proc(p: ^Parser, kind: Token_Kind) -> Error {
+token_expect :: proc(p: ^Parser, kind: Token_Kind) -> Error {
     prev := p.curr_token
-    _, _ = advance_token(p)
+    _, _ = token_advance(p)
     if prev.kind == kind {
         return nil
     }
@@ -88,7 +87,7 @@ expect_token :: proc(p: ^Parser, kind: Token_Kind) -> Error {
 
 
 parse_colon :: proc(p: ^Parser) -> (err: Error) {
-    colon_err := expect_token(p, .Colon) 
+    colon_err := token_expect(p, .Colon) 
     if colon_err == nil {
         return nil
     }
@@ -98,49 +97,52 @@ parse_colon :: proc(p: ^Parser) -> (err: Error) {
 parse_comma :: proc(p: ^Parser) -> (do_break: bool) {
     switch p.spec {
     case .JSON5, .MJSON:
-        if allow_token(p, .Comma) {
+        if token_allow(p, .Comma) {
             return false
         }
         return false
     case .JSON:
-        if !allow_token(p, .Comma) {
+        if !token_allow(p, .Comma) {
             return true
         }
     }
     return false
 }
 
-parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: Error) {
+parse_value :: proc(p: ^Parser, mode: enum{Normal, Skip} = .Skip, loc := #caller_location) -> (value: Value, err: Error) {
     err = .None
     token := p.curr_token
     #partial switch token.kind {
     case .Null:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         value = Null{}
         return
     case .False:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         value = Boolean(false)
         return
     case .True:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         value = Boolean(true)
         return
 
     case .Integer:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         i, _ := strconv.parse_i64_maybe_prefixed(token.text)
         value = Integer(i)
         return
     case .Float:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         f, _ := strconv.parse_f64(token.text)
         value = Float(f)
         return
         
     case .Ident:
         if p.spec == .MJSON {
-            _, _ = advance_token(p)
+            _, _ = token_advance(p)
+            if mode == .Skip {
+                return
+            }
             str, err := strings.string_clone(token.text, p.allocator, loc)
             if err != nil {
                 return {}, .Invalid_Allocator
@@ -149,7 +151,10 @@ parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
         }
         
     case .String:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
+        if mode == .Skip {
+            return
+        }
         return unquote_string(token, p.spec, p.allocator, loc)
 
     case .Open_Brace:
@@ -161,14 +166,14 @@ parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
     case:
         if p.spec != .JSON {
             switch {
-            case allow_token(p, .Infinity):
+            case token_allow(p, .Infinity):
                 inf: u64 = 0x7ff0000000000000
                 if token.text[0] == '-' {
                     inf = 0xfff0000000000000
                 }
                 value = transmute(f64)inf
                 return
-            case allow_token(p, .NaN):
+            case token_allow(p, .NaN):
                 nan: u64 = 0x7ff7ffffffffffff
                 if token.text[0] == '-' {
                     nan = 0xfff7ffffffffffff
@@ -180,13 +185,13 @@ parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
     }
 
     err = .Unexpected_Token
-    _, _ = advance_token(p)
+    _, _ = token_advance(p)
     return
 }
 
 parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: Error) {
     err = .None
-    expect_token(p, .Open_Bracket) or_return
+    token_expect(p, .Open_Bracket) or_return
 
     array: Array
     array.allocator = p.allocator
@@ -198,7 +203,7 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
     }
 
     for p.curr_token.kind != .Close_Bracket {
-        elem := parse_value(p, loc) or_return
+        elem := parse_value(p, .Normal, loc) or_return
         _ = dyn_array.append(&array, elem, loc)
         
         if parse_comma(p) {
@@ -206,7 +211,7 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
         }
     }
 
-    expect_token(p, .Close_Bracket) or_return
+    token_expect(p, .Close_Bracket) or_return
     value = array
     return
 }
@@ -239,7 +244,7 @@ string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_locatio
 parse_object_key :: proc(p: ^Parser, key_allocator: mem.Allocator, loc := #caller_location) -> (key: string, err: Error) {
     tok := p.curr_token
     if p.spec != .JSON {
-        if allow_token(p, .Ident) {
+        if token_allow(p, .Ident) {
             str, err := strings.string_clone(tok.text, key_allocator, loc)
             if err != nil {
                 return {}, .Invalid_Allocator
@@ -247,7 +252,7 @@ parse_object_key :: proc(p: ^Parser, key_allocator: mem.Allocator, loc := #calle
             return str, .None
         }
     }
-    if tok_err := expect_token(p, .String); tok_err != nil {
+    if tok_err := token_expect(p, .String); tok_err != nil {
         err = .Expected_String_For_Object_Key
         return
     }
@@ -268,7 +273,7 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
     for p.curr_token.kind != end_token {
         key := parse_object_key(p, p.allocator, loc) or_return
         parse_colon(p) or_return
-        elem := parse_value(p, loc) or_return
+        elem := parse_value(p, .Normal, loc) or_return
 
         if key in obj {
             err = .Duplicate_Object_Key
@@ -295,9 +300,9 @@ parse_object_body :: proc(p: ^Parser, end_token: Token_Kind, loc := #caller_loca
 }
 
 parse_object :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: Error) {
-    expect_token(p, .Open_Brace) or_return
+    token_expect(p, .Open_Brace) or_return
     obj := parse_object_body(p, .Close_Brace, loc) or_return
-    expect_token(p, .Close_Brace) or_return
+    token_expect(p, .Close_Brace) or_return
     return obj, .None
 }
 

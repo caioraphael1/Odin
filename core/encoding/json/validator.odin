@@ -2,7 +2,7 @@ import "base:mem"
 
 // NOTE(bill): is_valid will not check for duplicate keys
 is_valid :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := false) -> bool {
-    p := make_parser(data, spec, parse_integers, {})
+    p := parser_create(data, spec, parse_integers, {})
         // (2026-03-07) it was a nil allocator
     
     switch p.spec {
@@ -22,11 +22,11 @@ is_valid :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := 
 
 validate_object_key :: proc(p: ^Parser) -> bool {
     if p.spec != .JSON {
-        if allow_token(p, .Ident) {
+        if token_allow(p, .Ident) {
             return true
         }
     }
-    err := expect_token(p, .String)
+    err := token_expect(p, .String)
     return err == .None
 }
 
@@ -48,20 +48,20 @@ validate_object_body :: proc(p: ^Parser, end_token: Token_Kind) -> bool {
 }
 
 validate_object :: proc(p: ^Parser) -> bool {
-    if err := expect_token(p, .Open_Brace); err != .None {
+    if err := token_expect(p, .Open_Brace); err != .None {
         return false
     }
     
     validate_object_body(p, .Close_Brace) or_return
 
-    if err := expect_token(p, .Close_Brace); err != .None {
+    if err := token_expect(p, .Close_Brace); err != .None {
         return false
     }
     return true
 }
 
 validate_array :: proc(p: ^Parser) -> bool {
-    if err := expect_token(p, .Open_Bracket); err != .None {
+    if err := token_expect(p, .Open_Bracket); err != .None {
         return false
     }
 
@@ -75,7 +75,7 @@ validate_array :: proc(p: ^Parser) -> bool {
         }
     }
 
-    if err := expect_token(p, .Close_Bracket); err != .None {
+    if err := token_expect(p, .Close_Bracket); err != .None {
         return false
     }
 
@@ -87,13 +87,13 @@ validate_value :: proc(p: ^Parser) -> bool {
 
     #partial switch token.kind {
     case .Null, .False, .True:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         return true
     case .Integer, .Float:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         return true
     case .String:
-        _, _ = advance_token(p)
+        _, _ = token_advance(p)
         return is_valid_string_literal(token.text, p.spec)
 
     case .Open_Brace:
@@ -104,7 +104,7 @@ validate_value :: proc(p: ^Parser) -> bool {
         
     case .Ident:
         if p.spec == .MJSON {
-            _, _ = advance_token(p)
+            _, _ = token_advance(p)
             return true
         }
         return false
@@ -113,7 +113,7 @@ validate_value :: proc(p: ^Parser) -> bool {
         if p.spec != .JSON {
             #partial switch token.kind {
             case .Infinity, .NaN:
-                _, _ = advance_token(p)
+                _, _ = token_advance(p)
                 return true
             }
         }

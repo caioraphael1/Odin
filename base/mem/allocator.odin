@@ -177,9 +177,6 @@ Allocates a memory region of size `size`, aligned on a boundary specified by
 1. The memory region, if allocated successfully, or `nil` otherwise.
 2. An error, if allocation failed.
 
-**Note**: The nil allocator may return `nil`, even if no error is returned.
-Always check both the error and the allocated buffer.
-
 **Note**: The `.Alloc` mode is required to be implemented for an allocator
 and can not return a `.Mode_Not_Implemented` error.
 
