@@ -1,7 +1,7 @@
 import "base:intrinsics"
 
 import "base:slice"
-import "core:strings"
+import "base:strings"
 import "core:os"
 import "core:strconv"
 import "core:time/datetime"
@@ -629,7 +629,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
     defer if err != nil { _ = strings.string_delete(region_name_out, allocator) }
 
     region: ^datetime.TZ_Region
-    region, err = new_clone(datetime.TZ_Region{
+    region, err = mem.new_clone(datetime.TZ_Region{
         records    = records,
         shortnames = ltt_names[:],
         name       = region_name_out,

@@ -230,8 +230,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
     builder_from_bytes_example :: proc() {
         bytes: [8]byte // <-- gets filled
         builder := strings_tools.builder_from_bytes(bytes[:])
@@ -358,8 +356,6 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     write_byte_example :: proc() {
         builder := strings_tools.builder_make()
@@ -390,13 +386,11 @@ Inputs:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     write_bytes_example :: proc() {
         builder := strings_tools.builder_make()
         bytes := [?]byte { 'a', 'b', 'c' }
-        strings.write_bytes(&builder, bytes[:]) // 3
+        strings_tools.write_bytes(&builder, bytes[:]) // 3
         fmt.println(strings_tools.to_string(builder)) // -> abc
     }
 
@@ -428,8 +422,6 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     write_rune_example :: proc() {
         builder := strings_tools.builder_make()
@@ -461,8 +453,6 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     write_quoted_rune_example :: proc() {
         builder := strings_tools.builder_make()
@@ -495,8 +485,6 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     write_string_example :: proc() {
         builder := strings_tools.builder_make()
@@ -573,9 +561,6 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
-
     write_quoted_string_example :: proc() {
         builder := strings_tools.builder_make()
         strings.write_quoted_string(&builder, "a")        // 3
@@ -609,8 +594,6 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     write_encoded_rune_example :: proc() {
         builder := strings_tools.builder_make()
@@ -721,8 +704,6 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     write_f32_example :: proc() {
         builder := strings_tools.builder_make()

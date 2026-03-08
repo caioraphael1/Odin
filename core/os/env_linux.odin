@@ -4,7 +4,7 @@ import "base:intrinsics"
 
 import "core:sync"
 import "base:slice"
-import "core:strings"
+import "base:strings"
 import "core:sys/linux"
 import "core:sys/posix"
 
@@ -324,7 +324,7 @@ when ODIN_NO_CRT {
 
     _clear_env :: proc() {
         for entry := posix.environ[0]; entry != nil; entry = posix.environ[0] {
-            key := strings.truncate_to_byte(string(entry), '=')
+            key := strings_tools.truncate_to_byte(string(entry), '=')
             _unset_env(key)
         }
     }

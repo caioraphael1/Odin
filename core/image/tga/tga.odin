@@ -12,7 +12,7 @@ import "base:mem"
 import "core:image"
 import "core:bytes"
 import "core:compress"
-import "core:strings"
+import "base:strings"
 
 // TODO: alpha_premultiply support
 
@@ -72,14 +72,14 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
         Encode loop starts here.
     */
     if img.channels == 3 {
-        pix := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
-        out := mem.slice_data_cast([]RGB_Pixel, output.buf[written:])
+        pix := slice.data_cast([]RGB_Pixel, img.pixels.buf[:])
+        out := slice.data_cast([]RGB_Pixel, output.buf[written:])
         for p, i in pix {
             out[i] = p.bgr
         }
     } else if img.channels == 4 {
-        pix := mem.slice_data_cast([]RGBA_Pixel, img.pixels.buf[:])
-        out := mem.slice_data_cast([]RGBA_Pixel, output.buf[written:])
+        pix := slice.data_cast([]RGBA_Pixel, img.pixels.buf[:])
+        out := slice.data_cast([]RGBA_Pixel, output.buf[written:])
         for p, i in pix {
             out[i] = p.bgra
         }

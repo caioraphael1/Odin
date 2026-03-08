@@ -5,7 +5,7 @@
 import "base:internal"
 
 import "core:time"
-import "core:strings"
+import "base:strings"
 
 import kq "core:sys/kqueue"
 import    "core:sys/posix"

@@ -80,7 +80,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
     case 3:
         row_bytes  := img.width * img.channels
         row_padded := align4(row_bytes)
-        pixels := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
+        pixels := slice.data_cast([]RGB_Pixel, img.pixels.buf[:])
         for y in 0..<img.height {
             row_offset := row_padded * (img.height - y - 1) + written
             for x in 0..<img.width {
@@ -94,7 +94,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 
     case 4:
         row_bytes  := img.width * img.channels
-        pixels := mem.slice_data_cast([]RGBA_Pixel, img.pixels.buf[:])
+        pixels := slice.data_cast([]RGBA_Pixel, img.pixels.buf[:])
         for y in 0..<img.height {
             row_offset := row_bytes * (img.height - y - 1) + written
             for x in 0..<img.width {
@@ -198,7 +198,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     }
     img.which = .BMP
 
-    img.metadata = new_clone(image.BMP_Info{
+    img.metadata = mem.new_clone(image.BMP_Info{
         info = info,
     })
 
@@ -242,7 +242,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
     // Flipped vertically
     if info.height < 0 {
-        pixels := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
+        pixels := slice.data_cast([]RGB_Pixel, img.pixels.buf[:])
         for y in 0..<img.height / 2 {
             for x in 0..<img.width {
                 top := y * img.width + x
@@ -276,7 +276,7 @@ write :: proc(img: ^Image, x, y: int, pix: RGB_Pixel) -> (err: Error) {
     if y >= img.height || x >= img.width {
         return .Corrupt
     }
-    out := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
+    out := slice.data_cast([]RGB_Pixel, img.pixels.buf[:])
     internal.assert(img.height >= 1 && img.width >= 1)
     out[(img.height - y - 1) * img.width + x] = pix
     return
@@ -494,7 +494,7 @@ decode_rgb :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
         stride := align4(img.width * 2)
         for y in 0..<img.height {
             data   := compress.read_slice(ctx, stride) or_return
-            pixels := mem.slice_data_cast([]u16le, data)
+            pixels := slice.data_cast([]u16le, data)
             for x in 0..<img.width {
                 v := pixels[x]
                 r := scale(v, bm.mask.r, bm.shift.r, bm.bits.r)
@@ -511,7 +511,7 @@ decode_rgb :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
         stride := align4(img.width * 3)
         for y in 0..<img.height {
             data   := compress.read_slice(ctx, stride) or_return
-            pixels := mem.slice_data_cast([]RGB_Pixel, data)
+            pixels := slice.data_cast([]RGB_Pixel, data)
             for x in 0..<img.width {
                 write(img, x, y, pixels[x].bgr) or_return
             }
@@ -525,7 +525,7 @@ decode_rgb :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
 
         for y in 0..<img.height {
             data   := compress.read_slice(ctx, img.width * size_of(RGBA_Pixel)) or_return
-            pixels := mem.slice_data_cast([]u32le, data)
+            pixels := slice.data_cast([]u32le, data)
             for x in 0..<img.width {
                 v := pixels[x]
                 r := scale(v, bm.mask.r, bm.shift.r, bm.bits.r)
@@ -549,7 +549,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
     if dyn_array.resize(&img.pixels.buf, bytes_needed) != nil {
         return .Unable_To_Allocate_Or_Resize
     }
-    out := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
+    out := slice.data_cast([]RGB_Pixel, img.pixels.buf[:])
     internal.assert(len(out) == img.height * img.width)
 
     palette: [256]RGBA_Pixel

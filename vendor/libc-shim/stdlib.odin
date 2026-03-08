@@ -7,7 +7,7 @@ import "core:c"
 import "base:slice"
 import "core:sort"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 
 @(require, linkage="strong", link_name="malloc")
 malloc :: proc "c" (size: uint) -> rawptr {
@@ -91,7 +91,7 @@ atoll :: proc "c" (str: cstring) -> c.longlong {
     context = g_ctx
 
     sstr := string(str)
-    sstr  = strings.trim_left_space(sstr)
+    sstr  = strings_tools.trim_left_space(sstr)
     i, _ := strconv.parse_i64_of_base(sstr, 10)
     return c.longlong(i)
 }
@@ -101,7 +101,7 @@ atof :: proc "c" (str: cstring) -> f64 {
     context = g_ctx
 
     sstr := string(str)
-    sstr  = strings.trim_left_space(sstr)
+    sstr  = strings_tools.trim_left_space(sstr)
     f, _ := strconv.parse_f64(sstr)
     return f
 }
@@ -110,7 +110,7 @@ atof :: proc "c" (str: cstring) -> f64 {
 strtol :: proc "c" (str: cstring, str_end: ^cstring, base: i32) -> c.long {
     context = g_ctx
     sstr := string(str)
-    sstr  = strings.trim_left_space(sstr)
+    sstr  = strings_tools.trim_left_space(sstr)
 
     n: int
     i, _ := strconv.parse_i64_of_base(sstr, int(base), &n)
@@ -126,7 +126,7 @@ strtod :: proc "c" (str: cstring, str_end: ^cstring) -> c.double {
     context = g_ctx
 
     sstr := string(str)
-    sstr  = strings.trim_left_space(sstr)
+    sstr  = strings_tools.trim_left_space(sstr)
 
     n: int
     val, _ := strconv.parse_f64(sstr, &n)

@@ -1,10 +1,11 @@
 #+build darwin, freebsd, openbsd, netbsd, linux, windows, wasi
 #+private
 
+import "base:mem"
+import "base:slice"
 
 import "core:os"
 
-import "base:mem"
 
 load_resolv_conf :: proc(resolv_conf_path: string, allocator: mem.Allocator) -> (name_servers: []Endpoint, ok: bool) {
     res, err := os.read_entire_file_from_path(resolv_conf_path, allocator)

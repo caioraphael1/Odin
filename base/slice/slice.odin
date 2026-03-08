@@ -451,7 +451,7 @@ reinterpret :: proc($T: typeid/[]$U, s: []$V) -> []U {
     when size_of(U) == 0 || size_of(V) == 0 {
         return nil
     } else {
-        bytes := to_bytes(s)
+        bytes := bytes_from_slice(s)
         n := len(bytes) / size_of(U)
         return ([^]U)(raw_data(bytes))[:n]
     }

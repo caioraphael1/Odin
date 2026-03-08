@@ -24,7 +24,7 @@
 import "base:internal"
 import "core:unicode/utf8"
 import "core:unicode"
-import "core:strings"
+import "base:strings"
 
 MAX_RUNE_CODEPOINT :: int(unicode.MAX_RUNE)
 

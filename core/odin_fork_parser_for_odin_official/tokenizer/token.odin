@@ -1,7 +1,7 @@
 package odin_tokenizer
 
 
-import "core:strings"
+import "base:strings"
 
 Token :: struct {
 	kind: Token_Kind,

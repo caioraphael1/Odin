@@ -10,7 +10,7 @@ import "base:mem"
 import "core:net"
 import "core:path/filepath"
 import "base:slice"
-import "core:strings"
+import "base:strings"
 import "core:sync"
 import "core:time"
 

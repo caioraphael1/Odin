@@ -4859,7 +4859,7 @@ Buffer_contentsPointer :: #force_inline proc "c" (self: ^Buffer) -> rawptr {
 Buffer_contentsAsSlice :: #force_inline proc "c" (self: ^Buffer, $T: typeid/[]$E) -> T {
     contents := msgSend([^]byte, self, "contents")
     length := Buffer_length(self)
-    return mem.slice_data_cast(T, contents[:length])
+    return slice.data_cast(T, contents[:length])
 }
 @(objc_type=Buffer, objc_name="contentsAsType")
 Buffer_contentsAsType :: #force_inline proc "c" (self: ^Buffer, $T: typeid, offset: uintptr = 0) -> ^T {

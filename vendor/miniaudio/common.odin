@@ -1,3 +1,6 @@
+import "base:internal"
+import "base:slice"
+
 import "core:c"
 
 MINIAUDIO_SHARED :: #config(MINIAUDIO_SHARED, false)
@@ -28,17 +31,17 @@ version_check :: proc() {
     version(&v.x, &v.y, &v.z)
     if v != BINDINGS_VERSION {
         buf: [1024]byte
-        n := slice.copy(buf[:],  "miniaudio version mismatch: ")
-        n += slice.copy(buf[n:], "bindings are for version ")
-        n += slice.copy(buf[n:], BINDINGS_VERSION_STRING)
-        n += slice.copy(buf[n:], ", but version ")
-        n += slice.copy(buf[n:], string(version_string()))
-        n += slice.copy(buf[n:], " is linked, make sure to compile the correct miniaudio version by going to `vendor/miniaudio/src` ")
+        n := slice.copy_from_string(buf[:],  "miniaudio version mismatch: ")
+        n += slice.copy_from_string(buf[n:], "bindings are for version ")
+        n += slice.copy_from_string(buf[n:], BINDINGS_VERSION_STRING)
+        n += slice.copy_from_string(buf[n:], ", but version ")
+        n += slice.copy_from_string(buf[n:], string(version_string()))
+        n += slice.copy_from_string(buf[n:], " is linked, make sure to compile the correct miniaudio version by going to `vendor/miniaudio/src` ")
 
         when ODIN_OS == .Windows {
-            n += slice.copy(buf[n:], "and executing `build.bat`")
+            n += slice.copy_from_string(buf[n:], "and executing `build.bat`")
         } else {
-            n += slice.copy(buf[n:], "and executing `make`")
+            n += slice.copy_from_string(buf[n:], "and executing `make`")
         }
 
         internal.panic(string(buf[:n]))

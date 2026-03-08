@@ -2,7 +2,7 @@ import "base:mem"
 import "base:internal"
 import "core:io"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 
 /*
 Write a UUID in the 8-4-4-4-12 format.

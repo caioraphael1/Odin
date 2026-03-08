@@ -1,6 +1,6 @@
 import "base:internal"
 
-import "core:strings"
+import "base:strings"
 import "core:sys/posix"
 
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {

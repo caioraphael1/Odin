@@ -794,8 +794,8 @@ return_single_channel :: proc(img: ^Image, channel: Channel) -> (res: ^Image, ok
         t = bytes.Buffer{}
         _ = dyn_array.resize(&t.buf, buffer_size)
 
-        i := mem.slice_data_cast([]u16, img.pixels.buf[:])
-        o := mem.slice_data_cast([]u16, t.buf[:])
+        i := slice.data_cast([]u16, img.pixels.buf[:])
+        o := slice.data_cast([]u16, t.buf[:])
 
         for len(i) > 0 {
             o[0] = i[idx]
@@ -936,8 +936,8 @@ alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator : 
         switch channels {
         case 2:
             // Turn Gray into Gray + Alpha
-            inp := mem.slice_data_cast([]G_Pixel,  img.pixels.buf[:])
-            out := mem.slice_data_cast([]GA_Pixel, buf.buf[:])
+            inp := slice.data_cast([]G_Pixel,  img.pixels.buf[:])
+            out := slice.data_cast([]GA_Pixel, buf.buf[:])
 
             if key, key_ok := alpha_key.(GA_Pixel); key_ok {
                 // We have keyed alpha.
@@ -963,8 +963,8 @@ alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator : 
 
         case 4:
             // Turn RGB into RGBA
-            inp := mem.slice_data_cast([]RGB_Pixel,  img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGBA_Pixel, buf.buf[:])
+            inp := slice.data_cast([]RGB_Pixel,  img.pixels.buf[:])
+            out := slice.data_cast([]RGBA_Pixel, buf.buf[:])
 
             if key, key_ok := alpha_key.(RGBA_Pixel); key_ok {
                 // We have keyed alpha.
@@ -995,8 +995,8 @@ alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator : 
         switch channels {
         case 2:
             // Turn Gray into Gray + Alpha
-            inp := mem.slice_data_cast([]G_Pixel_16,  img.pixels.buf[:])
-            out := mem.slice_data_cast([]GA_Pixel_16, buf.buf[:])
+            inp := slice.data_cast([]G_Pixel_16,  img.pixels.buf[:])
+            out := slice.data_cast([]GA_Pixel_16, buf.buf[:])
 
             if key, key_ok := alpha_key.(GA_Pixel_16); key_ok {
                 // We have keyed alpha.
@@ -1022,8 +1022,8 @@ alpha_add_if_missing :: proc(img: ^Image, alpha_key := Alpha_Key{}, allocator : 
 
         case 4:
             // Turn RGB into RGBA
-            inp := mem.slice_data_cast([]RGB_Pixel_16,  img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGBA_Pixel_16, buf.buf[:])
+            inp := slice.data_cast([]RGB_Pixel_16,  img.pixels.buf[:])
+            out := slice.data_cast([]RGBA_Pixel_16, buf.buf[:])
 
             if key, key_ok := alpha_key.(RGBA_Pixel_16); key_ok {
                 // We have keyed alpha.
@@ -1125,8 +1125,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
     case 8:
         switch img.channels {
         case 1: // Gray to Gray, but we should have keyed alpha + background.
-            inp := mem.slice_data_cast([]G_Pixel, img.pixels.buf[:])
-            out := mem.slice_data_cast([]G_Pixel, buf.buf[:])
+            inp := slice.data_cast([]G_Pixel, img.pixels.buf[:])
+            out := slice.data_cast([]G_Pixel, buf.buf[:])
 
             key := alpha_key.(GA_Pixel).r
             bg  := G_Pixel{}
@@ -1141,8 +1141,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
             }
 
         case 2: // Gray + Alpha to Gray, no keyed alpha but we can have a background.
-            inp := mem.slice_data_cast([]GA_Pixel, img.pixels.buf[:])
-            out := mem.slice_data_cast([]G_Pixel,  buf.buf[:])
+            inp := slice.data_cast([]GA_Pixel, img.pixels.buf[:])
+            out := slice.data_cast([]G_Pixel,  buf.buf[:])
 
             if will_it_blend {
                 // Blend with background "color", then drop alpha.
@@ -1176,8 +1176,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
             }
 
         case 3: // RGB to RGB, but we should have keyed alpha + background.
-            inp := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGB_Pixel, buf.buf[:])
+            inp := slice.data_cast([]RGB_Pixel, img.pixels.buf[:])
+            out := slice.data_cast([]RGB_Pixel, buf.buf[:])
 
             key := alpha_key.(RGBA_Pixel)
             bg  := RGB_Pixel{}
@@ -1192,8 +1192,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
             }
 
         case 4: // RGBA to RGB, no keyed alpha but we can have a background or need to premultiply.
-            inp := mem.slice_data_cast([]RGBA_Pixel, img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGB_Pixel,  buf.buf[:])
+            inp := slice.data_cast([]RGBA_Pixel, img.pixels.buf[:])
+            out := slice.data_cast([]RGB_Pixel,  buf.buf[:])
 
             if will_it_blend {
                 // Blend with background "color", then drop alpha.
@@ -1234,8 +1234,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
     case 16:
         switch img.channels {
         case 1: // Gray to Gray, but we should have keyed alpha + background.
-            inp := mem.slice_data_cast([]G_Pixel_16, img.pixels.buf[:])
-            out := mem.slice_data_cast([]G_Pixel_16, buf.buf[:])
+            inp := slice.data_cast([]G_Pixel_16, img.pixels.buf[:])
+            out := slice.data_cast([]G_Pixel_16, buf.buf[:])
 
             key := alpha_key.(GA_Pixel_16).r
             bg  := G_Pixel_16{}
@@ -1250,8 +1250,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
             }
 
         case 2: // Gray + Alpha to Gray, no keyed alpha but we can have a background.
-            inp := mem.slice_data_cast([]GA_Pixel_16, img.pixels.buf[:])
-            out := mem.slice_data_cast([]G_Pixel_16,  buf.buf[:])
+            inp := slice.data_cast([]GA_Pixel_16, img.pixels.buf[:])
+            out := slice.data_cast([]G_Pixel_16,  buf.buf[:])
 
             if will_it_blend {
                 // Blend with background "color", then drop alpha.
@@ -1285,8 +1285,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
             }
 
         case 3: // RGB to RGB, but we should have keyed alpha + background.
-            inp := mem.slice_data_cast([]RGB_Pixel_16, img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGB_Pixel_16, buf.buf[:])
+            inp := slice.data_cast([]RGB_Pixel_16, img.pixels.buf[:])
+            out := slice.data_cast([]RGB_Pixel_16, buf.buf[:])
 
             key := alpha_key.(RGBA_Pixel_16)
             bg  := img.background.(RGB_Pixel_16)
@@ -1297,8 +1297,8 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
             }
 
         case 4: // RGBA to RGB, no keyed alpha but we can have a background or need to premultiply.
-            inp := mem.slice_data_cast([]RGBA_Pixel_16, img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGB_Pixel_16,  buf.buf[:])
+            inp := slice.data_cast([]RGBA_Pixel_16, img.pixels.buf[:])
+            out := slice.data_cast([]RGB_Pixel_16,  buf.buf[:])
 
             if will_it_blend {
                 // Blend with background "color", then drop alpha.
@@ -1370,7 +1370,7 @@ apply_palette_rgb :: proc(img: ^Image, palette: [256]RGB_Pixel, allocator : mem.
         return false
     }
 
-    out := mem.slice_data_cast([]RGB_Pixel, buf.buf[:])
+    out := slice.data_cast([]RGB_Pixel, buf.buf[:])
 
     // Apply the palette
     for p, i in img.pixels.buf {
@@ -1407,7 +1407,7 @@ apply_palette_rgba :: proc(img: ^Image, palette: [256]RGBA_Pixel, allocator : me
         return false
     }
 
-    out := mem.slice_data_cast([]RGBA_Pixel, buf.buf[:])
+    out := slice.data_cast([]RGBA_Pixel, buf.buf[:])
 
     // Apply the palette
     for p, i in img.pixels.buf {
@@ -1461,19 +1461,19 @@ blend_pixel :: #force_inline proc(fg: [$N]$T, alpha: T, bg: [N]T) -> (res: [N]T)
 premultiply_alpha :: proc(img: ^Image) -> (ok: bool) {
     switch {
     case img.channels == 2 && img.depth == 8:
-        pixels := mem.slice_data_cast([]GA_Pixel, img.pixels.buf[:])
+        pixels := slice.data_cast([]GA_Pixel, img.pixels.buf[:])
         for &pixel in pixels {
             pixel.r = u8(u32(pixel.r) * u32(pixel.g) / 0xFF)
         }
         return true
     case img.channels == 2 && img.depth == 16:
-        pixels := mem.slice_data_cast([]GA_Pixel_16, img.pixels.buf[:])
+        pixels := slice.data_cast([]GA_Pixel_16, img.pixels.buf[:])
         for &pixel in pixels {
             pixel.r = u16(u32(pixel.r) * u32(pixel.g) / 0xFFFF)
         }
         return true
     case img.channels == 4 && img.depth == 8:
-        pixels := mem.slice_data_cast([]RGBA_Pixel, img.pixels.buf[:])
+        pixels := slice.data_cast([]RGBA_Pixel, img.pixels.buf[:])
         for &pixel in pixels {
             pixel.r = u8(u32(pixel.r) * u32(pixel.a) / 0xFF)
             pixel.g = u8(u32(pixel.g) * u32(pixel.a) / 0xFF)
@@ -1481,7 +1481,7 @@ premultiply_alpha :: proc(img: ^Image) -> (ok: bool) {
         }
         return true
     case img.channels == 4 && img.depth == 16:
-        pixels := mem.slice_data_cast([]RGBA_Pixel_16, img.pixels.buf[:])
+        pixels := slice.data_cast([]RGBA_Pixel_16, img.pixels.buf[:])
         for &pixel in pixels {
             pixel.r = u16(u32(pixel.r) * u32(pixel.a) / 0xFFFF)
             pixel.g = u16(u32(pixel.g) * u32(pixel.a) / 0xFFFF)
@@ -1514,7 +1514,7 @@ expand_grayscale :: proc(img: ^Image, allocator : mem.Allocator) -> (ok: bool) {
     case 8:
         switch img.channels {
         case 1: // Turn Gray into RGB
-            out := mem.slice_data_cast([]RGB_Pixel, buf.buf[:])
+            out := slice.data_cast([]RGB_Pixel, buf.buf[:])
 
             for p in img.pixels.buf {
                 out[0] = p // Broadcast gray value into RGB components.
@@ -1522,8 +1522,8 @@ expand_grayscale :: proc(img: ^Image, allocator : mem.Allocator) -> (ok: bool) {
             }
 
         case 2: // Turn Gray + Alpha into RGBA
-            inp := mem.slice_data_cast([]GA_Pixel,   img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGBA_Pixel, buf.buf[:])
+            inp := slice.data_cast([]GA_Pixel,   img.pixels.buf[:])
+            out := slice.data_cast([]RGBA_Pixel, buf.buf[:])
 
             for p in inp {
                 out[0].rgb = p.r // Gray component.
@@ -1538,8 +1538,8 @@ expand_grayscale :: proc(img: ^Image, allocator : mem.Allocator) -> (ok: bool) {
     case 16:
         switch img.channels {
         case 1: // Turn Gray into RGB
-            inp := mem.slice_data_cast([]u16, img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGB_Pixel_16, buf.buf[:])
+            inp := slice.data_cast([]u16, img.pixels.buf[:])
+            out := slice.data_cast([]RGB_Pixel_16, buf.buf[:])
 
             for p in inp {
                 out[0] = p // Broadcast gray value into RGB components.
@@ -1547,8 +1547,8 @@ expand_grayscale :: proc(img: ^Image, allocator : mem.Allocator) -> (ok: bool) {
             }
 
         case 2: // Turn Gray + Alpha into RGBA
-            inp := mem.slice_data_cast([]GA_Pixel_16,   img.pixels.buf[:])
-            out := mem.slice_data_cast([]RGBA_Pixel_16, buf.buf[:])
+            inp := slice.data_cast([]GA_Pixel_16,   img.pixels.buf[:])
+            out := slice.data_cast([]RGBA_Pixel_16, buf.buf[:])
 
             for p in inp {
                 out[0].rgb = p.r // Gray component.

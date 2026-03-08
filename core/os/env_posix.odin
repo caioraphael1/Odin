@@ -2,7 +2,7 @@
 #+build darwin, netbsd, freebsd, openbsd
 import "base:internal"
 
-import "core:strings"
+import "base:strings"
 import "core:sys/posix"
 
 _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
@@ -77,7 +77,7 @@ _unset_env :: proc(key: string) -> (ok: bool) {
 
 _clear_env :: proc() {
     for entry := posix.environ[0]; entry != nil; entry = posix.environ[0] {
-        key := strings.truncate_to_byte(string(entry), '=')
+        key := strings_tools.truncate_to_byte(string(entry), '=')
         _unset_env(key)
     }
 }

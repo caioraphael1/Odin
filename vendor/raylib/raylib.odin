@@ -1730,7 +1730,7 @@ TextFormat :: proc(text: cstring, args: ..any) -> cstring {
     @(static) index: u32
     
     buffer := buffers[index][:]
-    mem.slice.zero(buffer)
+    slice.zero(buffer)
     
     index = (index+1)%MAX_TEXTFORMAT_BUFFERS
     

@@ -10,7 +10,7 @@ Based off the articles by rxi:
 import "base:internal"
 import "core:time"
 import "base:mem"
-import "core:strings"
+import "base:strings"
 import "core:unicode/utf8"
 
 DEFAULT_UNDO_TIMEOUT :: 300 * time.Millisecond

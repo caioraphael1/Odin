@@ -4,7 +4,7 @@ import "core:io"
 import "core:reflect"
 import "base:slice"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 import "base:mem"
 
 /*
@@ -268,9 +268,9 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
 
             strings_tools.write_byte(&usage_builder, '\n')
             iter := strings_tools.trim_space(flag.usage)
-            for line in strings.split_lines_iterator(&iter) {
+            for line in strings_tools.split_lines_iterator(&iter) {
                 strings_tools.write_string(&usage_builder, "\t\t")
-                strings_tools.write_string(&usage_builder, strings.trim_left_space(line))
+                strings_tools.write_string(&usage_builder, strings_tools.trim_left_space(line))
                 strings_tools.write_byte(&usage_builder, '\n')
             }
 

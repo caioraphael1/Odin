@@ -408,7 +408,7 @@ internal_int_pack_count :: proc(a: ^Int, $T: typeid, nails := 0) -> (size_needed
 		Use `internal_int_pack_count(a, T, nails)` to calculate the necessary size.
 		The library internally uses `DIGIT` as the type, which is u64 or u32 depending on the platform.
 		You are of course welcome to export to []u8, []u32be, and so forth.
-		After this you can use `mem.slice_data_cast` to interpret the buffer as bytes if you so choose.
+		After this you can use `slice.data_cast` to interpret the buffer as bytes if you so choose.
 
 	`nails` are the number of top bits the output "word" reserves.
 		To mimic the internals of this library, this would be 4.

@@ -5,7 +5,7 @@ import "base:internal"
 import "core:log"
 import "base:mem"
 import "base:math"
-import "core:strings"
+import "base:strings"
 import "base:slice"
 
 import stbtt "vendor:stb/truetype"

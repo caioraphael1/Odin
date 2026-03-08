@@ -18,28 +18,32 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "core:strings"
+import "base:strings"
+import "base:mem"
+import "base:slice"
+import "base:maps"
+
+import "core:strings_tools"
 import "core:strconv"
 import "core:unicode/utf8"
 import "core:encoding/hex"
-import "base:mem"
 
 split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path: string, queries: map[string]string, fragment: string) {
     s := url
 
-    i := strings.index(s, "://")
+    i := strings_tools.index(s, "://")
     if i >= 0 {
         scheme = s[:i]
         s = s[i+3:]
     }
 
-    i = strings.index(s, "#")
+    i = strings_tools.index(s, "#")
     if i != -1 {
         fragment = s[i+1:]
         s = s[:i]
     }
 
-    i = strings.index(s, "?")
+    i = strings_tools.index(s, "?")
     if i != -1 {
         query_str := s[i+1:]
         s = s[:i]
@@ -59,7 +63,7 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
         }
     }
 
-    i = strings.index(s, "/")
+    i = strings_tools.index(s, "/")
     if i == -1 {
         host = s
         path = "/"
@@ -73,7 +77,7 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
 
 join_url :: proc(scheme, host, path: string, queries: map[string]string, fragment: string, allocator: mem.Allocator) -> string {
     b := strings_tools.builder_make(allocator)
-    strings.builder_grow(&b, len(scheme) + 3 + len(host) + 1 + len(path))
+    strings_tools.builder_grow(&b, len(scheme) + 3 + len(host) + 1 + len(path))
 
     strings_tools.write_string(&b, scheme)
     strings_tools.write_string(&b, "://")
@@ -116,7 +120,7 @@ join_url :: proc(scheme, host, path: string, queries: map[string]string, fragmen
 
 percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
     b := strings_tools.builder_make(allocator)
-    strings.builder_grow(&b, len(s) + 16) // NOTE(tetra): A reasonable number to allow for the number of things we need to escape.
+    strings_tools.builder_grow(&b, len(s) + 16) // NOTE(tetra): A reasonable number to allow for the number of things we need to escape.
 
     for ch in s {
         switch ch {
@@ -138,7 +142,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
 
 percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (decoded_string: string, ok: bool) {
     b := strings_tools.builder_make(allocator)
-    strings.builder_grow(&b, len(encoded_string))
+    strings_tools.builder_grow(&b, len(encoded_string))
     defer if !ok {
         strings_tools.builder_destroy(&b)
     }

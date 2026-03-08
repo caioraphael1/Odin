@@ -89,7 +89,7 @@ draw_segs_quad_buffer :: proc(x, y: f32, segs: []u8, vertical: bool, c: Color, b
 
 // Compatible with original C API
 draw_segs_vertex_buffer :: proc(x, y: f32, segs: []u8, vertical: bool, c: Color, vbuf: []byte, start_offset: int, scale := f32(1.0)) -> (offset: int) {
-    buf := mem.slice_data_cast([]Quad, vbuf)
+    buf := slice.data_cast([]Quad, vbuf)
     offset = draw_segs_quad_buffer(x, y, segs, vertical, c, buf, start_offset / size_of(Quad), scale) * size_of(Quad)
     return offset
 }
@@ -139,7 +139,7 @@ print_quad_buffer :: proc(x, y: f32, text: string, color: Color, quad_buffer: []
 
 // Compatible with original C API
 print_vertex_buffer :: proc(x, y: f32, text: string, color: Color, vertex_buffer: []byte, scale := f32(1.0)) -> int {
-    buf := mem.slice_data_cast([]Quad, vertex_buffer)
+    buf := slice.data_cast([]Quad, vertex_buffer)
     return print_quad_buffer(x, y, text, color, buf, scale)
 }
 

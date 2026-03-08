@@ -7,7 +7,7 @@
 @(require) import "core:os"
 @(require) import "core:reflect"
 @(require) import "core:strconv"
-@(require) import "core:strings"
+@(require) import "base:strings"
 
 // This proc is used to assert that `T` meets the expectations of the library.
 @(optimization_mode="favor_size", disabled=ODIN_DISABLE_ASSERT)
@@ -46,7 +46,7 @@ validate_structure :: proc(model_type: $T, style: Parsing_Style, loc := #caller_
 			fmt.assertf(len(name) > 0, "%T.%s has a zero-length `%s`.",
 				model_type, field.name, SUBTAG_NAME, loc = loc)
 
-			fmt.assertf(strings.index(name, " ") == -1, "%T.%s has a `%s` with spaces in it.",
+			fmt.assertf(strings_tools.index(name, " ") == -1, "%T.%s has a `%s` with spaces in it.",
 				model_type, field.name, SUBTAG_NAME, loc = loc)
 
 			switch name {

@@ -1,4 +1,4 @@
-import "core:strings"
+import "base:strings"
 import "base:internal"
 import "base:intrinsics"
 

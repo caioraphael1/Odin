@@ -1,7 +1,7 @@
 // Reader and writer for a variant of the `.ini` file format with `key = value` entries in `[sections]`.
 import "base:internal"
 import "base:intrinsics"
-import "core:strings"
+import "base:strings"
 import "core:strconv"
 import "core:io"
 import "core:os"
@@ -36,7 +36,7 @@ iterator_from_string :: proc(src: string, options := DEFAULT_OPTIONS) -> Iterato
 // Returns the raw `key` and `value`. `ok` will be false if no more key=value pairs cannot be found.
 // They key and value may be quoted, which may require the use of `strconv.unquote_string`.
 iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
-    for line_ in strings.split_lines_iterator(&it._src) {
+    for line_ in strings_tools.split_lines_iterator(&it._src) {
         line := strings_tools.trim_space(line_)
 
         if len(line) == 0 {
@@ -56,7 +56,7 @@ iterate :: proc(it: ^Iterator) -> (key, value: string, ok: bool) {
             continue
         }
 
-        equal := strings.index(line, " =") // check for things keys that `ctrl+= = zoom_in`
+        equal := strings_tools.index(line, " =") // check for things keys that `ctrl+= = zoom_in`
         quote := strings_tools.index_byte(line, '"')
         if equal < 0 || quote > 0 && quote < equal {
             equal = strings_tools.index_byte(line, '=')
@@ -108,7 +108,7 @@ load_map_from_string :: proc(src: string, allocator: mem.Allocator, options := D
         new_key := unquote(key) or_return
         if options.key_lower_case {
             old_key := new_key
-            new_key = strings.to_lower(key) or_return
+            new_key = strings_tools.to_lower(key) or_return
             _ = slice.delete(old_key) or_return
         }
         pairs[new_key] = unquote(value) or_return

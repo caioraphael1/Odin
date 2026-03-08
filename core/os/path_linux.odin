@@ -1,7 +1,7 @@
 #+private
 import "base:internal"
 
-import "core:strings"
+import "base:strings"
 import "core:strconv"
 import "core:sys/linux"
 

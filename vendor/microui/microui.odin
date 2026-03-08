@@ -25,7 +25,7 @@ An Odin-native source port of [[ rxi's microui ; https://github.com/rxi/microui 
 */
 import "core:fmt"
 import "core:sort"
-import "core:strings"
+import "base:strings"
 import "core:strconv"
 import "base:math"
 import textedit "core:text/edit"

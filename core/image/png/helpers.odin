@@ -12,7 +12,7 @@
 import "core:image"
 import "core:compress/zlib"
 import coretime "core:time"
-import "core:strings"
+import "base:strings"
 import "core:bytes"
 import "base:mem"
 import "base:internal"
@@ -247,7 +247,7 @@ plte :: proc(c: image.PNG_Chunk) -> (res: PLTE, ok: bool) {
 		return {}, false
 	}
 
-	plte := mem.slice_data_cast([]image.RGB_Pixel, c.data[:])
+	plte := slice.data_cast([]image.RGB_Pixel, c.data[:])
 	for color, i in plte {
 		res.entries[i] = color
 	}
@@ -283,7 +283,7 @@ splt :: proc(c: image.PNG_Chunk) -> (res: sPLT, ok: bool) {
 			return
 		}
 
-		res.entries = mem.slice_data_cast([][4]u8, data)
+		res.entries = slice.data_cast([][4]u8, data)
 	} else { // res.depth == 16
 		if len(data) % 10 != 0 {
 			return
@@ -293,7 +293,7 @@ splt :: proc(c: image.PNG_Chunk) -> (res: sPLT, ok: bool) {
 			return
 		}
 
-		res.entries = mem.slice_data_cast([][4]u16, data)
+		res.entries = slice.data_cast([][4]u16, data)
 	}
 
 	res.name = strings.string_clone(string(fields[0]))
@@ -335,7 +335,7 @@ hist :: proc(c: image.PNG_Chunk) -> (res: hIST, ok: bool) {
 	}
 
 	ok = true
-	data := mem.slice_data_cast([]u16be, c.data)
+	data := slice.data_cast([]u16be, c.data)
 	i := 0
 	for len(data) > 0 {
 		// HIST entries are u16be, we unpack them to machine format

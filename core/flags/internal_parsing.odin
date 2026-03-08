@@ -1,7 +1,7 @@
 #+private
 import "base:bit_array"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 
 // Used to group state together.
 Parser :: struct {

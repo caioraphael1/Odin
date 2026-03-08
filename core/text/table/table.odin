@@ -280,7 +280,7 @@ first_row :: proc(tbl: ^Table) -> int {
 
 build :: proc(tbl: ^Table, width_proc: Width_Proc) {
     _ = dyn_array.resize(&tbl.colw, tbl.nr_cols)
-    mem.slice.zero(tbl.colw[:])
+    slice.zero(tbl.colw[:])
 
     for row in 0..<tbl.nr_rows {
         for col in 0..<tbl.nr_cols {

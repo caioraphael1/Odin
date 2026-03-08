@@ -5,7 +5,7 @@ import "core:bytes"
 import "core:encoding/endian"
 import "core:io"
 import "base:slice"
-import "core:strings"
+import "base:strings"
 import "base:mem"
 
 Encoder_Flag :: enum {
@@ -198,7 +198,7 @@ encode_into_bytes :: proc(v: Value, flags := ENCODE_SMALL, allocator: mem.Alloca
 // Encodes the CBOR value into binary CBOR written to the given builder.
 // See the docs on the proc group `encode_into` for more info.
 encode_into_builder :: proc(b: ^strings_tools.Builder, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
-    return encode_into_writer(strings.to_stream(b), v, flags, loc=loc)
+    return encode_into_writer(strings_tools.to_stream(b), v, flags, loc=loc)
 }
 
 // Encodes the CBOR value into binary CBOR written to the given writer.
@@ -360,7 +360,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
     
     buf := strings_tools.builder_make(0, scap, allocator, loc) or_return
     defer if err != nil { strings_tools.builder_destroy(&buf) }
-    buf_stream := strings.to_stream(&buf)
+    buf_stream := strings_tools.to_stream(&buf)
 
     if n == -1 {
         indefinite_loop: for {
@@ -535,7 +535,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
         buf := strings_tools.builder_make(e.temp_allocator) or_return
         
         ke := e
-        ke.writer = strings.to_stream(&buf)
+        ke.writer = strings_tools.to_stream(&buf)
 
         encode(ke, entry.entry.key) or_return
         entry.encoded_key = buf.buf[:]

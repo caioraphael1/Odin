@@ -4,7 +4,7 @@ import "core:fmt"
 import "core:image"
 import "base:mem"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 import "core:unicode"
 import "base:internal"
 
@@ -157,18 +157,18 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
 
         // convert from native endianness
         if img.depth == 16 {
-            pixels := mem.slice_data_cast([]u16be, data.buf[len(header_buf):])
+            pixels := slice.data_cast([]u16be, data.buf[len(header_buf):])
             for &p in pixels {
                 p = u16be(transmute(u16) p)
             }
         } else if header.format in PFM {
             if header.little_endian {
-                pixels := mem.slice_data_cast([]f32le, data.buf[len(header_buf):])
+                pixels := slice.data_cast([]f32le, data.buf[len(header_buf):])
                 for &p in pixels {
                     p = f32le(transmute(f32) p)
                 }
             } else {
-                pixels := mem.slice_data_cast([]f32be, data.buf[len(header_buf):])
+                pixels := slice.data_cast([]f32be, data.buf[len(header_buf):])
                 for &p in pixels {
                     p = f32be(transmute(f32) p)
                 }
@@ -204,7 +204,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
             }
 
         case 16:
-            pixels := mem.slice_data_cast([]u16, img.pixels.buf[:])
+            pixels := slice.data_cast([]u16, img.pixels.buf[:])
             for y in 0 ..< img.height {
                 for x in 0 ..< img.width {
                     i := y * img.width + x
@@ -362,7 +362,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
     HEADER_END :: "ENDHDR\n"
 
     // we can already work out the size of the header
-    header_end_index := strings.index(string(data), HEADER_END)
+    header_end_index := strings_tools.index(string(data), HEADER_END)
     if header_end_index == -1 {
         err = Format_Error.Incomplete_Header
         return
@@ -379,14 +379,14 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
 
     // PAM uses actual lines, so we can iterate easily
     line_iterator := string(data[SIGNATURE_LENGTH : header_end_index])
-    parse_loop: for line in strings.split_lines_iterator(&line_iterator) {
+    parse_loop: for line in strings_tools.split_lines_iterator(&line_iterator) {
         line := line
 
         if len(line) == 0 || line[0] == '#' {
             continue
         }
 
-        field, ok := strings.fields_iterator(&line)
+        field, ok := strings_tools.fields_iterator(&line)
         value := strings_tools.trim_space(line)
 
         // the field will change, but the logic stays the same
@@ -449,7 +449,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
 _parse_header_pfm :: proc(data: []byte) -> (header: Header, length: int, err: Error) {
     // we can just cycle through tokens for PFM
     field_iterator := string(data)
-    field, ok := strings.fields_iterator(&field_iterator)
+    field, ok := strings_tools.fields_iterator(&field_iterator)
 
     switch field {
     case "Pf":
@@ -467,7 +467,7 @@ _parse_header_pfm :: proc(data: []byte) -> (header: Header, length: int, err: Er
     header.depth = 32
 
     // width
-    field, ok = strings.fields_iterator(&field_iterator)
+    field, ok = strings_tools.fields_iterator(&field_iterator)
     if !ok {
         err = Format_Error.Incomplete_Header
         return
@@ -479,7 +479,7 @@ _parse_header_pfm :: proc(data: []byte) -> (header: Header, length: int, err: Er
     }
 
     // height
-    field, ok = strings.fields_iterator(&field_iterator)
+    field, ok = strings_tools.fields_iterator(&field_iterator)
     if !ok {
         err = Format_Error.Incomplete_Header
         return
@@ -491,7 +491,7 @@ _parse_header_pfm :: proc(data: []byte) -> (header: Header, length: int, err: Er
     }
 
     // scale (sign is endianness)
-    field, ok = strings.fields_iterator(&field_iterator)
+    field, ok = strings_tools.fields_iterator(&field_iterator)
     if !ok {
         err = Format_Error.Incomplete_Header
         return
@@ -574,7 +574,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator : mem.
 
         // convert to native endianness
         if header.format in PFM {
-            pixels := mem.slice_data_cast([]f32, img.pixels.buf[:])
+            pixels := slice.data_cast([]f32, img.pixels.buf[:])
             if header.little_endian {
                 for &p in pixels {
                     p = f32(transmute(f32le) p)
@@ -586,7 +586,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator : mem.
             }
         } else {
             if img.depth == 16 {
-                pixels := mem.slice_data_cast([]u16, img.pixels.buf[:])
+                pixels := slice.data_cast([]u16, img.pixels.buf[:])
                 for &p in pixels {
                     p = u16(transmute(u16be) p)
                 }
@@ -614,7 +614,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator : mem.
     // Token ASCII
     case .P2, .P3:
         field_iterator := string(data)
-        for field in strings.fields_iterator(&field_iterator) {
+        for field in strings_tools.fields_iterator(&field_iterator) {
             value, ok := strconv.parse_int(field)
             if !ok {
                 err = Format_Error.Invalid_Buffer_ASCII_Token

@@ -3,8 +3,10 @@
 
 import "base:internal"
 import "base:mem"
+import "base:strings"
+import "base:slice"
+
 import "core:io"
-import "core:strings"
 
 /*
 Encodes a byte slice into a lowercase hex sequence

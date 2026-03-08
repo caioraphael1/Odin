@@ -247,7 +247,7 @@ NOTE: Allocation occurs for the array, the splits are all views of the original 
 
 Example:
     s := "aaa.bbb.ccc.ddd.eee"  // 5 parts present
-    ss := strings.split_n(s, ".",3) // total of 3 wanted
+    ss := strings_tools.split_n(s, ".",3) // total of 3 wanted
     fmt.println(ss)
 Output:
     ["aaa", "bbb", "ccc.ddd.eee"]
@@ -484,7 +484,7 @@ Returns the current split string every iteration until the string is consumed.
 
 Example:
     text := "a\nb\nc\nd\ne"
-    for str in strings.split_lines_iterator(&text) {
+    for str in strings_tools.split_lines_iterator(&text) {
         fmt.print(str)    // every loop -> a b c d e
     }
     fmt.print("\n")
@@ -525,14 +525,14 @@ Returns the byte offset of the first rune `r` in the string `s` it finds, -1 whe
 Invalid runes return -1
 
 Example:
-    fmt.println(strings.index_rune("abcädef", 'x'))
-    fmt.println(strings.index_rune("abcädef", 'a'))
-    fmt.println(strings.index_rune("abcädef", 'b'))
-    fmt.println(strings.index_rune("abcädef", 'c'))
-    fmt.println(strings.index_rune("abcädef", 'ä'))
-    fmt.println(strings.index_rune("abcädef", 'd'))
-    fmt.println(strings.index_rune("abcädef", 'e'))
-    fmt.println(strings.index_rune("abcädef", 'f'))
+    fmt.println(strings_tools.index_rune("abcädef", 'x'))
+    fmt.println(strings_tools.index_rune("abcädef", 'a'))
+    fmt.println(strings_tools.index_rune("abcädef", 'b'))
+    fmt.println(strings_tools.index_rune("abcädef", 'c'))
+    fmt.println(strings_tools.index_rune("abcädef", 'ä'))
+    fmt.println(strings_tools.index_rune("abcädef", 'd'))
+    fmt.println(strings_tools.index_rune("abcädef", 'e'))
+    fmt.println(strings_tools.index_rune("abcädef", 'f'))
 Output:
     -1
     0
@@ -569,10 +569,10 @@ index_rune :: proc(s: string, r: rune) -> (res: int) {
 Returns the byte offset of the string `substr` in the string `s`, -1 when not found.
 
 Example:
-    fmt.println(strings.index("test", "t"))
-    fmt.println(strings.index("test", "te"))
-    fmt.println(strings.index("test", "st"))
-    fmt.println(strings.index("test", "tt"))
+    fmt.println(strings_tools.index("test", "t"))
+    fmt.println(strings_tools.index("test", "te"))
+    fmt.println(strings_tools.index("test", "st"))
+    fmt.println(strings_tools.index("test", "tt"))
 Output:
     0
     0
@@ -1084,8 +1084,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     trim_prefix_example :: proc() {
         fmt.println(strings_tools.trim_prefix("testing", "test"))
@@ -1117,12 +1115,10 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
 
     trim_suffix_example :: proc() {
-        fmt.println(strings.trim_suffix("todo.txt", ".txt"))
-        fmt.println(strings.trim_suffix("todo.doc", ".txt"))
+        fmt.println(strings_tools.trim_suffix("todo.txt", ".txt"))
+        fmt.println(strings_tools.trim_suffix("todo.doc", ".txt"))
     }
 
 Output:

@@ -89,11 +89,8 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
-
     to_lower_example :: proc() {
-        fmt.println(strings.to_lower("TeST"))
+        fmt.println(strings_tools.to_lower("TeST"))
     }
 
 Output:
@@ -123,9 +120,6 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 
 Example:
-
-    import "core:fmt"
-    import "core:strings"
 
     to_upper_example :: proc() {
         fmt.println(strings.to_upper("Test"))
@@ -197,9 +191,6 @@ Inputs:
 The callback can utilize the provided io.Writer to write output during the iteration.
 
 Example:
-
-    import "core:fmt"
-    import "core:strings"
     import "core:io"
 
     string_case_iterator_example :: proc() {
@@ -334,9 +325,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
-
     to_delimiter_case_example :: proc() {
         fmt.println(strings.to_delimiter_case("Hello World", '_', false))
         fmt.println(strings.to_delimiter_case("Hello World", ' ', true))
@@ -408,9 +396,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
-
     to_snake_case_example :: proc() {
         fmt.println(strings.to_snake_case("HelloWorld"))
         fmt.println(strings.to_snake_case("Hello World"))
@@ -442,9 +427,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
-
     to_upper_snake_case_example :: proc() {
         fmt.println(strings.to_upper_snake_case("HelloWorld"))
     }
@@ -471,9 +453,6 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 
 Example:
-
-    import "core:fmt"
-    import "core:strings"
 
     to_kebab_case_example :: proc() {
         fmt.println(strings.to_kebab_case("HelloWorld"))
@@ -502,9 +481,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
-    import "core:strings"
-
     to_upper_kebab_case_example :: proc() {
         fmt.println(strings.to_upper_kebab_case("HelloWorld"))
     }
@@ -531,9 +507,6 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 
 Example:
-
-    import "core:fmt"
-    import "core:strings"
 
     to_ada_case_example :: proc() {
         fmt.println(strings.to_ada_case("HelloWorld"))

@@ -18,6 +18,7 @@
         Jeroen van Rijn: Cross platform unification, code style, documentation
         Feoramund:       FreeBSD platform code
 */
+import "base:internal"
 
 Socket_Option :: enum i32 {
     Broadcast                 = i32(_SOCKET_OPTION_BROADCAST),

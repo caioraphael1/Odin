@@ -1,5 +1,5 @@
 import "core:c"
-import "core:strings"
+import "base:strings"
 
 PORTMIDI_SHARED :: #config(PORTMIDI_SHARED, false)
 
@@ -103,7 +103,7 @@ GetHostErrorText :: proc (buf: []byte) -> string {
 	}
 	Pm_GetHostErrorText(raw_data(buf), u32(len(buf)))
 	str := string(buf[:])
-	return strings.truncate_to_byte(str, 0)
+	return strings_tools.truncate_to_byte(str, 0)
 }
 
 

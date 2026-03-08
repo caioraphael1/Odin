@@ -24,8 +24,6 @@ Returns the byte offset of the last byte `c` in the string `s`, -1 when not foun
 NOTE: Can't find UTF-8 based runes.
 
 Example:
-    import "core:fmt"
-    import "core:strings"
 
     fmt.println(strings_tools.last_index_byte("test", 't'))
     fmt.println(strings_tools.last_index_byte("test", 'e'))

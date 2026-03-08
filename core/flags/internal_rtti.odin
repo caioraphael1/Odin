@@ -8,7 +8,7 @@ import            "core:net"
 @(require) import "core:os"
 import            "core:reflect"
 import            "core:strconv"
-import            "core:strings"
+import            "base:strings"
 @(require) import "core:time"
 @(require) import "core:time/datetime"
 import            "core:unicode/utf8"
@@ -133,7 +133,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
             cstr_ptr := (^cstring)(ptr)
             if cstr_ptr != nil {
                 // Prevent memory leaks from us setting this value multiple times.
-                _ = cstring_delete(cstr_ptr^, allocator)
+                _ = strings.cstring_delete(cstr_ptr^, allocator)
             }
             cstr_ptr^, _ = strings.cstring_clone_from_string(str, allocator)
         } else {

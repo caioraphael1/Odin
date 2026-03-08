@@ -112,19 +112,19 @@ quintic_in_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
 // Modeled after quarter-cycle of sine wave
 
 sine_in :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return math.sin((p - 1) * PI_2) + 1
+    return math.sin_f64((p - 1) * PI_2) + 1
 }
 
 // Modeled after quarter-cycle of sine wave (different phase)
 
 sine_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return math.sin(p * PI_2)
+    return math.sin_f64(p * PI_2)
 }
 
 // Modeled after half sine wave
 
 sine_in_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return 0.5 * (1 - math.cos(p * math.PI))
+    return 0.5 * (1 - math.cos_f64(p * math.PI))
 }
 
 // Modeled after shifted quadrant IV of unit circle
@@ -154,13 +154,13 @@ circular_in_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
 // Modeled after the exponential function y = 2^(10(x - 1))
 
 exponential_in :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return p == 0.0 ? p : math.pow(2, 10 * (p - 1))
+    return p == 0.0 ? p : math.pow_f64(2, 10 * (p - 1))
 }
 
 // Modeled after the exponential function y = -2^(-10x) + 1
 
 exponential_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return p == 1.0 ? p : 1 - math.pow(2, -10 * p)
+    return p == 1.0 ? p : 1 - math.pow_f64(2, -10 * p)
 }
 
 // Modeled after the piecewise exponential
@@ -173,60 +173,60 @@ exponential_in_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
     }
 
     if p < 0.5 {
-        return 0.5 * math.pow(2, (20 * p) - 10)
+        return 0.5 * math.pow_f64(2, (20 * p) - 10)
     } else {
-        return -0.5 * math.pow(2, (-20 * p) + 10) + 1
+        return -0.5 * math.pow_f64(2, (-20 * p) + 10) + 1
     }
 }
 
-// Modeled after the damped sine wave y = sin(13pi/2*x)*pow(2, 10 * (x - 1))
+// Modeled after the damped sine wave y = sin_f64(13pi/2*x)*pow_f64(2, 10 * (x - 1))
 
 elastic_in :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return math.sin(13 * PI_2 * p) * math.pow(2, 10 * (p - 1))
+    return math.sin_f64(13 * PI_2 * p) * math.pow_f64(2, 10 * (p - 1))
 }
 
-// Modeled after the damped sine wave y = sin(-13pi/2*(x + 1))*pow(2, -10x) + 1
+// Modeled after the damped sine wave y = sin_f64(-13pi/2*(x + 1))*pow_f64(2, -10x) + 1
 
 elastic_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return math.sin(-13 * PI_2 * (p + 1)) * math.pow(2, -10 * p) + 1
+    return math.sin_f64(-13 * PI_2 * (p + 1)) * math.pow_f64(2, -10 * p) + 1
 }
 
 // Modeled after the piecewise exponentially-damped sine wave:
-// y = (1/2)*sin(13pi/2*(2*x))*pow(2, 10 * ((2*x) - 1))      ; [0,0.5)
-// y = (1/2)*(sin(-13pi/2*((2x-1)+1))*pow(2,-10(2*x-1)) + 2) ; [0.5, 1]
+// y = (1/2)*sin_f64(13pi/2*(2*x))*pow_f64(2, 10 * ((2*x) - 1))      ; [0,0.5)
+// y = (1/2)*(sin_f64(-13pi/2*((2x-1)+1))*pow_f64(2,-10(2*x-1)) + 2) ; [0.5, 1]
 
 elastic_in_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
     if p < 0.5 {
-        return 0.5 * math.sin(13 * PI_2 * (2 * p)) * math.pow(2, 10 * ((2 * p) - 1))
+        return 0.5 * math.sin_f64(13 * PI_2 * (2 * p)) * math.pow_f64(2, 10 * ((2 * p) - 1))
     } else {
-        return 0.5 * (math.sin(-13 * PI_2 * ((2 * p - 1) + 1)) * math.pow(2, -10 * (2 * p - 1)) + 2)
+        return 0.5 * (math.sin_f64(-13 * PI_2 * ((2 * p - 1) + 1)) * math.pow_f64(2, -10 * (2 * p - 1)) + 2)
     }
 }
 
-// Modeled after the overshooting cubic y = x^3-x*sin(x*pi)
+// Modeled after the overshooting cubic y = x^3-x*sin_f64(x*pi)
 
 back_in :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
-    return p * p * p - p * math.sin(p * math.PI)
+    return p * p * p - p * math.sin_f64(p * math.PI)
 }
 
-// Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin((1-x)*pi))
+// Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin_f64((1-x)*pi))
 
 back_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
     f := 1 - p
-    return 1 - (f * f * f - f * math.sin(f * math.PI))
+    return 1 - (f * f * f - f * math.sin_f64(f * math.PI))
 }
 
 // Modeled after the piecewise overshooting cubic function:
-// y = (1/2)*((2x)^3-(2x)*sin(2*x*pi))           ; [0, 0.5)
-// y = (1/2)*(1-((1-x)^3-(1-x)*sin((1-x)*pi))+1) ; [0.5, 1]
+// y = (1/2)*((2x)^3-(2x)*sin_f64(2*x*pi))           ; [0, 0.5)
+// y = (1/2)*(1-((1-x)^3-(1-x)*sin_f64((1-x)*pi))+1) ; [0.5, 1]
 
 back_in_out :: proc(p: $T) -> T where intrinsics.type_is_float(T) {
     if p < 0.5 {
         f := 2 * p
-        return 0.5 * (f * f * f - f * math.sin(f * math.PI))
+        return 0.5 * (f * f * f - f * math.sin_f64(f * math.PI))
     } else {
         f := (1 - (2*p - 1))
-        return 0.5 * (1 - (f * f * f - f * math.sin(f * math.PI))) + 0.5
+        return 0.5 * (1 - (f * f * f - f * math.sin_f64(f * math.PI))) + 0.5
     }
 }
 

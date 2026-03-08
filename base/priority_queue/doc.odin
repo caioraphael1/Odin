@@ -27,7 +27,7 @@ Example:
         // Add jobs with random weights
         for _ in 0..<100 {
             job: Printer_Job = ---
-            internal.assert(internal.random_generator_read_ptr(context.random_generator, &job, size_of(job)))
+            internal.assert(rand.random_generator_read_ptr(context.random_generator, &job, size_of(job)))
             pq.push(&q, job)
         }
 

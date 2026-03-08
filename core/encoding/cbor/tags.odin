@@ -6,7 +6,7 @@ import "base:math"
 import "core:math/big"
 import "base:mem"
 import "core:reflect"
-import "core:strings"
+import "base:strings"
 import "core:time"
 
 // Tags defined in RFC 7049 that we provide implementations for.
@@ -305,7 +305,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
         if t.is_cstring {
             length  := base64.decoded_len(bytes)
             builder := strings_tools.builder_make(0, length+1)
-            base64.decode_into(strings.to_stream(&builder), bytes) or_return
+            base64.decode_into(strings_tools.to_stream(&builder), bytes) or_return
 
             raw  := (^cstring)(v.data)
             raw^  = cstring(raw_data(builder.buf))

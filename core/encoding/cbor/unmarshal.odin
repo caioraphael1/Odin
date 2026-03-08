@@ -4,7 +4,7 @@ import "base:internal"
 import "core:io"
 import "base:mem"
 import "core:reflect"
-import "core:strings"
+import "base:strings"
 import "core:unicode/utf8"
 
 /*
@@ -749,10 +749,10 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
                 internal.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
             }
 
-            mem.slice.zero(key_backing)
+            slice.zero(key_backing)
             _unmarshal_value(d, key_backing_value, _decode_header(r) or_return) or_return
 
-            mem.slice.zero(elem_backing)
+            slice.zero(elem_backing)
             _unmarshal_value(d, map_backing_value, _decode_header(r) or_return) or_return
 
             set_ptr := internal.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)

@@ -2,7 +2,7 @@
 import "base:intrinsics"
 
 import "core:c"
-import "core:strings"
+import "base:strings"
 import "base:mem"
 import "core:bytes"
 
@@ -101,7 +101,7 @@ strstr :: proc "c" (str: cstring, substr: cstring) -> cstring {
         return str
     }
 
-    idx := strings.index(string(str), string(substr))
+    idx := strings_tools.index(string(str), string(substr))
     if idx < 0 {
         return nil
     }

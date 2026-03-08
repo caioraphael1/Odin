@@ -1,5 +1,6 @@
 #+build windows
 #+private
+import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 

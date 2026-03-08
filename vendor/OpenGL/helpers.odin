@@ -3,7 +3,7 @@
 
 import    "core:os"
 import    "core:fmt"
-import    "core:strings"
+import    "base:strings"
 @(require) import "core:time"
 import    "base:internal"
 _ :: fmt

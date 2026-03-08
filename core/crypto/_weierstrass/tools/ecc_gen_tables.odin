@@ -4,7 +4,7 @@ import secec "core:crypto/_weierstrass"
 import "core:fmt"
 import path "core:path/filepath"
 import "core:os"
-import "core:strings"
+import "base:strings"
 
 // Yes this leaks memory, fite me IRL.
 

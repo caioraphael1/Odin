@@ -3,7 +3,7 @@
 import      "core:encoding/xml"
 import      "core:os"
 import path "core:path/filepath"
-import      "core:strings"
+import      "base:strings"
 import      "core:strconv"
 import      "base:slice"
 import      "core:fmt"

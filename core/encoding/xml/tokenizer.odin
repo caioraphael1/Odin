@@ -14,7 +14,7 @@
 import "core:fmt"
 import "core:unicode"
 import "core:unicode/utf8"
-import "core:strings"
+import "base:strings"
 
 Error_Handler :: #type proc(pos: Pos, fmt: string, args: ..any)
 

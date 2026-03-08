@@ -140,7 +140,7 @@ find_or_insert :: proc(t: ^$T/Tree($Key, $Value), key: Key, value: Value) -> (n:
     }
     _parent := n
 
-    n = new_clone(Node(Key, Value){key=key, value=value, _parent=_parent, _color=.Red}, t._node_allocator) or_return
+    n = mem.new_clone(Node(Key, Value){key=key, value=value, _parent=_parent, _color=.Red}, t._node_allocator) or_return
     n_ptr^ = n
     insert_case1(t, n)
     t._size += 1

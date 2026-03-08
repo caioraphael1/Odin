@@ -36,7 +36,7 @@ generate_v1 :: proc(clock_seq: u16, node: internal.Maybe([6]u8) = nil, timestamp
         mutable_node := realized_node
         internal.mem.copy_non_overlapping(&result[10], &mutable_node[0], 6)
     } else {
-        internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+        internal.assert(.Cryptographic in internal.random_generator_query_info(rand.global_random_generator), NO_CSPRNG_ERROR)
         bytes_generated := rand.read(result[10:])
         internal.assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
     }
@@ -59,7 +59,7 @@ Returns:
 - result: The generated UUID.
 */
 generate_v4 :: proc() -> (result: Identifier) {
-    internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+    internal.assert(.Cryptographic in internal.random_generator_query_info(rand.global_random_generator), NO_CSPRNG_ERROR)
     bytes_generated := rand.read(result[:])
     internal.assert(bytes_generated == 16, "RNG failed to generate 16 bytes for UUID v4.")
 
@@ -100,7 +100,7 @@ generate_v6 :: proc(clock_seq: internal.Maybe(u16) = nil, node: internal.Maybe([
         result[8] |= cast(u8)(realized_clock_seq & 0x3F00 >> 8)
         result[9]  = cast(u8)realized_clock_seq
     } else {
-        internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+        internal.assert(.Cryptographic in internal.random_generator_query_info(rand.global_random_generator), NO_CSPRNG_ERROR)
         temporary: [2]u8
         bytes_generated := rand.read(temporary[:])
         internal.assert(bytes_generated == 2, "RNG failed to generate 2 bytes for UUID v1.")
@@ -112,7 +112,7 @@ generate_v6 :: proc(clock_seq: internal.Maybe(u16) = nil, node: internal.Maybe([
         mutable_node := realized_node
         internal.mem.copy_non_overlapping(&result[10], &mutable_node[0], 6)
     } else {
-        internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+        internal.assert(.Cryptographic in internal.random_generator_query_info(rand.global_random_generator), NO_CSPRNG_ERROR)
         bytes_generated := rand.read(result[10:])
         internal.assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
     }
@@ -139,7 +139,7 @@ Returns:
 - result: The generated UUID.
 */
 generate_v7_basic :: proc(timestamp: internal.Maybe(time.Time) = nil) -> (result: Identifier) {
-    internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+    internal.assert(.Cryptographic in internal.random_generator_query_info(rand.global_random_generator), NO_CSPRNG_ERROR)
     unix_time_in_milliseconds := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 1e6
 
     result = transmute(Identifier)(cast(u128be)unix_time_in_milliseconds << VERSION_7_TIME_SHIFT)
@@ -189,7 +189,7 @@ Returns:
 - result: The generated UUID.
 */
 generate_v7_with_counter :: proc(counter: u16, timestamp: internal.Maybe(time.Time) = nil) -> (result: Identifier) {
-    internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+    internal.assert(.Cryptographic in internal.random_generator_query_info(rand.global_random_generator), NO_CSPRNG_ERROR)
     internal.assert(counter <= 0x0fff, VERSION_7_BIG_COUNTER_ERROR)
     unix_time_in_milliseconds := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 1e6
 

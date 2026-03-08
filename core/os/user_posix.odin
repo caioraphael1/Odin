@@ -1,6 +1,6 @@
 #+build !windows
 import "base:internal"
-import "core:strings"
+import "base:strings"
 
 _user_cache_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {
@@ -155,12 +155,12 @@ _xdg_user_dirs_lookup :: proc(xdg_key: string, allocator: mem.Allocator) -> (dir
 	content         := read_entire_file(user_dirs_path, allocators.temp_allocator) or_return
 
 	xdg_dirs := string(content)
-	for line in strings.split_lines_iterator(&xdg_dirs) {
+	for line in strings_tools.split_lines_iterator(&xdg_dirs) {
 		if len(line) > 0 && line[0] == '#' {
 			continue
 		}
 
-		equals := strings.index(line, "=")
+		equals := strings_tools.index(line, "=")
 		if equals > -1 {
 			if line[:equals] == xdg_key {
 				// Unquote to return a bare path string as we do on Windows

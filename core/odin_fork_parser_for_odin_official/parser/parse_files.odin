@@ -6,7 +6,7 @@ import "core:path/filepath"
 import "core:fmt"
 import "core:os"
 import "base:slice"
-import "core:strings"
+import "base:strings"
 import "base:mem"
 import "base:internal"
 

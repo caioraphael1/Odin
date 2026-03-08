@@ -2,7 +2,7 @@
 #+build darwin, netbsd, freebsd, openbsd
 import "base:internal"
 import "core:sys/posix"
-import "core:strings"
+import "base:strings"
 
 _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     fds: [2]posix.FD
@@ -26,7 +26,7 @@ _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     rname := strings_tools.builder_make(allocator)
     // TODO(laytan): is this on all the posix targets?
     strings_tools.write_string(&rname, "/dev/fd/")
-    strings.write_int(&rname, int(fds[0]))
+    strings_tools.write_int(&rname, int(fds[0]))
     ri.name  = strings_tools.to_string(rname)
     ri.cname = strings.to_cstring(&rname) or_return
 
@@ -36,7 +36,7 @@ _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     wname := strings_tools.builder_make(allocator)
     // TODO(laytan): is this on all the posix targets?
     strings_tools.write_string(&wname, "/dev/fd/")
-    strings.write_int(&wname, int(fds[1]))
+    strings_tools.write_int(&wname, int(fds[1]))
     wi.name  = strings_tools.to_string(wname)
     wi.cname = strings.to_cstring(&wname) or_return
 

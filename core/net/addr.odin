@@ -18,10 +18,14 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "core:strconv"
-import "core:strings"
-import "base:mem"
 import "base:internal"
+import "base:mem"
+import "base:mem/allocators"
+import "base:slice"
+import "base:strings"
+
+import "core:strings_tools"
+import "core:strconv"
 
 /*
     Expects an IPv4 address with no leading or trailing whitespace:
@@ -473,7 +477,7 @@ join_port_allocator :: proc(address_or_host: string, port: int, allocator: mem.A
         // hostname
         strings_tools.write_string(&b, addr_or_host)
         strings_tools.write_string(&b, ":")
-        strings.write_int(&b, port)
+        strings_tools.write_int(&b, port)
         return strings_tools.to_string(b)
     } else {
         return _join_port_internal(addr, port, &b)
@@ -492,7 +496,7 @@ join_port_builder :: proc(address_or_host: string, port: int, b: ^strings_tools.
         // hostname
         strings_tools.write_string(b, addr_or_host)
         strings_tools.write_string(b, ":")
-        strings.write_int(b, port)
+        strings_tools.write_int(b, port)
         return strings_tools.to_string(b^)
     } else {
         return _join_port_internal(addr, port, b)
@@ -507,12 +511,12 @@ _join_port_internal :: proc(addr: Address, port: int, b: ^strings_tools.Builder)
     case IP4_Address:
         _ = address_to_string_builder(addr, b)
         strings_tools.write_string(b, ":")
-        strings.write_int(b, port)
+        strings_tools.write_int(b, port)
     case IP6_Address:
         strings_tools.write_string(b, "[")
         _ = address_to_string_builder(addr, b)
         strings_tools.write_string(b, "]:")
-        strings.write_int(b, port)
+        strings_tools.write_int(b, port)
     }
     return strings_tools.to_string(b^)
 }
@@ -548,13 +552,13 @@ address_to_string_allocator :: proc(addr: Address) -> string {
 address_to_string_builder :: proc(addr: Address, b: ^strings_tools.Builder) -> string {
     switch v in addr {
     case IP4_Address:
-        _ = strings.write_uint(b, uint(v[0]))
+        _ = strings_tools.write_uint(b, uint(v[0]))
         strings_tools.write_byte(b, '.')
-        _ = strings.write_uint(b, uint(v[1]))
+        _ = strings_tools.write_uint(b, uint(v[1]))
         strings_tools.write_byte(b, '.')
-        _ = strings.write_uint(b, uint(v[2]))
+        _ = strings_tools.write_uint(b, uint(v[2]))
         strings_tools.write_byte(b, '.')
-        _ = strings.write_uint(b, uint(v[3]))
+        _ = strings_tools.write_uint(b, uint(v[3]))
     case IP6_Address:
         // First find the longest run of zeroes.
         Zero_Run :: struct {

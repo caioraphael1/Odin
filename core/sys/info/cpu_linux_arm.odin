@@ -4,7 +4,7 @@
 import "base:internal"
 import "core:sys/linux"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 
 @(private)
 _cpu_features :: proc() -> (features: CPU_Features) {
@@ -23,7 +23,7 @@ init_cpu_features :: proc() {
 	if rerr != .NONE || n == 0 { return }
 
 	str := string(buf[:n])
-	for line in strings.split_lines_iterator(&str) {
+	for line in strings_tools.split_lines_iterator(&str) {
 		key, _, value := strings_tools.partition(line, ":")
 		key   = strings_tools.trim_space(key)
 		value = strings_tools.trim_space(value)
@@ -82,7 +82,7 @@ _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
 	physical_ok, logical_ok: bool
 
 	str := string(buf[:n])
-	for line in strings.split_lines_iterator(&str) {
+	for line in strings_tools.split_lines_iterator(&str) {
 		key, _, value := strings_tools.partition(line, ":")
 		key   = strings_tools.trim_space(key)
 		value = strings_tools.trim_space(value)

@@ -8,7 +8,7 @@ import "core:container/pool"
 import "core:net"
 import "core:reflect"
 import "base:slice"
-import "core:strings"
+import "base:strings"
 import "core:time"
 
 @(init, private)
@@ -200,7 +200,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
         case string:
             strings_tools.write_string(&b, val)
         case int:
-            strings.write_int(&b, val)
+            strings_tools.write_int(&b, val)
         case time.Duration:
             ms := time.duration_milliseconds(val)
             strings.write_f64(&b, ms, 'f')
@@ -220,7 +220,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
             buf[0] = '0' + u8(h)
 
             strings_tools.write_string(&b, string(buf[:]))
-            strings.write_int(&b, ns)
+            strings_tools.write_int(&b, ns)
         }
 
         if i < len(contents)-1 {

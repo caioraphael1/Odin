@@ -187,8 +187,8 @@ Example:
         when ODIN_ENDIAN == .Little {
             if img.depth == 16 {
                 // The pixel components are in Big Endian. Let's byteswap back.
-                input  := mem.slice_data_cast([]u16,   img.pixels.buf[:])
-                output := mem.slice_data_cast([]u16be, img.pixels.buf[:])
+                input  := slice.data_cast([]u16,   img.pixels.buf[:])
+                output := slice.data_cast([]u16be, img.pixels.buf[:])
                 #no_bounds_check for v, i in input {
                     output[i] = u16be(v)
                 }
@@ -231,8 +231,8 @@ Example:
             if channels == 1 {
                 if depth == 16 {
                     internal.assert(len(pix) == width * height * 2)
-                    p16 := mem.slice_data_cast([]u16, pix)
-                    o16 := mem.slice_data_cast([]u16, op.buf[:])
+                    p16 := slice.data_cast([]u16, pix)
+                    o16 := slice.data_cast([]u16, op.buf[:])
                     #no_bounds_check for len(p16) != 0 {
                         r := u16(p16[0])
                         o16[0] = r
@@ -254,8 +254,8 @@ Example:
                 write_ptr(fd, raw_data(op.buf), len(op.buf))
             } else if channels == 2 {
                 if depth == 16 {
-                    p16 := mem.slice_data_cast([]u16, pix)
-                    o16 := mem.slice_data_cast([]u16, op.buf[:])
+                    p16 := slice.data_cast([]u16, pix)
+                    o16 := slice.data_cast([]u16, op.buf[:])
 
                     bgcol := img.background
 
@@ -290,8 +290,8 @@ Example:
                 write_ptr(fd, raw_data(op.buf), len(op.buf))
             } else if channels == 4 {
                 if depth == 16 {
-                    p16 := mem.slice_data_cast([]u16be, pix)
-                    o16 := mem.slice_data_cast([]u16be, op.buf[:])
+                    p16 := slice.data_cast([]u16be, pix)
+                    o16 := slice.data_cast([]u16be, op.buf[:])
 
                     #no_bounds_check for len(p16) != 0 {
 

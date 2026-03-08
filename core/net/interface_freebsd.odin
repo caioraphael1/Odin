@@ -21,7 +21,7 @@
 */
 
 import "core:c"
-import "core:strings"
+import "base:strings"
 import "core:sys/freebsd"
 
 @(private)

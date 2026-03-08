@@ -7,7 +7,7 @@ import "base:bit_array"
 @(require) import "base:mem"
 import "core:reflect"
 @(require) import "core:strconv"
-@(require) import "core:strings"
+@(require) import "base:strings"
 
 // Push a positional argument onto a data struct, checking for specified
 // positionals first before adding it to a fallback field.

@@ -13,7 +13,7 @@ import    "core:bytes"
 import    "core:encoding/entity"
 import    "base:intrinsics"
 import    "base:mem"
-import    "core:strings"
+import    "base:strings"
 
 likely :: intrinsics.expect
 
@@ -474,7 +474,7 @@ parse_prologue :: proc(doc: ^Document) -> (err: Error) {
 
 		case "encoding":
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            switch strings.to_lower(attr.val, allocators.temp_allocator) {
+            switch strings_tools.to_lower(attr.val, allocators.temp_allocator) {
 			case "utf-8", "utf8":
 				doc.encoding = .UTF_8
 

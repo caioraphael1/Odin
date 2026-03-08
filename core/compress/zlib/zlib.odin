@@ -234,8 +234,8 @@ build_huffman :: #force_no_inline proc(z: ^Huffman_Table, code_lengths: []u8) ->
 
     k := int(0)
 
-    mem.slice.zero(sizes[:])
-    mem.slice.zero(z.fast[:])
+    slice.zero(sizes[:])
+    slice.zero(z.fast[:])
 
     for v in code_lengths {
         sizes[v] += 1

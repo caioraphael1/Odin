@@ -18,9 +18,13 @@
         Feoramund:       FreeBSD platform code
 */
 
-import sys     "core:sys/windows"
-import strings "core:strings"
 import "base:mem"
+import "base:slice"
+import "base:dyn_array"
+import "base:strings"
+
+import "core:strings_tools"
+import sys "core:sys/windows"
 
 _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network_Interface, err: Interfaces_Error) {
     buf: []u8

@@ -1,6 +1,6 @@
 #+build windows
 #+private
-import "core:strings"
+import "base:strings"
 import "core:sys/windows"
 import "core:time/datetime"
 import "base:internal"
@@ -312,7 +312,7 @@ _region_load :: proc(reg_str: string, allocator: mem.Allocator) -> (out_reg: ^da
     defer if err != nil { _ = strings.string_delete(region_name, allocator) }
 
     region: ^datetime.TZ_Region
-    region, err = new_clone(datetime.TZ_Region{
+    region, err = mem.new_clone(datetime.TZ_Region{
         name       = region_name,
         rrule      = rrule,
     }, allocator)

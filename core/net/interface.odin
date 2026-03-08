@@ -18,8 +18,12 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "core:strings"
+import "base:strings"
 import "base:mem"
+import "base:slice"
+import "base:dyn_array"
+
+import "core:strings_tools"
 
 MAX_INTERFACE_ENUMERATION_TRIES :: 3
 

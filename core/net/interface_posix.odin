@@ -20,7 +20,7 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "core:strings"
+import "base:strings"
 import "core:sys/posix"
 
 foreign import lib "system:System"

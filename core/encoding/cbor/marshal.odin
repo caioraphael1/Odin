@@ -7,7 +7,7 @@ import "base:mem"
 import "core:reflect"
 import "base:slice"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 import "core:unicode/utf8"
 
 /*
@@ -334,8 +334,8 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
             // This fits in 9 bytes at most.
             pre_key :: #force_inline proc(e: Encoder, str: string) -> (res: [10]byte) {
                 e := e
-                builder := strings.builder_from_slice(res[:])
-                e.writer = strings.to_stream(&builder)
+                builder := strings_tools.builder_from_slice(res[:])
+                e.writer = strings_tools.to_stream(&builder)
 
                 err := _encode_u64(e, u64(len(str)), .Text)
                 internal.assert(err == nil)
@@ -435,7 +435,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
 
                     key := rawptr(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
                     key_builder := strings_tools.builder_make(0, 8, e.temp_allocator) or_return
-                    marshal_into(Encoder{e.flags, strings.to_stream(&key_builder), e.temp_allocator}, any{ key, info.key.id }) or_return
+                    marshal_into(Encoder{e.flags, strings_tools.to_stream(&key_builder), e.temp_allocator}, any{ key, info.key.id }) or_return
                     dyn_array.append(&entries, Encoded_Entry{ &key_builder.buf, bucket_index }) or_return
                 }
 
@@ -514,7 +514,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
                 }
 
                 key_builder := strings_tools.builder_make(e.temp_allocator) or_return
-                err_conv(_encode_text(Encoder{e.flags, strings.to_stream(&key_builder), e.temp_allocator}, fname)) or_return
+                err_conv(_encode_text(Encoder{e.flags, strings_tools.to_stream(&key_builder), e.temp_allocator}, fname)) or_return
                 dyn_array.append(&entries, Name{key_builder.buf[:], i}) or_return
             }
 

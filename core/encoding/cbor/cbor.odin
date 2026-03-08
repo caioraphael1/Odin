@@ -5,7 +5,7 @@ import "core:encoding/hex"
 import "core:io"
 import "base:mem"
 import "core:strconv"
-import "core:strings"
+import "base:strings"
 
 // If we are decoding a stream of either a map or list, the initial capacity will be this value.
 INITIAL_STREAMED_CONTAINER_CAPACITY :: 8
@@ -300,7 +300,7 @@ this will also be valid JSON.
 // See docs on the proc group `diagnose` for more info.
 to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator: mem.Allocator, loc := #caller_location) -> (string, mem.Allocator_Error) {
     b := strings_tools.builder_make(allocator, loc)
-    w := strings.to_stream(&b)
+    w := strings_tools.to_stream(&b)
     err := to_diagnostic_format_writer(w, val, padding)
     if err == .EOF {
         // The string builder stream only returns .EOF, and only if it can't write (out of memory).

@@ -21,14 +21,18 @@
 */
 
 @(require) import "base:internal"
+import "base:mem"
+import "base:mem/allocators"
+import "base:slice"
+import "base:dyn_array"
+import "base:strings"
+import "base:rand"
+
 import "core:bufio"
 import "core:io"
-import "base:mem"
-import "core:strings"
+@(require) import "core:sync"
 import "core:time"
-
-@(require)
-import "core:sync"
+import "core:strings_tools"
 
 dns_config_initialized: sync.Once
 when ODIN_OS == .Windows {
@@ -189,7 +193,7 @@ get_dns_records_from_nameservers :: proc(hostname: string, type: DNS_Record_Type
     init_dns_configuration()
 
     id: u16be
-    rand_ok := internal.random_generator_read_ptr(internal.global_random_generator, &id, size_of(id))
+    rand_ok := rand.random_generator_read_ptr(rand.global_random_generator, &id, size_of(id))
     internal.assert(rand_ok, "uninitialized gen/context.random_generator")
 
     dns_packet_buf: [DNS_PACKET_MIN_LEN]byte = ---
@@ -262,14 +266,14 @@ make_dns_packet :: proc(buf: []byte, id: u16be, hostname: string, type: DNS_Reco
 
     dns_query := [2]u16be{ u16be(type), 1 }
 
-    b := strings.builder_from_slice(buf[:])
+    b := strings_tools.builder_from_slice(buf[:])
 
-    strings.write_bytes(&b, mem.slice_data_cast([]u8, dns_hdr[:]))
+    strings_tools.write_bytes(&b, slice.data_cast([]u8, dns_hdr[:]))
     ok := encode_hostname(&b, hostname)
     if !ok {
         return nil, .Invalid_Hostname_Error
     }
-    strings.write_bytes(&b, mem.slice_data_cast([]u8, dns_query[:]))
+    strings_tools.write_bytes(&b, slice.data_cast([]u8, dns_query[:]))
 
     return buf[:strings_tools.builder_len(b)], nil
 }
@@ -359,7 +363,7 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
     id_len := len(id_str)
 
     _name_servers, _ := dyn_array.create_len([dynamic]Endpoint, 0, allocator)
-    for line in strings.split_lines_iterator(&resolv_str) {
+    for line in strings_tools.split_lines_iterator(&resolv_str) {
         if len(line) == 0 || line[0] == '#' {
             continue
         }
@@ -368,7 +372,7 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
             continue
         }
 
-        server_ip_str := strings.trim_left_space(line[id_len:])
+        server_ip_str := strings_tools.trim_left_space(line[id_len:])
         if len(server_ip_str) == 0 {
             continue
         }
@@ -408,12 +412,12 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
         line, _, _ = strings_tools.partition(line, "#")
         (len(line) > 0) or_continue
 
-        ip_str := strings.fields_iterator(&line) or_continue
+        ip_str := strings_tools.fields_iterator(&line) or_continue
 
         addr := parse_address(ip_str)
         (addr != nil) or_continue
 
-        for hostname in strings.fields_iterator(&line) {
+        for hostname in strings_tools.fields_iterator(&line) {
             (len(hostname) > 0) or_continue
 
             clone, alloc_err := strings.string_clone(hostname, allocator)
@@ -494,7 +498,7 @@ skip_hostname :: proc(packet: []u8, start_idx: int) -> (encode_size: int, ok: bo
 
 decode_hostname :: proc(packet: []u8, start_idx: int, allocator: mem.Allocator) -> (hostname: string, encode_size: int, ok: bool) {
     output := [NAME_MAX]u8{}
-    b := strings.builder_from_slice(output[:])
+    b := strings_tools.builder_from_slice(output[:])
 
     // If you're on level 0, update out_bytes, everything through a pointer
     // doesn't count towards this hostname's packet length
@@ -564,7 +568,7 @@ decode_hostname :: proc(packet: []u8, start_idx: int, allocator: mem.Allocator) 
             if labels_added > 0 {
                 strings_tools.write_byte(&b, '.')
             }
-            strings.write_bytes(&b, packet[cur_idx+1:idx2])
+            strings_tools.write_bytes(&b, packet[cur_idx+1:idx2])
             print_size += label_size + 1
             labels_added += 1
 
@@ -719,7 +723,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
                 return
             }
 
-            _data := mem.slice_data_cast([]u16be, data)
+            _data := slice.data_cast([]u16be, data)
 
             priority, weight, port := _data[0], _data[1], _data[2]
             target, _ := decode_hostname(packet, data_off + (size_of(u16be) * 3), allocator) or_return
@@ -732,7 +736,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
             // NOTE(Jeroen): Service Name and Protocol Name can probably just be string slices into the record name.
             // It's already cloned, after all. I wouldn't put them on the temp allocator like this.
 
-            parts, _ := strings.split_n(srv_record_name, ".", 3, allocators.temp_allocator)
+            parts, _ := strings_tools.split_n(srv_record_name, ".", 3, allocators.temp_allocator)
             if len(parts) != 3 {
                 return
             }
@@ -758,7 +762,7 @@ parse_record :: proc(packet: []u8, cur_off: ^int, filter: DNS_Record_Type = nil,
                 return
             }
 
-            preference: u16be = mem.slice_data_cast([]u16be, data)[0]
+            preference: u16be = slice.data_cast([]u16be, data)[0]
             hostname, _ := decode_hostname(packet, data_off + size_of(u16be), allocator) or_return
 
             srv_record_name_clone, _ := strings.string_clone(srv_record_name, allocator)
@@ -811,7 +815,7 @@ parse_response :: proc(response: []u8, filter: DNS_Record_Type = nil, allocator:
 
     _records, _ := dyn_array.create_len([dynamic]DNS_Record, 0, allocator)
 
-    dns_hdr_chunks := mem.slice_data_cast([]u16be, response[:HEADER_SIZE_BYTES])
+    dns_hdr_chunks := slice.data_cast([]u16be, response[:HEADER_SIZE_BYTES])
     hdr := unpack_dns_header(dns_hdr_chunks[0], dns_hdr_chunks[1])
     if !hdr.is_response {
         _ = dyn_array.delete(_records)

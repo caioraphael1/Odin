@@ -2309,7 +2309,7 @@ _private_int_dr_reduce :: proc(x, n: ^Int, k: DIGIT, allocator: mem.Allocator) -
 		/*
 			Zero words above m.
 		*/
-		mem.slice.zero(x.digit[m + 1:][:x.used - m])
+		slice.zero(x.digit[m + 1:][:x.used - m])
 
 		/*
 			Clamp, sub and return.
@@ -3139,7 +3139,7 @@ _private_int_shl_leg :: proc(quotient: ^Int, digits: int, allocator: mem.Allocat
 	}
 
 	quotient.used += digits
-	mem.slice.zero(quotient.digit[:digits])
+	slice.zero(quotient.digit[:digits])
 	return nil
 }
 

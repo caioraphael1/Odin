@@ -5,7 +5,7 @@ import "base:math"
 import "base:mem"
 import "core:image"
 import "base:slice"
-import "core:strings"
+import "base:strings"
 
 Image :: image.Image
 Error :: image.Error
@@ -963,7 +963,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
             switch orig_channels {
             case 1: // Grayscale JPEG expanded to RGB
-                out     := mem.slice_data_cast([]image.RGB_Pixel, img.pixels.buf[:])
+                out     := slice.data_cast([]image.RGB_Pixel, img.pixels.buf[:])
                 out_idx := 0
                 for y in 0..<img.height {
                     mcu_row   := y / BLOCK_SIZE
@@ -982,7 +982,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 }
 
             case 2: // Grayscale JPEG expanded to RGBA
-                out     := mem.slice_data_cast([]image.RGBA_Pixel, img.pixels.buf[:])
+                out     := slice.data_cast([]image.RGBA_Pixel, img.pixels.buf[:])
                 out_idx := 0
                 for y in 0..<img.height {
                     mcu_row   := y / BLOCK_SIZE
@@ -1001,7 +1001,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 }
 
             case 3:
-                out     := mem.slice_data_cast([]image.RGB_Pixel, img.pixels.buf[:])
+                out     := slice.data_cast([]image.RGB_Pixel, img.pixels.buf[:])
                 out_idx := 0
                 for y in 0..<img.height {
                     mcu_row   := y / BLOCK_SIZE
@@ -1023,7 +1023,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 }
 
             case 4:
-                out     := mem.slice_data_cast([]image.RGBA_Pixel, img.pixels.buf[:])
+                out     := slice.data_cast([]image.RGBA_Pixel, img.pixels.buf[:])
                 out_idx := 0
                 for y in 0..<img.height {
                     mcu_row   := y / BLOCK_SIZE

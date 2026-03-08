@@ -8,7 +8,7 @@
     List of contributors:
         Jeroen van Rijn: Initial implementation.
 */
-import    "core:strings"
+import    "base:strings"
 
 // Currently active catalog.
 ACTIVE: ^Translation

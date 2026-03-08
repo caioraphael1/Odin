@@ -8,9 +8,12 @@ In case your specific version does not use padding, you may
 truncate it from the encoded output.
 */
 
+import "base:internal"
 import "base:mem"
+import "base:strings"
+
 import "core:io"
-import "core:strings"
+import "core:strings_tools"
 
 ENC_TABLE := [64]byte {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -115,11 +118,11 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> 
         return
     }
 
-    out   := strings.builder_make_len_cap(0, out_length, allocator) or_return
-    ioerr := encode_into(strings.to_stream(&out), data, ENC_TBL)
+    out   := strings_tools.builder_make_len_cap(0, out_length, allocator) or_return
+    ioerr := encode_into(strings_tools.to_stream(&out), data, ENC_TBL)
 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
-    internal.assert(strings.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
+    internal.assert(strings_tools.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
 
     return strings_tools.to_string(out), nil
 }
@@ -163,11 +166,11 @@ encoded_len :: proc(data: []byte) -> int {
 decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []byte, err: mem.Allocator_Error) {
     out_length := decoded_len(data)
 
-    out   := strings.builder_make_len_cap(0, out_length, allocator) or_return
-    ioerr := decode_into(strings.to_stream(&out), data, DEC_TBL)
+    out   := strings_tools.builder_make_len_cap(0, out_length, allocator) or_return
+    ioerr := decode_into(strings_tools.to_stream(&out), data, DEC_TBL)
 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
-    internal.assert(strings.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
+    internal.assert(strings_tools.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
 
     return out.buf[:], nil
 }

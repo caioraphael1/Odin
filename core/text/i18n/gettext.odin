@@ -14,7 +14,7 @@
 	List of contributors:
 		Jeroen van Rijn: Initial implementation.
 */
-import "core:strings"
+import "base:strings"
 import "core:bytes"
 
 parse_mo_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator: mem.Allocator) -> (translation: ^Translation, err: Error) {

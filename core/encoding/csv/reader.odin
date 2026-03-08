@@ -4,7 +4,7 @@ import "base:mem"
 import "core:bufio"
 import "core:bytes"
 import "core:io"
-import "core:strings"
+import "base:strings"
 import "core:unicode/utf8"
 
 // Reader is a data structure used for reading records from a CSV-encoded file

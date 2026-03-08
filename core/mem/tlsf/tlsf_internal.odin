@@ -211,7 +211,7 @@ mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (r
             // sanitizer.address_poison(new_pool_buf)
 
             // Allocate a new link in the `control.pool` tracking structure.
-            new_pool := new_clone(Pool{
+            new_pool := mem.new_clone(Pool{
                 data      = new_pool_buf,
                 allocator = control.pool.allocator,
                 next      = nil,

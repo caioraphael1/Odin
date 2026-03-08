@@ -8,7 +8,7 @@
 // A Scanner may be customized to recognize only a subset of those literals and to recognize different identifiers and white space characters.
 import "base:internal"
 import "core:fmt"
-import "core:strings"
+import "base:strings"
 import "core:unicode"
 import "core:unicode/utf8"
 

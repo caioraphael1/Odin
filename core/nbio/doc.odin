@@ -112,7 +112,7 @@ Example:
 
             nbio.accept_poly(op.accept.socket, workers, on_accept)
 
-            thread.pool_add_task(workers, context.allocator, do_work, new_clone(Connection{
+            thread.pool_add_task(workers, context.allocator, do_work, mem.new_clone(Connection{
                 loop   = op.l,
                 socket = op.accept.client,
             }))
@@ -179,7 +179,7 @@ If the submitting context is required inside the callback, it must be copied
 into the operation’s user data explicitly.
 
 Example:
-    nbio.timeout_poly(time.Second, new_clone(context), proc(_: ^Operation, ctx: ^internal.Context) {
+    nbio.timeout_poly(time.Second, mem.new_clone(context), proc(_: ^Operation, ctx: ^internal.Context) {
         context = ctx^
         free(ctx)
     })

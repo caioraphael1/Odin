@@ -33,7 +33,7 @@ clear :: proc(m: ^$T/map[$K]$V) {
     if m == nil {
         return
     }
-    map_clear_dynamic((^Raw_Map)(m), intrinsics.type_map_info(T))
+    internal.map_clear_dynamic((^Raw_Map)(m), intrinsics.type_map_info(T))
 }
 
 // `delete` will try to free the underlying data of the passed map, with the given `allocator` if the allocator supports this operation.

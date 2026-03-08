@@ -1,5 +1,6 @@
 import "base:internal"
 import "base:mem"
+import "base:slice"
 // import "base:sanitizer"
 
 /*
@@ -148,7 +149,7 @@ rb_alloc :: proc(
     ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
     if bytes != nil {
-        mem.slice.zero(bytes)
+        slice.zero(bytes)
     }
     return raw_data(bytes), err
 }
@@ -165,7 +166,7 @@ rb_alloc_bytes :: proc(
     ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
     if bytes != nil {
-        mem.slice.zero(bytes)
+        slice.zero(bytes)
     }
     return bytes, err
 }
@@ -215,7 +216,7 @@ rb_alloc_bytes_non_zeroed :: proc(
             }
         }
         start := raw_data(block.buffer)[block.offset:]
-        padding := cast(uintptr)mem.mem.calc_padding_with_header(cast(uintptr)start, cast(uintptr)alignment, size_of(Rollback_Stack_Header))
+        padding := cast(uintptr)mem.calc_padding_with_header(cast(uintptr)start, cast(uintptr)alignment, size_of(Rollback_Stack_Header))
         if block.offset + padding + cast(uintptr)size > cast(uintptr)len(block.buffer) {
             when !ODIN_DISABLE_ASSERT {
                 if allocated_new_block {
@@ -258,12 +259,12 @@ rb_resize :: proc(
     alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := rb_resize_bytes_non_zeroed(stack, mem.slice.bytes(old_ptr, old_size), size, alignment, loc)
+    bytes, err := rb_resize_bytes_non_zeroed(stack, slice.bytes(old_ptr, old_size), size, alignment, loc)
     if bytes != nil {
         if old_ptr == nil {
-            mem.slice.zero(bytes)
+            slice.zero(bytes)
         } else if size > old_size {
-            mem.slice.zero(bytes[old_size:])
+            slice.zero(bytes[old_size:])
         }
     }
     return raw_data(bytes), err
@@ -283,9 +284,9 @@ rb_resize_bytes :: proc(
     bytes, err := rb_resize_bytes_non_zeroed(stack, old_memory, size, alignment, loc)
     if bytes != nil {
         if old_memory == nil {
-            mem.slice.zero(bytes)
+            slice.zero(bytes)
         } else if size > len(old_memory) {
-            mem.slice.zero(bytes[len(old_memory):])
+            slice.zero(bytes[len(old_memory):])
         }
     }
     return bytes, err
@@ -304,7 +305,7 @@ rb_resize_non_zeroed :: proc(
     alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := rb_resize_bytes_non_zeroed(stack, mem.slice.bytes(old_ptr, old_size), size, alignment, loc)
+    bytes, err := rb_resize_bytes_non_zeroed(stack, slice.bytes(old_ptr, old_size), size, alignment, loc)
     return raw_data(bytes), err
 }
 
@@ -343,7 +344,7 @@ rb_resize_bytes_non_zeroed :: proc(
         }
     }
     result = rb_alloc_bytes_non_zeroed(stack, size, alignment) or_return
-    internal.mem.copy_non_overlapping(raw_data(result), ptr, old_size)
+    mem.copy_non_overlapping(raw_data(result), ptr, old_size)
     err = rb_free(stack, ptr)
     return
 }
@@ -468,9 +469,9 @@ rollback_stack_allocator_proc :: proc(
         rb_free_all(stack)
         return nil, nil
     case .Resize:
-        return rb_resize_bytes(stack, mem.slice.bytes(old_memory, old_size), size, alignment, loc)
+        return rb_resize_bytes(stack, slice.bytes(old_memory, old_size), size, alignment, loc)
     case .Resize_Non_Zeroed:
-        return rb_resize_bytes_non_zeroed(stack, mem.slice.bytes(old_memory, old_size), size, alignment, loc)
+        return rb_resize_bytes_non_zeroed(stack, slice.bytes(old_memory, old_size), size, alignment, loc)
     case .Query_Features:
         set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {

@@ -539,13 +539,13 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 if c.header.length != 2 {
                     return {}, .BKGD_Invalid_Length
                 }
-                col := u16(mem.slice_data_cast([]u16be, c.data[:])[0])
+                col := u16(slice.data_cast([]u16be, c.data[:])[0])
                 img.background = [3]u16{col, col, col}
             case 2, 6: // Color, with and without Alpha
                 if c.header.length != 6 {
                     return {}, .BKGD_Invalid_Length
                 }
-                col := mem.slice_data_cast([]u16be, c.data[:])
+                col := slice.data_cast([]u16be, c.data[:])
                 img.background = [3]u16{u16(col[0]), u16(col[1]), u16(col[2])}
             }
 
@@ -727,7 +727,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
         // If we don't have transparency or drop it without applying it, we can do this:
         if (!seen_trns || (seen_trns && .alpha_drop_if_present in options && .alpha_premultiply not_in options)) && .alpha_add_if_missing not_in options {
-            output := mem.slice_data_cast([]image.RGB_Pixel, t.buf[:])
+            output := slice.data_cast([]image.RGB_Pixel, t.buf[:])
             for pal_idx, idx in temp.buf {
                 output[idx] = _plte.entries[pal_idx]
             }
@@ -742,7 +742,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             blend_background := seen_bkgd && .blend_background in options
 
             if no_alpha {
-                output := mem.slice_data_cast([]image.RGB_Pixel, t.buf[:])
+                output := slice.data_cast([]image.RGB_Pixel, t.buf[:])
                 for orig, idx in temp.buf {
                     c := _plte.entries[orig]
                     a := int(orig) < len(trns.data) ? trns.data[orig] : 255
@@ -754,7 +754,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     }
                 }
             } else {
-                output := mem.slice_data_cast([]image.RGBA_Pixel, t.buf[:])
+                output := slice.data_cast([]image.RGBA_Pixel, t.buf[:])
                 for orig, idx in temp.buf {
                     c := _plte.entries[orig]
                     a := int(orig) < len(trns.data) ? trns.data[orig] : 255
@@ -795,15 +795,15 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             return {}, .Unable_To_Allocate_Or_Resize
         }
 
-        p16 := mem.slice_data_cast([]u16, temp.buf[:])
-        o16 := mem.slice_data_cast([]u16, t.buf[:])
+        p16 := slice.data_cast([]u16, temp.buf[:])
+        o16 := slice.data_cast([]u16, t.buf[:])
 
         switch raw_image_channels {
         case 1:
             // Gray without Alpha. Might have tRNS alpha.
             key   := u16(0)
             if seen_trns {
-                key = mem.slice_data_cast([]u16, trns.data)[0]
+                key = slice.data_cast([]u16, trns.data)[0]
             }
 
             for len(p16) > 0 {
@@ -886,7 +886,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
             key: []u16
             if seen_trns {
-                key = mem.slice_data_cast([]u16, trns.data)
+                key = slice.data_cast([]u16, trns.data)
             }
 
             for len(p16) > 0 {
@@ -1002,7 +1002,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             // Gray without Alpha. Might have tRNS alpha.
             key   := u8(0)
             if seen_trns {
-                key = u8(mem.slice_data_cast([]u16be, trns.data)[0])
+                key = u8(slice.data_cast([]u16be, trns.data)[0])
             }
 
             for len(p) > 0 {
@@ -1592,8 +1592,8 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
     when ODIN_ENDIAN == .Little {
         if img.depth == 16 {
             // The pixel components are in Big Endian. Let's byteswap.
-            input  := mem.slice_data_cast([]u16be, img.pixels.buf[:])
-            output := mem.slice_data_cast([]u16  , img.pixels.buf[:])
+            input  := slice.data_cast([]u16be, img.pixels.buf[:])
+            output := slice.data_cast([]u16  , img.pixels.buf[:])
             #no_bounds_check for v, i in input {
                 output[i] = u16(v)
             }
