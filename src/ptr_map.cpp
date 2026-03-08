@@ -76,10 +76,10 @@ template <typename K, typename V> gb_internal V *  map_get              (PtrMap<
 template <typename K, typename V> gb_internal void map_set              (PtrMap<K, V> *h, K key, V const &value);
 template <typename K, typename V> gb_internal bool map_set_if_not_previously_exists(PtrMap<K, V> *h, K key, V const &value); // returns true if it previously existed
 template <typename K, typename V> gb_internal void map_remove           (PtrMap<K, V> *h, K key);
-template <typename K, typename V> gb_internal void maps.clear            (PtrMap<K, V> *h);
+template <typename K, typename V> gb_internal void map_clear            (PtrMap<K, V> *h);
 template <typename K, typename V> gb_internal void map_grow             (PtrMap<K, V> *h);
 template <typename K, typename V> gb_internal void map_rehash           (PtrMap<K, V> *h, isize new_count);
-template <typename K, typename V> gb_internal void maps.reserve          (PtrMap<K, V> *h, isize cap);
+template <typename K, typename V> gb_internal void map_reserve          (PtrMap<K, V> *h, isize cap);
 
 // Mutlivalued map procedure
 template <typename K, typename V> gb_internal PtrMapEntry<K, V> * multi_map_find_first(PtrMap<K, V> *h, K key);
@@ -98,7 +98,7 @@ gb_internal gbAllocator map_allocator(void) {
 template <typename K, typename V>
 gb_internal gb_inline void map_init(PtrMap<K, V> *h, isize capacity) {
 	capacity = next_pow2_isize(capacity);
-	maps.reserve(h, capacity);
+	map_reserve(h, capacity);
 }
 
 template <typename K, typename V>
@@ -139,7 +139,7 @@ gb_internal b32 map__full(PtrMap<K, V> *h) {
 template <typename K, typename V>
 gb_internal gb_inline void map_grow(PtrMap<K, V> *h) {
 	isize new_capacity = gb_max(h->capacity<<1, 16);
-	maps.reserve(h, new_capacity);
+	map_reserve(h, new_capacity);
 }
 
 template <typename K, typename V>
@@ -151,7 +151,7 @@ gb_internal void try_map_grow(PtrMap<K, V> *h) {
 
 
 template <typename K, typename V>
-gb_internal void maps.reserve(PtrMap<K, V> *h, isize cap) {
+gb_internal void map_reserve(PtrMap<K, V> *h, isize cap) {
 	if (cap < h->capacity) {
 		return;
 	}
@@ -283,7 +283,7 @@ gb_internal void map_remove(PtrMap<K, V> *h, K key) {
 }
 
 template <typename K, typename V>
-gb_internal gb_inline void maps.clear(PtrMap<K, V> *h) {
+gb_internal gb_inline void map_clear(PtrMap<K, V> *h) {
 	h->count = 0;
 	gb_zero_array(h->entries, h->capacity);
 }
@@ -490,10 +490,10 @@ template <typename K, typename V> gb_internal V *  map_get              (Ordered
 template <typename K, typename V> gb_internal void map_set              (OrderedInsertPtrMap<K, V> *h, K key, V const &value);
 template <typename K, typename V> gb_internal bool map_set_if_not_previously_exists(OrderedInsertPtrMap<K, V> *h, K key, V const &value); // returns true if it previously existed
 template <typename K, typename V> gb_internal void map_remove           (OrderedInsertPtrMap<K, V> *h, K key);
-template <typename K, typename V> gb_internal void maps.clear            (OrderedInsertPtrMap<K, V> *h);
+template <typename K, typename V> gb_internal void map_clear            (OrderedInsertPtrMap<K, V> *h);
 template <typename K, typename V> gb_internal void map_grow             (OrderedInsertPtrMap<K, V> *h);
 template <typename K, typename V> gb_internal void map_rehash           (OrderedInsertPtrMap<K, V> *h, isize new_count);
-template <typename K, typename V> gb_internal void maps.reserve          (OrderedInsertPtrMap<K, V> *h, isize cap);
+template <typename K, typename V> gb_internal void map_reserve          (OrderedInsertPtrMap<K, V> *h, isize cap);
 
 // Mutlivalued map procedure
 template <typename K, typename V> gb_internal OrderedInsertPtrMapEntry<K, V> * multi_map_find_first(OrderedInsertPtrMap<K, V> *h, K key);
@@ -508,7 +508,7 @@ template <typename K, typename V> gb_internal void  multi_map_remove_all(Ordered
 template <typename K, typename V>
 gb_internal gb_inline void map_init(OrderedInsertPtrMap<K, V> *h, isize capacity) {
 	capacity = next_pow2_isize(capacity);
-	maps.reserve(h, capacity);
+	map_reserve(h, capacity);
 }
 
 template <typename K, typename V>
@@ -610,7 +610,7 @@ gb_internal void map_reset_entries(OrderedInsertPtrMap<K, V> *h) {
 }
 
 template <typename K, typename V>
-gb_internal void maps.reserve(OrderedInsertPtrMap<K, V> *h, isize cap) {
+gb_internal void map_reserve(OrderedInsertPtrMap<K, V> *h, isize cap) {
 	if (h->count*2 < h->hashes_count) {
 		return;
 	}
@@ -622,7 +622,7 @@ gb_internal void maps.reserve(OrderedInsertPtrMap<K, V> *h, isize cap) {
 
 template <typename K, typename V>
 gb_internal void map_rehash(OrderedInsertPtrMap<K, V> *h, isize new_count) {
-	maps.reserve(h, new_count);
+	map_reserve(h, new_count);
 }
 
 template <typename K, typename V>
@@ -772,7 +772,7 @@ gb_internal void map_remove(OrderedInsertPtrMap<K, V> *h, K key) {
 }
 
 template <typename K, typename V>
-gb_internal gb_inline void maps.clear(OrderedInsertPtrMap<K, V> *h) {
+gb_internal gb_inline void map_clear(OrderedInsertPtrMap<K, V> *h) {
 	h->count = 0;
 	for (usize i = 0; i < h->hashes_count; i++) {
 		h->hashes[i] = MAP_SENTINEL;

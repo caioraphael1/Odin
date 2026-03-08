@@ -20,10 +20,10 @@ assert :: proc(condition: bool, message := #caller_expression(condition), loc :=
         // execute speculatively, making it about an order of
         // magnitude faster
         @(cold)
-        internal :: proc(message: string, loc: Source_Code_Location) {
+        internal_assert :: proc(message: string, loc: Source_Code_Location) {
             assertion_failure_proc("runtime assertion", message, loc)
         }
-        internal(message, loc)
+        internal_assert(message, loc)
     }
 }
 
@@ -33,10 +33,10 @@ assert :: proc(condition: bool, message := #caller_expression(condition), loc :=
 ensure :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         @(cold)
-        internal :: proc(message: string, loc: Source_Code_Location) {
+        internal_ensure :: proc(message: string, loc: Source_Code_Location) {
             assertion_failure_proc("unsatisfied ensure", message, loc)
         }
-        internal(message, loc)
+        internal_ensure(message, loc)
     }
 }
 

@@ -1385,7 +1385,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
         return is_type_rawptr(p0) && is_type_rawptr(p1) && are_types_identical(p3, t_source_code_location);
     };
 
-    static char const *instrumentation_proc_type_str = "proc \"contextless\" (proc_address: rawptr, call_site_return_address: rawptr, loc: internal.Source_Code_Location)";
+    static char const *instrumentation_proc_type_str = "proc(proc_address: rawptr, call_site_return_address: rawptr, loc: internal.Source_Code_Location)";
 
     if (ac.instrumentation_enter && ac.instrumentation_exit) {
         error(e->token, "A procedure cannot be marked with both @(instrumentation_enter) and @(instrumentation_exit)");
@@ -1549,7 +1549,7 @@ gb_internal void check_proc_decl(CheckerContext *ctx, Entity *e, DeclInfo *d) {
         if (ln == "memcpy" ||
             ln == "memmove" ||
             ln == "mem_copy" ||
-            ln == "mem.copy_non_overlapping") {
+            ln == "mem_copy_non_overlapping") {
             e->Procedure.is_memcpy_like = true;
         }
     }

@@ -4015,7 +4015,7 @@ gb_internal i64 type_size_of_struct_pretend_is_packed(Type *ot) {
         size += type_size_of(fields[i]->type);
     }
 
-    return mem.align_formula(size, align);
+    return align_formula(size, align);
 }
 
 
@@ -4286,7 +4286,7 @@ gb_internal i64 *type_set_offsets_of(Slice<Entity *> const &fields, bool is_pack
                     align = gb_min(align, max_field_align);
                 }
                 i64 size  = gb_max(type_size_of_internal(t, &path), 0);
-                curr_offset = mem.align_formula(curr_offset, align);
+                curr_offset = align_formula(curr_offset, align);
                 offsets[i] = curr_offset;
                 curr_offset += size;
             }
@@ -4382,7 +4382,7 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
             return FAILURE_SIZE;
         }
         size  = type_size_of_internal( t->Array.elem, path);
-        alignment = mem.align_formula(size, align);
+        alignment = align_formula(size, align);
         return alignment*(count-1) + size;
     } break;
 
@@ -4397,7 +4397,7 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
             return FAILURE_SIZE;
         }
         size  = type_size_of_internal( t->EnumeratedArray.elem, path);
-        alignment = mem.align_formula(size, align);
+        alignment = align_formula(size, align);
         return alignment*(count-1) + size;
     } break;
 
@@ -4413,7 +4413,7 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
             struct {
                 data:      uintptr,           // 1 word
                 size:      uintptr,           // 1 word
-                allocator: mem.Allocator, // 2 words
+                allocator: Allocator, // 2 words
             }
         */
         return (1 + 1 + 2)*build_context.ptr_size;
@@ -4427,7 +4427,7 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
         align = type_align_of_internal(t, path);
         type_set_offsets(t);
         size = t->Tuple.offsets[cast(isize)count-1] + type_size_of_internal(t->Tuple.variables[cast(isize)count-1]->type, path);
-        return mem.align_formula(size, align);
+        return align_formula(size, align);
     } break;
 
     case Type_Enum:
@@ -4462,14 +4462,14 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
         } else {
             // NOTE(bill): Align to tag
             i64 tag_size = union_tag_size(t);
-            size = mem.align_formula(max, tag_size);
+            size = align_formula(max, tag_size);
             // NOTE(bill): Calculate the padding between the common fields and the tag
             t->Union.tag_size = cast(i16)tag_size;
             t->Union.variant_block_size = size;
 
             size += tag_size;
         }
-        return mem.align_formula(size, align);
+        return align_formula(size, align);
     } break;
 
 
@@ -4487,7 +4487,7 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
                     max = size;
                 }
             }
-            return mem.align_formula(max, align);
+            return align_formula(max, align);
         } else {
             i64 count = 0, size = 0, align = 0;
 
@@ -4509,7 +4509,7 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
             type_set_offsets(t);
             GB_ASSERT(t->Struct.fields.count == 0 || t->Struct.offsets != nullptr);
             size = t->Struct.offsets[cast(isize)count-1] + type_size_of_internal(t->Struct.fields[cast(isize)count-1]->type, path);
-            return mem.align_formula(size, align);
+            return align_formula(size, align);
         }
     } break;
 

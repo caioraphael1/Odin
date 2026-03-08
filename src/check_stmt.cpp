@@ -1937,7 +1937,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
 
     auto rhs = slice_from_array(vals);
     auto lhs = temporary_slice_make<Ast *>(rhs.count);
-    slice.copy(&lhs, rs->vals);
+    slice_copy(&lhs, rs->vals);
 
     isize addressable_index = cast(isize)is_map;
 

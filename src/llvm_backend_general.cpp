@@ -2712,8 +2712,8 @@ general_end:;
     // NOTE(laytan): even though this logic seems sound, the Address Sanitizer does not
     // want you to load/store the space of a value that is there for alignment.
 #if 0
-    i64 aligned_src_size = mem.align_formula(src_size, src_align);
-    i64 aligned_dst_size = mem.align_formula(dst_size, dst_align);
+    i64 aligned_src_size = align_formula(src_size, src_align);
+    i64 aligned_dst_size = align_formula(dst_size, dst_align);
 
     if (LLVMIsALoadInst(val) && (aligned_src_size >= aligned_dst_size && src_align >= dst_align)) {
         LLVMValueRef val_ptr = LLVMGetOperand(val, 0);

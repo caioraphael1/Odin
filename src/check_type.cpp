@@ -2689,7 +2689,7 @@ gb_internal void map_cell_size_and_len(Type *type, i64 *size_, i64 *len_) {
     if (0 < elem_sz && elem_sz < MAP_CELL_CACHE_LINE_SIZE) {
         len = MAP_CELL_CACHE_LINE_SIZE / elem_sz;
     }
-    i64 size = mem.align_formula(elem_sz * len, MAP_CELL_CACHE_LINE_SIZE);
+    i64 size = align_formula(elem_sz * len, MAP_CELL_CACHE_LINE_SIZE);
     if (size_) *size_ = size;
     if (len_)  *len_ = len;
 }
