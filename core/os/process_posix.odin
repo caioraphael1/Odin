@@ -51,7 +51,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // search PATH if just a plain name is provided.
-    exe_builder := strings_tools.builder_make(allocators.temp_allocator)
+    exe_builder := strings_tools.builder_create(allocators.temp_allocator)
     exe_name    := desc.command[0]
     if strings_tools.index_byte(exe_name, '/') < 0 {
         path_env  := get_env("PATH", allocators.temp_allocator)

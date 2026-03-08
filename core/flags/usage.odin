@@ -87,7 +87,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
         return
     }
 
-    builder, _ := strings_tools.builder_make(allocator)
+    builder, _ := strings_tools.builder_create(allocator)
     defer strings_tools.builder_destroy(&builder)
 
     flag_prefix, flag_assignment: string = ---, ---
@@ -264,7 +264,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
 
         if strings.string_contain_rune(flag.usage, '\n') {
             // Multi-line usage documentation. Let's make it look nice.
-            usage_builder, _ := strings_tools.builder_make(allocators.temp_allocator)
+            usage_builder, _ := strings_tools.builder_create(allocators.temp_allocator)
 
             strings_tools.write_byte(&usage_builder, '\n')
             iter := strings_tools.trim_space(flag.usage)

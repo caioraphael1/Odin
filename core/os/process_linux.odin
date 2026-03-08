@@ -217,7 +217,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             command_args_list: [dynamic]string
 
             if .Command_Line in selection {
-                command_line_builder = strings_tools.builder_make(allocator) or_return
+                command_line_builder = strings_tools.builder_create(allocator) or_return
                 info.fields += {.Command_Line}
             }
 
@@ -428,7 +428,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         path_env := get_env("PATH", allocators.temp_allocator)
         path_dirs := split_path_list(path_env, allocators.temp_allocator) or_return
 
-        exe_builder := strings_tools.builder_make(allocators.temp_allocator) or_return
+        exe_builder := strings_tools.builder_create(allocators.temp_allocator) or_return
 
         found: bool
         for dir in path_dirs {

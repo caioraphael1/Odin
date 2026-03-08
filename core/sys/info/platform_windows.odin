@@ -37,7 +37,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     res.kernel.major = int(osvi.dwMajorVersion)
     res.kernel.minor = int(osvi.dwBuildNumber)
 
-    b := strings_tools.builder_make(allocator)
+    b := strings_tools.builder_create(allocator)
 
     strings_tools.write_string(&b, "Windows ")
 

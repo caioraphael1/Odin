@@ -22,6 +22,7 @@ DEFAULT_PARAMS :: linux.IO_Uring_Params {
 
 // Initialize and setup an uring, `entries` must be a power of 2 between 1 and 4096.
 init :: proc(ring: ^Ring, params: ^linux.IO_Uring_Params, entries: u32 = DEFAULT_ENTRIES) -> (err: linux.Errno) {
+    ring^ = {} // Reset the struct first.
     internal.assert(entries <= MAX_ENTRIES,             "too many entries")
     internal.assert(entries != 0,                       "entries must be positive")
     internal.assert(math.is_power_of_two(int(entries)), "entries must be a power of two")

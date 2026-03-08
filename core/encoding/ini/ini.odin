@@ -128,7 +128,7 @@ load_map_from_path :: proc(path: string, allocator: mem.Allocator, options := DE
 }
 
 save_map_to_string :: proc(m: Map, allocator: mem.Allocator) -> (data: string) {
-    b := strings_tools.builder_make(allocator)
+    b := strings_tools.builder_create(allocator)
     _, _ = write_map(strings_tools.to_writer(&b), m)
     return strings_tools.to_string(b)
 }

@@ -33,6 +33,7 @@ Pool :: struct($T: typeid) {
 init :: proc(p: ^Pool($T), $link_field: string, block_size: uint = DEFAULT_BLOCK_SIZE) -> (err: mem.Allocator_Error)
     where intrinsics.type_has_field(T, link_field),
           intrinsics.type_field_type(T, link_field) == ^T {
+    p^ = {} // Reset the struct first.
     p.link_off = offset_of_by_string(T, link_field)
     return _pool_arena_init(&p.arena, block_size)
 }

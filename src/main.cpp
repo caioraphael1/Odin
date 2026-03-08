@@ -2640,9 +2640,9 @@ gb_internal int print_show_help(String const arg0, String command, String option
     if (check) {
         if (print_flag("-collection:<name>=<filepath>")) {
             print_usage_line(2, "Defines a library collection used for imports.");
-            print_usage_line(2, "Example: -collection:shared=dir/to/shared");
+            print_usage_line(2, "Example: -collection:my_collection=dir/to/my_collection");
             print_usage_line(2, "Usage in Code:");
-                print_usage_line(3, "import \"shared:foo\"");
+                print_usage_line(3, "import \"my_collection:foo\"");
         }
 
         if (print_flag("-custom-attribute:<string>")) {
@@ -3817,12 +3817,6 @@ int main(int arg_count, char const **arg_ptr) {
 
     if (command == "bundle") {
         return bundle(init_filename);
-    }
-
-    // NOTE(bill): add 'shared' directory if it is not already set
-    if (!find_library_collection_path(str_lit("shared"), nullptr)) {
-        add_library_collection(str_lit("shared"),
-            get_fullpath_relative(heap_allocator(), odin_root_dir(), str_lit("shared"), nullptr));
     }
 
     init_build_context(selected_target_metrics ? selected_target_metrics->metrics : nullptr, selected_subtarget);

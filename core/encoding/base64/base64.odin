@@ -118,7 +118,7 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> 
         return
     }
 
-    out   := strings_tools.builder_make_len_cap(0, out_length, allocator) or_return
+    out   := strings_tools.builder_create_len_cap(0, out_length, allocator) or_return
     ioerr := encode_into(strings_tools.to_stream(&out), data, ENC_TBL)
 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
@@ -166,7 +166,7 @@ encoded_len :: proc(data: []byte) -> int {
 decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []byte, err: mem.Allocator_Error) {
     out_length := decoded_len(data)
 
-    out   := strings_tools.builder_make_len_cap(0, out_length, allocator) or_return
+    out   := strings_tools.builder_create_len_cap(0, out_length, allocator) or_return
     ioerr := decode_into(strings_tools.to_stream(&out), data, DEC_TBL)
 
     internal.assert(ioerr == nil,                           "string builder should not IO error")

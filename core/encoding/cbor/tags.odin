@@ -304,7 +304,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
         internal.assert(t.encoding == .UTF_8)
         if t.is_cstring {
             length  := base64.decoded_len(bytes)
-            builder := strings_tools.builder_make(0, length+1)
+            builder := strings_tools.builder_create(0, length+1)
             base64.decode_into(strings_tools.to_stream(&builder), bytes) or_return
 
             raw  := (^cstring)(v.data)

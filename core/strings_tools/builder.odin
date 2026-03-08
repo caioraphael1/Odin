@@ -36,7 +36,7 @@ Returns:
 - res: The new Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_make :: proc(allocator: mem.Allocator) -> (builder: Builder) {
+builder_create :: proc(allocator: mem.Allocator) -> (builder: Builder) {
     builder.buf.allocator = allocator
     return
 }
@@ -53,7 +53,7 @@ Returns:
 - res: The new Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_make_len :: proc(len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
+builder_create_len :: proc(len: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
         buf = dyn_array.create_len([dynamic]byte, len, allocator, loc) or_return
     }, nil
@@ -73,7 +73,7 @@ Returns:
 - res: The new Builder
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-builder_make_len_cap :: proc(len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
+builder_create_len_cap :: proc(len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
         buf = dyn_array.create_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
     }, nil
@@ -94,6 +94,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init :: proc(b: ^Builder, allocator: mem.Allocator) {
+    b^ = {} // Reset the struct first.
     dyn_array.init(&b.buf, allocator)
 }
 
@@ -113,6 +114,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init_len :: proc(b: ^Builder, len: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
+    b^ = {} // Reset the struct first.
     b.buf = dyn_array.create_len([dynamic]byte, len, allocator, loc) or_return
     return nil
 }
@@ -132,6 +134,7 @@ Returns:
 - err: An optional allocator error if one occured, `nil` otherwise
 */
 builder_init_len_cap :: proc(b: ^Builder, len, cap: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
+    b^ = {} // Reset the struct first.
     b.buf = dyn_array.create_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
     return nil
 }
@@ -358,7 +361,7 @@ Example:
 
 
     write_byte_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         strings_tools.write_byte(&builder, 'a')        // 1
         strings_tools.write_byte(&builder, 'b')        // 1
         fmt.println(strings_tools.to_string(builder))  // -> ab
@@ -388,7 +391,7 @@ Example:
 
 
     write_bytes_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         bytes := [?]byte { 'a', 'b', 'c' }
         strings_tools.write_bytes(&builder, bytes[:]) // 3
         fmt.println(strings_tools.to_string(builder)) // -> abc
@@ -424,7 +427,7 @@ Example:
 
 
     write_rune_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         strings_tools.write_rune(&builder, 'ä')     // 2 None
         strings_tools.write_rune(&builder, 'b')       // 1 None
         fmt.println(strings_tools.to_string(builder)) // -> äb
@@ -455,7 +458,7 @@ Example:
 
 
     write_quoted_rune_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         strings_tools.write_string(&builder, "abc")      // 3
         strings.write_quoted_rune(&builder, 'ä') // 4
         strings_tools.write_string(&builder, "abc")      // 3
@@ -487,7 +490,7 @@ Example:
 
 
     write_string_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         strings_tools.write_string(&builder, "a")     // 1
         strings_tools.write_string(&builder, "bc")    // 2
         fmt.println(strings_tools.to_string(builder)) // -> abc
@@ -562,7 +565,7 @@ NOTE: The backing dynamic array may be fixed in capacity or fail to resize, `n` 
 Example:
 
     write_quoted_string_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         strings.write_quoted_string(&builder, "a")        // 3
         strings.write_quoted_string(&builder, "bc", '\'') // 4
         strings.write_quoted_string(&builder, "xyz")      // 5
@@ -596,7 +599,7 @@ Example:
 
 
     write_encoded_rune_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         _, _ = strings.write_encoded_rune(&builder, 'a', false) // 1
         _, _ = strings.write_encoded_rune(&builder, '\"', true) // 3
         _, _ = strings.write_encoded_rune(&builder, 'x', false) // 1
@@ -706,7 +709,7 @@ Example:
 
 
     write_f32_example :: proc() {
-        builder := strings_tools.builder_make()
+        builder := strings_tools.builder_create()
         strings.write_f32(&builder, 3.14159, 'f') // 6
         strings_tools.write_string(&builder, " - ")     // 3
         strings.write_f32(&builder, -0.123, 'e')  // 8

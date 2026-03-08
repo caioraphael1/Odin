@@ -36,6 +36,7 @@ Returns:
 - err: An allocator error if one occured, `nil` otherwise
 */
 init :: proc(m: ^Map_String, allocator: mem.Allocator, map_allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
+    m^ = {} // Reset the struct first.
     m.allocator = allocator
     m.entries = maps.create_cap(map[string]^Map_String_Entry, 16, map_allocator, loc) or_return
     return nil

@@ -76,7 +76,7 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
 }
 
 join_url :: proc(scheme, host, path: string, queries: map[string]string, fragment: string, allocator: mem.Allocator) -> string {
-    b := strings_tools.builder_make(allocator)
+    b := strings_tools.builder_create(allocator)
     strings_tools.builder_grow(&b, len(scheme) + 3 + len(host) + 1 + len(path))
 
     strings_tools.write_string(&b, scheme)
@@ -119,7 +119,7 @@ join_url :: proc(scheme, host, path: string, queries: map[string]string, fragmen
 }
 
 percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
-    b := strings_tools.builder_make(allocator)
+    b := strings_tools.builder_create(allocator)
     strings_tools.builder_grow(&b, len(s) + 16) // NOTE(tetra): A reasonable number to allow for the number of things we need to escape.
 
     for ch in s {
@@ -141,7 +141,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
 }
 
 percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (decoded_string: string, ok: bool) {
-    b := strings_tools.builder_make(allocator)
+    b := strings_tools.builder_create(allocator)
     strings_tools.builder_grow(&b, len(encoded_string))
     defer if !ok {
         strings_tools.builder_destroy(&b)

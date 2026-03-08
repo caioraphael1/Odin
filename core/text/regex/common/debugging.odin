@@ -14,7 +14,7 @@ import "core:io"
 import "core:strings_tools"
 
 write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
-    sb := strings_tools.builder_make(allocator)
+    sb := strings_tools.builder_create(allocator)
     defer strings_tools.builder_destroy(&sb)
 
     sbw := strings_tools.to_writer(&sb)

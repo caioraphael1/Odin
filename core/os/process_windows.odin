@@ -749,7 +749,7 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> stri
             strings_tools.write_byte(builder, b)
         }
     }
-    builder := strings_tools.builder_make(allocator)
+    builder := strings_tools.builder_create(allocator)
     for arg, i in command {
         if i != 0 {
             strings_tools.write_byte(&builder, ' ')
@@ -827,7 +827,7 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
 }
 
 _build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> string {
-    builder := strings_tools.builder_make(allocator)
+    builder := strings_tools.builder_create(allocator)
     loop: #reverse for kv, cur_idx in environment {
         eq_idx := strings_tools.index_byte(kv, '=')
         internal.assert(eq_idx >= 0, "Malformed environment string. Expected '=' to separate keys and values")

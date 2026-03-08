@@ -24,7 +24,7 @@ DEFAULT_CAPACITY :: 16
 Initialize a `Queue` with a starting `capacity` and an `allocator`.
 */
 init :: proc(q: ^$Q/Queue($T), capacity := DEFAULT_CAPACITY, allocator: mem.Allocator, loc := #caller_location) -> mem.Allocator_Error {
-    clear(q)
+    q^ = {} // Reset the struct first.
     q.data = transmute([dynamic]T)dyn_array.Raw_Dynamic_Array{
         data = nil,
         len = 0,

@@ -471,7 +471,7 @@ join_port_allocator :: proc(address_or_host: string, port: int, allocator: mem.A
         return addr_or_host
     }
 
-    b := strings_tools.builder_make(allocator)
+    b := strings_tools.builder_create(allocator)
     addr := parse_address(addr_or_host)
     if addr == nil {
         // hostname
@@ -540,7 +540,7 @@ map_to_ip6 :: proc(addr: Address) -> Address {
     See RFC 5952 section 4 for IPv6 representation recommendations.
 */
 address_to_string_allocator :: proc(addr: Address) -> string {
-    b := strings_tools.builder_make(allocators.temp_allocator)
+    b := strings_tools.builder_create(allocators.temp_allocator)
     return address_to_string_builder(addr, &b)
 }
 
@@ -649,7 +649,7 @@ address_to_string_builder :: proc(addr: Address, b: ^strings_tools.Builder) -> s
 // Returns a temporarily-allocated string representation of the endpoint.
 // If there's a port, uses the `ip4address:port` or `[ip6address]:port` format, respectively.
 endpoint_to_string_allocator :: proc(ep: Endpoint) -> string {
-    b := strings_tools.builder_make(allocators.temp_allocator)
+    b := strings_tools.builder_create(allocators.temp_allocator)
     return endpoint_to_string_builder(ep, &b)
 }
 

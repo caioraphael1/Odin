@@ -23,6 +23,8 @@ default_swap_proc :: proc($T: typeid) -> proc(q: []T, i, j: int) {
 }
 
 init :: proc(pq: ^$Q/Priority_Queue($T), less: proc(a, b: T) -> bool, swap: proc(q: []T, i, j: int), capacity := DEFAULT_CAPACITY, allocator: mem.Allocator) -> (err: mem.Allocator_Error) {
+    pq^ = {} // Reset the struct first..
+
     if pq.queue.allocator.procedure == nil {
         pq.queue.allocator = allocator
     }

@@ -304,6 +304,8 @@ Inputs:
 - allocator: (default is context.allocator)
 */
 init :: proc(res: ^Bit_Array, max_index: int, min_index: int = 0, allocator: mem.Allocator) -> (ok: bool) {
+    res^ = {} // Reset the struct first.
+
     size_in_bits := max_index - min_index
 
     if size_in_bits < 0 { return false }

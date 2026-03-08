@@ -15,6 +15,7 @@ Raw_Dynamic_Array :: struct {
 
 
 init :: proc(array: ^$T/[dynamic]$E, allocator: mem.Allocator) {
+    array^ = {} // Reset the struct first.
     array.allocator = allocator
 }
 

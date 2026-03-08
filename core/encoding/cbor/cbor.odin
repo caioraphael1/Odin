@@ -299,7 +299,7 @@ this will also be valid JSON.
 // Turns the given CBOR value into a human-readable string.
 // See docs on the proc group `diagnose` for more info.
 to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator: mem.Allocator, loc := #caller_location) -> (string, mem.Allocator_Error) {
-    b := strings_tools.builder_make(allocator, loc)
+    b := strings_tools.builder_create(allocator, loc)
     w := strings_tools.to_stream(&b)
     err := to_diagnostic_format_writer(w, val, padding)
     if err == .EOF {
