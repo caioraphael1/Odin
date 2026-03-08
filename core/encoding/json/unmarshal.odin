@@ -54,7 +54,7 @@ Register_User_Unmarshaler_Error :: enum {
 //  // Ensure the json._user_unmarshaler map is initialized
 //  json.set_user_unmarshalers(new(map[typeid]json.User_Unmarshaler))
 //  reg_err := json.register_user_unmarshaler(type_info_of(int).id, Some_Unmarshaler)
-//  assert(reg_err == .None)
+//  internal.assert(reg_err == .None)
 //
 //  data := `{"value":101010}`
 //  SomeType :: struct {
@@ -78,7 +78,7 @@ _user_unmarshalers: ^map[typeid]User_Unmarshaler
 // NOTE: Must be called before using register_user_unmarshaler.
 //
 set_user_unmarshalers :: proc(m: ^map[typeid]User_Unmarshaler) {
-    assert(_user_unmarshalers == nil, "set_user_unmarshalers must not be called more than once.")
+    internal.assert(_user_unmarshalers == nil, "set_user_unmarshalers must not be called more than once.")
     _user_unmarshalers = m
 }
 
@@ -229,7 +229,7 @@ assign_int :: proc(val: any, i: $T) -> bool {
                 x := (^u64)(v.data)
                 x^ = do_byte_swap ? intrinsics.byte_swap(u64(i)) : u64(i)
             case:
-                panic("unknown bit_size size")
+                internal.panic("unknown bit_size size")
             }
             return true
         }
@@ -501,7 +501,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
 unmarshal_expect_token :: proc(p: ^Parser, kind: Token_Kind, loc := #caller_location) -> Token {
     prev := p.curr_token
     err := expect_token(p, kind)
-    assert(err == nil, "unmarshal_expect_token")
+    internal.assert(err == nil, "unmarshal_expect_token")
     return prev
 }
 
@@ -671,7 +671,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
 
             #partial switch tk in t.key.variant {
                 case internal.Type_Info_String:
-                    assert(tk.encoding == .UTF_8)
+                    internal.assert(tk.encoding == .UTF_8)
 
                     key_ptr = rawptr(&key)
                     key_cstr: cstring
@@ -766,7 +766,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         unmarshal_expect_token(p, .Open_Bracket)
         
         for idx: uintptr = 0; p.curr_token.kind != .Close_Bracket; idx += 1 {
-            assert(idx < length)
+            internal.assert(idx < length)
             
             elem_ptr := rawptr(uintptr(base) + idx*uintptr(elem.size))
             elem := any{elem_ptr, elem.id}

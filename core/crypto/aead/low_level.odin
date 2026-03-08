@@ -128,7 +128,7 @@ init :: proc(ctx: ^Context, algorithm: Algorithm, key: []byte, impl: Implementat
 		reset(ctx)
 	}
 
-	ensure(len(key) == KEY_SIZES[algorithm], "crypto/aead: invalid key size")
+	internal.ensure(len(key) == KEY_SIZES[algorithm], "crypto/aead: invalid key size")
 
 	// Directly specialize the union by setting the type ID (save a copy).
 	reflect.set_union_variant_typeid(
@@ -152,9 +152,9 @@ init :: proc(ctx: ^Context, algorithm: Algorithm, key: []byte, impl: Implementat
 		impl_ := impl != nil ? impl.(aes.Implementation) : aes.DEFAULT_IMPLEMENTATION
 		deoxysii.init(&ctx._impl.(deoxysii.Context), key, impl_)
 	case .Invalid:
-		panic("crypto/aead: uninitialized algorithm")
+		internal.panic("crypto/aead: uninitialized algorithm")
 	case:
-		panic("crypto/aead: invalid algorithm")
+		internal.panic("crypto/aead: invalid algorithm")
 	}
 
 	ctx._algo = algorithm
@@ -165,7 +165,7 @@ init :: proc(ctx: ^Context, algorithm: Algorithm, key: []byte, impl: Implementat
 //
 // dst and plaintext MUST alias exactly or not at all.
 seal_ctx :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
-	ensure(len(tag) == TAG_SIZES[ctx._algo], "crypto/aead: invalid tag size")
+	internal.ensure(len(tag) == TAG_SIZES[ctx._algo], "crypto/aead: invalid tag size")
 
 	switch &impl in ctx._impl {
 	case aes.Context_GCM:
@@ -177,7 +177,7 @@ seal_ctx :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 	case deoxysii.Context:
 		deoxysii.seal(&impl, dst, tag, iv, aad, plaintext)
 	case:
-		panic("crypto/aead: uninitialized algorithm")
+		internal.panic("crypto/aead: uninitialized algorithm")
 	}
 }
 
@@ -189,7 +189,7 @@ seal_ctx :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 // dst and plaintext MUST alias exactly or not at all.
 
 open_ctx :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
-	ensure(len(tag) == TAG_SIZES[ctx._algo], "crypto/aead: invalid tag size")
+	internal.ensure(len(tag) == TAG_SIZES[ctx._algo], "crypto/aead: invalid tag size")
 
 	switch &impl in ctx._impl {
 	case aes.Context_GCM:
@@ -201,7 +201,7 @@ open_ctx :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	case deoxysii.Context:
 		return deoxysii.open(&impl, dst, iv, aad, ciphertext, tag)
 	case:
-		panic("crypto/aead: uninitialized algorithm")
+		internal.panic("crypto/aead: uninitialized algorithm")
 	}
 }
 

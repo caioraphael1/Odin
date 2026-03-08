@@ -8,7 +8,7 @@ import "core:time"
 
 _futex_wait :: proc(f: ^Futex, expected: u32) -> bool {
 	when !intrinsics.has_target_feature("atomics") {
-		panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
+		internal.panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
 	} else {
 		_ = intrinsics.wasm_memory_atomic_wait32((^u32)(f), expected, -1)
 		return true
@@ -17,7 +17,7 @@ _futex_wait :: proc(f: ^Futex, expected: u32) -> bool {
 
 _futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Duration) -> bool {
 	when !intrinsics.has_target_feature("atomics") {
-		panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
+		internal.panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
 	} else {
 		s := intrinsics.wasm_memory_atomic_wait32((^u32)(f), expected, i64(duration))
 		return s != 2
@@ -26,7 +26,7 @@ _futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Durati
 
 _futex_signal :: proc(f: ^Futex) {
 	when !intrinsics.has_target_feature("atomics") {
-		panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
+		internal.panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
 	} else {
 		_ = intrinsics.wasm_memory_atomic_notify32((^u32)(f), 1)
 	}
@@ -34,7 +34,7 @@ _futex_signal :: proc(f: ^Futex) {
 
 _futex_broadcast :: proc(f: ^Futex) {
 	when !intrinsics.has_target_feature("atomics") {
-		panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
+		internal.panic("usage of `core:sync` requires the `-target-feature:\"atomics\"` or a `-microarch` that supports it")
 	} else {
 		_ = intrinsics.wasm_memory_atomic_notify32((^u32)(f), max(u32))
 	}

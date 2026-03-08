@@ -46,8 +46,8 @@ growing_arena_memory_block_alloc :: proc(allocator: mem.Allocator, capacity: uin
     // sanitizer.address_poison(block.base, block.capacity)
 
     // Should be zeroed
-    assert(block.used == 0)
-    assert(block.prev == nil)
+    internal.assert(block.used == 0)
+    internal.assert(block.prev == nil)
     return
 }
 
@@ -104,7 +104,7 @@ growing_arena_alloc :: proc(arena: ^Growing_Arena, size, alignment: uint, loc :=
         return p
     }
 
-    assert(alignment & (alignment-1) == 0, "non-power of two alignment", loc)
+    internal.assert(alignment & (alignment-1) == 0, "non-power of two alignment", loc)
 
     size := size
     if size == 0 {
@@ -121,7 +121,7 @@ growing_arena_alloc :: proc(arena: ^Growing_Arena, size, alignment: uint, loc :=
         needed := align_forward_uint(size, alignment)
         block_size := max(needed, arena.minimum_block_size)
 
-        assert(arena.backing_allocator.procedure != nil, 
+        internal.assert(arena.backing_allocator.procedure != nil, 
             "mem.Allocator not initialized. Use allocators.growing_arena_init(arena, size, backing_allocator)")
 
         new_block := growing_arena_memory_block_alloc(arena.backing_allocator, block_size, alignment, loc) or_return
@@ -282,7 +282,7 @@ ARENA_TEMP_GUARD :: #force_inline proc(arena: ^Growing_Arena, ignore := false, l
 
 
 growing_arena_temp_begin :: proc(arena: ^Growing_Arena, loc := #caller_location) -> (arena_temp: Growing_Arena_Temp) {
-    assert(arena != nil, "nil arena", loc)
+    internal.assert(arena != nil, "nil arena", loc)
 
     arena_temp.arena = arena
     arena_temp.block = arena.curr_block
@@ -295,8 +295,8 @@ growing_arena_temp_begin :: proc(arena: ^Growing_Arena, loc := #caller_location)
 
 growing_arena_temp_end :: proc(arena_temp: Growing_Arena_Temp, loc := #caller_location) {
     if arena_temp.arena == nil {
-        assert(arena_temp.block == nil)
-        assert(arena_temp.used == 0)
+        internal.assert(arena_temp.block == nil)
+        internal.assert(arena_temp.used == 0)
         return
     }
     arena := arena_temp.arena
@@ -310,7 +310,7 @@ growing_arena_temp_end :: proc(arena_temp: Growing_Arena_Temp, loc := #caller_lo
             }
         }
         if !memory_block_found {
-            assert(arena.curr_block == arena_temp.block, "memory block stored within Growing_Arena_Temp not owned by Growing_Arena", loc)
+            internal.assert(arena.curr_block == arena_temp.block, "memory block stored within Growing_Arena_Temp not owned by Growing_Arena", loc)
         }
 
         for arena.curr_block != arena_temp.block {
@@ -318,7 +318,7 @@ growing_arena_temp_end :: proc(arena_temp: Growing_Arena_Temp, loc := #caller_lo
         }
 
         if block := arena.curr_block; block != nil {
-            assert(block.used >= arena_temp.used, "out of order use of growing_arena_temp_end", loc)
+            internal.assert(block.used >= arena_temp.used, "out of order use of growing_arena_temp_end", loc)
             amount_to_zero := block.used-arena_temp.used
             mem.zero(block.base[arena_temp.used:], amount_to_zero)
             // sanitizer.address_poison(block.base[arena_temp.used:block.capacity])
@@ -327,20 +327,20 @@ growing_arena_temp_end :: proc(arena_temp: Growing_Arena_Temp, loc := #caller_lo
         }
     }
 
-    assert(arena.temp_count > 0, "double-use of growing_arena_temp_end", loc)
+    internal.assert(arena.temp_count > 0, "double-use of growing_arena_temp_end", loc)
     arena.temp_count -= 1
 }
 
 growing_arena_temp_ignore :: proc(arena_temp: Growing_Arena_Temp, loc := #caller_location) {
-    assert(arena_temp.arena != nil, "nil arena", loc)
+    internal.assert(arena_temp.arena != nil, "nil arena", loc)
     arena := arena_temp.arena
 
-    assert(arena.temp_count > 0, "double-use of growing_arena_temp_end", loc)
+    internal.assert(arena.temp_count > 0, "double-use of growing_arena_temp_end", loc)
     arena.temp_count -= 1
 }
 
 growing_arena_check_temp :: proc(arena: ^Growing_Arena, loc := #caller_location) {
-    assert(arena.temp_count == 0, "Growing_Arena_Temp not been ended", loc)
+    internal.assert(arena.temp_count == 0, "Growing_Arena_Temp not been ended", loc)
 }
 
 

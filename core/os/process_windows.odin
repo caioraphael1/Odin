@@ -179,7 +179,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             err = Platform_Error(status)
             break read_peb
         }
-        assert(process_info.PebBaseAddress != nil)
+        internal.assert(process_info.PebBaseAddress != nil)
         process_peb: win32.PEB
         _, err = read_memory_as_struct(ph, process_info.PebBaseAddress, &process_peb)
         if err != nil {
@@ -290,7 +290,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
             err = Platform_Error(status)
             return
         }
-        assert(process_info.PebBaseAddress != nil)
+        internal.assert(process_info.PebBaseAddress != nil)
         process_peb: win32.PEB
         _, err = read_memory_as_struct(ph, process_info.PebBaseAddress, &process_peb)
         if err != nil {
@@ -380,13 +380,13 @@ _current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.All
     module_filename: if .Executable_Path in selection {
         exe_filename_w: [256]u16
         path_len := win32.GetModuleFileNameW(nil, raw_data(exe_filename_w[:]), len(exe_filename_w))
-        assert(path_len > 0)
+        internal.assert(path_len > 0)
         info.executable_path = win32_utf16_u16_to_utf8(exe_filename_w[:path_len], allocator) or_return
         info.fields += {.Executable_Path}
     }
     command_line: if selection >= {.Command_Line,  .Command_Args} {
         command_line_w := win32.GetCommandLineW()
-        assert(command_line_w != nil)
+        internal.assert(command_line_w != nil)
         if .Command_Line in selection {
             info.command_line = win32_wstring_to_utf8(command_line_w, allocator) or_return
             info.fields += {.Command_Line}
@@ -398,7 +398,7 @@ _current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.All
     }
     read_environment: if .Environment in selection {
         env_block := win32.GetEnvironmentStringsW()
-        assert(env_block != nil)
+        internal.assert(env_block != nil)
         info.environment = _parse_environment_block(env_block, allocator) or_return
         info.fields += {.Environment}
     }
@@ -478,7 +478,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
             nil,
         )
         // Opening NUL should always succeed.
-        assert(null_handle != nil)
+        internal.assert(null_handle != nil)
     }
     // NOTE(laytan): I believe it is fine to close this handle right after CreateProcess,
     // and we don't have to hold onto this until the process exits.
@@ -830,7 +830,7 @@ _build_environment_block :: proc(environment: []string, allocator: mem.Allocator
     builder := strings_tools.builder_make(allocator)
     loop: #reverse for kv, cur_idx in environment {
         eq_idx := strings_tools.index_byte(kv, '=')
-        assert(eq_idx >= 0, "Malformed environment string. Expected '=' to separate keys and values")
+        internal.assert(eq_idx >= 0, "Malformed environment string. Expected '=' to separate keys and values")
         key := kv[:eq_idx]
         for old_kv in environment[cur_idx+1:] {
             old_key := old_kv[:strings_tools.index_byte(old_kv, '=')]

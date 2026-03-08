@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:slice"
 
 Int_Flag :: enum {
@@ -42,7 +43,7 @@ is_integer_negative :: proc(x: u64, is_signed: bool, bit_size: int) -> (u: u64, 
             neg = i < 0
             u = u64(abs(i))
         case:
-            panic("is_integer_negative: Unknown integer size")
+            internal.panic("is_integer_negative: Unknown integer size")
         }
     }
     return
@@ -64,7 +65,7 @@ Writes the string representation of an integer to a buffer with specified base, 
 */
 write_bits :: proc(buf: []byte, x: u64, base: int, is_signed: bool, bit_size: int, digits: string, flags: Int_Flags) -> string {
     if base < 2 || base > MAX_BASE {
-        panic("strconv: illegal base passed to write_bits")
+        internal.panic("strconv: illegal base passed to write_bits")
     }
 
     a: [129]byte
@@ -140,7 +141,7 @@ is_integer_negative_128 :: proc(x: u128, is_signed: bool, bit_size: int) -> (u: 
             neg = i < 0
             u = u128(abs(i))
         case:
-            panic("is_integer_negative: Unknown integer size")
+            internal.panic("is_integer_negative: Unknown integer size")
         }
     }
     return
@@ -162,7 +163,7 @@ Writes the string representation of a 128-bit integer to a buffer with specified
 */
 write_bits_128 :: proc(buf: []byte, x: u128, base: int, is_signed: bool, bit_size: int, digits: string, flags: Int_Flags) -> string {
     if base < 2 || base > MAX_BASE {
-        panic("strconv: illegal base passed to write_bits")
+        internal.panic("strconv: illegal base passed to write_bits")
     }
 
     a: [140]byte

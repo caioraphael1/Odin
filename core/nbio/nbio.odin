@@ -163,7 +163,7 @@ run_until :: proc(done: ^bool) -> General_Error {
 /*
 Returns the number of in-progress operations to be completed on the event loop.
 */
-num_waiting :: proc(l: Maybe(^Event_Loop) = nil) -> int {
+num_waiting :: proc(l: internal.Maybe(^Event_Loop) = nil) -> int {
     l_ := l.? or_else &_tls_event_loop
     if l_.refs == 0 { return 0 }
     return pool.num_outstanding(&l_.operation_pool)
@@ -207,10 +207,10 @@ remove :: proc(target: ^Operation) {
         return
     }
 
-    assert(target.type != .None)
+    internal.assert(target.type != .None)
 
     if target.l != &_tls_event_loop {
-        panic("nbio.remove called on different thread")
+        internal.panic("nbio.remove called on different thread")
     }
 
     _remove(target)
@@ -293,7 +293,7 @@ Returns:
 - err:    A network error (`Create_Socket_Error`, `Bind_Error`, or `Listen_Error`) that has happened
 */
 listen_tcp :: proc(endpoint: Endpoint, backlog := 1000, l: ^Event_Loop = nil, loc := #caller_location) -> (socket: TCP_Socket, err: net.Network_Error) {
-    assert(backlog > 0 && backlog < int(max(i32)))
+    internal.assert(backlog > 0 && backlog < int(max(i32)))
     return _listen_tcp(l if l != nil else _current_thread_event_loop(loc), endpoint, backlog)
 }
 

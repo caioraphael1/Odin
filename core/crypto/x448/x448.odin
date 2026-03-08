@@ -126,9 +126,9 @@ _scalarmult :: proc(out, scalar, point: ^[56]byte) {
 // scalarmult "multiplies" the provided scalar and point, and writes the
 // resulting point to dst.
 scalarmult :: proc(dst, scalar, point: []byte) {
-	ensure(len(scalar) == SCALAR_SIZE, "crypto/x448: invalid scalar size")
-	ensure(len(point) == POINT_SIZE, "crypto/x448: invalid point size")
-	ensure(len(dst) == POINT_SIZE, "crypto/x448: invalid destination point size")
+	internal.ensure(len(scalar) == SCALAR_SIZE, "crypto/x448: invalid scalar size")
+	internal.ensure(len(point) == POINT_SIZE, "crypto/x448: invalid point size")
+	internal.ensure(len(dst) == POINT_SIZE, "crypto/x448: invalid destination point size")
 
 	// "clamp" the scalar
 	e: [56]byte = ---

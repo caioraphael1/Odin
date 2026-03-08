@@ -1,5 +1,7 @@
-import "decimal"
+import "base:internal"
 import "base:slice"
+
+import "decimal"
 
 Decimal_Slice :: struct {
     digits:        []byte,
@@ -56,7 +58,7 @@ generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: int)
         bits = transmute(u64)val
         flt = &_f64_info
     case:
-        panic("strconv: invalid bit_size")
+        internal.panic("strconv: invalid bit_size")
     }
 
     neg  := bits>>(flt.expbits+flt.mantbits) != 0

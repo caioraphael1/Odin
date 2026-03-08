@@ -11,12 +11,12 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
         err = _get_platform_error(posix.Errno(ret))
         return
     }
-    assert(size > 0)
+    internal.assert(size > 0)
 
     buf := slice.create([]byte, size, allocator) or_return
     defer if err != nil { _ = slice.delete(buf, allocator) }
 
-    assert(uint(len(buf)) == size)
+    internal.assert(uint(len(buf)) == size)
 
     if ret := freebsd.sysctl(req, raw_data(buf), &size, nil, 0); ret != .NONE {
         err = _get_platform_error(posix.Errno(ret))

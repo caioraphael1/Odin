@@ -5,23 +5,23 @@ import "core:c"
 foreign import "odin_env"
 
 _fopen :: proc(path, mode: cstring) -> FILE {
-    unimplemented("vendor/libc: fopen in JS")
+    internal.unimplemented("vendor/libc: fopen in JS")
 }
 
 _fseek :: proc(file: FILE, offset: c.long, whence: i32) -> i32 {
-    unimplemented("vendor/libc: fseek in JS")
+    internal.unimplemented("vendor/libc: fseek in JS")
 }
 
 _ftell :: proc(file: FILE) -> c.long {
-    unimplemented("vendor/libc: ftell in JS")
+    internal.unimplemented("vendor/libc: ftell in JS")
 }
 
 _fclose :: proc(file: FILE) -> i32 {
-    unimplemented("vendor/libc: fclose in JS")
+    internal.unimplemented("vendor/libc: fclose in JS")
 }
 
 _fread :: proc(buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
-    unimplemented("vendor/libc: fread in JS")
+    internal.unimplemented("vendor/libc: fread in JS")
 }
 
 _fwrite :: proc(buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {

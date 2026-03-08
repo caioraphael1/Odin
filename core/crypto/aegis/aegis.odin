@@ -57,7 +57,7 @@ _validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte)
 	switch len(tag) {
 	case TAG_SIZE_128, TAG_SIZE_256:
 	case:
-		panic("crypto/aegis: invalid tag size")
+		internal.panic("crypto/aegis: invalid tag size")
 	}
 
 	iv_ok: bool
@@ -67,7 +67,7 @@ _validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte)
 	case KEY_SIZE_256:
 		iv_ok = len(iv) == IV_SIZE_256
 	}
-	ensure(iv_ok,"crypto/aegis: invalid IV size")
+	internal.ensure(iv_ok,"crypto/aegis: invalid IV size")
 
 	#assert(size_of(int) == 8 || size_of(int) <= 4)
 	// As A_MAX and P_MAX are both defined to be 2^61 - 1 bytes, and
@@ -81,7 +81,7 @@ init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
 	switch len(key) {
 	case KEY_SIZE_128L, KEY_SIZE_256:
 	case:
-		panic("crypto/aegis: invalid key size")
+		internal.panic("crypto/aegis: invalid key size")
 	}
 
 	copy(ctx._key[:], key)
@@ -98,11 +98,11 @@ init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
 //
 // dst and plaintext MUST alias exactly or not at all.
 seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, plaintext)
-	ensure(len(dst) == len(plaintext), "crypto/aegis: invalid destination ciphertext size")
-	ensure(!bytes.alias_inexactly(dst, plaintext), "crypto/aegis: dst and plaintext alias inexactly")
+	internal.ensure(len(dst) == len(plaintext), "crypto/aegis: invalid destination ciphertext size")
+	internal.ensure(!bytes.alias_inexactly(dst, plaintext), "crypto/aegis: dst and plaintext alias inexactly")
 
 	switch ctx._impl {
 	case .Hardware:
@@ -138,7 +138,7 @@ seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 
 		finalize_sw(&st, tag, aad_len, pt_len)
 	case:
-		panic("core/crypto/aegis: not implemented")
+		internal.panic("core/crypto/aegis: not implemented")
 	}
 }
 
@@ -150,11 +150,11 @@ seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 // dst and plaintext MUST alias exactly or not at all.
 
 open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, ciphertext)
-	ensure(len(dst) == len(ciphertext), "crypto/aegis: invalid destination plaintext size")
-	ensure(!bytes.alias_inexactly(dst, ciphertext), "crypto/aegis: dst and ciphertext alias inexactly")
+	internal.ensure(len(dst) == len(ciphertext), "crypto/aegis: invalid destination plaintext size")
+	internal.ensure(!bytes.alias_inexactly(dst, ciphertext), "crypto/aegis: dst and ciphertext alias inexactly")
 
 	tmp: [TAG_SIZE_256]byte
 	derived_tag := tmp[:len(tag)]
@@ -192,7 +192,7 @@ open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 
 		finalize_sw(&st, derived_tag, aad_len, ct_len)
 	case:
-		panic("core/crypto/aegis: not implemented")
+		internal.panic("core/crypto/aegis: not implemented")
 	}
 
 	if crypto.compare_constant_time(tag, derived_tag) != 1 {

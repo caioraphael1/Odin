@@ -252,7 +252,7 @@ IsNormalized :: proc "c" (v: Vec2) -> bool {
 NormalizeChecked :: proc(v: Vec2) -> Vec2 {
 	length := Length(v)
 	if length < 1e-23 {
-		panic("zero-length Vec2")
+		internal.panic("zero-length Vec2")
 	}
 	invLength := 1 / length
 	return invLength * v

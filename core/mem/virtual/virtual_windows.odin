@@ -1,6 +1,8 @@
 #+build windows
 #+private
 
+import "base:internal"
+
 foreign import Kernel32 "system:Kernel32.lib"
 
 LPSYSTEM_INFO :: ^SYSTEM_INFO
@@ -153,7 +155,7 @@ _platform_memory_init :: proc() {
     DEFAULT_PAGE_SIZE = max(DEFAULT_PAGE_SIZE, uint(sys_info.dwPageSize))
     
     // is power of two
-    assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
+    internal.assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
 }
 
 

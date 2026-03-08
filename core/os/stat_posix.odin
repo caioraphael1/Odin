@@ -104,7 +104,7 @@ _lstat :: proc(name: string, allocator: mem.Allocator) -> (fi: File_Info, err: E
 	// you would want that to resolve "/symlink", but not resolve "foo.txt".
 
 	fullpath := clean_path(name, allocators.temp_allocator) or_return
-	assert(len(fullpath) > 0)
+	internal.assert(len(fullpath) > 0)
 	switch {
 	case fullpath[0] == '/':
 		// nothing.

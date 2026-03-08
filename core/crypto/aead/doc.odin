@@ -47,9 +47,9 @@ Example:
 		// Open the AAD + Ciphertext.
 		opened_pt := buf[:pt_len]
 		if ok := aead.open(algo, opened_pt, key, iv, aad, ciphertext, tag); !ok {
-			panic("aead example: failed to open")
+			internal.panic("aead example: failed to open")
 		}
 
-		assert(bytes.equal(opened_pt, plaintext))
+		internal.assert(bytes.equal(opened_pt, plaintext))
 	}
 */

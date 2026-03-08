@@ -199,7 +199,7 @@ ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
 // ge_set_wide_bytes sets ge to the result of deriving a ristretto255
 // group element, from a wide (512-bit) byte string.
 ge_set_wide_bytes :: proc(ge: ^Group_Element, b: []byte) {
-	ensure(len(b) == WIDE_ELEMENT_SIZE, "crypto/ristretto255: invalid wide input size")
+	internal.ensure(len(b) == WIDE_ELEMENT_SIZE, "crypto/ristretto255: invalid wide input size")
 
 	// The element derivation function on an input string b proceeds as
 	// follows:
@@ -221,7 +221,7 @@ ge_set_wide_bytes :: proc(ge: ^Group_Element, b: []byte) {
 // ge_bytes sets dst to the canonical encoding of ge.
 ge_bytes :: proc(ge: ^Group_Element, dst: []byte) {
 	_ge_ensure_initialized([]^Group_Element{ge})
-	ensure(len(dst) == ELEMENT_SIZE, "crypto/ristretto255: invalid destination size")
+	internal.ensure(len(dst) == ELEMENT_SIZE, "crypto/ristretto255: invalid destination size")
 
 	x0, y0, z0, t0 := &ge._p.x, &ge._p.y, &ge._p.z, &ge._p.t
 
@@ -499,6 +499,6 @@ ge_map :: proc(ge: ^Group_Element, b: []byte) {
 @(private)
 _ge_ensure_initialized :: proc(ges: []^Group_Element) {
 	for ge in ges {
-		ensure(ge._is_initialized, "crypto/ristretto255: uninitialized group element")
+		internal.ensure(ge._is_initialized, "crypto/ristretto255: uninitialized group element")
 	}
 }

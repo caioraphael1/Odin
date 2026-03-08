@@ -119,7 +119,7 @@ _bind :: proc(skt: Any_Socket, ep: Endpoint) -> (err: Bind_Error) {
 
 @(private)
 _listen_tcp :: proc(interface_endpoint: Endpoint, backlog := 1000) -> (skt: TCP_Socket, err: Network_Error) {
-    assert(backlog > 0 && i32(backlog) < max(i32))
+    internal.assert(backlog > 0 && i32(backlog) < max(i32))
 
     family := family_from_endpoint(interface_endpoint)
     sock := create_socket(family, .TCP) or_return
@@ -300,7 +300,7 @@ _set_option :: proc(s: Any_Socket, option: Socket_Option, value: any, loc := #ca
             case b64:
                 bool_value = b32(x)
             case:
-                panic("set_option() value must be a boolean here", loc)
+                internal.panic("set_option() value must be a boolean here", loc)
             }
             ptr = &bool_value
             len = size_of(bool_value)
@@ -308,7 +308,7 @@ _set_option :: proc(s: Any_Socket, option: Socket_Option, value: any, loc := #ca
         .Linger,
         .Send_Timeout,
         .Receive_Timeout:
-            t := value.(time.Duration) or_else panic("set_option() value must be a time.Duration here", loc)
+            t := value.(time.Duration) or_else internal.panic("set_option() value must be a time.Duration here", loc)
 
             micros := i64(time.duration_microseconds(t))
             timeval_value.tv_usec = posix.suseconds_t(micros % 1e6)
@@ -328,7 +328,7 @@ _set_option :: proc(s: Any_Socket, option: Socket_Option, value: any, loc := #ca
             case i128, u128: i2 := i; int_value = posix.socklen_t((^u128)(&i2)^)
             case int, uint: i2 := i; int_value = posix.socklen_t((^uint)(&i2)^)
             case:
-                panic("set_option() value must be an integer here", loc)
+                internal.panic("set_option() value must be an integer here", loc)
             }
             ptr = &int_value
             len = size_of(int_value)
@@ -408,7 +408,7 @@ _sockaddr_to_endpoint :: proc(native_addr: ^posix.sockaddr_storage) -> (ep: Endp
             port    = port,
         }
     case:
-        panic("native_addr is neither IP4 or IP6 address")
+        internal.panic("native_addr is neither IP4 or IP6 address")
     }
     return
 }
@@ -431,7 +431,7 @@ _sockaddr_basic_to_endpoint :: proc(native_addr: ^posix.sockaddr) -> (ep: Endpoi
             port    = port,
         }
     case:
-        panic("native_addr is neither IP4 or IP6 address")
+        internal.panic("native_addr is neither IP4 or IP6 address")
     }
     return
 }

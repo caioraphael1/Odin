@@ -70,6 +70,7 @@ panic :: proc(args: ..any, location := #caller_location) -> ! {
     log(default_logger, .Fatal, ..args, location=location)
     internal.panic("log.panic", location)
 }
+
 panicf :: proc(fmt_str: string, args: ..any, location := #caller_location) -> ! {
     logf(default_logger, .Fatal, fmt_str, ..args, location=location)
     internal.panic("log.panicf", location)

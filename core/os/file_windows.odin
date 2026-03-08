@@ -200,7 +200,7 @@ _new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> (f
 
 
 _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: mem.Allocator) -> (f: ^File, err: Error) {
-    assert(buffer_size > 0)
+    internal.assert(buffer_size > 0)
     flags := flags if flags != nil else {.Read}
     handle := _open_internal(name, flags, perm) or_return
     return _new_file_buffered(handle, name, buffer_size, allocator)

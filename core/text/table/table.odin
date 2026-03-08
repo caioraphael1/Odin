@@ -102,8 +102,8 @@ padding :: proc(tbl: ^Table, lpad, rpad: int) {
 }
 
 get_cell :: proc(tbl: ^Table, row, col: int, loc := #caller_location) -> ^Cell {
-    assert(col >= 0 && col < tbl.nr_cols, "cell column out of range", loc)
-    assert(row >= 0 && row < tbl.nr_rows, "cell row out of range", loc)
+    internal.assert(col >= 0 && col < tbl.nr_cols, "cell column out of range", loc)
+    internal.assert(row >= 0 && row < tbl.nr_rows, "cell row out of range", loc)
     _ = dyn_array.resize(&tbl.cells, tbl.nr_cols * tbl.nr_rows)
     return &tbl.cells[row*tbl.nr_cols + col]
 }
@@ -150,7 +150,7 @@ format :: proc(tbl: ^Table, _fmt: string, args: ..any) -> string {
 header :: header_of_values
 header_of_values :: proc(tbl: ^Table, values: ..any, loc := #caller_location) {
     if (tbl.has_header_row && tbl.nr_rows != 1) || (!tbl.has_header_row && tbl.nr_rows != 0) {
-        panic("Cannot add headers after rows have been added", loc)
+        internal.panic("Cannot add headers after rows have been added", loc)
     }
 
     if tbl.nr_rows == 0 {
@@ -168,7 +168,7 @@ header_of_values :: proc(tbl: ^Table, values: ..any, loc := #caller_location) {
 
 aligned_header_of_values :: proc(tbl: ^Table, alignment: Cell_Alignment, values: ..any, loc := #caller_location) {
     if (tbl.has_header_row && tbl.nr_rows != 1) || (!tbl.has_header_row && tbl.nr_rows != 0) {
-        panic("Cannot add headers after rows have been added", loc)
+        internal.panic("Cannot add headers after rows have been added", loc)
     }
 
     if tbl.nr_rows == 0 {
@@ -186,7 +186,7 @@ aligned_header_of_values :: proc(tbl: ^Table, alignment: Cell_Alignment, values:
 
 header_of_aligned_values :: proc(tbl: ^Table, aligned_values: []Aligned_Value, loc := #caller_location) {
     if (tbl.has_header_row && tbl.nr_rows != 1) || (!tbl.has_header_row && tbl.nr_rows != 0) {
-        panic("Cannot add headers after rows have been added", loc)
+        internal.panic("Cannot add headers after rows have been added", loc)
     }
 
     if tbl.nr_rows == 0 {
@@ -206,7 +206,7 @@ row :: row_of_values
 row_of_values :: proc(tbl: ^Table, values: ..any, loc := #caller_location) {
     if tbl.nr_cols == 0 {
         if len(values) == 0 {
-            panic("Cannot create empty row unless the number of columns is known in advance")
+            internal.panic("Cannot create empty row unless the number of columns is known in advance")
         } else {
             tbl.nr_cols = len(values)
         }
@@ -223,7 +223,7 @@ row_of_values :: proc(tbl: ^Table, values: ..any, loc := #caller_location) {
 aligned_row_of_values :: proc(tbl: ^Table, alignment: Cell_Alignment, values: ..any, loc := #caller_location) {
     if tbl.nr_cols == 0 {
         if len(values) == 0 {
-            panic("Cannot create empty row unless the number of columns is known in advance")
+            internal.panic("Cannot create empty row unless the number of columns is known in advance")
         } else {
             tbl.nr_cols = len(values)
         }
@@ -240,7 +240,7 @@ aligned_row_of_values :: proc(tbl: ^Table, alignment: Cell_Alignment, values: ..
 row_of_aligned_values :: proc(tbl: ^Table, aligned_values: []Aligned_Value, loc := #caller_location) {
     if tbl.nr_cols == 0 {
         if len(aligned_values) == 0 {
-            panic("Cannot create empty row unless the number of columns is known in advance")
+            internal.panic("Cannot create empty row unless the number of columns is known in advance")
         } else {
             tbl.nr_cols = len(aligned_values)
         }

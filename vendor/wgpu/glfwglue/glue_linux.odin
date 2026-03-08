@@ -21,7 +21,7 @@ GetSurface :: proc(instance: wgpu.Instance, window: glfw.WindowHandle) -> wgpu.S
 		}
 
 		if glfw.GetPlatform() != glfw.PLATFORM_X11 {
-			panic("wgpu glfw glue: unsupported platform, expected Wayland or X11")
+			internal.panic("wgpu glfw glue: unsupported platform, expected Wayland or X11")
 		}
 	}
 

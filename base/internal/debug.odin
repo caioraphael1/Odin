@@ -1,6 +1,5 @@
 import "base:intrinsics"
 
-@(builtin)
 Maybe :: union($T: typeid) { T }
 
 debug_trap         :: intrinsics.debug_trap
@@ -13,7 +12,6 @@ assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 // This uses the `assertion_failure_proc` to assert.
 //
 // This routine will be ignored when `ODIN_DISABLE_ASSERT` is true.
-@(builtin)
 @(disabled=ODIN_DISABLE_ASSERT)
 assert :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
@@ -32,7 +30,6 @@ assert :: proc(condition: bool, message := #caller_expression(condition), loc :=
 // Evaluates the condition and panics the program iff the condition is false.
 // This uses the `assertion_failure_proc` to assert.
 // This routine ignores `ODIN_DISABLE_ASSERT`, and will always execute.
-@(builtin)
 ensure :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         @(cold)
@@ -45,14 +42,12 @@ ensure :: proc(condition: bool, message := #caller_expression(condition), loc :=
 
 // Panics the program with a message.
 // This uses the `assertion_failure_proc` to panic.
-@(builtin)
 panic :: proc(message: string, loc := #caller_location) -> ! {
     assertion_failure_proc("panic", message, loc)
 }
 
 // Panics the program with a message to indicate something has yet to be implemented.
 // This uses the `assertion_failure_proc` to assert.
-@(builtin)
 unimplemented :: proc(message := "", loc := #caller_location) -> ! {
     assertion_failure_proc("not yet implemented", message, loc)
 }

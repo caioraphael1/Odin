@@ -82,8 +82,8 @@ in time. Currently the type is defined as follows:
 
     Allocator_Query_Info :: struct {
         pointer:   rawptr,
-        size:      Maybe(int),
-        alignment: Maybe(int),
+        size:      internal.Maybe(int),
+        alignment: internal.Maybe(int),
     }
 
 - `pointer`: Pointer to a backing buffer.
@@ -94,8 +94,8 @@ If not applicable, any of these fields may be `nil`.
 */
 Allocator_Query_Info :: struct {
     pointer:   rawptr,
-    size:      Maybe(int),
-    alignment: Maybe(int),
+    size:      internal.Maybe(int),
+    alignment: internal.Maybe(int),
 }
 
 
@@ -263,7 +263,6 @@ no-op, and should not return errors.
 Allocator_Proc :: internal.Allocator_Proc
 
 
-// @(builtin)
 new :: proc($T: typeid, allocator: Allocator, loc := #caller_location) -> (t: ^T, err: Allocator_Error) {
     t = (^T)(raw_data(alloc(size_of(T), align_of(T), allocator, loc) or_return))
     return
@@ -274,7 +273,6 @@ new_aligned :: proc($T: typeid, alignment: int, allocator: Allocator, loc := #ca
     return
 }
 
-// @(builtin)
 new_clone :: proc(data: $T, allocator: Allocator, loc := #caller_location) -> (t: ^T, err: Allocator_Error) {
     t = (^T)(raw_data(alloc(size_of(T), align_of(T), allocator, loc) or_return))
     if t != nil {
@@ -283,9 +281,8 @@ new_clone :: proc(data: $T, allocator: Allocator, loc := #caller_location) -> (t
     return
 }
 
-// @(builtin)
 free :: #force_no_inline proc(ptr: rawptr, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
-    assert(allocator.procedure != nil, loc=loc)
+    internal.assert(allocator.procedure != nil, loc=loc)
     if ptr == nil {
         return nil
     }
@@ -297,7 +294,7 @@ free_with_size :: internal.mem_free_with_size
 
 
 free_bytes :: #force_no_inline proc(bytes: []byte, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
-    assert(allocator.procedure != nil, loc=loc)
+    internal.assert(allocator.procedure != nil, loc=loc)
     if bytes == nil {
         return nil
     }
@@ -305,17 +302,16 @@ free_bytes :: #force_no_inline proc(bytes: []byte, allocator: Allocator, loc := 
     return err
 }
 
-// @(builtin)
 free_all :: #force_no_inline proc(allocator: Allocator, loc := #caller_location) -> (err: Allocator_Error) {
-    assert(allocator.procedure != nil, loc=loc)
+    internal.assert(allocator.procedure != nil, loc=loc)
     _, err = allocator.procedure(allocator.data, .Free_All, 0, 0, nil, 0, loc)
     return
 }
 
 alloc :: #force_no_inline proc(size: int, alignment: int = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> ([]byte, Allocator_Error) {
-    assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
-    assert(allocator.procedure != nil, "Allocator not defined", loc)
-    assert(size > 0, "Size must be greater than zero", loc)
+    internal.assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
+    internal.assert(allocator.procedure != nil, "Allocator not defined", loc)
+    internal.assert(size > 0, "Size must be greater than zero", loc)
     return allocator.procedure(allocator.data, .Alloc, size, alignment, nil, 0, loc)
 }
 
@@ -328,20 +324,20 @@ alloc_non_zeroed :: internal.mem_alloc_non_zeroed
 
 
 resize          :: proc(ptr: rawptr, old_size, new_size: int, alignment: int = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
-    assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
-    assert(allocator.procedure != nil, "Allocator not defined", loc)
+    internal.assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
+    internal.assert(allocator.procedure != nil, "Allocator not defined", loc)
     return _resize(ptr, old_size, new_size, alignment, allocator, true, loc)
 }
 
 resize_non_zero :: proc(ptr: rawptr, old_size, new_size: int, alignment: int = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
-    assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
-    assert(allocator.procedure != nil, "Allocator not defined", loc)
+    internal.assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
+    internal.assert(allocator.procedure != nil, "Allocator not defined", loc)
     return _resize(ptr, old_size, new_size, alignment, allocator, false, loc)
 }
 
 _resize :: #force_no_inline proc(ptr: rawptr, old_size, new_size: int, alignment: int = DEFAULT_ALIGNMENT, allocator: Allocator, should_zero: bool, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
-    assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
-    assert(allocator.procedure != nil, loc=loc)
+    internal.assert(is_power_of_two_int(alignment), "Alignment must be a power of two", loc)
+    internal.assert(allocator.procedure != nil, loc=loc)
     
     if new_size == 0 {
         if ptr != nil {

@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:slice"
 
 import "core:io"
@@ -278,7 +279,7 @@ reader_write_to :: proc(r: ^Reader, w: io.Writer) -> (n: i64, err: io.Error) {
     m: int
     m, err = io.write_string(w, s)
     if m > len(s) {
-        panic("bytes.Reader.write_to: invalid io.write_string count")
+        internal.panic("bytes.Reader.write_to: invalid io.write_string count")
     }
     r.i += i64(m)
     n = i64(m)

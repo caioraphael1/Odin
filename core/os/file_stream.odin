@@ -41,7 +41,7 @@ File_Stream :: struct {
 // Converts a file `f` into an `io.Stream`
 to_stream :: proc(f: ^File) -> (s: io.Stream) {
     if f != nil {
-        assert(f.stream.procedure != nil)
+        internal.assert(f.stream.procedure != nil)
         s = {
             file_io_stream_proc,
             f,

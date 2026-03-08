@@ -1,4 +1,6 @@
 #+private
+import "base:internal"
+
 Platform_Memory_Block :: struct {
     block:      Memory_Block,
     committed:  uint,
@@ -16,7 +18,7 @@ platform_memory_alloc :: proc(to_commit, to_reserve: uint) -> (block: ^Platform_
     data := reserve(total_to_reserved) or_return
 
     commit_err := commit(raw_data(data), to_commit)
-    assert(commit_err == nil)
+    internal.assert(commit_err == nil)
     
     block = (^Platform_Memory_Block)(raw_data(data))
     block.committed = to_commit

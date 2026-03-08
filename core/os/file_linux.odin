@@ -128,7 +128,7 @@ _clone :: proc(f: ^File, allocator: mem.Allocator) -> (clone: ^File, err: Error)
 
 
 _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm: Permissions, allocator: mem.Allocator) -> (f: ^File, err: Error) {
-    assert(buffer_size > 0)
+    internal.assert(buffer_size > 0)
     f, err = _open(name, flags, perm, allocator)
     if f != nil && err == nil {
         impl := (^File_Impl)(f.impl)

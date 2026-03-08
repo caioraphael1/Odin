@@ -424,7 +424,7 @@ Example:
     i64s_as_i32s :: proc() {
         large_items := []i64{1, 2, 3, 4}
         small_items := slice.reinterpret([]i32, large_items)
-        assert(len(small_items) == 8)
+        internal.assert(len(small_items) == 8)
         fmt.println(large_items, "->", small_items)
     }
 
@@ -433,7 +433,7 @@ Example:
         small_items[0] = 1
         small_items[8] = 2
         large_items := slice.reinterpret([]i64, small_items[:])
-        assert(len(large_items) == 1) // only enough bytes to make 1 x i64; two would need at least 8 bytes.
+        internal.assert(len(large_items) == 1) // only enough bytes to make 1 x i64; two would need at least 8 bytes.
         fmt.println(small_items, "->", large_items)
     }
 

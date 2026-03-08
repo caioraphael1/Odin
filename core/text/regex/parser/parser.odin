@@ -6,9 +6,8 @@
         Feoramund: Initial implementation.
 */
 
-import "base:intrinsics"
+import "base:internal"
 import "base:mem"
-import "base:strings"
 import "base:dyn_array"
 
 import "core:strings_tools"
@@ -203,7 +202,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             r = ru
             break
         }
-        assert(r != 0, "Parsed an empty Rune token.")
+        internal.assert(r != 0, "Parsed an empty Rune token.")
 
         if .Case_Insensitive in p.flags {
             lower := unicode.to_lower(r)
@@ -238,12 +237,12 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             }
             i += size
 
-            assert(size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
+            internal.assert(size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
 
             if r == '\\' {
                 next_r, next_size := utf8.decode_rune_in_string(token.text[i:])
                 i += next_size
-                assert(next_size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
+                internal.assert(next_size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
 
                 // @MetaCharacter
                 // NOTE: These must be kept in sync with the tokenizer.

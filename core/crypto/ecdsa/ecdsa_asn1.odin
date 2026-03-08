@@ -60,7 +60,7 @@ generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []byte {
 
 	// WARNING: If secp521r1 support is added, this needs to support
 	// long-form length encoding.
-	ensure(seq_len <= 127, "BUG: crypto/ecdsa: signature length too large")
+	internal.ensure(seq_len <= 127, "BUG: crypto/ecdsa: signature length too large")
 	b := slice.create([]byte, seq_len + 2, allocator)
 	b[0] = TAG_SEQUENCE
 	b[1] = byte(seq_len)

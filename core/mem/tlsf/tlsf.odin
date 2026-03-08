@@ -66,7 +66,7 @@ estimate_pool_from_typeid :: proc(count: int, type: typeid) -> (pool_size: int) 
 
 
 init_from_buffer :: proc(control: ^Allocator, buf: []byte) -> Error {
-    assert(control != nil)
+    internal.assert(control != nil)
     if uintptr(raw_data(buf)) % ALIGN_SIZE != 0 {
         return .Invalid_Alignment
     }
@@ -88,7 +88,7 @@ init_from_buffer :: proc(control: ^Allocator, buf: []byte) -> Error {
 
 
 init_from_allocator :: proc(control: ^Allocator, backing: mem.Allocator, initial_pool_size: int, new_pool_size := 0) -> Error {
-    assert(control != nil)
+    internal.assert(control != nil)
     pool_bytes := uint(estimate_pool_size(1, initial_pool_size, ALIGN_SIZE))
     if pool_bytes < BLOCK_SIZE_MIN {
         return .Backing_Buffer_Too_Small

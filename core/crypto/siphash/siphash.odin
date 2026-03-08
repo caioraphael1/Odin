@@ -177,14 +177,14 @@ verify_bytes_4_8 :: proc(tag, msg, key: []byte) -> bool {
 */
 
 init :: proc(ctx: ^Context, key: []byte, c_rounds, d_rounds: int) {
-    ensure(len(key) == KEY_SIZE,"crypto/siphash; invalid key size")
+    internal.ensure(len(key) == KEY_SIZE,"crypto/siphash; invalid key size")
     ctx.c_rounds = c_rounds
     ctx.d_rounds = d_rounds
     is_valid_setting :=
         (ctx.c_rounds == 1 && ctx.d_rounds == 3) ||
         (ctx.c_rounds == 2 && ctx.d_rounds == 4) ||
         (ctx.c_rounds == 4 && ctx.d_rounds == 8)
-    ensure(is_valid_setting, "crypto/siphash: incorrect rounds set up")
+    internal.ensure(is_valid_setting, "crypto/siphash: incorrect rounds set up")
     ctx.k0 = endian.unchecked_get_u64le(key[:8])
     ctx.k1 = endian.unchecked_get_u64le(key[8:])
     ctx.v0 = 0x736f6d6570736575 ~ ctx.k0
@@ -199,7 +199,7 @@ init :: proc(ctx: ^Context, key: []byte, c_rounds, d_rounds: int) {
 }
 
 update :: proc(ctx: ^Context, data: []byte) {
-    ensure(ctx.is_initialized)
+    internal.ensure(ctx.is_initialized)
 
     data := data
     ctx.total_length += len(data)
@@ -223,7 +223,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 }
 
 final :: proc(ctx: ^Context, dst: ^u64) {
-    ensure(ctx.is_initialized)
+    internal.ensure(ctx.is_initialized)
 
     tmp: [BLOCK_SIZE]byte
     copy(tmp[:], ctx.buf[:ctx.last_block])
@@ -290,7 +290,7 @@ _get_byte :: #force_inline proc(byte_num: byte, into: u64) -> byte {
 
 @(private)
 _collect_output :: #force_inline proc(dst: []byte, hash: u64) {
-    ensure(len(dst) >= DIGEST_SIZE, "crypto/siphash: invalid tag size")
+    internal.ensure(len(dst) >= DIGEST_SIZE, "crypto/siphash: invalid tag size")
 
     dst[0] = _get_byte(7, hash)
     dst[1] = _get_byte(6, hash)

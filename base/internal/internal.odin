@@ -121,7 +121,7 @@ Odin_Platform_Subtarget_Type :: type_of(ODIN_PLATFORM_SUBTARGET)
 
 Odin_Platform_Subtarget_Types :: bit_set[Odin_Platform_Subtarget_Type]
 
-// @(builtin)
+
 ODIN_PLATFORM_SUBTARGET_IOS :: ODIN_PLATFORM_SUBTARGET == .iPhone || ODIN_PLATFORM_SUBTARGET == .iPhoneSimulator
 
 /*
@@ -202,7 +202,6 @@ Calling_Convention :: enum u8 {
 /*
 Represents an Objective-C block with a given procedure signature T
 */
-@(builtin)
 Objc_Block :: struct($T: typeid) where intrinsics.type_is_proc(T) { using _: intrinsics.objc_object }
 
 

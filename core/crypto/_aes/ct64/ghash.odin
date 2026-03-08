@@ -61,8 +61,8 @@ rev64 :: proc(x: u64) -> u64 {
 // Note: `dst` is both an input and an output, to support easy implementation
 // of GCM.
 ghash :: proc(dst, key, data: []byte) {
-	ensure(len(dst) == _aes.GHASH_BLOCK_SIZE)
-	ensure(len(key) == _aes.GHASH_BLOCK_SIZE)
+	internal.ensure(len(dst) == _aes.GHASH_BLOCK_SIZE)
+	internal.ensure(len(key) == _aes.GHASH_BLOCK_SIZE)
 
 	buf := data
 	l := len(buf)

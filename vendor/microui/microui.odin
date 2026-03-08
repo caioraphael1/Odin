@@ -254,12 +254,12 @@ Stack :: struct($T: typeid, $N: int) {
     items: [N]T,
 }
 push :: #force_inline proc(stk: ^$T/Stack($V,$N), val: V) { 
-    assert(stk.idx < len(stk.items))
+    internal.assert(stk.idx < len(stk.items))
     stk.items[stk.idx] = val 
     stk.idx += 1 
 }
 dyn_array.pop  :: #force_inline proc(stk: ^$T/Stack($V,$N)) { 
-    assert(stk.idx > 0) 
+    internal.assert(stk.idx > 0) 
     stk.idx -= 1 
 }
 
@@ -336,8 +336,8 @@ init :: proc(
 }
 
 begin :: proc(ctx: ^Context) {
-    assert(ctx.text_width != nil,  "ctx.text_width is not set")
-    assert(ctx.text_height != nil, "ctx.text_height is not set")
+    internal.assert(ctx.text_width != nil,  "ctx.text_width is not set")
+    internal.assert(ctx.text_height != nil, "ctx.text_height is not set")
     ctx.command_list.idx = 0
     ctx.root_list.idx    = 0
     ctx.scroll_target    = nil
@@ -350,10 +350,10 @@ begin :: proc(ctx: ^Context) {
 
 end :: proc(ctx: ^Context) {
     /* check stacks */
-    assert(ctx.container_stack.idx == 0)
-    assert(ctx.clip_stack.idx      == 0)
-    assert(ctx.id_stack.idx        == 0)
-    assert(ctx.layout_stack.idx    == 0)
+    internal.assert(ctx.container_stack.idx == 0)
+    internal.assert(ctx.clip_stack.idx      == 0)
+    internal.assert(ctx.id_stack.idx        == 0)
+    internal.assert(ctx.layout_stack.idx    == 0)
 
     /* handle scroll input */
     if ctx.scroll_target != nil {
@@ -458,7 +458,7 @@ pop_clip_rect :: proc(ctx: ^Context) {
 }
 
 get_clip_rect :: proc(ctx: ^Context) -> Rect {
-    assert(ctx.clip_stack.idx > 0)
+    internal.assert(ctx.clip_stack.idx > 0)
     return ctx.clip_stack.items[ctx.clip_stack.idx - 1]
 }
 
@@ -501,7 +501,7 @@ pop_container :: proc(ctx: ^Context) {
 }
 
 get_current_container :: proc(ctx: ^Context) -> ^Container {
-    assert(ctx.container_stack.idx > 0)
+    internal.assert(ctx.container_stack.idx > 0)
     return ctx.container_stack.items[ctx.container_stack.idx - 1]
 }
 
@@ -548,7 +548,7 @@ pool_init :: proc(ctx: ^Context, items: []Pool_Item, id: Id) -> int {
             n = i
         }
     }
-    assert(n > -1)
+    internal.assert(n > -1)
     items[n].id = id
     pool_update(ctx, &items[n])
     return n
@@ -612,7 +612,7 @@ input_text :: proc(ctx: ^Context, text: string) {
 push_command :: proc(ctx: ^Context, $Type: typeid, extra_size := 0) -> ^Type {
     size := i32(size_of(Type) + extra_size)
     cmd := transmute(^Type) &ctx.command_list.items[ctx.command_list.idx]
-    assert(ctx.command_list.idx + size < COMMAND_LIST_SIZE)
+    internal.assert(ctx.command_list.idx + size < COMMAND_LIST_SIZE)
     ctx.command_list.idx += size
     cmd.variant = cmd
     cmd.size    = size
@@ -848,7 +848,7 @@ draw_control_frame :: proc(ctx: ^Context, id: Id, rect: Rect, colorid: Color_Typ
     if .NO_FRAME in opt {
         return
     }
-    assert(colorid == .BUTTON || colorid == .BASE)
+    internal.assert(colorid == .BUTTON || colorid == .BASE)
     colorid := colorid
     colorid = Color_Type(int(colorid) + int((ctx.focus_id == id) ? 2 : (ctx.hover_id == id) ? 1 : 0))
     ctx.draw_frame(ctx, rect, colorid)
@@ -1403,7 +1403,7 @@ end_root_container :: proc(ctx: ^Context) {
 }
 
 begin_window :: proc(ctx: ^Context, title: string, rect: Rect, opt := Options{}) -> bool {
-    assert(title != "", "missing window title")
+    internal.assert(title != "", "missing window title")
     id := get_id(ctx, title)
     cnt := internal_get_container(ctx, id, opt)
     if cnt == nil || !cnt.open {
@@ -1540,7 +1540,7 @@ scoped_end_popup :: proc(ctx: ^Context, _: string, ok: bool) {
 }
 
 begin_panel :: proc(ctx: ^Context, name: string, opt := Options{}) {
-    assert(name != "", "missing panel name")
+    internal.assert(name != "", "missing panel name")
     push_id(ctx, name)
     cnt := internal_get_container(ctx, ctx.last_id, opt)
     cnt.rect = layout_next(ctx)

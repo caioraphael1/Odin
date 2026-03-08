@@ -233,7 +233,7 @@ total_allocation_size_from_value :: #force_inline proc(m: $M/map[$K]$V) -> uintp
 }
 
 shrink_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias info: ^Map_Info, loc := #caller_location) -> (did_shrink: bool, err: mem.Allocator_Error) {
-    assert(m.allocator.procedure != nil)
+    internal.assert(m.allocator.procedure != nil)
 
     // Cannot shrink the capacity if the number of items in the map would exceed
     // one minus the current log2 capacity's resize threshold. That is the shrunk

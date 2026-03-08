@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:slice"
 import "base:dyn_array"
@@ -97,7 +98,7 @@ dynamic_arena_destroy :: proc(a: ^Dynamic_Arena) {
 @(private="file")
 _dynamic_arena_cycle_new_block :: proc(a: ^Dynamic_Arena, loc := #caller_location) -> (err: mem.Allocator_Error) {
     if a.block_allocator.procedure == nil {
-        panic("You must call `dynamic_arena_init` on a Dynamic Arena before using it.", loc)
+        internal.panic("You must call `dynamic_arena_init` on a Dynamic Arena before using it.", loc)
     }
     if a.current_block != nil {
         _ = dyn_array.append(&a.used_blocks, a.current_block, loc=loc)
@@ -180,7 +181,7 @@ memory region.
 
 dynamic_arena_alloc_bytes_non_zeroed :: proc(a: ^Dynamic_Arena, size: int, loc := #caller_location) -> ([]byte, mem.Allocator_Error) {
     if size >= a.out_band_size {
-        assert(a.out_band_allocations.allocator.procedure != nil, "Backing array allocator must be initialized", loc=loc)
+        internal.assert(a.out_band_allocations.allocator.procedure != nil, "Backing array allocator must be initialized", loc=loc)
         memory, err := mem.alloc_non_zeroed(size, a.alignment, a.out_band_allocations.allocator, loc)
         if memory != nil {
             _ = dyn_array.append(&a.out_band_allocations, raw_data(memory), loc = loc)

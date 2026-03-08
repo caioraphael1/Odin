@@ -48,7 +48,7 @@ _futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Durati
         case -ETIMEDOUT:
             return false
         case:
-            panic("darwin.os_sync_wait_on_address_with_timeout failure")
+            internal.panic("darwin.os_sync_wait_on_address_with_timeout failure")
         }
     } else {
 
@@ -70,7 +70,7 @@ _futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Durati
     case ETIMEDOUT:
         return false
     case:
-        panic("futex_wait failure")
+        internal.panic("futex_wait failure")
     }
     return true
 
@@ -90,7 +90,7 @@ _futex_signal :: proc(f: ^Futex) {
             case -ENOENT:
                 return
             case:
-                panic("darwin.os_sync_wake_by_address_any failure")
+                internal.panic("darwin.os_sync_wake_by_address_any failure")
             }
         }
     } else {
@@ -106,7 +106,7 @@ _futex_signal :: proc(f: ^Futex) {
         case ENOENT:
             return
         case:
-            panic("futex_wake_single failure")
+            internal.panic("futex_wake_single failure")
         }
     }
 
@@ -126,7 +126,7 @@ _futex_broadcast :: proc(f: ^Futex) {
             case -ENOENT:
                 return
             case:
-                panic("darwin.os_sync_wake_by_address_all failure")
+                internal.panic("darwin.os_sync_wake_by_address_all failure")
             }
         }
     } else {
@@ -142,7 +142,7 @@ _futex_broadcast :: proc(f: ^Futex) {
         case ENOENT:
             return
         case:
-            panic("futex_wake_all failure")
+            internal.panic("futex_wake_all failure")
         }
     }
 

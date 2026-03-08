@@ -1,10 +1,11 @@
+import "base:internal"
 import "core:time"
 
 /*
 Obtain the current thread ID.
 */
 current_thread_id :: proc() -> int {
-	return _current_thread_id()
+    return _current_thread_id()
 }
 
 /*
@@ -35,7 +36,7 @@ holding another lock, that will cause a trivial case of deadlock. Do not use
 desired, use `Recursive_Mutex`.
 */
 Mutex :: struct {
-	impl: _Mutex,
+    impl: _Mutex,
 }
 
 /*
@@ -53,7 +54,7 @@ until the the lock is released.
 procedure will block indefinately. Do not use this in recursive procedures.
 */
 mutex_lock :: proc(m: ^Mutex) {
-	_mutex_lock(m)
+    _mutex_lock(m)
 }
 
 /*
@@ -68,7 +69,7 @@ associated with the mutex. If there are no threads waiting on the mutex, the
 critical sections will remain open.
 */
 mutex_unlock :: proc(m: ^Mutex) {
-	_mutex_unlock(m)
+    _mutex_unlock(m)
 }
 
 /*
@@ -83,7 +84,7 @@ blocked from entering any critical sections associated with the same mutex,
 until the lock is released.
 */
 mutex_try_lock :: proc(m: ^Mutex) -> bool {
-	return _mutex_try_lock(m)
+    return _mutex_try_lock(m)
 }
 
 /*
@@ -102,14 +103,14 @@ section by putting the function inside the `if` statement.
 
 **Example**:
 
-	if mutex_guard(&m) {
-		...
-	}
+    if mutex_guard(&m) {
+        ...
+    }
 */
 @(deferred_in=mutex_unlock, optional_results)
 mutex_guard :: proc(m: ^Mutex) -> bool {
-	mutex_lock(m)
-	return true
+    mutex_lock(m)
+    return true
 }
 
 /*
@@ -146,7 +147,7 @@ exclusive lock more than once from the same thread, or an exclusive and shared
 lock on the same thread. Taking a shared lock multiple times is acceptable.
 */
 RW_Mutex :: struct {
-	impl: _RW_Mutex,
+    impl: _RW_Mutex,
 }
 
 /*
@@ -161,7 +162,7 @@ will be blocked from entering any critical sections associated with the same
 read-write mutex, until the exclusive lock is released.
 */
 rw_mutex_lock :: proc(rw: ^RW_Mutex) {
-	_rw_mutex_lock(rw)
+    _rw_mutex_lock(rw)
 }
 
 /*
@@ -174,7 +175,7 @@ When the exclusive lock is released, all critical sections, associated with the
 same read-write mutex, become open to other threads.
 */
 rw_mutex_unlock :: proc(rw: ^RW_Mutex) {
-	_rw_mutex_unlock(rw)
+    _rw_mutex_unlock(rw)
 }
 
 /*
@@ -189,7 +190,7 @@ will be blocked from entering any critical sections associated with the same
 read-write mutex, until the exclusive locked is released.
 */
 rw_mutex_try_lock :: proc(rw: ^RW_Mutex) -> bool {
-	return _rw_mutex_try_lock(rw)
+    return _rw_mutex_try_lock(rw)
 }
 
 /*
@@ -205,7 +206,7 @@ with the same read-write mutex, until all shared locks associated with the
 specified read-write mutex are released.
 */
 rw_mutex_shared_lock :: proc(rw: ^RW_Mutex) {
-	_rw_mutex_shared_lock(rw)
+    _rw_mutex_shared_lock(rw)
 }
 
 /*
@@ -216,7 +217,7 @@ shared locks are released, all critical sections associated with the same
 read-write mutex become open to other threads.
 */
 rw_mutex_shared_unlock :: proc(rw: ^RW_Mutex) {
-	_rw_mutex_shared_unlock(rw)
+    _rw_mutex_shared_unlock(rw)
 }
 
 /*
@@ -231,7 +232,7 @@ acquire the exclusive lock to be blocked from entering any critical sections
 associated with the same read-write mutex, until all shared locks are released.
 */
 rw_mutex_try_shared_lock :: proc(rw: ^RW_Mutex) -> bool {
-	return _rw_mutex_try_shared_lock(rw)
+    return _rw_mutex_try_shared_lock(rw)
 }
 
 /*
@@ -251,14 +252,14 @@ section by running this procedure inside an `if` statement.
 
 **Example**:
 
-	if rw_mutex_guard(&m) {
-		...
-	}
+    if rw_mutex_guard(&m) {
+        ...
+    }
 */
 @(deferred_in=rw_mutex_unlock, optional_results)
 rw_mutex_guard :: proc(m: ^RW_Mutex) -> bool {
-	rw_mutex_lock(m)
-	return true
+    rw_mutex_lock(m)
+    return true
 }
 
 /*
@@ -278,14 +279,14 @@ section by running this procedure inside an `if` statement.
 
 **Example**:
 
-	if rw_mutex_guard(&m) {
-		...
-	}
+    if rw_mutex_guard(&m) {
+        ...
+    }
 */
 @(deferred_in=rw_mutex_shared_unlock, optional_results)
 rw_mutex_shared_guard :: proc(m: ^RW_Mutex) -> bool {
-	rw_mutex_shared_lock(m)
-	return true
+    rw_mutex_shared_lock(m)
+    return true
 }
 
 /*
@@ -312,7 +313,7 @@ result in broken and unsafe behavior. For this reason, mutexes are marked as
 `#no_copy`.
 */
 Recursive_Mutex :: struct {
-	impl: _Recursive_Mutex,
+    impl: _Recursive_Mutex,
 }
 
 /*
@@ -327,7 +328,7 @@ be blocked from entering any critical sections associated with the same mutex,
 until the lock is released.
 */
 recursive_mutex_lock :: proc(m: ^Recursive_Mutex) {
-	_recursive_mutex_lock(m)
+    _recursive_mutex_lock(m)
 }
 
 /*
@@ -338,7 +339,7 @@ the critical sections associated with the same mutex, to become open for other
 threads for entering.
 */
 recursive_mutex_unlock :: proc(m: ^Recursive_Mutex) {
-	_recursive_mutex_unlock(m)
+    _recursive_mutex_unlock(m)
 }
 
 /*
@@ -353,7 +354,7 @@ blocked from entering any critical sections associated with the same mutex,
 until the lock is released.
 */
 recursive_mutex_try_lock :: proc(m: ^Recursive_Mutex) -> bool {
-	return _recursive_mutex_try_lock(m)
+    return _recursive_mutex_try_lock(m)
 }
 
 /*
@@ -373,14 +374,14 @@ section by calling this procedure inside an `if` statement.
 
 **Example**:
 
-	if recursive_mutex_guard(&m) {
-		...
-	}
+    if recursive_mutex_guard(&m) {
+        ...
+    }
 */
 @(deferred_in=recursive_mutex_unlock, optional_results)
 recursive_mutex_guard :: proc(m: ^Recursive_Mutex) -> bool {
-	recursive_mutex_lock(m)
-	return true
+    recursive_mutex_lock(m)
+    return true
 }
 
 /*
@@ -413,7 +414,7 @@ address will result in broken and unsafe behavior. For this reason, condition
 variables are marked as `#no_copy`.
 */
 Cond :: struct {
-	impl: _Cond,
+    impl: _Cond,
 }
 
 /*
@@ -429,7 +430,7 @@ The mutex must be held by the calling thread, before calling the procedure.
 variable was not signalled by a thread.
 */
 cond_wait :: proc(c: ^Cond, m: ^Mutex) {
-	_cond_wait(c, m)
+    _cond_wait(c, m)
 }
 
 /*
@@ -447,10 +448,10 @@ If the timeout was reached, this procedure returns `false`. Otherwise it returns
 Before this procedure is called the mutex must be held by the calling thread.
 */
 cond_wait_with_timeout :: proc(c: ^Cond, m: ^Mutex, duration: time.Duration) -> bool {
-	if duration <= 0 {
-		return false
-	}
-	return _cond_wait_with_timeout(c, m, duration)
+    if duration <= 0 {
+        return false
+    }
+    return _cond_wait_with_timeout(c, m, duration)
 }
 
 /*
@@ -460,7 +461,7 @@ This procedure causes exactly one thread waiting on the condition variable to
 wake up.
 */
 cond_signal :: proc(c: ^Cond) {
-	_cond_signal(c)
+    _cond_signal(c)
 }
 
 /*
@@ -469,7 +470,7 @@ Wake up all threads that wait on a condition variable.
 This procedure causes all threads waiting on the condition variable to wake up.
 */
 cond_broadcast :: proc(c: ^Cond) {
-	_cond_broadcast(c)
+    _cond_broadcast(c)
 }
 
 /*
@@ -493,7 +494,7 @@ Trying to use a copy of the lock at a different memory address will result in
 broken and unsafe behavior. For this reason, semaphores are marked as `#no_copy`.
 */
 Sema :: struct {
-	impl: _Sema,
+    impl: _Sema,
 }
 
 /*
@@ -504,7 +505,7 @@ threads were waiting on the semaphore, up to `count` of threads will continue
 the execution and enter the critical section.
 */
 sema_post :: proc(s: ^Sema, count := 1) {
-	_sema_post(s, count)
+    _sema_post(s, count)
 }
 
 /*
@@ -515,7 +516,7 @@ counter is non-zero, and atomically decrements it by one, once the wait has
 ended.
 */
 sema_wait :: proc(s: ^Sema) {
-	_sema_wait(s)
+    _sema_wait(s)
 }
 
 /*
@@ -527,7 +528,7 @@ has ended. If the specified timeout is reached, the function returns `false`,
 otherwise it returns `true`.
 */
 sema_wait_with_timeout :: proc(s: ^Sema, duration: time.Duration) -> bool {
-	return _sema_wait_with_timeout(s, duration)
+    return _sema_wait_with_timeout(s, duration)
 }
 
 /*
@@ -553,11 +554,11 @@ the current thread, until the futex is woken up, or until a spurious wakeup
 occurs.
 */
 futex_wait :: proc(f: ^Futex, expected: u32) {
-	if u32(atomic_load_explicit(f, .Acquire)) != expected {
-		return
-	}
-	ok := _futex_wait(f, expected)
-	assert(ok, "futex_wait failure")
+    if u32(atomic_load_explicit(f, .Acquire)) != expected {
+        return
+    }
+    ok := _futex_wait(f, expected)
+    internal.assert(ok, "futex_wait failure")
 }
 
 /*
@@ -571,26 +572,26 @@ until a spurious wakeup occurs.
 This procedure returns `false` if the timeout was reached, `true` otherwise.
 */
 futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Duration) -> bool {
-	if u32(atomic_load_explicit(f, .Acquire)) != expected {
-		return true
-	}
-	if duration <= 0 {
-		return false
-	}	
-	
-	return _futex_wait_with_timeout(f, expected, duration)
+    if u32(atomic_load_explicit(f, .Acquire)) != expected {
+        return true
+    }
+    if duration <= 0 {
+        return false
+    }   
+    
+    return _futex_wait_with_timeout(f, expected, duration)
 }
 
 /*
 Wake up a single thread waiting on a futex.
 */
 futex_signal :: proc(f: ^Futex) {
-	_futex_signal(f)
+    _futex_signal(f)
 }
 
 /*
 Wake up multiple threads waiting on a futex.
 */
 futex_broadcast :: proc(f: ^Futex) {
-	_futex_broadcast(f)
+    _futex_broadcast(f)
 }

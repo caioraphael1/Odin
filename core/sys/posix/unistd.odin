@@ -142,7 +142,7 @@ foreign lib {
 
 		posix.set_errno(.NONE)
 		posix.encrypt(raw_data(block[:]), decode=false)
-		assert(posix.errno() == .NONE, "encrypt not supported")
+		internal.assert(posix.errno() == .NONE, "encrypt not supported")
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/encrypt.html ]]
 	*/
@@ -395,7 +395,7 @@ foreign lib {
 			fmt.panicf("getgroups failure: %v", posix.strerror(posix.errno()))
 		}
 
-        groups := slice.create([]posix.gid_t, length) or_else panic("allocation failure")
+        groups := slice.create([]posix.gid_t, length) or_else internal.panic("allocation failure")
 		if posix.getgroups(length, raw_data(groups)) != length {
 			fmt.panicf("getgroups failure: %v", posix.strerror(posix.errno()))
 		}

@@ -241,7 +241,7 @@ tracking_allocator_proc :: proc(
     result_ptr := raw_data(result)
 
     if data.allocation_map.allocator.procedure == nil {
-        panic("Backing allocator for Tracking mem.Allocator not initialized")
+        internal.panic("Backing allocator for Tracking mem.Allocator not initialized")
     }
 
     switch mode {

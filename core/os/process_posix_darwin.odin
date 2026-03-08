@@ -46,13 +46,13 @@ _get_processor_core_count :: proc() -> int {
 }
 
 _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
-    get_pidinfo :: proc(pid: int, selection: Process_Info_Fields) -> (ppid: u32, prio: Maybe(i32), uid: posix.uid_t, ok: bool) {
+    get_pidinfo :: proc(pid: int, selection: Process_Info_Fields) -> (ppid: u32, prio: internal.Maybe(i32), uid: posix.uid_t, ok: bool) {
         // Short info is enough and requires less permissions if the priority isn't requested.
         if .Priority in selection {
             info: darwin.proc_taskallinfo
             ret := darwin.proc_pidinfo(posix.pid_t(pid), .TASKALLINFO, 0, &info, size_of(info))
             if ret > 0 {
-                assert(ret == size_of(info))
+                internal.assert(ret == size_of(info))
                 ppid = info.pbsd.pbi_ppid
                 prio = info.ptinfo.pti_priority
                 uid  = info.pbsd.pbi_uid
@@ -65,7 +65,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         psinfo: darwin.proc_bsdshortinfo
         ret := darwin.proc_pidinfo(posix.pid_t(pid), .SHORTBSDINFO, 0, &psinfo, size_of(psinfo))
         if ret > 0 {
-            assert(ret == size_of(psinfo))
+            internal.assert(ret == size_of(psinfo))
             ppid = psinfo.pbsi_ppid
             uid  = psinfo.pbsi_uid
             ok   = true
@@ -120,7 +120,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         pinfo: darwin.proc_vnodepathinfo
         ret := darwin.proc_pidinfo(posix.pid_t(pid), .VNODEPATHINFO, 0, &pinfo, size_of(pinfo))
         if ret > 0 {
-            assert(ret == size_of(pinfo))
+            internal.assert(ret == size_of(pinfo))
             info.working_dir = strings.string_clone(string(cstring(raw_data(pinfo.pvi_cdir.vip_path[:]))), allocator) or_return
             info.fields += {.Working_Dir}
         } else if err == nil {

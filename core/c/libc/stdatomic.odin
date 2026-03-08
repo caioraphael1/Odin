@@ -45,8 +45,8 @@ kill_dependency :: #force_inline proc(value: $T) -> T {
 
 // 7.17.4 Fences
 atomic_thread_fence :: #force_inline proc(order: memory_order) {
-	assert(order != .relaxed)
-	assert(order != .consume)
+	internal.assert(order != .relaxed)
+	internal.assert(order != .consume)
 	#partial switch order {
 	case .acquire: intrinsics.atomic_thread_fence(.Acquire)
 	case .release: intrinsics.atomic_thread_fence(.Release)
@@ -56,8 +56,8 @@ atomic_thread_fence :: #force_inline proc(order: memory_order) {
 }
 
 atomic_signal_fence :: #force_inline proc(order: memory_order) {
-	assert(order != .relaxed)
-	assert(order != .consume)
+	internal.assert(order != .relaxed)
+	internal.assert(order != .consume)
 	#partial switch order {
 	case .acquire: intrinsics.atomic_signal_fence(.Acquire)
 	case .release: intrinsics.atomic_signal_fence(.Release)
@@ -116,9 +116,9 @@ atomic_store :: #force_inline proc(object: ^$T, desired: T) {
 }
 
 atomic_store_explicit :: #force_inline proc(object: ^$T, desired: T, order: memory_order) {
-	assert(order != .consume)
-	assert(order != .acquire)
-	assert(order != .acq_rel)
+	internal.assert(order != .consume)
+	internal.assert(order != .acquire)
+	internal.assert(order != .acq_rel)
 
 	#partial switch order {
 	case .relaxed: intrinsics.atomic_store_explicit(object, desired, .Relaxed)
@@ -132,8 +132,8 @@ atomic_load :: #force_inline proc(object: ^$T) -> T {
 }
 
 atomic_load_explicit :: #force_inline proc(object: ^$T, order: memory_order) {
-	assert(order != .release)
-	assert(order != .acq_rel)
+	internal.assert(order != .release)
+	internal.assert(order != .acq_rel)
 
 	#partial switch order {
 	case .relaxed: return intrinsics.atomic_load_explicit(object, .Relaxed)
@@ -182,13 +182,13 @@ atomic_compare_exchange_strong :: #force_inline proc(object, expected: ^$T, desi
 }
 
 atomic_compare_exchange_strong_explicit :: #force_inline proc(object, expected: ^$T, desired: T, success, failure: memory_order) -> bool {
-	assert(failure != .release)
-	assert(failure != .acq_rel)
+	internal.assert(failure != .release)
+	internal.assert(failure != .acq_rel)
 
 	value: T; ok: bool
 	#partial switch failure {
 	case .seq_cst:
-		assert(success != .relaxed)
+		internal.assert(success != .relaxed)
 		#partial switch success {
 		case .seq_cst:
 			value, ok = intrinsics.atomic_compare_exchange_strong_explicit(object, expected^, desired, .Seq_Cst, .Seq_Cst)
@@ -202,7 +202,7 @@ atomic_compare_exchange_strong_explicit :: #force_inline proc(object, expected: 
 			value, ok = intrinsics.atomic_compare_exchange_strong_explicit(object, expected^, desired, .Acq_Rel, .Seq_Cst)
 		}
 	case .relaxed:
-		assert(success != .release)
+		internal.assert(success != .release)
 		#partial switch success {
 		case .relaxed:
 			value, ok = intrinsics.atomic_compare_exchange_strong_explicit(object, expected^, desired, .Relaxed, .Relaxed)
@@ -216,10 +216,10 @@ atomic_compare_exchange_strong_explicit :: #force_inline proc(object, expected: 
 			value, ok = intrinsics.atomic_compare_exchange_strong_explicit(object, expected^, desired, .Acq_Rel, .Relaxed)
 		}
 	case .consume:
-		assert(success == .seq_cst)
+		internal.assert(success == .seq_cst)
 		value, ok = intrinsics.atomic_compare_exchange_strong_explicit(object, expected^, desired, .Seq_Cst, .Consume)
 	case .acquire:
-		assert(success == .seq_cst)
+		internal.assert(success == .seq_cst)
 		value, ok = intrinsics.atomic_compare_exchange_strong_explicit(object, expected^, desired, .Seq_Cst, .Acquire)
 
 	}
@@ -234,13 +234,13 @@ atomic_compare_exchange_weak :: #force_inline proc(object, expected: ^$T, desire
 }
 
 atomic_compare_exchange_weak_explicit :: #force_inline proc(object, expected: ^$T, desired: T, success, failure: memory_order) -> bool {
-	assert(failure != .release)
-	assert(failure != .acq_rel)
+	internal.assert(failure != .release)
+	internal.assert(failure != .acq_rel)
 
 	value: T; ok: bool
 	#partial switch failure {
 	case .seq_cst:
-		assert(success != .relaxed)
+		internal.assert(success != .relaxed)
 		#partial switch success {
 		case .seq_cst:
 			value, ok = intrinsics.atomic_compare_exchange_weak_explicit(object, expected^, desired, .Seq_Cst, .Seq_Cst)
@@ -254,7 +254,7 @@ atomic_compare_exchange_weak_explicit :: #force_inline proc(object, expected: ^$
 			value, ok = intrinsics.atomic_compare_exchange_weak_explicit(object, expected^, desired, .Acq_Rel, .Seq_Cst)
 		}
 	case .relaxed:
-		assert(success != .release)
+		internal.assert(success != .release)
 		#partial switch success {
 		case .relaxed:
 			value, ok = intrinsics.atomic_compare_exchange_weak_explicit(object, expected^, desired, .Relaxed, .Relaxed)
@@ -268,10 +268,10 @@ atomic_compare_exchange_weak_explicit :: #force_inline proc(object, expected: ^$
 			value, ok = intrinsics.atomic_compare_exchange_weak_explicit(object, expected^, desired, .Acq_Rel, .Relaxed)
 		}
 	case .consume:
-		assert(success == .seq_cst)
+		internal.assert(success == .seq_cst)
 		value, ok = intrinsics.atomic_compare_exchange_weak_explicit(object, expected^, desired, .Seq_Cst, .Consume)
 	case .acquire:
-		assert(success == .seq_cst)
+		internal.assert(success == .seq_cst)
 		value, ok = intrinsics.atomic_compare_exchange_weak_explicit(object, expected^, desired, .Seq_Cst, .Acquire)
 
 	}

@@ -27,7 +27,7 @@ make_parser_from_string :: proc(data: string, spec := DEFAULT_SPECIFICATION, par
     p.tok = make_tokenizer(data, spec, parse_integers)
     p.spec = spec
     p.allocator = allocator
-    assert(p.allocator.procedure != nil)
+    internal.assert(p.allocator.procedure != nil)
     _, _ = advance_token(&p)
     return p
 }
@@ -490,7 +490,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
             i += width
 
             buf, buf_width := utf8.encode_rune(r)
-            assert(buf_width <= width)
+            internal.assert(buf_width <= width)
             slice.copy(b[w:], buf[:buf_width])
             w += buf_width
         }

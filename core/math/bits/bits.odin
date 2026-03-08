@@ -1,4 +1,5 @@
 // Bit-level operations, including the ability to set or toggle individual bits in an integer.
+import "base:internal"
 import "base:intrinsics"
 
 // The minimum value held by a `u8`. The same value as `min(u8)`, except untyped.
@@ -79,11 +80,11 @@ Example:
         for i in u8(1)..=8 {
             fmt.printfln("{0} ({0:4b}): {1}", i, bits.log2(i))
         }
-        assert(bits.log2(  u8(0)) == max(u8))
-        assert(bits.log2( u16(0)) == max(u16))
-        assert(bits.log2( u32(0)) == max(u32))
-        assert(bits.log2( u64(0)) == max(u64))
-        assert(bits.log2(u128(0)) == max(u128))
+        internal.assert(bits.log2(  u8(0)) == max(u8))
+        internal.assert(bits.log2( u16(0)) == max(u16))
+        internal.assert(bits.log2( u32(0)) == max(u32))
+        internal.assert(bits.log2( u64(0)) == max(u64))
+        internal.assert(bits.log2(u128(0)) == max(u128))
     }
 
 Output:
@@ -745,7 +746,7 @@ Returns:
 */
 
 div_u32 :: proc(hi, lo, y: u32) -> (quo, rem: u32) {
-    assert(y != 0 && y <= hi)
+    internal.assert(y != 0 && y <= hi)
     z := u64(hi)<<32 | u64(lo)
     quo, rem = u32(z/u64(y)), u32(z%u64(y))
     return
@@ -769,10 +770,10 @@ div_u64 :: proc(hi, lo, y: u64) -> (quo, rem: u64) {
     two32  :: 1 << 32
     mask32 :: two32 - 1
     if y == 0 {
-        panic("divide error")
+        internal.panic("divide error")
     }
     if y <= hi {
-        panic("overflow error")
+        internal.panic("overflow error")
     }
 
     s := uint(count_leading_zeros(y))

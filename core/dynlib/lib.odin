@@ -133,7 +133,7 @@ initialize_symbols :: proc(
     symbol_table: ^$T, library_path: string,
     symbol_prefix := "", handle_field_name := "__handle",
 ) -> (count: int = -1, ok: bool = false) where intrinsics.type_is_struct(T) {
-    assert(symbol_table != nil)
+    internal.assert(symbol_table != nil)
 
     // First, (re)load the library.
     handle: Library

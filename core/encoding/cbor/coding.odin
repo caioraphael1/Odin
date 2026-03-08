@@ -398,7 +398,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
 }
 
 _encode_bytes :: proc(e: Encoder, val: Bytes, major: Major = .Bytes) -> (err: Encode_Error) {
-    assert(len(val) >= 0)
+    internal.assert(len(val) >= 0)
     _encode_u64(e, u64(len(val)), major) or_return
     _, err = io.write_full(e.writer, val[:])
     return
@@ -455,7 +455,7 @@ _decode_array :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #ca
 }
 
 _encode_array :: proc(e: Encoder, arr: Array) -> Encode_Error {
-    assert(len(arr) >= 0)
+    internal.assert(len(arr) >= 0)
     _encode_u64(e, u64(len(arr)), .Array)
     for val in arr {
         encode(e, val) or_return
@@ -505,7 +505,7 @@ _decode_map :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #call
 }
 
 _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
-    assert(len(m) >= 0)
+    internal.assert(len(m) >= 0)
     _encode_u64(e, u64(len(m)), .Map) or_return
     
     if .Deterministic_Map_Sorting not_in e.flags {
@@ -569,7 +569,7 @@ _decode_tag_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #
     return _decode_from_decoder(d, {}, allocator, loc)
 }
 
-_decode_tag :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: Maybe(Tag), err: Decode_Error) {
+_decode_tag :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: internal.Maybe(Tag), err: Decode_Error) {
     num := _decode_uint_as_u64(d.reader, add) or_return
 
     // CBOR can be wrapped in a tag that decoders can use to see/check if the binary data is CBOR.
@@ -716,7 +716,7 @@ _encode_nil :: proc(w: io.Writer) -> io.Error {
 // Streaming
 
 encode_stream_begin :: proc(w: io.Writer, major: Major) -> (err: io.Error) {
-    assert(major >= Major(.Bytes) && major <= Major(.Map), "illegal stream type")
+    internal.assert(major >= Major(.Bytes) && major <= Major(.Map), "illegal stream type")
 
     header := (u8(major) << 5) | u8(Add.Length_Unknown)
     _, err = io.write_full(w, {header})

@@ -88,7 +88,7 @@ clone_node :: proc(node: ^Node) -> ^Node {
 
 	#partial switch _ in node.derived {
 	case ^Package, ^File:
-		panic("Cannot clone this node type")
+		internal.panic("Cannot clone this node type")
 	}
 
 	res := cast(^Node)(mem.alloc(size, align) or_else nil)

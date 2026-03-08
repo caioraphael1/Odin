@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:slice"
 import "base:dyn_array"
@@ -151,7 +152,7 @@ scratch_alloc_bytes_non_zeroed :: proc(
     loc       := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
-        panic("Scratch allocator not initialized.", loc)
+        internal.panic("Scratch allocator not initialized.", loc)
     }
     aligned_size := size
     if alignment > 1 {
@@ -207,7 +208,7 @@ operation is a no-op.
 */
 scratch_free :: proc(s: ^Scratch, ptr: rawptr, loc := #caller_location) -> mem.Allocator_Error {
     if s.data == nil {
-        panic("Free on an uninitialized Scratch allocator.", loc)
+        internal.panic("Free on an uninitialized Scratch allocator.", loc)
     }
     if ptr == nil {
         return nil
@@ -368,7 +369,7 @@ scratch_resize_bytes_non_zeroed :: proc(
     old_memory := raw_data(old_data)
     old_size := len(old_data)
     if s.data == nil {
-        panic("Scratch allocator not initialized.", loc)
+        internal.panic("Scratch allocator not initialized.", loc)
     }
     begin   := uintptr(raw_data(s.data))
     end     := begin + uintptr(len(s.data))

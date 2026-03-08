@@ -13,7 +13,7 @@ _futex_wait :: proc(futex: ^Futex, expected: u32) -> bool {
 		return true
 	case:
 		// TODO(flysand): More descriptive panic messages based on the vlaue of `errno`
-		panic("futex_wait failure")
+		internal.panic("futex_wait failure")
 	}
 }
 
@@ -32,7 +32,7 @@ _futex_wait_with_timeout :: proc(futex: ^Futex, expected: u32, duration: time.Du
 	case .NONE, .EINTR, .EAGAIN:
 		return true
 	case:
-		panic("futex_wait_with_timeout failure")
+		internal.panic("futex_wait_with_timeout failure")
 	}
 }
 
@@ -42,7 +42,7 @@ _futex_signal :: proc(futex: ^Futex) {
 	case .NONE:
 		return
 	case:
-		panic("futex_wake_single failure")
+		internal.panic("futex_wake_single failure")
 	}
 }
 
@@ -52,6 +52,6 @@ _futex_broadcast :: proc(futex: ^Futex)  {
 	case .NONE:
 		return
 	case:
-		panic("_futex_wake_all failure")
+		internal.panic("_futex_wake_all failure")
 	}
 }

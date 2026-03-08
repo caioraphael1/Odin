@@ -1,7 +1,7 @@
 // Conversions to and from `string` representations of other data types like integers and booleans.
+import "base:internal"
 import "base:slice"
 import "base:mem"
-import "base:strings"
 import "core:unicode/utf8"
 import "decimal"
 
@@ -73,7 +73,7 @@ Output:
 - ok: ok=false if no numeric value of the appropriate base could be found, or if the input string contained more than just the number.
 */
 parse_i64_of_base :: proc(str: string, base: int, n: ^int = nil) -> (value: i64, ok: bool) {
-    assert(base <= 16, "base must be 1-16")
+    internal.assert(base <= 16, "base must be 1-16")
 
     s := str
 
@@ -230,7 +230,7 @@ Output:
 - ok: A boolean indicating whether the parsing was successful
 */
 parse_u64_of_base :: proc(str: string, base: int, n: ^int = nil) -> (value: u64, ok: bool) {
-    assert(base <= 16, "base must be 1-16")
+    internal.assert(base <= 16, "base must be 1-16")
     s := str
     defer if n != nil { n^ = len(str)-len(s) }
     if s == "" {
@@ -447,7 +447,7 @@ Output:
 - ok: false if no numeric value of the appropriate base could be found, or if the input string contained more than just the number.
 */
 parse_i128_of_base :: proc(str: string, base: int, n: ^int = nil) -> (value: i128, ok: bool) {
-    assert(base <= 16, "base must be 1-16")
+    internal.assert(base <= 16, "base must be 1-16")
 
     s := str
     defer if n != nil { n^ = len(str)-len(s) }
@@ -601,7 +601,7 @@ Output:
 - ok: `false` if no numeric value of the appropriate base could be found, or if the input string contained more than just the number.
 */
 parse_u128_of_base :: proc(str: string, base: int, n: ^int = nil) -> (value: u128, ok: bool) {
-    assert(base <= 16, "base must be 1-16")
+    internal.assert(base <= 16, "base must be 1-16")
     s := str
     defer if n != nil { n^ = len(str)-len(s) }
     if s == "" {

@@ -85,7 +85,7 @@ _init :: proc(l: ^Event_Loop, allocator: mem.Allocator) -> (rerr: General_Error)
         case uintptr(a) > uintptr(b):
             return .Greater
         case:
-            assert(a == b)
+            internal.assert(a == b)
             return .Equal
         }
     }
@@ -142,7 +142,7 @@ _exec :: proc(op: ^Operation) {
     case .Timeout:
         _, _, err := avl.find_or_insert(&op.l.timeouts, op)
         if err != nil {
-            panic("nbio: allocation failure")
+            internal.panic("nbio: allocation failure")
         }
         return
     case .Accept:
@@ -183,7 +183,7 @@ _exec :: proc(op: ^Operation) {
 
     _, err := queue.push_back(&op.l.completed, op)
     if err != nil {
-        panic("nbio: allocation failure")
+        internal.panic("nbio: allocation failure")
     }
 }
 

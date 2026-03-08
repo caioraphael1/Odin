@@ -110,7 +110,7 @@ Example:
 
     create_unbuffered_example :: proc() {
         c, err := chan.create_unbuffered(chan.Chan(int), context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
     }
 */
@@ -141,7 +141,7 @@ Example:
 
     create_buffered_example :: proc() {
         c, err := chan.create_buffered(chan.Chan(int), 10, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
     }
 */
@@ -174,13 +174,13 @@ Example:
 
     create_raw_unbuffered_example :: proc() {
         unbuffered, err := chan.create_raw(size_of(int), align_of(int), context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(unbuffered)
     }
 */
 
 create_raw_unbuffered :: proc(#any_int msg_size, msg_alignment: int, allocator: mem.Allocator) -> (c: ^Raw_Chan, err: mem.Allocator_Error) {
-    assert(msg_size <= int(max(u16)))
+    internal.assert(msg_size <= int(max(u16)))
     align := max(align_of(Raw_Chan), msg_alignment)
 
     size := mem.align_forward_int(size_of(Raw_Chan), align)
@@ -219,13 +219,13 @@ Example:
 
     create_raw_unbuffered_example :: proc() {
         c, err := chan.create_raw_buffered(size_of(int), align_of(int), 10, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
     }
 */
 
 create_raw_buffered :: proc(#any_int msg_size, msg_alignment: int, #any_int cap: int, allocator: mem.Allocator) -> (c: ^Raw_Chan, err: mem.Allocator_Error) {
-    assert(msg_size <= int(max(u16)))
+    internal.assert(msg_size <= int(max(u16)))
     if cap <= 0 {
         return create_raw_unbuffered(msg_size, msg_alignment, allocator)
     }
@@ -296,7 +296,7 @@ Example:
         }
 
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         producer(chan.as_send(c))
@@ -330,7 +330,7 @@ Example:
         }
 
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         chan.send(c, 112)
@@ -362,17 +362,17 @@ Example:
 
     send_example :: proc() {
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
-        assert(chan.send(c, 2))
+        internal.assert(chan.send(c, 2))
 
         // this would block since the channel has a buffersize of 1
-        // assert(chan.send(c, 2))
+        // internal.assert(chan.send(c, 2))
 
         // sending on a closed channel returns false
         chan.close(c)
-        assert(! chan.send(c, 2))
+        internal.assert(! chan.send(c, 2))
     }
 */
 send :: proc(c: $C/Chan($T, $D), data: T) -> (ok: bool) where C.D <= .Both {
@@ -400,11 +400,11 @@ Example:
 
     try_send_example :: proc() {
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
-        assert(chan.try_send(c, 2), "there is enough space")
-        assert(!chan.try_send(c, 2), "the buffer is already full")
+        internal.assert(chan.try_send(c, 2), "there is enough space")
+        internal.assert(!chan.try_send(c, 2), "the buffer is already full")
     }
 */
 
@@ -435,13 +435,13 @@ Example:
 
     recv_example :: proc() {
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
-        assert(chan.send(c, 2))
+        internal.assert(chan.send(c, 2))
 
         value, ok := chan.recv(c)
-        assert(ok, "the value was received")
+        internal.assert(ok, "the value was received")
 
         // this would block since the channel is now empty
         // value, ok = chan.recv(c)
@@ -449,7 +449,7 @@ Example:
         // reading from a closed channel returns false
         chan.close(c)
         value, ok = chan.recv(c)
-        assert(!ok, "the channel is closed")
+        internal.assert(!ok, "the channel is closed")
     }
 */
 
@@ -475,11 +475,11 @@ Example:
 
     try_recv_example :: proc() {
         c, err := chan.create(chan.Chan(int), context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         _, ok := chan.try_recv(c)
-        assert(!ok, "there is not value to read")
+        internal.assert(!ok, "there is not value to read")
     }
 */
 
@@ -512,18 +512,18 @@ Example:
 
     send_raw_example :: proc() {
         c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         value := 2
-        assert(chan.send_raw(c, &value))
+        internal.assert(chan.send_raw(c, &value))
 
         // this would block since the channel has a buffersize of 1
-        // assert(chan.send_raw(c, &value))
+        // internal.assert(chan.send_raw(c, &value))
 
         // sending on a closed channel returns false
         chan.close(c)
-        assert(! chan.send_raw(c, &value))
+        internal.assert(! chan.send_raw(c, &value))
     }
 */
 
@@ -600,20 +600,20 @@ Example:
 
     recv_raw_example :: proc() {
         c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         value := 2
-        assert(chan.send_raw(c, &value))
+        internal.assert(chan.send_raw(c, &value))
 
-        assert(chan.recv_raw(c, &value))
+        internal.assert(chan.recv_raw(c, &value))
 
         // this would block since the channel is now empty
-        // assert(chan.recv_raw(c, &value))
+        // internal.assert(chan.recv_raw(c, &value))
 
         // reading from a closed channel returns false
         chan.close(c)
-        assert(! chan.recv_raw(c, &value))
+        internal.assert(! chan.recv_raw(c, &value))
     }
 */
 
@@ -688,12 +688,12 @@ Example:
 
     try_send_raw_example :: proc() {
         c, err := chan.create_raw(size_of(int), align_of(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         value := 2
-        assert(chan.try_send_raw(c, &value), "there is enough space")
-        assert(!chan.try_send_raw(c, &value), "the buffer is already full")
+        internal.assert(chan.try_send_raw(c, &value), "there is enough space")
+        internal.assert(!chan.try_send_raw(c, &value), "the buffer is already full")
     }
 */
 
@@ -752,11 +752,11 @@ Example:
 
     try_recv_raw_example :: proc() {
         c, err := chan.create_raw(size_of(int), align_of(int), context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         value: int
-        assert(!chan.try_recv_raw(c, &value))
+        internal.assert(!chan.try_recv_raw(c, &value))
     }
 */
 
@@ -813,7 +813,7 @@ Example:
     is_buffered_example :: proc() {
         c, _ := chan.create(chan.Chan(int), 1, context.allocator)
         defer chan.destroy(c)
-        assert(chan.is_buffered(c))
+        internal.assert(chan.is_buffered(c))
     }
 */
 
@@ -837,7 +837,7 @@ Example:
     is_buffered_example :: proc() {
         c, _ := chan.create(chan.Chan(int), context.allocator)
         defer chan.destroy(c)
-        assert(chan.is_unbuffered(c))
+        internal.assert(chan.is_unbuffered(c))
     }
 */
 
@@ -867,7 +867,7 @@ Example:
         defer chan.destroy(c)
 
         fmt.println(chan.len(c))
-        assert(chan.send(c, 1))   // add an element
+        internal.assert(chan.send(c, 1))   // add an element
         fmt.println(chan.len(c))
     }
 
@@ -940,16 +940,16 @@ Example:
         defer chan.destroy(c)
 
         // Sending a message to an open channel
-        assert(chan.send(c, 1), "allowed to send")
+        internal.assert(chan.send(c, 1), "allowed to send")
 
         // Closing the channel successfully
-        assert(chan.close(c), "successfully closed")
+        internal.assert(chan.close(c), "successfully closed")
 
         // Trying to send a message after the channel is closed (should fail)
-        assert(!chan.send(c, 1), "not allowed to send after close")
+        internal.assert(!chan.send(c, 1), "not allowed to send after close")
 
         // Trying to close the channel again (should fail since it's already closed)
-        assert(!chan.close(c), "was already closed")
+        internal.assert(!chan.close(c), "was already closed")
     }
 */
 close :: proc(c: ^Raw_Chan) -> bool {
@@ -1001,12 +1001,12 @@ Example:
 
     can_recv_example :: proc() {
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
-        assert(!chan.can_recv(c), "the cannel is empty")
-        assert(chan.send(c, 2))
-        assert(chan.can_recv(c), "there is message to read")
+        internal.assert(!chan.can_recv(c), "the cannel is empty")
+        internal.assert(chan.send(c, 2))
+        internal.assert(chan.can_recv(c), "there is message to read")
     }
 */
 
@@ -1036,12 +1036,12 @@ Example:
 
     can_send_example :: proc() {
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
-        assert(chan.can_send(c), "the channel's buffer is not full")
-        assert(chan.send(c, 2))
-        assert(!chan.can_send(c), "the channel's buffer is full")
+        internal.assert(chan.can_send(c), "the channel's buffer is not full")
+        internal.assert(chan.send(c, 2))
+        internal.assert(!chan.can_send(c), "the channel's buffer is full")
     }
 */
 
@@ -1092,7 +1092,7 @@ Example:
 
     select_raw_example :: proc() {
         c, err := chan.create(chan.Chan(int), 1, context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         // sending value '1' on the channel
@@ -1269,7 +1269,7 @@ Example:
         chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
 
         value := 2
-        assert(chan.raw_queue_push(&rq, &value), "there was enough space")
+        internal.assert(chan.raw_queue_push(&rq, &value), "there was enough space")
     }
 */
 @(private)
@@ -1310,13 +1310,13 @@ Example:
         rq: chan.Raw_Queue
         chan.raw_queue_init(&rq, &storage, cap(storage), size_of(int))
 
-        assert(chan.raw_queue_pop(&rq) == nil, "queue was empty")
+        internal.assert(chan.raw_queue_pop(&rq) == nil, "queue was empty")
 
         // add an element to the queue
         value := 2
-        assert(chan.raw_queue_push(&rq, &value), "there was enough space")
+        internal.assert(chan.raw_queue_push(&rq, &value), "there was enough space")
 
-        assert((cast(^int)chan.raw_queue_pop(&rq))^ == 2, "retrieved the element")
+        internal.assert((cast(^int)chan.raw_queue_pop(&rq))^ == 2, "retrieved the element")
     }
 */
 @(private)

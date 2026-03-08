@@ -61,7 +61,7 @@ unmarshal_from_decoder :: proc(d: Decoder, ptr: ^$T, allocator: mem.Allocator, t
 
 }
 
-_unmarshal_any_ptr :: proc(d: Decoder, v: any, hdr: Maybe(Header) = nil, allocator: mem.Allocator, loc := #caller_location) -> Unmarshal_Error {
+_unmarshal_any_ptr :: proc(d: Decoder, v: any, hdr: internal.Maybe(Header) = nil, allocator: mem.Allocator, loc := #caller_location) -> Unmarshal_Error {
     v := v
 
     if v == nil || v.id == nil {
@@ -94,7 +94,7 @@ _unmarshal_value :: proc(d: Decoder, v: any, hdr: Header, allocator: mem.Allocat
             if !reflect.is_pointer_internally(variant) {
                 tag := any{rawptr(uintptr(v.data) + u.tag_offset), u.tag_type.id}
                 assigned := _assign_int(tag, 1)
-                assert(assigned)
+                internal.assert(assigned)
             }
         }
     }
@@ -326,7 +326,7 @@ _unmarshal_value :: proc(d: Decoder, v: any, hdr: Header, allocator: mem.Allocat
 _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
     #partial switch t in ti.variant {
     case reflect.Type_Info_String:
-        assert(t.encoding == .UTF_8)
+        internal.assert(t.encoding == .UTF_8)
 
         bytes := err_conv(_decode_bytes(d, add, allocator=allocator, loc=loc)) or_return
 
@@ -378,7 +378,7 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         // Copy into array type, _ = slice.delete original.
         slice := ([^]byte)(v.data)[:len(bytes)]
         n := slice.copy(slice, bytes)
-        assert(n == len(bytes))
+        internal.assert(n == len(bytes))
         return
     }
 
@@ -757,7 +757,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
 
             set_ptr := internal.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)
             // We already reserved space for it, so this shouldn't fail.
-            assert(set_ptr != nil)
+            internal.assert(set_ptr != nil)
         }
     
         if .Shrink_Excess in d.flags {
@@ -892,7 +892,7 @@ _assign_int :: proc(val: any, i: $T) -> bool {
                 x := (^u64)(v.data)
                 x^ = do_byte_swap ? intrinsics.byte_swap(u64(i)) : u64(i)
             case:
-                panic("unknown bit_size size")
+                internal.panic("unknown bit_size size")
             }
             return true
         }
@@ -947,5 +947,5 @@ _assign_bool :: proc(val: any, b: bool) -> bool {
 // Sanity check that the decoder added a nil byte to the end.
 @(private, disabled=ODIN_DISABLE_ASSERT)
 assert_safe_for_cstring :: proc(s: string, loc := #caller_location) {
-    assert(([^]byte)(raw_data(s))[len(s)] == 0, loc = loc)
+    internal.assert(([^]byte)(raw_data(s))[len(s)] == 0, loc = loc)
 }

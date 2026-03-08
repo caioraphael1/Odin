@@ -31,7 +31,7 @@ Example:
 
     main :: proc() {
         err := nbio.acquire_thread_event_loop()
-        assert(err == nil)
+        internal.assert(err == nil)
         defer nbio.release_thread_event_loop()
 
         nbio.timeout(time.Second, proc(_: ^nbio.Operation) {
@@ -39,7 +39,7 @@ Example:
         })
 
         err = nbio.run()
-        assert(err == nil)
+        internal.assert(err == nil)
     }
 
 
@@ -98,17 +98,17 @@ Example:
 
         err := nbio.acquire_thread_event_loop()
         defer nbio.release_thread_event_loop()
-        assert(err == nil)
+        internal.assert(err == nil)
 
         server, listen_err := nbio.listen_tcp({nbio.IP4_Any, 1234})
-        assert(listen_err == nil)
+        internal.assert(listen_err == nil)
         nbio.accept_poly(server, &workers, on_accept)
 
         err = nbio.run()
-        assert(err == nil)
+        internal.assert(err == nil)
 
         on_accept :: proc(op: ^nbio.Operation, workers: ^thread.Pool) {
-            assert(op.accept.err == nil)
+            internal.assert(op.accept.err == nil)
 
             nbio.accept_poly(op.accept.socket, workers, on_accept)
 
@@ -128,7 +128,7 @@ Example:
         }
 
         on_sent :: proc(op: ^nbio.Operation, connection: ^Connection) {
-            assert(op.send.err == nil)
+            internal.assert(op.send.err == nil)
             // Client got our message, clean up.
             nbio.close(connection.socket)
             free(connection)

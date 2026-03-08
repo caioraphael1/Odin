@@ -293,7 +293,7 @@ _ApplicationDelegateInternal :: struct {
     _context: internal.Context,
 }
 
-application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTemplate, class_name: string, delegate_context: Maybe(internal.Context)) -> ^ApplicationDelegate {
+application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTemplate, class_name: string, delegate_context: internal.Maybe(internal.Context)) -> ^ApplicationDelegate {
     class := __objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.cstring_clone_from_string(class_name, allocators.temp_allocator), 0); if class == nil {
         // Class already registered
         return nil

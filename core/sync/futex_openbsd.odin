@@ -34,7 +34,7 @@ _futex_wait :: proc(f: ^Futex, expected: u32) -> bool {
         return false
     }
 
-    panic("futex_wait failure")
+    internal.panic("futex_wait failure")
 }
 
 _futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Duration) -> bool {
@@ -60,14 +60,14 @@ _futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Durati
         return false
     }
 
-    panic("futex_wait_with_timeout failure")
+    internal.panic("futex_wait_with_timeout failure")
 }
 
 _futex_signal :: proc(f: ^Futex) {
     res := _unix_futex(f, FUTEX_WAKE_PRIVATE, 1, nil)
 
     if res == -1 {
-        panic("futex_wake_single failure")
+        internal.panic("futex_wake_single failure")
     }
 }
 
@@ -75,6 +75,6 @@ _futex_broadcast :: proc(f: ^Futex)  {
     res := _unix_futex(f, FUTEX_WAKE_PRIVATE, u32(max(i32)), nil)
 
     if res == -1 {
-        panic("_futex_wake_all failure")
+        internal.panic("_futex_wake_all failure")
     }
 }

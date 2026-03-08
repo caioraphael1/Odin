@@ -263,7 +263,7 @@ is_os2 :: proc(version: image.BMP_Version) -> (res: bool) {
 }
 
 make_output :: proc(img: ^Image, allocator : mem.Allocator) -> (err: Error) {
-    assert(img != nil)
+    internal.assert(img != nil)
     bytes_needed := img.channels * img.height * img.width
     dyn_array.init(&img.pixels.buf, bytes_needed, allocator)
     if len(img.pixels.buf) != bytes_needed {
@@ -277,7 +277,7 @@ write :: proc(img: ^Image, x, y: int, pix: RGB_Pixel) -> (err: Error) {
         return .Corrupt
     }
     out := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
-    assert(img.height >= 1 && img.width >= 1)
+    internal.assert(img.height >= 1 && img.width >= 1)
     out[(img.height - y - 1) * img.width + x] = pix
     return
 }
@@ -550,7 +550,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
         return .Unable_To_Allocate_Or_Resize
     }
     out := mem.slice_data_cast([]RGB_Pixel, img.pixels.buf[:])
-    assert(len(out) == img.height * img.width)
+    internal.assert(len(out) == img.height * img.width)
 
     palette: [256]RGBA_Pixel
 

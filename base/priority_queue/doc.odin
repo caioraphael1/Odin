@@ -27,7 +27,7 @@ Example:
         // Add jobs with random weights
         for _ in 0..<100 {
             job: Printer_Job = ---
-            assert(internal.random_generator_read_ptr(context.random_generator, &job, size_of(job)))
+            internal.assert(internal.random_generator_read_ptr(context.random_generator, &job, size_of(job)))
             pq.push(&q, job)
         }
 
@@ -35,18 +35,18 @@ Example:
         last: Printer_Job
         for pq.len(q) > 0 {
             v := pq.dyn_array.pop(&q)
-            assert(v.weight >= last.weight)
+            internal.assert(v.weight >= last.weight)
             last = v
         }
 
         // Queue empty?
-        assert(pq.len(q) == 0)
+        internal.assert(pq.len(q) == 0)
 
         // Add one more job
         pq.push(&q, Printer_Job{user_id = 42, weight = .Idle})
 
         // Cancel all jobs
         pq.clear(&q)
-        assert(pq.len(q) == 0)
+        internal.assert(pq.len(q) == 0)
     }
 */

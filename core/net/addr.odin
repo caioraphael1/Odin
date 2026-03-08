@@ -440,7 +440,7 @@ split_port :: proc(endpoint_str: string) -> (addr_or_host: string, port: int, ok
     if n := strings_tools.count(endpoint_str, ":"); n == 1 {
         // IP4 addr_or_host:port
         i := strings_tools.last_index(endpoint_str, ":")
-        assert(i != -1)
+        internal.assert(i != -1)
 
         addr_or_host = endpoint_str[:i]
         port, ok = strconv.parse_int(endpoint_str[i+1:], 10)

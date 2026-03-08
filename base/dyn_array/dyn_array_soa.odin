@@ -98,7 +98,7 @@ _reserve_soa :: proc(array: ^$T/#soa[dynamic]$E, capacity: int, zero_memory: boo
         return nil
     }
 
-    assert(array.allocator.procedure != nil)
+    internal.assert(array.allocator.procedure != nil)
 
     footer := raw_soa_footer(array)
     if size_of(E) == 0 {
@@ -111,7 +111,7 @@ _reserve_soa :: proc(array: ^$T/#soa[dynamic]$E, capacity: int, zero_memory: boo
     si := &ti.variant.(Type_Info_Struct)
 
     field_count := uintptr(len(E) when intrinsics.type_is_array(E) else intrinsics.type_struct_field_count(E))
-    assert(footer.cap == old_cap)
+    internal.assert(footer.cap == old_cap)
 
     old_size := 0
     new_size := 0
@@ -361,7 +361,7 @@ append_nothing_soa :: proc(array: ^$T/#soa[dynamic]$E, loc := #caller_location) 
 // `inject_at_elem_soa` injects an element in a dynamic SOA array at a specified index and moves the previous elements after that index "across"
 inject_at_elem_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_broadcast arg: E, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) #no_bounds_check {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(index >= 0, "Index must be positive.", loc)
+        internal.ensure(index >= 0, "Index must be positive.", loc)
     }
     if array == nil {
         return
@@ -405,7 +405,7 @@ inject_at_elem_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_
 // `inject_at_elems_soa` injects multiple elements in a dynamic SOA array at a specified index and moves the previous elements after that index "across"
 inject_at_elems_soa :: proc(array: ^$T/#soa[dynamic]$E, #any_int index: int, #no_broadcast args: ..E, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) #no_bounds_check {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(index >= 0, "Index must be positive.", loc)
+        internal.ensure(index >= 0, "Index must be positive.", loc)
     }
     if array == nil {
         return

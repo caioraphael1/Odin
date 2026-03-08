@@ -21,7 +21,7 @@ sc_size :: proc(sc: ^$T) -> int where T == Scalar_p256r1 || T == Scalar_p384r1 {
 }
 
 sc_set_random :: proc(sc: ^$T) where T == Scalar_p256r1 || T == Scalar_p384r1 {
-    ensure(crypto.HAS_RAND_BYTES, "weierstrass: entropy source required")
+    internal.ensure(crypto.HAS_RAND_BYTES, "weierstrass: entropy source required")
 
     b: [48]byte = ---
     defer crypto.zero_explicit(&b, size_of(b))

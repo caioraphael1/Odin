@@ -38,7 +38,7 @@ _set_last_platform_error :: proc(err: i32) {
 }
 
 _create_socket_error :: proc(errno: freebsd.Errno) -> Create_Socket_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -54,7 +54,7 @@ _create_socket_error :: proc(errno: freebsd.Errno) -> Create_Socket_Error {
 }
 
 _dial_error :: proc(errno: freebsd.Errno) -> Dial_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -88,7 +88,7 @@ _dial_error :: proc(errno: freebsd.Errno) -> Dial_Error {
 }
 
 _bind_error :: proc(errno: freebsd.Errno) -> Bind_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -108,7 +108,7 @@ _bind_error :: proc(errno: freebsd.Errno) -> Bind_Error {
 }
 
 _listen_error :: proc(errno: freebsd.Errno) -> Listen_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -124,7 +124,7 @@ _listen_error :: proc(errno: freebsd.Errno) -> Listen_Error {
 }
 
 _accept_error :: proc(errno: freebsd.Errno) -> Accept_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -146,7 +146,7 @@ _accept_error :: proc(errno: freebsd.Errno) -> Accept_Error {
 }
 
 _tcp_recv_error :: proc(errno: freebsd.Errno) -> TCP_Recv_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -168,7 +168,7 @@ _tcp_recv_error :: proc(errno: freebsd.Errno) -> TCP_Recv_Error {
 }
 
 _udp_recv_error :: proc(errno: freebsd.Errno) -> UDP_Recv_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -188,7 +188,7 @@ _udp_recv_error :: proc(errno: freebsd.Errno) -> UDP_Recv_Error {
 }
 
 _tcp_send_error :: proc(errno: freebsd.Errno) -> TCP_Send_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -216,7 +216,7 @@ _tcp_send_error :: proc(errno: freebsd.Errno) -> TCP_Send_Error {
 }
 
 _udp_send_error :: proc(errno: freebsd.Errno) -> UDP_Send_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -242,7 +242,7 @@ _udp_send_error :: proc(errno: freebsd.Errno) -> UDP_Send_Error {
 }
 
 _shutdown_error :: proc(errno: freebsd.Errno) -> Shutdown_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -254,7 +254,7 @@ _shutdown_error :: proc(errno: freebsd.Errno) -> Shutdown_Error {
 }
 
 _socket_info_error :: proc(errno: freebsd.Errno) -> Socket_Info_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -272,7 +272,7 @@ _socket_info_error :: proc(errno: freebsd.Errno) -> Socket_Info_Error {
 }
 
 _socket_option_error :: proc(errno: freebsd.Errno) -> Socket_Option_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {
@@ -290,7 +290,7 @@ _socket_option_error :: proc(errno: freebsd.Errno) -> Socket_Option_Error {
 }
 
 _set_blocking_error :: proc(errno: freebsd.Errno) -> Set_Blocking_Error {
-	assert(errno != nil)
+	internal.assert(errno != nil)
 	_last_error = errno
 
 	#partial switch errno {

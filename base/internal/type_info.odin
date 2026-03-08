@@ -325,14 +325,13 @@ Example:
         node: Node
         field_ptr := &node.next
         container_struct_ptr: ^Node = internal.container_of(field_ptr, Node, "next")
-        assert(container_struct_ptr == &node)
-        assert(uintptr(field_ptr) - uintptr(container_struct_ptr) == size_of(node.value) + size_of(node.prev))
+        internal.assert(container_struct_ptr == &node)
+        internal.assert(uintptr(field_ptr) - uintptr(container_struct_ptr) == size_of(node.value) + size_of(node.prev))
     }
 
 Output:
     ^Node
 */
-@(builtin)
 container_of :: #force_inline proc(ptr: $P/^$Field_Type, $T: typeid, $field_name: string) -> ^T
     where intrinsics.type_has_field(T, field_name),
           intrinsics.type_field_type(T, field_name) == Field_Type {

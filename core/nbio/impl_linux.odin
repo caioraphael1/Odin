@@ -186,12 +186,12 @@ _init :: proc(l: ^Event_Loop, alloc: mem.Allocator) -> (err: General_Error) {
     }
 
     wake_up_callback :: proc(op: ^Operation) {
-        assert(op.type == .Read)
-        assert(op == op.l.wake)
-        assert(op.read.err == nil)
-        assert(op.read.read == 8)
+        internal.assert(op.type == .Read)
+        internal.assert(op == op.l.wake)
+        internal.assert(op.read.err == nil)
+        internal.assert(op.read.read == 8)
         value := intrinsics.unaligned_load((^u64)(&op.user_data))
-        assert(value > 0)
+        internal.assert(value > 0)
         debug(int(value), "wake_up calls handled")
 
         op.read.read = 0
@@ -260,7 +260,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
             }
 
             for cqe in cqes[:completed] {
-                assert(cqe.user_data != 0)
+                internal.assert(cqe.user_data != 0)
                 op, is_timeout := unpack_operation(cqe.user_data)
                 if is_timeout {
                     link_timeout_callback(op, cqe.res)
@@ -344,7 +344,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 
 @(private)
 _exec :: proc(op: ^Operation) {
-    assert(op.l == &_tls_event_loop)
+    internal.assert(op.l == &_tls_event_loop)
     switch op.type {
     case .Accept:        accept_exec(op)
     case .Dial:          dial_exec(op)
@@ -436,7 +436,7 @@ _listen :: proc(socket: TCP_Socket, backlog := 1000) -> Listen_Error {
 @(private)
 _remove :: proc(target: ^Operation) {
     target := target
-    assert(target != nil)
+    internal.assert(target != nil)
 
     if target._impl.removal != nil {
         return
@@ -468,13 +468,13 @@ _associate_socket :: proc(socket: Any_Socket, l: ^Event_Loop) -> Association_Err
 
 @(private)
 _wake_up :: proc(l: ^Event_Loop) {
-    assert(l != &_tls_event_loop)
+    internal.assert(l != &_tls_event_loop)
     one: u64 = 1
     // Called from another thread, in which we can't use the uring.
     n, err := linux.write(l.wake.read.handle, ([^]byte)(&one)[:size_of(one)])
     // Shouldn't fail.
-    assert(err == nil)
-    assert(n == 8)
+    internal.assert(err == nil)
+    internal.assert(n == 8)
 }
 
 @(private)
@@ -538,7 +538,7 @@ handle_completed :: proc(op: ^Operation, res: i32) {
     case .None:
         fallthrough
     case:
-        panic("corrupted operation")
+        internal.panic("corrupted operation")
     }
 
     maybe_callback(op)
@@ -565,12 +565,12 @@ handle_completed :: proc(op: ^Operation, res: i32) {
 }
 
 enqueue :: proc(op: ^Operation, sqe: ^linux.IO_Uring_SQE, ok: bool) {
-    assert(uintptr(op) & LINK_TIMEOUT_MASK == 0)
+    internal.assert(uintptr(op) & LINK_TIMEOUT_MASK == 0)
     debug("enqueue", op.type)
     if !ok {
         warn("queueing for next tick because the ring is full, queue size may need increasing")
         pok, _ := queue.push_back(&op.l.unqueued, op)
-        ensure(pok, "unqueued queue allocation failure")
+        internal.ensure(pok, "unqueued queue allocation failure")
         return
     }
 
@@ -586,7 +586,7 @@ link_timeout :: proc(target: ^Operation, expires: time.Time) {
 
     // If the last op was queued because kernel is full, return.
     if target._impl.sqe == nil {
-        assert(queue.len(target.l.unqueued) > 0 && queue.back_ptr(&target.l.unqueued)^ == target)
+        internal.assert(queue.len(target.l.unqueued) > 0 && queue.back_ptr(&target.l.unqueued)^ == target)
         return
     }
 
@@ -595,7 +595,7 @@ link_timeout :: proc(target: ^Operation, expires: time.Time) {
 
     // Tag the pointer as a timeout.
     p := uintptr(target)
-    assert(p & LINK_TIMEOUT_MASK == 0)
+    internal.assert(p & LINK_TIMEOUT_MASK == 0)
     p |= LINK_TIMEOUT_MASK
 
     _, ok := uring.link_timeout(
@@ -606,13 +606,13 @@ link_timeout :: proc(target: ^Operation, expires: time.Time) {
     )
     // If the target wasn't queued, the link timeout should not need to be queued, because uring
     // leaves one spot specifically for a link.
-    assert(ok)
+    internal.assert(ok)
 }
 
 link_timeout_callback :: proc(op: ^Operation, res: i32) {
     err := linux.Errno(-res)
     if err != nil && err != .ETIME && err != .ECANCELED {
-        panic("unexpected nbio.link_timeout() error")
+        internal.panic("unexpected nbio.link_timeout() error")
     }
 }
 
@@ -623,7 +623,7 @@ unpack_operation :: #force_inline proc(user_data: u64) -> (op: ^Operation, timed
 
 
 remove_callback :: proc(op: ^Operation, res: i32) -> bool {
-    assert(op.type == ._Remove)
+    internal.assert(op.type == ._Remove)
     err := linux.Errno(-res)
 
     target := op._remove.target
@@ -632,8 +632,8 @@ remove_callback :: proc(op: ^Operation, res: i32) -> bool {
         return true
     }
 
-    assert(target.type != .None)
-    assert(target._impl.removal == op)
+    internal.assert(target.type != .None)
+    internal.assert(target._impl.removal == op)
 
     if err == .ENOENT {
         debug("remove ENOENT, trying again")
@@ -648,7 +648,7 @@ remove_callback :: proc(op: ^Operation, res: i32) -> bool {
     } else if err == .EALREADY {
         debug("remove is accepted and will be tried")
     } else if err != nil {
-        assert(false, "unexpected nbio.remove() error")
+        internal.assert(false, "unexpected nbio.remove() error")
     }
 
     // Set to sentinel so nothing references the operation that will be reused.
@@ -657,7 +657,7 @@ remove_callback :: proc(op: ^Operation, res: i32) -> bool {
 }
 
 accept_exec :: proc(op: ^Operation) {
-    assert(op.type == .Accept)
+    internal.assert(op.type == .Accept)
     op.accept._impl.sockaddr_len = size_of(op.accept._impl.sockaddr)
     enqueue(op, uring.accept(
         &op.l.ring,
@@ -671,7 +671,7 @@ accept_exec :: proc(op: ^Operation) {
 }
 
 accept_callback :: proc(op: ^Operation, res: i32) {
-    assert(op.type == .Accept)
+    internal.assert(op.type == .Accept)
     if res < 0 {
         errno := linux.Errno(-res)
         #partial switch errno {
@@ -690,7 +690,7 @@ accept_callback :: proc(op: ^Operation, res: i32) {
 }
 
 dial_exec :: proc(op: ^Operation) {
-    assert(op.type == .Dial)
+    internal.assert(op.type == .Dial)
     if op.dial.socket == {} {
         if op.dial.endpoint.port == 0 {
             op.dial.err = .Port_Required
@@ -719,7 +719,7 @@ dial_exec :: proc(op: ^Operation) {
 }
 
 dial_callback :: proc(op: ^Operation, res: i32) {
-    assert(op.type == .Dial)
+    internal.assert(op.type == .Dial)
     errno := linux.Errno(-res)
     if errno != nil {
         #partial switch errno {
@@ -733,7 +733,7 @@ dial_callback :: proc(op: ^Operation, res: i32) {
 }
 
 timeout_exec :: proc(op: ^Operation) {
-    assert(op.type == .Timeout)
+    internal.assert(op.type == .Timeout)
     if op.timeout.duration <= 0 {
         queue.push_back(&op.l.completed, op)
         return
@@ -758,13 +758,13 @@ timeout_callback :: proc(op: ^Operation, res: i32) {
         case .ETIME, .ECANCELED: // OK.
         case:
             debug("unexpected timeout error:", int(errno))
-            panic("unexpected timeout error")
+            internal.panic("unexpected timeout error")
         }
     }
 }
 
 close_exec :: proc(op: ^Operation) {
-    assert(op.type == .Close)
+    internal.assert(op.type == .Close)
 
     fd: linux.Fd
     switch closable in op.close.subject {
@@ -782,12 +782,12 @@ close_exec :: proc(op: ^Operation) {
 }
 
 close_callback :: proc(op: ^Operation, res: i32) {
-    assert(op.type == .Close)
+    internal.assert(op.type == .Close)
     op.close.err = FS_Error(linux.Errno(-res))
 }
 
 recv_exec :: proc(op: ^Operation) {
-    assert(op.type == .Recv)
+    internal.assert(op.type == .Recv)
 
     if op.recv.err != nil {
         queue.push_back(&op.l.completed, op)
@@ -819,7 +819,7 @@ recv_exec :: proc(op: ^Operation) {
 
 
 recv_callback :: proc(op: ^Operation, res: i32) -> bool {
-    assert(op.type == .Recv)
+    internal.assert(op.type == .Recv)
 
     if res < 0 {
         errno := linux.Errno(-res)
@@ -872,7 +872,7 @@ recv_callback :: proc(op: ^Operation, res: i32) -> bool {
 }
 
 send_exec :: proc(op: ^Operation) {
-    assert(op.type == .Send)
+    internal.assert(op.type == .Send)
 
     if op.send.err != nil {
         queue.push_back(&op.l.completed, op)
@@ -905,7 +905,7 @@ send_exec :: proc(op: ^Operation) {
 
 
 send_callback :: proc(op: ^Operation, res: i32) -> bool {
-    assert(op.type == .Send)
+    internal.assert(op.type == .Send)
     if res < 0 {
         errno := linux.Errno(-res)
         switch sock in op.send.socket {
@@ -923,7 +923,7 @@ send_callback :: proc(op: ^Operation, res: i32) -> bool {
             case:
                 op.send.err = net._udp_send_error(errno)
             }
-        case: panic("corrupted socket")
+        case: internal.panic("corrupted socket")
         }
 
         return true
@@ -938,7 +938,7 @@ send_callback :: proc(op: ^Operation, res: i32) -> bool {
         }
 
         if op.send.sent < total {
-            assert(res > 0)
+            internal.assert(res > 0)
             send_exec(op)
             return false
         }
@@ -948,7 +948,7 @@ send_callback :: proc(op: ^Operation, res: i32) -> bool {
 }
 
 write_exec :: proc(op: ^Operation) {
-    assert(op.type == .Write)
+    internal.assert(op.type == .Write)
 
     buf := op.write.buf[op.write.written:]
     buf  = buf[:min(MAX_RW, len(buf))]
@@ -982,7 +982,7 @@ write_callback :: proc(op: ^Operation, res: i32) -> bool {
 }
 
 read_exec :: proc(op: ^Operation) {
-    assert(op.type == .Read)
+    internal.assert(op.type == .Read)
 
     buf := op.read.buf[op.read.read:]
     buf  = buf[:min(MAX_RW, len(buf))]
@@ -1021,7 +1021,7 @@ read_callback :: proc(op: ^Operation, res: i32) -> bool {
 }
 
 poll_exec :: proc(op: ^Operation) {
-    assert(op.type == .Poll)
+    internal.assert(op.type == .Poll)
 
     events: linux.Fd_Poll_Events
     switch op.poll.event {
@@ -1078,7 +1078,7 @@ A shouldn't get `EWOULDBLOCK`, but as a cautionary measure we handle it.
 The timeout is either linked to the splice B op, or the poll op, either of these is also always in progress in the kernel.
 */
 sendfile_exec :: proc(op: ^Operation, splice := true) {
-    assert(op.type == .Send_File)
+    internal.assert(op.type == .Send_File)
 
     splice_done := !splice
     if splice_op := op.sendfile._impl.splice; splice && splice_op != nil {
@@ -1162,7 +1162,7 @@ sendfile_exec :: proc(op: ^Operation, splice := true) {
         {.NONBLOCK},
     )
     if !splice_done && b_added {
-        assert(splice_op._impl.sqe != nil) // if b was added successfully, a should've been too.
+        internal.assert(splice_op._impl.sqe != nil) // if b was added successfully, a should've been too.
         // Makes sure splice A (file to pipe) completes before splice B (pipe to socket).
         splice_op._impl.sqe.flags += {.IO_HARDLINK}
     }
@@ -1173,7 +1173,7 @@ sendfile_exec :: proc(op: ^Operation, splice := true) {
 
 
 splice_callback :: proc(op: ^Operation, res: i32) -> bool {
-    assert(op.type == ._Splice)
+    internal.assert(op.type == ._Splice)
 
     if res < 0 {
         errno := linux.Errno(-res)
@@ -1196,7 +1196,7 @@ splice_callback :: proc(op: ^Operation, res: i32) -> bool {
             sendfile_op := op._splice.sendfile
             if sendfile_op != nil {
                 debug("sendfile helper splice error, cancelling main sendfile")
-                assert(sendfile_op.type == .Send_File)
+                internal.assert(sendfile_op.type == .Send_File)
 
                 sendfile_op.sendfile._impl.splice = nil
                 sendfile_op.sendfile.err = FS_Error(errno)
@@ -1217,7 +1217,7 @@ splice_callback :: proc(op: ^Operation, res: i32) -> bool {
         sendfile_op.sendfile._impl.splice = nil
     }
 
-    assert(op._splice.pipe > 0)
+    internal.assert(op._splice.pipe > 0)
     close(op._splice.pipe)
 
     debug("sendfile helper splice completely done")
@@ -1226,7 +1226,7 @@ splice_callback :: proc(op: ^Operation, res: i32) -> bool {
 
 
 sendfile_callback :: proc(op: ^Operation, res: i32) -> bool {
-    assert(op.type == .Send_File)
+    internal.assert(op.type == .Send_File)
 
     if op.sendfile.err == nil && res < 0 {
         errno := linux.Errno(-res)
@@ -1274,7 +1274,7 @@ sendfile_callback :: proc(op: ^Operation, res: i32) -> bool {
 
         splice_op := op.sendfile._impl.splice
         if splice_op != nil {
-            assert(splice_op.type == ._Splice)
+            internal.assert(splice_op.type == ._Splice)
             splice_op._splice.sendfile = nil
             _remove(splice_op)
         }
@@ -1295,7 +1295,7 @@ sendfile_callback :: proc(op: ^Operation, res: i32) -> bool {
 }
 
 open_exec :: proc(op: ^Operation) {
-    assert(op.type == .Open)
+    internal.assert(op.type == .Open)
 
     sys_flags := linux.Open_Flags{.NOCTTY, .CLOEXEC, .NONBLOCK}
 
@@ -1333,7 +1333,7 @@ open_exec :: proc(op: ^Operation) {
 }
 
 open_callback :: proc(op: ^Operation, res: i32) {
-    assert(op.type == .Open)
+    internal.assert(op.type == .Open)
 
     delete(op.open._impl.cpath, op.l.allocator)
     
@@ -1347,7 +1347,7 @@ open_callback :: proc(op: ^Operation, res: i32) {
 }
 
 stat_exec :: proc(op: ^Operation) {
-    assert(op.type == .Stat)
+    internal.assert(op.type == .Stat)
 
     enqueue(op, uring.statx(
         &op.l.ring,
@@ -1361,7 +1361,7 @@ stat_exec :: proc(op: ^Operation) {
 }
 
 stat_callback :: proc(op: ^Operation, res: i32) {
-    assert(op.type == .Stat)
+    internal.assert(op.type == .Stat)
 
     if res < 0 {
         errno := linux.Errno(-res)

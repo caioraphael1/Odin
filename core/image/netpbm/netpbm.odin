@@ -524,7 +524,7 @@ _parse_header_pfm :: proc(data: []byte) -> (header: Header, length: int, err: Er
 }
 
 decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator : mem.Allocator) -> (err: Error) {
-    assert(img != nil)
+    internal.assert(img != nil)
     
 
     img.width    = header.width

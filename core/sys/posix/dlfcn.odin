@@ -54,14 +54,14 @@ foreign lib {
 		defer posix.dlclose(handle)
 
 		if handle == nil {
-			panic(string(posix.dlerror()))
+			internal.panic(string(posix.dlerror()))
 		}
 
 		foo: proc(a, b: int) -> int
 		foo = auto_cast posix.dlsym(handle, "foo")
 
 		if foo == nil {
-			panic(string(posix.dlerror()))
+			internal.panic(string(posix.dlerror()))
 		}
 
 		fmt.printfln("foo(%v, %v) == %v", 1, 2, foo(1, 2))

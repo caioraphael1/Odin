@@ -301,7 +301,7 @@ Example:
         x: xar.Array(My_Struct, 4)
         defer xar.destroy(&x)
 
-        ptr := xar.push_back_elem_and_get_ptr(&x, My_Struct{}) or_else panic("alloc failed")
+        ptr := xar.push_back_elem_and_get_ptr(&x, My_Struct{}) or_else internal.panic("alloc failed")
         ptr.field = 42  // Initialize in-place
     }
 */
@@ -325,7 +325,7 @@ array_push_back_elem_and_get_ptr :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc
 //
 // Note: If the exponential array has no elements (`xar.len(x) == 0`), this procedure will panic.
 array_pop :: proc(x: ^$X/Array($T, $SHIFT), loc := #caller_location) -> (val: T) {
-    assert(x.len > 0, loc=loc)
+    internal.assert(x.len > 0, loc=loc)
     index := uint(x.len-1)
     chunk_idx, elem_idx, _ := _meta_get(SHIFT, index)
     x.len -= 1

@@ -90,7 +90,7 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 	} else when T == Blake2b_Context {
 		max_size :: BLAKE2B_SIZE
 	}
-	ensure(cfg.size <= max_size, "blake2: requested output size exceeeds algorithm max")
+	internal.ensure(cfg.size <= max_size, "blake2: requested output size exceeeds algorithm max")
 
 	// To save having to allocate a scratch buffer, use the internal
 	// data buffer (`ctx.x`), as it is exactly the correct size.
@@ -167,7 +167,7 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 }
 
 update :: proc(ctx: ^$T, p: []byte) {
-	ensure(ctx.is_initialized)
+	internal.ensure(ctx.is_initialized)
 
 	p := p
 	when T == Blake2s_Context {
@@ -195,7 +195,7 @@ update :: proc(ctx: ^$T, p: []byte) {
 }
 
 final :: proc(ctx: ^$T, hash: []byte, finalize_clone: bool = false) {
-	ensure(ctx.is_initialized)
+	internal.ensure(ctx.is_initialized)
 
 	ctx := ctx
 	if finalize_clone {
@@ -205,7 +205,7 @@ final :: proc(ctx: ^$T, hash: []byte, finalize_clone: bool = false) {
 	}
 	defer(reset(ctx))
 
-	ensure(len(hash) >= int(ctx.size), "crypto/blake2: invalid destination digest size")
+	internal.ensure(len(hash) >= int(ctx.size), "crypto/blake2: invalid destination digest size")
 	when T == Blake2s_Context {
 		blake2s_final(ctx, hash)
 	} else when T == Blake2b_Context {

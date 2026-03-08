@@ -968,7 +968,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 o16 = o16[out_image_channels:]
             }
         case:
-            panic("We should never seen # channels other than 1-4 inclusive.")
+            internal.panic("We should never seen # channels other than 1-4 inclusive.")
         }
 
         img.pixels = t
@@ -1161,7 +1161,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 o = o[out_image_channels:]
             }
         case:
-            panic("We should never seen # channels other than 1-4 inclusive.")
+            internal.panic("We should never seen # channels other than 1-4 inclusive.")
         }
 
         img.pixels = t
@@ -1172,7 +1172,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             This may change if we ever don't expand 1, 2 and 4 bit images. But, those raw
             returns will likely bypass this processing pipeline.
         */
-        panic("We should never see bit depths other than 8, 16 and 'Paletted' here.")
+        internal.panic("We should never see bit depths other than 8, 16 and 'Paletted' here.")
     }
 
     return img, nil

@@ -25,7 +25,7 @@ foreign lib {
 		list: [^]^posix.dirent
 		ret := posix.scandir(#directory, &list, nil, posix.alphasort)
 		if ret < 0 {
-			panic(string(posix.strerror(posix.errno())))
+			internal.panic(string(posix.strerror(posix.errno())))
 		}
 		defer posix.free(list)
 
@@ -83,7 +83,7 @@ foreign lib {
 		entry := posix.readdir(dirp)
 		if entry == nil {
 			if errno := posix.errno(); errno != .NONE {
-				panic(string(posix.strerror(errno)))
+				internal.panic(string(posix.strerror(errno)))
 			} else {
 				fmt.println("end of directory stream")
 			}

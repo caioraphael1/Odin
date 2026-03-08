@@ -88,7 +88,7 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
         if n >= MAX_STACK {
             buf = slice.create([]byte, n)
             n2 := stb.vsnprintf(raw_data(buf), i32(len(buf)), fmt, args)
-            assert(n == n2)
+            internal.assert(n == n2)
         } else {
             buf = stack_buf[:n]
         }
@@ -333,7 +333,7 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
             i = 0
             k = t == 'c' ? width + 1 : 31
             if size == .l {
-                unimplemented("vendor/libc-shim: sscanf wide character support")
+                internal.unimplemented("vendor/libc-shim: sscanf wide character support")
             } else if alloc {
                 s = make([^]byte, k)
                 if s == nil {

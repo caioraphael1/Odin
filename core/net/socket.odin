@@ -185,7 +185,7 @@ make_bound_udp_socket :: proc(bound_address: Address, port: int) -> (socket: UDP
     Errors that can be returned: `Create_Socket_Error`, `Bind_Error`, or `Listen_Error`
 */
 listen_tcp :: proc(interface_endpoint: Endpoint, backlog := 1000) -> (socket: TCP_Socket, err: Network_Error) {
-    assert(backlog > 0 && backlog < int(max(i32)))
+    internal.assert(backlog > 0 && backlog < int(max(i32)))
 
     return _listen_tcp(interface_endpoint, backlog)
 }
@@ -245,7 +245,7 @@ recv_udp :: proc(socket: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_en
 */
 recv_any :: proc(socket: Any_Socket, buf: []byte) -> (
     bytes_read: int,
-    remote_endpoint: Maybe(Endpoint),
+    remote_endpoint: internal.Maybe(Endpoint),
     err: Network_Error,
 ) {
     switch socktype in socket {
@@ -254,7 +254,7 @@ recv_any :: proc(socket: Any_Socket, buf: []byte) -> (
         return
     case UDP_Socket:
         return recv_udp(socktype, buf)
-    case: panic("Not supported")
+    case: internal.panic("Not supported")
     }
 }
 
@@ -282,7 +282,7 @@ send_udp :: proc(socket: UDP_Socket, buf: []byte, to: Endpoint) -> (bytes_writte
 
     Errors that can be returned: `TCP_Send_Error`, or `UDP_Send_Error`
 */
-send_any :: proc(socket: Any_Socket, buf: []byte, to: Maybe(Endpoint) = nil) -> (
+send_any :: proc(socket: Any_Socket, buf: []byte, to: internal.Maybe(Endpoint) = nil) -> (
     bytes_written: int,
     err: Network_Error,
 ) {
@@ -291,7 +291,7 @@ send_any :: proc(socket: Any_Socket, buf: []byte, to: Maybe(Endpoint) = nil) -> 
         return send_tcp(socktype, buf)
     case UDP_Socket:
         return send_udp(socktype, buf, to.(Endpoint))
-    case: panic("Not supported")
+    case: internal.panic("Not supported")
     }
 }
 

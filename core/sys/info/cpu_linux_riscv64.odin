@@ -79,11 +79,11 @@ init_cpu_features :: proc() {
 		}
 		err := linux.riscv_hwprobe(raw_data(pairs), len(pairs), 0, nil, {})
 		if err != nil {
-			assert(err == .ENOSYS, "unexpected error from riscv_hwprobe()")
+			internal.assert(err == .ENOSYS, "unexpected error from riscv_hwprobe()")
 			return
 		}
 
-		assert(pairs[0].key == .IMA_EXT_0)
+		internal.assert(pairs[0].key == .IMA_EXT_0)
 		exts := pairs[0].value.ima_ext_0
 		exts -= { .FD, .C, .V }
 		_features += transmute(CPU_Features)exts
@@ -95,7 +95,7 @@ init_cpu_features :: proc() {
 				_features += { .Misaligned_Supported }
 			}
 		} else {
-			assert(pairs[1].key == .CPUPERF_0)
+			internal.assert(pairs[1].key == .CPUPERF_0)
 			if .FAST in pairs[1].value.cpu_perf_0 {
 				_features += { .Misaligned_Supported, .Misaligned_Fast }
 			} else if .UNSUPPORTED not_in pairs[1].value.cpu_perf_0 {

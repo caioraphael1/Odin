@@ -640,7 +640,7 @@ ensure_winsock_initialized :: proc() {
     unused_info: WSADATA
     version_requested := WORD(2) << 8 | 2
     res := WSAStartup(version_requested, &unused_info)
-    assert(res == 0, "unable to initialized Winsock2")
+    internal.assert(res == 0, "unable to initialized Winsock2")
 
     initted = true
 }

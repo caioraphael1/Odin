@@ -45,7 +45,7 @@ _protect :: proc(data: rawptr, size: uint, flags: Protect_Flags) -> bool {
 _platform_memory_init :: proc() {
     DEFAULT_PAGE_SIZE = 4096
     // is power of two
-    assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
+    internal.assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
 }
 
 _map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {

@@ -315,12 +315,12 @@ _set_option :: proc(s: Any_Socket, option: Socket_Option, value: any, loc := #ca
             case b64:
                 bool_value = b32(x)
             case:
-                panic("set_option() value must be a boolean here", loc)
+                internal.panic("set_option() value must be a boolean here", loc)
             }
             ptr = &bool_value
             len = size_of(bool_value)
     case .Linger:
-        t := value.(time.Duration) or_else panic("set_option() value must be a time.Duration here", loc)
+        t := value.(time.Duration) or_else internal.panic("set_option() value must be a time.Duration here", loc)
 
         num_secs := i64(time.duration_seconds(t))
         if num_secs > i64(max(u16)) {
@@ -334,7 +334,7 @@ _set_option :: proc(s: Any_Socket, option: Socket_Option, value: any, loc := #ca
     case
         .Receive_Timeout,
         .Send_Timeout:
-            t := value.(time.Duration) or_else panic("set_option() value must be a time.Duration here", loc)
+            t := value.(time.Duration) or_else internal.panic("set_option() value must be a time.Duration here", loc)
 
             int_value = i32(time.duration_milliseconds(t))
             ptr = &int_value
@@ -351,7 +351,7 @@ _set_option :: proc(s: Any_Socket, option: Socket_Option, value: any, loc := #ca
             case i128, u128: i2 := i; int_value = c.int((^u128)(&i2)^)
             case  int, uint: i2 := i; int_value = c.int((^uint)(&i2)^)
             case:
-                panic("set_option() value must be an integer here", loc)
+                internal.panic("set_option() value must be an integer here", loc)
             }
             ptr = &int_value
             len = size_of(int_value)
@@ -419,7 +419,7 @@ _sockaddr_to_endpoint :: proc(native_addr: ^win.SOCKADDR_STORAGE_LH) -> (ep: End
             port = port,
         }
     case:
-        panic("native_addr is neither IP4 or IP6 address")
+        internal.panic("native_addr is neither IP4 or IP6 address")
     }
     return
 }

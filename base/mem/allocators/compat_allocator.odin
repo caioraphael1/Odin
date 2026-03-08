@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 
 // An allocator that keeps track of allocation sizes and passes it along to resizes.
@@ -47,7 +48,7 @@ compat_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
     case .Alloc, .Alloc_Non_Zeroed:
         a        := max(alignment, size_of(Header))
         req_size := size + a
-        assert(req_size >= 0, "overflow")
+        internal.assert(req_size >= 0, "overflow")
 
         allocation := rra.parent.procedure(rra.parent.data, mode, req_size, alignment, old_memory, old_size, location) or_return
         #no_bounds_check data = allocation[a:]
@@ -78,7 +79,7 @@ compat_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
 
         a        := max(new_alignment, size_of(header))
         req_size := size + a
-        assert(size >= 0, "overflow")
+        internal.assert(size >= 0, "overflow")
 
         allocation := rra.parent.procedure(rra.parent.data, mode, req_size, new_alignment, orig_ptr, orig_size, location) or_return
         #no_bounds_check data = allocation[a:]

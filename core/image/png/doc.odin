@@ -152,7 +152,7 @@ Example:
     // Crappy PPM writer used during testing. Don't use in production.
     write_image_as_ppm :: proc(filename: string, image: ^image.Image) -> (success: bool) {
 
-        _bg :: proc(bg: Maybe([3]u16), x, y: int, high := true) -> (res: [3]u16) {
+        _bg :: proc(bg: internal.Maybe([3]u16), x, y: int, high := true) -> (res: [3]u16) {
             if v, ok := bg.?; ok {
                 res = v
             } else {
@@ -230,7 +230,7 @@ Example:
 
             if channels == 1 {
                 if depth == 16 {
-                    assert(len(pix) == width * height * 2)
+                    internal.assert(len(pix) == width * height * 2)
                     p16 := mem.slice_data_cast([]u16, pix)
                     o16 := mem.slice_data_cast([]u16, op.buf[:])
                     #no_bounds_check for len(p16) != 0 {

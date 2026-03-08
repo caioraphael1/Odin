@@ -2660,7 +2660,7 @@ Convert slice to SIMD vector.
 */
 
 from_slice :: proc($T: typeid/#simd[$LANES]$E, slice: []E) -> T {
-	assert(len(slice) >= LANES, "slice length must be a least the number of lanes")
+	internal.assert(len(slice) >= LANES, "slice length must be a least the number of lanes")
 	array: [LANES]E
 	#no_bounds_check for i in 0..<LANES {
 		array[i] = slice[i]

@@ -26,7 +26,7 @@ push_positional :: #force_no_inline proc (model: ^$T, parser: ^Parser, arg: stri
         pos, ok = bit_array.iterate_by_unset(&iter)
 
         // This may be an allocator error.
-        assert(ok, "Unable to find a free spot in the positional bit_array.")
+        internal.assert(ok, "Unable to find a free spot in the positional bit_array.")
     }
 
     field, index, has_pos_assigned := get_field_by_pos(model, pos)

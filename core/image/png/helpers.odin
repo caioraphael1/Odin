@@ -92,7 +92,7 @@ core_time :: proc(c: image.PNG_Chunk) -> (t: coretime.Time, ok: bool) {
 text :: proc(c: image.PNG_Chunk) -> (res: Text, ok: bool) {
 	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-	assert(len(c.data) == int(c.header.length))
+	internal.assert(len(c.data) == int(c.header.length))
 	#partial switch c.header.type {
 	case .tEXt:
 		ok = true

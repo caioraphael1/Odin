@@ -1,3 +1,4 @@
+import "base:internal"
 import "core:time"
 
 Atomic_Mutex_State :: enum Futex {
@@ -262,7 +263,7 @@ atomic_recursive_mutex_lock :: proc(m: ^Atomic_Recursive_Mutex) {
 
 atomic_recursive_mutex_unlock :: proc(m: ^Atomic_Recursive_Mutex) {
     tid := current_thread_id()
-    assert(tid == m.owner, "tid != m.owner")
+    internal.assert(tid == m.owner, "tid != m.owner")
     m.recursion -= 1
     recursion := m.recursion
     if recursion == 0 {

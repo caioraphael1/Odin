@@ -27,7 +27,7 @@ parse_or_exit :: proc(
     allocator: mem.Allocator,
 	loc := #caller_location,
 ) {
-	assert(len(program_args) > 0, "Program arguments slice is empty.", loc)
+	internal.assert(len(program_args) > 0, "Program arguments slice is empty.", loc)
 
 	program := filepath.base(program_args[0])
 	args: []string

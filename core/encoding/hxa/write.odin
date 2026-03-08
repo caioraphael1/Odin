@@ -36,7 +36,7 @@ write_internal :: proc(w: ^Writer, file: File) {
 	write_value :: proc(w: ^Writer, value: $T) {
 		if !w.dummy_pass {
 			remaining := len(w.data) - w.offset
-			assert(size_of(T) <= remaining)
+			internal.assert(size_of(T) <= remaining)
 			ptr := raw_data(w.data[w.offset:])
 			(^T)(ptr)^ = value
 		}
@@ -45,7 +45,7 @@ write_internal :: proc(w: ^Writer, file: File) {
 	write_array :: proc(w: ^Writer, array: []$T) {
 		if !w.dummy_pass {
 			remaining := len(w.data) - w.offset
-			assert(size_of(T)*len(array) <= remaining)
+			internal.assert(size_of(T)*len(array) <= remaining)
 			ptr := raw_data(w.data[w.offset:])
 			dst := ([^]T)(ptr)[:len(array)]
 			slice.copy(dst, array)
@@ -55,7 +55,7 @@ write_internal :: proc(w: ^Writer, file: File) {
 	write_string :: proc(w: ^Writer, str: string) {
 		if !w.dummy_pass {
 			remaining := len(w.data) - w.offset
-			assert(size_of(byte)*len(str) <= remaining)
+			internal.assert(size_of(byte)*len(str) <= remaining)
 			ptr := raw_data(w.data[w.offset:])
 			dst := ([^]byte)(ptr)[:len(str)]
 			slice.copy(dst, str)

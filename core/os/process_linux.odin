@@ -187,7 +187,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         cmdline := string(cmdline_bytes)
 
         terminator := strings_tools.index_byte(cmdline, 0)
-        assert(terminator > 0)
+        internal.assert(terminator > 0)
 
         // command_line_exec := cmdline[:terminator]
 
@@ -574,7 +574,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         }
 
         errno = linux.execveat(dir_fd, exe_path, &cargs[0], env)
-        assert(errno != nil)
+        internal.assert(errno != nil)
         write_errno_to_parent_and_abort(child_pipe_fds[WRITE], errno)
     }
 

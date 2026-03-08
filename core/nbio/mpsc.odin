@@ -14,7 +14,7 @@ Multi_Producer_Single_Consumer :: struct {
 }
 
 mpsc_init :: proc(mpscq: ^Multi_Producer_Single_Consumer, cap: int, allocator: mem.Allocator) -> mem.Allocator_Error {
-	assert(internal.is_power_of_two_int(cap), "cap must be a power of 2")
+	internal.assert(internal.is_power_of_two_int(cap), "cap must be a power of 2")
 	mpscq.buffer = slice.create([]rawptr, cap, allocator) or_return
 	mpscq.mask   = cap-1
 	sync.atomic_thread_fence(.Release)
@@ -33,9 +33,9 @@ mpsc_enqueue :: proc(mpscq: ^Multi_Producer_Single_Consumer, obj: rawptr) -> boo
 	}
 
 	head := sync.atomic_add_explicit(&mpscq.head, 1, .Acquire)
-	assert(mpscq.buffer[head & mpscq.mask] == nil)
+	internal.assert(mpscq.buffer[head & mpscq.mask] == nil)
 	rv := sync.atomic_exchange_explicit(&mpscq.buffer[head & mpscq.mask], obj, .Release)
-	assert(rv == nil)
+	internal.assert(rv == nil)
 	return true
 }
 
@@ -50,7 +50,7 @@ mpsc_dequeue :: proc(mpscq: ^Multi_Producer_Single_Consumer) -> rawptr {
 		mpscq.tail = 0
 	}
 	r := sync.atomic_sub_explicit(&mpscq.count, 1, .Release)
-	assert(r > 0)
+	internal.assert(r > 0)
 	return ret
 }
 

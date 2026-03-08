@@ -10,8 +10,8 @@ import secec "core:crypto/_weierstrass"
 // The signature format is `r | s`.
 
 verify_raw :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []byte) -> bool {
-	ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
-	ensure(pub_key._curve != .Invalid, "crypto/edsa: invalid curve")
+	internal.ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
+	internal.ensure(pub_key._curve != .Invalid, "crypto/edsa: invalid curve")
 
 	if len(sig) != RAW_SIGNATURE_SIZES[pub_key._curve] {
 		return false
@@ -30,7 +30,7 @@ verify_raw :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []
 		return verify_internal(pk, hash_algo, r_bytes, s_bytes, msg)
 	}
 
-	panic("crypto/ecdsa: invalid curve")
+	internal.panic("crypto/ecdsa: invalid curve")
 }
 
 // verify_asn1 returns true iff sig is a valid signature by pub_key over
@@ -40,8 +40,8 @@ verify_raw :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []
 // The signature format is ASN.1 `SEQUENCE { r INTEGER, s INTEGER }`.
 
 verify_asn1 :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []byte) -> bool {
-	ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
-	ensure(pub_key._curve != .Invalid, "crypto/edsa: invalid curve")
+	internal.ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
+	internal.ensure(pub_key._curve != .Invalid, "crypto/edsa: invalid curve")
 
 	r_bytes, s_bytes, ok := parse_asn1_sig(sig)
 	if !ok {
@@ -57,7 +57,7 @@ verify_asn1 :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: [
 		return verify_internal(pk, hash_algo, r_bytes, s_bytes, msg)
 	}
 
-	panic("crypto/ecdsa: invalid curve")
+	internal.panic("crypto/ecdsa: invalid curve")
 }
 
 @(private,require_results)

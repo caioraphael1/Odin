@@ -123,7 +123,7 @@ decimal_to_string :: proc(buf: []byte, a: ^Decimal) -> string {
     n := 10 + a.count + abs(a.decimal_point)
 
     // TODO(bill): make this work with a buffer that's not big enough
-    assert(len(buf) >= n)
+    internal.assert(len(buf) >= n)
     b := buf[0:n]
 
     if a.count == 0 {
@@ -362,7 +362,7 @@ shift_left :: proc(a: ^Decimal, k: uint) #no_bounds_check {
         return false
     }
 
-    assert(k < 61)
+    internal.assert(k < 61)
 
     delta := _shift_left_offsets[k].delta
     if prefix_less(a.digits[:a.count], _shift_left_offsets[k].cutoff) {

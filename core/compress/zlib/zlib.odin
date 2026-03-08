@@ -121,7 +121,7 @@ Huffman_Table :: struct {
 // Implementation starts here
 @(optimization_mode="favor_size")
 z_bit_reverse :: #force_inline proc(n: u16, bits: u8) -> (r: u16) {
-    assert(bits <= 16)
+    internal.assert(bits <= 16)
     r = intrinsics.reverse_bits(n)
 
     r >>= (16 - bits)
@@ -553,7 +553,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
                 write_byte(z, u8(lit))
                 uncompressed_len -= 1
             }
-            assert(uncompressed_len == 0)
+            internal.assert(uncompressed_len == 0)
 
         case 3:
             return .BType_3

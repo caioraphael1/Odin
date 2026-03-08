@@ -345,9 +345,9 @@ Example:
     push_back_example :: proc() {
         a: small_array.Small_Array(2, int)
 
-        assert(small_array.push_back(&a, 1), "this should fit")
-        assert(small_array.push_back(&a, 2), "this should fit")
-        assert(!small_array.push_back(&a, 3), "this should not fit")
+        internal.assert(small_array.push_back(&a, 1), "this should fit")
+        internal.assert(small_array.push_back(&a, 2), "this should fit")
+        internal.assert(!small_array.push_back(&a, 3), "this should not fit")
 
         fmt.println(small_array.slice(&a))
     }
@@ -386,9 +386,9 @@ Example:
     push_front_example :: proc() {
         a: small_array.Small_Array(2, int)
 
-        assert(small_array.push_front(&a, 2), "this should fit")
-        assert(small_array.push_front(&a, 1), "this should fit")
-        assert(!small_array.push_back(&a, 0), "this should not fit")
+        internal.assert(small_array.push_front(&a, 2), "this should fit")
+        internal.assert(small_array.push_front(&a, 1), "this should fit")
+        internal.assert(!small_array.push_back(&a, 0), "this should not fit")
 
         fmt.println(small_array.slice(&a))
     }
@@ -436,7 +436,7 @@ Output:
     AFTER:  [0, 1]
 */
 pop_back :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
-    assert(condition=(N > 0 && a.len > 0), loc=loc)
+    internal.assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[a.len-1]
     a.len -= 1
     return item
@@ -473,7 +473,7 @@ Output:
     AFTER:  [1, 2]
 */
 pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
-    assert(condition=(N > 0 && a.len > 0), loc=loc)
+    internal.assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
     slice.copy(s[:], s[1:])
@@ -499,10 +499,10 @@ Example:
         small_array.push(&a, 1)
 
         el, ok := small_array.pop_back_safe(&a)
-        assert(ok, "there was an element in the array")
+        internal.assert(ok, "there was an element in the array")
 
         el, ok = small_array.pop_back_safe(&a)
-        assert(!ok, "there was NO element in the array")
+        internal.assert(!ok, "there was NO element in the array")
     }
 */
 pop_back_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
@@ -535,10 +535,10 @@ Example:
         small_array.push(&a, 1)
 
         el, ok := small_array.dyn_array_pop_front_safe(&a)
-        assert(ok, "there was an element in the array")
+        internal.assert(ok, "there was an element in the array")
 
         el, ok = small_array.pop_front_(&a)
-        assert(!ok, "there was NO element in the array")
+        internal.assert(!ok, "there was NO element in the array")
     }
 */
 pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
@@ -581,7 +581,7 @@ Output:
     AFTER : [0]
 */
 consume :: proc(a: ^$A/Small_Array($N, $T), count: int, loc := #caller_location) {
-    assert(condition=a.len >= count, loc=loc)
+    internal.assert(condition=a.len >= count, loc=loc)
     a.len -= count
 }
 

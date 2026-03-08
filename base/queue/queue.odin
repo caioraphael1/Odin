@@ -192,7 +192,7 @@ This will raise a bounds checking error if the queue is empty.
 */
 front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len > 0, "Queue is empty.", loc)
+        internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     return q.data[q.offset]
 }
@@ -204,7 +204,7 @@ This will raise a bounds checking error if the queue is empty.
 */
 front_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len > 0, "Queue is empty.", loc)
+        internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     return &q.data[q.offset]
 }
@@ -216,7 +216,7 @@ This will raise a bounds checking error if the queue is empty.
 */
 back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len > 0, "Queue is empty.", loc)
+        internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     idx := (q.offset+uint(q.len - 1))%builtin.len(q.data)
     return q.data[idx]
@@ -229,7 +229,7 @@ This will raise a bounds checking error if the queue is empty.
 */
 back_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len > 0, "Queue is empty.", loc)
+        internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     idx := (q.offset+uint(q.len - 1))%builtin.len(q.data)
     return &q.data[idx]
@@ -261,9 +261,9 @@ Example:
         queue.push_back(&q, 2)
         queue.push_back(&q, 3)
         // q.data is now [1, 2, 3, ...]
-        assert(queue.dyn_array.pop_front(&q) == 1)
-        assert(queue.dyn_array.pop_front(&q) == 2)
-        assert(queue.dyn_array.pop_front(&q) == 3)
+        internal.assert(queue.dyn_array.pop_front(&q) == 1)
+        internal.assert(queue.dyn_array.pop_front(&q) == 2)
+        internal.assert(queue.dyn_array.pop_front(&q) == 3)
     }
 */
 push_back :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) {
@@ -291,9 +291,9 @@ Example:
         queue.push_back(&q, 2)
         queue.push_back(&q, 3)
         // q.data is now [1, 2, 3, ...]
-        assert(queue.pop_back(&q) == 3)
-        assert(queue.pop_back(&q) == 2)
-        assert(queue.pop_back(&q) == 1)
+        internal.assert(queue.pop_back(&q) == 3)
+        internal.assert(queue.pop_back(&q) == 2)
+        internal.assert(queue.pop_back(&q) == 1)
     }
 */
 push_front :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error)  {
@@ -321,14 +321,14 @@ Example:
         queue.push_front(&q, 3)
         // q.data is now [..., 3, 2, 1]
         log.infof("%#v", q)
-        assert(queue.dyn_array.pop_front(&q) == 3)
-        assert(queue.dyn_array.pop_front(&q) == 2)
-        assert(queue.dyn_array.pop_front(&q) == 1)
+        internal.assert(queue.dyn_array.pop_front(&q) == 3)
+        internal.assert(queue.dyn_array.pop_front(&q) == 2)
+        internal.assert(queue.dyn_array.pop_front(&q) == 1)
     }
 */
 pop_back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len > 0, "Queue is empty.", loc)
+        internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     q.len -= 1
     idx := (q.offset+uint(q.len))%builtin.len(q.data)
@@ -357,7 +357,7 @@ This will raise a bounds checking error if the queue is empty.
 */
 pop_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len > 0, "Queue is empty.", loc)
+        internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     elem = q.data[q.offset]
     q.offset = (q.offset+1)%builtin.len(q.data)
@@ -410,7 +410,7 @@ This will raise a bounds checking error if the queue does not have enough elemen
 */
 consume_front :: proc(q: ^$Q/Queue($T), n: int, loc := #caller_location) {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
+        internal.ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
     }
     if n > 0 {
         nu := uint(n)
@@ -426,7 +426,7 @@ This will raise a bounds checking error if the queue does not have enough elemen
 */
 consume_back :: proc(q: ^$Q/Queue($T), n: int, loc := #caller_location) {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
+        internal.ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
     }
     if n > 0 {
         q.len -= uint(n)

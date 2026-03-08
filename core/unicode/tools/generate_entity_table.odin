@@ -135,7 +135,7 @@ main :: proc() {
 
 		// This is the description we add to `core:encoding/entity`'s generated table
 		desc, desc_ok := xml.find_child_by_ident(doc, id, "description")
-		assert(desc_ok)
+		internal.assert(desc_ok)
 		description := ""
 		if len(doc.elements[desc].value) == 1 {
 			description = doc.elements[desc].value[0].(string)
@@ -149,7 +149,7 @@ main :: proc() {
 			// Not present for some math characters, e.g. codepoint: 10913-824, desc: "DOUBLE NESTED LESS-THAN with slash"
 			if category_string, category_ok := xml.find_attribute_val_by_key(doc, unicodedata, "category"); category_ok {
 				// These should only consist of a single rune.
-				assert(codepoint2 == 0)
+				internal.assert(codepoint2 == 0)
 				dyn_array.append(&characters, Character{
 					codepoint   = rune(codepoint),
 					description = description,

@@ -363,7 +363,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 
 	_ = do_append(s, amp_idx, &buf)
 
-	assert(len(buf) == cap(buf))
+	internal.assert(len(buf) == cap(buf))
 	output = string(buf[:])
 
 	return
@@ -509,7 +509,7 @@ unescape_entity :: proc(s: string) -> (b: [8]byte, w: int, j: int) {
 // Private XML helper to extract `&<stuff>;` entity.
 @(private="file")
 _extract_xml_entity :: proc(t: ^Tokenizer) -> (entity: string, err: Error) {
-	assert(t != nil && t.r == '&')
+	internal.assert(t != nil && t.r == '&')
 
 	// All of these would be in the ASCII range.
 	// Even if one is not, it doesn't matter. All characters we need to compare to extract are.
@@ -537,7 +537,7 @@ _extract_xml_entity :: proc(t: ^Tokenizer) -> (entity: string, err: Error) {
 // Private XML helper for CDATA and comments.
 @(private="file")
 _handle_xml_special :: proc(t: ^Tokenizer, builder: ^strings_tools.Builder, options: XML_Decode_Options) -> (in_data: bool, err: Error) {
-	assert(t != nil && t.r == '<')
+	internal.assert(t != nil && t.r == '<')
 	if t.read_offset + len(CDATA_START) >= len(t.src) { return false, .None }
 
 	s := string(t.src[t.offset:])

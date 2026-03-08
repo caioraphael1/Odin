@@ -226,20 +226,20 @@ tag_big_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_E
         // is uninitialized (which we checked).
 
         is_neg, err := big.is_negative(&vv, {})
-        assert(err == nil, "should only error if not initialized, which has been checked")
+        internal.assert(err == nil, "should only error if not initialized, which has been checked")
         
         tnr: u8 = TAG_NEGATIVE_BIG_NR if is_neg else TAG_UNSIGNED_BIG_NR
         _encode_u8(e.writer, tnr, .Tag) or_return
 
         size_in_bytes, berr := big.int_to_bytes_size(&vv, false, {})
-        assert(berr == nil, "should only error if not initialized, which has been checked")
-        assert(size_in_bytes >= 0)
+        internal.assert(berr == nil, "should only error if not initialized, which has been checked")
+        internal.assert(size_in_bytes >= 0)
 
         err_conv(_encode_u64(e, u64(size_in_bytes), .Bytes)) or_return
 
         for offset := (size_in_bytes*8)-8; offset >= 0; offset -= 8 {
             bits, derr := big.int_bitfield_extract(&vv, offset, 8, {})
-            assert(derr == nil, "should only error if not initialized or invalid argument (offset and count), which won't happen")
+            internal.assert(derr == nil, "should only error if not initialized or invalid argument (offset and count), which won't happen")
 
             _ = io.write_full(e.writer, {u8(bits & 255)}) or_return
         }
@@ -301,7 +301,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
 
     #partial switch t in ti.variant {
     case reflect.Type_Info_String:
-        assert(t.encoding == .UTF_8)
+        internal.assert(t.encoding == .UTF_8)
         if t.is_cstring {
             length  := base64.decoded_len(bytes)
             builder := strings_tools.builder_make(0, length+1)

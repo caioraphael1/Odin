@@ -300,7 +300,7 @@ GetActiveAttribAlloc :: proc(program: Program, index: u32, allocator: mem.Alloca
     if name_len > 0 {
         name_buf := slice.create([]byte, name_len, allocator, loc)
         _GetActiveAttrib(program, index, &info.size, &info.type, name_buf, &name_len)
-        assert(name_len == len(name_buf))
+        internal.assert(name_len == len(name_buf))
         info.name = string(name_buf[:name_len])
     }
 
@@ -332,7 +332,7 @@ GetActiveUniformAlloc :: proc(program: Program, index: u32, allocator: mem.Alloc
     if name_len > 0 {
         name_buf := slice.create([]byte, name_len, allocator, loc)
         _GetActiveUniform(program, index, &info.size, &info.type, name_buf, &name_len)
-        assert(name_len == len(name_buf))
+        internal.assert(name_len == len(name_buf))
         info.name = string(name_buf[:name_len])
     }
 

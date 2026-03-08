@@ -168,7 +168,7 @@ Example:
 
     main :: proc() {
         f, oerr := os.open("core")
-        ensure(oerr == nil)
+        internal.ensure(oerr == nil)
         defer os.close(f)
 
         it := os.read_directory_iterator_create(f)

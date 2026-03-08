@@ -47,7 +47,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 			}
 		case:
 			// New version not yet added here.
-			assert(version.majorVersion > 15)
+			internal.assert(version.majorVersion > 15)
 			ws(&b, "macOS Unknown")
 		}
 	}

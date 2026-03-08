@@ -37,6 +37,6 @@ GetSurface :: proc(instance: wgpu.Instance, window: ^sdl2.Window) -> wgpu.Surfac
 			},
 		)
 	} else {
-		panic("wgpu sdl2 glue: unsupported platform, expected Wayland or X11")
+		internal.panic("wgpu sdl2 glue: unsupported platform, expected Wayland or X11")
 	}
 }

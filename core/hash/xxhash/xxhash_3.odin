@@ -448,7 +448,7 @@ XXH3_hashLong128_f :: #type proc(input: []u8, seed: xxh_u64, secret: []u8)  -> (
 XXH3_128bits_internal :: #force_inline proc(
     input: []u8, seed: xxh_u64, secret: []u8, f_hl128: XXH3_hashLong128_f) -> (res: XXH3_128_hash) {
 
-    assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
+    internal.assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
     /*
      * If an action is to be taken if `secret` conditions are not respected,
      * it should be done here.
@@ -517,9 +517,9 @@ XXH3_128_with_secret :: proc(input: []u8, secret: []u8) -> (hash: XXH3_128_hash)
 @(optimization_mode="favor_size")
 XXH3_len_1to3_64b :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u64) -> (res: xxh_u64) {
     length := u32(len(input))
-    assert(input != nil)
-    assert(1 <= length && length <= 3)
-    assert(secret != nil)
+    internal.assert(input != nil)
+    internal.assert(1 <= length && length <= 3)
+    internal.assert(secret != nil)
     /*
         len = 1: combined = { input[0], 0x01, input[0], input[0] }
         len = 2: combined = { input[1], 0x02, input[0], input[1] }
@@ -540,9 +540,9 @@ XXH3_len_1to3_64b :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u64
 @(optimization_mode="favor_size")
 XXH3_len_4to8_64b :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u64) -> (res: xxh_u64) {
     length := u32(len(input))
-    assert(input != nil)
-    assert(4 <= length && length <= 8)
-    assert(secret != nil)
+    internal.assert(input != nil)
+    internal.assert(4 <= length && length <= 8)
+    internal.assert(secret != nil)
     seed := seed
 
     seed ~= (u64(byte_swap(u32(seed))) << 32)
@@ -560,9 +560,9 @@ XXH3_len_4to8_64b :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u64
 @(optimization_mode="favor_size")
 XXH3_len_9to16_64b :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u64) -> (res: xxh_u64) {
     length := u64(len(input))
-    assert(input != nil)
-    assert(9 <= length && length <= 16)
-    assert(secret != nil)
+    internal.assert(input != nil)
+    internal.assert(9 <= length && length <= 16)
+    internal.assert(secret != nil)
     #no_bounds_check {
         bitflip1 := (XXH64_read64(secret[24:]) ~ XXH64_read64(secret[32:])) + seed
         bitflip2 := (XXH64_read64(secret[40:]) ~ XXH64_read64(secret[48:])) - seed
@@ -577,8 +577,8 @@ XXH3_len_9to16_64b :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u6
 @(optimization_mode="favor_size")
 XXH3_len_0to16_64b :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u64) -> (res: xxh_u64) {
     length := u64(len(input))
-    assert(input != nil)
-    assert(length <= 16)
+    internal.assert(input != nil)
+    internal.assert(length <= 16)
     #no_bounds_check {
         switch {
         case length  > 8: return #force_inline XXH3_len_9to16_64b(input, secret, seed)
@@ -629,9 +629,9 @@ XXH3_mix16B :: #force_inline proc(input: []u8, secret: []u8, seed: xxh_u64) -> (
 /* For mid range keys, XXH3 uses a Mum-hash variant. */
 @(optimization_mode="favor_size")
 XXH3_len_17to128_64b :: proc(input: []u8, secret: []u8, seed: xxh_u64) -> (res: xxh_u64) {
-    assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
+    internal.assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
     length := len(input)
-    assert(16 < length && length <= 128)
+    internal.assert(16 < length && length <= 128)
 
     #no_bounds_check {
         acc := u64(length) * XXH_PRIME64_1
@@ -662,9 +662,9 @@ XXH3_MIDSIZE_LASTOFFSET  :: 17
 
 @(optimization_mode="favor_size")
 XXH3_len_129to240_64b :: proc(input: []u8, secret: []u8, seed: xxh_u64) -> (res: xxh_u64) {
-    assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
+    internal.assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
     length := len(input)
-    assert(128 < length && length <= XXH3_MIDSIZE_MAX)
+    internal.assert(128 < length && length <= XXH3_MIDSIZE_MAX)
 
     #no_bounds_check {
         acc := u64(length) * XXH_PRIME64_1
@@ -676,7 +676,7 @@ XXH3_len_129to240_64b :: proc(input: []u8, secret: []u8, seed: xxh_u64) -> (res:
         }
 
         acc = XXH3_avalanche(acc)
-        assert(nbRounds >= 8)
+        internal.assert(nbRounds >= 8)
 
         for i = 8; i < nbRounds; i += 1 {
             acc += XXH3_mix16B(input[16 * i:], secret[(16 * (i - 8)) + XXH3_MIDSIZE_STARTOFFSET:], seed)
@@ -734,7 +734,7 @@ XXH3_accumulate_512_scalar :: #force_inline proc(acc: []xxh_u64, input: []u8, se
     xinput  := input   /* no alignment restriction */
     xsecret := secret  /* no alignment restriction */
 
-    assert(uintptr(raw_data(acc)) & uintptr(XXH_ACC_ALIGN - 1) == 0)
+    internal.assert(uintptr(raw_data(acc)) & uintptr(XXH_ACC_ALIGN - 1) == 0)
 
     #no_bounds_check for i := uint(0); i < XXH_ACC_NB; i += 1 {
         data_val    := XXH64_read64(xinput[8 * i:])
@@ -750,7 +750,7 @@ XXH3_scramble_accumulator_scalar :: #force_inline proc(acc: []xxh_u64, secret: [
     xacc    := acc     /* presumed aligned */
     xsecret := secret  /* no alignment restriction */
 
-    assert(uintptr(raw_data(acc)) & uintptr(XXH_ACC_ALIGN - 1) == 0)
+    internal.assert(uintptr(raw_data(acc)) & uintptr(XXH_ACC_ALIGN - 1) == 0)
 
     #no_bounds_check for i := uint(0); i < XXH_ACC_NB; i += 1 {
         key64   := XXH64_read64(xsecret[8 * i:])
@@ -933,7 +933,7 @@ XXH3_hashLong_64b_internal :: #force_inline proc(input: []u8, secret: []u8,
     #assert(size_of(acc) == 64)
     /* do not align on 8, so that the secret is different from the accumulator */
     XXH_SECRET_MERGEACCS_START :: 11
-    assert(len(secret) >= size_of(acc) + XXH_SECRET_MERGEACCS_START)
+    internal.assert(len(secret) >= size_of(acc) + XXH_SECRET_MERGEACCS_START)
     return XXH3_mergeAccs(acc[:], secret[XXH_SECRET_MERGEACCS_START:], xxh_u64(len(input)) * XXH_PRIME64_1)
 }
 
@@ -991,7 +991,7 @@ XXH3_hashLong64_f :: #type proc(input: []u8, seed: xxh_u64, secret: []u8)  -> (r
 
 @(optimization_mode="favor_size")
 XXH3_64bits_internal :: #force_inline proc(input: []u8, seed: xxh_u64, secret: []u8, f_hashLong: XXH3_hashLong64_f) -> (hash: xxh_u64) {
-    assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
+    internal.assert(len(secret) >= XXH3_SECRET_SIZE_MIN)
     /*
         If an action is to be taken if len(secret) condition is not respected, it should be done here.
         For now, it's a contract pre-condition.

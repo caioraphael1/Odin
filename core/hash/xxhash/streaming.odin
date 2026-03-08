@@ -62,7 +62,7 @@ XXH3_128_digest :: proc(state: ^XXH3_state) -> (hash: XXH3_128_hash) {
         acc: [XXH_ACC_NB]XXH64_hash
         XXH3_digest_long(acc[:], state, secret)
 
-        assert(state.secret_limit + XXH_STRIPE_LEN >= XXH_ACC_NB + XXH_SECRET_MERGEACCS_START)
+        internal.assert(state.secret_limit + XXH_STRIPE_LEN >= XXH_ACC_NB + XXH_SECRET_MERGEACCS_START)
         {
             h128 := XXH128_hash_t{}
 
@@ -133,17 +133,17 @@ XXH3_destroy_state :: proc(state: ^XXH3_state, allocator: mem.Allocator) -> (err
 }
 
 XXH3_copy_state :: proc(dest, src: ^XXH3_state) {
-    assert(dest != nil && src != nil)
+    internal.assert(dest != nil && src != nil)
     mem_copy(dest, src, size_of(XXH3_state))
 }
 
 XXH3_reset_internal :: proc(state: ^XXH3_state, seed: XXH64_hash, secret: []u8, secret_size: uint) {
-    assert(state != nil)
+    internal.assert(state != nil)
 
     init_start  := offset_of(XXH3_state, buffered_size)
     init_length := offset_of(XXH3_state, stripes_per_block) - init_start
 
-    assert(offset_of(XXH3_state, stripes_per_block) > init_start)
+    internal.assert(offset_of(XXH3_state, stripes_per_block) > init_start)
 
     /*
         Set members from buffered_size to stripes_per_block (excluded) to 0
@@ -162,7 +162,7 @@ XXH3_reset_internal :: proc(state: ^XXH3_state, seed: XXH64_hash, secret: []u8, 
     state.seed = seed
     state.external_secret = secret
 
-    assert(secret_size >= XXH3_SECRET_SIZE_MIN)
+    internal.assert(secret_size >= XXH3_SECRET_SIZE_MIN)
 
     state.secret_limit = secret_size - XXH_STRIPE_LEN
     state.stripes_per_block = state.secret_limit / XXH_SECRET_CONSUME_RATE
@@ -179,8 +179,8 @@ XXH3_consume_stripes :: #force_inline proc(
         number_of_stripes: uint, secret: []u8, secret_limit: uint,
         f_acc512: XXH3_accumulate_512_f, f_scramble: XXH3_scramble_accumulator_f) {
 
-    assert(number_of_stripes <= stripes_per_block) /* can handle max 1 scramble per invocation */
-    assert(stripes_so_far^ < stripes_per_block)
+    internal.assert(number_of_stripes <= stripes_per_block) /* can handle max 1 scramble per invocation */
+    internal.assert(stripes_so_far^ < stripes_per_block)
 
     if stripes_per_block - stripes_so_far^ <= number_of_stripes {
         /* need a scrambling operation */
@@ -215,7 +215,7 @@ XXH3_update :: #force_inline proc(
     }
 
     state.total_length += u64(length)
-    assert(state.buffered_size <= XXH3_INTERNAL_BUFFER_SIZE)
+    internal.assert(state.buffered_size <= XXH3_INTERNAL_BUFFER_SIZE)
 
     if int(state.buffered_size) + length <= XXH3_INTERNAL_BUFFER_SIZE {  /* fill in tmp buffer */
         mem_copy(&state.buffer[state.buffered_size], &input[0], length)
@@ -244,7 +244,7 @@ XXH3_update :: #force_inline proc(
             secret, state.secret_limit, f_acc512, f_scramble)
         state.buffered_size = 0
     }
-    assert(len(input) > 0)
+    internal.assert(len(input) > 0)
 
     /* Consume input by a multiple of internal buffer size */
     if len(input) > XXH3_INTERNAL_BUFFER_SIZE {
@@ -262,7 +262,7 @@ XXH3_update :: #force_inline proc(
     }
 
     length = len(input)
-    assert(length > 0)
+    internal.assert(length > 0)
 
     /* Some remaining input (always) : buffer it */
     mem_copy(&state.buffer[0], &input[0], length)
@@ -294,7 +294,7 @@ XXH3_digest_long :: #force_inline proc(acc: []u64, state: ^XXH3_state, secret: [
     } else {  /* bufferedSize < XXH_STRIPE_LEN */
         last_stripe: [XXH_STRIPE_LEN]u8
         catchup_size := int(XXH_STRIPE_LEN) - int(state.buffered_size)
-        assert(state.buffered_size > 0)  /* there is always some input buffered */
+        internal.assert(state.buffered_size > 0)  /* there is always some input buffered */
 
         mem_copy(&last_stripe[0],            &state.buffer[XXH3_INTERNAL_BUFFER_SIZE - catchup_size], catchup_size)
         mem_copy(&last_stripe[catchup_size], &state.buffer[0],                                        int(state.buffered_size))
@@ -321,7 +321,7 @@ XXH3_64_digest :: proc(state: ^XXH3_state) -> (hash: XXH64_hash) {
 
 XXH3_generate_secret :: proc(secret_buffer: []u8, custom_seed: []u8) {
     secret_length := len(secret_buffer)
-    assert(secret_length >= XXH3_SECRET_SIZE_MIN)
+    internal.assert(secret_length >= XXH3_SECRET_SIZE_MIN)
 
     custom_seed_size := len(custom_seed)
     if custom_seed_size == 0 {
@@ -335,8 +335,8 @@ XXH3_generate_secret :: proc(secret_buffer: []u8, custom_seed: []u8) {
         number_of_segments := u64(XXH_SECRET_DEFAULT_SIZE / segment_size)
 
         seeds: [12]u64le
-        assert(number_of_segments == 12)
-        assert(segment_size * number_of_segments == XXH_SECRET_DEFAULT_SIZE) /* exact multiple */
+        internal.assert(number_of_segments == 12)
+        internal.assert(segment_size * number_of_segments == XXH_SECRET_DEFAULT_SIZE) /* exact multiple */
 
         scrambler := XXH3_128_canonical_from_hash(XXH128_hash_t{h=XXH3_128(custom_seed[:])})
 

@@ -338,9 +338,9 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
                 e.writer = strings.to_stream(&builder)
 
                 err := _encode_u64(e, u64(len(str)), .Text)
-                assert(err == nil)
+                internal.assert(err == nil)
                 res[9] = u8(len(builder.buf))
-                assert(res[9] < 10)
+                internal.assert(res[9] < 10)
                 return
             }
 
@@ -596,7 +596,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
             if do_byte_swap { x = intrinsics.byte_swap(x) }
             return err_conv(_encode_u64(e, x))
         case:
-            panic("unknown bit_size size")
+            internal.panic("unknown bit_size size")
         }
     case internal.Type_Info_Matrix:
         count := info.column_count * info.elem_stride

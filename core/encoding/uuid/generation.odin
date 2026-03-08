@@ -15,8 +15,8 @@ Inputs:
 Returns:
 - result: The generated UUID.
 */
-generate_v1 :: proc(clock_seq: u16, node: Maybe([6]u8) = nil, timestamp: Maybe(time.Time) = nil) -> (result: Identifier) {
-    assert(clock_seq <= 0x3FFF, BIG_CLOCK_ERROR)
+generate_v1 :: proc(clock_seq: u16, node: internal.Maybe([6]u8) = nil, timestamp: internal.Maybe(time.Time) = nil) -> (result: Identifier) {
+    internal.assert(clock_seq <= 0x3FFF, BIG_CLOCK_ERROR)
     unix_time_in_hns_intervals := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 100
 
     uuid_timestamp := cast(u64le)(HNS_INTERVALS_BETWEEN_GREG_AND_UNIX + unix_time_in_hns_intervals)
@@ -36,9 +36,9 @@ generate_v1 :: proc(clock_seq: u16, node: Maybe([6]u8) = nil, timestamp: Maybe(t
         mutable_node := realized_node
         internal.mem.copy_non_overlapping(&result[10], &mutable_node[0], 6)
     } else {
-        assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+        internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
         bytes_generated := rand.read(result[10:])
-        assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
+        internal.assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
     }
 
     result[VERSION_BYTE_INDEX] |= 0x10
@@ -59,9 +59,9 @@ Returns:
 - result: The generated UUID.
 */
 generate_v4 :: proc() -> (result: Identifier) {
-    assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+    internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
     bytes_generated := rand.read(result[:])
-    assert(bytes_generated == 16, "RNG failed to generate 16 bytes for UUID v4.")
+    internal.assert(bytes_generated == 16, "RNG failed to generate 16 bytes for UUID v4.")
 
     result[VERSION_BYTE_INDEX] &= 0x0F
     result[VERSION_BYTE_INDEX] |= 0x40
@@ -85,7 +85,7 @@ Inputs:
 Returns:
 - result: The generated UUID.
 */
-generate_v6 :: proc(clock_seq: Maybe(u16) = nil, node: Maybe([6]u8) = nil, timestamp: Maybe(time.Time) = nil) -> (result: Identifier) {
+generate_v6 :: proc(clock_seq: internal.Maybe(u16) = nil, node: internal.Maybe([6]u8) = nil, timestamp: internal.Maybe(time.Time) = nil) -> (result: Identifier) {
     unix_time_in_hns_intervals := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 100
 
     uuid_timestamp := cast(u128be)(HNS_INTERVALS_BETWEEN_GREG_AND_UNIX + unix_time_in_hns_intervals)
@@ -96,14 +96,14 @@ generate_v6 :: proc(clock_seq: Maybe(u16) = nil, node: Maybe([6]u8) = nil, times
     )
 
     if realized_clock_seq, ok := clock_seq.?; ok {
-        assert(realized_clock_seq <= 0x3FFF, BIG_CLOCK_ERROR)
+        internal.assert(realized_clock_seq <= 0x3FFF, BIG_CLOCK_ERROR)
         result[8] |= cast(u8)(realized_clock_seq & 0x3F00 >> 8)
         result[9]  = cast(u8)realized_clock_seq
     } else {
-        assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+        internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
         temporary: [2]u8
         bytes_generated := rand.read(temporary[:])
-        assert(bytes_generated == 2, "RNG failed to generate 2 bytes for UUID v1.")
+        internal.assert(bytes_generated == 2, "RNG failed to generate 2 bytes for UUID v1.")
         result[8] |= temporary[0] & 0x3F
         result[9]  = temporary[1]
     }
@@ -112,9 +112,9 @@ generate_v6 :: proc(clock_seq: Maybe(u16) = nil, node: Maybe([6]u8) = nil, times
         mutable_node := realized_node
         internal.mem.copy_non_overlapping(&result[10], &mutable_node[0], 6)
     } else {
-        assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+        internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
         bytes_generated := rand.read(result[10:])
-        assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
+        internal.assert(bytes_generated == 6, "RNG failed to generate 6 bytes for UUID v1.")
     }
 
     result[VERSION_BYTE_INDEX] |= 0x60
@@ -138,14 +138,14 @@ Inputs:
 Returns:
 - result: The generated UUID.
 */
-generate_v7_basic :: proc(timestamp: Maybe(time.Time) = nil) -> (result: Identifier) {
-    assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+generate_v7_basic :: proc(timestamp: internal.Maybe(time.Time) = nil) -> (result: Identifier) {
+    internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
     unix_time_in_milliseconds := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 1e6
 
     result = transmute(Identifier)(cast(u128be)unix_time_in_milliseconds << VERSION_7_TIME_SHIFT)
 
     bytes_generated := rand.read(result[6:])
-    assert(bytes_generated == 10, "RNG failed to generate 10 bytes for UUID v7.")
+    internal.assert(bytes_generated == 10, "RNG failed to generate 10 bytes for UUID v7.")
 
     result[VERSION_BYTE_INDEX] &= 0x0F
     result[VERSION_BYTE_INDEX] |= 0x70
@@ -188,9 +188,9 @@ Inputs:
 Returns:
 - result: The generated UUID.
 */
-generate_v7_with_counter :: proc(counter: u16, timestamp: Maybe(time.Time) = nil) -> (result: Identifier) {
-    assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
-    assert(counter <= 0x0fff, VERSION_7_BIG_COUNTER_ERROR)
+generate_v7_with_counter :: proc(counter: u16, timestamp: internal.Maybe(time.Time) = nil) -> (result: Identifier) {
+    internal.assert(.Cryptographic in internal.random_generator_query_info(internal.global_random_generator), NO_CSPRNG_ERROR)
+    internal.assert(counter <= 0x0fff, VERSION_7_BIG_COUNTER_ERROR)
     unix_time_in_milliseconds := time.to_unix_nanoseconds(timestamp.? or_else time.now()) / 1e6
 
     result = transmute(Identifier)(
@@ -199,7 +199,7 @@ generate_v7_with_counter :: proc(counter: u16, timestamp: Maybe(time.Time) = nil
     )
 
     bytes_generated := rand.read(result[8:])
-    assert(bytes_generated == 8, "RNG failed to generate 8 bytes for UUID v7.")
+    internal.assert(bytes_generated == 8, "RNG failed to generate 8 bytes for UUID v7.")
 
     result[VERSION_BYTE_INDEX] &= 0x0F
     result[VERSION_BYTE_INDEX] |= 0x70
@@ -255,8 +255,8 @@ generate_v8_hash_bytes :: proc(
     // 128 bytes should be enough for the foreseeable future.
     digest: [128]byte
 
-    assert(hash.DIGEST_SIZES[algorithm] >= 16, "Per RFC 9562, the hashing algorithm used must generate a digest of 128 bits or larger.")
-    assert(hash.DIGEST_SIZES[algorithm] < len(digest), "Digest size is too small for this algorithm. The buffer must be increased.")
+    internal.assert(hash.DIGEST_SIZES[algorithm] >= 16, "Per RFC 9562, the hashing algorithm used must generate a digest of 128 bits or larger.")
+    internal.assert(hash.DIGEST_SIZES[algorithm] < len(digest), "Digest size is too small for this algorithm. The buffer must be increased.")
 
     hash_context: hash.Context
     hash.init(&hash_context, algorithm)

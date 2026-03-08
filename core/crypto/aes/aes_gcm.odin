@@ -35,11 +35,11 @@ init_gcm :: proc(ctx: ^Context_GCM, key: []byte, impl := DEFAULT_IMPLEMENTATION)
 //
 // dst and plaintext MUST alias exactly or not at all.
 seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []byte) {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	gcm_validate_common_slice_sizes(tag, iv, aad, plaintext)
-	ensure(len(dst) == len(plaintext), "crypto/aes: invalid destination ciphertext size")
-	ensure(!bytes.alias_inexactly(dst, plaintext), "crypto/aes: dst and plaintext alias inexactly")
+	internal.ensure(len(dst) == len(plaintext), "crypto/aes: invalid destination ciphertext size")
+	internal.ensure(!bytes.alias_inexactly(dst, plaintext), "crypto/aes: dst and plaintext alias inexactly")
 
 	if impl, is_hw := ctx._impl.(Context_Impl_Hardware); is_hw {
 		gcm_seal_hw(&impl, dst, tag, iv, aad, plaintext)
@@ -71,11 +71,11 @@ seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []byte) {
 // dst and plaintext MUST alias exactly or not at all.
 
 open_gcm :: proc(ctx: ^Context_GCM, dst, iv, aad, ciphertext, tag: []byte) -> bool {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	gcm_validate_common_slice_sizes(tag, iv, aad, ciphertext)
-	ensure(len(dst) == len(ciphertext), "crypto/aes: invalid destination plaintext size")
-	ensure(!bytes.alias_inexactly(dst, ciphertext), "crypto/aes: dst and ciphertext alias inexactly")
+	internal.ensure(len(dst) == len(ciphertext), "crypto/aes: invalid destination plaintext size")
+	internal.ensure(!bytes.alias_inexactly(dst, ciphertext), "crypto/aes: dst and ciphertext alias inexactly")
 
 	if impl, is_hw := ctx._impl.(Context_Impl_Hardware); is_hw {
 		return gcm_open_hw(&impl, dst, iv, aad, ciphertext, tag)
@@ -113,13 +113,13 @@ reset_gcm :: proc(ctx: ^Context_GCM) {
 
 @(private = "file")
 gcm_validate_common_slice_sizes :: proc(tag, iv, aad, text: []byte) {
-	ensure(len(tag) == GCM_TAG_SIZE, "crypto/aes: invalid GCM tag size")
+	internal.ensure(len(tag) == GCM_TAG_SIZE, "crypto/aes: invalid GCM tag size")
 
 	// The specification supports IVs in the range [1, 2^64) bits.
-	ensure(len(iv) == 0 || u64(len(iv)) <= GCM_IV_SIZE_MAX, "crypto/aes: invalid GCM IV size")
+	internal.ensure(len(iv) == 0 || u64(len(iv)) <= GCM_IV_SIZE_MAX, "crypto/aes: invalid GCM IV size")
 
-	ensure(u64(len(aad)) <= GCM_A_MAX, "crypto/aes: oversized GCM aad")
-	ensure(u64(len(text)) <= GCM_P_MAX, "crypto/aes: oversized GCM data")
+	internal.ensure(u64(len(aad)) <= GCM_A_MAX, "crypto/aes: oversized GCM aad")
+	internal.ensure(u64(len(text)) <= GCM_P_MAX, "crypto/aes: oversized GCM data")
 }
 
 @(private = "file")

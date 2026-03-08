@@ -56,7 +56,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	// Grab kernel info using `uname()` syscall, https://linux.die.net/man/2/uname
 	uts: linux.UTS_Name
 	uname_errno := linux.uname(&uts)
-	assert(uname_errno == .NONE, "This should never happen!")
+	internal.assert(uname_errno == .NONE, "This should never happen!")
 	// Append the system name (typically "Linux") and kernel release (looks like 6.5.2-arch1-1)
 	strings_tools.write_string(&b, ", ")
 	strings_tools.write_string(&b, string(cstring(&uts.sysname[0])))

@@ -279,7 +279,7 @@ _set_option :: proc(socket: Any_Socket, option: Socket_Option, value: any, loc :
             case b32:  bool_value = real
             case b64:  bool_value = cast(b32)real
             case:
-                panic("set_option() value must be a boolean here", loc)
+                internal.panic("set_option() value must be a boolean here", loc)
             }
             ptr = &bool_value
             len = size_of(bool_value)
@@ -289,7 +289,7 @@ _set_option :: proc(socket: Any_Socket, option: Socket_Option, value: any, loc :
         .Receive_Timeout:
             t, ok := value.(time.Duration)
             if !ok {
-                panic("set_option() value must be a time.Duration here", loc)
+                internal.panic("set_option() value must be a time.Duration here", loc)
             }
 
             micros := cast(freebsd.time_t)time.duration_microseconds(t)
@@ -329,7 +329,7 @@ _set_option :: proc(socket: Any_Socket, option: Socket_Option, value: any, loc :
                 if real > uint(max(i32)) { return .Invalid_Value }
                 int_value = cast(i32)real
             case:
-                panic("set_option() value must be an integer here", loc)
+                internal.panic("set_option() value must be an integer here", loc)
             }
             ptr = &int_value
             len = size_of(int_value)
@@ -406,7 +406,7 @@ _sockaddr_to_endpoint :: proc(native_addr: ^freebsd.Socket_Address_Storage) -> (
             port = cast(int)addr.port,
         }
     case:
-        panic("native_addr is neither an IP4 or IP6 address")
+        internal.panic("native_addr is neither an IP4 or IP6 address")
     }
     return
 }

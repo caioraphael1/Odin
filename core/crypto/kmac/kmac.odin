@@ -69,7 +69,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 final :: proc(ctx: ^Context, dst: []byte) {
 	defer reset(ctx)
 
-	ensure(len(dst) >= MIN_TAG_SIZE, "crypto/kmac: invalid KMAC tag_size, too short")
+	internal.ensure(len(dst) >= MIN_TAG_SIZE, "crypto/kmac: invalid KMAC tag_size, too short")
 
 	_sha3.final_cshake((^_sha3.Context)(ctx), dst)
 }
@@ -99,7 +99,7 @@ _init_kmac :: proc(ctx: ^Context, key, s: []byte, sec_strength: int) {
 		reset(ctx)
 	}
 
-	ensure(len(key) >= sec_strength / 8, "crypto/kmac: invalid KMAC key, too short")
+	internal.ensure(len(key) >= sec_strength / 8, "crypto/kmac: invalid KMAC key, too short")
 
 	ctx_ := (^_sha3.Context)(ctx)
 	_sha3.init_cshake(ctx_, N_KMAC, s, sec_strength)

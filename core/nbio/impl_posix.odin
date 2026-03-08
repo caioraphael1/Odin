@@ -205,7 +205,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
             new_events, err := kq.kevent(l.kqueue, sa.slice(&l.pending), buf, ts)
             #partial switch err {
             case nil:
-                assert(new_events >= 0)
+                internal.assert(new_events >= 0)
                 return buf[:new_events], nil
             case .EINTR:
                 warn("kevent interrupted")
@@ -247,18 +247,18 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
             }
 
             op := cast(^Operation)event.udata
-            assert(op != nil)
-            assert(op.type != .None)
+            internal.assert(op != nil)
+            internal.assert(op.type != .None)
 
             if is_internal_timeout(event.filter, op) {
                 continue
             }
 
             _, del := maps.delete_key(&l.submitted, Queue_Identifier{ ident = event.ident, filter = event.filter })
-            assert(del != nil)
+            internal.assert(del != nil)
 
             for next := op; next != nil; next = next._impl.next {
-                assert(.For_Kernel in next._impl.flags)
+                internal.assert(.For_Kernel in next._impl.flags)
                 next._impl.flags -= {.For_Kernel}
             }
         }
@@ -279,7 +279,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
             if is_internal_timeout(event.filter, op) {
                 // If the actual event has also been returned this tick, we need to ignore the timeout to not get a uaf.
                 if .For_Kernel not_in op._impl.flags {
-                    assert(.Has_Timeout in op._impl.flags)
+                    internal.assert(.Has_Timeout in op._impl.flags)
                     op._impl.flags -= {.Has_Timeout}
 
                     event.filter = kq.Filter(FILTER_IGNORE)
@@ -301,7 +301,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
             }
 
             if .Delete in event.flags {
-                assert(.Error in event.flags)
+                internal.assert(.Error in event.flags)
                 // Seems to happen when you delete at the same time or just after a close.
                 debug("delete error", int(event.data))
                 if err := posix.Errno(event.data); err != .ENOENT && err != .EBADF {
@@ -312,17 +312,17 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
             }
 
             op := cast(^Operation)event.udata
-            assert(op != nil)
-            assert(op.type != .None)
+            internal.assert(op != nil)
+            internal.assert(op.type != .None)
 
             // Timeout result that is a non-timeout op, meaning the operation timed out.
             // Because of the previous loop we are sure that the target op is not also in this tick's results.
             if is_internal_timeout(event.filter, op) {
                 debug("got timeout for", op.type)
 
-                assert(.Error not_in event.flags)
+                internal.assert(.Error not_in event.flags)
 
-                assert(.Has_Timeout in op._impl.flags)
+                internal.assert(.Has_Timeout in op._impl.flags)
                 op._impl.flags -= {.Has_Timeout}
 
                 // Remove the actual operation.
@@ -348,7 +348,7 @@ _create_socket :: proc(l: ^Event_Loop, family: Address_Family, protocol: Socket_
 
     berr := net.set_blocking(socket, false)
     // This shouldn't be able to fail.
-    assert(berr == nil)
+    internal.assert(berr == nil)
 
     return
 }
@@ -363,7 +363,7 @@ _listen :: proc(socket: TCP_Socket, backlog := 1000) -> Listen_Error {
 
 @(private)
 _exec :: proc(op: ^Operation) {
-    assert(op.l == &_tls_event_loop)
+    internal.assert(op.l == &_tls_event_loop)
 
     debug("exec", op.type)
 
@@ -389,7 +389,7 @@ _exec :: proc(op: ^Operation) {
         result = write_exec(op)
     case .Poll:
         result = poll_exec(op)
-        assert(result == .Pending)
+        internal.assert(result == .Pending)
     case .Open:
         open_exec(op)
     case .Stat:
@@ -408,13 +408,13 @@ _exec :: proc(op: ^Operation) {
         debug(op.type, "done immediately")
         op._impl.flags += {.Done}
         _, err := queue.push_back(&op.l.completed, op) // Got result, handle it next tick.
-        ensure(err == nil, "allocation failure")
+        internal.ensure(err == nil, "allocation failure")
     }
 }
 
 @(private)
 _remove :: proc(target: ^Operation) {
-    assert(target != nil)
+    internal.assert(target != nil)
 
     debug("remove", target.type)
 
@@ -520,8 +520,8 @@ _wake_up :: proc(l: ^Event_Loop) {
     }
     t: posix.timespec
     n, err := kq.kevent(l.kqueue, ev[:], nil, &t)
-    assert(err == nil)
-    assert(n == 0)
+    internal.assert(err == nil)
+    internal.assert(n == 0)
 }
 
 @(private)
@@ -600,7 +600,7 @@ handle_completed :: proc(op: ^Operation) {
     case .Timeout, .Stat:
         // no-op
     case:
-        unimplemented()
+        internal.unimplemented()
     }
 
     if result == .Done {
@@ -635,7 +635,7 @@ handle_completed :: proc(op: ^Operation) {
 
 
 accept_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Accept)
+    internal.assert(op.type == .Accept)
 
     defer if op.accept.err != nil && op.accept.client > 0 {
         posix.close(posix.FD(op.accept.client))
@@ -666,7 +666,7 @@ accept_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 dial_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Dial)
+    internal.assert(op.type == .Dial)
 
     defer if op.dial.err != nil && op.dial.socket > 0 {
         posix.close(posix.FD(op.dial.socket))
@@ -719,7 +719,7 @@ dial_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 poll_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Poll)
+    internal.assert(op.type == .Poll)
 
     if .Error in op._impl.flags {
         #partial switch posix.Errno(op._impl.result) {
@@ -750,7 +750,7 @@ poll_exec :: proc(op: ^Operation) -> Op_Result {
 }
 
 close_exec :: proc(op: ^Operation) {
-    assert(op.type == .Close)
+    internal.assert(op.type == .Close)
 
     if op.close.err != nil || op.close.subject == nil {
         return
@@ -771,7 +771,7 @@ close_exec :: proc(op: ^Operation) {
 
 
 send_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Send)
+    internal.assert(op.type == .Send)
 
     if op.send.err != nil || .Done in op._impl.flags {
         return .Done
@@ -806,7 +806,7 @@ send_exec :: proc(op: ^Operation) -> Op_Result {
     return .Done
 
     sendv :: proc(socket: Any_Socket, bufs: [][]byte, to: net.Endpoint) -> (posix.FD, int) {
-        assert(len(bufs) < int(max(i32)))
+        internal.assert(len(bufs) < int(max(i32)))
 
         msg: posix.msghdr
         msg.msg_iov    = cast([^]posix.iovec)raw_data(bufs)
@@ -830,7 +830,7 @@ send_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 recv_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Recv)
+    internal.assert(op.type == .Recv)
 
     if op.recv.err != nil || .Done in op._impl.flags {
         return .Done
@@ -860,7 +860,7 @@ recv_exec :: proc(op: ^Operation) -> Op_Result {
         return .Done
     }
 
-    assert(is_tcp || op.recv.received == 0)
+    internal.assert(is_tcp || op.recv.received == 0)
     op.recv.received += n
 
     if is_tcp && n != 0 && op.recv.received < total {
@@ -870,7 +870,7 @@ recv_exec :: proc(op: ^Operation) -> Op_Result {
     return .Done
 
     recvv :: proc(socket: Any_Socket, bufs: [][]byte, from: ^Endpoint) -> (fd: posix.FD, n: int) {
-        assert(len(bufs) < int(max(i32)))
+        internal.assert(len(bufs) < int(max(i32)))
 
         msg: posix.msghdr
         msg.msg_iov    = cast([^]posix.iovec)raw_data(bufs)
@@ -899,7 +899,7 @@ recv_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 sendfile_exec :: proc(op: ^Operation) -> (result: Op_Result) {
-    assert(op.type == .Send_File)
+    internal.assert(op.type == .Send_File)
 
     defer if result == .Done && op.sendfile._impl.mapping != nil {
         posix.munmap(raw_data(op.sendfile._impl.mapping), len(op.sendfile._impl.mapping))
@@ -918,7 +918,7 @@ sendfile_exec :: proc(op: ^Operation) -> (result: Op_Result) {
         
         sendfile_exec_native :: proc(op: ^Operation) -> Op_Result {
             nbytes := op.sendfile.nbytes
-            assert(nbytes != 0)
+            internal.assert(nbytes != 0)
             if nbytes == SEND_ENTIRE_FILE {
                 nbytes = 0 // special value for entire file.
 
@@ -938,7 +938,7 @@ sendfile_exec :: proc(op: ^Operation) -> (result: Op_Result) {
 
             n, ok := posix_sendfile(op.sendfile.file, op.sendfile.socket, op.sendfile.offset + op.sendfile.sent, nbytes)
 
-            assert(n >= 0)
+            internal.assert(n >= 0)
             op.sendfile.sent += n
 
             if !ok {
@@ -954,7 +954,7 @@ sendfile_exec :: proc(op: ^Operation) -> (result: Op_Result) {
                 return .Done
             }
 
-            assert(op.sendfile.nbytes == SEND_ENTIRE_FILE || op.sendfile.sent == op.sendfile.nbytes)
+            internal.assert(op.sendfile.nbytes == SEND_ENTIRE_FILE || op.sendfile.sent == op.sendfile.nbytes)
             return .Done
         }
     }
@@ -1010,7 +1010,7 @@ sendfile_exec :: proc(op: ^Operation) -> (result: Op_Result) {
 
 
 read_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Read)
+    internal.assert(op.type == .Read)
 
     if op.read.err != nil || .Done in op._impl.flags {
         return .Done
@@ -1052,7 +1052,7 @@ read_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 write_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Write)
+    internal.assert(op.type == .Write)
 
     if op.write.err != nil || .Done in op._impl.flags {
         return .Done
@@ -1088,7 +1088,7 @@ write_exec :: proc(op: ^Operation) -> Op_Result {
 }
 
 timeout_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Timeout)
+    internal.assert(op.type == .Timeout)
 
     if op.timeout.duration <= 0 {
         return .Done
@@ -1112,7 +1112,7 @@ timeout_exec :: proc(op: ^Operation) -> Op_Result {
 }
 
 open_exec :: proc(op: ^Operation) {
-    assert(op.type == .Open)
+    internal.assert(op.type == .Open)
 
     if op.open.err != nil && op.open.handle > 0 {
         posix.close(op.open.handle)
@@ -1127,7 +1127,7 @@ open_exec :: proc(op: ^Operation) {
 }
 
 stat_exec :: proc(op: ^Operation) {
-    assert(op.type == .Stat)
+    internal.assert(op.type == .Stat)
 
     stat: posix.stat_t
     if posix.fstat(op.stat.handle, &stat) != .OK {
@@ -1157,7 +1157,7 @@ add_pending :: proc(op: ^Operation, filter: kq.Filter, ident: uintptr) {
     op._impl.flags += {.For_Kernel}
 
     _, val, just_inserted, err := maps.entry(&op.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
-    ensure(err == nil, "allocation failure")
+    internal.ensure(err == nil, "allocation failure")
     if just_inserted {
         val^ = op
 
@@ -1183,7 +1183,7 @@ append_pending :: #force_inline proc(l: ^Event_Loop, ev: kq.KEvent) {
     if !sa.dyn_array.append(&l.pending, ev) {
         warn("queue is full, adding to overflow, should QUEUE_SIZE be increased?")
         _, err := queue.dyn_array.append(&l.overflow, ev)
-        ensure(err == nil, "allocation failure")
+        internal.ensure(err == nil, "allocation failure")
     }
 }
 
@@ -1210,7 +1210,7 @@ link_timeout :: proc(op: ^Operation, expires: time.Time) {
 
 remove_link_timeout :: proc(op: ^Operation) {
     debug("removing timeout of", op.type)
-    assert(.Has_Timeout in op._impl.flags)
+    internal.assert(.Has_Timeout in op._impl.flags)
 
     append_pending(op.l, kq.KEvent {
         ident  = uintptr(op),
@@ -1295,7 +1295,7 @@ timeout_and_delete :: proc(target: ^Operation) {
     // If there are other ops linked to this kevent, don't remove it.
     if target._impl.next != nil || target._impl.prev != nil {
         debug("removing target by pulling it out of the linked list, other ops depend on the kevent")
-        assert(filter != .Timer)
+        internal.assert(filter != .Timer)
 
         if target._impl.next != nil {
             target._impl.next._impl.prev = target._impl.prev
@@ -1307,8 +1307,8 @@ timeout_and_delete :: proc(target: ^Operation) {
             debug("target was the head of the list, updating map to point at new head")
 
             _, vp, _, err := maps.entry(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
-            ensure(err == nil, "allocation failure")
-            assert(vp^ == target)
+            internal.ensure(err == nil, "allocation failure")
+            internal.assert(vp^ == target)
             vp^ = target._impl.next
 
             ev := kq.KEvent{
@@ -1328,12 +1328,12 @@ timeout_and_delete :: proc(target: ^Operation) {
 
                 timeout: posix.timespec
                 n, err := kq.kevent(target.l.kqueue, ([^]kq.KEvent)(&ev)[:1], ([^]kq.KEvent)(&ev)[:1], &timeout)
-                assert(n   == 1)
-                assert(err == nil)
+                internal.assert(n   == 1)
+                internal.assert(err == nil)
 
                 // The receipt flag makes this occur on the event.
-                assert(.Error in ev.flags)
-                assert(ev.data == 0)
+                internal.assert(.Error in ev.flags)
+                internal.assert(ev.data == 0)
             }
         }
 
@@ -1341,7 +1341,7 @@ timeout_and_delete :: proc(target: ^Operation) {
         debug("adding delete event")
 
         _, dval := maps.delete_key(&target.l.submitted, Queue_Identifier{ ident = ident, filter = filter })
-        assert(dval != nil)
+        internal.assert(dval != nil)
 
         append_pending(target.l, kq.KEvent{
             ident  = ident,
@@ -1394,7 +1394,7 @@ sockaddr_to_endpoint :: proc(native_addr: ^posix.sockaddr_storage) -> (ep: Endpo
             port    = port,
         }
     case:
-        panic("native_addr is neither IP4 or IP6 address")
+        internal.panic("native_addr is neither IP4 or IP6 address")
     }
     return
 }

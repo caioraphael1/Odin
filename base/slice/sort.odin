@@ -54,7 +54,7 @@ sort :: proc(data: $T/[]$E) where intrinsics.type_is_ordered(E) {
 
 
 sort_by_indices_allocate :: proc(data: $T/[]$E, indices: []int, allocator: mem.Allocator) -> (sorted: T) {
-    assert(len(data) == len(indices))
+    internal.assert(len(data) == len(indices))
     sorted = make(T, len(data), allocator)
     for v, i in indices {
         sorted[i] = data[v]
@@ -63,15 +63,15 @@ sort_by_indices_allocate :: proc(data: $T/[]$E, indices: []int, allocator: mem.A
 }
 
 _sort_by_indices :: proc(data, sorted: $T/[]$E, indices: []int) {
-    assert(len(data) == len(indices))
-    assert(len(data) == len(sorted))
+    internal.assert(len(data) == len(indices))
+    internal.assert(len(data) == len(sorted))
     for v, i in indices {
         sorted[i] = data[v]
     }
 }
 
 sort_by_indices_overwrite :: proc(data: $T/[]$E, indices: []int) {
-    assert(len(data) == len(indices))
+    internal.assert(len(data) == len(indices))
     temp := slice.create([]E, len(data), context.allocator)
     defer _ = slice.delete(temp)
     for v, i in indices {
@@ -81,7 +81,7 @@ sort_by_indices_overwrite :: proc(data: $T/[]$E, indices: []int) {
 }
 
 sort_from_permutation_indices :: proc(data: $T/[]$E, indices: []int) {
-    assert(len(data) == len(indices))
+    internal.assert(len(data) == len(indices))
     if len(indices) <= 1 {
         return
     }

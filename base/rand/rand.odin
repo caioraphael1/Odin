@@ -1,4 +1,5 @@
 // Random number generators.
+import "base:internal"
 import "base:intrinsics"
 import "base:math"
 import "base:mem"
@@ -121,7 +122,7 @@ Possible Output:
 
 uint64 :: proc(gen: Random_Generator) -> (val: u64) {
     ok := random_generator_read_ptr(gen, &val, size_of(val))
-    assert(ok, "uninitialized gen/random_generator")
+    internal.assert(ok, "uninitialized gen/random_generator")
     return
 }
 
@@ -249,7 +250,7 @@ Possible Output:
 
 int31_max :: proc(n: i32, gen: Random_Generator) -> (val: i32) {
     if n <= 0 {
-        panic("Invalid argument to int31_max")
+        internal.panic("Invalid argument to int31_max")
     }
     if n&(n-1) == 0 {
         return int31(gen) & (n-1)
@@ -290,7 +291,7 @@ Possible Output:
 
 int63_max :: proc(n: i64, gen: Random_Generator) -> (val: i64) {
     if n <= 0 {
-        panic("Invalid argument to int63_max")
+        internal.panic("Invalid argument to int63_max")
     }
     if n&(n-1) == 0 {
         return int63(gen) & (n-1)
@@ -331,7 +332,7 @@ Possible Output:
 
 int127_max :: proc(n: i128, gen: Random_Generator) -> (val: i128) {
     if n <= 0 {
-        panic("Invalid argument to int127_max")
+        internal.panic("Invalid argument to int127_max")
     }
     if n&(n-1) == 0 {
         return int127(gen) & (n-1)
@@ -372,7 +373,7 @@ Possible Output:
 
 int_max :: proc(n: int, gen: Random_Generator) -> (val: int) {
     if n <= 0 {
-        panic("Invalid argument to int_max")
+        internal.panic("Invalid argument to int_max")
     }
     when size_of(int) == 4 {
         return int(int31_max(i32(n), gen))
@@ -409,7 +410,7 @@ Possible Output:
 
 uint32_max :: proc(n: u32, gen: Random_Generator) -> (val: u32) {
     if n == 0 {
-        panic("Invalid argument to uint32_max")
+        internal.panic("Invalid argument to uint32_max")
     }
     if n & (n - 1) == 0 {
         return uint32(gen) & (n - 1)
@@ -450,7 +451,7 @@ Possible Output:
 
 uint64_max :: proc(n: u64, gen: Random_Generator) -> (val: u64) {
     if n == 0 {
-        panic("Invalid argument to uint64_max")
+        internal.panic("Invalid argument to uint64_max")
     }
     if n & (n - 1) == 0 {
         return uint64(gen) & (n - 1)
@@ -491,7 +492,7 @@ Possible Output:
 
 uint128_max :: proc(n: u128, gen: Random_Generator) -> (val: u128) {
     if n == 0 {
-        panic("Invalid argument to uint128_max")
+        internal.panic("Invalid argument to uint128_max")
     }
     if n & (n - 1) == 0 {
         return uint128(gen) & (n - 1)
@@ -532,7 +533,7 @@ Possible Output:
 
 uint_max :: proc(n: uint, gen: Random_Generator) -> (val: uint) {
     if n <= 0 {
-        panic("Invalid argument to uint_max")
+        internal.panic("Invalid argument to uint_max")
     }
     when size_of(int) == 4 {
         return uint(uint32_max(u32(n), gen))
@@ -568,7 +569,7 @@ Possible Output:
 
 */
 uint32_range :: proc(lo, hi: u32, gen: Random_Generator) -> (val: u32) {
-    assert(lo < hi, "Invalid arguments to uint32_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to uint32_range: lo must be less than hi")
     range := hi - lo
     if (range & (range - 1)) == 0 {
         return lo + (uint32(gen) & (range - 1))
@@ -608,7 +609,7 @@ Possible Output:
 
 */
 uint64_range :: proc(lo, hi: u64, gen: Random_Generator) -> (val: u64) {
-    assert(lo < hi, "Invalid arguments to uint64_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to uint64_range: lo must be less than hi")
     range := hi - lo
     if (range & (range - 1)) == 0 {
         return lo + (uint64(gen) & (range - 1))
@@ -648,7 +649,7 @@ Possible Output:
 
 */
 uint128_range :: proc(lo, hi: u128, gen: Random_Generator) -> (val: u128) {
-    assert(lo < hi, "Invalid arguments to uint128_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to uint128_range: lo must be less than hi")
     range := hi - lo
     if (range & (range - 1)) == 0 {
         return lo + (uint128(gen) & (range - 1))
@@ -689,7 +690,7 @@ Possible Output:
 */
 
 uint_range :: proc(lo, hi: uint, gen: Random_Generator) -> (val: uint) {
-    assert(lo < hi, "Invalid arguments to uint_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to uint_range: lo must be less than hi")
     when size_of(int) == 4 {
         return uint(uint32_range(u32(lo), u32(hi), gen))
     } else {
@@ -724,7 +725,7 @@ Possible Output:
 
 */
 int32_range :: proc(lo, hi: i32, gen: Random_Generator) -> (val: i32) {
-    assert(lo < hi, "Invalid arguments to int32_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to int32_range: lo must be less than hi")
     range := u32(hi) - u32(lo)
     if (range & (range - 1)) == 0 {
         return lo + i32(uint32(gen) & (range - 1))
@@ -764,7 +765,7 @@ Possible Output:
 
 */
 int64_range :: proc(lo, hi: i64, gen: Random_Generator) -> (val: i64) {
-    assert(lo < hi, "Invalid arguments to int64_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to int64_range: lo must be less than hi")
     range := u64(hi) - u64(lo)
     if (range & (range - 1)) == 0 {
         return lo + i64(uint64(gen) & (range - 1))
@@ -804,7 +805,7 @@ Possible Output:
 
 */
 int128_range :: proc(lo, hi: i128, gen: Random_Generator) -> (val: i128) {
-    assert(lo < hi, "Invalid arguments to int128_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to int128_range: lo must be less than hi")
     range := u128(hi) - u128(lo)
     if (range & (range - 1)) == 0 {
         return lo + i128(uint128(gen) & (range - 1))
@@ -845,7 +846,7 @@ Possible Output:
 */
 
 int_range :: proc(lo, hi: int, gen: Random_Generator) -> (val: int) {
-    assert(lo < hi, "Invalid arguments to int_range: lo must be less than hi")
+    internal.assert(lo < hi, "Invalid arguments to int_range: lo must be less than hi")
     when size_of(int) == 4 {
         return int(int32_range(i32(lo), i32(hi), gen))
     } else {
@@ -924,7 +925,7 @@ Possible Output:
 
 */
  float64_range :: proc(low, high: f64, gen: Random_Generator) -> (val: f64) {
-    assert(low <= high, "low must be lower than or equal to high")
+    internal.assert(low <= high, "low must be lower than or equal to high")
     val = (high-low)*float64(gen) + low
     if val >= high {
         val = max(low, high * (1 - math.F64_EPSILON))
@@ -959,7 +960,7 @@ Possible Output:
 
 */
  float32_range :: proc(low, high: f32, gen: Random_Generator) -> (val: f32) {
-    assert(low <= high, "low must be lower than or equal to high")
+    internal.assert(low <= high, "low must be lower than or equal to high")
     val = (high-low)*float32(gen) + low
     if val >= high {
         val = max(low, high * (1 - math.F32_EPSILON))

@@ -781,9 +781,9 @@ count :: proc(s, substr: []byte) -> int {
 
 repeat :: proc(s: []byte, count: int, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     if count < 0 {
-        panic("bytes: negative repeat count")
+        internal.panic("bytes: negative repeat count")
     } else if count > 0 && (len(s)*count)/count != len(s) {
-        panic("bytes: repeat count will cause an overflow")
+        internal.panic("bytes: repeat count will cause an overflow")
     }
 
     b, _ := slice.create([]byte, len(s)*count, allocator)
@@ -1244,7 +1244,7 @@ reverse :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) ->
 
 expand_tabs :: proc(s: []byte, tab_size: int, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     if tab_size <= 0 {
-        panic("tab size must be positive")
+        internal.panic("tab size must be positive")
     }
 
 

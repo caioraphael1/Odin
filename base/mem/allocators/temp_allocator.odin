@@ -19,7 +19,7 @@ when ODIN_ARCH == .i386 && ODIN_OS == .Windows {
 temp_allocator_init :: proc(size: uint, backing_temp_allocator: mem.Allocator) {
     // Temp Allocator Arena, using the Backing Temp Allocator
     err := growing_arena_init(&temp_allocator_growing_arena, 0, backing_temp_allocator)
-    assert(err == nil, "Failure initializing the arena")
+    internal.assert(err == nil, "Failure initializing the arena")
 
     // Temp Allocator, using the Temp Allocator Arena
     temp_allocator = growing_arena_allocator(&temp_allocator_growing_arena)

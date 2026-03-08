@@ -1,4 +1,5 @@
 // `Time`-related procedures and types, including `sleep`, `now`, and string formatting of moments.
+import "base:internal"
 import "base:intrinsics"
 import "base:slice"
 
@@ -462,7 +463,7 @@ Example:
 */
 
 time_to_string_hms :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_HMS_LEN)
+    internal.assert(len(buf) >= MIN_HMS_LEN)
     h, m, s := clock_from_time(t)
 
     buf[7] = '0' + u8(s % 10); s /= 10
@@ -520,7 +521,7 @@ Example:
 */
 
 to_string_hms_12 :: proc(t: Time, buf: []u8, ampm: [2]string = {" am", " pm"}) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_HMS_LEN + max(len(ampm[0]), len(ampm[1])))
+    internal.assert(len(buf) >= MIN_HMS_LEN + max(len(ampm[0]), len(ampm[1])))
     h, m, s := clock_from_time(t)
 
     _h := h % 12
@@ -559,7 +560,7 @@ Example:
 */
 
 to_string_yyyy_mm_dd :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_YYYY_DATE_LEN)
+    internal.assert(len(buf) >= MIN_YYYY_DATE_LEN)
     y, _m, d := date(t)
     m := u8(_m)
 
@@ -594,7 +595,7 @@ Example:
 */
 
 to_string_yy_mm_dd :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_YY_DATE_LEN)
+    internal.assert(len(buf) >= MIN_YY_DATE_LEN)
     y, _m, d := date(t)
     y %= 100; m := u8(_m)
 
@@ -627,7 +628,7 @@ Example:
 */
 
 to_string_dd_mm_yyyy :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_YYYY_DATE_LEN)
+    internal.assert(len(buf) >= MIN_YYYY_DATE_LEN)
     y, _m, d := date(t)
     m := u8(_m)
 
@@ -662,7 +663,7 @@ Example:
 */
 
 to_string_dd_mm_yy :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_YY_DATE_LEN)
+    internal.assert(len(buf) >= MIN_YY_DATE_LEN)
     y, _m, d := date(t)
     y %= 100; m := u8(_m)
 
@@ -695,7 +696,7 @@ Example:
 */
 
 to_string_mm_dd_yyyy :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_YYYY_DATE_LEN)
+    internal.assert(len(buf) >= MIN_YYYY_DATE_LEN)
     y, _m, d := date(t)
     m := u8(_m)
 
@@ -730,7 +731,7 @@ Example:
 */
 
 to_string_mm_dd_yy :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check {
-    assert(len(buf) >= MIN_YY_DATE_LEN)
+    internal.assert(len(buf) >= MIN_YY_DATE_LEN)
     y, _m, d := date(t)
     y %= 100; m := u8(_m)
 

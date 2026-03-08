@@ -81,7 +81,7 @@ foreign lib {
 		}
 
 		if errno != .NONE {
-			panic(string(posix.strerror(errno)))
+			internal.panic(string(posix.strerror(errno)))
 		}
 
 		fmt.println(result)

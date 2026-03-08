@@ -106,7 +106,7 @@ Returns:
 - err: An allocator error if one occured, `nil` otherwise
 */
 _get_entry :: proc(m: ^Map_String, text: string) -> (new_entry: ^Map_String_Entry, err: mem.Allocator_Error) #no_bounds_check {
-    assert(m.allocator.procedure != nil)
+    internal.assert(m.allocator.procedure != nil)
 
     key_ptr, val_ptr, inserted := maps.entry(&m.entries, text) or_return
     if !inserted {

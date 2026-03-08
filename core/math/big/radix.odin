@@ -389,7 +389,7 @@ radix_size :: proc(a: ^Int, radix: i8, zero_terminate := false, allocator: mem.A
 	See https://gmplib.org/manual/Integer-Import-and-Export.html
 */
 internal_int_pack_count :: proc(a: ^Int, $T: typeid, nails := 0) -> (size_needed: int) {
-	assert(nails >= 0 && nails < (size_of(T) * 8))
+	internal.assert(nails >= 0 && nails < (size_of(T) * 8))
 
 	bits := internal_count_bits(a)
 	size := size_of(T)
@@ -421,7 +421,7 @@ internal_int_pack_count :: proc(a: ^Int, $T: typeid, nails := 0) -> (size_needed
 internal_int_pack :: proc(a: ^Int, buf: []$T, nails := 0, order := Order.LSB_First) -> (written: int, err: Error)
                      where intrinsics.type_is_integer(T), intrinsics.type_is_unsigned(T), size_of(T) <= 16 {
 
-	assert(nails >= 0 && nails < (size_of(T) * 8))
+	internal.assert(nails >= 0 && nails < (size_of(T) * 8))
 
 	type_size  := size_of(T)
 	type_bits  := (type_size * 8) - nails
@@ -456,7 +456,7 @@ internal_int_pack :: proc(a: ^Int, buf: []$T, nails := 0, order := Order.LSB_Fir
 
 internal_int_unpack :: proc(a: ^Int, buf: []$T, nails := 0, order := Order.LSB_First, allocator: mem.Allocator) -> (err: Error)
                      where intrinsics.type_is_integer(T), intrinsics.type_is_unsigned(T), size_of(T) <= 16 {
-	assert(nails >= 0 && nails < (size_of(T) * 8))
+	internal.assert(nails >= 0 && nails < (size_of(T) * 8))
 
 	type_size  := size_of(T)
 	type_bits  := (type_size * 8) - nails

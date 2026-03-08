@@ -268,7 +268,7 @@ time_to_rfc3339 :: proc(time: Time, utc_offset : int = 0, include_nanos := true,
 
         // remove trailing zeroes
         nanos_nonzero, n_digits := strip_trailing_zeroes_nanos(nanos)
-        assert(nanos_nonzero != 0)
+        internal.assert(nanos_nonzero != 0)
 
         // write digits, right-to-left
         for digit_idx : i8 = n_digits-1; digit_idx >= 0; digit_idx -= 1 {

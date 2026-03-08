@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:dyn_array"
 import "base:slice"
@@ -299,7 +300,7 @@ to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring, err: 
     }
     dyn_array.pop(&b.buf)
     #no_bounds_check {
-        assert(b.buf[len(b.buf)] == 0)
+        internal.assert(b.buf[len(b.buf)] == 0)
     }
     return cstring(raw_data(b.buf)), nil
 }

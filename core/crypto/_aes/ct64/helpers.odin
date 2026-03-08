@@ -29,31 +29,31 @@ and_interleaved :: #force_inline proc(a0, a1, b0, b1: u64) -> (u64, u64) {
 }
 
 load_blockx1 :: proc(q: ^[8]u64, src: []byte) {
-	ensure(len(src) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
+	internal.ensure(len(src) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
 
 	q[0], q[4] = #force_inline load_interleaved(src)
 	orthogonalize(q)
 }
 
 store_blockx1 :: proc(dst: []byte, q: ^[8]u64) {
-	ensure(len(dst) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
+	internal.ensure(len(dst) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
 
 	orthogonalize(q)
 	#force_inline store_interleaved(dst, q[0], q[4])
 }
 
 load_blocks :: proc(q: ^[8]u64, src: [][]byte) {
-	ensure(len(src) == 0 || len(src) <= STRIDE, "aes/ct64: invalid block(s) size")
+	internal.ensure(len(src) == 0 || len(src) <= STRIDE, "aes/ct64: invalid block(s) size")
 
 	for s, i in src {
-		ensure(len(s) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
+		internal.ensure(len(s) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
 		q[i], q[i + 4] = #force_inline load_interleaved(s)
 	}
 	orthogonalize(q)
 }
 
 store_blocks :: proc(dst: [][]byte, q: ^[8]u64) {
-	ensure(len(dst) == 0 || len(dst) <= STRIDE, "aes/ct64: invalid block(s) size")
+	internal.ensure(len(dst) == 0 || len(dst) <= STRIDE, "aes/ct64: invalid block(s) size")
 
 	orthogonalize(q)
 	for d, i in dst {
@@ -61,7 +61,7 @@ store_blocks :: proc(dst: [][]byte, q: ^[8]u64) {
 		if d == nil {
 			break
 		}
-		ensure(len(d) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
+		internal.ensure(len(d) == _aes.BLOCK_SIZE, "aes/ct64: invalid block size")
 		#force_inline store_interleaved(d, q[i], q[i + 4])
 	}
 }

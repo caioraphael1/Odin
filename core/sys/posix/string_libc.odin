@@ -23,6 +23,6 @@ foreign lib {
 	_strerror :: proc(errnum: Errno) -> cstring ---
 }
 
-strerror :: #force_inline proc(errnum: Maybe(Errno) = nil) -> cstring {
+strerror :: #force_inline proc(errnum: internal.Maybe(Errno) = nil) -> cstring {
 	return _strerror(errnum.? or_else errno())
 }

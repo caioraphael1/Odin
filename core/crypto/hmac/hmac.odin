@@ -55,7 +55,7 @@ init :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 
 // update adds more data to the Context.
 update :: proc(ctx: ^Context, data: []byte) {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	hash.update(&ctx._i_hash, data)
 }
@@ -65,8 +65,8 @@ update :: proc(ctx: ^Context, data: []byte) {
 final :: proc(ctx: ^Context, dst: []byte) {
 	defer (reset(ctx))
 
-	ensure(ctx._is_initialized)
-	ensure(len(dst) == ctx._tag_sz, "crypto/hmac: invalid destination tag size")
+	internal.ensure(ctx._is_initialized)
+	internal.ensure(len(dst) == ctx._tag_sz, "crypto/hmac: invalid destination tag size")
 
 	hash.final(&ctx._i_hash, dst) // H((k ^ ipad) || text)
 
@@ -101,14 +101,14 @@ reset :: proc(ctx: ^Context) {
 
 // algorithm returns the Algorithm used by a Context instance.
 algorithm :: proc(ctx: ^Context) -> hash.Algorithm {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	return hash.algorithm(&ctx._i_hash)
 }
 
 // tag_size returns the tag size of a Context instance in bytes.
 tag_size :: proc(ctx: ^Context) -> int {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	return ctx._tag_sz
 }

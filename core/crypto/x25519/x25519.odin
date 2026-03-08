@@ -103,9 +103,9 @@ _scalarmult :: proc(out, scalar, point: ^[32]byte) {
 // scalarmult "multiplies" the provided scalar and point, and writes the
 // resulting point to dst.
 scalarmult :: proc(dst, scalar, point: []byte) {
-	ensure(len(scalar) == SCALAR_SIZE, "crypto/x25519: invalid scalar size")
-	ensure(len(point) == POINT_SIZE, "crypto/x25519: invalid point size")
-	ensure(len(dst) == POINT_SIZE, "crypto/x25519: invalid destination point size")
+	internal.ensure(len(scalar) == SCALAR_SIZE, "crypto/x25519: invalid scalar size")
+	internal.ensure(len(point) == POINT_SIZE, "crypto/x25519: invalid point size")
+	internal.ensure(len(dst) == POINT_SIZE, "crypto/x25519: invalid destination point size")
 
 	// "clamp" the scalar
 	e: [32]byte = ---
@@ -127,8 +127,8 @@ scalarmult_basepoint :: proc(dst, scalar: []byte) {
 	when crypto.COMPACT_IMPLS == true {
 		scalarmult(dst, scalar, _BASE_POINT[:])
 	} else {
-		ensure(len(scalar) == SCALAR_SIZE, "crypto/x25519: invalid scalar size")
-		ensure(len(dst) == POINT_SIZE, "crypto/x25519: invalid destination point size")
+		internal.ensure(len(scalar) == SCALAR_SIZE, "crypto/x25519: invalid scalar size")
+		internal.ensure(len(dst) == POINT_SIZE, "crypto/x25519: invalid destination point size")
 
 		sc: ed.Scalar = ---
 		ed.sc_set_bytes_rfc8032(&sc, scalar)

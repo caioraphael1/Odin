@@ -130,7 +130,7 @@ Unmarshal_Error :: union #shared_nil {
     mem.Allocator_Error,
     Decode_Data_Error,
     Unmarshal_Data_Error,
-    Maybe(Unsupported_Type_Error),
+    internal.Maybe(Unsupported_Type_Error),
 }
 
 Marshal_Error :: union #shared_nil {
@@ -138,7 +138,7 @@ Marshal_Error :: union #shared_nil {
     mem.Allocator_Error,
     Encode_Data_Error,
     Marshal_Data_Error,
-    Maybe(Unsupported_Type_Error),
+    internal.Maybe(Unsupported_Type_Error),
 }
 
 Decode_Error :: union #shared_nil {
@@ -191,7 +191,7 @@ Unsupported_Type_Error :: struct {
     add: Add,
 }
 
-_unsupported :: proc(v: any, hdr: Header, add: Add = nil) -> Maybe(Unsupported_Type_Error) {
+_unsupported :: proc(v: any, hdr: Header, add: Add = nil) -> internal.Maybe(Unsupported_Type_Error) {
     return Unsupported_Type_Error{
         id = v.id,
         hdr = hdr,
@@ -306,7 +306,7 @@ to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator: mem.All
         // The string builder stream only returns .EOF, and only if it can't write (out of memory).
         return "", .Out_Of_Memory
     }
-    assert(err == nil)
+    internal.assert(err == nil)
 
     return strings_tools.to_string(b), nil
 }

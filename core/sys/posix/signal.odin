@@ -94,7 +94,7 @@ foreign lib {
 
     Example:
         sigstk := posix.stack_t {
-            ss_sp    = make([^]byte, posix.SIGSTKSZ) or_else panic("allocation failure"),
+            ss_sp    = make([^]byte, posix.SIGSTKSZ) or_else internal.panic("allocation failure"),
             ss_size  = posix.SIGSTKSZ,
             ss_flags = {},
         }

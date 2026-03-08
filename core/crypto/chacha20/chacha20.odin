@@ -27,8 +27,8 @@ Context :: struct {
 // init inititializes a Context for ChaCha20 or XChaCha20 with the provided
 // key and iv.
 init :: proc(ctx: ^Context, key, iv: []byte, impl := DEFAULT_IMPLEMENTATION) {
-	ensure(len(key) == KEY_SIZE, "crypto/chacha20: invalid (X)ChaCha20 key size")
-	ensure(len(iv) == IV_SIZE || len(iv) == XIV_SIZE, "crypto/chacha20: invalid (X)ChaCha20 IV size")
+	internal.ensure(len(key) == KEY_SIZE, "crypto/chacha20: invalid (X)ChaCha20 key size")
+	internal.ensure(len(iv) == IV_SIZE || len(iv) == XIV_SIZE, "crypto/chacha20: invalid (X)ChaCha20 IV size")
 
 	k, n := key, iv
 
@@ -63,14 +63,14 @@ seek :: proc(ctx: ^Context, block_nr: u64) {
 // keystream, and writes the resulting output to dst.  Dst and src MUST
 // alias exactly or not at all.
 xor_bytes :: proc(ctx: ^Context, dst, src: []byte) {
-	ensure(ctx._state._is_initialized)
+	internal.ensure(ctx._state._is_initialized)
 
 	src, dst := src, dst
 	if dst_len := len(dst); dst_len < len(src) {
 		src = src[:dst_len]
 	}
 
-	ensure(!bytes.alias_inexactly(dst, src), "crypto/chacha20: dst and src alias inexactly")
+	internal.ensure(!bytes.alias_inexactly(dst, src), "crypto/chacha20: dst and src alias inexactly")
 
 	st := &ctx._state
 	#no_bounds_check for remaining := len(src); remaining > 0; {
@@ -108,7 +108,7 @@ xor_bytes :: proc(ctx: ^Context, dst, src: []byte) {
 
 // keystream_bytes fills dst with the raw (X)ChaCha20 keystream output.
 keystream_bytes :: proc(ctx: ^Context, dst: []byte) {
-	ensure(ctx._state._is_initialized)
+	internal.ensure(ctx._state._is_initialized)
 
 	dst, st := dst, &ctx._state
 	#no_bounds_check for remaining := len(dst); remaining > 0; {

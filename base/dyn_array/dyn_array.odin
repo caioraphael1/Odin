@@ -40,7 +40,7 @@ create_len_cap :: proc($T: typeid/[dynamic]$E, #any_int len: int, #any_int cap: 
 
 _raw_dyn_array_init_len_cap :: proc(array: ^Raw_Dynamic_Array, size_of_elem, align_of_elem: int, #any_int len: int, #any_int cap: int, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     create_error_loc(loc, len, cap)
-    assert(cap > 0, "Capacity must be greater than zero")
+    internal.assert(cap > 0, "Capacity must be greater than zero")
     array.allocator = allocator // initialize allocator before just in case it fails to allocate any memory
     data := mem.alloc(size_of_elem*cap, align_of_elem, allocator, loc) or_return
     use_zero := data == nil && size_of_elem != 0
@@ -117,7 +117,7 @@ _append :: #force_no_inline proc(array: ^Raw_Dynamic_Array, size_of_elem, align_
     }
     if array.cap-array.len > 0 {
         data := ([^]byte)(array.data)
-        assert(data != nil, loc=loc)
+        internal.assert(data != nil, loc=loc)
         data = data[array.len*size_of_elem:]
         mem.copy_non_overlapping(data, arg_ptr, size_of_elem)
         array.len += 1
@@ -166,7 +166,7 @@ _append_many :: #force_no_inline proc(array: ^Raw_Dynamic_Array, size_of_elem, a
     arg_len = min(array.cap - array.len, arg_len)
     if arg_len > 0 {
         data := ([^]byte)(array.data)
-        assert(data != nil, loc=loc)
+        internal.assert(data != nil, loc=loc)
         data = data[array.len*size_of_elem:]
         intrinsics.mem_copy(data, args, size_of_elem * arg_len) // must be mem_copy (overlapping)
         array.len += arg_len
@@ -199,7 +199,7 @@ _append_string :: proc(array: ^$T/[dynamic]$E/u8, arg: $A/string, should_zero: b
 // `inject_at` injects an element in a dynamic array at a specified index and moves the previous elements after that index "across"
 inject_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcast arg: E, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) #no_bounds_check {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(index >= 0, "Index must be positive.", loc)
+        internal.ensure(index >= 0, "Index must be positive.", loc)
     }
     if array == nil {
         return
@@ -220,7 +220,7 @@ inject_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcast arg
 // `inject_many_at` injects multiple elements in a dynamic array at a specified index and moves the previous elements after that index "across"
 inject_many_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcast args: ..E, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) #no_bounds_check {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(index >= 0, "Index must be positive.", loc)
+        internal.ensure(index >= 0, "Index must be positive.", loc)
     }
     if array == nil {
         return
@@ -246,7 +246,7 @@ inject_many_at :: proc(array: ^$T/[dynamic]$E, #any_int index: int, #no_broadcas
 // `inject_string_at` injects a string into a dynamic array at a specified index and moves the previous elements after that index "across"
 inject_string_at :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: string, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) #no_bounds_check {
     when !ODIN_NO_BOUNDS_CHECK {
-        ensure(index >= 0, "Index must be positive.", loc)
+        internal.ensure(index >= 0, "Index must be positive.", loc)
     }
     if array == nil {
         return
@@ -360,7 +360,7 @@ remove_range :: proc(array: ^$D/[dynamic]$T, #any_int lo, hi: int, loc := #calle
 // Note: If the dynamic array has no elements (`len(array) == 0`), this procedure will panic.
 @(optional_results)
 pop :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #no_bounds_check {
-    assert(len(array) > 0, loc=loc)
+    internal.assert(len(array) > 0, loc=loc)
     _raw_dyn_array_pop(&res, (^Raw_Dynamic_Array)(array), size_of(E))
     return res
 }
@@ -385,7 +385,7 @@ pop_safe :: proc(array: ^$T/[dynamic]$E) -> (res: E, ok: bool) #no_bounds_check 
 // `pop_front` will remove and return the first value of dynamic array `array` and reduces the length of `array` by 1.
 // Note: If the dynamic array as no elements (`len(array) == 0`), this procedure will panic.
 pop_front :: proc(array: ^$T/[dynamic]$E, loc := #caller_location) -> (res: E) #no_bounds_check {
-    assert(len(array) > 0, loc=loc)
+    internal.assert(len(array) > 0, loc=loc)
     res = array[0]
     if len(array) > 1 {
         slice.copy(array[0:], array[1:])
@@ -426,7 +426,7 @@ _reserve :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_elem, align_of_
         return nil
     }
 
-    assert(a.allocator.procedure != nil, "Allocator not defined", loc)
+    internal.assert(a.allocator.procedure != nil, "Allocator not defined", loc)
 
     old_size  := a.cap * size_of_elem
     new_size  := capacity * size_of_elem
@@ -471,7 +471,7 @@ _resize :: #force_no_inline proc(a: ^Raw_Dynamic_Array, size_of_elem, align_of_e
         return nil
     }
     
-    assert(a.allocator.procedure != nil, "mem.Allocator not defined", loc)
+    internal.assert(a.allocator.procedure != nil, "mem.Allocator not defined", loc)
 
     if should_zero && a.len < length {
         num_reused := min(a.cap, length) - a.len
@@ -517,7 +517,7 @@ _shrink :: proc(a: ^Raw_Dynamic_Array, size_of_elem, align_of_elem: int, new_cap
         return
     }
 
-    assert(a.allocator.procedure != nil, "mem.Allocator not defined", loc=loc)
+    internal.assert(a.allocator.procedure != nil, "mem.Allocator not defined", loc=loc)
 
     new_cap := new_cap if new_cap >= 0 else a.len
 

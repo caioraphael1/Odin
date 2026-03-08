@@ -1,6 +1,7 @@
 #+build windows
 #+private
 
+import "base:internal"
 
 _HAS_RAND_BYTES :: true
 
@@ -13,7 +14,7 @@ foreign bcrypt {
 
 
 _rand_bytes :: proc(dst: []byte) {
-    ensure(u64(len(dst)) <= u64(max(u32)), "base/runtime: oversized rand_bytes request")
+    internal.ensure(u64(len(dst)) <= u64(max(u32)), "base/runtime: oversized rand_bytes request")
 
     BCRYPT_USE_SYSTEM_PREFERRED_RNG :: 0x00000002
 
@@ -26,12 +27,12 @@ _rand_bytes :: proc(dst: []byte) {
     case ERROR_INVALID_HANDLE:
         // The handle to the first parameter is invalid.
         // This should not happen here, since we explicitly pass nil to it
-        panic("base/runtime: BCryptGenRandom Invalid handle for hAlgorithm")
+        internal.panic("base/runtime: BCryptGenRandom Invalid handle for hAlgorithm")
     case ERROR_INVALID_PARAMETER:
         // One of the parameters was invalid
-        panic("base/runtime: BCryptGenRandom Invalid parameter")
+        internal.panic("base/runtime: BCryptGenRandom Invalid parameter")
     case:
         // Unknown error
-        panic("base/runtime: BCryptGenRandom failed")
+        internal.panic("base/runtime: BCryptGenRandom failed")
     }
 }

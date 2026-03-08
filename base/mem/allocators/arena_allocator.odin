@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 import "base:slice"
@@ -122,7 +123,7 @@ arena_alloc_bytes_non_zeroed :: proc(
     loc       := #caller_location
     ) -> ([]byte, mem.Allocator_Error) {
     if a.data == nil {
-        panic("Allocation on uninitialized Arena allocator.", loc)
+        internal.panic("Allocation on uninitialized Arena allocator.", loc)
     }
     #no_bounds_check end := &a.data[a.offset]
     ptr := mem.align_forward(end, uintptr(alignment))
@@ -219,8 +220,8 @@ This procedure ends the temporary memory region for an arena. All of the
 allocations *inside* the temporary memory region will be freed to the arena.
 */
 end_arena_temp_memory :: proc(tmp: Arena_Temp_Memory) {
-    assert(tmp.arena.offset >= tmp.prev_offset)
-    assert(tmp.arena.temp_count > 0)
+    internal.assert(tmp.arena.offset >= tmp.prev_offset)
+    internal.assert(tmp.arena.temp_count > 0)
     // sanitizer.address_poison(tmp.arena.data[tmp.prev_offset:tmp.arena.offset])
     tmp.arena.offset = tmp.prev_offset
     tmp.arena.temp_count -= 1

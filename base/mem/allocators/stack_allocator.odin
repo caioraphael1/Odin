@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:slice"
 
@@ -129,7 +130,7 @@ stack_alloc_bytes_non_zeroed :: proc(
     loc       := #caller_location
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
-        panic("Allocation on an uninitialized Stack allocator.", loc)
+        internal.panic("Allocation on an uninitialized Stack allocator.", loc)
     }
     curr_addr := uintptr(raw_data(s.data)) + uintptr(s.curr_offset)
     padding := mem.calc_padding_with_header(
@@ -168,7 +169,7 @@ stack_free :: proc(
     loc := #caller_location,
 ) -> (mem.Allocator_Error) {
     if s.data == nil {
-        panic("Free on an uninitialized Stack allocator.", loc)
+        internal.panic("Free on an uninitialized Stack allocator.", loc)
     }
     if old_memory == nil {
         return nil
@@ -177,7 +178,7 @@ stack_free :: proc(
     end := start + uintptr(len(s.data))
     curr_addr := uintptr(old_memory)
     if !(start <= curr_addr && curr_addr < end) {
-        panic("Out of bounds memory address passed to Stack allocator. (free)", loc)
+        internal.panic("Out of bounds memory address passed to Stack allocator. (free)", loc)
     }
     if curr_addr >= start+uintptr(s.curr_offset) {
         // NOTE(bill): Allow double frees
@@ -325,7 +326,7 @@ stack_resize_bytes_non_zeroed :: proc(
     old_memory := raw_data(old_data)
     old_size := len(old_data)
     if s.data == nil {
-        panic("Resize on an uninitialized Stack allocator.", loc)
+        internal.panic("Resize on an uninitialized Stack allocator.", loc)
     }
     if old_memory == nil {
         return stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
@@ -337,7 +338,7 @@ stack_resize_bytes_non_zeroed :: proc(
     end       := start + uintptr(len(s.data))
     curr_addr := uintptr(old_memory)
     if !(start <= curr_addr && curr_addr < end) {
-        panic("Out of bounds memory address passed to Stack allocator. (resize)")
+        internal.panic("Out of bounds memory address passed to Stack allocator. (resize)")
     }
     if curr_addr >= start+uintptr(s.curr_offset) {
         // NOTE(bill): Allow double frees
@@ -367,7 +368,7 @@ stack_resize_bytes_non_zeroed :: proc(
         return data, err
     }
     old_memory_size := uintptr(s.curr_offset) - (curr_addr - start)
-    assert(old_memory_size == uintptr(old_size))
+    internal.assert(old_memory_size == uintptr(old_size))
     diff := size - old_size
     s.curr_offset += diff // works for smaller sizes too
     if diff > 0 {

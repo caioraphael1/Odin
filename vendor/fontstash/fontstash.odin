@@ -604,7 +604,7 @@ __blurRows :: proc(dst: []u8, w, h, dstStride, alpha: int) {
 }
 
 __blur :: proc(dst: []u8, w, h, dstStride: int, blurSize: i16) {
-    assert(blurSize > 0)
+    internal.assert(blurSize > 0)
 
     // Calculate the alpha such that 90% of the kernel is within the radius. (Kernel extends to infinity)
     sigma := f32(blurSize) * 0.57735 // 1 / sqrt(3)

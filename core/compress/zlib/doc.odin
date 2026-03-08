@@ -37,7 +37,7 @@ Example:
         }
         s := bytes.buffer_to_string(&buf)
         fmt.printf("Input: %v bytes, output (%v bytes):\n%v\n", len(ODIN_DEMO), len(s), s)
-        assert(len(s) == OUTPUT_SIZE)
+        internal.assert(len(s) == OUTPUT_SIZE)
     }
 */
 /*

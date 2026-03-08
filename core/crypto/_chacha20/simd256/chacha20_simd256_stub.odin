@@ -7,9 +7,9 @@ is_performant :: proc() -> bool {
 }
 
 stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []byte, nr_blocks: int) {
-	panic("crypto/chacha20: simd256 implementation unsupported")
+	internal.panic("crypto/chacha20: simd256 implementation unsupported")
 }
 
 hchacha20 :: proc(dst, key, iv: []byte) {
-	panic("crypto/chacha20: simd256 implementation unsupported")
+	internal.panic("crypto/chacha20: simd256 implementation unsupported")
 }

@@ -41,11 +41,11 @@ writev :: proc(ring: ^Ring, user_data: u64, fd: linux.Fd, iovs: []linux.IO_Vec, 
 }
 
 read_fixed :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 write_fixed :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 /*
@@ -181,7 +181,7 @@ epoll_ctl :: proc(ring: ^Ring, user_data: u64, epfd: linux.Fd, op: linux.EPoll_C
 }
 
 sync_file_range :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 /*
@@ -453,11 +453,11 @@ where T == linux.Sock_Addr_In || T == linux.Sock_Addr_In6 || T == linux.Sock_Add
 }
 
 fallocate :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 fadvise :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 /*
@@ -511,7 +511,7 @@ openat :: proc(ring: ^Ring, user_data: u64, dirfd: linux.Fd, path: cstring, mode
 }
 
 openat2 :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 /*
@@ -669,11 +669,11 @@ files_update :: proc(ring: ^Ring, user_data: u64, fds: []linux.Fd, off: u64) -> 
 }
 
 provide_buffers :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 remove_buffers :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 /*
@@ -693,27 +693,27 @@ shutdown :: proc(ring: ^Ring, user_data: u64, fd: linux.Fd, how: linux.Shutdown_
 }
 
 renameat :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 unlinkat :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 mkdirat :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 symlinkat :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 linkat :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 msg_ring :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 /*
@@ -746,35 +746,35 @@ socket :: proc(ring: ^Ring, user_data: u64, domain: linux.Address_Family, sockty
 }
 
 uring_cmd :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 send_zc :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 sendmsg_zc :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 waitid :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 setxattr :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 getxattr :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 fsetxattr :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 fgetxattr :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 /*
@@ -819,29 +819,29 @@ listen :: proc(ring: ^Ring, user_data: u64, fd: linux.Fd, backlog: u64) -> (sqe:
 }
 
 ftruncate :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 read_multishot :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 futex_wait :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 futex_wake :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 futex_waitv :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 fixed_fd_install :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }
 
 fixed_file :: proc() {
-    unimplemented()
+    internal.unimplemented()
 }

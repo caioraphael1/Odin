@@ -317,7 +317,7 @@ Process_Desc :: struct {
     // A slice of strings, each having the format `KEY=VALUE` representing the
     // full environment that the child process will receive.
     // In case this slice is `nil`, the current process' environment is used.
-    // NOTE(laytan): maybe should be `Maybe([]string)` so you can do `nil` == current env, empty == empty/no env.
+    // NOTE(laytan): maybe should be `internal.Maybe([]string)` so you can do `nil` == current env, empty == empty/no env.
     env: []string,
     // The `stderr` handle to give to the child process. It can be either a file
     // or a writeable end of a pipe. Passing `nil` will shut down the process'
@@ -384,8 +384,8 @@ process_exec :: proc(
     stderr: []byte,
     err: Error,
 ) {
-    assert(desc.stdout == nil, "Cannot redirect stdout when it's being captured", loc)
-    assert(desc.stderr == nil, "Cannot redirect stderr when it's being captured", loc)
+    internal.assert(desc.stdout == nil, "Cannot redirect stdout when it's being captured", loc)
+    internal.assert(desc.stderr == nil, "Cannot redirect stderr when it's being captured", loc)
 
     stdout_r, stdout_w := pipe(allocator) or_return
     defer _ = close(stdout_r)

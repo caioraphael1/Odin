@@ -210,8 +210,8 @@ In order to obtain these metrics, the `bench()` procedure writes to `options`
 struct the number of elements or bytes it has processed.
 */
 benchmark :: proc(options: ^Benchmark_Options, allocator: mem.Allocator) -> (err: Benchmark_Error) {
-    assert(options != nil)
-    assert(options.bench != nil)
+    internal.assert(options != nil)
+    internal.assert(options.bench != nil)
 
     if options.setup != nil {
         options->setup(allocator) or_return

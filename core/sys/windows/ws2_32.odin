@@ -79,7 +79,7 @@ Example Load:
 		guid_accept_ex := WSAID_ACCEPTEX
 		rc := WSAIoctl(listener, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid_accept_ex, size_of(guid_accept_ex),
 			fn_acceptex, size_of(fn_acceptex), &bytes, nil,	nil)
-		assert(rc != windows.SOCKET_ERROR)
+		internal.assert(rc != windows.SOCKET_ERROR)
 	}
 */
 

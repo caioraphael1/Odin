@@ -10,12 +10,12 @@ _internal_loaders: [Which_File_Type]Loader_Proc
 _internal_destroyers: [Which_File_Type]Destroy_Proc
 
 register :: proc(kind: Which_File_Type, loader: Loader_Proc, destroyer: Destroy_Proc) {
-	assert(loader != nil)
-	assert(destroyer != nil)
-	assert(_internal_loaders[kind] == nil)
+	internal.assert(loader != nil)
+	internal.assert(destroyer != nil)
+	internal.assert(_internal_loaders[kind] == nil)
 	_internal_loaders[kind] = loader
 
-	assert(_internal_destroyers[kind] == nil)
+	internal.assert(_internal_destroyers[kind] == nil)
 	_internal_destroyers[kind] = destroyer
 }
 
@@ -30,7 +30,7 @@ load_from_bytes :: proc(data: []byte, options := Options{}, allocator: mem.Alloc
 			}
 		}
 
-		panic("image.load called when no image loaders are registered. Register a loader by first importing a subpackage (eg: `import \"core:image/png\"`), or with image.register")
+		internal.panic("image.load called when no image loaders are registered. Register a loader by first importing a subpackage (eg: `import \"core:image/png\"`), or with image.register")
 	}
 	return loader(data, options, allocator)
 }
@@ -44,7 +44,7 @@ destroy :: proc(img: ^Image, allocator: mem.Allocator) {
 	if destroyer != nil {
 		destroyer(img)
 	} else {
-		assert(img.metadata == nil)
+		internal.assert(img.metadata == nil)
 		bytes.buffer_destroy(&img.pixels)
 		_ = mem.free(img)
 	}

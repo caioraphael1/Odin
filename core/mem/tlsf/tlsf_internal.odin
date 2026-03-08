@@ -127,7 +127,7 @@ free_all :: proc(control: ^Allocator) -> (err: Error) {
 
 @(private)
 pool_add :: proc(control: ^Allocator, pool: []u8) -> (err: Error) {
-    assert(uintptr(raw_data(pool)) % ALIGN_SIZE == 0, "Added memory must be aligned")
+    internal.assert(uintptr(raw_data(pool)) % ALIGN_SIZE == 0, "Added memory must be aligned")
 
     pool_overhead := POOL_OVERHEAD
     pool_bytes := align_down(len(pool) - pool_overhead, ALIGN_SIZE)
@@ -161,9 +161,9 @@ pool_add :: proc(control: ^Allocator, pool: []u8) -> (err: Error) {
 pool_remove :: proc(control: ^Allocator, pool: []u8) {
     block := offset_to_block_backwards(raw_data(pool), BLOCK_HEADER_OVERHEAD)
 
-    assert(block_is_free(block),               "Block should be free")
-    assert(!block_is_free(block_next(block)),  "Next block should not be free")
-    assert(block_size(block_next(block)) == 0, "Next block size should be zero")
+    internal.assert(block_is_free(block),               "Block should be free")
+    internal.assert(!block_is_free(block_next(block)),  "Next block should not be free")
+    internal.assert(block_size(block_next(block)) == 0, "Next block size should be zero")
 
     fl, sl := mapping_insert(block_size(block))
     remove_free_block(control, block, fl, sl)
@@ -171,7 +171,7 @@ pool_remove :: proc(control: ^Allocator, pool: []u8) {
 
 @(private)
 mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: mem.Allocator_Error) {
-    assert(control != nil)
+    internal.assert(control != nil)
     adjust := adjust_request_size(size, ALIGN_SIZE)
 
     GAP_MINIMUM :: size_of(Block_Header)
@@ -248,7 +248,7 @@ mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (r
     }
 
     if gap != 0 {
-        assert(gap >= GAP_MINIMUM, "gap size too small")
+        internal.assert(gap >= GAP_MINIMUM, "gap size too small")
         block = block_trim_free_leading(control, block, gap)
     }
 
@@ -267,14 +267,14 @@ mem.alloc :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte,
 
 @(no_sanitize_address)
 mem_free_with_size :: proc(control: ^Allocator, ptr: rawptr, size: uint) {
-    assert(control != nil)
+    internal.assert(control != nil)
     // `size` is currently ignored
     if ptr == nil {
         return
     }
 
     block := block_from_ptr(ptr)
-    assert(!block_is_free(block), "block already marked as free") // double free
+    internal.assert(!block_is_free(block), "block already marked as free") // double free
     // sanitizer.address_poison(ptr, block.size)
     block_mark_as_free(block)
     block = block_merge_prev(control, block)
@@ -285,7 +285,7 @@ mem_free_with_size :: proc(control: ^Allocator, ptr: rawptr, size: uint) {
 
 @(private)
 resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: mem.Allocator_Error) {
-    assert(control != nil)
+    internal.assert(control != nil)
     if ptr != nil && new_size == 0 {
         mem_free_with_size(control, ptr, old_size)
         return
@@ -300,7 +300,7 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
     combined := curr_size + block_size(next) + BLOCK_HEADER_OVERHEAD
     adjust := adjust_request_size(new_size, max(ALIGN_SIZE, alignment))
 
-    assert(!block_is_free(block), "block already marked as free") // double free
+    internal.assert(!block_is_free(block), "block already marked as free") // double free
 
     min_size := min(curr_size, new_size, old_size)
 
@@ -330,7 +330,7 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
 
 @(private)
 resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: mem.Allocator_Error) {
-    assert(control != nil)
+    internal.assert(control != nil)
     if ptr != nil && new_size == 0 {
         mem_free_with_size(control, ptr, old_size)
         return
@@ -345,7 +345,7 @@ resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: 
     combined := curr_size + block_size(next) + BLOCK_HEADER_OVERHEAD
     adjust := adjust_request_size(new_size, max(ALIGN_SIZE, alignment))
 
-    assert(!block_is_free(block), "block already marked as free") // double free
+    internal.assert(!block_is_free(block), "block already marked as free") // double free
 
     min_size := min(curr_size, new_size, old_size)
 
@@ -448,7 +448,7 @@ offset_to_block_backwards :: proc(ptr: rawptr, size: uint) -> (block: ^Block_Hea
 // Return location of previous block.
 @(private, no_sanitize_address)
 block_prev :: proc(block: ^Block_Header) -> (prev: ^Block_Header) {
-    assert(block_is_prev_free(block), "previous block must be free")
+    internal.assert(block_is_prev_free(block), "previous block must be free")
 
     return block.prev_phys_block
 }
@@ -484,19 +484,19 @@ block_mark_as_used :: proc(block: ^Block_Header) {
 
 @(private)
 align_up :: proc(x, align: uint) -> (aligned: uint) {
-    assert(0 == (align & (align - 1)), "must align to a power of two")
+    internal.assert(0 == (align & (align - 1)), "must align to a power of two")
     return (x + (align - 1)) &~ (align - 1)
 }
 
 @(private)
 align_down :: proc(x, align: uint) -> (aligned: uint) {
-    assert(0 == (align & (align - 1)), "must align to a power of two")
+    internal.assert(0 == (align & (align - 1)), "must align to a power of two")
     return x - (x & (align - 1))
 }
 
 @(private)
 align_ptr :: proc(ptr: rawptr, align: uint) -> (aligned: rawptr) {
-    assert(0 == (align & (align - 1)), "must align to a power of two")
+    internal.assert(0 == (align & (align - 1)), "must align to a power of two")
     align_mask := uintptr(align) - 1
     _ptr       := uintptr(ptr)
     _aligned   := (_ptr + align_mask) &~ (align_mask)
@@ -583,7 +583,7 @@ search_suitable_block :: proc(control: ^Allocator, fli, sli: ^i32) -> (block: ^B
         fli^ = fl
         sl_map = control.sl_bitmap[fl]
     }
-    assert(sl_map != 0, "internal error - second level bitmap is null")
+    internal.assert(sl_map != 0, "internal error - second level bitmap is null")
     sl = ffs(sl_map)
     sli^ = sl
 
@@ -596,8 +596,8 @@ search_suitable_block :: proc(control: ^Allocator, fli, sli: ^i32) -> (block: ^B
 remove_free_block :: proc(control: ^Allocator, block: ^Block_Header, fl: i32, sl: i32) {
     prev := block.prev_free
     next := block.next_free
-    assert(prev != nil, "prev_free can not be nil")
-    assert(next != nil, "next_free can not be nil")
+    internal.assert(prev != nil, "prev_free can not be nil")
+    internal.assert(next != nil, "next_free can not be nil")
     next.prev_free = prev
     prev.next_free = next
 
@@ -621,13 +621,13 @@ remove_free_block :: proc(control: ^Allocator, block: ^Block_Header, fl: i32, sl
 @(private, no_sanitize_address)
 insert_free_block :: proc(control: ^Allocator, block: ^Block_Header, fl: i32, sl: i32) {
     current := control.blocks[fl][sl]
-    assert(current != nil, "free lists cannot have a nil entry")
-    assert(block   != nil, "cannot insert a nil entry into the free list")
+    internal.assert(current != nil, "free lists cannot have a nil entry")
+    internal.assert(block   != nil, "cannot insert a nil entry into the free list")
     block.next_free = current
     block.prev_free = &control.block_null
     current.prev_free = block
 
-    assert(block_to_ptr(block) == align_ptr(block_to_ptr(block), ALIGN_SIZE), "block not properly aligned")
+    internal.assert(block_to_ptr(block) == align_ptr(block_to_ptr(block), ALIGN_SIZE), "block not properly aligned")
 
     // Insert the new block at the head of the list, and mark the first- and second-level bitmaps appropriately.
     control.blocks[fl][sl] = block
@@ -662,12 +662,12 @@ block_split :: proc(block: ^Block_Header, size: uint) -> (remaining: ^Block_Head
 
     remain_size := block_size(block) - (size + BLOCK_HEADER_OVERHEAD)
 
-    assert(block_to_ptr(remaining) == align_ptr(block_to_ptr(remaining), ALIGN_SIZE),
+    internal.assert(block_to_ptr(remaining) == align_ptr(block_to_ptr(remaining), ALIGN_SIZE),
         "remaining block not aligned properly")
 
-    assert(block_size(block) == remain_size + size + BLOCK_HEADER_OVERHEAD)
+    internal.assert(block_size(block) == remain_size + size + BLOCK_HEADER_OVERHEAD)
     block_set_size(remaining, remain_size)
-    assert(block_size(remaining) >= BLOCK_SIZE_MIN, "block split with invalid size")
+    internal.assert(block_size(remaining) >= BLOCK_SIZE_MIN, "block split with invalid size")
 
     block_set_size(block, size)
     block_mark_as_free(remaining)
@@ -678,7 +678,7 @@ block_split :: proc(block: ^Block_Header, size: uint) -> (remaining: ^Block_Head
 // Absorb a free block's storage into an adjacent previous free block.
 @(private, no_sanitize_address)
 block_absorb :: proc(prev: ^Block_Header, block: ^Block_Header) -> (absorbed: ^Block_Header) {
-    assert(!block_is_last(prev), "previous block can't be last")
+    internal.assert(!block_is_last(prev), "previous block can't be last")
 
     // Note: Leaves flags untouched.
     prev.size += block_size(block) + BLOCK_HEADER_OVERHEAD
@@ -692,8 +692,8 @@ block_merge_prev :: proc(control: ^Allocator, block: ^Block_Header) -> (merged: 
     merged = block
     if (block_is_prev_free(block)) {
         prev := block_prev(block)
-        assert(prev != nil,         "prev physical block can't be nil")
-        assert(block_is_free(prev), "prev block is not free though marked as such")
+        internal.assert(prev != nil,         "prev physical block can't be nil")
+        internal.assert(block_is_free(prev), "prev block is not free though marked as such")
         block_remove(control, prev)
         merged = block_absorb(prev, block)
     }
@@ -705,10 +705,10 @@ block_merge_prev :: proc(control: ^Allocator, block: ^Block_Header) -> (merged: 
 block_merge_next :: proc(control: ^Allocator, block: ^Block_Header) -> (merged: ^Block_Header) {
     merged = block
     next  := block_next(block)
-    assert(next != nil, "next physical block can't be nil")
+    internal.assert(next != nil, "next physical block can't be nil")
 
     if (block_is_free(next)) {
-        assert(!block_is_last(block), "previous block can't be last")
+        internal.assert(!block_is_last(block), "previous block can't be last")
         block_remove(control, next)
         merged = block_absorb(block, next)
     }
@@ -718,7 +718,7 @@ block_merge_next :: proc(control: ^Allocator, block: ^Block_Header) -> (merged: 
 // Trim any trailing block space off the end of a free block, return to pool.
 @(private, no_sanitize_address)
 block_trim_free :: proc(control: ^Allocator, block: ^Block_Header, size: uint) {
-    assert(block_is_free(block), "block must be free")
+    internal.assert(block_is_free(block), "block must be free")
     if (block_can_split(block, size)) {
         remaining_block := block_split(block, size)
         _ = block_link_next(block)
@@ -730,7 +730,7 @@ block_trim_free :: proc(control: ^Allocator, block: ^Block_Header, size: uint) {
 // Trim any trailing block space off the end of a used block, return to pool.
 @(private, no_sanitize_address)
 block_trim_used :: proc(control: ^Allocator, block: ^Block_Header, size: uint) {
-    assert(!block_is_free(block), "Block must be used")
+    internal.assert(!block_is_free(block), "Block must be used")
     if (block_can_split(block, size)) {
         // If the next block is free, we must coalesce.
         remaining_block := block_split(block, size)
@@ -774,7 +774,7 @@ block_locate_free :: proc(control: ^Allocator, size: uint) -> (block: ^Block_Hea
     }
 
     if block != nil {
-        assert(block_size(block) >= size)
+        internal.assert(block_size(block) >= size)
         remove_free_block(control, block, fl, sl)
     }
     return block
@@ -783,7 +783,7 @@ block_locate_free :: proc(control: ^Allocator, size: uint) -> (block: ^Block_Hea
 @(private, no_sanitize_address)
 block_prepare_used :: proc(control: ^Allocator, block: ^Block_Header, size: uint) -> (res: []byte, err: mem.Allocator_Error) {
     if block != nil {
-        assert(size != 0, "Size must be non-zero")
+        internal.assert(size != 0, "Size must be non-zero")
         block_trim_free(control, block, size)
         block_mark_as_used(block)
         res = ([^]byte)(block_to_ptr(block))[:size]

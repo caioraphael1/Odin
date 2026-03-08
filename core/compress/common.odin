@@ -429,13 +429,13 @@ peek_bits_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Input, width:
 
 @(optimization_mode="favor_size")
 peek_bits_no_refill_lsb_from_memory :: #force_inline proc(z: ^Context_Memory_Input, width: u8) -> u32 {
-    assert(z.num_bits >= u64(width))
+    internal.assert(z.num_bits >= u64(width))
     return u32(z.code_buffer &~ (~u64(0) << width))
 }
 
 @(optimization_mode="favor_size")
 peek_bits_no_refill_lsb_from_stream :: #force_inline proc(z: ^Context_Stream_Input, width: u8) -> u32 {
-    assert(z.num_bits >= u64(width))
+    internal.assert(z.num_bits >= u64(width))
     return u32(z.code_buffer &~ (~u64(0) << width))
 }
 

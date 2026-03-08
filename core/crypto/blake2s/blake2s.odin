@@ -28,7 +28,7 @@ Context :: _blake2.Blake2s_Context
 
 // init initializes a Context with the default BLAKE2s config.
 init :: proc(ctx: ^Context, digest_size := DIGEST_SIZE) {
-	ensure(digest_size <= _blake2.MAX_SIZE, "crypto/blake2s: invalid digest size")
+	internal.ensure(digest_size <= _blake2.MAX_SIZE, "crypto/blake2s: invalid digest size")
 
 	cfg: _blake2.Blake2_Config
 	cfg.size = u8(digest_size)

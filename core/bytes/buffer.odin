@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:dyn_array"
 import "base:slice"
@@ -92,7 +93,7 @@ buffer_truncate :: proc(b: ^Buffer, n: int) {
     }
     b.last_read = .Invalid
     if n < 0 || n > buffer_length(b) {
-        panic("bytes.truncate: truncation out of range")
+        internal.panic("bytes.truncate: truncation out of range")
     }
     _ = dyn_array.resize(&b.buf, b.off+n)
 }
@@ -127,7 +128,7 @@ _buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> int {
     if n <= c/2 - m {
         slice.copy(b.buf[:], b.buf[b.off:])
     } else if c > max(int) - c - n {
-        panic("bytes.Buffer: too large")
+        internal.panic("bytes.Buffer: too large")
     } else {
         _ = dyn_array.resize(&b.buf, 2*c + n, loc=loc)
         slice.copy(b.buf[:], b.buf[b.off:])
@@ -139,7 +140,7 @@ _buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) -> int {
 
 buffer_grow :: proc(b: ^Buffer, n: int, loc := #caller_location) {
     if n < 0 {
-        panic("bytes.buffer_grow: negative count")
+        internal.panic("bytes.buffer_grow: negative count")
     }
     m := _buffer_grow(b, n, loc=loc)
     _ = dyn_array.resize(&b.buf, m, loc=loc)
@@ -374,7 +375,7 @@ buffer_write_to :: proc(b: ^Buffer, w: io.Writer) -> (n: i64, err: io.Error) {
     if byte_count := buffer_length(b); byte_count > 0 {
         m, e := io.write(w, b.buf[b.off:])
         if m > byte_count {
-            panic("bytes.buffer_write_to: invalid io.write count")
+            internal.panic("bytes.buffer_write_to: invalid io.write count")
         }
         b.off += m
         n = i64(m)

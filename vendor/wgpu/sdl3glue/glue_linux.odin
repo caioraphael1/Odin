@@ -30,6 +30,6 @@ GetSurface :: proc(instance: wgpu.Instance, window: ^sdl3.Window) -> wgpu.Surfac
 			},
 		)
 	case:
-		panic("wgpu sdl3 glue: unsupported video driver, expected Wayland or X11")
+		internal.panic("wgpu sdl3 glue: unsupported video driver, expected Wayland or X11")
 	}
 }

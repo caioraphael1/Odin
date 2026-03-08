@@ -390,7 +390,7 @@ internal_rat_to_float :: proc($T: typeid, z: ^Rat, allocator: mem.Allocator) -> 
         exp += 1
     }
     
-    assert(mantissa>>MSIZE1 == 1, "invalid bit result")
+    internal.assert(mantissa>>MSIZE1 == 1, "invalid bit result")
     
     
     if EMIN-MSIZE <= exp && exp <= EMIN {

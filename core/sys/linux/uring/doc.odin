@@ -45,11 +45,11 @@ Example:
         // submit the requests and wait for them to complete right away.
         n, serr := uring.submit(&ring, ulen)
         fmt.assertf(serr == nil, "uring.submit: %v", serr)
-        assert(n == ulen)
+        internal.assert(n == ulen)
 
         // copy the completed requests out of the ring buffer.
         cn := uring.copy_cqes_ready(&ring, requests.completion[:ulen])
-        assert(cn == ulen)
+        internal.assert(cn == ulen)
 
         for request in requests {
             // check result of the requests.
@@ -70,7 +70,7 @@ Example:
         buffer^ = slice.create([]byte, file_sz)
 
         _, ok := uring.read(ring, 0, fd, buffer^, 0)
-        assert(ok, "could not get read sqe")
+        internal.assert(ok, "could not get read sqe")
     }
 
     get_file_size :: proc(fd: linux.Fd) -> uint {
@@ -82,6 +82,6 @@ Example:
             return uint(st.size)
         }
 
-        panic("not a regular file")
+        internal.panic("not a regular file")
     }
 */

@@ -19,7 +19,7 @@ _futex_wait :: proc(f: ^Futex, expected: u32) -> bool {
 			continue
 		}
 
-		panic("_futex_wait failure")
+		internal.panic("_futex_wait failure")
 	}
 
 	unreachable()
@@ -42,14 +42,14 @@ _futex_wait_with_timeout :: proc(f: ^Futex, expected: u32, duration: time.Durati
 		return false
 	}
 
-	panic("_futex_wait_with_timeout failure")
+	internal.panic("_futex_wait_with_timeout failure")
 }
 
 _futex_signal :: proc(f: ^Futex) {
 	errno := freebsd._umtx_op(f, .WAKE, 1, nil, nil)
 
 	if errno != nil {
-		panic("_futex_signal failure")
+		internal.panic("_futex_signal failure")
 	}
 }
 
@@ -57,6 +57,6 @@ _futex_broadcast :: proc(f: ^Futex)  {
 	errno := freebsd._umtx_op(f, .WAKE, cast(c.ulong)max(i32), nil, nil)
 
 	if errno != nil {
-		panic("_futex_broadcast failure")
+		internal.panic("_futex_broadcast failure")
 	}
 }

@@ -91,7 +91,7 @@ foreign lib {
 
 		for {
 			mem_err := dyn_array.resize(&buffer, length)
-			assert(mem_err == nil)
+			internal.assert(mem_err == nil)
 
 			e = posix.getgrnam_r("nobody", &result, raw_data(buffer), len(buffer), &resultp)
 			if e != .ERANGE {
@@ -99,11 +99,11 @@ foreign lib {
 			}
 
 			length *= 2
-			assert(length > 0)
+			internal.assert(length > 0)
 		}
 
 		if e != .NONE {
-			panic(string(posix.strerror(e)))
+			internal.panic(string(posix.strerror(e)))
 		}
 
 		fmt.println(result)

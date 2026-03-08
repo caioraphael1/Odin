@@ -152,7 +152,7 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: E
     dir_buf_wstr := slice.create([]u16, sz_utf16, allocators.temp_allocator) or_return
 
     sz_utf16 = win32.GetCurrentDirectoryW(win32.DWORD(len(dir_buf_wstr)), raw_data(dir_buf_wstr))
-    assert(int(sz_utf16)+1 == len(dir_buf_wstr)) // the second time, it _excludes_ the NUL.
+    internal.assert(int(sz_utf16)+1 == len(dir_buf_wstr)) // the second time, it _excludes_ the NUL.
 
     win32.ReleaseSRWLockExclusive(&cwd_lock)
 

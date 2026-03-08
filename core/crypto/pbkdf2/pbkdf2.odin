@@ -31,7 +31,7 @@ derive :: proc(
 	case u64(dk_len) > u64(max(u32)) * u64(h_len):
 		// This is so beyond anything that is practical or reasonable,
 		// so just panic instead of returning an error.
-		panic("crypto/pbkdf2: derived key too long")
+		internal.panic("crypto/pbkdf2: derived key too long")
 	case:
 	}
 

@@ -13,7 +13,7 @@ import "core:strings"
 malloc :: proc "c" (size: uint) -> rawptr {
     context = g_ctx
     ptr, err := mem.alloc_non_zeroed(int(size))
-    assert(err == nil, "allocation failure")
+    internal.assert(err == nil, "allocation failure")
     return raw_data(ptr)
 }
 
@@ -21,7 +21,7 @@ malloc :: proc "c" (size: uint) -> rawptr {
 aligned_alloc :: proc "c" (alignment: uint, size: uint) -> rawptr {
     context = g_ctx
     ptr, err := mem.alloc_non_zeroed(int(size), int(alignment))
-    assert(err == nil, "allocation failure")
+    internal.assert(err == nil, "allocation failure")
     return raw_data(ptr)
 }
 
@@ -38,7 +38,7 @@ realloc :: proc "c" (ptr: rawptr, new_size: uint) -> rawptr {
     // Note that realloc does not actually care about alignment and is allowed to just align it to something
     // else than the original allocation.
     ptr, err := internal.resize_non_zero(ptr, -1, int(new_size))
-    assert(err == nil, "realloc failure")
+    internal.assert(err == nil, "realloc failure")
     return raw_data(ptr)
 }
 

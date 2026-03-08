@@ -132,7 +132,7 @@ private_key_generate :: proc(priv_key: ^Private_Key, curve: Curve) -> bool {
 		sc := &priv_key._impl.(X448_Buf)
 		crypto.rand_bytes(sc[:])
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 
 	priv_key._curve = curve
@@ -185,7 +185,7 @@ private_key_set_bytes :: proc(priv_key: ^Private_Key, curve: Curve, b: []byte) -
 		sc := &priv_key._impl.(X448_Buf)
 		copy(sc[:], b)
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 
 	priv_key._curve = curve
@@ -216,7 +216,7 @@ private_key_generate_public :: proc(priv_key: ^Private_Key) {
 		x448.scalarmult_basepoint(pub_key[:], sc[:])
 		priv_key._pub_key._impl = pub_key
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 
 	priv_key._pub_key._curve = priv_key._curve
@@ -224,8 +224,8 @@ private_key_generate_public :: proc(priv_key: ^Private_Key) {
 
 // private_key_bytes sets dst to byte-encoding of priv_key.
 private_key_bytes :: proc(priv_key: ^Private_Key, dst: []byte) {
-	ensure(priv_key._curve != .Invalid, "crypto/ecdh: uninitialized private key")
-	ensure(len(dst) == PRIVATE_KEY_SIZES[priv_key._curve], "crypto/ecdh: invalid destination size")
+	internal.ensure(priv_key._curve != .Invalid, "crypto/ecdh: uninitialized private key")
+	internal.ensure(len(dst) == PRIVATE_KEY_SIZES[priv_key._curve], "crypto/ecdh: invalid destination size")
 
 	#partial switch priv_key._curve {
 	case .SECP256R1:
@@ -241,7 +241,7 @@ private_key_bytes :: proc(priv_key: ^Private_Key, dst: []byte) {
 		sc := &priv_key._impl.(X448_Buf)
 		copy(dst, sc[:])
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 }
 
@@ -317,7 +317,7 @@ public_key_set_bytes :: proc(pub_key: ^Public_Key, curve: Curve, b: []byte) -> b
 		pt := &pub_key._impl.(X448_Buf)
 		copy(pt[:], b)
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 
 	pub_key._curve = curve
@@ -327,15 +327,15 @@ public_key_set_bytes :: proc(pub_key: ^Public_Key, curve: Curve, b: []byte) -> b
 
 // public_key_set_priv sets pub_key to the public component of priv_key.
 public_key_set_priv :: proc(pub_key: ^Public_Key, priv_key: ^Private_Key) {
-	ensure(priv_key._curve != .Invalid, "crypto/ecdh: uninitialized private key")
+	internal.ensure(priv_key._curve != .Invalid, "crypto/ecdh: uninitialized private key")
 	public_key_clear(pub_key)
 	pub_key^ = priv_key._pub_key
 }
 
 // public_key_bytes sets dst to byte-encoding of pub_key.
 public_key_bytes :: proc(pub_key: ^Public_Key, dst: []byte) {
-	ensure(pub_key._curve != .Invalid, "crypto/ecdh: uninitialized public key")
-	ensure(len(dst) == PUBLIC_KEY_SIZES[pub_key._curve], "crypto/ecdh: invalid destination size")
+	internal.ensure(pub_key._curve != .Invalid, "crypto/ecdh: uninitialized public key")
+	internal.ensure(len(dst) == PUBLIC_KEY_SIZES[pub_key._curve], "crypto/ecdh: invalid destination size")
 
 	#partial switch pub_key._curve {
 	case .SECP256R1:
@@ -361,7 +361,7 @@ public_key_bytes :: proc(pub_key: ^Public_Key, dst: []byte) {
 		pt := &pub_key._impl.(X448_Buf)
 		copy(dst, pt[:])
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 }
 
@@ -386,7 +386,7 @@ public_key_equal :: proc(p, q: ^Public_Key) -> bool {
 		b_p, b_q  := &p._impl.(X448_Buf), &q._impl.(X448_Buf)
 		return crypto.compare_constant_time(b_p[:], b_q[:]) == 1
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 }
 
@@ -401,9 +401,9 @@ public_key_clear :: proc(pub_key: ^Public_Key) {
 // The neutral element is rejected as an error.
 
 ecdh :: proc(priv_key: ^Private_Key, pub_key: ^Public_Key, dst: []byte) -> bool {
-	ensure(priv_key._curve == pub_key._curve, "crypto/ecdh: curve mismatch")
-	ensure(pub_key._curve != .Invalid, "crypto/ecdh: uninitialized public key")
-	ensure(len(dst) == SHARED_SECRET_SIZES[priv_key._curve], "crypto/ecdh: invalid shared secret size")
+	internal.ensure(priv_key._curve == pub_key._curve, "crypto/ecdh: curve mismatch")
+	internal.ensure(pub_key._curve != .Invalid, "crypto/ecdh: uninitialized public key")
+	internal.ensure(len(dst) == SHARED_SECRET_SIZES[priv_key._curve], "crypto/ecdh: invalid shared secret size")
 
 	#partial switch priv_key._curve {
 	case .SECP256R1:
@@ -427,7 +427,7 @@ ecdh :: proc(priv_key: ^Private_Key, pub_key: ^Public_Key, dst: []byte) -> bool 
 		sc, pt := &priv_key._impl.(X448_Buf), &pub_key._impl.(X448_Buf)
 		x448.scalarmult(dst, sc[:], pt[:])
 	case:
-		panic("crypto/ecdh: invalid curve")
+		internal.panic("crypto/ecdh: invalid curve")
 	}
 
 	// X25519/X448 check for all zero digest.

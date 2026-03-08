@@ -116,7 +116,7 @@ push :: proc(pq: ^$Q/Priority_Queue($T), value: T) -> (err: mem.Allocator_Error)
 }
 
 pop :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T) {
-    assert(condition=builtin.len(pq.queue)>0, loc=loc)
+    internal.assert(condition=builtin.len(pq.queue)>0, loc=loc)
     
     n := builtin.len(pq.queue)-1
     pq.swap(pq.queue[:], 0, n)
@@ -153,7 +153,7 @@ peek_safe :: proc(pq: $Q/Priority_Queue($T), loc := #caller_location) -> (res: T
 }
 
 peek :: proc(pq: $Q/Priority_Queue($T), loc := #caller_location) -> (res: T) {
-    assert(condition=builtin.len(pq.queue)>0, loc=loc)
+    internal.assert(condition=builtin.len(pq.queue)>0, loc=loc)
 
     if builtin.len(pq.queue) > 0 {
         return pq.queue[0]

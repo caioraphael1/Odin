@@ -74,7 +74,7 @@ when !ODIN_NO_RTTI {
     }
     println_any :: #force_no_inline proc(args: ..any) {
         loop: for arg, i in args {
-            assert(arg.id != nil)
+            internal.assert(arg.id != nil)
             if i != 0 {
                 print_string(" ")
             }

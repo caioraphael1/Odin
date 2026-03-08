@@ -160,7 +160,7 @@ keysched :: proc(ctx: ^Context, key: []byte) {
         sks[14] = expand_step128(sks[12], x86._mm_aeskeygenassist_si128(sks[13], 0x40))
         num_rounds = _aes.ROUNDS_256
     case:
-        panic("crypto/aes: invalid AES key size")
+        internal.panic("crypto/aes: invalid AES key size")
     }
     for i in 0 ..= num_rounds {
         intrinsics.unaligned_store((^x86.__m128i)(&ctx._sk_exp_enc[i]), sks[i])

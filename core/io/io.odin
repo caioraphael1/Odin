@@ -1,6 +1,7 @@
 // Basic interfaces for generic data stream primitives.
 // The purpose of this package is wrap existing data structures and their
 // operations into an abstracted stream interface.
+import "base:internal"
 import "base:intrinsics"
 
 import "core:unicode/utf8"
@@ -426,7 +427,7 @@ copy :: proc(dst: Writer, src: Reader) -> (written: i64, err: Error) {
 // If buf is `nil`, it is allocate through `intrinsics.alloca`; otherwise if it has zero length, it will panic
 copy_buffer :: proc(dst: Writer, src: Reader, buf: []byte) -> (written: i64, err: Error) {
     if buf != nil && len(buf) == 0 {
-        panic("empty buffer in io.copy_buffer")
+        internal.panic("empty buffer in io.copy_buffer")
     }
     return _copy_buffer(dst, src, buf)
 }

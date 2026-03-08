@@ -50,7 +50,7 @@ Example:
     chan_example :: proc() {
         // Create an unbuffered channel for int messages
         c, err := chan.create(chan.Chan(int), context.allocator)
-        assert(err == .None)
+        internal.assert(err == .None)
         defer chan.destroy(c)
 
         // Start the consumer thread

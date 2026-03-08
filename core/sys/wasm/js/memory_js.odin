@@ -21,7 +21,7 @@ page_allocator :: proc() -> mem.Allocator {
 	                  location := #caller_location) -> ([]byte, mem.Allocator_Error) {
 		switch mode {
 		case .Alloc, .Alloc_Non_Zeroed:
-			assert(size % PAGE_SIZE == 0)
+			internal.assert(size % PAGE_SIZE == 0)
 			return page_alloc(size/PAGE_SIZE)
 		case .Resize, .Free, .Free_All, .Query_Info, .Resize_Non_Zeroed:
 			return nil, .Mode_Not_Implemented

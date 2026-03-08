@@ -194,8 +194,8 @@ rb_alloc_bytes_non_zeroed :: proc(
     alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
-    assert(size >= 0, "Size must be positive or zero.", loc)
-    assert(mem.is_power_of_two(cast(uintptr)alignment), "Alignment must be a power of two.", loc)
+    internal.assert(size >= 0, "Size must be positive or zero.", loc)
+    internal.assert(mem.is_power_of_two(cast(uintptr)alignment), "Alignment must be a power of two.", loc)
     parent: ^Rollback_Stack_Block
 
     for block := stack.head; /**/; block = block.next_block {
@@ -219,7 +219,7 @@ rb_alloc_bytes_non_zeroed :: proc(
         if block.offset + padding + cast(uintptr)size > cast(uintptr)len(block.buffer) {
             when !ODIN_DISABLE_ASSERT {
                 if allocated_new_block {
-                    panic("Rollback Stack mem.Allocator allocated a new block but did not use it.")
+                    internal.panic("Rollback Stack mem.Allocator allocated a new block but did not use it.")
                 }
             }
             parent = block
@@ -322,14 +322,14 @@ rb_resize_bytes_non_zeroed :: proc(
 ) -> (result: []byte, err: mem.Allocator_Error) {
     old_size := len(old_memory)
     ptr := raw_data(old_memory)
-    assert(size >= 0, "Size must be positive or zero.", loc)
-    assert(old_size >= 0, "Old size must be positive or zero.", loc)
-    assert(mem.is_power_of_two(cast(uintptr)alignment), "Alignment must be a power of two.", loc)
+    internal.assert(size >= 0, "Size must be positive or zero.", loc)
+    internal.assert(old_size >= 0, "Old size must be positive or zero.", loc)
+    internal.assert(mem.is_power_of_two(cast(uintptr)alignment), "Alignment must be a power of two.", loc)
     if ptr != nil {
         if block, _, ok := rb_find_last_alloc(stack, ptr); ok {
             // `block.offset` should never underflow because it is contingent
             // on `old_size` in the first place, assuming sane arguments.
-            assert(block.offset >= cast(uintptr)old_size, "Rollback Stack mem.Allocator received invalid `old_size`.")
+            internal.assert(block.offset >= cast(uintptr)old_size, "Rollback Stack mem.Allocator received invalid `old_size`.")
             if block.offset + cast(uintptr)size - cast(uintptr)old_size < cast(uintptr)len(block.buffer) {
                 // Prevent singleton allocations from fragmenting by forbidding
                 // them to shrink, removing the possibility of overflow bugs.
@@ -362,7 +362,7 @@ Initialize the rollback stack allocator using a fixed backing buffer.
 @(no_sanitize_address)
 rollback_stack_init_buffered :: proc(stack: ^Rollback_Stack, buffer: []byte, location := #caller_location) {
     MIN_SIZE :: size_of(Rollback_Stack_Block) + size_of(Rollback_Stack_Header) + size_of(rawptr)
-    assert(len(buffer) >= MIN_SIZE, "User-provided buffer to Rollback Stack mem.Allocator is too small.", location)
+    internal.assert(len(buffer) >= MIN_SIZE, "User-provided buffer to Rollback Stack mem.Allocator is too small.", location)
     block := cast(^Rollback_Stack_Block)raw_data(buffer)
     block^ = {}
     #no_bounds_check block.buffer = buffer[size_of(Rollback_Stack_Block):]
@@ -381,11 +381,11 @@ rollback_stack_init_dynamic :: proc(
     block_allocator: mem.Allocator,
     location := #caller_location,
     ) -> mem.Allocator_Error {
-    assert(block_size >= size_of(Rollback_Stack_Header) + size_of(rawptr), "Rollback Stack mem.Allocator block size is too small.", location)
+    internal.assert(block_size >= size_of(Rollback_Stack_Header) + size_of(rawptr), "Rollback Stack mem.Allocator block size is too small.", location)
     when size_of(int) > 4 {
         // It's impossible to specify an argument in excess when your integer
         // size is insufficient; check only on platforms with big enough ints.
-        assert(block_size <= ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE, "Rollback Stack Allocators cannot support head blocks larger than 2 gigabytes.", location)
+        internal.assert(block_size <= ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE, "Rollback Stack Allocators cannot support head blocks larger than 2 gigabytes.", location)
     }
     block := rb_make_block(block_size, block_allocator) or_return
     stack^ = {}

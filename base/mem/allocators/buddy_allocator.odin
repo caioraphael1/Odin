@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:intrinsics"
 import "base:slice"
@@ -83,7 +84,7 @@ Find the best block for storing a given size in a range of blocks.
 */
 @(no_sanitize_address)
 buddy_block_find_best :: proc(head, tail: ^Buddy_Block, size: uint) -> ^Buddy_Block {
-    assert(size != 0)
+    internal.assert(size != 0)
     best_block: ^Buddy_Block
     block := head                    // left
     buddy := buddy_block_next(block) // right
@@ -176,21 +177,21 @@ and block alignment specified by `alignment`.
 at least `size_of(Buddy_Block)`.
 */
 buddy_allocator_init :: proc(b: ^Buddy_Allocator, data: []byte, alignment: uint, loc := #caller_location) {
-    assert(data != nil)
-    assert(mem.is_power_of_two(uintptr(len(data))), "Size of the backing buffer must be power of two", loc)
-    assert(mem.is_power_of_two(uintptr(alignment)), "Alignment must be a power of two", loc)
+    internal.assert(data != nil)
+    internal.assert(mem.is_power_of_two(uintptr(len(data))), "Size of the backing buffer must be power of two", loc)
+    internal.assert(mem.is_power_of_two(uintptr(alignment)), "Alignment must be a power of two", loc)
     alignment := alignment
     if alignment < size_of(Buddy_Block) {
         alignment = size_of(Buddy_Block)
     }
     ptr := raw_data(data)
-    assert(uintptr(ptr) % uintptr(alignment) == 0, "The data is not aligned to the minimum alignment, which must be at least `size_of(Buddy_Block)`.", loc)
+    internal.assert(uintptr(ptr) % uintptr(alignment) == 0, "The data is not aligned to the minimum alignment, which must be at least `size_of(Buddy_Block)`.", loc)
     b.head = (^Buddy_Block)(ptr)
     b.head.size = len(data)
     b.head.is_free = true
     b.tail = buddy_block_next(b.head)
     b.alignment = alignment
-    assert(uint(len(data)) >= 2 * buddy_block_size_required(b, 1), "The size of the backing buffer must be large enough to hold at least two 1-byte allocations given the alignment requirements, otherwise it cannot split.", loc)
+    internal.assert(uint(len(data)) >= 2 * buddy_block_size_required(b, 1), "The size of the backing buffer must be large enough to hold at least two 1-byte allocations given the alignment requirements, otherwise it cannot split.", loc)
     // sanitizer.address_poison(data)
 }
 
@@ -199,7 +200,7 @@ Get required block size to fit in the allocation as well as the alignment paddin
 */
 
 buddy_block_size_required :: proc(b: ^Buddy_Allocator, size: uint) -> uint {
-    assert(size > 0)
+    internal.assert(size > 0)
     // NOTE: `size_of(Buddy_Block)` will be accounted for in `b.alignment`.
     // This calculation is also previously guarded against being given a `size`
     // 0 by `buddy_allocator_alloc_bytes_non_zeroed` checking for that.
@@ -279,7 +280,7 @@ buddy_allocator_alloc_bytes_non_zeroed :: proc(b: ^Buddy_Allocator, size: uint) 
         }
         found.is_free = false
         data := ([^]byte)(found)[b.alignment:][:size]
-        assert(cast(uintptr)raw_data(data)+cast(uintptr)(size-1) < cast(uintptr)buddy_block_next(found), "Buddy_Allocator has made an allocation which overlaps a block header.")
+        internal.assert(cast(uintptr)raw_data(data)+cast(uintptr)(size-1) < cast(uintptr)buddy_block_next(found), "Buddy_Allocator has made an allocation which overlaps a block header.")
         // ensure_poisoned(data)
         // sanitizer.address_unpoison(data)
         return data, nil

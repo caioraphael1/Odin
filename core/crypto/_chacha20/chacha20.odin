@@ -44,8 +44,8 @@ Context :: struct {
 // derivation is expected to be handled by the caller, so that the
 // HChaCha call can be suitably accelerated.
 init :: proc(ctx: ^Context, key, iv: []byte, is_xchacha: bool) {
-	ensure(len(key) == KEY_SIZE, "chacha20: invalid key size")
-	ensure(len(iv) == IV_SIZE, "chacha20: invalid key size")
+	internal.ensure(len(key) == KEY_SIZE, "chacha20: invalid key size")
+	internal.ensure(len(iv) == IV_SIZE, "chacha20: invalid key size")
 
 	k, n := key, iv
 
@@ -73,10 +73,10 @@ init :: proc(ctx: ^Context, key, iv: []byte, is_xchacha: bool) {
 
 // seek seeks the (X)ChaCha20 stream counter to the specified block.
 seek :: proc(ctx: ^Context, block_nr: u64) {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	if ctx._is_ietf_flavor {
-		ensure(block_nr <= MAX_CTR_IETF, "crypto/chacha20: attempted to seek past maximum counter")
+		internal.ensure(block_nr <= MAX_CTR_IETF, "crypto/chacha20: attempted to seek past maximum counter")
 	} else {
 		ctx._s[13] = u32(block_nr >> 32)
 	}
@@ -114,5 +114,5 @@ check_counter_limit :: proc(ctx: ^Context, nr_blocks: int) {
 		ctr_ok = carry == 0
 	}
 
-	ensure(ctr_ok, "crypto/chacha20: maximum (X)ChaCha20 keystream per IV reached")
+	internal.ensure(ctr_ok, "crypto/chacha20: maximum (X)ChaCha20 keystream per IV reached")
 }

@@ -75,7 +75,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
             r._seeded = true
         }
 
-        assert(r._off <= RNG_OUTPUT_PER_ITER, "chacha8rand/BUG: outputed key material")
+        internal.assert(r._off <= RNG_OUTPUT_PER_ITER, "chacha8rand/BUG: outputed key material")
         if r._off >= RNG_OUTPUT_PER_ITER { // Unlikely.
             chacha8rand_refill(r)
         }
@@ -84,8 +84,8 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
         //
         // As an invariant each read will consume a multiple of 8-bytes
         // of output at a time.
-        assert(r._off <= RNG_OUTPUT_PER_ITER - 8, "chacha8rand/BUG: less than 8-bytes of output available")
-        assert(r._off % 8 == 0, "chacha8rand/BUG: buffered output is not a multiple of 8-bytes")
+        internal.assert(r._off <= RNG_OUTPUT_PER_ITER - 8, "chacha8rand/BUG: less than 8-bytes of output available")
+        internal.assert(r._off % 8 == 0, "chacha8rand/BUG: buffered output is not a multiple of 8-bytes")
 
         p_len := len(p)
         if p_len == size_of(u64) {
@@ -149,7 +149,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
 
 @(private = "file")
 chacha8rand_refill :: proc(r: ^Default_Random_State) {
-    assert(r._seeded == true, "chacha8rand/BUG: unseeded refill")
+    internal.assert(r._seeded == true, "chacha8rand/BUG: unseeded refill")
 
     // i386 has insufficient vector registers to use the
     // accelerated path at the moment.

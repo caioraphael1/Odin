@@ -764,7 +764,7 @@ enum_string :: proc(a: any) -> string {
             }
         }
     } else {
-        panic("expected an enum to reflect.enum_string")
+        internal.panic("expected an enum to reflect.enum_string")
     }
 
     return ""
@@ -944,7 +944,7 @@ union_variant_typeid :: proc(a: any) -> typeid {
         case i32:  tag = i64(i)
         case u64:  tag = i64(i)
         case i64:  tag = i
-        case: unimplemented()
+        case: internal.unimplemented()
         }
 
         if info.no_nil {
@@ -955,7 +955,7 @@ union_variant_typeid :: proc(a: any) -> typeid {
 
         return nil
     }
-    panic("expected a union to reflect.union_variant_typeid")
+    internal.panic("expected a union to reflect.union_variant_typeid")
 }
 
 // UNSAFE: Returns the underlying tag value of a union. Panics if a union was not passed.
@@ -982,12 +982,12 @@ get_union_variant_raw_tag :: proc(a: any) -> i64 {
         case i32:  tag = i64(i)
         case u64:  tag = i64(i)
         case i64:  tag = i
-        case: unimplemented()
+        case: internal.unimplemented()
         }
 
         return tag
     }
-    panic("expected a union to reflect.get_union_variant_raw_tag")
+    internal.panic("expected a union to reflect.get_union_variant_raw_tag")
 }
 
 // Returns the underlying variant value of a union. Panics if a union was not passed.
@@ -1010,7 +1010,7 @@ get_union_variant :: proc(a: any) -> any {
 //  val = "123"
 //  ptr: union{^i32, ^f32, ^string} = get_union_as_ptr_variants(&val)
 //  sp := ptr.(^string)
-//  assert(sp^ == "123")
+//  internal.assert(sp^ == "123")
 
 get_union_as_ptr_variants :: proc(val: ^$T) -> (res: intrinsics.type_convert_variants_to_pointers(T)) where intrinsics.type_is_union(T) {
     ptr := rawptr(val)
@@ -1044,12 +1044,12 @@ set_union_variant_raw_tag :: proc(a: any, tag: i64) {
         case i32:  i = i32(tag)
         case u64:  i = u64(tag)
         case i64:  i = tag
-        case: unimplemented()
+        case: internal.unimplemented()
         }
 
         return
     }
-    panic("expected a union to reflect.set_union_variant_raw_tag")
+    internal.panic("expected a union to reflect.set_union_variant_raw_tag")
 }
 
 // UNSAFE: Manually set the tag value of a union using a `typeid`. Panics if a union was not passed.
@@ -1080,7 +1080,7 @@ set_union_variant_typeid :: proc(a: any, id: typeid) {
         }
         return
     }
-    panic("expected a union to reflect.set_union_variant_typeid")
+    internal.panic("expected a union to reflect.set_union_variant_typeid")
 }
 
 // UNSAFE: Manually set the tag value of a union using a `^Type_Info`. Panics if a union was not passed.
@@ -1111,7 +1111,7 @@ set_union_variant_type_info :: proc(a: any, tag_ti: ^Type_Info) {
         }
         return
     }
-    panic("expected a union to reflect.set_union_variant_type_info")
+    internal.panic("expected a union to reflect.set_union_variant_type_info")
 }
 
 // UNSAFE: Manually set the variant value of a union using an `any`. Panics if a union was not passed.
@@ -1150,7 +1150,7 @@ set_union_value :: proc(dst: any, value: any) -> bool {
         }
         return false
     }
-    panic("expected a union to reflect.set_union_variant_typeid")
+    internal.panic("expected a union to reflect.set_union_variant_typeid")
 }
 
 // UNSAFE: Checks to see if the data stored is a `bit_set` and is big endian. Panics if a `bit_set` was not passed.
@@ -1173,7 +1173,7 @@ bit_set_is_big_endian :: proc(value: any, loc := #caller_location) -> bool {
 
         return ODIN_ENDIAN == .Big
     }
-    panic("expected a bit_set to reflect.bit_set_is_big_endian", loc)
+    internal.panic("expected a bit_set to reflect.bit_set_is_big_endian", loc)
 }
 
 

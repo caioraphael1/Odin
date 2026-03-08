@@ -63,7 +63,7 @@ _acquire_thread_event_loop :: proc() -> General_Error {
 _release_thread_event_loop :: proc() {
     l := &_tls_event_loop
     if l.err != nil {
-        assert(l.refs == 0)
+        internal.assert(l.refs == 0)
         return
     }
 
@@ -164,7 +164,7 @@ _read_entire_file :: proc(l: ^Event_Loop, path: string, user_data: rawptr, cb: R
             return
         }
 
-        assert(op.read.read == len(op.read.buf))
+        internal.assert(op.read.read == len(op.read.buf))
         cb(user_data, op.read.buf, {})
     }
 }

@@ -6,6 +6,7 @@
         Feoramund: Initial implementation.
 */
 
+import "base:internal"
 import "base:intrinsics"
 @(require) import "core:io"
 import "base:mem"
@@ -356,7 +357,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
     for {
         slice.zero(vm.busy_map[:])
 
-        assert(vm.string_pointer <= len(vm.memory), "VM string pointer went out of bounds.")
+        internal.assert(vm.string_pointer <= len(vm.memory), "VM string pointer went out of bounds.")
 
         current_rune := vm.next_rune
         vm.current_rune = current_rune
@@ -593,7 +594,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
                     io.write_int(common.debug_stream, cast(int)vm.code[t.pc])
                     io.write_string(common.debug_stream, "\n")
                 }
-                panic("Invalid opcode in RegEx thread loop.")
+                internal.panic("Invalid opcode in RegEx thread loop.")
             }
         }
 
@@ -625,13 +626,13 @@ opcode_count :: proc(code: Program) -> (opcodes: int) {
 }
 
 create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Machine) {
-    assert(len(code) > 0, "RegEx VM has no instructions.")
+    internal.assert(len(code) > 0, "RegEx VM has no instructions.")
 
     vm.memory = str
     vm.code = code
 
     sizing := len(code) >> 6 + (1 if len(code) & 0x3F > 0 else 0)
-    assert(sizing > 0)
+    internal.assert(sizing > 0)
     vm.busy_map, _ = slice.create([]u64, sizing, allocator)
 
     max_possible_threads := max(1, opcode_count(vm.code) - 1)

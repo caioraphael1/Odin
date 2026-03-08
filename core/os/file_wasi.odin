@@ -89,7 +89,7 @@ init_preopens :: proc(allocator: mem.Allocator) {
         fd := wasi.fd_t(3 + i)
 
         desc, err := wasi.fd_prestat_get(fd)
-        assert(err == .SUCCESS)
+        internal.assert(err == .SUCCESS)
 
         switch desc.tag {
         case .DIR:

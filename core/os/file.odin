@@ -179,7 +179,7 @@ open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Defau
 new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> ^File {
     file, err := _new_file(handle, name, allocator)
     if err != nil {
-        panic(error_string(err))
+        internal.panic(error_string(err))
     }
     return file
 }

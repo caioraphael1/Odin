@@ -38,11 +38,11 @@ make_subclasser :: #force_inline proc(vtable: ^$T, impl: proc(cls: Class, vt: ^T
 register_subclass :: proc(
     class_name:           cstring,
     superclass:           Class,
-    superclass_overrides: Maybe(Object_VTable_Info) = nil,
-    protocol:             Maybe(Object_VTable_Info) = nil,
-    _context:             Maybe(internal.Context)    = nil,
+    superclass_overrides: internal.Maybe(Object_VTable_Info) = nil,
+    protocol:             internal.Maybe(Object_VTable_Info) = nil,
+    _context:             internal.Maybe(internal.Context)    = nil,
 ) -> Class {
-    assert(superclass != nil)
+    internal.assert(superclass != nil)
 
     super_size: uint
     proto_size: uint
@@ -65,7 +65,7 @@ register_subclass :: proc(
     extra_size := uint(size_of(Class_VTable_Info)) + 8 + super_size + proto_size
 
     cls = __objc_allocateClassPair(superclass, class_name, extra_size)
-    assert(cls != nil)
+    internal.assert(cls != nil)
 
     if s, ok := superclass_overrides.?; ok {
         s.impl(cls, s.vtable)
@@ -120,7 +120,7 @@ class_get_vtable_info :: proc(cls: Class) -> ^Class_VTable_Info {
 }
 
 
-alloc_user_object :: proc(cls: Class, _context: Maybe(internal.Context) = nil) -> id {
+alloc_user_object :: proc(cls: Class, _context: internal.Maybe(internal.Context) = nil) -> id {
     info := class_get_vtable_info(cls)
 
     obj := class_createInstance(cls, size_of(Class_VTable_Info))

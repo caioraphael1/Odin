@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:dyn_array"
 import "base:slice"
@@ -1341,7 +1342,7 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
         }
         _ = dyn_array.append(&results, it)
     }
-    assert(len(results) == n)
+    internal.assert(len(results) == n)
     return results[:], nil
 }
 
@@ -1466,7 +1467,7 @@ Output:
 */
 expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res: string, err: io.Error) {
     if tab_size <= 0 {
-        panic("tab size must be positive")
+        internal.panic("tab size must be positive")
     }
 
     if s == "" {

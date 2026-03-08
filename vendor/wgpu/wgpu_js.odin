@@ -14,7 +14,7 @@ wgpu_init_allocator :: proc() {
 wgpu_alloc :: proc(size: i32) -> [^]byte {
     context = g_context
     bytes, err := mem.alloc(int(size), 16)
-    assert(err == nil, "wgpu_alloc failed")
+    internal.assert(err == nil, "wgpu_alloc failed")
     return raw_data(bytes)
 }
 
@@ -22,5 +22,5 @@ wgpu_alloc :: proc(size: i32) -> [^]byte {
 wgpu_free :: proc(ptr: rawptr) {
     context = g_context
     err := mem.free(ptr)
-    assert(err == nil, "wgpu_free failed")
+    internal.assert(err == nil, "wgpu_free failed")
 }

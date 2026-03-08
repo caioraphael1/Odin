@@ -225,7 +225,7 @@ when ODIN_NO_CRT {
     _get_original_env :: #force_inline proc() -> [^]cstring {
         // essentially &argv[argc] which should be a nil pointer!
         #no_bounds_check env: [^]cstring = &internal.args__[len(internal.args__)]
-        assert(env[0] == nil)
+        internal.assert(env[0] == nil)
         return &env[1]
     }
 

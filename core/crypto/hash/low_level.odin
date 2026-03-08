@@ -198,9 +198,9 @@ init :: proc(ctx: ^Context, algorithm: Algorithm) {
 	case .Insecure_SHA1:
 		sha1.init(&ctx._impl.(sha1.Context))
 	case .Invalid:
-		panic("crypto/hash: uninitialized algorithm")
+		internal.panic("crypto/hash: uninitialized algorithm")
 	case:
-		panic("crypto/hash: invalid algorithm")
+		internal.panic("crypto/hash: invalid algorithm")
 	}
 
 	ctx._algo = algorithm
@@ -228,7 +228,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 	case sha1.Context:
 		sha1.update(&impl, data)
 	case:
-		panic("crypto/hash: uninitialized algorithm")
+		internal.panic("crypto/hash: uninitialized algorithm")
 	}
 }
 
@@ -258,7 +258,7 @@ final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
 	case sha1.Context:
 		sha1.final(&impl, hash, finalize_clone)
 	case:
-		panic("crypto/hash: uninitialized algorithm")
+		internal.panic("crypto/hash: uninitialized algorithm")
 	}
 
 	if !finalize_clone {
@@ -303,7 +303,7 @@ clone :: proc(ctx, other: ^Context) {
 	case sha1.Context:
 		sha1.clone(&ctx._impl.(sha1.Context), &src_impl)
 	case:
-		panic("crypto/hash: uninitialized algorithm")
+		internal.panic("crypto/hash: uninitialized algorithm")
 	}
 }
 

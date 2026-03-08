@@ -1,6 +1,6 @@
+import "base:internal"
 import "core:time"
-import vg "core:sys/valgrind"
-_ :: vg
+@(require) import vg "core:sys/valgrind"
 
 /*
 Wait group.
@@ -47,11 +47,11 @@ wait_group_add :: proc(wg: ^Wait_Group, delta: int) {
     atomic_add(&wg.counter, delta)
     switch counter := atomic_load(&wg.counter); {
     case counter < 0:
-        panic("sync.Wait_Group negative counter")
+        internal.panic("sync.Wait_Group negative counter")
     case wg.counter == 0:
         cond_broadcast(&wg.cond)
         if atomic_load(&wg.counter) != 0 {
-            panic("sync.Wait_Group misuse: sync.wait_group_add called concurrently with sync.wait_group_wait")
+            internal.panic("sync.Wait_Group misuse: sync.wait_group_add called concurrently with sync.wait_group_wait")
         }
     }
 }
@@ -487,7 +487,7 @@ for other threads for entering.
 */
 recursive_benaphore_unlock :: proc(b: ^Recursive_Benaphore) {
     tid := current_thread_id()
-    assert(tid == atomic_load_explicit(&b.owner, .Relaxed), "tid != b.owner")
+    internal.assert(tid == atomic_load_explicit(&b.owner, .Relaxed), "tid != b.owner")
     b.recursion -= 1
     recursion := b.recursion
 

@@ -558,7 +558,7 @@ _private_int_mul_balance :: proc(dest, a, b: ^Int, allocator: mem.Allocator) -> 
 	if a.used < b.used {
 		a, b = b, a
 	}
-	assert(a.used >= b.used)
+	internal.assert(a.used >= b.used)
 
 	i, j := 0, 0
 	for ; i < n_blocks; i += 1 {

@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:math"
 
 float64_uniform :: float64_range
@@ -6,7 +7,7 @@ float32_uniform :: float32_range
 // Triangular Distribution
 // See: http://wikipedia.org/wiki/Triangular_distribution
 
-float64_triangular :: proc(lo, hi: f64, mode: Maybe(f64), gen: Random_Generator) -> f64 {
+float64_triangular :: proc(lo, hi: f64, mode: internal.Maybe(f64), gen: Random_Generator) -> f64 {
     if hi-lo == 0 {
         return lo
     }
@@ -24,7 +25,7 @@ float64_triangular :: proc(lo, hi: f64, mode: Maybe(f64), gen: Random_Generator)
 // Triangular Distribution
 // See: http://wikipedia.org/wiki/Triangular_distribution
 
-float32_triangular :: proc(lo, hi: f32, mode: Maybe(f32), gen: Random_Generator) -> f32 {
+float32_triangular :: proc(lo, hi: f32, mode: internal.Maybe(f32), gen: Random_Generator) -> f32 {
     if hi-lo == 0 {
         return lo
     }
@@ -96,7 +97,7 @@ float32_exponential :: proc(lambda: f32, gen: Random_Generator) -> f32 {
 
 float64_gamma :: proc(alpha, beta: f64, gen: Random_Generator) -> f64 {
     if alpha <= 0 || beta <= 0 {
-        panic(#procedure + ": alpha and beta must be > 0.0")
+        internal.panic(#procedure + ": alpha and beta must be > 0.0")
     }
 
     LOG4 :: 1.3862943611198906188344642429163531361510002687205105082413600189
@@ -173,7 +174,7 @@ float32_gamma :: proc(alpha, beta: f32, gen: Random_Generator) -> f32 {
 
 float64_beta :: proc(alpha, beta: f64, gen: Random_Generator) -> f64 {
     if alpha <= 0 || beta <= 0 {
-        panic(#procedure + ": alpha and beta must be > 0.0")
+        internal.panic(#procedure + ": alpha and beta must be > 0.0")
     }
     // Knuth Vol 2 Ed 3 pg 134 "the beta distribution"
     y := float64_gamma(alpha, 1.0, gen)
@@ -270,7 +271,7 @@ float32_von_mises :: proc(mean_angle, kappa: f32, gen: Random_Generator) -> f32 
 // `x_0` is the location, `gamma` is the scale where `gamma` > 0
 
 float64_cauchy_lorentz :: proc(x_0, gamma: f64, gen: Random_Generator) -> f64 {
-    assert(gamma > 0)
+    internal.assert(gamma > 0)
 
     // Calculated from the inverse CDF
 
@@ -288,7 +289,7 @@ float32_cauchy_lorentz :: proc(x_0, gamma: f32, gen: Random_Generator) -> f32 {
 // `x_0` is the location, `gamma` is the scale where `gamma` > 0
 
 float64_log_cauchy_lorentz :: proc(x_0, gamma: f64, gen: Random_Generator) -> f64 {
-    assert(gamma > 0)
+    internal.assert(gamma > 0)
     return math.exp_f64(math.tan_f64(math.PI * (float64(gen) - 0.5))*gamma + x_0)
 }
 // Log Cauchy-Lorentz Distribution
@@ -303,7 +304,7 @@ float32_log_cauchy_lorentz :: proc(x_0, gamma: f32, gen: Random_Generator) -> f3
 // `b` is the scale where `b` > 0
 
 float64_laplace :: proc(mean, b: f64, gen: Random_Generator) -> f64 {
-    assert(b > 0)
+    internal.assert(b > 0)
     p := float64(gen)-0.5
     return -math.sign(p)*math.ln(1 - 2*abs(p))*b + mean
 }
@@ -321,7 +322,7 @@ float32_laplace :: proc(mean, b: f32, gen: Random_Generator) -> f32 {
 
 float64_gompertz :: proc(eta, b: f64, gen: Random_Generator) -> f64 {
     if eta <= 0 || b <= 0 {
-        panic(#procedure + ": eta and b must be > 0.0")
+        internal.panic(#procedure + ": eta and b must be > 0.0")
     }
 
     p := float64(gen)

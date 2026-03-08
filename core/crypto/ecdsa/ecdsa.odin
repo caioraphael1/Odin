@@ -101,7 +101,7 @@ private_key_generate :: proc(priv_key: ^Private_Key, curve: Curve) -> bool {
 		sc := &priv_key._impl.(secec.Scalar_p384r1)
 		secec.sc_set_random(sc)
 	case:
-		panic("crypto/ecdsa: invalid curve")
+		internal.panic("crypto/ecdsa: invalid curve")
 	}
 
 	priv_key._curve = curve
@@ -148,7 +148,7 @@ private_key_set_bytes :: proc(priv_key: ^Private_Key, curve: Curve, b: []byte) -
 			return false
 		}
 	case:
-		panic("crypto/esa: invalid curve")
+		internal.panic("crypto/esa: invalid curve")
 	}
 
 	priv_key._curve = curve
@@ -171,7 +171,7 @@ private_key_generate_public :: proc(priv_key: ^Private_Key) {
 		secec.pt_rescale(&pub_key, &pub_key)
 		priv_key._pub_key._impl = pub_key
 	case:
-		panic("crypto/ecdsa: invalid curve")
+		internal.panic("crypto/ecdsa: invalid curve")
 	}
 
 	priv_key._pub_key._curve = priv_key._curve
@@ -179,8 +179,8 @@ private_key_generate_public :: proc(priv_key: ^Private_Key) {
 
 // private_key_bytes sets dst to byte-encoding of priv_key.
 private_key_bytes :: proc(priv_key: ^Private_Key, dst: []byte) {
-	ensure(priv_key._curve != .Invalid, "crypto/ecdsa: uninitialized private key")
-	ensure(len(dst) == PRIVATE_KEY_SIZES[priv_key._curve], "crypto/ecdsa: invalid destination size")
+	internal.ensure(priv_key._curve != .Invalid, "crypto/ecdsa: uninitialized private key")
+	internal.ensure(len(dst) == PRIVATE_KEY_SIZES[priv_key._curve], "crypto/ecdsa: invalid destination size")
 
 	#partial switch priv_key._curve {
 	case .SECP256R1:
@@ -190,7 +190,7 @@ private_key_bytes :: proc(priv_key: ^Private_Key, dst: []byte) {
 		sc := &priv_key._impl.(secec.Scalar_p384r1)
 		secec.sc_bytes(dst, sc)
 	case:
-		panic("crypto/ecdsa: invalid curve")
+		internal.panic("crypto/ecdsa: invalid curve")
 	}
 }
 
@@ -254,7 +254,7 @@ public_key_set_bytes :: proc(pub_key: ^Public_Key, curve: Curve, b: []byte) -> b
 			return false
 		}
 	case:
-		panic("crypto/ecdsa: invalid curve")
+		internal.panic("crypto/ecdsa: invalid curve")
 	}
 
 	pub_key._curve = curve
@@ -264,15 +264,15 @@ public_key_set_bytes :: proc(pub_key: ^Public_Key, curve: Curve, b: []byte) -> b
 
 // public_key_set_priv sets pub_key to the public component of priv_key.
 public_key_set_priv :: proc(pub_key: ^Public_Key, priv_key: ^Private_Key) {
-	ensure(priv_key._curve != .Invalid, "crypto/ecdsa: uninitialized private key")
+	internal.ensure(priv_key._curve != .Invalid, "crypto/ecdsa: uninitialized private key")
 	public_key_clear(pub_key)
 	pub_key^ = priv_key._pub_key
 }
 
 // public_key_bytes sets dst to byte-encoding of pub_key.
 public_key_bytes :: proc(pub_key: ^Public_Key, dst: []byte) {
-	ensure(pub_key._curve != .Invalid, "crypto/ecdsa: uninitialized public key")
-	ensure(len(dst) == PUBLIC_KEY_SIZES[pub_key._curve], "crypto/ecdsa: invalid destination size")
+	internal.ensure(pub_key._curve != .Invalid, "crypto/ecdsa: uninitialized public key")
+	internal.ensure(len(dst) == PUBLIC_KEY_SIZES[pub_key._curve], "crypto/ecdsa: invalid destination size")
 
 	#partial switch pub_key._curve {
 	case .SECP256R1:
@@ -292,7 +292,7 @@ public_key_bytes :: proc(pub_key: ^Public_Key, dst: []byte) {
 		secec.fe_bytes(dst[1:1+secec.FE_SIZE_P384R1], &pt.x)
 		secec.fe_bytes(dst[1+secec.FE_SIZE_P384R1:], &pt.y)
 	case:
-		panic("crypto/ecdsa: invalid curve")
+		internal.panic("crypto/ecdsa: invalid curve")
 	}
 }
 
@@ -311,7 +311,7 @@ public_key_equal :: proc(p, q: ^Public_Key) -> bool {
 		pt_p, pt_q := &p._impl.(secec.Point_p384r1), &q._impl.(secec.Point_p384r1)
 		return secec.pt_equal(pt_p, pt_q) == 1
 	case:
-		panic("crypto/ecdsa: invalid curve")
+		internal.panic("crypto/ecdsa: invalid curve")
 	}
 }
 

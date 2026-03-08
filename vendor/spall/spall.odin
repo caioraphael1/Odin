@@ -118,7 +118,7 @@ context_destroy :: proc(ctx: ^Context) {
 }
 
 buffer_create :: proc(data: []byte, tid: u32 = 0, pid: u32 = 0) -> (buffer: Buffer, ok: bool) #optional_ok {
-    assert(len(data) >= 1024)
+    internal.assert(len(data) >= 1024)
     buffer.data     = data
     buffer.tid      = tid
     buffer.pid      = pid

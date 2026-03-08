@@ -27,7 +27,7 @@ _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info
         entry := intrinsics.unaligned_load((^wasi.dirent_t)(raw_data(buf)))
         buf    = buf[size_of(wasi.dirent_t):]
 
-        assert(len(buf) < int(entry.d_namlen))
+        internal.assert(len(buf) < int(entry.d_namlen))
 
         name := string(buf[:entry.d_namlen])
         buf = buf[entry.d_namlen:]
@@ -98,7 +98,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
             break
         }
 
-        assert(n == len(buf))
+        internal.assert(n == len(buf))
     }
     it.impl.buf = buf[:]
 

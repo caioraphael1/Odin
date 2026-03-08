@@ -83,7 +83,7 @@ Register_User_Marshaler_Error :: enum {
 //  // Ensure the json._user_marshaler map is initialized
 //  json.set_user_marshalers(new(map[typeid]json.User_Marshaler))
 //  reg_err := json.register_user_marshaler(type_info_of(int).id, Some_Marshaler)
-//  assert(reg_err == .None)
+//  internal.assert(reg_err == .None)
 //
 //
 //  // Use the custom marshaler
@@ -93,7 +93,7 @@ Register_User_Marshaler_Error :: enum {
 //
 //  x := SomeType{42}
 //  data, marshal_err := json.marshal(x)
-//  assert(marshal_err == nil)
+//  internal.assert(marshal_err == nil)
 //  defer delete(data)
 //
 //  fmt.println("Custom output:", string(data)) // Custom output: {"value":101010}
@@ -111,7 +111,7 @@ _user_marshalers: ^map[typeid]User_Marshaler
 // NOTE: Must be called before using register_user_marshaler.
 //
 set_user_marshalers :: proc(m: ^map[typeid]User_Marshaler) {
-    assert(_user_marshalers == nil, "set_user_marshalers must not be called more than once.")
+    internal.assert(_user_marshalers == nil, "set_user_marshalers must not be called more than once.")
     _user_marshalers = m
 }
 
@@ -542,7 +542,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         case i32:  tag = i64(i)
         case u64:  tag = i64(i)
         case i64:  tag = i64(i)
-        case: panic("Invalid union tag type")
+        case: internal.panic("Invalid union tag type")
         }
 
         if !info.no_nil {
@@ -612,7 +612,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                 x = bits.byte_swap(x)
             }
             bit_data = u64(x)
-        case: panic("unknown bit_size size")
+        case: internal.panic("unknown bit_size size")
         }
         _ = io.write_u64(w, bit_data) or_return
     }

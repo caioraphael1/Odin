@@ -531,11 +531,11 @@ prep_recv :: #force_inline proc(
 	timeout: time.Duration = NO_TIMEOUT,
 	l: ^Event_Loop = nil,
 ) -> ^Operation {
-	assert(socket != nil)
+	internal.assert(socket != nil)
 
 	// If we accepted `bufs` that total 0 it would be ambiguous if the result of `received == 0 && err == nil` means connection closed or received 0 bytes.
-	assert(len(bufs) > 0)
-	assert(slice.any_of_proc(bufs, proc(buf: []byte) -> bool { return len(buf) > 0 }))
+	internal.assert(len(bufs) > 0)
+	internal.assert(slice.any_of_proc(bufs, proc(buf: []byte) -> bool { return len(buf) > 0 }))
 
 	op := _prep(l, cb, .Recv)
 	op.recv.socket  = socket
@@ -757,7 +757,7 @@ prep_send :: proc(
 	timeout: time.Duration = NO_TIMEOUT,
 	l: ^Event_Loop = nil,
 ) -> ^Operation {
-	assert(socket != nil)
+	internal.assert(socket != nil)
 	op := _prep(l, cb, .Send)
 	op.send.socket   = socket
 	op.send.bufs     = bufs
@@ -979,7 +979,7 @@ prep_read :: #force_inline proc(
 	timeout: time.Duration = NO_TIMEOUT,
 	l: ^Event_Loop = nil,
 ) -> ^Operation {
-	assert(len(buf) > 0)
+	internal.assert(len(buf) > 0)
 	op := _prep(l, cb, .Read)
 	op.read.handle  = handle
 	op.read.buf     = buf
@@ -1196,7 +1196,7 @@ prep_write :: #force_inline proc(
 	timeout: time.Duration = NO_TIMEOUT,
 	l: ^Event_Loop = nil,
 ) -> ^Operation {
-	assert(len(buf) > 0)
+	internal.assert(len(buf) > 0)
 	op := _prep(l, cb, .Write)
 	op.write.handle  = handle
 	op.write.buf     = buf
@@ -1819,8 +1819,8 @@ prep_sendfile :: #force_inline proc(
 	timeout: time.Duration = NO_TIMEOUT,
 	l: ^Event_Loop = nil,
 ) -> ^Operation {
-	assert(offset >= 0)
-	assert(nbytes == SEND_ENTIRE_FILE || nbytes > 0)
+	internal.assert(offset >= 0)
+	internal.assert(nbytes == SEND_ENTIRE_FILE || nbytes > 0)
 	op := _prep(l, cb, .Send_File)
 	op.sendfile.socket = socket
 	op.sendfile.file   = file
@@ -2398,8 +2398,8 @@ stat_poly3 :: #force_inline proc(
 }
 
 _prep :: proc(l: ^Event_Loop, cb: Callback, type: Operation_Type) -> ^Operation {
-	assert(cb != nil)
-	assert(type != .None)
+	internal.assert(cb != nil)
+	internal.assert(type != .None)
 	l := l
 	if l == nil { l = _current_thread_event_loop() }
 	operation := pool.get(&l.operation_pool)

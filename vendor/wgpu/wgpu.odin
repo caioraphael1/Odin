@@ -1700,7 +1700,7 @@ CreateInstance :: proc "c" (/* NULLABLE */ descriptor: /* const */ ^InstanceDesc
             n += slice.copy(buf[n:], "bindings are for version ")
             n += slice.copy(buf[n:], BINDINGS_VERSION_STRING)
             n += slice.copy(buf[n:], ", but a different version is linked")
-            panic(string(buf[:n]))
+            internal.panic(string(buf[:n]))
         }
     }
 

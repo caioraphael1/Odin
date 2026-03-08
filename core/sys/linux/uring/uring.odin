@@ -22,9 +22,9 @@ DEFAULT_PARAMS :: linux.IO_Uring_Params {
 
 // Initialize and setup an uring, `entries` must be a power of 2 between 1 and 4096.
 init :: proc(ring: ^Ring, params: ^linux.IO_Uring_Params, entries: u32 = DEFAULT_ENTRIES) -> (err: linux.Errno) {
-    assert(entries <= MAX_ENTRIES,             "too many entries")
-    assert(entries != 0,                       "entries must be positive")
-    assert(math.is_power_of_two(int(entries)), "entries must be a power of two")
+    internal.assert(entries <= MAX_ENTRIES,             "too many entries")
+    internal.assert(entries != 0,                       "entries must be positive")
+    internal.assert(math.is_power_of_two(int(entries)), "entries must be a power of two")
 
     fd := linux.io_uring_setup(entries, params) or_return
     defer if err != nil { linux.close(fd) }
@@ -35,8 +35,8 @@ init :: proc(ring: ^Ring, params: ^linux.IO_Uring_Params, entries: u32 = DEFAULT
         return
     }
 
-    assert(.CQE32       not_in params.flags,    "unsupported flag") // NOTE: Could support this by making IO_Uring generic.
-    assert(.SQE128      not_in params.flags,    "unsupported flag") // NOTE: Could support this by making IO_Uring generic.
+    internal.assert(.CQE32       not_in params.flags,    "unsupported flag") // NOTE: Could support this by making IO_Uring generic.
+    internal.assert(.SQE128      not_in params.flags,    "unsupported flag") // NOTE: Could support this by making IO_Uring generic.
 
     sq := submission_queue_make(fd, params) or_return
 
@@ -50,7 +50,7 @@ init :: proc(ring: ^Ring, params: ^linux.IO_Uring_Params, entries: u32 = DEFAULT
 }
 
 destroy :: proc(ring: ^Ring) {
-    assert(ring.fd >= 0)
+    internal.assert(ring.fd >= 0)
     submission_queue_destroy(&ring.sq)
     linux.close(ring.fd)
     ring.fd = -1
@@ -83,7 +83,7 @@ free_space :: proc(ring: ^Ring) -> int {
     head := sync.atomic_load_explicit(sq.head, .Acquire)
     next := sq.sqe_tail + 1
     free := len(sq.sqes) - int(next - head)
-    assert(free >= 0)
+    internal.assert(free >= 0)
     return free
 }
 
@@ -112,7 +112,7 @@ flush_sq :: proc(ring: ^Ring) -> (n_pending: u32) {
 // For the latter case, we set the SQ thread wakeup flag.
 // Matches the implementation of sq_ring_needs_enter() in liburing.
 sq_ring_needs_enter :: proc(ring: ^Ring, flags: ^linux.IO_Uring_Enter_Flags) -> bool {
-    assert(flags^ == {})
+    internal.assert(flags^ == {})
     if .SQPOLL not_in ring.flags { return true }
     if .NEED_WAKEUP in sync.atomic_load_explicit(ring.sq.flags, .Relaxed) {
         flags^ += {.SQ_WAKEUP}
@@ -139,7 +139,7 @@ submit :: proc(ring: ^Ring, wait_nr: u32 = 0, timeout: ^linux.Time_Spec = nil) -
 
         n_submitted_: int
         n_submitted_, err = linux.io_uring_enter2(ring.fd, n_submitted, wait_nr, flags, &ext)
-        assert(n_submitted_ >= 0)
+        internal.assert(n_submitted_ >= 0)
         n_submitted = u32(n_submitted_)
     }
     return
@@ -229,8 +229,8 @@ Submission_Queue :: struct {
 }
 
 submission_queue_make :: proc(fd: linux.Fd, params: ^linux.IO_Uring_Params) -> (sq: Submission_Queue, err: linux.Errno) {
-    assert(fd >= 0, "uninitialized queue fd")
-    assert(.SINGLE_MMAP in params.features, "unsupported feature") // NOTE: Could support this, but currently isn't.
+    internal.assert(fd >= 0, "uninitialized queue fd")
+    internal.assert(.SINGLE_MMAP in params.features, "unsupported feature") // NOTE: Could support this, but currently isn't.
 
     sq_size := params.sq_off.array + params.sq_entries * size_of(u32)
     cq_size := params.cq_off.cqes + params.cq_entries * size_of(linux.IO_Uring_CQE)
@@ -276,8 +276,8 @@ Completion_Queue :: struct {
 }
 
 completion_queue_make :: proc(fd: linux.Fd, params: ^linux.IO_Uring_Params, sq: ^Submission_Queue) -> Completion_Queue {
-    assert(fd >= 0, "uninitialized queue fd")
-    assert(.SINGLE_MMAP in params.features, "required feature SINGLE_MMAP not supported")
+    internal.assert(fd >= 0, "uninitialized queue fd")
+    internal.assert(.SINGLE_MMAP in params.features, "required feature SINGLE_MMAP not supported")
 
     mmap := sq.mmap
     cqes := cast([^]linux.IO_Uring_CQE)&mmap[params.cq_off.cqes]

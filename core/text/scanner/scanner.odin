@@ -215,7 +215,7 @@ peek :: proc(s: ^Scanner, n := 0) -> (ch: rune) {
 // if n > 0, it call next n times and return the nth token and then restore the Scanner's state
 
 peek_token :: proc(s: ^Scanner, n := 0) -> (tok: rune) {
-	assert(n >= 0)
+	internal.assert(n >= 0)
 	prev_s := s^
 	for _ in 0..<n {
 		tok = scan(s)

@@ -22,7 +22,7 @@ get_fd :: proc(f: any, loc := #caller_location) -> (fd: u32) {
         fd = _fd
     }
     if fd != 1 && fd != 2 {
-        panic("`fmt.fprint` variant called with invalid file descriptor for JS, only 1 (stdout) and 2 (stderr) are supported", loc)
+        internal.panic("`fmt.fprint` variant called with invalid file descriptor for JS, only 1 (stdout) and 2 (stderr) are supported", loc)
     }
     return fd
 }

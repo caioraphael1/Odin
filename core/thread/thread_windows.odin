@@ -67,7 +67,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
     thread.id              = int(win32_thread_id)
 
     ok := win32.SetThreadPriority(win32_thread, _thread_priority_map[priority])
-    assert(ok == true)
+    internal.assert(ok == true)
 
     return thread
 }

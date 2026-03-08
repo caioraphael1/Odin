@@ -52,14 +52,14 @@ Example:
     a := []i32{10, 10, 10, 20}
 
     index, found = linear_search_reverse(a, 10)
-    assert(index == 0 && found == true)
+    internal.assert(index == 0 && found == true)
 
     index, found = linear_search_reverse(a, 30)
-    assert(index == -1 && found == false)
+    internal.assert(index == -1 && found == false)
 
     // Note that `index == 1`, since it is relative to `a[2:]`
     index, found = linear_search_reverse(a[2:], 20)
-    assert(index == 1 && found == true)
+    internal.assert(index == 1 && found == true)
 */
 
 linear_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool) where intrinsics.type_is_comparable(T) {
@@ -111,17 +111,17 @@ Example:
     a := []i32{10, 10, 10, 20}
 
     index, found = linear_search_reverse(a, 20)
-    assert(index == 3 && found == true)
+    internal.assert(index == 3 && found == true)
 
     index, found = linear_search_reverse(a, 10)
-    assert(index == 2 && found == true)
+    internal.assert(index == 2 && found == true)
 
     index, found = linear_search_reverse(a, 30)
-    assert(index == -1 && found == false)
+    internal.assert(index == -1 && found == false)
 
     // Note that `index == 1`, since it is relative to `a[2:]`
     index, found = linear_search_reverse(a[2:], 20)
-    assert(index == 1 && found == true)
+    internal.assert(index == 1 && found == true)
 */
 
 linear_search_reverse :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool) where intrinsics.type_is_comparable(T) {
@@ -179,16 +179,16 @@ Example:
     s := []i32{0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55}
 
     index, found = slice.binary_search(s, 13)
-    assert(index == 9 && found == true)
+    internal.assert(index == 9 && found == true)
 
     index, found = slice.binary_search(s, 4)
-    assert(index == 7 && found == false)
+    internal.assert(index == 7 && found == false)
 
     index, found = slice.binary_search(s, 100)
-    assert(index == 13 && found == false)
+    internal.assert(index == 13 && found == false)
 
     index, found = slice.binary_search(s, 1)
-    assert(index >= 1 && index <= 4 && found == true)
+    internal.assert(index >= 1 && index <= 4 && found == true)
 */
 
 binary_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool) where intrinsics.type_is_ordered(T) #no_bounds_check {

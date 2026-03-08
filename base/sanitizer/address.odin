@@ -1,5 +1,7 @@
 #+no-instrumentation
 
+import "base:internal"
+
 Address_Death_Callback :: #type proc "c" (pc: rawptr, bp: rawptr, sp: rawptr, addr: rawptr, is_write: i32, access_size: uint)
 
 @(private="file")
@@ -127,7 +129,7 @@ When asan is not enabled this procedure does nothing.
 @(no_sanitize_address)
 address_poison_rawptr :: proc(ptr: rawptr, len: int) {
     when ASAN_ENABLED {
-        assert(len >= 0)
+        internal.assert(len >= 0)
         __asan_poison_memory_region(ptr, uint(len))
     }
 }
@@ -160,7 +162,7 @@ When asan is not enabled this procedure does nothing.
 @(no_sanitize_address)
 address_unpoison_rawptr :: proc(ptr: rawptr, len: int) {
     when ASAN_ENABLED {
-        assert(len >= 0)
+        internal.assert(len >= 0)
         __asan_unpoison_memory_region(ptr, uint(len))
     }
 }
@@ -242,7 +244,7 @@ When asan is not enabled this procedure returns `nil`.
 @(no_sanitize_address)
 address_region_is_poisoned_rawptr :: proc(region: rawptr, len: int) -> rawptr {
     when ASAN_ENABLED {
-        assert(len >= 0)
+        internal.assert(len >= 0)
         return __asan_region_is_poisoned(region, uint(len))
     } else {
         return nil

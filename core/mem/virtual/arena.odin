@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 import "base:slice"
@@ -74,7 +75,7 @@ arena_init_static :: proc(arena: ^Arena, reserved: uint = DEFAULT_ARENA_STATIC_R
 // Allocates memory from the provided arena.
 @(no_sanitize_address)
 arena_alloc :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
-    assert(alignment & (alignment-1) == 0, "non-power of two alignment", loc)
+    internal.assert(alignment & (alignment-1) == 0, "non-power of two alignment", loc)
 
     size := size
     if size == 0 {
@@ -150,7 +151,7 @@ arena_static_reset_to :: proc(arena: ^Arena, pos: uint, loc := #caller_location)
     sync.mutex_guard(&arena.mutex)
 
     if arena.curr_block != nil {
-        assert(arena.kind != .Growing, "expected a non .Growing arena", loc)
+        internal.assert(arena.kind != .Growing, "expected a non .Growing arena", loc)
 
         prev_pos := arena.curr_block.used
         arena.curr_block.used = clamp(pos, 0, arena.curr_block.reserved)
@@ -172,7 +173,7 @@ arena_static_reset_to :: proc(arena: ^Arena, pos: uint, loc := #caller_location)
 @(no_sanitize_address)
 arena_growing_free_last_memory_block :: proc(arena: ^Arena, loc := #caller_location) {
     if free_block := arena.curr_block; free_block != nil {
-        assert(arena.kind == .Growing, "expected a .Growing arena", loc)
+        internal.assert(arena.kind == .Growing, "expected a .Growing arena", loc)
         arena.total_used -= free_block.used
         arena.total_reserved -= free_block.reserved
 
@@ -374,7 +375,7 @@ Arena_Temp :: struct {
 // TODO(Caio): This is not easily trackable, I think this should be wrapped just like free_all, destroy.
 @(no_sanitize_address)
 arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (temp: Arena_Temp) {
-    assert(arena != nil, "nil arena", loc)
+    internal.assert(arena != nil, "nil arena", loc)
     sync.mutex_guard(&arena.mutex)
 
     temp.arena = arena
@@ -390,7 +391,7 @@ arena_temp_begin :: proc(arena: ^Arena, loc := #caller_location) -> (temp: Arena
 // TODO(Caio): This is not easily trackable, I think this should be wrapped just like free_all, destroy.
 @(no_sanitize_address)
 arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
-    assert(temp.arena != nil, "nil arena", loc)
+    internal.assert(temp.arena != nil, "nil arena", loc)
     arena := temp.arena
     sync.mutex_guard(&arena.mutex)
 
@@ -403,7 +404,7 @@ arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
             }
         }
         if !memory_block_found {
-            assert(arena.curr_block == temp.block, "memory block stored within Arena_Temp not owned by Arena", loc)
+            internal.assert(arena.curr_block == temp.block, "memory block stored within Arena_Temp not owned by Arena", loc)
         }
 
         for arena.curr_block != temp.block {
@@ -411,7 +412,7 @@ arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
         }
 
         if block := arena.curr_block; block != nil {
-            assert(block.used >= temp.used, "out of order use of arena_temp_end", loc)
+            internal.assert(block.used >= temp.used, "out of order use of arena_temp_end", loc)
             amount_to_zero := block.used-temp.used
             slice.zero(block.base[temp.used:][:amount_to_zero])
             block.used = temp.used
@@ -419,23 +420,23 @@ arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
         }
     }
 
-    assert(arena.temp_count > 0, "double-use of arena_temp_end", loc)
+    internal.assert(arena.temp_count > 0, "double-use of arena_temp_end", loc)
     arena.temp_count -= 1
 }
 
 // Ignore the use of a `arena_temp_begin` entirely by __not__ resetting to the stored position.
 @(no_sanitize_address)
 arena_temp_ignore :: proc(temp: Arena_Temp, loc := #caller_location) {
-    assert(temp.arena != nil, "nil arena", loc)
+    internal.assert(temp.arena != nil, "nil arena", loc)
     arena := temp.arena
     sync.mutex_guard(&arena.mutex)
 
-    assert(arena.temp_count > 0, "double-use of arena_temp_end", loc)
+    internal.assert(arena.temp_count > 0, "double-use of arena_temp_end", loc)
     arena.temp_count -= 1
 }
 
 // Asserts that all uses of `Arena_Temp` has been used by an `Arena`
 @(no_sanitize_address)
 arena_check_temp :: proc(arena: ^Arena, loc := #caller_location) {
-    assert(arena.temp_count == 0, "Arena_Temp not been ended", loc)
+    internal.assert(arena.temp_count == 0, "Arena_Temp not been ended", loc)
 }

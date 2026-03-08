@@ -18,8 +18,8 @@ foreign lib {
 	Returns: 0 when matched. if there is no match, fnmatch() shall return FNM_NOMATCH. Non-zero on other errors.
 
 	Example:
-		assert(posix.fnmatch("*.odin", "foo.odin", {}) == 0)
-		assert(posix.fnmatch("*.txt",  "foo.odin", {}) == posix.FNM_NOMATCH)
+		internal.assert(posix.fnmatch("*.odin", "foo.odin", {}) == 0)
+		internal.assert(posix.fnmatch("*.txt",  "foo.odin", {}) == posix.FNM_NOMATCH)
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/fnmatch.html ]]
 	*/

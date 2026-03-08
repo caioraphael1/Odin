@@ -45,7 +45,7 @@ expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []byte) {
 	case dk_len == 0:
 		return
 	case dk_len > h_len * 255:
-		panic("crypto/hkdf: derived key too long")
+		internal.panic("crypto/hkdf: derived key too long")
 	case:
 	}
 

@@ -41,7 +41,7 @@ version_check :: proc() {
             n += slice.copy(buf[n:], "and executing `make`")
         }
 
-        panic(string(buf[:n]))
+        internal.panic(string(buf[:n]))
     }
 }
 

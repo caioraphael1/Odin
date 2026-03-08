@@ -118,8 +118,8 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> 
     out   := strings.builder_make_len_cap(0, out_length, allocator) or_return
     ioerr := encode_into(strings.to_stream(&out), data, ENC_TBL)
 
-    assert(ioerr == nil,                           "string builder should not IO error")
-    assert(strings.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
+    internal.assert(ioerr == nil,                           "string builder should not IO error")
+    internal.assert(strings.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
 
     return strings_tools.to_string(out), nil
 }
@@ -166,8 +166,8 @@ decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> 
     out   := strings.builder_make_len_cap(0, out_length, allocator) or_return
     ioerr := decode_into(strings.to_stream(&out), data, DEC_TBL)
 
-    assert(ioerr == nil,                           "string builder should not IO error")
-    assert(strings.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
+    internal.assert(ioerr == nil,                           "string builder should not IO error")
+    internal.assert(strings.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
 
     return out.buf[:], nil
 }

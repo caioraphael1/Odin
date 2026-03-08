@@ -27,19 +27,19 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
 
         // Enable thread's cancelability.
         err := posix.pthread_setcancelstate(.ENABLE, nil)
-        assert(err == nil)
+        internal.assert(err == nil)
         // NOTE(laytan): .ASYNCHRONOUS should make `pthread_cancel` cancel immediately
         // instead of waiting for a cancellation point.
         // This does not seem to work on at least Darwin and NetBSD though.
         err = posix.pthread_setcanceltype(.ASYNCHRONOUS, nil)
-        assert(err == nil)
+        internal.assert(err == nil)
 
         t.procedure(t)
 
         sync.atomic_or(&t.flags, { .Done })
         if .Self_Cleanup in sync.atomic_load(&t.flags) {
             res := posix.pthread_detach(t.unix_thread)
-            assert(res == nil)
+            internal.assert(res == nil)
 
             t.unix_thread = {}
             _ = mem.free(t, t.creation_allocator)
@@ -62,10 +62,10 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
     res: posix.Errno
     // NOTE(tetra, 2019-11-01): These only fail if their argument is invalid.
     res = posix.pthread_attr_setdetachstate(&attrs, .CREATE_JOINABLE)
-    assert(res == nil)
+    internal.assert(res == nil)
     when ODIN_OS != .Haiku && ODIN_OS != .NetBSD {
         res = posix.pthread_attr_setinheritsched(&attrs, .EXPLICIT_SCHED)
-        assert(res == nil)
+        internal.assert(res == nil)
     }
 
     thread := mem.new(Thread, allocator)
@@ -78,11 +78,11 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
     policy: posix.Sched_Policy
     when ODIN_OS != .Haiku && ODIN_OS != .NetBSD {
         res = posix.pthread_attr_getschedpolicy(&attrs, &policy)
-        assert(res == nil)
+        internal.assert(res == nil)
     }
     params: posix.sched_param
     res = posix.pthread_attr_getschedparam(&attrs, &params)
-    assert(res == nil)
+    internal.assert(res == nil)
     low := posix.sched_get_priority_min(policy)
     high := posix.sched_get_priority_max(policy)
     switch priority {
@@ -91,7 +91,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
     case .High: params.sched_priority = high
     }
     res = posix.pthread_attr_setschedparam(&attrs, &params)
-    assert(res == nil)
+    internal.assert(res == nil)
 
     thread.procedure = procedure
     if posix.pthread_create(&thread.unix_thread, &attrs, __unix_thread_entry_proc, thread) != nil {

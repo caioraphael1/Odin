@@ -335,7 +335,7 @@ int_random :: proc(dest: ^Int, bits: int, allocator: mem.Allocator) -> (err: Err
 */
 assert_initialized :: proc(a: ^Int, loc := #caller_location) {
     assert_if_nil(a)
-    assert(is_initialized(a), "`Int` was not properly initialized.", loc)
+    internal.assert(is_initialized(a), "`Int` was not properly initialized.", loc)
 }
 
 zero_unused :: proc(dest: ^Int, old_used := -1) {
@@ -753,12 +753,12 @@ destroy_constants :: proc() {
 
 assert_if_nil_int :: #force_inline proc(integers: ..^Int, loc := #caller_location) {
     for i in integers {
-        assert(i != nil, "(nil)", loc)
+        internal.assert(i != nil, "(nil)", loc)
     }
 }
 
 assert_if_nil_rat :: #force_inline proc(rationals: ..^Rat, loc := #caller_location) {
     for r in rationals {
-        assert(r != nil, "(nil)", loc)
+        internal.assert(r != nil, "(nil)", loc)
     }
 }

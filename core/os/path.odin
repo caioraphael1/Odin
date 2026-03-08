@@ -633,7 +633,7 @@ split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []stri
             start = i + 1
         }
     }
-    assert(index == count)
+    internal.assert(index == count)
     list[index] = path[start:]
 
     for s0, i in list {

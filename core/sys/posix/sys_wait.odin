@@ -38,7 +38,7 @@ foreign lib {
 
 		child_pid := posix.fork(); switch child_pid {
 		case -1: // `fork` failed.
-			panic("fork failed")
+			internal.panic("fork failed")
 
 		case 0:  // This is the child.
 
@@ -49,7 +49,7 @@ foreign lib {
 				status: i32
 				wpid := posix.waitpid(child_pid, &status, { .UNTRACED, .CONTINUED })
 				if wpid == -1 {
-					panic("waitpid failure")
+					internal.panic("waitpid failure")
 				}
 
 				switch {

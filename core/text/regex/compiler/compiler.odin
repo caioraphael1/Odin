@@ -6,6 +6,7 @@
         Feoramund: Initial implementation.
 */
 
+import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 import "base:dyn_array"
@@ -61,8 +62,8 @@ Error :: enum {
 }
 
 classes_are_exact :: proc(q, w: ^Rune_Class_Data) -> bool #no_bounds_check {
-    assert(q != nil)
-    assert(w != nil)
+    internal.assert(q != nil)
+    internal.assert(w != nil)
 
     if q == w {
         return true
@@ -189,7 +190,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
                 break
             }
         }
-        assert(index != -1, "Unable to find collected Rune_Class_Data index.")
+        internal.assert(index != -1, "Unable to find collected Rune_Class_Data index.")
 
         _ = dyn_array.append(&code, Opcode(index))
 
@@ -355,7 +356,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
             }
 
         } else {
-            panic("RegEx compiler received invalid repetition group.")
+            internal.panic("RegEx compiler received invalid repetition group.")
         }
 
     case ^Node_Optional:

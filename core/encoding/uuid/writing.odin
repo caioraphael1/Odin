@@ -117,7 +117,7 @@ to_string_buffer :: proc(
 ) -> (
     str: string,
 ) {
-    assert(
+    internal.assert(
         len(buffer) >= EXPECTED_LENGTH,
         "The buffer provided is not at least 36 bytes large.",
         loc,

@@ -50,7 +50,7 @@ Image :: struct {
         For convenience, we return them as u16 so we don't need to switch on the type
         in our viewer, and can just test against nil.
     */
-    background:    Maybe(RGB_Pixel_16),
+    background:    internal.Maybe(RGB_Pixel_16),
     metadata:      Image_Metadata,
     which:         Which_File_Type,
 }
@@ -576,8 +576,8 @@ TGA_Alpha_Kind :: enum u8 {
 TGA_Info :: struct {
     header:    TGA_Header,
     image_id:  string,
-    footer:    Maybe(TGA_Footer),
-    extension: Maybe(TGA_Extension),
+    footer:    internal.Maybe(TGA_Footer),
+    extension: internal.Maybe(TGA_Extension),
 }
 
 
@@ -707,8 +707,8 @@ JPEG_Marker :: enum u8 {
 }
 
 JPEG_Info :: struct {
-    jfif_app0: Maybe(JFIF_APP0),
-    jfxx_app0: Maybe(JFXX_APP0),
+    jfif_app0: internal.Maybe(JFIF_APP0),
+    jfxx_app0: internal.Maybe(JFXX_APP0),
     comments: [dynamic]string,
     exif: [dynamic]Exif,
     frame_type: JPEG_Marker,

@@ -1,3 +1,4 @@
+import "base:internal"
 @(require) import "base:intrinsics"
 
 // With Robin Hood hashing a maximum load factor of 75% is ideal.
@@ -202,7 +203,7 @@ map_alloc_dynamic :: proc(info: ^Map_Info, log2_capacity: uintptr, allocator: Al
         return
     }
     if intrinsics.expect(data_ptr & CACHE_MASK != 0, false) {
-        panic("allocation not aligned to a cache line", loc)
+        internal.panic("allocation not aligned to a cache line", loc)
     } else {
         result.data = data_ptr | log2_capacity // Tagged pointer representation for capacity.
         result.len = 0
@@ -237,7 +238,7 @@ map_reserve_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias in
         return size_of(uintptr)*8 - 1 - z
     }
 
-    assert(m.allocator.procedure != nil, "Allocator not defined", loc=loc)
+    internal.assert(m.allocator.procedure != nil, "Allocator not defined", loc=loc)
 
     new_capacity := new_capacity
     old_capacity := uintptr(map_cap(m^))
@@ -431,7 +432,7 @@ map_insert_hash_dynamic_with_key :: proc(#no_alias m: ^Raw_Map, #no_alias info: 
     swap_loop: for {
         if distance > mask {
             // Failed to find an empty slot and prevent infinite loop
-            panic("unable to insert into a map")
+            internal.panic("unable to insert into a map")
         }
 
         element_hash := hs[pos]

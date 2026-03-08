@@ -4614,7 +4614,7 @@ ArgumentEncoder_setBuffer :: #force_inline proc "c" (self: ^ArgumentEncoder, buf
 }
 @(objc_type=ArgumentEncoder, objc_name="setBuffers")
 ArgumentEncoder_setBuffers :: #force_inline proc(self: ^ArgumentEncoder, buffers: []^Buffer, offsets: []NS.UInteger, range: NS.Range) {
-    assert(len(buffers) == len(offsets))
+    internal.assert(len(buffers) == len(offsets))
     msgSend(nil, self, "setBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
 }
 @(objc_type=ArgumentEncoder, objc_name="setComputePipelineState")
@@ -4623,7 +4623,7 @@ ArgumentEncoder_setComputePipelineState :: #force_inline proc "c" (self: ^Argume
 }
 @(objc_type=ArgumentEncoder, objc_name="setComputePipelineStates")
 ArgumentEncoder_setComputePipelineStates :: #force_inline proc(self: ^ArgumentEncoder, pipelines: []^ComputePipelineState, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(pipelines)))
+    internal.assert(range.length <= NS.UInteger(len(pipelines)))
     msgSend(nil, self, "setComputePipelineStates:withRange:", raw_data(pipelines), range)
 }
 @(objc_type=ArgumentEncoder, objc_name="setIndirectCommandBuffer")
@@ -4632,7 +4632,7 @@ ArgumentEncoder_setIndirectCommandBuffer :: #force_inline proc "c" (self: ^Argum
 }
 @(objc_type=ArgumentEncoder, objc_name="setIndirectCommandBuffers")
 ArgumentEncoder_setIndirectCommandBuffers :: #force_inline proc(self: ^ArgumentEncoder, buffers: []^IndirectCommandBuffer, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(buffers)))
+    internal.assert(range.length <= NS.UInteger(len(buffers)))
     msgSend(nil, self, "setIndirectCommandBuffers:withRange:", raw_data(buffers), range)
 }
 @(objc_type=ArgumentEncoder, objc_name="setIntersectionFunctionTable")
@@ -4641,7 +4641,7 @@ ArgumentEncoder_setIntersectionFunctionTable :: #force_inline proc "c" (self: ^A
 }
 @(objc_type=ArgumentEncoder, objc_name="setIntersectionFunctionTables")
 ArgumentEncoder_setIntersectionFunctionTables :: #force_inline proc(self: ^ArgumentEncoder, intersectionFunctionTables: []^IntersectionFunctionTable, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(intersectionFunctionTables)))
+    internal.assert(range.length <= NS.UInteger(len(intersectionFunctionTables)))
     msgSend(nil, self, "setIntersectionFunctionTables:withRange:", raw_data(intersectionFunctionTables), range)
 }
 @(objc_type=ArgumentEncoder, objc_name="setLabel")
@@ -4654,7 +4654,7 @@ ArgumentEncoder_setRenderPipelineState :: #force_inline proc "c" (self: ^Argumen
 }
 @(objc_type=ArgumentEncoder, objc_name="setRenderPipelineStates")
 ArgumentEncoder_setRenderPipelineStates :: #force_inline proc(self: ^ArgumentEncoder, pipelines: []^RenderPipelineState, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(pipelines)))
+    internal.assert(range.length <= NS.UInteger(len(pipelines)))
     msgSend(nil, self, "setRenderPipelineStates:withRange:", raw_data(pipelines), range)
 }
 @(objc_type=ArgumentEncoder, objc_name="setSamplerState")
@@ -4663,7 +4663,7 @@ ArgumentEncoder_setSamplerState :: #force_inline proc "c" (self: ^ArgumentEncode
 }
 @(objc_type=ArgumentEncoder, objc_name="setSamplerStates")
 ArgumentEncoder_setSamplerStates :: #force_inline proc(self: ^ArgumentEncoder, samplers: []^SamplerState, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(samplers)))
+    internal.assert(range.length <= NS.UInteger(len(samplers)))
     msgSend(nil, self, "setSamplerStates:withRange:", raw_data(samplers), range)
 }
 @(objc_type=ArgumentEncoder, objc_name="setTexture")
@@ -4672,7 +4672,7 @@ ArgumentEncoder_setTexture :: #force_inline proc "c" (self: ^ArgumentEncoder, te
 }
 @(objc_type=ArgumentEncoder, objc_name="setTextures")
 ArgumentEncoder_setTextures :: #force_inline proc(self: ^ArgumentEncoder, textures: []^Texture, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(textures)))
+    internal.assert(range.length <= NS.UInteger(len(textures)))
     msgSend(nil, self, "setTextures:withRange:", raw_data(textures), range)
 }
 @(objc_type=ArgumentEncoder, objc_name="setVisibleFunctionTable")
@@ -4681,7 +4681,7 @@ ArgumentEncoder_setVisibleFunctionTable :: #force_inline proc "c" (self: ^Argume
 }
 @(objc_type=ArgumentEncoder, objc_name="setVisibleFunctionTables")
 ArgumentEncoder_setVisibleFunctionTables :: #force_inline proc(self: ^ArgumentEncoder, visibleFunctionTables: []^VisibleFunctionTable, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(visibleFunctionTables)))
+    internal.assert(range.length <= NS.UInteger(len(visibleFunctionTables)))
     msgSend(nil, self, "setVisibleFunctionTables:withRange:", raw_data(visibleFunctionTables), range)
 }
 
@@ -5225,8 +5225,8 @@ ComputeCommandEncoder_setBufferOffset :: #force_inline proc "c" (self: ^ComputeC
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setBuffers")
 ComputeCommandEncoder_setBuffers :: #force_inline proc(self: ^ComputeCommandEncoder, buffers: []^Buffer, offsets: []NS.UInteger, range: NS.Range) {
-    assert(len(buffers) == len(offsets))
-    assert(range.length <= NS.UInteger(len(buffers)))
+    internal.assert(len(buffers) == len(offsets))
+    internal.assert(range.length <= NS.UInteger(len(buffers)))
     msgSend(nil, self, "setBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setBytes")
@@ -5247,7 +5247,7 @@ ComputeCommandEncoder_setIntersectionFunctionTable :: #force_inline proc "c" (se
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setIntersectionFunctionTables")
 ComputeCommandEncoder_setIntersectionFunctionTables :: #force_inline proc(self: ^ComputeCommandEncoder, intersectionFunctionTables: []^IntersectionFunctionTable, range: NS.Range) {
-    assert(range.length <= NS.UInteger(len(intersectionFunctionTables)))
+    internal.assert(range.length <= NS.UInteger(len(intersectionFunctionTables)))
     msgSend(nil, self, "setIntersectionFunctionTables:withBufferRange:", raw_data(intersectionFunctionTables), range)
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setSamplerState")

@@ -71,8 +71,8 @@ WASM_Allocator :: struct {
 
 // Not required to be called, called on first allocation otherwise.
 wasm_allocator_init :: proc(a: ^WASM_Allocator, alignment: uint = 8) {
-    assert(is_power_of_two(alignment), "alignment must be a power of two")
-    assert(alignment > 4, "alignment must be more than 4")
+    internal.assert(is_power_of_two(alignment), "alignment must be a power of two")
+    internal.assert(alignment > 4, "alignment must be more than 4")
 
     a.alignment = alignment
 
@@ -82,7 +82,7 @@ wasm_allocator_init :: proc(a: ^WASM_Allocator, alignment: uint = 8) {
     }
 
     if !claim_more_memory(a, 3*size_of(Region)) {
-        panic("wasm_allocator: initial memory could not be allocated")
+        internal.panic("wasm_allocator: initial memory could not be allocated")
     }
 }
 
@@ -299,7 +299,7 @@ lock :: proc(a: ^WASM_Allocator) {
                 }
 
                 ret := intrinsics.wasm_memory_atomic_wait32((^u32)(&a.mu), u32(new_state), -1)
-                assert(ret != 0)
+                internal.assert(ret != 0)
                 intrinsics.cpu_relax()
             }
         }
@@ -338,7 +338,7 @@ unlock :: proc(a: ^WASM_Allocator) {
 @(private="file")
 assert_locked :: proc(a: ^WASM_Allocator) {
     when intrinsics.has_target_feature("atomics") {
-        assert(intrinsics.atomic_load(&a.mu) != .Unlocked)
+        internal.assert(intrinsics.atomic_load(&a.mu) != .Unlocked)
     }
 }
 
@@ -372,8 +372,8 @@ compute_free_list_bucket :: proc(size: uint) -> uint {
         ?     110 - (clz<<2) + ((i32)(size >> (u32)(29-clz)) ~ 4) \
         : min( 71 - (clz<<1) + ((i32)(size >> (u32)(30-clz)) ~ 2), NUM_FREE_BUCKETS-1))
 
-    assert(bucket_index >= 0)
-    assert(bucket_index < NUM_FREE_BUCKETS)
+    internal.assert(bucket_index >= 0)
+    internal.assert(bucket_index < NUM_FREE_BUCKETS)
     return uint(bucket_index)
 }
 
@@ -416,9 +416,9 @@ region_payload_end_ptr :: proc(r: ^Region) -> [^]byte {
 
 @(private="file")
 create_used_region :: proc(ptr: rawptr, size: uint) {
-    assert(has_alignment(uintptr(ptr), size_of(uint)))
-    assert(has_alignment(size, size_of(uint)))
-    assert(size >= size_of(Region))
+    internal.assert(has_alignment(uintptr(ptr), size_of(uint)))
+    internal.assert(has_alignment(size, size_of(uint)))
+    internal.assert(size >= size_of(Region))
 
     uptr := ([^]uint)(ptr)
     uptr[0] = size
@@ -427,9 +427,9 @@ create_used_region :: proc(ptr: rawptr, size: uint) {
 
 @(private="file")
 create_free_region :: proc(ptr: rawptr, size: uint) {
-    assert(has_alignment(uintptr(ptr), size_of(uint)))
-    assert(has_alignment(size, size_of(uint)))
-    assert(size >= size_of(Region))
+    internal.assert(has_alignment(uintptr(ptr), size_of(uint)))
+    internal.assert(has_alignment(size, size_of(uint)))
+    internal.assert(size >= size_of(Region))
 
     free_region := (^Region)(ptr)
     free_region.size = size
@@ -438,7 +438,7 @@ create_free_region :: proc(ptr: rawptr, size: uint) {
 
 @(private="file")
 prepend_to_free_list :: proc(region: ^Region, prepend_to: ^Region) {
-    assert(region_is_free(region))
+    internal.assert(region_is_free(region))
     region.next = prepend_to
     region.prev = prepend_to.prev
     prepend_to.prev = region
@@ -447,14 +447,14 @@ prepend_to_free_list :: proc(region: ^Region, prepend_to: ^Region) {
 
 @(private="file")
 unlink_from_free_list :: proc(region: ^Region) {
-    assert(region_is_free(region))
+    internal.assert(region_is_free(region))
     region.prev.next = region.next
     region.next.prev = region.prev
 }
 
 @(private="file")
 link_to_free_list :: proc(a: ^WASM_Allocator, free_region: ^Region) {
-    assert(free_region.size >= size_of(Region))
+    internal.assert(free_region.size >= size_of(Region))
     bucket_index := compute_free_list_bucket(free_region.size-REGION_HEADER_SIZE)
     free_list_head := &a.free_region_buckets[bucket_index]
     free_region.prev = free_list_head
@@ -512,7 +512,7 @@ claim_more_memory :: proc(a: ^WASM_Allocator, num_bytes: uint) -> bool {
     start_ptr := alloc(a, uint(num_bytes))
     if start_ptr == nil { return false }
 
-    assert(has_alignment(uintptr(start_ptr), align_of(uint)))
+    internal.assert(has_alignment(uintptr(start_ptr), align_of(uint)))
     end_ptr := start_ptr[num_bytes:]
 
     end_sentinel_region := (^Region)(end_ptr[-size_of(Region):])
@@ -523,7 +523,7 @@ claim_more_memory :: proc(a: ^WASM_Allocator, num_bytes: uint) -> bool {
     prev_alloc_end_address := a.list_of_all_regions != nil ? a.list_of_all_regions.end_ptr : nil
     if start_ptr == prev_alloc_end_address {
         prev_end_sentinel := prev_region((^Region)(start_ptr))
-        assert(region_is_in_use(prev_end_sentinel))
+        internal.assert(region_is_in_use(prev_end_sentinel))
         prev_region := prev_region(prev_end_sentinel)
 
         a.list_of_all_regions.end_ptr = end_ptr
@@ -564,7 +564,7 @@ validate_alloc_size :: proc(size: uint) -> uint {
     // do bad on wasm64p32.
 
     validated_size := size > SMALLEST_ALLOCATION_SIZE ? mem.align_forward(size, size_of(uint)) : SMALLEST_ALLOCATION_SIZE
-    assert(validated_size >= size) // Assert we haven't wrapped.
+    internal.assert(validated_size >= size) // Assert we haven't wrapped.
 
     return validated_size
 }
@@ -592,7 +592,7 @@ allocate_memory :: proc(a: ^WASM_Allocator, alignment: uint, size: uint, loc := 
         // so that the boundary between the two regions happens at a right spot for the payload to be aligned.
         if payload_start_ptr != payload_start_ptr_aligned {
             prev := prev_region(free_region)
-            assert(region_is_in_use(prev))
+            internal.assert(region_is_in_use(prev))
             region_boundary_bump_amount := payload_start_ptr_aligned - payload_start_ptr
             new_this_region_size := free_region.size - uint(region_boundary_bump_amount)
             create_used_region(prev, prev.size + uint(region_boundary_bump_amount))
@@ -623,8 +623,8 @@ allocate_memory :: proc(a: ^WASM_Allocator, alignment: uint, size: uint, loc := 
     }
 
     assert_locked(a)
-    assert(is_power_of_two(alignment))
-    assert(size <= MAX_ALLOC_SIZE, "allocation too big", loc=loc)
+    internal.assert(is_power_of_two(alignment))
+    internal.assert(size <= MAX_ALLOC_SIZE, "allocation too big", loc=loc)
 
     alignment := alignment
     alignment  = max(alignment, a.alignment)
@@ -643,11 +643,11 @@ allocate_memory :: proc(a: ^WASM_Allocator, alignment: uint, size: uint, loc := 
         index_add := intrinsics.count_trailing_zeros(bucket_mask)
         bucket_index += uint(index_add)
         bucket_mask >>= index_add
-        assert(bucket_index <= NUM_FREE_BUCKETS-1)
-        assert(a.free_region_buckets_used & (BUCKET_BITMASK_T(1) << bucket_index) > 0)
+        internal.assert(bucket_index <= NUM_FREE_BUCKETS-1)
+        internal.assert(a.free_region_buckets_used & (BUCKET_BITMASK_T(1) << bucket_index) > 0)
 
         free_region := a.free_region_buckets[bucket_index].next
-        assert(free_region != nil)
+        internal.assert(free_region != nil)
         if free_region != &a.free_region_buckets[bucket_index] {
             ptr := attempt_allocate(a, free_region, alignment, size)
             if ptr != nil {
@@ -680,7 +680,7 @@ allocate_memory :: proc(a: ^WASM_Allocator, alignment: uint, size: uint, loc := 
             bucket_mask ~= 1
         }
 
-        assert((bucket_index == NUM_FREE_BUCKETS && bucket_mask == 0) || (bucket_mask == a.free_region_buckets_used >> bucket_index))
+        internal.assert((bucket_index == NUM_FREE_BUCKETS && bucket_mask == 0) || (bucket_mask == a.free_region_buckets_used >> bucket_index))
     }
 
     // None of the buckets were able to accommodate an allocation. If this happens we are almost out of memory.
@@ -751,13 +751,13 @@ free :: proc(a: ^WASM_Allocator, ptr: rawptr, loc := #caller_location) {
 
     region_start_ptr := uintptr(ptr) - size_of(uint)
     region := (^Region)(region_start_ptr)
-    assert(has_alignment(region_start_ptr, size_of(uint)))
+    internal.assert(has_alignment(region_start_ptr, size_of(uint)))
 
     lock(a)
     defer unlock(a)
 
     size := region.size
-    assert(region_is_in_use(region), "double free or corrupt region", loc=loc)
+    internal.assert(region_is_in_use(region), "double free or corrupt region", loc=loc)
 
     prev_region_size_field := ([^]uint)(region)[-1]
     prev_region_size := prev_region_size_field & ~uint(FREE_REGION_FLAG)
@@ -792,9 +792,9 @@ aligned_realloc :: proc(a: ^WASM_Allocator, ptr: rawptr, alignment, size: uint, 
         next_region_end_ptr := uintptr(next_reg) + uintptr(next_reg.size)
         size_at_ceiling := ([^]uint)(next_region_end_ptr)[-1]
         if next_reg.size != size_at_ceiling { // Next region is free?
-            assert(region_is_free(next_reg))
+            internal.assert(region_is_free(next_reg))
             new_next_region_start_ptr := uintptr(region) + uintptr(size)
-            assert(has_alignment(new_next_region_start_ptr, size_of(uint)))
+            internal.assert(has_alignment(new_next_region_start_ptr, size_of(uint)))
             // Next region does not shrink to too small size?
             if new_next_region_start_ptr + size_of(Region) <= next_region_end_ptr {
                 unlink_from_free_list(next_reg)
@@ -843,8 +843,8 @@ aligned_realloc :: proc(a: ^WASM_Allocator, ptr: rawptr, alignment, size: uint, 
         return nil
     }
 
-    assert(is_power_of_two(alignment))
-    assert(has_alignment(uintptr(ptr), alignment), "realloc on different alignment than original allocation", loc=loc)
+    internal.assert(is_power_of_two(alignment))
+    internal.assert(has_alignment(uintptr(ptr), alignment), "realloc on different alignment than original allocation", loc=loc)
 
     size := size
     size  = validate_alloc_size(size)

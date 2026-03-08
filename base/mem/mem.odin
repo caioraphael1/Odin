@@ -213,7 +213,7 @@ is_aligned :: proc(x: rawptr, align: int) -> bool {
 }
 
 align_forward_int :: #force_inline proc(ptr, align: int) -> int {
-    assert(is_power_of_two_int(align))
+    internal.assert(is_power_of_two_int(align))
 
     p := ptr
     modulo := p & (align-1)
@@ -235,7 +235,7 @@ align_forward_int2 :: proc(ptr, align: int) -> int {
 }
 
 align_forward_uint :: #force_inline proc(ptr, align: uint) -> uint {
-    assert(is_power_of_two_uint(align))
+    internal.assert(is_power_of_two_uint(align))
 
     p := ptr
     modulo := p & (align-1)
@@ -257,7 +257,7 @@ align_forward_uint2 :: proc(ptr, align: uint) -> uint {
 }
 
 align_forward_uintptr :: #force_inline proc(ptr, align: uintptr) -> uintptr {
-    assert(is_power_of_two_uintptr(align))
+    internal.assert(is_power_of_two_uintptr(align))
 
     p := ptr
     modulo := p & (align-1)
@@ -277,7 +277,7 @@ bytes, `ptr` is returned.
 The specified alignment must be a power of 2.
 */
 align_forward_uintptr2 :: proc(ptr, align: uintptr) -> uintptr {
-    assert(is_power_of_two(align))
+    internal.assert(is_power_of_two(align))
     return (ptr + align-1) & ~(align-1)
 }
 
@@ -304,7 +304,7 @@ bytes, `ptr` is returned.
 The specified alignment must be a power of 2.
 */
 align_backward_uintptr :: proc(ptr, align: uintptr) -> uintptr {
-    assert(is_power_of_two(align))
+    internal.assert(is_power_of_two(align))
     return ptr & ~(align-1)
 }
 

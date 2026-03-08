@@ -25,7 +25,7 @@ Info :: struct {
     indirection_level: int,
     record_level: int,
 
-    optional_len: Maybe(int),
+    optional_len: internal.Maybe(int),
     use_nul_termination: bool,
 
     n: int, // bytes written
@@ -73,7 +73,7 @@ User_Formatter :: #type proc(fi: ^Info, arg: any, verb: rune) -> bool
 //  // Ensure the fmt._user_formatters map is initialized
 //  fmt.set_user_formatters(new(map[typeid]fmt.User_Formatter))
 //  err := fmt.register_user_formatter(type_info_of(SomeType).id, User_Formatter)
-//  assert(err == .None)
+//  internal.assert(err == .None)
 //  // Use the custom formatter
 //  x := SomeType{42}
 //  fmt.println("Custom type value: ", x)
@@ -97,7 +97,7 @@ _user_formatters: ^map[typeid]User_Formatter
 // NOTE: Must be called before using register_user_formatter.
 //
 set_user_formatters :: proc(m: ^map[typeid]User_Formatter) {
-    assert(_user_formatters == nil, "set_user_formatters must not be called more than once.")
+    internal.assert(_user_formatters == nil, "set_user_formatters must not be called more than once.")
     _user_formatters = m
 }
 // Registers a user-defined formatter for a specific typeid
@@ -586,7 +586,7 @@ wprintln :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> int {
 @(optional_results)
 wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline := false) -> int {
     MAX_CHECKED_ARGS :: 64
-    assert(len(args) <= MAX_CHECKED_ARGS, "number of args > 64 is unsupported")
+    internal.assert(len(args) <= MAX_CHECKED_ARGS, "number of args > 64 is unsupported")
 
     parse_options :: proc(fi: ^Info, fmt: string, index, end: int, unused_args: ^bit_set[0 ..< MAX_CHECKED_ARGS], args: ..any) -> int {
         i := index
@@ -1058,7 +1058,7 @@ _fmt_int :: proc(fi: ^Info, u: u64, base: int, is_signed: bool, bit_size: int, d
         width := fi.width + fi.prec + 3 // 3 extra bytes for sign and prefix
         if width > BUF_SIZE {
             // TODO(bill):????
-            panic("_fmt_int: buffer overrun. Width and precision too big")
+            internal.panic("_fmt_int: buffer overrun. Width and precision too big")
         }
     }
 
@@ -1108,7 +1108,7 @@ _fmt_int :: proc(fi: ^Info, u: u64, base: int, is_signed: bool, bit_size: int, d
     case 2, 8, 10, 12, 16:
         break
     case:
-        panic("_fmt_int: unknown base, whoops")
+        internal.panic("_fmt_int: unknown base, whoops")
     }
 
     flags: strconv.Int_Flags
@@ -1140,7 +1140,7 @@ _fmt_int_128 :: proc(fi: ^Info, u: u128, base: int, is_signed: bool, bit_size: i
         width := fi.width + fi.prec + 3 // 3 extra bytes for sign and prefix
         if width > BUF_SIZE {
             // TODO(bill):????
-            panic("_fmt_int: buffer overrun. Width and precision too big")
+            internal.panic("_fmt_int: buffer overrun. Width and precision too big")
         }
     }
 
@@ -1190,7 +1190,7 @@ _fmt_int_128 :: proc(fi: ^Info, u: u128, base: int, is_signed: bool, bit_size: i
     case 2, 8, 10, 12, 16:
         break
     case:
-        panic("_fmt_int: unknown base, whoops")
+        internal.panic("_fmt_int: unknown base, whoops")
     }
 
     flags: strconv.Int_Flags
@@ -1458,7 +1458,7 @@ fmt_float :: proc(fi: ^Info, v: f64, bit_size: int, verb: rune) {
         case 16: u = u64(transmute(u16)f16(v))
         case 32: u = u64(transmute(u32)f32(v))
         case 64: u = transmute(u64)v
-        case: panic("Unhandled float size")
+        case: internal.panic("Unhandled float size")
         }
 
         _, _ = io.write_string(fi.writer, "0h", &fi.n)
@@ -1850,7 +1850,7 @@ fmt_bit_set :: proc(fi: ^Info, v: any, name: string = "", verb: rune = 'v') {
                 return
             }
             bits = x
-        case: panic("unknown bit_size size")
+        case: internal.panic("unknown bit_size size")
         }
 
         et := internal.type_info_base(info.elem)
@@ -2732,9 +2732,9 @@ fmt_union :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Union,
     case i32:  tag = i64(i)
     case u64:  tag = i64(i)
     case i64:  tag = i
-    case: panic("Invalid union tag type")
+    case: internal.panic("Invalid union tag type")
     }
-    assert(tag >= 0)
+    internal.assert(tag >= 0)
 
     if v.data == nil {
         _, _ = io.write_string(fi.writer, "nil", &fi.n)

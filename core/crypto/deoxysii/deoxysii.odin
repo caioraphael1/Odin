@@ -75,8 +75,8 @@ Context :: struct {
 
 @(private)
 _validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte) {
-	ensure(len(tag) == TAG_SIZE, "crypto/deoxysii: invalid tag size")
-	ensure(len(iv) == IV_SIZE, "crypto/deoxysii: invalid IV size")
+	internal.ensure(len(tag) == TAG_SIZE, "crypto/deoxysii: invalid tag size")
+	internal.ensure(len(iv) == IV_SIZE, "crypto/deoxysii: invalid IV size")
 
 	#assert(size_of(int) == 8 || size_of(int) <= 4)
 	// For the nonce-misuse resistant mode, the total size of the
@@ -89,7 +89,7 @@ _validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte)
 
 // init initializes a Context with the provided key.
 init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
-	ensure(len(key) == KEY_SIZE, "crypto/deoxysii: invalid key size")
+	internal.ensure(len(key) == KEY_SIZE, "crypto/deoxysii: invalid key size")
 
 	ctx._impl = impl
 	if ctx._impl == .Hardware && !is_hardware_accelerated() {
@@ -106,11 +106,11 @@ init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
 //
 // dst and plaintext MUST alias exactly or not at all.
 seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, plaintext)
-	ensure(len(dst) == len(plaintext), "crypto/deoxysii: invalid destination ciphertext size")
-	ensure(!bytes.alias_inexactly(dst, plaintext), "crypto/deoxysii: dst and plaintext alias inexactly")
+	internal.ensure(len(dst) == len(plaintext), "crypto/deoxysii: invalid destination ciphertext size")
+	internal.ensure(!bytes.alias_inexactly(dst, plaintext), "crypto/deoxysii: dst and plaintext alias inexactly")
 
 	switch ctx._impl {
 	case .Hardware:
@@ -128,11 +128,11 @@ seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 // dst and plaintext MUST alias exactly or not at all.
 
 open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, ciphertext)
-	ensure(len(dst) == len(ciphertext), "crypto/deoxysii: invalid destination plaintext size")
-	ensure(!bytes.alias_inexactly(dst, ciphertext), "crypto/deoxysii: dst and ciphertext alias inexactly")
+	internal.ensure(len(dst) == len(ciphertext), "crypto/deoxysii: invalid destination plaintext size")
+	internal.ensure(!bytes.alias_inexactly(dst, ciphertext), "crypto/deoxysii: dst and ciphertext alias inexactly")
 
 	ok: bool
 	switch ctx._impl {

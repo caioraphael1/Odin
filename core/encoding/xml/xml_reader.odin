@@ -413,7 +413,7 @@ expect :: proc(t: ^Tokenizer, kind: Token_Kind, multiline_string := false) -> (t
 }
 
 parse_attribute :: proc(doc: ^Document) -> (attr: Attribute, offset: int, err: Error) {
-	assert(doc != nil)
+	internal.assert(doc != nil)
 	t := doc.tokenizer
 
 	key    := expect(t, .Ident)  or_return
@@ -444,7 +444,7 @@ check_duplicate_attributes :: proc(t: ^Tokenizer, attribs: Attributes, attr: Att
 }
 
 parse_attributes :: proc(doc: ^Document, attribs: ^Attributes) -> (err: Error) {
-	assert(doc != nil)
+	internal.assert(doc != nil)
 	t := doc.tokenizer
 
 	for peek(t).kind == .Ident {
@@ -457,7 +457,7 @@ parse_attributes :: proc(doc: ^Document, attribs: ^Attributes) -> (err: Error) {
 }
 
 parse_prologue :: proc(doc: ^Document) -> (err: Error) {
-	assert(doc != nil)
+	internal.assert(doc != nil)
 	t := doc.tokenizer
 
 	offset := t.offset
@@ -531,7 +531,7 @@ parse_doctype :: proc(doc: ^Document) -> (err: Error) {
 		<!ELEMENT greeting (#PCDATA)>
 	]>
 	*/
-	assert(doc != nil)
+	internal.assert(doc != nil)
 	t := doc.tokenizer
 
 	tok := expect(t, .Ident) or_return
@@ -547,7 +547,7 @@ parse_doctype :: proc(doc: ^Document) -> (err: Error) {
 }
 
 parse_body :: proc(doc: ^Document, element: Element_ID, opts: Options) -> (err: Error) {
-	assert(doc != nil)
+	internal.assert(doc != nil)
 	t := doc.tokenizer
 
 	body_text        := scan_string(t, t.offset) or_return

@@ -72,7 +72,7 @@ Memory_Block_Flags :: distinct bit_set[Memory_Block_Flag; u32]
 @(no_sanitize_address)
 memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags: Memory_Block_Flags = {}) -> (block: ^Memory_Block, err: Allocator_Error) {
     page_size := DEFAULT_PAGE_SIZE
-    assert(mem.is_power_of_two(uintptr(page_size)))
+    internal.assert(mem.is_power_of_two(uintptr(page_size)))
 
     committed := committed
     reserved  := reserved
@@ -100,8 +100,8 @@ memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags
     platform_memory_commit(pmblock, uint(base_offset) + committed) or_return
 
     // Should be zeroed
-    assert(pmblock.block.used == 0)
-    assert(pmblock.block.prev == nil)   
+    internal.assert(pmblock.block.used == 0)
+    internal.assert(pmblock.block.prev == nil)   
     if do_protection {
         _ = protect(([^]byte)(pmblock)[protect_offset:], page_size, Protect_No_Access)
     }
@@ -139,8 +139,8 @@ alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint,
             platform_total_commit = mem.align_formula_uint(platform_total_commit, DEFAULT_PAGE_SIZE)
             platform_total_commit = min(max(platform_total_commit, default_commit_size), pmblock.reserved)
 
-            assert(pmblock.committed <= pmblock.reserved)
-            assert(pmblock.committed < platform_total_commit)
+            internal.assert(pmblock.committed <= pmblock.reserved)
+            internal.assert(pmblock.committed < platform_total_commit)
 
             platform_memory_commit(pmblock, platform_total_commit) or_return
 
@@ -166,7 +166,7 @@ alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint,
         err = .Out_Of_Memory
         return
     }
-    assert(block.committed <= block.reserved)
+    internal.assert(block.committed <= block.reserved)
     do_commit_if_necessary(block, size, default_commit_size) or_return
 
     data = block.base[block.used+alignment_offset:][:min_size]

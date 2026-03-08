@@ -175,7 +175,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         }
 
         res := posix.execve(strings.to_cstring(&exe_builder) or_return, raw_data(cmd), env)
-        assert(res == -1)
+        internal.assert(res == -1)
         abort(pipe[WRITE])
 
     case:
@@ -293,7 +293,7 @@ _process_wait :: proc(process: Process, timeout: time.Duration) -> (process_stat
         _process_state_update_times(process, &process_state)
 
         if info.si_signo == nil {
-            assert(timeout == 0)
+            internal.assert(timeout == 0)
             err = .Timeout
             return
         }

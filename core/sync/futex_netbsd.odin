@@ -33,7 +33,7 @@ _futex_wait :: proc(futex: ^Futex, expected: u32) -> bool {
         case EINTR, EAGAIN:
             return true
         case:
-            panic("futex_wait failure")
+            internal.panic("futex_wait failure")
         }   
     }
     return true
@@ -53,7 +53,7 @@ _futex_wait_with_timeout :: proc(futex: ^Futex, expected: u32, duration: time.Du
         case ETIMEDOUT:
             return false
         case:
-            panic("futex_wait_with_timeout failure")
+            internal.panic("futex_wait_with_timeout failure")
         }
     }
     return true
@@ -61,12 +61,12 @@ _futex_wait_with_timeout :: proc(futex: ^Futex, expected: u32, duration: time.Du
 
 _futex_signal :: proc(futex: ^Futex) {
     if _, ok := intrinsics.syscall_bsd(unix.SYS___futex, uintptr(futex), FUTEX_WAKE_PRIVATE, 1, 0, 0, 0); !ok {
-        panic("futex_wake_single failure")
+        internal.panic("futex_wake_single failure")
     }
 }
 
 _futex_broadcast :: proc(futex: ^Futex)  {
     if _, ok := intrinsics.syscall_bsd(unix.SYS___futex, uintptr(futex), FUTEX_WAKE_PRIVATE, uintptr(max(i32)), 0, 0, 0); !ok {
-        panic("_futex_wake_all failure")
+        internal.panic("_futex_wake_all failure")
     }
 }

@@ -172,7 +172,7 @@ XXH64_destroy_state :: proc(state: ^XXH64_state, allocator : mem.Allocator) -> (
 }
 
 XXH64_copy_state :: proc(dest, src: ^XXH64_state) {
-	assert(dest != nil && src != nil)
+	internal.assert(dest != nil && src != nil)
 	mem_copy(dest, src, size_of(XXH64_state))
 }
 

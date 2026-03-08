@@ -153,7 +153,7 @@ square_f128 :: #force_inline proc(kw: x86.__m128i) -> (x86.__m128i, x86.__m128i)
 @(enable_target_feature = "sse2,ssse3,pclmul")
 ghash :: proc(dst, key, data: []byte) #no_bounds_check {
 	if len(dst) != _aes.GHASH_BLOCK_SIZE || len(key) != _aes.GHASH_BLOCK_SIZE {
-		panic("aes/ghash: invalid dst or key size")
+		internal.panic("aes/ghash: invalid dst or key size")
 	}
 
 	// Note: BearSSL opts to copy the remainder into a zero-filled

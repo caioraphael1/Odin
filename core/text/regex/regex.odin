@@ -370,10 +370,10 @@ match_with_preallocated_capture :: proc(
     capture:       ^Capture,
 ) -> (num_groups: int, success: bool) {
 
-    assert(capture != nil, "Pre-allocated RegEx capture must not be nil.")
-    assert(len(capture.groups) >= common.MAX_CAPTURE_GROUPS,
+    internal.assert(capture != nil, "Pre-allocated RegEx capture must not be nil.")
+    internal.assert(len(capture.groups) >= common.MAX_CAPTURE_GROUPS,
         "Pre-allocated RegEx capture `groups` must be at least 10 elements long.")
-    assert(len(capture.pos) >= common.MAX_CAPTURE_GROUPS,
+    internal.assert(len(capture.pos) >= common.MAX_CAPTURE_GROUPS,
         "Pre-allocated RegEx capture `pos` must be at least 10 elements long.")
 
     saved: ^[2 * common.MAX_CAPTURE_GROUPS]int
@@ -417,9 +417,9 @@ Returns:
 - ok:     A bool indicating if there was a match, stopping the iteration on `false`.
 */
 match_iterator :: proc(it: ^Match_Iterator) -> (result: Capture, index: int, ok: bool) {
-    assert(len(it.capture.groups) >= common.MAX_CAPTURE_GROUPS,
+    internal.assert(len(it.capture.groups) >= common.MAX_CAPTURE_GROUPS,
         "Pre-allocated RegEx capture `groups` must be at least 10 elements long.")
-    assert(len(it.capture.pos) >= common.MAX_CAPTURE_GROUPS,
+    internal.assert(len(it.capture.pos) >= common.MAX_CAPTURE_GROUPS,
         "Pre-allocated RegEx capture `pos` must be at least 10 elements long.")
 
     // Guard against situations in which the iterator should finish.

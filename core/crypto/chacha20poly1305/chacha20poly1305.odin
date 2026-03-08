@@ -29,8 +29,8 @@ _P_MAX :: 64 * 0xffffffff // 64 * (2^32-1)
 @(private)
 _validate_common_slice_sizes :: proc (tag, iv, aad, text: []byte, is_xchacha: bool) {
 	expected_iv_len := is_xchacha ? XIV_SIZE : IV_SIZE
-	ensure(len(tag) == TAG_SIZE, "crypto/chacha20poly1305: invalid destination tag size")
-	ensure(len(iv) == expected_iv_len, "crypto/chacha20poly1305: invalid IV size")
+	internal.ensure(len(tag) == TAG_SIZE, "crypto/chacha20poly1305: invalid destination tag size")
+	internal.ensure(len(iv) == expected_iv_len, "crypto/chacha20poly1305: invalid IV size")
 
 	#assert(size_of(int) == 8 || size_of(int) <= 4)
 	when size_of(int) == 8 {
@@ -40,7 +40,7 @@ _validate_common_slice_sizes :: proc (tag, iv, aad, text: []byte, is_xchacha: bo
 		// A_MAX is limited by size_of(int), so there is no need to
 		// enforce it. P_MAX only needs to be checked on 64-bit targets,
 		// for reasons that should be obvious.
-		ensure(len(text) <= _P_MAX, "crypto/chacha20poly1305: oversized src data")
+		internal.ensure(len(text) <= _P_MAX, "crypto/chacha20poly1305: oversized src data")
 	}
 }
 
@@ -64,7 +64,7 @@ Context :: struct {
 
 // init initializes a Context with the provided key, for AEAD_CHACHA20_POLY1305.
 init :: proc(ctx: ^Context, key: []byte, impl := chacha20.DEFAULT_IMPLEMENTATION) {
-	ensure(len(key) == KEY_SIZE, "crypto/chacha20poly1305: invalid key size")
+	internal.ensure(len(key) == KEY_SIZE, "crypto/chacha20poly1305: invalid key size")
 
 	copy(ctx._key[:], key)
 	ctx._impl = impl
@@ -87,11 +87,11 @@ init_xchacha :: proc(ctx: ^Context, key: []byte, impl := chacha20.DEFAULT_IMPLEM
 //
 // dst and plaintext MUST alias exactly or not at all.
 seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	ciphertext := dst
 	_validate_common_slice_sizes(tag, iv, aad, plaintext, ctx._is_xchacha)
-	ensure(len(ciphertext) == len(plaintext), "crypto/chacha20poly1305: invalid destination ciphertext size")
+	internal.ensure(len(ciphertext) == len(plaintext), "crypto/chacha20poly1305: invalid destination ciphertext size")
 
 	stream_ctx: chacha20.Context = ---
 	chacha20.init(&stream_ctx, ctx._key[:],iv, ctx._impl)
@@ -142,11 +142,11 @@ seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 // dst and plaintext MUST alias exactly or not at all.
 
 open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
-	ensure(ctx._is_initialized)
+	internal.ensure(ctx._is_initialized)
 
 	plaintext := dst
 	_validate_common_slice_sizes(tag, iv, aad, ciphertext, ctx._is_xchacha)
-	ensure(len(ciphertext) == len(plaintext), "crypto/chacha20poly1305: invalid destination plaintext size")
+	internal.ensure(len(ciphertext) == len(plaintext), "crypto/chacha20poly1305: invalid destination plaintext size")
 
 	// Note: Unlike encrypt, this can fail early, so use defer for
 	// sanitization rather than assuming control flow reaches certain

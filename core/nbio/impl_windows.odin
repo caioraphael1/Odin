@@ -125,7 +125,7 @@ _init :: proc(l: ^Event_Loop, alloc: mem.Allocator) -> (err: General_Error) {
         win.GetCurrentProcess(), &l.thread,
         0, false, win.DUPLICATE_SAME_ACCESS,
     )
-    ensure(dup_ok == true)
+    internal.ensure(dup_ok == true)
     defer if err != nil { win.CloseHandle(l.thread) }
 
     err = g_ref()
@@ -221,7 +221,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
         }
 
         for event in events[:entries_removed] {
-            assert(event.lpOverlapped != nil)
+            internal.assert(event.lpOverlapped != nil)
             op := container_of(container_of(event.lpOverlapped, _Operation, "over"), Operation, "_impl")
 
             if op.l == l {
@@ -248,7 +248,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
 
     return nil
 
-    check_timeouts :: proc(l: ^Event_Loop) -> (expires: Maybe(time.Duration)) {
+    check_timeouts :: proc(l: ^Event_Loop) -> (expires: internal.Maybe(time.Duration)) {
         curr := l.now
 
         if avl.len(&l.timeouts) == 0 {
@@ -351,7 +351,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
         }
 
         if result == .Pending {
-            assert(op._impl.timeout != (^Operation)(REMOVED))
+            internal.assert(op._impl.timeout != (^Operation)(REMOVED))
             debug(op.type, "pending")
             return
         }
@@ -385,7 +385,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
 
 @(private)
 _exec :: proc(op: ^Operation) {
-    assert(op.l == &_tls_event_loop)
+    internal.assert(op.l == &_tls_event_loop)
 
     result: Op_Result
     switch op.type {
@@ -412,7 +412,7 @@ _exec :: proc(op: ^Operation) {
     case .Done:
         debug("exec", op.type, "done immediately")
         _, err := queue.dyn_array.append(&op.l.completed, op) // Got result, handle it next tick.
-        ensure(err == nil, "allocation failure")
+        internal.ensure(err == nil, "allocation failure")
     }
 }
 
@@ -432,11 +432,11 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
         is_cwd = true
 
         cwd_len := win.GetCurrentDirectoryW(0, nil)
-        assert(cwd_len > 0)
+        internal.assert(cwd_len > 0)
         cwd_buf, cwd_err := slice.create([]u16, cwd_len, l.allocator)
         if cwd_err != nil { return INVALID_HANDLE, .Allocation_Failed }
         cwd_len = win.GetCurrentDirectoryW(cwd_len, raw_data(cwd_buf))
-        assert(int(cwd_len) == len(cwd_buf)-1)
+        internal.assert(int(cwd_len) == len(cwd_buf)-1)
         cwd_path = win.wstring(raw_data(cwd_buf))
 
         dir = Handle(win.CreateFileW(
@@ -542,7 +542,7 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
                 association_err: Association_Error
                 handle, association_err = _associate_handle(uintptr(h), l)
                 // This shouldn't fail, we just created this file, with correct flags.
-                assert(association_err != nil)
+                internal.assert(association_err != nil)
                 return
             case:
                 err = FS_Error(syserr)
@@ -580,7 +580,7 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
         association_err: Association_Error
         handle, association_err = _associate_handle(uintptr(h), l)
         // This shouldn't fail, we just created this file, with correct flags.
-        assert(association_err == nil)
+        internal.assert(association_err == nil)
         return
     case:
         err = FS_Error(syserr)
@@ -657,7 +657,7 @@ _create_socket :: proc(
     association_err := _associate_socket(socket, l)
     // Network unreachable would've happened on creation too.
     // Not possible to associate or invalid handle can't happen because we controlled creation.
-    assert(association_err == nil)
+    internal.assert(association_err == nil)
 
     return
 }
@@ -687,7 +687,7 @@ _remove :: proc(target: ^Operation) {
             0,
             &target._impl.over,
         )
-        ensure(ok == true, "unexpected PostQueuedCompletionStatus error")
+        internal.ensure(ok == true, "unexpected PostQueuedCompletionStatus error")
         return
 
     case .Timeout:
@@ -708,7 +708,7 @@ _remove :: proc(target: ^Operation) {
     case .Accept, .Dial, .Read, .Recv, .Send, .Write, .Send_File:
         if is_pending(target._impl.over) {
             handle := operation_handle(target)
-            assert(handle != win.INVALID_HANDLE)
+            internal.assert(handle != win.INVALID_HANDLE)
             ok := win.CancelIoEx(handle, &target._impl.over)
             if !ok {
                 err := win.System_Error(win.GetLastError())
@@ -718,13 +718,13 @@ _remove :: proc(target: ^Operation) {
                 case .INVALID_HANDLE:
                     debug("Remove: Cancel", target.type, "INVALID_HANDLE") // Likely closed already.
                 case:
-                    assert(false, "unexpected CancelIoEx error")
+                    internal.assert(false, "unexpected CancelIoEx error")
                 }
             }
         }
 
     case ._Remove:
-        panic("can't remove a removal")
+        internal.panic("can't remove a removal")
 
     case .None, ._Splice, ._Link_Timeout:
         fallthrough
@@ -747,7 +747,7 @@ _associate_handle :: proc(handle: uintptr, l: ^Event_Loop) -> (Handle, Associati
 
     // This is an assertion because I don't believe this can happen when we just successfully
     // called `CreateIoCompletionPort`.
-    assert(ok == true, "unexpected SetFileCompletionNotificationModes error")
+    internal.assert(ok == true, "unexpected SetFileCompletionNotificationModes error")
 
     return Handle(handle), nil
 }
@@ -861,7 +861,7 @@ operation_handle :: proc(op: ^Operation) -> win.HANDLE {
 }
 
 close_exec :: proc(op: ^Operation) {
-    assert(op.type == .Close)
+    internal.assert(op.type == .Close)
 
     switch h in op.close.subject {
     case Handle:
@@ -884,8 +884,8 @@ close_exec :: proc(op: ^Operation) {
 
 
 accept_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Accept)
-    assert(is_fresh(op._impl.over))
+    internal.assert(op.type == .Accept)
+    internal.assert(is_fresh(op._impl.over))
 
     family := Address_Family.IP4
     {
@@ -932,7 +932,7 @@ accept_exec :: proc(op: ^Operation) -> Op_Result {
 }
 
 accept_callback :: proc(op: ^Operation) {
-    assert(op.type == .Accept)
+    internal.assert(op.type == .Accept)
 
     defer if op.accept.err != nil {
         win.closesocket(win.SOCKET(op.accept.client))
@@ -960,7 +960,7 @@ accept_callback :: proc(op: ^Operation) {
             &remote_addr_len,
         )
 
-        assert(remote_addr_len <= size_of(win.SOCKADDR_STORAGE_LH))
+        internal.assert(remote_addr_len <= size_of(win.SOCKADDR_STORAGE_LH))
         op.accept.client_endpoint = sockaddr_to_endpoint((^win.SOCKADDR_STORAGE_LH)(remote_addr))
 
         // enables getsockopt, setsockopt, getsockname, getpeername, etc.
@@ -981,8 +981,8 @@ accept_callback :: proc(op: ^Operation) {
 
 
 dial_exec :: proc(op: ^Operation) -> (result: Op_Result) {
-    assert(op.type == .Dial)
-    assert(is_fresh(op._impl.over))
+    internal.assert(op.type == .Dial)
+    internal.assert(is_fresh(op._impl.over))
 
     if op.dial.endpoint.port == 0 {
         op.dial.err = .Port_Required
@@ -1033,7 +1033,7 @@ dial_exec :: proc(op: ^Operation) -> (result: Op_Result) {
 }
 
 dial_callback :: proc(op: ^Operation) {
-    assert(op.type == .Dial)
+    internal.assert(op.type == .Dial)
 
     defer if op.dial.err != nil {
         win.closesocket(win.SOCKET(op.dial.socket))
@@ -1059,7 +1059,7 @@ dial_callback :: proc(op: ^Operation) {
 
 
 read_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Read)
+    internal.assert(op.type == .Read)
     op._impl.over = {} // Can be called multiple times.
 
     op._impl.over.OffsetFull = u64(op.read.offset) + u64(op.read.read)
@@ -1074,7 +1074,7 @@ read_exec :: proc(op: ^Operation) -> Op_Result {
         &read,
         &op._impl.over,
     ) {
-        assert(read == 0)
+        internal.assert(read == 0)
         if is_pending(op._impl.over) {
             link_timeout(op, op.read.expires)
             return .Pending
@@ -1088,13 +1088,13 @@ read_exec :: proc(op: ^Operation) -> Op_Result {
         }
     }
 
-    assert(uintptr(read) == uintptr(op._impl.over.InternalHigh))
+    internal.assert(uintptr(read) == uintptr(op._impl.over.InternalHigh))
     return .Done
 }
 
 
 read_callback :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Read)
+    internal.assert(op.type == .Read)
 
     if op.read.err != nil {
         return .Done
@@ -1133,7 +1133,7 @@ read_callback :: proc(op: ^Operation) -> Op_Result {
 
 
 write_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Write)
+    internal.assert(op.type == .Write)
     op._impl.over = {} // Can be called multiple times.
 
     op._impl.over.OffsetFull = u64(op.write.offset) + u64(op.write.written)
@@ -1148,7 +1148,7 @@ write_exec :: proc(op: ^Operation) -> Op_Result {
         &written,
         &op._impl.over,
     ) {
-        assert(written == 0)
+        internal.assert(written == 0)
         if is_pending(op._impl.over) {
             link_timeout(op, op.write.expires)
             return .Pending
@@ -1162,13 +1162,13 @@ write_exec :: proc(op: ^Operation) -> Op_Result {
         }
     }
 
-    assert(uintptr(written) == uintptr(op._impl.over.InternalHigh))
+    internal.assert(uintptr(written) == uintptr(op._impl.over.InternalHigh))
     return .Done
 }
 
 
 write_callback :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Write)
+    internal.assert(op.type == .Write)
 
     if op.write.err != nil {
         return .Done
@@ -1202,7 +1202,7 @@ write_callback :: proc(op: ^Operation) -> Op_Result {
 
 
 recv_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Recv)
+    internal.assert(op.type == .Recv)
     op._impl.over = {} // Can be called multiple times.
 
     if op.recv.err != nil {
@@ -1212,7 +1212,7 @@ recv_exec :: proc(op: ^Operation) -> Op_Result {
     bufs, _  := bufs_to_process(&op.recv._impl.bufs, op.recv.bufs, op.recv.received)
     win_bufs := ([^]win.WSABUF)(intrinsics.alloca(size_of(win.WSABUF) * len(bufs), align_of(win.WSABUF)))
     for buf, i in bufs {
-        assert(i64(len(buf)) < i64(max(u32)))
+        internal.assert(i64(len(buf)) < i64(max(u32)))
         win_bufs[i] = {len=u32(len(buf)), buf=raw_data(buf)}
     }
 
@@ -1260,7 +1260,7 @@ recv_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 recv_callback :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Recv)
+    internal.assert(op.type == .Recv)
 
     if op.recv.err != nil {
         return .Done
@@ -1311,7 +1311,7 @@ recv_callback :: proc(op: ^Operation) -> Op_Result {
         }
 
     case UDP_Socket:
-        assert(op.recv._impl.source_len > 0)
+        internal.assert(op.recv._impl.source_len > 0)
         op.recv.source = sockaddr_to_endpoint(&op.recv._impl.source)
     }
 
@@ -1320,7 +1320,7 @@ recv_callback :: proc(op: ^Operation) -> Op_Result {
 
 
 send_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Send)
+    internal.assert(op.type == .Send)
     op._impl.over = {} // Can be called multiple times.
 
     if op.send.err != nil {
@@ -1330,7 +1330,7 @@ send_exec :: proc(op: ^Operation) -> Op_Result {
     bufs, _  := bufs_to_process(&op.send._impl.bufs, op.send.bufs, op.send.sent)
     win_bufs := ([^]win.WSABUF)(intrinsics.alloca(size_of(win.WSABUF) * len(bufs), align_of(win.WSABUF)))
     for buf, i in bufs {
-        assert(i64(len(buf)) < i64(max(u32)))
+        internal.assert(i64(len(buf)) < i64(max(u32)))
         win_bufs[i] = {len=u32(len(buf)), buf=raw_data(buf)}
     }
 
@@ -1378,7 +1378,7 @@ send_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 send_callback :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Send)
+    internal.assert(op.type == .Send)
 
     if op.send.err != nil {
         return .Done
@@ -1426,7 +1426,7 @@ send_callback :: proc(op: ^Operation) -> Op_Result {
 
 
 sendfile_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Send_File)
+    internal.assert(op.type == .Send_File)
     op._impl.over = {} // Can be called multiple times.
 
     if op.sendfile.nbytes == SEND_ENTIRE_FILE {
@@ -1467,7 +1467,7 @@ sendfile_exec :: proc(op: ^Operation) -> Op_Result {
 
 
 sendfile_callback :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Send_File)
+    internal.assert(op.type == .Send_File)
 
     if op.sendfile.err != nil {
         return .Done
@@ -1504,7 +1504,7 @@ sendfile_callback :: proc(op: ^Operation) -> Op_Result {
 
 
 poll_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Poll)
+    internal.assert(op.type == .Poll)
 
     events: i32 = win.FD_CLOSE
     switch op.poll.event {
@@ -1542,7 +1542,7 @@ poll_exec :: proc(op: ^Operation) -> Op_Result {
         timeout,
         win.WT_EXECUTEINWAITTHREAD|win.WT_EXECUTEONLYONCE,
     )
-    ensure(ok == true, "unexpected RegisterWaitForSingleObject error")
+    internal.ensure(ok == true, "unexpected RegisterWaitForSingleObject error")
 
     return .Pending
 
@@ -1565,7 +1565,7 @@ poll_exec :: proc(op: ^Operation) -> Op_Result {
 }
 
 poll_callback :: proc(op: ^Operation) {
-    assert(op.type == .Poll)
+    internal.assert(op.type == .Poll)
 
     if op._impl.over.hEvent != nil {
         win.WSACloseEvent(op._impl.over.hEvent)
@@ -1588,29 +1588,29 @@ poll_callback :: proc(op: ^Operation) {
 }
 
 open_exec :: proc(op: ^Operation) {
-    assert(op.type == .Open)
+    internal.assert(op.type == .Open)
     // No async way of doing this.
     op.open.handle, op.open.err = _open_sync(op.l, op.open.path, op.open.dir, op.open.mode, op.open.perm)
 }
 
 stat_exec :: proc(op: ^Operation) {
-    assert(op.type == .Stat)
+    internal.assert(op.type == .Stat)
     // No async way of doing this.
     op.stat.type, op.stat.size, op.stat.err = stat(op.stat.handle)
 }
 
 
 timeout_exec :: proc(op: ^Operation) -> Op_Result {
-    assert(op.type == .Timeout)
+    internal.assert(op.type == .Timeout)
 
     if op.timeout.duration <= 0 {
         return .Done
     } else {
         op.timeout._impl.expires = time.time_add(now(), op.timeout.duration)
         node, inserted, alloc_err := avl.find_or_insert(&op.l.timeouts, op)
-        assert(alloc_err == nil)
-        assert(inserted)
-        assert(node != nil)
+        internal.assert(alloc_err == nil)
+        internal.assert(inserted)
+        internal.assert(node != nil)
         return .Pending
     }
 }
@@ -1626,17 +1626,17 @@ link_timeout :: proc(op: ^Operation, expires: time.Time) {
     op._impl.timeout = timeout_op
 
     node, inserted, alloc_err := avl.find_or_insert(&op.l.timeouts, timeout_op)
-    assert(alloc_err == nil)
-    assert(inserted)
-    assert(node != nil)
+    internal.assert(alloc_err == nil)
+    internal.assert(inserted)
+    internal.assert(node != nil)
 }
 
 internal_timeout_callback :: proc(op: ^Operation) {
-    assert(op.type == .Timeout)
+    internal.assert(op.type == .Timeout)
 
     target := op.timeout._impl.target
-    assert(target != nil)
-    assert(target._impl.timeout == op)
+    internal.assert(target != nil)
+    internal.assert(target._impl.timeout == op)
     target._impl.timeout = nil
 
     #partial switch target.type {
@@ -1649,7 +1649,7 @@ internal_timeout_callback :: proc(op: ^Operation) {
 
     if is_pending(target._impl.over) {
         handle := operation_handle(target)
-        assert(handle != win.INVALID_HANDLE)
+        internal.assert(handle != win.INVALID_HANDLE)
         ok := win.CancelIoEx(handle, &target._impl.over)
         if !ok {
             err := win.System_Error(win.GetLastError())
@@ -1659,7 +1659,7 @@ internal_timeout_callback :: proc(op: ^Operation) {
             case .INVALID_HANDLE:
                 debug("Timeout: Cancel", target.type, "INVALID_HANDLE")
             case:
-                assert(false, "unexpected CancelIoEx error")
+                internal.assert(false, "unexpected CancelIoEx error")
             }
         }
     }
@@ -1724,13 +1724,13 @@ is_fresh :: proc(over: win.OVERLAPPED) -> bool {
 }
 
 get_result :: proc(over: win.OVERLAPPED) -> (n: int, err: win.System_Error) {
-    assert(!is_pending(over))
+    internal.assert(!is_pending(over))
 
     n = int(uintptr(over.InternalHigh))
 
     if over.Internal != nil {
         err = win.System_Error(win.RtlNtStatusToDosError(win.NTSTATUS(uintptr(over.Internal))))
-        assert(!is_incomplete(err))
+        internal.assert(!is_incomplete(err))
     }
     return
 }
@@ -1741,13 +1741,13 @@ get_result :: proc(over: win.OVERLAPPED) -> (n: int, err: win.System_Error) {
 // See https://stackoverflow.com/questions/28925003/calling-wsagetlasterror-from-an-iocp-thread-return-incorrect-result
 wsa_get_result :: proc(socket: win.SOCKET, over: win.OVERLAPPED) -> (n: int, err: win.System_Error) {
     over := over
-    assert(!is_pending(over))
+    internal.assert(!is_pending(over))
 
     if over.Internal != nil {
         flags: win.DWORD
         _n: win.DWORD
         res := win.WSAGetOverlappedResult(socket, &over, &_n, false, &flags)
-        assert(!res)
+        internal.assert(!res)
         n = int(_n) // NOTE: It is possible that an amount of bytes is present when the operation was cancelled.
         err = win.System_Error(win.WSAGetLastError())
     }
@@ -1800,7 +1800,7 @@ sockaddr_to_endpoint :: proc(native_addr: ^win.SOCKADDR_STORAGE_LH) -> (ep: Endp
             port    = port,
         }
     case:
-        panic("native_addr is neither IP4 or IP6 address")
+        internal.panic("native_addr is neither IP4 or IP6 address")
     }
     return
 }
@@ -1823,8 +1823,8 @@ load_socket_fn :: proc(subject: win.SOCKET, guid: win.GUID, fn: ^$T) {
         &over,
         nil,
     )
-    assert(rc != win.SOCKET_ERROR)
-    assert(bytes == size_of(fn^))
+    internal.assert(rc != win.SOCKET_ERROR)
+    internal.assert(bytes == size_of(fn^))
 }
 
 check_timed_out :: proc(op: ^Operation, expires: time.Time) -> bool {
@@ -1842,7 +1842,7 @@ timeouts_cmp :: #force_inline proc(a, b: ^Operation) -> slice.Ordering {
     case uintptr(a) > uintptr(b):
         return .Greater
     case:
-        assert(a == b)
+        internal.assert(a == b)
         return .Equal
     }
 }

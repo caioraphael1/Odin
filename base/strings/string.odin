@@ -131,9 +131,9 @@ Output:
 */
 string_repeat :: proc(s: string, count: int, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     if count < 0 {
-        panic("strings: negative repeat count")
+        internal.panic("strings: negative repeat count")
     } else if count > 0 && (len(s)*count)/count != len(s) {
-        panic("strings: repeat count will cause an overflow")
+        internal.panic("strings: repeat count will cause an overflow")
     }
 
     b := slice.create([]byte, len(s)*count, allocator, loc) or_return

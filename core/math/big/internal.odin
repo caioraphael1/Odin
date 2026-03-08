@@ -730,7 +730,7 @@ internal_int_divmod :: proc(quotient, remainder, numerator, denominator: ^Int, a
     }
 
     if (denominator.used > 2 * MUL_KARATSUBA_CUTOFF) && (denominator.used <= (numerator.used / 3) * 2) {
-        assert(denominator.used >= 160 && numerator.used >= 240, "MUL_KARATSUBA_CUTOFF global not properly set.")
+        internal.assert(denominator.used >= 160 && numerator.used >= 240, "MUL_KARATSUBA_CUTOFF global not properly set.")
         return _private_int_div_recursive(quotient, remainder, numerator, denominator, allocator)
     } else {
         return #force_inline _private_int_div_school(quotient, remainder, numerator, denominator, allocator)
@@ -2712,7 +2712,7 @@ internal_int_random_digit :: proc() -> (res: DIGIT) {
     } else when _DIGIT_BITS == 28 { // DIGIT = u32
         return DIGIT(rnd.uint32()) & _MASK
     } else {
-        panic("Unsupported DIGIT size.")
+        internal.panic("Unsupported DIGIT size.")
     }
 
     return 0 // We shouldn't get here.
@@ -2748,7 +2748,7 @@ internal_int_random :: proc(dest: ^Int, bits: int, allocator: mem.Allocator) -> 
     Internal helpers.
 */
 internal_assert_initialized :: proc(a: ^Int, loc := #caller_location) {
-    assert(internal_is_initialized(a), "`Int` was not properly initialized.", loc)
+    internal.assert(internal_is_initialized(a), "`Int` was not properly initialized.", loc)
 }
 
 internal_clear_if_uninitialized_single :: proc(arg: ^Int, allocator: mem.Allocator) -> (err: Error) {

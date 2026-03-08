@@ -181,7 +181,7 @@ _bind :: proc(sock: Any_Socket, endpoint: Endpoint) -> (Bind_Error) {
 @(private)
 _listen_tcp :: proc(endpoint: Endpoint, backlog := 1000) -> (socket: TCP_Socket, err: Network_Error) {
     errno: linux.Errno
-    assert(backlog > 0 && i32(backlog) < max(i32))
+    internal.assert(backlog > 0 && i32(backlog) < max(i32))
 
     // Figure out the address family and address of the endpoint
     ep_family := _unwrap_os_family(family_from_endpoint(endpoint))
@@ -374,7 +374,7 @@ _set_option :: proc(sock: Any_Socket, option: Socket_Option, value: any, loc := 
             case b64:
                 bool_value = b32(x)
             case:
-                panic("set_option() value must be a boolean here", loc)
+                internal.panic("set_option() value must be a boolean here", loc)
             }
             errno = linux.setsockopt(os_sock, level, int(option), &bool_value)
     case
@@ -383,7 +383,7 @@ _set_option :: proc(sock: Any_Socket, option: Socket_Option, value: any, loc := 
         .Receive_Timeout:
             t, ok := value.(time.Duration)
             if !ok {
-                panic("set_option() value must be a time.Duration here", loc)
+                internal.panic("set_option() value must be a time.Duration here", loc)
             }
 
             micros := cast(i64) (time.duration_microseconds(t))
@@ -402,7 +402,7 @@ _set_option :: proc(sock: Any_Socket, option: Socket_Option, value: any, loc := 
             case i128, u128: i2 := i; int_value = i32((^u128)(&i2)^)
             case  int, uint: i2 := i; int_value = i32((^uint)(&i2)^)
             case:
-                panic("set_option() value must be an integer here", loc)
+                internal.panic("set_option() value must be an integer here", loc)
             }
             errno = linux.setsockopt(os_sock, level, int(option), &int_value)
     case:

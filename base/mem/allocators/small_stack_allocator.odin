@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:mem"
 import "base:slice"
 
@@ -127,7 +128,7 @@ small_stack_alloc_bytes_non_zeroed :: proc(
     loc       := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
-        panic("Allocation on an uninitialized Small Stack allocator.", loc)
+        internal.panic("Allocation on an uninitialized Small Stack allocator.", loc)
     }
     alignment := alignment
     alignment = clamp(alignment, 1, 8*size_of(Stack_Allocation_Header{}.padding)/2)
@@ -165,7 +166,7 @@ small_stack_free :: proc(
     loc := #caller_location,
 ) -> mem.Allocator_Error {
     if s.data == nil {
-        panic("Free on an uninitialized Small Stack allocator.", loc)
+        internal.panic("Free on an uninitialized Small Stack allocator.", loc)
     }
     if old_memory == nil {
         return nil
@@ -174,7 +175,7 @@ small_stack_free :: proc(
     end := start + uintptr(len(s.data))
     curr_addr := uintptr(old_memory)
     if !(start <= curr_addr && curr_addr < end) {
-        panic("Out of bounds memory address passed to Small Stack allocator. (free)", loc)
+        internal.panic("Out of bounds memory address passed to Small Stack allocator. (free)", loc)
     }
     if curr_addr >= start+uintptr(s.offset) {
         // NOTE(bill): Allow double frees
@@ -313,7 +314,7 @@ small_stack_resize_bytes_non_zeroed :: proc(
     loc       := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
-        panic("Resize on an uninitialized Small Stack allocator.", loc)
+        internal.panic("Resize on an uninitialized Small Stack allocator.", loc)
     }
     old_memory := raw_data(old_data)
     old_size   := len(old_data)
@@ -329,7 +330,7 @@ small_stack_resize_bytes_non_zeroed :: proc(
     end       := start + uintptr(len(s.data))
     curr_addr := uintptr(old_memory)
     if !(start <= curr_addr && curr_addr < end) {
-        panic("Out of bounds memory address passed to Small Stack allocator. (resize)", loc)
+        internal.panic("Out of bounds memory address passed to Small Stack allocator. (resize)", loc)
     }
     if curr_addr >= start+uintptr(s.offset) {
         // NOTE(bill): Treat as a double free

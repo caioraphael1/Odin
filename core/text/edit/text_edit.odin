@@ -89,7 +89,7 @@ destroy :: proc(s: ^State) {
 
 // Call at the beginning of each frame
 begin :: proc(s: ^State, id: u64, builder: ^strings_tools.Builder) {
-	assert(builder != nil)
+	internal.assert(builder != nil)
 	if s.id != 0 {
 		end(s)
 	}
@@ -236,7 +236,7 @@ insert :: proc(s: ^State, at: int, text: string) -> int {
 	if s.builder != nil {
 		if ok, _ := dyn_array.inject_at(&s.builder.buf, at, text); !ok {
 			n := cap(s.builder.buf) - len(s.builder.buf)
-			assert(n < len(text))
+			internal.assert(n < len(text))
 			for is_continuation_byte(text[n]) {
 				n -= 1
 			}
