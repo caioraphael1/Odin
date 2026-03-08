@@ -218,7 +218,7 @@ LogCallback :: #type proc "c" (level: LogLevel, message: StringView, userdata: r
 
 // Wrappers
 
-ConvertOdinToWGPULogLevel :: proc(level: runtime.Logger_Level) -> LogLevel {
+ConvertOdinToWGPULogLevel :: proc(level: internal.Logger_Level) -> LogLevel {
     switch {
     case level < .Debug:   return .Trace
     case level < .Info:    return .Debug
@@ -228,7 +228,7 @@ ConvertOdinToWGPULogLevel :: proc(level: runtime.Logger_Level) -> LogLevel {
     }
 }
 
-ConvertWGPUToOdinLogLevel :: proc(level: LogLevel) -> runtime.Logger_Level {
+ConvertWGPUToOdinLogLevel :: proc(level: LogLevel) -> internal.Logger_Level {
     switch level {
     case .Off, .Trace, .Debug: return .Debug
     case .Info:                return .Info

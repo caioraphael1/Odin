@@ -135,7 +135,7 @@ _resolve :: proc(ctx: ^Context, frame: Frame, allocator: mem.Allocator) -> Frame
     defer intrinsics.atomic_store(&ctx.in_resolve, false)
 
     Backtrace_Context :: struct {
-        rt_ctx:    runtime.Context,
+        rt_ctx:    internal.Context,
         allocator: mem.Allocator,
         frame:     Frame_Location,
     }

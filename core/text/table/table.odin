@@ -87,7 +87,7 @@ init_with_mem_arena :: proc(tbl: ^Table, format_arena: ^mem.Arena, table_allocat
 }
 
 destroy :: proc(tbl: ^Table) {
-    _ = free_all(tbl.format_allocator)
+    _ = mem.free_all(tbl.format_allocator)
     _ = slice.delete(tbl.cells)
     _ = slice.delete(tbl.colw)
 }

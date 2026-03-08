@@ -321,7 +321,7 @@ assign_string_at :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: int, arg: st
 // Note: If you want the elements to remain in their order, use `ordered_remove`.
 // Note: If the index is out of bounds, this procedure will panic.
 unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: int, loc := #caller_location) #no_bounds_check {
-    bounds_check_error_loc(loc, index, len(array))
+    internal.bounds_check_error_loc(loc, index, len(array))
     n := len(array) - 1
     if index != n {
         array[index] = array[n]

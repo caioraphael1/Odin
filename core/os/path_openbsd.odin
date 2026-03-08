@@ -6,7 +6,7 @@ import "core:sys/posix"
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
 	// OpenBSD does not have an API for this, we do our best below.
 
-	if len(runtime.args__) <= 0 {
+	if len(internal.args__) <= 0 {
 		err = .Invalid_Path
 		return
 	}
@@ -21,7 +21,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 		return strings.string_clone(string(real), allocator)
 	} 
 
-	arg := runtime.args__[0]
+	arg := internal.args__[0]
 	sarg := string(arg)
 
 	if len(sarg) == 0 {
@@ -39,7 +39,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 
 	paths := get_env("PATH", allocators.temp_allocator)
 	for dir in strings_tools.split_iterator(&paths, ":") {
-		strings.builder_reset(&buf)
+		strings_tools.builder_reset(&buf)
 		strings_tools.write_string(&buf, dir)
 		strings_tools.write_string(&buf, "/")
 		strings_tools.write_string(&buf, sarg)

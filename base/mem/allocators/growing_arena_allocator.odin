@@ -122,7 +122,7 @@ growing_arena_alloc :: proc(arena: ^Growing_Arena, size, alignment: uint, loc :=
         block_size := max(needed, arena.minimum_block_size)
 
         assert(arena.backing_allocator.procedure != nil, 
-            "mem.Allocator not initialized. Use runtime.growing_arena_init(arena, size, backing_allocator)")
+            "mem.Allocator not initialized. Use allocators.growing_arena_init(arena, size, backing_allocator)")
 
         new_block := growing_arena_memory_block_alloc(arena.backing_allocator, block_size, alignment, loc) or_return
         new_block.prev = arena.curr_block

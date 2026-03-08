@@ -14,8 +14,8 @@ Private_Flag :: enum {
 }
 
 Build_Kind :: struct {
-    os:   runtime.Odin_OS_Types,
-    arch: runtime.Odin_Arch_Types,
+    os:   internal.Odin_OS_Types,
+    arch: internal.Odin_Arch_Types,
 }
 
 // empty build kind acts as a marker for separating multiple lines with build tags
@@ -31,21 +31,21 @@ File_Tags :: struct {
 }
 
 
-get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type, found_subtarget: runtime.Odin_Platform_Subtarget_Type) {
+get_build_os_from_string :: proc(str: string) -> (found_os: internal.Odin_OS_Type, found_subtarget: internal.Odin_Platform_Subtarget_Type) {
     str_os, _, str_subtarget := strings_tools.partition(str, ":")
 
-    fields := reflect.enum_fields_zipped(runtime.Odin_OS_Type)
+    fields := reflect.enum_fields_zipped(internal.Odin_OS_Type)
     for os in fields {
         if strings_tools.equal_fold(os.name, str_os) {
-            found_os = runtime.Odin_OS_Type(os.value)
+            found_os = internal.Odin_OS_Type(os.value)
             break
         }
     }
     if str_subtarget != "" {
-        st_fields := reflect.enum_fields_zipped(runtime.Odin_Platform_Subtarget_Type)
+        st_fields := reflect.enum_fields_zipped(internal.Odin_Platform_Subtarget_Type)
         for subtarget in st_fields {
             if strings_tools.equal_fold(subtarget.name, str_subtarget) {
-                found_subtarget = runtime.Odin_Platform_Subtarget_Type(subtarget.value)
+                found_subtarget = internal.Odin_Platform_Subtarget_Type(subtarget.value)
                 break
             }
         }
@@ -54,11 +54,11 @@ get_build_os_from_string :: proc(str: string) -> (found_os: runtime.Odin_OS_Type
     return
 }
 
-get_build_arch_from_string :: proc(str: string) -> runtime.Odin_Arch_Type {
-    fields := reflect.enum_fields_zipped(runtime.Odin_Arch_Type)
+get_build_arch_from_string :: proc(str: string) -> internal.Odin_Arch_Type {
+    fields := reflect.enum_fields_zipped(internal.Odin_Arch_Type)
     for os in fields {
         if strings_tools.equal_fold(os.name, str) {
-            return runtime.Odin_Arch_Type(os.value)
+            return internal.Odin_Arch_Type(os.value)
         }
     }
     return .Unknown
@@ -155,15 +155,15 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
                 }
 
                 kinds_loop: for {
-                    os_positive: runtime.Odin_OS_Types
-                    os_negative: runtime.Odin_OS_Types
+                    os_positive: internal.Odin_OS_Types
+                    os_negative: internal.Odin_OS_Types
 
-                    arch_positive: runtime.Odin_Arch_Types
-                    arch_negative: runtime.Odin_Arch_Types
+                    arch_positive: internal.Odin_Arch_Types
+                    arch_negative: internal.Odin_Arch_Types
 
                     defer _ = dyn_array.append(build_kinds, Build_Kind{
-                        os   = (os_positive   == {} ? runtime.ALL_ODIN_OS_TYPES   : os_positive)  -os_negative,
-                        arch = (arch_positive == {} ? runtime.ALL_ODIN_ARCH_TYPES : arch_positive)-arch_negative,
+                        os   = (os_positive   == {} ? internal.ALL_ODIN_OS_TYPES   : os_positive)  -os_negative,
+                        arch = (arch_positive == {} ? internal.ALL_ODIN_ARCH_TYPES : arch_positive)-arch_negative,
                     })
 
                     for {
@@ -248,8 +248,8 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
 }
 
 Build_Target :: struct {
-    os:           runtime.Odin_OS_Type,
-    arch:         runtime.Odin_Arch_Type,
+    os:           internal.Odin_OS_Type,
+    arch:         internal.Odin_Arch_Type,
     project_name: string,
 }
 

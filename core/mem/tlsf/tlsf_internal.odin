@@ -200,7 +200,7 @@ mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (r
             }
 
             // Trying to allocate a new pool of `control.new_pool_size` bytes.
-            new_pool_buf := runtime.slice_create_aligned([]byte, control.new_pool_size, ALIGN_SIZE, control.pool.allocator) or_return
+            new_pool_buf := internal.slice_create_aligned([]byte, control.new_pool_size, ALIGN_SIZE, control.pool.allocator) or_return
 
             // Add new pool to control structure
             if pool_add_err := pool_add(control, new_pool_buf); pool_add_err != .None {
@@ -323,7 +323,7 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
 
     if min_size < new_size {
         to_zero := ([^]byte)(ptr)[min_size:new_size]
-        runtime.mem_zero(raw_data(to_zero), len(to_zero))
+        mem.zero(raw_data(to_zero), len(to_zero))
     }
     return
 }

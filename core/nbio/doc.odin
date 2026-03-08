@@ -179,7 +179,7 @@ If the submitting context is required inside the callback, it must be copied
 into the operation’s user data explicitly.
 
 Example:
-    nbio.timeout_poly(time.Second, new_clone(context), proc(_: ^Operation, ctx: ^runtime.Context) {
+    nbio.timeout_poly(time.Second, new_clone(context), proc(_: ^Operation, ctx: ^internal.Context) {
         context = ctx^
         free(ctx)
     })

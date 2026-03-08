@@ -69,7 +69,7 @@ Returns:
 - result: A valid version 8 UUID.
 */
 stamp_v8_slice :: proc(slice: []u8) -> (result: Identifier) {
-    runtime.mem.copy_non_overlapping(&result, &slice[0], min(16, len(slice)))
+    internal.mem.copy_non_overlapping(&result, &slice[0], min(16, len(slice)))
 
     result[VERSION_BYTE_INDEX] &= 0x0F
     result[VERSION_BYTE_INDEX] |= 0x80

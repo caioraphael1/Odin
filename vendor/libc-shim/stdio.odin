@@ -347,7 +347,7 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
                     if i == k {
                         old_size := k
                         k += k + 1
-                        tmp, _ := runtime.resize_non_zero(s, old_size, k)
+                        tmp, _ := internal.resize_non_zero(s, old_size, k)
                         if tmp == nil {
                             alloc_fail = true
                             break main_loop

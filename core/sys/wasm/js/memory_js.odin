@@ -26,7 +26,7 @@ page_allocator :: proc() -> mem.Allocator {
 		case .Resize, .Free, .Free_All, .Query_Info, .Resize_Non_Zeroed:
 			return nil, .Mode_Not_Implemented
 		case .Query_Features:
-			set := (^runtime.Allocator_Mode_Set)(old_memory)
+			set := (^internal.Allocator_Mode_Set)(old_memory)
 			if set != nil {
 				set^ = {.Alloc, .Query_Features}
 			}

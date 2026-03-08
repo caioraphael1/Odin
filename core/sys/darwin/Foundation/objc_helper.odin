@@ -10,7 +10,7 @@ Object_VTable_Info :: struct {
 }
 
 Class_VTable_Info :: struct {
-    _context:    runtime.Context,
+    _context:    internal.Context,
     super_vtable:    rawptr,
     protocol_vtable: rawptr,
 }
@@ -40,7 +40,7 @@ register_subclass :: proc(
     superclass:           Class,
     superclass_overrides: Maybe(Object_VTable_Info) = nil,
     protocol:             Maybe(Object_VTable_Info) = nil,
-    _context:             Maybe(runtime.Context)    = nil,
+    _context:             Maybe(internal.Context)    = nil,
 ) -> Class {
     assert(superclass != nil)
 
@@ -120,7 +120,7 @@ class_get_vtable_info :: proc(cls: Class) -> ^Class_VTable_Info {
 }
 
 
-alloc_user_object :: proc(cls: Class, _context: Maybe(runtime.Context) = nil) -> id {
+alloc_user_object :: proc(cls: Class, _context: Maybe(internal.Context) = nil) -> id {
     info := class_get_vtable_info(cls)
 
     obj := class_createInstance(cls, size_of(Class_VTable_Info))

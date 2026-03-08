@@ -290,10 +290,10 @@ ApplicationDelegateTemplate :: struct {
 ApplicationDelegate :: struct { using _: Object }
 _ApplicationDelegateInternal :: struct {
     using _: ApplicationDelegateTemplate,
-    _context: runtime.Context,
+    _context: internal.Context,
 }
 
-application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTemplate, class_name: string, delegate_context: Maybe(runtime.Context)) -> ^ApplicationDelegate {
+application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTemplate, class_name: string, delegate_context: Maybe(internal.Context)) -> ^ApplicationDelegate {
     class := __objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.cstring_clone_from_string(class_name, allocators.temp_allocator), 0); if class == nil {
         // Class already registered
         return nil
@@ -619,7 +619,7 @@ application_delegate_register_and_alloc :: proc(template: ApplicationDelegateTem
     del_internal := cast(^_ApplicationDelegateInternal)object_getIndexedIvars(del)
     del_internal^ = {
         template,
-        delegate_context.(runtime.Context) or_else {},
+        delegate_context.(internal.Context) or_else {},
     }
     return cast(^ApplicationDelegate)del
 }

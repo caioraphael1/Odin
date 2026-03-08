@@ -205,10 +205,10 @@ Window_Title_Visibility :: enum UInteger {
 WindowDelegate :: struct { using _: Object } // This is not the same as NSWindowDelegate
 _WindowDelegateInternal :: struct {
     using _: WindowDelegateTemplate,
-    _context: runtime.Context,
+    _context: internal.Context,
 }
 
-window_delegate_register_and_alloc :: proc(template: WindowDelegateTemplate, class_name: string, delegate_context: Maybe(runtime.Context)) -> ^WindowDelegate {
+window_delegate_register_and_alloc :: proc(template: WindowDelegateTemplate, class_name: string, delegate_context: Maybe(internal.Context)) -> ^WindowDelegate {
     class := __objc_allocateClassPair(intrinsics.objc_find_class("NSObject"), strings.cstring_clone_from_string(class_name, allocators.temp_allocator), 0); if class == nil {
         // Class already registered
         return nil
@@ -576,7 +576,7 @@ window_delegate_register_and_alloc :: proc(template: WindowDelegateTemplate, cla
     del_internal := cast(^_WindowDelegateInternal)object_getIndexedIvars(del)
     del_internal^ = {
         template,
-        delegate_context.(runtime.Context) or_else {},
+        delegate_context.(internal.Context) or_else {},
     }
 
     return cast(^WindowDelegate)del

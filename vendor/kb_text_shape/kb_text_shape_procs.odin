@@ -385,7 +385,7 @@ AllocatorFromOdinAllocator :: proc(allocator: ^mem.Allocator) -> (Allocator: all
         case .NONE:
             return
         case .ALLOCATE:
-            res, _ := mem.alloc(int(Op.Allocate.Size), runtime.DEFAULT_ALIGNMENT, allocator)
+            res, _ := mem.alloc(int(Op.Allocate.Size), internal.DEFAULT_ALIGNMENT, allocator)
             Op.Allocate.Pointer = raw_data(res)
             Op.Allocate.Size    = u32(len(res))
         case .FREE:

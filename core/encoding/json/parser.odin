@@ -1,8 +1,14 @@
-import "base:mem"
 import "base:internal"
+import "base:mem"
+import "base:slice"
+import "base:dyn_array"
+import "base:maps"
+import "base:strings"
+
 import "core:unicode/utf8"
 import "core:unicode/utf16"
 import "core:strconv"
+
 
 Parser :: struct {
     tok:            Tokenizer,
@@ -135,7 +141,11 @@ parse_value :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
     case .Ident:
         if p.spec == .MJSON {
             _, _ = advance_token(p)
-            return strings.string_clone(token.text, p.allocator, loc)
+            str, err := strings.string_clone(token.text, p.allocator, loc)
+            if err != nil {
+                return {}, .Invalid_Allocator
+            }
+            return str, .None
         }
         
     case .String:
@@ -215,7 +225,7 @@ bytes_make :: proc(size, alignment: int, allocator: mem.Allocator, loc := #calle
     return
 }
 
-strings.string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (str: string, err: Error) {
+string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (str: string, err: Error) {
     n := len(s)
     b := bytes_make(n+1, 1, allocator, loc) or_return
     slice.copy_from_string(b, s)
@@ -230,7 +240,11 @@ parse_object_key :: proc(p: ^Parser, key_allocator: mem.Allocator, loc := #calle
     tok := p.curr_token
     if p.spec != .JSON {
         if allow_token(p, .Ident) {
-            return strings.string_clone(tok.text, key_allocator, loc)
+            str, err := strings.string_clone(tok.text, key_allocator, loc)
+            if err != nil {
+                return {}, .Invalid_Allocator
+            }
+            return str, .None
         }
     }
     if tok_err := expect_token(p, .String); tok_err != nil {
@@ -358,7 +372,11 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
         i += w
     }
     if i == len(s) {
-        return strings.string_clone(s, allocator, loc)
+        str, str_err := strings.string_clone(s, allocator, loc)
+        if str_err != nil {
+            return {}, .Invalid_Allocator
+        }
+        return str, .None
     }
 
     b := bytes_make(len(s) + 2*utf8.UTF_MAX, 1, allocator) or_return

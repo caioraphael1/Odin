@@ -109,7 +109,7 @@ Flag :: enum u8 {
 Flags :: bit_set[Flag; u8]
 
 /*
-	Errors are a strict superset of runtime.Allocation_Error.
+	Errors are a strict superset of internal.Allocation_Error.
 */
 Error :: enum byte {
 	None                    = 0,

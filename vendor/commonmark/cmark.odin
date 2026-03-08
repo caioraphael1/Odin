@@ -1,5 +1,7 @@
+import "base:mem"
+import "base:slice"
+
 import "core:c"
-import "base:internal"
 
 COMMONMARK_SHARED :: #config(COMMONMARK_SHARED, false)
 BINDING_VERSION :: Version_Info{major = 0, minor = 30, patch = 2}
@@ -514,9 +516,9 @@ cmark_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
 
     case .Resize, .Resize_Non_Zeroed:
         new_ptr := cmark_alloc.realloc(old_memory, c.size_t(size))
-        res = transmute([]byte)runtime.Raw_Slice{new_ptr, size}
+        res = transmute([]byte)slice.Raw_Slice{new_ptr, size}
         if size > old_size {
-            runtime.mem_zero(raw_data(res[old_size:]), size - old_size)
+            mem.zero(raw_data(res[old_size:]), size - old_size)
         }
         return res, nil
 

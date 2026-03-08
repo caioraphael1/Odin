@@ -84,7 +84,7 @@ when ODIN_NO_CRT {
                 return nil
             }
 
-            dyn_array_unordered_remove(&_env, idx)
+            dyn_array.unordered_remove(&_env, idx)
 
             if !_is_in_org_env(v_curr) {
                 // We allocated this key-value. Possibly resize and
@@ -92,7 +92,7 @@ when ODIN_NO_CRT {
                 // wasn't in the environment in the first place.
                 k_addr, v_addr := _kv_addr_from_val(v_curr, key)
                 if len(v_new) > len(v_curr) {
-                    k_addr = ([^]u8)(runtime.heap_resize(k_addr, kv_size))
+                    k_addr = ([^]u8)(internal.heap_resize(k_addr, kv_size))
                     if k_addr == nil {
                         return .Out_Of_Memory
                     }
@@ -106,7 +106,7 @@ when ODIN_NO_CRT {
             }
         }
 
-        k_addr := ([^]u8)(runtime.heap_alloc(kv_size))
+        k_addr := ([^]u8)(internal.heap_alloc(kv_size))
         if k_addr == nil {
             return .Out_Of_Memory
         }
@@ -133,7 +133,7 @@ when ODIN_NO_CRT {
             return true
         }
 
-        dyn_array_unordered_remove(&_env, i)
+        dyn_array.unordered_remove(&_env, i)
 
         if _is_in_org_env(v) {
             return true
@@ -142,7 +142,7 @@ when ODIN_NO_CRT {
         // if we got this far, the environment variable
         // existed AND was allocated by us.
         k_addr, _ := _kv_addr_from_val(v, key)
-        runtime.heap_free(k_addr)
+        internal.heap_free(k_addr)
         return true
     }
 
@@ -151,7 +151,7 @@ when ODIN_NO_CRT {
 
         for kv in _env {
             if !_is_in_org_env(kv) {
-                runtime.heap_free(raw_data(kv))
+                internal.heap_free(raw_data(kv))
             }
         }
         dyn_array.clear(&_env)
@@ -224,7 +224,7 @@ when ODIN_NO_CRT {
 
     _get_original_env :: #force_inline proc() -> [^]cstring {
         // essentially &argv[argc] which should be a nil pointer!
-        #no_bounds_check env: [^]cstring = &runtime.args__[len(runtime.args__)]
+        #no_bounds_check env: [^]cstring = &internal.args__[len(internal.args__)]
         assert(env[0] == nil)
         return &env[1]
     }
@@ -300,8 +300,8 @@ when ODIN_NO_CRT {
     _set_env :: proc(key, value: string) -> (err: Error) {
         allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
-        ckey := strings.cstring_clone_from_string(key,   runtime.allocators.temp_allocator) or_return
-        cval := strings.cstring_clone_from_string(value, runtime.allocators.temp_allocator) or_return
+        ckey := strings.cstring_clone_from_string(key,   internal.allocators.temp_allocator) or_return
+        cval := strings.cstring_clone_from_string(value, internal.allocators.temp_allocator) or_return
 
         if posix.setenv(ckey, cval, true) != nil {
             posix_errno := posix.errno()
@@ -314,7 +314,7 @@ when ODIN_NO_CRT {
     _unset_env :: proc(key: string) -> (ok: bool) {
         allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
-        ckey := strings.cstring_clone_from_string(key, runtime.allocators.temp_allocator)
+        ckey := strings.cstring_clone_from_string(key, internal.allocators.temp_allocator)
 
         ok = posix.unsetenv(ckey) == .OK
         return

@@ -1,4 +1,5 @@
-import "base:internal"
+import "base:mem"
+
 import "core:os"
 
 Map_File_Error :: enum {

@@ -28,7 +28,7 @@ MAX_PROGRESS_WIDTH :: 100
 
 // More than enough bytes to cover long package names, long test names, dozens
 // of ANSI codes, et cetera.
-LINE_BUFFER_SIZE :: (MAX_PROGRESS_WIDTH * 8 + 224) * runtime.Byte
+LINE_BUFFER_SIZE :: (MAX_PROGRESS_WIDTH * 8 + 224) * internal.Byte
 
 PROGRESS_COLUMN_SPACING :: 2
 

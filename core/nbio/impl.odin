@@ -13,7 +13,7 @@ import "core:time"
 
 @(init, private)
 init_thread_local_cleaner :: proc() {
-    runtime.add_thread_local_cleaner(proc() {
+    internal.add_thread_local_cleaner(proc() {
         l := &_tls_event_loop
         if l.refs > 0 {
             l.refs = 1
@@ -29,9 +29,9 @@ _acquire_thread_event_loop :: proc() -> General_Error {
     l := &_tls_event_loop
     if l.err == nil && l.refs == 0 {
         when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 && ODIN_OS != .Orca {
-            allocator := runtime.default_wasm_allocator()
+            allocator := internal.default_wasm_allocator()
         } else {
-            allocator := runtime.heap_allocator()
+            allocator := allocators.heap_allocator()
         }
 
         l.allocator = allocator
@@ -185,7 +185,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
         return
     }
 
-    runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+    internal.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
     b: strings_tools.Builder
     b.buf.allocator = allocators.temp_allocator
@@ -284,7 +284,7 @@ bufs_delete :: proc(bufs: ^Bufs, orig: [][]byte, allocator: mem.Allocator) {
 bufs_to_process :: proc(bufs: ^Bufs, orig: [][]byte, processed: int) -> (working: [][]byte, total: int) {
     if len(orig) > 1 {
         // Reset to length and contents of backing, so a previous modification is removed.
-        (^runtime.Raw_Slice)(&bufs.working.big).len = len(orig)
+        (^slice.Raw_Slice)(&bufs.working.big).len = len(orig)
         copy(bufs.working.big, orig)
         working = bufs.working.big
     } else {

@@ -18,14 +18,14 @@ import "core:sync/chan"
 import "core:time"
 
 when USING_SHORT_LOGS {
-	Default_Test_Logger_Opts :: runtime.Logger_Options {
+	Default_Test_Logger_Opts :: internal.Logger_Options {
 		.Level,
 		.Terminal_Color,
 		.Short_File_Path,
 		.Line,
 	}
 } else {
-	Default_Test_Logger_Opts :: runtime.Logger_Options {
+	Default_Test_Logger_Opts :: internal.Logger_Options {
 		.Level,
 		.Terminal_Color,
 		.Short_File_Path,
@@ -36,7 +36,7 @@ when USING_SHORT_LOGS {
 }
 
 Log_Message :: struct {
-	level: runtime.Logger_Level,
+	level: internal.Logger_Level,
 	text: string,
 	time: time.Time,
 	// `text` may be allocated differently, depending on where a log message
@@ -44,7 +44,7 @@ Log_Message :: struct {
 	allocator: mem.Allocator,
 }
 
-test_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location := #caller_location) {
+test_logger_proc :: proc(logger_data: rawptr, level: internal.Logger_Level, text: string, options: internal.Logger_Options, location := #caller_location) {
 	t := cast(^T)logger_data
 
 	if level >= .Error {
@@ -64,7 +64,7 @@ test_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text:
 	})
 }
 
-runner_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location := #caller_location) {
+runner_logger_proc :: proc(logger_data: rawptr, level: internal.Logger_Level, text: string, options: internal.Logger_Options, location := #caller_location) {
 	log_messages := cast(^[dynamic]Log_Message)logger_data
 
 	now := time.now()
@@ -77,7 +77,7 @@ runner_logger_proc :: proc(logger_data: rawptr, level: runtime.Logger_Level, tex
 	})
 }
 
-format_log_text :: proc(level: runtime.Logger_Level, text: string, options: runtime.Logger_Options, location: internal.Source_Code_Location, at_time: time.Time, allocator: mem.Allocator) -> string{
+format_log_text :: proc(level: internal.Logger_Level, text: string, options: internal.Logger_Options, location: internal.Source_Code_Location, at_time: time.Time, allocator: mem.Allocator) -> string{
 	backing: [1024]byte
 	buf := strings_tools.builder_from_bytes(backing[:])
 

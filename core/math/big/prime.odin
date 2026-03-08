@@ -352,7 +352,7 @@ internal_int_is_prime :: proc(a: ^Int, miller_rabin_trials := int(-1), miller_ra
 
 	// Rumours have it that Mathematica does a second M-R test with base 3.
 	// Other rumours have it that their strong L-S test is slightly different.
-	// It does not hurt, though, beside a bit of extra runtime.
+	// It does not hurt, though, beside a bit of extra internal.
 
 	b.digit[0] += 1
 	if !(internal_int_prime_miller_rabin(a, b, allocator) or_return) { return }

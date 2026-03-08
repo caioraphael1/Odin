@@ -739,8 +739,8 @@ pixels_to_image :: proc(pixels: [][$N]$E, width: int, height: int) -> (img: Imag
     img.depth    = 8 when E == u8 else 16
     img.channels = N
 
-    s := transmute(runtime.Raw_Slice)pixels
-    d := runtime.Raw_Dynamic_Array{
+    s := transmute(slice.Raw_Slice)pixels
+    d := dyn_array.Raw_Dynamic_Array{
         data = s.data,
         len  = s.len * size_of(E) * N,
         cap  = s.len * size_of(E) * N,

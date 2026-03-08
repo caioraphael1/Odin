@@ -69,7 +69,7 @@ init_cpu_features :: proc() {
 
 @(private)
 _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
-	context = runtime.default_context()
+	context = internal.default_context()
 	fd, err := linux.open("/proc/cpuinfo", {})
 	if err != .NONE { return }
 	defer linux.close(fd)

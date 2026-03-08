@@ -96,7 +96,7 @@ init_from_allocator :: proc(control: ^Allocator, backing: mem.Allocator, initial
         return .Backing_Buffer_Too_Large
     }
 
-    buf, backing_err := runtime.slice_create_aligned([]byte, pool_bytes, ALIGN_SIZE, backing)
+    buf, backing_err := internal.slice_create_aligned([]byte, pool_bytes, ALIGN_SIZE, backing)
     if backing_err != nil {
         return .Backing_Allocator_Error
     }
@@ -116,7 +116,7 @@ destroy :: proc(control: ^Allocator) {
     if control == nil { return }
 
     if control.pool.allocator.procedure != nil {
-        _ = runtime.slice.delete(control.pool.data, control.pool.allocator)
+        _ = internal.slice.delete(control.pool.data, control.pool.allocator)
     }
 
     // No need to call `pool_remove` or anything, as they're they're embedded in the backing memory.
@@ -125,7 +125,7 @@ destroy :: proc(control: ^Allocator) {
         next := p.next
 
         // Free the allocation on the backing allocator
-        _ = runtime.slice.delete(p.data, p.allocator)
+        _ = internal.slice.delete(p.data, p.allocator)
         _ = mem.free(p, p.allocator)
 
         p = next
@@ -152,7 +152,7 @@ allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         return nil, nil
 
     case .Free_All:
-        _ = free_all(control)
+        _ = mem.free_all(control)
         return nil, nil
 
     case .Resize:
@@ -162,7 +162,7 @@ allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         return resize_non_zeroed(control, old_memory, uint(old_size), uint(size), uint(alignment))
 
     case .Query_Features:
-        set := (^runtime.Allocator_Mode_Set)(old_memory)
+        set := (^internal.Allocator_Mode_Set)(old_memory)
         if set != nil {
             set^ = {.Alloc, .Alloc_Non_Zeroed, .Free, /* .Free_All, */ .Resize, .Resize_Non_Zeroed, .Query_Features}
         }

@@ -68,7 +68,7 @@ JSON_REPORT           : string : #config(ODIN_TEST_JSON_REPORT,          "")
 // in a way that's friendly to regex capture for an editor's "go to error".
 GO_TO_ERROR           : bool   : #config(ODIN_TEST_GO_TO_ERROR,          false)
 
-get_log_level :: #force_inline proc() -> runtime.Logger_Level {
+get_log_level :: #force_inline proc() -> internal.Logger_Level {
 	when LOG_LEVEL == "debug"   { return .Debug   } else
 	when LOG_LEVEL == "info"    { return .Info    } else
 	when LOG_LEVEL == "warning" { return .Warning } else
@@ -198,7 +198,7 @@ run_test_task :: proc(task: thread.Task) {
 }
 
 Options :: struct {
-	// Equivalent to the TEST_NAMES compile-time definition, but used dynamically at runtime.
+	// Equivalent to the TEST_NAMES compile-time definition, but used dynamically at internal.
 	test_names: string,
 }
 
@@ -213,7 +213,7 @@ parse_cli_options :: proc(argv: []string, opts: ^Options, stdout, stderr: io.Wri
 				os.exit(-1)
 			}
 
-			if strings.builder_len(test_names) > 0 {
+			if strings_tools.builder_len(test_names) > 0 {
 				strings_tools.write_byte(&test_names, ',')
 			}
 			strings_tools.write_string(&test_names, tests)
@@ -739,7 +739,7 @@ runner :: proc(internal_tests: []Internal_Test) -> bool {
 				continue check_timeouts
 			}
 
-			defer dyn_array_unordered_remove(&task_timeouts, i)
+			defer dyn_array.unordered_remove(&task_timeouts, i)
 
 			#no_bounds_check if report.all_test_states[timeout.test_index] > .Running {
 				continue check_timeouts

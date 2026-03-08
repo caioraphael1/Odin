@@ -88,7 +88,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
     }
 
     builder, _ := strings_tools.builder_make(allocator)
-    defer strings.builder_destroy(&builder)
+    defer strings_tools.builder_destroy(&builder)
 
     flag_prefix, flag_assignment: string = ---, ---
     switch style {
@@ -137,13 +137,13 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
         }
 
         #partial switch specific_type_info in field.type.variant {
-        case runtime.Type_Info_Map:
+        case internal.Type_Info_Map:
             flag.type_description = fmt.tprintf("<%v>=<%v>%s",
                 specific_type_info.key.id,
                 specific_type_info.value.id,
                 ", required" if flag.is_required else "")
 
-        case runtime.Type_Info_Dynamic_Array:
+        case internal.Type_Info_Dynamic_Array:
             requirement_spec := describe_array_requirements(flag)
 
             if flag.is_manifold || flag.name == INTERNAL_OVERFLOW_FLAG {

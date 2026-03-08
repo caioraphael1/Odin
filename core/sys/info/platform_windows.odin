@@ -222,7 +222,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
             scratch[:],
         ); ok {
             strings_tools.write_string(b, " (version: ")
-            l := strings.builder_len(b^)
+            l := strings_tools.builder_len(b^)
             strings_tools.write_string(b, dv)
             version = strings_tools.to_string(b^)[l:][:len(dv)]
             _, _ = strings_tools.write_rune(b, ')')

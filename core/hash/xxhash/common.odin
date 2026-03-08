@@ -13,7 +13,7 @@
 import "base:intrinsics"
 import "base:internal"
 
-mem_copy  :: runtime.mem_copy
+mem_copy  :: internal.mem_copy
 byte_swap :: intrinsics.byte_swap
 
 /*

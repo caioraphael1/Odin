@@ -472,7 +472,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER:  [1, 2]
 */
-dyn_array.pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
+pop_front :: proc(a: ^$A/Small_Array($N, $T), loc := #caller_location) -> T {
     assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
@@ -541,7 +541,7 @@ Example:
         assert(!ok, "there was NO element in the array")
     }
 */
-dyn_array_pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
+pop_front_safe :: proc(a: ^$A/Small_Array($N, $T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[0]
         s := slice(a)
@@ -635,7 +635,7 @@ Example:
         small_array.push(&a, 0, 1, 2, 3)
 
         fmt.println("BEFORE:", small_array.slice(&a))
-        small_array.dyn_array_unordered_remove(&a, 1)
+        small_array.dyn_array.unordered_remove(&a, 1)
         fmt.println("AFTER :", small_array.slice(&a))
     }
 
@@ -644,7 +644,7 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : [0, 3, 2]
 */
-dyn_array_unordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
+unordered_remove :: proc(a: ^$A/Small_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, a.len)
     n := a.len-1
     if index != n {
@@ -737,7 +737,7 @@ Example:
     inject_at_example :: proc() {
         arr: small_array.Small_Array(100, rune)
         small_array.push(&arr,  'A', 'C', 'D')
-        small_array.dyn_array_inject_at(&arr, 'B', 1)
+        small_array.dyn_array.inject_at(&arr, 'B', 1)
         fmt.println(small_array.slice(&arr))
     }
 
@@ -745,7 +745,7 @@ Output:
 
     [A, B, C, D]
 */
-dyn_array_inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> bool #no_bounds_check {
+inject_at :: proc(a: ^$A/Small_Array($N, $T), item: T, index: int) -> bool #no_bounds_check {
     if a.len < cap(a^) && index >= 0 && index <= len(a^) {
         a.len += 1
         for i := a.len - 1; i >= index + 1; i -= 1 {

@@ -636,8 +636,8 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 
     max_possible_threads := max(1, opcode_count(vm.code) - 1)
 
-    vm.threads, _ = multi_pointer_create([^]Thread, max_possible_threads, allocator)
-    vm.next_threads, _ = multi_pointer_create([^]Thread, max_possible_threads, allocator)
+    vm.threads, _ = mem.multi_pointer_create([^]Thread, max_possible_threads, allocator)
+    vm.next_threads, _ = mem.multi_pointer_create([^]Thread, max_possible_threads, allocator)
 
     return
 }

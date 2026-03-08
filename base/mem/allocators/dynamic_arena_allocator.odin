@@ -187,7 +187,7 @@ dynamic_arena_alloc_bytes_non_zeroed :: proc(a: ^Dynamic_Arena, size: int, loc :
         }
         return memory, err
     }
-    n := mem.align_formula(size, a.alignment)
+    n := mem.align_formula_int(size, a.alignment)
     if n > a.block_size {
         return nil, .Invalid_Argument
     }

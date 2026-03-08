@@ -9,7 +9,9 @@
 import "base:intrinsics"
 import "base:mem"
 import "base:strings"
+import "base:dyn_array"
 
+import "core:strings_tools"
 import "core:strconv"
 import "core:text/regex/common"
 import "core:text/regex/tokenizer"

@@ -12,25 +12,25 @@ import "core:time"
 import "base:internal"
 
 print_value :: proc(name: string, value: i64) {
-    runtime.print_string("\t")
-    runtime.print_string(name)
-    runtime.print_string(": ")
-    runtime.print_i64(value)
-    runtime.print_string("\n")
+    internal.print_string("\t")
+    internal.print_string(name)
+    internal.print_string(": ")
+    internal.print_i64(value)
+    internal.print_string("\n")
 }
 
 print_bool :: proc(name: string, value: bool) {
-    runtime.print_string("\t")
-    runtime.print_string(name)
+    internal.print_string("\t")
+    internal.print_string(name)
     if value {
-        runtime.print_string(": true\n")
+        internal.print_string(": true\n")
     } else {
-        runtime.print_string(": false\n")
+        internal.print_string(": false\n")
     }
 }
 
 print_configation :: proc() {
-    runtime.print_string("Configuration:\n")
+    internal.print_string("Configuration:\n")
     print_value("_DIGIT_BITS                          ", _DIGIT_BITS)
     print_bool ("MATH_BIG_SMALL_MEMORY                ", _LOW_MEMORY)
     print_value("_MIN_DIGIT_COUNT                     ", _MIN_DIGIT_COUNT)
@@ -42,7 +42,7 @@ print_configation :: proc() {
     print_value("_MAX_WIN_SIZE                        ", _MAX_WIN_SIZE)
     print_bool ("MATH_BIG_USE_LUCAS_SELFRIDGE_TEST    ", MATH_BIG_USE_LUCAS_SELFRIDGE_TEST)
 
-    runtime.print_string("\nRuntime tunable:\n")
+    internal.print_string("\nRuntime tunable:\n")
     print_value("MUL_KARATSUBA_CUTOFF                 ", i64(MUL_KARATSUBA_CUTOFF))
     print_value("SQR_KARATSUBA_CUTOFF                 ", i64(SQR_KARATSUBA_CUTOFF))
     print_value("MUL_TOOM_CUTOFF                      ", i64(MUL_TOOM_CUTOFF))
@@ -64,26 +64,26 @@ print :: proc(name: string, a: ^Int, base := i8(10), print_name := true, newline
 
     cb := internal_count_bits(a)
     if print_name {
-        runtime.print_string(name)
+        internal.print_string(name)
     }
     if err != nil {
-        runtime.print_string("(Error: ")
+        internal.print_string("(Error: ")
         es := Error_String
-        runtime.print_string(es[err])
-        runtime.print_string(")")
+        internal.print_string(es[err])
+        internal.print_string(")")
     }
-    runtime.print_string(as)
+    internal.print_string(as)
     if print_extra_info {
-        runtime.print_string(" (base: ")
-        runtime.print_i64(i64(base))
-        runtime.print_string(", bits: ")
-        runtime.print_i64(i64(cb))
-        runtime.print_string(", digits: ")
-        runtime.print_i64(i64(a.used))
-        runtime.print_string(")")
+        internal.print_string(" (base: ")
+        internal.print_i64(i64(base))
+        internal.print_string(", bits: ")
+        internal.print_i64(i64(cb))
+        internal.print_string(", digits: ")
+        internal.print_i64(i64(a.used))
+        internal.print_string(")")
     }
     if newline {
-        runtime.print_string("\n")
+        internal.print_string("\n")
     }
 }
 

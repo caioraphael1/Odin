@@ -189,7 +189,7 @@ get_dns_records_from_nameservers :: proc(hostname: string, type: DNS_Record_Type
     init_dns_configuration()
 
     id: u16be
-    rand_ok := runtime.random_generator_read_ptr(runtime.global_random_generator, &id, size_of(id))
+    rand_ok := internal.random_generator_read_ptr(internal.global_random_generator, &id, size_of(id))
     assert(rand_ok, "uninitialized gen/context.random_generator")
 
     dns_packet_buf: [DNS_PACKET_MIN_LEN]byte = ---
@@ -271,7 +271,7 @@ make_dns_packet :: proc(buf: []byte, id: u16be, hostname: string, type: DNS_Reco
     }
     strings.write_bytes(&b, mem.slice_data_cast([]u8, dns_query[:]))
 
-    return buf[:strings.builder_len(b)], nil
+    return buf[:strings_tools.builder_len(b)], nil
 }
 
 // `records` slice is also destroyed.

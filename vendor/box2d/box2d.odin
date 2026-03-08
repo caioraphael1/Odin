@@ -287,7 +287,7 @@ foreign lib {
     // This determines if a hull is valid. Checks for:
     // - convexity
     // - collinear points
-    // This is expensive and should not be called at runtime.
+    // This is expensive and should not be called at internal.
     ValidateHull :: proc(#by_ptr hull: Hull) -> bool ---
 }
 

@@ -117,7 +117,7 @@ _cpu_name :: proc() -> (name: string) {
 
 @(private)
 _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
-	context = runtime.default_context() // No allocations, only needed because `core:strings` wants it.
+	context = internal.default_context() // No allocations, only needed because `core:strings` wants it.
 	fd, err := linux.open("/proc/cpuinfo", {})
 	if err != .NONE { return }
 	defer linux.close(fd)

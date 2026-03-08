@@ -20,7 +20,7 @@ foreign lib {
         // The program then loops through each of the address structures attempting to create and bind
         // a socket to the address, until it performs a successful bind().
 
-        args := runtime.args__
+        args := internal.args__
         if len(args) != 2 {
             fmt.eprintfln("Usage: %s port", args[0])
             posix.exit(1)

@@ -35,7 +35,7 @@ Example:
         defer uring.destroy(&ring)
 
         for &request, i in requests {
-            request.path = runtime.args__[i+1]
+            request.path = internal.args__[i+1]
             // sets up a read requests and adds it to the ring buffer.
             submit_read_request(request.path, &request.buffer, &ring)
         }

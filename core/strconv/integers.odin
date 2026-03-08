@@ -172,7 +172,7 @@ write_bits_128 :: proc(buf: []byte, x: u128, base: int, is_signed: bool, bit_siz
     for u >= b && i >= 0 {
         i-=1
         // rem: u128;
-        // u = runtime.udivmod128(u, b, &rem);
+        // u = internal.udivmod128(u, b, &rem);
         // u /= b;
         rem := u % b
         u /= b

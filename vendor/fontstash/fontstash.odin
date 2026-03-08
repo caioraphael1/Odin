@@ -177,7 +177,7 @@ Reset :: proc(ctx: ^FontContext) {
 }
 
 __atlasInsertNode :: proc(ctx: ^FontContext, idx: int, x, y, w: int) {
-    dyn_array_inject_at(&ctx.nodes, idx, AtlasNode{
+    dyn_array.inject_at(&ctx.nodes, idx, AtlasNode{
         x     = i16(x),
         y     = i16(y),
         width = i16(w),
@@ -715,7 +715,7 @@ __getGlyphKernAdvance :: proc(font: ^Font, glyph1, glyph2: Glyph_Index) -> i32 {
 
 // get a font with bounds checking
 __getFont :: proc(ctx: ^FontContext, index: int, loc := #caller_location) -> ^Font #no_bounds_check {
-    runtime.bounds_check_error_loc(loc, index, len(ctx.fonts))
+    internal.bounds_check_error_loc(loc, index, len(ctx.fonts))
     return &ctx.fonts[index]
 }
 
@@ -874,7 +874,7 @@ TextIter :: struct {
 
 // push a state, copies the current one over to the next one
 PushState :: proc(using ctx: ^FontContext, loc := #caller_location) #no_bounds_check {
-    runtime.bounds_check_error_loc(loc, state_count, MAX_STATES)
+    internal.bounds_check_error_loc(loc, state_count, MAX_STATES)
 
     if state_count > 0 {
         states[state_count] = states[state_count - 1]

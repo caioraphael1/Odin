@@ -11,7 +11,7 @@ import "core:time"
 
 
 _exit :: proc(code: int) -> ! {
-    runtime.panic_contextless("exit")
+    internal.panic_contextless("exit")
 }
 
 _get_uid :: proc() -> int {

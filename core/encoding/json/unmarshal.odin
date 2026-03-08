@@ -1,10 +1,15 @@
-import "base:mem"
-import "base:math"
-import "core:reflect"
-import "core:strconv"
-import "base:strings"
 import "base:internal"
 import "base:intrinsics"
+import "base:mem"
+import "base:math"
+import "base:slice"
+import "base:dyn_array"
+import "base:maps"
+import "base:strings"
+
+import "core:strings_tools"
+import "core:reflect"
+import "core:strconv"
 
 Unmarshal_Data_Error :: enum {
     Invalid_Data,
@@ -190,13 +195,13 @@ assign_int :: proc(val: any, i: $T) -> bool {
     case uint:    dst = uint   (i)
     case uintptr: dst = uintptr(i)
     case:
-        is_bit_set_different_endian_to_platform :: proc(ti: ^runtime.Type_Info) -> bool {
+        is_bit_set_different_endian_to_platform :: proc(ti: ^internal.Type_Info) -> bool {
             if ti == nil {
                 return false
             }
-            t := runtime.type_info_base(ti)
+            t := internal.type_info_base(ti)
             #partial switch info in t.variant {
-            case runtime.Type_Info_Integer:
+            case internal.Type_Info_Integer:
                 switch info.endianness {
                 case .Platform: return false
                 case .Little:   return ODIN_ENDIAN != .Little
@@ -207,7 +212,7 @@ assign_int :: proc(val: any, i: $T) -> bool {
         }
 
         ti := type_info_of(v.id)
-        if info, ok := ti.variant.(runtime.Type_Info_Bit_Set); ok {
+        if info, ok := ti.variant.(internal.Type_Info_Bit_Set); ok {
             do_byte_swap := is_bit_set_different_endian_to_platform(info.underlying)
             switch ti.size * 8 {
             case 0: // no-op.
@@ -267,7 +272,11 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
     case token.kind == .String:
         str = unquote_string(token, p.spec, p.allocator) or_return
     case:
-        str = strings.string_clone(token.text, p.allocator) or_return
+        str_err: mem.Allocator_Error
+        str, str_err = strings.string_clone(token.text, p.allocator)
+        if str_err != nil {
+            return false, .Invalid_Allocator
+        }
     }
     defer if !ok || (val.id != string && val.id != cstring) {
         _ = strings.string_delete(str, p.allocator)
@@ -652,7 +661,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             unmarshal_expect_token(p, .Colon)
             
 
-            mem.slice.zero(elem_backing)
+            slice.zero(elem_backing)
             if uerr := unmarshal_value(p, map_backing_value); uerr != nil {
                 _ = strings.string_delete(key, p.allocator)
                 return uerr
@@ -661,7 +670,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             key_ptr: rawptr
 
             #partial switch tk in t.key.variant {
-                case runtime.Type_Info_String:
+                case internal.Type_Info_String:
                     assert(tk.encoding == .UTF_8)
 
                     key_ptr = rawptr(&key)
@@ -670,14 +679,14 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
                         key_cstr = cstring(raw_data(key))
                         key_ptr = &key_cstr
                     }
-                case runtime.Type_Info_Integer:
+                case internal.Type_Info_Integer:
                     i, ok := strconv.parse_i128_maybe_prefixed(key)
                     if !ok  { return UNSUPPORTED_TYPE }
                     key_ptr = rawptr(&i)
                 case: return UNSUPPORTED_TYPE
             }
 
-            set_ptr := runtime.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_ptr, map_backing_value.data)
+            set_ptr := maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_ptr, map_backing_value.data)
             if set_ptr == nil {
                 _ = strings.string_delete(key, p.allocator)
             } 

@@ -14,7 +14,7 @@ Multi_Producer_Single_Consumer :: struct {
 }
 
 mpsc_init :: proc(mpscq: ^Multi_Producer_Single_Consumer, cap: int, allocator: mem.Allocator) -> mem.Allocator_Error {
-	assert(runtime.is_power_of_two_int(cap), "cap must be a power of 2")
+	assert(internal.is_power_of_two_int(cap), "cap must be a power of 2")
 	mpscq.buffer = slice.create([]rawptr, cap, allocator) or_return
 	mpscq.mask   = cap-1
 	sync.atomic_thread_fence(.Release)

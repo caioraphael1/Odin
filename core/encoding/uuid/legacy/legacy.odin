@@ -98,7 +98,7 @@ generate_v5_bytes :: proc(
     sha1.update(&ctx, name)
     sha1.final(&ctx, digest[:])
 
-    runtime.mem.copy_non_overlapping(&result, &digest, 16)
+    internal.mem.copy_non_overlapping(&result, &digest, 16)
 
     result[VERSION_BYTE_INDEX] &= 0x0F
     result[VERSION_BYTE_INDEX] |= 0x50

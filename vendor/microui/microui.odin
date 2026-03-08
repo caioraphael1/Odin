@@ -376,7 +376,7 @@ end :: proc(ctx: ^Context) {
 
     /* reset input state */
     ctx.key_pressed_bits = {} // clear
-    strings.builder_reset(&ctx.text_input)
+    strings_tools.builder_reset(&ctx.text_input)
     ctx.mouse_pressed_bits = {} // clear
     ctx.mouse_released_bits = {} // clear
     ctx.scroll_delta = Vec2{0, 0}
@@ -1005,9 +1005,9 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
         }
 
         /* handle text input */
-        if strings.builder_len(ctx.text_input) > 0 {
+        if strings_tools.builder_len(ctx.text_input) > 0 {
             if textedit.input_text(&ctx.textbox_state, strings_tools.to_string(ctx.text_input)) > 0 {
-                textlen^ = strings.builder_len(builder)
+                textlen^ = strings_tools.builder_len(builder)
                 res += {.CHANGE}
             }
         }
@@ -1018,7 +1018,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
         /* handle ctrl+x */
         if .X in ctx.key_pressed_bits && .CTRL in ctx.key_down_bits && .ALT not_in ctx.key_down_bits {
             if textedit.cut(&ctx.textbox_state) {
-                textlen^ = strings.builder_len(builder)
+                textlen^ = strings_tools.builder_len(builder)
                 res += {.CHANGE}
             }
         }
@@ -1029,7 +1029,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
         /* handle ctrl+v */
         if .V in ctx.key_pressed_bits && .CTRL in ctx.key_down_bits && .ALT not_in ctx.key_down_bits {
             if textedit.paste(&ctx.textbox_state) {
-                textlen^ = strings.builder_len(builder)
+                textlen^ = strings_tools.builder_len(builder)
                 res += {.CHANGE}
             }
         }
@@ -1069,13 +1069,13 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
         if .BACKSPACE in ctx.key_pressed_bits && textlen^ > 0 {
             move: textedit.Translation = .Word_Left if .CTRL in ctx.key_down_bits else .Left
             textedit.delete_to(&ctx.textbox_state, move)
-            textlen^ = strings.builder_len(builder)
+            textlen^ = strings_tools.builder_len(builder)
             res += {.CHANGE}
         }
         if .DELETE in ctx.key_pressed_bits && textlen^ > 0 {
             move: textedit.Translation = .Word_Right if .CTRL in ctx.key_down_bits else .Right
             textedit.delete_to(&ctx.textbox_state, move)
-            textlen^ = strings.builder_len(builder)
+            textlen^ = strings_tools.builder_len(builder)
             res += {.CHANGE}
         }
         /* handle return */

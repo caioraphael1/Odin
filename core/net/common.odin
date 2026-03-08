@@ -48,7 +48,7 @@ import "base:internal"
 ODIN_NET_TCP_NODELAY_DEFAULT :: #config(ODIN_NET_TCP_NODELAY_DEFAULT, true)
 
 // COMMON DEFINITIONS
-Maybe :: runtime.Maybe
+Maybe :: internal.Maybe
 
 Network_Error :: union #shared_nil {
 	Create_Socket_Error,

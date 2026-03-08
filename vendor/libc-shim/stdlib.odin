@@ -28,7 +28,7 @@ aligned_alloc :: proc "c" (alignment: uint, size: uint) -> rawptr {
 @(require, linkage="strong", link_name="free")
 free :: proc "c" (ptr: rawptr) {
     context = g_ctx
-    runtime.mem_free(ptr)
+    internal.mem_free(ptr)
 }
 
 @(require, linkage="strong", link_name="realloc")
@@ -37,7 +37,7 @@ realloc :: proc "c" (ptr: rawptr, new_size: uint) -> rawptr {
     // -1 for the old_size, assumed to be wrapped with the mem.Compat_Allocator to get the right size.
     // Note that realloc does not actually care about alignment and is allowed to just align it to something
     // else than the original allocation.
-    ptr, err := runtime.resize_non_zero(ptr, -1, int(new_size))
+    ptr, err := internal.resize_non_zero(ptr, -1, int(new_size))
     assert(err == nil, "realloc failure")
     return raw_data(ptr)
 }
@@ -164,7 +164,7 @@ atexit :: proc "c" (function: proc "c" ()) -> i32 {
 @(require, linkage="strong", link_name="exit")
 exit :: proc "c" (exit_code: c.int) -> ! {
     finish_atexit()
-    runtime.exit(int(exit_code))
+    internal.exit(int(exit_code))
 }
 
 @(private, fini)

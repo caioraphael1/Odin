@@ -59,7 +59,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
 
         found: bool
         for dir in path_dirs {
-            strings.builder_reset(&exe_builder)
+            strings_tools.builder_reset(&exe_builder)
             strings_tools.write_string(&exe_builder, dir)
             strings_tools.write_byte(&exe_builder, '/')
             strings_tools.write_string(&exe_builder, exe_name)
@@ -74,7 +74,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         }
         if !found {
             // check in cwd to match windows behavior
-            strings.builder_reset(&exe_builder)
+            strings_tools.builder_reset(&exe_builder)
             strings_tools.write_string(&exe_builder, desc.working_dir)
             if len(desc.working_dir) > 0 && desc.working_dir[len(desc.working_dir)-1] != '/' {
             strings_tools.write_byte(&exe_builder, '/')
@@ -92,7 +92,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
             }
         }
     } else {
-        strings.builder_reset(&exe_builder)
+        strings_tools.builder_reset(&exe_builder)
         strings_tools.write_string(&exe_builder, exe_name)
 
         if exe_fd := posix.open(strings.to_cstring(&exe_builder) or_return, {.CLOEXEC, .EXEC}); exe_fd == -1 {

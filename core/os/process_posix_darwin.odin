@@ -153,7 +153,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             break args
         }
 
-        buf := runtime.slice_create_aligned([]byte, length, 4, allocators.temp_allocator)
+        buf := internal.slice_create_aligned([]byte, length, 4, allocators.temp_allocator)
         if sysctl(raw_data(mib), 3, raw_data(buf), &length, nil, 0) != .OK {
             if err == nil {
                 err = _get_platform_error()

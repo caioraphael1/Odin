@@ -450,7 +450,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
                 cap := 2 * da.cap
 
-                ok := runtime._dyn_array_reserve((^Raw_Dynamic_Array)da, elemt.size, elemt.align, cap, false, loc)
+                ok := internal._dyn_array_reserve((^Raw_Dynamic_Array)da, elemt.size, elemt.align, cap, false, loc)
                 
                 // NOTE: Might be lying here, but it is at least an allocator error.
                 if !ok { return false, .Out_Of_Memory }
@@ -493,7 +493,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         if .Shrink_Excess in d.flags {
             // Ignoring an error here, but this is not critical to succeed.
-            _ = runtime._dyn_array_shrink((^Raw_Dynamic_Array)(&da), t.elem.size, t.elem.align, da.len, loc=loc)
+            _ = internal._dyn_array_shrink((^Raw_Dynamic_Array)(&da), t.elem.size, t.elem.align, da.len, loc=loc)
         }
 
         raw      := (^slice.Raw_Slice)(v.data)
@@ -517,7 +517,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         if .Shrink_Excess in d.flags {
             // Ignoring an error here, but this is not critical to succeed.
-            _ = runtime._dyn_array_shrink((^Raw_Dynamic_Array)raw, t.elem.size, t.elem.align, raw.len, loc=loc)
+            _ = internal._dyn_array_shrink((^Raw_Dynamic_Array)raw, t.elem.size, t.elem.align, raw.len, loc=loc)
         }
         return
 
@@ -553,7 +553,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, 2, allocator }
 
-        info: ^runtime.Type_Info
+        info: ^internal.Type_Info
         switch ti.id {
         case complex32:  info = type_info_of(f16)
         case complex64:  info = type_info_of(f32)
@@ -573,7 +573,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, 4, allocator }
 
-        info: ^runtime.Type_Info
+        info: ^internal.Type_Info
         switch ti.id {
         case quaternion64:  info = type_info_of(f16)
         case quaternion128: info = type_info_of(f32)
@@ -721,15 +721,15 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
         }
 
         defer if err != nil {
-            _ = runtime.map_free_dynamic(raw_map^, t.map_info)
+            _ = internal.map_free_dynamic(raw_map^, t.map_info)
         }
 
         length, scap := err_conv(_decode_len_container(d, add)) or_return
         unknown := length == -1
         if !unknown {
             // Reserve space before setting so we can return allocation errors and be efficient on big maps.
-            new_len := uintptr(min(scap, runtime.maps.raw_map_len(raw_map^)+length))
-            runtime.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
+            new_len := uintptr(min(scap, internal.maps.raw_map_len(raw_map^)+length))
+            internal.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
         }
 
         // Temporary memory to unmarshal values into before inserting them into the map.
@@ -745,8 +745,8 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
         for idx := 0; unknown || idx < length; idx += 1 {
             if unknown || idx > scap {
                 // Reserve space for new element so we can return allocator errors.
-                new_len := uintptr(runtime.maps.raw_map_len(raw_map^)+1)
-                runtime.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
+                new_len := uintptr(internal.maps.raw_map_len(raw_map^)+1)
+                internal.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
             }
 
             mem.slice.zero(key_backing)
@@ -755,13 +755,13 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
             mem.slice.zero(elem_backing)
             _unmarshal_value(d, map_backing_value, _decode_header(r) or_return) or_return
 
-            set_ptr := runtime.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)
+            set_ptr := internal.maps.raw_map_dynamic_set_without_hash(raw_map, t.map_info, key_backing_value.data, map_backing_value.data)
             // We already reserved space for it, so this shouldn't fail.
             assert(set_ptr != nil)
         }
     
         if .Shrink_Excess in d.flags {
-            _, _ = runtime.maps.shrink_dynamic(raw_map, t.map_info)
+            _, _ = internal.maps.shrink_dynamic(raw_map, t.map_info)
         }
         return
 
@@ -816,7 +816,7 @@ _unmarshal_union :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
             case:
                 builder := strings_tools.builder_make(allocators.temp_allocator)
-                defer strings.builder_destroy(&builder)
+                defer strings_tools.builder_destroy(&builder)
 
                 reflect.write_type(&builder, variant)
                 variant_name := strings_tools.to_string(builder)
@@ -875,7 +875,7 @@ _assign_int :: proc(val: any, i: $T) -> bool {
     case uintptr: dst = uintptr(i)
     case:
         ti := type_info_of(v.id)
-        if _, ok := ti.variant.(runtime.Type_Info_Bit_Set); ok {
+        if _, ok := ti.variant.(internal.Type_Info_Bit_Set); ok {
             do_byte_swap := !reflect.bit_set_is_big_endian(v)
             switch ti.size * 8 {
             case 0: // no-op.

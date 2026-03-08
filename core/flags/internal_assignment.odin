@@ -84,7 +84,7 @@ set_odin_flag :: proc(model: ^$T, parser: ^Parser, name: string) -> (error: Erro
     field, index := get_field_by_name(model, name) or_return
 
     #partial switch specific_type_info in field.type.variant {
-    case runtime.Type_Info_Boolean:
+    case internal.Type_Info_Boolean:
         ptr := cast(^bool)(cast(uintptr)model + field.offset)
         ptr^ = true
     case:
@@ -110,10 +110,10 @@ set_unix_flag :: proc(model: ^$T, parser: ^Parser, name: string) -> (future_args
     field, index := get_field_by_name(model, name) or_return
 
     #partial switch specific_type_info in field.type.variant {
-    case runtime.Type_Info_Boolean:
+    case internal.Type_Info_Boolean:
         ptr := cast(^bool)(cast(uintptr)model + field.offset)
         ptr^ = true
-    case runtime.Type_Info_Dynamic_Array:
+    case internal.Type_Info_Dynamic_Array:
         future_args = 1
         if tag, ok := reflect.struct_tag_lookup(field.tag, TAG_ARGS); ok {
             if length, is_manifold := get_struct_subtag(tag, SUBTAG_MANIFOLD); is_manifold {
@@ -149,7 +149,7 @@ set_option :: proc(model: ^$T, parser: ^Parser, name, option: string) -> (error:
 
     // Guard against incorrect syntax.
     #partial switch specific_type_info in field.type.variant {
-    case runtime.Type_Info_Map:
+    case internal.Type_Info_Map:
         return Parse_Error {
             .No_Value,
             fmt.tprintf("Unable to set `%s` of type %v to `%s`. Are you missing an `=`? The correct format is `map:key=value`.", name, field.type, option),
@@ -180,7 +180,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
     field, index := get_field_by_name(model, name) or_return
 
     #partial switch specific_type_info in field.type.variant {
-    case runtime.Type_Info_Map:
+    case internal.Type_Info_Map:
         key := key
         key_ptr := cast(rawptr)&key
         key_cstr: cstring
@@ -194,9 +194,9 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
             _ = slice.delete(key_cstr)
         }
 
-        raw_map := (^runtime.Raw_Map)(cast(uintptr)model + field.offset)
+        raw_map := (^internal.Raw_Map)(cast(uintptr)model + field.offset)
 
-        hash := specific_type_info.map_info.key_hasher(key_ptr, runtime.map_seed(raw_map^))
+        hash := specific_type_info.map_info.key_hasher(key_ptr, internal.map_seed(raw_map^))
 
         backing_alloc := false
         elem_backing: []byte
@@ -205,7 +205,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
         if raw_map.allocator.procedure == nil {
             // raw_map.allocator = context.allocator
         } else {
-            value_ptr = runtime.__dynamic_map_get(raw_map,
+            value_ptr = internal.__dynamic_map_get(raw_map,
                 specific_type_info.map_info,
                 hash,
                 key_ptr,
@@ -240,7 +240,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
         }
 
         if backing_alloc {
-            runtime.__dynamic_map_set(raw_map,
+            internal.__dynamic_map_set(raw_map,
                 specific_type_info.map_info,
                 hash,
                 key_ptr,

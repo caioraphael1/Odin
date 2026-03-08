@@ -354,10 +354,18 @@ General-purpose align formula.
 This procedure is equivalent to `align_forward`, but it does not require the
 alignment to be a power of two.
 */
-align_formula :: proc(size, align: int) -> int {
+@(no_sanitize_address)
+align_formula_int :: #force_inline proc(size, align: int) -> int {
     result := size + align-1
     return result - result%align
 }
+
+@(no_sanitize_address)
+align_formula_uint :: #force_inline proc(size, align: uint) -> uint {
+    result := size + align-1
+    return result - result%align
+}
+
 
 
 //--------------------------------------------------------------------------------------------------

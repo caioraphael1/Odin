@@ -348,7 +348,7 @@ array_pop_safe :: proc(x: ^$X/Array($T, $SHIFT)) -> (val: T, ok: bool) {
 }
 
 /*
-    `dyn_array_unordered_remove` removed the element at the specified `index`. It does so by replacing the current end value
+    `dyn_array.unordered_remove` removed the element at the specified `index`. It does so by replacing the current end value
     with the old value, and reducing the length of the exponential array by 1.
 
     Note: This is an O(1) operation.
@@ -369,7 +369,7 @@ array_pop_safe :: proc(x: ^$X/Array($T, $SHIFT)) -> (val: T, ok: bool) {
             xar.push_back(&x, 20)
             xar.push_back(&x, 30)
 
-            xar.dyn_array_unordered_remove(&x, 0)  // Removes 10, replaces with 30
+            xar.dyn_array.unordered_remove(&x, 0)  // Removes 10, replaces with 30
 
             // Array now contains [30, 20]
             fmt.println(xar.get(&x, 0))  // 30

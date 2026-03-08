@@ -115,7 +115,7 @@ foreign lib {
 	Returns: the index of the matched token string, or -1 if no token strings were matched
 
 	Example:
-		args := runtime.args__
+		args := internal.args__
 
 		Opt :: enum {
 			RO,

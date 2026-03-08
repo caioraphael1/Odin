@@ -42,7 +42,7 @@ Event_Set_Fail_Timeout :: struct {
 }
 
 Event_Log_Message :: struct {
-	level: runtime.Logger_Level,
+	level: internal.Logger_Level,
 	text: string,
 	time: time.Time,
 	formatted_text: string,

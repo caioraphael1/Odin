@@ -5,9 +5,10 @@
     List of contributors:
         Feoramund: Initial implementation.
 */
-
 import "base:intrinsics"
 import "base:mem"
+import "base:maps"
+
 import "core:io"
 import "core:text/regex/common"
 import "core:text/regex/virtual_machine"

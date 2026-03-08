@@ -359,7 +359,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
     n, scap := _decode_len_str(d, add) or_return
     
     buf := strings_tools.builder_make(0, scap, allocator, loc) or_return
-    defer if err != nil { strings.builder_destroy(&buf) }
+    defer if err != nil { strings_tools.builder_destroy(&buf) }
     buf_stream := strings.to_stream(&buf)
 
     if n == -1 {

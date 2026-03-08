@@ -75,7 +75,7 @@ stop_test_callback :: proc "system" (info: ^win32.EXCEPTION_POINTERS) -> win32.L
 		return win32.EXCEPTION_CONTINUE_SEARCH
 	}
 
-	context = runtime.default_context()
+	context = internal.default_context()
 	code := info.ExceptionRecord.ExceptionCode
 
 	if local_test_index == -1 {

@@ -211,7 +211,7 @@ write_encoding_entitities_table :: proc(entities: []Entity, shortest_name, longe
 	}
 
 	generated_buf: strings_tools.Builder
-	defer strings.builder_destroy(&generated_buf)
+	defer strings_tools.builder_destroy(&generated_buf)
 	w := strings_tools.to_writer(&generated_buf)
 
 	// Generate table.

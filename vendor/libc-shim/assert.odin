@@ -9,5 +9,5 @@ __odin_libc_assert_fail :: proc "c" (func: cstring, file: cstring, line: i32, ex
         column    = 0,
         procedure = string(func),
     }
-    runtime.assertion_failure_proc("runtime assertion", string(expr), loc)
+    internal.assertion_failure_proc("runtime assertion", string(expr), loc)
 }

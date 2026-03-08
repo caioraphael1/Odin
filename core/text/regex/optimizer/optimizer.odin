@@ -6,10 +6,11 @@
         Feoramund: Initial implementation.
 */
 
-import "base:intrinsics"
-@(require) import "core:io"
 import "base:slice"
 import "base:mem"
+import "base:dyn_array"
+
+@(require) import "core:io"
 import "core:text/regex/common"
 import "core:text/regex/parser"
 

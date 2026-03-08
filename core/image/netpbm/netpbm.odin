@@ -374,7 +374,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
     // string buffer for the tupltype
     tupltype: strings_tools.Builder
     _ = strings_tools.builder_init(&tupltype, allocators.temp_allocator)
-    defer strings.builder_destroy(&tupltype)
+    defer strings_tools.builder_destroy(&tupltype)
     fmt.sbprint(&tupltype, "")
 
     // PAM uses actual lines, so we can iterate easily

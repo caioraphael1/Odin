@@ -10,32 +10,32 @@ Example:
     global_trace_ctx: trace.Context
 
     debug_trace_assertion_failure_proc :: proc(prefix, message: string, loc := #caller_location) -> ! {
-        runtime.print_caller_location(loc)
-        runtime.print_string(" ")
-        runtime.print_string(prefix)
+        internal.print_caller_location(loc)
+        internal.print_string(" ")
+        internal.print_string(prefix)
         if len(message) > 0 {
-            runtime.print_string(": ")
-            runtime.print_string(message)
+            internal.print_string(": ")
+            internal.print_string(message)
         }
-        runtime.print_byte('\n')
+        internal.print_byte('\n')
 
         ctx := &global_trace_ctx
         if !trace.in_resolve(ctx) {
             buf: [64]trace.Frame
-            runtime.print_string("Debug Trace:\n")
+            internal.print_string("Debug Trace:\n")
             frames := trace.frames(ctx, 1, buf[:])
             for f, i in frames {
                 fl := trace.resolve(ctx, f, allocators.temp_allocator)
                 if fl.loc.file_path == "" && fl.loc.line == 0 {
                     continue
                 }
-                runtime.print_caller_location(fl.loc)
-                runtime.print_string(" - frame ")
-                runtime.print_int(i)
-                runtime.print_byte('\n')
+                internal.print_caller_location(fl.loc)
+                internal.print_string(" - frame ")
+                internal.print_int(i)
+                internal.print_byte('\n')
             }
         }
-        runtime.trap()
+        internal.trap()
     }
 
     main :: proc() {

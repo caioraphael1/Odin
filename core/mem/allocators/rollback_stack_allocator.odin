@@ -5,7 +5,7 @@ import "base:mem"
 /*
 Rollback stack default block size.
 */
-ROLLBACK_STACK_DEFAULT_BLOCK_SIZE :: 4 * runtime.Megabyte
+ROLLBACK_STACK_DEFAULT_BLOCK_SIZE :: 4 * mem.Megabyte
 
 /*
 Rollback stack max head block size.
@@ -17,7 +17,7 @@ valid, so long as the block allocator can handle it.
 This is because allocations over the block size are not split up if the item
 within is freed; they are immediately returned to the block allocator.
 */
-ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE :: 2 * runtime.Gigabyte
+ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE :: 2 * mem.Gigabyte
 
 /*
 Allocation header of the rollback stack allocator.
@@ -114,7 +114,7 @@ rb_free :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> mem.Allocator_Error {
     }
     if parent != nil && block.offset == 0 {
         parent.next_block = block.next_block
-        runtime.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator) or_return
+        internal.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator) or_return
     }
     return nil
 }
@@ -126,7 +126,7 @@ Free all memory owned by the rollback stack allocator.
 rb_free_all :: proc(stack: ^Rollback_Stack) {
     for block := stack.head.next_block; block != nil; /**/ {
         next_block := block.next_block
-        _ = runtime.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator)
+        _ = internal.mem_free_with_size(block, size_of(Rollback_Stack_Block) + len(block.buffer), stack.block_allocator)
         block = next_block
     }
 
@@ -143,7 +143,7 @@ Allocate memory using the rollback stack allocator.
 rb_alloc :: proc(
     stack: ^Rollback_Stack,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
     ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
@@ -160,7 +160,7 @@ Allocate memory using the rollback stack allocator.
 rb_alloc_bytes :: proc(
     stack: ^Rollback_Stack,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
     ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
@@ -177,7 +177,7 @@ Allocate non-initialized memory using the rollback stack allocator.
 rb_alloc_non_zeroed :: proc(
     stack: ^Rollback_Stack,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
@@ -191,7 +191,7 @@ Allocate non-initialized memory using the rollback stack allocator.
 rb_alloc_bytes_non_zeroed :: proc(
     stack: ^Rollback_Stack,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
     assert(size >= 0, "Size must be positive or zero.", loc)
@@ -255,7 +255,7 @@ rb_resize :: proc(
     old_ptr: rawptr,
     old_size: int,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_resize_bytes_non_zeroed(stack, mem.slice.bytes(old_ptr, old_size), size, alignment, loc)
@@ -277,7 +277,7 @@ rb_resize_bytes :: proc(
     stack: ^Rollback_Stack,
     old_memory: []byte,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> ([]u8, mem.Allocator_Error) {
     bytes, err := rb_resize_bytes_non_zeroed(stack, old_memory, size, alignment, loc)
@@ -301,7 +301,7 @@ rb_resize_non_zeroed :: proc(
     old_ptr: rawptr,
     old_size: int,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_resize_bytes_non_zeroed(stack, mem.slice.bytes(old_ptr, old_size), size, alignment, loc)
@@ -317,7 +317,7 @@ rb_resize_bytes_non_zeroed :: proc(
     stack: ^Rollback_Stack,
     old_memory: []byte,
     size: int,
-    alignment := runtime.DEFAULT_ALIGNMENT,
+    alignment := internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
     old_size := len(old_memory)
@@ -343,7 +343,7 @@ rb_resize_bytes_non_zeroed :: proc(
         }
     }
     result = rb_alloc_bytes_non_zeroed(stack, size, alignment) or_return
-    runtime.mem.copy_non_overlapping(raw_data(result), ptr, old_size)
+    internal.mem.copy_non_overlapping(raw_data(result), ptr, old_size)
     err = rb_free(stack, ptr)
     return
 }

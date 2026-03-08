@@ -82,7 +82,7 @@ example :: proc() {
 
 doc_hash :: proc(doc: ^xml.Document, print := false) -> (crc32: u32) {
     buf: strings_tools.Builder
-    defer strings.builder_destroy(&buf)
+    defer strings_tools.builder_destroy(&buf)
     w := strings_tools.to_writer(&buf)
 
     xml.print(w, doc)

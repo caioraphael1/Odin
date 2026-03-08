@@ -37,7 +37,7 @@ Internal_Test :: struct {
 Internal_Cleanup :: struct {
     procedure: proc(rawptr),
     user_data: rawptr,
-    ctx: runtime.Context,
+    ctx: internal.Context,
 }
 
 T :: struct {
@@ -83,7 +83,7 @@ fail_now :: proc(t: ^T, msg := "", loc := #caller_location) -> ! {
     } else {
         log.error("FAIL", location=loc)
     }
-    runtime.trap()
+    internal.trap()
 }
 
 failed :: proc(t: ^T) -> bool {

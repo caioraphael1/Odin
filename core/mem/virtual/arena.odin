@@ -1,7 +1,8 @@
-import "base:mem"
 import "base:intrinsics"
+import "base:mem"
+import "base:slice"
+
 import "core:sync"
-import "base:internal"
 
 // import "base:sanitizer"
 
@@ -32,12 +33,12 @@ Arena :: struct {
 
 
 // 1 MiB should be enough to start with
-DEFAULT_ARENA_STATIC_COMMIT_SIZE         :: runtime.Megabyte
-DEFAULT_ARENA_GROWING_COMMIT_SIZE        :: 8 * runtime.Megabyte
+DEFAULT_ARENA_STATIC_COMMIT_SIZE         :: mem.Megabyte
+DEFAULT_ARENA_GROWING_COMMIT_SIZE        :: 8 * mem.Megabyte
 DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE :: DEFAULT_ARENA_STATIC_COMMIT_SIZE
 
 // 1 GiB on 64-bit systems, 128 MiB on 32-bit systems by default
-DEFAULT_ARENA_STATIC_RESERVE_SIZE :: runtime.Gigabyte when size_of(uintptr) == 8 else 128 * mem.Megabyte
+DEFAULT_ARENA_STATIC_RESERVE_SIZE :: mem.Gigabyte when size_of(uintptr) == 8 else 128 * mem.Megabyte
 
 
 
@@ -155,7 +156,7 @@ arena_static_reset_to :: proc(arena: ^Arena, pos: uint, loc := #caller_location)
         arena.curr_block.used = clamp(pos, 0, arena.curr_block.reserved)
 
         if prev_pos > pos {
-            mem.slice.zero(arena.curr_block.base[arena.curr_block.used:][:prev_pos-pos])
+            slice.zero(arena.curr_block.base[arena.curr_block.used:][:prev_pos-pos])
         }
         arena.total_used = arena.curr_block.used
         // sanitizer.address_poison(arena.curr_block.base[:arena.curr_block.committed])
@@ -412,7 +413,7 @@ arena_temp_end :: proc(temp: Arena_Temp, loc := #caller_location) {
         if block := arena.curr_block; block != nil {
             assert(block.used >= temp.used, "out of order use of arena_temp_end", loc)
             amount_to_zero := block.used-temp.used
-            mem.slice.zero(block.base[temp.used:][:amount_to_zero])
+            slice.zero(block.base[temp.used:][:amount_to_zero])
             block.used = temp.used
             arena.total_used -= amount_to_zero
         }

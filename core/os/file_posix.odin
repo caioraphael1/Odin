@@ -161,7 +161,7 @@ _fd_specific :: proc(f: ^File) -> posix.FD {
 }
 
 _is_tty :: proc(f: ^File) -> bool {
-    context = runtime.default_context()
+    context = internal.default_context()
     fd     := _fd(f)
     is_tty := posix.isatty(posix.FD(fd))
     return bool(is_tty)

@@ -8,6 +8,9 @@
 
 import "base:internal"
 import "base:mem"
+import "base:mem/allocators"
+import "base:slice"
+
 import "core:text/regex/common"
 import "core:text/regex/compiler"
 import "core:text/regex/optimizer"

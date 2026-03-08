@@ -295,6 +295,37 @@ equal_simple :: proc(a, b: $T/[]$E) -> bool where intrinsics.type_is_simple_comp
     return mem.compare(raw_data(a), raw_data(b), len(a)*size_of(E)) == 0
 }
 
+any_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable(T) {
+    for v in s {
+        if v == value {
+            return true
+        }
+    }
+    return false
+}
+
+none_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable(T) {
+    for v in s {
+        if v == value {
+            return false
+        }
+    }
+    return true
+}
+
+all_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable(T) {
+    if len(s) == 0 {
+        return false
+    }
+    for v in s {
+        if v != value {
+            return false
+        }
+    }
+    return true
+}
+
+
 
 //--------------------------------------------------------------------------------------------------
 // Copy

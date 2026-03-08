@@ -147,7 +147,7 @@ undo_state_push :: proc(s: ^State, undo: ^[dynamic]^Undo_State) -> mem.Allocator
 	item.selection = s.selection
 	item.len = len(text)
 	#no_bounds_check {
-		runtime.copy(item.text[:len(text)], text)
+		internal.copy(item.text[:len(text)], text)
 	}
 	dyn_array.append(undo, item) or_return
 	return nil
@@ -160,7 +160,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 		item := dyn_array.pop(undo)
 		s.selection = item.selection
 		#no_bounds_check if s.builder != nil {
-			strings.builder_reset(s.builder)
+			strings_tools.builder_reset(s.builder)
 			strings_tools.write_string(s.builder, string(item.text[:item.len]))
 		}
 		free(item, s.undo_text_allocator)
@@ -234,13 +234,13 @@ input_rune :: proc(s: ^State, r: rune) {
 insert :: proc(s: ^State, at: int, text: string) -> int {
 	undo_check(s)
 	if s.builder != nil {
-		if ok, _ := dyn_array_inject_at(&s.builder.buf, at, text); !ok {
+		if ok, _ := dyn_array.inject_at(&s.builder.buf, at, text); !ok {
 			n := cap(s.builder.buf) - len(s.builder.buf)
 			assert(n < len(text))
 			for is_continuation_byte(text[n]) {
 				n -= 1
 			}
-			if ok2, _ := dyn_array_inject_at(&s.builder.buf, at, text[:n]); !ok2 {
+			if ok2, _ := dyn_array.inject_at(&s.builder.buf, at, text[:n]); !ok2 {
 				n = 0
 			}
 			return n

@@ -605,7 +605,7 @@ foreign {
 // Application events.
 ////////////////////////////////////////////////////////////////////////////////
 
-// This enum defines the type events that can be sent to the application by the runtime. This determines which member of the `oc_event` union field is active.
+// This enum defines the type events that can be sent to the application by the internal. This determines which member of the `oc_event` union field is active.
 event_type :: enum u32 {
 	// No event. That could be used simply to wake up the application.
 	NONE = 0,

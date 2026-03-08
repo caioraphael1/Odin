@@ -909,7 +909,7 @@ matcher_match :: proc(matcher: ^Matcher) -> (word: string, ok: bool) #no_bounds_
 // get the capture at the "correct" spot, as spot 0 is reserved for the first match
 
 matcher_capture :: proc(matcher: ^Matcher, index: int, loc := #caller_location) -> string #no_bounds_check {
-    runtime.bounds_check_error_loc(loc, index + 1, MAX_CAPTURES - 1)
+    internal.bounds_check_error_loc(loc, index + 1, MAX_CAPTURES - 1)
     cap := matcher.captures[index + 1]
     return matcher.haystack[cap.byte_start:cap.byte_end]
 }
@@ -917,7 +917,7 @@ matcher_capture :: proc(matcher: ^Matcher, index: int, loc := #caller_location) 
 // get the raw match out of the captures, skipping spot 0
 
 matcher_capture_raw :: proc(matcher: ^Matcher, index: int, loc := #caller_location) -> Match #no_bounds_check {
-    runtime.bounds_check_error_loc(loc, index + 1, MAX_CAPTURES - 1)
+    internal.bounds_check_error_loc(loc, index + 1, MAX_CAPTURES - 1)
     return matcher.captures[index + 1]
 }
 

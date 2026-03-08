@@ -121,7 +121,7 @@ Returns:
 */
 node :: proc(id: Identifier) -> (node: [6]u8) {
 	mutable_id := id
-	runtime.mem.copy_non_overlapping(&node, &mutable_id[10], 6)
+	internal.mem.copy_non_overlapping(&node, &mutable_id[10], 6)
 	return
 }
 

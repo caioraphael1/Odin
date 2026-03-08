@@ -45,7 +45,7 @@ test_assertion_failure_proc :: proc(prefix, message: string, loc: internal.Sourc
 	} else {
 		log.fatalf("%s: %s", prefix, message, location = loc)
 	}
-	runtime.trap()
+	internal.trap()
 }
 
 setup_signal_handler :: proc() {

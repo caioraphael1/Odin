@@ -51,7 +51,7 @@ is_ascii :: proc(s: ^String) -> bool {
 }
 
 at :: proc(s: ^String, i: int, loc := #caller_location) -> (r: rune) {
-	runtime.bounds_check_error_loc(loc, i, s.rune_count)
+	internal.bounds_check_error_loc(loc, i, s.rune_count)
 
 	if i < s.non_ascii {
 		return rune(s.contents[i])
@@ -123,7 +123,7 @@ at :: proc(s: ^String, i: int, loc := #caller_location) -> (r: rune) {
 }
 
 slice :: proc(s: ^String, i, j: int, loc := #caller_location) -> string {
-	runtime.slice_expr_error_lo_hi_loc(loc, i, j, s.rune_count)
+	internal.slice_expr_error_lo_hi_loc(loc, i, j, s.rune_count)
 
 	if j < s.non_ascii {
 		return s.contents[i:j]

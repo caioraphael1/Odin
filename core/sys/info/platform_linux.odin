@@ -38,7 +38,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 					strings_tools.write_string(&b, post[:end])
 				}
 			}
-			if strings.builder_len(b) == 0 {
+			if strings_tools.builder_len(b) == 0 {
 				strings_tools.write_string(&b, "Unknown Linux Distro")
 			}
 		}
@@ -62,7 +62,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	strings_tools.write_string(&b, string(cstring(&uts.sysname[0])))
 	strings_tools.write_rune(&b, ' ')
 
-	release_i := strings.builder_len(b)
+	release_i := strings_tools.builder_len(b)
 	strings_tools.write_string(&b, string(cstring(&uts.release[0])))
 	release_str := string(b.buf[release_i:])
 

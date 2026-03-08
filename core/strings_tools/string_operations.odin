@@ -984,9 +984,9 @@ remove :: proc(s, key: string, n: int, allocator: mem.Allocator) -> (output: str
 Removes all the `key` string instances from the `s` string
 
 Example:
-    fmt.println(strings.remove_all("abcabc", "abc"))
-    fmt.println(strings.remove_all("abcabc", "a"))
-    fmt.println(strings.remove_all("abcabc", "x"))
+    fmt.println(strings_tools.remove_all("abcabc", "abc"))
+    fmt.println(strings_tools.remove_all("abcabc", "a"))
+    fmt.println(strings_tools.remove_all("abcabc", "x"))
 Output:
      true
     bcbc true

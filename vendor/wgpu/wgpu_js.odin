@@ -1,12 +1,12 @@
 
 import "base:internal"
 
-g_context: runtime.Context
+g_context: internal.Context
 
 @(private="file", init)
 wgpu_init_allocator :: proc() {
     if g_context.allocator.procedure == nil {
-        g_context = runtime.default_context()
+        g_context = internal.default_context()
     }
 }
 
