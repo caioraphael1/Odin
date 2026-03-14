@@ -1,3 +1,4 @@
+#+no-instrumentation
 #+vet !cast
 import "base:intrinsics"
 

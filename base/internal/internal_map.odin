@@ -1,3 +1,5 @@
+#+no-instrumentation
+
 import "base:internal"
 @(require) import "base:intrinsics"
 

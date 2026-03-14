@@ -1,3 +1,4 @@
+#+no-instrumentation
 
 Raw_Any :: struct {
     data: rawptr,

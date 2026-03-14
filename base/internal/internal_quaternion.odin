@@ -1,3 +1,4 @@
+#+no-instrumentation
 import "base:intrinsics"
 
 

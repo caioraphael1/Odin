@@ -1,3 +1,4 @@
+#+no-instrumentation
 
 Raw_Soa_Pointer :: struct {
     data:  rawptr,

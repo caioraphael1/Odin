@@ -1,3 +1,5 @@
+#+no-instrumentation
+
 import "base:intrinsics"
 
 Raw_Complex32   :: struct { real, imag: f16 }

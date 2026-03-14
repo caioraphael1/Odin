@@ -1,3 +1,5 @@
+#+no-instrumentation
+
 import "base:intrinsics"
 
 __mem_compare :: proc(x, y: rawptr, n: int) -> int #no_bounds_check {

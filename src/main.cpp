@@ -12,6 +12,7 @@
 #endif
 #include "exact_value.cpp"
 #include "build_settings.cpp"
+
 gb_global ThreadPool global_thread_pool;
 gb_internal void init_global_thread_pool(void) {
     isize thread_count = gb_max(build_context.thread_count, 1);
@@ -89,6 +90,7 @@ gb_global Timings global_timings = {0};
 #include "llvm_backend.cpp"
 
 #include "bug_report.cpp"
+
 
 // NOTE(bill): 'name' is used in debugging and profiling modes
 gb_internal i32 system_exec_command_line_app_internal(bool exit_on_err, char const *name, char const *fmt, va_list va) {

@@ -25,6 +25,7 @@ make_relations :: proc(sorter: ^$S/Sorter($K)) -> (r: Relations(K)) {
 
 
 init :: proc(sorter: ^$S/Sorter($K)) {
+    sorter^ = {} // Reset the struct first.
     sorter.relations = maps.create(map[K]Relations(K))
     // sorter.dependents_allocator = context.allocator
 }

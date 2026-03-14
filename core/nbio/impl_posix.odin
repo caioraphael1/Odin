@@ -1,17 +1,17 @@
 #+build darwin, freebsd, openbsd, netbsd
 #+private file
 
+import    "base:mem"
+import    "base:strings"
+import fa "base:fixed_array"
+import    "base:queue"
 
 import    "core:c"
 import    "core:container/pool"
-import    "base:queue"
-import    "base:mem"
 import    "core:net"
-import    "base:strings"
 import    "core:sys/posix"
 import    "core:time"
 import kq "core:sys/kqueue"
-import sa "base:small_array"
 
 @(private)
 _FULLY_SUPPORTED :: true
@@ -23,7 +23,7 @@ _Event_Loop :: struct {
     // that would be the same (ident, filter) pair we need to bundle the operations under one kevent.
     submitted: map[Queue_Identifier]^Operation,
     // Holds all events we want to flush. Flushing is done each tick at which point this is emptied.
-    pending:   sa.Small_Array(QUEUE_SIZE, kq.KEvent),
+    pending:   fa.Fixed_Array(QUEUE_SIZE, kq.KEvent),
     // Holds what should be in `pending` but didn't fit.
     // When `pending`is flushed these are moved to `pending`.
     overflow:  queue.Queue(kq.KEvent),
@@ -116,7 +116,7 @@ _init :: proc(l: ^Event_Loop, allocator: mem.Allocator) -> (rerr: General_Error)
 
     l.kqueue = kqueue
 
-    sa.dyn_array.append(&l.pending, kq.KEvent{
+    fa.dyn_array.append(&l.pending, kq.KEvent{
         ident  = IDENT_WAKE_UP,
         filter = .User,
         flags  = {.Add, .Enable, .Clear},
@@ -150,7 +150,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
     }
 
     if NBIO_DEBUG {
-        npending := sa.len(l.pending)
+        npending := fa.len(l.pending)
         if npending > 0 {
             debug("queueing", npending, "new events, there are", int(len(l.submitted)), "events pending")
         } else {
@@ -177,9 +177,9 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
         results_buf: [128]kq.KEvent
         results := kevent(l, results_buf[:], ts_pointer) or_return
 
-        sa.clear(&l.pending)
+        fa.clear(&l.pending)
         for overflow in queue.dyn_array_pop_front_safe(&l.overflow) {
-            sa.dyn_array.append(&l.pending, overflow) or_break
+            fa.append(&l.pending, overflow) or_break
         }
 
         l.now = time.now()
@@ -202,7 +202,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 
     kevent :: proc(l: ^Event_Loop, buf: []kq.KEvent, ts: ^posix.timespec) -> ([]kq.KEvent, General_Error) {
         for {
-            new_events, err := kq.kevent(l.kqueue, sa.slice(&l.pending), buf, ts)
+            new_events, err := kq.kevent(l.kqueue, fa.slice(&l.pending), buf, ts)
             #partial switch err {
             case nil:
                 internal.assert(new_events >= 0)
@@ -1180,7 +1180,7 @@ add_pending :: proc(op: ^Operation, filter: kq.Filter, ident: uintptr) {
 }
 
 append_pending :: #force_inline proc(l: ^Event_Loop, ev: kq.KEvent) {
-    if !sa.dyn_array.append(&l.pending, ev) {
+    if !fa.append(&l.pending, ev) {
         warn("queue is full, adding to overflow, should QUEUE_SIZE be increased?")
         _, err := queue.dyn_array.append(&l.overflow, ev)
         internal.ensure(err == nil, "allocation failure")
@@ -1317,7 +1317,7 @@ timeout_and_delete :: proc(target: ^Operation) {
                 flags  = {.Add, .Enable, .One_Shot},
                 udata  = target._impl.next,
             }
-            if !sa.dyn_array.append(&target.l.pending, ev) {
+            if !fa.append(&target.l.pending, ev) {
                 warn("just removed the head operation of a list of multiple, and the queue is full, have to force this update through inefficiently")
                 // This has to happen the next time we submit or we could have udata pointing wrong.
                 // Very inefficient but probably never hit.

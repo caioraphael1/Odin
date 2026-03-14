@@ -1,3 +1,4 @@
+#+no-instrumentation
 import "base:internal"
 
 DEFAULT_ALIGNMENT :: 2 * align_of(rawptr)
