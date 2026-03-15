@@ -1,11 +1,7 @@
-// Multi-threading operations to spawn threads and thread pools.
-import "base:internal"
-import "base:mem"
 @(require) import "base:intrinsics"
 
 
 IS_SUPPORTED :: _IS_SUPPORTED
-MAX_USER_ARGUMENTS :: 8
 
 
 Thread_Proc :: #type proc(^Thread)
@@ -18,35 +14,22 @@ Thread_State :: enum u8 {
     Self_Cleanup,
 }
 
-
+/* 
+struct size
+    windows: 72 bytes
+*/
 Thread :: struct {
-    using specific:     Thread_Os_Specific,
-    flags:              bit_set[Thread_State; u8],
+    using specific: Thread_Os_Specific,
+    flags:          bit_set[Thread_State; u8],
 
-    // Thread ID. Depending on the platform, may start out as 0 (zero) until the thread
-    // has had a chance to run.
-    id:                 int,
+    // Depending on the platform, may start out as 0 (zero) until the thread has had a chance to run.
+    id:             int,
 
-    // The thread procedure.
-    procedure:          Thread_Proc,
+    procedure:      Thread_Proc,
 
-    // User-supplied pointer, that will be available to the thread once it is
-    // started. Should be set after the thread has been created, but before
-    // it is started.
-    data:               rawptr,
-
-    // User-supplied integer, that will be available to the thread once it is
-    // started. Should be set after the thread has been created, but before
-    // it is started.
-    user_index:         int,
-
-    // User-supplied array of arguments, that will be available to the thread,
-    // once it is started. Should be set after the thread has been created,
-    // but before it is started.
-    user_args:          [MAX_USER_ARGUMENTS]rawptr,
-
-    // The allocator used to allocate data for the thread.
-    creation_allocator: mem.Allocator,
+    // User
+    user_ptr:       rawptr,
+    user_index:     int,
 }
 
 when IS_SUPPORTED {
@@ -82,15 +65,9 @@ start :: proc(thread: ^Thread) {
 }
 
 
-create_and_start :: proc(thread: ^Thread, procedure: proc(), priority := Thread_Priority.Normal, self_cleanup := false) -> (err: Thread_Create_Error) {
-    thread_proc :: proc(t: ^Thread) {
-        procedure := cast(proc())t.data
-        procedure()
-    }
+create_and_start :: proc(thread: ^Thread, procedure: Thread_Proc, priority := Thread_Priority.Normal, self_cleanup := false) -> (err: Thread_Create_Error) {
+    _create(thread, procedure, priority) or_return
 
-    _create(thread, thread_proc, priority) or_return
-
-    thread.data = rawptr(procedure)
     if self_cleanup {
         intrinsics.atomic_or(&thread.flags, { .Self_Cleanup })
     }

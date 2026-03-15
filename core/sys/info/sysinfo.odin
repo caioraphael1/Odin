@@ -21,7 +21,7 @@ Returns:
 - logical:  The number of logical cores
 - ok:       `true` when we could retrieve the CPU information, `false` otherwise
 */
-cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
+cpu_core_count :: proc() -> (physical: u32, logical: u32, ok: bool) {
     return _cpu_core_count()
 }
 

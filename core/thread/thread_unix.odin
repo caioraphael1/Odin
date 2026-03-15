@@ -1,6 +1,8 @@
 #+build linux, darwin, freebsd, openbsd, netbsd, haiku
 #+private
+
 import "base:internal"
+
 import "core:sync"
 import "core:sys/posix"
 
@@ -12,10 +14,9 @@ Thread_Os_Specific :: struct #align(16) {
     unix_thread: posix.pthread_t, // NOTE: very large on Darwin, small on Linux.
     start_ok:    sync.Sema,
 }
-//
+
 // Creates a thread which will run the given procedure.
 // It then waits for `start` to be called.
-//
 _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: mem.Allocator) -> ^Thread {
     _unix_thread_entry_proc :: proc "c" (t: rawptr) -> rawptr {
         t := (^Thread)(t)
@@ -42,7 +43,6 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
             internal.assert(res == nil)
 
             t.unix_thread = {}
-            _ = mem.free(t, t.creation_allocator)
         }
 
         return nil
@@ -72,7 +72,6 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
     if thread == nil {
         return nil
     }
-    thread.creation_allocator = allocator
 
     // Set thread priority.
     policy: posix.Sched_Policy
@@ -95,7 +94,6 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
 
     thread.procedure = procedure
     if posix.pthread_create(&thread.unix_thread, &attrs, __unix_thread_entry_proc, thread) != nil {
-        _ = mem.free(thread, thread.creation_allocator)
         return nil
     }
     return thread
@@ -140,7 +138,6 @@ _join_multiple :: proc(threads: ..^Thread) {
 _destroy :: proc(t: ^Thread) {
     _join(t)
     t.unix_thread = {}
-    _ = mem.free(t, t.creation_allocator)
 }
 
 _terminate :: proc(t: ^Thread, exit_code: int) {

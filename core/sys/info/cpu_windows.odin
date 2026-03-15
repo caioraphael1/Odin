@@ -3,7 +3,7 @@ import sys "core:sys/windows"
 import "base:intrinsics"
 
 @(private)
-_cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
+_cpu_core_count :: proc() -> (physical, logical: u32, ok: bool) {
     // Reportedly, Windows Server supports a maximum of 256 logical cores.
     // The most scratch memory we need therefore is 8192 bytes = 256 * size_of(sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION)
     infos: [256]sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION
@@ -26,7 +26,7 @@ _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
     for info in infos[:count] {
         #partial switch info.Relationship {
         case .RelationProcessorCore: physical += 1
-        case .RelationNumaNode:      logical  += int(intrinsics.count_ones(info.ProcessorMask))
+        case .RelationNumaNode:      logical  += u32(intrinsics.count_ones(info.ProcessorMask))
         }
     }
 

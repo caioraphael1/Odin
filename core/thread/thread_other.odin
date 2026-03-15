@@ -1,4 +1,5 @@
 #+build js, wasi, orca
+
 import "base:intrinsics"
 
 _IS_SUPPORTED :: false

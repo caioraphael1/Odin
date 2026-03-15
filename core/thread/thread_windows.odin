@@ -1,8 +1,7 @@
 #+build windows
 #+private
-import "base:internal"
+
 import "base:intrinsics"
-import "base:mem"
 
 import "core:sync"
 import win32 "core:sys/windows"

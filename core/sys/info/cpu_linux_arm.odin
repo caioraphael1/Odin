@@ -8,92 +8,92 @@ import "base:strings"
 
 @(private)
 _cpu_features :: proc() -> (features: CPU_Features) {
-	return _features
+    return _features
 }
 
 // @(init)
 init_cpu_features :: proc() {
-	fd, err := linux.open("/proc/cpuinfo", {})
-	if err != .NONE { return }
-	defer linux.close(fd)
+    fd, err := linux.open("/proc/cpuinfo", {})
+    if err != .NONE { return }
+    defer linux.close(fd)
 
-	// This is probably enough right?
-	buf: [4096]byte
-	n, rerr := linux.read(fd, buf[:])
-	if rerr != .NONE || n == 0 { return }
+    // This is probably enough right?
+    buf: [4096]byte
+    n, rerr := linux.read(fd, buf[:])
+    if rerr != .NONE || n == 0 { return }
 
-	str := string(buf[:n])
-	for line in strings_tools.split_lines_iterator(&str) {
-		key, _, value := strings_tools.partition(line, ":")
-		key   = strings_tools.trim_space(key)
-		value = strings_tools.trim_space(value)
+    str := string(buf[:n])
+    for line in strings_tools.split_lines_iterator(&str) {
+        key, _, value := strings_tools.partition(line, ":")
+        key   = strings_tools.trim_space(key)
+        value = strings_tools.trim_space(value)
 
-		if key != "Features" { continue }
+        if key != "Features" { continue }
 
-		for feature in strings.split_by_byte_iterator(&value, ' ') {
-			switch feature {
-			case "asimd", "neon": _features += { .asimd }
-			case "fp":            _features += { .floatingpoint }
-			case "asimdhp":       _features += { .asimdhp }
-			case "asimdbf16":     _features += { .bf16 }
-			case "fcma":          _features += { .fcma }
-			case "asimdfhm":      _features += { .fhm }
-			case "fphp", "half":  _features += { .fp16 }
-			case "frint":         _features += { .frint }
-			case "i8mm":          _features += { .i8mm }
-			case "jscvt":         _features += { .jscvt }
-			case "asimdrdm":      _features += { .rdm }
+        for feature in strings.split_by_byte_iterator(&value, ' ') {
+            switch feature {
+            case "asimd", "neon": _features += { .asimd }
+            case "fp":            _features += { .floatingpoint }
+            case "asimdhp":       _features += { .asimdhp }
+            case "asimdbf16":     _features += { .bf16 }
+            case "fcma":          _features += { .fcma }
+            case "asimdfhm":      _features += { .fhm }
+            case "fphp", "half":  _features += { .fp16 }
+            case "frint":         _features += { .frint }
+            case "i8mm":          _features += { .i8mm }
+            case "jscvt":         _features += { .jscvt }
+            case "asimdrdm":      _features += { .rdm }
 
-			case "flagm":         _features += { .flagm }
-			case "flagm2":        _features += { .flagm2 }
-			case "crc32":         _features += { .crc32 }
+            case "flagm":         _features += { .flagm }
+            case "flagm2":        _features += { .flagm2 }
+            case "crc32":         _features += { .crc32 }
 
-			case "atomics":       _features += { .lse }
-			case "lrcpc":         _features += { .lrcpc }
-			case "ilrcpc":        _features += { .lrcpc2 }
+            case "atomics":       _features += { .lse }
+            case "lrcpc":         _features += { .lrcpc }
+            case "ilrcpc":        _features += { .lrcpc2 }
 
-			case "aes":           _features += { .aes }
-			case "pmull":         _features += { .pmull }
-			case "sha1":          _features += { .sha1 }
-			case "sha2":          _features += { .sha256 }
-			case "sha3":          _features += { .sha3 }
-			case "sha512":        _features += { .sha512 }
+            case "aes":           _features += { .aes }
+            case "pmull":         _features += { .pmull }
+            case "sha1":          _features += { .sha1 }
+            case "sha2":          _features += { .sha256 }
+            case "sha3":          _features += { .sha3 }
+            case "sha512":        _features += { .sha512 }
 
-			case "sb":            _features += { .sb }
-			case "ssbs":          _features += { .ssbs }
-			}
-		}
-		break
-	}
+            case "sb":            _features += { .sb }
+            case "ssbs":          _features += { .ssbs }
+            }
+        }
+        break
+    }
 }
 
 @(private)
-_cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
-	context = internal.default_context()
-	fd, err := linux.open("/proc/cpuinfo", {})
-	if err != .NONE { return }
-	defer linux.close(fd)
+_cpu_core_count :: proc() -> (physical, logical: u32, ok: bool) {
+    context = internal.default_context()
+    fd, err := linux.open("/proc/cpuinfo", {})
+    if err != .NONE { return }
+    defer linux.close(fd)
 
-	// This is probably enough right?
-	buf: [4096]byte
-	n, rerr := linux.read(fd, buf[:])
-	if rerr != .NONE || n == 0 { return }
+    // This is probably enough right?
+    buf: [4096]byte
+    n, rerr := linux.read(fd, buf[:])
+    if rerr != .NONE || n == 0 { return }
 
-	physical_ok, logical_ok: bool
+    physical_ok, logical_ok: bool
 
-	str := string(buf[:n])
-	for line in strings_tools.split_lines_iterator(&str) {
-		key, _, value := strings_tools.partition(line, ":")
-		key   = strings_tools.trim_space(key)
-		value = strings_tools.trim_space(value)
+    str := string(buf[:n])
+    for line in strings_tools.split_lines_iterator(&str) {
+        key, _, value := strings_tools.partition(line, ":")
+        key   = strings_tools.trim_space(key)
+        value = strings_tools.trim_space(value)
 
-		if key == "cpu cores" && !physical_ok{
-			physical, physical_ok = strconv.parse_int(value)
-		}
+        if key == "cpu cores" && !physical_ok{
+            physical, physical_ok = u32(strconv.parse_uint(value))
+        }
 
-		if key == "siblings" && !logical_ok{
-			logical, logical_ok = strconv.parse_int(value)
-		}
-	}
-	return physical, logical, physical_ok || logical_ok
+        if key == "siblings" && !logical_ok{
+            logical, logical_ok = u32(strconv.parse_uint(value))
+        }
+    }
+    return physical, logical, physical_ok || logical_ok
 }

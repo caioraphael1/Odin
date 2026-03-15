@@ -181,7 +181,7 @@ Output:
     [1]
     [1, 0, 0, 0, 0]
 */
-resize :: proc(a: ^$A/Fixed_Array($N, $T), length: int) {
+resize :: proc(a: ^$A/Fixed_Array($N, $T), #any_int length: int) {
     prev_len := a.len
     a.len = min(length, builtin.len(a.data))
     if prev_len < a.len {
