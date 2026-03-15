@@ -23,7 +23,7 @@ Tracking_Allocator_Entry :: struct {
     // Error.
     err: mem.Allocator_Error,
     // Location of the allocation.
-    location:  internal.Source_Code_Location,
+    loc:  internal.Source_Code_Location,
 }
 
 /*
@@ -32,14 +32,14 @@ Bad free entry for a tracking allocator.
 Tracking_Allocator_Bad_Free_Entry :: struct {
     // Pointer, on which free operation was called.
     memory: rawptr,
-    // The source location of where the operation was called.
-    location: internal.Source_Code_Location,
+    // The source loc of where the operation was called.
+    loc: internal.Source_Code_Location,
 }
 
 /*
 Callback type for when tracking allocator runs into a bad free.
 */
-Tracking_Allocator_Bad_Free_Callback :: proc(t: ^Tracking_Allocator, memory: rawptr, location: internal.Source_Code_Location)
+Tracking_Allocator_Bad_Free_Callback :: proc(t: ^Tracking_Allocator, memory: rawptr, loc: internal.Source_Code_Location)
 
 /*
 Tracking allocator data.
@@ -131,8 +131,8 @@ example, you can use tracking_allocator_bad_free_callback_add_to_array to return
 the tracking allocator to the old behavior, where the bad_free_array was used.
 */
 @(no_sanitize_address)
-tracking_allocator_bad_free_callback_panic :: proc(t: ^Tracking_Allocator, memory: rawptr, location: internal.Source_Code_Location) {
-    internal.print_caller_location(location)
+tracking_allocator_bad_free_callback_panic :: proc(t: ^Tracking_Allocator, memory: rawptr, loc: internal.Source_Code_Location) {
+    internal.print_caller_location(loc)
     internal.print_string(" Tracking allocator error: Bad free of pointer ")
     internal.print_uintptr(uintptr(memory))
     internal.print_string("\n")
@@ -144,10 +144,10 @@ Alternative behavior for a bad free: Store in `bad_free_array`. If you use this,
 then you must make sure to check Tracking_Allocator.bad_free_array at some point.
 */
 @(no_sanitize_address)
-tracking_allocator_bad_free_callback_add_to_array :: proc(t: ^Tracking_Allocator, memory: rawptr, location: internal.Source_Code_Location) {
+tracking_allocator_bad_free_callback_add_to_array :: proc(t: ^Tracking_Allocator, memory: rawptr, loc: internal.Source_Code_Location) {
     _ = dyn_array.append(&t.bad_free_array, Tracking_Allocator_Bad_Free_Entry {
         memory = memory,
-        location = location,
+        loc = loc,
     })
 }
 
@@ -179,7 +179,7 @@ Example:
         do_stuff()
 
         for _, leak in track.allocation_map {
-            fmt.printf("%v leaked %m\n", leak.location, leak.size)
+            fmt.printf("%v leaked %m\n", leak.loc, leak.size)
         }
     }
 */
@@ -255,7 +255,7 @@ tracking_allocator_proc :: proc(
             mode = mode,
             alignment = alignment,
             err = err,
-            location = loc,
+            loc = loc,
         }
         track_alloc(data, &data.allocation_map[result_ptr])
     case .Free:
@@ -281,7 +281,7 @@ tracking_allocator_proc :: proc(
             mode = mode,
             alignment = alignment,
             err = err,
-            location = loc,
+            loc = loc,
         }
         track_alloc(data, &data.allocation_map[result_ptr])
 

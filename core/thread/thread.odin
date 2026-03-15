@@ -4,26 +4,13 @@ import "base:mem"
 @(require) import "base:intrinsics"
 
 
-/*
-Value, specifying whether `core:thread` functionality is available on the
-current platform.
-*/
 IS_SUPPORTED :: _IS_SUPPORTED
-
-/*
-Type for a procedure that will be run in a thread, after that thread has been
-started.
-*/
-Thread_Proc :: #type proc(^Thread)
-
-/*
-Maximum number of user arguments for polymorphic thread procedures.
-*/
 MAX_USER_ARGUMENTS :: 8
 
-/*
-Type representing the state/flags of the thread.
-*/
+
+Thread_Proc :: #type proc(^Thread)
+
+
 Thread_State :: enum u8 {
     Started,
     Joined,
@@ -31,9 +18,7 @@ Thread_State :: enum u8 {
     Self_Cleanup,
 }
 
-/*
-Type representing a thread handle and the associated with that thread data.
-*/
+
 Thread :: struct {
     using specific:     Thread_Os_Specific,
     flags:              bit_set[Thread_State; u8],
@@ -68,87 +53,68 @@ when IS_SUPPORTED {
     #assert(size_of(Thread{}.user_index) == size_of(uintptr))
 }
 
-/*
-Type representing priority of a thread.
-*/
+
 Thread_Priority :: enum {
     Normal,
     Low,
     High,
 }
 
-/*
-Create a thread in a suspended state with the given priority.
 
-This procedure creates a thread that will be set to run the procedure
-specified by `procedure` parameter with a specified priority. The returned
-thread will be in a suspended state, until `start()` procedure is called.
-
-To start the thread, call `start()`. Also the `create_and_start()`
-procedure can be called to create and start the thread immediately.
-*/
-create :: proc(procedure: Thread_Proc, priority := Thread_Priority.Normal, allocator: mem.Allocator) -> ^Thread {
-    return _create(procedure, priority, allocator)
+Thread_Create_Error :: enum {
+    None,
+    Create_Failure,
+    Set_Thread_Priority_Failure,
 }
 
 /*
-Start a suspended thread.
+The thread will be in a suspended state, until `start()` procedure is called.
+*/
+create :: proc(thread: ^Thread, procedure: Thread_Proc, priority := Thread_Priority.Normal) -> (err: Thread_Create_Error) {
+    return _create(thread, procedure, priority)
+}
+
+/*
+Starts a suspended thread.
 */
 start :: proc(thread: ^Thread) {
     _start(thread)
 }
 
 
-/*
-Run a procedure on a different thread.
-
-This procedure runs the given procedure on another thread.  The thread will have priority specified by the `priority` parameter.
-
-If `self_cleanup` is specified, after the thread finishes the execution of the
-`fn` procedure, the resources associated with the thread are going to be
-automatically freed.
-
-**Do not** dereference the `^Thread` pointer, if this flag is specified.
-That includes calling `join`, which needs to dereference ^Thread`.
-*/
-create_and_start :: proc(fn: proc(), priority := Thread_Priority.Normal, self_cleanup := false, allocator: mem.Allocator) -> (t: ^Thread) {
+create_and_start :: proc(thread: ^Thread, procedure: proc(), priority := Thread_Priority.Normal, self_cleanup := false) -> (err: Thread_Create_Error) {
     thread_proc :: proc(t: ^Thread) {
-        fn := cast(proc())t.data
-        fn()
+        procedure := cast(proc())t.data
+        procedure()
     }
-    if t = create(thread_proc, priority, allocator); t == nil {
-        return
-    }
-    t.data = rawptr(fn)
+
+    _create(thread, thread_proc, priority) or_return
+
+    thread.data = rawptr(procedure)
     if self_cleanup {
-        intrinsics.atomic_or(&t.flags, {.Self_Cleanup})
+        intrinsics.atomic_or(&thread.flags, { .Self_Cleanup })
     }
-    start(t)
-    return t
+    _start(thread)
+
+    return
 }
 
-
-/*
-Wait for the thread to finish work.
-*/
-join :: proc(thread: ^Thread) {
-    _join(thread)
-}
-
-/*
-Wait for all threads to finish work, and closes their handles.
-*/
-join_multiple :: proc(threads: ..^Thread) {
-    _join_multiple(..threads)
-}
-
-/*
-Wait for the thread to finish and free all data associated with it.
-join + free.
-*/
 destroy :: proc(thread: ^Thread) {
     _destroy(thread)
 }
+
+wait :: proc(thread: ^Thread) {
+    _wait(thread)
+}
+
+wait_many :: proc(threads: ..Thread) {
+    _wait_many(..threads)
+}
+
+close :: proc(thread: ^Thread) {
+    _close(thread)
+}
+
 
 /*
 Forcibly terminate/cancel a running thread.

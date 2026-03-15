@@ -11,7 +11,7 @@ Logger :: struct {
     options:      Options,
 }
 
-Logger_Proc :: #type proc(data: rawptr, level: Level, text: string, options: Options, location := #caller_location)
+Logger_Proc :: #type proc(data: rawptr, level: Level, text: string, options: Options, loc := #caller_location)
 
 Level :: enum uint {
     Debug   = 0,
@@ -53,7 +53,7 @@ Location_File_Opts :: Options{
 }
 
 
-log :: proc(logger: Logger, level: Level, args: ..any, sep := " ", location := #caller_location) {
+log :: proc(logger: Logger, level: Level, args: ..any, sep := " ", loc := #caller_location) {
     if logger.procedure == nil {
         return
     }
@@ -62,10 +62,10 @@ log :: proc(logger: Logger, level: Level, args: ..any, sep := " ", location := #
     }
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     str := fmt.tprint(..args, sep=sep)
-    logger.procedure(logger.data, level, str, logger.options, location)
+    logger.procedure(logger.data, level, str, logger.options, loc)
 }
 
-logf :: proc(logger: Logger, level: Level, fmt_str: string, args: ..any, location := #caller_location) {
+logf :: proc(logger: Logger, level: Level, fmt_str: string, args: ..any, loc := #caller_location) {
     if logger.procedure == nil {
         return
     }
@@ -74,5 +74,5 @@ logf :: proc(logger: Logger, level: Level, fmt_str: string, args: ..any, locatio
     }
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     str := fmt.tprintf(fmt_str, ..args)
-    logger.procedure(logger.data, level, str, logger.options, location)
+    logger.procedure(logger.data, level, str, logger.options, loc)
 }

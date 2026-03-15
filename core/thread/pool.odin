@@ -1,3 +1,4 @@
+#+ignore
 /*
     thread.Pool
     Copyright 2022 eisbehr
@@ -39,7 +40,7 @@ Pool :: struct {
 
     is_running: bool,
 
-    threads: []^Thread,
+    threads: []Thread,
 
 
     tasks:      queue.Queue(Task),
@@ -82,13 +83,12 @@ pool_init :: proc(pool: ^Pool, allocator: mem.Allocator, thread_count: int) {
 
     pool.is_running = true
 
-    for _, i in pool.threads {
-        t := create(pool_thread_runner, allocator = allocator)
+    for t, i in pool.threads {
+        create(&t, pool_thread_runner)
         data, _ := mem.new(Pool_Thread_Data, allocator)
         data.pool = pool
         t.user_index = i
         t.data = data
-        pool.threads[i] = t
     }
 }
 

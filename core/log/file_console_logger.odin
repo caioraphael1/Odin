@@ -79,7 +79,7 @@ destroy_console_logger :: proc(log: Logger, allocator: mem.Allocator) {
 }
 
 @(private)
-_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text: string, options: Options, location: internal.Source_Code_Location) {
+_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text: string, options: Options, loc: internal.Source_Code_Location) {
     backing: [1024]byte //NOTE(Hoej): 1024 might be too much for a header backing, unless somebody has really long paths.
     buf := strings_tools.builder_from_bytes(backing[:])
 
@@ -89,7 +89,7 @@ _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text
         do_time_header(options, &buf, time.now())
     }
 
-    do_location_header(options, &buf, location)
+    do_location_header(options, &buf, loc)
 
     if .Thread_Id in options {
         fmt.sbprintf(&buf, "[{}] ", os.get_current_thread_id())
@@ -102,12 +102,12 @@ _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text
     fmt.fprintf(h, "%s%s\n", strings_tools.to_string(buf), text)
 }
 
-file_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, options: Options, location := #caller_location) {
+file_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, options: Options, loc := #caller_location) {
     data := cast(^File_Console_Logger_Data)logger_data
-    _file_console_logger_proc(data.file_handle, data.ident, level, text, options, location)
+    _file_console_logger_proc(data.file_handle, data.ident, level, text, options, loc)
 }
 
-console_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, options: Options, location := #caller_location) {
+console_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, options: Options, loc := #caller_location) {
     options := options
     data := cast(^File_Console_Logger_Data)logger_data
     h: ^os.File = ---
@@ -118,7 +118,7 @@ console_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, opt
         h = os.stderr
         options -= global_subtract_stderr_options
     }
-    _file_console_logger_proc(h, data.ident, level, text, options, location)
+    _file_console_logger_proc(h, data.ident, level, text, options, loc)
 }
 
 do_level_header :: proc(opts: Options, str: ^strings_tools.Builder, level: Level) {
@@ -165,21 +165,21 @@ do_time_header :: proc(opts: Options, buf: ^strings_tools.Builder, t: time.Time)
     }
 }
 
-do_location_header :: proc(opts: Options, buf: ^strings_tools.Builder, location := #caller_location) {
+do_location_header :: proc(opts: Options, buf: ^strings_tools.Builder, loc := #caller_location) {
     if Location_Header_Opts & opts == nil {
         return
     }
     fmt.sbprint(buf, "[")
 
-    file := location.file_path
+    file := loc.file_path
     if .Short_File_Path in opts {
         last := 0
-        for r, i in location.file_path {
+        for r, i in loc.file_path {
             if r == '/' {
                 last = i+1
             }
         }
-        file = location.file_path[last:]
+        file = loc.file_path[last:]
     }
 
     if Location_File_Opts & opts != nil {
@@ -189,14 +189,14 @@ do_location_header :: proc(opts: Options, buf: ^strings_tools.Builder, location 
         if Location_File_Opts & opts != nil {
             fmt.sbprint(buf, ":")
         }
-        fmt.sbprint(buf, location.line)
+        fmt.sbprint(buf, loc.line)
     }
 
     if .Procedure in opts {
         if (Location_File_Opts | {.Line}) & opts != nil {
             fmt.sbprint(buf, ":")
         }
-        fmt.sbprintf(buf, "%s()", location.procedure)
+        fmt.sbprintf(buf, "%s()", loc.procedure)
     }
 
     fmt.sbprint(buf, "] ")

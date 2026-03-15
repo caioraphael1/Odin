@@ -48,11 +48,11 @@ log_allocator :: proc(la: ^Log_Allocator) -> mem.Allocator {
 
 log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                            size, alignment: int,
-                           old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, mem.Allocator_Error)  {
+                           old_memory: rawptr, old_size: int, loc := #caller_location) -> ([]byte, mem.Allocator_Error)  {
     la := (^Log_Allocator)(allocator_data)
 
     if la.logger.procedure == nil || la.level < la.logger.lowest_level {
-        return la.allocator.procedure(la.allocator.data, mode, size, alignment, old_memory, old_size, location)
+        return la.allocator.procedure(la.allocator.data, mode, size, alignment, old_memory, old_size, loc)
     }
 
     padding := " " if la.prefix != "" else ""
@@ -68,7 +68,7 @@ log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         case .Human: format = "%s%s>>> ALLOCATOR(mode=.Alloc, size=%m, alignment=%d)"
         }
         str := fmt.bprintf(buf[:], format, la.prefix, padding, size, alignment)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
 
     case .Alloc_Non_Zeroed:
         format: string
@@ -77,7 +77,7 @@ log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         case .Human: format = "%s%s>>> ALLOCATOR(mode=.Alloc_Non_Zeroed, size=%m, alignment=%d)"
         }
         str := fmt.bprintf(buf[:], format, la.prefix, padding, size, alignment)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
 
     case .Free:
         if old_size != 0 {
@@ -87,15 +87,15 @@ log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             case .Human: format = "%s%s<<< ALLOCATOR(mode=.Free, ptr=%p, size=%m)"
             }
             str := fmt.bprintf(buf[:], format, la.prefix, padding, old_memory, old_size)
-            la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+            la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
         } else {
             str := fmt.bprintf(buf[:], "%s%s<<< ALLOCATOR(mode=.Free, ptr=%p)", la.prefix, padding, old_memory)
-            la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+            la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
         }
 
     case .Free_All:
         str := fmt.bprintf(buf[:], "%s%s<<< ALLOCATOR(mode=.Free_All)", la.prefix, padding)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
 
     case .Resize:
         format: string
@@ -104,7 +104,7 @@ log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         case .Human: format = "%s%s>>> ALLOCATOR(mode=.Resize, ptr=%p, old_size=%m, size=%m, alignment=%d)"
         }
         str := fmt.bprintf(buf[:], format, la.prefix, padding, old_memory, old_size, size, alignment)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
 
     case .Resize_Non_Zeroed:
         format: string
@@ -113,23 +113,23 @@ log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         case .Human: format = "%s%s>>> ALLOCATOR(mode=.Resize_Non_Zeroed, ptr=%p, old_size=%m, size=%m, alignment=%d)"
         }
         str := fmt.bprintf(buf[:], format, la.prefix, padding, old_memory, old_size, size, alignment)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
 
     case .Query_Features:
         str := fmt.bprintf(buf[:], "%s%sALLOCATOR(mode=.Query_Features)", la.prefix, padding)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
 
     case .Query_Info:
         str := fmt.bprintf(buf[:], "%s%sALLOCATOR(mode=.Query_Info)", la.prefix, padding)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
     }
     sync.mutex_unlock(&la.lock)
 
-    data, err := la.allocator.procedure(la.allocator.data, mode, size, alignment, old_memory, old_size, location)
+    data, err := la.allocator.procedure(la.allocator.data, mode, size, alignment, old_memory, old_size, loc)
     if err != nil {
         sync.mutex_lock(&la.lock)
         str := fmt.bprintf(buf[:], "%s%sALLOCATOR ERROR=%v", la.prefix, padding, err)
-        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, location)
+        la.logger.procedure(la.logger.data, la.level, str, la.logger.options, loc)
         sync.mutex_unlock(&la.lock)
     }
     return data, err

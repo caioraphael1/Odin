@@ -34,46 +34,46 @@ subtract_terminal_options :: proc() {
 }
 
 
-debugf :: proc(fmt_str: string, args: ..any, location := #caller_location) {
-    logf(default_logger, .Debug,   fmt_str, ..args, location=location)
+debugf :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
+    logf(default_logger, .Debug,   fmt_str, ..args, loc=loc)
 }
-infof  :: proc(fmt_str: string, args: ..any, location := #caller_location) {
-    logf(default_logger, .Info,    fmt_str, ..args, location=location)
+infof  :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
+    logf(default_logger, .Info,    fmt_str, ..args, loc=loc)
 }
-warnf  :: proc(fmt_str: string, args: ..any, location := #caller_location) {
-    logf(default_logger, .Warning, fmt_str, ..args, location=location)
+warnf  :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
+    logf(default_logger, .Warning, fmt_str, ..args, loc=loc)
 }
-errorf :: proc(fmt_str: string, args: ..any, location := #caller_location) {
-    logf(default_logger, .Error,   fmt_str, ..args, location=location)
+errorf :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
+    logf(default_logger, .Error,   fmt_str, ..args, loc=loc)
 }
-fatalf :: proc(fmt_str: string, args: ..any, location := #caller_location) {
-    logf(default_logger, .Fatal,   fmt_str, ..args, location=location)
-}
-
-debug :: proc(args: ..any, sep := " ", location := #caller_location) {
-    log(default_logger, .Debug,   ..args, sep=sep, location=location)
-}
-info  :: proc(args: ..any, sep := " ", location := #caller_location) {
-    log(default_logger, .Info,    ..args, sep=sep, location=location)
-}
-warn  :: proc(args: ..any, sep := " ", location := #caller_location) {
-    log(default_logger, .Warning, ..args, sep=sep, location=location)
-}
-error :: proc(args: ..any, sep := " ", location := #caller_location) {
-    log(default_logger, .Error,   ..args, sep=sep, location=location)
-}
-fatal :: proc(args: ..any, sep := " ", location := #caller_location) {
-    log(default_logger, .Fatal,   ..args, sep=sep, location=location)
+fatalf :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
+    logf(default_logger, .Fatal,   fmt_str, ..args, loc=loc)
 }
 
-panic :: proc(args: ..any, location := #caller_location) -> ! {
-    log(default_logger, .Fatal, ..args, location=location)
-    internal.panic("log.panic", location)
+debug :: proc(args: ..any, sep := " ", loc := #caller_location) {
+    log(default_logger, .Debug,   ..args, sep=sep, loc=loc)
+}
+info  :: proc(args: ..any, sep := " ", loc := #caller_location) {
+    log(default_logger, .Info,    ..args, sep=sep, loc=loc)
+}
+warn  :: proc(args: ..any, sep := " ", loc := #caller_location) {
+    log(default_logger, .Warning, ..args, sep=sep, loc=loc)
+}
+error :: proc(args: ..any, sep := " ", loc := #caller_location) {
+    log(default_logger, .Error,   ..args, sep=sep, loc=loc)
+}
+fatal :: proc(args: ..any, sep := " ", loc := #caller_location) {
+    log(default_logger, .Fatal,   ..args, sep=sep, loc=loc)
 }
 
-panicf :: proc(fmt_str: string, args: ..any, location := #caller_location) -> ! {
-    logf(default_logger, .Fatal, fmt_str, ..args, location=location)
-    internal.panic("log.panicf", location)
+panic :: proc(args: ..any, loc := #caller_location) -> ! {
+    log(default_logger, .Fatal, ..args, loc=loc)
+    internal.panic("log.panic", loc)
+}
+
+panicf :: proc(fmt_str: string, args: ..any, loc := #caller_location) -> ! {
+    logf(default_logger, .Fatal, fmt_str, ..args, loc=loc)
+    internal.panic("log.panicf", loc)
 }
 
 @(disabled=ODIN_DISABLE_ASSERT)
@@ -81,7 +81,7 @@ assert :: proc(condition: bool, message := #caller_expression(condition), loc :=
     if !condition {
         @(cold)
         internal_assert :: proc(message: string, loc: internal.Source_Code_Location) {
-            log(default_logger, .Fatal, message, location=loc)
+            log(default_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("internal assertion", message, loc)
         }
         internal_assert(message, loc)
@@ -98,7 +98,7 @@ assertf :: proc(condition: bool, fmt_str: string, args: ..any, loc := #caller_lo
         @(cold)
         internal_assertf :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
             message := fmt.tprintf(fmt_str, ..args)
-            log(default_logger, .Fatal, message, location=loc)
+            log(default_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("internal assertion", message, loc)
         }
         internal_assertf(loc, fmt_str, ..args)
@@ -109,7 +109,7 @@ ensure :: proc(condition: bool, message := #caller_expression(condition), loc :=
     if !condition {
         @(cold)
         internal_ensure :: proc(message: string, loc: internal.Source_Code_Location) {
-            log(default_logger, .Fatal, message, location=loc)
+            log(default_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("unsatisfied ensure", message, loc)
         }
         internal_ensure(message, loc)
@@ -121,7 +121,7 @@ ensuref :: proc(condition: bool, fmt_str: string, args: ..any, loc := #caller_lo
         @(cold)
         internal_ensuref :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
             message := fmt.tprintf(fmt_str, ..args)
-            log(default_logger, .Fatal, message, location=loc)
+            log(default_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("unsatisfied ensure", message, loc)
         }
         internal_ensuref(loc, fmt_str, ..args)

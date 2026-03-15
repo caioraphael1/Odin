@@ -1,5 +1,7 @@
-import "base:builtin"
 @(require) import "base:internal"
+import "base:builtin"
+import "base:mem"
+import base_slice "base:slice"
 
 /*
 A fixed-size stack-allocated array operated on in a dynamic fashion.
@@ -247,7 +249,7 @@ Output:
 */
 push_back_many :: proc(a: ^$A/Fixed_Array($N, $T), items: ..T) -> bool {
     if a.len + builtin.len(items) <= cap(a^) {
-        n := slice.copy(a.data[a.len:], items[:])
+        n := base_slice.copy(a.data[a.len:], items[:])
         a.len += n
         return true
     }
@@ -299,7 +301,7 @@ push_front :: proc(a: ^$A/Fixed_Array($N, $T), item: T) -> bool {
     if a.len < cap(a^) {
         a.len += 1
         data := slice(a)
-        slice.copy(data[1:], data[:])
+        base_slice.copy(data[1:], data[:])
         data[0] = item
         return true
     }
@@ -347,7 +349,7 @@ pop_front :: proc(a: ^$A/Fixed_Array($N, $T), loc := #caller_location) -> T {
     internal.assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
-    slice.copy(s[:], s[1:])
+    base_slice.copy(s[:], s[1:])
     a.len -= 1
     return item
 }
@@ -393,7 +395,7 @@ pop_front_safe :: proc(a: ^$A/Fixed_Array($N, $T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[0]
         s := slice(a)
-        slice.copy(s[:], s[1:])
+        base_slice.copy(s[:], s[1:])
         a.len -= 1
         ok = true
     }
@@ -439,7 +441,7 @@ Output:
 ordered_remove :: proc(a: ^$A/Fixed_Array($N, $T), index: int, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, a.len)
     if index+1 < a.len {
-        slice.copy(a.data[index:], a.data[index+1:])
+        base_slice.copy(a.data[index:], a.data[index+1:])
     }
     a.len -= 1
 }
@@ -481,5 +483,5 @@ Output:
     AFTER : []
 */
 clear :: proc(a: ^$A/Fixed_Array($N, $T)) {
-    _ = dyn_array.resize(a, 0)
+    resize(a, 0)
 }
