@@ -942,7 +942,7 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
     }
     was_allocation = true
 
-    w := 0
+    w: uint
     start := 0
     for i := 0; i < byte_count; i += 1 {
         j := start

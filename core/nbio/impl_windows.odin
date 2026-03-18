@@ -5,7 +5,7 @@ import "base:intrinsics"
 
 import "core:container/avl_tree"
 import "core:container/pool"
-import "base:queue"
+import "base:dyn_queue"
 import "base:mem"
 import "core:net"
 import "core:path/filepath"
@@ -23,7 +23,7 @@ _FULLY_SUPPORTED :: true
 _Event_Loop :: struct {
     timeouts:      avl.Tree(^Operation),
     thread:        win.HANDLE,
-    completed:     queue.Queue(^Operation),
+    completed:     dyn_queue.Queue(^Operation),
     completed_oob: Multi_Producer_Single_Consumer,
     state: enum {
         Working,
@@ -135,7 +135,7 @@ _init :: proc(l: ^Event_Loop, alloc: mem.Allocator) -> (err: General_Error) {
 @(private)
 _destroy :: proc(l: ^Event_Loop) {
     avl.destroy(&l.timeouts)
-    queue.destroy(&l.completed)
+    dyn_queue.destroy(&l.completed)
     mpsc_destroy(&l.completed_oob, l.allocator)
     win.CloseHandle(l.thread)
     g_unref()
@@ -149,10 +149,10 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
     next_timeout := check_timeouts(l)
 
     // Prevent infinite loop when callback adds to completed by storing length.
-    n := queue.len(l.completed)
+    n := dyn_queue.len(l.completed)
     if n > 0 {
         for _ in 0 ..< n {
-            op := queue.dyn_array.pop_front(&l.completed)
+            op := dyn_queue.dyn_array.pop_front(&l.completed)
             handle_completed(op)
         }
     }
@@ -166,7 +166,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
     if pool.num_outstanding(&l.operation_pool) == 0 { return nil }
 
     actual_timeout := win.INFINITE
-    if queue.len(l.completed) > 0 || mpsc_count(&l.completed_oob) > 0 {
+    if dyn_queue.len(l.completed) > 0 || mpsc_count(&l.completed_oob) > 0 {
         actual_timeout = 0
     } else if timeout >= 0 {
         actual_timeout = win.DWORD(timeout / time.Millisecond)
@@ -183,7 +183,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
         // So after sleeping we first check our queues.
 
         for {
-            op := (^Operation)(mpsc_dequeue(&l.queue))
+            op := (^Operation)(mpsc_dequeue(&l.dyn_queue))
             if op == nil { break }
             _exec(op)
         }
@@ -229,7 +229,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
             } else {
                 op_l := op.l
                 for !mpsc_enqueue(&op.l.completed_oob, op) {
-                    warn("oob queue filled up, QUEUE_SIZE may need increasing")
+                    warn("oob dyn_queue filled up, QUEUE_SIZE may need increasing")
                     _wake_up(op_l)
                     win.SwitchToThread()
                 }
@@ -280,7 +280,7 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> (err: General_Error) {
             break
         }
 
-        // Don't merge this with the previous iteration because the `handle_completed` in that one might queue
+        // Don't merge this with the previous iteration because the `handle_completed` in that one might dyn_queue
         // more timeouts which we want to detect here.
         // For example: `timeout(time.Second, proc(_: ^Operation) { timeout(time.Second, ...) })`
 
@@ -411,7 +411,7 @@ _exec :: proc(op: ^Operation) {
         debug("exec", op.type, "pending")
     case .Done:
         debug("exec", op.type, "done immediately")
-        _, err := queue.dyn_array.append(&op.l.completed, op) // Got result, handle it next tick.
+        _, err := dyn_queue.dyn_array.append(&op.l.completed, op) // Got result, handle it next tick.
         internal.ensure(err == nil, "allocation failure")
     }
 }
@@ -697,7 +697,7 @@ _remove :: proc(target: ^Operation) {
                 pool.put(&target.l.operation_pool, target)
             }
         } else {
-            debug("timeout is in completed queue, will be picked up there")
+            debug("timeout is in completed dyn_queue, will be picked up there")
         }
         return
 

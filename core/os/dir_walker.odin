@@ -4,7 +4,7 @@ import "base:slice"
 import "base:dyn_array"
 import "base:strings"
 
-import "base:queue"
+import "base:dyn_queue"
 
 /*
 A recursive directory walker.
@@ -12,7 +12,7 @@ A recursive directory walker.
 Note that none of the fields should be accessed directly.
 */
 Walker :: struct {
-    todo:      queue.Queue(string),
+    todo:      dyn_queue.Queue(string),
     skip_dir:  bool,
     err: struct {
         path: [dynamic]byte,
@@ -30,7 +30,7 @@ walker_init_path :: proc(w: ^Walker, path: string, allocator: mem.Allocator) {
 
     walker_clear(w, allocator)
 
-    if _, err = queue.push(&w.todo, cloned_path); err != nil {
+    if _, err = dyn_queue.push(&w.todo, cloned_path); err != nil {
         walker_set_error(w, cloned_path, err)
         return
     }
@@ -93,14 +93,14 @@ walker_clear :: proc(w: ^Walker, allocator: mem.Allocator) {
     dyn_array.clear(&w.err.path)
 
     w.todo.data.allocator = allocator
-    for path in queue.dyn_array_pop_front_safe(&w.todo) {
+    for path in dyn_queue.dyn_array_pop_front_safe(&w.todo) {
         _ = strings.string_delete(path, allocator)
     }
 }
 
 walker_destroy :: proc(w: ^Walker, allocator: mem.Allocator) {
     walker_clear(w, allocator)
-    queue.destroy(&w.todo)
+    dyn_queue.destroy(&w.todo)
     _ = dyn_array.delete(w.err.path)
     read_directory_iterator_destroy(&w.iter, allocator)
 }
@@ -160,17 +160,17 @@ Example:
 walker_walk :: proc(w: ^Walker, allocator: mem.Allocator) -> (fi: File_Info, ok: bool) {
     if w.skip_dir {
         w.skip_dir = false
-        if skip, sok := queue.pop_back_safe(&w.todo); sok {
+        if skip, sok := dyn_queue.pop_back_safe(&w.todo); sok {
             _ = strings.string_delete(skip,  allocator)
         }
     }
 
     if w.iter.f == nil {
-        if queue.len(w.todo) == 0 {
+        if dyn_queue.len(w.todo) == 0 {
             return
         }
 
-        next := queue.pop_front(&w.todo)
+        next := dyn_queue.pop_front(&w.todo)
 
         handle, err := open(next, allocator = allocator)
         if err != nil {
@@ -202,7 +202,7 @@ walker_walk :: proc(w: ^Walker, allocator: mem.Allocator) -> (fi: File_Info, ok:
             return
         }
 
-        _, err = queue.push_back(&w.todo, path)
+        _, err = dyn_queue.push_back(&w.todo, path)
         if err != nil {
             walker_set_error(w, path, err)
             return

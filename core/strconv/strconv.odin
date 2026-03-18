@@ -1474,7 +1474,7 @@ Output:
 - The resulting string after writing the boolean value
 */
 write_bool :: proc(buf: []byte, b: bool) -> string {
-    n := 0
+    n: uint
     if b {
         n = slice.copy_from_string(buf, "true")
     } else {
@@ -1616,7 +1616,7 @@ quote :: proc(buf: []byte, str: string) -> string {
             return
         }
         n := slice.copy(buf[i^:], bytes[:])
-        i^ += n
+        i^ += int(n)
     }
 
     if buf == nil {
@@ -1675,20 +1675,20 @@ quote_rune :: proc(buf: []byte, r: rune) -> string {
     write_byte :: proc(buf: []byte, i: ^int, bytes: ..byte) {
         if i^ < len(buf) {
             n := slice.copy(buf[i^:], bytes[:])
-            i^ += n
+            i^ += int(n)
         }
     }
     write_string :: proc(buf: []byte, i: ^int, s: string) {
         if i^ < len(buf) {
             n := slice.copy_from_string(buf[i^:], s)
-            i^ += n
+            i^ += int(n)
         }
     }
     write_rune :: proc(buf: []byte, i: ^int, r: rune) {
         if i^ < len(buf) {
             b, w := utf8.encode_rune(r)
             n := slice.copy(buf[i^:], b[:w])
-            i^ += n
+            i^ += int(n)
         }
     }
 

@@ -214,7 +214,7 @@ reader_read :: proc(b: ^Reader, p: []byte) -> (n: int, err: io.Error) {
         b.w += n
     }
 
-    n = slice.copy(p, b.buf[b.r:b.w])
+    n = int(slice.copy(p, b.buf[b.r:b.w]))
     b.r += n
     b.last_byte = int(b.buf[b.r-1])
     b.last_rune_size = -1

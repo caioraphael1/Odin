@@ -216,7 +216,7 @@ concatenate :: proc(a: [][]byte, allocator: mem.Allocator, loc := #caller_locati
         n += len(s)
     }
     b, _ := slice.create([]byte, n, allocator)
-    i := 0
+    i: uint
     for s in a {
         i += slice.copy(b[i:], s)
     }
@@ -233,7 +233,7 @@ concatenate_safe :: proc(a: [][]byte, allocator: mem.Allocator, loc := #caller_l
         n += len(s)
     }
     b := slice.create([]byte, n, allocator) or_return
-    i := 0
+    i: uint
     for s in a {
         i += slice.copy(b[i:], s)
     }
@@ -819,7 +819,7 @@ replace :: proc(s, old, new: []byte, n: int, allocator: mem.Allocator, loc := #c
     t, _ := slice.create([]byte, len(s) + byte_count*(len(new) - len(old)), allocator)
     was_allocation = true
 
-    w := 0
+    w: uint
     start := 0
     for i := 0; i < byte_count; i += 1 {
         j := start

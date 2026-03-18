@@ -113,7 +113,7 @@ __bounds_check_error :: proc(file: string, line, column: i32, index, count: int)
 }
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
-bounds_check_error_loc :: #force_inline proc(loc := #caller_location, index, count: int) {
+bounds_check_error_loc :: #force_inline proc(loc := #caller_location, #any_int index, count: int) {
     __bounds_check_error(loc.file_path, loc.line, loc.column, index, count)
 }
 

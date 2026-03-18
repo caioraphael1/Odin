@@ -131,11 +131,11 @@ decimal_to_string :: proc(buf: []byte, a: ^Decimal) -> string {
         return string(b[0:1])
     }
 
-    w := 0
+    w: uint
     if a.decimal_point <= 0 {
         b[w] = '0'; w += 1
         b[w] = '.'; w += 1
-        w += digit_zero(b[w : w-a.decimal_point])
+        w += uint(digit_zero(b[w : w - uint(a.decimal_point)]))
         w += slice.copy(b[w:], a.digits[0:a.count])
     } else if a.decimal_point < a.count {
         w += slice.copy(b[w:], a.digits[0:a.decimal_point])
@@ -143,7 +143,7 @@ decimal_to_string :: proc(buf: []byte, a: ^Decimal) -> string {
         w += slice.copy(b[w:], a.digits[a.decimal_point : a.count])
     } else {
         w += slice.copy(b[w:], a.digits[0:a.count])
-        w += digit_zero(b[w : w+a.decimal_point-a.count])
+        w += uint(digit_zero(b[w : w + uint(a.decimal_point-a.count)]))
     }
 
     return string(b[0:w])

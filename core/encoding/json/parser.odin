@@ -446,7 +446,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
 
                 buf, buf_width := utf8.encode_rune(r)
                 slice.copy(b[w:], buf[:buf_width])
-                w += buf_width
+                w += uint(buf_width)
 
             case '0':
                 if spec != .JSON {
@@ -476,7 +476,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
 
                     buf, buf_width := utf8.encode_rune(r)
                     slice.copy(b[w:], buf[:buf_width])
-                    w += buf_width
+                    w += uint(buf_width)
                 } else {
                     break loop
                 }
@@ -497,7 +497,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
             buf, buf_width := utf8.encode_rune(r)
             internal.assert(buf_width <= width)
             slice.copy(b[w:], buf[:buf_width])
-            w += buf_width
+            w += uint(buf_width)
         }
     }
 

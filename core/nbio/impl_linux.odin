@@ -4,7 +4,7 @@
 import "base:intrinsics"
 
 import "core:container/pool"
-import "base:queue"
+import "base:dyn_queue"
 import "base:mem"
 import "core:net"
 import "base:strings"
@@ -19,9 +19,9 @@ _FULLY_SUPPORTED :: true
 _Event_Loop :: struct {
     ring:      uring.Ring,
     // Ready to be submitted to kernel, if kernel is full.
-    unqueued:  queue.Queue(^Operation),
+    unqueued:  dyn_queue.Queue(^Operation),
     // Ready to run callbacks, mainly next tick, some other ops that error outside the kernel.
-    completed: queue.Queue(^Operation),
+    completed: dyn_queue.Queue(^Operation),
     wake:      ^Operation,
 }
 
@@ -145,17 +145,17 @@ _init :: proc(l: ^Event_Loop, alloc: mem.Allocator) -> (err: General_Error) {
     }
     defer if err != nil { uring.destroy(&l.ring) }
 
-    if perr := queue.init(&l.unqueued, allocator = alloc); perr != nil {
+    if perr := dyn_queue.init(&l.unqueued, allocator = alloc); perr != nil {
         err = .Allocation_Failed
         return
     }
-    defer if err != nil { queue.destroy(&l.unqueued) }
+    defer if err != nil { dyn_queue.destroy(&l.unqueued) }
 
-    if perr := queue.init(&l.completed, allocator = alloc); perr != nil {
+    if perr := dyn_queue.init(&l.completed, allocator = alloc); perr != nil {
         err = .Allocation_Failed
         return
     }
-    defer if err != nil { queue.destroy(&l.completed) }
+    defer if err != nil { dyn_queue.destroy(&l.completed) }
 
     set_up_wake_up(l) or_return
 
@@ -205,8 +205,8 @@ _destroy :: proc(l: ^Event_Loop) {
     linux.close(l.wake.read.handle)
     free(l.wake, l.allocator)
 
-    queue.destroy(&l.unqueued)
-    queue.destroy(&l.completed)
+    dyn_queue.destroy(&l.unqueued)
+    dyn_queue.destroy(&l.completed)
     uring.destroy(&l.ring)
 }
 
@@ -216,11 +216,11 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
 
     // Execute completed operations, mostly next tick ops, also some other ops that may error before
     // adding it to the Uring.
-    n := queue.len(l.completed)
+    n := dyn_queue.len(l.completed)
     if n > 0 {
         l.now = time.now()
         for _ in 0 ..< n {
-            completed := queue.dyn_array.pop_front(&l.completed)
+            completed := dyn_queue.dyn_array.pop_front(&l.completed)
             if completed._impl.removal == nil {
                 completed.cb(completed)
             } else if completed._impl.removal != (^Operation)(REMOVED) {
@@ -305,9 +305,9 @@ _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
     }
 
     _flush_unqueued :: proc(l: ^Event_Loop) {
-        n := queue.len(l.unqueued)
+        n := dyn_queue.len(l.unqueued)
         for _ in 0..<n {
-            unqueued := queue.dyn_array.pop_front(&l.unqueued)
+            unqueued := dyn_queue.dyn_array.pop_front(&l.unqueued)
 
             if unqueued._impl.removal != nil {
                 debug(unqueued.type, "was removed and has not been on the ring yet")
@@ -359,7 +359,7 @@ _exec :: proc(op: ^Operation) {
     case .Open:          open_exec(op)
     case .Stat:          stat_exec(op)
     case ._Splice:
-        // This is only reachable when the queue was full the last tick.
+        // This is only reachable when the dyn_queue was full the last tick.
         // And if that's the case, it would still be full for the real sendfile (splice B) and will be enqueued there.
         // So it is safe to do nothing here.
     case ._Remove:       unreachable()
@@ -568,9 +568,9 @@ enqueue :: proc(op: ^Operation, sqe: ^linux.IO_Uring_SQE, ok: bool) {
     internal.assert(uintptr(op) & LINK_TIMEOUT_MASK == 0)
     debug("enqueue", op.type)
     if !ok {
-        warn("queueing for next tick because the ring is full, queue size may need increasing")
-        pok, _ := queue.push_back(&op.l.unqueued, op)
-        internal.ensure(pok, "unqueued queue allocation failure")
+        warn("queueing for next tick because the ring is full, dyn_queue size may need increasing")
+        pok, _ := dyn_queue.push_back(&op.l.unqueued, op)
+        internal.ensure(pok, "unqueued dyn_queue allocation failure")
         return
     }
 
@@ -586,7 +586,7 @@ link_timeout :: proc(target: ^Operation, expires: time.Time) {
 
     // If the last op was queued because kernel is full, return.
     if target._impl.sqe == nil {
-        internal.assert(queue.len(target.l.unqueued) > 0 && queue.back_ptr(&target.l.unqueued)^ == target)
+        internal.assert(dyn_queue.len(target.l.unqueued) > 0 && dyn_queue.back_ptr(&target.l.unqueued)^ == target)
         return
     }
 
@@ -694,14 +694,14 @@ dial_exec :: proc(op: ^Operation) {
     if op.dial.socket == {} {
         if op.dial.endpoint.port == 0 {
             op.dial.err = .Port_Required
-            queue.push_back(&op.l.completed, op)
+            dyn_queue.push_back(&op.l.completed, op)
             return
         }
 
         sock, err := create_socket(net.family_from_endpoint(op.dial.endpoint), .TCP)
         if err != nil {
             op.dial.err = err
-            queue.push_back(&op.l.completed, op)
+            dyn_queue.push_back(&op.l.completed, op)
             return
         }
 
@@ -735,7 +735,7 @@ dial_callback :: proc(op: ^Operation, res: i32) {
 timeout_exec :: proc(op: ^Operation) {
     internal.assert(op.type == .Timeout)
     if op.timeout.duration <= 0 {
-        queue.push_back(&op.l.completed, op)
+        dyn_queue.push_back(&op.l.completed, op)
         return
     }
 
@@ -790,7 +790,7 @@ recv_exec :: proc(op: ^Operation) {
     internal.assert(op.type == .Recv)
 
     if op.recv.err != nil {
-        queue.push_back(&op.l.completed, op)
+        dyn_queue.push_back(&op.l.completed, op)
         return
     }
 
@@ -875,7 +875,7 @@ send_exec :: proc(op: ^Operation) {
     internal.assert(op.type == .Send)
 
     if op.send.err != nil {
-        queue.push_back(&op.l.completed, op)
+        dyn_queue.push_back(&op.l.completed, op)
         return
     }
 
@@ -1120,7 +1120,7 @@ sendfile_exec :: proc(op: ^Operation, splice := true) {
         err := linux.pipe2(&rw, {.NONBLOCK, .CLOEXEC})
         if err != nil {
             op.sendfile.err = FS_Error(err)
-            queue.push_back(&op.l.completed, op)
+            dyn_queue.push_back(&op.l.completed, op)
             return
         }
 
@@ -1317,7 +1317,7 @@ open_exec :: proc(op: ^Operation) {
     cpath, err := strings.cstring_clone_from_string(op.open.path, op.l.allocator)
     if err != nil {
         op.open.err = .Allocation_Failed
-        queue.push_back(&op.l.completed, op)
+        dyn_queue.push_back(&op.l.completed, op)
         return
     }
     op.open._impl.cpath = cpath

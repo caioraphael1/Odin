@@ -69,7 +69,7 @@ string_concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller
         n += len(s)
     }
     b := slice.create([]byte, n, allocator, loc) or_return
-    i := 0
+    i: uint
     for s in a {
         i += slice.copy_from_string(b[i:], s)
     }
@@ -81,7 +81,7 @@ strings_concatenate_from_buffer :: proc(buf: []byte, strings: ..string) -> strin
     n := 0
     for s in strings {
         (n < len(buf)) or_break
-        n += slice.copy_from_string(buf[n:], s)
+        n += int(slice.copy_from_string(buf[n:], s))
     }
     n = min(len(buf), n)
     return string(buf[:n])

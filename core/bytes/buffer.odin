@@ -162,7 +162,7 @@ buffer_write_at :: proc(b: ^Buffer, p: []byte, offset: int, loc := #caller_locat
     if len(b.buf) <= offset {
         return 0, .Short_Write
     }
-    return slice.copy(b.buf[offset:], p), nil
+    return int(slice.copy(b.buf[offset:], p)), nil
 }
 
 
@@ -172,7 +172,7 @@ buffer_write :: proc(b: ^Buffer, p: []byte, loc := #caller_location) -> (n: int,
     if !ok {
         m = _buffer_grow(b, len(p), loc=loc)
     }
-    return slice.copy(b.buf[m:], p), nil
+    return int(slice.copy(b.buf[m:], p)), nil
 }
 
 buffer_write_ptr :: proc(b: ^Buffer, ptr: rawptr, size: int, loc := #caller_location) -> (n: int, err: io.Error) {
@@ -185,7 +185,7 @@ buffer_write_string :: proc(b: ^Buffer, s: string, loc := #caller_location) -> (
     if !ok {
         m = _buffer_grow(b, len(s), loc=loc)
     }
-    return slice.copy_from_string(b.buf[m:], s), nil
+    return int(slice.copy_from_string(b.buf[m:], s)), nil
 }
 
 buffer_write_slice :: proc(b: ^Buffer, slice: $S/[]$T, loc := #caller_location) -> (n: int, err: io.Error) {
@@ -244,7 +244,7 @@ buffer_read :: proc(b: ^Buffer, p: []byte) -> (n: int, err: io.Error) {
         }
         return 0, .EOF
     }
-    n = slice.copy(p, b.buf[b.off:])
+    n = int(slice.copy(p, b.buf[b.off:]))
     b.off += n
     if n > 0 {
         b.last_read = .Read
@@ -266,7 +266,7 @@ buffer_read_at :: proc(b: ^Buffer, p: []byte, offset: int) -> (n: int, err: io.E
         err = .EOF
         return
     }
-    n = slice.copy(p, b.buf[offset:])
+    n = int(slice.copy(p, b.buf[offset:]))
     if n > 0 {
         b.last_read = .Read
     }

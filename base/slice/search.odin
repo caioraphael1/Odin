@@ -62,13 +62,13 @@ Example:
     internal.assert(index == 1 && found == true)
 */
 
-linear_search :: proc(array: $A/[]$T, key: T) -> (index: int, found: bool) where intrinsics.type_is_comparable(T) {
+linear_search :: proc(array: $A/[]$T, key: T) -> (index: uint, found: bool) where intrinsics.type_is_comparable(T) {
     for x, i in array {
         if x == key {
-            return i, true
+            return uint(i), true
         }
     }
-    return -1, false
+    return 0, false
 }
 
 /*

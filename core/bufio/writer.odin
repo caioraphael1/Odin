@@ -101,7 +101,7 @@ writer_write :: proc(b: ^Writer, p: []byte) -> (n: int, err: io.Error) {
                 break
             }
         } else {
-            m = slice.copy(b.buf[b.n:], p)
+            m = int(slice.copy(b.buf[b.n:], p))
             b.n += m
             _ = writer_flush(b)
         }
@@ -111,7 +111,7 @@ writer_write :: proc(b: ^Writer, p: []byte) -> (n: int, err: io.Error) {
     if b.err != nil {
         return n, b.err
     }
-    m := slice.copy(b.buf[b.n:], p)
+    m := int(slice.copy(b.buf[b.n:], p))
     b.n += m
     m += n
     return m, nil

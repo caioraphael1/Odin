@@ -186,7 +186,7 @@ decode_to_utf8 :: proc(d: []byte, s: []u16) -> (n: int) {
         }
         
         b, w := utf8.encode_rune(rune(r))
-        n += slice.copy(d[n:], b[:w])
+        n += int(slice.copy(d[n:], b[:w]))
     }
     return
 }

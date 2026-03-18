@@ -1,12 +1,51 @@
-// A priority queue data structure.
 import "base:builtin"
 import "base:internal"
 import "base:mem"
 
-// Priority Queue.
-//
-// Important: It needs to be initialized with `less` and `swap` procedures, see `init` and `init_from_dynamic_array`.
-// See `doc.odin` for an example.
+/* 
+Priority Queue.
+Example:
+    Printer_Job :: struct {
+        user_id: u64,
+        weight:  enum u8 {Highest, High, Normal, Low, Idle},
+    }
+
+    q: pq.Priority_Queue(Printer_Job)
+    pq.init(
+        pq   = &q,
+        less = proc(a, b: Printer_Job) -> bool {
+            // Jobs will be sorted in order of increasing weight
+            return a.weight < b.weight
+        },
+        swap = pq.default_swap_proc(Printer_Job),
+    )
+    defer pq.destroy(&q)
+
+    // Add jobs with random weights
+    for _ in 0..<100 {
+        job: Printer_Job = ---
+        internal.assert(rand.random_generator_read_ptr(context.random_generator, &job, size_of(job)))
+        pq.push(&q, job)
+    }
+
+    // Drain jobs in order of importance
+    last: Printer_Job
+    for pq.len(q) > 0 {
+        v := pq.dyn_array.pop(&q)
+        internal.assert(v.weight >= last.weight)
+        last = v
+    }
+
+    // Queue empty?
+    internal.assert(pq.len(q) == 0)
+
+    // Add one more job
+    pq.push(&q, Printer_Job{user_id = 42, weight = .Idle})
+
+    // Cancel all jobs
+    pq.clear(&q)
+    internal.assert(pq.len(q) == 0)
+*/
 Priority_Queue :: struct($T: typeid) {
     queue: [dynamic]T,
     
@@ -50,10 +89,10 @@ destroy :: proc(pq: ^$Q/Priority_Queue($T)) {
 }
 
 reserve :: proc(pq: ^$Q/Priority_Queue($T), capacity: int) -> (err: mem.Allocator_Error) {
-    return builtin.dyn_array.reserve(&pq.queue, capacity)
+    return dyn_array.reserve(&pq.queue, capacity)
 }
 clear :: proc(pq: ^$Q/Priority_Queue($T)) {
-    builtin.dyn_array.clear(&pq.queue)
+    dyn_array.clear(&pq.queue)
 }
 len :: proc(pq: $Q/Priority_Queue($T)) -> int {
     return builtin.len(pq.queue)
@@ -123,15 +162,15 @@ pop :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T) {
     n := builtin.len(pq.queue)-1
     pq.swap(pq.queue[:], 0, n)
     _shift_down(pq, 0, n)
-    return builtin.dyn_array.pop(&pq.queue)
+    return dyn_array.pop(&pq.queue)
 }
 
-dyn_array_pop_safe :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T, ok: bool) {
+pop_safe :: proc(pq: ^$Q/Priority_Queue($T), loc := #caller_location) -> (value: T, ok: bool) {
     if builtin.len(pq.queue) > 0 {
         n := builtin.len(pq.queue)-1
         pq.swap(pq.queue[:], 0, n)
         _shift_down(pq, 0, n)
-        return builtin.dyn_array_pop_safe(&pq.queue)
+        return dyn_array.pop_safe(&pq.queue)
     }
     return
 }
@@ -142,7 +181,7 @@ remove :: proc(pq: ^$Q/Priority_Queue($T), i: int) -> (value: T, ok: bool) {
         pq.swap(pq.queue[:], i, n-1)
         _shift_down(pq, i, n-1)
         _shift_up(pq, i)
-        value, ok = builtin.dyn_array.pop(&pq.queue), true
+        value, ok = dyn_array.pop(&pq.queue), true
     }
     return
 }

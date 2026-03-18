@@ -9,7 +9,7 @@
 
 import "core:container/avl_tree"
 import "core:container/pool"
-import "base:queue"
+import "base:dyn_queue"
 import "base:mem"
 import "base:slice"
 import "core:time"
@@ -17,7 +17,7 @@ import "core:time"
 _FULLY_SUPPORTED :: false
 
 _Event_Loop :: struct {
-    completed: queue.Queue(^Operation),
+    completed: dyn_queue.Queue(^Operation),
     timeouts:  avl.Tree(^Operation),
 }
 
@@ -92,14 +92,14 @@ _init :: proc(l: ^Event_Loop, allocator: mem.Allocator) -> (rerr: General_Error)
 }
 
 _destroy :: proc(l: ^Event_Loop) {
-    queue.destroy(&l.completed)
+    dyn_queue.destroy(&l.completed)
     avl.destroy(&l.timeouts, false)
 }
 
 _tick_ :: proc(l: ^Event_Loop, timeout: time.Duration) -> General_Error {
     l.now = time.now()
 
-    for op in queue.dyn_array_pop_front_safe(&l.completed) {
+    for op in dyn_queue.dyn_array_pop_front_safe(&l.completed) {
         if !op._impl.removed {
             op.cb(op)
         }
@@ -181,7 +181,7 @@ _exec :: proc(op: ^Operation) {
         unreachable()
     }
 
-    _, err := queue.push_back(&op.l.completed, op)
+    _, err := dyn_queue.push_back(&op.l.completed, op)
     if err != nil {
         internal.panic("nbio: allocation failure")
     }

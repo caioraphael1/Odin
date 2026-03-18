@@ -50,14 +50,14 @@ to an atomic operation:
 
 Non-explicit atomics will always be sequentially consistent.
 
-	Atomic_Memory_Order :: enum {
-		Relaxed = 0, // Unordered
-		Consume = 1, // Monotonic
-		Acquire = 2,
-		Release = 3,
-		Acq_Rel = 4,
-		Seq_Cst = 5,
-	}
+    Atomic_Memory_Order :: enum {
+        Relaxed = 0, // Unordered
+        Consume = 1, // Monotonic
+        Acquire = 2,
+        Release = 3,
+        Acq_Rel = 4,
+        Seq_Cst = 5,
+    }
 
 **Note(i386, x64)**: x86 has a very strong memory model by default. It
 guarantees that all writes are ordered, stores and loads aren't reordered. In
@@ -130,7 +130,7 @@ This procedure loads a value from memory, adds the specified value to it, and
 stores it back as an atomic operation. This operation is an atomic equivalent
 of the following:
 
-	dst^ += val
+    dst^ += val
 
 The memory ordering of this operation is sequentially-consistent.
 */
@@ -143,7 +143,7 @@ This procedure loads a value from memory, adds the specified value to it, and
 stores it back as an atomic operation. This operation is an atomic equivalent
 of the following:
 
-	dst^ += val
+    dst^ += val
 
 The memory ordering of this operation is as specified by the `order` parameter.
 */
@@ -156,7 +156,7 @@ This procedure loads a value from memory, subtracts the specified value from it,
 and stores the result back as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ -= val
+    dst^ -= val
 
 The memory ordering of this operation is sequentially-consistent.
 */
@@ -169,7 +169,7 @@ This procedure loads a value from memory, subtracts the specified value from it,
 and stores the result back as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ -= val
+    dst^ -= val
 
 The memory ordering of this operation is as specified by the `order` parameter.
 */
@@ -184,7 +184,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ &= val
+    dst^ &= val
 
 The memory ordering of this operation is sequentially-consistent.
 */
@@ -199,7 +199,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ &= val
+    dst^ &= val
 
 The memory ordering of this operation is as specified by the `order` parameter.
 */
@@ -214,7 +214,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ = ~(dst^ & val)
+    dst^ = ~(dst^ & val)
 
 The memory ordering of this operation is sequentially-consistent.
 */
@@ -229,7 +229,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ = ~(dst^ & val)
+    dst^ = ~(dst^ & val)
 
 The memory ordering of this operation is as specified by the `order` parameter.
 */
@@ -244,7 +244,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ |= val
+    dst^ |= val
 
 The memory ordering of this operation is sequentially-consistent.
 */
@@ -259,7 +259,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ |= val
+    dst^ |= val
 
 The memory ordering of this operation is as specified by the `order` parameter.
 */
@@ -274,7 +274,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ ~= val
+    dst^ ~= val
 
 The memory ordering of this operation is sequentially-consistent.
 */
@@ -289,7 +289,7 @@ between the loaded value and the specified value, and stores it back into the
 same memory location as an atomic operation. This operation is an atomic
 equivalent of the following:
 
-	dst^ ~= val
+    dst^ ~= val
 
 The memory ordering of this operation is as specified by the `order` parameter.
 */
@@ -303,9 +303,9 @@ specified value into that memory location. Then the loaded value is returned,
 all done in a single atomic operation. This operation is an atomic equivalent
 of the following:
 
-	tmp := dst^
-	dst^ = val
-	return tmp
+    tmp := dst^
+    dst^ = val
+    return tmp
 
 The memory ordering of this operation is sequentially-consistent.
 */
@@ -319,9 +319,9 @@ specified value into that memory location. Then the loaded value is returned,
 all done in a single atomic operation. This operation is an atomic equivalent
 of the following:
 
-	tmp := dst^
-	dst^ = val
-	return tmp
+    tmp := dst^
+    dst^ = val
+    return tmp
 
 The memory ordering of this operation is as specified by the `order` parameter.
 */
@@ -338,13 +338,13 @@ equal to `new`.
 
 This procedure is an atomic equivalent of the following operation:
 
-	old_dst := dst^
-	if old_dst == old {
-		dst^ = new
-		return old_dst, true
-	} else {
-		return old_dst, false
-	}
+    old_dst := dst^
+    if old_dst == old {
+        dst^ = new
+        return old_dst, true
+    } else {
+        return old_dst, false
+    }
 
 The strong version of compare exchange always returns true, when the returned
 old value stored in location pointed to by `dst` and the `old` parameter are
@@ -368,13 +368,13 @@ equal to `new`.
 
 This procedure is an atomic equivalent of the following operation:
 
-	old_dst := dst^
-	if old_dst == old {
-		dst^ = new
-		return old_dst, true
-	} else {
-		return old_dst, false
-	}
+    old_dst := dst^
+    if old_dst == old {
+        dst^ = new
+        return old_dst, true
+    } else {
+        return old_dst, false
+    }
 
 The strong version of compare exchange always returns true, when the returned
 old value stored in location pointed to by `dst` and the `old` parameter are
@@ -398,14 +398,14 @@ equal to `new`.
 
 This procedure is an atomic equivalent of the following operation:
 
-	old_dst := dst^
-	if old_dst == old {
-		// may return false here
-		dst^ = new
-		return old_dst, true
-	} else {
-		return old_dst, false
-	}
+    old_dst := dst^
+    if old_dst == old {
+        // may return false here
+        dst^ = new
+        return old_dst, true
+    } else {
+        return old_dst, false
+    }
 
 The weak version of compare exchange may return false, even if `dst^ == old`.
 On some platforms running weak compare exchange in a loop is faster than a
@@ -429,14 +429,14 @@ equal to `new`.
 
 This procedure is an atomic equivalent of the following operation:
 
-	old_dst := dst^
-	if old_dst == old {
-		// may return false here
-		dst^ = new
-		return old_dst, true
-	} else {
-		return old_dst, false
-	}
+    old_dst := dst^
+    if old_dst == old {
+        // may return false here
+        dst^ = new
+        return old_dst, true
+    } else {
+        return old_dst, false
+    }
 
 The weak version of compare exchange may return false, even if `dst^ == old`.
 On some platforms running weak compare exchange in a loop is faster than a

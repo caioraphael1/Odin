@@ -335,29 +335,29 @@ all_of :: proc(s: $S/[]$T, value: T) -> bool where intrinsics.type_is_comparable
 // The source and destination may overlap. Copy returns the number of elements copied, which will be the minimum
 // of len(src) and len(dst).
 @(optional_results)
-copy :: #force_inline proc(dst, src: $T/[]$E) -> int {
-    return _rawptr_mem_copy(raw_data(dst), raw_data(src), len(dst), len(src), size_of(E))
+copy :: #force_inline proc(dst, src: $T/[]$E) -> uint {
+    return _rawptr_mem_copy(raw_data(dst), raw_data(src), uint(len(dst)), uint(len(src)), size_of(E))
 }
 
 // `copy_from_string` is a built-in procedure that copies elements from a source string `src` to a destination slice `dst`.
 // The source and destination may overlap. Copy returns the number of elements copied, which will be the minimum
 // of len(src) and len(dst).
 @(optional_results)
-copy_from_string :: #force_inline proc(dst: $T/[]$E/u8, src: $S/string) -> int {
-    return _rawptr_mem_copy(raw_data(dst), raw_data(src), len(dst), len(src), 1)
+copy_from_string :: #force_inline proc(dst: $T/[]$E/u8, src: $S/string) -> uint {
+    return _rawptr_mem_copy(raw_data(dst), raw_data(src), uint(len(dst)), uint(len(src)), 1)
 }
 
 // `copy_from_string16` is a built-in procedure that copies elements from a source string `src` to a destination slice `dst`.
 // The source and destination may overlap. Copy returns the number of elements copied, which will be the minimum
 // of len(src) and len(dst).
 @(optional_results)
-copy_from_string16 :: #force_inline proc(dst: $T/[]$E/u16, src: $S/string16) -> int {
-    return _rawptr_mem_copy(raw_data(dst), raw_data(src), len(dst), len(src), 2)
+copy_from_string16 :: #force_inline proc(dst: $T/[]$E/u16, src: $S/string16) -> uint {
+    return _rawptr_mem_copy(raw_data(dst), raw_data(src), uint(len(dst)), uint(len(src)), 2)
 }
 
 
 @(optional_results)
-_rawptr_mem_copy :: proc(dst, src: rawptr, dst_len, src_len, elem_size: int) -> int {
+_rawptr_mem_copy :: proc(dst, src: rawptr, dst_len, src_len, elem_size: uint) -> uint {
     n := min(dst_len, src_len)
     if n > 0 {
         mem.copy(dst, src, n*elem_size)
