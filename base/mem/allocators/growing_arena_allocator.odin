@@ -1,7 +1,7 @@
 import "base:mem"
 import "base:intrinsics"
 import "base:internal"
-import "base:slice"
+import "base:container/slice"
 // import "base:sanitizer"
 
 DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE: uint : #config(DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE, 4 * mem.Megabyte)
@@ -30,12 +30,12 @@ Growing_Arena :: struct {
 }
 
 
-growing_arena_memory_block_alloc :: proc(allocator: mem.Allocator, capacity: uint, alignment: uint, loc := #caller_location) -> (block: ^Growing_Arena_Memory_Block, err: mem.Allocator_Error) {
+growing_arena_memory_block_alloc :: proc(allocator: mem.Allocator, capacity, alignment: uint, loc := #caller_location) -> (block: ^Growing_Arena_Memory_Block, err: mem.Allocator_Error) {
     total_size  := uint(capacity + max(alignment, size_of(Growing_Arena_Memory_Block)))
     base_offset := uintptr(max(alignment, size_of(Growing_Arena_Memory_Block)))
 
-    min_alignment: int = max(16, align_of(Growing_Arena_Memory_Block), int(alignment))
-    data := mem.alloc(int(total_size), min_alignment, allocator, loc) or_return
+    min_alignment: uint = max(16, align_of(Growing_Arena_Memory_Block), alignment)
+    data := mem.alloc(total_size, min_alignment, allocator, loc) or_return
     block = (^Growing_Arena_Memory_Block)(raw_data(data))
     end := uintptr(raw_data(data)[len(data):])
 
@@ -195,9 +195,9 @@ growing_arena_allocator :: proc(arena: ^Growing_Arena) -> mem.Allocator {
 growing_arena_allocator_proc :: proc(
     allocator_data:  rawptr,
     mode:            mem.Allocator_Mode,
-    size, alignment: int,
+    size, alignment: uint,
     old_memory:      rawptr,
-    old_size:        int,
+    old_size:        uint,
     loc              := #caller_location,
     ) -> (data: []byte, err: mem.Allocator_Error) {
     arena := (^Growing_Arena)(allocator_data)

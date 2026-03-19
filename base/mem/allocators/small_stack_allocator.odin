@@ -1,6 +1,6 @@
 import "base:internal"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 /*
 Allocation header of the small stack allocator.
@@ -14,8 +14,8 @@ Small stack allocator data.
 */
 Small_Stack :: struct {
     data:      []byte,
-    offset:    int,
-    peak_used: int,
+    offset:    uint,
+    peak_used: uint,
 }
 
 /*
@@ -65,10 +65,10 @@ returns a pointer to the allocated memory region.
 */
 
 small_stack_alloc :: proc(
-    s:    ^Small_Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    s:         ^Small_Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
+    loc        := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := small_stack_alloc_bytes(s, size, alignment, loc)
     return raw_data(bytes), err
@@ -83,10 +83,10 @@ returns a slice of the allocated memory region.
 */
 
 small_stack_alloc_bytes :: proc(
-    s:    ^Small_Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    s:         ^Small_Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
+    loc        := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := small_stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
     if bytes != nil {
@@ -104,10 +104,10 @@ procedure returns a pointer to the allocated memory region.
 */
 
 small_stack_alloc_non_zeroed :: proc(
-    s:    ^Small_Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    s:         ^Small_Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
+    loc        := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := small_stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
     return raw_data(bytes), err
@@ -122,10 +122,10 @@ procedure returns a slice of the allocated memory region.
 */
 @(no_sanitize_address)
 small_stack_alloc_bytes_non_zeroed :: proc(
-    s:    ^Small_Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    s:         ^Small_Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
+    loc        := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
         internal.panic("Allocation on an uninitialized Small Stack allocator.", loc)
@@ -163,7 +163,7 @@ procedure returns a slice of the allocated memory region.
 small_stack_free :: proc(
     s:          ^Small_Stack,
     old_memory: rawptr,
-    loc := #caller_location,
+    loc         := #caller_location,
 ) -> mem.Allocator_Error {
     if s.data == nil {
         internal.panic("Free on an uninitialized Small Stack allocator.", loc)
@@ -182,7 +182,7 @@ small_stack_free :: proc(
         return nil
     }
     header := (^Small_Stack_Allocation_Header)(curr_addr - size_of(Small_Stack_Allocation_Header))
-    old_offset := int(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
+    old_offset := uint(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
     // sanitizer.address_poison(s.data[old_offset:s.offset])
     s.offset = old_offset
     return nil
@@ -216,10 +216,10 @@ This procedure returns the pointer to the resized memory region.
 small_stack_resize :: proc(
     s:          ^Small_Stack,
     old_memory: rawptr,
-    old_size:   int,
-    size:       int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    old_size:   uint,
+    size:       uint,
+    alignment:  uint = mem.DEFAULT_ALIGNMENT,
+    loc         := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := small_stack_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment, loc)
     return raw_data(bytes), err
@@ -243,11 +243,11 @@ This procedure returns the slice of the resized memory region.
 */
 
 small_stack_resize_bytes :: proc(
-    s:        ^Small_Stack,
-    old_data: []byte,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    s:         ^Small_Stack,
+    old_data:  []byte,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
+    loc        := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := small_stack_resize_bytes_non_zeroed(s, old_data, size, alignment, loc)
     if bytes != nil {
@@ -280,10 +280,10 @@ This procedure returns the pointer to the resized memory region.
 small_stack_resize_non_zeroed :: proc(
     s:          ^Small_Stack,
     old_memory: rawptr,
-    old_size:   int,
-    size:       int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    old_size:   uint,
+    size:       uint,
+    alignment:  uint = mem.DEFAULT_ALIGNMENT,
+    loc         := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := small_stack_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment, loc)
     return raw_data(bytes), err
@@ -307,11 +307,11 @@ This procedure returns the slice of the resized memory region.
 */
 
 small_stack_resize_bytes_non_zeroed :: proc(
-    s:        ^Small_Stack,
-    old_data: []byte,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    s:         ^Small_Stack,
+    old_data:  []byte,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
+    loc        := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
         internal.panic("Resize on an uninitialized Small Stack allocator.", loc)
@@ -362,9 +362,9 @@ small_stack_resize_bytes_non_zeroed :: proc(
 small_stack_allocator_proc :: proc(
     allocator_data:  rawptr,
     mode:            mem.Allocator_Mode,
-    size, alignment: int,
+    size, alignment: uint,
     old_memory:      rawptr,
-    old_size:        int,
+    old_size:        uint,
     loc := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     s := cast(^Small_Stack)allocator_data

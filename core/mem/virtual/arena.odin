@@ -1,7 +1,7 @@
 import "base:internal"
 import "base:intrinsics"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 import "core:sync"
 

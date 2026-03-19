@@ -4,8 +4,8 @@ import "core:compress"
 import "base:math"
 import "base:mem"
 import "core:image"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 
 Image :: image.Image
 Error :: image.Error

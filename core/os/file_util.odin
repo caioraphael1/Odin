@@ -2,11 +2,11 @@
 
 import "base:internal"
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
+import "base:container/slice"
+import "base:container/dyn_array"
 
-import "core:strconv"
-import "core:unicode/utf8"
+import "base:strconv"
+import "base:unicode/utf8"
 
 /*
     `write_string` writes a string `s` to file `f`.
@@ -49,7 +49,7 @@ write_rune :: proc(f: ^File, r: rune) -> (n: int, err: Error) {
     }
 
     b: [4]byte
-    b, n = utf8.encode_rune(r)
+    b, n = utf8.bytes_from_rune(r)
     return write(f, b[:n])
 }
 
@@ -140,11 +140,11 @@ read_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: int, err: Error) {
     It returns the number of bytes copied and an error if fewer bytes were read.
     The error is only an `io.EOF` if no bytes were read.
 */
-read_at_least :: proc(f: ^File, buf: []byte, min: int) -> (n: int, err: Error) {
+read_at_least :: proc(f: ^File, buf: []byte, min: uint) -> (n: uint, err: Error) {
     if len(buf) < min {
         return 0, .Short_Buffer
     }
-    nn := max(int)
+    nn := max(uint)
     for nn > 0 && n < min && err == nil {
         nn, err = read(f, buf[n:])
         n += nn

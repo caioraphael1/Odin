@@ -10,7 +10,7 @@ truncate it from the encoded output.
 
 import "base:internal"
 import "base:mem"
-import "base:strings"
+import "base:container/strings"
 
 import "core:io"
 import "core:strings_tools"

@@ -229,7 +229,7 @@ when ODIN_NO_RTTI {
             }
             if idx < 0 {
                 return nil
-            } else if idx < len(v.variants) {
+            } else if idx < int(len(v.variants)) {
                 return v.variants[idx].id
             }
         }

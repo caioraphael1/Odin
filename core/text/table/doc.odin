@@ -114,7 +114,7 @@ Example:
     package main
 
     import "core:fmt"
-    import "base:strings"
+    import "base:container/strings"
     import "core:text/table"
 
     main :: proc() {

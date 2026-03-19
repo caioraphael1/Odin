@@ -3,8 +3,8 @@
 
 import "base:internal"
 import "core:sys/linux"
-import "core:strconv"
-import "base:strings"
+import "base:strconv"
+import "base:container/strings"
 
 @(private)
 _cpu_features :: proc() -> (features: CPU_Features) {

@@ -1,5 +1,5 @@
 import "core:c"
-import "base:strings"
+import "base:container/strings"
 
 PORTMIDI_SHARED :: #config(PORTMIDI_SHARED, false)
 

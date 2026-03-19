@@ -127,10 +127,9 @@ poison or unpoison memory in the same memory region region simultaneously.
 When asan is not enabled this procedure does nothing.
 */
 @(no_sanitize_address)
-address_poison_rawptr :: proc(ptr: rawptr, len: int) {
+address_poison_rawptr :: proc(ptr: rawptr, len: uint) {
     when ASAN_ENABLED {
-        internal.assert(len >= 0)
-        __asan_poison_memory_region(ptr, uint(len))
+        __asan_poison_memory_region(ptr, len)
     }
 }
 
@@ -160,10 +159,9 @@ threads can poison or unpoison memory in the same memory region region simultane
 When asan is not enabled this procedure does nothing.
 */
 @(no_sanitize_address)
-address_unpoison_rawptr :: proc(ptr: rawptr, len: int) {
+address_unpoison_rawptr :: proc(ptr: rawptr, len: uint) {
     when ASAN_ENABLED {
-        internal.assert(len >= 0)
-        __asan_unpoison_memory_region(ptr, uint(len))
+        __asan_unpoison_memory_region(ptr, len)
     }
 }
 
@@ -242,10 +240,9 @@ in an asan error.
 When asan is not enabled this procedure returns `nil`.
 */
 @(no_sanitize_address)
-address_region_is_poisoned_rawptr :: proc(region: rawptr, len: int) -> rawptr {
+address_region_is_poisoned_rawptr :: proc(region: rawptr, len: uint) -> rawptr {
     when ASAN_ENABLED {
-        internal.assert(len >= 0)
-        return __asan_region_is_poisoned(region, uint(len))
+        return __asan_region_is_poisoned(region, len)
     } else {
         return nil
     }

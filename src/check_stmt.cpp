@@ -911,8 +911,8 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
             goto skip_expr;
         }
 
-        val0 = x.type;
-        val1 = t_int;
+        val0 = t_uint; //x.type;
+        val1 = t_uint;
     } else {
         Operand operand = {Addressing_Invalid};
         check_expr_or_type(ctx, &operand, irs->expr);
@@ -925,7 +925,7 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
                 goto skip_expr;
             } else {
                 val0 = operand.type;
-                val1 = t_int;
+                val1 = t_uint;
                 add_type_info_type(ctx, operand.type);
 
                 Type *bt = base_type(operand.type);
@@ -938,14 +938,14 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
             case Type_Basic:
                 if (is_type_string16(t) && t->Basic.kind != Basic_cstring) {
                     val0 = t_rune;
-                    val1 = t_int;
+                    val1 = t_uint;
                     inline_for_depth = exact_value_i64(operand.value.value_string.len);
                     if (unroll_count > 0) {
                         error(node, "#unroll(%lld) does not support strings", cast(long long)unroll_count);
                     }
                 } else if (is_type_string(t) && t->Basic.kind != Basic_cstring) {
                     val0 = t_rune;
-                    val1 = t_int;
+                    val1 = t_uint;
                     inline_for_depth = exact_value_i64(operand.value.value_string.len);
                     if (unroll_count > 0) {
                         error(node, "#unroll(%lld) does not support strings", cast(long long)unroll_count);
@@ -954,7 +954,7 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
                 break;
             case Type_Array:
                 val0 = t->Array.elem;
-                val1 = t_int;
+                val1 = t_uint;
                 inline_for_depth = unroll_count > 0 ? exact_value_i64(unroll_count) : exact_value_i64(t->Array.count);
                 break;
             case Type_EnumeratedArray:
@@ -969,14 +969,14 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
             case Type_Slice:
                 if (unroll_count > 0) {
                     val0 = t->Slice.elem;
-                    val1 = t_int;
+                    val1 = t_uint;
                     inline_for_depth = exact_value_i64(unroll_count);
                 }
                 break;
             case Type_DynamicArray:
                 if (unroll_count > 0) {
                     val0 = t->DynamicArray.elem;
-                    val1 = t_int;
+                    val1 = t_uint;
                     inline_for_depth = exact_value_i64(unroll_count);
                 }
                 break;
@@ -998,8 +998,8 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
 
     skip_expr:; // NOTE(zhiayang): again, declaring a variable immediately after a label... weird.
 
-    Ast * lhs[2] = {irs->val0, irs->val1};
-    Type *rhs[2] = {val0, val1};
+    Ast * lhs[2] = { irs->val0, irs->val1 };
+    Type *rhs[2] = { val0, val1 };
 
     for (isize i = 0; i < 2; i++) {
         if (lhs[i] == nullptr) {
@@ -1706,7 +1706,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
             goto skip_expr_range_stmt;
         }
         array_add(&vals, x.type);
-        array_add(&vals, t_int);
+        array_add(&vals, t_uint);
 
         if (is_reverse) {
             error(node, "#reverse for is not supported with ranges, prefer an explicit for loop with init, condition, and post arguments");
@@ -1729,7 +1729,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                     error(node, "#reverse for is not supported for enum types");
                 }
                 array_add(&vals, operand.type);
-                array_add(&vals, t_int);
+                array_add(&vals, t_uint);
                 add_type_info_type(ctx, operand.type);
                 if (build_context.no_rtti) {
                     error(node, "Iteration over an enum type is not allowed runtime type information (RTTI) has been disallowed");
@@ -1755,7 +1755,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                 if (t->Basic.kind == Basic_string16) {
                     is_possibly_addressable = false;
                     array_add(&vals, t_rune);
-                    array_add(&vals, t_int);
+                    array_add(&vals, t_uint);
                     if (is_reverse) {
                         add_package_dependency(ctx, "internal", "__string16_decode_last_rune");
                     } else {
@@ -1764,7 +1764,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                 } else if (t->Basic.kind == Basic_string || t->Basic.kind == Basic_UntypedString) {
                     is_possibly_addressable = false;
                     array_add(&vals, t_rune);
-                    array_add(&vals, t_int);
+                    array_add(&vals, t_uint);
                     if (is_reverse) {
                         add_package_dependency(ctx, "internal", "__string_decode_last_rune");
                     } else {
@@ -1805,19 +1805,19 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
             case Type_Array:
                 is_possibly_addressable = operand.mode == Addressing_Variable || is_ptr;
                 array_add(&vals, t->Array.elem);
-                array_add(&vals, t_int);
+                array_add(&vals, t_uint);
                 break;
 
             case Type_DynamicArray:
                 is_possibly_addressable = true;
                 array_add(&vals, t->DynamicArray.elem);
-                array_add(&vals, t_int);
+                array_add(&vals, t_uint);
                 break;
 
             case Type_Slice:
                 is_possibly_addressable = true;
                 array_add(&vals, t->Slice.elem);
-                array_add(&vals, t_int);
+                array_add(&vals, t_uint);
                 break;
 
             case Type_Map:
@@ -1901,7 +1901,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                     }
                     is_soa = true;
                     array_add(&vals, t->Struct.soa_elem);
-                    array_add(&vals, t_int);
+                    array_add(&vals, t_uint);
                 }
                 break;
             }

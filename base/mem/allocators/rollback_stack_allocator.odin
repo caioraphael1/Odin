@@ -1,6 +1,6 @@
 import "base:internal"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 // import "base:sanitizer"
 
 /*
@@ -43,8 +43,8 @@ Rollback_Stack_Block :: struct {
 Rollback stack allocator data.
 */
 Rollback_Stack :: struct {
-    head: ^Rollback_Stack_Block,
-    block_size: int,
+    head:            ^Rollback_Stack_Block,
+    block_size:      uint,
     block_allocator: mem.Allocator,
 }
 
@@ -142,9 +142,9 @@ Allocate memory using the rollback stack allocator.
 */
 @(no_sanitize_address)
 rb_alloc :: proc(
-    stack: ^Rollback_Stack,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    stack:     ^Rollback_Stack,
+    size:      uint,
+    alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
     ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
@@ -159,9 +159,9 @@ Allocate memory using the rollback stack allocator.
 */
 @(no_sanitize_address)
 rb_alloc_bytes :: proc(
-    stack: ^Rollback_Stack,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    stack:     ^Rollback_Stack,
+    size:      uint,
+    alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
     ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
@@ -176,9 +176,9 @@ Allocate non-initialized memory using the rollback stack allocator.
 */
 @(no_sanitize_address)
 rb_alloc_non_zeroed :: proc(
-    stack: ^Rollback_Stack,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    stack:     ^Rollback_Stack,
+    size:      uint,
+    alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_alloc_bytes_non_zeroed(stack, size, alignment, loc)
@@ -190,9 +190,9 @@ Allocate non-initialized memory using the rollback stack allocator.
 */
 @(no_sanitize_address)
 rb_alloc_bytes_non_zeroed :: proc(
-    stack: ^Rollback_Stack,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    stack:     ^Rollback_Stack,
+    size:      uint,
+    alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
     internal.assert(size >= 0, "Size must be positive or zero.", loc)
@@ -252,11 +252,11 @@ Resize an allocation owned by rollback stack allocator.
 */
 @(no_sanitize_address)
 rb_resize :: proc(
-    stack: ^Rollback_Stack,
-    old_ptr: rawptr,
-    old_size: int,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    stack:     ^Rollback_Stack,
+    old_ptr:   rawptr,
+    old_size:  uint,
+    size:      uint,
+    alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_resize_bytes_non_zeroed(stack, slice.bytes(old_ptr, old_size), size, alignment, loc)
@@ -275,10 +275,10 @@ Resize an allocation owned by rollback stack allocator.
 */
 @(no_sanitize_address)
 rb_resize_bytes :: proc(
-    stack: ^Rollback_Stack,
+    stack:      ^Rollback_Stack,
     old_memory: []byte,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    size:       uint,
+    alignment:  uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> ([]u8, mem.Allocator_Error) {
     bytes, err := rb_resize_bytes_non_zeroed(stack, old_memory, size, alignment, loc)
@@ -298,11 +298,11 @@ zero-initialization.
 */
 @(no_sanitize_address)
 rb_resize_non_zeroed :: proc(
-    stack: ^Rollback_Stack,
-    old_ptr: rawptr,
-    old_size: int,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    stack:     ^Rollback_Stack,
+    old_ptr:   rawptr,
+    old_size:  uint,
+    size:      uint,
+    alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := rb_resize_bytes_non_zeroed(stack, slice.bytes(old_ptr, old_size), size, alignment, loc)
@@ -315,10 +315,10 @@ zero-initialization.
 */
 @(no_sanitize_address)
 rb_resize_bytes_non_zeroed :: proc(
-    stack: ^Rollback_Stack,
+    stack:      ^Rollback_Stack,
     old_memory: []byte,
-    size: int,
-    alignment := internal.DEFAULT_ALIGNMENT,
+    size:       uint,
+    alignment:  uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
     old_size := len(old_memory)
@@ -350,7 +350,7 @@ rb_resize_bytes_non_zeroed :: proc(
 }
 
 @(private="file", no_sanitize_address)
-rb_make_block :: proc(size: int, allocator: mem.Allocator) -> (block: ^Rollback_Stack_Block, err: mem.Allocator_Error) {
+rb_make_block :: proc(size: uint, allocator: mem.Allocator) -> (block: ^Rollback_Stack_Block, err: mem.Allocator_Error) {
     buffer := mem.alloc(size_of(Rollback_Stack_Block) + size, align_of(Rollback_Stack_Block), allocator) or_return
     block = cast(^Rollback_Stack_Block)raw_data(buffer)
     #no_bounds_check block.buffer = buffer[size_of(Rollback_Stack_Block):]
@@ -378,12 +378,12 @@ Initialize the rollback stack alocator using a backing block allocator.
 @(no_sanitize_address)
 rollback_stack_init_dynamic :: proc(
     stack: ^Rollback_Stack,
-    block_size : int = ROLLBACK_STACK_DEFAULT_BLOCK_SIZE,
+    block_size : uint = ROLLBACK_STACK_DEFAULT_BLOCK_SIZE,
     block_allocator: mem.Allocator,
     location := #caller_location,
     ) -> mem.Allocator_Error {
     internal.assert(block_size >= size_of(Rollback_Stack_Header) + size_of(rawptr), "Rollback Stack mem.Allocator block size is too small.", location)
-    when size_of(int) > 4 {
+    when size_of(uint) > 4 {
         // It's impossible to specify an argument in excess when your integer
         // size is insufficient; check only on platforms with big enough ints.
         internal.assert(block_size <= ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE, "Rollback Stack Allocators cannot support head blocks larger than 2 gigabytes.", location)
@@ -450,11 +450,11 @@ rollback_stack_allocator :: proc(stack: ^Rollback_Stack) -> mem.Allocator {
 
 @(no_sanitize_address)
 rollback_stack_allocator_proc :: proc(
-    allocator_data: rawptr,
-    mode: mem.Allocator_Mode,
-    size, alignment: int,
-    old_memory: rawptr,
-    old_size: int,
+    allocator_data:  rawptr,
+    mode:            mem.Allocator_Mode,
+    size, alignment: uint,
+    old_memory:      rawptr,
+    old_size:        uint,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
     stack := cast(^Rollback_Stack)allocator_data

@@ -88,7 +88,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
         }
 
     case internal.Type_Info_Rune:
-        if utf8.rune_count_in_string(str) != 1 {
+        if utf8.string_rune_count(str) != 1 {
             return false
         }
 

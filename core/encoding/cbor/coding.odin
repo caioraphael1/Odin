@@ -4,8 +4,8 @@ import "base:internal"
 import "core:bytes"
 import "core:encoding/endian"
 import "core:io"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 import "base:mem"
 
 Encoder_Flag :: enum {

@@ -1,7 +1,7 @@
 import "base:internal"
 import "base:mem"
 import "base:intrinsics"
-import "base:slice"
+import "base:container/slice"
 
 /*
 Header of the buddy block.
@@ -326,9 +326,9 @@ buddy_allocator_free_all :: proc(b: ^Buddy_Allocator) {
 buddy_allocator_proc :: proc(
     allocator_data:  rawptr,
     mode:            mem.Allocator_Mode,
-    size, alignment: int,
+    size, alignment: uint,
     old_memory:      rawptr,
-    old_size:        int,
+    old_size:        uint,
     loc := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     b := (^Buddy_Allocator)(allocator_data)
@@ -359,8 +359,8 @@ buddy_allocator_proc :: proc(
                 return nil, .Invalid_Pointer
             }
             block := (^Buddy_Block)(([^]byte)(ptr)[-b.alignment:])
-            info.size = int(block.size)
-            info.alignment = int(b.alignment)
+            info.size = uint(block.size)
+            info.alignment = uint(b.alignment)
             return slice.bytes(info, size_of(info^)), nil
         }
         return nil, nil

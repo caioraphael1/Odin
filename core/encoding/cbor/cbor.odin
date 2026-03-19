@@ -4,8 +4,8 @@ import "core:encoding/json"
 import "core:encoding/hex"
 import "core:io"
 import "base:mem"
-import "core:strconv"
-import "base:strings"
+import "base:strconv"
+import "base:container/strings"
 
 // If we are decoding a stream of either a map or list, the initial capacity will be this value.
 INITIAL_STREAMED_CONTAINER_CAPACITY :: 8

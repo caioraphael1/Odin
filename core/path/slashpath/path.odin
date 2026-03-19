@@ -5,8 +5,8 @@
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 
 import "core:strings_tools"
 

@@ -1,6 +1,6 @@
 #+build windows
 #+private
-import "base:strings"
+import "base:container/strings"
 import "core:sys/windows"
 import "core:time/datetime"
 import "base:internal"

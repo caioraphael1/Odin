@@ -15,21 +15,21 @@ foreign libc {
     @(link_name="realloc")  _unix_realloc  :: proc(ptr: rawptr, size: int) -> rawptr ---
 }
 
-_heap_alloc :: proc(size: int, zero_memory := true) -> rawptr {
+_heap_alloc :: proc(size: uint, zero_memory := true) -> rawptr {
     if size <= 0 {
         return nil
     }
     if zero_memory {
-        return _unix_calloc(1, size)
+        return _unix_calloc(1, int(size))
     } else {
-        return _unix_malloc(size)
+        return _unix_malloc(int(size))
     }
 }
 
-_heap_resize :: proc(ptr: rawptr, new_size: int) -> rawptr {
+_heap_resize :: proc(ptr: rawptr, new_size: uint) -> rawptr {
     // NOTE: _unix_realloc doesn't guarantee new memory will be zeroed on
     // POSIX platforms. Ensure your caller takes this into account.
-    return _unix_realloc(ptr, new_size)
+    return _unix_realloc(ptr, int(new_size))
 }
 
 _heap_free :: proc(ptr: rawptr) {

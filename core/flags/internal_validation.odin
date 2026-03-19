@@ -1,13 +1,13 @@
 #+private
 
 @(require) import "base:internal"
-@(require) import "base:bit_array"
+@(require) import "base:container/bit_array"
 @(require) import "core:fmt"
 @(require) import "base:mem"
 @(require) import "core:os"
 @(require) import "core:reflect"
-@(require) import "core:strconv"
-@(require) import "base:strings"
+@(require) import "base:strconv"
+@(require) import "base:container/strings"
 
 // This proc is used to assert that `T` meets the expectations of the library.
 @(optimization_mode="favor_size", disabled=ODIN_DISABLE_ASSERT)

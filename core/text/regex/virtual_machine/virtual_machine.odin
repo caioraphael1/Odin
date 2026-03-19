@@ -10,10 +10,10 @@ import "base:internal"
 import "base:intrinsics"
 @(require) import "core:io"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 import "core:text/regex/common"
 import "core:text/regex/parser"
-import "core:unicode/utf8"
+import "base:unicode/utf8"
 
 Rune_Class_Range  :: parser.Rune_Class_Range
 
@@ -326,7 +326,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 
 run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, ok: bool) #no_bounds_check {
     when UNICODE_MODE {
-        vm.next_rune, vm.next_rune_size = utf8.decode_rune_in_string(vm.memory[vm.string_pointer:])
+        vm.next_rune, vm.next_rune_size = utf8.rune_from_string(vm.memory[vm.string_pointer:])
     } else {
         if len(vm.memory) > 0 {
             vm.next_rune = cast(rune)vm.memory[vm.string_pointer]
@@ -363,7 +363,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
         vm.current_rune = current_rune
         vm.current_rune_size = vm.next_rune_size
         when UNICODE_MODE {
-            vm.next_rune, vm.next_rune_size = utf8.decode_rune_in_string(vm.memory[vm.string_pointer+vm.current_rune_size:])
+            vm.next_rune, vm.next_rune_size = utf8.rune_from_string(vm.memory[vm.string_pointer+vm.current_rune_size:])
         } else {
             if vm.string_pointer+size_of(u8) < len(vm.memory) {
                 vm.next_rune = cast(rune)vm.memory[vm.string_pointer+size_of(u8)]

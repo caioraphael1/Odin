@@ -1,5 +1,5 @@
 import "base:mem"
-import "base:dyn_array"
+import "base:container/dyn_array"
 
 Multi_Reader :: struct {
     readers: [dynamic]Reader,
@@ -14,7 +14,9 @@ _multi_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
     mr := (^Multi_Reader)(stream_data)
     for len(mr.readers) > 0 {
         r := mr.readers[0]
-        n, err = _i64_err(read(r, p))
+        n_uint: uint
+        n_uint, err = read(r, p)
+        n = i64(n_uint)
         if err == .EOF {
             dyn_array.ordered_remove(&mr.readers, 0)
         }
@@ -66,7 +68,9 @@ _multi_writer_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, of
     }
     mw := (^Multi_Writer)(stream_data)
     for w in mw.writers {
-        n, err = _i64_err(write(w, p))
+        n_uint: uint
+        n_uint, err = write(w, p)
+        n = i64(n_uint)
         if err != nil {
             return
         }

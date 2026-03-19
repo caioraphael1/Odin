@@ -45,7 +45,7 @@ SAVE_FLAGS :: u32(OFN_OVERWRITEPROMPT | OFN_EXPLORER)
 SAVE_EXT   :: "txt"
 
 /*
-import "base:strings"
+import "base:container/strings"
 
 Open_Save_Mode :: enum {
     Open = 0,

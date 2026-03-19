@@ -1,9 +1,9 @@
 import "base:intrinsics"
 
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 import "core:os"
-import "core:strconv"
+import "base:strconv"
 import "core:time/datetime"
 import "base:internal"
 

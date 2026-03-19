@@ -4,8 +4,8 @@ import "base:internal"
 import "core:io"
 import "base:mem"
 import "core:reflect"
-import "base:strings"
-import "core:unicode/utf8"
+import "base:container/strings"
+import "base:unicode/utf8"
 
 /*
 Unmarshals the given CBOR into the given pointer using reflection.
@@ -418,7 +418,7 @@ _unmarshal_string :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Heade
         defer _ = slice.delete(text, temp_allocator, loc)
 
         r := (^rune)(v.data)
-        dr, n := utf8.decode_rune_in_bytes(text)
+        dr, n := utf8.rune_from_bytes(text)
         if dr == utf8.RUNE_ERROR || n < len(text) {
             return _unsupported(v, hdr)
         }

@@ -12,7 +12,7 @@ import "core:fmt"
 import "core:log"
 import "base:mem"
 import "core:mem/virtual"
-import "core:unicode/utf8"
+import "base:unicode/utf8"
 import "base:internal"
 
 Cell :: struct {

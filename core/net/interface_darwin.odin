@@ -18,7 +18,7 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "base:strings"
+import "base:container/strings"
 import "core:sys/posix"
 import "base:mem"
 

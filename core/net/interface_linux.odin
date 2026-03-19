@@ -21,7 +21,7 @@
     TODO: When we have raw sockets, split off into its own file for Linux so we can use the NETLINK protocol and bypass libc.
 */
 
-//import "base:strings"
+//import "base:container/strings"
 import "base:mem"
 
 

@@ -8,7 +8,7 @@
 */
 
 import "core:text/regex/common"
-import "core:unicode/utf8"
+import "base:unicode/utf8"
 
 Token_Kind :: enum {
     Invalid,
@@ -96,7 +96,7 @@ advance_rune :: proc(t: ^Tokenizer) -> (err: Error) {
         case r == 0:
             err = .Illegal_Null_Character
         case r >= utf8.RUNE_SELF:
-            r, w = utf8.decode_rune_in_string(t.src[t.read_offset:])
+            r, w = utf8.rune_from_string(t.src[t.read_offset:])
             if r == utf8.RUNE_ERROR && w == 1 {
                 err = .Illegal_Codepoint
             } else if r == utf8.RUNE_BOM && t.offset > 0 {

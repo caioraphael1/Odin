@@ -1,5 +1,5 @@
 
-@(require) import "base:bit_array"
+@(require) import "base:container/bit_array"
 @(require) import "core:fmt"
 
 Parsing_Style :: enum {

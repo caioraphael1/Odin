@@ -6,9 +6,9 @@
         Feoramund: Initial implementation.
 */
 
-import "base:slice"
+import "base:container/slice"
 import "base:mem"
-import "base:dyn_array"
+import "base:container/dyn_array"
 
 @(require) import "core:io"
 import "core:text/regex/common"

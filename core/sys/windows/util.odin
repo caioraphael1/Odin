@@ -5,7 +5,7 @@ import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 import "base:mem/allocators"
-import "base:slice"
+import "base:container/slice"
 
 L :: intrinsics.constant_utf16_cstring
 

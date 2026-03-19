@@ -18,14 +18,14 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "base:strings"
+import "base:container/strings"
 import "base:mem"
-import "base:slice"
-import "base:maps"
+import "base:container/slice"
+import "base:container/maps"
 
 import "core:strings_tools"
-import "core:strconv"
-import "core:unicode/utf8"
+import "base:strconv"
+import "base:unicode/utf8"
 import "core:encoding/hex"
 
 split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path: string, queries: map[string]string, fragment: string) {
@@ -127,7 +127,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
         case 'A'..='Z', 'a'..='z', '0'..='9', '-', '_', '.', '~':
             _, _ = strings_tools.write_rune(&b, ch)
         case:
-            bytes, n := utf8.encode_rune(ch)
+            bytes, n := utf8.bytes_from_rune(ch)
             for byte in bytes[:n] {
                 buf: [2]u8 = ---
                 t := strconv.write_int(buf[:], i64(byte), 16)

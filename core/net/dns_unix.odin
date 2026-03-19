@@ -17,7 +17,7 @@
 		Jeroen van Rijn: Cross platform unification, code style, documentation
 		Feoramund:       FreeBSD platform code
 */
-import "base:strings"
+import "base:container/strings"
 
 @(private)
 _get_dns_records_os :: proc(hostname: string, type: DNS_Record_Type, allocator: mem.Allocator) -> (records: []DNS_Record, err: DNS_Error) {

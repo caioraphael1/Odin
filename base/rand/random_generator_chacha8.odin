@@ -1,5 +1,5 @@
 import "base:intrinsics"
-import "base:slice"
+import "base:container/slice"
 import "base:internal"
 import "base:mem"
 
@@ -87,7 +87,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
         internal.assert(r._off <= RNG_OUTPUT_PER_ITER - 8, "chacha8rand/BUG: less than 8-bytes of output available")
         internal.assert(r._off % 8 == 0, "chacha8rand/BUG: buffered output is not a multiple of 8-bytes")
 
-        p_len := len(p)
+        p_len := int(len(p))
         if p_len == size_of(u64) {
             #no_bounds_check {
                 // Fast path for a 64-bit destination.

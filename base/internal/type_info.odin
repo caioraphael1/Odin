@@ -69,20 +69,20 @@ Type_Info_Procedure :: struct {
 }
 Type_Info_Array :: struct {
     elem:      ^Type_Info,
-    elem_size: int,
-    count:     int,
+    elem_size: uint,
+    count:     uint,
 }
 Type_Info_Enumerated_Array :: struct {
     elem:      ^Type_Info,
     index:     ^Type_Info,
-    elem_size: int,
-    count:     int,
+    elem_size: uint,
+    count:     uint,
     min_value: Type_Info_Enum_Value,
     max_value: Type_Info_Enum_Value,
     is_sparse: bool,
 }
-Type_Info_Dynamic_Array :: struct {elem: ^Type_Info, elem_size: int}
-Type_Info_Slice         :: struct {elem: ^Type_Info, elem_size: int}
+Type_Info_Dynamic_Array :: struct {elem: ^Type_Info, elem_size: uint}
+Type_Info_Slice         :: struct {elem: ^Type_Info, elem_size: uint}
 
 Type_Info_Parameters :: struct { // Only used for procedures parameters and results
     types:        []^Type_Info,
@@ -146,15 +146,15 @@ Type_Info_Bit_Set :: struct {
 }
 Type_Info_Simd_Vector :: struct {
     elem:       ^Type_Info,
-    elem_size:  int,
-    count:      int,
+    elem_size:  uint,
+    count:      uint,
 }
 Type_Info_Matrix :: struct {
     elem:         ^Type_Info,
-    elem_size:    int,
-    elem_stride:  int, // elem_stride >= row_count
-    row_count:    int,
-    column_count: int,
+    elem_size:    uint,
+    elem_stride:  uint, // elem_stride >= row_count
+    row_count:    uint,
+    column_count: uint,
     // Total element count = column_count * elem_stride
     layout: enum u8 {
         Column_Major, // array of column vectors
@@ -171,7 +171,7 @@ Type_Info_Bit_Field :: struct {
     bit_sizes:    [^]uintptr    `fmt:"v,field_count"`,
     bit_offsets:  [^]uintptr    `fmt:"v,field_count"`,
     tags:         [^]string     `fmt:"v,field_count"`,
-    field_count:  int,
+    field_count:  uint,
 }
 
 Type_Info_Flag :: enum u8 {
@@ -181,8 +181,8 @@ Type_Info_Flag :: enum u8 {
 Type_Info_Flags :: distinct bit_set[Type_Info_Flag; u32]
 
 Type_Info :: struct {
-    size:  int,
-    align: int,
+    size:  uint,
+    align: uint,
     flags: Type_Info_Flags,
     id:    typeid,
 
@@ -317,7 +317,7 @@ Example:
     import "base:internal"
 
     Node :: struct {
-        value: int,
+        value: iunt,
         prev:  ^Node,
         next:  ^Node,
     }

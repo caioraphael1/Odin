@@ -3,7 +3,7 @@
 
 import "core:io"
 import "core:os"
-import "base:strings"
+import "base:container/strings"
 
 stdio_writer :: proc() -> io.Writer {
 	return os.to_stream(os.stdout)

@@ -2,7 +2,7 @@ import "core:encoding/xml"
 import "base:mem"
 import "core:fmt"
 import "core:time"
-import "base:strings"
+import "base:container/strings"
 import "core:hash"
 
 N :: 1

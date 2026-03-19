@@ -1,5 +1,5 @@
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 /*
 Default resize procedure.
@@ -20,9 +20,9 @@ The behavior of the function is as follows:
 */
 default_resize_align :: proc(
     old_memory: rawptr,
-    old_size: int,
-    new_size: int,
-    alignment: int,
+    old_size:  uint,
+    new_size:  uint,
+    alignment: uint,
     allocator: mem.Allocator,
     loc := #caller_location,
 ) -> (res: rawptr, err: mem.Allocator_Error) {
@@ -59,9 +59,9 @@ The behavior of the function is as follows:
     freed.
 */
 default_resize_bytes_align_non_zeroed :: proc(
-    old_data: []byte,
-    new_size: int,
-    alignment: int,
+    old_data:  []byte,
+    new_size:  uint,
+    alignment: uint,
     allocator: mem.Allocator,
     loc := #caller_location,
     ) -> ([]byte, mem.Allocator_Error) {
@@ -86,9 +86,9 @@ The behavior of the function is as follows:
     freed.
 */
 default_resize_bytes_align :: proc(
-    old_data: []byte,
-    new_size: int,
-    alignment: int,
+    old_data:  []byte,
+    new_size:  uint,
+    alignment: uint,
     allocator: mem.Allocator,
     loc := #caller_location,
     ) -> ([]byte, mem.Allocator_Error) {
@@ -97,9 +97,9 @@ default_resize_bytes_align :: proc(
 
 
 _default_resize_bytes_align :: #force_inline proc(
-    old_data: []byte,
-    new_size: int,
-    alignment: int,
+    old_data:  []byte,
+    new_size:  uint,
+    alignment: uint,
     should_zero: bool,
     allocator: mem.Allocator,
     loc := #caller_location,

@@ -3,7 +3,7 @@
 
 import "base:internal"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 import dt "core:time/datetime"
 

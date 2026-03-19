@@ -1,7 +1,7 @@
 #+private
 import "base:internal"
 
-import "base:strings"
+import "base:container/strings"
 import "core:sync"
 import "core:sys/wasm/wasi"
 

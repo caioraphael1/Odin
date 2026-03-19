@@ -3,7 +3,7 @@
 import "base:mem"
 
 import win32 "core:sys/windows"
-import "base:strings"
+import "base:container/strings"
 import "core:reflect"
 
 _LIBRARY_FILE_EXTENSION :: "dll"

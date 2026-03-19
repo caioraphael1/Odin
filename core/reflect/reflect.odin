@@ -1,10 +1,10 @@
 import "base:internal"
 @(require) import "base:intrinsics"
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
-import "base:maps"
-import "base:strings"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/maps"
+import "base:container/strings"
 
 Type_Info                        :: internal.Type_Info
 Type_Info_Named                  :: internal.Type_Info_Named

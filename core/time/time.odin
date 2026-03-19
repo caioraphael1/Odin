@@ -1,7 +1,7 @@
 // `Time`-related procedures and types, including `sleep`, `now`, and string formatting of moments.
 import "base:internal"
 import "base:intrinsics"
-import "base:slice"
+import "base:container/slice"
 
 import dt "core:time/datetime"
 

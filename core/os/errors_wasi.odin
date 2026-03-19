@@ -1,7 +1,7 @@
 #+private
 import "base:internal"
 
-import "base:slice"
+import "base:container/slice"
 import "core:sys/wasm/wasi"
 
 _Platform_Error :: wasi.errno_t

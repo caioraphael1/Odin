@@ -1,9 +1,9 @@
 
 import "base:internal"
 import "base:mem"
-import "base:strings"
+import "base:container/strings"
 
-import "core:strconv"
+import "base:strconv"
 import "core:strings_tools"
 
 #assert(

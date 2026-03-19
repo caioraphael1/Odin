@@ -12,7 +12,7 @@
 		Jeroen van Rijn: Initial implementation.
 */
 import "core:encoding/xml"
-import "base:strings"
+import "base:container/strings"
 
 TS_XML_Options := xml.Options{
 	flags = {

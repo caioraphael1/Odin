@@ -18,10 +18,10 @@
         Feoramund:       FreeBSD platform code
 */
 
-import "base:strings"
+import "base:container/strings"
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
+import "base:container/slice"
+import "base:container/dyn_array"
 
 import "core:strings_tools"
 

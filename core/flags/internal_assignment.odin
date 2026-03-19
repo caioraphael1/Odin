@@ -2,12 +2,12 @@
 
 import "base:intrinsics"
 @(require) import "base:internal"
-import "base:bit_array"
+import "base:container/bit_array"
 @(require) import "core:fmt"
 @(require) import "base:mem"
 import "core:reflect"
-@(require) import "core:strconv"
-@(require) import "base:strings"
+@(require) import "base:strconv"
+@(require) import "base:container/strings"
 
 // Push a positional argument onto a data struct, checking for specified
 // positionals first before adding it to a fallback field.

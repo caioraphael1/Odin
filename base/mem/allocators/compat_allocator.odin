@@ -27,12 +27,12 @@ compat_allocator :: proc(rra: ^Compat_Allocator) -> mem.Allocator {
 }
 
 compat_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
-                             size, alignment: int,
-                             old_memory: rawptr, old_size: int,
+                             size, alignment: uint,
+                             old_memory: rawptr, old_size: uint,
                              location := #caller_location) -> (data: []byte, err: mem.Allocator_Error) {
     Header :: struct {
-        size:      int,
-        alignment: int,
+        size:      uint,
+        alignment: uint,
     }
 
     @(no_sanitize_address)

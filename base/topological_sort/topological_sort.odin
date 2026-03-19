@@ -2,9 +2,10 @@
 // Odin's map type is being used to accelerate lookups.
 @(require) import "base:intrinsics"
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
-import "base:maps"
+
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/maps"
 
 
 Relations :: struct($K: typeid) where intrinsics.type_is_valid_map_key(K) {

@@ -1,14 +1,14 @@
 import "base:internal"
-import "base:slice"
-import "base:dyn_array"
-import "base:maps"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/maps"
 
 // An iterator to dynamically iterate across something that is array-like (or pointer-to-array-like)
 // Example:
 //  it: int // used as a tracking value
 //  for elem, idx in iterate_array(any_array_val, &it) { ... }
 
-iterate_array :: proc(val: any, it: ^int) -> (elem: any, index: int, ok: bool) {
+iterate_array :: proc(val: any, it: ^uint) -> (elem: any, index: uint, ok: bool) {
     if val == nil || it == nil {
         return
     }
@@ -55,7 +55,7 @@ iterate_array :: proc(val: any, it: ^int) -> (elem: any, index: int, ok: bool) {
 //  it: int // used as a tracking value
 //  for key, val in iterate_map(any_map_val, &it) { ... }
 
-iterate_map :: proc(val: any, it: ^int) -> (key, value: any, ok: bool) {
+iterate_map :: proc(val: any, it: ^uint) -> (key, value: any, ok: bool) {
     if val == nil || it == nil {
         return
     }

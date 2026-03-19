@@ -1,7 +1,7 @@
 import "base:internal"
 import "base:intrinsics"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 
 /*
@@ -9,9 +9,9 @@ Arena allocator data.
 */
 Arena :: struct {
     data:       []byte,
-    offset:     int,
-    peak_used:  int,
-    temp_count: int,
+    offset:     uint,
+    peak_used:  uint,
+    temp_count: uint,
 }
 
 /*
@@ -61,9 +61,9 @@ by `alignment` from an arena `a`. The allocated memory is zero-initialized.
 This procedure returns a pointer to the newly allocated memory region.
 */
 arena_alloc :: proc(
-    a:        ^Arena,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    a:         ^Arena,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
     ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := arena_alloc_bytes(a, size, alignment, loc)
@@ -78,9 +78,9 @@ by `alignment` from an arena `a`. The allocated memory is zero-initialized.
 This procedure returns a slice of the newly allocated memory region.
 */
 arena_alloc_bytes :: proc(
-    a:        ^Arena,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    a:         ^Arena,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
     ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := arena_alloc_bytes_non_zeroed(a, size, alignment, loc)
@@ -99,9 +99,9 @@ zero-initialized. This procedure returns a pointer to the newly allocated
 memory region.
 */
 arena_alloc_non_zeroed :: proc(
-    a:        ^Arena,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    a:         ^Arena,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
     ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := arena_alloc_bytes_non_zeroed(a, size, alignment, loc)
@@ -117,9 +117,9 @@ zero-initialized. This procedure returns a slice of the newly allocated
 memory region.
 */
 arena_alloc_bytes_non_zeroed :: proc(
-    a:        ^Arena,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    a:         ^Arena,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
     ) -> ([]byte, mem.Allocator_Error) {
     if a.data == nil {
@@ -127,7 +127,7 @@ arena_alloc_bytes_non_zeroed :: proc(
     }
     #no_bounds_check end := &a.data[a.offset]
     ptr := mem.align_forward(end, uintptr(alignment))
-    total_size := size + intrinsics.ptr_sub((^byte)(ptr), (^byte)(end))
+    total_size := size + uint(intrinsics.ptr_sub((^byte)(ptr), (^byte)(end)))
     if a.offset + total_size > len(a.data) {
         return nil, .Out_Of_Memory
     }
@@ -150,10 +150,10 @@ arena_free_all :: proc(a: ^Arena) {
 arena_allocator_proc :: proc(
     allocator_data: rawptr,
     mode:           mem.Allocator_Mode,
-    size:           int,
-    alignment:      int,
+    size:           uint,
+    alignment:      uint,
     old_memory:     rawptr,
-    old_size:       int,
+    old_size:       uint,
     loc := #caller_location,
     ) -> ([]byte, mem.Allocator_Error)  {
     arena := cast(^Arena)allocator_data
@@ -194,7 +194,7 @@ Multiple temporary memory regions can exist at the same time for an arena.
 */
 Arena_Temp_Memory :: struct {
     arena:       ^Arena,
-    prev_offset: int,
+    prev_offset: uint,
 }
 
 /*

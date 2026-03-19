@@ -2,9 +2,9 @@
 
 
 import "base:internal"
-import "core:unicode"
-import "core:unicode/utf8"
-import "base:strings"
+import "base:unicode"
+import "base:unicode/utf8"
+import "base:container/strings"
 
 MAX_CAPTURES :: 32
 
@@ -86,7 +86,7 @@ is_xdigit :: proc(c: rune) -> bool {
 // find the first utf8 charater and its size, return an error if the character is an error
 
 utf8_peek :: proc(bytes: string) -> (c: rune, size: int, err: Error) {
-    c, size = utf8.decode_rune_in_string(bytes)
+    c, size = utf8.rune_from_string(bytes)
 
     if c == utf8.RUNE_ERROR {
         err = .Rune_Error
@@ -100,7 +100,7 @@ utf8_peek :: proc(bytes: string) -> (c: rune, size: int, err: Error) {
 
 utf8_advance :: proc(bytes: string, index: ^int) -> (c: rune, err: Error) {
     size: int
-    c, size = utf8.decode_rune_in_string(bytes[index^:])
+    c, size = utf8.rune_from_string(bytes[index^:])
 
     if c == utf8.RUNE_ERROR {
         err = .Rune_Error
@@ -822,7 +822,7 @@ pattern_case_insensitive_builder :: proc(builder: ^strings_tools.Builder, patter
     last_percent: bool
 
     for len(p) > 0 {
-        char, size := utf8.decode_rune_in_string(p)
+        char, size := utf8.rune_from_string(p)
 
         if unicode.is_alpha(char) && !last_percent {
             // write character class in manually

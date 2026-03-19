@@ -3,7 +3,7 @@
 import "base:internal"
 
 import "core:c"
-import "core:strconv"
+import "base:strconv"
 
 import stb "vendor:stb/sprintf"
 

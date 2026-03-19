@@ -1,7 +1,7 @@
 #+build darwin, linux, freebsd, openbsd, netbsd
 #+private
 import "core:os"
-import "base:strings"
+import "base:container/strings"
 import "core:path/filepath"
 import "core:time/datetime"
 import "base:internal"

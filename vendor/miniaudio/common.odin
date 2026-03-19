@@ -1,5 +1,5 @@
 import "base:internal"
-import "base:slice"
+import "base:container/slice"
 
 import "core:c"
 

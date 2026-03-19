@@ -2,7 +2,7 @@
 
 import "base:intrinsics"
 
-__mem_compare :: proc(x, y: rawptr, n: int) -> int #no_bounds_check {
+__mem_compare :: proc(x, y: rawptr, n: uint) -> int #no_bounds_check {
     switch {
     case x == y:   return 0
     case x == nil: return -1
@@ -10,9 +10,8 @@ __mem_compare :: proc(x, y: rawptr, n: int) -> int #no_bounds_check {
     }
     a, b := cast([^]byte)x, cast([^]byte)y
     
-    n := uint(n)
-    i := uint(0)
-    m := uint(0)
+    i: uint
+    m: uint
 
     when HAS_HARDWARE_SIMD {
         when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
@@ -125,14 +124,13 @@ __mem_compare_zero :: proc(a: rawptr, n: int) -> int #no_bounds_check {
 }
 
 
-__mem_equal :: proc(x, y: rawptr, n: int) -> bool {
+__mem_equal :: proc(x, y: rawptr, n: uint) -> bool {
     switch {
     case n == 0: return true
     case x == y: return true
     }
     a, b := cast([^]byte)x, cast([^]byte)y
 
-    n := uint(n)
     i := uint(0)
     m := uint(0)
 
@@ -184,5 +182,9 @@ is_power_of_two_int :: #force_inline proc(x: int) -> bool {
     if x <= 0 {
         return false
     }
+    return (x & (x-1)) == 0
+}
+
+is_power_of_two_uint :: #force_inline proc(x: uint) -> bool {
     return (x & (x-1)) == 0
 }

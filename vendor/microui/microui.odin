@@ -25,8 +25,8 @@ An Odin-native source port of [[ rxi's microui ; https://github.com/rxi/microui 
 */
 import "core:fmt"
 import "core:sort"
-import "base:strings"
-import "core:strconv"
+import "base:container/strings"
+import "base:strconv"
 import "base:math"
 import textedit "core:text/edit"
 
@@ -376,7 +376,7 @@ end :: proc(ctx: ^Context) {
 
     /* reset input state */
     ctx.key_pressed_bits = {} // clear
-    strings_tools.builder_reset(&ctx.text_input)
+    strings_tools.builder_clear(&ctx.text_input)
     ctx.mouse_pressed_bits = {} // clear
     ctx.mouse_released_bits = {} // clear
     ctx.scroll_delta = Vec2{0, 0}

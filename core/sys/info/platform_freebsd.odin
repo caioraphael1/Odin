@@ -1,7 +1,7 @@
 
 
 import sys "core:sys/unix"
-import "base:strings"
+import "base:container/strings"
 import "base:internal"
 
 @(private)

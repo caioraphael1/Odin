@@ -7,8 +7,8 @@ import "base:intrinsics"
 import "core:container/pool"
 import "core:net"
 import "core:reflect"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 import "core:time"
 
 @(init, private)

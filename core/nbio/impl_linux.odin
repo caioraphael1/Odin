@@ -4,10 +4,10 @@
 import "base:intrinsics"
 
 import "core:container/pool"
-import "base:dyn_queue"
+import "base:container/dyn_queue"
 import "base:mem"
 import "core:net"
-import "base:strings"
+import "base:container/strings"
 import "core:sys/linux"
 import "core:sys/linux/uring"
 import "core:time"

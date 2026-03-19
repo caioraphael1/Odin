@@ -1,6 +1,6 @@
 #+private
 import "base:internal"
-import "base:slice"
+import "base:container/slice"
 import "base:intrinsics"
 import "core:sys/wasm/wasi"
 

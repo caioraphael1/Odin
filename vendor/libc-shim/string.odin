@@ -2,7 +2,7 @@
 import "base:intrinsics"
 
 import "core:c"
-import "base:strings"
+import "base:container/strings"
 import "base:mem"
 import "core:bytes"
 

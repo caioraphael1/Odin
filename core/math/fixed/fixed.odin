@@ -6,7 +6,7 @@ Example:
 */
 import "base:internal"
 @(require) import "base:math"
-@(require) import "core:strconv"
+@(require) import "base:strconv"
 @(require) import "base:intrinsics"
 
 Fixed :: struct($Backing: typeid, $Fraction_Width: uint)

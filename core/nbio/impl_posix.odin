@@ -3,7 +3,7 @@
 
 import    "base:mem"
 import    "base:strings"
-import fa "base:fixed_array"
+import fa "base:container/fixed_array"
 import    "base:queue"
 
 import    "core:c"

@@ -367,7 +367,7 @@ _set_blocking :: proc(socket: Any_Socket, should_block: bool) -> (err: Set_Block
     return nil
 }
 
-@private
+@(private)
 _endpoint_to_sockaddr :: proc(ep: Endpoint) -> (sockaddr: posix.sockaddr_storage) {
     switch a in ep.address {
     case IP4_Address:
@@ -390,7 +390,7 @@ _endpoint_to_sockaddr :: proc(ep: Endpoint) -> (sockaddr: posix.sockaddr_storage
     unreachable()
 }
 
-@private
+@(private)
 _sockaddr_to_endpoint :: proc(native_addr: ^posix.sockaddr_storage) -> (ep: Endpoint) {
     #partial switch native_addr.ss_family {
     case .INET:

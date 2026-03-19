@@ -2581,33 +2581,24 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
         }
 
         Type *op_type = type_deref(operand->type);
-        Type *type = t_int;
-        if (type_hint != nullptr) {
-            Type *bt = type_hint;
-            // bt = base_type(bt);
-            if (bt == t_int) {
-                type = type_hint;
-            } else if (bt == t_uint) {
-                type = type_hint;
-            }
-        }
+        Type *type = t_uint;
 
         AddressingMode mode = Addressing_Invalid;
         ExactValue value = {};
         if (is_type_string(op_type) && id == BuiltinProc_len) {
             if (operand->mode == Addressing_Constant) {
                 mode = Addressing_Constant;
+                type = t_untyped_integer;
 
                 if (operand->value.kind == ExactValue_String) {
                     String str = operand->value.value_string;
-                    value = exact_value_i64(str.len);
+                    value = exact_value_u64(str.len);
                 } else if (operand->value.kind == ExactValue_String16) {
                     String16 str = operand->value.value_string16;
-                    value = exact_value_i64(str.len);
+                    value = exact_value_u64(str.len);
                 } else {
                     GB_PANIC("Unhandled value kind: %d", operand->value.kind);
                 }
-                type = t_untyped_integer;
             } else {
                 mode = Addressing_Value;
                 if (is_type_cstring(op_type)) {
@@ -2619,13 +2610,13 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
         } else if (is_type_array(op_type)) {
             Type *at = core_type(op_type);
             mode = Addressing_Constant;
-            value = exact_value_i64(at->Array.count);
             type = t_untyped_integer;
+            value = exact_value_u64(at->Array.count);
         } else if (is_type_enumerated_array(op_type) && id == BuiltinProc_len) {
             Type *at = core_type(op_type);
             mode = Addressing_Constant;
-            value = exact_value_i64(at->EnumeratedArray.count);
             type = t_untyped_integer;
+            value = exact_value_u64(at->EnumeratedArray.count);
         } else if (is_type_slice(op_type) && id == BuiltinProc_len) {
             mode = Addressing_Value;
         } else if (is_type_dynamic_array(op_type)) {
@@ -2637,7 +2628,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             mode = Addressing_Constant;
             type = t_untyped_integer;
             if (id == BuiltinProc_len) {
-                value = exact_value_i64(bt->Enum.fields.count);
+                value = exact_value_u64(bt->Enum.fields.count);
             } else {
                 GB_ASSERT(id == BuiltinProc_cap);
                 value = exact_value_sub(*bt->Enum.max_value, *bt->Enum.min_value);
@@ -2647,8 +2638,8 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             Type *bt = base_type(op_type);
             if (bt->Struct.soa_kind == StructSoa_Fixed) {
                 mode  = Addressing_Constant;
-                value = exact_value_i64(bt->Struct.soa_count);
-                type  = t_untyped_integer;
+                type = t_untyped_integer;
+                value = exact_value_u64(bt->Struct.soa_count);
             } else if ((bt->Struct.soa_kind == StructSoa_Slice && id == BuiltinProc_len) ||
                        bt->Struct.soa_kind == StructSoa_Dynamic) {
                 mode = Addressing_Value;
@@ -2656,8 +2647,8 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
         } else if (is_type_simd_vector(op_type)) {
             Type *bt = base_type(op_type);
             mode  = Addressing_Constant;
-            value = exact_value_i64(bt->SimdVector.count);
-            type  = t_untyped_integer;
+            type = t_untyped_integer;
+            value = exact_value_u64(bt->SimdVector.count);
         }
         if (operand->mode == Addressing_Type && mode != Addressing_Constant) {
             mode = Addressing_Invalid;
@@ -2705,7 +2696,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
         t = default_type(t);
 
         operand->mode = Addressing_Constant;
-        operand->value = exact_value_i64(type_size_of(t));
+        operand->value = exact_value_u64(type_size_of(t));
         operand->type = t_untyped_integer;
 
         break;
@@ -2726,7 +2717,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
         t = default_type(t);
 
         operand->mode = Addressing_Constant;
-        operand->value = exact_value_i64(type_align_of(t));
+        operand->value = exact_value_u64(type_align_of(t));
         operand->type = t_untyped_integer;
 
         break;
@@ -2840,8 +2831,8 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             return false;
         }
 
-        operand->mode = Addressing_Constant;
-        operand->value = exact_value_i64(type_offset_of_from_selection(type, sel));
+        operand->mode  = Addressing_Constant;
+        operand->value = exact_value_u64(type_offset_of_from_selection(type, sel));
         operand->type  = t_uintptr;
         break;
     }
@@ -2915,7 +2906,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
         }
 
         operand->mode = Addressing_Constant;
-        operand->value = exact_value_i64(type_offset_of_from_selection(type, sel));
+        operand->value = exact_value_u64(type_offset_of_from_selection(type, sel));
         operand->type  = t_uintptr;
         break;
     }

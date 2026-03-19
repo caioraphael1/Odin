@@ -1,10 +1,10 @@
 
 import "base:mem"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 
 import "core:strings_tools"
-import "core:unicode/utf16"
+import "base:unicode/utf16"
 import sys "core:sys/windows"
 
 @(private)

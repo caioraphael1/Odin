@@ -1,14 +1,14 @@
 import "base:internal"
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
+import "base:container/slice"
+import "base:container/dyn_array"
 
 /*
 Scratch allocator data.
 */
 Scratch :: struct {
     data:                 []byte,
-    curr_offset:          int,
+    curr_offset:          uint,
     prev_allocation:      rawptr,
     prev_allocation_root: rawptr,
     backup_allocator:     mem.Allocator,
@@ -50,7 +50,7 @@ scratch_allocator :: proc(allocator: ^Scratch) -> mem.Allocator {
 /*
 Initialize a scratch allocator.
 */
-scratch_init :: proc(s: ^Scratch, size: int, backup_allocator: mem.Allocator) -> mem.Allocator_Error {
+scratch_init :: proc(s: ^Scratch, size: uint, backup_allocator: mem.Allocator) -> mem.Allocator_Error {
     s.data = slice.create_aligned([]byte, size, 2*align_of(rawptr), backup_allocator) or_return
     s.curr_offset = 0
     s.prev_allocation = nil
@@ -89,9 +89,9 @@ returns a pointer to the allocated memory region.
 */
 
 scratch_alloc :: proc(
-    s:    ^Scratch,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Scratch,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
     ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := scratch_alloc_bytes(s, size, alignment, loc)
@@ -107,9 +107,9 @@ returns a slice of the allocated memory region.
 */
 
 scratch_alloc_bytes :: proc(
-    s:    ^Scratch,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Scratch,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := scratch_alloc_bytes_non_zeroed(s, size, alignment, loc)
@@ -128,9 +128,9 @@ This procedure returns a pointer to the allocated memory region.
 */
 
 scratch_alloc_non_zeroed :: proc(
-    s:    ^Scratch,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Scratch,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := scratch_alloc_bytes_non_zeroed(s, size, alignment, loc)
@@ -146,9 +146,9 @@ This procedure returns a slice of the allocated memory region.
 */
 
 scratch_alloc_bytes_non_zeroed :: proc(
-    s:   ^Scratch,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Scratch,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
@@ -179,7 +179,7 @@ scratch_alloc_bytes_non_zeroed :: proc(
             ptr = mem.align_forward(ptr, uintptr(alignment))
         }
         s.prev_allocation = ptr
-        s.curr_offset = int(offset) + aligned_size
+        s.curr_offset = uint(offset) + aligned_size
         result := slice.bytes(ptr, size)
         // ensure_poisoned(result)
         // sanitizer.address_unpoison(result)
@@ -217,7 +217,7 @@ scratch_free :: proc(s: ^Scratch, ptr: rawptr, loc := #caller_location) -> mem.A
     end := start + uintptr(len(s.data))
     old_ptr := uintptr(ptr)
     if s.prev_allocation == ptr {
-        s.curr_offset = int(uintptr(s.prev_allocation_root) - start)
+        s.curr_offset = uint(uintptr(s.prev_allocation_root) - start)
         // sanitizer.address_poison(s.data[s.curr_offset:])
         s.prev_allocation = nil
         s.prev_allocation_root = nil
@@ -273,9 +273,9 @@ This procedure returns the pointer to the resized memory region.
 scratch_resize :: proc(
     s:          ^Scratch,
     old_memory: rawptr,
-    old_size:   int,
-    size:       int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    old_size:   uint,
+    size:       uint,
+    alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := scratch_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment, loc)
@@ -300,10 +300,10 @@ This procedure returns the slice of the resized memory region.
 */
 
 scratch_resize_bytes :: proc(
-    s:        ^Scratch,
-    old_data: []byte,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Scratch,
+    old_data:  []byte,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := scratch_resize_bytes_non_zeroed(s, old_data, size, alignment, loc)
@@ -333,9 +333,9 @@ This procedure returns the pointer to the resized memory region.
 scratch_resize_non_zeroed :: proc(
     s:          ^Scratch,
     old_memory: rawptr,
-    old_size:   int,
-    size:       int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    old_size:   uint,
+    size:       uint,
+    alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := scratch_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment, loc)
@@ -360,10 +360,10 @@ This procedure returns the slice of the resized memory region.
 */
 
 scratch_resize_bytes_non_zeroed :: proc(
-    s:        ^Scratch,
-    old_data: []byte,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Scratch,
+    old_data:  []byte,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> ([]byte, mem.Allocator_Error) {
     old_memory := raw_data(old_data)
@@ -382,7 +382,7 @@ scratch_resize_bytes_non_zeroed :: proc(
     if s.prev_allocation == old_memory && mem.is_aligned(old_memory, alignment) && old_ptr+uintptr(size) < end {
         // ensure_not_poisoned(old_data)
         // sanitizer.address_poison(old_memory)
-        s.curr_offset = int(old_ptr-begin)+size
+        s.curr_offset = uint(old_ptr-begin)+size
         result := slice.bytes(old_memory, size)
         // sanitizer.address_unpoison(result)
         return result, nil
@@ -399,9 +399,9 @@ scratch_resize_bytes_non_zeroed :: proc(
 scratch_allocator_proc :: proc(
     allocator_data:  rawptr,
     mode:            mem.Allocator_Mode,
-    size, alignment: int,
+    size, alignment: uint,
     old_memory:      rawptr,
-    old_size:        int,
+    old_size:        uint,
     loc := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     s := (^Scratch)(allocator_data)

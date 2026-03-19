@@ -10,8 +10,8 @@ Based off the articles by rxi:
 import "base:internal"
 import "core:time"
 import "base:mem"
-import "base:strings"
-import "core:unicode/utf8"
+import "base:container/strings"
+import "base:unicode/utf8"
 
 DEFAULT_UNDO_TIMEOUT :: 300 * time.Millisecond
 
@@ -160,7 +160,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
         item := dyn_array.pop(undo)
         s.selection = item.selection
         #no_bounds_check if s.builder != nil {
-            strings_tools.builder_reset(s.builder)
+            strings_tools.builder_clear(s.builder)
             strings_tools.write_string(s.builder, string(item.text[:item.len]))
         }
         free(item, s.undo_text_allocator)
@@ -208,7 +208,7 @@ input_runes :: proc(s: ^State, text: []rune) {
     }
     offset := s.selection[0]
     for r in text {
-        b, w := utf8.encode_rune(r)
+        b, w := utf8.bytes_from_rune(r)
         n := insert(s, offset, string(b[:w]))
         offset += n
         if n != w {
@@ -224,7 +224,7 @@ input_rune :: proc(s: ^State, r: rune) {
         selection_delete(s)
     }
     offset := s.selection[0]
-    b, w := utf8.encode_rune(r)
+    b, w := utf8.bytes_from_rune(r)
     n := insert(s, offset, string(b[:w]))
     offset += n
     s.selection = {offset, offset}

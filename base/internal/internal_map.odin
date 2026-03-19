@@ -196,9 +196,9 @@ map_alloc_dynamic :: proc(info: ^Map_Info, log2_capacity: uintptr, allocator: Al
 
     CACHE_MASK :: MAP_CACHE_LINE_SIZE - 1
 
-    size := map_total_allocation_size(capacity, info)
+    size := uint(map_total_allocation_size(capacity, info))
 
-    data := mem_alloc_non_zeroed(int(size), MAP_CACHE_LINE_SIZE, allocator, loc) or_return
+    data := mem_alloc_non_zeroed(size, MAP_CACHE_LINE_SIZE, allocator, loc) or_return
     data_ptr := uintptr(raw_data(data))
     if data_ptr == 0 {
         err = .Out_Of_Memory
@@ -292,7 +292,7 @@ map_reserve_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias in
 
 map_free_dynamic :: #force_no_inline proc(m: Raw_Map, info: ^Map_Info, loc := #caller_location) -> Allocator_Error {
     ptr := rawptr(map_data(m))
-    size := int(map_total_allocation_size(uintptr(map_cap(m)), info))
+    size := uint(map_total_allocation_size(uintptr(map_cap(m)), info))
     err := mem_free_with_size(ptr, size, m.allocator, loc)
     #partial switch err {
     case .None, .Mode_Not_Implemented:
@@ -695,7 +695,7 @@ __default_hasher :: #force_inline proc(data: rawptr, seed: uintptr, N: int) -> u
 
 __default_hasher_string :: proc(data: rawptr, seed: uintptr) -> uintptr {
     str := (^[]byte)(data)
-    return __default_hasher(raw_data(str^), seed, len(str))
+    return __default_hasher(raw_data(str^), seed, int(len(str)))
 }
 
 __default_hasher_cstring :: proc(data: rawptr, seed: uintptr) -> uintptr {

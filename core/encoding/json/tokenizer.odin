@@ -1,4 +1,4 @@
-import "core:unicode/utf8"
+import "base:unicode/utf8"
 
 Pos :: struct {
     offset: int,
@@ -67,7 +67,7 @@ next_rune :: proc(t: ^Tokenizer) -> rune #no_bounds_check {
         t.r = utf8.RUNE_EOF
     } else {
         t.offset += t.w
-        t.r, t.w = utf8.decode_rune_in_string(t.data[t.offset:])
+        t.r, t.w = utf8.rune_from_string(t.data[t.offset:])
         t.pos.column = t.offset - t.curr_line_offset
         if t.offset >= len(t.data) {
             t.r = utf8.RUNE_EOF
@@ -551,7 +551,7 @@ is_valid_string_literal :: proc(str: string, spec: Specification) -> bool {
             i += 1
 
         case:
-            r, width := utf8.decode_rune_in_string(s[i:])
+            r, width := utf8.rune_from_string(s[i:])
             if r == utf8.RUNE_ERROR && width == 1 {
                 return false
             }

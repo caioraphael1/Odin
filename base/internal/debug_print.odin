@@ -85,7 +85,7 @@ when !ODIN_NO_RTTI {
 }
 
 
-encode_rune :: proc(c: rune) -> ([4]u8, int) {
+bytes_from_rune :: proc(c: rune) -> ([4]u8, int) {
     r := c
 
     buf: [4]u8
@@ -180,7 +180,7 @@ print_rune :: #force_no_inline proc(r: rune) -> int #no_bounds_check {
         return print_byte(byte(r))
     }
 
-    b, n := encode_rune(r)
+    b, n := bytes_from_rune(r)
     m, _ := stderr_write(b[:n])
     return m
 }
@@ -522,7 +522,7 @@ print_type :: #force_no_inline proc(ti: ^Type_Info) {
 
 
 write_string :: proc(i: ^int, dst: []byte, src: string) -> bool {
-    if i^ < len(dst) {
+    if i^ < int(len(dst)) {
         // i^ += slice.copy_from_string(dst[i^:], src)
             // FIX:
         return true
@@ -532,7 +532,7 @@ write_string :: proc(i: ^int, dst: []byte, src: string) -> bool {
 
 
 write_byte :: proc(i: ^int, dst: []byte, src: byte) -> bool {
-    if i^ < len(dst) {
+    if i^ < int(len(dst)) {
         dst[i^] = src
         i^ += 1
         return true
@@ -542,7 +542,7 @@ write_byte :: proc(i: ^int, dst: []byte, src: byte) -> bool {
 
 
 write_u64 :: proc(j: ^int, dst: []byte, x: u64) -> bool {
-    if j^ < len(dst) {
+    if j^ < int(len(dst)) {
         b :: u64(10)
         u := x
 
@@ -560,7 +560,7 @@ write_u64 :: proc(j: ^int, dst: []byte, x: u64) -> bool {
 }
 
 write_i64 :: proc(j: ^int, dst: []byte, x: i64) -> bool {
-    if j^ < len(dst) {
+    if j^ < int(len(dst)) {
         b :: u64(10)
         u := u64(abs(x))
         neg := x < 0
@@ -635,7 +635,7 @@ write_rune :: #force_no_inline proc(i: ^int, buf: []byte, r: rune) -> (written: 
         return 1, true
     }
 
-    b, n := encode_rune(r)
+    b, n := bytes_from_rune(r)
     prev := i^
     write_string(i, buf, string(b[:n])) or_return
     return i^ - prev, true

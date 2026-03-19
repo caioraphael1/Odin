@@ -2,7 +2,7 @@
 #+build darwin, netbsd, freebsd, openbsd
 import "base:internal"
 
-import "base:strings"
+import "base:container/strings"
 import "core:sys/posix"
 
 _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {

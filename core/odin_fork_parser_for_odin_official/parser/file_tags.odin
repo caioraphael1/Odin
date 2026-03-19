@@ -1,7 +1,7 @@
 package odin_parser
 
 import "base:internal"
-import "base:strings"
+import "base:container/strings"
 import "core:reflect"
 import "base:mem"
 

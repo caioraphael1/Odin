@@ -2,14 +2,14 @@ import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 import "base:math"
-import "base:slice"
-import "base:dyn_array"
-import "base:maps"
-import "base:strings"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/maps"
+import "base:container/strings"
 
 import "core:strings_tools"
 import "core:reflect"
-import "core:strconv"
+import "base:strconv"
 
 Unmarshal_Data_Error :: enum {
     Invalid_Data,

@@ -8,9 +8,9 @@
 // A Scanner may be customized to recognize only a subset of those literals and to recognize different identifiers and white space characters.
 import "base:internal"
 import "core:fmt"
-import "base:strings"
-import "core:unicode"
-import "core:unicode/utf8"
+import "base:container/strings"
+import "base:unicode"
+import "base:unicode/utf8"
 
 // Position represents a source position
 // A position is valid if line > 0
@@ -150,7 +150,7 @@ advance :: proc(s: ^Scanner) -> rune {
 	ch, width := rune(s.src[s.src_pos]), 1
 
 	if ch >= utf8.RUNE_SELF {
-		ch, width = utf8.decode_rune_in_string(s.src[s.src_pos:])
+		ch, width = utf8.rune_from_string(s.src[s.src_pos:])
 		if ch == utf8.RUNE_ERROR && width == 1 {
 			s.src_pos += width
 			s.prev_char_len = width

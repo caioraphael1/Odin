@@ -22,12 +22,12 @@ optimized away or reordered with other memory access operations, and the
 compiler assumes volatile semantics of the memory.
 */
 @(optional_results)
-zero_explicit :: proc(data: rawptr, len: int) -> rawptr {
+zero_explicit :: proc(data: rawptr, len: uint) -> rawptr {
     // This routine tries to avoid the compiler optimizing away the call,
     // so that it is always executed.  It is intended to provide
     // equivalent semantics to those provided by the C11 Annex K 3.7.4.1
     // memset_s call.
-    intrinsics.mem_zero_volatile(data, len) // Use the volatile mem_zero
+    intrinsics.mem_zero_volatile(data, int(len)) // Use the volatile mem_zero
     intrinsics.atomic_thread_fence(.Seq_Cst) // Prevent reordering
     return data
 }
@@ -62,15 +62,10 @@ value, it costs nothing because the the same zero page is used for the
 whole allocation and will exist in L1 cache for the entire zero checking
 process.
 */
-zero_conditional :: proc(data: rawptr, n: int) #no_bounds_check {
-    if n <= 0 {
-        return
-    }
-    n_uint := uint(n)
-
-    n_words := n_uint / size_of(uintptr)
+zero_conditional :: proc(data: rawptr, n: uint) #no_bounds_check {
+    n_words := n / size_of(uintptr)
     p_words := ([^]uintptr)(data)[:n_words]
-    p_bytes := ([^]byte)(data)[size_of(uintptr) * n_words:n_uint]
+    p_bytes := ([^]byte)(data)[size_of(uintptr) * n_words:n]
     for &p_word in p_words {
         if p_word != 0 {
             p_word = 0
@@ -117,9 +112,9 @@ The comparison is performed as follows:
     - Otherwise the comparison continues until `n` bytes are compared.
 2. If all the bytes in the range are equal, this procedure returns `0`.
 */
-compare      :: internal.__mem_compare
+compare :: internal.__mem_compare
 compare_zero :: internal.__mem_compare_zero
-equal        :: internal.__mem_equal
+equal :: internal.__mem_equal
 
 
 /*
@@ -138,7 +133,7 @@ This procedure checks whether each of the `len` bytes, starting at address
 `ptr` is zero. If all bytes of this range are zero, this procedure returns
 `true`. Otherwise this procedure returns `false`.
 */
-is_zero_ptr :: proc(ptr: rawptr, len: int) -> bool {
+is_zero_ptr :: proc(ptr: rawptr, len: uint) -> bool {
     switch {
     case len <= 0:
         return true
@@ -207,13 +202,13 @@ This procedure checks whether a pointer `x` is aligned to a boundary specified
 by `align`, and returns `true` if the pointer is aligned, and false otherwise.
 The specified alignment must be a power of 2.
 */
-is_aligned :: proc(x: rawptr, align: int) -> bool {
+is_aligned :: proc(x: rawptr, align: uint) -> bool {
     p := uintptr(x)
     return (p & (uintptr(align) - 1)) == 0
 }
 
-align_forward_int :: #force_inline proc(ptr, align: int) -> int {
-    internal.assert(is_power_of_two_int(align))
+align_forward_int :: #force_inline proc(ptr, align: uint) -> uint {
+    internal.assert(is_power_of_two_uint(align))
 
     p := ptr
     modulo := p & (align-1)
@@ -224,16 +219,11 @@ align_forward_int :: #force_inline proc(ptr, align: int) -> int {
 }
 
 /*
-Align int forward.
 This procedure returns the next address after `ptr`, that is located on the
 alignment boundary specified by `align`. If `ptr` is already aligned to `align`
 bytes, `ptr` is returned.
 The specified alignment must be a power of 2.
 */
-align_forward_int2 :: proc(ptr, align: int) -> int {
-    return int(align_forward_uintptr(uintptr(ptr), uintptr(align)))
-}
-
 align_forward_uint :: #force_inline proc(ptr, align: uint) -> uint {
     internal.assert(is_power_of_two_uint(align))
 
@@ -321,18 +311,6 @@ align_backward :: proc(ptr: rawptr, align: uintptr) -> rawptr {
     return rawptr(align_backward_uintptr(uintptr(ptr), align))
 }
 
-/*
-Align int backwards.
-
-This procedure returns the previous address before `ptr`, that is located on the
-alignment boundary specified by `align`. If `ptr` is already aligned to `align`
-bytes, `ptr` is returned.
-
-The specified alignment must be a power of 2.
-*/
-align_backward_int :: proc(ptr, align: int) -> int {
-    return int(align_backward_uintptr(uintptr(ptr), uintptr(align)))
-}
 
 /*
 Align uint backwards.
@@ -355,15 +333,9 @@ This procedure is equivalent to `align_forward`, but it does not require the
 alignment to be a power of two.
 */
 @(no_sanitize_address)
-align_formula_int :: #force_inline proc(size, align: int) -> int {
-    result := size + align-1
-    return result - result%align
-}
-
-@(no_sanitize_address)
 align_formula_uint :: #force_inline proc(size, align: uint) -> uint {
-    result := size + align-1
-    return result - result%align
+    result := size + align - 1
+    return result - result % align
 }
 
 
@@ -394,7 +366,7 @@ The function takes in `ptr` and `header_size`, as well as the required
 alignment for `DATA`. The return value of the function is the padding between
 `ptr` and `aligned_ptr` that will be able to fit the header.
 */
-calc_padding_with_header :: proc(ptr: uintptr, align: uintptr, header_size: int) -> int {
+calc_padding_with_header :: proc(ptr: uintptr, align: uintptr, header_size: uint) -> uint {
     p, a := ptr, align
     modulo := p & (a-1)
     padding := uintptr(0)
@@ -410,7 +382,7 @@ calc_padding_with_header :: proc(ptr: uintptr, align: uintptr, header_size: int)
             padding += align * (needed_space/align)
         }
     }
-    return int(padding)
+    return uint(padding)
 }
 
 
@@ -418,7 +390,7 @@ calc_padding_with_header :: proc(ptr: uintptr, align: uintptr, header_size: int)
 // Etc
 //--------------------------------------------------------------------------------------------------
 
-memory_prefix_length :: proc(x, y: rawptr, n: int) -> (idx: int) #no_bounds_check {
+memory_prefix_length :: proc(x, y: rawptr, n: uint) -> (idx: uint) #no_bounds_check {
     switch {
     case x == y:   return n
     case x == nil: return 0
@@ -426,7 +398,6 @@ memory_prefix_length :: proc(x, y: rawptr, n: int) -> (idx: int) #no_bounds_chec
     }
     a, b := cast([^]byte)x, cast([^]byte)y
 
-    n := uint(n)
     i := uint(0)
     m := uint(0)
 
@@ -442,7 +413,7 @@ memory_prefix_length :: proc(x, y: rawptr, n: int) -> (idx: int) #no_bounds_chec
                     indices := intrinsics.simd_indices(#simd[32]u8)
                     index_select := intrinsics.simd_select(comparison, indices, sentinel)
                     index_reduce := cast(uint)intrinsics.simd_reduce_min(index_select)
-                    return int(i + index_reduce)
+                    return uint(i + index_reduce)
                 }
             }
         }
@@ -458,7 +429,7 @@ memory_prefix_length :: proc(x, y: rawptr, n: int) -> (idx: int) #no_bounds_chec
             indices := intrinsics.simd_indices(#simd[16]u8)
             index_select := intrinsics.simd_select(comparison, indices, sentinel)
             index_reduce := cast(uint)intrinsics.simd_reduce_min(index_select)
-            return int(i + index_reduce)
+            return uint(i + index_reduce)
         }
     }
 
@@ -474,15 +445,15 @@ memory_prefix_length :: proc(x, y: rawptr, n: int) -> (idx: int) #no_bounds_chec
             indices := intrinsics.simd_indices(#simd[8]u8)
             index_select := intrinsics.simd_select(comparison, indices, sentinel)
             index_reduce := cast(uint)intrinsics.simd_reduce_min(index_select)
-            return int(i + index_reduce)
+            return uint(i + index_reduce)
         }
     }
 
     for ; i < n; i += 1 {
         if a[i] ~ b[i] != 0 {
-            return int(i)
+            return uint(i)
         }
     }
-    return int(n)
+    return uint(n)
 }
 

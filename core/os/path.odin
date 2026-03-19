@@ -3,12 +3,12 @@
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
-import "base:slice"
-import "base:dyn_array"
-import "base:strings"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/strings"
 
 import "core:strings_tools"
-import "core:unicode/utf8"
+import "base:unicode/utf8"
 
 
 Path_Separator        :: _Path_Separator        // OS-Specific
@@ -35,7 +35,7 @@ with the `new_sep` rune.
 */
 replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allocator) -> (new_path: string, err: Error) {
     length       := len(path)
-    rep_b, rep_w := utf8.encode_rune(new_sep)
+    rep_b, rep_w := utf8.bytes_from_rune(new_sep)
 
     byte_oriented := rep_w == 1
 
@@ -63,7 +63,7 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allo
                 slice.copy(buf[i:], rep_b[:rep_w])
                 i += rep_w
             } else {
-                r_b, r_w := utf8.encode_rune(r)
+                r_b, r_w := utf8.bytes_from_rune(r)
                 slice.copy(buf[i:], r_b[:r_w])
                 i += r_w
             }
@@ -825,7 +825,7 @@ match_chunk :: proc(chunk, s: string) -> (rest: string, ok: bool, err: Error) {
         }
         switch chunk[0] {
         case '[':
-            r, w := utf8.decode_rune_in_string(s)
+            r, w := utf8.rune_from_string(s)
             s = s[w:]
             chunk = chunk[1:]
             is_negated := false
@@ -864,7 +864,7 @@ match_chunk :: proc(chunk, s: string) -> (rest: string, ok: bool, err: Error) {
             if s[0] == _Path_Separator {
                 return
             }
-            _, w := utf8.decode_rune_in_string(s)
+            _, w := utf8.rune_from_string(s)
             s = s[w:]
             chunk = chunk[1:]
 
@@ -905,7 +905,7 @@ get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Error) {
     }
 
     w: int
-    r, w = utf8.decode_rune_in_string(chunk)
+    r, w = utf8.rune_from_string(chunk)
     if r == utf8.RUNE_ERROR && w == 1 {
         err = .Pattern_Syntax_Error
     }

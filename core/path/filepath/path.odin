@@ -2,8 +2,8 @@
 // To process paths such as URLs that depend on forward slashes regardless of the OS, use the slashpath package.
 
 import "base:mem"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 
 import "core:os"
 import "core:strings_tools"

@@ -255,7 +255,7 @@ gb_internal TB_DebugType *cg_debug_type_internal(cgModule *m, Type *type) {
                 // @QuaternionLayout
                 TB_DebugType **fields = tb_debug_record_begin(m->mod, record, 2);
                 fields[0] = tb_debug_create_field(m->mod, cg_debug_type(m, t_u8_ptr), -1, "data", 0*int_size);
-                fields[1] = tb_debug_create_field(m->mod, cg_debug_type(m, t_int),    -1, "len",  1*int_size);
+                fields[1] = tb_debug_create_field(m->mod, cg_debug_type(m, t_uint),   -1, "len",  1*uint_size);
 
                 tb_debug_record_end(record, size, align);
                 return record;
@@ -319,7 +319,7 @@ gb_internal TB_DebugType *cg_debug_type_internal(cgModule *m, Type *type) {
             TB_DebugType *record = tb_debug_create_struct(m->mod, name.len, cast(char const *)name.text);
             TB_DebugType **fields = tb_debug_record_begin(m->mod, record, 2);
             fields[0] = tb_debug_create_field(m->mod, cg_debug_type(m, alloc_type_pointer(type->Slice.elem)), -1, "data", 0*int_size);
-            fields[1] = tb_debug_create_field(m->mod, cg_debug_type(m, t_int),    -1, "len",  1*int_size);
+            fields[1] = tb_debug_create_field(m->mod, cg_debug_type(m, t_uint),    -1, "len",  1*uint_size);
 
             tb_debug_record_end(record, size, align);
             return record;
@@ -330,7 +330,7 @@ gb_internal TB_DebugType *cg_debug_type_internal(cgModule *m, Type *type) {
             TB_DebugType *record = tb_debug_create_struct(m->mod, name.len, cast(char const *)name.text);
             TB_DebugType **fields = tb_debug_record_begin(m->mod, record, 4);
             fields[0] = tb_debug_create_field(m->mod, cg_debug_type(m, alloc_type_pointer(type->Slice.elem)), -1, "data", 0*int_size);
-            fields[1] = tb_debug_create_field(m->mod, cg_debug_type(m, t_int),       -1, "len",        1*int_size);
+            fields[1] = tb_debug_create_field(m->mod, cg_debug_type(m, t_uint),       -1, "len",       1*uint_size);
             fields[2] = tb_debug_create_field(m->mod, cg_debug_type(m, t_int),       -1, "cap",        2*int_size);
             fields[3] = tb_debug_create_field(m->mod, cg_debug_type(m, t_allocator), -1, "allocator",  3*int_size);
 

@@ -2,7 +2,7 @@
 
 import "base:intrinsics"
 import "base:internal"
-import "base:strings"
+import "base:container/strings"
 import "core:sys/linux"
 
 @(private)

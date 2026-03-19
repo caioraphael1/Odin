@@ -9,9 +9,9 @@
 
 import "core:container/avl_tree"
 import "core:container/pool"
-import "base:dyn_queue"
+import "base:container/dyn_queue"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 import "core:time"
 
 _FULLY_SUPPORTED :: false

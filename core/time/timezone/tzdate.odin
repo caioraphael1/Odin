@@ -1,6 +1,6 @@
 // Timezone lookup.
 import "core:fmt"
-import "base:slice"
+import "base:container/slice"
 import "core:time"
 import "core:time/datetime"
 import "base:internal"

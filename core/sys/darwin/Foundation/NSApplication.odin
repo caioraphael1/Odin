@@ -2,7 +2,7 @@ foreign import "system:Foundation.framework"
 
 import "base:intrinsics"
 import "base:internal"
-import "base:strings"
+import "base:container/strings"
 
 
 ActivationPolicy :: enum UInteger {

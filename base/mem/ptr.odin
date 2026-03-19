@@ -8,7 +8,7 @@ ptr_sub :: proc(p: $P/^$T, x: int) -> ^T {
     return ([^]T)(p)[-x:]
 }
 
-ptr_swap_non_overlapping :: proc(x, y: rawptr, len: int) {
+ptr_swap_non_overlapping :: proc(x, y: rawptr, len: uint) {
     if len <= 0 {
         return
     }
@@ -19,7 +19,7 @@ ptr_swap_non_overlapping :: proc(x, y: rawptr, len: int) {
     Block :: distinct [4]u64
     BLOCK_SIZE :: size_of(Block)
 
-    i := 0
+    i: uint
     t := &Block{}
     for ; i + BLOCK_SIZE <= len; i += BLOCK_SIZE {
         a := rawptr(uintptr(x) + uintptr(i))

@@ -1,13 +1,13 @@
 import "base:internal"
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
-import "base:maps"
-import "base:strings"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/maps"
+import "base:container/strings"
 
-import "core:unicode/utf8"
-import "core:unicode/utf16"
-import "core:strconv"
+import "base:unicode/utf8"
+import "base:unicode/utf16"
+import "base:strconv"
 
 
 Parser :: struct {
@@ -370,7 +370,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
             i += 1
             continue
         }
-        r, w := utf8.decode_rune_in_string(s[i:])
+        r, w := utf8.rune_from_string(s[i:])
         if r == utf8.RUNE_ERROR && w == 1 {
             break
         }
@@ -444,7 +444,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
                     }
                 }
 
-                buf, buf_width := utf8.encode_rune(r)
+                buf, buf_width := utf8.bytes_from_rune(r)
                 slice.copy(b[w:], buf[:buf_width])
                 w += uint(buf_width)
 
@@ -474,7 +474,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
                     }
                     i += 4
 
-                    buf, buf_width := utf8.encode_rune(r)
+                    buf, buf_width := utf8.bytes_from_rune(r)
                     slice.copy(b[w:], buf[:buf_width])
                     w += uint(buf_width)
                 } else {
@@ -491,10 +491,10 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
             w += 1
 
         case:
-            r, width := utf8.decode_rune_in_string(s[i:])
+            r, width := utf8.rune_from_string(s[i:])
             i += width
 
-            buf, buf_width := utf8.encode_rune(r)
+            buf, buf_width := utf8.bytes_from_rune(r)
             internal.assert(buf_width <= width)
             slice.copy(b[w:], buf[:buf_width])
             w += uint(buf_width)

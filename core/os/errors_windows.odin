@@ -1,6 +1,6 @@
 #+private
 import "base:internal"
-import "base:slice"
+import "base:container/slice"
 import win32 "core:sys/windows"
 
 _Platform_Error :: win32.System_Error

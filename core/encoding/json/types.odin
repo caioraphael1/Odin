@@ -32,9 +32,9 @@ Using one of these `Specification`s.
         * : can be replaced with =
 */
 import "base:mem"
-import "base:dyn_array"
-import "base:maps"
-import "base:strings"
+import "base:container/dyn_array"
+import "base:container/maps"
+import "base:container/strings"
 
 Specification :: enum {
     JSON,

@@ -1,5 +1,5 @@
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 
 heap_allocator :: proc() -> mem.Allocator {
@@ -10,8 +10,8 @@ heap_allocator :: proc() -> mem.Allocator {
 }
 
 heap_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
-                            size, alignment: int,
-                            old_memory: rawptr, old_size: int, loc := #caller_location) -> ([]byte, mem.Allocator_Error) {
+                            size, alignment: uint,
+                            old_memory: rawptr, old_size: uint, loc := #caller_location) -> ([]byte, mem.Allocator_Error) {
     //
     // NOTE(tetra, 2020-01-14): The heap doesn't respect alignment.
     // Instead, we overallocate by `alignment + size_of(rawptr) - 1`, and insert
@@ -19,7 +19,7 @@ heap_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
     // the pointer we return to the user.
     //
 
-    aligned_alloc :: proc(size, alignment: int, old_ptr: rawptr, old_size: int, zero_memory := true) -> ([]byte, mem.Allocator_Error) {
+    aligned_alloc :: proc(size, alignment: uint, old_ptr: rawptr, old_size: uint, zero_memory := true) -> ([]byte, mem.Allocator_Error) {
         // Not(flysand): We need to reserve enough space for alignment, which
         // includes the user data itself, the space to store the pointer to
         // allocation start, as well as the padding required to align both
@@ -63,7 +63,7 @@ heap_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
         }
     }
 
-    aligned_resize :: proc(p: rawptr, old_size: int, new_size: int, new_alignment: int, zero_memory := true) -> (new_memory: []byte, err: mem.Allocator_Error) {
+    aligned_resize :: proc(p: rawptr, old_size: uint, new_size: uint, new_alignment: uint, zero_memory := true) -> (new_memory: []byte, err: mem.Allocator_Error) {
         if p == nil {
             return aligned_alloc(new_size, new_alignment, nil, old_size, zero_memory)
         }
@@ -108,11 +108,11 @@ heap_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
 }
 
 
-heap_alloc :: proc(size: int, zero_memory := true) -> rawptr {
+heap_alloc :: proc(size: uint, zero_memory := true) -> rawptr {
     return _heap_alloc(size, zero_memory)
 }
 
-heap_resize :: proc(ptr: rawptr, new_size: int) -> rawptr {
+heap_resize :: proc(ptr: rawptr, new_size: uint) -> rawptr {
     return _heap_resize(ptr, new_size)
 }
 

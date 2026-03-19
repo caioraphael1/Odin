@@ -1,7 +1,7 @@
 #+private
 import "base:mem"
 import "base:mem/allocators"
-import "base:slice"
+import "base:container/slice"
 
 import win32 "core:sys/windows"
 

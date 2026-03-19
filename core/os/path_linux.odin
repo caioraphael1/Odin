@@ -1,8 +1,8 @@
 #+private
 import "base:internal"
 
-import "base:strings"
-import "core:strconv"
+import "base:container/strings"
+import "base:strconv"
 import "core:sys/linux"
 
 _Path_Separator        :: '/'

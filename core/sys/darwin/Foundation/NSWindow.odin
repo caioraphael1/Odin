@@ -1,4 +1,4 @@
-import "base:strings"
+import "base:container/strings"
 import "base:internal"
 import "base:intrinsics"
 

@@ -792,7 +792,7 @@ gb_internal LLVMMetadataRef lb_debug_type_internal(lbModule *m, Type *type) {
 
                 LLVMMetadataRef elements[2] = {};
                 elements[0] = lb_debug_struct_field(m, str_lit("data"), t_u8_ptr, 0);
-                elements[1] = lb_debug_struct_field(m, str_lit("len"),  t_int, int_bits);
+                elements[1] = lb_debug_struct_field(m, str_lit("len"),  t_uint, int_bits);
                 return lb_debug_basic_struct(m, str_lit("string"), 2*int_bits, int_bits, elements, gb_count_of(elements));
             }
         case Basic_cstring:
@@ -807,7 +807,7 @@ gb_internal LLVMMetadataRef lb_debug_type_internal(lbModule *m, Type *type) {
 
                 LLVMMetadataRef elements[2] = {};
                 elements[0] = lb_debug_struct_field(m, str_lit("data"), t_u16_ptr, 0);
-                elements[1] = lb_debug_struct_field(m, str_lit("len"),  t_int, int_bits);
+                elements[1] = lb_debug_struct_field(m, str_lit("len"),  t_uint, int_bits);
                 return lb_debug_basic_struct(m, str_lit("string16"), 2*int_bits, int_bits, elements, gb_count_of(elements));
             }
         case Basic_cstring16:

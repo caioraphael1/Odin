@@ -3,18 +3,18 @@ import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
 import "base:math"
-import "base:slice"
-import "base:dyn_array"
-import "base:maps"
-import "base:strings"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/maps"
+import "base:container/strings"
 
 import "core:strings_tools"
 import "core:math/bits"
 import "core:io"
 import "core:reflect"
-import "core:strconv"
+import "base:strconv"
 import "core:time"
-import "core:unicode/utf8"
+import "base:unicode/utf8"
 
 // Internal data structure that stores the required information for formatted printing
 Info :: struct {
@@ -749,7 +749,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
                 continue loop
             }
 
-            verb, w := utf8.decode_rune_in_string(fmt[i:])
+            verb, w := utf8.rune_from_string(fmt[i:])
             i += w
 
             if index_ok {
@@ -789,7 +789,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
                 }
 
                 w: int = 1
-                verb, w = utf8.decode_rune_in_string(fmt[i:])
+                verb, w = utf8.rune_from_string(fmt[i:])
                 i += w
             }
 
@@ -798,7 +798,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
                 break loop
             }
 
-            brace, w := utf8.decode_rune_in_string(fmt[i:])
+            brace, w := utf8.rune_from_string(fmt[i:])
             i += w
 
             switch {
@@ -1379,7 +1379,7 @@ _pad :: proc(fi: ^Info, s: string) {
     }
 
 
-    width := fi.width - utf8.rune_count_in_string(s)
+    width := fi.width - utf8.string_rune_count(s)
     if fi.minus { // right pad
         _, _ = io.write_string(fi.writer, s, &fi.n)
         fmt_write_padding(fi, width)
@@ -2029,7 +2029,7 @@ handle_tag :: proc(state: ^Info_State, data: rawptr, info: reflect.Type_Info_Str
         if i >= len(head) || head[i] == ' ' {
             r = 'v'
         } else {
-            r, _ = utf8.decode_rune_in_string(head[i:])
+            r, _ = utf8.rune_from_string(head[i:])
         }
         if verb^ == 'w' {
             // TODO(bill): is this a good idea overriding that field tags if 'w' is used?
@@ -2834,7 +2834,7 @@ fmt_bit_field :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Bi
             case "": return false
             case "-": return true
             }
-            r, w := utf8.decode_rune_in_string(value)
+            r, w := utf8.rune_from_string(value)
             value = value[w:]
             if value == "" || value[0] == ',' {
                 verb^ = r

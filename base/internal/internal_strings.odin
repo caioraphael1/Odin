@@ -6,14 +6,14 @@
 
 Raw_String :: struct {
     data: [^]byte,
-    len:  int,
+    len:  uint,
 }
 
 __string_cmp :: proc(a, b: string) -> int {
     x := transmute(Raw_String)a
     y := transmute(Raw_String)b
 
-    ret := __mem_compare(x.data, y.data, min(x.len, y.len))
+    ret := __mem_compare(x.data, y.data, uint(min(x.len, y.len)))
     if ret == 0 && x.len != y.len {
         return -1 if x.len < y.len else +1
     }
@@ -34,7 +34,7 @@ __string_gt :: #force_inline proc(a, b: string) -> bool { return __string_cmp(a,
 __string_le :: #force_inline proc(a, b: string) -> bool { return __string_cmp(a, b) <= 0 }
 __string_ge :: #force_inline proc(a, b: string) -> bool { return __string_cmp(a, b) >= 0 }
 
-__string_decode_rune :: proc(s: string) -> (rune, int) {
+__string_decode_rune :: proc(s: string) -> (rune, uint) {
     // NOTE(bill): Duplicated here to remove dependency on package unicode/utf8
 
     @(static, rodata) accept_sizes := [256]u8{
@@ -89,7 +89,7 @@ __string_decode_rune :: proc(s: string) -> (rune, int) {
     }
     sz := x & 7
     accept := accept_ranges[x>>4]
-    if n < int(sz) {
+    if n < uint(sz) {
         return RUNE_ERROR, 1
     }
     b1 := s[1]
@@ -113,14 +113,14 @@ __string_decode_rune :: proc(s: string) -> (rune, int) {
     return rune(s0&MASK4)<<18 | rune(b1&MASKX)<<12 | rune(b2&MASKX)<<6 | rune(b3&MASKX), 4
 }
 
-__string_decode_last_rune :: proc(s: string) -> (rune, int) {
+__string_decode_last_rune :: proc(s: string) -> (rune, uint) {
     RUNE_ERROR :: '\ufffd'
     RUNE_SELF  :: 0x80
     UTF_MAX    :: 4
 
     r: rune
-    size: int
-    start, end, limit: int
+    size: uint
+    start, end, limit: uint
 
     end = len(s)
     if end == 0 {
@@ -155,7 +155,7 @@ __string_decode_last_rune :: proc(s: string) -> (rune, int) {
 
 Raw_String16 :: struct {
     data: [^]u16,
-    len:  int,
+    len:  uint,
 }
 
 
@@ -176,7 +176,7 @@ string16_cmp :: proc(a, b: string16) -> int {
     x := transmute(Raw_String16)a
     y := transmute(Raw_String16)b
 
-    ret := __mem_compare(x.data, y.data, min(x.len, y.len)*size_of(u16))
+    ret := __mem_compare(x.data, y.data, uint(min(x.len, y.len)) * size_of(u16))
     if ret == 0 && x.len != y.len {
         return -1 if x.len < y.len else +1
     }
@@ -194,13 +194,13 @@ Raw_Cstring :: struct {
 #assert(size_of(Raw_Cstring) == size_of(cstring))
 
 
-__cstring_len :: proc(s: cstring) -> int {
+__cstring_len :: proc(s: cstring) -> uint {
     p0 := uintptr((^byte)(s))
     p := p0
     for p != 0 && (^byte)(p)^ != 0 {
         p += 1
     }
-    return int(p - p0)
+    return uint(p - p0)
 }
 
 
@@ -246,7 +246,7 @@ cstring_cmp :: proc(lhs, rhs: cstring) -> int {
     }
     xn := __cstring_len(lhs)
     yn := __cstring_len(rhs)
-    ret := __mem_compare(x, y, min(xn, yn))
+    ret := __mem_compare(x, y, uint(min(xn, yn)))
     if ret == 0 && xn != yn {
         return -1 if xn < yn else +1
     }
@@ -263,9 +263,9 @@ Raw_Cstring16 :: struct {
 }
 #assert(size_of(Raw_Cstring16) == size_of(cstring16))
 
-__cstring16_len :: proc(s: cstring16) -> int {
+__cstring16_len :: proc(s: cstring16) -> uint {
     p := ([^]u16)(s)
-    n := 0
+    n: uint
     for p != nil && p[0] != 0 {
         p = p[1:]
         n += 1
@@ -316,14 +316,14 @@ cstring16_cmp :: proc(lhs, rhs: cstring16) -> int {
     }
     xn := __cstring16_len(lhs)
     yn := __cstring16_len(rhs)
-    ret := __mem_compare(x, y, min(xn, yn)*size_of(u16))
+    ret := __mem_compare(x, y, uint(min(xn, yn)) * size_of(u16))
     if ret == 0 && xn != yn {
         return -1 if xn < yn else +1
     }
     return ret
 }
 
-__string16_decode_rune :: proc(s: string16) -> (rune, int) {
+__string16_decode_rune :: proc(s: string16) -> (rune, uint) {
     REPLACEMENT_CHAR :: '\ufffd'
     _surr1           :: 0xd800
     _surr2           :: 0xdc00
@@ -336,7 +336,7 @@ __string16_decode_rune :: proc(s: string16) -> (rune, int) {
         return r, 0
     }
 
-    w := 1
+    w: uint = 1
     switch c := s[0]; {
     case c < _surr1, _surr3 <= c:
         r = rune(c)
@@ -351,7 +351,7 @@ __string16_decode_rune :: proc(s: string16) -> (rune, int) {
     return r, w
 }
 
-__string16_decode_last_rune :: proc(s: string16) -> (rune, int) {
+__string16_decode_last_rune :: proc(s: string16) -> (rune, uint) {
     REPLACEMENT_CHAR :: '\ufffd'
     _surr1           :: 0xd800
     _surr2           :: 0xdc00
@@ -366,7 +366,7 @@ __string16_decode_last_rune :: proc(s: string16) -> (rune, int) {
 
     n := len(s)-1
     c := s[n]
-    w := 1
+    w: uint = 1
     if _surr2 <= c && c < _surr3 {
         if n >= 1 {
             r1 := rune(s[n-1])

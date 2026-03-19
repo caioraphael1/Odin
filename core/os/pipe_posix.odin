@@ -2,7 +2,7 @@
 #+build darwin, netbsd, freebsd, openbsd
 import "base:internal"
 import "core:sys/posix"
-import "base:strings"
+import "base:container/strings"
 
 _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     fds: [2]posix.FD

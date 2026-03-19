@@ -8,14 +8,14 @@
 
 import "base:internal"
 import "base:mem"
-import "base:dyn_array"
+import "base:container/dyn_array"
 
 import "core:strings_tools"
-import "core:strconv"
+import "base:strconv"
 import "core:text/regex/common"
 import "core:text/regex/tokenizer"
-import "core:unicode"
-import "core:unicode/utf8"
+import "base:unicode"
+import "base:unicode/utf8"
 
 Token      :: tokenizer.Token
 Token_Kind :: tokenizer.Token_Kind
@@ -229,7 +229,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
         node.ranges.allocator = allocator
 
         #no_bounds_check for i := 0; i < len(token.text); /**/ {
-            r, size := utf8.decode_rune_in_string(token.text[i:])
+            r, size := utf8.rune_from_string(token.text[i:])
             if i == 0 && r == '^' {
                 node.negating = true
                 i += size
@@ -240,7 +240,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             internal.assert(size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
 
             if r == '\\' {
-                next_r, next_size := utf8.decode_rune_in_string(token.text[i:])
+                next_r, next_size := utf8.rune_from_string(token.text[i:])
                 i += next_size
                 internal.assert(next_size > 0, "RegEx tokenizer passed an incomplete Rune_Class to the parser.")
 
@@ -287,7 +287,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
             }
 
             if r == '-' && len(node.runes) > 0 {
-                next_r, next_size := utf8.decode_rune_in_string(token.text[i:])
+                next_r, next_size := utf8.rune_from_string(token.text[i:])
                 if next_size > 0 {
                     last := dyn_array.pop(&node.runes)
                     i += next_size

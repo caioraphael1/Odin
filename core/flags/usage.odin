@@ -2,9 +2,9 @@ import "base:internal"
 import "core:fmt"
 import "core:io"
 import "core:reflect"
-import "base:slice"
-import "core:strconv"
-import "base:strings"
+import "base:container/slice"
+import "base:strconv"
+import "base:container/strings"
 import "base:mem"
 
 /*

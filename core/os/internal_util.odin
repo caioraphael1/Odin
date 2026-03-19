@@ -3,7 +3,7 @@ import "base:intrinsics"
 import "base:internal"
 import "base:mem"
 import "base:rand"
-import "base:slice"
+import "base:container/slice"
 
 
 // Splits pattern by the last wildcard "*", if it exists, and returns the prefix and suffix

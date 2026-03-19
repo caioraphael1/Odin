@@ -4,7 +4,7 @@
 
 import "base:intrinsics"
 import "base:internal"
-import "base:strings"
+import "base:container/strings"
 import "core:c"
 
 // NOTE: Relies on C++23 which adds <stacktrace> and becomes ABI and that can be used

@@ -1,23 +1,23 @@
 import "base:internal"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 /*
 Stack allocator data.
 */
 Stack :: struct {
     data:        []byte,
-    prev_offset: int,
-    curr_offset: int,
-    peak_used:   int,
+    prev_offset: uint,
+    curr_offset: uint,
+    peak_used:   uint,
 }
 
 /*
 Header of a stack allocation.
 */
 Stack_Allocation_Header :: struct {
-    prev_offset: int,
-    padding:     int,
+    prev_offset: uint,
+    padding:     uint,
 }
 
 /*
@@ -67,9 +67,9 @@ procedure returns the pointer to the allocated memory.
 */
 
 stack_alloc :: proc(
-    s:    ^Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := stack_alloc_bytes(s, size, alignment, loc)
@@ -85,9 +85,9 @@ procedure returns the slice of the allocated memory.
 */
 
 stack_alloc_bytes :: proc(
-    s:    ^Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
@@ -106,9 +106,9 @@ zero-initialized. This procedure returns the pointer to the allocated memory.
 */
 
 stack_alloc_non_zeroed :: proc(
-    s:    ^Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
@@ -124,9 +124,9 @@ zero-initialized. This procedure returns the slice of the allocated memory.
 */
 @(no_sanitize_address)
 stack_alloc_bytes_non_zeroed :: proc(
-    s:    ^Stack,
-    size: int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Stack,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> ([]byte, mem.Allocator_Error) {
     if s.data == nil {
@@ -185,7 +185,7 @@ stack_free :: proc(
         return nil
     }
     header := (^Stack_Allocation_Header)(curr_addr - size_of(Stack_Allocation_Header))
-    old_offset := int(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
+    old_offset := uint(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
     if old_offset != s.prev_offset {
         return .Invalid_Pointer
     }
@@ -226,9 +226,9 @@ This procedure returns the pointer to the resized memory region.
 stack_resize :: proc(
     s:          ^Stack,
     old_memory: rawptr,
-    old_size:   int,
-    size:       int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    old_size:   uint,
+    size:       uint,
+    alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := stack_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment)
@@ -253,11 +253,11 @@ This procedure returns the slice of the resized memory region.
 */
 
 stack_resize_bytes :: proc(
-    s:        ^Stack,
-    old_data: []byte,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    s:         ^Stack,
+    old_data:  []byte,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
+    loc        := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     bytes, err := stack_resize_bytes_non_zeroed(s, old_data, size, alignment, loc)
     if err == nil {
@@ -290,10 +290,10 @@ This procedure returns the pointer to the resized memory region.
 stack_resize_non_zeroed :: proc(
     s:          ^Stack,
     old_memory: rawptr,
-    old_size:   int,
-    size:       int,
-    alignment := mem.DEFAULT_ALIGNMENT,
-    loc       := #caller_location,
+    old_size:   uint,
+    size:       uint,
+    alignment:  uint = mem.DEFAULT_ALIGNMENT,
+    loc         := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
     bytes, err := stack_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment)
     return raw_data(bytes), err
@@ -317,10 +317,10 @@ This procedure returns the slice of the resized memory region.
 */
 
 stack_resize_bytes_non_zeroed :: proc(
-    s:        ^Stack,
-    old_data: []byte,
-    size:     int,
-    alignment := mem.DEFAULT_ALIGNMENT,
+    s:         ^Stack,
+    old_data:  []byte,
+    size:      uint,
+    alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     old_memory := raw_data(old_data)
@@ -358,7 +358,7 @@ stack_resize_bytes_non_zeroed :: proc(
         return slice.bytes(old_memory, size), nil
     }
     header := (^Stack_Allocation_Header)(curr_addr - size_of(Stack_Allocation_Header))
-    old_offset := int(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
+    old_offset := uint(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
     if old_offset != header.prev_offset {
         data, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
         if err == nil {
@@ -385,10 +385,10 @@ stack_resize_bytes_non_zeroed :: proc(
 stack_allocator_proc :: proc(
     allocator_data: rawptr,
     mode:           mem.Allocator_Mode,
-    size:           int,
-    alignment:      int,
+    size:           uint,
+    alignment:      uint,
     old_memory:     rawptr,
-    old_size:       int,
+    old_size:       uint,
     loc := #caller_location,
 ) -> ([]byte, mem.Allocator_Error) {
     s := cast(^Stack)allocator_data

@@ -2754,7 +2754,7 @@ gb_internal void init_map_internal_debug_types(Type *type) {
     Type *debug_type = alloc_type_struct();
     debug_type->Struct.fields = permanent_slice_make<Entity *>(3);
     debug_type->Struct.fields[0] = alloc_entity_field(scope, make_token_ident("data"),       metadata_type, false, 0, EntityState_Resolved);
-    debug_type->Struct.fields[1] = alloc_entity_field(scope, make_token_ident("len"),        t_int,         false, 1, EntityState_Resolved);
+    debug_type->Struct.fields[1] = alloc_entity_field(scope, make_token_ident("len"),        t_uint,        false, 1, EntityState_Resolved);
     debug_type->Struct.fields[2] = alloc_entity_field(scope, make_token_ident("allocator"),  t_allocator,   false, 2, EntityState_Resolved);
     debug_type->Struct.scope = scope;
     debug_type->Struct.node = nullptr;

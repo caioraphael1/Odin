@@ -1,5 +1,5 @@
 import "core:strings_tools"
-import "core:unicode/utf8"
+import "base:unicode/utf8"
 
 Match_Error :: enum {
     None,
@@ -106,7 +106,7 @@ match_chunk :: proc(chunk, s: string) -> (rest: string, ok: bool, err: Match_Err
         }
         switch chunk[0] {
         case '[':
-            r, w := utf8.decode_rune_in_string(s)
+            r, w := utf8.rune_from_string(s)
             s = s[w:]
             chunk = chunk[1:]
             is_negated := false
@@ -145,7 +145,7 @@ match_chunk :: proc(chunk, s: string) -> (rest: string, ok: bool, err: Match_Err
             if s[0] == '/' {
                 return
             }
-            _, w := utf8.decode_rune_in_string(s)
+            _, w := utf8.rune_from_string(s)
             s = s[w:]
             chunk = chunk[1:]
 
@@ -184,7 +184,7 @@ get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Match_Er
     }
 
     w: int
-    r, w = utf8.decode_rune_in_string(chunk)
+    r, w = utf8.rune_from_string(chunk)
     if r == utf8.RUNE_ERROR && w == 1 {
         err = .Syntax_Error
     }

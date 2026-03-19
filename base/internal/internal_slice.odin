@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 @(no_instrumentation)
-slice_handle_error :: proc(file: string, line, column: i32, lo, hi: int, len: int) -> ! {
+slice_handle_error :: proc(file: string, line, column: i32, lo, hi: uint, len: uint) -> ! {
     print_caller_location(Source_Code_Location{file, line, column, ""})
     print_string(" Invalid slice indices ")
     print_i64(i64(lo))
@@ -17,17 +17,17 @@ slice_handle_error :: proc(file: string, line, column: i32, lo, hi: int, len: in
 }
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
-slice_expr_error_hi_loc :: #force_inline proc(loc := #caller_location, hi: int, len: int) {
+slice_expr_error_hi_loc :: #force_inline proc(loc := #caller_location, hi: uint, len: uint) {
     __slice_expr_error_hi(loc.file_path, loc.line, loc.column, hi, len)
 }
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
-slice_expr_error_lo_hi_loc :: #force_inline proc(loc := #caller_location, lo, hi: int, len: int) {
+slice_expr_error_lo_hi_loc :: #force_inline proc(loc := #caller_location, lo, hi: uint, len: uint) {
     __slice_expr_error_lo_hi(loc.file_path, loc.line, loc.column, lo, hi, len)
 }
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
-__slice_expr_error_hi :: proc(file: string, line, column: i32, hi: int, len: int) {
+__slice_expr_error_hi :: proc(file: string, line, column: i32, hi: uint, len: uint) {
     if 0 <= hi && hi <= len {
         return
     }
@@ -35,7 +35,7 @@ __slice_expr_error_hi :: proc(file: string, line, column: i32, hi: int, len: int
 }
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
-__slice_expr_error_lo_hi :: proc(file: string, line, column: i32, lo, hi: int, len: int) {
+__slice_expr_error_lo_hi :: proc(file: string, line, column: i32, lo, hi: uint, len: uint) {
     if 0 <= lo && lo <= len && lo <= hi && hi <= len {
         return
     }
@@ -43,12 +43,12 @@ __slice_expr_error_lo_hi :: proc(file: string, line, column: i32, lo, hi: int, l
 }
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
-slice_create_error_loc :: #force_inline proc(loc := #caller_location, len: int) {
-    if 0 <= len {
+slice_create_error_loc :: #force_inline proc(loc := #caller_location, len: uint) {
+    if 0 == len {
         return
     }
     @(cold, no_instrumentation)
-    handle_error :: proc(loc: Source_Code_Location, len: int) -> ! {
+    handle_error :: proc(loc: Source_Code_Location, len: uint) -> ! {
         print_caller_location(loc)
         print_string(" Invalid slice length for make: ")
         print_i64(i64(len))

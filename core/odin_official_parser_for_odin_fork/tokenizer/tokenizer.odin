@@ -2,8 +2,8 @@
 package odin_tokenizer
 
 import "core:fmt"
-import "core:unicode"
-import "core:unicode/utf8"
+import "base:unicode"
+import "base:unicode/utf8"
 
 Error_Handler :: #type proc(pos: Pos, fmt: string, args: ..any)
 
@@ -89,7 +89,7 @@ advance_rune :: proc(t: ^Tokenizer) {
 		case r == 0:
 			error(t, t.offset, "illegal character NUL")
 		case r >= utf8.RUNE_SELF:
-			r, w = utf8.decode_rune_in_string(t.src[t.read_offset:])
+			r, w = utf8.rune_from_string(t.src[t.read_offset:])
 			if r == utf8.RUNE_ERROR && w == 1 {
 				error(t, t.offset, "illegal UTF-8 encoding")
 			} else if r == utf8.RUNE_BOM && t.offset > 0 {

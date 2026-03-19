@@ -101,7 +101,7 @@ wasm_allocator :: proc(a: ^WASM_Allocator) -> Allocator {
     }
 }
 
-wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: int, old_memory: rawptr, old_size: int, loc := #caller_location) -> ([]byte, Allocator_Error) {
+wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: uint, old_memory: rawptr, old_size: uint, loc := #caller_location) -> ([]byte, Allocator_Error) {
     a := (^WASM_Allocator)(a)
     if a == nil {
         a = &global_default_wasm_allocator_data
@@ -469,7 +469,7 @@ claim_more_memory :: proc(a: ^WASM_Allocator, num_bytes: uint) -> bool {
 
     PAGE_SIZE :: 64 * 1024
 
-    page_alloc :: proc(page_count: int) -> []byte {
+    page_alloc :: proc(page_count: uint) -> []byte {
         prev_page_count := intrinsics.wasm_memory_grow(0, uintptr(page_count))
         if prev_page_count < 0 { return nil }
 
@@ -484,7 +484,7 @@ claim_more_memory :: proc(a: ^WASM_Allocator, num_bytes: uint) -> bool {
             return
         }
 
-        pages := int((num_bytes / PAGE_SIZE) + 1)
+        pages := uint((num_bytes / PAGE_SIZE) + 1)
         allocated := page_alloc(pages)
         if allocated == nil { return nil }
 

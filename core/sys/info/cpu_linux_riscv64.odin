@@ -4,8 +4,8 @@
 import "base:intrinsics"
 import "base:internal"
 import "core:sys/linux"
-import "core:strconv"
-import "base:strings"
+import "base:strconv"
+import "base:container/strings"
 
 // @(init)
 init_cpu_features :: proc() {

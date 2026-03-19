@@ -1,8 +1,8 @@
 // Reader and writer for a variant of the `.ini` file format with `key = value` entries in `[sections]`.
 import "base:internal"
 import "base:intrinsics"
-import "base:strings"
-import "core:strconv"
+import "base:container/strings"
+import "base:strconv"
 import "core:io"
 import "core:os"
 import "core:fmt"

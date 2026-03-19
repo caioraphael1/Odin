@@ -1,8 +1,8 @@
 #+build !freestanding, wasm32, wasm64p32
 import "base:internal"
 import "base:mem"
-import "base:maps"
-import "base:dyn_array"
+import "base:container/maps"
+import "base:container/dyn_array"
 
 import "core:sync"
 

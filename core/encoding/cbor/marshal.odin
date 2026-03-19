@@ -5,10 +5,10 @@ import "core:bytes"
 import "core:io"
 import "base:mem"
 import "core:reflect"
-import "base:slice"
-import "core:strconv"
-import "base:strings"
-import "core:unicode/utf8"
+import "base:container/slice"
+import "base:strconv"
+import "base:container/strings"
+import "base:unicode/utf8"
 
 /*
 Marshal a value into binary CBOR.
@@ -146,7 +146,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
         }
 
     case internal.Type_Info_Rune:
-        buf, w := utf8.encode_rune(a.(rune))
+        buf, w := utf8.bytes_from_rune(a.(rune))
         return err_conv(_encode_text(e, string(buf[:w])))
 
     case internal.Type_Info_Float:
@@ -334,7 +334,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
             // This fits in 9 bytes at most.
             pre_key :: #force_inline proc(e: Encoder, str: string) -> (res: [10]byte) {
                 e := e
-                builder := strings_tools.builder_from_slice(res[:])
+                builder := strings_tools.builder_from_bytes(res[:])
                 e.writer = strings_tools.to_stream(&builder)
 
                 err := _encode_u64(e, u64(len(str)), .Text)

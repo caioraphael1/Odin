@@ -5,7 +5,7 @@ import "../ast"
 import "core:path/filepath"
 import "core:fmt"
 import "core:os"
-import "base:slice"
+import "base:container/slice"
 import "core:strings"
 
 collect_package :: proc(path: string) -> (pkg: ^ast.Package, success: bool) {

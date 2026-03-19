@@ -2,8 +2,8 @@
 #+build linux
 import "base:internal"
 import "core:sys/linux"
-import "base:strings"
-import "core:strconv"
+import "base:container/strings"
+import "base:strconv"
 
 @(private)
 _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {

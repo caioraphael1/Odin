@@ -7,7 +7,7 @@
 */
 import "base:intrinsics"
 import "base:mem"
-import "base:maps"
+import "base:container/maps"
 
 import "core:io"
 import "core:text/regex/common"

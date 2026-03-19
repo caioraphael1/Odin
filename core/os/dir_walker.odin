@@ -1,10 +1,10 @@
 import "base:internal"
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
-import "base:strings"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/strings"
 
-import "base:dyn_queue"
+import "base:container/dyn_queue"
 
 /*
 A recursive directory walker.
@@ -120,7 +120,7 @@ Example:
     package main
 
     import "core:fmt"
-    import "base:strings"
+    import "base:container/strings"
     import "core:os"
 
     main :: proc() {

@@ -19,9 +19,9 @@
 */
 
 import "base:mem"
-import "base:slice"
-import "base:dyn_array"
-import "base:strings"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:container/strings"
 
 import "core:strings_tools"
 import sys "core:sys/windows"

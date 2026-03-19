@@ -3,9 +3,9 @@ import "core:bytes"
 import "core:fmt"
 import "core:image"
 import "base:mem"
-import "core:strconv"
-import "base:strings"
-import "core:unicode"
+import "base:strconv"
+import "base:container/strings"
+import "base:unicode"
 import "base:internal"
 
 Image        :: image.Image

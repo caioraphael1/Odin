@@ -2,13 +2,13 @@
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 
 import "core:io"
 import "core:sync"
 import "core:time"
-import "core:unicode/utf16"
+import "base:unicode/utf16"
 import win32 "core:sys/windows"
 
 INVALID_HANDLE :: ~uintptr(0)

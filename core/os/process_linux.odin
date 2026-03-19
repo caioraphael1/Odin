@@ -6,9 +6,9 @@ import "base:internal"
 import "base:intrinsics"
 
 import "core:time"
-import "base:slice"
-import "base:strings"
-import "core:strconv"
+import "base:container/slice"
+import "base:container/strings"
+import "base:strconv"
 import "core:sys/linux"
 
 PIDFD_UNASSIGNED  :: ~uintptr(0)
@@ -174,7 +174,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     }
 
     cmdline_if: if selection & {.Working_Dir, .Command_Line, .Command_Args} != {} {
-        strings_tools.builder_reset(&path_builder)
+        strings_tools.builder_clear(&path_builder)
         strings_tools.write_string(&path_builder, "/proc/")
         strings_tools.write_int(&path_builder, pid)
         strings_tools.write_string(&path_builder, "/cmdline")
@@ -195,7 +195,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         cwd: string
         cwd_err: Error
         if .Working_Dir in selection {
-            strings_tools.builder_reset(&path_builder)
+            strings_tools.builder_clear(&path_builder)
             strings_tools.write_string(&path_builder, "/proc/")
             strings_tools.write_int(&path_builder, pid)
             strings_tools.write_string(&path_builder, "/cwd")
@@ -251,7 +251,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     }
 
     stat_if: if selection & {.PPid, .Priority} != {} {
-        strings_tools.builder_reset(&path_builder)
+        strings_tools.builder_clear(&path_builder)
         strings_tools.write_string(&path_builder, "/proc/")
         strings_tools.write_int(&path_builder, pid)
         strings_tools.write_string(&path_builder, "/stat")
@@ -333,7 +333,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         Thanks to Yawning for suggesting `/proc/self/exe`.
         */
 
-        strings_tools.builder_reset(&path_builder)
+        strings_tools.builder_clear(&path_builder)
         strings_tools.write_string(&path_builder, "/proc/")
         strings_tools.write_int(&path_builder, pid)
         strings_tools.write_string(&path_builder, "/exe")
@@ -347,7 +347,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     }
 
     if .Environment in selection {
-        strings_tools.builder_reset(&path_builder)
+        strings_tools.builder_clear(&path_builder)
         strings_tools.write_string(&path_builder, "/proc/")
         strings_tools.write_int(&path_builder, pid)
         strings_tools.write_string(&path_builder, "/environ")
@@ -432,7 +432,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
 
         found: bool
         for dir in path_dirs {
-            strings_tools.builder_reset(&exe_builder)
+            strings_tools.builder_clear(&exe_builder)
             strings_tools.write_string(&exe_builder, dir)
             strings_tools.write_byte(&exe_builder, '/')
             strings_tools.write_string(&exe_builder, executable_name)
@@ -446,7 +446,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         }
         if !found {
             // check in cwd to match windows behavior
-            strings_tools.builder_reset(&exe_builder)
+            strings_tools.builder_clear(&exe_builder)
             strings_tools.write_string(&exe_builder, "./")
             strings_tools.write_string(&exe_builder, executable_name)
 

@@ -4,8 +4,8 @@ import "base:mem"
 import "core:bufio"
 import "core:bytes"
 import "core:io"
-import "base:strings"
-import "core:unicode/utf8"
+import "base:container/strings"
+import "base:unicode/utf8"
 
 // Reader is a data structure used for reading records from a CSV-encoded file
 //
@@ -224,7 +224,7 @@ is_valid_delim :: proc(r: rune) -> bool {
     case 0, '"', '\r', '\n', utf8.RUNE_ERROR:
         return false
     }
-    return utf8.valid_rune(r)
+    return utf8.rune_is_valid(r)
 }
 
 @(private)
@@ -290,7 +290,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
                     field_length += 1
                 }
 
-                rune_buf, rune_len := utf8.encode_rune(cur)
+                rune_buf, rune_len := utf8.bytes_from_rune(cur)
                 _ = dyn_array.append_many(&r.raw_buffer, ..rune_buf[:rune_len])
             }
 
@@ -309,7 +309,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
 
     
     next_rune :: proc(b: []byte) -> rune {
-        r, _ := utf8.decode_rune_in_bytes(b)
+        r, _ := utf8.rune_from_bytes(b)
         return r
     }
 
@@ -365,7 +365,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
 
             if !r.lazy_quotes {
                 if j := bytes.index_byte(field, '"'); j >= 0 {
-                    column := utf8.rune_count_in_bytes(full_line[:len(full_line) - len(line[j:])])
+                    column := utf8.bytes_rune_count(full_line[:len(full_line) - len(line[j:])])
                     err = Reader_Error{
                         kind = .Bare_Quote,
                         start_line = record_line,
@@ -405,7 +405,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
                     case r.lazy_quotes: // bare quote
                         _ = dyn_array.append(&r.record_buffer, '"')
                     case: // invalid non-escaped quote
-                        column := utf8.rune_count_in_bytes(full_line[:len(full_line) - len(line) - quote_len])
+                        column := utf8.bytes_rune_count(full_line[:len(full_line) - len(line) - quote_len])
                         err = Reader_Error{
                             kind = .Quote,
                             start_line = record_line,
@@ -428,7 +428,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
 
                 case:
                     if !r.lazy_quotes && err_read == nil {
-                        column := utf8.rune_count_in_bytes(full_line)
+                        column := utf8.bytes_rune_count(full_line)
                         err = Reader_Error{
                             kind = .Quote,
                             start_line = record_line,

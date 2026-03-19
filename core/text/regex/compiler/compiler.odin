@@ -9,13 +9,13 @@
 import "base:internal"
 import "base:intrinsics"
 import "base:mem"
-import "base:dyn_array"
+import "base:container/dyn_array"
 
 import "core:text/regex/common"
 import "core:text/regex/parser"
 import "core:text/regex/tokenizer"
 import "core:text/regex/virtual_machine"
-import "core:unicode"
+import "base:unicode"
 
 Token      :: tokenizer.Token
 Token_Kind :: tokenizer.Token_Kind

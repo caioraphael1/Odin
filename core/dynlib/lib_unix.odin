@@ -1,7 +1,7 @@
 #+build linux, darwin, freebsd, openbsd, netbsd
 #+private
 import "base:mem"
-import "base:strings"
+import "base:container/strings"
 
 import "core:sys/posix"
 

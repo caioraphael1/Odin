@@ -9,7 +9,7 @@
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
-import "base:slice"
+import "base:container/slice"
 
 import "core:text/regex/common"
 import "core:text/regex/compiler"

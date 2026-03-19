@@ -3,7 +3,7 @@ import "base:internal"
 import "base:intrinsics"
 import "base:math"
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 
 /*
@@ -996,7 +996,7 @@ Possible Output:
 
 */
 
-read :: proc(p: []byte, gen: Random_Generator) -> (n: int) {
+read :: proc(p: []byte, gen: Random_Generator) -> (n: uint) {
     if !random_generator_read_bytes(gen, p) {return 0}
     return len(p)
 }

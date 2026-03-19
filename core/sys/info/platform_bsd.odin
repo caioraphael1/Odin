@@ -1,7 +1,7 @@
 #+build openbsd, netbsd
 
 import "base:internal"
-import "base:strings"
+import "base:container/strings"
 import sys "core:sys/unix"
 
 _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {

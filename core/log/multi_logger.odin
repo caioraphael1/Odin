@@ -1,5 +1,5 @@
 import "base:mem"
-import "base:slice"
+import "base:container/slice"
 
 
 Multi_Logger_Data :: struct {

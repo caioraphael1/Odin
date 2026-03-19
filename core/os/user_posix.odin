@@ -1,6 +1,6 @@
 #+build !windows
 import "base:internal"
-import "base:strings"
+import "base:container/strings"
 
 _user_cache_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 	#partial switch ODIN_OS {

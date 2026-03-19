@@ -4,7 +4,7 @@
 
 import "base:internal"
 import "base:mem"
-import "base:strings"
+import "base:container/strings"
 
 import "core:fmt"
 import "core:os"

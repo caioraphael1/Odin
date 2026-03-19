@@ -12,7 +12,7 @@ import "base:mem"
 import "core:image"
 import "core:bytes"
 import "core:compress"
-import "base:strings"
+import "base:container/strings"
 
 // TODO: alpha_premultiply support
 

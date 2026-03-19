@@ -6,7 +6,7 @@ import "base:math"
 import "core:math/big"
 import "base:mem"
 import "core:reflect"
-import "base:strings"
+import "base:container/strings"
 import "core:time"
 
 // Tags defined in RFC 7049 that we provide implementations for.

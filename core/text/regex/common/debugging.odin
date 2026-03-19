@@ -8,7 +8,7 @@
 */
 
 import "base:mem"
-import "base:strings"
+import "base:container/strings"
 
 import "core:io"
 import "core:strings_tools"

@@ -3,8 +3,8 @@ import "base:internal"
 import "base:intrinsics"
 
 import "core:sync"
-import "base:slice"
-import "base:strings"
+import "base:container/slice"
+import "base:container/strings"
 import "core:sys/linux"
 import "core:sys/posix"
 

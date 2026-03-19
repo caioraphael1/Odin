@@ -1,6 +1,6 @@
 import "base:internal"
 
-import "base:strings"
+import "base:container/strings"
 import "core:sys/posix"
 
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
@@ -39,7 +39,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 
 	paths := get_env("PATH", allocators.temp_allocator)
 	for dir in strings_tools.split_iterator(&paths, ":") {
-		strings_tools.builder_reset(&buf)
+		strings_tools.builder_clear(&buf)
 		strings_tools.write_string(&buf, dir)
 		strings_tools.write_string(&buf, "/")
 		strings_tools.write_string(&buf, sarg)
