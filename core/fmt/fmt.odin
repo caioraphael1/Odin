@@ -7,14 +7,14 @@ import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/maps"
 import "base:container/strings"
+import "base:strconv"
+import "base:unicode/utf8"
 
 import "core:strings_tools"
 import "core:math/bits"
 import "core:io"
 import "core:reflect"
-import "base:strconv"
 import "core:time"
-import "base:unicode/utf8"
 
 // Internal data structure that stores the required information for formatted printing
 Info :: struct {
@@ -41,7 +41,7 @@ Info_State :: struct {
     prec_set:  bool,
 
     ignore_user_formatters: bool,
-    in_bad: bool,
+    in_bad:    bool,
 
     width:     int,
     prec:      int,

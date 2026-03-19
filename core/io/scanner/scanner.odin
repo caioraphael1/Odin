@@ -1,10 +1,13 @@
-import "core:bytes"
-import "core:io"
+import "base:bytes"
 import "base:mem"
 import "base:unicode/utf8"
 import "base:intrinsics"
 import "base:container/slice"
 import "base:container/dyn_array"
+
+import "core:io"
+
+@(private) DEFAULT_MAX_CONSECUTIVE_EMPTY_READS :: 128
 
 // Extra errors returns by scanning procedures
 Scanner_Extra_Error :: enum i32 {
@@ -22,21 +25,21 @@ Scanner_Error :: union #shared_nil {
 }
 
 // Split_Proc is the signature of the split procedure used to tokenize the input.
-Split_Proc :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool)
+Split_Proc :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool)
 
 Scanner :: struct {
     r:              io.Reader,
     split:          Split_Proc,
 
     buf:            [dynamic]byte,
-    max_token_size: int,
-    start:          int,
-    end:            int,
+    max_token_size: uint,
+    start:          uint,
+    end:            uint,
     token:          []byte,
 
     _err: Scanner_Error,
-    max_consecutive_empty_reads:  int,
-    successive_empty_token_count: int,
+    max_consecutive_empty_reads:  uint,
+    successive_empty_token_count: uint,
     scan_called: bool,
     done:        bool,
 }
@@ -131,7 +134,7 @@ scan :: proc(s: ^Scanner) -> bool {
                 set_err(s, .Negative_Advance)
                 return false
             }
-            if advance > s.end-s.start {
+            if advance > s.end - s.start {
                 set_err(s, .Advanced_Too_Far)
                 return false
             }
@@ -182,7 +185,7 @@ scan :: proc(s: ^Scanner) -> bool {
                 return false
             }
             // overflow check
-            new_size := _INIT_BUF_SIZE
+            new_size: uint = _INIT_BUF_SIZE
             if len(s.buf) > 0 {
                 overflowed: bool
                 if new_size, overflowed = intrinsics.overflow_mul(len(s.buf), 2); overflowed {
@@ -202,7 +205,7 @@ scan :: proc(s: ^Scanner) -> bool {
         }
 
         // Read data into the buffer
-        loop := 0
+        loop: uint
         for {
             n, err := io.read(s.r, s.buf[s.end:len(s.buf)])
             if n < 0 || len(s.buf)-s.end < n {
@@ -236,7 +239,7 @@ scan :: proc(s: ^Scanner) -> bool {
 }
 
 // scan_bytes is a splitting procedure that returns each byte as a token
-scan_bytes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
+scan_bytes :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
     if at_eof && len(data) == 0 {
         return
     }
@@ -247,7 +250,7 @@ scan_bytes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
 // The lsit of runes return is equivalent to that of iterating over a string in a 'for in' loop, meaning any
 // erroneous UTF-8 encodings will be returned as U+FFFD. Unfortunately this means it is impossible for the "client"
 // to know whether a U+FFFD is an expected replacement rune or an encoding of an error.
-scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
+scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
     if at_eof && len(data) == 0 {
         return
     }
@@ -277,7 +280,7 @@ scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
 }
 // scan_words is a splitting procedure that returns each Unicode-space-separated word of text, excluding the surrounded spaces.
 // It will never return return an empty string.
-scan_words :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
+scan_words :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
     is_space :: proc(r:  rune) -> bool {
         switch r {
         // lower ones
@@ -295,8 +298,8 @@ scan_words :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
     }
 
     // skip spaces at the beginning
-    start := 0
-    for width := 0; start < len(data); start += width {
+    start: uint
+    for width: uint; start < len(data); start += width {
         r: rune
         r, width = utf8.rune_from_bytes(data[start:])
         if !is_space(r) {
@@ -304,13 +307,17 @@ scan_words :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
         }
     }
 
-    for width, i := 0, start; i < len(data); i += width {
-        r: rune
-        r, width = utf8.rune_from_bytes(data[i:])
-        if is_space(r) {
-            advance = i+width
-            token = data[start:i]
-            return
+    {
+        width: uint
+        i := start
+        for ; i < len(data); i += width {
+            r: rune
+            r, width = utf8.rune_from_bytes(data[i:])
+            if is_space(r) {
+                advance = i+width
+                token = data[start:i]
+                return
+            }
         }
     }
 
@@ -326,7 +333,7 @@ scan_words :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
 
 // scan_lines is a splitting procedure that returns each line of text stripping of any trailing newline and an optional preceding carriage return (\r?\n).
 // A new line is allowed to be empty.
-scan_lines :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, err: Scanner_Error, final_token: bool) {
+scan_lines :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
     trim_carriage_return :: proc(data: []byte) -> []byte {
         if len(data) > 0 && data[len(data)-1] == '\r' {
             return data[0:len(data)-1]
@@ -337,7 +344,7 @@ scan_lines :: proc(data: []byte, at_eof: bool) -> (advance: int, token: []byte, 
     if at_eof && len(data) == 0 {
         return
     }
-    if i := bytes.index_byte(data, '\n'); i >= 0 {
+    if i, found := bytes.index_byte(data, '\n'); found {
         advance = i+1
         token = trim_carriage_return(data[0:i])
         return

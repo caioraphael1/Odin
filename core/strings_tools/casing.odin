@@ -1,9 +1,11 @@
 import "base:mem"
 import "base:container/strings"
-
-import "core:io"
+import "base:container/slice"
 import "base:unicode"
 import "base:unicode/utf8"
+
+import "core:io"
+import "core:io/string_builder"
 
 /*
 Converts invalid UTF-8 sequences in the input string `s` to the `replacement` string.
@@ -21,8 +23,8 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
         return "", nil
     }
 
-    b: Builder
-    builder_init_len_cap(&b, 0, 0, allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, 0, allocator) or_return
 
     s := s
     for c, i in s {
@@ -32,14 +34,14 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
 
         _, w := utf8.rune_from_string(s[i:])
         if w == 1 {
-            builder_grow(&b, len(s) + len(replacement))
-            write_string(&b, s[:i])
+            string_builder.builder_grow(&b, len(s) + len(replacement))
+            string_builder.write_string(&b, s[:i])
             s = s[i:]
             break
         }
     }
 
-    if builder_cap(b) == 0 {
+    if string_builder.builder_cap(b) == 0 {
         return strings.string_clone(s, allocator)
     }
 
@@ -50,7 +52,7 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
         if c < utf8.RUNE_SELF {
             i += 1
             invalid = false
-            write_byte(&b, c)
+            string_builder.write_byte(&b, c)
             continue
         }
 
@@ -59,12 +61,12 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
             i += 1
             if !invalid {
                 invalid = true
-                write_string(&b, replacement)
+                string_builder.write_string(&b, replacement)
             }
             continue
         }
         invalid = false
-        write_string(&b, s[i:][:w])
+        string_builder.write_string(&b, s[i:][:w])
         i += w
     }
     return to_string(b), nil
@@ -80,8 +82,8 @@ Output:
     test
 */
 to_lower :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    b: Builder
-    builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
     for r in s {
         _, _ = write_rune(&b, unicode.to_lower(r))
     }
@@ -96,8 +98,8 @@ Output:
     TEST
 */
 to_upper :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    b: Builder
-    builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
     for r in s {
         _, _ = write_rune(&b, unicode.to_upper(r))
     }
@@ -120,8 +122,8 @@ Returns:
 to_camel_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     s := s
     s = trim_space(s)
-    b: Builder
-    builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
     w := to_writer(&b)
 
     _string_case_iterator(w, s, proc(w: io.Writer, prev, curr, next: rune) {
@@ -155,8 +157,8 @@ Returns:
 to_pascal_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     s := s
     s = trim_space(s)
-    b: Builder
-    builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
     w := to_writer(&b)
 
     _string_case_iterator(w, s, proc(w: io.Writer, prev, curr, next: rune) {
@@ -212,8 +214,8 @@ to_delimiter_case :: proc(
 ) -> (res: string, err: mem.Allocator_Error) {
     s := s
     s = trim_space(s)
-    b: Builder
-    builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
     w := to_writer(&b)
 
     adjust_case := unicode.to_upper if all_upper_case else unicode.to_lower
@@ -389,8 +391,8 @@ Output:
 to_ada_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error)  {
     s := s
     s = trim_space(s)
-    b: Builder
-    builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
     w := to_writer(&b)
 
     _string_case_iterator(w, s, proc(w: io.Writer, prev, curr, next: rune) {
@@ -421,7 +423,7 @@ Example:
         fmt.println("my_callback", curr) // <-- Custom logic here
     }
     s := "hello"
-    b: strings_tools.Builder
+    b: strings_tools.string_builder.Builder
     strings.builder_init_len(&b, len(s))
     w := strings_tools.to_writer(&b)
     strings._string_case_iterator(w, s, my_callback)

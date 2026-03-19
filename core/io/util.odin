@@ -5,6 +5,9 @@ import "base:strconv"
 import "base:unicode/utf8"
 import "base:unicode/utf16"
 
+@(private="file")
+DIGITS_LOWER := "0123456789abcdefx"
+
 
 read_ptr :: proc(r: Reader, p: rawptr, byte_size: uint, n_read: ^uint = nil) -> (n: uint, err: Error) {
     return read(r, ([^]byte)(p)[:byte_size], n_read)
@@ -14,8 +17,6 @@ read_slice :: proc(r: Reader, slice: $S/[]$T, n_read: ^uint = nil) -> (n: uint, 
     size := len(slice)*size_of(T)
     return read_ptr(w, raw_data(slice), size, n_read)
 }
-
-
 
 
 write_ptr :: proc(w: Writer, p: rawptr, byte_size: uint, n_written: ^uint = nil) -> (n: uint, err: Error) {
@@ -119,10 +120,6 @@ write_f64 :: proc(w: Writer, val: f64, n_written: ^uint = nil) -> (n: uint, err:
 }   
 
 
-
-
-@(private="file")
-DIGITS_LOWER := "0123456789abcdefx"
 
 n_wrapper :: proc(n: uint, err: Error, bytes_processed: ^uint) -> Error {
     bytes_processed^ += n
@@ -351,190 +348,4 @@ write_quoted_rune :: proc(w: Writer, r: rune) -> (n: uint) {
     }
     n += _write_byte(w, quote)
     return
-}
-
-
-
-/* 
-writes to 'w' what it reads from 'r'
-All reads from 'r' performed through it are matched with a corresponding write to 'w'
-There is no internal buffering done
-The write must complete before th read completes
-*/
-Tee_Reader :: struct {
-    r: Reader,
-    w: Writer,
-}
-
-@(private)
-_tee_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error) {
-    t := (^Tee_Reader)(stream_data)
-    #partial switch mode {
-    case .Read:
-        n_uint: uint
-        n_uint, err = read(t.r, p)
-        n = i64(n_uint)
-        if n > 0 {
-            if wn, werr := write(t.w, p[:n]); werr != nil {
-                return i64(wn), werr
-            }
-        }
-        return
-    case .Query:
-        return query_utility({.Read, .Query})
-    }
-    return 0, .Unsupported
-}
-
-tee_reader_init :: proc(t: ^Tee_Reader, r: Reader, w: Writer, allocator: mem.Allocator) -> Reader {
-    t.r, t.w = r, w
-    return tee_reader_to_reader(t)
-}
-
-tee_reader_to_reader :: proc(t: ^Tee_Reader) -> (r: Reader) {
-    r.data = t
-    r.procedure = _tee_reader_proc
-    return
-}
-
-
-// A Limited_Reader reads from r but limits the amount of data returned to just n bytes.
-// Each call to read updates n to reflect the new amount remaining.
-// read returns EOF when n <= 0 or when the underlying r returns EOF.
-Limited_Reader :: struct {
-    r: Reader, // underlying reader
-    n: i64,    // max_bytes
-}
-
-@(private)
-_limited_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error) {
-    l := (^Limited_Reader)(stream_data)
-    #partial switch mode {
-    case .Read:
-        if len(p) == 0 {
-            return 0, nil
-        }
-        if l.n <= 0 {
-            return 0, .EOF
-        }
-        p := p
-        if i64(len(p)) > l.n {
-            p = p[0:l.n]
-        }
-        n_uint: uint
-        n_uint, err = read(l.r, p)
-        n = i64(n_uint)
-        l.n -= n
-        return
-    case .Query:
-        return query_utility({.Read, .Query})
-    }
-    return 0, .Unsupported
-}
-
-limited_reader_init :: proc(l: ^Limited_Reader, r: Reader, n: i64) -> Reader {
-    l.r = r
-    l.n = n
-    return limited_reader_to_reader(l)
-}
-
-limited_reader_to_reader :: proc(l: ^Limited_Reader) -> (r: Reader) {
-    r.procedure = _limited_reader_proc
-    r.data = l
-    return
-}
-
-// Section_Reader implements read, seek, and read_at on a section of an underlying Reader_At
-Section_Reader :: struct {
-    r: Reader_At,
-    base:  i64,
-    off:   i64,
-    limit: i64,
-}
-
-section_reader_init :: proc(s: ^Section_Reader, r: Reader_At, off: i64, n: i64) -> Reader {
-    s.r = r
-    s.base = off
-    s.off = off
-    s.limit = off + n
-    return section_reader_to_stream(s)
-}
-section_reader_to_stream :: proc(s: ^Section_Reader) -> (out: Stream) {
-    out.data = s
-    out.procedure = _section_reader_proc
-    return
-}
-
-@(private)
-_section_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error) {
-    s := (^Section_Reader)(stream_data)
-    #partial switch mode {
-    case .Read:
-        if len(p) == 0 {
-            return 0, nil
-        }
-        if s.off >= s.limit {
-            return 0, .EOF
-        }
-        p := p
-        if max := s.limit - s.off; i64(len(p)) > max {
-            p = p[0:max]
-        }
-        n_uint: uint
-        n_uint, err = read_at(s.r, p, s.off)
-        n = i64(n_uint)
-        s.off += n
-        return
-    case .Read_At:
-        if len(p) == 0 {
-            return 0, nil
-        }
-        p, off := p, offset
-
-        if off < 0 || off >= s.limit - s.base {
-            return 0, .EOF
-        }
-        off += s.base
-        if max := s.limit - off; i64(len(p)) > max {
-            p = p[0:max]
-
-            n_uint: uint
-            n_uint, err = read_at(s.r, p, off)
-            n = i64(n_uint)
-            if err == nil {
-                err = .EOF
-            }
-            return
-        }
-        n_uint: uint
-        n_uint, err = read_at(s.r, p, off)
-        n = i64(n_uint)
-        return
-
-    case .Seek:
-        offset := offset
-        switch whence {
-        case:
-            return 0, .Invalid_Whence
-        case .Start:
-            offset += s.base
-        case .Current:
-            offset += s.off
-        case .End:
-            offset += s.limit
-        }
-        if offset < s.base {
-            return 0, .Invalid_Offset
-        }
-        s.off = offset
-        n = offset - s.base
-        return
-    case .Size:
-        n = s.limit - s.base
-        return
-    case .Query:
-        return query_utility({.Read, .Read_At, .Seek, .Size, .Query})
-    }
-    return 0, nil
-
 }

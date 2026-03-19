@@ -1,11 +1,12 @@
 // package csv reads and writes comma-separated values (CSV) files.
 // This package supports the format described in [[ RFC 4180; https://tools.ietf.org/html/rfc4180.html ]]
 import "base:mem"
-import "core:bufio"
 import "core:bytes"
-import "core:io"
 import "base:container/strings"
 import "base:unicode/utf8"
+
+import "core:io"
+import "core:io/reader"
 
 // Reader is a data structure used for reading records from a CSV-encoded file
 //
@@ -49,7 +50,7 @@ Reader :: struct {
 
 
     // internal buffers
-    r:             bufio.Reader,
+    r:             reader.Reader,
     line_count:    int, // current line being read in the CSV file
     raw_buffer:    [dynamic]byte,
     record_buffer: [dynamic]byte,
@@ -102,7 +103,7 @@ reader_init :: proc(reader: ^Reader, r: io.Reader, buffer_allocator: mem.Allocat
     _ = dyn_array.reserve(&reader.raw_buffer,    0)
     _ = dyn_array.reserve(&reader.field_indices, 0)
     _ = dyn_array.reserve(&reader.last_record,   0)
-    bufio.reader_init(&reader.r, r, allocator = buffer_allocator)
+    reader.reader_init(&reader.r, r, allocator = buffer_allocator)
 }
 
 
@@ -119,7 +120,7 @@ reader_destroy :: proc(r: ^Reader) {
     _ = dyn_array.delete(r.record_buffer)
     _ = dyn_array.delete(r.field_indices)
     _ = dyn_array.delete(r.last_record)
-    bufio.reader_destroy(&r.r)
+    reader.reader_destroy(&r.r)
 }
 
 /*
@@ -232,12 +233,12 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
     
     read_line :: proc(r: ^Reader) -> ([]byte, io.Error) {
         if !r.multiline_fields {
-            line, err := bufio.reader_read_slice(&r.r, '\n')
+            line, err := reader.reader_read_slice(&r.r, '\n')
             if err == .Buffer_Full {
                 dyn_array.clear(&r.raw_buffer)
                 _ = dyn_array.append_many(&r.raw_buffer, ..line)
                 for err == .Buffer_Full {
-                    line, err = bufio.reader_read_slice(&r.r, '\n')
+                    line, err = reader.reader_read_slice(&r.r, '\n')
                     _ = dyn_array.append_many(&r.raw_buffer, ..line)
                 }
                 line = r.raw_buffer[:]
@@ -271,7 +272,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
             dyn_array.clear(&r.raw_buffer)
 
             read_loop: for err == .None {
-                cur, _, err = bufio.reader_read_rune(&r.r)
+                cur, _, err = reader.reader_read_rune(&r.r)
 
                 if err != .None { break read_loop }
 

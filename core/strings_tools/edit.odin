@@ -1,4 +1,7 @@
 import "base:mem"
+import "base:unicode/utf8"
+
+import "core:io"
 
 /*
 Truncates a string `str` at the first occurrence of char/byte `b`

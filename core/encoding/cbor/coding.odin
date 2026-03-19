@@ -4,6 +4,7 @@ import "base:internal"
 import "core:bytes"
 import "core:encoding/endian"
 import "core:io"
+import "core:io/limited_reader"
 import "base:container/slice"
 import "base:container/strings"
 import "base:mem"
@@ -374,7 +375,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
                     return nil, .Nested_Indefinite_Length
                 }
                 _ = dyn_array.reserve(&buf.buf, len(buf.buf) + iter_cap) or_return
-                io.copy_n(buf_stream, d.reader, i64(iter_n)) or_return
+                limited_reader.copy_n(buf_stream, d.reader, i64(iter_n)) or_return
 
             case .Other:
                 if add != .Break { return nil, .Bad_Argument }
@@ -385,7 +386,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
             }
         }
     } else {
-        io.copy_n(buf_stream, d.reader, i64(n)) or_return
+        limited_reader.copy_n(buf_stream, d.reader, i64(n)) or_return
     }
 
     v = buf.buf[:]

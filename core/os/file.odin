@@ -542,6 +542,7 @@ is_tty :: proc(f: ^File) -> bool {
     return _is_tty(f)
 }
 
+
 copy_file :: proc(dst_path, src_path: string, allocator: mem.Allocator) -> Error {
     when #defined(_copy_file_native) {
         return _copy_file_native(dst_path, src_path)

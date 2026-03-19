@@ -5,16 +5,6 @@ import "base:strconv"
 import "core:io"
 
 
-to_stream :: proc(b: ^Builder) -> (res: io.Stream) {
-    return io.Stream{procedure=_builder_stream_proc, data=b}
-}
-
-to_writer :: proc(b: ^Builder) -> (res: io.Writer) {
-    res, _ = io.to_writer(to_stream(b))
-    return 
-}
-
-
 @(private)
 _builder_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     b := (^Builder)(stream_data)
@@ -36,6 +26,17 @@ _builder_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byt
     }
     return 0, .Unsupported
 }
+
+
+to_stream :: proc(b: ^Builder) -> (res: io.Stream) {
+    return io.Stream{procedure=_builder_stream_proc, data=b}
+}
+
+to_writer :: proc(b: ^Builder) -> (res: io.Writer) {
+    res, _ = io.to_writer(to_stream(b))
+    return 
+}
+
 
 /*
 Example:

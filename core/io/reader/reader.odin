@@ -1,9 +1,9 @@
 import "base:mem"
-import "base:unicode/utf8"
 import "base:container/slice"
 import "base:container/dyn_array"
+import "base:bytes"
+import "base:unicode/utf8"
 
-import "core:bytes"
 import "core:io"
 
 // Reader is a buffered wrapper for an io.Reader
@@ -267,22 +267,23 @@ reader_read_rune :: proc(b: ^Reader) -> (r: rune, size: uint, err: io.Error) {
     if b.r == b.w {
         return 0, 0, _reader_consume_err(b)
     }
-    r, size = rune(b.buf[b.r]), 1
+    r = rune(b.buf[b.r])
+    size = 1
     if r >= utf8.RUNE_SELF {
         r, size = utf8.rune_from_bytes(b.buf[b.r : b.w])
     }
     b.r += size
     b.last_byte = int(b.buf[b.r-1])
-    b.last_rune_size = size
+    b.last_rune_size = int(size)
     return
 }
 
 // reader_unread_rune unreads the last rune. Only the most recently read rune can be unread
 reader_unread_rune :: proc(b: ^Reader) -> io.Error {
-    if b.last_rune_size < 0 || b.r < b.last_rune_size {
+    if b.last_rune_size < 0 || int(b.r) < b.last_rune_size {
         return .Invalid_Unread
     }
-    b.r -= b.last_rune_size
+    b.r -= uint(b.last_rune_size)
     b.last_byte = -1
     b.last_rune_size = -1
     return nil
@@ -340,7 +341,7 @@ _reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offse
     case .Read:
         n_uint: uint
         n_uint, err = reader_read(b, p)
-        n, err = i64(n_uint)
+        n = i64(n_uint)
         return
     case .Destroy:
         reader_destroy(b)
@@ -367,9 +368,9 @@ _reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offse
 // reader_read_slice returns err != nil if and only if line does not end in delim
 //
 reader_read_slice :: proc(b: ^Reader, delim: byte) -> (line: []byte, err: io.Error) {
-    s := 0
+    s: uint
     for {
-        if i := bytes.index_byte(b.buf[b.r+s : b.w], delim); i >= 0 {
+        if i, found := bytes.index_byte(b.buf[b.r+s : b.w], delim); found {
             i += s
             line = b.buf[b.r:][:i+1]
             b.r += i + 1

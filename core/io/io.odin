@@ -428,24 +428,6 @@ copy_buffer :: proc(dst: Writer, src: Reader, buf: []byte) -> (written: i64, err
 }
 
 
-
-// copy_n copies n bytes (or till an error) from src to dst.
-// It returns the number of bytes copied and the first error that occurred whilst copying, if any.
-// On return, written == n IFF err == nil
-copy_n :: proc(dst: Writer, src: Reader, n: i64) -> (written: i64, err: Error) {
-    nsrc := limited_reader_init(&Limited_Reader{}, src, n)
-    written, err = copy(dst, nsrc)
-    if written == n {
-        return n, nil
-    }
-    if written < n && err == nil {
-        // src stopped early and must have been an EOF
-        err = .EOF
-    }
-    return
-}
-
-
 @(private)
 _copy_buffer :: proc(dst: Writer, src: Reader, buf: []byte) -> (written: i64, err: Error) {
     if dst.procedure == nil || src.procedure == nil {
@@ -455,16 +437,16 @@ _copy_buffer :: proc(dst: Writer, src: Reader, buf: []byte) -> (written: i64, er
     if buf == nil {
         DEFAULT_SIZE :: 4 * 1024
         size: uint = DEFAULT_SIZE
-        if src.procedure == _limited_reader_proc {
-            l := (^Limited_Reader)(src.data)
-            if i64(size) > l.n {
-                if l.n < 1 {
-                    size = 1
-                } else {
-                    size = uint(l.n)
-                }
-            }
-        }
+        // if src.procedure == limited_reader._limited_reader_proc {
+        //     l := (^limited_reader.Limited_Reader)(src.data)
+        //     if i64(size) > l.n {
+        //         if l.n < 1 {
+        //             size = 1
+        //         } else {
+        //             size = uint(l.n)
+        //         }
+        //     }
+        // }
         // NOTE(bill): alloca is fine here
         buf = intrinsics.alloca(size, 2*align_of(rawptr))[:size]
     }

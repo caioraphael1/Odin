@@ -15,6 +15,39 @@ Reader :: struct {
     prev_rune: int,    // previous reading index of rune or < 0
 }
 
+/*
+VTable containing implementations for various `io.Stream` methods
+
+This VTable is used by the Reader struct to provide its functionality
+as an `io.Stream`.
+*/
+@(private)
+_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+    r := (^Reader)(stream_data)
+    #partial switch mode {
+    case .Size:
+        n = reader_size(r)
+        return
+    case .Read:
+        n_uint: uint
+        n_uint, err = reader_read(r, p)
+        n = i64(n_uint)
+        return
+    case .Read_At:
+        n_uint: uint
+        n_uint, err = reader_read_at(r, p, offset)
+        n = i64(n_uint)
+        return
+    case .Seek:
+        n, err = reader_seek(r, offset, whence)
+        return
+    case .Query:
+        return io.query_utility({.Size, .Read, .Read_At, .Seek, .Query})
+    }
+    return 0, .Unsupported
+}
+
+
 reader_init :: proc(r: ^Reader, s: string) {
     r.s = s
     r.i = 0
@@ -186,35 +219,4 @@ reader_write_to :: proc(r: ^Reader, w: io.Writer) -> (n: i64, err: io.Error) {
         err = .Short_Write
     }
     return
-}
-/*
-VTable containing implementations for various `io.Stream` methods
-
-This VTable is used by the Reader struct to provide its functionality
-as an `io.Stream`.
-*/
-@(private)
-_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
-    r := (^Reader)(stream_data)
-    #partial switch mode {
-    case .Size:
-        n = reader_size(r)
-        return
-    case .Read:
-        n_uint: uint
-        n_uint, err = reader_read(r, p)
-        n = i64(n_uint)
-        return
-    case .Read_At:
-        n_uint: uint
-        n_uint, err = reader_read_at(r, p, offset)
-        n = i64(n_uint)
-        return
-    case .Seek:
-        n, err = reader_seek(r, offset, whence)
-        return
-    case .Query:
-        return io.query_utility({.Size, .Read, .Read_At, .Seek, .Query})
-    }
-    return 0, .Unsupported
 }

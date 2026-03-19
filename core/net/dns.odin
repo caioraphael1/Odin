@@ -28,7 +28,7 @@ import "base:container/dyn_array"
 import "base:container/strings"
 import "base:rand"
 
-import "core:bufio"
+import "core:io/scanner"
 import "core:io"
 @(require) import "core:sync"
 import "core:time"
@@ -393,8 +393,8 @@ parse_resolv_conf :: proc(resolv_str: string, allocator: mem.Allocator) -> (name
 }
 
 parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DNS_Host_Entry, ok: bool) {
-    s := bufio.scanner_init(&{}, stream, allocator)
-    defer bufio.scanner_destroy(s)
+    s := scanner.scanner_init(&{}, stream, allocator)
+    defer scanner.scanner_destroy(s)
 
     _ = dyn_array.resize(&s.buf, 256)
 
@@ -406,8 +406,8 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
         _ = dyn_array.delete(_hosts)
     }
 
-    for bufio.scanner_scan(s) {
-        line := bufio.scanner_text(s)
+    for scanner.scanner_scan(s) {
+        line := scanner.scanner_text(s)
 
         line, _, _ = strings_tools.partition(line, "#")
         (len(line) > 0) or_continue
@@ -428,7 +428,7 @@ parse_hosts :: proc(stream: io.Stream, allocator: mem.Allocator) -> (hosts: []DN
         }
     }
 
-    if bufio.scanner_error(s) != nil { return }
+    if scanner.scanner_error(s) != nil { return }
 
     hosts = _hosts[:]
     ok    = true
