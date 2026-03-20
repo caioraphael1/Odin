@@ -71,7 +71,7 @@ iterate_map :: proc(val: any, it: ^uint) -> (key, value: any, ok: bool) {
         }
         rm := (^maps.Raw_Map)(val.data)
         ks, vs, hs, _, _ := internal.map_kvh_data_dynamic(rm^, info.map_info)
-        for /**/ ; it^ < int(internal.map_cap(rm^)); it^ += 1 {
+        for /**/ ; it^ < internal.map_cap(rm^); it^ += 1 {
             if hash := hs[it^]; maps.hash_is_valid(hash) {
                 key_ptr   := internal.map_cell_index_dynamic(ks, info.map_info.ks, uintptr(it^))
                 value_ptr := internal.map_cell_index_dynamic(vs, info.map_info.vs, uintptr(it^))

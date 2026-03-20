@@ -819,7 +819,7 @@ _unmarshal_union :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
                 defer strings_tools.builder_destroy(&builder)
 
                 reflect.write_type(&builder, variant)
-                variant_name := strings_tools.to_string(builder)
+                variant_name := string_builder.to_string(builder)
                 
                 if variant_name == target_name {
                     reflect.set_union_variant_raw_tag(v, tag)

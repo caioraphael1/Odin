@@ -70,8 +70,8 @@ environ :: proc(allocator: mem.Allocator) -> ([]string, Error) {
 replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator) -> (res: string) {
     path := path
 
-    sb: strings_tools.Builder
-    strings_tools.builder_init(&sb, allocator)
+    sb: string_builder.Builder
+    string_builder.builder_init(&sb, allocator)
 
     for len(path) > 0 {
         switch path[0] {
@@ -116,5 +116,5 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
 
         path = path[1:]
     }
-    return strings_tools.to_string(sb)
+    return string_builder.to_string(sb)
 }

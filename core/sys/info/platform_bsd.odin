@@ -45,7 +45,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     strings_tools.write_int(&b, revision)
 
     // Finalize pretty name.
-    res.full = strings_tools.to_string(b)
+    res.full = string_builder.to_string(b)
 
     return res, true
 }

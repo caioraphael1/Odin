@@ -5,12 +5,12 @@ import "core:fmt"
 import "core:time"
 
 doc_print :: proc(doc: ^xml.Document) {
-    buf: strings_tools.Builder
+    buf: string_builder.Builder
     defer strings_tools.builder_destroy(&buf)
-    w := strings_tools.to_writer(&buf)
+    w := string_builder.to_writer(&buf)
 
     xml.print(w, doc)
-    fmt.println(strings_tools.to_string(buf))
+    fmt.println(string_builder.to_string(buf))
 }
 
 _entities :: proc() {

@@ -18,13 +18,13 @@ create :: proc($T: typeid/map[$K]$E, allocator: mem.Allocator, loc := #caller_lo
     return m
 }
 
-// `create_cap` initializes a map with an allocator and allocates space using `capacity`.
+// `create_cap` initializes a map with an allocator and allocates space using `cap`.
 // Like `new`, the first argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
-create_cap :: proc($T: typeid/map[$K]$E, #any_int capacity: int, allocator: mem.Allocator, loc := #caller_location) -> (m: T, err: mem.Allocator_Error) {
-    map_expr_create_error_loc(loc, capacity)
+create_cap :: proc($T: typeid/map[$K]$E, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (m: T, err: mem.Allocator_Error) {
+    map_expr_create_error_loc(loc, cap)
     m.allocator = allocator
-    err = reserve(&m, capacity, loc)
+    err = reserve(&m, cap, loc)
     return
 }
 
@@ -42,11 +42,11 @@ delete :: proc(m: $T/map[$K]$V, loc := #caller_location) -> mem.Allocator_Error 
 }
 
 // `reserve` will try to reserve memory of a passed map to the requested element count (setting the `cap`).
-reserve :: proc(m: ^$T/map[$K]$V, #any_int capacity: int, loc := #caller_location) -> mem.Allocator_Error {
-    return internal.__dynamic_map_reserve((^Raw_Map)(m), intrinsics.type_map_info(T), uint(capacity), loc)
+reserve :: proc(m: ^$T/map[$K]$V, cap: uint, loc := #caller_location) -> mem.Allocator_Error {
+    return internal.__dynamic_map_reserve((^Raw_Map)(m), intrinsics.type_map_info(T), uint(cap), loc)
 }
 
-// Shrinks the capacity of a map down to the current length.
+// Shrinks the cap of a map down to the current length.
 shrink :: proc(m: ^$T/map[$K]$V, loc := #caller_location) -> (did_shrink: bool, err: mem.Allocator_Error) {
     if m != nil {
         return shrink_dynamic((^Raw_Map)(m), intrinsics.type_map_info(T), loc)
@@ -219,8 +219,8 @@ get :: proc(m: $T/map[$K]$V, key: K) -> (stored_key: K, stored_value: V, ok: boo
     }
 }
 
-raw_map_len :: #force_inline proc(m: Raw_Map) -> int {
-    return int(m.len)
+raw_map_len :: #force_inline proc(m: Raw_Map) -> uint {
+    return uint(m.len)
 }
 
 hash_is_valid :: #force_inline proc(hash: Map_Hash) -> bool {
@@ -235,8 +235,8 @@ total_allocation_size_from_value :: #force_inline proc(m: $M/map[$K]$V) -> uintp
 shrink_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias info: ^Map_Info, loc := #caller_location) -> (did_shrink: bool, err: mem.Allocator_Error) {
     internal.assert(m.allocator.procedure != nil)
 
-    // Cannot shrink the capacity if the number of items in the map would exceed
-    // one minus the current log2 capacity's resize threshold. That is the shrunk
+    // Cannot shrink the cap if the number of items in the map would exceed
+    // one minus the current log2 cap's resize threshold. That is the shrunk
     // map needs to be within the max load factor.
     log2_capacity := internal.map_log2_cap(m^)
     if uintptr(m.len) >= internal.map_load_factor(log2_capacity - 1) {
@@ -245,12 +245,12 @@ shrink_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias info: ^
 
     shrunk := internal.map_alloc_dynamic(info, log2_capacity - 1, m.allocator) or_return
 
-    capacity := uintptr(1) << log2_capacity
+    cap := uintptr(1) << log2_capacity
 
     ks, vs, hs, _, _ := internal.map_kvh_data_dynamic(m^, info)
 
     n := m.len
-    for i in 0..<capacity {
+    for i in 0..<cap {
         hash := hs[i]
         if internal.map_hash_is_empty(hash) {
             continue
@@ -283,14 +283,14 @@ shrink_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias info: ^
 //--------------------------------------------------------------------------------------------------
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
-map_expr_create_error_loc :: #force_inline proc(loc := #caller_location, cap: int) {
+map_expr_create_error_loc :: #force_inline proc(loc := #caller_location, cap: uint) {
     if 0 <= cap {
         return
     }
     @(cold, no_instrumentation)
-    handle_error :: proc(loc: internal.Source_Code_Location, cap: int)  -> ! {
+    handle_error :: proc(loc: internal.Source_Code_Location, cap: uint)  -> ! {
         internal.print_caller_location(loc)
-        internal.print_string(" Invalid map capacity for make: ")
+        internal.print_string(" Invalid map cap for make: ")
         internal.print_i64(i64(cap))
         internal.print_byte('\n')
         internal.bounds_trap()
@@ -303,7 +303,7 @@ map_expr_create_error_loc :: #force_inline proc(loc := #caller_location, cap: in
 // Raw Map stuff
 //--------------------------------------------------------------------------------------------------
 
-// We always round the capacity to a power of two so this becomes [16]Foo, which
+// We always round the cap to a power of two so this becomes [16]Foo, which
 // works out to [4]Cell(Foo).
 //
 // The following compile-time procedure indexes such a [N]Cell(T) structure as
@@ -346,17 +346,17 @@ map_cell_index_static :: #force_inline proc(cells: [^]Map_Cell($T), index: uintp
 
 
 map_kvh_data_static :: #force_inline proc(m: $T/map[$K]$V) -> (ks: [^]Map_Cell(K), vs: [^]Map_Cell(V), hs: [^]Map_Hash) {
-    capacity := uintptr(cap(m))
+    cap := uintptr(cap(m))
     ks = ([^]Map_Cell(K))(internal.map_data(transmute(Raw_Map)m))
-    vs = ([^]Map_Cell(V))(map_cell_index_static(ks, capacity))
-    hs = ([^]Map_Hash)(map_cell_index_static(vs, capacity))
+    vs = ([^]Map_Cell(V))(map_cell_index_static(ks, cap))
+    hs = ([^]Map_Hash)(map_cell_index_static(vs, cap))
     return
 }
 
 
 raw_map_dynamic_kvh_data_values :: proc(m: Raw_Map, #no_alias info: ^Map_Info) -> (vs: uintptr) {
-    capacity := uintptr(1) << internal.map_log2_cap(m)
-    return internal.map_cell_index_dynamic(internal.map_data(m), info.ks, capacity) // Skip past ks to get start of vs
+    cap := uintptr(1) << internal.map_log2_cap(m)
+    return internal.map_cell_index_dynamic(internal.map_data(m), info.ks, cap) // Skip past ks to get start of vs
 }
 
 raw_map_dynamic_exists :: #force_no_inline proc(m: Raw_Map, #no_alias info: ^Map_Info, k: uintptr) -> (ok: bool) {

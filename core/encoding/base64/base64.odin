@@ -124,7 +124,7 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
     internal.assert(strings_tools.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
 
-    return strings_tools.to_string(out), nil
+    return string_builder.to_string(out), nil
 }
 
 encode_into :: proc(w: io.Writer, data: []byte, ENC_TBL := ENC_TABLE) -> io.Error {

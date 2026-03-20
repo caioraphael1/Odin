@@ -723,7 +723,7 @@ gmatch :: proc(haystack: ^string, pattern: string, captures: ^[MAX_CAPTURES]Matc
 
 // gsub with builder, replace patterns found with the replace content
 
-gsub_builder :: proc(builder: ^strings_tools.Builder, haystack, pattern, replace: string) -> string {
+gsub_builder :: proc(builder: ^string_builder.Builder, haystack, pattern, replace: string) -> string {
     // find matches
     captures: [MAX_CAPTURES]Match
     haystack := haystack
@@ -750,7 +750,7 @@ gsub_builder :: proc(builder: ^strings_tools.Builder, haystack, pattern, replace
     }
 
     strings_tools.write_string(builder, haystack[:])
-    return strings_tools.to_string(builder^)
+    return string_builder.to_string(builder^)
 }
 
 // uses temp builder to build initial string - then allocates the result
@@ -817,7 +817,7 @@ gfind :: proc(haystack: ^string, pattern: string, captures: ^[MAX_CAPTURES]Match
 
 // rebuilds a pattern into a case insensitive pattern
 
-pattern_case_insensitive_builder :: proc(builder: ^strings_tools.Builder, pattern: string) -> string {
+pattern_case_insensitive_builder :: proc(builder: ^string_builder.Builder, pattern: string) -> string {
     p := pattern
     last_percent: bool
 
@@ -826,10 +826,10 @@ pattern_case_insensitive_builder :: proc(builder: ^strings_tools.Builder, patter
 
         if unicode.is_alpha(char) && !last_percent {
             // write character class in manually
-            strings_tools.write_byte(builder, '[')
+            string_builder.write_byte(builder, '[')
             strings_tools.write_rune(builder, unicode.to_lower(char))
             strings_tools.write_rune(builder, unicode.to_upper(char))
-            strings_tools.write_byte(builder, ']')
+            string_builder.write_byte(builder, ']')
         } else {
             strings_tools.write_rune(builder, char)
         }
@@ -838,7 +838,7 @@ pattern_case_insensitive_builder :: proc(builder: ^strings_tools.Builder, patter
         p = p[size:]
     }
 
-    return strings_tools.to_string(builder^)
+    return string_builder.to_string(builder^)
 }
 
 

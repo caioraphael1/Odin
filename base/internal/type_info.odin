@@ -100,19 +100,19 @@ Type_Info_Struct_Flag :: enum u8 {
 
 Type_Info_Struct :: struct {
     // Slice these with `field_count`
-    types:   [^]^Type_Info `fmt:"v,field_count"`,
-    names:   [^]string     `fmt:"v,field_count"`,
-    offsets: [^]uintptr    `fmt:"v,field_count"`,
-    usings:  [^]bool       `fmt:"v,field_count"`,
-    tags:    [^]string     `fmt:"v,field_count"`,
+    types:         [^]^Type_Info `fmt:"v,field_count"`,
+    names:         [^]string     `fmt:"v,field_count"`,
+    offsets:       [^]uintptr    `fmt:"v,field_count"`,
+    usings:        [^]bool       `fmt:"v,field_count"`,
+    tags:          [^]string     `fmt:"v,field_count"`,
 
-    field_count: i32,
+    field_count:   uint,
 
-    flags: Type_Info_Struct_Flags,
+    flags:         Type_Info_Struct_Flags,
 
     // These are only set iff this structure is an SOA structure
     soa_kind:      Type_Info_Struct_Soa_Kind,
-    soa_len:       i32,
+    soa_len:       uint,
     soa_base_type: ^Type_Info,
 
     equal: Equal_Proc, // set only when the struct has .Comparable set but does not have .Simple_Compare set

@@ -82,8 +82,8 @@ main :: proc() {
         fmt.eprintfln("Join path error for edwards25519_table.odin: %v", err);
         os.exit(1);
     }
-    bld: strings_tools.Builder
-    w := strings_tools.to_writer(&bld)
+    bld: string_builder.Builder
+    w := string_builder.to_writer(&bld)
 
     fmt.wprintln(w, "package _edwards25519")
     fmt.wprintln(w, "")
@@ -133,5 +133,5 @@ main :: proc() {
 
     fmt.wprintln(w, "}")
 
-    _ = os.write_entire_file(fn, transmute([]byte)(strings_tools.to_string(bld)))
+    _ = os.write_entire_file(fn, transmute([]byte)(string_builder.to_string(bld)))
 }

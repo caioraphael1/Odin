@@ -222,7 +222,7 @@ typeid_elem :: proc(id: typeid) -> typeid {
 
 // returns the size of the type that the passed typeid represents
 
-size_of_typeid :: proc(T: typeid) -> int {
+size_of_typeid :: proc(T: typeid) -> uint {
     if ti := type_info_of(T); ti != nil {
         return ti.size
     }
@@ -231,7 +231,7 @@ size_of_typeid :: proc(T: typeid) -> int {
 
 // returns the alignment of the type that the passed typeid represents
 
-align_of_typeid :: proc(T: typeid) -> int {
+align_of_typeid :: proc(T: typeid) -> uint {
     if ti := type_info_of(T); ti != nil {
         return ti.align
     }
@@ -283,7 +283,7 @@ is_nil :: proc(v: any) -> bool {
 //     len(string) or len(cstring)
 //     len(string16) or len(cstring16)
 
-length :: proc(val: any) -> int {
+length :: proc(val: any) -> uint {
     if val == nil { return 0 }
 
     #partial switch a in type_info_of(val.id).variant {
@@ -338,7 +338,7 @@ length :: proc(val: any) -> int {
 //     cap([dynamic]T)
 //     cap(map[K]V)
 
-capacity :: proc(val: any) -> int {
+capacity :: proc(val: any) -> uint {
     if val == nil { return 0 }
 
     #partial switch a in type_info_of(val.id).variant {
@@ -370,7 +370,7 @@ capacity :: proc(val: any) -> int {
 
 // Dynamically indexes `any` as an indexable-type if possible. Returns `nil` if not possible
 
-index :: proc(val: any, i: int, loc := #caller_location) -> any {
+index :: proc(val: any, i: uint, loc := #caller_location) -> any {
     if val == nil { return nil }
 
     #partial switch a in type_info_of(val.id).variant {
@@ -472,10 +472,10 @@ Struct_Field :: struct {
 
 // Returns a `Struct_Field` containing the information for a struct field of a typeid `T` at index `i`
 
-struct_field_at :: proc(T: typeid, i: int) -> (field: Struct_Field) {
+struct_field_at :: proc(T: typeid, i: uint) -> (field: Struct_Field) {
     ti := internal.type_info_base(type_info_of(T))
     if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
-        if 0 <= i && i < int(s.field_count) {
+        if i < s.field_count {
             field.name     = s.names[i]
             field.type     = s.types[i]
             field.tag      = Struct_Tag(s.tags[i])
@@ -625,15 +625,15 @@ Example:
     }
 */
 
-struct_field_count :: proc(T: typeid, method := Struct_Field_Count_Method.Top_Level) -> (count: int) {
+struct_field_count :: proc(T: typeid, method := Struct_Field_Count_Method.Top_Level) -> (count: uint) {
     ti := internal.type_info_base(type_info_of(T))
     if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
         switch method {
         case .Top_Level:
-            return int(s.field_count)
+            return s.field_count
 
         case .Using:
-            count = int(s.field_count)
+            count = s.field_count
             for type, i in s.types[:s.field_count] {
                 if s.usings[i] {
                     count += struct_field_count(type.id)
@@ -641,7 +641,7 @@ struct_field_count :: proc(T: typeid, method := Struct_Field_Count_Method.Top_Le
             }
 
         case .Recursive:
-            count = int(s.field_count)
+            count = s.field_count
             for type in s.types[:s.field_count] {
                 count += struct_field_count(type.id)
             }
@@ -695,7 +695,7 @@ struct_tag_get :: proc(tag: Struct_Tag, key: string) -> (value: string) {
 
 struct_tag_lookup :: proc(tag: Struct_Tag, key: string) -> (value: string, ok: bool) {
     for t := tag; t != ""; /**/ {
-        i := 0
+        i: uint
         for i < len(t) && t[i] == ' ' { // Skip whitespace
             i += 1
         }

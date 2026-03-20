@@ -183,7 +183,7 @@ decode_xml :: proc(input: string, options := XML_Decode_Options{}, allocator: me
             }
         }
     }
-    return strings.string_clone(strings_tools.to_string(builder), allocator), err
+    return strings.string_clone(string_builder.to_string(builder), allocator), err
 }
 
 advance :: proc(t: ^Tokenizer) -> (err: Error) {
@@ -536,7 +536,7 @@ _extract_xml_entity :: proc(t: ^Tokenizer) -> (entity: string, err: Error) {
 
 // Private XML helper for CDATA and comments.
 @(private="file")
-_handle_xml_special :: proc(t: ^Tokenizer, builder: ^strings_tools.Builder, options: XML_Decode_Options) -> (in_data: bool, err: Error) {
+_handle_xml_special :: proc(t: ^Tokenizer, builder: ^string_builder.Builder, options: XML_Decode_Options) -> (in_data: bool, err: Error) {
     internal.assert(t != nil && t.r == '<')
     if t.read_offset + len(CDATA_START) >= len(t.src) { return false, .None }
 

@@ -155,8 +155,8 @@ marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc
     return data, nil
 }
 
-marshal_to_builder :: proc(b: ^strings_tools.Builder, v: any, opt: ^Marshal_Options) -> Marshal_Error {
-    return marshal_to_writer(strings_tools.to_writer(b), v, opt)
+marshal_to_builder :: proc(b: ^string_builder.Builder, v: any, opt: ^Marshal_Options) -> Marshal_Error {
+    return marshal_to_writer(string_builder.to_writer(b), v, opt)
 }
 
 marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: Marshal_Error) {

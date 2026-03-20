@@ -308,7 +308,7 @@ to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator: mem.All
     }
     internal.assert(err == nil)
 
-    return strings_tools.to_string(b), nil
+    return string_builder.to_string(b), nil
 }
 
 // Writes the given CBOR value into the writer as human-readable text.

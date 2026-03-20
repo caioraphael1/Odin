@@ -9,6 +9,6 @@ stdio_writer :: proc() -> io.Writer {
 	return os.to_stream(os.stdout)
 }
 
-strings_builder_writer :: proc(b: ^strings_tools.Builder) -> io.Writer {
-	return strings_tools.to_writer(b)
+strings_builder_writer :: proc(b: ^string_builder.Builder) -> io.Writer {
+	return string_builder.to_writer(b)
 }

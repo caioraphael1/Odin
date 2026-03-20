@@ -20,7 +20,7 @@ State :: struct {
     line_start, line_end: int,
 
     // initialized each "frame" with `begin`
-    builder: ^strings_tools.Builder, // let the caller store the text buffer data
+    builder: ^string_builder.Builder, // let the caller store the text buffer data
 
     up_index, down_index: int, // multi-lines
 
@@ -88,7 +88,7 @@ destroy :: proc(s: ^State) {
 }
 
 // Call at the beginning of each frame
-begin :: proc(s: ^State, id: u64, builder: ^strings_tools.Builder) {
+begin :: proc(s: ^State, id: u64, builder: ^string_builder.Builder) {
     internal.assert(builder != nil)
     if s.id != 0 {
         end(s)
@@ -116,7 +116,7 @@ update_time :: proc(s: ^State) {
 }
 
 // setup the builder, selection and undo|redo state once allowing to retain selection
-setup_once :: proc(s: ^State, builder: ^strings_tools.Builder) {
+setup_once :: proc(s: ^State, builder: ^string_builder.Builder) {
     s.builder = builder
     s.selection = { len(builder.buf), 0 }
     undo_clear(s, &s.undo)

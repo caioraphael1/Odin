@@ -122,9 +122,9 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     res.kernel.patch = format_build_number(&b, int(osvi.dwBuildNumber))
 
     // Finish the string
-    res.full = strings_tools.to_string(b)
+    res.full = string_builder.to_string(b)
 
-    format_windows_product_type :: proc (b: ^strings_tools.Builder, prod_type: sys.Windows_Product_Type) {
+    format_windows_product_type :: proc (b: ^string_builder.Builder, prod_type: sys.Windows_Product_Type) {
         #partial switch prod_type {
         case .ULTIMATE:
             strings_tools.write_string(b, "Ultimate")
@@ -216,7 +216,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     }
 
     // Grab Windows DisplayVersion (like 20H02)
-    format_display_version :: proc (b: ^strings_tools.Builder) -> (version: string) {
+    format_display_version :: proc (b: ^string_builder.Builder) -> (version: string) {
         scratch: [512]u8
 
         if dv, ok := read_reg_string(
@@ -228,14 +228,14 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
             strings_tools.write_string(b, " (version: ")
             l := strings_tools.builder_len(b^)
             strings_tools.write_string(b, dv)
-            version = strings_tools.to_string(b^)[l:][:len(dv)]
+            version = string_builder.to_string(b^)[l:][:len(dv)]
             _, _ = strings_tools.write_rune(b, ')')
         }
         return
     }
 
     // Grab build number and UBR
-    format_build_number :: proc (b: ^strings_tools.Builder, major_build: int) -> (ubr: int) {
+    format_build_number :: proc (b: ^string_builder.Builder, major_build: int) -> (ubr: int) {
         if res, ok := read_reg_i32(
             sys.HKEY_LOCAL_MACHINE,
             "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",

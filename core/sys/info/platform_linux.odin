@@ -66,7 +66,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	strings_tools.write_string(&b, string(cstring(&uts.release[0])))
 	release_str := string(b.buf[release_i:])
 
-	res.full = strings_tools.to_string(b)
+	res.full = string_builder.to_string(b)
 
 	// Parse the Linux version out of the release string
 	version_loop: {

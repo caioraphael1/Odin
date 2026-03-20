@@ -91,8 +91,8 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
     }
 
     // we will write to a string builder
-    data: strings_tools.Builder
-    _ = strings_tools.builder_init(&data)
+    data: string_builder.Builder
+    _ = string_builder.builder_init(&data)
 
     // all PNM headers start with the format
     fmt.sbprintf(&data, "%s\n", header.format)
@@ -372,8 +372,8 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     // string buffer for the tupltype
-    tupltype: strings_tools.Builder
-    _ = strings_tools.builder_init(&tupltype, allocators.temp_allocator)
+    tupltype: string_builder.Builder
+    _ = string_builder.builder_init(&tupltype, allocators.temp_allocator)
     defer strings_tools.builder_destroy(&tupltype)
     fmt.sbprint(&tupltype, "")
 
@@ -440,7 +440,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
         return
     }
 
-    header.tupltype = strings.string_clone(strings_tools.to_string(tupltype))
+    header.tupltype = strings.string_clone(string_builder.to_string(tupltype))
     err = Format_Error.None
     return
 }

@@ -61,7 +61,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         for dir in path_dirs {
             strings_tools.builder_clear(&exe_builder)
             strings_tools.write_string(&exe_builder, dir)
-            strings_tools.write_byte(&exe_builder, '/')
+            string_builder.write_byte(&exe_builder, '/')
             strings_tools.write_string(&exe_builder, exe_name)
 
             if exe_fd := posix.open(strings.to_cstring(&exe_builder) or_return, {.CLOEXEC, .EXEC}); exe_fd == -1 {
@@ -77,7 +77,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
             strings_tools.builder_clear(&exe_builder)
             strings_tools.write_string(&exe_builder, desc.working_dir)
             if len(desc.working_dir) > 0 && desc.working_dir[len(desc.working_dir)-1] != '/' {
-            strings_tools.write_byte(&exe_builder, '/')
+            string_builder.write_byte(&exe_builder, '/')
             }
             strings_tools.write_string(&exe_builder, "./")
             strings_tools.write_string(&exe_builder, exe_name)

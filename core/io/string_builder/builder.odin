@@ -6,7 +6,7 @@ import "base:unicode/utf8"
 /*
 A dynamic byte buffer / string builder with helper procedures
 The dynamic array is wrapped inside the struct to be more opaque
-You can use `fmt.sbprint*` procedures with a `^strings_tools.Builder` directly
+You can use `fmt.sbprint*` procedures with a `^string_builder.Builder` directly
 */
 Builder :: struct {
     buf: [dynamic]byte,

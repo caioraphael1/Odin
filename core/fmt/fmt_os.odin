@@ -6,7 +6,7 @@ import "base:internal"
 
 import "core:os"
 import "core:io"
-import "core:bufio/writer"
+import "core:io/writer"
 
 
 // fprint formats using the default print settings and writes to fd

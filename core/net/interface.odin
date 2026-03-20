@@ -64,7 +64,7 @@ physical_address_to_string :: proc(phy_addr: []u8, allocator: mem.Allocator) -> 
         return ""
     }
 
-    buf: strings_tools.Builder
+    buf: string_builder.Builder
 
     for b, i in phy_addr {
         if i > 0 {
@@ -76,5 +76,5 @@ physical_address_to_string :: proc(phy_addr: []u8, allocator: mem.Allocator) -> 
         _, _ = strings_tools.write_rune(&buf, hi)
         _, _ = strings_tools.write_rune(&buf, lo)
     }
-    return strings_tools.to_string(buf)
+    return string_builder.to_string(buf)
 }

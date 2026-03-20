@@ -115,7 +115,7 @@ join_url :: proc(scheme, host, path: string, queries: map[string]string, fragmen
         strings_tools.write_string(&b, strings_tools.trim_space(fragment))
     }
 
-    return strings_tools.to_string(b)
+    return string_builder.to_string(b)
 }
 
 percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
@@ -137,7 +137,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
         }
     }
 
-    return strings_tools.to_string(b)
+    return string_builder.to_string(b)
 }
 
 percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (decoded_string: string, ok: bool) {
@@ -165,7 +165,7 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
         s = s[1:]
 
         if s[0] == '%' {
-            strings_tools.write_byte(&b, '%')
+            string_builder.write_byte(&b, '%')
             s = s[1:]
             continue
         }
@@ -175,12 +175,12 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
         }
 
         val := hex.decode_sequence(s[:2]) or_return
-        strings_tools.write_byte(&b, val)
+        string_builder.write_byte(&b, val)
         s = s[2:]
     }
 
     ok = true
-    decoded_string = strings_tools.to_string(b)
+    decoded_string = string_builder.to_string(b)
     return
 }
 

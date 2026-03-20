@@ -198,7 +198,7 @@ encode_into_bytes :: proc(v: Value, flags := ENCODE_SMALL, allocator: mem.Alloca
 
 // Encodes the CBOR value into binary CBOR written to the given builder.
 // See the docs on the proc group `encode_into` for more info.
-encode_into_builder :: proc(b: ^strings_tools.Builder, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
+encode_into_builder :: proc(b: ^string_builder.Builder, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
     return encode_into_writer(strings_tools.to_stream(b), v, flags, loc=loc)
 }
 
@@ -392,7 +392,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
     v = buf.buf[:]
 
     // Write zero byte so this can be converted to cstring.
-    strings_tools.write_byte(&buf, 0)
+    string_builder.write_byte(&buf, 0)
 
     if .Shrink_Excess in d.flags { dyn_array_shrink(&buf.buf) }
     return

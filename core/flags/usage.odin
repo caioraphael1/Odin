@@ -204,25 +204,25 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
                 continue
             }
 
-            strings_tools.write_byte(&builder, ' ')
+            string_builder.write_byte(&builder, ' ')
 
             if flag.name == INTERNAL_OVERFLOW_FLAG {
                 strings_tools.write_string(&builder, "...")
                 continue
             }
 
-            if !flag.is_required { strings_tools.write_byte(&builder, '[') }
+            if !flag.is_required { string_builder.write_byte(&builder, '[') }
             if !flag.is_positional { strings_tools.write_string(&builder, flag_prefix) }
             strings_tools.write_string(&builder, flag.name)
-            if !flag.is_required { strings_tools.write_byte(&builder, ']') }
+            if !flag.is_required { string_builder.write_byte(&builder, ']') }
         }
 
-        strings_tools.write_byte(&builder, '\n')
+        string_builder.write_byte(&builder, '\n')
     }
 
     if len(visible_flags) == 0 {
         // No visible flags. An unusual situation, but prevent any extra work.
-        fmt.wprint(out, strings_tools.to_string(builder))
+        fmt.wprint(out, string_builder.to_string(builder))
         return
     }
 
@@ -243,13 +243,13 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
     for flag, i in visible_flags {
         if i == divider_index {
             SPACING :: 2 // Number of spaces before the '|' from below.
-            strings_tools.write_byte(&builder, '\t')
+            string_builder.write_byte(&builder, '\t')
             spacing, _ := strings.string_repeat(" ", SPACING + longest_flag_length, allocators.temp_allocator)
             strings_tools.write_string(&builder, spacing)
             strings_tools.write_string(&builder, "|\n")
         }
 
-        strings_tools.write_byte(&builder, '\t')
+        string_builder.write_byte(&builder, '\t')
 
         if flag.name == INTERNAL_OVERFLOW_FLAG {
             strings_tools.write_string(&builder, flag.type_description)
@@ -266,15 +266,15 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
             // Multi-line usage documentation. Let's make it look nice.
             usage_builder, _ := strings_tools.builder_create(allocators.temp_allocator)
 
-            strings_tools.write_byte(&usage_builder, '\n')
+            string_builder.write_byte(&usage_builder, '\n')
             iter := strings_tools.trim_space(flag.usage)
             for line in strings_tools.split_lines_iterator(&iter) {
                 strings_tools.write_string(&usage_builder, "\t\t")
                 strings_tools.write_string(&usage_builder, strings_tools.trim_left_space(line))
-                strings_tools.write_byte(&usage_builder, '\n')
+                string_builder.write_byte(&usage_builder, '\n')
             }
 
-            strings_tools.write_string(&builder, strings_tools.to_string(usage_builder))
+            strings_tools.write_string(&builder, string_builder.to_string(usage_builder))
         } else {
             // Single-line usage documentation.
             spacing, _ := strings.string_repeat(" ",
@@ -284,9 +284,9 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
             strings_tools.write_string(&builder, spacing)
             strings_tools.write_string(&builder, "  | ")
             strings_tools.write_string(&builder, flag.usage)
-            strings_tools.write_byte(&builder, '\n')
+            string_builder.write_byte(&builder, '\n')
         }
     }
 
-    fmt.wprint(out, strings_tools.to_string(builder))
+    fmt.wprint(out, string_builder.to_string(builder))
 }

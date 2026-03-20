@@ -81,7 +81,7 @@ destroy_console_logger :: proc(log: Logger, allocator: mem.Allocator) {
 @(private)
 _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text: string, options: Options, loc: internal.Source_Code_Location) {
     backing: [1024]byte //NOTE(Hoej): 1024 might be too much for a header backing, unless somebody has really long paths.
-    buf := strings_tools.builder_from_bytes(backing[:])
+    buf := string_builder.builder_from_bytes(backing[:])
 
     do_level_header(options, &buf, level)
 
@@ -99,7 +99,7 @@ _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, text
         fmt.sbprintf(&buf, "[%s] ", ident)
     }
     //TODO(Hoej): When we have better atomics and such, make this thread-safe
-    fmt.fprintf(h, "%s%s\n", strings_tools.to_string(buf), text)
+    fmt.fprintf(h, "%s%s\n", string_builder.to_string(buf), text)
 }
 
 file_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, options: Options, loc := #caller_location) {
@@ -121,7 +121,7 @@ console_logger_proc :: proc(logger_data: rawptr, level: Level, text: string, opt
     _file_console_logger_proc(h, data.ident, level, text, options, loc)
 }
 
-do_level_header :: proc(opts: Options, str: ^strings_tools.Builder, level: Level) {
+do_level_header :: proc(opts: Options, str: ^string_builder.Builder, level: Level) {
 
     RESET     :: ansi.CSI + ansi.RESET           + ansi.SGR
     RED       :: ansi.CSI + ansi.FG_RED          + ansi.SGR
@@ -147,7 +147,7 @@ do_level_header :: proc(opts: Options, str: ^strings_tools.Builder, level: Level
     }
 }
 
-do_time_header :: proc(opts: Options, buf: ^strings_tools.Builder, t: time.Time) {
+do_time_header :: proc(opts: Options, buf: ^string_builder.Builder, t: time.Time) {
     when time.IS_SUPPORTED {
         if Full_Timestamp_Opts & opts != nil {
             fmt.sbprint(buf, "[")
@@ -165,7 +165,7 @@ do_time_header :: proc(opts: Options, buf: ^strings_tools.Builder, t: time.Time)
     }
 }
 
-do_location_header :: proc(opts: Options, buf: ^strings_tools.Builder, loc := #caller_location) {
+do_location_header :: proc(opts: Options, buf: ^string_builder.Builder, loc := #caller_location) {
     if Location_Header_Opts & opts == nil {
         return
     }

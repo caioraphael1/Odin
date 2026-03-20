@@ -187,7 +187,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
 
     internal.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
-    b: strings_tools.Builder
+    b: string_builder.Builder
     b.buf.allocator = allocators.temp_allocator
 
     strings_tools.write_string(&b, "[nbio] ")
@@ -224,11 +224,11 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
         }
 
         if i < len(contents)-1 {
-            strings_tools.write_byte(&b, ' ')
+            string_builder.write_byte(&b, ' ')
         }
     }
 
-    context.logger.procedure(context.logger.data, .Debug, strings_tools.to_string(b), context.logger.options, location)
+    context.logger.procedure(context.logger.data, .Debug, string_builder.to_string(b), context.logger.options, location)
 }
 
 warn :: proc(text: string, location := #caller_location) {

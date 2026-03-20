@@ -81,12 +81,12 @@ example :: proc() {
 }
 
 doc_hash :: proc(doc: ^xml.Document, print := false) -> (crc32: u32) {
-    buf: strings_tools.Builder
+    buf: string_builder.Builder
     defer strings_tools.builder_destroy(&buf)
-    w := strings_tools.to_writer(&buf)
+    w := string_builder.to_writer(&buf)
 
     xml.print(w, doc)
-    tree := strings_tools.to_string(buf)
+    tree := string_builder.to_string(buf)
     if print { fmt.println(tree) }
     return hash.crc32(transmute([]u8)tree)
 }

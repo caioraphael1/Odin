@@ -169,7 +169,7 @@ Map_Cell_Info :: struct {
 
 
 
-map_cap :: #force_inline proc(m: Raw_Map) -> int {
+map_cap :: #force_inline proc(m: Raw_Map) -> uint {
     // The data uintptr stores the capacity in the lower six bits which gives the
     // a maximum value of 2^6-1, or 63. We store the integer log2 of capacity
     // since our capacity is always a power of two. We only need 63 bits as Odin
@@ -682,7 +682,7 @@ __map_insert_hash_dynamic :: #force_inline proc(#no_alias m: ^Raw_Map, #no_alias
     return
 }
 
-__default_hasher :: #force_inline proc(data: rawptr, seed: uintptr, N: int) -> uintptr {
+__default_hasher :: #force_inline proc(data: rawptr, seed: uintptr, N: uint) -> uintptr {
     h := u64(seed) + INITIAL_HASH_SEED
     p := ([^]byte)(data)
     for _ in 0..<N {
@@ -695,7 +695,7 @@ __default_hasher :: #force_inline proc(data: rawptr, seed: uintptr, N: int) -> u
 
 __default_hasher_string :: proc(data: rawptr, seed: uintptr) -> uintptr {
     str := (^[]byte)(data)
-    return __default_hasher(raw_data(str^), seed, int(len(str)))
+    return __default_hasher(raw_data(str^), seed, len(str))
 }
 
 __default_hasher_cstring :: proc(data: rawptr, seed: uintptr) -> uintptr {

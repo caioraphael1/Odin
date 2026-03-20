@@ -128,7 +128,7 @@ Example:
             table.caption(&tbl, "Hellope!")
             table.row(&tbl, "Hellope", "World")
 
-            builder_writer := strings_tools.to_writer(&string_buffer)
+            builder_writer := string_builder.to_writer(&string_buffer)
 
             // The written table will be cached into the string builder after this call.
             table.write_plain_table(builder_writer, &tbl)
@@ -136,7 +136,7 @@ Example:
         // The table is inaccessible, now that we're back in the first-level scope.
 
         // But now the results are stored in the string builder, which can be converted to a string.
-        my_table_string := strings_tools.to_string(string_buffer)
+        my_table_string := string_builder.to_string(string_buffer)
 
         // Remember that the string's allocated backing data lives in the
         // builder and must still be freed.

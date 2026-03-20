@@ -244,7 +244,7 @@ Context :: struct {
     mouse_released_bits:                 Mouse_Set,
     key_down_bits, key_pressed_bits:     Key_Set,
     _text_store:                         [MAX_TEXT_STORE]u8,
-    text_input:                          strings_tools.Builder, // uses `_text_store` as backing store with nil_allocator.
+    text_input:                          string_builder.Builder, // uses `_text_store` as backing store with nil_allocator.
     textbox_state:                       textedit.State,
     textbox_offset:                      i32,
 }
@@ -328,7 +328,7 @@ init :: proc(
     ctx.draw_frame  = default_draw_frame
     ctx._style      = default_style
     ctx.style       = &ctx._style
-    ctx.text_input  = strings_tools.builder_from_bytes(ctx._text_store[:])
+    ctx.text_input  = string_builder.builder_from_bytes(ctx._text_store[:])
 
     ctx.textbox_state.set_clipboard       = set_clipboard
     ctx.textbox_state.get_clipboard       = get_clipboard
@@ -991,7 +991,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
 
     if ctx.focus_id == id {
         /* create a builder backed by the user's buffer */
-        builder := strings_tools.builder_from_bytes(textbuf)
+        builder := string_builder.builder_from_bytes(textbuf)
         _ = dyn_array.resize_non_zero(&builder.buf, textlen^)
         ctx.textbox_state.builder = &builder
         if ctx.textbox_state.id != u64(id) {
@@ -1006,7 +1006,7 @@ textbox_raw :: proc(ctx: ^Context, textbuf: []u8, textlen: ^int, id: Id, r: Rect
 
         /* handle text input */
         if strings_tools.builder_len(ctx.text_input) > 0 {
-            if textedit.input_text(&ctx.textbox_state, strings_tools.to_string(ctx.text_input)) > 0 {
+            if textedit.input_text(&ctx.textbox_state, string_builder.to_string(ctx.text_input)) > 0 {
                 textlen^ = strings_tools.builder_len(builder)
                 res += {.CHANGE}
             }

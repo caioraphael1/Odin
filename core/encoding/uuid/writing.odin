@@ -94,9 +94,9 @@ to_string_allocated :: proc(
     error: mem.Allocator_Error,
 ) {
     buf := slice.create([]byte, EXPECTED_LENGTH, allocator, loc) or_return
-    builder := strings_tools.builder_from_bytes(buf[:])
-    unsafe_write(strings_tools.to_writer(&builder), id)
-    return strings_tools.to_string(builder), nil
+    builder := string_builder.builder_from_bytes(buf[:])
+    unsafe_write(string_builder.to_writer(&builder), id)
+    return string_builder.to_string(builder), nil
 }
 
 /*
@@ -122,7 +122,7 @@ to_string_buffer :: proc(
         "The buffer provided is not at least 36 bytes large.",
         loc,
     )
-    builder := strings_tools.builder_from_bytes(buffer)
-    unsafe_write(strings_tools.to_writer(&builder), id)
-    return strings_tools.to_string(builder)
+    builder := string_builder.builder_from_bytes(buffer)
+    unsafe_write(string_builder.to_writer(&builder), id)
+    return string_builder.to_string(builder)
 }

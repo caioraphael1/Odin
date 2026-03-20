@@ -41,9 +41,9 @@ to_writer :: proc(b: ^Builder) -> (res: io.Writer) {
 /*
 Example:
     builder := strings_tools.builder_create()
-    strings_tools.write_byte(&builder, 'a')        // 1
-    strings_tools.write_byte(&builder, 'b')        // 1
-    fmt.println(strings_tools.to_string(builder))  // -> ab
+    string_builder.write_byte(&builder, 'a')        // 1
+    string_builder.write_byte(&builder, 'b')        // 1
+    fmt.println(string_builder.to_string(builder))  // -> ab
 Output:
     ab
 */
@@ -60,7 +60,7 @@ Example:
     builder := strings_tools.builder_create()
     bytes := [?]byte { 'a', 'b', 'c' }
     strings_tools.write_bytes(&builder, bytes[:]) // 3
-    fmt.println(strings_tools.to_string(builder)) // -> abc
+    fmt.println(string_builder.to_string(builder)) // -> abc
 */
 @(optional_results)
 write_bytes :: proc(b: ^Builder, x: []byte, loc := #caller_location) -> (n: uint) {
@@ -92,7 +92,7 @@ Example:
     strings_tools.write_string(&builder, "abc")      // 3
     strings.write_quoted_rune(&builder, 'ä') // 4
     strings_tools.write_string(&builder, "abc")      // 3
-    fmt.println(strings_tools.to_string(builder))    // -> abc'ä'abc
+    fmt.println(string_builder.to_string(builder))    // -> abc'ä'abc
 Output:
     abc'ä'abc
 */
@@ -106,7 +106,7 @@ Example:
     builder := strings_tools.builder_create()
     strings_tools.write_string(&builder, "a")     // 1
     strings_tools.write_string(&builder, "bc")    // 2
-    fmt.println(strings_tools.to_string(builder)) // -> abc
+    fmt.println(string_builder.to_string(builder)) // -> abc
 Output:
     abc
 */
@@ -128,7 +128,7 @@ Example:
     strings.write_quoted_string(&builder, "a")        // 3
     strings.write_quoted_string(&builder, "bc", '\'') // 4
     strings.write_quoted_string(&builder, "xyz")      // 5
-    fmt.println(strings_tools.to_string(builder))
+    fmt.println(string_builder.to_string(builder))
 Output:
     "a"'bc'"xyz"
 */
@@ -149,7 +149,7 @@ Example:
     _, _ = strings.write_encoded_rune(&builder, 'a', false) // 1
     _, _ = strings.write_encoded_rune(&builder, '\"', true) // 3
     _, _ = strings.write_encoded_rune(&builder, 'x', false) // 1
-    fmt.println(strings_tools.to_string(builder))
+    fmt.println(string_builder.to_string(builder))
 Output:
     a'"'x
 */
@@ -206,7 +206,7 @@ Example:
     strings.write_f32(&builder, 3.14159, 'f') // 6
     strings_tools.write_string(&builder, " - ")     // 3
     strings.write_f32(&builder, -0.123, 'e')  // 8
-    fmt.println(strings_tools.to_string(builder))   // -> 3.14159012 - -1.23000003e-01
+    fmt.println(string_builder.to_string(builder))   // -> 3.14159012 - -1.23000003e-01
 Output:
     3.14159012 - -1.23000003e-01
 */

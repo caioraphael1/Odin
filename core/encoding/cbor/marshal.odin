@@ -53,8 +53,8 @@ marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocat
 
 // Marshals the given value into a CBOR byte stream written to the given builder.
 // See docs on the `marshal_into` proc group for more info.
-marshal_into_builder :: proc(b: ^strings_tools.Builder, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
-    return marshal_into_writer(strings_tools.to_writer(b), v, flags)
+marshal_into_builder :: proc(b: ^string_builder.Builder, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
+    return marshal_into_writer(string_builder.to_writer(b), v, flags)
 }
 
 // Marshals the given value into a CBOR byte stream written to the given writer.
@@ -334,7 +334,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
             // This fits in 9 bytes at most.
             pre_key :: #force_inline proc(e: Encoder, str: string) -> (res: [10]byte) {
                 e := e
-                builder := strings_tools.builder_from_bytes(res[:])
+                builder := string_builder.builder_from_bytes(res[:])
                 e.writer = strings_tools.to_stream(&builder)
 
                 err := _encode_u64(e, u64(len(str)), .Text)
@@ -569,7 +569,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
             builder := strings_tools.builder_create(e.temp_allocator) or_return
             defer strings_tools.builder_destroy(&builder)
             reflect.write_type(&builder, vti)
-            err_conv(_encode_text(e, strings_tools.to_string(builder))) or_return
+            err_conv(_encode_text(e, string_builder.to_string(builder))) or_return
         }
 
         return marshal_into(e, any{v.data, vti.id})

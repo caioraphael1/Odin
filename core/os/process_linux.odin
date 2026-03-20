@@ -117,7 +117,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
     // Use this to make cstrings without copying.
     path_backing: [48]u8
-    path_builder := strings_tools.builder_from_bytes(path_backing[:])
+    path_builder := string_builder.builder_from_bytes(path_backing[:])
 
     strings_tools.write_string(&path_builder, "/proc/")
     strings_tools.write_int(&path_builder, pid)
@@ -213,7 +213,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if selection & {.Command_Line, .Command_Args} != {} {
             // skip to first arg
             //cmdline = cmdline[terminator + 1:]
-            command_line_builder: strings_tools.Builder
+            command_line_builder: string_builder.Builder
             command_args_list: [dynamic]string
 
             if .Command_Line in selection {
@@ -228,7 +228,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
                 if .Command_Line in selection {
                     if i > 0 {
-                        strings_tools.write_byte(&command_line_builder, ' ')
+                        string_builder.write_byte(&command_line_builder, ' ')
                     }
                     strings_tools.write_string(&command_line_builder, cmdline[:terminator])
                 }
@@ -245,7 +245,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
                 cmdline = cmdline[terminator + 1:]
             }
-            info.command_line = strings_tools.to_string(command_line_builder)
+            info.command_line = string_builder.to_string(command_line_builder)
             info.command_args = command_args_list[:]
         }
     }
@@ -338,7 +338,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         strings_tools.write_int(&path_builder, pid)
         strings_tools.write_string(&path_builder, "/exe")
 
-        if exe_bytes, exe_err := _read_link(strings_tools.to_string(path_builder), allocators.temp_allocator); exe_err == nil {
+        if exe_bytes, exe_err := _read_link(string_builder.to_string(path_builder), allocators.temp_allocator); exe_err == nil {
             info.executable_path = strings.string_clone(string(exe_bytes), allocator) or_return
             info.fields += {.Executable_Path}
         } else {
@@ -434,7 +434,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         for dir in path_dirs {
             strings_tools.builder_clear(&exe_builder)
             strings_tools.write_string(&exe_builder, dir)
-            strings_tools.write_byte(&exe_builder, '/')
+            string_builder.write_byte(&exe_builder, '/')
             strings_tools.write_string(&exe_builder, executable_name)
 
             exe_path = strings.to_cstring(&exe_builder) or_return
@@ -608,7 +608,7 @@ _process_state_update_times :: proc(state: ^Process_State) -> (err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     stat_path_buf: [48]u8
-    path_builder := strings_tools.builder_from_bytes(stat_path_buf[:])
+    path_builder := string_builder.builder_from_bytes(stat_path_buf[:])
     strings_tools.write_string(&path_builder, "/proc/")
     strings_tools.write_int(&path_builder, int(state.pid))
     strings_tools.write_string(&path_builder, "/stat")

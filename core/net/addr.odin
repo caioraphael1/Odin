@@ -478,14 +478,14 @@ join_port_allocator :: proc(address_or_host: string, port: int, allocator: mem.A
         strings_tools.write_string(&b, addr_or_host)
         strings_tools.write_string(&b, ":")
         strings_tools.write_int(&b, port)
-        return strings_tools.to_string(b)
+        return string_builder.to_string(b)
     } else {
         return _join_port_internal(addr, port, &b)
     }
 }
 
-// Joins an address or hostname with a port, allocated using a `strings_tools.Builder`.
-join_port_builder :: proc(address_or_host: string, port: int, b: ^strings_tools.Builder) -> string {
+// Joins an address or hostname with a port, allocated using a `string_builder.Builder`.
+join_port_builder :: proc(address_or_host: string, port: int, b: ^string_builder.Builder) -> string {
     addr_or_host, _, ok := split_port(address_or_host)
     if !ok {
         return addr_or_host
@@ -497,7 +497,7 @@ join_port_builder :: proc(address_or_host: string, port: int, b: ^strings_tools.
         strings_tools.write_string(b, addr_or_host)
         strings_tools.write_string(b, ":")
         strings_tools.write_int(b, port)
-        return strings_tools.to_string(b^)
+        return string_builder.to_string(b^)
     } else {
         return _join_port_internal(addr, port, b)
     }
@@ -506,7 +506,7 @@ join_port_builder :: proc(address_or_host: string, port: int, b: ^strings_tools.
 
 // Also used in `endpoint_to_string_builder`.
 @(private)
-_join_port_internal :: proc(addr: Address, port: int, b: ^strings_tools.Builder) -> string {
+_join_port_internal :: proc(addr: Address, port: int, b: ^string_builder.Builder) -> string {
     switch a in addr {
     case IP4_Address:
         _ = address_to_string_builder(addr, b)
@@ -518,7 +518,7 @@ _join_port_internal :: proc(addr: Address, port: int, b: ^strings_tools.Builder)
         strings_tools.write_string(b, "]:")
         strings_tools.write_int(b, port)
     }
-    return strings_tools.to_string(b^)
+    return string_builder.to_string(b^)
 }
 
 // TODO(tetra): Do we need this?
@@ -545,19 +545,19 @@ address_to_string_allocator :: proc(addr: Address) -> string {
 }
 
 /*
-    Returns a string representation of the address using a `strings_tools.Builder`.
+    Returns a string representation of the address using a `string_builder.Builder`.
 
     See RFC 5952 section 4 for IPv6 representation recommendations.
 */
-address_to_string_builder :: proc(addr: Address, b: ^strings_tools.Builder) -> string {
+address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> string {
     switch v in addr {
     case IP4_Address:
         _ = strings_tools.write_uint(b, uint(v[0]))
-        strings_tools.write_byte(b, '.')
+        string_builder.write_byte(b, '.')
         _ = strings_tools.write_uint(b, uint(v[1]))
-        strings_tools.write_byte(b, '.')
+        string_builder.write_byte(b, '.')
         _ = strings_tools.write_uint(b, uint(v[2]))
-        strings_tools.write_byte(b, '.')
+        string_builder.write_byte(b, '.')
         _ = strings_tools.write_uint(b, uint(v[3]))
     case IP6_Address:
         // First find the longest run of zeroes.
@@ -643,7 +643,7 @@ address_to_string_builder :: proc(addr: Address, b: ^strings_tools.Builder) -> s
             }
         }
     }
-    return strings_tools.to_string(b^)
+    return string_builder.to_string(b^)
 }
 
 // Returns a temporarily-allocated string representation of the endpoint.
@@ -653,9 +653,9 @@ endpoint_to_string_allocator :: proc(ep: Endpoint) -> string {
     return endpoint_to_string_builder(ep, &b)
 }
 
-// Returns a string representation of the endpoint using a `strings_tools.Builder`.
+// Returns a string representation of the endpoint using a `string_builder.Builder`.
 // If there's a port, uses the `ip4address:port` or `[ip6address]:port` format, respectively.
-endpoint_to_string_builder :: proc(ep: Endpoint, b: ^strings_tools.Builder) -> string {
+endpoint_to_string_builder :: proc(ep: Endpoint, b: ^string_builder.Builder) -> string {
     if ep.port == 0 {
         return address_to_string_builder(ep.address, b)
     } else {

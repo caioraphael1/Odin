@@ -13,6 +13,7 @@ import "base:unicode/utf8"
 import "core:strings_tools"
 import "core:math/bits"
 import "core:io"
+import "core:io/string_builder"
 import "core:reflect"
 import "core:time"
 
@@ -134,8 +135,8 @@ register_user_formatter :: proc(id: typeid, formatter: User_Formatter) -> Regist
 //
 
 aprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocator)
     return sbprint(&str, ..args, sep=sep)
 }
 //  Creates a formatted string with a newline character at the end
@@ -150,8 +151,8 @@ aprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
 //
 
 aprintln :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocator)
     return sbprintln(&str, ..args, sep=sep)
 }
 //  Creates a formatted string using a format string and arguments
@@ -167,8 +168,8 @@ aprintln :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> string {
 //
 
 aprintf :: proc(fmt: string, args: []any, allocator: mem.Allocator, newline := false) -> string {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocator)
     return sbprintf(&str, fmt, ..args, newline=newline)
 }
 //  Creates a formatted string using a format string and arguments, followed by a newline.
@@ -197,8 +198,8 @@ aprintfln :: proc(fmt: string, args: []any, allocator: mem.Allocator) -> string 
 //
 
 tprint :: proc(args: ..any, sep := " ") -> string {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocators.temp_allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocators.temp_allocator)
     return sbprint(&str, ..args, sep=sep)
 }
 //  Creates a formatted string with a newline character at the end
@@ -213,8 +214,8 @@ tprint :: proc(args: ..any, sep := " ") -> string {
 //
 
 tprintln :: proc(args: ..any, sep := " ") -> string {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocators.temp_allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocators.temp_allocator)
     return sbprintln(&str, ..args, sep=sep)
 }
 //  Creates a formatted string using a format string and arguments
@@ -230,8 +231,8 @@ tprintln :: proc(args: ..any, sep := " ") -> string {
 //
 
 tprintf :: proc(fmt: string, args: ..any, newline := false, loc := #caller_location) -> string {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocators.temp_allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocators.temp_allocator)
     return sbprintf(&str, fmt, ..args, newline=newline)
 }
 //  Creates a formatted string using a format string and arguments, followed by a newline.
@@ -258,7 +259,7 @@ tprintfln :: proc(fmt: string, args: ..any) -> string {
 // Returns: A formatted string
 //
 bprint :: proc(buf: []byte, args: ..any, sep := " ") -> string {
-    sb := strings_tools.builder_from_bytes(buf)
+    sb := string_builder.builder_from_bytes(buf)
     return sbprint(&sb, ..args, sep=sep)
 }
 // Creates a formatted string using a supplied buffer as the backing array, appends newline. Writes into the buffer.
@@ -271,7 +272,7 @@ bprint :: proc(buf: []byte, args: ..any, sep := " ") -> string {
 // Returns: A formatted string with a newline character at the end
 //
 bprintln :: proc(buf: []byte, args: ..any, sep := " ") -> string {
-    sb := strings_tools.builder_from_bytes(buf)
+    sb := string_builder.builder_from_bytes(buf)
     return sbprintln(&sb, ..args, sep=sep)
 }
 // Creates a formatted string using a supplied buffer as the backing array. Writes into the buffer.
@@ -285,7 +286,7 @@ bprintln :: proc(buf: []byte, args: ..any, sep := " ") -> string {
 // Returns: A formatted string
 //
 bprintf :: proc(buf: []byte, fmt: string, args: ..any, newline := false) -> string {
-    sb := strings_tools.builder_from_bytes(buf)
+    sb := string_builder.builder_from_bytes(buf)
     return sbprintf(&sb, fmt, ..args, newline=newline)
 }
 // Creates a formatted string using a supplied buffer as the backing array, followed by a newline. Writes into the buffer.
@@ -365,11 +366,11 @@ panicf :: proc(fmt: string, args: ..any, loc := #caller_location) -> ! {
 //
 
 caprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> cstring {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocator)
     sbprint(&str, ..args, sep=sep)
-    strings_tools.write_byte(&str, 0)
-    s := strings_tools.to_string(str)
+    string_builder.write_byte(&str, 0)
+    s := string_builder.to_string(str)
     return cstring(raw_data(s))
 }
 
@@ -386,11 +387,11 @@ caprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> cstring {
 //
 
 caprintf :: proc(format: string, args: []any, allocator: mem.Allocator, newline := false) -> cstring {
-    str: strings_tools.Builder
-    strings_tools.builder_init(&str, allocator)
+    str: string_builder.Builder
+    string_builder.builder_init(&str, allocator)
     _ = sbprintf(&str, format, ..args, newline=newline)
-    strings_tools.write_byte(&str, 0)
-    s := strings_tools.to_string(str)
+    string_builder.write_byte(&str, 0)
+    s := string_builder.to_string(str)
     return cstring(raw_data(s))
 }
 // Creates a formatted C string, followed by a newline.
@@ -450,38 +451,38 @@ ctprintf :: proc(format: string, args: ..any, newline := false) -> cstring {
 ctprintfln :: proc(format: string, args: ..any) -> cstring {
     return caprintf(format=format, args=args, allocator=allocators.temp_allocator, newline=true)
 }
-// Formats using the default print settings and writes to the given strings_tools.Builder
+// Formats using the default print settings and writes to the given string_builder.Builder
 //
 // Inputs:
-// - buf: A pointer to a strings_tools.Builder to store the formatted string
+// - buf: A pointer to a string_builder.Builder to store the formatted string
 // - args: A variadic list of arguments to be formatted
 // - sep: An optional separator string (default is a single space)
 //
 // Returns: A formatted string
 //
 @(optional_results)
-sbprint :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string {
-    wprint(strings_tools.to_writer(buf), ..args, sep=sep, flush=true)
-    return strings_tools.to_string(buf^)
+sbprint :: proc(buf: ^string_builder.Builder, args: ..any, sep := " ") -> string {
+    wprint(string_builder.to_writer(buf), ..args, sep=sep, flush=true)
+    return string_builder.to_string(buf^)
 }
-// Formats and writes to a strings_tools.Builder buffer using the default print settings
+// Formats and writes to a string_builder.Builder buffer using the default print settings
 //
 // Inputs:
-// - buf: A pointer to a strings_tools.Builder buffer
+// - buf: A pointer to a string_builder.Builder buffer
 // - args: A variadic list of arguments to be formatted
 // - sep: An optional separator string (default is a single space)
 //
 // Returns: The resulting formatted string
 //
 @(optional_results)
-sbprintln :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> string {
-    wprintln(strings_tools.to_writer(buf), ..args, sep=sep, flush=true)
-    return strings_tools.to_string(buf^)
+sbprintln :: proc(buf: ^string_builder.Builder, args: ..any, sep := " ") -> string {
+    wprintln(string_builder.to_writer(buf), ..args, sep=sep, flush=true)
+    return string_builder.to_string(buf^)
 }
-// Formats and writes to a strings_tools.Builder buffer according to the specified format string
+// Formats and writes to a string_builder.Builder buffer according to the specified format string
 //
 // Inputs:
-// - buf: A pointer to a strings_tools.Builder buffer
+// - buf: A pointer to a string_builder.Builder buffer
 // - fmt: The format string
 // - args: A variadic list of arguments to be formatted
 // - newline: Whether a trailing newline should be written. (See `sbprintfln`.)
@@ -489,20 +490,20 @@ sbprintln :: proc(buf: ^strings_tools.Builder, args: ..any, sep := " ") -> strin
 // Returns: The resulting formatted string
 //
 @(optional_results)
-sbprintf :: proc(buf: ^strings_tools.Builder, fmt: string, args: ..any, newline := false) -> string {
-    wprintf(strings_tools.to_writer(buf), fmt, ..args, flush=true, newline=newline)
-    return strings_tools.to_string(buf^)
+sbprintf :: proc(buf: ^string_builder.Builder, fmt: string, args: ..any, newline := false) -> string {
+    wprintf(string_builder.to_writer(buf), fmt, ..args, flush=true, newline=newline)
+    return string_builder.to_string(buf^)
 }
-// Formats and writes to a strings_tools.Builder buffer according to the specified format string, followed by a newline.
+// Formats and writes to a string_builder.Builder buffer according to the specified format string, followed by a newline.
 //
 // Inputs:
-// - buf:  A pointer to a strings_tools.Builder to store the formatted string
+// - buf:  A pointer to a string_builder.Builder to store the formatted string
 // - args: A variadic list of arguments to be formatted
 //
 // Returns: A formatted string
 //
 @(optional_results)
-sbprintfln :: proc(buf: ^strings_tools.Builder, format: string, args: ..any) -> string {
+sbprintfln :: proc(buf: ^string_builder.Builder, format: string, args: ..any) -> string {
     return sbprintf(buf, format, ..args, newline=true)
 }
 // Formats and writes to an io.Writer using the default print settings
