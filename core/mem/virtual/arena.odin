@@ -195,7 +195,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
         }
         // Zero the first block's memory
         if arena.curr_block != nil {
-            curr_block_used := int(arena.curr_block.used)
+            curr_block_used := uint(arena.curr_block.used)
             arena.curr_block.used = 0
             // sanitizer.address_unpoison(arena.curr_block.base[:curr_block_used])
             mem.zero(arena.curr_block.base, curr_block_used)
@@ -285,8 +285,8 @@ arena_allocator :: proc(arena: ^Arena) -> mem.Allocator {
 // The allocator procedure used by an `Allocator` produced by `arena_allocator`
 @(no_sanitize_address)
 arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
-                             size, alignment: int,
-                             old_memory: rawptr, old_size: int,
+                             size, alignment: uint,
+                             old_memory: rawptr, old_size: uint,
                              location := #caller_location) -> (data: []byte, err: Allocator_Error) {
     arena := (^Arena)(allocator_data)
 

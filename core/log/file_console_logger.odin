@@ -11,6 +11,7 @@ import "core:os"
 import "core:strings_tools"
 import "core:terminal/ansi"
 import "core:time"
+import "core:io/string_builder"
 
 Level_Headers := [?]string{
      0..<10 = "[DEBUG] --- ",
@@ -173,7 +174,7 @@ do_location_header :: proc(opts: Options, buf: ^string_builder.Builder, loc := #
 
     file := loc.file_path
     if .Short_File_Path in opts {
-        last := 0
+        last: uint
         for r, i in loc.file_path {
             if r == '/' {
                 last = i+1

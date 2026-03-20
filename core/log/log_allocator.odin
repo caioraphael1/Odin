@@ -47,8 +47,8 @@ log_allocator :: proc(la: ^Log_Allocator) -> mem.Allocator {
 }
 
 log_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
-                           size, alignment: int,
-                           old_memory: rawptr, old_size: int, loc := #caller_location) -> ([]byte, mem.Allocator_Error)  {
+                           size, alignment: uint,
+                           old_memory: rawptr, old_size: uint, loc := #caller_location) -> ([]byte, mem.Allocator_Error)  {
     la := (^Log_Allocator)(allocator_data)
 
     if la.logger.procedure == nil || la.level < la.logger.lowest_level {
