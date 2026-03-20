@@ -260,8 +260,8 @@ index_any :: proc(s, chars: string) -> (res: uint, found: bool) {
     }
 
     for c, i in s {
-        _, found := index_rune(chars, c)
-        if found {
+        _, r_found := index_rune(chars, c)
+        if r_found {
             return i, true
         }
     }
@@ -324,8 +324,8 @@ last_index_any :: proc(s, chars: string) -> (res: uint, found: bool) {
     for i := len(s); i > 0; /**/ {
         r, w := utf8.last_rune_in_string(s[:i])
         i -= w
-        _, found := index_rune(chars, r)
-        if found {
+        _, r_found := index_rune(chars, r)
+        if r_found {
             return i, true
         }
     }

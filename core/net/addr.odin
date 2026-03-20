@@ -478,7 +478,7 @@ join_port_allocator :: proc(address_or_host: string, port: int, allocator: mem.A
         // hostname
         string_builder.write_string(&b, addr_or_host)
         string_builder.write_string(&b, ":")
-        strings_tools.write_int(&b, port)
+        string_builder.write_int(&b, port)
         return string_builder.to_string(b)
     } else {
         return _join_port_internal(addr, port, &b)
@@ -497,7 +497,7 @@ join_port_builder :: proc(address_or_host: string, port: int, b: ^string_builder
         // hostname
         string_builder.write_string(b, addr_or_host)
         string_builder.write_string(b, ":")
-        strings_tools.write_int(b, port)
+        string_builder.write_int(b, port)
         return string_builder.to_string(b^)
     } else {
         return _join_port_internal(addr, port, b)
@@ -512,12 +512,12 @@ _join_port_internal :: proc(addr: Address, port: int, b: ^string_builder.Builder
     case IP4_Address:
         _ = address_to_string_builder(addr, b)
         string_builder.write_string(b, ":")
-        strings_tools.write_int(b, port)
+        string_builder.write_int(b, port)
     case IP6_Address:
         string_builder.write_string(b, "[")
         _ = address_to_string_builder(addr, b)
         string_builder.write_string(b, "]:")
-        strings_tools.write_int(b, port)
+        string_builder.write_int(b, port)
     }
     return string_builder.to_string(b^)
 }
@@ -553,13 +553,13 @@ address_to_string_allocator :: proc(addr: Address) -> string {
 address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> string {
     switch v in addr {
     case IP4_Address:
-        _ = strings_tools.write_uint(b, uint(v[0]))
+        _ = string_builder.write_uint(b, uint(v[0]))
         string_builder.write_byte(b, '.')
-        _ = strings_tools.write_uint(b, uint(v[1]))
+        _ = string_builder.write_uint(b, uint(v[1]))
         string_builder.write_byte(b, '.')
-        _ = strings_tools.write_uint(b, uint(v[2]))
+        _ = string_builder.write_uint(b, uint(v[2]))
         string_builder.write_byte(b, '.')
-        _ = strings_tools.write_uint(b, uint(v[3]))
+        _ = string_builder.write_uint(b, uint(v[3]))
     case IP6_Address:
         // First find the longest run of zeroes.
         Zero_Run :: struct {

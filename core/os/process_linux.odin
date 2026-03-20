@@ -120,7 +120,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     path_builder := string_builder.builder_from_bytes(path_backing[:])
 
     string_builder.write_string(&path_builder, "/proc/")
-    strings_tools.write_int(&path_builder, pid)
+    string_builder.write_int(&path_builder, pid)
     proc_fd, errno := linux.open(strings.to_cstring(&path_builder) or_return, _OPENDIR_FLAGS)
     if errno != .NONE {
         err = _get_platform_error(errno)
@@ -176,7 +176,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     cmdline_if: if selection & {.Working_Dir, .Command_Line, .Command_Args} != {} {
         strings_tools.builder_clear(&path_builder)
         string_builder.write_string(&path_builder, "/proc/")
-        strings_tools.write_int(&path_builder, pid)
+        string_builder.write_int(&path_builder, pid)
         string_builder.write_string(&path_builder, "/cmdline")
 
         cmdline_bytes, cmdline_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator)
@@ -197,7 +197,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if .Working_Dir in selection {
             strings_tools.builder_clear(&path_builder)
             string_builder.write_string(&path_builder, "/proc/")
-            strings_tools.write_int(&path_builder, pid)
+            string_builder.write_int(&path_builder, pid)
             string_builder.write_string(&path_builder, "/cwd")
 
             cwd, cwd_err = _read_link_cstr(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator) // allowed to fail
@@ -253,7 +253,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     stat_if: if selection & {.PPid, .Priority} != {} {
         strings_tools.builder_clear(&path_builder)
         string_builder.write_string(&path_builder, "/proc/")
-        strings_tools.write_int(&path_builder, pid)
+        string_builder.write_int(&path_builder, pid)
         string_builder.write_string(&path_builder, "/stat")
 
         proc_stat_bytes, stat_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator)
@@ -335,7 +335,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
 
         strings_tools.builder_clear(&path_builder)
         string_builder.write_string(&path_builder, "/proc/")
-        strings_tools.write_int(&path_builder, pid)
+        string_builder.write_int(&path_builder, pid)
         string_builder.write_string(&path_builder, "/exe")
 
         if exe_bytes, exe_err := _read_link(string_builder.to_string(path_builder), allocators.temp_allocator); exe_err == nil {
@@ -349,7 +349,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     if .Environment in selection {
         strings_tools.builder_clear(&path_builder)
         string_builder.write_string(&path_builder, "/proc/")
-        strings_tools.write_int(&path_builder, pid)
+        string_builder.write_int(&path_builder, pid)
         string_builder.write_string(&path_builder, "/environ")
 
         if env_bytes, env_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator); env_err == nil {
@@ -610,7 +610,7 @@ _process_state_update_times :: proc(state: ^Process_State) -> (err: Error) {
     stat_path_buf: [48]u8
     path_builder := string_builder.builder_from_bytes(stat_path_buf[:])
     string_builder.write_string(&path_builder, "/proc/")
-    strings_tools.write_int(&path_builder, int(state.pid))
+    string_builder.write_int(&path_builder, int(state.pid))
     string_builder.write_string(&path_builder, "/stat")
 
     stat_buf: []u8

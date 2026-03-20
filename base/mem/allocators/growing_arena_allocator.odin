@@ -202,9 +202,6 @@ growing_arena_allocator_proc :: proc(
     ) -> (data: []byte, err: mem.Allocator_Error) {
     arena := (^Growing_Arena)(allocator_data)
 
-    size, alignment := uint(size), uint(alignment)
-    old_size := uint(old_size)
-
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
         return growing_arena_alloc(arena, size, alignment, loc)

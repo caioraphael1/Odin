@@ -24,7 +24,9 @@ Returns:
 */
 encode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
     res, err = slice.create([]byte, len(src) * 2, allocator, loc)
-    #no_bounds_check for i, j := 0, 0; i < len(src); i += 1 {
+    i: uint
+    j: uint
+    #no_bounds_check for ; i < len(src); i += 1 {
         v := src[i]
         res[j]   = LOWER[v>>4]
         res[j+1] = LOWER[v&0x0f]
@@ -66,7 +68,9 @@ Returns:
 */
 encode_upper :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
     res, err = slice.create([]byte, len(src) * 2, allocator, loc)
-    #no_bounds_check for i, j := 0, 0; i < len(src); i += 1 {
+    i: uint
+    j: uint
+    #no_bounds_check for ; i < len(src); i += 1 {
         v := src[i]
         res[j]   = UPPER[v>>4]
         res[j+1] = UPPER[v&0x0f]
@@ -112,7 +116,9 @@ decode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -
     }
 
     dst, _ = slice.create([]byte, len(src) / 2, allocator, loc)
-    #no_bounds_check for i, j := 0, 1; j < len(src); j += 2 {
+    i: uint
+    j: uint = 1
+    #no_bounds_check for ; j < len(src); j += 2 {
         p := src[j-1]
         q := src[j]
 

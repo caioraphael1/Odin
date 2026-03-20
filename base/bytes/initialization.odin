@@ -16,12 +16,6 @@ bytes_to_ptr :: proc(str: []byte) -> ^byte {
     return raw_data(str)
 }
 
-bytes_from_slice :: proc(slice: $E/[]$T) -> []byte {
-    s := transmute(slice.Raw_Slice)slice
-    s.len *= size_of(T)
-    return transmute([]byte)s
-}
-
 bytes_from_any :: proc(val: any) -> []byte {
     ti := type_info_of(val.id)
     size := ti != nil ? ti.size : 0

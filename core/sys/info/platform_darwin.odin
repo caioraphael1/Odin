@@ -7,7 +7,7 @@ import NS "core:sys/darwin/Foundation"
 @(private)
 _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
     ws :: string_builder.write_string
-    wi :: strings_tools.write_int
+    wi :: string_builder.write_int
 
     b := strings.builder_make_none(allocator = allocator, loc = loc)
 

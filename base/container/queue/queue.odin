@@ -11,34 +11,34 @@ Queue :: struct($N: u32, $T: typeid) where N >= 0 {
 }
 
 
-len :: proc(q: $Q/Queue($N, $T)) -> int {
-    return int(q.len)
+len :: proc(q: $Q/Queue($N, $T)) -> uint {
+    return q.len
 }
 
-cap :: proc(q: $Q/Queue($N, $T)) -> int {
+cap :: proc(q: $Q/Queue($N, $T)) -> uint {
     return builtin.len(q.data)
 }
 
-remaining_space :: proc(q: $Q/Queue($N, $T)) -> int {
-    return builtin.len(q.data) - int(q.len)
+remaining_space :: proc(q: $Q/Queue($N, $T)) -> uint {
+    return builtin.len(q.data) - uint(q.len)
 }
 
-get :: proc(q: ^$Q/Queue($N, $T), #any_int i: int, loc := #caller_location) -> T {
-    internal.bounds_check_error_loc(loc, i, int(q.len))
+get :: proc(q: ^$Q/Queue($N, $T), i: uint, loc := #caller_location) -> T {
+    internal.bounds_check_error_loc(loc, i, q.len)
 
     idx := (uint(i) + q.offset) % builtin.len(q.data)
     return q.data[idx]
 }
 
-get_ptr :: proc(q: ^$Q/Queue($N, $T), #any_int i: int, loc := #caller_location) -> ^T {
-    internal.bounds_check_error_loc(loc, i, int(q.len))
+get_ptr :: proc(q: ^$Q/Queue($N, $T), i: uint, loc := #caller_location) -> ^T {
+    internal.bounds_check_error_loc(loc, i, q.len)
 
     idx := (uint(i) + q.offset) % builtin.len(q.data)
     return &q.data[idx]
 }
 
-set :: proc(q: ^$Q/Queue($N, $T), #any_int i: int, val: T, loc := #caller_location) {
-    internal.bounds_check_error_loc(loc, i, int(q.len))
+set :: proc(q: ^$Q/Queue($N, $T), i: uint, val: T, loc := #caller_location) {
+    internal.bounds_check_error_loc(loc, i, q.len)
 
     idx := (uint(i) + q.offset) % builtin.len(q.data)
     q.data[idx] = val
@@ -136,7 +136,7 @@ pop_front_safe :: proc(q: ^$Q/Queue($N, $T)) -> (elem: T, ok: bool) {
 
 push_back_elems :: proc(q: ^$Q/Queue($N, $T), elems: ..T, loc := #caller_location) -> (ok: bool)  {
     n := uint(builtin.len(elems))
-    if remaining_space(q^) < int(n) {
+    if remaining_space(q^) < n {
         return false
     }
 
@@ -152,7 +152,7 @@ push_back_elems :: proc(q: ^$Q/Queue($N, $T), elems: ..T, loc := #caller_locatio
     return true
 }
 
-consume_front :: proc(q: ^$Q/Queue($N, $T), n: int, loc := #caller_location) {
+consume_front :: proc(q: ^$Q/Queue($N, $T), n: uint, loc := #caller_location) {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
     }
@@ -163,7 +163,7 @@ consume_front :: proc(q: ^$Q/Queue($N, $T), n: int, loc := #caller_location) {
     }
 }
 
-consume_back :: proc(q: ^$Q/Queue($N, $T), n: int, loc := #caller_location) {
+consume_back :: proc(q: ^$Q/Queue($N, $T), n: uint, loc := #caller_location) {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
     }

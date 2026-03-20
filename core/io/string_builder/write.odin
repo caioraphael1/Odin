@@ -59,7 +59,7 @@ write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: uint) {
 Example:
     builder := string_builder.builder_create()
     bytes := [?]byte { 'a', 'b', 'c' }
-    strings_tools.write_bytes(&builder, bytes[:]) // 3
+    string_builder.write_bytes(&builder, bytes[:]) // 3
     fmt.println(string_builder.to_string(builder)) // -> abc
 */
 @(optional_results)

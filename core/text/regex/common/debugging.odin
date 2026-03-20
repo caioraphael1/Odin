@@ -21,7 +21,7 @@ write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.A
     _, _ = io.write_int(sbw, n, 0x10)
 
     _, _ = io.write_string(w, "0x")
-    for _ in 0..<max(0, zeroes - strings_tools.builder_len(sb)) {
+    for _ in 0..<max(0, zeroes - string_builder.builder_len(sb)) {
         _ = io.write_byte(w, '0')
     }
     _, _ = io.write_int(w, n, 0x10)

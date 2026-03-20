@@ -2,9 +2,10 @@
 import "base:mem"
 import "base:container/slice"
 import "base:container/strings"
-
-import "core:strings_tools"
 import "base:unicode/utf16"
+
+import "core:io/string_builder"
+import "core:strings_tools"
 import sys "core:sys/windows"
 
 @(private)
@@ -226,7 +227,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
             scratch[:],
         ); ok {
             string_builder.write_string(b, " (version: ")
-            l := strings_tools.builder_len(b^)
+            l := string_builder.builder_len(b^)
             string_builder.write_string(b, dv)
             version = string_builder.to_string(b^)[l:][:len(dv)]
             _, _ = string_builder.write_rune(b, ')')
@@ -243,9 +244,9 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
         ); ok {
             ubr = int(res)
             string_builder.write_string(b, ", build: ")
-            strings_tools.write_int(b, major_build)
+            string_builder.write_int(b, major_build)
             _, _ = string_builder.write_rune(b, '.')
-            strings_tools.write_int(b, ubr)
+            string_builder.write_int(b, ubr)
         }
         return
     }

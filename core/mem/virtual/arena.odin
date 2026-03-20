@@ -290,9 +290,6 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                              location := #caller_location) -> (data: []byte, err: Allocator_Error) {
     arena := (^Arena)(allocator_data)
 
-    size, alignment := uint(size), uint(alignment)
-    old_size := uint(old_size)
-
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
         return arena_alloc(arena, size, alignment, location)

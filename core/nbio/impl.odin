@@ -200,7 +200,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
         case string:
             string_builder.write_string(&b, val)
         case int:
-            strings_tools.write_int(&b, val)
+            string_builder.write_int(&b, val)
         case time.Duration:
             ms := time.duration_milliseconds(val)
             strings.write_f64(&b, ms, 'f')
@@ -220,7 +220,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
             buf[0] = '0' + u8(h)
 
             string_builder.write_string(&b, string(buf[:]))
-            strings_tools.write_int(&b, ns)
+            string_builder.write_int(&b, ns)
         }
 
         if i < len(contents)-1 {

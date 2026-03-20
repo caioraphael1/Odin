@@ -327,6 +327,12 @@ reinterpret :: proc($T: typeid/[]$U, s: []$V) -> []U {
     }
 }
 
+bytes_from_slice :: proc(slice: $E/[]$T) -> []byte {
+    s := transmute(Raw_Slice)slice
+    s.len *= size_of(T)
+    return transmute([]byte)s
+}
+
 
 /*
 Obtain data and length of a slice.

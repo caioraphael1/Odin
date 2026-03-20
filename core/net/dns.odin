@@ -30,6 +30,7 @@ import "base:rand"
 
 import "core:io/scanner"
 import "core:io"
+import "core:io/string_builder"
 @(require) import "core:sync"
 import "core:time"
 import "core:strings_tools"
@@ -268,14 +269,14 @@ make_dns_packet :: proc(buf: []byte, id: u16be, hostname: string, type: DNS_Reco
 
     b := string_builder.builder_from_bytes(buf[:])
 
-    strings_tools.write_bytes(&b, slice.data_cast([]u8, dns_hdr[:]))
+    string_builder.write_bytes(&b, slice.data_cast([]u8, dns_hdr[:]))
     ok := encode_hostname(&b, hostname)
     if !ok {
         return nil, .Invalid_Hostname_Error
     }
-    strings_tools.write_bytes(&b, slice.data_cast([]u8, dns_query[:]))
+    string_builder.write_bytes(&b, slice.data_cast([]u8, dns_query[:]))
 
-    return buf[:strings_tools.builder_len(b)], nil
+    return buf[:string_builder.builder_len(b)], nil
 }
 
 // `records` slice is also destroyed.
@@ -568,7 +569,7 @@ decode_hostname :: proc(packet: []u8, start_idx: int, allocator: mem.Allocator) 
             if labels_added > 0 {
                 string_builder.write_byte(&b, '.')
             }
-            strings_tools.write_bytes(&b, packet[cur_idx+1:idx2])
+            string_builder.write_bytes(&b, packet[cur_idx+1:idx2])
             print_size += label_size + 1
             labels_added += 1
 

@@ -42,7 +42,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     }
     res.kernel.patch = revision
     string_builder.write_string(&b, ", build ")
-    strings_tools.write_int(&b, revision)
+    string_builder.write_int(&b, revision)
 
     // Finalize pretty name.
     res.full = string_builder.to_string(b)
