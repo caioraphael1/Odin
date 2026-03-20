@@ -1,6 +1,6 @@
 @(require) import "base:internal"
 import "base:builtin"
-import base_slice "base:slice"
+import base_slice "base:container/slice"
     // copy
 
 

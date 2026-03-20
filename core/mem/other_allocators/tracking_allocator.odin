@@ -15,9 +15,9 @@ Tracking_Allocator_Entry :: struct {
     // Pointer to an allocated region.
     memory: rawptr,
     // Size of the allocated memory region.
-    size: int,
+    size: uint,
     // Requested alignment.
-    alignment: int,
+    alignment: uint,
     // Mode of the operation.
     mode: mem.Allocator_Mode,
     // Error.
@@ -195,9 +195,9 @@ tracking_allocator :: proc(data: ^Tracking_Allocator) -> mem.Allocator {
 tracking_allocator_proc :: proc(
     allocator_data: rawptr,
     mode: mem.Allocator_Mode,
-    size, alignment: int,
+    size, alignment: uint,
     old_memory: rawptr,
-    old_size: int,
+    old_size: uint,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
     @(no_sanitize_address)

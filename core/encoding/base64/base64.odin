@@ -13,7 +13,7 @@ import "base:mem"
 import "base:container/strings"
 
 import "core:io"
-import "core:strings_tools"
+import "core:io/string_builder"
 
 ENC_TABLE := [64]byte {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -118,11 +118,11 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> 
         return
     }
 
-    out   := strings_tools.builder_create_len_cap(0, out_length, allocator) or_return
-    ioerr := encode_into(strings_tools.to_stream(&out), data, ENC_TBL)
+    out   := string_builder.builder_create_len_cap(0, out_length, allocator) or_return
+    ioerr := encode_into(string_builder.to_stream(&out), data, ENC_TBL)
 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
-    internal.assert(strings_tools.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
+    internal.assert(string_builder.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
 
     return string_builder.to_string(out), nil
 }
@@ -135,7 +135,7 @@ encode_into :: proc(w: io.Writer, data: []byte, ENC_TBL := ENC_TABLE) -> io.Erro
 
     c0, c1, c2, block: int
     out: [4]byte
-    for i := 0; i < length; i += 3 {
+    for i: uint; i < length; i += 3 {
         #no_bounds_check {
             c0, c1, c2 = int(data[i]), -1, -1
 
@@ -154,7 +154,7 @@ encode_into :: proc(w: io.Writer, data: []byte, ENC_TBL := ENC_TABLE) -> io.Erro
     return nil
 }
 
-encoded_len :: proc(data: []byte) -> int {
+encoded_len :: proc(data: []byte) -> uint {
     length := len(data)
     if length == 0 {
         return 0
@@ -166,11 +166,11 @@ encoded_len :: proc(data: []byte) -> int {
 decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []byte, err: mem.Allocator_Error) {
     out_length := decoded_len(data)
 
-    out   := strings_tools.builder_create_len_cap(0, out_length, allocator) or_return
-    ioerr := decode_into(strings_tools.to_stream(&out), data, DEC_TBL)
+    out   := string_builder.builder_create_len_cap(0, out_length, allocator) or_return
+    ioerr := decode_into(string_builder.to_stream(&out), data, DEC_TBL)
 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
-    internal.assert(strings_tools.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
+    internal.assert(string_builder.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
 
     return out.buf[:], nil
 }
@@ -184,7 +184,8 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
     c0, c1, c2, c3: int
     b0, b1, b2: int
     buf: [3]byte
-    i, j: int
+    i: int
+    j: uint
     for ; j + 3 <= length; i, j = i + 4, j + 3 {
         #no_bounds_check {
             c0 = int(DEC_TBL[data[i]])
@@ -224,13 +225,13 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
     return nil
 }
 
-decoded_len :: proc(data: string) -> int {
+decoded_len :: proc(data: string) -> uint {
     length := len(data)
     if length == 0 {
         return 0
     }
 
-    padding: int
+    padding: uint
     if data[length - 1] == PADDING {
         if length > 1 && data[length - 2] == PADDING {
             padding = 2

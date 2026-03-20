@@ -1,9 +1,9 @@
 import "base:unicode/utf8"
 
 Pos :: struct {
-    offset: int,
-    line:   int,
-    column: int,
+    offset: uint,
+    line:   uint,
+    column: uint,
 }
 
 Token :: struct {
@@ -43,8 +43,8 @@ Tokenizer :: struct {
     using pos:        Pos,
     data:             string,
     r:                rune, // current rune
-    w:                int,  // current rune width in bytes
-    curr_line_offset: int,
+    w:                uint,  // current rune width in bytes
+    curr_line_offset: uint,
     spec:             Specification,
     parse_integers:   bool,
     insert_comma: bool,
@@ -495,7 +495,7 @@ is_valid_string_literal :: proc(str: string, spec: Specification) -> bool {
     }
     s = s[1 : len(s)-1]
 
-    i := 0
+    i: uint
     for i < len(s) {
         c := s[i]
         switch {

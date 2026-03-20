@@ -88,7 +88,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
     }
 
     builder, _ := string_builder.builder_create(allocator)
-    defer strings_tools.builder_destroy(&builder)
+    defer string_builder.builder_destroy(&builder)
 
     flag_prefix, flag_assignment: string = ---, ---
     switch style {

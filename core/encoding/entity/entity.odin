@@ -85,7 +85,7 @@ decode_xml :: proc(input: string, options := XML_Decode_Options{}, allocator: me
     if l == 0 { return "", .None }
 
     builder := string_builder.builder_create()
-    defer strings_tools.builder_destroy(&builder)
+    defer string_builder.builder_destroy(&builder)
 
     t := Tokenizer{src=input}
     in_data := false

@@ -4,11 +4,12 @@ import "base:mem/allocators"
 import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/maps"
+import "base:strconv"
 
 import "core:math/bits"
-import "base:strconv"
 import "core:reflect"
 import "core:io"
+import "core:io/string_builder"
 import "core:strings_tools"
 
 Marshal_Data_Error :: enum {
@@ -139,7 +140,7 @@ register_user_marshaler :: proc(id: typeid, marshaler: User_Marshaler) -> Regist
 marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Marshal_Error) {
     b := string_builder.builder_create(allocator)
     defer if err != nil {
-        strings_tools.builder_destroy(&b)
+        string_builder.builder_destroy(&b)
     }
     
     // temp guard in case we are sorting map keys, which will use temp allocations
@@ -388,7 +389,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
                 // If we are sorting the map by key, then we temp alloc an array
                 // and sort it, then output the result.
-                sorted, _ := dyn_array.create_len_cap([dynamic]Entry, 0, map_cap, allocators.temp_allocator)
+                sorted, _ := dyn_array.create_len_cap([dynamic]Entry, 0, uint(map_cap), allocators.temp_allocator)
                 for bucket_index in 0..<map_cap {
                     maps.hash_is_valid(hs[bucket_index]) or_continue
 

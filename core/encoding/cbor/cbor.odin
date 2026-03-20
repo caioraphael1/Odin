@@ -300,7 +300,7 @@ this will also be valid JSON.
 // See docs on the proc group `diagnose` for more info.
 to_diagnostic_format_string :: proc(val: Value, padding := 0, allocator: mem.Allocator, loc := #caller_location) -> (string, mem.Allocator_Error) {
     b := string_builder.builder_create(allocator, loc)
-    w := strings_tools.to_stream(&b)
+    w := string_builder.to_stream(&b)
     err := to_diagnostic_format_writer(w, val, padding)
     if err == .EOF {
         // The string builder stream only returns .EOF, and only if it can't write (out of memory).

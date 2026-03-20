@@ -217,7 +217,7 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
 }
 
 @(private)
-bytes_make :: proc(size, alignment: int, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Error) {
+bytes_make :: proc(size, alignment: uint, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Error) {
     b, berr := mem.alloc(size, alignment, allocator, loc)
     if berr != nil {
         if berr == .Out_Of_Memory {
@@ -360,7 +360,7 @@ unquote_string :: proc(token: Token, spec: Specification, allocator: mem.Allocat
     }
     s = s[1:len(s)-1]
 
-    i := 0
+    i: uint
     for i < len(s) {
         c := s[i]
         if c == '\\' || c == quote || c < ' ' {

@@ -119,7 +119,7 @@ Example:
 
     main :: proc() {
         string_buffer := string_builder.builder_create()
-        defer strings_tools.builder_destroy(&string_buffer)
+        defer string_builder.builder_destroy(&string_buffer)
 
         {
             tbl: table.Table

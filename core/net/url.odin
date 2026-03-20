@@ -144,7 +144,7 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
     b := string_builder.builder_create(allocator)
     strings_tools.builder_grow(&b, len(encoded_string))
     defer if !ok {
-        strings_tools.builder_destroy(&b)
+        string_builder.builder_destroy(&b)
     }
 
     s := encoded_string

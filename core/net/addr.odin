@@ -23,9 +23,10 @@ import "base:mem"
 import "base:mem/allocators"
 import "base:container/slice"
 import "base:container/strings"
+import "base:strconv"
 
 import "core:strings_tools"
-import "base:strconv"
+import "core:io/string_builder"
 
 /*
     Expects an IPv4 address with no leading or trailing whitespace:

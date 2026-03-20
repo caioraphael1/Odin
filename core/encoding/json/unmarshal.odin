@@ -511,7 +511,7 @@ unmarshal_expect_token :: proc(p: ^Parser, kind: Token_Kind, loc := #caller_loca
 @(private)
 json_name_from_tag_value :: proc(value: string) -> (json_name, extra: string) {
     json_name = value
-    if comma_index := strings_tools.index_byte(json_name, ','); comma_index >= 0 {
+    if comma_index, found := strings_tools.index_byte(json_name, ','); found {
         json_name = json_name[:comma_index]
         extra = value[1 + comma_index:]
     }
@@ -548,18 +548,20 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             field_used := intrinsics.alloca(field_used_bytes + 1, 1) // + 1 to not overflow on size_of 0 types.
             mem.zero(field_used, field_used_bytes)
 
-            use_field_idx := -1
+            use_field_idx: uint
+            use_field_idx_found: bool
             
             for field, field_idx in fields {
                 tag_value := reflect.struct_tag_get(field.tag, "json")
                 json_name, _ := json_name_from_tag_value(tag_value)
                 if key == json_name {
                     use_field_idx = field_idx
+                    use_field_idx_found = true
                     break
                 }
             }
             
-            if use_field_idx < 0 {
+            if !use_field_idx_found {
                 for field, field_idx in fields {
                     tag_value := reflect.struct_tag_get(field.tag, "json")
                     json_name, _ := json_name_from_tag_value(tag_value)
@@ -703,14 +705,16 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             unmarshal_expect_token(p, .Colon)
             defer _ = strings.string_delete(key, p.allocator)
 
-            index := -1
+            index: uint
+            index_found: bool
             for name, i in enum_type.names {
                 if key == name {
-                    index = int(enum_type.values[i] - t.min_value)
+                    index = uint(enum_type.values[i] - t.min_value)
+                    index_found = true
                     break
                 }
             }
-            if index < 0 || index >= t.count {
+            if !index_found || index >= t.count {
                 return UNSUPPORTED_TYPE
             }
                         
@@ -783,25 +787,25 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
     #partial switch t in ti.variant {
     case reflect.Type_Info_Slice:   
         raw := (^slice.Raw_Slice)(v.data)
-        data := bytes_make(t.elem.size * int(length), t.elem.align, p.allocator) or_return
+        data := bytes_make(t.elem.size * uint(length), t.elem.align, p.allocator) or_return
         raw.data = raw_data(data)
-        raw.len = int(length)
+        raw.len = uint(length)
             
         return assign_array(p, raw.data, t.elem, length)
         
     case reflect.Type_Info_Dynamic_Array:
         raw := (^dyn_array.Raw_Dynamic_Array)(v.data)
-        data := bytes_make(t.elem.size * int(length), t.elem.align, p.allocator) or_return
+        data := bytes_make(t.elem.size * uint(length), t.elem.align, p.allocator) or_return
         raw.data = raw_data(data)
-        raw.len = int(length)
-        raw.cap = int(length)
+        raw.len = uint(length)
+        raw.cap = uint(length)
         raw.allocator = p.allocator
         
         return assign_array(p, raw.data, t.elem, length)
         
     case reflect.Type_Info_Array:
         // NOTE(bill): Allow lengths which are less than the dst array
-        if int(length) > t.count {
+        if uint(length) > t.count {
             return UNSUPPORTED_TYPE
         }
         
@@ -809,7 +813,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         
     case reflect.Type_Info_Enumerated_Array:
         // NOTE(bill): Allow lengths which are less than the dst array
-        if int(length) > t.count {
+        if uint(length) > t.count {
             return UNSUPPORTED_TYPE
         }
         
@@ -817,7 +821,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         
     case reflect.Type_Info_Complex:
         // NOTE(bill): Allow lengths which are less than the dst array
-        if int(length) > 2 {
+        if uint(length) > 2 {
             return UNSUPPORTED_TYPE
         }
     

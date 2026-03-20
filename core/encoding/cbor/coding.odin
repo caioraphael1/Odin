@@ -199,7 +199,7 @@ encode_into_bytes :: proc(v: Value, flags := ENCODE_SMALL, allocator: mem.Alloca
 // Encodes the CBOR value into binary CBOR written to the given builder.
 // See the docs on the proc group `encode_into` for more info.
 encode_into_builder :: proc(b: ^string_builder.Builder, v: Value, flags := ENCODE_SMALL, loc := #caller_location) -> Encode_Error {
-    return encode_into_writer(strings_tools.to_stream(b), v, flags, loc=loc)
+    return encode_into_writer(string_builder.to_stream(b), v, flags, loc=loc)
 }
 
 // Encodes the CBOR value into binary CBOR written to the given writer.
@@ -360,8 +360,8 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
     n, scap := _decode_len_str(d, add) or_return
     
     buf := string_builder.builder_create(0, scap, allocator, loc) or_return
-    defer if err != nil { strings_tools.builder_destroy(&buf) }
-    buf_stream := strings_tools.to_stream(&buf)
+    defer if err != nil { string_builder.builder_destroy(&buf) }
+    buf_stream := string_builder.to_stream(&buf)
 
     if n == -1 {
         indefinite_loop: for {
@@ -536,7 +536,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
         buf := string_builder.builder_create(e.temp_allocator) or_return
         
         ke := e
-        ke.writer = strings_tools.to_stream(&buf)
+        ke.writer = string_builder.to_stream(&buf)
 
         encode(ke, entry.entry.key) or_return
         entry.encoded_key = buf.buf[:]

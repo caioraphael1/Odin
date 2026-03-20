@@ -41,10 +41,10 @@ mutex_allocator :: proc(m: ^Mutex_Allocator) -> mem.Allocator {
 mutex_allocator_proc :: proc(
     allocator_data: rawptr,
     mode: mem.Allocator_Mode,
-    size: int,
-    alignment: int,
+    size: uint,
+    alignment: uint,
     old_memory: rawptr,
-    old_size: int,
+    old_size: uint,
     loc := #caller_location,
 ) -> (result: []byte, err: mem.Allocator_Error) {
     m := (^Mutex_Allocator)(allocator_data)

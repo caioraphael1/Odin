@@ -1,7 +1,7 @@
 @(require) import "base:internal"
 import "base:builtin"
 import "base:mem"
-import base_slice "base:slice"
+import base_slice "base:container/slice"
 
 /*
 A fixed-size stack-allocated array operated on in a dynamic fashion.
