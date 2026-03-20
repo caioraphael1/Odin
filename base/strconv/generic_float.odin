@@ -44,7 +44,7 @@ Example:
 **Returns**
 - A byte slice containing the formatted string
 */
-generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: uint) -> []byte {
+generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: uint, shortest: bool) -> []byte {
     bits: u64
     flt: ^Float_Info
     switch bit_size {
@@ -93,7 +93,6 @@ generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: uint
     decimal.shift(d, exp - int(flt.mantbits))
     digs: Decimal_Slice
     prec := precision
-    shortest := prec < 0
     if shortest {
         round_shortest(d, mant, exp, flt)
         digs = Decimal_Slice{digits = d.digits[:], count = d.count, decimal_point = d.decimal_point}

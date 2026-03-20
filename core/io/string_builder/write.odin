@@ -181,7 +181,7 @@ write_escaped_rune :: proc(b: ^Builder, r: rune, quote: byte, html_safe := false
 @(optional_results)
 write_float :: proc(b: ^Builder, f: f64, fmt: byte, prec, bit_size: uint, always_signed := false) -> (n: uint) {
     buf: [384]byte
-    s := strconv.write_float(buf[:], f, fmt, prec, bit_size)
+    s := strconv.write_float(buf[:], f, fmt, prec, bit_size, false)
     // If the result starts with a `+` then unless we always want signed results,
     // we skip it unless it's followed by an `I` (because of +Inf).
     if !always_signed && (buf[0] == '+' && buf[1] != 'I') {
@@ -193,7 +193,7 @@ write_float :: proc(b: ^Builder, f: f64, fmt: byte, prec, bit_size: uint, always
 @(optional_results)
 write_f16 :: proc(b: ^Builder, f: f16, fmt: byte, always_signed := false) -> (n: uint) {
     buf: [384]byte
-    s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f))
+    s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f), false)
     if !always_signed && (buf[0] == '+' && buf[1] != 'I') {
         s = s[1:]
     }
@@ -213,7 +213,7 @@ Output:
 @(optional_results)
 write_f32 :: proc(b: ^Builder, f: f32, fmt: byte, always_signed := false) -> (n: uint) {
     buf: [384]byte
-    s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f))
+    s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f), false)
     if !always_signed && (buf[0] == '+' && buf[1] != 'I') {
         s = s[1:]
     }
@@ -223,7 +223,7 @@ write_f32 :: proc(b: ^Builder, f: f32, fmt: byte, always_signed := false) -> (n:
 @(optional_results)
 write_f64 :: proc(b: ^Builder, f: f64, fmt: byte, always_signed := false) -> (n: uint) {
     buf: [384]byte
-    s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f))
+    s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f), false)
     if !always_signed && (buf[0] == '+' && buf[1] != 'I') {
         s = s[1:]
     }

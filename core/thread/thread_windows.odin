@@ -92,7 +92,7 @@ _wait_many :: proc(threads: ..Thread) {
     MAXIMUM_WAIT_OBJECTS :: 64
     handles: [MAXIMUM_WAIT_OBJECTS]win32.HANDLE
 
-    for k := 0; k < len(threads); k += MAXIMUM_WAIT_OBJECTS {
+    for k: uint = 0; k < len(threads); k += MAXIMUM_WAIT_OBJECTS {
         count := min(len(threads) - k, MAXIMUM_WAIT_OBJECTS)
         j := 0
         for i in 0..<count {

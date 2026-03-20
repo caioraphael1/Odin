@@ -1547,8 +1547,8 @@ Output:
 **Returns**
 - The resulting string after writing the float
 */
-write_float :: proc(buf: []byte, f: f64, fmt: byte, prec, bit_size: uint) -> string {
-    return string(generic_ftoa(buf, f, fmt, prec, bit_size))
+write_float :: proc(buf: []byte, f: f64, fmt: byte, prec, bit_size: uint, shortest: bool) -> string {
+    return string(generic_ftoa(buf, f, fmt, prec, bit_size, shortest))
 }
 // Accepts '0'..='9', otherwise returns ok = false
 digit_to_int :: proc(r: rune) -> (value: int, ok: bool) {

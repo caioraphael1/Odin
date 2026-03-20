@@ -24,13 +24,13 @@ Info :: struct {
 
     writer: io.Writer,
     arg: any, // Temporary
-    indirection_level: int,
-    record_level: int,
+    indirection_level: uint,
+    record_level:      uint,
 
-    optional_len: internal.Maybe(int),
+    optional_len: internal.Maybe(uint),
     use_nul_termination: bool,
 
-    n: int, // bytes written
+    n: uint, // bytes written
 }
 
 Info_State :: struct {
@@ -45,9 +45,9 @@ Info_State :: struct {
     ignore_user_formatters: bool,
     in_bad:    bool,
 
-    width:     int,
-    prec:      int,
-    indent:    int,
+    width:     uint,
+    prec:      uint,
+    indent:    uint,
 
     parent_struct: any,
 }
@@ -516,7 +516,7 @@ sbprintfln :: proc(buf: ^string_builder.Builder, format: string, args: ..any) ->
 // Returns: The number of bytes written
 //
 @(optional_results)
-wprint :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> int {
+wprint :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> uint {
     fi: Info
     fi.writer = w
 
@@ -558,7 +558,7 @@ wprint :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> int {
 // Returns: The number of bytes written
 //
 @(optional_results)
-wprintln :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> int {
+wprintln :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> uint {
     fi: Info
     fi.writer = w
 
@@ -586,11 +586,11 @@ wprintln :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> int {
 // Returns: The number of bytes written
 //
 @(optional_results)
-wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline := false) -> int {
+wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline := false) -> uint {
     MAX_CHECKED_ARGS :: 64
     internal.assert(len(args) <= MAX_CHECKED_ARGS, "number of args > 64 is unsupported")
 
-    parse_options :: proc(fi: ^Info, fmt: string, index, end: int, unused_args: ^bit_set[0 ..< MAX_CHECKED_ARGS], args: ..any) -> int {
+    parse_options :: proc(fi: ^Info, fmt: string, index, end: uint, unused_args: ^bit_set[uint(0) ..< MAX_CHECKED_ARGS], args: ..any) -> uint {
         i := index
 
         // Prefix
@@ -624,7 +624,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
             if index_ok {
                 unused_args^ -= {width_index}
 
-                fi.width, _, fi.width_set = int_from_arg(args, width_index)
+                fi.width, _, fi.width_set = uint_from_arg(args, width_index)
                 if !fi.width_set {
                     _, _ = io.write_string(fi.writer, "%!(BAD WIDTH)", &fi.n)
                 }
@@ -636,7 +636,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
                 }
             }
         } else {
-            fi.width, i, fi.width_set = _parse_int(fmt, i)
+            fi.width, i, fi.width_set = _parse_uint(fmt, i)
         }
 
         // Precision
@@ -652,7 +652,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
 
                 if index_ok {
                     unused_args^ -= {precision_index}
-                    fi.prec, _, fi.prec_set = int_from_arg(args, precision_index)
+                    fi.prec, _, fi.prec_set = uint_from_arg(args, precision_index)
                     if fi.prec < 0 {
                         fi.prec = 0
                         fi.prec_set = false
@@ -663,7 +663,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
                 }
             } else {
                 prev_i := i
-                fi.prec, i, fi.prec_set = _parse_int(fmt, i)
+                fi.prec, i, fi.prec_set = _parse_uint(fmt, i)
                 if i == prev_i {
                     fi.prec = 0
                     fi.prec_set = true
@@ -674,7 +674,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
         return i
     }
 
-    error_check_arg :: proc(fi: ^Info, arg_parsed: bool, unused_args: bit_set[0 ..< MAX_CHECKED_ARGS]) -> (int, bool) {
+    error_check_arg :: proc(fi: ^Info, arg_parsed: bool, unused_args: bit_set[uint(0) ..< MAX_CHECKED_ARGS]) -> (uint, bool) {
         if !arg_parsed {
             for index in unused_args {
                 return index, true
@@ -689,12 +689,12 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
 
     fi: Info
     end := len(fmt)
-    unused_args: bit_set[0 ..< MAX_CHECKED_ARGS]
+    unused_args: bit_set[uint(0) ..< MAX_CHECKED_ARGS]
     for _, i in args {
         unused_args += {i}
     }
 
-    loop: for i := 0; i < end; /**/ {
+    loop: for i: uint = 0; i < end; /**/ {
         fi = Info{writer = w, n = fi.n}
 
         prev_i := i
@@ -761,11 +761,11 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
 
 
         } else if char == '{' {
-            arg_index: int
+            arg_index: uint
             arg_parsed, index_ok: bool
 
             if i < end && fmt[i] != '}' && fmt[i] != ':' {
-                arg_index, i, arg_parsed = _parse_int(fmt, i)
+                arg_index, i, arg_parsed = _parse_uint(fmt, i)
                 if arg_parsed {
                     index_ok = 0 <= arg_index && arg_index < len(args)
                 }
@@ -790,7 +790,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
                     continue
                 }
 
-                w: int = 1
+                w: uint = 1
                 verb, w = utf8.rune_from_string(fmt[i:])
                 i += w
             }
@@ -854,7 +854,7 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
 //
 // Returns: The number of bytes written.
 //
-wprintfln :: proc(w: io.Writer, format: string, args: ..any, flush := true) -> int {
+wprintfln :: proc(w: io.Writer, format: string, args: ..any, flush := true) -> uint {
     return wprintf(w, format, ..args, flush=flush, newline=true)
 }
 // Writes a ^internal.Type_Info value to an io.Writer
@@ -865,7 +865,7 @@ wprintfln :: proc(w: io.Writer, format: string, args: ..any, flush := true) -> i
 //
 // Returns: The number of bytes written and an io.Error if encountered
 //
-wprint_type :: proc(w: io.Writer, info: ^internal.Type_Info, flush := true) -> (n: int, err: io.Error) {
+wprint_type :: proc(w: io.Writer, info: ^internal.Type_Info, flush := true) -> (n: uint, err: io.Error) {
     n, err = reflect.write_type_writer(w, info)
     if flush {
         io.flush(w) or_return
@@ -880,7 +880,7 @@ wprint_type :: proc(w: io.Writer, info: ^internal.Type_Info, flush := true) -> (
 //
 // Returns: The number of bytes written and an io.Error if encountered
 //
-wprint_typeid :: proc(w: io.Writer, id: typeid, flush := true) -> (n: int, err: io.Error) {
+wprint_typeid :: proc(w: io.Writer, id: typeid, flush := true) -> (n: uint, err: io.Error) {
     n, err = reflect.write_type_writer(w, type_info_of(id))
     if flush {
         io.flush(w) or_return
@@ -898,7 +898,7 @@ wprint_typeid :: proc(w: io.Writer, id: typeid, flush := true) -> (n: int, err: 
 // - new_offset: The position in the string after parsing the integer
 // - ok: A boolean indicating if the parsing was successful
 //
-_parse_int :: proc(s: string, offset: int) -> (result: int, new_offset: int, ok: bool) {
+_parse_uint :: proc(s: string, offset: uint) -> (result: uint, new_offset: uint, ok: bool) {
     is_digit :: #force_inline proc(r: byte) -> bool { return '0' <= r && r <= '9' }
 
     new_offset = offset
@@ -909,11 +909,37 @@ _parse_int :: proc(s: string, offset: int) -> (result: int, new_offset: int, ok:
         new_offset += 1
 
         result *= 10
-        result += int(c)-'0'
+        result += uint(c) - '0'
     }
     ok = new_offset > offset
     return
 }
+
+// Retrieves an integer from a list of any type at the specified index
+//
+// Inputs:
+// - args: A list of values of any type
+// - arg_index: The index to retrieve the integer from
+//
+// Returns:
+// - int: The integer value at the specified index
+// - new_arg_index: The new argument index
+// - ok: A boolean indicating if the conversion to integer was successful
+//
+uint_from_arg :: proc(args: []any, arg_index: uint) -> (num: uint, new_arg_index: uint, ok: bool) {
+    new_arg_index = arg_index
+    ok = true
+    if arg_index < len(args) {
+        num, ok = reflect.as_uint(args[arg_index])
+    }
+
+    if ok {
+        new_arg_index += 1
+    }
+
+    return
+}
+
 // Parses an argument number from a format string and determines if it's valid
 //
 // Inputs:
@@ -926,15 +952,15 @@ _parse_int :: proc(s: string, offset: int) -> (result: int, new_offset: int, ok:
 // - parsed: A boolean indicating if an argument number was parsed
 // - ok: A boolean indicating if the parsed argument number is within arg_count
 //
-_arg_number :: proc(format: string, offset: ^int, arg_count: int) -> (index: int, parsed, ok: bool) {
-    parse_arg_number :: proc(format: string) -> (int, int, bool) {
+_arg_number :: proc(format: string, offset: ^uint, arg_count: uint) -> (index: uint, parsed, ok: bool) {
+    parse_arg_number :: proc(format: string) -> (uint, uint, bool) {
         if len(format) < 3 {
             return 0, 1, false
         }
 
         for i in 1..<len(format) {
             if format[i] == ']' {
-                value, new_index, ok := _parse_int(format, 1)
+                value, new_index, ok := _parse_uint(format, 1)
                 if !ok || new_index != i {
                     return 0, i+1, false
                 }
@@ -951,37 +977,13 @@ _arg_number :: proc(format: string, offset: ^int, arg_count: int) -> (index: int
         return 0, false, false
     }
 
-    width: int
+    width: uint
     index, width, parsed = parse_arg_number(format[i:])
     offset^ = i + width
     ok = parsed && 0 <= index && index < arg_count
     return
 }
-// Retrieves an integer from a list of any type at the specified index
-//
-// Inputs:
-// - args: A list of values of any type
-// - arg_index: The index to retrieve the integer from
-//
-// Returns:
-// - int: The integer value at the specified index
-// - new_arg_index: The new argument index
-// - ok: A boolean indicating if the conversion to integer was successful
-//
-int_from_arg :: proc(args: []any, arg_index: int) -> (int, int, bool) {
-    num := 0
-    new_arg_index := arg_index
-    ok := true
-    if arg_index < len(args) {
-        num, ok = reflect.as_int(args[arg_index])
-    }
 
-    if ok {
-        new_arg_index += 1
-    }
-
-    return num, new_arg_index, ok
-}
 // Writes a bad verb error message
 //
 // Inputs:
@@ -1026,7 +1028,7 @@ fmt_bool :: proc(fi: ^Info, b: bool, verb: rune) {
 // - fi: A pointer to an Info structure
 // - width: The number of padding characters to write
 //
-fmt_write_padding :: proc(fi: ^Info, width: int) {
+fmt_write_padding :: proc(fi: ^Info, width: uint) {
     if width <= 0 {
         return
     }
@@ -1036,7 +1038,7 @@ fmt_write_padding :: proc(fi: ^Info, width: int) {
         pad_byte = '0'
     }
 
-    for i := 0; i < width; i += 1 {
+    for i: uint = 0; i < width; i += 1 {
         _ = io.write_byte(fi.writer, pad_byte, &fi.n)
     }
 }
@@ -1052,7 +1054,7 @@ fmt_write_padding :: proc(fi: ^Info, width: int) {
 //
 // WARNING: May panic if the width and precision are too big, causing a buffer overrun
 //
-_fmt_int :: proc(fi: ^Info, u: u64, base: int, is_signed: bool, bit_size: int, digits: string) {
+_fmt_int :: proc(fi: ^Info, u: u64, base: uint, is_signed: bool, bit_size: uint, digits: string) {
     _, neg := strconv.is_integer_negative(u, is_signed, bit_size)
 
     BUF_SIZE :: 256
@@ -1091,7 +1093,7 @@ _fmt_int :: proc(fi: ^Info, u: u64, base: int, is_signed: bool, bit_size: int, d
         }
     }
 
-    prec := 0
+    prec: uint
     if fi.prec_set {
         prec = fi.prec
         if prec == 0 && u == 0 {
@@ -1134,7 +1136,7 @@ _fmt_int :: proc(fi: ^Info, u: u64, base: int, is_signed: bool, bit_size: int, d
 //
 // WARNING: Panics if the formatting options result in a buffer overrun.
 //
-_fmt_int_128 :: proc(fi: ^Info, u: u128, base: int, is_signed: bool, bit_size: int, digits: string) {
+_fmt_int_128 :: proc(fi: ^Info, u: u128, base: uint, is_signed: bool, bit_size: uint, digits: string) {
     _, neg := strconv.is_integer_negative_128(u, is_signed, bit_size)
 
     BUF_SIZE :: 256
@@ -1173,7 +1175,7 @@ _fmt_int_128 :: proc(fi: ^Info, u: u128, base: int, is_signed: bool, bit_size: i
         }
     }
 
-    prec := 0
+    prec: uint
     if fi.prec_set {
         prec = fi.prec
         if prec == 0 && u == 0 {
@@ -1231,13 +1233,15 @@ _fmt_int_128 :: proc(fi: ^Info, u: u128, base: int, is_signed: bool, bit_size: i
 // - bit_size: The bit size of the integer
 // - digits: A string containing the digits for formatting
 //
-_fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, units: string) {
+_fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: uint, units: string) {
     abs, neg := strconv.is_integer_negative(u, is_signed, bit_size)
 
     // Default to a precision of 2, but if less than a kb, 0
     prec := fi.prec if (fi.prec_set || abs < mem.Kilobyte) else 2
 
-    div, off, unit_len := 1, 0, 1
+    div := 1
+    off: uint = 0
+    unit_len: uint = 1
     for n := abs; n >= mem.Kilobyte; n /= mem.Kilobyte {
         div *= mem.Kilobyte
         off += 4
@@ -1263,11 +1267,11 @@ _fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, units: st
     }
 
     buf: [256]byte
-    str := strconv.write_float(buf[:], amt, 'f', prec, 64)
+    str := strconv.write_float(buf[:], amt, 'f', prec, 64, false)
 
     // Add the unit at the end.
     slice.copy_from_string(buf[len(str):], units[off:off+unit_len])
-    str = string(buf[:len(str)+unit_len])
+    str = string(buf[:len(str) + unit_len])
 
     if !fi.plus {
         // Strip sign from "+<value>" but not "+Inf".
@@ -1307,7 +1311,7 @@ fmt_rune :: proc(fi: ^Info, r: rune, verb: rune) {
 // - bit_size: The number of bits of the value (e.g. 32, 64).
 // - verb: The formatting verb to use (e.g. 'v', 'b', 'o', 'i', 'd', 'z', 'x', 'X', 'c', 'r', 'U').
 //
-fmt_int :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, verb: rune) {
+fmt_int :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: uint, verb: rune) {
     switch verb {
     case 'v', 'w':
         _fmt_int(fi, u, 10, is_signed, bit_size, __DIGITS_LOWER)
@@ -1343,7 +1347,7 @@ fmt_int :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: int, verb: rune) {
 // - bit_size: The number of bits of the value (e.g. 64, 128).
 // - verb: The formatting verb to use (e.g. 'v', 'b', 'o', 'i', 'd', 'z', 'x', 'X', 'c', 'r', 'U').
 //
-fmt_int_128 :: proc(fi: ^Info, u: u128, is_signed: bool, bit_size: int, verb: rune) {
+fmt_int_128 :: proc(fi: ^Info, u: u128, is_signed: bool, bit_size: uint, verb: rune) {
     switch verb {
     case 'v', 'w':
         _fmt_int_128(fi, u, 10, is_signed, bit_size, __DIGITS_LOWER)
@@ -1403,10 +1407,10 @@ _pad :: proc(fi: ^Info, s: string) {
 // - bit_size: The size of the floating-point number in bits (16, 32, or 64).
 // - verb: The format specifier character.
 // - float_fmt: The byte format used for formatting the float (either 'f' or 'e').
-//
+// - prec: precision
 // NOTE: Can return "NaN", "+Inf", "-Inf", "+<value>", or "-<value>".
 //
-_fmt_float_as :: proc(fi: ^Info, v: f64, bit_size: int, verb: rune, float_fmt: byte, prec: int) {
+_fmt_float_as :: proc(fi: ^Info, v: f64, bit_size: uint, verb: rune, float_fmt: byte, prec: uint, shortest: bool) {
     prec := prec
     if fi.prec_set {
         prec = fi.prec
@@ -1415,7 +1419,7 @@ _fmt_float_as :: proc(fi: ^Info, v: f64, bit_size: int, verb: rune, float_fmt: b
     buf: [386]byte
 
     // Can return "NaN", "+Inf", "-Inf", "+<value>", "-<value>".
-    str := strconv.write_float(buf[:], v, float_fmt, prec, bit_size)
+    str := strconv.write_float(buf[:], v, float_fmt, prec, bit_size, shortest)
 
     if !fi.plus {
         // Strip sign from "+<value>" but not "+Inf".
@@ -1434,18 +1438,18 @@ _fmt_float_as :: proc(fi: ^Info, v: f64, bit_size: int, verb: rune, float_fmt: b
 // - bit_size: The size of the floating-point number in bits (16, 32, or 64).
 // - verb: The format specifier character.
 //
-fmt_float :: proc(fi: ^Info, v: f64, bit_size: int, verb: rune) {
+fmt_float :: proc(fi: ^Info, v: f64, bit_size: uint, verb: rune) {
     switch verb {
     case 'g', 'G', 'v', 'w':
-        _fmt_float_as(fi, v, bit_size, verb, 'g', -1)
+        _fmt_float_as(fi, v, bit_size, verb, 'g', 0, true)
     case 'f', 'F':
-        _fmt_float_as(fi, v, bit_size, verb, 'f', 3)
+        _fmt_float_as(fi, v, bit_size, verb, 'f', 3, false)
     case 'e':
         // BUG(): "%.3e" returns "3.000e+00"
-        _fmt_float_as(fi, v, bit_size, verb, 'e', 6)
+        _fmt_float_as(fi, v, bit_size, verb, 'e', 6, false)
     case 'E':
         // BUG(): "%.3E" returns "3.000E+00"
-        _fmt_float_as(fi, v, bit_size, verb, 'E', 6)
+        _fmt_float_as(fi, v, bit_size, verb, 'E', 6, false)
 
     case 'h', 'H':
         prev_fi := fi^
@@ -1738,7 +1742,7 @@ fmt_enum :: proc(fi: ^Info, v: any, verb: rune) {
 //
 // Returns: A tuple containing the string representation of the enum value and a bool indicating success.
 //
-stored_enum_value_to_string :: proc(enum_type: ^internal.Type_Info, ev: internal.Type_Info_Enum_Value, offset: int = 0) -> (string, bool) {
+stored_enum_value_to_string :: proc(enum_type: ^internal.Type_Info, ev: internal.Type_Info_Enum_Value, offset: uint = 0) -> (string, bool) {
     et := internal.type_info_base(enum_type)
     ev := ev
     ev += internal.Type_Info_Enum_Value(offset)
@@ -1808,7 +1812,7 @@ fmt_bit_set :: proc(fi: ^Info, v: any, name: string = "", verb: rune = 'v') {
         as_arg := verb == 'b' || verb == 'o' || verb == 'd' || verb == 'i' || verb == 'z' || verb == 'x' || verb == 'X'
         if as_arg && !fi.width_set {
             fi.width_set = true
-            fi.width = int(bit_size)
+            fi.width = uint(bit_size)
         }
 
         switch bit_size {
@@ -1919,7 +1923,7 @@ fmt_write_indent :: proc(fi: ^Info) {
 // - elem_id: The typeid of the array elements.
 // - verb: The formatting verb to be used for the array elements.
 //
-fmt_write_array :: proc(fi: ^Info, array_data: rawptr, count: int, elem_size: int, elem_id: typeid, verb: rune) {
+fmt_write_array :: proc(fi: ^Info, array_data: rawptr, count: uint, elem_size: uint, elem_id: typeid, verb: rune) {
     _ = io.write_byte(fi.writer, '[' if verb != 'w' else '{', &fi.n)
     defer _ = io.write_byte(fi.writer, ']' if verb != 'w' else '}', &fi.n)
 
@@ -1967,7 +1971,7 @@ fmt_write_array :: proc(fi: ^Info, array_data: rawptr, count: int, elem_size: in
 // Returns: A boolean value indicating whether to continue processing the tag
 //
 @(private)
-handle_tag :: proc(state: ^Info_State, data: rawptr, info: reflect.Type_Info_Struct, idx: int, verb: ^rune, optional_len: ^int, use_nul_termination: ^bool) -> (do_continue: bool) {
+handle_tag :: proc(state: ^Info_State, data: rawptr, info: reflect.Type_Info_Struct, idx: uint, verb: ^rune, optional_len: ^int, use_nul_termination: ^bool) -> (do_continue: bool) {
     handle_optional_len :: proc(data: rawptr, info: reflect.Type_Info_Struct, field_name: string, optional_len: ^int) {
         if optional_len == nil {
             return
@@ -1997,7 +2001,7 @@ handle_tag :: proc(state: ^Info_State, data: rawptr, info: reflect.Type_Info_Str
 
         head, _, tail := strings_tools.partition(value, ",")
 
-        i := 0
+        i: uint
         prefix_loop: for ; i < len(head); i += 1 {
             switch head[i] {
             case '+':
@@ -2016,11 +2020,11 @@ handle_tag :: proc(state: ^Info_State, data: rawptr, info: reflect.Type_Info_Str
             }
         }
 
-        fi.width, i, fi.width_set = _parse_int(head, i)
+        fi.width, i, fi.width_set = _parse_uint(head, i)
         if i < len(head) && head[i] == '.' {
             i += 1
             prev_i := i
-            fi.prec, i, fi.prec_set = _parse_int(head, i)
+            fi.prec, i, fi.prec_set = _parse_uint(head, i)
             if i == prev_i {
                 fi.prec = 0
                 fi.prec_set = true
@@ -2189,7 +2193,7 @@ _handle_raw_union_tag :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.
 }
 
 @(private)
-fmt_soa_struct_internal :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.Type_Info_Struct, type_name: string, hash: bool, indent: int) {
+fmt_soa_struct_internal :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.Type_Info_Struct, type_name: string, hash: bool, indent: uint) {
     is_empty := info.field_count == 0
 
     fi.indent += 1
@@ -2207,12 +2211,12 @@ fmt_soa_struct_internal :: proc(fi: ^Info, v: any, the_verb: rune, info: interna
     if info.soa_kind == .Slice {
         actual_field_count = info.field_count-1 // len
 
-        n = uintptr((^int)(uintptr(v.data) + info.offsets[actual_field_count])^)
+        n = uintptr((^uint)(uintptr(v.data) + info.offsets[actual_field_count])^)
 
     } else if info.soa_kind == .Dynamic {
         actual_field_count = info.field_count-3 // len, cap, allocator
 
-        n = uintptr((^int)(uintptr(v.data) + info.offsets[actual_field_count])^)
+        n = uintptr((^uint)(uintptr(v.data) + info.offsets[actual_field_count])^)
     }
 
     if hash && n > 0 {
@@ -2362,7 +2366,7 @@ fmt_struct :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.Type_Info_S
             field_count += 1
 
             if optional_len >= 0 {
-                fi.optional_len = optional_len
+                fi.optional_len = uint(optional_len)
             }
             defer if optional_len >= 0 {
                 fi.optional_len = nil
@@ -2402,8 +2406,8 @@ fmt_struct :: proc(fi: ^Info, v: any, the_verb: rune, info: internal.Type_Info_S
 // Returns: The number of elements before the first NUL-terminated element.
 //
 @(private)
-search_nul_termination :: proc(ptr: rawptr, elem_size: int, max_n: int) -> (n: int) {
-    for p := uintptr(ptr); max_n < 0 || n < max_n; p += uintptr(elem_size) {
+search_nul_termination :: proc(ptr: rawptr, elem_size: uint, max_n: int) -> (n: uint) {
+    for p := uintptr(ptr); max_n < 0 || int(n) < max_n; p += uintptr(elem_size) {
         if mem.is_zero_ptr(rawptr(p), elem_size) {
             break
         }
@@ -2421,7 +2425,7 @@ search_nul_termination :: proc(ptr: rawptr, elem_size: int, max_n: int) -> (n: i
 // - elem: Pointer to the type information of the array element.
 // - verb: The formatting verb.
 //
-fmt_array_nul_terminated :: proc(fi: ^Info, data: rawptr, max_n: int, elem_size: int, elem: ^reflect.Type_Info, verb: rune) {
+fmt_array_nul_terminated :: proc(fi: ^Info, data: rawptr, max_n: int, elem_size: uint, elem: ^reflect.Type_Info, verb: rune) {
     if data == nil {
         _, _ = io.write_string(fi.writer, "<nil>", &fi.n)
         return
@@ -2439,7 +2443,7 @@ fmt_array_nul_terminated :: proc(fi: ^Info, data: rawptr, max_n: int, elem_size:
 // - elem: Pointer to the type information of the array element.
 // - verb: The formatting verb (e.g. 's','q','p','w').
 //
-fmt_array :: proc(fi: ^Info, data: rawptr, n: int, elem_size: int, elem: ^reflect.Type_Info, verb: rune) {
+fmt_array :: proc(fi: ^Info, data: rawptr, n: uint, elem_size: uint, elem: ^reflect.Type_Info, verb: rune) {
     if data == nil && n > 0 {
         _, _ = io.write_string(fi.writer, "nil")
         return
@@ -2452,7 +2456,7 @@ fmt_array :: proc(fi: ^Info, data: rawptr, n: int, elem_size: int, elem: ^reflec
             _surr3           :: 0xe000
             _surr_self       :: 0x10000
 
-            for i := 0; i < len(s); i += 1 {
+            for i: uint = 0; i < len(s); i += 1 {
                 r := rune(REPLACEMENT_CHAR)
 
                 switch c := s[i]; {
@@ -2523,9 +2527,9 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
         return true
 
     case time.Duration:
-        ffrac :: proc(buf: []byte, v: u64, prec: int) -> (nw: int, nv: u64) {
+        ffrac :: proc(buf: []byte, v: u64, prec: uint) -> (nw: int, nv: u64) {
             v := v
-            w := len(buf)
+            w := int(len(buf))
             print := false
             for _ in 0..<prec {
                 digit := v % 10
@@ -2544,7 +2548,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
         }
         fint :: proc(buf: []byte, v: u64) -> int {
             v := v
-            w := len(buf)
+            w := int(len(buf))
             if v == 0 {
                 w -= 1
                 buf[w] = '0'
@@ -2567,7 +2571,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
         }
 
         if u < u64(time.Second) {
-            prec: int
+            prec: uint
             w -= 1
             buf[w] = 's'
             w -= 1
@@ -2616,7 +2620,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
         return true
 
     case time.Time:
-        write_padded_number :: proc(fi: ^Info, i: i64, width: int) {
+        write_padded_number :: proc(fi: ^Info, i: i64, width: uint) {
             n := width-1
             for x := i; x >= 10; x /= 10 {
                 n -= 1
@@ -2705,7 +2709,7 @@ fmt_named :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Named)
 // - info: The union type information.
 // - type_size: The size of the union type.
 //
-fmt_union :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Union, type_size: int) {
+fmt_union :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Union, type_size: uint) {
     if type_size == 0 {
         _, _ = io.write_string(fi.writer, "nil", &fi.n)
         return
@@ -2777,7 +2781,7 @@ fmt_matrix :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Matri
             for col in 0..<info.column_count {
                 if col > 0 { _, _ = io.write_string(fi.writer, ", ", &fi.n) }
 
-                offset: int
+                offset: uint
                 switch info.layout {
                 case .Column_Major: offset = (row + col*info.elem_stride)*info.elem_size
                 case .Row_Major:    offset = (col + row*info.elem_stride)*info.elem_size
@@ -2796,7 +2800,7 @@ fmt_matrix :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Matri
             for col in 0..<info.column_count {
                 if col > 0 { _, _ = io.write_string(fi.writer, ", ", &fi.n) }
 
-                offset: int
+                offset: uint
                 switch info.layout {
                 case .Column_Major: offset = (row + col*info.elem_stride)*info.elem_size
                 case .Row_Major:    offset = (col + row*info.elem_stride)*info.elem_size
@@ -2828,7 +2832,7 @@ fmt_bit_field :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Bi
         return
     }
 
-    handle_bit_field_tag :: proc(data: rawptr, info: reflect.Type_Info_Bit_Field, idx: int, verb: ^rune) -> (do_continue: bool) {
+    handle_bit_field_tag :: proc(data: rawptr, info: reflect.Type_Info_Bit_Field, idx: uint, verb: ^rune) -> (do_continue: bool) {
         tag := info.tags[idx]
         if vt, ok := reflect.struct_tag_lookup(reflect.Struct_Tag(tag), "fmt"); ok {
             value := strings_tools.trim_space(string(vt))
@@ -3200,7 +3204,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
             n = min(n, ol)
         } else if fi.use_nul_termination {
             fi.use_nul_termination = false
-            fmt_array_nul_terminated(fi, ptr, n, info.elem_size, info.elem, verb)
+            fmt_array_nul_terminated(fi, ptr, int(n), info.elem_size, info.elem, verb)
             return
         }
         fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
@@ -3214,7 +3218,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
             n = min(n, ol)
         } else if fi.use_nul_termination {
             fi.use_nul_termination = false
-            fmt_array_nul_terminated(fi, ptr, n, info.elem_size, info.elem, verb)
+            fmt_array_nul_terminated(fi, ptr, int(n), info.elem_size, info.elem, verb)
             return
         }
         fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
@@ -3228,7 +3232,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
             n = min(n, ol)
         } else if fi.use_nul_termination {
             fi.use_nul_termination = false
-            fmt_array_nul_terminated(fi, ptr, n, info.elem_size, info.elem, verb)
+            fmt_array_nul_terminated(fi, ptr, int(n), info.elem_size, info.elem, verb)
             return
         }
         fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
@@ -3303,7 +3307,7 @@ _cq_should_print_intermediate_plus :: proc(fi: ^Info, f: f64) -> bool {
 // - bits: The number of bits in the complex number (32 or 64).
 // - verb: The formatting verb rune ('f', 'F', 'v', 'h', 'H', 'w').
 //
-fmt_complex :: proc(fi: ^Info, c: complex128, bits: int, verb: rune) {
+fmt_complex :: proc(fi: ^Info, c: complex128, bits: uint, verb: rune) {
     switch verb {
     case 'f', 'F', 'v', 'h', 'H', 'w':
         r, i := real(c), imag(c)
@@ -3327,7 +3331,7 @@ fmt_complex :: proc(fi: ^Info, c: complex128, bits: int, verb: rune) {
 // - bits: The number of bits in the quaternion number (64, 128, or 256).
 // - verb: The formatting verb rune ('f', 'F', 'v', 'h', 'H', 'w').
 //
-fmt_quaternion  :: proc(fi: ^Info, q: quaternion256, bits: int, verb: rune) {
+fmt_quaternion  :: proc(fi: ^Info, q: quaternion256, bits: uint, verb: rune) {
     switch verb {
     case 'f', 'F', 'v', 'h', 'H', 'w':
         r, i, j, k := real(q), imag(q), jmag(q), kmag(q)

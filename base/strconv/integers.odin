@@ -22,7 +22,7 @@ Determines whether the given unsigned 64-bit integer is a negative value by inte
 - u: The absolute value of the input integer
 - neg: A boolean indicating whether the input integer is negative
 */
-is_integer_negative :: proc(x: u64, is_signed: bool, bit_size: int) -> (u: u64, neg: bool) {
+is_integer_negative :: proc(x: u64, is_signed: bool, bit_size: uint) -> (u: u64, neg: bool) {
     u = x
     if is_signed {
         switch bit_size {
@@ -63,7 +63,7 @@ Writes the string representation of an integer to a buffer with specified base, 
 **Returns**
 - The string containing the integer representation appended to the buffer
 */
-write_bits :: proc(buf: []byte, x: u64, base: uint, is_signed: bool, bit_size: int, digits: string, flags: Int_Flags) -> string {
+write_bits :: proc(buf: []byte, x: u64, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
     if base < 2 || base > MAX_BASE {
         internal.panic("strconv: illegal base passed to write_bits")
     }
@@ -116,7 +116,7 @@ Determines whether the given unsigned 128-bit integer is a negative value by int
 - u: The absolute value of the input integer
 - neg: A boolean indicating whether the input integer is negative
 */
-is_integer_negative_128 :: proc(x: u128, is_signed: bool, bit_size: int) -> (u: u128, neg: bool) {
+is_integer_negative_128 :: proc(x: u128, is_signed: bool, bit_size: uint) -> (u: u128, neg: bool) {
     u = x
     if is_signed {
         switch bit_size {
@@ -161,7 +161,7 @@ Writes the string representation of a 128-bit integer to a buffer with specified
 **Returns**
 - The string containing the integer representation written to the buffer
 */
-write_bits_128 :: proc(buf: []byte, x: u128, base: uint, is_signed: bool, bit_size: int, digits: string, flags: Int_Flags) -> string {
+write_bits_128 :: proc(buf: []byte, x: u128, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
     if base < 2 || base > MAX_BASE {
         internal.panic("strconv: illegal base passed to write_bits")
     }

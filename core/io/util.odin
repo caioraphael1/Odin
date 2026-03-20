@@ -52,7 +52,7 @@ write_uint :: proc(w: Writer, i: uint, base: uint = 10, n_written: ^uint = nil) 
     return write_u64(w, u64(i), base, n_written)
 }
 
-write_int :: proc(w: Writer, i: uint, base: uint = 10, n_written: ^uint = nil) -> (n: uint, err: Error) {
+write_int :: proc(w: Writer, i: int, base: uint = 10, n_written: ^uint = nil) -> (n: uint, err: Error) {
     return write_i64(w, i64(i), base, n_written)
 }
 
@@ -71,7 +71,7 @@ write_i128 :: proc(w: Writer, i: i128, base: uint = 10, n_written: ^uint = nil) 
 write_f16 :: proc(w: Writer, val: f16, n_written: ^uint = nil) -> (n: uint, err: Error) {
     buf: [386]byte
 
-    str := strconv.write_float(buf[1:], f64(val), 'f', 2*size_of(val), 8*size_of(val))
+    str := strconv.write_float(buf[1:], f64(val), 'f', 2*size_of(val), 8*size_of(val), false)
     s := buf[:len(str)+1]
     if s[1] == '+' || s[1] == '-' {
         s = s[1:]
@@ -88,7 +88,7 @@ write_f16 :: proc(w: Writer, val: f16, n_written: ^uint = nil) -> (n: uint, err:
 write_f32 :: proc(w: Writer, val: f32, n_written: ^uint = nil) -> (n: uint, err: Error) {
     buf: [386]byte
 
-    str := strconv.write_float(buf[1:], f64(val), 'f', 2*size_of(val), 8*size_of(val))
+    str := strconv.write_float(buf[1:], f64(val), 'f', 2*size_of(val), 8*size_of(val), false)
     s := buf[:len(str)+1]
     if s[1] == '+' || s[1] == '-' {
         s = s[1:]
@@ -105,7 +105,7 @@ write_f32 :: proc(w: Writer, val: f32, n_written: ^uint = nil) -> (n: uint, err:
 write_f64 :: proc(w: Writer, val: f64, n_written: ^uint = nil) -> (n: uint, err: Error) {
     buf: [386]byte
 
-    str := strconv.write_float(buf[1:], val, 'f', 2*size_of(val), 8*size_of(val))
+    str := strconv.write_float(buf[1:], val, 'f', 2*size_of(val), 8*size_of(val), false)
     s := buf[:len(str)+1]
     if s[1] == '+' || s[1] == '-' {
         s = s[1:]
