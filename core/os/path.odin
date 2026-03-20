@@ -57,7 +57,7 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allo
             buf[i] = u8(new_sep) if b == '/' || b == '\\' else b
         }
     } else {
-        i: int
+        i: uint
         for r in path {
             if r == '/' || r == '\\' {
                 slice.copy(buf[i:], rep_b[:rep_w])
@@ -300,7 +300,7 @@ get_relative_path :: proc(base, target: string, allocator: mem.Allocator) -> (pa
     // comparing them up to their most common elements, then count how many
     // unshared parts are in the split `base`.
     seps := 0
-    size := 0
+    size: uint
     if len(base)-common > 0 {
         seps = 1
         size = 2
@@ -411,11 +411,11 @@ stem :: proc(path: string) -> string {
 
     // Get the base path.
     p := base(path)
-    if i := strings_tools.last_index_any(p, Path_Separator_Chars); i != -1 {
+    if i, found := strings_tools.last_index_any(p, Path_Separator_Chars); found {
         p = p[i+1:]
     }
 
-    if i := strings_tools.last_index_byte(p, '.'); i != -1 {
+    if i, found := strings_tools.last_index_byte(p, '.'); found {
         return p[:i]
     }
     return p
@@ -438,7 +438,7 @@ Returns an empty string if there's a trailing path separator.
 */
 short_stem :: proc(path: string) -> string {
     s := stem(path)
-    if i := strings_tools.index_byte(s, '.'); i != -1 {
+    if i, found := strings_tools.index_byte(s, '.'); found {
         return s[:i]
     }
     return s
@@ -490,11 +490,11 @@ long_ext :: proc(path: string) -> string {
 
     // NOTE(tetra): Get the basename
     path := path
-    if i := strings_tools.last_index_any(path, Path_Separator_Chars); i != -1 {
+    if i, found := strings_tools.last_index_any(path, Path_Separator_Chars); found {
         path = path[i+1:]
     }
 
-    if i := strings_tools.index_byte(path, '.'); i != -1 {
+    if i, found := strings_tools.index_byte(path, '.'); found {
         return path[i:]
     }
 
@@ -532,8 +532,8 @@ For example, `split_filename("foo.tar.gz")` will return `"foo.tar"` and `"gz"`.
 */
 
 split_filename :: proc(filename: string) -> (base, ext: string) {
-    i := strings_tools.last_index_byte(filename, '.')
-    if i <= 0 {
+    i, found := strings_tools.last_index_byte(filename, '.')
+    if !found {
         return filename, ""
     }
     return filename[:i], filename[i+1:]
@@ -551,15 +551,15 @@ For example, `split_filename_all("foo.tar.gz")` will return `"foo"` and `"tar.gz
 */
 
 split_filename_all :: proc(filename: string) -> (base, ext: string) {
-    i := strings_tools.index_byte(filename, '.')
+    i, i_found := strings_tools.index_byte(filename, '.')
     if i == 0 {
-        j := strings_tools.index_byte(filename[1:], '.')
-        if j != -1 {
+        j, j_found := strings_tools.index_byte(filename[1:], '.')
+        if !j_found {
             j += 1
         }
         i = j
     }
-    if i == -1 {
+    if !i_found {
         return filename, ""
     }
     return filename[:i], filename[i+1:]
@@ -603,13 +603,13 @@ split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []stri
         return nil, nil
     }
 
-    start: int
+    start: uint
     quote: bool
 
     start, quote = 0, false
-    count := 0
+    count: uint = 0
 
-    for i := 0; i < len(path); i += 1 {
+    for i: uint = 0; i < len(path); i += 1 {
         c := path[i]
         switch {
         case c == '"':
@@ -621,8 +621,8 @@ split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []stri
 
     start, quote = 0, false
     list = slice.create([]string, count + 1, allocator) or_return
-    index := 0
-    for i := 0; i < len(path); i += 1 {
+    index: uint
+    for i: uint; i < len(path); i += 1 {
         c := path[i]
         switch {
         case c == '"':
@@ -689,7 +689,7 @@ match :: proc(pattern, name: string) -> (matched: bool, err: Error) {
         }
 
         if star {
-            for i := 0; i < len(name) && name[i] != _Path_Separator; i += 1 {
+            for i: uint = 0; i < len(name) && name[i] != _Path_Separator; i += 1 {
                 t, ok = match_chunk(chunk, name[i+1:]) or_return
                 if ok {
                     if len(pattern) == 0 && len(t) > 0 {
@@ -734,7 +734,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
     dir, file := _split(pattern)
 
     temp_buf: [8]byte
-    vol_len:  int
+    vol_len:  uint
     vol_len, dir = clean_glob_path(dir, temp_buf[:])
 
     if !has_meta(dir[vol_len:]) {
@@ -786,8 +786,8 @@ scan_chunk :: proc(pattern: string) -> (star: bool, chunk, rest: string) {
         star = true
     }
 
-    in_range, i := false, 0
-
+    in_range := false
+    i: uint = 0
     scan_loop: for i = 0; i < len(pattern); i += 1 {
         switch pattern[i] {
         case '\\':
@@ -904,7 +904,7 @@ get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Error) {
         }
     }
 
-    w: int
+    w: uint
     r, w = utf8.rune_from_string(chunk)
     if r == utf8.RUNE_ERROR && w == 1 {
         err = .Pattern_Syntax_Error
@@ -937,7 +937,7 @@ _glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Al
         return
     }
 
-    fis, _ := read_dir(d, -1, allocator)
+    fis, _ := read_dir(d, 0, true, allocator)
     slice.sort_by(fis, proc(a, b: File_Info) -> bool {
         return a.name < b.name
     })
@@ -964,7 +964,7 @@ has_meta :: proc(path: string) -> bool {
 }
 
 @(private)
-clean_glob_path :: proc(path: string, temp_buf: []byte) -> (int, string) {
+clean_glob_path :: proc(path: string, temp_buf: []byte) -> (uint, string) {
     when ODIN_OS == .Windows {
         vol_len := _volume_name_len(path)
         switch {

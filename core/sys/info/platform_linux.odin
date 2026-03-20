@@ -15,7 +15,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	pretty_parse: {
 		fd, errno := linux.open("/etc/os-release", {})
 		if errno != .NONE {
-			strings_tools.write_string(&b, "Unknown Linux Distro")
+			string_builder.write_string(&b, "Unknown Linux Distro")
 			break pretty_parse
 		}
 
@@ -24,7 +24,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 		os_release_buf: [2048]u8
 		n, read_errno := linux.read(fd, os_release_buf[:])
 		if read_errno != .NONE {
-			strings_tools.write_string(&b, "Unknown Linux Distro")
+			string_builder.write_string(&b, "Unknown Linux Distro")
 			break pretty_parse
 		}
 		release := string(os_release_buf[:n])
@@ -35,11 +35,11 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 			if len(post) > 0 {
 				end := strings.index_any(post, "\"\n")
 				if end > -1 && post[end] == '"' {
-					strings_tools.write_string(&b, post[:end])
+					string_builder.write_string(&b, post[:end])
 				}
 			}
 			if strings_tools.builder_len(b) == 0 {
-				strings_tools.write_string(&b, "Unknown Linux Distro")
+				string_builder.write_string(&b, "Unknown Linux Distro")
 			}
 		}
 
@@ -58,12 +58,12 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 	uname_errno := linux.uname(&uts)
 	internal.assert(uname_errno == .NONE, "This should never happen!")
 	// Append the system name (typically "Linux") and kernel release (looks like 6.5.2-arch1-1)
-	strings_tools.write_string(&b, ", ")
-	strings_tools.write_string(&b, string(cstring(&uts.sysname[0])))
-	strings_tools.write_rune(&b, ' ')
+	string_builder.write_string(&b, ", ")
+	string_builder.write_string(&b, string(cstring(&uts.sysname[0])))
+	string_builder.write_rune(&b, ' ')
 
 	release_i := strings_tools.builder_len(b)
-	strings_tools.write_string(&b, string(cstring(&uts.release[0])))
+	string_builder.write_string(&b, string(cstring(&uts.release[0])))
 	release_str := string(b.buf[release_i:])
 
 	res.full = string_builder.to_string(b)

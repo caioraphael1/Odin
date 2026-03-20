@@ -602,7 +602,7 @@ input_key_up :: proc(ctx: ^Context, key: Key) {
 }
 
 input_text :: proc(ctx: ^Context, text: string) {
-    strings_tools.write_string(&ctx.text_input, text)
+    string_builder.write_string(&ctx.text_input, text)
 }
 
 /*============================================================================

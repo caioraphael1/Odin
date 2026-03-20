@@ -393,10 +393,10 @@ Returns whether the strings `u` and `v` are the same alpha characters, ignoring 
 Works with UTF-8 string content
 
 Example:
-    fmt.println(strings_tools.equal_fold("test", "test"))
-    fmt.println(strings_tools.equal_fold("Test", "test"))
-    fmt.println(strings_tools.equal_fold("Test", "tEsT"))
-    fmt.println(strings_tools.equal_fold("test", "tes"))
+    fmt.println(utf8.string_equal_fold("test", "test"))
+    fmt.println(utf8.string_equal_fold("Test", "test"))
+    fmt.println(utf8.string_equal_fold("Test", "tEsT"))
+    fmt.println(utf8.string_equal_fold("test", "tes"))
 Output:
     true
     true

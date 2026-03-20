@@ -407,10 +407,10 @@ Header_SetFilterChangeTimeout :: #force_inline proc "system" (hwnd: HWND, i: c_i
     return cast(c_int)SendMessageW(hwnd,HDM_SETFILTERCHANGETIMEOUT,0,cast(LPARAM)i)
 }
 Header_EditFilter :: #force_inline proc "system" (hwnd: HWND, i: c_int, fDiscardChanges: BOOL) -> BOOL {
-    return cast(BOOL)SendMessageW(hwnd,HDM_EDITFILTER,cast(WPARAM)i,MAKELPARAM(fDiscardChanges,0))
+    return cast(BOOL)SendMessageW(hwnd,HDM_EDITFILTER, cast(WPARAM)i, MAKELPARAM(uint(fDiscardChanges), 0))
 }
 Header_ClearFilter :: #force_inline proc "system" (hwnd: HWND, i: c_int) -> BOOL {
-    return cast(BOOL)SendMessageW(hwnd,HDM_CLEARFILTER,cast(WPARAM)i,0)
+    return cast(BOOL)SendMessageW(hwnd,HDM_CLEARFILTER, cast(WPARAM)i, 0)
 }
 Header_ClearAllFilters :: #force_inline proc "system" (hwnd: HWND) -> BOOL {
     return cast(BOOL)SendMessageW(hwnd,HDM_CLEARFILTER,~WPARAM(0),0)
@@ -1177,7 +1177,7 @@ ListView_SetCallbackMask :: #force_inline proc "system" (hwnd: HWND, mask: UINT)
     return cast(BOOL)SendMessageW(hwnd, LVM_SETCALLBACKMASK, cast(WPARAM)mask, 0)
 }
 ListView_GetNextItem :: #force_inline proc "system" (hwnd: HWND, i: c_int, flags: UINT) -> c_int {
-    return cast(c_int)SendMessageW(hwnd, LVM_GETNEXTITEM, cast(WPARAM)i, MAKELPARAM(flags,0))
+    return cast(c_int)SendMessageW(hwnd, LVM_GETNEXTITEM, cast(WPARAM)i, MAKELPARAM(uint(flags), uint(0)))
 }
 ListView_FindItem :: #force_inline proc "system" (hwnd: HWND, iStart: c_int, plvfi: ^LV_FINDINFOW) -> c_int {
     return cast(c_int)SendMessageW(hwnd, LVM_FINDITEMW, cast(WPARAM)iStart, cast(LPARAM)uintptr(plvfi))
@@ -1189,7 +1189,7 @@ ListView_GetItemRect :: #force_inline proc "system" (hwnd: HWND, i: c_int, prc: 
     return cast(BOOL)SendMessageW(hwnd, LVM_GETITEMRECT, cast(WPARAM)i, cast(LPARAM)uintptr(prc))
 }
 ListView_SetItemPosition :: #force_inline proc "system" (hwnd: HWND, i: c_int, x,y: c_int) -> BOOL {
-    return cast(BOOL)SendMessageW(hwnd, LVM_SETITEMPOSITION, cast(WPARAM)i, MAKELPARAM(x,y))
+    return cast(BOOL)SendMessageW(hwnd, LVM_SETITEMPOSITION, cast(WPARAM)i, MAKELPARAM(uint(x),uint(y)))
 }
 ListView_GetItemPosition :: #force_inline proc "system" (hwnd: HWND, i: c_int, ppt: ^POINT) -> BOOL {
     return cast(BOOL)SendMessageW(hwnd, LVM_GETITEMPOSITION, cast(WPARAM)i, cast(LPARAM)uintptr(ppt))
@@ -1201,7 +1201,7 @@ ListView_HitTest :: #force_inline proc "system" (hwndLV: HWND, pinfo: ^LV_HITTES
     return cast(c_int)SendMessageW(hwndLV, LVM_HITTEST, 0, cast(LPARAM)uintptr(pinfo))
 }
 ListView_EnsureVisible :: #force_inline proc "system" (hwndLV: HWND, i: c_int, fPartialOK: BOOL) -> BOOL {
-    return cast(BOOL)SendMessageW(hwndLV, LVM_ENSUREVISIBLE, cast(WPARAM)i, MAKELPARAM(fPartialOK,0))
+    return cast(BOOL)SendMessageW(hwndLV, LVM_ENSUREVISIBLE, cast(WPARAM)i, MAKELPARAM(uint(fPartialOK), 0))
 }
 ListView_Scroll :: #force_inline proc "system" (hwndLV: HWND, dx,dy: c_int) -> BOOL {
     return cast(BOOL)SendMessageW(hwndLV, LVM_SCROLL, cast(WPARAM)dx, cast(LPARAM)dy)
@@ -1234,7 +1234,7 @@ ListView_GetColumnWidth :: #force_inline proc "system" (hwnd: HWND, iCol: c_int)
     return cast(c_int)SendMessageW(hwnd, LVM_GETCOLUMNWIDTH, cast(WPARAM)iCol, 0)
 }
 ListView_SetColumnWidth :: #force_inline proc "system" (hwnd: HWND, iCol: c_int, cx: c_int) -> BOOL {
-    return cast(BOOL)SendMessageW(hwnd, LVM_SETCOLUMNWIDTH, cast(WPARAM)iCol, MAKELPARAM(cx,0))
+    return cast(BOOL)SendMessageW(hwnd, LVM_SETCOLUMNWIDTH, cast(WPARAM)iCol, MAKELPARAM(uint(cx), 0))
 }
 ListView_GetHeader :: #force_inline proc "system" (hwnd: HWND) -> HWND {
     return cast(HWND)uintptr(SendMessageW(hwnd, LVM_GETHEADER, 0, 0))
@@ -1326,7 +1326,7 @@ ListView_GetISearchString :: #force_inline proc "system" (hwndLV: HWND, lpsz: LP
     return cast(BOOL)SendMessageW(hwndLV, LVM_GETISEARCHSTRINGW, 0, cast(LPARAM)uintptr(lpsz))
 }
 ListView_SetIconSpacing :: #force_inline proc "system" (hwndLV: HWND, cx,cy: c_int) -> DWORD {
-    return cast(DWORD)SendMessageW(hwndLV, LVM_SETICONSPACING, 0, cast(LPARAM)MAKELONG(cx,cy))
+    return cast(DWORD)SendMessageW(hwndLV, LVM_SETICONSPACING, 0, cast(LPARAM)MAKELONG(uint(cx), uint(cy)))
 }
 ListView_SetExtendedListViewStyle :: #force_inline proc "system" (hwndLV: HWND, dw: DWORD) -> DWORD {
     return cast(DWORD)SendMessageW(hwndLV, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, cast(LPARAM)dw)
@@ -1363,7 +1363,7 @@ ListView_GetHotCursor :: #force_inline proc "system" (hwnd: HWND) -> HCURSOR {
     return cast(HCURSOR)uintptr(SendMessageW(hwnd, LVM_GETHOTCURSOR, 0, 0))
 }
 ListView_ApproximateViewRect :: #force_inline proc "system" (hwnd: HWND, iWidth,iHeight: c_int, iCount: c_int) -> DWORD {
-    return cast(DWORD)SendMessageW(hwnd, LVM_APPROXIMATEVIEWRECT, cast(WPARAM)iCount, MAKELPARAM(iWidth,iHeight))
+    return cast(DWORD)SendMessageW(hwnd, LVM_APPROXIMATEVIEWRECT, cast(WPARAM)iCount, MAKELPARAM(uint(iWidth), uint(iHeight)))
 }
 ListView_SetWorkAreas :: #force_inline proc "system" (hwnd: HWND, nWorkAreas: UINT, prc: ^RECT) -> BOOL {
     return cast(BOOL)SendMessageW(hwnd, LVM_SETWORKAREAS, cast(WPARAM)nWorkAreas, cast(LPARAM)uintptr(prc))
@@ -2049,13 +2049,13 @@ TabCtrl_AdjustRect :: #force_inline proc "system" (hwnd: HWND, bLarger: BOOL, pr
     return cast(c_int)SendMessageW(hwnd, TCM_ADJUSTRECT, cast(WPARAM)bLarger, cast(LPARAM)uintptr(prc))
 }
 TabCtrl_SetItemSize :: #force_inline proc "system" (hwnd: HWND, x,y: c_int) -> DWORD {
-    return cast(DWORD)SendMessageW(hwnd, TCM_SETITEMSIZE, 0, MAKELPARAM(x,y))
+    return cast(DWORD)SendMessageW(hwnd, TCM_SETITEMSIZE, 0, MAKELPARAM(uint(x), uint(y)))
 }
 TabCtrl_RemoveImage :: #force_inline proc "system" (hwnd: HWND, i: c_int) {
     _ = SendMessageW(hwnd, TCM_REMOVEIMAGE, cast(WPARAM)i, 0)
 }
 TabCtrl_SetPadding :: #force_inline proc "system" (hwnd: HWND, cx,cy: c_int) {
-    _ = SendMessageW(hwnd, TCM_SETPADDING, 0, MAKELPARAM(cx,cy))
+    _ = SendMessageW(hwnd, TCM_SETPADDING, 0, MAKELPARAM(uint(cx), uint(cy)))
 }
 TabCtrl_GetRowCount :: #force_inline proc "system" (hwnd: HWND) -> c_int {
     return cast(c_int)SendMessageW(hwnd, TCM_GETROWCOUNT, 0, 0)
@@ -2079,7 +2079,7 @@ TabCtrl_DeselectAll :: #force_inline proc "system" (hwnd: HWND, fExcludeFocus: B
     _ = SendMessageW(hwnd, TCM_DESELECTALL, cast(WPARAM)fExcludeFocus, 0)
 }
 TabCtrl_HighlightItem :: #force_inline proc "system" (hwnd: HWND, i: c_int, fHighlight: BOOL) -> BOOL {
-    return cast(BOOL)SendMessageW(hwnd, TCM_HIGHLIGHTITEM, cast(WPARAM)i, cast(LPARAM)MAKELONG(fHighlight,0))
+    return cast(BOOL)SendMessageW(hwnd, TCM_HIGHLIGHTITEM, cast(WPARAM)i, cast(LPARAM)MAKELONG(uint(fHighlight), 0))
 }
 TabCtrl_SetExtendedStyle :: #force_inline proc "system" (hwnd: HWND, dw: DWORD) -> DWORD {
     return cast(DWORD)SendMessageW(hwnd, TCM_SETEXTENDEDSTYLE, 0, cast(LPARAM)dw)

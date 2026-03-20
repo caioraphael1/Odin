@@ -1,6 +1,7 @@
 import "base:internal"
 import "base:mem"
 import "base:container/slice"
+import "base:bytes"
 // import "base:sanitizer"
 
 /*
@@ -259,7 +260,7 @@ rb_resize :: proc(
     alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := rb_resize_bytes_non_zeroed(stack, slice.bytes(old_ptr, old_size), size, alignment, loc)
+    bytes, err := rb_resize_bytes_non_zeroed(stack, bytes.bytes(old_ptr, old_size), size, alignment, loc)
     if bytes != nil {
         if old_ptr == nil {
             slice.zero(bytes)
@@ -305,7 +306,7 @@ rb_resize_non_zeroed :: proc(
     alignment: uint = internal.DEFAULT_ALIGNMENT,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := rb_resize_bytes_non_zeroed(stack, slice.bytes(old_ptr, old_size), size, alignment, loc)
+    bytes, err := rb_resize_bytes_non_zeroed(stack, bytes.bytes(old_ptr, old_size), size, alignment, loc)
     return raw_data(bytes), err
 }
 
@@ -469,9 +470,9 @@ rollback_stack_allocator_proc :: proc(
         rb_free_all(stack)
         return nil, nil
     case .Resize:
-        return rb_resize_bytes(stack, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return rb_resize_bytes(stack, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Resize_Non_Zeroed:
-        return rb_resize_bytes_non_zeroed(stack, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return rb_resize_bytes_non_zeroed(stack, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Query_Features:
         set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {

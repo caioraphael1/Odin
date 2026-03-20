@@ -3,7 +3,7 @@ import "base:mem"
 import "base:mem/allocators"
 import "base:container/strings"
 
-import "core:strings_tools"
+import "core:io/string_builder"
 
 // `get_env` retrieves the value of the environment variable named by the key
 // It returns the value, which will be empty if the variable is not present
@@ -81,12 +81,12 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
                     if r == '%' {
                         env_key := path[1:i+1]
                         env_val := get_env_alloc(env_key, allocators.temp_allocator)
-                        strings_tools.write_string(&sb, env_val)
+                        string_builder.write_string(&sb, env_val)
                         path = path[i+1:] // % is part of key, so skip 1 character extra
                     }
                 }
             } else {
-                strings_tools.write_rune(&sb, rune(path[0]))
+                string_builder.write_rune(&sb, rune(path[0]))
             }
 
         case '$': // Posix
@@ -102,16 +102,16 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
                 }
                 if len(env_key) > 0 {
                     env_val := get_env(env_key, allocators.temp_allocator)
-                    strings_tools.write_string(&sb, env_val)
+                    string_builder.write_string(&sb, env_val)
                     path = path[len(env_key):]
                 }
 
             } else {
-                _, _ = strings_tools.write_rune(&sb, rune(path[0]))
+                _, _ = string_builder.write_rune(&sb, rune(path[0]))
             }
 
         case:
-            _, _ = strings_tools.write_rune(&sb, rune(path[0]))
+            _, _ = string_builder.write_rune(&sb, rune(path[0]))
         }
 
         path = path[1:]

@@ -740,23 +740,23 @@ gsub_builder :: proc(builder: ^string_builder.Builder, haystack, pattern, replac
         cap := captures[0]
 
         // write front till capture
-        strings_tools.write_string(builder, haystack[:cap.byte_start])
+        string_builder.write_string(builder, haystack[:cap.byte_start])
 
         // write replacements
-        strings_tools.write_string(builder, replace)
+        string_builder.write_string(builder, replace)
 
         // advance string till end
         haystack = haystack[cap.byte_end:]
     }
 
-    strings_tools.write_string(builder, haystack[:])
+    string_builder.write_string(builder, haystack[:])
     return string_builder.to_string(builder^)
 }
 
 // uses temp builder to build initial string - then allocates the result
 
 gsub_allocator :: proc(haystack, pattern, replace: string, allocator: mem.Allocator) -> string {
-    builder := strings_tools.builder_create(0, 256, allocators.temp_allocator)
+    builder := string_builder.builder_create(0, 256, allocators.temp_allocator)
     return gsub_builder(&builder, haystack, pattern, replace)
 }
 
@@ -827,11 +827,11 @@ pattern_case_insensitive_builder :: proc(builder: ^string_builder.Builder, patte
         if unicode.is_alpha(char) && !last_percent {
             // write character class in manually
             string_builder.write_byte(builder, '[')
-            strings_tools.write_rune(builder, unicode.to_lower(char))
-            strings_tools.write_rune(builder, unicode.to_upper(char))
+            string_builder.write_rune(builder, unicode.to_lower(char))
+            string_builder.write_rune(builder, unicode.to_upper(char))
             string_builder.write_byte(builder, ']')
         } else {
-            strings_tools.write_rune(builder, char)
+            string_builder.write_rune(builder, char)
         }
 
         last_percent = char == L_ESC 
@@ -843,7 +843,7 @@ pattern_case_insensitive_builder :: proc(builder: ^string_builder.Builder, patte
 
 
 pattern_case_insensitive_allocator :: proc(pattern: string, cap: int = 256, allocator: mem.Allocator) -> string {
-    builder := strings_tools.builder_create(0, cap, allocators.temp_allocator)
+    builder := string_builder.builder_create(0, cap, allocators.temp_allocator)
     return pattern_case_insensitive_builder(&builder, pattern)  
 }
 

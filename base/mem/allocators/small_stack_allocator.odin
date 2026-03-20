@@ -1,6 +1,7 @@
 import "base:internal"
 import "base:mem"
 import "base:container/slice"
+import "base:bytes"
 
 /*
 Allocation header of the small stack allocator.
@@ -146,7 +147,7 @@ small_stack_alloc_bytes_non_zeroed :: proc(
     // sanitizer.address_poison(header)
     s.offset += size
     s.peak_used = max(s.peak_used, s.offset)
-    result := slice.bytes(rawptr(next_addr), size)
+    result := bytes.bytes(rawptr(next_addr), size)
     // NOTE: We cannot ensure the poison state of this allocation, because this
     // allocator allows out-of-order frees with overwriting.
     // sanitizer.address_unpoison(result)
@@ -221,7 +222,7 @@ small_stack_resize :: proc(
     alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc         := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := small_stack_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+    bytes, err := small_stack_resize_bytes(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     return raw_data(bytes), err
 }
 
@@ -285,7 +286,7 @@ small_stack_resize_non_zeroed :: proc(
     alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc         := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := small_stack_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+    bytes, err := small_stack_resize_bytes_non_zeroed(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     return raw_data(bytes), err
 }
 
@@ -341,19 +342,19 @@ small_stack_resize_bytes_non_zeroed :: proc(
         // does not satisfy it.
         data, err := small_stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
         if err == nil {
-            slice.copy(data, slice.bytes(old_memory, old_size))
+            slice.copy(data, bytes.bytes(old_memory, old_size))
             // sanitizer.address_poison(old_memory)
         }
         return data, err
     }
     if old_size == size {
-        result := slice.bytes(old_memory, size)
+        result := bytes.bytes(old_memory, size)
         // sanitizer.address_unpoison(result)
         return result, nil
     }
     data, err := small_stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
     if err == nil {
-        slice.copy(data, slice.bytes(old_memory, old_size))
+        slice.copy(data, bytes.bytes(old_memory, old_size))
     }
     return data, err
 
@@ -381,9 +382,9 @@ small_stack_allocator_proc :: proc(
     case .Free_All:
         small_stack_free_all(s)
     case .Resize:
-        return small_stack_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return small_stack_resize_bytes(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Resize_Non_Zeroed:
-        return small_stack_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return small_stack_resize_bytes_non_zeroed(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Query_Features:
         set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {

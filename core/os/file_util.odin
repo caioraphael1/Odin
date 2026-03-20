@@ -12,7 +12,7 @@ import "base:unicode/utf8"
     `write_string` writes a string `s` to file `f`.
     Returns the number of bytes written and an error, if any is encountered.
 */
-write_string :: proc(f: ^File, s: string) -> (n: int, err: Error) {
+write_string :: proc(f: ^File, s: string) -> (n: uint, err: Error) {
     return write(f, transmute([]byte)s)
 }
 
@@ -20,9 +20,9 @@ write_string :: proc(f: ^File, s: string) -> (n: int, err: Error) {
     `write_strings` writes a variadic list of strings `strings` to file `f`.
     Returns the number of bytes written and an error, if any is encountered.
 */
-write_strings :: proc(f: ^File, strings: ..string) -> (n: int, err: Error) {
+write_strings :: proc(f: ^File, strings: ..string) -> (n: uint, err: Error) {
     for s in strings {
-        m: int
+        m: uint
         m, err = write_string(f, s)
         n += m
         if err != nil {
@@ -35,7 +35,7 @@ write_strings :: proc(f: ^File, strings: ..string) -> (n: int, err: Error) {
     `write_byte` writes a byte `b` to file `f`.
     Returns the number of bytes written and an error, if any is encountered.
 */
-write_byte :: proc(f: ^File, b: byte) -> (n: int, err: Error) {
+write_byte :: proc(f: ^File, b: byte) -> (n: uint, err: Error) {
     return write(f, []byte{b})
 }
 
@@ -43,7 +43,7 @@ write_byte :: proc(f: ^File, b: byte) -> (n: int, err: Error) {
     `write_rune` writes a rune `r` as an UTF-8 encoded string to file `f`.
     Returns the number of bytes written and an error, if any is encountered.
 */
-write_rune :: proc(f: ^File, r: rune) -> (n: int, err: Error) {
+write_rune :: proc(f: ^File, r: rune) -> (n: uint, err: Error) {
     if r < utf8.RUNE_SELF {
         return write_byte(f, byte(r))
     }
@@ -57,8 +57,8 @@ write_rune :: proc(f: ^File, r: rune) -> (n: int, err: Error) {
     `write_encoded_rune` writes a rune `r` as an UTF-8 encoded string which with escaped control codes to file `f`.
     Returns the number of bytes written and an error, if any is encountered.
 */
-write_encoded_rune :: proc(f: ^File, r: rune) -> (n: int, err: Error) {
-    wrap :: proc(m: int, merr: Error, n: ^int, err: ^Error) -> bool {
+write_encoded_rune :: proc(f: ^File, r: rune) -> (n: uint, err: Error) {
+    wrap :: proc(m: uint, merr: Error, n: ^uint, err: ^Error) -> bool {
         n^ += m
         if merr != nil {
             err^ = merr
@@ -101,7 +101,7 @@ write_encoded_rune :: proc(f: ^File, r: rune) -> (n: int, err: Error) {
 
     It is equivalent to: `write(f, ([^]byte)(data)[:len])`
 */
-write_ptr :: proc(f: ^File, data: rawptr, len: int) -> (n: int, err: Error) {
+write_ptr :: proc(f: ^File, data: rawptr, len: uint) -> (n: uint, err: Error) {
     return write(f, ([^]byte)(data)[:len])
 }
 
@@ -110,7 +110,7 @@ write_ptr :: proc(f: ^File, data: rawptr, len: int) -> (n: int, err: Error) {
 
     It is equivalent to: `read(f, ([^]byte)(data)[:len])`
 */
-read_ptr :: proc(f: ^File, data: rawptr, len: int) -> (n: int, err: Error) {
+read_ptr :: proc(f: ^File, data: rawptr, len: uint) -> (n: uint, err: Error) {
     return read(f, ([^]byte)(data)[:len])
 }
 
@@ -120,7 +120,7 @@ read_ptr :: proc(f: ^File, data: rawptr, len: int) -> (n: int, err: Error) {
 
     It is equivalent to: `write(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])`
 */
-write_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: int, err: Error) {
+write_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: uint, err: Error) {
     return write(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])
 }
 
@@ -129,7 +129,7 @@ write_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: int, err: Error) {
 
     It is equivalent to: `read(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])`
 */
-read_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: int, err: Error) {
+read_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: uint, err: Error) {
     return read(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])
 }
 
@@ -162,7 +162,7 @@ read_at_least :: proc(f: ^File, buf: []byte, min: uint) -> (n: uint, err: Error)
 
     It is equivalent to `read_at_least(f, buf, len(buf))`.
 */
-read_full :: proc(f: ^File, buf: []byte) -> (n: int, err: Error) {
+read_full :: proc(f: ^File, buf: []byte) -> (n: uint, err: Error) {
     return read_at_least(f, buf, len(buf))
 }
 
@@ -183,20 +183,20 @@ read_entire_file_from_path :: proc(name: string, allocator: mem.Allocator, loc :
 */
 
 read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
-    size: int
+    size: uint
     has_size := false
     if size64, serr := file_size(f); serr == nil {
-        if i64(int(size64)) == size64 {
+        if i64(uint(size64)) == size64 {
             has_size = true
-            size = int(size64)
+            size = uint(size64)
         }
     }
 
     if has_size && size > 0 {
-        total: int
+        total: uint
         data = slice.create([]byte, size, allocator, loc) or_return
         for total < len(data) {
-            n: int
+            n: uint
             n, err = read(f, data[total:])
             total += n
             if err != nil {
@@ -211,9 +211,9 @@ read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #c
     } else {
         buffer: [1024]u8
         out_buffer, _ := dyn_array.create_len_cap([dynamic]u8, 0, 0, allocator, loc)
-        total := 0
+        total: uint = 0
         for {
-            n: int
+            n: uint
             n, err = read(f, buffer[:])
             total += n
             dyn_array.append_many(&out_buffer, ..buffer[:n], loc=loc) or_return

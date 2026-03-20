@@ -156,19 +156,19 @@ LPWSABUF   :: ^WSABUF
 WSAEVENT :: HANDLE
 
 WSAOVERLAPPED :: struct {
-	Internal:     DWORD,
-	InternalHigh: DWORD,
-	Offset:       DWORD,
-	OffsetHigh:   DWORD,
-	hEvent:       WSAEVENT,
+    Internal:     DWORD,
+    InternalHigh: DWORD,
+    Offset:       DWORD,
+    OffsetHigh:   DWORD,
+    hEvent:       WSAEVENT,
 }
 
 LPWSAOVERLAPPED :: ^WSAOVERLAPPED
 LPWSAOVERLAPPED_COMPLETION_ROUTINE :: #type proc "system" (
-	dwError:       DWORD,
-	cbTransferred: DWORD,
-	lpOverlapped:  LPWSAOVERLAPPED,
-	dwFlags:       DWORD,
+    dwError:       DWORD,
+    cbTransferred: DWORD,
+    lpOverlapped:  LPWSAOVERLAPPED,
+    dwFlags:       DWORD,
 )
 
 LPCVOID :: rawptr
@@ -195,8 +195,8 @@ TRUE  :: BOOL(true)
 FALSE :: BOOL(false)
 
 SIZE :: struct {
-	cx: LONG,
-	cy: LONG,
+    cx: LONG,
+    cy: LONG,
 }
 PSIZE  :: ^SIZE
 LPSIZE :: ^SIZE
@@ -269,12 +269,12 @@ GENERIC_EXECUTE : DWORD : 0x20000000
 GENERIC_ALL     : DWORD : 0x10000000
 
 FILE_GENERIC_WRITE : DWORD : \
-	STANDARD_RIGHTS_WRITE |
-	FILE_WRITE_DATA       |
-	FILE_WRITE_ATTRIBUTES |
-	FILE_WRITE_EA         |
-	FILE_APPEND_DATA      |
-	SYNCHRONIZE
+    STANDARD_RIGHTS_WRITE |
+    FILE_WRITE_DATA       |
+    FILE_WRITE_ATTRIBUTES |
+    FILE_WRITE_EA         |
+    FILE_APPEND_DATA      |
+    SYNCHRONIZE
 
 SECURITY_SQOS_PRESENT: DWORD : 0x00100000
 
@@ -317,17 +317,17 @@ POWER_REQUEST_CONTEXT_SIMPLE_STRING   :: DIAGNOSTIC_REASON_SIMPLE_STRING
 POWER_REQUEST_CONTEXT_DETAILED_STRING :: DIAGNOSTIC_REASON_DETAILED_STRING
 
 REASON_CONTEXT :: struct {
-	Version: ULONG,
-	Flags:   DWORD,
-	Reason: struct #raw_union {
-		Detailed: struct {
-			LocalizedReasonModule: HMODULE,
-			LocalizedReasonId:     ULONG,
-			ReasonStringCount:     ULONG,
-			ReasonStrings:         [^]LPWSTR `fmt:"v,ReasonStringCount"`,
-		},
-		SimpleReasonString: LPWSTR,
-	},
+    Version: ULONG,
+    Flags:   DWORD,
+    Reason: struct #raw_union {
+        Detailed: struct {
+            LocalizedReasonModule: HMODULE,
+            LocalizedReasonId:     ULONG,
+            ReasonStringCount:     ULONG,
+            ReasonStrings:         [^]LPWSTR `fmt:"v,ReasonStringCount"`,
+        },
+        SimpleReasonString: LPWSTR,
+    },
 }
 PREASON_CONTEXT :: ^REASON_CONTEXT
 
@@ -390,13 +390,13 @@ KEY_READ :: (STANDARD_RIGHTS_READ | KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS | K
 KEY_WRITE :: (STANDARD_RIGHTS_WRITE | KEY_SET_VALUE | KEY_CREATE_SUB_KEY) & (~SYNCHRONIZE)
 KEY_EXECUTE :: (KEY_READ) & (~SYNCHRONIZE)
 KEY_ALL_ACCESS :: (
-	STANDARD_RIGHTS_ALL    |
-	KEY_QUERY_VALUE        |
-	KEY_SET_VALUE          |
-	KEY_CREATE_SUB_KEY     |
-	KEY_ENUMERATE_SUB_KEYS |
-	KEY_NOTIFY             |
-	KEY_CREATE_LINK) & (~SYNCHRONIZE)
+    STANDARD_RIGHTS_ALL    |
+    KEY_QUERY_VALUE        |
+    KEY_SET_VALUE          |
+    KEY_CREATE_SUB_KEY     |
+    KEY_ENUMERATE_SUB_KEYS |
+    KEY_NOTIFY             |
+    KEY_CREATE_LINK) & (~SYNCHRONIZE)
 
 // Open/Create Options
 REG_OPTION_RESERVED        :: 0x00000000
@@ -408,19 +408,19 @@ REG_OPTION_OPEN_LINK       :: 0x00000008
 REG_OPTION_DONT_VIRTUALIZE :: 0x00000010
 
 REG_LEGAL_OPTION :: \
-	REG_OPTION_RESERVED       |
-	REG_OPTION_NON_VOLATILE   |
-	REG_OPTION_VOLATILE       |
-	REG_OPTION_CREATE_LINK    |
-	REG_OPTION_BACKUP_RESTORE |
-	REG_OPTION_OPEN_LINK      |
-	REG_OPTION_DONT_VIRTUALIZE
+    REG_OPTION_RESERVED       |
+    REG_OPTION_NON_VOLATILE   |
+    REG_OPTION_VOLATILE       |
+    REG_OPTION_CREATE_LINK    |
+    REG_OPTION_BACKUP_RESTORE |
+    REG_OPTION_OPEN_LINK      |
+    REG_OPTION_DONT_VIRTUALIZE
 
 REG_OPEN_LEGAL_OPTION :: \
-	REG_OPTION_RESERVED       |
-	REG_OPTION_BACKUP_RESTORE |
-	REG_OPTION_OPEN_LINK      |
-	REG_OPTION_DONT_VIRTUALIZE
+    REG_OPTION_RESERVED       |
+    REG_OPTION_BACKUP_RESTORE |
+    REG_OPTION_OPEN_LINK      |
+    REG_OPTION_DONT_VIRTUALIZE
 
 // Key creation/open disposition
 REG_CREATED_NEW_KEY     :: 0x00000001
@@ -462,11 +462,11 @@ REG_NOTIFY_CHANGE_SECURITY   :: 0x00000008
 REG_NOTIFY_THREAD_AGNOSTIC   :: 0x10000000
 
 REG_LEGAL_CHANGE_FILTER :: \
-	REG_NOTIFY_CHANGE_NAME       |
-	REG_NOTIFY_CHANGE_ATTRIBUTES |
-	REG_NOTIFY_CHANGE_LAST_SET   |
-	REG_NOTIFY_CHANGE_SECURITY   |
-	REG_NOTIFY_THREAD_AGNOSTIC
+    REG_NOTIFY_CHANGE_NAME       |
+    REG_NOTIFY_CHANGE_ATTRIBUTES |
+    REG_NOTIFY_CHANGE_LAST_SET   |
+    REG_NOTIFY_CHANGE_SECURITY   |
+    REG_NOTIFY_THREAD_AGNOSTIC
 
 // Predefined Value Types.
 REG_NONE                       :: 0
@@ -485,10 +485,10 @@ REG_QWORD                      :: 11
 REG_QWORD_LITTLE_ENDIAN        :: 11
 
 BSMINFO :: struct {
-	cbSize: UINT,
-	hdesk:  HDESK,
-	hwnd:   HWND,
-	luid:   LUID,
+    cbSize: UINT,
+    hdesk:  HDESK,
+    hwnd:   HWND,
+    luid:   LUID,
 }
 PBSMINFO :: ^BSMINFO
 
@@ -1279,73 +1279,73 @@ SUBCLASSPROC :: #type proc "system" (HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD
 HOOKPROC :: #type proc "system" (code: c_int, wParam: WPARAM, lParam: LPARAM) -> LRESULT
 
 WINEVENTPROC :: #type proc "system" (
-	hWinEventHook: HWINEVENTHOOK,
-	event:         DWORD,
-	hwnd:          HWND,
-	idObject,      idChild: LONG,
-	idEventThread, dwmsEventTime: DWORD,
+    hWinEventHook: HWINEVENTHOOK,
+    event:         DWORD,
+    hwnd:          HWND,
+    idObject,      idChild: LONG,
+    idEventThread, dwmsEventTime: DWORD,
 )
 
 CWPRETSTRUCT :: struct {
-	lResult: LRESULT,
-	lParam:  LPARAM,
-	wParam:  WPARAM,
-	message: UINT,
-	hwnd:    HWND,
+    lResult: LRESULT,
+    lParam:  LPARAM,
+    wParam:  WPARAM,
+    message: UINT,
+    hwnd:    HWND,
 }
 
 MSLLHOOKSTRUCT :: struct {
-	pt:          POINT,
-	mouseData:   DWORD,
-	flags:       DWORD,
-	time:        DWORD,
-	dwExtraInfo: ULONG_PTR,
+    pt:          POINT,
+    mouseData:   DWORD,
+    flags:       DWORD,
+    time:        DWORD,
+    dwExtraInfo: ULONG_PTR,
 }
 
 KBDLLHOOKSTRUCT :: struct {
-	vkCode:      DWORD,
-	scanCode:    DWORD,
-	flags:       DWORD,
-	time:        DWORD,
-	dwExtraInfo: ULONG_PTR,
+    vkCode:      DWORD,
+    scanCode:    DWORD,
+    flags:       DWORD,
+    time:        DWORD,
+    dwExtraInfo: ULONG_PTR,
 }
 
 MOUSEINPUT :: struct {
-	dx:          LONG,
-	dy:          LONG,
-	mouseData:   DWORD,
-	dwFlags:     DWORD,
-	time:        DWORD,
-	dwExtraInfo: ULONG_PTR,
+    dx:          LONG,
+    dy:          LONG,
+    mouseData:   DWORD,
+    dwFlags:     DWORD,
+    time:        DWORD,
+    dwExtraInfo: ULONG_PTR,
 }
 
 KEYBDINPUT :: struct {
-	wVk:         WORD,
-	wScan:       WORD,
-	dwFlags:     DWORD,
-	time:        DWORD,
-	dwExtraInfo: ULONG_PTR,
+    wVk:         WORD,
+    wScan:       WORD,
+    dwFlags:     DWORD,
+    time:        DWORD,
+    dwExtraInfo: ULONG_PTR,
 }
 
 HARDWAREINPUT :: struct {
-	uMsg:    DWORD,
-	wParamL: WORD,
-	wParamH: WORD,
+    uMsg:    DWORD,
+    wParamL: WORD,
+    wParamH: WORD,
 }
 
 INPUT_TYPE :: enum DWORD {
-	MOUSE    = 0,
-	KEYBOARD = 1,
-	HARDWARE = 2,
+    MOUSE    = 0,
+    KEYBOARD = 1,
+    HARDWARE = 2,
 }
 
 INPUT :: struct {
-	type: INPUT_TYPE,
-	using _: struct #raw_union {
-		mi: MOUSEINPUT    `raw_union_tag:"type=MOUSE"`,
-		ki: KEYBDINPUT    `raw_union_tag:"type=KEYBOARD"`,
-		hi: HARDWAREINPUT `raw_union_tag:"type=HARDWARE"`,
-	},
+    type: INPUT_TYPE,
+    using _: struct #raw_union {
+        mi: MOUSEINPUT    `raw_union_tag:"type=MOUSE"`,
+        ki: KEYBDINPUT    `raw_union_tag:"type=KEYBOARD"`,
+        hi: HARDWAREINPUT `raw_union_tag:"type=HARDWARE"`,
+    },
 }
 
 MOUSEEVENTF_MOVE            :: 0x0001
@@ -1364,91 +1364,91 @@ MOUSEEVENTF_VIRTUALDESK     :: 0x4000
 MOUSEEVENTF_ABSOLUTE        :: 0x8000
 
 WNDCLASSA :: struct {
-	style:         UINT,
-	lpfnWndProc:   WNDPROC,
-	cbClsExtra:    c_int,
-	cbWndExtra:    c_int,
-	hInstance:     HINSTANCE,
-	hIcon:         HICON,
-	hCursor:       HCURSOR,
-	hbrBackground: HBRUSH,
-	lpszMenuName:  LPCSTR,
-	lpszClassName: LPCSTR,
+    style:         UINT,
+    lpfnWndProc:   WNDPROC,
+    cbClsExtra:    c_int,
+    cbWndExtra:    c_int,
+    hInstance:     HINSTANCE,
+    hIcon:         HICON,
+    hCursor:       HCURSOR,
+    hbrBackground: HBRUSH,
+    lpszMenuName:  LPCSTR,
+    lpszClassName: LPCSTR,
 }
 
 WNDCLASSW :: struct {
-	style:         UINT,
-	lpfnWndProc:   WNDPROC,
-	cbClsExtra:    c_int,
-	cbWndExtra:    c_int,
-	hInstance:     HINSTANCE,
-	hIcon:         HICON,
-	hCursor:       HCURSOR,
-	hbrBackground: HBRUSH,
-	lpszMenuName:  LPCWSTR,
-	lpszClassName: LPCWSTR,
+    style:         UINT,
+    lpfnWndProc:   WNDPROC,
+    cbClsExtra:    c_int,
+    cbWndExtra:    c_int,
+    hInstance:     HINSTANCE,
+    hIcon:         HICON,
+    hCursor:       HCURSOR,
+    hbrBackground: HBRUSH,
+    lpszMenuName:  LPCWSTR,
+    lpszClassName: LPCWSTR,
 }
 
 WNDCLASSEXA :: struct {
-	cbSize:        UINT,
-	style:         UINT,
-	lpfnWndProc:   WNDPROC,
-	cbClsExtra:    c_int,
-	cbWndExtra:    c_int,
-	hInstance:     HINSTANCE,
-	hIcon:         HICON,
-	hCursor:       HCURSOR,
-	hbrBackground: HBRUSH,
-	lpszMenuName:  LPCSTR,
-	lpszClassName: LPCSTR,
-	hIconSm:       HICON,
+    cbSize:        UINT,
+    style:         UINT,
+    lpfnWndProc:   WNDPROC,
+    cbClsExtra:    c_int,
+    cbWndExtra:    c_int,
+    hInstance:     HINSTANCE,
+    hIcon:         HICON,
+    hCursor:       HCURSOR,
+    hbrBackground: HBRUSH,
+    lpszMenuName:  LPCSTR,
+    lpszClassName: LPCSTR,
+    hIconSm:       HICON,
 }
 
 WNDCLASSEXW :: struct {
-	cbSize:        UINT,
-	style:         UINT,
-	lpfnWndProc:   WNDPROC,
-	cbClsExtra:    c_int,
-	cbWndExtra:    c_int,
-	hInstance:     HINSTANCE,
-	hIcon:         HICON,
-	hCursor:       HCURSOR,
-	hbrBackground: HBRUSH,
-	lpszMenuName:  LPCWSTR,
-	lpszClassName: LPCWSTR,
-	hIconSm:       HICON,
+    cbSize:        UINT,
+    style:         UINT,
+    lpfnWndProc:   WNDPROC,
+    cbClsExtra:    c_int,
+    cbWndExtra:    c_int,
+    hInstance:     HINSTANCE,
+    hIcon:         HICON,
+    hCursor:       HCURSOR,
+    hbrBackground: HBRUSH,
+    lpszMenuName:  LPCWSTR,
+    lpszClassName: LPCWSTR,
+    hIconSm:       HICON,
 }
 
 MSG :: struct {
-	hwnd:    HWND,
-	message: UINT,
-	wParam:  WPARAM,
-	lParam:  LPARAM,
-	time:    DWORD,
-	pt:      POINT,
+    hwnd:    HWND,
+    message: UINT,
+    wParam:  WPARAM,
+    lParam:  LPARAM,
+    time:    DWORD,
+    pt:      POINT,
 }
 
 LPMSG :: ^MSG
 
 NOTIFYICONDATAW :: struct {
-	cbSize:           DWORD,
-	hWnd:             HWND,
-	uID:              UINT,
-	uFlags:           UINT,
-	uCallbackMessage: UINT,
-	hIcon:            HICON,
-	szTip:            [128]WCHAR,
-	dwState:          DWORD,
-	dwStateMask:      DWORD,
-	szInfo:           [256]WCHAR,
-	using _: struct #raw_union {
-		uTimeout: UINT,
-		uVersion: UINT,
-	},
-	szInfoTitle:  [64]WCHAR,
-	dwInfoFlags:  DWORD,
-	guidItem:     GUID,
-	hBalloonIcon: HICON,
+    cbSize:           DWORD,
+    hWnd:             HWND,
+    uID:              UINT,
+    uFlags:           UINT,
+    uCallbackMessage: UINT,
+    hIcon:            HICON,
+    szTip:            [128]WCHAR,
+    dwState:          DWORD,
+    dwStateMask:      DWORD,
+    szInfo:           [256]WCHAR,
+    using _: struct #raw_union {
+        uTimeout: UINT,
+        uVersion: UINT,
+    },
+    szInfoTitle:  [64]WCHAR,
+    dwInfoFlags:  DWORD,
+    guidItem:     GUID,
+    hBalloonIcon: HICON,
 }
 
 NIF_MESSAGE  :: 0x00000001
@@ -1570,133 +1570,133 @@ HTCLOSE       :: 20
 HTHELP        :: 21
 
 TEXTMETRICW :: struct {
-	tmHeight:           LONG,
-	tmAscent:           LONG,
-	tmDescent:          LONG,
-	tmInternalLeading:  LONG,
-	tmExternalLeading:  LONG,
-	tmAveCharWidth:     LONG,
-	tmMaxCharWidth:     LONG,
-	tmWeight:           LONG,
-	tmOverhang:         LONG,
-	tmDigitizedAspectX: LONG,
-	tmDigitizedAspectY: LONG,
-	tmFirstChar:        WCHAR,
-	tmLastChar:         WCHAR,
-	tmDefaultChar:      WCHAR,
-	tmBreakChar:        WCHAR,
-	tmItalic:           BYTE,
-	tmUnderlined:       BYTE,
-	tmStruckOut:        BYTE,
-	tmPitchAndFamily:   BYTE,
-	tmCharSet:          BYTE,
+    tmHeight:           LONG,
+    tmAscent:           LONG,
+    tmDescent:          LONG,
+    tmInternalLeading:  LONG,
+    tmExternalLeading:  LONG,
+    tmAveCharWidth:     LONG,
+    tmMaxCharWidth:     LONG,
+    tmWeight:           LONG,
+    tmOverhang:         LONG,
+    tmDigitizedAspectX: LONG,
+    tmDigitizedAspectY: LONG,
+    tmFirstChar:        WCHAR,
+    tmLastChar:         WCHAR,
+    tmDefaultChar:      WCHAR,
+    tmBreakChar:        WCHAR,
+    tmItalic:           BYTE,
+    tmUnderlined:       BYTE,
+    tmStruckOut:        BYTE,
+    tmPitchAndFamily:   BYTE,
+    tmCharSet:          BYTE,
 }
 LPTEXTMETRICW :: ^TEXTMETRICW
 
 PAINTSTRUCT :: struct {
-	hdc:         HDC,
-	fErase:      BOOL,
-	rcPaint:     RECT,
-	fRestore:    BOOL,
-	fIncUpdate:  BOOL,
-	rgbReserved: [32]BYTE,
+    hdc:         HDC,
+    fErase:      BOOL,
+    rcPaint:     RECT,
+    fRestore:    BOOL,
+    fIncUpdate:  BOOL,
+    rgbReserved: [32]BYTE,
 }
 
 TRACKMOUSEEVENT :: struct {
-	cbSize:      DWORD,
-	dwFlags:     DWORD,
-	hwndTrack:   HWND,
-	dwHoverTime: DWORD,
+    cbSize:      DWORD,
+    dwFlags:     DWORD,
+    hwndTrack:   HWND,
+    dwHoverTime: DWORD,
 }
 
 WIN32_FIND_DATAW :: struct {
-	dwFileAttributes:   DWORD,
-	ftCreationTime:     FILETIME,
-	ftLastAccessTime:   FILETIME,
-	ftLastWriteTime:    FILETIME,
-	nFileSizeHigh:      DWORD,
-	nFileSizeLow:       DWORD,
-	dwReserved0:        DWORD,
-	dwReserved1:        DWORD,
-	cFileName:          [MAX_PATH]WCHAR,
-	cAlternateFileName: [14]WCHAR,
+    dwFileAttributes:   DWORD,
+    ftCreationTime:     FILETIME,
+    ftLastAccessTime:   FILETIME,
+    ftLastWriteTime:    FILETIME,
+    nFileSizeHigh:      DWORD,
+    nFileSizeLow:       DWORD,
+    dwReserved0:        DWORD,
+    dwReserved1:        DWORD,
+    cFileName:          [MAX_PATH]WCHAR,
+    cAlternateFileName: [14]WCHAR,
 }
 
 FILE_ID_128 :: struct {
-	Identifier: [16]BYTE,
+    Identifier: [16]BYTE,
 }
 
 FILE_ID_INFO :: struct {
-	VolumeSerialNumber: ULONGLONG,
-	FileId:             FILE_ID_128,
+    VolumeSerialNumber: ULONGLONG,
+    FileId:             FILE_ID_128,
 }
 
 CREATESTRUCTA :: struct {
-	lpCreateParams: LPVOID,
-	hInstance:      HINSTANCE,
-	hMenu:          HMENU,
-	hwndParent:     HWND,
-	cy:             c_int,
-	cx:             c_int,
-	y:              c_int,
-	x:              c_int,
-	style:          LONG,
-	lpszName:       LPCSTR,
-	lpszClass:      LPCSTR,
-	dwExStyle:      DWORD,
+    lpCreateParams: LPVOID,
+    hInstance:      HINSTANCE,
+    hMenu:          HMENU,
+    hwndParent:     HWND,
+    cy:             c_int,
+    cx:             c_int,
+    y:              c_int,
+    x:              c_int,
+    style:          LONG,
+    lpszName:       LPCSTR,
+    lpszClass:      LPCSTR,
+    dwExStyle:      DWORD,
 }
 
 CREATESTRUCTW:: struct {
-	lpCreateParams: LPVOID,
-	hInstance:      HINSTANCE,
-	hMenu:          HMENU,
-	hwndParent:     HWND,
-	cy:             c_int,
-	cx:             c_int,
-	y:              c_int,
-	x:              c_int,
-	style:          LONG,
-	lpszName:       LPCWSTR,
-	lpszClass:      LPCWSTR,
-	dwExStyle:      DWORD,
+    lpCreateParams: LPVOID,
+    hInstance:      HINSTANCE,
+    hMenu:          HMENU,
+    hwndParent:     HWND,
+    cy:             c_int,
+    cx:             c_int,
+    y:              c_int,
+    x:              c_int,
+    style:          LONG,
+    lpszName:       LPCWSTR,
+    lpszClass:      LPCWSTR,
+    dwExStyle:      DWORD,
 }
 
 MAX_LINKID_TEXT :: 48
 L_MAX_URL_LENGTH :: 2048 + 32 + len("://")
 
 LITEM :: struct {
-	mask:      UINT,
-	iLink:     c_int,
-	state:     UINT,
-	stateMask: UINT,
-	szID:      [MAX_LINKID_TEXT]WCHAR,
-	szUrl:     [L_MAX_URL_LENGTH]WCHAR,
+    mask:      UINT,
+    iLink:     c_int,
+    state:     UINT,
+    stateMask: UINT,
+    szID:      [MAX_LINKID_TEXT]WCHAR,
+    szUrl:     [L_MAX_URL_LENGTH]WCHAR,
 }
 
 NMLINK :: struct {
-	hdr:  NMHDR,
-	item: LITEM,
+    hdr:  NMHDR,
+    item: LITEM,
 }
 
 NMHDR :: struct {
-	hwndFrom: HWND,
-	idFrom:   UINT_PTR,
-	code:     UINT,      // NM_ code
+    hwndFrom: HWND,
+    idFrom:   UINT_PTR,
+    code:     UINT,      // NM_ code
 }
 
 NMCUSTOMDRAW :: struct {
-	hdr:         NMHDR,
-	dwDrawStage: DWORD,
-	hdc:         HDC,
-	rc:          RECT,
-	dwItemSpec:  DWORD_PTR,
-	uItemState:  UINT,
-	lItemlParam: LPARAM,
+    hdr:         NMHDR,
+    dwDrawStage: DWORD,
+    hdc:         HDC,
+    rc:          RECT,
+    dwItemSpec:  DWORD_PTR,
+    uItemState:  UINT,
+    lItemlParam: LPARAM,
 }
 
 NCCALCSIZE_PARAMS :: struct {
-	rgrc: [3]RECT,
-	lppos: PWINDOWPOS,
+    rgrc: [3]RECT,
+    lppos: PWINDOWPOS,
 }
 
 // Generic WM_NOTIFY notification codes
@@ -1726,14 +1726,14 @@ NM_TVSTATEIMAGECHANGING :: NM_OUTOFMEMORY-23 // uses NMTVSTATEIMAGECHANGING stru
 PCZZWSTR :: cstring16
 
 SHFILEOPSTRUCTW :: struct {
-	hwnd:                  HWND,
-	wFunc:                 UINT,
-	pFrom:                 PCZZWSTR,
-	pTo:                   PCZZWSTR,
-	fFlags:                FILEOP_FLAGS,
-	fAnyOperationsAborted: BOOL,
-	hNameMappings:         LPVOID,
-	lpszProgressTitle:     PCWSTR, // only used if FOF_SIMPLEPROGRESS
+    hwnd:                  HWND,
+    wFunc:                 UINT,
+    pFrom:                 PCZZWSTR,
+    pTo:                   PCZZWSTR,
+    fFlags:                FILEOP_FLAGS,
+    fAnyOperationsAborted: BOOL,
+    hNameMappings:         LPVOID,
+    lpszProgressTitle:     PCWSTR, // only used if FOF_SIMPLEPROGRESS
 }
 LPSHFILEOPSTRUCTW :: ^SHFILEOPSTRUCTW
 
@@ -1766,54 +1766,54 @@ FOF_NO_UI                 :: (FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI | 
 FILEOP_FLAGS :: WORD
 
 DEVMODEW :: struct {
-	dmDeviceName:    [32]wchar_t,
-	dmSpecVersion:   WORD,
-	dmDriverVersion: WORD,
-	dmSize:          WORD,
-	dmDriverExtra:   WORD,
-	dmFields:        DWORD,
-	using _: struct #raw_union {
-		// Printer only fields.
-		using _: struct {
-			dmOrientation:   c_short,
-			dmPaperSize:     c_short,
-			dmPaperLength:   c_short,
-			dmPaperWidth:    c_short,
-			dmScale:         c_short,
-			dmCopies:        c_short,
-			dmDefaultSource: c_short,
-			dmPrintQuality:  c_short,
-		},
-		// Display only fields.
-		using _: struct {
-			dmPosition:           POINT,
-			dmDisplayOrientation: DWORD,
-			dmDisplayFixedOutput: DWORD,
-		},
-	},
-	dmColor:       c_short,
-	dmDuplex:      c_short,
-	dmYResolution: c_short,
-	dmTTOption:    c_short,
-	dmCollate:     c_short,
-	dmFormName:    [32]wchar_t,
-	dmLogPixels:   WORD,
-	dmBitsPerPel:  DWORD,
-	dmPelsWidth:   DWORD,
-	dmPelsHeight:  DWORD,
-	using _: struct #raw_union {
-		dmDisplayFlags: DWORD,
-		dmNup:          DWORD,
-	},
-	dmDisplayFrequency: DWORD,
-	dmICMMethod:        DWORD,
-	dmICMIntent:        DWORD,
-	dmMediaType:        DWORD,
-	dmDitherType:       DWORD,
-	dmReserved1:        DWORD,
-	dmReserved2:        DWORD,
-	dmPanningWidth:     DWORD,
-	dmPanningHeight:    DWORD,
+    dmDeviceName:    [32]wchar_t,
+    dmSpecVersion:   WORD,
+    dmDriverVersion: WORD,
+    dmSize:          WORD,
+    dmDriverExtra:   WORD,
+    dmFields:        DWORD,
+    using _: struct #raw_union {
+        // Printer only fields.
+        using _: struct {
+            dmOrientation:   c_short,
+            dmPaperSize:     c_short,
+            dmPaperLength:   c_short,
+            dmPaperWidth:    c_short,
+            dmScale:         c_short,
+            dmCopies:        c_short,
+            dmDefaultSource: c_short,
+            dmPrintQuality:  c_short,
+        },
+        // Display only fields.
+        using _: struct {
+            dmPosition:           POINT,
+            dmDisplayOrientation: DWORD,
+            dmDisplayFixedOutput: DWORD,
+        },
+    },
+    dmColor:       c_short,
+    dmDuplex:      c_short,
+    dmYResolution: c_short,
+    dmTTOption:    c_short,
+    dmCollate:     c_short,
+    dmFormName:    [32]wchar_t,
+    dmLogPixels:   WORD,
+    dmBitsPerPel:  DWORD,
+    dmPelsWidth:   DWORD,
+    dmPelsHeight:  DWORD,
+    using _: struct #raw_union {
+        dmDisplayFlags: DWORD,
+        dmNup:          DWORD,
+    },
+    dmDisplayFrequency: DWORD,
+    dmICMMethod:        DWORD,
+    dmICMIntent:        DWORD,
+    dmMediaType:        DWORD,
+    dmDitherType:       DWORD,
+    dmReserved1:        DWORD,
+    dmReserved2:        DWORD,
+    dmPanningWidth:     DWORD,
+    dmPanningHeight:    DWORD,
 }
 
 // MessageBox() Flags
@@ -2021,7 +2021,7 @@ SWP_ASYNCWINDOWPOS :: 0x4000 // same as SWP_CREATESPB
 
 CSIDL_APPDATA        :: 0x001a // <user name>\Application Data
 CSIDL_COMMON_APPDATA :: 0x0023 // All Users\Application Data
-CSIDL_PROFILE 		 :: 0x0028 // <user name>\
+CSIDL_PROFILE        :: 0x0028 // <user name>\
 
 HWND_TOP       :: HWND( uintptr(0))     //  0
 HWND_BOTTOM    :: HWND( uintptr(1))     //  1
@@ -2034,10 +2034,10 @@ GWL_EXSTYLE :: -20
 GWL_ID      :: -12
 
 when ODIN_ARCH == .i386 {
-	GWL_WNDPROC    :: -4
-	GWL_HINSTANCE  :: -6
-	GWL_HWNDPARENT :: -8
-	GWL_USERDATA   :: -21
+    GWL_WNDPROC    :: -4
+    GWL_HINSTANCE  :: -6
+    GWL_HWNDPARENT :: -8
+    GWL_USERDATA   :: -21
 }
 
 GWLP_WNDPROC    :: -4
@@ -2053,13 +2053,13 @@ GCL_STYLE      :: -26
 GCW_ATOM       :: -32
 
 when ODIN_ARCH == .i386 {
-	GCL_MENUNAME      :: -8
-	GCL_HBRBACKGROUND :: -10
-	GCL_HCURSOR       :: -12
-	GCL_HICON         :: -14
-	GCL_HMODULE       :: -16
-	GCL_WNDPROC       :: -24
-	GCL_HICONSM       :: -34
+    GCL_MENUNAME      :: -8
+    GCL_HBRBACKGROUND :: -10
+    GCL_HCURSOR       :: -12
+    GCL_HICON         :: -14
+    GCL_HMODULE       :: -16
+    GCL_WNDPROC       :: -24
+    GCL_HICONSM       :: -34
 }
 
 GCLP_MENUNAME      :: -8
@@ -2252,24 +2252,24 @@ SEE_MASK_FLAG_LOG_USAGE    :: 0x04000000
 SEE_MASK_FLAG_HINST_IS_SITE :: 0x08000000
 
 SHELLEXECUTEINFOW :: struct {
-	cbSize:       DWORD,     // in, required, sizeof of this structure
-	fMask:        ULONG,     // in, SEE_MASK_XXX values
-	hwnd:         HWND,      // in, optional
-	lpVerb:       LPCWSTR,   // in, optional when unspecified the default verb is choosen
-	lpFile:       LPCWSTR,   // in, either this value or lpIDList must be specified
-	lpParameters: LPCWSTR,   // in, optional
-	lpDirectory:  LPCWSTR,   // in, optional
-	nShow:        c_int,     // in, required
-	hInstApp:     HINSTANCE, // out when SEE_MASK_NOCLOSEPROCESS is specified
-	lpIDList:     rawptr,    // in, valid when SEE_MASK_IDLIST is specified, PCIDLIST_ABSOLUTE, for use with SEE_MASK_IDLIST & SEE_MASK_INVOKEIDLIST
-	lpClass:      LPCWSTR,   // in, valid when SEE_MASK_CLASSNAME is specified
-	hkeyClass:    HKEY,      // in, valid when SEE_MASK_CLASSKEY is specified
-	dwHotKey:     DWORD,     // in, valid when SEE_MASK_HOTKEY is specified
-	using DUMMYUNIONNAME: struct #raw_union {
-		hIcon:    HANDLE, // not used
-		hMonitor: HANDLE, // in, valid when SEE_MASK_HMONITOR specified
-	},
-	hProcess: HANDLE, // out, valid when SEE_MASK_NOCLOSEPROCESS specified
+    cbSize:       DWORD,     // in, required, sizeof of this structure
+    fMask:        ULONG,     // in, SEE_MASK_XXX values
+    hwnd:         HWND,      // in, optional
+    lpVerb:       LPCWSTR,   // in, optional when unspecified the default verb is choosen
+    lpFile:       LPCWSTR,   // in, either this value or lpIDList must be specified
+    lpParameters: LPCWSTR,   // in, optional
+    lpDirectory:  LPCWSTR,   // in, optional
+    nShow:        c_int,     // in, required
+    hInstApp:     HINSTANCE, // out when SEE_MASK_NOCLOSEPROCESS is specified
+    lpIDList:     rawptr,    // in, valid when SEE_MASK_IDLIST is specified, PCIDLIST_ABSOLUTE, for use with SEE_MASK_IDLIST & SEE_MASK_INVOKEIDLIST
+    lpClass:      LPCWSTR,   // in, valid when SEE_MASK_CLASSNAME is specified
+    hkeyClass:    HKEY,      // in, valid when SEE_MASK_CLASSKEY is specified
+    dwHotKey:     DWORD,     // in, valid when SEE_MASK_HOTKEY is specified
+    using DUMMYUNIONNAME: struct #raw_union {
+        hIcon:    HANDLE, // not used
+        hMonitor: HANDLE, // in, valid when SEE_MASK_HMONITOR specified
+    },
+    hProcess: HANDLE, // out, valid when SEE_MASK_NOCLOSEPROCESS specified
 }
 LPSHELLEXECUTEINFOW :: ^SHELLEXECUTEINFOW
 
@@ -2316,27 +2316,27 @@ WA_CLICKACTIVE :: 2
 
 // Struct pointed to by WM_GETMINMAXINFO lParam
 MINMAXINFO :: struct {
-	ptReserved:     POINT,
-	ptMaxSize:      POINT,
-	ptMaxPosition:  POINT,
-	ptMinTrackSize: POINT,
-	ptMaxTrackSize: POINT,
+    ptReserved:     POINT,
+    ptMaxSize:      POINT,
+    ptMaxPosition:  POINT,
+    ptMinTrackSize: POINT,
+    ptMaxTrackSize: POINT,
 }
 PMINMAXINFO  :: ^MINMAXINFO
 LPMINMAXINFO :: PMINMAXINFO
 
 MONITORINFO :: struct {
-	cbSize: DWORD,
-	rcMonitor: RECT,
-	rcWork: RECT,
-	dwFlags: DWORD,
+    cbSize: DWORD,
+    rcMonitor: RECT,
+    rcWork: RECT,
+    dwFlags: DWORD,
 }
 LPMONITORINFO :: ^MONITORINFO
 
 CCHDEVICENAME :: 32
 MONITORINFOEXW :: struct {
-	using _: MONITORINFO,
-	szDevice: [CCHDEVICENAME]WCHAR,
+    using _: MONITORINFO,
+    szDevice: [CCHDEVICENAME]WCHAR,
 }
 
 // SetWindowsHook() codes
@@ -2539,68 +2539,68 @@ STOCK_LAST          :: 19
 CLR_INVALID :: 0xFFFFFFFF
 
 RGBQUAD :: struct {
-	rgbBlue:     BYTE,
-	rgbGreen:    BYTE,
-	rgbRed:      BYTE,
-	rgbReserved: BYTE,
+    rgbBlue:     BYTE,
+    rgbGreen:    BYTE,
+    rgbRed:      BYTE,
+    rgbReserved: BYTE,
 }
 
 PIXELFORMATDESCRIPTOR :: struct {
-	nSize:           WORD,
-	nVersion:        WORD,
-	dwFlags:         DWORD,
-	iPixelType:      BYTE,
-	cColorBits:      BYTE,
-	cRedBits:        BYTE,
-	cRedShift:       BYTE,
-	cGreenBits:      BYTE,
-	cGreenShift:     BYTE,
-	cBlueBits:       BYTE,
-	cBlueShift:      BYTE,
-	cAlphaBits:      BYTE,
-	cAlphaShift:     BYTE,
-	cAccumBits:      BYTE,
-	cAccumRedBits:   BYTE,
-	cAccumGreenBits: BYTE,
-	cAccumBlueBits:  BYTE,
-	cAccumAlphaBits: BYTE,
-	cDepthBits:      BYTE,
-	cStencilBits:    BYTE,
-	cAuxBuffers:     BYTE,
-	iLayerType:      BYTE,
-	bReserved:       BYTE,
-	dwLayerMask:     DWORD,
-	dwVisibleMask:   DWORD,
-	dwDamageMask:    DWORD,
+    nSize:           WORD,
+    nVersion:        WORD,
+    dwFlags:         DWORD,
+    iPixelType:      BYTE,
+    cColorBits:      BYTE,
+    cRedBits:        BYTE,
+    cRedShift:       BYTE,
+    cGreenBits:      BYTE,
+    cGreenShift:     BYTE,
+    cBlueBits:       BYTE,
+    cBlueShift:      BYTE,
+    cAlphaBits:      BYTE,
+    cAlphaShift:     BYTE,
+    cAccumBits:      BYTE,
+    cAccumRedBits:   BYTE,
+    cAccumGreenBits: BYTE,
+    cAccumBlueBits:  BYTE,
+    cAccumAlphaBits: BYTE,
+    cDepthBits:      BYTE,
+    cStencilBits:    BYTE,
+    cAuxBuffers:     BYTE,
+    iLayerType:      BYTE,
+    bReserved:       BYTE,
+    dwLayerMask:     DWORD,
+    dwVisibleMask:   DWORD,
+    dwDamageMask:    DWORD,
 }
 
 BITMAPINFOHEADER :: struct {
-	biSize:          DWORD,
-	biWidth:         LONG,
-	biHeight:        LONG,
-	biPlanes:        WORD,
-	biBitCount:      WORD,
-	biCompression:   DWORD,
-	biSizeImage:     DWORD,
-	biXPelsPerMeter: LONG,
-	biYPelsPerMeter: LONG,
-	biClrUsed:       DWORD,
-	biClrImportant:  DWORD,
+    biSize:          DWORD,
+    biWidth:         LONG,
+    biHeight:        LONG,
+    biPlanes:        WORD,
+    biBitCount:      WORD,
+    biCompression:   DWORD,
+    biSizeImage:     DWORD,
+    biXPelsPerMeter: LONG,
+    biYPelsPerMeter: LONG,
+    biClrUsed:       DWORD,
+    biClrImportant:  DWORD,
 }
 
 BITMAPINFO :: struct {
-	bmiHeader: BITMAPINFOHEADER,
-	bmiColors: [1]RGBQUAD,
+    bmiHeader: BITMAPINFOHEADER,
+    bmiColors: [1]RGBQUAD,
 }
 
 BITMAP :: struct {
-	bmType:       LONG,
-	bmWidth:      LONG,
-	bmHeight:     LONG,
-	bmWidthBytes: LONG,
-	bmPlanes:     WORD,
-	bmBitsPixel:  WORD,
-	bmBits:       LPVOID,
+    bmType:       LONG,
+    bmWidth:      LONG,
+    bmHeight:     LONG,
+    bmWidthBytes: LONG,
+    bmPlanes:     WORD,
+    bmBitsPixel:  WORD,
+    bmBits:       LPVOID,
 }
 
 // pixel types
@@ -2766,18 +2766,18 @@ HANDLE_FLAG_INHERIT: DWORD : 0x00000001
 HANDLE_FLAG_PROTECT_FROM_CLOSE :: 0x00000002
 
 GENERIC_MAPPING :: struct {
-	GenericRead:    ACCESS_MASK,
-	GenericWrite:   ACCESS_MASK,
-	GenericExecute: ACCESS_MASK,
-	GenericAll:     ACCESS_MASK,
+    GenericRead:    ACCESS_MASK,
+    GenericWrite:   ACCESS_MASK,
+    GenericExecute: ACCESS_MASK,
+    GenericAll:     ACCESS_MASK,
 }
 PGENERIC_MAPPING :: ^GENERIC_MAPPING
 
 SECURITY_IMPERSONATION_LEVEL :: enum {
-	SecurityAnonymous,
-	SecurityIdentification,
-	SecurityImpersonation,
-	SecurityDelegation,
+    SecurityAnonymous,
+    SecurityIdentification,
+    SecurityImpersonation,
+    SecurityDelegation,
 }
 
 SECURITY_INFORMATION :: DWORD
@@ -2785,14 +2785,14 @@ ANYSIZE_ARRAY :: 1
 
 PLUID_AND_ATTRIBUTES :: ^LUID_AND_ATTRIBUTES
 LUID_AND_ATTRIBUTES :: struct {
-	Luid:       LUID,
-	Attributes: DWORD,
+    Luid:       LUID,
+    Attributes: DWORD,
 }
 
 PRIVILEGE_SET :: struct {
-	PrivilegeCount: DWORD,
-	Control:        DWORD,
-	Privilege:      [ANYSIZE_ARRAY]LUID_AND_ATTRIBUTES `fmt:"v,PrivilegeCount"`,
+    PrivilegeCount: DWORD,
+    Control:        DWORD,
+    Privilege:      [ANYSIZE_ARRAY]LUID_AND_ATTRIBUTES `fmt:"v,PrivilegeCount"`,
 }
 PPRIVILEGE_SET :: ^PRIVILEGE_SET
 
@@ -2808,8 +2808,8 @@ TOKEN_ADJUST_DEFAULT    :: 0x0080
 TOKEN_ADJUST_SESSIONID  :: 0x0100
 
 TOKEN_ALL_ACCESS_P :: \
-	STANDARD_RIGHTS_REQUIRED | TOKEN_ASSIGN_PRIMARY | TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY |
-	TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT
+    STANDARD_RIGHTS_REQUIRED | TOKEN_ASSIGN_PRIMARY | TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY |
+    TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT
 
 TOKEN_ALL_ACCESS                :: TOKEN_ALL_ACCESS_P | TOKEN_ADJUST_SESSIONID
 TOKEN_READ                      :: STANDARD_RIGHTS_READ | TOKEN_QUERY
@@ -2854,206 +2854,206 @@ POINT :: struct {x, y: LONG}
 
 PWINDOWPOS :: ^WINDOWPOS
 WINDOWPOS :: struct {
-	hwnd:            HWND,
-	hwndInsertAfter: HWND,
-	x:     c_int,
-	y:     c_int,
-	cx:    c_int,
-	cy:    c_int,
-	flags: UINT,
+    hwnd:            HWND,
+    hwndInsertAfter: HWND,
+    x:     c_int,
+    y:     c_int,
+    cx:    c_int,
+    cy:    c_int,
+    flags: UINT,
 }
 
 when size_of(uintptr) == 4 {
-	WSADATA :: struct {
-		wVersion:       WORD,
-		wHighVersion:   WORD,
-		szDescription:  [WSADESCRIPTION_LEN + 1]u8,
-		szSystemStatus: [WSASYS_STATUS_LEN + 1]u8,
-		iMaxSockets:    u16,
-		iMaxUdpDg:      u16,
-		lpVendorInfo:   [^]u8,
-	}
+    WSADATA :: struct {
+        wVersion:       WORD,
+        wHighVersion:   WORD,
+        szDescription:  [WSADESCRIPTION_LEN + 1]u8,
+        szSystemStatus: [WSASYS_STATUS_LEN + 1]u8,
+        iMaxSockets:    u16,
+        iMaxUdpDg:      u16,
+        lpVendorInfo:   [^]u8,
+    }
 } else when size_of(uintptr) == 8 {
-	WSADATA :: struct {
-		wVersion:       WORD,
-		wHighVersion:   WORD,
-		iMaxSockets:    u16,
-		iMaxUdpDg:      u16,
-		lpVendorInfo:   ^u8,
-		szDescription:  [WSADESCRIPTION_LEN + 1]u8,
-		szSystemStatus: [WSASYS_STATUS_LEN + 1]u8,
-	}
+    WSADATA :: struct {
+        wVersion:       WORD,
+        wHighVersion:   WORD,
+        iMaxSockets:    u16,
+        iMaxUdpDg:      u16,
+        lpVendorInfo:   ^u8,
+        szDescription:  [WSADESCRIPTION_LEN + 1]u8,
+        szSystemStatus: [WSASYS_STATUS_LEN + 1]u8,
+    }
 } else {
-	#panic("unknown word size")
+    #panic("unknown word size")
 }
 
 WSABUF :: struct {
-	len: ULONG,
-	buf: [^]CHAR `fmt"q,len"`,
+    len: ULONG,
+    buf: [^]CHAR `fmt"q,len"`,
 }
 
 WSAPROTOCOL_INFO :: struct {
-	dwServiceFlags1:    DWORD,
-	dwServiceFlags2:    DWORD,
-	dwServiceFlags3:    DWORD,
-	dwServiceFlags4:    DWORD,
-	dwProviderFlags:    DWORD,
-	ProviderId:         GUID,
-	dwCatalogEntryId:   DWORD,
-	ProtocolChain:      WSAPROTOCOLCHAIN,
-	iVersion:           c_int,
-	iAddressFamily:     c_int,
-	iMaxSockAddr:       c_int,
-	iMinSockAddr:       c_int,
-	iSocketType:        c_int,
-	iProtocol:          c_int,
-	iProtocolMaxOffset: c_int,
-	iNetworkByteOrder:  c_int,
-	iSecurityScheme:    c_int,
-	dwMessageSize:      DWORD,
-	dwProviderReserved: DWORD,
-	szProtocol:         [WSAPROTOCOL_LEN + 1]u16,
+    dwServiceFlags1:    DWORD,
+    dwServiceFlags2:    DWORD,
+    dwServiceFlags3:    DWORD,
+    dwServiceFlags4:    DWORD,
+    dwProviderFlags:    DWORD,
+    ProviderId:         GUID,
+    dwCatalogEntryId:   DWORD,
+    ProtocolChain:      WSAPROTOCOLCHAIN,
+    iVersion:           c_int,
+    iAddressFamily:     c_int,
+    iMaxSockAddr:       c_int,
+    iMinSockAddr:       c_int,
+    iSocketType:        c_int,
+    iProtocol:          c_int,
+    iProtocolMaxOffset: c_int,
+    iNetworkByteOrder:  c_int,
+    iSecurityScheme:    c_int,
+    dwMessageSize:      DWORD,
+    dwProviderReserved: DWORD,
+    szProtocol:         [WSAPROTOCOL_LEN + 1]u16,
 }
 
 WIN32_FILE_ATTRIBUTE_DATA :: struct {
-	dwFileAttributes: DWORD,
-	ftCreationTime:   FILETIME,
-	ftLastAccessTime: FILETIME,
-	ftLastWriteTime:  FILETIME,
-	nFileSizeHigh:    DWORD,
-	nFileSizeLow:     DWORD,
+    dwFileAttributes: DWORD,
+    ftCreationTime:   FILETIME,
+    ftLastAccessTime: FILETIME,
+    ftLastWriteTime:  FILETIME,
+    nFileSizeHigh:    DWORD,
+    nFileSizeLow:     DWORD,
 }
 
 FILE_INFO_BY_HANDLE_CLASS :: enum c_int {
-	FileBasicInfo                  = 0,
-	FileStandardInfo               = 1,
-	FileNameInfo                   = 2,
-	FileRenameInfo                 = 3,
-	FileDispositionInfo            = 4,
-	FileAllocationInfo             = 5,
-	FileEndOfFileInfo              = 6,
-	FileStreamInfo                 = 7,
-	FileCompressionInfo            = 8,
-	FileAttributeTagInfo           = 9,
-	FileIdBothDirectoryInfo        = 10, // 0xA
-	FileIdBothDirectoryRestartInfo = 11, // 0xB
-	FileIoPriorityHintInfo         = 12, // 0xC
-	FileRemoteProtocolInfo         = 13, // 0xD
-	FileFullDirectoryInfo          = 14, // 0xE
-	FileFullDirectoryRestartInfo   = 15, // 0xF
-	FileStorageInfo                = 16, // 0x10
-	FileAlignmentInfo              = 17, // 0x11
-	FileIdInfo                     = 18, // 0x12
-	FileIdExtdDirectoryInfo        = 19, // 0x13
-	FileIdExtdDirectoryRestartInfo = 20, // 0x14
-	MaximumFileInfoByHandlesClass,
+    FileBasicInfo                  = 0,
+    FileStandardInfo               = 1,
+    FileNameInfo                   = 2,
+    FileRenameInfo                 = 3,
+    FileDispositionInfo            = 4,
+    FileAllocationInfo             = 5,
+    FileEndOfFileInfo              = 6,
+    FileStreamInfo                 = 7,
+    FileCompressionInfo            = 8,
+    FileAttributeTagInfo           = 9,
+    FileIdBothDirectoryInfo        = 10, // 0xA
+    FileIdBothDirectoryRestartInfo = 11, // 0xB
+    FileIoPriorityHintInfo         = 12, // 0xC
+    FileRemoteProtocolInfo         = 13, // 0xD
+    FileFullDirectoryInfo          = 14, // 0xE
+    FileFullDirectoryRestartInfo   = 15, // 0xF
+    FileStorageInfo                = 16, // 0x10
+    FileAlignmentInfo              = 17, // 0x11
+    FileIdInfo                     = 18, // 0x12
+    FileIdExtdDirectoryInfo        = 19, // 0x13
+    FileIdExtdDirectoryRestartInfo = 20, // 0x14
+    MaximumFileInfoByHandlesClass,
 }
 
 FILE_BASIC_INFO :: struct {
-	CreationTime:   LARGE_INTEGER,
-	LastAccessTime: LARGE_INTEGER,
-	LastWriteTime:  LARGE_INTEGER,
-	ChangeTime:     LARGE_INTEGER,
-	FileAttributes: DWORD,
+    CreationTime:   LARGE_INTEGER,
+    LastAccessTime: LARGE_INTEGER,
+    LastWriteTime:  LARGE_INTEGER,
+    ChangeTime:     LARGE_INTEGER,
+    FileAttributes: DWORD,
 }
 
 FILE_END_OF_FILE_INFO :: struct {
-	EndOfFile: LARGE_INTEGER,
+    EndOfFile: LARGE_INTEGER,
 }
 
 FILE_NOTIFY_INFORMATION :: struct {
-	next_entry_offset: DWORD,
-	action:            DWORD,
-	file_name_length:  DWORD,
-	file_name:         [1]WCHAR,
+    next_entry_offset: DWORD,
+    action:            DWORD,
+    file_name_length:  DWORD,
+    file_name:         [1]WCHAR,
 }
 
 REPARSE_DATA_BUFFER :: struct {
-	ReparseTag:        c_uint,
-	ReparseDataLength: c_ushort,
-	Reserved:          c_ushort,
-	rest:              [0]byte,
+    ReparseTag:        c_uint,
+    ReparseDataLength: c_ushort,
+    Reserved:          c_ushort,
+    rest:              [0]byte,
 }
 
 SYMBOLIC_LINK_REPARSE_BUFFER :: struct {
-	SubstituteNameOffset: c_ushort,
-	SubstituteNameLength: c_ushort,
-	PrintNameOffset:      c_ushort,
-	PrintNameLength:      c_ushort,
-	Flags:                c_ulong,
-	PathBuffer:           WCHAR,
+    SubstituteNameOffset: c_ushort,
+    SubstituteNameLength: c_ushort,
+    PrintNameOffset:      c_ushort,
+    PrintNameLength:      c_ushort,
+    Flags:                c_ulong,
+    PathBuffer:           WCHAR,
 }
 
 MOUNT_POINT_REPARSE_BUFFER :: struct {
-	SubstituteNameOffset: c_ushort,
-	SubstituteNameLength: c_ushort,
-	PrintNameOffset:      c_ushort,
-	PrintNameLength:      c_ushort,
-	PathBuffer:           WCHAR,
+    SubstituteNameOffset: c_ushort,
+    SubstituteNameLength: c_ushort,
+    PrintNameOffset:      c_ushort,
+    PrintNameLength:      c_ushort,
+    PathBuffer:           WCHAR,
 }
 
 LPPROGRESS_ROUTINE :: #type proc "system" (
-	TotalFileSize:          LARGE_INTEGER,
-	TotalBytesTransferred:  LARGE_INTEGER,
-	StreamSize:             LARGE_INTEGER,
-	StreamBytesTransferred: LARGE_INTEGER,
-	dwStreamNumber:         DWORD,
-	dwCallbackReason:       DWORD,
-	hSourceFile:            HANDLE,
-	hDestinationFile:       HANDLE,
-	lpData:                 LPVOID,
+    TotalFileSize:          LARGE_INTEGER,
+    TotalBytesTransferred:  LARGE_INTEGER,
+    StreamSize:             LARGE_INTEGER,
+    StreamBytesTransferred: LARGE_INTEGER,
+    dwStreamNumber:         DWORD,
+    dwCallbackReason:       DWORD,
+    hSourceFile:            HANDLE,
+    hDestinationFile:       HANDLE,
+    lpData:                 LPVOID,
 ) -> DWORD
 
 CONDITION_VARIABLE :: struct {
-	ptr: LPVOID,
+    ptr: LPVOID,
 }
 SRWLOCK :: struct {
-	ptr: LPVOID,
+    ptr: LPVOID,
 }
 CRITICAL_SECTION :: struct {
-	CriticalSectionDebug: LPVOID,
-	LockCount:            LONG,
-	RecursionCount:       LONG,
-	OwningThread:         HANDLE,
-	LockSemaphore:        HANDLE,
-	SpinCount:            ULONG_PTR,
+    CriticalSectionDebug: LPVOID,
+    LockCount:            LONG,
+    RecursionCount:       LONG,
+    OwningThread:         HANDLE,
+    LockSemaphore:        HANDLE,
+    SpinCount:            ULONG_PTR,
 }
 
 SYNCHRONIZATION_BARRIER :: struct {
-	Reserved1:  DWORD,
-	Reserved2:  DWORD,
-	Reserved3:  [2]ULONG_PTR,
-	Reserved4:  DWORD,
-	Reserved5:  DWORD,
+    Reserved1:  DWORD,
+    Reserved2:  DWORD,
+    Reserved3:  [2]ULONG_PTR,
+    Reserved4:  DWORD,
+    Reserved5:  DWORD,
 }
 
 SYNCHRONIZATION_BARRIER_FLAG :: enum {
-	SPIN_ONLY  = 0,
-	BLOCK_ONLY = 1,
-	NO_DELETE  = 2,
+    SPIN_ONLY  = 0,
+    BLOCK_ONLY = 1,
+    NO_DELETE  = 2,
 }
 SYNCHRONIZATION_BARRIER_FLAGS :: distinct bit_set[SYNCHRONIZATION_BARRIER_FLAG; DWORD]
 
 REPARSE_MOUNTPOINT_DATA_BUFFER :: struct {
-	ReparseTag:                 DWORD,
-	ReparseDataLength:          DWORD,
-	Reserved:                   WORD,
-	ReparseTargetLength:        WORD,
-	ReparseTargetMaximumLength: WORD,
-	Reserved1:                  WORD,
-	ReparseTarget:              WCHAR,
+    ReparseTag:                 DWORD,
+    ReparseDataLength:          DWORD,
+    Reserved:                   WORD,
+    ReparseTargetLength:        WORD,
+    ReparseTargetMaximumLength: WORD,
+    Reserved1:                  WORD,
+    ReparseTarget:              WCHAR,
 }
 
 GUID :: struct {
-	Data1: DWORD,
-	Data2: WORD,
-	Data3: WORD,
-	Data4: [8]BYTE,
+    Data1: DWORD,
+    Data2: WORD,
+    Data3: WORD,
+    Data4: [8]BYTE,
 }
 
 LUID :: struct {
-	LowPart:  DWORD,
-	HighPart: LONG,
+    LowPart:  DWORD,
+    HighPart: LONG,
 }
 
 PLUID :: ^LUID
@@ -3102,126 +3102,126 @@ CLSCTX_PS_DLL                         :: 0x80000000
 CLSCTX_ALL                            :: CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER | CLSCTX_LOCAL_SERVER | CLSCTX_REMOTE_SERVER
 
 WSAPROTOCOLCHAIN :: struct {
-	ChainLen:     c_int,
-	ChainEntries: [MAX_PROTOCOL_CHAIN]DWORD `fmt:"v,ChainLen"`,
+    ChainLen:     c_int,
+    ChainEntries: [MAX_PROTOCOL_CHAIN]DWORD `fmt:"v,ChainLen"`,
 }
 
 SECURITY_ATTRIBUTES :: struct {
-	nLength:              DWORD,
-	lpSecurityDescriptor: LPVOID,
-	bInheritHandle:       BOOL,
+    nLength:              DWORD,
+    lpSecurityDescriptor: LPVOID,
+    bInheritHandle:       BOOL,
 }
 
 PROCESS_INFORMATION :: struct {
-	hProcess:    HANDLE,
-	hThread:     HANDLE,
-	dwProcessId: DWORD,
-	dwThreadId:  DWORD,
+    hProcess:    HANDLE,
+    hThread:     HANDLE,
+    dwProcessId: DWORD,
+    dwThreadId:  DWORD,
 }
 
 STARTUPINFOW :: struct {
-	cb:              DWORD,
-	lpReserved:      LPWSTR,
-	lpDesktop:       LPWSTR,
-	lpTitle:         LPWSTR,
-	dwX:             DWORD,
-	dwY:             DWORD,
-	dwXSize:         DWORD,
-	dwYSize:         DWORD,
-	dwXCountChars:   DWORD,
-	dwYCountChars:   DWORD,
-	dwFillAttribute: DWORD,
-	dwFlags:         DWORD,
-	wShowWindow:     WORD,
-	cbReserved2:     WORD,
-	lpReserved2:     LPBYTE,
-	hStdInput:       HANDLE,
-	hStdOutput:      HANDLE,
-	hStdError:       HANDLE,
+    cb:              DWORD,
+    lpReserved:      LPWSTR,
+    lpDesktop:       LPWSTR,
+    lpTitle:         LPWSTR,
+    dwX:             DWORD,
+    dwY:             DWORD,
+    dwXSize:         DWORD,
+    dwYSize:         DWORD,
+    dwXCountChars:   DWORD,
+    dwYCountChars:   DWORD,
+    dwFillAttribute: DWORD,
+    dwFlags:         DWORD,
+    wShowWindow:     WORD,
+    cbReserved2:     WORD,
+    lpReserved2:     LPBYTE,
+    hStdInput:       HANDLE,
+    hStdOutput:      HANDLE,
+    hStdError:       HANDLE,
 }
 
 FILETIME :: struct {
-	dwLowDateTime:  DWORD,
-	dwHighDateTime: DWORD,
+    dwLowDateTime:  DWORD,
+    dwHighDateTime: DWORD,
 }
 
 FILETIME_as_unix_nanoseconds :: proc(ft: FILETIME) -> i64 {
-	t := i64(u64(ft.dwLowDateTime) | u64(ft.dwHighDateTime) << 32)
-	return (t - 116444736000000000) * 100
+    t := i64(u64(ft.dwLowDateTime) | u64(ft.dwHighDateTime) << 32)
+    return (t - 116444736000000000) * 100
 }
 
 OBJECT_ATTRIBUTES :: struct {
-	Length:                   c_ulong,
-	RootDirectory:            HANDLE,
-	ObjectName:               ^UNICODE_STRING,
-	Attributes:               c_ulong,
-	SecurityDescriptor:       rawptr,
-	SecurityQualityOfService: rawptr,
+    Length:                   c_ulong,
+    RootDirectory:            HANDLE,
+    ObjectName:               ^UNICODE_STRING,
+    Attributes:               c_ulong,
+    SecurityDescriptor:       rawptr,
+    SecurityQualityOfService: rawptr,
 }
 POBJECT_ATTRIBUTES :: ^OBJECT_ATTRIBUTES
 
 PUNICODE_STRING :: ^UNICODE_STRING
 UNICODE_STRING :: struct {
-	Length:        u16    `fmt:"-"`,
-	MaximumLength: u16    `fmt:"-"`,
-	Buffer:        [^]u16 `fmt:"s,Length"`,
+    Length:        u16    `fmt:"-"`,
+    MaximumLength: u16    `fmt:"-"`,
+    Buffer:        [^]u16 `fmt:"s,Length"`,
 }
 
 OVERLAPPED :: struct {
-	Internal:     ^c_ulong,
-	InternalHigh: ^c_ulong,
-	using _: struct #raw_union {
-		using _: struct {
-			Offset: DWORD,
-			OffsetHigh: DWORD,
-		},
-		OffsetFull: u64, // Convenience field to set Offset and OffsetHigh with one value.
-	},
-	hEvent: HANDLE,
+    Internal:     ^c_ulong,
+    InternalHigh: ^c_ulong,
+    using _: struct #raw_union {
+        using _: struct {
+            Offset: DWORD,
+            OffsetHigh: DWORD,
+        },
+        OffsetFull: u64, // Convenience field to set Offset and OffsetHigh with one value.
+    },
+    hEvent: HANDLE,
 }
 
 OVERLAPPED_ENTRY :: struct {
-	lpCompletionKey:            ULONG_PTR,
-	lpOverlapped:               ^OVERLAPPED,
-	Internal:                   ULONG_PTR,
-	dwNumberOfBytesTransferred: DWORD,
+    lpCompletionKey:            ULONG_PTR,
+    lpOverlapped:               ^OVERLAPPED,
+    Internal:                   ULONG_PTR,
+    dwNumberOfBytesTransferred: DWORD,
 }
 
 LPOVERLAPPED_COMPLETION_ROUTINE :: #type proc "system" (
-	dwErrorCode:               DWORD,
-	dwNumberOfBytesTransfered: DWORD,
-	lpOverlapped:              LPOVERLAPPED,
+    dwErrorCode:               DWORD,
+    dwNumberOfBytesTransfered: DWORD,
+    lpOverlapped:              LPOVERLAPPED,
 )
 
 READ_DIRECTORY_NOTIFY_INFORMATION_CLASS :: enum c_int {
-	ReadDirectoryNotifyInformation = 1,
-	ReadDirectoryNotifyExtendedInformation,
-	ReadDirectoryNotifyFullInformation,
-	ReadDirectoryNotifyMaximumInformation,
+    ReadDirectoryNotifyInformation = 1,
+    ReadDirectoryNotifyExtendedInformation,
+    ReadDirectoryNotifyFullInformation,
+    ReadDirectoryNotifyMaximumInformation,
 }
 
 ADDRESS_MODE :: enum c_int {
-	AddrMode1616,
-	AddrMode1632,
-	AddrModeReal,
-	AddrModeFlat,
+    AddrMode1616,
+    AddrMode1632,
+    AddrModeReal,
+    AddrModeFlat,
 }
 
 EXCEPTION_DISPOSITION :: enum c_int {
-	ExceptionContinueExecution,
-	ExceptionContinueSearch,
-	ExceptionNestedException,
-	ExceptionCollidedUnwind,
+    ExceptionContinueExecution,
+    ExceptionContinueSearch,
+    ExceptionNestedException,
+    ExceptionCollidedUnwind,
 }
 
 fd_set :: struct {
-	fd_count: c_uint,
-	fd_array: [FD_SETSIZE]SOCKET,
+    fd_count: c_uint,
+    fd_array: [FD_SETSIZE]SOCKET,
 }
 
 timeval :: struct {
-	tv_sec:  c_long,
-	tv_usec: c_long,
+    tv_sec:  c_long,
+    tv_usec: c_long,
 }
 
 
@@ -3255,190 +3255,190 @@ STATUS_PRIVILEGED_INSTRUCTION       :: 0xC0000096
 
 
 EXCEPTION_RECORD :: struct {
-	ExceptionCode:        DWORD,
-	ExceptionFlags:       DWORD,
-	ExceptionRecord:      ^EXCEPTION_RECORD,
-	ExceptionAddress:     LPVOID,
-	NumberParameters:     DWORD,
-	ExceptionInformation: [EXCEPTION_MAXIMUM_PARAMETERS]LPVOID `fmt:"v,NumberParameters"`,
+    ExceptionCode:        DWORD,
+    ExceptionFlags:       DWORD,
+    ExceptionRecord:      ^EXCEPTION_RECORD,
+    ExceptionAddress:     LPVOID,
+    NumberParameters:     DWORD,
+    ExceptionInformation: [EXCEPTION_MAXIMUM_PARAMETERS]LPVOID `fmt:"v,NumberParameters"`,
 }
 
 
 CONTEXT :: struct {
-	P1Home:       DWORD64,
-	P2Home:       DWORD64,
-	P3Home:       DWORD64,
-	P4Home:       DWORD64,
-	P5Home:       DWORD64,
-	P6Home:       DWORD64,
-	ContextFlags: DWORD,
-	MxCsr:        DWORD,
-	SegCs:        WORD,
-	SegDs:        WORD,
-	SegEs:        WORD,
-	SegFs:        WORD,
-	SegGs:        WORD,
-	SegSs:        WORD,
-	EFlags:       DWORD,
-	Dr0:          DWORD64,
-	Dr1:          DWORD64,
-	Dr2:          DWORD64,
-	Dr3:          DWORD64,
-	Dr6:          DWORD64,
-	Dr7:          DWORD64,
-	Rax:          DWORD64,
-	Rcx:          DWORD64,
-	Rdx:          DWORD64,
-	Rbx:          DWORD64,
-	Rsp:          DWORD64,
-	Rbp:          DWORD64,
-	Rsi:          DWORD64,
-	Rdi:          DWORD64,
-	R8:           DWORD64,
-	R9:           DWORD64,
-	R10:          DWORD64,
-	R11:          DWORD64,
-	R12:          DWORD64,
-	R13:          DWORD64,
-	R14:          DWORD64,
-	R15:          DWORD64,
-	Rip:          DWORD64,
-	using _: struct #raw_union {
-		FltSave: XMM_SAVE_AREA32,
-		Q:       [16]NEON128,
-		D:       [32]ULONGLONG,
-		using _: struct {
-			Header: [2]M128A,
-			Legacy: [8]M128A,
-			Xmm0:   M128A,
-			Xmm1:   M128A,
-			Xmm2:   M128A,
-			Xmm3:   M128A,
-			Xmm4:   M128A,
-			Xmm5:   M128A,
-			Xmm6:   M128A,
-			Xmm7:   M128A,
-			Xmm8:   M128A,
-			Xmm9:   M128A,
-			Xmm10:  M128A,
-			Xmm11:  M128A,
-			Xmm12:  M128A,
-			Xmm13:  M128A,
-			Xmm14:  M128A,
-			Xmm15:  M128A,
-		},
-		S: [32]DWORD,
-	},
-	VectorRegister:       [26]M128A,
-	VectorControl:        DWORD64,
-	DebugControl:         DWORD64,
-	LastBranchToRip:      DWORD64,
-	LastBranchFromRip:    DWORD64,
-	LastExceptionToRip:   DWORD64,
-	LastExceptionFromRip: DWORD64,
+    P1Home:       DWORD64,
+    P2Home:       DWORD64,
+    P3Home:       DWORD64,
+    P4Home:       DWORD64,
+    P5Home:       DWORD64,
+    P6Home:       DWORD64,
+    ContextFlags: DWORD,
+    MxCsr:        DWORD,
+    SegCs:        WORD,
+    SegDs:        WORD,
+    SegEs:        WORD,
+    SegFs:        WORD,
+    SegGs:        WORD,
+    SegSs:        WORD,
+    EFlags:       DWORD,
+    Dr0:          DWORD64,
+    Dr1:          DWORD64,
+    Dr2:          DWORD64,
+    Dr3:          DWORD64,
+    Dr6:          DWORD64,
+    Dr7:          DWORD64,
+    Rax:          DWORD64,
+    Rcx:          DWORD64,
+    Rdx:          DWORD64,
+    Rbx:          DWORD64,
+    Rsp:          DWORD64,
+    Rbp:          DWORD64,
+    Rsi:          DWORD64,
+    Rdi:          DWORD64,
+    R8:           DWORD64,
+    R9:           DWORD64,
+    R10:          DWORD64,
+    R11:          DWORD64,
+    R12:          DWORD64,
+    R13:          DWORD64,
+    R14:          DWORD64,
+    R15:          DWORD64,
+    Rip:          DWORD64,
+    using _: struct #raw_union {
+        FltSave: XMM_SAVE_AREA32,
+        Q:       [16]NEON128,
+        D:       [32]ULONGLONG,
+        using _: struct {
+            Header: [2]M128A,
+            Legacy: [8]M128A,
+            Xmm0:   M128A,
+            Xmm1:   M128A,
+            Xmm2:   M128A,
+            Xmm3:   M128A,
+            Xmm4:   M128A,
+            Xmm5:   M128A,
+            Xmm6:   M128A,
+            Xmm7:   M128A,
+            Xmm8:   M128A,
+            Xmm9:   M128A,
+            Xmm10:  M128A,
+            Xmm11:  M128A,
+            Xmm12:  M128A,
+            Xmm13:  M128A,
+            Xmm14:  M128A,
+            Xmm15:  M128A,
+        },
+        S: [32]DWORD,
+    },
+    VectorRegister:       [26]M128A,
+    VectorControl:        DWORD64,
+    DebugControl:         DWORD64,
+    LastBranchToRip:      DWORD64,
+    LastBranchFromRip:    DWORD64,
+    LastExceptionToRip:   DWORD64,
+    LastExceptionFromRip: DWORD64,
 }
 
 PCONTEXT  :: ^CONTEXT
 LPCONTEXT :: ^CONTEXT
 
 when size_of(uintptr) == 32 {
-	XSAVE_FORMAT :: struct #align(16) {
-		ControlWord:    WORD,
-		StatusWord:     WORD,
-		TagWord:        BYTE,
-		Reserved1:      BYTE,
-		ErrorOpcode:    WORD,
-		ErrorOffset:    DWORD,
-		ErrorSelector:  WORD,
-		Reserved2:      WORD,
-		DataOffset:     DWORD,
-		DataSelector:   WORD,
-		Reserved3:      WORD,
-		MxCsr:          DWORD,
-		MxCsr_Mask:     DWORD,
-		FloatRegisters: [8]M128A,
-		// 32-bit specific
-		XmmRegisters:   [8]M128A,
-		Reserved4:      [192]BYTE,
-		StackControl:   [7]DWORD,
-		Cr0NpxState:    DWORD,
-	}
+    XSAVE_FORMAT :: struct #align(16) {
+        ControlWord:    WORD,
+        StatusWord:     WORD,
+        TagWord:        BYTE,
+        Reserved1:      BYTE,
+        ErrorOpcode:    WORD,
+        ErrorOffset:    DWORD,
+        ErrorSelector:  WORD,
+        Reserved2:      WORD,
+        DataOffset:     DWORD,
+        DataSelector:   WORD,
+        Reserved3:      WORD,
+        MxCsr:          DWORD,
+        MxCsr_Mask:     DWORD,
+        FloatRegisters: [8]M128A,
+        // 32-bit specific
+        XmmRegisters:   [8]M128A,
+        Reserved4:      [192]BYTE,
+        StackControl:   [7]DWORD,
+        Cr0NpxState:    DWORD,
+    }
 } else {
-	XSAVE_FORMAT :: struct #align(16) {
-		ControlWord:    WORD,
-		StatusWord:     WORD,
-		TagWord:        BYTE,
-		Reserved1:      BYTE,
-		ErrorOpcode:    WORD,
-		ErrorOffset:    DWORD,
-		ErrorSelector:  WORD,
-		Reserved2:      WORD,
-		DataOffset:     DWORD,
-		DataSelector:   WORD,
-		Reserved3:      WORD,
-		MxCsr:          DWORD,
-		MxCsr_Mask:     DWORD,
-		FloatRegisters: [8]M128A,
-		// 64-bit specific
-		XmmRegisters:   [16]M128A,
-		Reserved4:      [96]BYTE,
-	}
+    XSAVE_FORMAT :: struct #align(16) {
+        ControlWord:    WORD,
+        StatusWord:     WORD,
+        TagWord:        BYTE,
+        Reserved1:      BYTE,
+        ErrorOpcode:    WORD,
+        ErrorOffset:    DWORD,
+        ErrorSelector:  WORD,
+        Reserved2:      WORD,
+        DataOffset:     DWORD,
+        DataSelector:   WORD,
+        Reserved3:      WORD,
+        MxCsr:          DWORD,
+        MxCsr_Mask:     DWORD,
+        FloatRegisters: [8]M128A,
+        // 64-bit specific
+        XmmRegisters:   [16]M128A,
+        Reserved4:      [96]BYTE,
+    }
 }
 
 XMM_SAVE_AREA32 :: XSAVE_FORMAT
 
 M128A :: struct {
-	Low:  ULONGLONG,
-	High: LONGLONG,
+    Low:  ULONGLONG,
+    High: LONGLONG,
 }
 
 NEON128 :: struct {
-	Low:  ULONGLONG,
-	High: LONGLONG,
+    Low:  ULONGLONG,
+    High: LONGLONG,
 }
 
 EXCEPTION_POINTERS :: struct {
-	ExceptionRecord: ^EXCEPTION_RECORD,
-	ContextRecord:   ^CONTEXT,
+    ExceptionRecord: ^EXCEPTION_RECORD,
+    ContextRecord:   ^CONTEXT,
 }
 
 PVECTORED_EXCEPTION_HANDLER :: #type proc "system" (ExceptionInfo: ^EXCEPTION_POINTERS) -> LONG
 
 CONSOLE_READCONSOLE_CONTROL :: struct {
-	nLength:           ULONG,
-	nInitialChars:     ULONG,
-	dwCtrlWakeupMask:  ULONG,
-	dwControlKeyState: ULONG,
+    nLength:           ULONG,
+    nInitialChars:     ULONG,
+    dwCtrlWakeupMask:  ULONG,
+    dwControlKeyState: ULONG,
 }
 
 PCONSOLE_READCONSOLE_CONTROL :: ^CONSOLE_READCONSOLE_CONTROL
 
 BY_HANDLE_FILE_INFORMATION :: struct {
-	dwFileAttributes:     DWORD,
-	ftCreationTime:       FILETIME,
-	ftLastAccessTime:     FILETIME,
-	ftLastWriteTime:      FILETIME,
-	dwVolumeSerialNumber: DWORD,
-	nFileSizeHigh:        DWORD,
-	nFileSizeLow:         DWORD,
-	nNumberOfLinks:       DWORD,
-	nFileIndexHigh:       DWORD,
-	nFileIndexLow:        DWORD,
+    dwFileAttributes:     DWORD,
+    ftCreationTime:       FILETIME,
+    ftLastAccessTime:     FILETIME,
+    ftLastWriteTime:      FILETIME,
+    dwVolumeSerialNumber: DWORD,
+    nFileSizeHigh:        DWORD,
+    nFileSizeLow:         DWORD,
+    nNumberOfLinks:       DWORD,
+    nFileIndexHigh:       DWORD,
+    nFileIndexLow:        DWORD,
 }
 
 LPBY_HANDLE_FILE_INFORMATION :: ^BY_HANDLE_FILE_INFORMATION
 
 FILE_STANDARD_INFO :: struct {
-	AllocationSize: LARGE_INTEGER,
-	EndOfFile:      LARGE_INTEGER,
-	NumberOfLinks:  DWORD,
-	DeletePending:  BOOLEAN,
-	Directory:      BOOLEAN,
+    AllocationSize: LARGE_INTEGER,
+    EndOfFile:      LARGE_INTEGER,
+    NumberOfLinks:  DWORD,
+    DeletePending:  BOOLEAN,
+    Directory:      BOOLEAN,
 }
 
 FILE_ATTRIBUTE_TAG_INFO :: struct {
-	FileAttributes: DWORD,
-	ReparseTag: DWORD,
+    FileAttributes: DWORD,
+    ReparseTag: DWORD,
 }
 
 // getaddrinfo flags https://learn.microsoft.com/en-us/windows/win32/api/ws2def/ns-ws2def-addrinfoa
@@ -3457,133 +3457,133 @@ AI_FILESERVER             :: 0x00040000
 PADDRINFOEXW :: ^ADDRINFOEXW
 LPADDRINFOEXW :: ^ADDRINFOEXW
 ADDRINFOEXW :: struct {
-	ai_flags:     c_int,
-	ai_family:    c_int,
-	ai_socktype:  c_int,
-	ai_protocol:  c_int,
-	ai_addrlen:   size_t,
-	ai_canonname: wstring,
-	ai_addr:      ^sockaddr,
-	ai_blob:      rawptr,
-	ai_bloblen:   size_t,
-	ai_provider:  LPGUID,
-	ai_next:      ^ADDRINFOEXW,
+    ai_flags:     c_int,
+    ai_family:    c_int,
+    ai_socktype:  c_int,
+    ai_protocol:  c_int,
+    ai_addrlen:   size_t,
+    ai_canonname: wstring,
+    ai_addr:      ^sockaddr,
+    ai_blob:      rawptr,
+    ai_bloblen:   size_t,
+    ai_provider:  LPGUID,
+    ai_next:      ^ADDRINFOEXW,
 }
 
 LPLOOKUPSERVICE_COMPLETION_ROUTINE :: #type proc "system" (
-	dwErrorCode:               DWORD,
-	dwNumberOfBytesTransfered: DWORD,
-	lpOverlapped:              LPOVERLAPPED,
+    dwErrorCode:               DWORD,
+    dwNumberOfBytesTransfered: DWORD,
+    lpOverlapped:              LPOVERLAPPED,
 )
 
 
 // https://docs.microsoft.com/en-gb/windows/win32/api/sysinfoapi/ns-sysinfoapi-system_info
 SYSTEM_INFO :: struct {
-	using _: struct #raw_union {
-		dwOemID: DWORD,
-		using _: struct #raw_union {
-			wProcessorArchitecture: WORD,
-			wReserved:              WORD, // reserved
-		},
-	},
-	dwPageSize:                  DWORD,
-	lpMinimumApplicationAddress: LPVOID,
-	lpMaximumApplicationAddress: LPVOID,
-	dwActiveProcessorMask:       DWORD_PTR,
-	dwNumberOfProcessors:        DWORD,
-	dwProcessorType:             DWORD,
-	dwAllocationGranularity:     DWORD,
-	wProcessorLevel:             WORD,
-	wProcessorRevision:          WORD,
+    using _: struct #raw_union {
+        dwOemID: DWORD,
+        using _: struct #raw_union {
+            wProcessorArchitecture: WORD,
+            wReserved:              WORD, // reserved
+        },
+    },
+    dwPageSize:                  DWORD,
+    lpMinimumApplicationAddress: LPVOID,
+    lpMaximumApplicationAddress: LPVOID,
+    dwActiveProcessorMask:       DWORD_PTR,
+    dwNumberOfProcessors:        DWORD,
+    dwProcessorType:             DWORD,
+    dwAllocationGranularity:     DWORD,
+    wProcessorLevel:             WORD,
+    wProcessorRevision:          WORD,
 }
 
 // https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ns-wdm-_osversioninfoexw
 OSVERSIONINFOEXW :: struct {
-	dwOSVersionInfoSize: ULONG,
-	dwMajorVersion:      ULONG,
-	dwMinorVersion:      ULONG,
-	dwBuildNumber:       ULONG,
-	dwPlatformId:        ULONG,
-	szCSDVersion:        [128]WCHAR,
-	wServicePackMajor:   USHORT,
-	wServicePackMinor:   USHORT,
-	wSuiteMask:          USHORT,
-	wProductType:        UCHAR,
-	wReserved:           UCHAR,
+    dwOSVersionInfoSize: ULONG,
+    dwMajorVersion:      ULONG,
+    dwMinorVersion:      ULONG,
+    dwBuildNumber:       ULONG,
+    dwPlatformId:        ULONG,
+    szCSDVersion:        [128]WCHAR,
+    wServicePackMajor:   USHORT,
+    wServicePackMinor:   USHORT,
+    wSuiteMask:          USHORT,
+    wProductType:        UCHAR,
+    wReserved:           UCHAR,
 }
 
 LoadLibraryEx_Flag :: enum DWORD {
-	LOAD_LIBRARY_AS_DATAFILE            = 1,  // 1 <<  1: 0x0002,
-	LOAD_WITH_ALTERED_SEARCH_PATH       = 3,  // 1 <<  3: 0x0008,
-	LOAD_IGNORE_CODE_AUTHZ_LEVEL        = 4,  // 1 <<  4: 0x0010,
-	LOAD_LIBRARY_AS_IMAGE_RESOURCE      = 5,  // 1 <<  5: 0x0020,
-	LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE  = 6,  // 1 <<  6: 0x0040,
-	LOAD_LIBRARY_REQUIRE_SIGNED_TARGET  = 7,  // 1 <<  7: 0x0080,
-	LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR    = 8,  // 1 <<  8: 0x0100,
-	LOAD_LIBRARY_SEARCH_APPLICATION_DIR = 9,  // 1 <<  9: 0x0200,
-	LOAD_LIBRARY_SEARCH_USER_DIRS       = 10, // 1 << 10: 0x0400,
-	LOAD_LIBRARY_SEARCH_SYSTEM32        = 11, // 1 << 11: 0x0800,
-	LOAD_LIBRARY_SEARCH_DEFAULT_DIRS    = 12, // 1 << 12: 0x1000,
-	LOAD_LIBRARY_SAFE_CURRENT_DIRS      = 13, // 1 << 13: 0x2000,
+    LOAD_LIBRARY_AS_DATAFILE            = 1,  // 1 <<  1: 0x0002,
+    LOAD_WITH_ALTERED_SEARCH_PATH       = 3,  // 1 <<  3: 0x0008,
+    LOAD_IGNORE_CODE_AUTHZ_LEVEL        = 4,  // 1 <<  4: 0x0010,
+    LOAD_LIBRARY_AS_IMAGE_RESOURCE      = 5,  // 1 <<  5: 0x0020,
+    LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE  = 6,  // 1 <<  6: 0x0040,
+    LOAD_LIBRARY_REQUIRE_SIGNED_TARGET  = 7,  // 1 <<  7: 0x0080,
+    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR    = 8,  // 1 <<  8: 0x0100,
+    LOAD_LIBRARY_SEARCH_APPLICATION_DIR = 9,  // 1 <<  9: 0x0200,
+    LOAD_LIBRARY_SEARCH_USER_DIRS       = 10, // 1 << 10: 0x0400,
+    LOAD_LIBRARY_SEARCH_SYSTEM32        = 11, // 1 << 11: 0x0800,
+    LOAD_LIBRARY_SEARCH_DEFAULT_DIRS    = 12, // 1 << 12: 0x1000,
+    LOAD_LIBRARY_SAFE_CURRENT_DIRS      = 13, // 1 << 13: 0x2000,
 }
 LoadLibraryEx_Flags :: distinct bit_set[LoadLibraryEx_Flag]
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-quota_limits
 // Used in LogonUserExW
 PQUOTA_LIMITS :: struct {
-	PagedPoolLimit:        SIZE_T,
-	NonPagedPoolLimit:     SIZE_T,
-	MinimumWorkingSetSize: SIZE_T,
-	MaximumWorkingSetSize: SIZE_T,
-	PagefileLimit:         SIZE_T,
-	TimeLimit:             LARGE_INTEGER,
+    PagedPoolLimit:        SIZE_T,
+    NonPagedPoolLimit:     SIZE_T,
+    MinimumWorkingSetSize: SIZE_T,
+    MaximumWorkingSetSize: SIZE_T,
+    PagefileLimit:         SIZE_T,
+    TimeLimit:             LARGE_INTEGER,
 }
 
 Logon32_Type :: enum DWORD {
-	INTERACTIVE       = 2,
-	NETWORK           = 3,
-	BATCH             = 4,
-	SERVICE           = 5,
-	UNLOCK            = 7,
-	NETWORK_CLEARTEXT = 8,
-	NEW_CREDENTIALS   = 9,
+    INTERACTIVE       = 2,
+    NETWORK           = 3,
+    BATCH             = 4,
+    SERVICE           = 5,
+    UNLOCK            = 7,
+    NETWORK_CLEARTEXT = 8,
+    NEW_CREDENTIALS   = 9,
 }
 
 Logon32_Provider :: enum DWORD {
-	DEFAULT = 0,
-	WINNT35 = 1,
-	WINNT40 = 2,
-	WINNT50 = 3,
-	VIRTUAL = 4,
+    DEFAULT = 0,
+    WINNT35 = 1,
+    WINNT40 = 2,
+    WINNT50 = 3,
+    VIRTUAL = 4,
 }
 
 // https://docs.microsoft.com/en-us/windows/win32/api/profinfo/ns-profinfo-profileinfow
 // Used in LoadUserProfileW
 
 PROFILEINFOW :: struct {
-	dwSize:        DWORD,
-	dwFlags:       DWORD,
-	lpUserName:    LPWSTR,
-	lpProfilePath: LPWSTR,
-	lpDefaultPath: LPWSTR,
-	lpServerName:  LPWSTR,
-	lpPolicyPath:  LPWSTR,
-	hProfile:      HANDLE,
+    dwSize:        DWORD,
+    dwFlags:       DWORD,
+    lpUserName:    LPWSTR,
+    lpProfilePath: LPWSTR,
+    lpDefaultPath: LPWSTR,
+    lpServerName:  LPWSTR,
+    lpPolicyPath:  LPWSTR,
+    hProfile:      HANDLE,
 }
 
 SECURITY_MAX_SID_SIZE :: 68
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid
 SID :: struct #packed {
-	Revision:            byte,
-	SubAuthorityCount:   byte,
-	IdentifierAuthority: SID_IDENTIFIER_AUTHORITY,
-	SubAuthority:        [15]DWORD, // Array of DWORDs
+    Revision:            byte,
+    SubAuthorityCount:   byte,
+    IdentifierAuthority: SID_IDENTIFIER_AUTHORITY,
+    SubAuthority:        [15]DWORD, // Array of DWORDs
 }
 #assert(size_of(SID) == SECURITY_MAX_SID_SIZE)
 
 SID_IDENTIFIER_AUTHORITY :: struct #packed {
-	Value: [6]u8,
+    Value: [6]u8,
 }
 #assert(size_of(SID_IDENTIFIER_AUTHORITY) == 6)
 
@@ -3601,510 +3601,510 @@ PWLEN      :: 256        // Maximum password length
 LM20_PWLEN ::  14        // LM 2.0 Maximum password length
 
 USER_PRIV :: enum DWORD {
-	Guest = 0,
-	User  = 1,
-	Admin = 2,
-	Mask  = 0x3,
+    Guest = 0,
+    User  = 1,
+    Admin = 2,
+    Mask  = 0x3,
 }
 
 USER_INFO_FLAG :: enum DWORD {
-	Script                          = 0,  // 1 <<  0: 0x0001,
-	AccountDisable                  = 1,  // 1 <<  1: 0x0002,
-	HomeDir_Required                = 3,  // 1 <<  3: 0x0008,
-	Lockout                         = 4,  // 1 <<  4: 0x0010,
-	Passwd_NotReqd                  = 5,  // 1 <<  5: 0x0020,
-	Passwd_Cant_Change              = 6,  // 1 <<  6: 0x0040,
-	Encrypted_Text_Password_Allowed = 7,  // 1 <<  7: 0x0080,
+    Script                          = 0,  // 1 <<  0: 0x0001,
+    AccountDisable                  = 1,  // 1 <<  1: 0x0002,
+    HomeDir_Required                = 3,  // 1 <<  3: 0x0008,
+    Lockout                         = 4,  // 1 <<  4: 0x0010,
+    Passwd_NotReqd                  = 5,  // 1 <<  5: 0x0020,
+    Passwd_Cant_Change              = 6,  // 1 <<  6: 0x0040,
+    Encrypted_Text_Password_Allowed = 7,  // 1 <<  7: 0x0080,
 
-	Temp_Duplicate_Account          = 8,  // 1 <<  8: 0x0100,
-	Normal_Account                  = 9,  // 1 <<  9: 0x0200,
-	InterDomain_Trust_Account       = 11, // 1 << 11: 0x0800,
-	Workstation_Trust_Account       = 12, // 1 << 12: 0x1000,
-	Server_Trust_Account            = 13, // 1 << 13: 0x2000,
+    Temp_Duplicate_Account          = 8,  // 1 <<  8: 0x0100,
+    Normal_Account                  = 9,  // 1 <<  9: 0x0200,
+    InterDomain_Trust_Account       = 11, // 1 << 11: 0x0800,
+    Workstation_Trust_Account       = 12, // 1 << 12: 0x1000,
+    Server_Trust_Account            = 13, // 1 << 13: 0x2000,
 }
 USER_INFO_FLAGS :: distinct bit_set[USER_INFO_FLAG]
 
 USER_INFO_1 :: struct #packed {
-	name:         LPWSTR,
-	password:     LPWSTR,     // Max password length is defined in LM20_PWLEN.
-	password_age: DWORD,
-	priv:         USER_PRIV,
-	home_dir:     LPWSTR,
-	comment:      LPWSTR,
-	flags:        USER_INFO_FLAGS,
-	script_path:  LPWSTR,
+    name:         LPWSTR,
+    password:     LPWSTR,     // Max password length is defined in LM20_PWLEN.
+    password_age: DWORD,
+    priv:         USER_PRIV,
+    home_dir:     LPWSTR,
+    comment:      LPWSTR,
+    flags:        USER_INFO_FLAGS,
+    script_path:  LPWSTR,
 }
 // #assert(size_of(USER_INFO_1) == 50)
 
 LOCALGROUP_MEMBERS_INFO_0 :: struct #packed {
-	sid: ^SID,
+    sid: ^SID,
 }
 
 NET_API_STATUS :: enum DWORD {
-	Success                      = 0,
-	ERROR_ACCESS_DENIED          = 5,
-	MemberInAlias                = 1378,
-	NetNotStarted                = 2102,
-	UnknownServer                = 2103,
-	ShareMem                     = 2104,
-	NoNetworkResource            = 2105,
-	RemoteOnly                   = 2106,
-	DevNotRedirected             = 2107,
-	ServerNotStarted             = 2114,
-	ItemNotFound                 = 2115,
-	UnknownDevDir                = 2116,
-	RedirectedPath               = 2117,
-	DuplicateShare               = 2118,
-	NoRoom                       = 2119,
-	TooManyItems                 = 2121,
-	InvalidMaxUsers              = 2122,
-	BufTooSmall                  = 2123,
-	RemoteErr                    = 2127,
-	LanmanIniError               = 2131,
-	NetworkError                 = 2136,
-	WkstaInconsistentState       = 2137,
-	WkstaNotStarted              = 2138,
-	BrowserNotStarted            = 2139,
-	InternalError                = 2140,
-	BadTransactConfig            = 2141,
-	InvalidAPI                   = 2142,
-	BadEventName                 = 2143,
-	DupNameReboot                = 2144,
-	CfgCompNotFound              = 2146,
-	CfgParamNotFound             = 2147,
-	LineTooLong                  = 2149,
-	QNotFound                    = 2150,
-	JobNotFound                  = 2151,
-	DestNotFound                 = 2152,
-	DestExists                   = 2153,
-	QExists                      = 2154,
-	QNoRoom                      = 2155,
-	JobNoRoom                    = 2156,
-	DestNoRoom                   = 2157,
-	DestIdle                     = 2158,
-	DestInvalidOp                = 2159,
-	ProcNoRespond                = 2160,
-	SpoolerNotLoaded             = 2161,
-	DestInvalidState             = 2162,
-	QInvalidState                = 2163,
-	JobInvalidState              = 2164,
-	SpoolNoMemory                = 2165,
-	DriverNotFound               = 2166,
-	DataTypeInvalid              = 2167,
-	ProcNotFound                 = 2168,
-	ServiceTableLocked           = 2180,
-	ServiceTableFull             = 2181,
-	ServiceInstalled             = 2182,
-	ServiceEntryLocked           = 2183,
-	ServiceNotInstalled          = 2184,
-	BadServiceName               = 2185,
-	ServiceCtlTimeout            = 2186,
-	ServiceCtlBusy               = 2187,
-	BadServiceProgName           = 2188,
-	ServiceNotCtrl               = 2189,
-	ServiceKillProc              = 2190,
-	ServiceCtlNotValid           = 2191,
-	NotInDispatchTbl             = 2192,
-	BadControlRecv               = 2193,
-	ServiceNotStarting           = 2194,
-	AlreadyLoggedOn              = 2200,
-	NotLoggedOn                  = 2201,
-	BadUsername                  = 2202,
-	BadPassword                  = 2203,
-	UnableToAddName_W            = 2204,
-	UnableToAddName_F            = 2205,
-	UnableToDelName_W            = 2206,
-	UnableToDelName_F            = 2207,
-	LogonsPaused                 = 2209,
-	LogonServerConflict          = 2210,
-	LogonNoUserPath              = 2211,
-	LogonScriptError             = 2212,
-	StandaloneLogon              = 2214,
-	LogonServerNotFound          = 2215,
-	LogonDomainExists            = 2216,
-	NonValidatedLogon            = 2217,
-	ACFNotFound                  = 2219,
-	GroupNotFound                = 2220,
-	UserNotFound                 = 2221,
-	ResourceNotFound             = 2222,
-	GroupExists                  = 2223,
-	UserExists                   = 2224,
-	ResourceExists               = 2225,
-	NotPrimary                   = 2226,
-	ACFNotLoaded                 = 2227,
-	ACFNoRoom                    = 2228,
-	ACFFileIOFail                = 2229,
-	ACFTooManyLists              = 2230,
-	UserLogon                    = 2231,
-	ACFNoParent                  = 2232,
-	CanNotGrowSegment            = 2233,
-	SpeGroupOp                   = 2234,
-	NotInCache                   = 2235,
-	UserInGroup                  = 2236,
-	UserNotInGroup               = 2237,
-	AccountUndefined             = 2238,
-	AccountExpired               = 2239,
-	InvalidWorkstation           = 2240,
-	InvalidLogonHours            = 2241,
-	PasswordExpired              = 2242,
-	PasswordCantChange           = 2243,
-	PasswordHistConflict         = 2244,
-	PasswordTooShort             = 2245,
-	PasswordTooRecent            = 2246,
-	InvalidDatabase              = 2247,
-	DatabaseUpToDate             = 2248,
-	SyncRequired                 = 2249,
-	UseNotFound                  = 2250,
-	BadAsgType                   = 2251,
-	DeviceIsShared               = 2252,
-	SameAsComputerName           = 2253,
-	NoComputerName               = 2270,
-	MsgAlreadyStarted            = 2271,
-	MsgInitFailed                = 2272,
-	NameNotFound                 = 2273,
-	AlreadyForwarded             = 2274,
-	AddForwarded                 = 2275,
-	AlreadyExists                = 2276,
-	TooManyNames                 = 2277,
-	DelComputerName              = 2278,
-	LocalForward                 = 2279,
-	GrpMsgProcessor              = 2280,
-	PausedRemote                 = 2281,
-	BadReceive                   = 2282,
-	NameInUse                    = 2283,
-	MsgNotStarted                = 2284,
-	NotLocalName                 = 2285,
-	NoForwardName                = 2286,
-	RemoteFull                   = 2287,
-	NameNotForwarded             = 2288,
-	TruncatedBroadcast           = 2289,
-	InvalidDevice                = 2294,
-	WriteFault                   = 2295,
-	DuplicateName                = 2297,
-	DeleteLater                  = 2298,
-	IncompleteDel                = 2299,
-	MultipleNets                 = 2300,
-	NetNameNotFound              = 2310,
-	DeviceNotShared              = 2311,
-	ClientNameNotFound           = 2312,
-	FileIdNotFound               = 2314,
-	ExecFailure                  = 2315,
-	TmpFile                      = 2316,
-	TooMuchData                  = 2317,
-	DeviceShareConflict          = 2318,
-	BrowserTableIncomplete       = 2319,
-	NotLocalDomain               = 2320,
-	IsDfsShare                   = 2321,
-	DevInvalidOpCode             = 2331,
-	DevNotFound                  = 2332,
-	DevNotOpen                   = 2333,
-	BadQueueDevString            = 2334,
-	BadQueuePriority             = 2335,
-	NoCommDevs                   = 2337,
-	QueueNotFound                = 2338,
-	BadDevString                 = 2340,
-	BadDev                       = 2341,
-	InUseBySpooler               = 2342,
-	CommDevInUse                 = 2343,
-	InvalidComputer              = 2351,
-	MaxLenExceeded               = 2354,
-	BadComponent                 = 2356,
-	CantType                     = 2357,
-	TooManyEntries               = 2362,
-	ProfileFileTooBig            = 2370,
-	ProfileOffset                = 2371,
-	ProfileCleanup               = 2372,
-	ProfileUnknownCmd            = 2373,
-	ProfileLoadErr               = 2374,
-	ProfileSaveErr               = 2375,
-	LogOverflow                  = 2377,
-	LogFileChanged               = 2378,
-	LogFileCorrupt               = 2379,
-	SourceIsDir                  = 2380,
-	BadSource                    = 2381,
-	BadDest                      = 2382,
-	DifferentServers             = 2383,
-	RunSrvPaused                 = 2385,
-	ErrCommRunSrv                = 2389,
-	ErrorExecingGhost            = 2391,
-	ShareNotFound                = 2392,
-	InvalidLana                  = 2400,
-	OpenFiles                    = 2401,
-	ActiveConns                  = 2402,
-	BadPasswordCore              = 2403,
-	DevInUse                     = 2404,
-	LocalDrive                   = 2405,
-	AlertExists                  = 2430,
-	TooManyAlerts                = 2431,
-	NoSuchAlert                  = 2432,
-	BadRecipient                 = 2433,
-	AcctLimitExceeded            = 2434,
-	InvalidLogSeek               = 2440,
-	BadUasConfig                 = 2450,
-	InvalidUASOp                 = 2451,
-	LastAdmin                    = 2452,
-	DCNotFound                   = 2453,
-	LogonTrackingError           = 2454,
-	NetlogonNotStarted           = 2455,
-	CanNotGrowUASFile            = 2456,
-	TimeDiffAtDC                 = 2457,
-	PasswordMismatch             = 2458,
-	NoSuchServer                 = 2460,
-	NoSuchSession                = 2461,
-	NoSuchConnection             = 2462,
-	TooManyServers               = 2463,
-	TooManySessions              = 2464,
-	TooManyConnections           = 2465,
-	TooManyFiles                 = 2466,
-	NoAlternateServers           = 2467,
-	TryDownLevel                 = 2470,
-	UPSDriverNotStarted          = 2480,
-	UPSInvalidConfig             = 2481,
-	UPSInvalidCommPort           = 2482,
-	UPSSignalAsserted            = 2483,
-	UPSShutdownFailed            = 2484,
-	BadDosRetCode                = 2500,
-	ProgNeedsExtraMem            = 2501,
-	BadDosFunction               = 2502,
-	RemoteBootFailed             = 2503,
-	BadFileCheckSum              = 2504,
-	NoRplBootSystem              = 2505,
-	RplLoadrNetBiosErr           = 2506,
-	RplLoadrDiskErr              = 2507,
-	ImageParamErr                = 2508,
-	TooManyImageParams           = 2509,
-	NonDosFloppyUsed             = 2510,
-	RplBootRestart               = 2511,
-	RplSrvrCallFailed            = 2512,
-	CantConnectRplSrvr           = 2513,
-	CantOpenImageFile            = 2514,
-	CallingRplSrvr               = 2515,
-	StartingRplBoot              = 2516,
-	RplBootServiceTerm           = 2517,
-	RplBootStartFailed           = 2518,
-	RPL_CONNECTED                = 2519,
-	BrowserConfiguredToNotRun    = 2550,
-	RplNoAdaptersStarted         = 2610,
-	RplBadRegistry               = 2611,
-	RplBadDatabase               = 2612,
-	RplRplfilesShare             = 2613,
-	RplNotRplServer              = 2614,
-	RplCannotEnum                = 2615,
-	RplWkstaInfoCorrupted        = 2616,
-	RplWkstaNotFound             = 2617,
-	RplWkstaNameUnavailable      = 2618,
-	RplProfileInfoCorrupted      = 2619,
-	RplProfileNotFound           = 2620,
-	RplProfileNameUnavailable    = 2621,
-	RplProfileNotEmpty           = 2622,
-	RplConfigInfoCorrupted       = 2623,
-	RplConfigNotFound            = 2624,
-	RplAdapterInfoCorrupted      = 2625,
-	RplInternal                  = 2626,
-	RplVendorInfoCorrupted       = 2627,
-	RplBootInfoCorrupted         = 2628,
-	RplWkstaNeedsUserAcct        = 2629,
-	RplNeedsRPLUSERAcct          = 2630,
-	RplBootNotFound              = 2631,
-	RplIncompatibleProfile       = 2632,
-	RplAdapterNameUnavailable    = 2633,
-	RplConfigNotEmpty            = 2634,
-	RplBootInUse                 = 2635,
-	RplBackupDatabase            = 2636,
-	RplAdapterNotFound           = 2637,
-	RplVendorNotFound            = 2638,
-	RplVendorNameUnavailable     = 2639,
-	RplBootNameUnavailable       = 2640,
-	RplConfigNameUnavailable     = 2641,
-	DfsInternalCorruption        = 2660,
-	DfsVolumeDataCorrupt         = 2661,
-	DfsNoSuchVolume              = 2662,
-	DfsVolumeAlreadyExists       = 2663,
-	DfsAlreadyShared             = 2664,
-	DfsNoSuchShare               = 2665,
-	DfsNotALeafVolume            = 2666,
-	DfsLeafVolume                = 2667,
-	DfsVolumeHasMultipleServers  = 2668,
-	DfsCantCreateJunctionPoint   = 2669,
-	DfsServerNotDfsAware         = 2670,
-	DfsBadRenamePath             = 2671,
-	DfsVolumeIsOffline           = 2672,
-	DfsNoSuchServer              = 2673,
-	DfsCyclicalName              = 2674,
-	DfsNotSupportedInServerDfs   = 2675,
-	DfsDuplicateService          = 2676,
-	DfsCantRemoveLastServerShare = 2677,
-	DfsVolumeIsInterDfs          = 2678,
-	DfsInconsistent              = 2679,
-	DfsServerUpgraded            = 2680,
-	DfsDataIsIdentical           = 2681,
-	DfsCantRemoveDfsRoot         = 2682,
-	DfsChildOrParentInDfs        = 2683,
-	DfsInternalError             = 2690,
-	SetupAlreadyJoined           = 2691,
-	SetupNotJoined               = 2692,
-	SetupDomainController        = 2693,
-	DefaultJoinRequired          = 2694,
-	InvalidWorkgroupName         = 2695,
-	NameUsesIncompatibleCodePage = 2696,
-	ComputerAccountNotFound      = 2697,
-	PersonalSku                  = 2698,
-	SetupCheckDNSConfig          = 2699,
-	PasswordMustChange           = 2701,
-	AccountLockedOut             = 2702,
-	PasswordTooLong              = 2703,
-	PasswordNotComplexEnough     = 2704,
-	PasswordFilterError          = 2705,
+    Success                      = 0,
+    ERROR_ACCESS_DENIED          = 5,
+    MemberInAlias                = 1378,
+    NetNotStarted                = 2102,
+    UnknownServer                = 2103,
+    ShareMem                     = 2104,
+    NoNetworkResource            = 2105,
+    RemoteOnly                   = 2106,
+    DevNotRedirected             = 2107,
+    ServerNotStarted             = 2114,
+    ItemNotFound                 = 2115,
+    UnknownDevDir                = 2116,
+    RedirectedPath               = 2117,
+    DuplicateShare               = 2118,
+    NoRoom                       = 2119,
+    TooManyItems                 = 2121,
+    InvalidMaxUsers              = 2122,
+    BufTooSmall                  = 2123,
+    RemoteErr                    = 2127,
+    LanmanIniError               = 2131,
+    NetworkError                 = 2136,
+    WkstaInconsistentState       = 2137,
+    WkstaNotStarted              = 2138,
+    BrowserNotStarted            = 2139,
+    InternalError                = 2140,
+    BadTransactConfig            = 2141,
+    InvalidAPI                   = 2142,
+    BadEventName                 = 2143,
+    DupNameReboot                = 2144,
+    CfgCompNotFound              = 2146,
+    CfgParamNotFound             = 2147,
+    LineTooLong                  = 2149,
+    QNotFound                    = 2150,
+    JobNotFound                  = 2151,
+    DestNotFound                 = 2152,
+    DestExists                   = 2153,
+    QExists                      = 2154,
+    QNoRoom                      = 2155,
+    JobNoRoom                    = 2156,
+    DestNoRoom                   = 2157,
+    DestIdle                     = 2158,
+    DestInvalidOp                = 2159,
+    ProcNoRespond                = 2160,
+    SpoolerNotLoaded             = 2161,
+    DestInvalidState             = 2162,
+    QInvalidState                = 2163,
+    JobInvalidState              = 2164,
+    SpoolNoMemory                = 2165,
+    DriverNotFound               = 2166,
+    DataTypeInvalid              = 2167,
+    ProcNotFound                 = 2168,
+    ServiceTableLocked           = 2180,
+    ServiceTableFull             = 2181,
+    ServiceInstalled             = 2182,
+    ServiceEntryLocked           = 2183,
+    ServiceNotInstalled          = 2184,
+    BadServiceName               = 2185,
+    ServiceCtlTimeout            = 2186,
+    ServiceCtlBusy               = 2187,
+    BadServiceProgName           = 2188,
+    ServiceNotCtrl               = 2189,
+    ServiceKillProc              = 2190,
+    ServiceCtlNotValid           = 2191,
+    NotInDispatchTbl             = 2192,
+    BadControlRecv               = 2193,
+    ServiceNotStarting           = 2194,
+    AlreadyLoggedOn              = 2200,
+    NotLoggedOn                  = 2201,
+    BadUsername                  = 2202,
+    BadPassword                  = 2203,
+    UnableToAddName_W            = 2204,
+    UnableToAddName_F            = 2205,
+    UnableToDelName_W            = 2206,
+    UnableToDelName_F            = 2207,
+    LogonsPaused                 = 2209,
+    LogonServerConflict          = 2210,
+    LogonNoUserPath              = 2211,
+    LogonScriptError             = 2212,
+    StandaloneLogon              = 2214,
+    LogonServerNotFound          = 2215,
+    LogonDomainExists            = 2216,
+    NonValidatedLogon            = 2217,
+    ACFNotFound                  = 2219,
+    GroupNotFound                = 2220,
+    UserNotFound                 = 2221,
+    ResourceNotFound             = 2222,
+    GroupExists                  = 2223,
+    UserExists                   = 2224,
+    ResourceExists               = 2225,
+    NotPrimary                   = 2226,
+    ACFNotLoaded                 = 2227,
+    ACFNoRoom                    = 2228,
+    ACFFileIOFail                = 2229,
+    ACFTooManyLists              = 2230,
+    UserLogon                    = 2231,
+    ACFNoParent                  = 2232,
+    CanNotGrowSegment            = 2233,
+    SpeGroupOp                   = 2234,
+    NotInCache                   = 2235,
+    UserInGroup                  = 2236,
+    UserNotInGroup               = 2237,
+    AccountUndefined             = 2238,
+    AccountExpired               = 2239,
+    InvalidWorkstation           = 2240,
+    InvalidLogonHours            = 2241,
+    PasswordExpired              = 2242,
+    PasswordCantChange           = 2243,
+    PasswordHistConflict         = 2244,
+    PasswordTooShort             = 2245,
+    PasswordTooRecent            = 2246,
+    InvalidDatabase              = 2247,
+    DatabaseUpToDate             = 2248,
+    SyncRequired                 = 2249,
+    UseNotFound                  = 2250,
+    BadAsgType                   = 2251,
+    DeviceIsShared               = 2252,
+    SameAsComputerName           = 2253,
+    NoComputerName               = 2270,
+    MsgAlreadyStarted            = 2271,
+    MsgInitFailed                = 2272,
+    NameNotFound                 = 2273,
+    AlreadyForwarded             = 2274,
+    AddForwarded                 = 2275,
+    AlreadyExists                = 2276,
+    TooManyNames                 = 2277,
+    DelComputerName              = 2278,
+    LocalForward                 = 2279,
+    GrpMsgProcessor              = 2280,
+    PausedRemote                 = 2281,
+    BadReceive                   = 2282,
+    NameInUse                    = 2283,
+    MsgNotStarted                = 2284,
+    NotLocalName                 = 2285,
+    NoForwardName                = 2286,
+    RemoteFull                   = 2287,
+    NameNotForwarded             = 2288,
+    TruncatedBroadcast           = 2289,
+    InvalidDevice                = 2294,
+    WriteFault                   = 2295,
+    DuplicateName                = 2297,
+    DeleteLater                  = 2298,
+    IncompleteDel                = 2299,
+    MultipleNets                 = 2300,
+    NetNameNotFound              = 2310,
+    DeviceNotShared              = 2311,
+    ClientNameNotFound           = 2312,
+    FileIdNotFound               = 2314,
+    ExecFailure                  = 2315,
+    TmpFile                      = 2316,
+    TooMuchData                  = 2317,
+    DeviceShareConflict          = 2318,
+    BrowserTableIncomplete       = 2319,
+    NotLocalDomain               = 2320,
+    IsDfsShare                   = 2321,
+    DevInvalidOpCode             = 2331,
+    DevNotFound                  = 2332,
+    DevNotOpen                   = 2333,
+    BadQueueDevString            = 2334,
+    BadQueuePriority             = 2335,
+    NoCommDevs                   = 2337,
+    QueueNotFound                = 2338,
+    BadDevString                 = 2340,
+    BadDev                       = 2341,
+    InUseBySpooler               = 2342,
+    CommDevInUse                 = 2343,
+    InvalidComputer              = 2351,
+    MaxLenExceeded               = 2354,
+    BadComponent                 = 2356,
+    CantType                     = 2357,
+    TooManyEntries               = 2362,
+    ProfileFileTooBig            = 2370,
+    ProfileOffset                = 2371,
+    ProfileCleanup               = 2372,
+    ProfileUnknownCmd            = 2373,
+    ProfileLoadErr               = 2374,
+    ProfileSaveErr               = 2375,
+    LogOverflow                  = 2377,
+    LogFileChanged               = 2378,
+    LogFileCorrupt               = 2379,
+    SourceIsDir                  = 2380,
+    BadSource                    = 2381,
+    BadDest                      = 2382,
+    DifferentServers             = 2383,
+    RunSrvPaused                 = 2385,
+    ErrCommRunSrv                = 2389,
+    ErrorExecingGhost            = 2391,
+    ShareNotFound                = 2392,
+    InvalidLana                  = 2400,
+    OpenFiles                    = 2401,
+    ActiveConns                  = 2402,
+    BadPasswordCore              = 2403,
+    DevInUse                     = 2404,
+    LocalDrive                   = 2405,
+    AlertExists                  = 2430,
+    TooManyAlerts                = 2431,
+    NoSuchAlert                  = 2432,
+    BadRecipient                 = 2433,
+    AcctLimitExceeded            = 2434,
+    InvalidLogSeek               = 2440,
+    BadUasConfig                 = 2450,
+    InvalidUASOp                 = 2451,
+    LastAdmin                    = 2452,
+    DCNotFound                   = 2453,
+    LogonTrackingError           = 2454,
+    NetlogonNotStarted           = 2455,
+    CanNotGrowUASFile            = 2456,
+    TimeDiffAtDC                 = 2457,
+    PasswordMismatch             = 2458,
+    NoSuchServer                 = 2460,
+    NoSuchSession                = 2461,
+    NoSuchConnection             = 2462,
+    TooManyServers               = 2463,
+    TooManySessions              = 2464,
+    TooManyConnections           = 2465,
+    TooManyFiles                 = 2466,
+    NoAlternateServers           = 2467,
+    TryDownLevel                 = 2470,
+    UPSDriverNotStarted          = 2480,
+    UPSInvalidConfig             = 2481,
+    UPSInvalidCommPort           = 2482,
+    UPSSignalAsserted            = 2483,
+    UPSShutdownFailed            = 2484,
+    BadDosRetCode                = 2500,
+    ProgNeedsExtraMem            = 2501,
+    BadDosFunction               = 2502,
+    RemoteBootFailed             = 2503,
+    BadFileCheckSum              = 2504,
+    NoRplBootSystem              = 2505,
+    RplLoadrNetBiosErr           = 2506,
+    RplLoadrDiskErr              = 2507,
+    ImageParamErr                = 2508,
+    TooManyImageParams           = 2509,
+    NonDosFloppyUsed             = 2510,
+    RplBootRestart               = 2511,
+    RplSrvrCallFailed            = 2512,
+    CantConnectRplSrvr           = 2513,
+    CantOpenImageFile            = 2514,
+    CallingRplSrvr               = 2515,
+    StartingRplBoot              = 2516,
+    RplBootServiceTerm           = 2517,
+    RplBootStartFailed           = 2518,
+    RPL_CONNECTED                = 2519,
+    BrowserConfiguredToNotRun    = 2550,
+    RplNoAdaptersStarted         = 2610,
+    RplBadRegistry               = 2611,
+    RplBadDatabase               = 2612,
+    RplRplfilesShare             = 2613,
+    RplNotRplServer              = 2614,
+    RplCannotEnum                = 2615,
+    RplWkstaInfoCorrupted        = 2616,
+    RplWkstaNotFound             = 2617,
+    RplWkstaNameUnavailable      = 2618,
+    RplProfileInfoCorrupted      = 2619,
+    RplProfileNotFound           = 2620,
+    RplProfileNameUnavailable    = 2621,
+    RplProfileNotEmpty           = 2622,
+    RplConfigInfoCorrupted       = 2623,
+    RplConfigNotFound            = 2624,
+    RplAdapterInfoCorrupted      = 2625,
+    RplInternal                  = 2626,
+    RplVendorInfoCorrupted       = 2627,
+    RplBootInfoCorrupted         = 2628,
+    RplWkstaNeedsUserAcct        = 2629,
+    RplNeedsRPLUSERAcct          = 2630,
+    RplBootNotFound              = 2631,
+    RplIncompatibleProfile       = 2632,
+    RplAdapterNameUnavailable    = 2633,
+    RplConfigNotEmpty            = 2634,
+    RplBootInUse                 = 2635,
+    RplBackupDatabase            = 2636,
+    RplAdapterNotFound           = 2637,
+    RplVendorNotFound            = 2638,
+    RplVendorNameUnavailable     = 2639,
+    RplBootNameUnavailable       = 2640,
+    RplConfigNameUnavailable     = 2641,
+    DfsInternalCorruption        = 2660,
+    DfsVolumeDataCorrupt         = 2661,
+    DfsNoSuchVolume              = 2662,
+    DfsVolumeAlreadyExists       = 2663,
+    DfsAlreadyShared             = 2664,
+    DfsNoSuchShare               = 2665,
+    DfsNotALeafVolume            = 2666,
+    DfsLeafVolume                = 2667,
+    DfsVolumeHasMultipleServers  = 2668,
+    DfsCantCreateJunctionPoint   = 2669,
+    DfsServerNotDfsAware         = 2670,
+    DfsBadRenamePath             = 2671,
+    DfsVolumeIsOffline           = 2672,
+    DfsNoSuchServer              = 2673,
+    DfsCyclicalName              = 2674,
+    DfsNotSupportedInServerDfs   = 2675,
+    DfsDuplicateService          = 2676,
+    DfsCantRemoveLastServerShare = 2677,
+    DfsVolumeIsInterDfs          = 2678,
+    DfsInconsistent              = 2679,
+    DfsServerUpgraded            = 2680,
+    DfsDataIsIdentical           = 2681,
+    DfsCantRemoveDfsRoot         = 2682,
+    DfsChildOrParentInDfs        = 2683,
+    DfsInternalError             = 2690,
+    SetupAlreadyJoined           = 2691,
+    SetupNotJoined               = 2692,
+    SetupDomainController        = 2693,
+    DefaultJoinRequired          = 2694,
+    InvalidWorkgroupName         = 2695,
+    NameUsesIncompatibleCodePage = 2696,
+    ComputerAccountNotFound      = 2697,
+    PersonalSku                  = 2698,
+    SetupCheckDNSConfig          = 2699,
+    PasswordMustChange           = 2701,
+    AccountLockedOut             = 2702,
+    PasswordTooLong              = 2703,
+    PasswordNotComplexEnough     = 2704,
+    PasswordFilterError          = 2705,
 }
 
 
 SYSTEMTIME :: struct {
-	year:         WORD,
-	month:        WORD,
-	day_of_week:  WORD,
-	day:          WORD,
-	hour:         WORD,
-	minute:       WORD,
-	second:       WORD,
-	milliseconds: WORD,
+    year:         WORD,
+    month:        WORD,
+    day_of_week:  WORD,
+    day:          WORD,
+    hour:         WORD,
+    minute:       WORD,
+    second:       WORD,
+    milliseconds: WORD,
 }
 
 TIME_ZONE_INFORMATION :: struct {
-	Bias:         LONG,
-	StandardName: [32]WCHAR,
-	StandardDate: SYSTEMTIME,
-	StandardBias: LONG,
-	DaylightName: [32]WCHAR,
-	DaylightDate: SYSTEMTIME,
-	DaylightBias: LONG,
+    Bias:         LONG,
+    StandardName: [32]WCHAR,
+    StandardDate: SYSTEMTIME,
+    StandardBias: LONG,
+    DaylightName: [32]WCHAR,
+    DaylightDate: SYSTEMTIME,
+    DaylightBias: LONG,
 }
 
 IMAGE_DOS_HEADER :: struct {
-	e_magic:    WORD,
-	e_cblp:     WORD,
-	e_cp:       WORD,
-	e_crlc:     WORD,
-	e_cparhdr:  WORD,
-	e_minalloc: WORD,
-	e_maxalloc: WORD,
-	e_ss:       WORD,
-	e_sp:       WORD,
-	e_csum:     WORD,
-	e_ip:       WORD,
-	e_cs:       WORD,
-	e_lfarlc:   WORD,
-	e_ovno:     WORD,
-	e_res_0:    WORD,
-	e_res_1:    WORD,
-	e_res_2:    WORD,
-	e_res_3:    WORD,
-	e_oemid:    WORD,
-	e_oeminfo:  WORD,
-	e_res2_0:   WORD,
-	e_res2_1:   WORD,
-	e_res2_2:   WORD,
-	e_res2_3:   WORD,
-	e_res2_4:   WORD,
-	e_res2_5:   WORD,
-	e_res2_6:   WORD,
-	e_res2_7:   WORD,
-	e_res2_8:   WORD,
-	e_res2_9:   WORD,
-	e_lfanew:   DWORD,
+    e_magic:    WORD,
+    e_cblp:     WORD,
+    e_cp:       WORD,
+    e_crlc:     WORD,
+    e_cparhdr:  WORD,
+    e_minalloc: WORD,
+    e_maxalloc: WORD,
+    e_ss:       WORD,
+    e_sp:       WORD,
+    e_csum:     WORD,
+    e_ip:       WORD,
+    e_cs:       WORD,
+    e_lfarlc:   WORD,
+    e_ovno:     WORD,
+    e_res_0:    WORD,
+    e_res_1:    WORD,
+    e_res_2:    WORD,
+    e_res_3:    WORD,
+    e_oemid:    WORD,
+    e_oeminfo:  WORD,
+    e_res2_0:   WORD,
+    e_res2_1:   WORD,
+    e_res2_2:   WORD,
+    e_res2_3:   WORD,
+    e_res2_4:   WORD,
+    e_res2_5:   WORD,
+    e_res2_6:   WORD,
+    e_res2_7:   WORD,
+    e_res2_8:   WORD,
+    e_res2_9:   WORD,
+    e_lfanew:   DWORD,
 }
 
 IMAGE_DATA_DIRECTORY :: struct {
-	VirtualAddress: DWORD,
-	Size:           DWORD,
+    VirtualAddress: DWORD,
+    Size:           DWORD,
 }
 
 IMAGE_FILE_HEADER :: struct {
-	Machine:              WORD,
-	NumberOfSections:     WORD,
-	TimeDateStamp:        DWORD,
-	PointerToSymbolTable: DWORD,
-	NumberOfSymbols:      DWORD,
-	SizeOfOptionalHeader: WORD,
-	Characteristics:      WORD,
+    Machine:              WORD,
+    NumberOfSections:     WORD,
+    TimeDateStamp:        DWORD,
+    PointerToSymbolTable: DWORD,
+    NumberOfSymbols:      DWORD,
+    SizeOfOptionalHeader: WORD,
+    Characteristics:      WORD,
 }
 
 IMAGE_OPTIONAL_HEADER64 :: struct {
-	Magic:                        WORD,
-	MajorLinkerVersion:           BYTE,
-	MinorLinkerVersion:           BYTE,
-	SizeOfCode:                   DWORD,
-	SizeOfInitializedData:        DWORD,
-	SizeOfUninitializedData:      DWORD,
-	AddressOfEntryPoint:          DWORD,
-	BaseOfCode:                   DWORD,
-	ImageBase:                    QWORD,
-	SectionAlignment:             DWORD,
-	FileAlignment:                DWORD,
-	MajorOperatingSystemVersion:  WORD,
-	MinorOperatingSystemVersion:  WORD,
-	MajorImageVersion:            WORD,
-	MinorImageVersion:            WORD,
-	MajorSubsystemVersion:        WORD,
-	MinorSubsystemVersion:        WORD,
-	Win32VersionValue:            DWORD,
-	SizeOfImage:                  DWORD,
-	SizeOfHeaders:                DWORD,
-	CheckSum:                     DWORD,
-	Subsystem:                    WORD,
-	DllCharacteristics:           WORD,
-	SizeOfStackReserve:           QWORD,
-	SizeOfStackCommit:            QWORD,
-	SizeOfHeapReserve:            QWORD,
-	SizeOfHeapCommit:             QWORD,
-	LoaderFlags:                  DWORD,
-	NumberOfRvaAndSizes:          DWORD,
-	ExportTable:                  IMAGE_DATA_DIRECTORY,
-	ImportTable:                  IMAGE_DATA_DIRECTORY,
-	ResourceTable:                IMAGE_DATA_DIRECTORY,
-	ExceptionTable:               IMAGE_DATA_DIRECTORY,
-	CertificateTable:             IMAGE_DATA_DIRECTORY,
-	BaseRelocationTable:          IMAGE_DATA_DIRECTORY,
-	Debug:                        IMAGE_DATA_DIRECTORY,
-	Architecture:                 IMAGE_DATA_DIRECTORY,
-	GlobalPtr:                    IMAGE_DATA_DIRECTORY,
-	TLSTable:                     IMAGE_DATA_DIRECTORY,
-	LoadConfigTable:              IMAGE_DATA_DIRECTORY,
-	BoundImport:                  IMAGE_DATA_DIRECTORY,
-	IAT:                          IMAGE_DATA_DIRECTORY,
-	DelayImportDescriptor:        IMAGE_DATA_DIRECTORY,
-	CLRRuntimeHeader:             IMAGE_DATA_DIRECTORY,
-	Reserved:                     IMAGE_DATA_DIRECTORY,
+    Magic:                        WORD,
+    MajorLinkerVersion:           BYTE,
+    MinorLinkerVersion:           BYTE,
+    SizeOfCode:                   DWORD,
+    SizeOfInitializedData:        DWORD,
+    SizeOfUninitializedData:      DWORD,
+    AddressOfEntryPoint:          DWORD,
+    BaseOfCode:                   DWORD,
+    ImageBase:                    QWORD,
+    SectionAlignment:             DWORD,
+    FileAlignment:                DWORD,
+    MajorOperatingSystemVersion:  WORD,
+    MinorOperatingSystemVersion:  WORD,
+    MajorImageVersion:            WORD,
+    MinorImageVersion:            WORD,
+    MajorSubsystemVersion:        WORD,
+    MinorSubsystemVersion:        WORD,
+    Win32VersionValue:            DWORD,
+    SizeOfImage:                  DWORD,
+    SizeOfHeaders:                DWORD,
+    CheckSum:                     DWORD,
+    Subsystem:                    WORD,
+    DllCharacteristics:           WORD,
+    SizeOfStackReserve:           QWORD,
+    SizeOfStackCommit:            QWORD,
+    SizeOfHeapReserve:            QWORD,
+    SizeOfHeapCommit:             QWORD,
+    LoaderFlags:                  DWORD,
+    NumberOfRvaAndSizes:          DWORD,
+    ExportTable:                  IMAGE_DATA_DIRECTORY,
+    ImportTable:                  IMAGE_DATA_DIRECTORY,
+    ResourceTable:                IMAGE_DATA_DIRECTORY,
+    ExceptionTable:               IMAGE_DATA_DIRECTORY,
+    CertificateTable:             IMAGE_DATA_DIRECTORY,
+    BaseRelocationTable:          IMAGE_DATA_DIRECTORY,
+    Debug:                        IMAGE_DATA_DIRECTORY,
+    Architecture:                 IMAGE_DATA_DIRECTORY,
+    GlobalPtr:                    IMAGE_DATA_DIRECTORY,
+    TLSTable:                     IMAGE_DATA_DIRECTORY,
+    LoadConfigTable:              IMAGE_DATA_DIRECTORY,
+    BoundImport:                  IMAGE_DATA_DIRECTORY,
+    IAT:                          IMAGE_DATA_DIRECTORY,
+    DelayImportDescriptor:        IMAGE_DATA_DIRECTORY,
+    CLRRuntimeHeader:             IMAGE_DATA_DIRECTORY,
+    Reserved:                     IMAGE_DATA_DIRECTORY,
 }
 
 IMAGE_NT_HEADERS64 :: struct {
-	Signature:      DWORD,
-	FileHeader:     IMAGE_FILE_HEADER,
-	OptionalHeader: IMAGE_OPTIONAL_HEADER64,
+    Signature:      DWORD,
+    FileHeader:     IMAGE_FILE_HEADER,
+    OptionalHeader: IMAGE_OPTIONAL_HEADER64,
 }
 
 IMAGE_EXPORT_DIRECTORY :: struct {
-	Characteristics:       DWORD,
-	TimeDateStamp:         DWORD,
-	MajorVersion:          WORD,
-	MinorVersion:          WORD,
-	Name:                  DWORD,
-	Base:                  DWORD,
-	NumberOfFunctions:     DWORD,
-	NumberOfNames:         DWORD,
-	AddressOfFunctions:    DWORD, // RVA from base of image
-	AddressOfNames:        DWORD, // RVA from base of image
-	AddressOfNameOrdinals: DWORD, // RVA from base of image
+    Characteristics:       DWORD,
+    TimeDateStamp:         DWORD,
+    MajorVersion:          WORD,
+    MinorVersion:          WORD,
+    Name:                  DWORD,
+    Base:                  DWORD,
+    NumberOfFunctions:     DWORD,
+    NumberOfNames:         DWORD,
+    AddressOfFunctions:    DWORD, // RVA from base of image
+    AddressOfNames:        DWORD, // RVA from base of image
+    AddressOfNameOrdinals: DWORD, // RVA from base of image
 }
 
 IMAGE_DEBUG_DIRECTORY :: struct {
-	Characteristics:  DWORD,
-	TimeDateStamp:    DWORD,
-	MajorVersion:     WORD,
-	MinorVersion:     WORD,
-	Type:             DWORD,
-	SizeOfData:       DWORD,
-	AddressOfRawData: DWORD,
-	PointerToRawData: DWORD,
+    Characteristics:  DWORD,
+    TimeDateStamp:    DWORD,
+    MajorVersion:     WORD,
+    MinorVersion:     WORD,
+    Type:             DWORD,
+    SizeOfData:       DWORD,
+    AddressOfRawData: DWORD,
+    PointerToRawData: DWORD,
 }
 
 IMAGE_DEBUG_TYPE_CODEVIEW :: 2
@@ -4117,105 +4117,105 @@ REFPROPERTYKEY        :: ^PROPERTYKEY
 REFPROPVARIANT        :: ^PROPVARIANT
 
 SIGDN :: enum c_int {
-	NORMALDISPLAY               = 0,
-	PARENTRELATIVEPARSING       = -2147385343, // 0x80018001
-	DESKTOPABSOLUTEPARSING      = -2147319808, // 0x80028000
-	PARENTRELATIVEEDITING       = -2147282943, // 0x80031001
-	DESKTOPABSOLUTEEDITING      = -2147172352, // 0x8004c000
-	FILESYSPATH                 = -2147123200, // 0x80058000
-	URL                         = -2147057664, // 0x80068000
-	PARENTRELATIVEFORADDRESSBAR = -2146975743, // 0x8007c001
-	PARENTRELATIVE              = -2146959359, // 0x80080001
-	PARENTRELATIVEFORUI         = -2146877439, // 0x80094001
+    NORMALDISPLAY               = 0,
+    PARENTRELATIVEPARSING       = -2147385343, // 0x80018001
+    DESKTOPABSOLUTEPARSING      = -2147319808, // 0x80028000
+    PARENTRELATIVEEDITING       = -2147282943, // 0x80031001
+    DESKTOPABSOLUTEEDITING      = -2147172352, // 0x8004c000
+    FILESYSPATH                 = -2147123200, // 0x80058000
+    URL                         = -2147057664, // 0x80068000
+    PARENTRELATIVEFORADDRESSBAR = -2146975743, // 0x8007c001
+    PARENTRELATIVE              = -2146959359, // 0x80080001
+    PARENTRELATIVEFORUI         = -2146877439, // 0x80094001
 }
 
 SIATTRIBFLAGS :: enum c_int {
-	AND       = 0x1,
-	OR        = 0x2,
-	APPCOMPAT = 0x3,
-	MASK      = 0x3,
-	ALLITEMS  = 0x4000,
+    AND       = 0x1,
+    OR        = 0x2,
+    APPCOMPAT = 0x3,
+    MASK      = 0x3,
+    ALLITEMS  = 0x4000,
 }
 
 FDAP :: enum c_int {
-	BOTTOM = 0,
-	TOP    = 1,
+    BOTTOM = 0,
+    TOP    = 1,
 }
 
 FDE_SHAREVIOLATION_RESPONSE :: enum c_int {
-	DEFAULT = 0,
-	ACCEPT  = 1,
-	REFUSE  = 2,
+    DEFAULT = 0,
+    ACCEPT  = 1,
+    REFUSE  = 2,
 }
 
 GETPROPERTYSTOREFLAGS :: enum c_int {
-	DEFAULT                 = 0,
-	HANDLERPROPERTIESONLY   = 0x1,
-	READWRITE               = 0x2,
-	TEMPORARY               = 0x4,
-	FASTPROPERTIESONLY      = 0x8,
-	OPENSLOWITEM            = 0x10,
-	DELAYCREATION           = 0x20,
-	BESTEFFORT              = 0x40,
-	NO_OPLOCK               = 0x80,
-	PREFERQUERYPROPERTIES   = 0x100,
-	EXTRINSICPROPERTIES     = 0x200,
-	EXTRINSICPROPERTIESONLY = 0x400,
-	VOLATILEPROPERTIES      = 0x800,
-	VOLATILEPROPERTIESONLY  = 0x1000,
-	MASK_VALID              = 0x1fff,
+    DEFAULT                 = 0,
+    HANDLERPROPERTIESONLY   = 0x1,
+    READWRITE               = 0x2,
+    TEMPORARY               = 0x4,
+    FASTPROPERTIESONLY      = 0x8,
+    OPENSLOWITEM            = 0x10,
+    DELAYCREATION           = 0x20,
+    BESTEFFORT              = 0x40,
+    NO_OPLOCK               = 0x80,
+    PREFERQUERYPROPERTIES   = 0x100,
+    EXTRINSICPROPERTIES     = 0x200,
+    EXTRINSICPROPERTIESONLY = 0x400,
+    VOLATILEPROPERTIES      = 0x800,
+    VOLATILEPROPERTIESONLY  = 0x1000,
+    MASK_VALID              = 0x1fff,
 }
 
 PROPERTYKEY :: struct {
-	fmtid: GUID,
-	pid:   DWORD,
+    fmtid: GUID,
+    pid:   DWORD,
 }
 
 BIND_OPTS :: struct {
-	cbStruct:            DWORD,
-	grfFlags:            DWORD,
-	grfMode:             DWORD,
-	dwTickCountDeadline: DWORD,
+    cbStruct:            DWORD,
+    grfFlags:            DWORD,
+    grfMode:             DWORD,
+    dwTickCountDeadline: DWORD,
 }
 
 STATSTG :: struct {
-	pwcsName:          LPOLESTR,
-	type:              DWORD,
-	cbSize:            ULARGE_INTEGER,
-	mtime:             FILETIME,
-	ctime:             FILETIME,
-	atime:             FILETIME,
-	grfMode:           DWORD,
-	grfLocksSupported: DWORD,
-	clsid:             CLSID,
-	grfStateBits:      DWORD,
-	reserved:          DWORD,
+    pwcsName:          LPOLESTR,
+    type:              DWORD,
+    cbSize:            ULARGE_INTEGER,
+    mtime:             FILETIME,
+    ctime:             FILETIME,
+    atime:             FILETIME,
+    grfMode:           DWORD,
+    grfLocksSupported: DWORD,
+    clsid:             CLSID,
+    grfStateBits:      DWORD,
+    reserved:          DWORD,
 }
 
 COMDLG_FILTERSPEC :: struct {
-	pszName, pszSpec: LPCWSTR,
+    pszName, pszSpec: LPCWSTR,
 }
 
 DECIMAL :: struct {
-	wReserved: USHORT,
-	using _: struct #raw_union {
-		using _: struct {
-			scale, sign: BYTE,
-		},
-		signscale: USHORT,
-	},
-	Hi32: ULONG,
-	using _: struct #raw_union {
-		using _: struct {
-			Lo32, Mid32: ULONG,
-		},
-		Lo64: ULONGLONG,
-	},
+    wReserved: USHORT,
+    using _: struct #raw_union {
+        using _: struct {
+            scale, sign: BYTE,
+        },
+        signscale: USHORT,
+    },
+    Hi32: ULONG,
+    using _: struct #raw_union {
+        using _: struct {
+            Lo32, Mid32: ULONG,
+        },
+        Lo64: ULONGLONG,
+    },
 }
 
 // NOTE(ftphikari): bigger definition of this struct is ignored
 PROPVARIANT :: struct {
-	decVal: DECIMAL,
+    decVal: DECIMAL,
 }
 
 SICHINT_DISPLAY                       :: 0
@@ -4290,497 +4290,497 @@ IID_ITaskbarList2    := &GUID{0x602D4995, 0xB13A, 0x429b, {0xA6, 0x6E, 0x19, 0x3
 IID_ITaskbarList3    := &GUID{0xea1afb91, 0x9e28, 0x4b86, {0x90, 0xe9, 0x9e, 0x9f, 0x8a, 0x5e, 0xef, 0xaf}}
 
 IModalWindow :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IModalWindowVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IModalWindowVtbl,
 }
 IModalWindowVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	Show: proc "system" (this: ^IModalWindow, hwndOwner: HWND) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    Show: proc "system" (this: ^IModalWindow, hwndOwner: HWND) -> HRESULT,
 }
 
 ISequentialStream :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^ISequentialStreamVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^ISequentialStreamVtbl,
 }
 ISequentialStreamVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	Read:  proc "system" (this: ^ISequentialStream, pv: rawptr, cb: ULONG, pcbRead: ^ULONG) -> HRESULT,
-	Write: proc "system" (this: ^ISequentialStream, pv: rawptr, cb: ULONG, pcbWritten: ^ULONG) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    Read:  proc "system" (this: ^ISequentialStream, pv: rawptr, cb: ULONG, pcbRead: ^ULONG) -> HRESULT,
+    Write: proc "system" (this: ^ISequentialStream, pv: rawptr, cb: ULONG, pcbWritten: ^ULONG) -> HRESULT,
 }
 
 IStream :: struct #raw_union {
-	#subtype ISequentialStream: ISequentialStream,
-	using Vtbl: ^IStreamVtbl,
+    #subtype ISequentialStream: ISequentialStream,
+    using Vtbl: ^IStreamVtbl,
 }
 IStreamVtbl :: struct {
-	using ISequentialStreamVtbl: ISequentialStreamVtbl,
-	Seek:         proc "system" (this: ^IStream, dlibMove: LARGE_INTEGER, dwOrigin: DWORD, plibNewPosition: ^ULARGE_INTEGER) -> HRESULT,
-	SetSize:      proc "system" (this: ^IStream, libNewSize: ULARGE_INTEGER) -> HRESULT,
-	CopyTo:       proc "system" (this: ^IStream, pstm: ^IStream, cb: ULARGE_INTEGER, pcbRead: ^ULARGE_INTEGER, pcbWritten: ^ULARGE_INTEGER) -> HRESULT,
-	Commit:       proc "system" (this: ^IStream, grfCommitFlags: DWORD) -> HRESULT,
-	Revert:       proc "system" (this: ^IStream) -> HRESULT,
-	LockRegion:   proc "system" (this: ^IStream, libOffset: ULARGE_INTEGER, cb: ULARGE_INTEGER, dwLockType: DWORD) -> HRESULT,
-	UnlockRegion: proc "system" (this: ^IStream, libOffset: ULARGE_INTEGER, cb: ULARGE_INTEGER, dwLockType: DWORD) -> HRESULT,
-	Stat:         proc "system" (this: ^IStream, pstatstg: ^STATSTG, grfStatFlag: DWORD) -> HRESULT,
-	Clone:        proc "system" (this: ^IStream, ppstm: ^^IStream) -> HRESULT,
+    using ISequentialStreamVtbl: ISequentialStreamVtbl,
+    Seek:         proc "system" (this: ^IStream, dlibMove: LARGE_INTEGER, dwOrigin: DWORD, plibNewPosition: ^ULARGE_INTEGER) -> HRESULT,
+    SetSize:      proc "system" (this: ^IStream, libNewSize: ULARGE_INTEGER) -> HRESULT,
+    CopyTo:       proc "system" (this: ^IStream, pstm: ^IStream, cb: ULARGE_INTEGER, pcbRead: ^ULARGE_INTEGER, pcbWritten: ^ULARGE_INTEGER) -> HRESULT,
+    Commit:       proc "system" (this: ^IStream, grfCommitFlags: DWORD) -> HRESULT,
+    Revert:       proc "system" (this: ^IStream) -> HRESULT,
+    LockRegion:   proc "system" (this: ^IStream, libOffset: ULARGE_INTEGER, cb: ULARGE_INTEGER, dwLockType: DWORD) -> HRESULT,
+    UnlockRegion: proc "system" (this: ^IStream, libOffset: ULARGE_INTEGER, cb: ULARGE_INTEGER, dwLockType: DWORD) -> HRESULT,
+    Stat:         proc "system" (this: ^IStream, pstatstg: ^STATSTG, grfStatFlag: DWORD) -> HRESULT,
+    Clone:        proc "system" (this: ^IStream, ppstm: ^^IStream) -> HRESULT,
 }
 
 IPersist :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IPersistVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IPersistVtbl,
 }
 IPersistVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	GetClassID: proc "system" (this: ^IPersist, pClassID: ^CLSID) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    GetClassID: proc "system" (this: ^IPersist, pClassID: ^CLSID) -> HRESULT,
 }
 
 IPersistStream :: struct #raw_union {
-	#subtype IPersist: IPersist,
-	using Vtbl: ^IPersistStreamVtbl,
+    #subtype IPersist: IPersist,
+    using Vtbl: ^IPersistStreamVtbl,
 }
 IPersistStreamVtbl :: struct {
-	using IPersistVtbl: IPersistVtbl,
-	IsDirty:    proc "system" (this: ^IPersistStream) -> HRESULT,
-	Load:       proc "system" (this: ^IPersistStream, pStm: ^IStream) -> HRESULT,
-	Save:       proc "system" (this: ^IPersistStream, pStm: ^IStream, fClearDirty: BOOL) -> HRESULT,
-	GetSizeMax: proc "system" (this: ^IPersistStream, pcbSize: ^ULARGE_INTEGER) -> HRESULT,
+    using IPersistVtbl: IPersistVtbl,
+    IsDirty:    proc "system" (this: ^IPersistStream) -> HRESULT,
+    Load:       proc "system" (this: ^IPersistStream, pStm: ^IStream) -> HRESULT,
+    Save:       proc "system" (this: ^IPersistStream, pStm: ^IStream, fClearDirty: BOOL) -> HRESULT,
+    GetSizeMax: proc "system" (this: ^IPersistStream, pcbSize: ^ULARGE_INTEGER) -> HRESULT,
 }
 
 IMoniker :: struct #raw_union {
-	#subtype IPersistStream: IPersistStream,
-	using Vtbl: ^IMonikerVtbl,
+    #subtype IPersistStream: IPersistStream,
+    using Vtbl: ^IMonikerVtbl,
 }
 IMonikerVtbl :: struct {
-	using IPersistStreamVtbl: IPersistStreamVtbl,
-	BindToObject:        proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, riidResult: REFIID, ppvResult: ^rawptr) -> HRESULT,
-	BindToStorage:       proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, riid: REFIID, ppvObj: ^rawptr) -> HRESULT,
-	Reduce:              proc "system" (this: ^IMoniker, pbc: ^IBindCtx, dwReduceHowFar: DWORD, ppmkToLeft: ^^IMoniker, ppmkReduced: ^^IMoniker) -> HRESULT,
-	ComposeWith:         proc "system" (this: ^IMoniker, pmkRight: ^IMoniker, fOnlyIfNotGeneric: BOOL, ppmkComposite: ^^IMoniker) -> HRESULT,
-	Enum:                proc "system" (this: ^IMoniker, fForward: BOOL, ppenumMoniker: ^^IEnumMoniker) -> HRESULT,
-	IsEqual:             proc "system" (this: ^IMoniker, pmkOtherMoniker: ^IMoniker) -> HRESULT,
-	Hash:                proc "system" (this: ^IMoniker, pdwHash: ^DWORD) -> HRESULT,
-	IsRunning:           proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, pmkNewlyRunning: ^IMoniker) -> HRESULT,
-	GetTimeOfLastChange: proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, pFileTime: ^FILETIME) -> HRESULT,
-	Inverse:             proc "system" (this: ^IMoniker, ppmk: ^^IMoniker) -> HRESULT,
-	CommonPrefixWith:    proc "system" (this: ^IMoniker, pmkOther: ^IMoniker, ppmkPrefix: ^^IMoniker) -> HRESULT,
-	RelativePathTo:      proc "system" (this: ^IMoniker, pmkOther: ^IMoniker, ppmkRelPath: ^^IMoniker) -> HRESULT,
-	GetDisplayName:      proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, ppszDisplayName: ^LPOLESTR) -> HRESULT,
-	ParseDisplayName:    proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, pszDisplayName: LPOLESTR, pchEaten: ^ULONG, ppmkOut: ^^IMoniker) -> HRESULT,
-	IsSystemMoniker:     proc "system" (this: ^IMoniker, pdwMksys: ^DWORD) -> HRESULT,
+    using IPersistStreamVtbl: IPersistStreamVtbl,
+    BindToObject:        proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, riidResult: REFIID, ppvResult: ^rawptr) -> HRESULT,
+    BindToStorage:       proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, riid: REFIID, ppvObj: ^rawptr) -> HRESULT,
+    Reduce:              proc "system" (this: ^IMoniker, pbc: ^IBindCtx, dwReduceHowFar: DWORD, ppmkToLeft: ^^IMoniker, ppmkReduced: ^^IMoniker) -> HRESULT,
+    ComposeWith:         proc "system" (this: ^IMoniker, pmkRight: ^IMoniker, fOnlyIfNotGeneric: BOOL, ppmkComposite: ^^IMoniker) -> HRESULT,
+    Enum:                proc "system" (this: ^IMoniker, fForward: BOOL, ppenumMoniker: ^^IEnumMoniker) -> HRESULT,
+    IsEqual:             proc "system" (this: ^IMoniker, pmkOtherMoniker: ^IMoniker) -> HRESULT,
+    Hash:                proc "system" (this: ^IMoniker, pdwHash: ^DWORD) -> HRESULT,
+    IsRunning:           proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, pmkNewlyRunning: ^IMoniker) -> HRESULT,
+    GetTimeOfLastChange: proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, pFileTime: ^FILETIME) -> HRESULT,
+    Inverse:             proc "system" (this: ^IMoniker, ppmk: ^^IMoniker) -> HRESULT,
+    CommonPrefixWith:    proc "system" (this: ^IMoniker, pmkOther: ^IMoniker, ppmkPrefix: ^^IMoniker) -> HRESULT,
+    RelativePathTo:      proc "system" (this: ^IMoniker, pmkOther: ^IMoniker, ppmkRelPath: ^^IMoniker) -> HRESULT,
+    GetDisplayName:      proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, ppszDisplayName: ^LPOLESTR) -> HRESULT,
+    ParseDisplayName:    proc "system" (this: ^IMoniker, pbc: ^IBindCtx, pmkToLeft: ^IMoniker, pszDisplayName: LPOLESTR, pchEaten: ^ULONG, ppmkOut: ^^IMoniker) -> HRESULT,
+    IsSystemMoniker:     proc "system" (this: ^IMoniker, pdwMksys: ^DWORD) -> HRESULT,
 }
 
 IEnumMoniker :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IEnumMonikerVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IEnumMonikerVtbl,
 }
 IEnumMonikerVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	Next:  proc "system" (this: ^IEnumMoniker, celt: ULONG, rgelt: ^^IMoniker, pceltFetched: ^ULONG) -> HRESULT,
-	Skip:  proc "system" (this: ^IEnumMoniker, celt: ULONG) -> HRESULT,
-	Reset: proc "system" (this: ^IEnumMoniker) -> HRESULT,
-	Clone: proc "system" (this: ^IEnumMoniker, ppenum: ^^IEnumMoniker) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    Next:  proc "system" (this: ^IEnumMoniker, celt: ULONG, rgelt: ^^IMoniker, pceltFetched: ^ULONG) -> HRESULT,
+    Skip:  proc "system" (this: ^IEnumMoniker, celt: ULONG) -> HRESULT,
+    Reset: proc "system" (this: ^IEnumMoniker) -> HRESULT,
+    Clone: proc "system" (this: ^IEnumMoniker, ppenum: ^^IEnumMoniker) -> HRESULT,
 }
 
 IRunningObjectTable :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IRunningObjectTableVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IRunningObjectTableVtbl,
 }
 IRunningObjectTableVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	Register:            proc "system" (this: ^IRunningObjectTable, grfFlags: DWORD, punkObject: ^IUnknown, pmkObjectName: ^IMoniker, pdwRegister: ^DWORD) -> HRESULT,
-	Revoke:              proc "system" (this: ^IRunningObjectTable, dwRegister: DWORD) -> HRESULT,
-	IsRunning:           proc "system" (this: ^IRunningObjectTable, pmkObjectName: ^IMoniker) -> HRESULT,
-	GetObject:           proc "system" (this: ^IRunningObjectTable, pmkObjectName: ^IMoniker, ppunkObject: ^^IUnknown) -> HRESULT,
-	NoteChangeTime:      proc "system" (this: ^IRunningObjectTable, dwRegister: DWORD, pfiletime: ^FILETIME) -> HRESULT,
-	GetTimeOfLastChange: proc "system" (this: ^IRunningObjectTable, pmkObjectName: ^IMoniker, pfiletime: ^FILETIME) -> HRESULT,
-	EnumRunning:         proc "system" (this: ^IRunningObjectTable, ppenumMoniker: ^^IEnumMoniker) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    Register:            proc "system" (this: ^IRunningObjectTable, grfFlags: DWORD, punkObject: ^IUnknown, pmkObjectName: ^IMoniker, pdwRegister: ^DWORD) -> HRESULT,
+    Revoke:              proc "system" (this: ^IRunningObjectTable, dwRegister: DWORD) -> HRESULT,
+    IsRunning:           proc "system" (this: ^IRunningObjectTable, pmkObjectName: ^IMoniker) -> HRESULT,
+    GetObject:           proc "system" (this: ^IRunningObjectTable, pmkObjectName: ^IMoniker, ppunkObject: ^^IUnknown) -> HRESULT,
+    NoteChangeTime:      proc "system" (this: ^IRunningObjectTable, dwRegister: DWORD, pfiletime: ^FILETIME) -> HRESULT,
+    GetTimeOfLastChange: proc "system" (this: ^IRunningObjectTable, pmkObjectName: ^IMoniker, pfiletime: ^FILETIME) -> HRESULT,
+    EnumRunning:         proc "system" (this: ^IRunningObjectTable, ppenumMoniker: ^^IEnumMoniker) -> HRESULT,
 }
 
 IEnumString :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IEnumStringVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IEnumStringVtbl,
 }
 IEnumStringVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	Next:  proc "system" (this: ^IEnumString, celt: ULONG, rgelt: ^LPOLESTR, pceltFetched: ^ULONG) -> HRESULT,
-	Skip:  proc "system" (this: ^IEnumString, celt: ULONG) -> HRESULT,
-	Reset: proc "system" (this: ^IEnumString) -> HRESULT,
-	Clone: proc "system" (this: ^IEnumString, ppenum: ^^IEnumString) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    Next:  proc "system" (this: ^IEnumString, celt: ULONG, rgelt: ^LPOLESTR, pceltFetched: ^ULONG) -> HRESULT,
+    Skip:  proc "system" (this: ^IEnumString, celt: ULONG) -> HRESULT,
+    Reset: proc "system" (this: ^IEnumString) -> HRESULT,
+    Clone: proc "system" (this: ^IEnumString, ppenum: ^^IEnumString) -> HRESULT,
 }
 
 IBindCtx :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IBindCtxVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IBindCtxVtbl,
 }
 IBindCtxVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	RegisterObjectBound:   proc "system" (this: ^IBindCtx, punk: ^IUnknown) -> HRESULT,
-	RevokeObjectBound:     proc "system" (this: ^IBindCtx, punk: ^IUnknown) -> HRESULT,
-	ReleaseBoundObjects:   proc "system" (this: ^IBindCtx) -> HRESULT,
-	SetBindOptions:        proc "system" (this: ^IBindCtx, pbindopts: ^BIND_OPTS) -> HRESULT,
-	GetBindOptions:        proc "system" (this: ^IBindCtx, pbindopts: ^BIND_OPTS) -> HRESULT,
-	GetRunningObjectTable: proc "system" (this: ^IBindCtx, pprot: ^^IRunningObjectTable) -> HRESULT,
-	RegisterObjectParam:   proc "system" (this: ^IBindCtx, pszKey: LPOLESTR, punk: ^IUnknown) -> HRESULT,
-	GetObjectParam:        proc "system" (this: ^IBindCtx, pszKey: LPOLESTR, ppunk: ^^IUnknown) -> HRESULT,
-	EnumObjectParam:       proc "system" (this: ^IBindCtx, ppenum: ^^IEnumString) -> HRESULT,
-	RevokeObjectParam:     proc "system" (this: ^IBindCtx, pszKey: LPOLESTR) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    RegisterObjectBound:   proc "system" (this: ^IBindCtx, punk: ^IUnknown) -> HRESULT,
+    RevokeObjectBound:     proc "system" (this: ^IBindCtx, punk: ^IUnknown) -> HRESULT,
+    ReleaseBoundObjects:   proc "system" (this: ^IBindCtx) -> HRESULT,
+    SetBindOptions:        proc "system" (this: ^IBindCtx, pbindopts: ^BIND_OPTS) -> HRESULT,
+    GetBindOptions:        proc "system" (this: ^IBindCtx, pbindopts: ^BIND_OPTS) -> HRESULT,
+    GetRunningObjectTable: proc "system" (this: ^IBindCtx, pprot: ^^IRunningObjectTable) -> HRESULT,
+    RegisterObjectParam:   proc "system" (this: ^IBindCtx, pszKey: LPOLESTR, punk: ^IUnknown) -> HRESULT,
+    GetObjectParam:        proc "system" (this: ^IBindCtx, pszKey: LPOLESTR, ppunk: ^^IUnknown) -> HRESULT,
+    EnumObjectParam:       proc "system" (this: ^IBindCtx, ppenum: ^^IEnumString) -> HRESULT,
+    RevokeObjectParam:     proc "system" (this: ^IBindCtx, pszKey: LPOLESTR) -> HRESULT,
 }
 
 IEnumShellItems :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IEnumShellItemsVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IEnumShellItemsVtbl,
 }
 IEnumShellItemsVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	Next:  proc "system" (this: ^IEnumShellItems, celt: ULONG, rgelt: ^^IShellItem, pceltFetched: ^ULONG) -> HRESULT,
-	Skip:  proc "system" (this: ^IEnumShellItems, celt: ULONG) -> HRESULT,
-	Reset: proc "system" (this: ^IEnumShellItems) -> HRESULT,
-	Clone: proc "system" (this: ^IEnumShellItems, ppenum: ^^IEnumShellItems) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    Next:  proc "system" (this: ^IEnumShellItems, celt: ULONG, rgelt: ^^IShellItem, pceltFetched: ^ULONG) -> HRESULT,
+    Skip:  proc "system" (this: ^IEnumShellItems, celt: ULONG) -> HRESULT,
+    Reset: proc "system" (this: ^IEnumShellItems) -> HRESULT,
+    Clone: proc "system" (this: ^IEnumShellItems, ppenum: ^^IEnumShellItems) -> HRESULT,
 }
 
 IShellItem :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IShellItemVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IShellItemVtbl,
 }
 IShellItemVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	BindToHandler:  proc "system" (this: ^IShellItem, pbc: ^IBindCtx, bhid: REFGUID, riid: REFIID, ppv: ^rawptr) -> HRESULT,
-	GetParent:      proc "system" (this: ^IShellItem, ppsiFolder: ^^IShellItem) -> HRESULT,
-	GetDisplayName: proc "system" (this: ^IShellItem, sigdnName: SIGDN, ppszName: ^LPWSTR) -> HRESULT,
-	GetAttributes:  proc "system" (this: ^IShellItem, sfgaoMask: SFGAOF, psfgaoAttribs: ^SFGAOF) -> HRESULT,
-	Compare:        proc "system" (this: ^IShellItem, psi: ^IShellItem, hint: SICHINTF, piOrder: ^c_int) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    BindToHandler:  proc "system" (this: ^IShellItem, pbc: ^IBindCtx, bhid: REFGUID, riid: REFIID, ppv: ^rawptr) -> HRESULT,
+    GetParent:      proc "system" (this: ^IShellItem, ppsiFolder: ^^IShellItem) -> HRESULT,
+    GetDisplayName: proc "system" (this: ^IShellItem, sigdnName: SIGDN, ppszName: ^LPWSTR) -> HRESULT,
+    GetAttributes:  proc "system" (this: ^IShellItem, sfgaoMask: SFGAOF, psfgaoAttribs: ^SFGAOF) -> HRESULT,
+    Compare:        proc "system" (this: ^IShellItem, psi: ^IShellItem, hint: SICHINTF, piOrder: ^c_int) -> HRESULT,
 }
 
 IShellItemArray :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IShellItemArrayVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IShellItemArrayVtbl,
 }
 IShellItemArrayVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	BindToHandler:              proc "system" (this: ^IShellItemArray, pbc: ^IBindCtx, bhid: REFGUID, riid: REFIID, ppvOut: ^rawptr) -> HRESULT,
-	GetPropertyStore:           proc "system" (this: ^IShellItemArray, flags: GETPROPERTYSTOREFLAGS, riid: REFIID, ppv: ^rawptr) -> HRESULT,
-	GetPropertyDescriptionList: proc "system" (this: ^IShellItemArray, keyType: REFPROPERTYKEY, riid: REFIID, ppv: ^rawptr) -> HRESULT,
-	GetAttributes:              proc "system" (this: ^IShellItemArray, AttribFlags: SIATTRIBFLAGS, sfgaoMask: SFGAOF, psfgaoAttribs: ^SFGAOF) -> HRESULT,
-	GetCount:                   proc "system" (this: ^IShellItemArray, pdwNumItems: ^DWORD) -> HRESULT,
-	GetItemAt:                  proc "system" (this: ^IShellItemArray, dwIndex: DWORD, ppsi: ^^IShellItem) -> HRESULT,
-	EnumItems:                  proc "system" (this: ^IShellItemArray, ppenumShellItems: ^^IEnumShellItems) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    BindToHandler:              proc "system" (this: ^IShellItemArray, pbc: ^IBindCtx, bhid: REFGUID, riid: REFIID, ppvOut: ^rawptr) -> HRESULT,
+    GetPropertyStore:           proc "system" (this: ^IShellItemArray, flags: GETPROPERTYSTOREFLAGS, riid: REFIID, ppv: ^rawptr) -> HRESULT,
+    GetPropertyDescriptionList: proc "system" (this: ^IShellItemArray, keyType: REFPROPERTYKEY, riid: REFIID, ppv: ^rawptr) -> HRESULT,
+    GetAttributes:              proc "system" (this: ^IShellItemArray, AttribFlags: SIATTRIBFLAGS, sfgaoMask: SFGAOF, psfgaoAttribs: ^SFGAOF) -> HRESULT,
+    GetCount:                   proc "system" (this: ^IShellItemArray, pdwNumItems: ^DWORD) -> HRESULT,
+    GetItemAt:                  proc "system" (this: ^IShellItemArray, dwIndex: DWORD, ppsi: ^^IShellItem) -> HRESULT,
+    EnumItems:                  proc "system" (this: ^IShellItemArray, ppenumShellItems: ^^IEnumShellItems) -> HRESULT,
 }
 
 IFileDialogEvents :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IFileDialogEventsVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IFileDialogEventsVtbl,
 }
 IFileDialogEventsVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	OnFileOk:          proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
-	OnFolderChanging:  proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog, psiFolder: ^IShellItem) -> HRESULT,
-	OnFolderChange:    proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
-	OnSelectionChange: proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
-	OnShareViolation:  proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog, psi: ^IShellItem, pResponse: ^FDE_SHAREVIOLATION_RESPONSE) -> HRESULT,
-	OnTypeChange:      proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
-	OnOverwrite:       proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog, psi: ^IShellItem, pResponse: ^FDE_SHAREVIOLATION_RESPONSE) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    OnFileOk:          proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
+    OnFolderChanging:  proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog, psiFolder: ^IShellItem) -> HRESULT,
+    OnFolderChange:    proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
+    OnSelectionChange: proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
+    OnShareViolation:  proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog, psi: ^IShellItem, pResponse: ^FDE_SHAREVIOLATION_RESPONSE) -> HRESULT,
+    OnTypeChange:      proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog) -> HRESULT,
+    OnOverwrite:       proc "system" (this: ^IFileDialogEvents, pfd: ^IFileDialog, psi: ^IShellItem, pResponse: ^FDE_SHAREVIOLATION_RESPONSE) -> HRESULT,
 }
 
 IShellItemFilter :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IShellItemFilterVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IShellItemFilterVtbl,
 }
 IShellItemFilterVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	IncludeItem:         proc "system" (this: ^IShellItemFilter, psi: ^IShellItem) -> HRESULT,
-	GetEnumFlagsForItem: proc "system" (this: ^IShellItemFilter, psi: ^IShellItem, pgrfFlags: ^SHCONTF) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    IncludeItem:         proc "system" (this: ^IShellItemFilter, psi: ^IShellItem) -> HRESULT,
+    GetEnumFlagsForItem: proc "system" (this: ^IShellItemFilter, psi: ^IShellItem, pgrfFlags: ^SHCONTF) -> HRESULT,
 }
 
 IFileDialog :: struct #raw_union {
-	#subtype IModalWindow: IModalWindow,
-	using Vtbl: ^IFileDialogVtbl,
+    #subtype IModalWindow: IModalWindow,
+    using Vtbl: ^IFileDialogVtbl,
 }
 IFileDialogVtbl :: struct {
-	using IModalWindowVtbl: IModalWindowVtbl,
-	SetFileTypes:        proc "system" (this: ^IFileDialog, cFileTypes: UINT, rgFilterSpec: ^COMDLG_FILTERSPEC) -> HRESULT,
-	SetFileTypeIndex:    proc "system" (this: ^IFileDialog, iFileType: UINT) -> HRESULT,
-	GetFileTypeIndex:    proc "system" (this: ^IFileDialog, piFileType: ^UINT) -> HRESULT,
-	Advise:              proc "system" (this: ^IFileDialog, pfde: ^IFileDialogEvents, pdwCookie: ^DWORD) -> HRESULT,
-	Unadvise:            proc "system" (this: ^IFileDialog, dwCookie: DWORD) -> HRESULT,
-	SetOptions:          proc "system" (this: ^IFileDialog, fos: FILEOPENDIALOGOPTIONS) -> HRESULT,
-	GetOptions:          proc "system" (this: ^IFileDialog, pfos: ^FILEOPENDIALOGOPTIONS) -> HRESULT,
-	SetDefaultFolder:    proc "system" (this: ^IFileDialog, psi: ^IShellItem) -> HRESULT,
-	SetFolder:           proc "system" (this: ^IFileDialog, psi: ^IShellItem) -> HRESULT,
-	GetFolder:           proc "system" (this: ^IFileDialog, ppsi: ^^IShellItem) -> HRESULT,
-	GetCurrentSelection: proc "system" (this: ^IFileDialog, ppsi: ^^IShellItem) -> HRESULT,
-	SetFileName:         proc "system" (this: ^IFileDialog, pszName: LPCWSTR) -> HRESULT,
-	GetFileName:         proc "system" (this: ^IFileDialog, pszName: ^LPCWSTR) -> HRESULT,
-	SetTitle:            proc "system" (this: ^IFileDialog, pszTitle: LPCWSTR) -> HRESULT,
-	SetOkButtonLabel:    proc "system" (this: ^IFileDialog, pszText: LPCWSTR) -> HRESULT,
-	SetFileNameLabel:    proc "system" (this: ^IFileDialog, pszLabel: LPCWSTR) -> HRESULT,
-	GetResult:           proc "system" (this: ^IFileDialog, ppsi: ^^IShellItem) -> HRESULT,
-	AddPlace:            proc "system" (this: ^IFileDialog, psi: ^IShellItem, fdap: FDAP) -> HRESULT,
-	SetDefaultExtension: proc "system" (this: ^IFileDialog, pszDefaultExtension: LPCWSTR) -> HRESULT,
-	Close:               proc "system" (this: ^IFileDialog, hr: HRESULT) -> HRESULT,
-	SetClientGuid:       proc "system" (this: ^IFileDialog, guid: REFGUID) -> HRESULT,
-	ClearClientData:     proc "system" (this: ^IFileDialog) -> HRESULT,
-	SetFilter:           proc "system" (this: ^IFileDialog, pFilter: ^IShellItemFilter) -> HRESULT,
+    using IModalWindowVtbl: IModalWindowVtbl,
+    SetFileTypes:        proc "system" (this: ^IFileDialog, cFileTypes: UINT, rgFilterSpec: ^COMDLG_FILTERSPEC) -> HRESULT,
+    SetFileTypeIndex:    proc "system" (this: ^IFileDialog, iFileType: UINT) -> HRESULT,
+    GetFileTypeIndex:    proc "system" (this: ^IFileDialog, piFileType: ^UINT) -> HRESULT,
+    Advise:              proc "system" (this: ^IFileDialog, pfde: ^IFileDialogEvents, pdwCookie: ^DWORD) -> HRESULT,
+    Unadvise:            proc "system" (this: ^IFileDialog, dwCookie: DWORD) -> HRESULT,
+    SetOptions:          proc "system" (this: ^IFileDialog, fos: FILEOPENDIALOGOPTIONS) -> HRESULT,
+    GetOptions:          proc "system" (this: ^IFileDialog, pfos: ^FILEOPENDIALOGOPTIONS) -> HRESULT,
+    SetDefaultFolder:    proc "system" (this: ^IFileDialog, psi: ^IShellItem) -> HRESULT,
+    SetFolder:           proc "system" (this: ^IFileDialog, psi: ^IShellItem) -> HRESULT,
+    GetFolder:           proc "system" (this: ^IFileDialog, ppsi: ^^IShellItem) -> HRESULT,
+    GetCurrentSelection: proc "system" (this: ^IFileDialog, ppsi: ^^IShellItem) -> HRESULT,
+    SetFileName:         proc "system" (this: ^IFileDialog, pszName: LPCWSTR) -> HRESULT,
+    GetFileName:         proc "system" (this: ^IFileDialog, pszName: ^LPCWSTR) -> HRESULT,
+    SetTitle:            proc "system" (this: ^IFileDialog, pszTitle: LPCWSTR) -> HRESULT,
+    SetOkButtonLabel:    proc "system" (this: ^IFileDialog, pszText: LPCWSTR) -> HRESULT,
+    SetFileNameLabel:    proc "system" (this: ^IFileDialog, pszLabel: LPCWSTR) -> HRESULT,
+    GetResult:           proc "system" (this: ^IFileDialog, ppsi: ^^IShellItem) -> HRESULT,
+    AddPlace:            proc "system" (this: ^IFileDialog, psi: ^IShellItem, fdap: FDAP) -> HRESULT,
+    SetDefaultExtension: proc "system" (this: ^IFileDialog, pszDefaultExtension: LPCWSTR) -> HRESULT,
+    Close:               proc "system" (this: ^IFileDialog, hr: HRESULT) -> HRESULT,
+    SetClientGuid:       proc "system" (this: ^IFileDialog, guid: REFGUID) -> HRESULT,
+    ClearClientData:     proc "system" (this: ^IFileDialog) -> HRESULT,
+    SetFilter:           proc "system" (this: ^IFileDialog, pFilter: ^IShellItemFilter) -> HRESULT,
 }
 
 IFileOpenDialog :: struct #raw_union {
-	#subtype IFileDialog: IFileDialog,
-	using Vtbl: ^IFileOpenDialogVtbl,
+    #subtype IFileDialog: IFileDialog,
+    using Vtbl: ^IFileOpenDialogVtbl,
 }
 IFileOpenDialogVtbl :: struct {
-	using IFileDialogVtbl: IFileDialogVtbl,
-	GetResults:       proc "system" (this: ^IFileOpenDialog, ppenum: ^^IShellItemArray) -> HRESULT,
-	GetSelectedItems: proc "system" (this: ^IFileOpenDialog, ppsai: ^^IShellItemArray) -> HRESULT,
+    using IFileDialogVtbl: IFileDialogVtbl,
+    GetResults:       proc "system" (this: ^IFileOpenDialog, ppenum: ^^IShellItemArray) -> HRESULT,
+    GetSelectedItems: proc "system" (this: ^IFileOpenDialog, ppsai: ^^IShellItemArray) -> HRESULT,
 }
 
 IPropertyStore :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IPropertyStoreVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IPropertyStoreVtbl,
 }
 IPropertyStoreVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	GetCount: proc "system" (this: ^IPropertyStore, cProps: ^DWORD) -> HRESULT,
-	GetAt:    proc "system" (this: ^IPropertyStore, iProp: DWORD, pkey: ^PROPERTYKEY) -> HRESULT,
-	GetValue: proc "system" (this: ^IPropertyStore, key: REFPROPERTYKEY, pv: ^PROPVARIANT) -> HRESULT,
-	SetValue: proc "system" (this: ^IPropertyStore, key: REFPROPERTYKEY, propvar: REFPROPVARIANT) -> HRESULT,
-	Commit:   proc "system" (this: ^IPropertyStore) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    GetCount: proc "system" (this: ^IPropertyStore, cProps: ^DWORD) -> HRESULT,
+    GetAt:    proc "system" (this: ^IPropertyStore, iProp: DWORD, pkey: ^PROPERTYKEY) -> HRESULT,
+    GetValue: proc "system" (this: ^IPropertyStore, key: REFPROPERTYKEY, pv: ^PROPVARIANT) -> HRESULT,
+    SetValue: proc "system" (this: ^IPropertyStore, key: REFPROPERTYKEY, propvar: REFPROPVARIANT) -> HRESULT,
+    Commit:   proc "system" (this: ^IPropertyStore) -> HRESULT,
 }
 
 IPropertyDescriptionList :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IPropertyDescriptionListVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IPropertyDescriptionListVtbl,
 }
 IPropertyDescriptionListVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	GetCount: proc "system" (this: ^IPropertyDescriptionList, pcElem: ^UINT) -> HRESULT,
-	GetAt:    proc "system" (this: ^IPropertyDescriptionList, iElem: UINT, riid: REFIID, ppv: ^rawptr) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    GetCount: proc "system" (this: ^IPropertyDescriptionList, pcElem: ^UINT) -> HRESULT,
+    GetAt:    proc "system" (this: ^IPropertyDescriptionList, iElem: UINT, riid: REFIID, ppv: ^rawptr) -> HRESULT,
 }
 
 IFileOperationProgressSink :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^IFileOperationProgressSinkVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^IFileOperationProgressSinkVtbl,
 }
 IFileOperationProgressSinkVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	StartOperations:  proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
-	FinishOperations: proc "system" (this: ^IFileOperationProgressSink, hrResult: HRESULT) -> HRESULT,
-	PreRenameItem:    proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
-	PostRenameItem:   proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, pszNewName: LPCWSTR, hrRename: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
-	PreMoveItem:      proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
-	PostMoveItem:     proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR, hrMove: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
-	PreCopyItem:      proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
-	PostCopyItem:     proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR, hrMove: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
-	PreDeleteItem:    proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem) -> HRESULT,
-	PostDeleteItem:   proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, hrDelete: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
-	PreNewItem:       proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
-	PostNewItem:      proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR, pszTemplateName: LPCWSTR, dwFileAttributes: DWORD, hrNew: HRESULT, psiNewItem: ^IShellItem) -> HRESULT,
-	UpdateProgress:   proc "system" (this: ^IFileOperationProgressSink, iWorkTotal: UINT, iWorkSoFar: UINT) -> HRESULT,
-	ResetTimer:       proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
-	PauseTimer:       proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
-	ResumeTimer:      proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    StartOperations:  proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
+    FinishOperations: proc "system" (this: ^IFileOperationProgressSink, hrResult: HRESULT) -> HRESULT,
+    PreRenameItem:    proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
+    PostRenameItem:   proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, pszNewName: LPCWSTR, hrRename: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
+    PreMoveItem:      proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
+    PostMoveItem:     proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR, hrMove: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
+    PreCopyItem:      proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
+    PostCopyItem:     proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR, hrMove: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
+    PreDeleteItem:    proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem) -> HRESULT,
+    PostDeleteItem:   proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiItem: ^IShellItem, hrDelete: HRESULT, psiNewlyCreated: ^IShellItem) -> HRESULT,
+    PreNewItem:       proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR) -> HRESULT,
+    PostNewItem:      proc "system" (this: ^IFileOperationProgressSink, dwFlags: DWORD, psiDestinationFolder: ^IShellItem, pszNewName: LPCWSTR, pszTemplateName: LPCWSTR, dwFileAttributes: DWORD, hrNew: HRESULT, psiNewItem: ^IShellItem) -> HRESULT,
+    UpdateProgress:   proc "system" (this: ^IFileOperationProgressSink, iWorkTotal: UINT, iWorkSoFar: UINT) -> HRESULT,
+    ResetTimer:       proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
+    PauseTimer:       proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
+    ResumeTimer:      proc "system" (this: ^IFileOperationProgressSink) -> HRESULT,
 }
 
 IFileSaveDialog :: struct #raw_union {
-	#subtype IFileDialog: IFileDialog,
-	using Vtbl: ^IFileSaveDialogVtbl,
+    #subtype IFileDialog: IFileDialog,
+    using Vtbl: ^IFileSaveDialogVtbl,
 }
 IFileSaveDialogVtbl :: struct {
-	using IFileDialogVtbl: IFileDialogVtbl,
-	SetSaveAsItem:          proc "system" (this: ^IFileSaveDialog, psi: ^IShellItem) -> HRESULT,
-	SetProperties:          proc "system" (this: ^IFileSaveDialog, pStore: ^IPropertyStore) -> HRESULT,
-	SetCollectedProperties: proc "system" (this: ^IFileSaveDialog, pList: ^IPropertyDescriptionList, fAppendDefault: BOOL) -> HRESULT,
-	GetProperties:          proc "system" (this: ^IFileSaveDialog, ppStore: ^^IPropertyStore) -> HRESULT,
-	ApplyProperties:        proc "system" (this: ^IFileSaveDialog, psi: ^IShellItem, pStore: ^IPropertyStore, hwnd: HWND, pSink: ^IFileOperationProgressSink) -> HRESULT,
+    using IFileDialogVtbl: IFileDialogVtbl,
+    SetSaveAsItem:          proc "system" (this: ^IFileSaveDialog, psi: ^IShellItem) -> HRESULT,
+    SetProperties:          proc "system" (this: ^IFileSaveDialog, pStore: ^IPropertyStore) -> HRESULT,
+    SetCollectedProperties: proc "system" (this: ^IFileSaveDialog, pList: ^IPropertyDescriptionList, fAppendDefault: BOOL) -> HRESULT,
+    GetProperties:          proc "system" (this: ^IFileSaveDialog, ppStore: ^^IPropertyStore) -> HRESULT,
+    ApplyProperties:        proc "system" (this: ^IFileSaveDialog, psi: ^IShellItem, pStore: ^IPropertyStore, hwnd: HWND, pSink: ^IFileOperationProgressSink) -> HRESULT,
 }
 
 ITaskbarList :: struct #raw_union {
-	#subtype IUnknown: IUnknown,
-	using Vtbl: ^ITaskbarListVtbl,
+    #subtype IUnknown: IUnknown,
+    using Vtbl: ^ITaskbarListVtbl,
 }
 ITaskbarListVtbl :: struct {
-	using IUnknownVtbl: IUnknownVtbl,
-	HrInit: proc "system" (this: ^ITaskbarList) -> HRESULT,
-	AddTab: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
-	DeleteTab: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
-	ActivateTab: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
-	SetActiveAlt: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
+    using IUnknownVtbl: IUnknownVtbl,
+    HrInit: proc "system" (this: ^ITaskbarList) -> HRESULT,
+    AddTab: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
+    DeleteTab: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
+    ActivateTab: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
+    SetActiveAlt: proc "system" (this: ^ITaskbarList, hwnd: HWND) -> HRESULT,
 }
 
 ITaskbarList2 :: struct #raw_union {
-	#subtype ITaskbarList: ITaskbarList,
-	using Vtbl: ^ITaskbarList2Vtbl,
+    #subtype ITaskbarList: ITaskbarList,
+    using Vtbl: ^ITaskbarList2Vtbl,
 }
 ITaskbarList2Vtbl :: struct {
-	using ITaskbarListVtbl: ITaskbarListVtbl,
-	MarkFullscreenWindow: proc "system" (this: ^ITaskbarList2, hwnd: HWND, fFullscreen: BOOL) -> HRESULT,
+    using ITaskbarListVtbl: ITaskbarListVtbl,
+    MarkFullscreenWindow: proc "system" (this: ^ITaskbarList2, hwnd: HWND, fFullscreen: BOOL) -> HRESULT,
 }
 
 TBPFLAG :: enum c_int {
-	NOPROGRESS    = 0,
-	INDETERMINATE = 0x1,
-	NORMAL        = 0x2,
-	ERROR         = 0x4,
-	PAUSED        = 0x8,
+    NOPROGRESS    = 0,
+    INDETERMINATE = 0x1,
+    NORMAL        = 0x2,
+    ERROR         = 0x4,
+    PAUSED        = 0x8,
 }
 
 THUMBBUTTONFLAGS :: enum c_int {
-	ENABLED        = 0,
-	DISABLED       = 0x1,
-	DISMISSONCLICK = 0x2,
-	NOBACKGROUND   = 0x4,
-	HIDDEN         = 0x8,
-	NONINTERACTIVE = 0x10,
+    ENABLED        = 0,
+    DISABLED       = 0x1,
+    DISMISSONCLICK = 0x2,
+    NOBACKGROUND   = 0x4,
+    HIDDEN         = 0x8,
+    NONINTERACTIVE = 0x10,
 }
 
 THUMBBUTTONMASK :: enum c_int {
-	BITMAP  = 0x1,
-	ICON    = 0x2,
-	TOOLTIP = 0x4,
-	FLAGS   = 0x8,
+    BITMAP  = 0x1,
+    ICON    = 0x2,
+    TOOLTIP = 0x4,
+    FLAGS   = 0x8,
 }
 
 THUMBBUTTON :: struct {
-	dwMask: THUMBBUTTONMASK,
-	iId: UINT,
-	iBitmap: UINT,
-	hIcon: HICON,
-	szTip: [260]WCHAR,
-	dwFlags: THUMBBUTTONFLAGS,
+    dwMask: THUMBBUTTONMASK,
+    iId: UINT,
+    iBitmap: UINT,
+    hIcon: HICON,
+    szTip: [260]WCHAR,
+    dwFlags: THUMBBUTTONFLAGS,
 }
 LPTHUMBBUTTON :: ^THUMBBUTTON
 
 HIMAGELIST :: ^IUnknown
 
 ITaskbarList3 :: struct #raw_union {
-	#subtype ITaskbarList2: ITaskbarList2,
-	using Vtbl: ^ITaskbarList3Vtbl,
+    #subtype ITaskbarList2: ITaskbarList2,
+    using Vtbl: ^ITaskbarList3Vtbl,
 }
 ITaskbarList3Vtbl :: struct {
-	using ITaskbarList2Vtbl: ITaskbarList2Vtbl,
-	SetProgressValue: proc "system" (this: ^ITaskbarList3, hwnd: HWND, ullCompleted: ULONGLONG, ullTotal: ULONGLONG) -> HRESULT,
-	SetProgressState: proc "system" (this: ^ITaskbarList3, hwnd: HWND, tbpFlags: TBPFLAG) -> HRESULT,
-	RegisterTab: proc "system" (this: ^ITaskbarList3, hwndTab: HWND, hwndMDI: HWND) -> HRESULT,
-	UnregisterTab: proc "system" (this: ^ITaskbarList3, hwndTab: HWND) -> HRESULT,
-	SetTabOrder: proc "system" (this: ^ITaskbarList3, hwndTab: HWND, hwndInsertBefore: HWND) -> HRESULT,
-	SetTabActive: proc "system" (this: ^ITaskbarList3, hwndTab: HWND, hwndMDI: HWND, dwReserved: DWORD) -> HRESULT,
-	ThumbBarAddButtons: proc "system" (this: ^ITaskbarList3, hwnd: HWND, cButtons: UINT, pButton: LPTHUMBBUTTON) -> HRESULT,
-	ThumbBarUpdateButtons: proc "system" (this: ^ITaskbarList3, hwnd: HWND, cButtons: UINT, pButton: LPTHUMBBUTTON) -> HRESULT,
-	ThumbBarSetImageList: proc "system" (this: ^ITaskbarList3, hwnd: HWND, himl: HIMAGELIST) -> HRESULT,
-	SetOverlayIcon: proc "system" (this: ^ITaskbarList3, hwnd: HWND, hIcon: HICON, pszDescription: LPCWSTR) -> HRESULT,
-	SetThumbnailTooltip: proc "system" (this: ^ITaskbarList3, hwnd: HWND, pszTip: LPCWSTR) -> HRESULT,
-	SetThumbnailClip: proc "system" (this: ^ITaskbarList3, hwnd: HWND, prcClip: ^RECT) -> HRESULT,
+    using ITaskbarList2Vtbl: ITaskbarList2Vtbl,
+    SetProgressValue: proc "system" (this: ^ITaskbarList3, hwnd: HWND, ullCompleted: ULONGLONG, ullTotal: ULONGLONG) -> HRESULT,
+    SetProgressState: proc "system" (this: ^ITaskbarList3, hwnd: HWND, tbpFlags: TBPFLAG) -> HRESULT,
+    RegisterTab: proc "system" (this: ^ITaskbarList3, hwndTab: HWND, hwndMDI: HWND) -> HRESULT,
+    UnregisterTab: proc "system" (this: ^ITaskbarList3, hwndTab: HWND) -> HRESULT,
+    SetTabOrder: proc "system" (this: ^ITaskbarList3, hwndTab: HWND, hwndInsertBefore: HWND) -> HRESULT,
+    SetTabActive: proc "system" (this: ^ITaskbarList3, hwndTab: HWND, hwndMDI: HWND, dwReserved: DWORD) -> HRESULT,
+    ThumbBarAddButtons: proc "system" (this: ^ITaskbarList3, hwnd: HWND, cButtons: UINT, pButton: LPTHUMBBUTTON) -> HRESULT,
+    ThumbBarUpdateButtons: proc "system" (this: ^ITaskbarList3, hwnd: HWND, cButtons: UINT, pButton: LPTHUMBBUTTON) -> HRESULT,
+    ThumbBarSetImageList: proc "system" (this: ^ITaskbarList3, hwnd: HWND, himl: HIMAGELIST) -> HRESULT,
+    SetOverlayIcon: proc "system" (this: ^ITaskbarList3, hwnd: HWND, hIcon: HICON, pszDescription: LPCWSTR) -> HRESULT,
+    SetThumbnailTooltip: proc "system" (this: ^ITaskbarList3, hwnd: HWND, pszTip: LPCWSTR) -> HRESULT,
+    SetThumbnailClip: proc "system" (this: ^ITaskbarList3, hwnd: HWND, prcClip: ^RECT) -> HRESULT,
 }
 
 MEMORYSTATUSEX :: struct {
-	dwLength:                DWORD,
-	dwMemoryLoad:            DWORD,
-	ullTotalPhys:            DWORDLONG,
-	ullAvailPhys:            DWORDLONG,
-	ullTotalPageFil:         DWORDLONG,
-	ullAvailPageFil:         DWORDLONG,
-	ullTotalVirtual:         DWORDLONG,
-	ullAvailVirtual:         DWORDLONG,
-	ullAvailExtendedVirtual: DWORDLONG,
+    dwLength:                DWORD,
+    dwMemoryLoad:            DWORD,
+    ullTotalPhys:            DWORDLONG,
+    ullAvailPhys:            DWORDLONG,
+    ullTotalPageFil:         DWORDLONG,
+    ullAvailPageFil:         DWORDLONG,
+    ullTotalVirtual:         DWORDLONG,
+    ullAvailVirtual:         DWORDLONG,
+    ullAvailExtendedVirtual: DWORDLONG,
 }
 
 Windows_Product_Type :: enum DWORD {
-	BUSINESS                            = 0x00000006, // Business
-	BUSINESS_N                          = 0x00000010, // Business N
-	CLUSTER_SERVER                      = 0x00000012, // HPC Edition
-	CLUSTER_SERVER_V                    = 0x00000040, // Server Hyper Core V
-	CORE                                = 0x00000065, // Windows 10 Home
-	CORE_COUNTRYSPECIFIC                = 0x00000063, // Windows 10 Home China
-	CORE_N                              = 0x00000062, // Windows 10 Home N
-	CORE_SINGLELANGUAGE                 = 0x00000064, // Windows 10 Home Single Language
-	DATACENTER_EVALUATION_SERVER        = 0x00000050, // Server Datacenter (evaluation installation)
-	DATACENTER_A_SERVER_CORE            = 0x00000091, // Server Datacenter, Semi-Annual Channel (core installation)
-	STANDARD_A_SERVER_CORE              = 0x00000092, // Server Standard, Semi-Annual Channel (core installation)
-	DATACENTER_SERVER                   = 0x00000008, // Server Datacenter (full installation. For Server Core installations of Windows Server 2012 and later, use the method, Determining whether Server Core is running.)
-	DATACENTER_SERVER_CORE              = 0x0000000C, // Server Datacenter (core installation, Windows Server 2008 R2 and earlier)
-	DATACENTER_SERVER_CORE_V            = 0x00000027, // Server Datacenter without Hyper-V (core installation)
-	DATACENTER_SERVER_V                 = 0x00000025, // Server Datacenter without Hyper-V (full installation)
-	EDUCATION                           = 0x00000079, // Windows 10 Education
-	EDUCATION_N                         = 0x0000007A, // Windows 10 Education N
-	ENTERPRISE                          = 0x00000004, // Windows 10 Enterprise
-	ENTERPRISE_E                        = 0x00000046, // Windows 10 Enterprise E
-	ENTERPRISE_EVALUATION               = 0x00000048, // Windows 10 Enterprise Evaluation
-	ENTERPRISE_N                        = 0x0000001B, // Windows 10 Enterprise N
-	ENTERPRISE_N_EVALUATION             = 0x00000054, // Windows 10 Enterprise N Evaluation
-	ENTERPRISE_S                        = 0x0000007D, // Windows 10 Enterprise 2015 LTSB
-	ENTERPRISE_S_EVALUATION             = 0x00000081, // Windows 10 Enterprise 2015 LTSB Evaluation
-	ENTERPRISE_S_N                      = 0x0000007E, // Windows 10 Enterprise 2015 LTSB N
-	ENTERPRISE_S_N_EVALUATION           = 0x00000082, // Windows 10 Enterprise 2015 LTSB N Evaluation
-	ENTERPRISE_SERVER                   = 0x0000000A, // Server Enterprise (full installation)
-	ENTERPRISE_SERVER_CORE              = 0x0000000E, // Server Enterprise (core installation)
-	ENTERPRISE_SERVER_CORE_V            = 0x00000029, // Server Enterprise without Hyper-V (core installation)
-	ENTERPRISE_SERVER_IA64              = 0x0000000F, // Server Enterprise for Itanium-based Systems
-	ENTERPRISE_SERVER_V                 = 0x00000026, // Server Enterprise without Hyper-V (full installation)
-	ESSENTIALBUSINESS_SERVER_ADDL       = 0x0000003C, // Windows Essential Server Solution Additional
-	ESSENTIALBUSINESS_SERVER_ADDLSVC    = 0x0000003E, // Windows Essential Server Solution Additional SVC
-	ESSENTIALBUSINESS_SERVER_MGMT       = 0x0000003B, // Windows Essential Server Solution Management
-	ESSENTIALBUSINESS_SERVER_MGMTSVC    = 0x0000003D, // Windows Essential Server Solution Management SVC
-	HOME_BASIC                          = 0x00000002, // Home Basic
-	HOME_BASIC_E                        = 0x00000043, // Not supported
-	HOME_BASIC_N                        = 0x00000005, // Home Basic N
-	HOME_PREMIUM                        = 0x00000003, // Home Premium
-	HOME_PREMIUM_E                      = 0x00000044, // Not supported
-	HOME_PREMIUM_N                      = 0x0000001A, // Home Premium N
-	HOME_PREMIUM_SERVER                 = 0x00000022, // Windows Home Server 2011
-	HOME_SERVER                         = 0x00000013, // Windows Storage Server 2008 R2 Essentials
-	HYPERV                              = 0x0000002A, // Microsoft Hyper-V Server
-	IOTENTERPRISE                       = 0x000000BC, // Windows IoT Enterprise
-	IOTENTERPRISE_S                     = 0x000000BF, // Windows IoT Enterprise LTSC
-	IOTUAP                              = 0x0000007B, // Windows 10 IoT Core
-	IOTUAPCOMMERCIAL                    = 0x00000083, // Windows 10 IoT Core Commercial
-	MEDIUMBUSINESS_SERVER_MANAGEMENT    = 0x0000001E, // Windows Essential Business Server Management Server
-	MEDIUMBUSINESS_SERVER_MESSAGING     = 0x00000020, // Windows Essential Business Server Messaging Server
-	MEDIUMBUSINESS_SERVER_SECURITY      = 0x0000001F, // Windows Essential Business Server Security Server
-	MOBILE_CORE                         = 0x00000068, // Windows 10 Mobile
-	MOBILE_ENTERPRISE                   = 0x00000085, // Windows 10 Mobile Enterprise
-	MULTIPOINT_PREMIUM_SERVER           = 0x0000004D, // Windows MultiPoint Server Premium (full installation)
-	MULTIPOINT_STANDARD_SERVER          = 0x0000004C, // Windows MultiPoint Server Standard (full installation)
-	PRO_WORKSTATION                     = 0x000000A1, // Windows 10 Pro for Workstations
-	PRO_WORKSTATION_N                   = 0x000000A2, // Windows 10 Pro for Workstations N
-	PROFESSIONAL                        = 0x00000030, // Windows 10 Pro
-	PROFESSIONAL_E                      = 0x00000045, // Not supported
-	PROFESSIONAL_N                      = 0x00000031, // Windows 10 Pro N
-	PROFESSIONAL_WMC                    = 0x00000067, // Professional with Media Center
-	SB_SOLUTION_SERVER                  = 0x00000032, // Windows Small Business Server 2011 Essentials
-	SB_SOLUTION_SERVER_EM               = 0x00000036, // Server For SB Solutions EM
-	SERVER_FOR_SB_SOLUTIONS             = 0x00000033, // Server For SB Solutions
-	SERVER_FOR_SB_SOLUTIONS_EM          = 0x00000037, // Server For SB Solutions EM
-	SERVER_FOR_SMALLBUSINESS            = 0x00000018, // Windows Server 2008 for Windows Essential Server Solutions
-	SERVER_FOR_SMALLBUSINESS_V          = 0x00000023, // Windows Server 2008 without Hyper-V for Windows Essential Server Solutions
-	SERVER_FOUNDATION                   = 0x00000021, // Server Foundation
-	SMALLBUSINESS_SERVER                = 0x00000009, // Windows Small Business Server
-	SMALLBUSINESS_SERVER_PREMIUM        = 0x00000019, // Small Business Server Premium
-	SMALLBUSINESS_SERVER_PREMIUM_CORE   = 0x0000003F, // Small Business Server Premium (core installation)
-	SOLUTION_EMBEDDEDSERVER             = 0x00000038, // Windows MultiPoint Server
-	STANDARD_EVALUATION_SERVER          = 0x0000004F, // Server Standard (evaluation installation)
-	STANDARD_SERVER                     = 0x00000007, // Server Standard (full installation. For Server Core installations of Windows Server 2012 and later, use the method, Determining whether Server Core is running.)
-	STANDARD_SERVER_CORE                = 0x0000000D, // Server Standard (core installation, Windows Server 2008 R2 and earlier)
-	STANDARD_SERVER_CORE_V              = 0x00000028, // Server Standard without Hyper-V (core installation)
-	STANDARD_SERVER_V                   = 0x00000024, // Server Standard without Hyper-V
-	STANDARD_SERVER_SOLUTIONS           = 0x00000034, // Server Solutions Premium
-	STANDARD_SERVER_SOLUTIONS_CORE      = 0x00000035, // Server Solutions Premium (core installation)
-	STARTER                             = 0x0000000B, // Starter
-	STARTER_E                           = 0x00000042, // Not supported
-	STARTER_N                           = 0x0000002F, // Starter N
-	STORAGE_ENTERPRISE_SERVER           = 0x00000017, // Storage Server Enterprise
-	STORAGE_ENTERPRISE_SERVER_CORE      = 0x0000002E, // Storage Server Enterprise (core installation)
-	STORAGE_EXPRESS_SERVER              = 0x00000014, // Storage Server Express
-	STORAGE_EXPRESS_SERVER_CORE         = 0x0000002B, // Storage Server Express (core installation)
-	STORAGE_STANDARD_EVALUATION_SERVER  = 0x00000060, // Storage Server Standard (evaluation installation)
-	STORAGE_STANDARD_SERVER             = 0x00000015, // Storage Server Standard
-	STORAGE_STANDARD_SERVER_CORE        = 0x0000002C, // Storage Server Standard (core installation)
-	STORAGE_WORKGROUP_EVALUATION_SERVER = 0x0000005F, // Storage Server Workgroup (evaluation installation)
-	STORAGE_WORKGROUP_SERVER            = 0x00000016, // Storage Server Workgroup
-	STORAGE_WORKGROUP_SERVER_CORE       = 0x0000002D, // Storage Server Workgroup (core installation)
-	ULTIMATE                            = 0x00000001, // Ultimate
-	ULTIMATE_E                          = 0x00000047, // Not supported
-	ULTIMATE_N                          = 0x0000001C, // Ultimate N
-	UNDEFINED                           = 0x00000000, // An unknown product
-	WEB_SERVER                          = 0x00000011, // Web Server (full installation)
-	WEB_SERVER_CORE                     = 0x0000001D, // Web Server (core installation)
+    BUSINESS                            = 0x00000006, // Business
+    BUSINESS_N                          = 0x00000010, // Business N
+    CLUSTER_SERVER                      = 0x00000012, // HPC Edition
+    CLUSTER_SERVER_V                    = 0x00000040, // Server Hyper Core V
+    CORE                                = 0x00000065, // Windows 10 Home
+    CORE_COUNTRYSPECIFIC                = 0x00000063, // Windows 10 Home China
+    CORE_N                              = 0x00000062, // Windows 10 Home N
+    CORE_SINGLELANGUAGE                 = 0x00000064, // Windows 10 Home Single Language
+    DATACENTER_EVALUATION_SERVER        = 0x00000050, // Server Datacenter (evaluation installation)
+    DATACENTER_A_SERVER_CORE            = 0x00000091, // Server Datacenter, Semi-Annual Channel (core installation)
+    STANDARD_A_SERVER_CORE              = 0x00000092, // Server Standard, Semi-Annual Channel (core installation)
+    DATACENTER_SERVER                   = 0x00000008, // Server Datacenter (full installation. For Server Core installations of Windows Server 2012 and later, use the method, Determining whether Server Core is running.)
+    DATACENTER_SERVER_CORE              = 0x0000000C, // Server Datacenter (core installation, Windows Server 2008 R2 and earlier)
+    DATACENTER_SERVER_CORE_V            = 0x00000027, // Server Datacenter without Hyper-V (core installation)
+    DATACENTER_SERVER_V                 = 0x00000025, // Server Datacenter without Hyper-V (full installation)
+    EDUCATION                           = 0x00000079, // Windows 10 Education
+    EDUCATION_N                         = 0x0000007A, // Windows 10 Education N
+    ENTERPRISE                          = 0x00000004, // Windows 10 Enterprise
+    ENTERPRISE_E                        = 0x00000046, // Windows 10 Enterprise E
+    ENTERPRISE_EVALUATION               = 0x00000048, // Windows 10 Enterprise Evaluation
+    ENTERPRISE_N                        = 0x0000001B, // Windows 10 Enterprise N
+    ENTERPRISE_N_EVALUATION             = 0x00000054, // Windows 10 Enterprise N Evaluation
+    ENTERPRISE_S                        = 0x0000007D, // Windows 10 Enterprise 2015 LTSB
+    ENTERPRISE_S_EVALUATION             = 0x00000081, // Windows 10 Enterprise 2015 LTSB Evaluation
+    ENTERPRISE_S_N                      = 0x0000007E, // Windows 10 Enterprise 2015 LTSB N
+    ENTERPRISE_S_N_EVALUATION           = 0x00000082, // Windows 10 Enterprise 2015 LTSB N Evaluation
+    ENTERPRISE_SERVER                   = 0x0000000A, // Server Enterprise (full installation)
+    ENTERPRISE_SERVER_CORE              = 0x0000000E, // Server Enterprise (core installation)
+    ENTERPRISE_SERVER_CORE_V            = 0x00000029, // Server Enterprise without Hyper-V (core installation)
+    ENTERPRISE_SERVER_IA64              = 0x0000000F, // Server Enterprise for Itanium-based Systems
+    ENTERPRISE_SERVER_V                 = 0x00000026, // Server Enterprise without Hyper-V (full installation)
+    ESSENTIALBUSINESS_SERVER_ADDL       = 0x0000003C, // Windows Essential Server Solution Additional
+    ESSENTIALBUSINESS_SERVER_ADDLSVC    = 0x0000003E, // Windows Essential Server Solution Additional SVC
+    ESSENTIALBUSINESS_SERVER_MGMT       = 0x0000003B, // Windows Essential Server Solution Management
+    ESSENTIALBUSINESS_SERVER_MGMTSVC    = 0x0000003D, // Windows Essential Server Solution Management SVC
+    HOME_BASIC                          = 0x00000002, // Home Basic
+    HOME_BASIC_E                        = 0x00000043, // Not supported
+    HOME_BASIC_N                        = 0x00000005, // Home Basic N
+    HOME_PREMIUM                        = 0x00000003, // Home Premium
+    HOME_PREMIUM_E                      = 0x00000044, // Not supported
+    HOME_PREMIUM_N                      = 0x0000001A, // Home Premium N
+    HOME_PREMIUM_SERVER                 = 0x00000022, // Windows Home Server 2011
+    HOME_SERVER                         = 0x00000013, // Windows Storage Server 2008 R2 Essentials
+    HYPERV                              = 0x0000002A, // Microsoft Hyper-V Server
+    IOTENTERPRISE                       = 0x000000BC, // Windows IoT Enterprise
+    IOTENTERPRISE_S                     = 0x000000BF, // Windows IoT Enterprise LTSC
+    IOTUAP                              = 0x0000007B, // Windows 10 IoT Core
+    IOTUAPCOMMERCIAL                    = 0x00000083, // Windows 10 IoT Core Commercial
+    MEDIUMBUSINESS_SERVER_MANAGEMENT    = 0x0000001E, // Windows Essential Business Server Management Server
+    MEDIUMBUSINESS_SERVER_MESSAGING     = 0x00000020, // Windows Essential Business Server Messaging Server
+    MEDIUMBUSINESS_SERVER_SECURITY      = 0x0000001F, // Windows Essential Business Server Security Server
+    MOBILE_CORE                         = 0x00000068, // Windows 10 Mobile
+    MOBILE_ENTERPRISE                   = 0x00000085, // Windows 10 Mobile Enterprise
+    MULTIPOINT_PREMIUM_SERVER           = 0x0000004D, // Windows MultiPoint Server Premium (full installation)
+    MULTIPOINT_STANDARD_SERVER          = 0x0000004C, // Windows MultiPoint Server Standard (full installation)
+    PRO_WORKSTATION                     = 0x000000A1, // Windows 10 Pro for Workstations
+    PRO_WORKSTATION_N                   = 0x000000A2, // Windows 10 Pro for Workstations N
+    PROFESSIONAL                        = 0x00000030, // Windows 10 Pro
+    PROFESSIONAL_E                      = 0x00000045, // Not supported
+    PROFESSIONAL_N                      = 0x00000031, // Windows 10 Pro N
+    PROFESSIONAL_WMC                    = 0x00000067, // Professional with Media Center
+    SB_SOLUTION_SERVER                  = 0x00000032, // Windows Small Business Server 2011 Essentials
+    SB_SOLUTION_SERVER_EM               = 0x00000036, // Server For SB Solutions EM
+    SERVER_FOR_SB_SOLUTIONS             = 0x00000033, // Server For SB Solutions
+    SERVER_FOR_SB_SOLUTIONS_EM          = 0x00000037, // Server For SB Solutions EM
+    SERVER_FOR_SMALLBUSINESS            = 0x00000018, // Windows Server 2008 for Windows Essential Server Solutions
+    SERVER_FOR_SMALLBUSINESS_V          = 0x00000023, // Windows Server 2008 without Hyper-V for Windows Essential Server Solutions
+    SERVER_FOUNDATION                   = 0x00000021, // Server Foundation
+    SMALLBUSINESS_SERVER                = 0x00000009, // Windows Small Business Server
+    SMALLBUSINESS_SERVER_PREMIUM        = 0x00000019, // Small Business Server Premium
+    SMALLBUSINESS_SERVER_PREMIUM_CORE   = 0x0000003F, // Small Business Server Premium (core installation)
+    SOLUTION_EMBEDDEDSERVER             = 0x00000038, // Windows MultiPoint Server
+    STANDARD_EVALUATION_SERVER          = 0x0000004F, // Server Standard (evaluation installation)
+    STANDARD_SERVER                     = 0x00000007, // Server Standard (full installation. For Server Core installations of Windows Server 2012 and later, use the method, Determining whether Server Core is running.)
+    STANDARD_SERVER_CORE                = 0x0000000D, // Server Standard (core installation, Windows Server 2008 R2 and earlier)
+    STANDARD_SERVER_CORE_V              = 0x00000028, // Server Standard without Hyper-V (core installation)
+    STANDARD_SERVER_V                   = 0x00000024, // Server Standard without Hyper-V
+    STANDARD_SERVER_SOLUTIONS           = 0x00000034, // Server Solutions Premium
+    STANDARD_SERVER_SOLUTIONS_CORE      = 0x00000035, // Server Solutions Premium (core installation)
+    STARTER                             = 0x0000000B, // Starter
+    STARTER_E                           = 0x00000042, // Not supported
+    STARTER_N                           = 0x0000002F, // Starter N
+    STORAGE_ENTERPRISE_SERVER           = 0x00000017, // Storage Server Enterprise
+    STORAGE_ENTERPRISE_SERVER_CORE      = 0x0000002E, // Storage Server Enterprise (core installation)
+    STORAGE_EXPRESS_SERVER              = 0x00000014, // Storage Server Express
+    STORAGE_EXPRESS_SERVER_CORE         = 0x0000002B, // Storage Server Express (core installation)
+    STORAGE_STANDARD_EVALUATION_SERVER  = 0x00000060, // Storage Server Standard (evaluation installation)
+    STORAGE_STANDARD_SERVER             = 0x00000015, // Storage Server Standard
+    STORAGE_STANDARD_SERVER_CORE        = 0x0000002C, // Storage Server Standard (core installation)
+    STORAGE_WORKGROUP_EVALUATION_SERVER = 0x0000005F, // Storage Server Workgroup (evaluation installation)
+    STORAGE_WORKGROUP_SERVER            = 0x00000016, // Storage Server Workgroup
+    STORAGE_WORKGROUP_SERVER_CORE       = 0x0000002D, // Storage Server Workgroup (core installation)
+    ULTIMATE                            = 0x00000001, // Ultimate
+    ULTIMATE_E                          = 0x00000047, // Not supported
+    ULTIMATE_N                          = 0x0000001C, // Ultimate N
+    UNDEFINED                           = 0x00000000, // An unknown product
+    WEB_SERVER                          = 0x00000011, // Web Server (full installation)
+    WEB_SERVER_CORE                     = 0x0000001D, // Web Server (core installation)
 }
 
 ENABLE_ECHO_INPUT                  : DWORD : 0x0004
@@ -4804,28 +4804,28 @@ CTRL_LOGOFF_EVENT   : DWORD : 5
 CTRL_SHUTDOWN_EVENT : DWORD : 6
 
 COORD :: struct {
-	X: SHORT,
-	Y: SHORT,
+    X: SHORT,
+    Y: SHORT,
 }
 
 SMALL_RECT :: struct {
-	Left:   SHORT,
-	Top:    SHORT,
-	Right:  SHORT,
-	Bottom: SHORT,
+    Left:   SHORT,
+    Top:    SHORT,
+    Right:  SHORT,
+    Bottom: SHORT,
 }
 
 CONSOLE_SCREEN_BUFFER_INFO :: struct {
-	dwSize:              COORD,
-	dwCursorPosition:    COORD,
-	wAttributes:         WORD,
-	srWindow:            SMALL_RECT,
-	dwMaximumWindowSize: COORD,
+    dwSize:              COORD,
+    dwCursorPosition:    COORD,
+    wAttributes:         WORD,
+    srWindow:            SMALL_RECT,
+    dwMaximumWindowSize: COORD,
 }
 
 CONSOLE_CURSOR_INFO :: struct {
-	dwSize:   DWORD,
-	bVisible: BOOL,
+    dwSize:   DWORD,
+    bVisible: BOOL,
 }
 
 
@@ -4833,66 +4833,66 @@ PCONSOLE_SCREEN_BUFFER_INFO :: ^CONSOLE_SCREEN_BUFFER_INFO
 PCONSOLE_CURSOR_INFO        :: ^CONSOLE_CURSOR_INFO
 
 Event_Type :: enum WORD {
-	KEY_EVENT                = 0x0001,
-	MOUSE_EVENT              = 0x0002,
-	WINDOW_BUFFER_SIZE_EVENT = 0x0004,
-	MENU_EVENT               = 0x0008,
-	FOCUS_EVENT              = 0x0010,
+    KEY_EVENT                = 0x0001,
+    MOUSE_EVENT              = 0x0002,
+    WINDOW_BUFFER_SIZE_EVENT = 0x0004,
+    MENU_EVENT               = 0x0008,
+    FOCUS_EVENT              = 0x0010,
 }
 
 INPUT_RECORD :: struct {
-	EventType: Event_Type,
-	Event: struct #raw_union {
-		KeyEvent:              KEY_EVENT_RECORD          `raw_union_tag:"EventType=KEY_EVENT"`,
-		MouseEvent:            MOUSE_EVENT_RECORD        `raw_union_tag:"EventType=MOUSE_EVENT"`,
-		WindowBufferSizeEvent: WINDOW_BUFFER_SIZE_RECORD `raw_union_tag:"EventType=WINDOW_BUFFER_SIZE_EVENT"`,
-		MenuEvent:             MENU_EVENT_RECORD         `raw_union_tag:"EventType=MENU_EVENT"`,
-		FocusEvent:            FOCUS_EVENT_RECORD        `raw_union_tag:"EventType=FOCUS_EVENT"`,
-	},
+    EventType: Event_Type,
+    Event: struct #raw_union {
+        KeyEvent:              KEY_EVENT_RECORD          `raw_union_tag:"EventType=KEY_EVENT"`,
+        MouseEvent:            MOUSE_EVENT_RECORD        `raw_union_tag:"EventType=MOUSE_EVENT"`,
+        WindowBufferSizeEvent: WINDOW_BUFFER_SIZE_RECORD `raw_union_tag:"EventType=WINDOW_BUFFER_SIZE_EVENT"`,
+        MenuEvent:             MENU_EVENT_RECORD         `raw_union_tag:"EventType=MENU_EVENT"`,
+        FocusEvent:            FOCUS_EVENT_RECORD        `raw_union_tag:"EventType=FOCUS_EVENT"`,
+    },
 }
 
 Control_Key_State_Bits :: enum {
-	RIGHT_ALT_PRESSED,
-	LEFT_ALT_PRESSED,
-	RIGHT_CTRL_PRESSED,
-	LEFT_CTRL_PRESSED,
-	SHIFT_PRESSED,
-	NUMLOCK_ON,
-	SCROLLLOCK_ON,
-	CAPSLOCK_ON,
-	ENHANCED_KEY,
+    RIGHT_ALT_PRESSED,
+    LEFT_ALT_PRESSED,
+    RIGHT_CTRL_PRESSED,
+    LEFT_CTRL_PRESSED,
+    SHIFT_PRESSED,
+    NUMLOCK_ON,
+    SCROLLLOCK_ON,
+    CAPSLOCK_ON,
+    ENHANCED_KEY,
 }
 Control_Key_State :: bit_set[Control_Key_State_Bits; DWORD]
 
 KEY_EVENT_RECORD :: struct {
-	bKeyDown: BOOL,
-	wRepeatCount: WORD,
-	wVirtualKeyCode: WORD,
-	wVirtualScanCode: WORD,
-	uChar: struct #raw_union {
-		UnicodeChar: WCHAR,
-		AsciiChar: CHAR,
-	},
-	dwControlKeyState: Control_Key_State,
+    bKeyDown: BOOL,
+    wRepeatCount: WORD,
+    wVirtualKeyCode: WORD,
+    wVirtualScanCode: WORD,
+    uChar: struct #raw_union {
+        UnicodeChar: WCHAR,
+        AsciiChar: CHAR,
+    },
+    dwControlKeyState: Control_Key_State,
 }
 
 MOUSE_EVENT_RECORD :: struct {
-	dwMousePosition:   COORD,
-	dwButtonState:     DWORD,
-	dwControlKeyState: DWORD,
-	dwEventFlags:      DWORD,
+    dwMousePosition:   COORD,
+    dwButtonState:     DWORD,
+    dwControlKeyState: DWORD,
+    dwEventFlags:      DWORD,
 }
 
 WINDOW_BUFFER_SIZE_RECORD :: struct {
-	dwSize: COORD,
+    dwSize: COORD,
 }
 
 MENU_EVENT_RECORD :: struct {
-	dwCommandId: UINT,
+    dwCommandId: UINT,
 }
 
 FOCUS_EVENT_RECORD :: struct {
-	bSetFocus: BOOL,
+    bSetFocus: BOOL,
 }
 
 
@@ -5021,8 +5021,8 @@ MAX_PROTOCOL_CHAIN: DWORD : 7
 
 // Used with the SO_LINGER socket option to setsockopt().
 LINGER :: struct {
-	l_onoff: c.ushort,
-	l_linger: c.ushort,
+    l_onoff: c.ushort,
+    l_linger: c.ushort,
 }
 // Send/Receive flags.
 MSG_OOB  : c_int : 1 // `send`/`recv` should process out-of-band data.
@@ -5034,58 +5034,58 @@ socklen_t      :: c_int
 ADDRESS_FAMILY :: USHORT
 
 ip_mreq :: struct {
-	imr_multiaddr: in_addr,
-	imr_interface: in_addr,
+    imr_multiaddr: in_addr,
+    imr_interface: in_addr,
 }
 
 ipv6_mreq :: struct {
-	ipv6mr_multiaddr: in6_addr,
-	ipv6mr_interface: c_uint,
+    ipv6mr_multiaddr: in6_addr,
+    ipv6mr_interface: c_uint,
 }
 
 SOCKADDR_STORAGE_LH :: struct {
-	ss_family:  ADDRESS_FAMILY,
-	__ss_pad1:  [6]CHAR,
-	__ss_align: i64,
-	__ss_pad2:  [112]CHAR,
+    ss_family:  ADDRESS_FAMILY,
+    __ss_pad1:  [6]CHAR,
+    __ss_align: i64,
+    __ss_pad2:  [112]CHAR,
 }
 
 ADDRINFOA :: struct {
-	ai_flags:     c_int,
-	ai_family:    c_int,
-	ai_socktype:  c_int,
-	ai_protocol:  c_int,
-	ai_addrlen:   size_t,
-	ai_canonname: [^]c_char `fmt:"q,ai_addrlen"`,
-	ai_addr:      ^SOCKADDR,
-	ai_next:      ^ADDRINFOA,
+    ai_flags:     c_int,
+    ai_family:    c_int,
+    ai_socktype:  c_int,
+    ai_protocol:  c_int,
+    ai_addrlen:   size_t,
+    ai_canonname: [^]c_char `fmt:"q,ai_addrlen"`,
+    ai_addr:      ^SOCKADDR,
+    ai_next:      ^ADDRINFOA,
 }
 
 sockaddr :: struct {
-	sa_family: USHORT,
-	sa_data:   [14]byte,
+    sa_family: USHORT,
+    sa_data:   [14]byte,
 }
 
 sockaddr_in :: struct {
-	sin_family: ADDRESS_FAMILY,
-	sin_port:   u16be,
-	sin_addr:   in_addr,
-	sin_zero:   [8]CHAR,
+    sin_family: ADDRESS_FAMILY,
+    sin_port:   u16be,
+    sin_addr:   in_addr,
+    sin_zero:   [8]CHAR,
 }
 sockaddr_in6 :: struct {
-	sin6_family:   ADDRESS_FAMILY,
-	sin6_port:     u16be,
-	sin6_flowinfo: c_ulong,
-	sin6_addr:     in6_addr,
-	sin6_scope_id: c_ulong,
+    sin6_family:   ADDRESS_FAMILY,
+    sin6_port:     u16be,
+    sin6_flowinfo: c_ulong,
+    sin6_addr:     in6_addr,
+    sin6_scope_id: c_ulong,
 }
 
 in_addr :: struct {
-	s_addr: u32,
+    s_addr: u32,
 }
 
 in6_addr :: struct {
-	s6_addr: [16]u8,
+    s6_addr: [16]u8,
 }
 
 
@@ -5094,72 +5094,72 @@ DNS_INFO_NO_RECORDS    :: 9501
 DNS_QUERY_NO_RECURSION :: 0x00000004
 
 DNS_RECORD :: struct { // aka DNS_RECORDA
-	pNext:       ^DNS_RECORD,
-	pName:       cstring,
-	wType:       WORD,
-	wDataLength: USHORT,
-	Flags:       DWORD,
-	dwTtl:       DWORD,
-	_:           DWORD,
-	Data: struct #raw_union #align(4) {
-		CNAME: DNS_PTR_DATAA,
-		A:     u32be,  // Ipv4 Address
-		AAAA:  u128be, // Ipv6 Address
-		TXT:   DNS_TXT_DATAA,
-		NS:    DNS_PTR_DATAA,
-		MX:    DNS_MX_DATAA,
-		SRV:   DNS_SRV_DATAA,
-	},
+    pNext:       ^DNS_RECORD,
+    pName:       cstring,
+    wType:       WORD,
+    wDataLength: USHORT,
+    Flags:       DWORD,
+    dwTtl:       DWORD,
+    _:           DWORD,
+    Data: struct #raw_union #align(4) {
+        CNAME: DNS_PTR_DATAA,
+        A:     u32be,  // Ipv4 Address
+        AAAA:  u128be, // Ipv6 Address
+        TXT:   DNS_TXT_DATAA,
+        NS:    DNS_PTR_DATAA,
+        MX:    DNS_MX_DATAA,
+        SRV:   DNS_SRV_DATAA,
+    },
 }
 
 DNS_TXT_DATAA :: struct {
-	dwStringCount: DWORD,
-	pStringArray:  cstring,
+    dwStringCount: DWORD,
+    pStringArray:  cstring,
 }
 
 DNS_PTR_DATAA :: cstring
 
 DNS_MX_DATAA :: struct {
-	pNameExchange: cstring, // the hostname
-	wPreference:   WORD,      // lower values preferred
-	_:             WORD,                // padding.
+    pNameExchange: cstring, // the hostname
+    wPreference:   WORD,      // lower values preferred
+    _:             WORD,                // padding.
 }
 DNS_SRV_DATAA :: struct {
-	pNameTarget: cstring,
-	wPriority:   u16,
-	wWeight:     u16,
-	wPort:       u16,
-	_:           WORD, // padding
+    pNameTarget: cstring,
+    wPriority:   u16,
+    wWeight:     u16,
+    wPort:       u16,
+    _:           WORD, // padding
 }
 
 // See https://learn.microsoft.com/en-us/windows/win32/dns/dns-constants
 DNS_QUERY_OPTION :: enum DWORD {
-	ACCEPT_TRUNCATED_RESPONSE = 0,
-	DNS_QUERY_USE_TCP_ONLY    = 1,
-	NO_RECURSION              = 2,
-	BYPASS_CACHE              = 3,
-	NO_WIRE_QUERY             = 4,
-	NO_LOCAL_NAME             = 5,
-	NO_HOSTS_FILE             = 6,
-	NO_NETBT                  = 7,
-	WIRE_ONLY                 = 8,
-	RETURN_MESSAGE            = 9,
-	MULTICAST_ONLY            = 10,
-	NO_MULTICAST              = 11,
-	TREAT_AS_FQDN             = 12,
-	ADDRCONFIG                = 13,
-	DUAL_ADDR                 = 14,
-	MULTICAST_WAIT            = 17,
-	MULTICAST_VERIFY          = 18,
-	DONT_RESET_TTL_VALUES     = 20,
-	DISABLE_IDN_ENCODING      = 21,
-	APPEND_MULTILABEL         = 23,
+    ACCEPT_TRUNCATED_RESPONSE = 0,
+    DNS_QUERY_USE_TCP_ONLY    = 1,
+    NO_RECURSION              = 2,
+    BYPASS_CACHE              = 3,
+    NO_WIRE_QUERY             = 4,
+    NO_LOCAL_NAME             = 5,
+    NO_HOSTS_FILE             = 6,
+    NO_NETBT                  = 7,
+    WIRE_ONLY                 = 8,
+    RETURN_MESSAGE            = 9,
+    MULTICAST_ONLY            = 10,
+    NO_MULTICAST              = 11,
+    TREAT_AS_FQDN             = 12,
+    ADDRCONFIG                = 13,
+    DUAL_ADDR                 = 14,
+    MULTICAST_WAIT            = 17,
+    MULTICAST_VERIFY          = 18,
+    DONT_RESET_TTL_VALUES     = 20,
+    DISABLE_IDN_ENCODING      = 21,
+    APPEND_MULTILABEL         = 23,
 }
 DNS_QUERY_OPTIONS :: bit_set[DNS_QUERY_OPTION; DWORD]
 
 SOCKADDR :: struct {
-	sa_family: ADDRESS_FAMILY,
-	sa_data:   [14]CHAR,
+    sa_family: ADDRESS_FAMILY,
+    sa_data:   [14]CHAR,
 }
 
 ENUMRESNAMEPROCW :: #type proc (hModule: HMODULE, lpType: LPCWSTR, lpName: LPWSTR, lParam: LONG_PTR)-> BOOL
@@ -5167,90 +5167,90 @@ ENUMRESTYPEPROCW :: #type proc (hModule: HMODULE, lpType: LPCWSTR, lParam: LONG_
 ENUMRESLANGPROCW :: #type proc (hModule: HMODULE, lpType: LPCWSTR, lpName: LPWSTR, wIDLanguage: LANGID, lParam: LONG_PTR)-> BOOL
 
 DTR_Control :: enum byte {
-	Disable   = 0,
-	Enable    = 1,
-	Handshake = 2,
+    Disable   = 0,
+    Enable    = 1,
+    Handshake = 2,
 }
 RTS_Control :: enum byte {
-	Disable   = 0,
-	Enable    = 1,
-	Handshake = 2,
-	Toggle    = 3,
+    Disable   = 0,
+    Enable    = 1,
+    Handshake = 2,
+    Toggle    = 3,
 }
 Parity :: enum byte {
-	None  = 0,
-	Odd   = 1,
-	Even  = 2,
-	Mark  = 3,
-	Space = 4,
+    None  = 0,
+    Odd   = 1,
+    Even  = 2,
+    Mark  = 3,
+    Space = 4,
 }
 Stop_Bits :: enum byte {
-	One            = 0,
-	One_And_A_Half = 1,
-	Two            = 2,
+    One            = 0,
+    One_And_A_Half = 1,
+    Two            = 2,
 }
 
 DCB :: struct {
-	DCBlength:  DWORD,
-	BaudRate:   DWORD,
-	using _: bit_field DWORD {
-		fBinary:           bool        | 1,
-		fParity:           bool        | 1,
-		fOutxCtsFlow:      bool        | 1,
-		fOutxDsrFlow:      bool        | 1,
-		fDtrControl:       DTR_Control | 2,
-		fDsrSensitivity:   bool        | 1,
-		fTXContinueOnXoff: bool        | 1,
-		fOutX:             bool        | 1,
-		fInX:              bool        | 1,
-		fErrorChar:        bool        | 1,
-		fNull:             bool        | 1,
-		fRtsControl:       RTS_Control | 2,
-		fAbortOnError:     bool        | 1,
-	},
-	wReserved:  WORD,
-	XOnLim:     WORD,
-	XOffLim:    WORD,
-	ByteSize:   BYTE,
-	Parity:     Parity,
-	StopBits:   Stop_Bits,
-	XonChar:    byte,
-	XoffChar:   byte,
-	ErrorChar:  byte,
-	EofChar:    byte,
-	EvtChar:    byte,
-	wReserved1: WORD,
+    DCBlength:  DWORD,
+    BaudRate:   DWORD,
+    using _: bit_field DWORD {
+        fBinary:           bool        | 1,
+        fParity:           bool        | 1,
+        fOutxCtsFlow:      bool        | 1,
+        fOutxDsrFlow:      bool        | 1,
+        fDtrControl:       DTR_Control | 2,
+        fDsrSensitivity:   bool        | 1,
+        fTXContinueOnXoff: bool        | 1,
+        fOutX:             bool        | 1,
+        fInX:              bool        | 1,
+        fErrorChar:        bool        | 1,
+        fNull:             bool        | 1,
+        fRtsControl:       RTS_Control | 2,
+        fAbortOnError:     bool        | 1,
+    },
+    wReserved:  WORD,
+    XOnLim:     WORD,
+    XOffLim:    WORD,
+    ByteSize:   BYTE,
+    Parity:     Parity,
+    StopBits:   Stop_Bits,
+    XonChar:    byte,
+    XoffChar:   byte,
+    ErrorChar:  byte,
+    EofChar:    byte,
+    EvtChar:    byte,
+    wReserved1: WORD,
 }
 
 COMMTIMEOUTS :: struct {
-	ReadIntervalTimeout:         DWORD,
-	ReadTotalTimeoutMultiplier:  DWORD,
-	ReadTotalTimeoutConstant:    DWORD,
-	WriteTotalTimeoutMultiplier: DWORD,
-	WriteTotalTimeoutConstant:   DWORD,
+    ReadIntervalTimeout:         DWORD,
+    ReadTotalTimeoutMultiplier:  DWORD,
+    ReadTotalTimeoutConstant:    DWORD,
+    WriteTotalTimeoutMultiplier: DWORD,
+    WriteTotalTimeoutConstant:   DWORD,
 }
 
 COMSTAT :: struct {
-	using _: bit_field DWORD {
-		fCtsHold:  BOOL  | 1,
-		fDsrHold:  BOOL  | 1,
-		fRlsdHol:  BOOL  | 1,
-		fXoffHol:  BOOL  | 1,
-		fXoffSen:  BOOL  | 1,
-		fEof:      BOOL  | 1,
-		fTxim:     BOOL  | 1,
-		fReserved: DWORD | 25,
-	},
-	cbInQue:  DWORD,
-	cbOutQue: DWORD,
+    using _: bit_field DWORD {
+        fCtsHold:  BOOL  | 1,
+        fDsrHold:  BOOL  | 1,
+        fRlsdHol:  BOOL  | 1,
+        fXoffHol:  BOOL  | 1,
+        fXoffSen:  BOOL  | 1,
+        fEof:      BOOL  | 1,
+        fTxim:     BOOL  | 1,
+        fReserved: DWORD | 25,
+    },
+    cbInQue:  DWORD,
+    cbOutQue: DWORD,
 }
 
 Com_Error_Bits :: enum DWORD {
-	RXOVER,
-	OVERRUN,
-	RXPARITY,
-	FRAME,
-	BREAK,
+    RXOVER,
+    OVERRUN,
+    RXPARITY,
+    FRAME,
+    BREAK,
 }
 Com_Error :: distinct bit_set[Com_Error_Bits; DWORD]
 

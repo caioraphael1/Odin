@@ -12,7 +12,7 @@ _temp_dir :: proc(allocator: mem.Allocator) -> (string, mem.Allocator_Error) {
     }
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    b, _ := slice.create([]u16, max(win32.MAX_PATH, n), allocators.temp_allocator)
+    b, _ := slice.create([]u16, uint(max(win32.MAX_PATH, n)), allocators.temp_allocator)
     n = win32.GetTempPathW(u32(len(b)), cstring16(raw_data(b)))
 
     if n == 3 && b[1] == ':' && b[2] == '\\' {

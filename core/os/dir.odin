@@ -11,18 +11,16 @@ read_dir :: read_directory
 
 /*
     Reads the file `f` (assuming it is a directory) and returns the unsorted directory entries.
-    This returns up to `n` entries OR all of them if `n <= 0`.
 */
 
-read_directory :: proc(f: ^File, n: int, allocator: mem.Allocator) -> (files: []File_Info, err: Error) {
+read_directory :: proc(f: ^File, n: uint, all: bool, allocator: mem.Allocator) -> (files: []File_Info, err: Error) {
     if f == nil {
         return nil, .Invalid_File
     }
 
     n := n
     size := n
-    if n <= 0 {
-        n = -1
+    if all {
         size = 100
     }
 
@@ -39,7 +37,7 @@ read_directory :: proc(f: ^File, n: int, allocator: mem.Allocator) -> (files: []
     }
 
     for fi, index in read_directory_iterator(&it, allocator) {
-        if n > 0 && index == n {
+        if !all && index == n {
             break
         }
 
@@ -59,7 +57,7 @@ read_directory :: proc(f: ^File, n: int, allocator: mem.Allocator) -> (files: []
 */
 
 read_all_directory :: proc(f: ^File, allocator: mem.Allocator) -> (fi: []File_Info, err: Error) {
-    return read_directory(f, -1, allocator)
+    return read_directory(f, 0, true, allocator)
 }
 
 /*
@@ -67,10 +65,10 @@ read_all_directory :: proc(f: ^File, allocator: mem.Allocator) -> (fi: []File_In
     This returns up to `n` entries OR all of them if `n <= 0`.
 */
 
-read_directory_by_path :: proc(path: string, n: int, allocator: mem.Allocator) -> (fi: []File_Info, err: Error) {
+read_directory_by_path :: proc(path: string, n: uint, all: bool, allocator: mem.Allocator) -> (fi: []File_Info, err: Error) {
     f := open(path, allocator = allocator) or_return
     defer _ = close(f)
-    return read_directory(f, n, allocator)
+    return read_directory(f, n, all, allocator)
 }
 
 /*
@@ -78,19 +76,19 @@ read_directory_by_path :: proc(path: string, n: int, allocator: mem.Allocator) -
 */
 
 read_all_directory_by_path :: proc(path: string, allocator: mem.Allocator) -> (fi: []File_Info, err: Error) {
-    return read_directory_by_path(path, -1, allocator)
+    return read_directory_by_path(path, 0, true, allocator)
 }
 
 
 
 Read_Directory_Iterator :: struct {
-    f: ^File,
-    err: struct {
+    f:     ^File,
+    err:   struct {
         err:  Error,
         path: [dynamic]byte,
     },
-    index: int,
-    impl: Read_Directory_Iterator_Impl,
+    index: uint,
+    impl:  Read_Directory_Iterator_Impl,
 }
 
 /*
@@ -199,7 +197,7 @@ Example:
     }
 */
 
-read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) -> (fi: File_Info, index: int, ok: bool) {
+read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) -> (fi: File_Info, index: uint, ok: bool) {
     if it.f == nil {
         return
     }

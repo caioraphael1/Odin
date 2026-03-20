@@ -36,7 +36,7 @@ allocations until the end.
 // Marshals the given value into a CBOR byte stream (allocated using the given allocator).
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Marshal_Error) {
-    b, alloc_err := strings_tools.builder_create(allocator, loc=loc)
+    b, alloc_err := string_builder.builder_create(allocator, loc=loc)
     // The builder as a stream also returns .EOF if it ran out of memory so this is consistent.
     if alloc_err != nil {
         return nil, .EOF
@@ -434,7 +434,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
                     internal.maps.hash_is_valid(hs[bucket_index]) or_continue
 
                     key := rawptr(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    key_builder := strings_tools.builder_create(0, 8, e.temp_allocator) or_return
+                    key_builder := string_builder.builder_create(0, 8, e.temp_allocator) or_return
                     marshal_into(Encoder{e.flags, strings_tools.to_stream(&key_builder), e.temp_allocator}, any{ key, info.key.id }) or_return
                     dyn_array.append(&entries, Encoded_Entry{ &key_builder.buf, bucket_index }) or_return
                 }
@@ -513,7 +513,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
                     continue
                 }
 
-                key_builder := strings_tools.builder_create(e.temp_allocator) or_return
+                key_builder := string_builder.builder_create(e.temp_allocator) or_return
                 err_conv(_encode_text(Encoder{e.flags, strings_tools.to_stream(&key_builder), e.temp_allocator}, fname)) or_return
                 dyn_array.append(&entries, Name{key_builder.buf[:], i}) or_return
             }
@@ -566,7 +566,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
         case reflect.Type_Info_Named:
             err_conv(_encode_text(e, vt.name)) or_return
         case:
-            builder := strings_tools.builder_create(e.temp_allocator) or_return
+            builder := string_builder.builder_create(e.temp_allocator) or_return
             defer strings_tools.builder_destroy(&builder)
             reflect.write_type(&builder, vti)
             err_conv(_encode_text(e, string_builder.to_string(builder))) or_return

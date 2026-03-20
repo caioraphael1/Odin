@@ -177,7 +177,7 @@ _rfc3339_to_components :: proc(rfc_datetime: string) -> (res: dt.DateTime, utc_o
 }
 
 @(private)
-scan_digits :: proc(s: string, sep: string, count: int) -> (res: int, ok: bool) {
+scan_digits :: proc(s: string, sep: string, count: uint) -> (res: int, ok: bool) {
     needed := count + min(1, len(sep))
     (len(s) >= needed) or_return
 

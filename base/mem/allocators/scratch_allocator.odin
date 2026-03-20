@@ -1,5 +1,6 @@
 import "base:internal"
 import "base:mem"
+import "base:bytes"
 import "base:container/slice"
 import "base:container/dyn_array"
 
@@ -180,7 +181,7 @@ scratch_alloc_bytes_non_zeroed :: proc(
         }
         s.prev_allocation = ptr
         s.curr_offset = uint(offset) + aligned_size
-        result := slice.bytes(ptr, size)
+        result := bytes.bytes(ptr, size)
         // ensure_poisoned(result)
         // sanitizer.address_unpoison(result)
         return result, nil
@@ -278,7 +279,7 @@ scratch_resize :: proc(
     alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := scratch_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+    bytes, err := scratch_resize_bytes(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     return raw_data(bytes), err
 }
 
@@ -338,7 +339,7 @@ scratch_resize_non_zeroed :: proc(
     alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := scratch_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+    bytes, err := scratch_resize_bytes_non_zeroed(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     return raw_data(bytes), err
 }
 
@@ -383,7 +384,7 @@ scratch_resize_bytes_non_zeroed :: proc(
         // ensure_not_poisoned(old_data)
         // sanitizer.address_poison(old_memory)
         s.curr_offset = uint(old_ptr-begin)+size
-        result := slice.bytes(old_memory, size)
+        result := bytes.bytes(old_memory, size)
         // sanitizer.address_unpoison(result)
         return result, nil
     }
@@ -391,7 +392,7 @@ scratch_resize_bytes_non_zeroed :: proc(
     if err != nil {
         return data, err
     }
-    slice.copy(data, slice.bytes(old_memory, old_size))
+    slice.copy(data, bytes.bytes(old_memory, old_size))
     err = scratch_free(s, old_memory, loc)
     return data, err
 }
@@ -416,9 +417,9 @@ scratch_allocator_proc :: proc(
     case .Free_All:
         scratch_free_all(s, loc)
     case .Resize:
-        return scratch_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return scratch_resize_bytes(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Resize_Non_Zeroed:
-        return scratch_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return scratch_resize_bytes_non_zeroed(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Query_Features:
         set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {

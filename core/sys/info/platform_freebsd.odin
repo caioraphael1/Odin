@@ -19,7 +19,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
     pretty_name := string(cstring(raw_data(kernel_version_buf[:])))
     pretty_name  = strings.trim(pretty_name, "\n")
-    strings_tools.write_string(&b, pretty_name)
+    string_builder.write_string(&b, pretty_name)
 
     // Retrieve kernel revision using `sysctl`, e.g. 199506
     mib = []i32{sys.CTL_KERN, sys.KERN_OSREV}
@@ -28,7 +28,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
         return
     }
 
-    strings_tools.write_string(&b, ", revision ")
+    string_builder.write_string(&b, ", revision ")
     strings_tools.write_int(&b, revision)
 
     // Finalize pretty name.

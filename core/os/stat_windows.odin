@@ -4,6 +4,7 @@ import "base:mem"
 import "base:mem/allocators"
 import "base:container/strings"
 import "base:container/slice"
+import "base:unicode/utf8"
 
 import "core:strings_tools"
 import "core:time"
@@ -56,7 +57,7 @@ full_path_from_name :: proc(name: string, allocator: mem.Allocator) -> (path: st
     if n == 0 {
         return "", _get_platform_error()
     }
-    buf, _ := slice.create([]u16, n+1, allocators.temp_allocator)
+    buf, _ := slice.create([]u16, uint(n) + 1, allocators.temp_allocator)
     n = win32.GetFullPathNameW(cstring16(raw_data(p)), u32(len(buf)), cstring16(raw_data(buf)), nil)
     if n == 0 {
         return "", _get_platform_error()
@@ -111,7 +112,7 @@ internal_stat :: proc(name: string, create_file_attributes: u32, allocator: mem.
 
 _cleanpath_strip_prefix :: proc(buf: []u16) -> []u16 {
     buf := buf
-    N := 0
+    N: uint = 0
     for c, i in buf {
         if c == 0 { break }
         N = i+1
@@ -142,7 +143,7 @@ _cleanpath_from_handle :: proc(f: ^File, allocator: mem.Allocator) -> (string, E
 
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf, _ := slice.create([]u16, max(n, 260)+1, allocators.temp_allocator)
+    buf, _ := slice.create([]u16, max(uint(n), 260) + 1, allocators.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(h, cstring16(raw_data(buf)), u32(len(buf)), 0)
     return _cleanpath_from_buf(string16(buf[:n]), allocator)
 }
@@ -160,7 +161,7 @@ _cleanpath_from_handle_u16 :: proc(f: ^File) -> ([]u16, Error) {
 
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
-    buf, _ := slice.create([]u16, max(n, 260)+1, allocators.temp_allocator)
+    buf, _ := slice.create([]u16, uint(max(n, 260) + 1), allocators.temp_allocator)
     n = win32.GetFinalPathNameByHandleW(h, cstring16(raw_data(buf)), u32(len(buf)), 0)
     return _cleanpath_strip_prefix(buf[:n]), nil
 }
@@ -182,7 +183,7 @@ basename :: proc(name: string) -> (base: string) {
     } else if len(name) > 2 && name[1] == ':' {
         name = name[2:]
     }
-    i := len(name)-1
+    i := int(len(name)) - 1
 
     for ; i > 0 && (name[i] == '/' || name[i] == '\\'); i -= 1 {
         name = name[:i]
@@ -321,14 +322,14 @@ _is_reserved_name :: proc(path: string) -> bool {
         return false
     }
     for reserved in reserved_names {
-        if strings_tools.equal_fold(path, reserved) {
+        if utf8.string_equal_fold(path, reserved) {
             return true
         }
     }
     return false
 }
 
-_volume_name_len :: proc(path: string) -> (length: int) {
+_volume_name_len :: proc(path: string) -> (length: uint) {
     if len(path) < 2 {
         return 0
     }
@@ -358,7 +359,7 @@ _volume_name_len :: proc(path: string) -> (length: int) {
     }
 
     // We're a UNC share `\\host\share`, file namespace `\\?\C:` or UNC in file namespace `\\?\\host\share`
-    prefix := 2
+    prefix: uint = 2
 
     // File namespace.
     if len(path) >= 5 && path[2] == '?' && _is_path_separator(path[3]) {

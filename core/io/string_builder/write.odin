@@ -40,7 +40,7 @@ to_writer :: proc(b: ^Builder) -> (res: io.Writer) {
 
 /*
 Example:
-    builder := strings_tools.builder_create()
+    builder := string_builder.builder_create()
     string_builder.write_byte(&builder, 'a')        // 1
     string_builder.write_byte(&builder, 'b')        // 1
     fmt.println(string_builder.to_string(builder))  // -> ab
@@ -57,7 +57,7 @@ write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: uint) {
 
 /*
 Example:
-    builder := strings_tools.builder_create()
+    builder := string_builder.builder_create()
     bytes := [?]byte { 'a', 'b', 'c' }
     strings_tools.write_bytes(&builder, bytes[:]) // 3
     fmt.println(string_builder.to_string(builder)) // -> abc
@@ -88,10 +88,10 @@ write_rune :: proc(b: ^Builder, r: rune, loc := #caller_location) -> (res: uint,
 
 /*
 Example:
-    builder := strings_tools.builder_create()
-    strings_tools.write_string(&builder, "abc")      // 3
+    builder := string_builder.builder_create()
+    string_builder.write_string(&builder, "abc")      // 3
     strings.write_quoted_rune(&builder, 'ä') // 4
-    strings_tools.write_string(&builder, "abc")      // 3
+    string_builder.write_string(&builder, "abc")      // 3
     fmt.println(string_builder.to_string(builder))    // -> abc'ä'abc
 Output:
     abc'ä'abc
@@ -103,9 +103,9 @@ write_quoted_rune :: proc(b: ^Builder, r: rune) -> (n: uint) {
 
 /*
 Example:
-    builder := strings_tools.builder_create()
-    strings_tools.write_string(&builder, "a")     // 1
-    strings_tools.write_string(&builder, "bc")    // 2
+    builder := string_builder.builder_create()
+    string_builder.write_string(&builder, "a")     // 1
+    string_builder.write_string(&builder, "bc")    // 2
     fmt.println(string_builder.to_string(builder)) // -> abc
 Output:
     abc
@@ -124,7 +124,7 @@ Inputs:
 - str: The string to be quoted and appended
 - quote: The optional quote character (default is double quotes)
 Example:
-    builder := strings_tools.builder_create()
+    builder := string_builder.builder_create()
     strings.write_quoted_string(&builder, "a")        // 3
     strings.write_quoted_string(&builder, "bc", '\'') // 4
     strings.write_quoted_string(&builder, "xyz")      // 5
@@ -145,7 +145,7 @@ Inputs:
 - r: The rune to be appended
 - write_quote: Optional boolean flag to wrap in single-quotes (') (default is true)
 Example:
-    builder := strings_tools.builder_create()
+    builder := string_builder.builder_create()
     _, _ = strings.write_encoded_rune(&builder, 'a', false) // 1
     _, _ = strings.write_encoded_rune(&builder, '\"', true) // 3
     _, _ = strings.write_encoded_rune(&builder, 'x', false) // 1
@@ -202,9 +202,9 @@ write_f16 :: proc(b: ^Builder, f: f16, fmt: byte, always_signed := false) -> (n:
 
 /*
 Example:
-    builder := strings_tools.builder_create()
+    builder := string_builder.builder_create()
     strings.write_f32(&builder, 3.14159, 'f') // 6
-    strings_tools.write_string(&builder, " - ")     // 3
+    string_builder.write_string(&builder, " - ")     // 3
     strings.write_f32(&builder, -0.123, 'e')  // 8
     fmt.println(string_builder.to_string(builder))   // -> 3.14159012 - -1.23000003e-01
 Output:

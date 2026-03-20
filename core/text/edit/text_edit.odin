@@ -161,7 +161,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
         s.selection = item.selection
         #no_bounds_check if s.builder != nil {
             strings_tools.builder_clear(s.builder)
-            strings_tools.write_string(s.builder, string(item.text[:item.len]))
+            string_builder.write_string(s.builder, string(item.text[:item.len]))
         }
         free(item, s.undo_text_allocator)
     }

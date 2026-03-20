@@ -36,7 +36,7 @@ get_build_os_from_string :: proc(str: string) -> (found_os: internal.Odin_OS_Typ
 
     fields := reflect.enum_fields_zipped(internal.Odin_OS_Type)
     for os in fields {
-        if strings_tools.equal_fold(os.name, str_os) {
+        if utf8.string_equal_fold(os.name, str_os) {
             found_os = internal.Odin_OS_Type(os.value)
             break
         }
@@ -44,7 +44,7 @@ get_build_os_from_string :: proc(str: string) -> (found_os: internal.Odin_OS_Typ
     if str_subtarget != "" {
         st_fields := reflect.enum_fields_zipped(internal.Odin_Platform_Subtarget_Type)
         for subtarget in st_fields {
-            if strings_tools.equal_fold(subtarget.name, str_subtarget) {
+            if utf8.string_equal_fold(subtarget.name, str_subtarget) {
                 found_subtarget = internal.Odin_Platform_Subtarget_Type(subtarget.value)
                 break
             }
@@ -57,7 +57,7 @@ get_build_os_from_string :: proc(str: string) -> (found_os: internal.Odin_OS_Typ
 get_build_arch_from_string :: proc(str: string) -> internal.Odin_Arch_Type {
     fields := reflect.enum_fields_zipped(internal.Odin_Arch_Type)
     for os in fields {
-        if strings_tools.equal_fold(os.name, str) {
+        if utf8.string_equal_fold(os.name, str) {
             return internal.Odin_Arch_Type(os.value)
         }
     }

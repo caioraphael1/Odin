@@ -10,23 +10,23 @@ import "base:container/slice"
 L :: intrinsics.constant_utf16_cstring
 
 // https://learn.microsoft.com/en-us/windows/win32/winmsg/makeword
-MAKEWORD :: #force_inline proc(#any_int a, b: int) -> WORD {
+MAKEWORD :: #force_inline proc(a, b: uint) -> WORD {
     return WORD(BYTE(DWORD_PTR(a) & 0xff)) | (WORD(BYTE(DWORD_PTR(b) & 0xff)) << 8)
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/winmsg/makelong
-MAKELONG :: #force_inline proc(#any_int a, b: int) -> LONG {
+MAKELONG :: #force_inline proc(a, b: uint) -> LONG {
     return LONG(WORD(DWORD_PTR(a) & 0xffff)) | (LONG(WORD(DWORD_PTR(b) & 0xffff)) << 16)
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/winmsg/loword
-LOWORD :: #force_inline proc(#any_int x: int) -> WORD {
-    return WORD(x & 0xffff)
+LOWORD :: #force_inline proc(x: DWORD) -> WORD {
+    return WORD(u16(x) & 0xffff)
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/winmsg/hiword
-HIWORD :: #force_inline proc(#any_int x: int) -> WORD {
-    return WORD(x >> 16)
+HIWORD :: #force_inline proc(x: DWORD) -> WORD {
+    return WORD(u16(x) >> 16)
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/winmsg/lobyte
@@ -40,17 +40,17 @@ HIBYTE :: #force_inline proc(w: WORD) -> BYTE {
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-makewparam
-MAKEWPARAM :: #force_inline proc(#any_int l, h: int) -> WPARAM {
+MAKEWPARAM :: #force_inline proc(l, h: uint) -> WPARAM {
     return WPARAM(MAKELONG(l, h))
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-makelparam
-MAKELPARAM :: #force_inline proc(#any_int l, h: int) -> LPARAM {
+MAKELPARAM :: #force_inline proc(l, h: uint) -> LPARAM {
     return LPARAM(MAKELONG(l, h))
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-makelresult
-MAKELRESULT :: #force_inline proc(#any_int l, h: int) -> LRESULT {
+MAKELRESULT :: #force_inline proc(l, h: uint) -> LRESULT {
     return LRESULT(MAKELONG(l, h))
 }
 
@@ -90,7 +90,7 @@ utf8_to_utf16_alloc :: proc(s: string, allocator: mem.Allocator) -> []u16 {
         return nil
     }
 
-    text, _ := slice.create([]u16, n+1, allocator)
+    text, _ := slice.create([]u16, uint(n) + 1, allocator)
 
     n1 := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cstr, c_int(len(s)), raw_data(text), n)
     if n1 == 0 {
@@ -110,14 +110,14 @@ utf8_to_utf16_buf :: proc(buf: []u16, s: string) -> []u16 {
     n1 := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw_data(s), c_int(len(s)), nil, 0)
     if n1 == 0 {
         return nil
-    } else if int(n1) > len(buf) {
+    } else if uint(n1) > len(buf) {
         return nil
     }
 
     n1 = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw_data(s), c_int(len(s)), raw_data(buf[:]), n1)
     if n1 == 0 {
         return nil
-    } else if int(n1) > len(buf) {
+    } else if uint(n1) > len(buf) {
         return nil
     }
     return buf[:n1]
@@ -139,7 +139,7 @@ utf8_to_wstring_buf :: proc(buf: []u16, s: string) -> wstring {
 }
 
 
-wstring_to_utf8_alloc :: proc(s: wstring, N: int, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
+wstring_to_utf8_alloc :: proc(s: wstring, N: uint, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     if N == 0 {
         return
     }
@@ -154,7 +154,7 @@ wstring_to_utf8_alloc :: proc(s: wstring, N: int, allocator: mem.Allocator) -> (
     // also be null terminated.
     // If N > 0 it assumes the wide string is not null terminated and the resulting string
     // will not be null terminated.
-    text := slice.create([]byte, n, allocator) or_return
+    text := slice.create([]byte, uint(n), allocator) or_return
 
     n1 := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, c_int(N), raw_data(text), n, nil, nil)
     if n1 == 0 {
@@ -175,14 +175,14 @@ wstring_to_utf8_buf :: proc(buf: []u8, s: wstring, N := -1) -> (res: string) {
     n := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, c_int(N), nil, 0, nil, nil)
     if n == 0 {
         return
-    } else if int(n) > len(buf) {
+    } else if uint(n) > len(buf) {
         return
     }
 
     n2 := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, c_int(N), raw_data(buf), n, nil, nil)
     if n2 == 0 {
         return
-    } else if int(n2) > len(buf) {
+    } else if uint(n2) > len(buf) {
         return
     }
 
@@ -234,7 +234,7 @@ utf16_to_utf8_buf :: proc(buf: []u8, s: []u16) -> (res: string) {
     if len(s) == 0 {
         return
     }
-    return wstring_to_utf8_buf(buf, wstring(raw_data(s)), len(s))
+    return wstring_to_utf8_buf(buf, wstring(raw_data(s)), int(len(s)))
 }
 
 
@@ -356,7 +356,7 @@ get_computer_name_and_account_sid :: proc(username: string) -> (computer_name: s
         return "", {}, false
     }
 
-    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), allocators.temp_allocator)
+    cname_w, _ := slice.create([]u16, uint(min(computer_name_size, 1)), allocators.temp_allocator)
 
     res = LookupAccountNameW(
         nil,
@@ -398,7 +398,7 @@ get_sid :: proc(username: string, sid: ^SID) -> (ok: bool) {
         return false
     }
 
-    cname_w, _ := slice.create([]u16, min(computer_name_size, 1), allocators.temp_allocator)
+    cname_w, _ := slice.create([]u16, uint(min(computer_name_size, 1)), allocators.temp_allocator)
 
     res = LookupAccountNameW(
         nil,

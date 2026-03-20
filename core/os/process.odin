@@ -95,7 +95,7 @@ get_egid :: proc() -> int {
 Obtain the ID of the current process.
 */
 
-get_pid :: proc() -> int {
+get_pid :: proc() -> uint {
     return _get_pid()
 }
 
@@ -117,14 +117,14 @@ get_ppid :: proc() -> int {
 Obtain the current thread id
 */
 
-get_current_thread_id :: proc() -> int {
+get_current_thread_id :: proc() -> uint {
     return _get_current_thread_id()
 }
 
 /*
 Return the number of cores
 */
-get_processor_core_count :: proc() -> int {
+get_processor_core_count :: proc() -> uint {
     return _get_processor_core_count()
 }
 
@@ -132,7 +132,7 @@ get_processor_core_count :: proc() -> int {
 Obtain ID's of all processes running in the system.
 */
 
-process_list :: proc(allocator: mem.Allocator) -> ([]int, Error) {
+process_list :: proc(allocator: mem.Allocator) -> ([]uint, Error) {
     return _process_list(allocator)
 }
 
@@ -162,25 +162,25 @@ procedure.
 Process_Info :: struct {
     // The information about a process the struct contains. `pid` is always
     // stored, no matter what.
-    fields: Process_Info_Fields,
+    fields:          Process_Info_Fields,
     // The ID of the process.
-    pid: int,
+    pid:             uint,
     // The ID of the parent process.
-    ppid: int,
+    ppid:            uint,
     // The process priority.
-    priority: int,
+    priority:        int,
     // The path to the executable, which the process runs.
     executable_path: string,
     // The command line supplied to the process.
-    command_line: string,
+    command_line:    string,
     // The arguments supplied to the process.
-    command_args: []string,
+    command_args:    []string,
     // The environment of the process.
-    environment: []string,
+    environment:     []string,
     // The username of the user who started the process.
-    username: string,
+    username:        string,
     // The current working directory of the process.
-    working_dir: string,
+    working_dir:     string,
 }
 
 /*
@@ -199,7 +199,7 @@ by the `selection` parameter. Always check whether the returned
 returned by this procedure.
 */
 
-process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
+process_info_by_pid :: proc(pid: uint, selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
     return _process_info_by_pid(pid, selection, allocator)
 }
 
@@ -276,7 +276,7 @@ specific process, even after it has died.
 **Note(linux)**: The `handle` will be referring to pidfd.
 */
 Process :: struct {
-    pid:    int,
+    pid:    uint,
     handle: uintptr,
 }
 
@@ -299,7 +299,7 @@ Use the `process_wait()` procedure (optionally prefaced with a `process_kill()`)
 to close and free the process handle.
 */
 
-process_open :: proc(pid: int, flags := Process_Open_Flags {}) -> (Process, Error) {
+process_open :: proc(pid: uint, flags := Process_Open_Flags {}) -> (Process, Error) {
     return _process_open(pid, flags)
 }
 
@@ -415,7 +415,7 @@ process_exec :: proc(
         
         stdout_done, stderr_done, has_data: bool
         for err == nil && (!stdout_done || !stderr_done) {
-            n := 0
+            n: uint
 
             if !stdout_done {
                 has_data, err = pipe_has_data(stdout_r)
@@ -471,7 +471,7 @@ process_exec :: proc(
 */
 Process_State :: struct {
     // The ID of the process.
-    pid: int,
+    pid: uint,
     // Specifies whether the process has terminated or is still running.
     exited: bool,
     // The exit code of the process, if it has exited.

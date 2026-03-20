@@ -76,63 +76,63 @@ split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path:
 }
 
 join_url :: proc(scheme, host, path: string, queries: map[string]string, fragment: string, allocator: mem.Allocator) -> string {
-    b := strings_tools.builder_create(allocator)
+    b := string_builder.builder_create(allocator)
     strings_tools.builder_grow(&b, len(scheme) + 3 + len(host) + 1 + len(path))
 
-    strings_tools.write_string(&b, scheme)
-    strings_tools.write_string(&b, "://")
-    strings_tools.write_string(&b, strings_tools.trim_space(host))
+    string_builder.write_string(&b, scheme)
+    string_builder.write_string(&b, "://")
+    string_builder.write_string(&b, strings_tools.trim_space(host))
 
     if path != "" {
         if path[0] != '/' {
-            strings_tools.write_string(&b, "/")
+            string_builder.write_string(&b, "/")
         }
-        strings_tools.write_string(&b, strings_tools.trim_space(path))
+        string_builder.write_string(&b, strings_tools.trim_space(path))
     }
 
 
     query_length := len(queries)
     if query_length > 0 {
-        strings_tools.write_string(&b, "?")
+        string_builder.write_string(&b, "?")
     }
     i := 0
     for query_name, query_value in queries {
-        strings_tools.write_string(&b, query_name)
+        string_builder.write_string(&b, query_name)
         if query_value != "" {
-            strings_tools.write_string(&b, "=")
-            strings_tools.write_string(&b, query_value)
+            string_builder.write_string(&b, "=")
+            string_builder.write_string(&b, query_value)
         }
         if i < query_length - 1 {
-            strings_tools.write_string(&b, "&")
+            string_builder.write_string(&b, "&")
         }
         i += 1
     }
 
     if fragment != "" {
         if fragment[0] != '#' {
-            strings_tools.write_string(&b, "#")
+            string_builder.write_string(&b, "#")
         }
-        strings_tools.write_string(&b, strings_tools.trim_space(fragment))
+        string_builder.write_string(&b, strings_tools.trim_space(fragment))
     }
 
     return string_builder.to_string(b)
 }
 
 percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
-    b := strings_tools.builder_create(allocator)
+    b := string_builder.builder_create(allocator)
     strings_tools.builder_grow(&b, len(s) + 16) // NOTE(tetra): A reasonable number to allow for the number of things we need to escape.
 
     for ch in s {
         switch ch {
         case 'A'..='Z', 'a'..='z', '0'..='9', '-', '_', '.', '~':
-            _, _ = strings_tools.write_rune(&b, ch)
+            _, _ = string_builder.write_rune(&b, ch)
         case:
             bytes, n := utf8.bytes_from_rune(ch)
             for byte in bytes[:n] {
                 buf: [2]u8 = ---
                 t := strconv.write_int(buf[:], i64(byte), 16)
-                _, _ = strings_tools.write_rune(&b, '%')
-                strings_tools.write_string(&b, t)
+                _, _ = string_builder.write_rune(&b, '%')
+                string_builder.write_string(&b, t)
             }
         }
     }
@@ -141,7 +141,7 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
 }
 
 percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (decoded_string: string, ok: bool) {
-    b := strings_tools.builder_create(allocator)
+    b := string_builder.builder_create(allocator)
     strings_tools.builder_grow(&b, len(encoded_string))
     defer if !ok {
         strings_tools.builder_destroy(&b)
@@ -152,11 +152,11 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
     for len(s) > 0 {
         i := strings_tools.index_byte(s, '%')
         if i == -1 {
-            strings_tools.write_string(&b, s) // no '%'s; the string is already decoded
+            string_builder.write_string(&b, s) // no '%'s; the string is already decoded
             break
         }
 
-        strings_tools.write_string(&b, s[:i])
+        string_builder.write_string(&b, s[:i])
         s = s[i:]
 
         if len(s) == 0 {

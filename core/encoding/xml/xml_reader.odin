@@ -321,7 +321,7 @@ parse_bytes :: proc(data: []u8, options := DEFAULT_OPTIONS, path := "", error_ha
 				next := scan(t)
 				#partial switch next.kind {
 				case .Ident:
-					if len(next.text) == 3 && strings_tools.equal_fold(next.text, "xml") {
+					if len(next.text) == 3 && utf8.string_equal_fold(next.text, "xml") {
 						parse_prologue(doc) or_return
 					} else if len(doc.prologue) > 0 {
 						// We've already seen a prologue.

@@ -5,6 +5,7 @@ import "base:mem/allocators"
 import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/strings"
+import "base:unicode/utf8"
 
 import "core:strings_tools"
 import win32 "core:sys/windows"
@@ -149,10 +150,10 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: E
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     sz_utf16 := win32.GetCurrentDirectoryW(0, nil)
-    dir_buf_wstr := slice.create([]u16, sz_utf16, allocators.temp_allocator) or_return
+    dir_buf_wstr := slice.create([]u16, uint(sz_utf16), allocators.temp_allocator) or_return
 
     sz_utf16 = win32.GetCurrentDirectoryW(win32.DWORD(len(dir_buf_wstr)), raw_data(dir_buf_wstr))
-    internal.assert(int(sz_utf16)+1 == len(dir_buf_wstr)) // the second time, it _excludes_ the NUL.
+    internal.assert(uint(sz_utf16) + 1 == len(dir_buf_wstr)) // the second time, it _excludes_ the NUL.
 
     win32.ReleaseSRWLockExclusive(&cwd_lock)
 
@@ -233,7 +234,8 @@ _fix_long_path_internal :: proc(path: string) -> string {
     path_buf, _ := slice.create([]byte, len(PREFIX)+len(path)+1, allocators.temp_allocator)
     slice.copy_from_string(path_buf, PREFIX)
     n := len(path)
-    r, w := 0, len(PREFIX)
+    r: uint = 0 
+    w := len(PREFIX)
     for r < n {
         switch {
         case is_path_separator(path[r]):
@@ -264,9 +266,9 @@ _fix_long_path_internal :: proc(path: string) -> string {
     return string(path_buf[:w])
 }
 
-_are_paths_identical :: strings_tools.equal_fold
+_are_paths_identical :: utf8.string_equal_fold
 
-_clean_path_handle_start :: proc(path: string, buffer: []u8) -> (rooted: bool, start: int) {
+_clean_path_handle_start :: proc(path: string, buffer: []u8) -> (rooted: bool, start: uint) {
     // Preserve rooted paths.
     start = _volume_name_len(path)
     if start > 0 {
@@ -318,7 +320,7 @@ _get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_
         return "", _get_platform_error()
     }
 
-    buf := slice.create([]u16, n, allocators.temp_allocator) or_return
+    buf := slice.create([]u16, uint(n), allocators.temp_allocator) or_return
     n = win32.GetFullPathNameW(cstring16(raw_data(rel_utf16)), u32(n), cstring16(raw_data(buf)), nil)
     if n == 0 {
         return "", _get_platform_error()
@@ -330,15 +332,15 @@ _get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_
 _get_relative_path_handle_start :: proc(base, target: string) -> bool {
     base_root   := base[:_volume_name_len(base)]
     target_root := target[:_volume_name_len(target)]
-    return strings_tools.equal_fold(base_root, target_root)
+    return utf8.string_equal_fold(base_root, target_root)
 }
 
-_get_common_path_len :: proc(base, target: string) -> int {
-    i := 0
+_get_common_path_len :: proc(base, target: string) -> uint {
+    i: uint
     end := min(len(base), len(target))
     for j in 0..=end {
         if j == end || _is_path_separator(base[j]) {
-            if strings_tools.equal_fold(base[i:j], target[i:j]) {
+            if utf8.string_equal_fold(base[i:j], target[i:j]) {
                 i = j
             } else {
                 break

@@ -1771,7 +1771,7 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.slice.bytes(ptr, size)
+        data = mem.bytes.bytes(ptr, size)
         return
     case .Free:
         MemFree(old_memory)
@@ -1783,7 +1783,7 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.slice.bytes(ptr, size)
+        data = mem.bytes.bytes(ptr, size)
         return
     
     case .Free_All, .Query_Features, .Query_Info:

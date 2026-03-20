@@ -20,16 +20,16 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
         return
     }
     os_type := string(cstring(raw_data(kernel_version_buf[:])))
-    strings_tools.write_string(&b, os_type)
+    string_builder.write_string(&b, os_type)
 
     mib = []i32{sys.CTL_KERN, sys.KERN_OSRELEASE}
     if !sys.sysctl(mib, &kernel_version_buf) {
         return
     }
 
-    strings_tools.write_rune(&b, ' ')
+    string_builder.write_rune(&b, ' ')
     version := string(cstring(raw_data(kernel_version_buf[:])))
-    strings_tools.write_string(&b, version)
+    string_builder.write_string(&b, version)
 
     // Parse kernel version
     res.kernel = _parse_version(version)
@@ -41,7 +41,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
         return
     }
     res.kernel.patch = revision
-    strings_tools.write_string(&b, ", build ")
+    string_builder.write_string(&b, ", build ")
     strings_tools.write_int(&b, revision)
 
     // Finalize pretty name.

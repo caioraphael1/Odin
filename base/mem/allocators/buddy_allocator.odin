@@ -2,6 +2,7 @@ import "base:internal"
 import "base:mem"
 import "base:intrinsics"
 import "base:container/slice"
+import "base:bytes"
 
 /*
 Header of the buddy block.
@@ -338,9 +339,9 @@ buddy_allocator_proc :: proc(
     case .Alloc_Non_Zeroed:
         return buddy_allocator_alloc_bytes_non_zeroed(b, uint(size))
     case .Resize:
-        return default_resize_bytes_align(slice.bytes(old_memory, old_size), size, alignment, buddy_allocator(b), loc)
+        return default_resize_bytes_align(bytes.bytes(old_memory, old_size), size, alignment, buddy_allocator(b), loc)
     case .Resize_Non_Zeroed:
-        return default_resize_bytes_align_non_zeroed(slice.bytes(old_memory, old_size), size, alignment, buddy_allocator(b), loc)
+        return default_resize_bytes_align_non_zeroed(bytes.bytes(old_memory, old_size), size, alignment, buddy_allocator(b), loc)
     case .Free:
         return nil, buddy_allocator_free(b, old_memory)
     case .Free_All:
@@ -361,7 +362,7 @@ buddy_allocator_proc :: proc(
             block := (^Buddy_Block)(([^]byte)(ptr)[-b.alignment:])
             info.size = uint(block.size)
             info.alignment = uint(b.alignment)
-            return slice.bytes(info, size_of(info^)), nil
+            return bytes.bytes(info, size_of(info^)), nil
         }
         return nil, nil
     }

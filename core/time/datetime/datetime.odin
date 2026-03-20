@@ -282,7 +282,7 @@ This procedure returns dates, for every day of a given year in a slice.
 year_range :: proc (#any_int year: i64, allocator: mem.Allocator) -> (range: []Date) {
     is_leap := is_leap_year(year)
 
-    days := 366 if is_leap else 365
+    days: uint = 366 if is_leap else 365
     range, _ = slice.create([]Date, days, allocator)
 
     month_days := MONTH_DAYS

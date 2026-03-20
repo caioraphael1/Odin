@@ -28,8 +28,8 @@ import "base:container/strings"
 
 MAX_RUNE_CODEPOINT :: int(unicode.MAX_RUNE)
 
-write_rune   :: strings_tools.write_rune
-write_string :: strings_tools.write_string
+write_rune   :: string_builder.write_rune
+write_string :: string_builder.write_string
 
 Error :: enum u8 {
     None = 0,
@@ -84,7 +84,7 @@ decode_xml :: proc(input: string, options := XML_Decode_Options{}, allocator: me
     l := len(input)
     if l == 0 { return "", .None }
 
-    builder := strings_tools.builder_create()
+    builder := string_builder.builder_create()
     defer strings_tools.builder_destroy(&builder)
 
     t := Tokenizer{src=input}

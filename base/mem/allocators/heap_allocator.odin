@@ -1,5 +1,6 @@
 import "base:mem"
 import "base:container/slice"
+import "base:bytes"
 
 
 heap_allocator :: proc() -> mem.Allocator {
@@ -54,7 +55,7 @@ heap_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             aligned_free(old_ptr)
         }
 
-        return slice.bytes(aligned_mem, size), nil
+        return bytes.bytes(aligned_mem, size), nil
     }
 
     aligned_free :: proc(p: rawptr) {

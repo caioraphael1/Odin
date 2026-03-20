@@ -815,7 +815,7 @@ _unmarshal_union :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
                 }
 
             case:
-                builder := strings_tools.builder_create(allocators.temp_allocator)
+                builder := string_builder.builder_create(allocators.temp_allocator)
                 defer strings_tools.builder_destroy(&builder)
 
                 reflect.write_type(&builder, variant)

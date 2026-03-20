@@ -124,7 +124,7 @@ Permissions_Default           :: Permissions_Default_Directory
     `perm_number` converts an integer value `perm` to the bit set `Permissions`
 */
 
-perm_number :: proc(perm: int) -> Permissions {
+perm_number :: proc(perm: u32) -> Permissions {
     return transmute(Permissions)u32(perm & 0o777)
 }
 
@@ -250,14 +250,14 @@ seek :: proc(f: ^File, offset: i64, whence: io.Seek_From) -> (ret: i64, err: Err
     It returns the number of bytes read and an error, if any is encountered.
     At the end of a file, it returns `0, io.EOF`.
 */
-read :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
+read :: proc(f: ^File, p: []byte) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
         n64: i64
         n64, err = f.stream.procedure(f, .Read, p, 0, nil, {})
-        return int(n64), err
+        return uint(n64), err
     }
     return 0, .Invalid_File
 }
@@ -268,14 +268,14 @@ read :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
     `read_at` always returns a non-nil error when `n < len(p)`.
     At the end of a file, the error is `io.EOF`.
 */
-read_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: int, err: Error) {
+read_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
         n64: i64
         n64, err = f.stream.procedure(f, .Read_At, p, offset, nil, {})
-        return int(n64), err
+        return uint(n64), err
     }
     return 0, .Invalid_File
 }
@@ -285,14 +285,14 @@ read_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: int, err: Error) {
     and an error, if any is encountered.
     `write` returns a non-nil error when `n != len(p)`.
 */
-write :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
+write :: proc(f: ^File, p: []byte) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
         n64: i64
         n64, err = f.stream.procedure(f, .Write, p, 0, nil, {})
-        return int(n64), err
+        return uint(n64), err
     }
     return 0, .Invalid_File
 }
@@ -302,14 +302,14 @@ write :: proc(f: ^File, p: []byte) -> (n: int, err: Error) {
     It returns the number of bytes written to and an error, if any is encountered.
     `write_at` returns a non-nil error when `n != len(p)`.
 */
-write_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: int, err: Error) {
+write_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
         n64: i64
         n64, err = f.stream.procedure(f, .Write_At, p, offset, nil, {})
-        return int(n64), err
+        return uint(n64), err
     }
     return 0, .Invalid_File
 }

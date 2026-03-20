@@ -444,7 +444,7 @@ encode_hostname :: proc(b: ^string_builder.Builder, hostname: string) -> (ok: bo
         }
 
         string_builder.write_byte(b, u8(len(section)))
-        strings_tools.write_string(b, section)
+        string_builder.write_string(b, section)
     }
     string_builder.write_byte(b, 0)
 

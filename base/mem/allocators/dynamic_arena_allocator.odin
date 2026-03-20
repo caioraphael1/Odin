@@ -2,6 +2,7 @@ import "base:internal"
 import "base:mem"
 import "base:container/slice"
 import "base:container/dyn_array"
+import "base:bytes"
 
 /*
 Default block size for dynamic arena.
@@ -270,7 +271,7 @@ dynamic_arena_resize :: proc(
     size:       uint,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := dynamic_arena_resize_bytes(a, slice.bytes(old_memory, old_size), size, loc)
+    bytes, err := dynamic_arena_resize_bytes(a, bytes.bytes(old_memory, old_size), size, loc)
     return raw_data(bytes), err
 }
 
@@ -330,7 +331,7 @@ dynamic_arena_resize_non_zeroed :: proc(
     size:       uint,
     loc := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := dynamic_arena_resize_bytes_non_zeroed(a, slice.bytes(old_memory, old_size), size, loc)
+    bytes, err := dynamic_arena_resize_bytes_non_zeroed(a, bytes.bytes(old_memory, old_size), size, loc)
     return raw_data(bytes), err
 }
 
@@ -362,13 +363,13 @@ dynamic_arena_resize_bytes_non_zeroed :: proc(
     old_size := len(old_data)
     if old_size >= size {
         // sanitizer.address_poison(old_data[size:])
-        return slice.bytes(old_memory, size), nil
+        return bytes.bytes(old_memory, size), nil
     }
     // No information is kept about allocations in this allocator, thus we
     // cannot truly resize anything and must reallocate.
     data, err := dynamic_arena_alloc_bytes_non_zeroed(a, size, loc)
     if err == nil {
-        slice.copy(data, slice.bytes(old_memory, old_size))
+        slice.copy(data, bytes.bytes(old_memory, old_size))
     }
     return data, err
 }
@@ -393,9 +394,9 @@ dynamic_arena_allocator_proc :: proc(
     case .Free_All:
         dynamic_arena_free_all(arena, loc)
     case .Resize:
-        return dynamic_arena_resize_bytes(arena, slice.bytes(old_memory, old_size), size, loc)
+        return dynamic_arena_resize_bytes(arena, bytes.bytes(old_memory, old_size), size, loc)
     case .Resize_Non_Zeroed:
-        return dynamic_arena_resize_bytes_non_zeroed(arena, slice.bytes(old_memory, old_size), size, loc)
+        return dynamic_arena_resize_bytes_non_zeroed(arena, bytes.bytes(old_memory, old_size), size, loc)
     case .Query_Features:
         set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {
@@ -407,7 +408,7 @@ dynamic_arena_allocator_proc :: proc(
         if info != nil && info.pointer != nil {
             info.size = arena.block_size
             info.alignment = arena.alignment
-            return slice.bytes(info, size_of(info^)), nil
+            return bytes.bytes(info, size_of(info^)), nil
         }
         return nil, nil
     }

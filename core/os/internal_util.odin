@@ -17,7 +17,7 @@ _prefix_and_suffix :: proc(pattern: string) -> (prefix, suffix: string, err: Err
         }
     }
     prefix = pattern
-    for i := len(pattern)-1; i >= 0; i -= 1 {
+    for i := int(len(pattern)) - 1; i >= 0; i -= 1 {
         if pattern[i] == '*' {
             prefix, suffix = pattern[:i], pattern[i+1:]
             break
@@ -27,7 +27,7 @@ _prefix_and_suffix :: proc(pattern: string) -> (prefix, suffix: string, err: Err
 }
 
 random_string :: proc(buf: []byte) -> string {
-    for i := 0; i < len(buf); i += 16 {
+    for i: uint = 0; i < len(buf); i += 16 {
         n := rand.uint64(rand.global_random_generator)
         end := min(i + 16, len(buf))
         for j := i; j < end; j += 1 {

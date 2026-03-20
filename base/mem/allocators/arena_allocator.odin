@@ -2,6 +2,7 @@ import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 import "base:container/slice"
+import "base:bytes"
 
 
 /*
@@ -133,7 +134,7 @@ arena_alloc_bytes_non_zeroed :: proc(
     }
     a.offset += total_size
     a.peak_used = max(a.peak_used, a.offset)
-    result := slice.bytes(ptr, size)
+    result := bytes.bytes(ptr, size)
     // ensure_poisoned(result)
     // sanitizer.address_unpoison(result)
     return result, nil
@@ -167,9 +168,9 @@ arena_allocator_proc :: proc(
     case .Free_All:
         arena_free_all(arena)
     case .Resize:
-        return default_resize_bytes_align(slice.bytes(old_memory, old_size), size, alignment, arena_allocator(arena), loc)
+        return default_resize_bytes_align(bytes.bytes(old_memory, old_size), size, alignment, arena_allocator(arena), loc)
     case .Resize_Non_Zeroed:
-        return default_resize_bytes_align_non_zeroed(slice.bytes(old_memory, old_size), size, alignment, arena_allocator(arena), loc)
+        return default_resize_bytes_align_non_zeroed(bytes.bytes(old_memory, old_size), size, alignment, arena_allocator(arena), loc)
     case .Query_Features:
         set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {

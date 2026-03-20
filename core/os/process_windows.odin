@@ -10,6 +10,7 @@ import "base:container/strings"
 import "core:strings_tools"
 import win32 "core:sys/windows"
 import "core:time"
+import "core:io/string_builder"
 
 @(private)
 _get_uid :: proc() -> int {
@@ -32,8 +33,8 @@ _get_egid :: proc() -> int {
 }
 
 @(private)
-_get_pid :: proc() -> int {
-    return int(win32.GetCurrentProcessId())
+_get_pid :: proc() -> uint {
+    return uint(win32.GetCurrentProcessId())
 }
 
 @(private)
@@ -55,26 +56,26 @@ _get_ppid :: proc() -> int {
 }
 
 @(private)
-_get_current_thread_id :: proc() -> int {
-    return int(win32.GetCurrentThreadId())
+_get_current_thread_id :: proc() -> uint {
+    return uint(win32.GetCurrentThreadId())
 }
 
 @(private)
-_get_processor_core_count :: proc() -> int {
+_get_processor_core_count :: proc() -> uint {
     length : win32.DWORD = 0
     result := win32.GetLogicalProcessorInformation(nil, &length)
 
-    thread_count := 0
+    thread_count: uint
     if !result && win32.GetLastError() == 122 && length > 0 {
         allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-        processors, _ := slice.create([]win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, length, allocators.temp_allocator)
+        processors, _ := slice.create([]win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, uint(length), allocators.temp_allocator)
 
         result = win32.GetLogicalProcessorInformation(&processors[0], &length)
         if result {
             for processor in processors {
                 if processor.Relationship == .RelationProcessorCore {
                     thread := intrinsics.count_ones(processor.ProcessorMask)
-                    thread_count += int(thread)
+                    thread_count += uint(thread)
                 }
             }
         }
@@ -84,19 +85,19 @@ _get_processor_core_count :: proc() -> int {
 }
 
 @(private)
-_process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
+_process_list :: proc(allocator: mem.Allocator) -> (list: []uint, err: Error) {
     snap := win32.CreateToolhelp32Snapshot(win32.TH32CS_SNAPPROCESS, 0)
     if snap == win32.INVALID_HANDLE_VALUE {
         err = _get_platform_error()
         return
     }
 
-    list_d := dyn_array.create([dynamic]int, allocator)
+    list_d := dyn_array.create([dynamic]uint, allocator)
 
     entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
     status := win32.Process32FirstW(snap, &entry)
     for status {
-        dyn_array.append(&list_d, int(entry.th32ProcessID)) or_return
+        dyn_array.append(&list_d, uint(entry.th32ProcessID)) or_return
         status = win32.Process32NextW(snap, &entry)
     }
     list = list_d[:]
@@ -119,7 +120,7 @@ read_memory_as_slice :: proc(h: win32.HANDLE, addr: rawptr, dest: []$T) -> (byte
 }
 
 @(private)
-_process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
+_process_info_by_pid :: proc(pid: uint, selection: Process_Info_Fields, allocator: mem.Allocator) -> (info: Process_Info, err: Error) {
     info.pid = pid
     // Note(flysand): Open the process handle right away to prevent some race
     // conditions. Once the handle is open, the process will be kept alive by
@@ -151,7 +152,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         }
         if .PPid in selection {
             info.fields += {.PPid}
-            info.ppid = int(entry.th32ParentProcessID)
+            info.ppid = uint(entry.th32ParentProcessID)
         }
         if .Priority in selection {
             info.fields += {.Priority}
@@ -193,7 +194,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
         if selection >= {.Command_Line, .Command_Args} {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cmdline_w := slice.create([]u16, process_params.CommandLine.Length, allocators.temp_allocator) or_return
+            cmdline_w := slice.create([]u16, uint(process_params.CommandLine.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CommandLine.Buffer, cmdline_w)
             if err != nil {
                 break read_peb
@@ -210,7 +211,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if .Environment in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             env_len := process_params.EnvironmentSize / 2
-            envs_w := slice.create([]u16, env_len, allocators.temp_allocator) or_return
+            envs_w := slice.create([]u16, uint(env_len), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.Environment, envs_w)
             if err != nil {
                 break read_peb
@@ -220,7 +221,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         }
         if .Working_Dir in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cwd_w := slice.create([]u16, process_params.CurrentDirectoryPath.Length, allocators.temp_allocator) or_return
+            cwd_w := slice.create([]u16, uint(process_params.CurrentDirectoryPath.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CurrentDirectoryPath.Buffer, cwd_w)
             if err != nil {
                 break read_peb
@@ -261,7 +262,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         }
         if .PPid in selection {
             info.fields += {.PPid}
-            info.ppid = int(entry.th32ParentProcessID)
+            info.ppid = uint(entry.th32ParentProcessID)
         }
         if .Priority in selection {
             info.fields += {.Priority}
@@ -304,7 +305,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         arena_temp, _ := allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
         if selection >= {.Command_Line, .Command_Args} {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cmdline_w := slice.create([]u16, process_params.CommandLine.Length, allocators.temp_allocator) or_return
+            cmdline_w := slice.create([]u16, uint(process_params.CommandLine.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CommandLine.Buffer, cmdline_w)
             if err != nil {
                 break read_peb
@@ -321,7 +322,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         if .Environment in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             env_len := process_params.EnvironmentSize / 2
-            envs_w := slice.create([]u16, env_len, allocators.temp_allocator) or_return
+            envs_w := slice.create([]u16, uint(env_len), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.Environment, envs_w)
             if err != nil {
                 break read_peb
@@ -331,7 +332,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         }
         if .Working_Dir in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cwd_w := slice.create([]u16, process_params.CurrentDirectoryPath.Length, allocators.temp_allocator) or_return
+            cwd_w := slice.create([]u16, uint(process_params.CurrentDirectoryPath.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CurrentDirectoryPath.Buffer, cwd_w)
             if err != nil {
                 break read_peb
@@ -370,7 +371,7 @@ _current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.All
         }
         if .PPid in selection {
             info.fields += {.PPid}
-            info.ppid = int(entry.th32ProcessID)
+            info.ppid = uint(entry.th32ProcessID)
         }
         if .Priority in selection {
             info.fields += {.Priority}
@@ -424,7 +425,7 @@ _current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.All
 }
 
 @(private)
-_process_open :: proc(pid: int, flags: Process_Open_Flags) -> (process: Process, err: Error) {
+_process_open :: proc(pid: uint, flags: Process_Open_Flags) -> (process: Process, err: Error) {
     // Note(flysand): The handle will be used for querying information so we
     // take the necessary permissions right away.
     dwDesiredAccess := win32.PROCESS_QUERY_LIMITED_INFORMATION | win32.SYNCHRONIZE
@@ -528,7 +529,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         err = _get_platform_error()
         return
     }
-    process = {pid = int(process_info.dwProcessId), handle = uintptr(process_info.hProcess)}
+    process = {pid = uint(process_info.dwProcessId), handle = uintptr(process_info.hProcess)}
     return
 }
 
@@ -597,7 +598,7 @@ _process_kill :: proc(process: Process) -> Error {
 _process_terminate :: proc(process: Process) -> Error {
     Enum_Windows_State :: struct {
         has_windows: bool,
-        pid:         int,
+        pid:         uint,
     }
     state: Enum_Windows_State
     state.pid = process.pid
@@ -641,7 +642,7 @@ _filetime_to_duration :: proc(filetime: win32.FILETIME) -> time.Duration {
     return time.Duration(ticks * 100)
 }
 
-_process_entry_by_pid :: proc(pid: int) -> (entry: win32.PROCESSENTRY32W, err: Error) {
+_process_entry_by_pid :: proc(pid: uint) -> (entry: win32.PROCESSENTRY32W, err: Error) {
     snap := win32.CreateToolhelp32Snapshot(win32.TH32CS_SNAPPROCESS, 0)
     if snap == win32.INVALID_HANDLE_VALUE {
         err = _get_platform_error()
@@ -667,7 +668,7 @@ _process_entry_by_pid :: proc(pid: int) -> (entry: win32.PROCESSENTRY32W, err: E
 // it's faster to just read both from PEB, but maybe the toolhelp snapshots
 // are just better...?
 @(private)
-_process_exe_by_pid :: proc(pid: int, allocator: mem.Allocator) -> (exe_path: string, err: Error) {
+_process_exe_by_pid :: proc(pid: uint, allocator: mem.Allocator) -> (exe_path: string, err: Error) {
     snap := win32.CreateToolhelp32Snapshot(
         win32.TH32CS_SNAPMODULE|win32.TH32CS_SNAPMODULE32,
         u32(pid),
@@ -703,7 +704,7 @@ _get_process_user :: proc(process_handle: win32.HANDLE, allocator: mem.Allocator
         }
         err = nil
     }
-    token_user := (^win32.TOKEN_USER)(raw_data(slice.create([]u8, token_user_size, allocators.temp_allocator) or_return))
+    token_user := (^win32.TOKEN_USER)(raw_data(slice.create([]u8, uint(token_user_size), allocators.temp_allocator) or_return))
     if !win32.GetTokenInformation(token_handle, .TokenUser, token_user, token_user_size, &token_user_size) {
         err = _get_platform_error()
         return
@@ -730,7 +731,7 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
     if argv_w == nil {
         return nil, _get_platform_error()
     }
-    argv = slice.create([]string, argc, allocator) or_return
+    argv = slice.create([]string, uint(argc), allocator) or_return
     defer if err != nil {
         for arg in argv {
             _ = strings.string_delete(arg, allocator)
@@ -744,21 +745,21 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
 }
 
 _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> string {
-    _write_byte_n_times :: #force_inline proc(builder: ^string_builder.Builder, b: byte, n: int) {
-        for _ in 0 ..< n {
+    _write_byte_n_times :: #force_inline proc(builder: ^string_builder.Builder, b: byte, n: uint) {
+        for _ in 0..<n {
             string_builder.write_byte(builder, b)
         }
     }
-    builder := strings_tools.builder_create(allocator)
+    builder := string_builder.builder_create(allocator)
     for arg, i in command {
         if i != 0 {
             string_builder.write_byte(&builder, ' ')
         }
-        j := 0
+        j: uint
         if strings_tools.contains_any(arg, "()[]{}^=;!'+,`~\" ") {
             string_builder.write_byte(&builder, '"')
             for j < len(arg) {
-                backslashes := 0
+                backslashes: uint = 0
                 for j < len(arg) && arg[j] == '\\' {
                     backslashes += 1
                     j += 1
@@ -777,14 +778,14 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> stri
             }
             string_builder.write_byte(&builder, '"')
         } else {
-            strings_tools.write_string(&builder, arg)
+            string_builder.write_string(&builder, arg)
         }
     }
     return string_builder.to_string(builder)
 }
 
 _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (envs: []string, err: Error) {
-    zt_count := 0
+    zt_count: uint = 0
     for idx := 0; true; {
         if block[idx] == 0x0000 {
             zt_count += 1
@@ -827,18 +828,19 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
 }
 
 _build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> string {
-    builder := strings_tools.builder_create(allocator)
+    builder := string_builder.builder_create(allocator)
     loop: #reverse for kv, cur_idx in environment {
-        eq_idx := strings_tools.index_byte(kv, '=')
-        internal.assert(eq_idx >= 0, "Malformed environment string. Expected '=' to separate keys and values")
+        eq_idx, eq_found := strings_tools.index_byte(kv, '=')
+        internal.assert(eq_found, "Malformed environment string. Expected '=' to separate keys and values")
         key := kv[:eq_idx]
         for old_kv in environment[cur_idx+1:] {
-            old_key := old_kv[:strings_tools.index_byte(old_kv, '=')]
+            eq, _ := strings_tools.index_byte(old_kv, '=')
+            old_key := old_kv[:eq]
             if key == old_key {
                 continue loop
             }
         }
-        strings_tools.write_string(&builder, kv)
+        string_builder.write_string(&builder, kv)
         string_builder.write_byte(&builder, 0)
     }
     // Note(flysand): In addition to the NUL-terminator for each string, the

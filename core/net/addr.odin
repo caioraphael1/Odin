@@ -471,12 +471,12 @@ join_port_allocator :: proc(address_or_host: string, port: int, allocator: mem.A
         return addr_or_host
     }
 
-    b := strings_tools.builder_create(allocator)
+    b := string_builder.builder_create(allocator)
     addr := parse_address(addr_or_host)
     if addr == nil {
         // hostname
-        strings_tools.write_string(&b, addr_or_host)
-        strings_tools.write_string(&b, ":")
+        string_builder.write_string(&b, addr_or_host)
+        string_builder.write_string(&b, ":")
         strings_tools.write_int(&b, port)
         return string_builder.to_string(b)
     } else {
@@ -494,8 +494,8 @@ join_port_builder :: proc(address_or_host: string, port: int, b: ^string_builder
     addr := parse_address(addr_or_host)
     if addr == nil {
         // hostname
-        strings_tools.write_string(b, addr_or_host)
-        strings_tools.write_string(b, ":")
+        string_builder.write_string(b, addr_or_host)
+        string_builder.write_string(b, ":")
         strings_tools.write_int(b, port)
         return string_builder.to_string(b^)
     } else {
@@ -510,12 +510,12 @@ _join_port_internal :: proc(addr: Address, port: int, b: ^string_builder.Builder
     switch a in addr {
     case IP4_Address:
         _ = address_to_string_builder(addr, b)
-        strings_tools.write_string(b, ":")
+        string_builder.write_string(b, ":")
         strings_tools.write_int(b, port)
     case IP6_Address:
-        strings_tools.write_string(b, "[")
+        string_builder.write_string(b, "[")
         _ = address_to_string_builder(addr, b)
-        strings_tools.write_string(b, "]:")
+        string_builder.write_string(b, "]:")
         strings_tools.write_int(b, port)
     }
     return string_builder.to_string(b^)
@@ -540,7 +540,7 @@ map_to_ip6 :: proc(addr: Address) -> Address {
     See RFC 5952 section 4 for IPv6 representation recommendations.
 */
 address_to_string_allocator :: proc(addr: Address) -> string {
-    b := strings_tools.builder_create(allocators.temp_allocator)
+    b := string_builder.builder_create(allocators.temp_allocator)
     return address_to_string_builder(addr, &b)
 }
 
@@ -612,7 +612,7 @@ address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> 
         for val, i in v {
             if best.start == i || best.end == i {
                 // For the left and right side of the best zero run, print a `:`.
-                strings_tools.write_string(b, ":")
+                string_builder.write_string(b, ":")
             } else if i < best.start {
                 /*
                     If we haven't made it to the best run yet, print the digit.
@@ -622,10 +622,10 @@ address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> 
 
                 buf: [32]byte
                 str := strconv.write_bits(buf[:], u64(val), 16, false, size_of(val), strconv.digits, {})
-                strings_tools.write_string(b, str)
+                string_builder.write_string(b, str)
 
                 if i < best.start - 1 {
-                    strings_tools.write_string(b, ":")
+                    string_builder.write_string(b, ":")
                 }
             } else if i > best.end {
                 /*
@@ -635,10 +635,10 @@ address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> 
 
                 buf: [32]byte
                 str := strconv.write_bits(buf[:], u64(val), 16, false, size_of(val), strconv.digits, {})
-                strings_tools.write_string(b, str)
+                string_builder.write_string(b, str)
 
                 if i != 7 {
-                    strings_tools.write_string(b, ":")
+                    string_builder.write_string(b, ":")
                 }
             }
         }
@@ -649,7 +649,7 @@ address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> 
 // Returns a temporarily-allocated string representation of the endpoint.
 // If there's a port, uses the `ip4address:port` or `[ip6address]:port` format, respectively.
 endpoint_to_string_allocator :: proc(ep: Endpoint) -> string {
-    b := strings_tools.builder_create(allocators.temp_allocator)
+    b := string_builder.builder_create(allocators.temp_allocator)
     return endpoint_to_string_builder(ep, &b)
 }
 

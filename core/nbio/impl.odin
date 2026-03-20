@@ -190,21 +190,21 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
     b: string_builder.Builder
     b.buf.allocator = allocators.temp_allocator
 
-    strings_tools.write_string(&b, "[nbio] ")
+    string_builder.write_string(&b, "[nbio] ")
 
     for content, i in contents {
         switch val in content {
         case Operation_Type:
             name, _ := reflect.enum_name_from_value(val)
-            strings_tools.write_string(&b, name)
+            string_builder.write_string(&b, name)
         case string:
-            strings_tools.write_string(&b, val)
+            string_builder.write_string(&b, val)
         case int:
             strings_tools.write_int(&b, val)
         case time.Duration:
             ms := time.duration_milliseconds(val)
             strings.write_f64(&b, ms, 'f')
-            strings_tools.write_string(&b, "ms")
+            string_builder.write_string(&b, "ms")
 
         case time.Time:
             buf: [time.MIN_HMS_LEN+1]byte
@@ -219,7 +219,7 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
             buf[1] = '0' + u8(h % 10); h /= 10
             buf[0] = '0' + u8(h)
 
-            strings_tools.write_string(&b, string(buf[:]))
+            string_builder.write_string(&b, string(buf[:]))
             strings_tools.write_int(&b, ns)
         }
 

@@ -31,7 +31,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
     defer _ = strings.string_delete(base_clean,   allocator)
     defer _ = strings.string_delete(target_clean, allocator)
 
-    if strings_tools.equal_fold(target_clean, base_clean) {
+    if utf8.string_equal_fold(target_clean, base_clean) {
         dot_cloned, _ := strings.string_clone(".", allocator)
         return dot_cloned, .None
     }
@@ -46,7 +46,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
 
     base_slashed   := len(base)   > 0 && base  [0] == SEPARATOR
     target_slashed := len(target) > 0 && target[0] == SEPARATOR
-    if base_slashed != target_slashed || !strings_tools.equal_fold(base_vol, target_vol) {
+    if base_slashed != target_slashed || !utf8.string_equal_fold(base_vol, target_vol) {
         return "", .Cannot_Relate
     }
 
@@ -59,7 +59,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
         for ti < tl && target[ti] != SEPARATOR {
             ti += 1
         }
-        strings_tools.equal_fold(target[t0:ti], base[b0:bi]) or_break
+        utf8.string_equal_fold(target[t0:ti], base[b0:bi]) or_break
 
         if bi < bl {
             bi += 1

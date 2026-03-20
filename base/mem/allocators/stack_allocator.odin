@@ -1,6 +1,7 @@
 import "base:internal"
 import "base:mem"
 import "base:container/slice"
+import "base:bytes"
 
 /*
 Stack allocator data.
@@ -150,7 +151,7 @@ stack_alloc_bytes_non_zeroed :: proc(
     header.prev_offset = old_offset
     s.curr_offset += size
     s.peak_used = max(s.peak_used, s.curr_offset)
-    result := slice.bytes(rawptr(next_addr), size)
+    result := bytes.bytes(rawptr(next_addr), size)
     // ensure_poisoned(result)
     // sanitizer.address_unpoison(result)
     return result, nil
@@ -231,7 +232,7 @@ stack_resize :: proc(
     alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := stack_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment)
+    bytes, err := stack_resize_bytes(s, bytes.bytes(old_memory, old_size), size, alignment)
     return raw_data(bytes), err
 }
 
@@ -295,7 +296,7 @@ stack_resize_non_zeroed :: proc(
     alignment:  uint = mem.DEFAULT_ALIGNMENT,
     loc         := #caller_location,
 ) -> (rawptr, mem.Allocator_Error) {
-    bytes, err := stack_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment)
+    bytes, err := stack_resize_bytes_non_zeroed(s, bytes.bytes(old_memory, old_size), size, alignment)
     return raw_data(bytes), err
 }
 
@@ -349,20 +350,20 @@ stack_resize_bytes_non_zeroed :: proc(
         // does not satisfy it.
         data, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
         if err == nil {
-            slice.copy(data, slice.bytes(old_memory, old_size))
+            slice.copy(data, bytes.bytes(old_memory, old_size))
             // sanitizer.address_poison(old_memory)
         }
         return data, err
     }
     if old_size == size {
-        return slice.bytes(old_memory, size), nil
+        return bytes.bytes(old_memory, size), nil
     }
     header := (^Stack_Allocation_Header)(curr_addr - size_of(Stack_Allocation_Header))
     old_offset := uint(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
     if old_offset != header.prev_offset {
         data, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
         if err == nil {
-            slice.copy(data, slice.bytes(old_memory, old_size))
+            slice.copy(data, bytes.bytes(old_memory, old_size))
             // sanitizer.address_poison(old_memory)
         }
         return data, err
@@ -376,7 +377,7 @@ stack_resize_bytes_non_zeroed :: proc(
     } else {
         // sanitizer.address_poison(old_data[size:])
     }
-    result := slice.bytes(old_memory, size)
+    result := bytes.bytes(old_memory, size)
     // ensure_poisoned(result)
     // sanitizer.address_unpoison(result)
     return result, nil
@@ -405,9 +406,9 @@ stack_allocator_proc :: proc(
     case .Free_All:
         stack_free_all(s, loc)
     case .Resize:
-        return stack_resize_bytes(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return stack_resize_bytes(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Resize_Non_Zeroed:
-        return stack_resize_bytes_non_zeroed(s, slice.bytes(old_memory, old_size), size, alignment, loc)
+        return stack_resize_bytes_non_zeroed(s, bytes.bytes(old_memory, old_size), size, alignment, loc)
     case .Query_Features:
         set := (^mem.Allocator_Mode_Set)(old_memory)
         if set != nil {

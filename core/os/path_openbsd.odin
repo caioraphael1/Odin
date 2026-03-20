@@ -35,14 +35,14 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 
 	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-	buf := strings_tools.builder_create(allocators.temp_allocator)
+	buf := string_builder.builder_create(allocators.temp_allocator)
 
 	paths := get_env("PATH", allocators.temp_allocator)
 	for dir in strings_tools.split_iterator(&paths, ":") {
 		strings_tools.builder_clear(&buf)
-		strings_tools.write_string(&buf, dir)
-		strings_tools.write_string(&buf, "/")
-		strings_tools.write_string(&buf, sarg)
+		string_builder.write_string(&buf, dir)
+		string_builder.write_string(&buf, "/")
+		string_builder.write_string(&buf, sarg)
 
 		cpath := strings.to_cstring(&buf) or_return
 		if posix.access(cpath, {.X_OK}) == .OK {
