@@ -16,6 +16,7 @@ import "core:io"
 import "core:reflect"
 import "core:time"
 
+
 // Internal data structure that stores the required information for formatted printing
 Info :: struct {
     using state: Info_State,

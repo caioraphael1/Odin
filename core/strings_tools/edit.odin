@@ -1,14 +1,20 @@
+import "base:internal"
 import "base:mem"
+import "base:container/strings"
+import "base:container/slice"
+import "base:unicode"
 import "base:unicode/utf8"
+import "base:bytes"
 
 import "core:io"
+import "core:io/string_builder"
 
 /*
 Truncates a string `str` at the first occurrence of char/byte `b`
 */
 truncate_to_byte :: proc(str: string, b: byte) -> (res: string) {
-    n := index_byte(str, b)
-    if n < 0 {
+    n, found := index_byte(str, b)
+    if !found {
         n = len(str)
     }
     return str[:n]
@@ -18,8 +24,8 @@ truncate_to_byte :: proc(str: string, b: byte) -> (res: string) {
 Truncates a string `str` at the first occurrence of rune `r` as a slice of the original, entire string if not found
 */
 truncate_to_rune :: proc(str: string, r: rune) -> (res: string) {
-    n := index_rune(str, r)
-    if n < 0 {
+    n, found := index_rune(str, r)
+    if !found {
         n = len(str)
     }
     return str[:n]
@@ -62,12 +68,12 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
         output = s
         return
     }
-    byte_count := n
+    byte_count := uint(n)
     if m := count(s, old); m == 0 {
         was_allocation = false
         output = s
         return
-    } else if n < 0 || m < n {
+    } else if n < 0 || m < uint(n) {
         byte_count = m
     }
 
@@ -79,8 +85,8 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
     was_allocation = true
 
     w: uint
-    start := 0
-    for i := 0; i < byte_count; i += 1 {
+    start: uint
+    for i: uint = 0; i < byte_count; i += 1 {
         j := start
         if len(old) == 0 {
             if i > 0 {
@@ -88,7 +94,12 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
                 j += width
             }
         } else {
-            j += index(s[start:], old)
+            jjj, found := index(s[start:], old)
+            if found {
+                j += jjj
+            } else {
+                j -= 1 // just because this was the logic before...
+            }
         }
         w += slice.copy_from_string(t[w:], s[start:j])
         w += slice.copy_from_string(t[w:], new)
@@ -110,11 +121,11 @@ Output:
 */
 scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     str := s
-    b: Builder
-    builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
 
     has_error := false
-    cursor := 0
+    cursor: uint = 0
     origin := str
 
     for len(str) > 0 {
@@ -123,11 +134,11 @@ scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res:
         if r == utf8.RUNE_ERROR {
             if !has_error {
                 has_error = true
-                write_string(&b, origin[:cursor])
+                string_builder.write_string(&b, origin[:cursor])
             }
         } else if has_error {
             has_error = false
-            write_string(&b, replacement)
+            string_builder.write_string(&b, replacement)
 
             origin = origin[cursor:]
             cursor = 0
@@ -137,7 +148,7 @@ scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res:
         str = str[w:]
     }
 
-    return to_string(b), nil
+    return string_builder.to_string(b), nil
 }
 
 /*
@@ -210,7 +221,7 @@ Example:
 Output:
     abc1    abc2    abc3
 */
-expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res: string, err: io.Error) {
+expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res: string, err: io.Error) {
     if tab_size <= 0 {
         internal.panic("tab size must be positive")
     }
@@ -219,19 +230,19 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
         return "", nil
     }
 
-    b: Builder
-    builder_init(&b, allocator)
-    writer := to_writer(&b)
+    b: string_builder.Builder
+    string_builder.builder_init(&b, allocator)
+    writer := string_builder.to_writer(&b)
     str := s
-    column: int
+    column: uint
 
     for len(str) > 0 {
         r, w := utf8.rune_from_string(str)
 
         if r == '\t' {
-            expand := tab_size - column%tab_size
+            expand := tab_size - column % tab_size
 
-            for i := 0; i < expand; i += 1 {
+            for i: uint = 0; i < expand; i += 1 {
                 io.write_byte(writer, ' ') or_return
             }
 
@@ -249,7 +260,7 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
         str = str[w:]
     }
 
-    return to_string(b), nil
+    return string_builder.to_string(b), nil
 }
 
 
@@ -258,71 +269,71 @@ expand_tabs :: proc(s: string, tab_size: int, allocator: mem.Allocator) -> (res:
 Centers the input string within a field of specified length by adding pad string on both sides, if its length is less than the target length.
 */
 center_justify :: centre_justify
-centre_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    n := utf8.string_rune_count(s)(str)
+centre_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
+    n := utf8.string_rune_count(str)
     if n >= length || pad == "" {
         return strings.string_clone(str, allocator)
     }
 
-    remains := length-n
-    pad_len := utf8.string_rune_count(s)(pad)
+    remains := length - n
+    pad_len := utf8.string_rune_count(pad)
 
-    b: Builder
-    builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-    w := to_writer(&b)
+    w := string_builder.to_writer(&b)
 
     write_pad_string(w, pad, pad_len, remains/2)
     _, _ = io.write_string(w, str)
     write_pad_string(w, pad, pad_len, (remains+1)/2)
 
-    return to_string(b), nil
+    return string_builder.to_string(b), nil
 }
 
 /*
 Left-justifies the input string within a field of specified length by adding pad string on the right side, if its length is less than the target length.
 */
-left_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    n := utf8.string_rune_count(s)(str)
+left_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
+    n := utf8.string_rune_count(str)
     if n >= length || pad == "" {
         return strings.string_clone(str, allocator)
     }
 
     remains := length-n
-    pad_len := utf8.string_rune_count(s)(pad)
+    pad_len := utf8.string_rune_count(pad)
 
-    b: Builder
-    builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-    w := to_writer(&b)
+    w := string_builder.to_writer(&b)
 
     _, _ = io.write_string(w, str)
     write_pad_string(w, pad, pad_len, remains)
 
-    return to_string(b), nil
+    return string_builder.to_string(b), nil
 }
 
 /*
 Right-justifies the input string within a field of specified length by adding pad string on the left side, if its length is less than the target length.
 */
-right_justify :: proc(str: string, length: int, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    n := utf8.string_rune_count(s)(str)
+right_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
+    n := utf8.string_rune_count(str)
     if n >= length || pad == "" {
         return strings.string_clone(str, allocator)
     }
 
     remains := length-n
-    pad_len := utf8.string_rune_count(s)(pad)
+    pad_len := utf8.string_rune_count(pad)
 
-    b: Builder
-    builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
+    b: string_builder.Builder
+    string_builder.builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-    w := to_writer(&b)
+    w := string_builder.to_writer(&b)
 
     write_pad_string(w, pad, pad_len, remains)
     _, _ = io.write_string(w, str)
 
-    return to_string(b), nil
+    return string_builder.to_string(b), nil
 }
 
 /*
@@ -333,17 +344,17 @@ Writes a given pad string a specified number of times to an `io.Writer`
 - remains: The number of times to write the pad string, in runes
 */
 @(private)
-write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: int) {
+write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: uint) {
     repeats := remains / pad_len
 
-    for i := 0; i < repeats; i += 1 {
+    for i: uint = 0; i < repeats; i += 1 {
         _, _ = io.write_string(w, pad)
     }
 
     n := remains % pad_len
     p := pad
 
-    for i := 0; i < n; i += 1 {
+    for i: uint = 0; i < n; i += 1 {
         r, width := utf8.rune_from_string(p)
         _, _ = io.write_rune(w, r)
         p = p[width:]
@@ -504,23 +515,23 @@ Output:
     -1
 */
 @(private)
-_index_proc :: proc(s: string, p: proc(rune) -> bool, truth := true) -> (res: int) {
+_index_proc :: proc(s: string, p: proc(rune) -> bool, truth := true) -> (res: uint, found: bool) {
     for r, i in s {
         if p(r) == truth {
-            return i
+            return i, true
         }
     }
-    return -1
+    return 0, false
 }
 
 @(private)
-_index_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (res: int) {
+_index_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (res: uint, found: bool) {
     for r, i in s {
         if p(state, r) == truth {
-            return i
+            return i, true
         }
     }
-    return -1
+    return 0, false
 }
 
 /*
@@ -536,8 +547,8 @@ Output:
 */
 @(private)
 _trim_left_proc :: proc(s: string, p: proc(rune) -> bool) -> (res: string) {
-    i := _index_proc(s, p, false)
-    if i == -1 {
+    i, found := _index_proc(s, p, false)
+    if !found {
         return ""
     }
     return s[i:]
@@ -548,8 +559,8 @@ Trims the input string `s` from the left until the procedure `p` with state retu
 */
 @(private)
 _trim_left_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr) -> (res: string) {
-    i := _index_proc_with_state(s, p, state, false)
-    if i == -1 {
+    i, found := _index_proc_with_state(s, p, state, false)
+    if !found {
         return ""
     }
     return s[i:]
@@ -557,30 +568,30 @@ _trim_left_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, sta
 
 // Finds the index of the *last* rune in the string s for which the procedure p returns the same value as truth
 @(private)
-_last_index_proc :: proc(s: string, p: proc(rune) -> bool, truth := true) -> (res: int) {
+_last_index_proc :: proc(s: string, p: proc(rune) -> bool, truth := true) -> (res: uint, found: bool) {
     // TODO(bill): Probably use Rabin-Karp Search
     for i := len(s); i > 0; {
         r, size := utf8.last_rune_in_string(s[:i])
         i -= size
         if p(r) == truth {
-            return i
+            return i, true
         }
     }
-    return -1
+    return 0, false
 }
 
 // Same as `_index_proc_with_state`, runs through the string in reverse
 @(private)
-last_index_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (res: int) {
+last_index_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (res: uint, found: bool) {
     // TODO(bill): Probably use Rabin-Karp Search
     for i := len(s); i > 0; {
         r, size := utf8.last_rune_in_string(s[:i])
         i -= size
         if p(state, r) == truth {
-            return i
+            return i, true
         }
     }
-    return -1
+    return 0, false
 }
 
 
@@ -597,8 +608,8 @@ Output:
 */
 @(private)
 _trim_right_proc :: proc(s: string, p: proc(rune) -> bool) -> (res: string) {
-    i := _last_index_proc(s, p, false)
-    if i >= 0 && s[i] >= utf8.RUNE_SELF {
+    i, found := _last_index_proc(s, p, false)
+    if found && s[i] >= utf8.RUNE_SELF {
         _, w := utf8.rune_from_string(s[i:])
         i += w
     } else {
@@ -612,8 +623,8 @@ Trims the input string `s` from the right until the procedure `p` with state ret
 */
 @(private)
 _trim_right_proc_with_state :: proc(s: string, p: proc(rawptr, rune) -> bool, state: rawptr) -> (res: string) {
-    i := last_index_proc_with_state(s, p, state, false)
-    if i >= 0 && s[i] >= utf8.RUNE_SELF {
+    i, found := last_index_proc_with_state(s, p, state, false)
+    if found && s[i] >= utf8.RUNE_SELF {
         _, w := utf8.rune_from_string(s[i:])
         i += w
     } else {

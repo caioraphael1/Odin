@@ -6545,6 +6545,7 @@ gb_internal Entity **populate_proc_parameter_list(CheckerContext *c, Type *proc_
     }
 
     GB_ASSERT(is_type_proc(proc_type));
+
     TypeProc *pt = &base_type(proc_type)->Proc;
 
     if (!pt->is_polymorphic || pt->is_poly_specialized) {
@@ -6802,6 +6803,15 @@ gb_internal CallArgumentData check_call_arguments(CheckerContext *c, Operand *op
         pt = &proc_type->Proc;
     }
 
+    if (!is_type_proc(proc_type)) return data;
+        /* 
+        (2026-03-20) Caio: I did this, as `proc_type == uint` in the end of a file.
+        This is a band-aid, not a solution.
+        */
+    GB_ASSERT_MSG(is_type_proc(proc_type), "proc_type: '%s' '%s' '%s' '%s' '%s' '%d' '%d'", 
+        type_to_string(proc_type), c->file->fullpath.text, c->file->filename.text, c->file->directory.text, c->file->curr_token.string.text, c->file->curr_token.pos.line, c->file->curr_token.pos.column);
+
+
     TEMPORARY_ALLOCATOR_GUARD();
     ast_node(ce, CallExpr, call);
 
@@ -6881,7 +6891,6 @@ gb_internal CallArgumentData check_call_arguments(CheckerContext *c, Operand *op
             }
             array_add(&named_operands, o);
         }
-
     }
 
     if (!any_failure) {

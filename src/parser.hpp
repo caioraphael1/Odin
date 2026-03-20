@@ -135,8 +135,8 @@ struct AstFile {
     bool         allow_type;
     bool         in_when_statement;
 
-    isize total_file_decl_count;
-    isize delayed_decl_count;
+    isize        total_file_decl_count;
+    isize        delayed_decl_count;
     Slice<Ast *> decls;
     Array<Ast *> imports; // 'import'
     isize        directive_count;

@@ -1,4 +1,5 @@
 import "base:mem"
+import "base:container/strings"
 
 string_from_null_terminated_ptr :: proc(ptr: [^]byte, len: uint) -> (res: string) {
     s := string(ptr[:len])

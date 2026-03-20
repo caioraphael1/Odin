@@ -282,18 +282,18 @@ enum ScopeFlag : i32 {
 enum { DEFAULT_SCOPE_CAPACITY = 32 };
 
 struct Scope {
-    Ast *         node;
-    Scope *       parent;
+    Ast *           node;
+    Scope *         parent;
     std::atomic<Scope *> next;
     std::atomic<Scope *> head_child;
 
-    i32 index; // within a procedure
+    i32             index; // within a procedure
 
-    RwMutex mutex;
+    RwMutex         mutex;
     StringMap<Entity *> elements;
     PtrSet<Scope *> imported;
 
-    DeclInfo *decl_info;
+    DeclInfo *      decl_info;
 
     i32             flags; // ScopeFlag
     union {

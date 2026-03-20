@@ -1,4 +1,10 @@
+import "base:internal"
 import "base:mem"
+import "base:container/slice"
+import "base:container/dyn_array"
+import "base:unicode"
+import "base:unicode/ascii"
+import "base:unicode/utf8"
 
 /*
 Splits the input string `str` by the separator `sep` string and returns 3 parts. The values are slices of the original string.
@@ -21,8 +27,8 @@ Output:
     true
 */
 partition :: proc(str, sep: string) -> (head, match, tail: string) {
-    i := index(str, sep)
-    if i == -1 {
+    i, found := index(str, sep)
+    if !found {
         head = str
         return
     }
@@ -38,7 +44,7 @@ Splits the input string `s` into a slice of substrings separated by the specifie
 NOTE: Allocation occurs for the array, the splits are all views of the original string.
 */
 @(private)
-_split :: proc(s_, sep: string, sep_save, n_: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
+_split :: proc(s_, sep: string, sep_save, n_: uint, all: bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
     s, n := s_, n_
 
     if n == 0 {
@@ -47,12 +53,12 @@ _split :: proc(s_, sep: string, sep_save, n_: uint, allocator: mem.Allocator, lo
 
     if sep == "" {
         l := utf8.string_rune_count(s)
-        if n < 0 || n > l {
+        if all || n > l {
             n = l
         }
 
         res = slice.create([]string, n, allocator, loc) or_return
-        for i := 0; i < n-1; i += 1 {
+        for i: uint = 0; i < n-1; i += 1 {
             _, w := utf8.rune_from_string(s)
             res[i] = s[:w]
             s = s[w:]
@@ -63,7 +69,7 @@ _split :: proc(s_, sep: string, sep_save, n_: uint, allocator: mem.Allocator, lo
         return res[:], nil
     }
 
-    if n < 0 {
+    if all {
         n = count(s, sep) + 1
     }
 
@@ -71,10 +77,10 @@ _split :: proc(s_, sep: string, sep_save, n_: uint, allocator: mem.Allocator, lo
 
     n -= 1
 
-    i := 0
+    i: uint
     for ; i < n; i += 1 {
-        m := index(s, sep)
-        if m < 0 {
+        m, found := index(s, sep)
+        if !found {
             break
         }
         res[i] = s[:m+sep_save]
@@ -96,7 +102,7 @@ Output:
     ["aaa", "bbb", "ccc", "ddd", "eee"]
 */
 split :: proc(s, sep: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
-    return _split(s, sep, 0, -1, allocator, loc)
+    return _split(s, sep, 0, 0, true, allocator, loc)
 }
 
 /*
@@ -110,7 +116,7 @@ Output:
     ["aaa", "bbb", "ccc.ddd.eee"]
 */
 split_n :: proc(s, sep: string, n: uint, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-    return _split(s, sep, 0, n, allocator)
+    return _split(s, sep, 0, n, false, allocator)
 }
 
 /*
@@ -124,7 +130,7 @@ Output:
     ["aaa.", "bbb.", "ccc.", "ddd.", "eee"]
 */
 split_after :: proc(s, sep: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-    return _split(s, sep, len(sep), -1, allocator)
+    return _split(s, sep, len(sep), 0, true, allocator)
 }
 
 /*
@@ -138,7 +144,7 @@ Output:
     ["aaa.", "bbb.", "ccc.ddd.eee"]
 */
 split_after_n :: proc(s, sep: string, n: uint, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
-    return _split(s, sep, len(sep), n, allocator)
+    return _split(s, sep, len(sep), n, false, allocator)
 }
 
 /*
@@ -147,19 +153,20 @@ up to (but not including) the separator, as well as a boolean indicating success
 */
 @(private)
 _split_iterator :: proc(s: ^string, sep: string, sep_save: uint) -> (res: string, ok: bool) {
-    m: int
+    m: uint
+    found: bool
     if sep == "" {
         if len(s) == 0 {
-            m = -1
+            found = false
         } else {
             _, w := utf8.rune_from_string(s^)
             m = w
+            found = true
         }
     } else {
-        m = index(s^, sep)
+        m, found = index(s^, sep)
     }
-    if m < 0 {
-        // not found
+    if !found {
         res = s[:]
         ok = res != ""
         s^ = s[len(s):]
@@ -187,9 +194,8 @@ Output:
     e
 */
 split_by_byte_iterator :: proc(s: ^string, sep: u8) -> (res: string, ok: bool) {
-    m := index_byte(s^, sep)
-    if m < 0 {
-        // not found
+    m, found := index_byte(s^, sep)
+    if !found {
         res = s[:]
         ok = res != ""
         s^ = {}
@@ -262,7 +268,7 @@ Output:
 */
 split_lines :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
     sep :: "\n"
-    lines := _split(s, sep, 0, -1, allocator) or_return
+    lines := _split(s, sep, 0, 0, true, allocator) or_return
     for &line in lines {
         line = _trim_cr(line)
     }
@@ -281,7 +287,7 @@ Output:
 */
 split_lines_n :: proc(s: string, n: uint, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
     sep :: "\n"
-    lines := _split(s, sep, 0, n, allocator) or_return
+    lines := _split(s, sep, 0, n, false, allocator) or_return
     for &line in lines {
         line = _trim_cr(line)
     }
@@ -300,7 +306,7 @@ Output:
 */
 split_lines_after :: proc(s: string, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
     sep :: "\n"
-    lines := _split(s, sep, len(sep), -1, allocator) or_return
+    lines := _split(s, sep, len(sep), 0, true, allocator) or_return
     for &line in lines {
         line = _trim_cr(line)
     }
@@ -320,7 +326,7 @@ Output:
 */
 split_lines_after_n :: proc(s: string, n: uint, allocator: mem.Allocator) -> (res: []string, err: mem.Allocator_Error) {
     sep :: "\n"
-    lines := _split(s, sep, len(sep), n, allocator) or_return
+    lines := _split(s, sep, len(sep), n, false, allocator) or_return
     for &line in lines {
         line = _trim_cr(line)
     }
@@ -391,27 +397,27 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
     }
 
     // calculate the needed len of `results`
-    n := 1
+    n: uint = 1
     for it := s; len(it) > 0; {
-        i, w := index_multi(it, substrs)
-        if i < 0 {
+        i, found := index_multi(it, substrs)
+        if !found {
             break
         }
         n += 1
-        it = it[i+w:]
+        it = it[i + len(substrs):]
     }
 
     results := dyn_array.create_len_cap([dynamic]string, 0, n, allocator, loc) or_return
     {
         it := s
         for len(it) > 0 {
-            i, w := index_multi(it, substrs)
-            if i < 0 {
+            i, found := index_multi(it, substrs)
+            if !found {
                 break
             }
             part := it[:i]
             _ = dyn_array.append(&results, part)
-            it = it[i+w:]
+            it = it[i + len(substrs):]
         }
         _ = dyn_array.append(&results, it)
     }
@@ -449,10 +455,10 @@ split_multi_iterate :: proc(it: ^string, substrs: []string) -> (res: string, ok:
     }
 
     // calculate the needed len of `results`
-    i, w := index_multi(it^, substrs)
-    if i >= 0 {
+    i, found := index_multi(it^, substrs)
+    if found {
         res = it[:i]
-        it^ = it[i+w:]
+        it^ = it[i+len(substrs):]
     } else {
         // last value
         res = it^
@@ -466,15 +472,15 @@ split_multi_iterate :: proc(it: ^string, substrs: []string) -> (res: string, ok:
 Splits a string into a slice of substrings at each instance of one or more consecutive white space characters, as defined by `unicode.is_space`
 */
 fields :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
-    n := 0
-    was_space := 1
+    n: uint
+    was_space: uint = 1
     set_bits := u8(0)
 
     // check to see
     for i in 0..<len(s) {
         r := s[i]
         set_bits |= r
-        is_space := int(_ascii_space[r])
+        is_space := uint(ascii.is_ascii_space(rune(r)))
         n += was_space & ~is_space
         was_space = is_space
     }
@@ -489,21 +495,21 @@ fields :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> 
 
     a := slice.create([]string, n, allocator, loc) or_return
     na := 0
-    field_start := 0
-    i := 0
-    for i < len(s) && _ascii_space[s[i]] {
+    field_start: uint
+    i: uint
+    for i < len(s) && ascii.is_ascii_space(rune(s[i])) {
         i += 1
     }
     field_start = i
     for i < len(s) {
-        if !_ascii_space[s[i]] {
+        if !ascii.is_ascii_space(rune(s[i])) {
             i += 1
             continue
         }
         a[na] = s[field_start : i]
         na += 1
         i += 1
-        for i < len(s) && _ascii_space[s[i]] {
+        for i < len(s) && ascii.is_ascii_space(rune(s[i])) {
             i += 1
         }
         field_start = i
@@ -523,7 +529,7 @@ fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, 
 
     start, end := -1, -1
     for r, offset in s {
-        end = offset
+        end = int(offset)
         if f(r) {
             if start >= 0 {
                 _ = dyn_array.append(&substrings, s[start : end])
@@ -551,7 +557,7 @@ Retrieves the first non-space substring from a mutable string reference and adva
 fields_iterator :: proc(s: ^string) -> (field: string, ok: bool) {
     start, end := -1, -1
     for r, offset in s {
-        end = offset
+        end = int(offset)
         if unicode.is_space(r) {
             if start >= 0 {
                 field = s[start : end]

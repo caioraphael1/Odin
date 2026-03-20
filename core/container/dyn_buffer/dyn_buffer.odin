@@ -10,8 +10,7 @@ import "core:io"
 
 MIN_READ :: 512
 
-@(private)
-SMALL_BUFFER_SIZE :: 64
+@(private) SMALL_BUFFER_SIZE :: 64
 
 // A Dyn_Buffer is a variable-sized buffer of bytes with a io.Stream interface
 // The zero value for Dyn_Buffer is an empty buffer ready to use.
@@ -42,7 +41,7 @@ buffer_init_string :: proc(b: ^Dyn_Buffer, s: string, loc := #caller_location) {
     slice.copy_from_string(b.buf[:], s)
 }
 
-buffer_init_allocator :: proc(b: ^Dyn_Buffer, len, cap: unt, allocator: mem.Allocator, loc := #caller_location) {
+buffer_init_allocator :: proc(b: ^Dyn_Buffer, len, cap: uint, allocator: mem.Allocator, loc := #caller_location) {
     if b.buf == nil {
         b.buf, _ = dyn_array.create_len_cap([dynamic]byte, len, cap, allocator, loc)
         return
@@ -507,7 +506,7 @@ scrub :: proc(s: []byte, replacement: []byte, allocator: mem.Allocator, loc := #
 
 
 @(private)
-write_pad_string :: proc(b: ^Dyn_Buffer, pad: []byte, pad_len, remains: int, loc := #caller_location) {
+write_pad_string :: proc(b: ^Dyn_Buffer, pad: []byte, pad_len, remains: uint, loc := #caller_location) {
     repeats := remains / pad_len
 
     for i := 0; i < repeats; i += 1 {
@@ -524,7 +523,7 @@ write_pad_string :: proc(b: ^Dyn_Buffer, pad: []byte, pad_len, remains: int, loc
     }
 }
 
-expand_tabs :: proc(s: []byte, tab_size: int, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+expand_tabs :: proc(s: []byte, tab_size: uint, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     if tab_size <= 0 {
         internal.panic("tab size must be positive")
     }
@@ -571,7 +570,7 @@ expand_tabs :: proc(s: []byte, tab_size: int, allocator: mem.Allocator, loc := #
 center_justify :: centre_justify // NOTE(bill): Because Americans exist
 
 // centre_justify returns a byte slice with a pad byte slice at boths sides if the str's rune length is smaller than length
-centre_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+centre_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     n := rune_count(str)
     if n >= length || pad == nil {
         return clone(str, allocator, loc)
@@ -591,7 +590,7 @@ centre_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.All
 }
 
 // left_justify returns a byte slice with a pad byte slice at left side if the str's rune length is smaller than length
-left_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+left_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     n := rune_count(str)
     if n >= length || pad == nil {
         return clone(str, allocator, loc)
@@ -610,7 +609,7 @@ left_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.Alloc
 }
 
 // right_justify returns a byte slice with a pad byte slice at right side if the str's rune length is smaller than length
-right_justify :: proc(str: []byte, length: int, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+right_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
     n := rune_count(str)
     if n >= length || pad == nil {
         return clone(str, allocator, loc)

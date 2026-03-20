@@ -6,6 +6,7 @@ Each bit in the array corresponds to a specific ASCII character, where the value
 indicates if the character is present in the set or not.
 */
 Ascii_Set :: distinct [8]u32
+
 /*
 Creates an Ascii_Set with unique characters from the input string.
 
@@ -16,7 +17,7 @@ Returns:
 - as: An Ascii_Set with unique characters from the input string.
 - ok: false if any character in the input string is not a valid ASCII character.
 */
-ascii_set_create :: proc(chars: string) -> (as: Ascii_Set, ok: bool) #no_bounds_check {
+ascii_set_create :: proc(chars: string) -> (as: Ascii_Set, ok: bool) #no_bounds_check {    
     for i in 0..<len(chars) {
         c := chars[i]
         if c >= utf8.RUNE_SELF {
@@ -27,6 +28,7 @@ ascii_set_create :: proc(chars: string) -> (as: Ascii_Set, ok: bool) #no_bounds_
     ok = true
     return
 }
+
 /*
 Determines if a given char is contained within an Ascii_Set.
 

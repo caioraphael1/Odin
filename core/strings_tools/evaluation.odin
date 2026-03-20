@@ -1,13 +1,11 @@
+
 import "base:internal"
 import "base:mem"
 import "base:bytes"
-import "base:container/dyn_array"
 import "base:container/slice"
-import "base:container/strings"
 import "base:unicode"
 import "base:unicode/utf8"
-
-import "core:io"
+import "base:unicode/ascii"
 
 
 /*
@@ -23,7 +21,8 @@ Output:
     false
 */
 contains :: proc(s, substr: string) -> (res: bool) {
-    return index(s, substr) >= 0
+    _, found := index(s, substr)
+    return found
 }
 
 /*
@@ -41,9 +40,9 @@ Output:
     false
 */
 contains_any :: proc(s, chars: string) -> (res: bool) {
-    return index_any(s, chars) >= 0
+    _, found := index_any(s, chars)
+    return found
 }
-
 
 contains_space :: proc(s: string) -> (res: bool) {
     for c in s {
@@ -53,7 +52,6 @@ contains_space :: proc(s: string) -> (res: bool) {
     }
     return false
 }
-
 
 /*
 Example:
@@ -112,7 +110,8 @@ Output:
     0, false
 */
 index :: proc(s, substr: string) -> (res: uint, found: bool) {
-    hash_str_rabin_karp :: proc(s: string) -> (hash: u32 = 0, pow: u32 = 1) {
+    hash_str_rabin_karp :: proc(s: string) -> (hash: u32, pow: u32) {
+        pow = 1
         for i: uint = 0; i < len(s); i += 1 {
             hash = hash*PRIME_RABIN_KARP + u32(s[i])
         }
@@ -174,7 +173,8 @@ Output:
     0, false
 */
 last_index :: proc(s, substr: string) -> (res: uint, found: bool) {
-    hash_str_rabin_karp_reverse :: proc(s: string) -> (hash: u32 = 0, pow: u32 = 1) {
+    hash_str_rabin_karp_reverse :: proc(s: string) -> (hash: u32, pow: u32) {
+        pow = 1
         for i := int(len(s)) - 1; i >= 0; i -= 1 {
             hash = hash*PRIME_RABIN_KARP + u32(s[i])
         }
@@ -213,8 +213,8 @@ last_index :: proc(s, substr: string) -> (res: uint, found: bool) {
     for i := int(last) - 1; i >= 0; i -= 1 {
         h *= PRIME_RABIN_KARP
         h += u32(s[i])
-        h -= pow * u32(s[i+n])
-        if h == hash && s[i:i+n] == substr {
+        h -= pow * u32(s[uint(i) + n])
+        if h == hash && s[i:i + int(n)] == substr {
             return uint(i), true
         }
     }
@@ -249,9 +249,9 @@ index_any :: proc(s, chars: string) -> (res: uint, found: bool) {
     }
     
     if len(s) > 8 {
-        if as, ok := ascii_set_create(chars); ok {
+        if as, ok := ascii.ascii_set_create(chars); ok {
             for i in 0..<len(s) {
-                if ascii_set_contains(as, s[i]) {
+                if ascii.ascii_set_contains(as, s[i]) {
                     return i, true
                 }
             }
@@ -260,7 +260,8 @@ index_any :: proc(s, chars: string) -> (res: uint, found: bool) {
     }
 
     for c, i in s {
-        if index_rune(chars, c) >= 0 {
+        _, found := index_rune(chars, c)
+        if found {
             return i, true
         }
     }
@@ -295,10 +296,10 @@ last_index_any :: proc(s, chars: string) -> (res: uint, found: bool) {
     }
     
     if len(s) > 8 {
-        if as, ok := ascii_set_create(chars); ok {
-            for i := len(s)-1; i >= 0; i -= 1 {
-                if ascii_set_contains(as, s[i]) {
-                    return i, true
+        if as, ok := ascii.ascii_set_create(chars); ok {
+            for i := int(len(s)) - 1; i >= 0; i -= 1 {
+                if ascii.ascii_set_contains(as, s[i]) {
+                    return uint(i), true
                 }
             }
             return 0, false
@@ -323,7 +324,8 @@ last_index_any :: proc(s, chars: string) -> (res: uint, found: bool) {
     for i := len(s); i > 0; /**/ {
         r, w := utf8.last_rune_in_string(s[:i])
         i -= w
-        if index_rune(chars, r) >= 0 {
+        _, found := index_rune(chars, r)
+        if found {
             return i, true
         }
     }
@@ -333,8 +335,7 @@ last_index_any :: proc(s, chars: string) -> (res: uint, found: bool) {
 /*
 Finds the first occurrence of any substring in `substrs` within `s`
 */
-index_multi :: proc(s: string, substrs: []string) -> (idx: int, width: int) {
-    idx = -1
+index_multi :: proc(s: string, substrs: []string) -> (idx: uint, found: bool) {
     if s == "" || len(substrs) <= 0 {
         return
     }
@@ -346,13 +347,12 @@ index_multi :: proc(s: string, substrs: []string) -> (idx: int, width: int) {
     }
 
     lowest_index := len(s)
-    found := false
+    found = false
     for substr in substrs {
         haystack := s[:min(len(s), lowest_index + len(substr))]
-        if i := index(haystack, substr); i >= 0 {
+        if i, idx_found := index(haystack, substr); idx_found {
             if i < lowest_index {
                 lowest_index = i
-                width = len(substr)
                 found = true
             }
         }
@@ -428,8 +428,8 @@ count :: proc(s, substr: string) -> (res: uint) {
         case 1:
             return uint(s[0] == c)
         }
-        n := 0
-        for i := 0; i < len(s); i += 1 {
+        n: uint = 0
+        for i: uint = 0; i < len(s); i += 1 {
             if s[i] == c {
                 n += 1
             }
@@ -438,11 +438,11 @@ count :: proc(s, substr: string) -> (res: uint) {
     }
 
     // TODO(bill): Use a non-brute for approach
-    n := 0
+    n: uint
     str := s
     for {
-        i := index(str, substr)
-        if i == -1 {
+        i, found := index(str, substr)
+        if !found {
             return n
         }
         n += 1
@@ -456,8 +456,8 @@ Computes the Levenshtein edit distance between two strings
 NOTE: Does not perform internal allocation if length of string `b`, in runes, is smaller than 64
 NOTE: This implementation is a single-row-version of the Wagner–Fischer algorithm, based on C code by Martin Ettl.
 */
-levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #caller_location) -> (res: int, err: mem.Allocator_Error) {
-    LEVENSHTEIN_DEFAULT_COSTS: []int : {
+levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #caller_location) -> (res: uint, err: mem.Allocator_Error) {
+    LEVENSHTEIN_DEFAULT_COSTS: []uint : {
         0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
         10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
         20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -467,7 +467,8 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
         60,  61,  62,  63,
     }
 
-    m, n := utf8.string_rune_count(a), utf8.string_rune_count(b)
+    m := utf8.string_rune_count(a)
+    n := utf8.string_rune_count(b)
 
     if m == 0 {
         return n, nil
@@ -476,10 +477,10 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
         return m, nil
     }
 
-    costs: []int
+    costs: []uint
 
     if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-        costs = slice.create([]int, n + 1, allocator, loc) or_return
+        costs = slice.create([]uint, n + 1, allocator, loc) or_return
         for k in 0..=n {
             costs[k] = k
         }
@@ -491,7 +492,7 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
         _ = slice.delete(costs, allocator)
     }
 
-    i: int
+    i: uint
     for c1 in a {
         costs[0] = i + 1
         corner := i
