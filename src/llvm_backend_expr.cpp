@@ -5567,6 +5567,12 @@ gb_internal lbAddr lb_build_addr_compound_lit(lbProcedure *p, Ast *expr) {
 
 gb_internal lbAddr lb_build_addr_internal(lbProcedure *p, Ast *expr) {
     switch (expr->kind) {
+    case_ast_node(i, Implicit, expr);
+        lbAddr v = {};
+        GB_ASSERT(v.addr.value != nullptr);
+        return v;
+    case_end;
+    
     case_ast_node(i, Ident, expr);
         if (is_blank_ident(expr)) {
             lbAddr val = {};

@@ -744,7 +744,6 @@ gb_internal Ast *ast_deref_expr(AstFile *f, Ast *expr, Token op) {
     return result;
 }
 
-
 gb_internal Ast *ast_matrix_index_expr(AstFile *f, Ast *expr, Token open, Token close, Token interval, Ast *row, Ast *column) {
     Ast *result = alloc_ast_node(f, Ast_MatrixIndexExpr);
     result->MatrixIndexExpr.expr         = expr;
@@ -4207,6 +4206,12 @@ gb_internal Array<Ast *> convert_to_ident_list(AstFile *f, Array<AstAndFlags> li
         switch (ident->kind) {
         case Ast_Ident:
         case Ast_BadExpr:
+            break;
+        case Ast_Implicit:
+            begin_error_block();
+            syntax_error(ident, "Expected an identifier, '%.*s' which is a keyword", LIT(ident->Implicit.string));
+            end_error_block();
+            ident = ast_ident(f, blank_token);
             break;
         case Ast_PolyType:
             if (allow_poly_names) {

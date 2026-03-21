@@ -6246,7 +6246,6 @@ gb_internal CallArgumentError check_call_arguments_internal(CheckerContext *c, A
         }
     }
 
-    isize dummy_argument_count = 0;
     bool actually_variadic = false;
 
     if (variadic) {
@@ -6286,7 +6285,6 @@ gb_internal CallArgumentError check_call_arguments_internal(CheckerContext *c, A
                     Entity *vt = pt->params->Tuple.variables[pt->variadic_index];
                     o.type = vt->type;
                 } else {
-                    dummy_argument_count += 1;
                     o.type = t_untyped_nil;
                 }
                 *variadic_operand = o;
@@ -6303,8 +6301,6 @@ gb_internal CallArgumentError check_call_arguments_internal(CheckerContext *c, A
                         ordered_operands[i].mode = Addressing_Value;
                         ordered_operands[i].type = e->type;
                         ordered_operands[i].expr = e->Variable.param_value.original_ast_expr;
-
-                        dummy_argument_count += 1;
                         score += assign_score_function(1);
                         continue;
                 }
@@ -10765,6 +10761,11 @@ gb_internal ExprKind check_expr_base_internal(CheckerContext *c, Operand *o, Ast
         return kind;
 
     case_ast_node(be, BadExpr, node)
+        return kind;
+    case_end;
+
+    case_ast_node(i, Implicit, node);
+        error(node, "Illegal implicit name '%.*s'", LIT(i->string));
         return kind;
     case_end;
 
