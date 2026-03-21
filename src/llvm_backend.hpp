@@ -181,7 +181,7 @@ struct lbModule {
     LLVMBuilderRef const_dummy_builder;
 
     LLVMDIBuilderRef debug_builder;
-    LLVMMetadataRef debug_compile_unit;
+    LLVMMetadataRef  debug_compile_unit;
 
     RecursiveMutex debug_values_mutex;
     PtrMap<void *, LLVMMetadataRef> debug_values; 

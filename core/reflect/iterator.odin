@@ -20,8 +20,8 @@ iterate_array :: proc(val: any, it: ^uint) -> (elem: any, index: uint, ok: bool)
             return iterate_array(any{ptr, info.elem.id}, it)
         }
     case Type_Info_Array:
-        if it^ < info.count {
-            elem.data = rawptr(uintptr(val.data) + uintptr(it^ * info.elem_size))
+        if it^ < uint(info.count) {
+            elem.data = rawptr(uintptr(val.data) + uintptr(it^ * uint(info.elem_size)))
             elem.id = info.elem.id
             ok = true
             index = it^
@@ -30,7 +30,7 @@ iterate_array :: proc(val: any, it: ^uint) -> (elem: any, index: uint, ok: bool)
     case Type_Info_Slice:
         array := (^slice.Raw_Slice)(val.data)
         if it^ < array.len {
-            elem.data = rawptr(uintptr(array.data) + uintptr(it^ * info.elem_size))
+            elem.data = rawptr(uintptr(array.data) + uintptr(it^ * uint(info.elem_size)))
             elem.id = info.elem.id
             ok = true
             index = it^

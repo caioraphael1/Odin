@@ -418,7 +418,7 @@ Output:
 */
 count :: proc(s, substr: string) -> (res: uint) {
     if len(substr) == 0 { // special case
-        return utf8.string_rune_count(s)(s) + 1
+        return utf8.string_rune_count(s) + 1
     }
     if len(substr) == 1 {
         c := substr[0]
@@ -446,7 +446,7 @@ count :: proc(s, substr: string) -> (res: uint) {
             return n
         }
         n += 1
-        str = str[i+len(substr):]
+        str = str[i + len(substr):]
     }
     return n
 }

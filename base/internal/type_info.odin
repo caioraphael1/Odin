@@ -69,14 +69,14 @@ Type_Info_Procedure :: struct {
 }
 Type_Info_Array :: struct {
     elem:      ^Type_Info,
-    elem_size: uint,
-    count:     uint,
+    elem_size: int,
+    count:     int,
 }
 Type_Info_Enumerated_Array :: struct {
     elem:      ^Type_Info,
     index:     ^Type_Info,
-    elem_size: uint,
-    count:     uint,
+    elem_size: int,
+    count:     int,
     min_value: Type_Info_Enum_Value,
     max_value: Type_Info_Enum_Value,
     is_sparse: bool,
@@ -106,13 +106,13 @@ Type_Info_Struct :: struct {
     usings:        [^]bool       `fmt:"v,field_count"`,
     tags:          [^]string     `fmt:"v,field_count"`,
 
-    field_count:   uint,
+    field_count:   i32,
 
     flags:         Type_Info_Struct_Flags,
 
     // These are only set iff this structure is an SOA structure
     soa_kind:      Type_Info_Struct_Soa_Kind,
-    soa_len:       uint,
+    soa_len:       i32,
     soa_base_type: ^Type_Info,
 
     equal: Equal_Proc, // set only when the struct has .Comparable set but does not have .Simple_Compare set
@@ -146,15 +146,15 @@ Type_Info_Bit_Set :: struct {
 }
 Type_Info_Simd_Vector :: struct {
     elem:       ^Type_Info,
-    elem_size:  uint,
-    count:      uint,
+    elem_size:  int,
+    count:      int,
 }
 Type_Info_Matrix :: struct {
     elem:         ^Type_Info,
-    elem_size:    uint,
-    elem_stride:  uint, // elem_stride >= row_count
-    row_count:    uint,
-    column_count: uint,
+    elem_size:    int,
+    elem_stride:  int, // elem_stride >= row_count
+    row_count:    int,
+    column_count: int,
     // Total element count = column_count * elem_stride
     layout: enum u8 {
         Column_Major, // array of column vectors
@@ -181,8 +181,8 @@ Type_Info_Flag :: enum u8 {
 Type_Info_Flags :: distinct bit_set[Type_Info_Flag; u32]
 
 Type_Info :: struct {
-    size:  uint,
-    align: uint,
+    size:  int,
+    align: int,
     flags: Type_Info_Flags,
     id:    typeid,
 

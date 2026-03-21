@@ -257,7 +257,7 @@ gb_internal LLVMValueRef llvm_const_slice_internal(lbModule *m, LLVMValueRef dat
 }
 gb_internal LLVMValueRef llvm_const_slice(lbModule *m, lbValue data, lbValue len) {
     GB_ASSERT(is_type_pointer(data.type) || is_type_multi_pointer(data.type));
-    GB_ASSERT(are_types_identical(len.type, t_int));
+    GB_ASSERT_MSG(are_types_identical(len.type, t_int), "'%s'", type_to_string(len.type));
 
     return llvm_const_slice_internal(m, data.value, len.value);
 }
@@ -273,7 +273,6 @@ gb_internal lbValue lb_const_undef(lbModule *m, Type *type) {
     LLVMValueRef v = LLVMGetUndef(lb_type(m, type));
     return lbValue{v, type};
 }
-
 
 
 gb_internal lbValue lb_const_int(lbModule *m, Type *type, u64 value) {

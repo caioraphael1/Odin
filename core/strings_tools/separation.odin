@@ -44,10 +44,11 @@ Splits the input string `s` into a slice of substrings separated by the specifie
 NOTE: Allocation occurs for the array, the splits are all views of the original string.
 */
 @(private)
-_split :: proc(s_, sep: string, sep_save, n_: uint, all: bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
-    s, n := s_, n_
+_split :: proc(s, sep: string, sep_save, n: uint, all: bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) {
+    s := s
+    n := n
 
-    if n == 0 {
+    if !all && n == 0 {
         return nil, nil
     }
 

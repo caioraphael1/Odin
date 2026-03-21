@@ -2783,8 +2783,8 @@ fmt_matrix :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Matri
 
                 offset: uint
                 switch info.layout {
-                case .Column_Major: offset = (row + col*info.elem_stride)*info.elem_size
-                case .Row_Major:    offset = (col + row*info.elem_stride)*info.elem_size
+                case .Column_Major: offset = uint(row + col * info.elem_stride) * uint(info.elem_size)
+                case .Row_Major:    offset = uint(col + row * info.elem_stride) * uint(info.elem_size)
                 }
 
                 data := uintptr(v.data) + uintptr(offset)
@@ -2802,8 +2802,8 @@ fmt_matrix :: proc(fi: ^Info, v: any, verb: rune, info: internal.Type_Info_Matri
 
                 offset: uint
                 switch info.layout {
-                case .Column_Major: offset = (row + col*info.elem_stride)*info.elem_size
-                case .Row_Major:    offset = (col + row*info.elem_stride)*info.elem_size
+                case .Column_Major: offset = uint(row + col * info.elem_stride) * uint(info.elem_size)
+                case .Row_Major:    offset = uint(col + row * info.elem_stride) * uint(info.elem_size)
                 }
 
                 data := uintptr(v.data) + uintptr(offset)
@@ -2973,11 +2973,11 @@ fmt_multi_pointer :: proc(fi: ^Info, v: any, info: internal.Type_Info_Multi_Poin
         if elem != nil {
             if n, ok := fi.optional_len.?; ok {
                 fi.optional_len = nil
-                fmt_array(fi, ptr, n, elem.size, elem, verb)
+                fmt_array(fi, ptr, n, uint(elem.size), elem, verb)
                 return
             } else if fi.use_nul_termination {
                 fi.use_nul_termination = false
-                fmt_array_nul_terminated(fi, ptr, -1, elem.size, elem, verb)
+                fmt_array_nul_terminated(fi, ptr, -1, uint(elem.size), elem, verb)
                 return
             }
 
@@ -2990,8 +2990,8 @@ fmt_multi_pointer :: proc(fi: ^Info, v: any, info: internal.Type_Info_Multi_Poin
                         fmt_cstring(fi, cstring(ptr), verb)
                         return
                     case u16, u32, rune:
-                        n := search_nul_termination(ptr, elem.size, -1)
-                        fmt_array(fi, ptr, n, elem.size, elem, verb)
+                        n := search_nul_termination(ptr, uint(elem.size), -1)
+                        fmt_array(fi, ptr, n, uint(elem.size), elem, verb)
                         return
                     }
                 }
@@ -3041,7 +3041,7 @@ fmt_enumerated_array :: proc(fi: ^Info, v: any, info: internal.Type_Info_Enumera
         for i in 0..<info.count {
             fmt_write_indent(fi)
 
-            idx, ok := stored_enum_value_to_string(info.index, info.min_value, i)
+            idx, ok := stored_enum_value_to_string(info.index, info.min_value, uint(i))
             if ok {
                 _ = io.write_byte(fi.writer, '.', &fi.n)
                 _, _ = io.write_string(fi.writer, idx, &fi.n)
@@ -3061,7 +3061,7 @@ fmt_enumerated_array :: proc(fi: ^Info, v: any, info: internal.Type_Info_Enumera
         for i in 0..<info.count {
             if i > 0 { _, _ = io.write_string(fi.writer, ", ", &fi.n) }
 
-            idx, ok := stored_enum_value_to_string(info.index, info.min_value, i)
+            idx, ok := stored_enum_value_to_string(info.index, info.min_value, uint(i))
             if ok {
                 _ = io.write_byte(fi.writer, '.', &fi.n)
                 _, _ = io.write_string(fi.writer, idx, &fi.n)
@@ -3197,17 +3197,17 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         fmt_enumerated_array(fi, v, info, verb)
 
     case internal.Type_Info_Array:
-        n := info.count
+        n := uint(info.count)
         ptr := v.data
         if ol, ok := fi.optional_len.?; ok {
             fi.optional_len = nil
             n = min(n, ol)
         } else if fi.use_nul_termination {
             fi.use_nul_termination = false
-            fmt_array_nul_terminated(fi, ptr, int(n), info.elem_size, info.elem, verb)
+            fmt_array_nul_terminated(fi, ptr, int(n), uint(info.elem_size), info.elem, verb)
             return
         }
-        fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
+        fmt_array(fi, ptr, n, uint(info.elem_size), info.elem, verb)
 
     case internal.Type_Info_Slice:
         slice := cast(^slice.Raw_Slice)v.data
@@ -3255,7 +3255,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         fmt_struct(fi, v, verb, info, "")
 
     case internal.Type_Info_Union:
-        fmt_union(fi, v, verb, info, type_info.size)
+        fmt_union(fi, v, verb, info, uint(type_info.size))
 
     case internal.Type_Info_Enum:
         fmt_enum(fi, v, verb)

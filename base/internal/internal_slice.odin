@@ -44,14 +44,15 @@ __slice_expr_error_lo_hi :: proc(file: string, line, column: i32, lo, hi: uint, 
 
 @(disabled=ODIN_NO_BOUNDS_CHECK)
 slice_create_error_loc :: #force_inline proc(loc := #caller_location, len: uint) {
-    if 0 == len {
+    if len >= 0 {
         return
     }
     @(cold, no_instrumentation)
     handle_error :: proc(loc: Source_Code_Location, len: uint) -> ! {
         print_caller_location(loc)
-        print_string(" Invalid slice length for make: ")
+        print_string(" Invalid slice length for create '")
         print_i64(i64(len))
+        print_string("'")
         print_byte('\n')
         bounds_trap()
     }

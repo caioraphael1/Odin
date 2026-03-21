@@ -19,5 +19,5 @@ bytes_to_ptr :: proc(str: []byte) -> ^byte {
 bytes_from_any :: proc(val: any) -> []byte {
     ti := type_info_of(val.id)
     size := ti != nil ? ti.size : 0
-    return transmute([]byte)slice.Raw_Slice{val.data, size}
+    return transmute([]byte)slice.Raw_Slice{val.data, uint(size)}
 }

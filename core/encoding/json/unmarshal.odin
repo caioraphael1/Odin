@@ -646,7 +646,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             raw_map.allocator = p.allocator
         }
         
-        elem_backing := bytes_make(t.value.size, t.value.align, p.allocator) or_return
+        elem_backing := bytes_make(uint(t.value.size), uint(t.value.align), p.allocator) or_return
         defer _ = slice.delete(elem_backing, p.allocator)
         
         map_backing_value := any{raw_data(elem_backing), t.value.id}
@@ -714,11 +714,11 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
                     break
                 }
             }
-            if !index_found || index >= t.count {
+            if !index_found || index >= uint(t.count) {
                 return UNSUPPORTED_TYPE
             }
                         
-            index_ptr := rawptr(uintptr(v.data) + uintptr(index*t.elem_size))
+            index_ptr := rawptr(uintptr(v.data) + uintptr(index*uint(t.elem_size)))
             index_any := any{index_ptr, t.elem.id}
             
             unmarshal_value(p, index_any) or_return
@@ -787,7 +787,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
     #partial switch t in ti.variant {
     case reflect.Type_Info_Slice:   
         raw := (^slice.Raw_Slice)(v.data)
-        data := bytes_make(t.elem.size * uint(length), t.elem.align, p.allocator) or_return
+        data := bytes_make(uint(t.elem.size) * uint(length), uint(t.elem.align), p.allocator) or_return
         raw.data = raw_data(data)
         raw.len = uint(length)
             
@@ -795,7 +795,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         
     case reflect.Type_Info_Dynamic_Array:
         raw := (^dyn_array.Raw_Dynamic_Array)(v.data)
-        data := bytes_make(t.elem.size * uint(length), t.elem.align, p.allocator) or_return
+        data := bytes_make(uint(t.elem.size) * uint(length), uint(t.elem.align), p.allocator) or_return
         raw.data = raw_data(data)
         raw.len = uint(length)
         raw.cap = uint(length)
@@ -805,7 +805,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         
     case reflect.Type_Info_Array:
         // NOTE(bill): Allow lengths which are less than the dst array
-        if uint(length) > t.count {
+        if uint(length) > uint(t.count) {
             return UNSUPPORTED_TYPE
         }
         
@@ -813,7 +813,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         
     case reflect.Type_Info_Enumerated_Array:
         // NOTE(bill): Allow lengths which are less than the dst array
-        if uint(length) > t.count {
+        if uint(length) > uint(t.count) {
             return UNSUPPORTED_TYPE
         }
         

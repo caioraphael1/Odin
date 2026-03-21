@@ -224,7 +224,7 @@ typeid_elem :: proc(id: typeid) -> typeid {
 
 size_of_typeid :: proc(T: typeid) -> uint {
     if ti := type_info_of(T); ti != nil {
-        return ti.size
+        return uint(ti.size)
     }
     return 0
 }
@@ -233,7 +233,7 @@ size_of_typeid :: proc(T: typeid) -> uint {
 
 align_of_typeid :: proc(T: typeid) -> uint {
     if ti := type_info_of(T); ti != nil {
-        return ti.align
+        return uint(ti.align)
     }
     return 1
 }
@@ -294,10 +294,10 @@ length :: proc(val: any) -> uint {
         return length({val.data, a.elem.id})
 
     case Type_Info_Array:
-        return a.count
+        return uint(a.count)
 
     case Type_Info_Enumerated_Array:
-        return a.count
+        return uint(a.count)
 
     case Type_Info_Slice:
         return (^slice.Raw_Slice)(val.data).len
@@ -325,7 +325,7 @@ length :: proc(val: any) -> uint {
         }
 
     case Type_Info_Simd_Vector:
-        return a.count
+        return uint(a.count)
     }
 
     return 0
@@ -349,10 +349,10 @@ capacity :: proc(val: any) -> uint {
         return capacity({val.data, a.elem.id})
 
     case Type_Info_Array:
-        return a.count
+        return uint(a.count)
 
     case Type_Info_Enumerated_Array:
-        return a.count
+        return uint(a.count)
 
     case Type_Info_Dynamic_Array:
         return (^dyn_array.Raw_Dynamic_Array)(val.data).cap
@@ -361,7 +361,7 @@ capacity :: proc(val: any) -> uint {
         return internal.map_cap((^maps.Raw_Map)(val.data)^)
 
     case Type_Info_Simd_Vector:
-        return a.count
+        return uint(a.count)
     }
 
     return 0
@@ -393,27 +393,27 @@ index :: proc(val: any, i: uint, loc := #caller_location) -> any {
 
     case Type_Info_Array:
         internal.bounds_check_error_loc(loc, i, a.count)
-        offset := uintptr(a.elem.size * i)
+        offset := uintptr(uint(a.elem.size) * i)
         data := rawptr(uintptr(val.data) + offset)
         return any{data, a.elem.id}
 
     case Type_Info_Enumerated_Array:
         internal.bounds_check_error_loc(loc, i, a.count)
-        offset := uintptr(a.elem.size * i)
+        offset := uintptr(uint(a.elem.size) * i)
         data := rawptr(uintptr(val.data) + offset)
         return any{data, a.elem.id}
 
     case Type_Info_Slice:
         raw := (^slice.Raw_Slice)(val.data)
         internal.bounds_check_error_loc(loc, i, raw.len)
-        offset := uintptr(a.elem.size * i)
+        offset := uintptr(uint(a.elem.size) * i)
         data := rawptr(uintptr(raw.data) + offset)
         return any{data, a.elem.id}
 
     case Type_Info_Dynamic_Array:
         raw := (^dyn_array.Raw_Dynamic_Array)(val.data)
         internal.bounds_check_error_loc(loc, i, raw.len)
-        offset := uintptr(a.elem.size * i)
+        offset := uintptr(uint(a.elem.size) * i)
         data := rawptr(uintptr(raw.data) + offset)
         return any{data, a.elem.id}
 
@@ -475,7 +475,7 @@ Struct_Field :: struct {
 struct_field_at :: proc(T: typeid, i: uint) -> (field: Struct_Field) {
     ti := internal.type_info_base(type_info_of(T))
     if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
-        if i < s.field_count {
+        if i < uint(s.field_count) {
             field.name     = s.names[i]
             field.type     = s.types[i]
             field.tag      = Struct_Tag(s.tags[i])
@@ -630,10 +630,10 @@ struct_field_count :: proc(T: typeid, method := Struct_Field_Count_Method.Top_Le
     if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
         switch method {
         case .Top_Level:
-            return s.field_count
+            return uint(s.field_count)
 
         case .Using:
-            count = s.field_count
+            count = uint(s.field_count)
             for type, i in s.types[:s.field_count] {
                 if s.usings[i] {
                     count += struct_field_count(type.id)
@@ -641,7 +641,7 @@ struct_field_count :: proc(T: typeid, method := Struct_Field_Count_Method.Top_Le
             }
 
         case .Recursive:
-            count = s.field_count
+            count = uint(s.field_count)
             for type in s.types[:s.field_count] {
                 count += struct_field_count(type.id)
             }
@@ -1822,7 +1822,7 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
     }
 
     if .Simple_Compare in t.flags {
-        return mem.compare(a.data, b.data, t.size) == 0
+        return mem.compare(a.data, b.data, uint(t.size)) == 0
     }
     
     t = internal.type_info_core(t)
@@ -1884,7 +1884,7 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
         Type_Info_Simd_Vector,
         Type_Info_Soa_Pointer,
         Type_Info_Matrix:
-        return mem.compare(a.data, b.data, t.size) == 0
+        return mem.compare(a.data, b.data, uint(t.size)) == 0
         
     case Type_Info_String:
         switch v.encoding {
@@ -1980,7 +1980,7 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
             return true
         }
         if .Simple_Compare in v.elem.flags {
-            return mem.compare((^byte)(array_a.data), (^byte)(array_b.data), array_a.len * v.elem.size) == 0
+            return mem.compare((^byte)(array_a.data), (^byte)(array_b.data), array_a.len * uint(v.elem.size)) == 0
         }
         
         for i in 0..<array_a.len {

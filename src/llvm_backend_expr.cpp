@@ -3997,8 +3997,6 @@ gb_internal lbValue lb_build_expr_internal(lbProcedure *p, Ast *expr) {
     Type *type = type_of_expr(expr);
     GB_ASSERT_MSG(tv.mode != Addressing_Invalid, "invalid expression '%s' (tv.mode = %d, tv.type = %s) @ %s\n Current Proc: %.*s : %s", expr_to_string(expr), tv.mode, type_to_string(tv.type), token_pos_to_string(expr_pos), LIT(p->name), type_to_string(p->type));
 
-
-
     if (tv.value.kind != ExactValue_Invalid) {
         Type *original_type = lb_build_expr_original_const_type(expr);
         // NOTE(bill): Short on constant values
