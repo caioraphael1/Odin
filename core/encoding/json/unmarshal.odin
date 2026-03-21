@@ -6,10 +6,11 @@ import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/maps"
 import "base:container/strings"
+import "base:strconv"
 
 import "core:strings_tools"
 import "core:reflect"
-import "base:strconv"
+import "core:fmt"
 
 Unmarshal_Data_Error :: enum {
     Invalid_Data,
@@ -164,6 +165,7 @@ assign_bool :: proc(val: any, b: bool) -> bool {
 @(private, optional_results)
 assign_int :: proc(val: any, i: $T) -> bool {
     v := reflect.any_core(val)
+    fmt.printfln("v '%v' val '%v'", v, val)
     switch &dst in v {
     case i8:      dst = i8     (i)
     case i16:     dst = i16    (i)
@@ -357,8 +359,9 @@ unmarshal_string_token :: proc(p: ^Parser, val: any, token: Token, ti: ^reflect.
 }
 
 @(private)
-unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
+unmarshal_value :: proc(p: ^Parser, v: any, loc := #caller_location) -> (err: Unmarshal_Error) {
     UNSUPPORTED_TYPE := Unsupported_Type_Error{v.id, p.curr_token}
+    fmt.printfln("v '%v' '%v'", v, loc)
     token := p.curr_token
 
     if _user_unmarshalers != nil {
@@ -426,6 +429,7 @@ unmarshal_value :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         if assign_float(v, i) {
             return
         }
+        fmt.printfln("[unmarshal_value] Integer '%v' '%v' '%v'", v, token.text, i)
         return UNSUPPORTED_TYPE
     case .Float:
         _, _ = token_advance(p)
