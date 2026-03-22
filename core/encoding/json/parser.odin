@@ -109,7 +109,7 @@ parse_comma :: proc(p: ^Parser) -> (do_break: bool) {
     return false
 }
 
-parse_value :: proc(p: ^Parser, mode: enum{Normal, Skip} = .Skip, loc := #caller_location) -> (value: Value, err: Error) {
+parse_value :: proc(p: ^Parser, mode: enum{ Normal, Skip }, loc := #caller_location) -> (value: Value, err: Error) {
     err = .None
     token := p.curr_token
     #partial switch token.kind {

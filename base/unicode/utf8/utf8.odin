@@ -232,10 +232,9 @@ rune_is_start :: #force_inline proc(b: u8) -> bool {
 }
 
 
-bytes_from_rune :: proc(c: rune) -> ([4]u8, uint) {
+bytes_from_rune :: proc(c: rune) -> (buf: [4]u8, width: uint) {
     r := c
 
-    buf: [4]u8
     i := u32(r)
     mask :: u8(0x3f)
     if i <= 1<<7-1 {

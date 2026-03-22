@@ -404,7 +404,8 @@ unmarshal_value :: proc(p: ^Parser, v: any, loc := #caller_location) -> (err: Un
     switch &dst in v {
     // Handle json.Value as an unknown type
     case Value:
-        dst = parse_value(p) or_return
+        dst = parse_value(p, .Normal) or_return
+            // (2026-03-22) Caio: I'm not completely sure this should be "normal" or "skip";
         return
     }
     
