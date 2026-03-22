@@ -37,7 +37,6 @@ gb_internal void lb_add_raddbg_string(lbModule *m, char const *a, char const *b,
 }
 
 
-
 gb_internal LLVMMetadataRef lb_get_current_debug_scope(lbProcedure *p) {
     GB_ASSERT_MSG(p->debug_info != nullptr, "missing debug information for %.*s", LIT(p->name));
 
