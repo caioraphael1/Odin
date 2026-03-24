@@ -26,11 +26,13 @@ Allocator_Error :: enum byte {
 }
 Allocator_Proc :: #type proc(
     allocator_data: rawptr, 
-    mode: Allocator_Mode,
-    size, alignment: uint,
-    old_memory: rawptr, old_size: uint,
-    location: Source_Code_Location = #caller_location
-    ) -> ([]byte, Allocator_Error)
+    mode:           Allocator_Mode,
+    size:           uint,
+    alignment:      uint,
+    old_memory:     rawptr, 
+    old_size:       uint,
+    loc:            Source_Code_Location = #caller_location
+    ) -> (new_memory: []byte, err: Allocator_Error)
 
 
 mem_free_with_size :: #force_no_inline proc(ptr: rawptr, byte_count: uint, allocator: Allocator, loc := #caller_location) -> Allocator_Error {

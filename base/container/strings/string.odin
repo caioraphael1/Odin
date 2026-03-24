@@ -5,6 +5,10 @@ import "base:container/slice"
 
 Raw_String :: internal.Raw_String
 
+string_from_cstring :: proc(cstr: cstring) -> string {
+    return string(cstr)
+}
+
 string_from_ptr :: proc(ptr: ^byte, len: uint) -> (res: string) {
     return transmute(string)Raw_String{ ptr, len }
 }

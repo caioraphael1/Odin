@@ -56,8 +56,8 @@ Menu_popUpContextMenu_withEvent_forView :: #force_inline proc "c" (menu: ^Menu, 
 //  msgSend(nil, Menu, "popUpContextMenu:withEvent:forView:withFont:", menu, event, view, font)
 // }
 @(objc_type=Menu, objc_name="popUpMenuPositioningItem")
-Menu_popUpMenuPositioningItem :: #force_inline proc "c" (self: ^Menu, item: ^MenuItem, location: Point, view: ^View) -> bool {
-    return msgSend(bool, self, "popUpMenuPositioningItem:atLocation:inView:", item, location, view)
+Menu_popUpMenuPositioningItem :: #force_inline proc "c" (self: ^Menu, item: ^MenuItem, loc: Point, view: ^View) -> bool {
+    return msgSend(bool, self, "popUpMenuPositioningItem:atLocation:inView:", item, loc, view)
 }
 @(objc_type=Menu, objc_name="setMenuBarVisible", objc_is_class_method=true)
 Menu_setMenuBarVisible :: #force_inline proc "c" (visible: bool) {

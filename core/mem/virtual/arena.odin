@@ -287,22 +287,22 @@ arena_allocator :: proc(arena: ^Arena) -> mem.Allocator {
 arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                              size, alignment: uint,
                              old_memory: rawptr, old_size: uint,
-                             location := #caller_location) -> (data: []byte, err: Allocator_Error) {
+                             loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
     arena := (^Arena)(allocator_data)
 
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
-        return arena_alloc(arena, size, alignment, location)
+        return arena_alloc(arena, size, alignment, loc)
     case .Free:
         err = .Mode_Not_Implemented
     case .Free_All:
-        arena_free_all(arena, location)
+        arena_free_all(arena, loc)
     case .Resize, .Resize_Non_Zeroed:
         old_data := ([^]byte)(old_memory)
 
         switch {
         case old_data == nil:
-            return arena_alloc(arena, size, alignment, location)
+            return arena_alloc(arena, size, alignment, loc)
         case size == old_size:
             // return old memory
             data = old_data[:size]
@@ -338,7 +338,7 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             }
         }
 
-        new_memory := arena_alloc_unguarded(arena, size, alignment, location) or_return
+        new_memory := arena_alloc_unguarded(arena, size, alignment, loc) or_return
         if new_memory == nil {
             return
         }

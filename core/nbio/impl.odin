@@ -180,7 +180,7 @@ Debuggable :: union {
 }
 
 @(disabled=!NBIO_DEBUG)
-debug :: proc(contents: ..Debuggable, location := #caller_location) {
+debug :: proc(contents: ..Debuggable, loc := #caller_location) {
     if context.logger.procedure == nil || .Debug < context.logger.lowest_level {
         return
     }
@@ -228,15 +228,15 @@ debug :: proc(contents: ..Debuggable, location := #caller_location) {
         }
     }
 
-    context.logger.procedure(context.logger.data, .Debug, string_builder.to_string(b), context.logger.options, location)
+    context.logger.procedure(context.logger.data, .Debug, string_builder.to_string(b), context.logger.options, loc)
 }
 
-warn :: proc(text: string, location := #caller_location) {
+warn :: proc(text: string, loc := #caller_location) {
     if context.logger.procedure == nil || .Warning < context.logger.lowest_level {
         return
     }
 
-    context.logger.procedure(context.logger.data, .Warning, text, context.logger.options, location)
+    context.logger.procedure(context.logger.data, .Warning, text, context.logger.options, loc)
 }
 
 /*

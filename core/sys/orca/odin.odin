@@ -16,15 +16,15 @@ log_typed :: proc(level: log_level, msg: cstring, loc := #caller_location) {
     )
 }
 
-odin_logger_proc :: proc(logger_data: rawptr, level: internal.Logger_Level, text: string, options: internal.Logger_Options, location := #caller_location) {
+odin_logger_proc :: proc(logger_data: rawptr, level: internal.Logger_Level, text: string, options: internal.Logger_Options, loc := #caller_location) {
     cbuf := slice.create([]byte, len(text)+1, allocators.temp_allocator)
     slice.copy(cbuf, text)
     ctext := cstring(raw_data(cbuf))
 
     switch level {
-    case .Debug, .Info: log_typed(.INFO, ctext, location)
-    case .Warning:       log_typed(.WARNING, ctext, location)
+    case .Debug, .Info:  log_typed(.INFO, ctext, loc)
+    case .Warning:       log_typed(.WARNING, ctext, loc)
     case:                fallthrough
-    case .Error, .Fatal: log_typed(.ERROR, ctext, location)
+    case .Error, .Fatal: log_typed(.ERROR, ctext, loc)
     }
 }

@@ -14,8 +14,6 @@ Growing_Arena_Memory_Block :: struct {
     capacity:  uint,
 }
 
-// NOTE: This is a growing arena that is only used for the default arena_temp allocator.
-// For your own growing arena needs, prefer `Growing_Arena` from `core:mem/virtual`.
 Growing_Arena :: struct {
     backing_allocator:  mem.Allocator,
 

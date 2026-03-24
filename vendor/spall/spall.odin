@@ -162,8 +162,8 @@ buffer_destroy :: proc(ctx: ^Context, buffer: ^Buffer) {
 
 @(deferred_in=_scoped_buffer_end)
 @(no_instrumentation)
-SCOPED_EVENT :: proc(ctx: ^Context, buffer: ^Buffer, name: string, args: string = "", location := #caller_location) -> bool {
-    _buffer_begin(ctx, buffer, name, args, location)
+SCOPED_EVENT :: proc(ctx: ^Context, buffer: ^Buffer, name: string, args: string = "", loc := #caller_location) -> bool {
+    _buffer_begin(ctx, buffer, name, args, loc)
     return true
 }
 
@@ -257,7 +257,7 @@ _build_name_event :: #force_inline proc(buffer: []u8, name: string, type: Manual
 }
 
 @(no_instrumentation)
-_buffer_begin :: proc(ctx: ^Context, buffer: ^Buffer, name: string, args: string = "", location := #caller_location) #no_bounds_check /* bounds check would segfault instrumentation */ {
+_buffer_begin :: proc(ctx: ^Context, buffer: ^Buffer, name: string, args: string = "", loc := #caller_location) #no_bounds_check /* bounds check would segfault instrumentation */ {
     if buffer.head + BEGIN_EVENT_MAX > len(buffer.data) {
         buffer_flush(ctx, buffer)
     }
@@ -277,7 +277,7 @@ _buffer_end :: proc(ctx: ^Context, buffer: ^Buffer) #no_bounds_check /* bounds c
 }
 
 @(no_instrumentation)
-_buffer_name_thread :: proc(ctx: ^Context, buffer: ^Buffer, name: string, location := #caller_location) #no_bounds_check /* bounds check would segfault instrumentation */ {
+_buffer_name_thread :: proc(ctx: ^Context, buffer: ^Buffer, name: string, loc := #caller_location) #no_bounds_check /* bounds check would segfault instrumentation */ {
     if buffer.head + NAME_EVENT_MAX > len(buffer.data) {
         buffer_flush(ctx, buffer)
     }
@@ -285,7 +285,7 @@ _buffer_name_thread :: proc(ctx: ^Context, buffer: ^Buffer, name: string, locati
 }
 
 @(no_instrumentation)
-_buffer_name_process :: proc(ctx: ^Context, buffer: ^Buffer, name: string, location := #caller_location) #no_bounds_check /* bounds check would segfault instrumentation */ {
+_buffer_name_process :: proc(ctx: ^Context, buffer: ^Buffer, name: string, loc := #caller_location) #no_bounds_check /* bounds check would segfault instrumentation */ {
     if buffer.head + NAME_EVENT_MAX > len(buffer.data) {
         buffer_flush(ctx, buffer)
     }

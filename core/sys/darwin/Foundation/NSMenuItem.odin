@@ -300,8 +300,8 @@ MenuItem_setToolTip :: #force_inline proc "c" (self: ^MenuItem, toolTip: ^String
 //  msgSend(nil, self, "setBadge:", badge)
 // }
 @(objc_type=MenuItem, objc_name="setMnemonicLocation")
-MenuItem_setMnemonicLocation :: #force_inline proc "c" (self: ^MenuItem, location: UInteger) {
-    msgSend(nil, self, "setMnemonicLocation:", location)
+MenuItem_setMnemonicLocation :: #force_inline proc "c" (self: ^MenuItem, loc: UInteger) {
+    msgSend(nil, self, "setMnemonicLocation:", loc)
 }
 @(objc_type=MenuItem, objc_name="mnemonicLocation")
 MenuItem_mnemonicLocation :: #force_inline proc "c" (self: ^MenuItem) -> UInteger {

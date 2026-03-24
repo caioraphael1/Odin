@@ -362,9 +362,9 @@ rb_make_block :: proc(size: uint, allocator: mem.Allocator) -> (block: ^Rollback
 Initialize the rollback stack allocator using a fixed backing buffer.
 */
 @(no_sanitize_address)
-rollback_stack_init_buffered :: proc(stack: ^Rollback_Stack, buffer: []byte, location := #caller_location) {
+rollback_stack_init_buffered :: proc(stack: ^Rollback_Stack, buffer: []byte, loc := #caller_location) {
     MIN_SIZE :: size_of(Rollback_Stack_Block) + size_of(Rollback_Stack_Header) + size_of(rawptr)
-    internal.assert(len(buffer) >= MIN_SIZE, "User-provided buffer to Rollback Stack mem.Allocator is too small.", location)
+    internal.assert(len(buffer) >= MIN_SIZE, "User-provided buffer to Rollback Stack mem.Allocator is too small.", loc)
     block := cast(^Rollback_Stack_Block)raw_data(buffer)
     block^ = {}
     #no_bounds_check block.buffer = buffer[size_of(Rollback_Stack_Block):]
@@ -381,13 +381,13 @@ rollback_stack_init_dynamic :: proc(
     stack: ^Rollback_Stack,
     block_size : uint = ROLLBACK_STACK_DEFAULT_BLOCK_SIZE,
     block_allocator: mem.Allocator,
-    location := #caller_location,
+    loc := #caller_location,
     ) -> mem.Allocator_Error {
-    internal.assert(block_size >= size_of(Rollback_Stack_Header) + size_of(rawptr), "Rollback Stack mem.Allocator block size is too small.", location)
+    internal.assert(block_size >= size_of(Rollback_Stack_Header) + size_of(rawptr), "Rollback Stack mem.Allocator block size is too small.", loc)
     when size_of(uint) > 4 {
         // It's impossible to specify an argument in excess when your integer
         // size is insufficient; check only on platforms with big enough ints.
-        internal.assert(block_size <= ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE, "Rollback Stack Allocators cannot support head blocks larger than 2 gigabytes.", location)
+        internal.assert(block_size <= ROLLBACK_STACK_MAX_HEAD_BLOCK_SIZE, "Rollback Stack Allocators cannot support head blocks larger than 2 gigabytes.", loc)
     }
     block := rb_make_block(block_size, block_allocator) or_return
     stack^ = {}

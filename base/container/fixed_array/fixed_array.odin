@@ -1,6 +1,7 @@
 @(require) import "base:internal"
 import "base:builtin"
 import "base:mem"
+import fa "base:container/fixed_array"
 import base_slice "base:container/slice"
 
 /*
@@ -365,6 +366,14 @@ unordered_remove :: proc(a: ^$A/Fixed_Array($N, $T), index: uint, loc := #caller
         a.data[index] = a.data[n]
     }
     a.len -= 1
+}
+
+unordered_remove_element :: proc(a: ^$A/Fixed_Array($N, $T), elem: T, loc := #caller_location) -> (ok: bool){
+    if index, found := base_slice.linear_search(fa.slice(a), elem); found {
+        unordered_remove(a, index)
+        return true
+    }
+    return false
 }
 
 /*

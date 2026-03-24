@@ -141,18 +141,6 @@ This type represents allocation procedures. An allocation procedure is a single
 procedure, implementing all allocator functions such as allocating the memory,
 freeing the memory, etc.
 
-Currently the type is defined as follows:
-
-    Allocator_Proc :: #type proc(
-        allocator_data: rawptr,
-        mode: Allocator_Mode,
-        size: uint,
-        alignment: uint,
-        old_memory: rawptr,
-        old_size: uint,
-        location: Source_Code_Location = #caller_location,
-    ) -> ([]byte, Allocator_Error);
-
 The function of this procedure and the meaning of parameters depends on the
 value of the `mode` parameter. For any operation the following constraints
 apply:
@@ -283,7 +271,15 @@ free :: #force_no_inline proc(ptr: rawptr, allocator: Allocator, loc := #caller_
     if ptr == nil {
         return nil
     }
-    _, err := allocator.procedure(allocator.data, .Free, 0, 0, ptr, 0, loc)
+    _, err := allocator.procedure(
+        allocator_data = allocator.data,
+        mode           = .Free, 
+        size           = 0, 
+        alignment      = 0, 
+        old_memory     = ptr, 
+        old_size       = 0, 
+        loc            = loc,
+    )
     return err
 }
 

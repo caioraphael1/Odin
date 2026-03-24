@@ -1763,7 +1763,7 @@ MemAllocator :: proc() -> mem.Allocator {
 
 MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                          size, alignment: int,
-                         old_memory: rawptr, old_size: int, location := #caller_location) -> (data: []byte, err: mem.Allocator_Error)  {
+                         old_memory: rawptr, old_size: int, loc := #caller_location) -> (data: []byte, err: mem.Allocator_Error)  {
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
         ptr := MemAlloc(c.uint(size))

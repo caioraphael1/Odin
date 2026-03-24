@@ -317,7 +317,7 @@ assign_string_at :: proc(array: ^$T/[dynamic]$E/u8, #any_int index: uint, arg: s
 // Note: This is an O(1) operation.
 // Note: If you want the elements to remain in their order, use `ordered_remove`.
 // Note: If the index is out of bounds, this procedure will panic.
-unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: uint, loc := #caller_location) #no_bounds_check {
+unordered_remove :: proc(array: ^$T/[dynamic]$E, #any_int index: uint, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, len(array))
     n := len(array) - 1
     if index != n {
@@ -326,11 +326,19 @@ unordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: uint, loc := #c
     (^Raw_Dynamic_Array)(array).len -= 1
 }
 
+unordered_remove_element :: proc(array: ^$T/[dynamic]$E, elem: E) -> (ok: bool) {
+    if index, found := slice.linear_search(array[:], elem); found {
+        unordered_remove(array, index)
+        return true
+    }
+    return false
+}
+
 // `ordered_remove` removed the element at the specified `index` whilst keeping the order of the other elements.
 // Note: This is an O(N) operation.
 // Note: If the elements do not have to remain in their order, prefer `unordered_remove`.
 // Note: If the index is out of bounds, this procedure will panic.
-ordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: uint, loc := #caller_location) #no_bounds_check {
+ordered_remove :: proc(array: ^$T/[dynamic]$E, #any_int index: uint, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, len(array))
     if index+1 < len(array) {
         slice.copy(array[index:], array[index+1:])
@@ -341,7 +349,7 @@ ordered_remove :: proc(array: ^$D/[dynamic]$T, #any_int index: uint, loc := #cal
 // `remove_range` removes a range of elements specified by the range `lo` and `hi`, whilst keeping the order of the other elements.
 // Note: This is an O(N) operation.
 // Note: If the range is out of bounds, this procedure will panic.
-remove_range :: proc(array: ^$D/[dynamic]$T, #any_int lo, hi: uint, loc := #caller_location) #no_bounds_check {
+remove_range :: proc(array: ^$T/[dynamic]$E, #any_int lo, hi: uint, loc := #caller_location) #no_bounds_check {
     slice_expr_error_lo_hi_loc(loc, lo, hi, len(array))
     n := max(hi-lo, 0)
     if n > 0 {

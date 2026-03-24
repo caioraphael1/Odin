@@ -134,7 +134,7 @@ destroy :: proc(control: ^Allocator) {
 
 allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                        size, alignment: int,
-                       old_memory: rawptr, old_size: int, location := #caller_location) -> ([]byte, mem.Allocator_Error)  {
+                       old_memory: rawptr, old_size: int, loc := #caller_location) -> ([]byte, mem.Allocator_Error)  {
 
     control := (^Allocator)(allocator_data)
     if control == nil {

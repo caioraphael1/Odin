@@ -120,7 +120,7 @@ to_string :: #force_inline proc(tbl: ^Table, value: any, loc := #caller_location
     case:
         result = format(tbl, "%v", val)
         if result == "" {
-            log.error("text/table.format() resulted in empty string (arena out of memory?)", location = loc)
+            log.error("text/table.format() resulted in empty string (arena out of memory?)", loc = loc)
         }
     }
     return
