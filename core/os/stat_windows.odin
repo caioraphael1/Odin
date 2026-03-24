@@ -247,7 +247,7 @@ time_as_filetime :: #force_inline proc(t: time.Time) -> (ft: win32.LARGE_INTEGER
 }
 
 filetime_as_time_li :: #force_inline proc(ft: win32.LARGE_INTEGER) -> (t: time.Time) {
-    return {_nsec=(i64(ft) - 116444736000000000) * 100}
+    return {_nsec= u64(i64(ft) - 116444736000000000) * 100}
 }
 
 filetime_as_time_ft :: #force_inline proc(ft: win32.FILETIME) -> (t: time.Time) {

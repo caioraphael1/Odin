@@ -2649,7 +2649,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
         _ = io.write_byte(fi.writer, ':', &fi.n)
         write_padded_number(fi, i64(s), 2)
         _ = io.write_byte(fi.writer, '.', &fi.n)
-        write_padded_number(fi, (ns), 9)
+        write_padded_number(fi, i64(ns), 9)
         _, _ = io.write_string(fi.writer, " +0000 UTC", &fi.n)
         return true
     }

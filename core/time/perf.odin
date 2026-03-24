@@ -6,7 +6,7 @@ import "base:intrinsics"
 Type representing monotonic time, useful for measuring durations.
 */
 Tick :: struct {
-    _nsec: i64, // relative amount
+    _nsec: u64, // relative amount
 }
 
 /*
@@ -22,7 +22,7 @@ Add duration to a tick.
 */
 
 tick_add :: proc(t: Tick, d: Duration) -> Tick {
-    return Tick{t._nsec + i64(d)}
+    return Tick{t._nsec + u64(d)}
 }
 
 /*

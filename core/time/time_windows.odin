@@ -22,7 +22,7 @@ _sleep :: proc(d: Duration) {
 }
 
 _tick_now :: proc() -> Tick {
-    mul_div_u64 :: proc(val, num, den: i64) -> i64 {
+    mul_div_u64 :: proc(val, num, den: u64) -> u64 {
         q := val / den
         r := val % den
         return q * num + r * num / den
@@ -33,10 +33,10 @@ _tick_now :: proc() -> Tick {
     if qpc_frequency == 0 {
         _ = win32.QueryPerformanceFrequency(&qpc_frequency)
     }
-    now: win32.LARGE_INTEGER
+    now: win32.LARGE_INTEGER //i64
     _ = win32.QueryPerformanceCounter(&now)
 
-    _nsec := mul_div_u64(i64(now), 1e9, i64(qpc_frequency))
+    _nsec := mul_div_u64(u64(now), 1e9, u64(qpc_frequency))
     return Tick{_nsec = _nsec}
 }
 

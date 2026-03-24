@@ -9,7 +9,7 @@ import dt "core:time/datetime"
 Type representing duration, with nanosecond precision.
 This is the regular Unix timestamp, scaled to nanosecond precision.
 */
-Duration :: distinct i64
+Duration :: distinct u64
 
 /*
 The duration equal to one nanosecond (1e-9 seconds).
@@ -44,7 +44,7 @@ Hour        :: 60 * Minute
 /*
 Minimum representable duration.
 */
-MIN_DURATION :: Duration(-1 << 63)
+MIN_DURATION :: Duration(0)
 
 /*
 Maximum representable duration.
@@ -66,7 +66,7 @@ Capable of representing any time within the following range:
 - `max: 2262-04-11 23:47:16.854775807 +0000 UTC`
 */
 Time :: struct {
-    _nsec: i64, // Measured in UNIX nanonseconds
+    _nsec: u64, // Measured in UNIX nanonseconds
 }
 
 /*
@@ -372,7 +372,7 @@ Obtain the time components from a time, a duration or a stopwatch's total, inclu
 Obtain the time components from a time.
 */
 
-clock_from_time :: proc(t: Time) -> (hour, min, sec: int) {
+clock_from_time :: proc(t: Time) -> (hour, min, sec: uint) {
     hour, min, sec, _ = precise_clock_from_time(t)
     return
 }
@@ -381,12 +381,13 @@ clock_from_time :: proc(t: Time) -> (hour, min, sec: int) {
 Obtain the time components from a time, including nanoseconds.
 */
 
-precise_clock_from_time :: proc(t: Time) -> (hour, min, sec, nanos: int) {
+precise_clock_from_time :: proc(t: Time) -> (hour, min, sec, nanos: uint) {
     // Time in nanoseconds since 1-1-1970 00:00
-    _sec, _nanos := t._nsec / 1e9, t._nsec % 1e9
+    _sec   := t._nsec / 1e9
+    _nanos := t._nsec % 1e9
     _sec += INTERNAL_TO_ABSOLUTE
-    nanos = int(_nanos)
-    sec   = int(_sec  % SECONDS_PER_DAY)
+    nanos = uint(_nanos)
+    sec   = uint(_sec  % SECONDS_PER_DAY)
     hour  = sec  / SECONDS_PER_HOUR
     sec  -= hour * SECONDS_PER_HOUR
     min   = sec  / SECONDS_PER_MINUTE
@@ -397,7 +398,6 @@ precise_clock_from_time :: proc(t: Time) -> (hour, min, sec, nanos: int) {
 /*
 Obtain the time components from a duration.
 */
-
 clock_from_duration :: proc(d: Duration) -> (hour, min, sec: int) {
     return clock_from_seconds(u64(d/1e9))
 }
@@ -405,15 +405,13 @@ clock_from_duration :: proc(d: Duration) -> (hour, min, sec: int) {
 /*
 Obtain the time components from a duration, including nanoseconds.
 */
-
-precise_clock_from_duration :: proc(d: Duration) -> (hour, min, sec, nanos: int) {
-    return precise_clock_from_time({_nsec=i64(d)})
+precise_clock_from_duration :: proc(d: Duration) -> (hour, min, sec, nanos: uint) {
+    return precise_clock_from_time({_nsec = u64(d)})
 }
 
 /*
 Obtain the time components from a stopwatch's total.
 */
-
 clock_from_stopwatch :: proc(s: Stopwatch) -> (hour, min, sec: int) {
     return clock_from_duration(stopwatch_duration(s))
 }
@@ -421,15 +419,13 @@ clock_from_stopwatch :: proc(s: Stopwatch) -> (hour, min, sec: int) {
 /*
 Obtain the time components from a stopwatch's total, including nanoseconds
 */
-
-precise_clock_from_stopwatch :: proc(s: Stopwatch) -> (hour, min, sec, nanos: int) {
+precise_clock_from_stopwatch :: proc(s: Stopwatch) -> (hour, min, sec, nanos: uint) {
     return precise_clock_from_duration(stopwatch_duration(s))
 }
 
 /*
 Obtain the time components from the number of seconds.
 */
-
 clock_from_seconds :: proc(in_sec: u64) -> (hour, min, sec: int) {
     sec = int(in_sec % SECONDS_PER_DAY)
     hour = sec / SECONDS_PER_HOUR
@@ -497,7 +493,7 @@ Example:
 */
 
 duration_to_string_hms :: proc(d: Duration, buf: []u8) -> (res: string) #no_bounds_check {
-    return time_to_string_hms(Time{_nsec=i64(d)}, buf)
+    return time_to_string_hms(Time{ _nsec= u64(d) }, buf)
 }
 
 /*
@@ -750,7 +746,6 @@ to_string_mm_dd_yy :: proc(t: Time, buf: []u8) -> (res: string) #no_bounds_check
 /*
 Read the timestamp counter of the CPU.
 */
-
 read_cycle_counter :: proc() -> u64 {
     return u64(intrinsics.read_cycle_counter())
 }
@@ -758,7 +753,6 @@ read_cycle_counter :: proc() -> u64 {
 /*
 Obtain time from unix seconds and unix nanoseconds.
 */
-
 unix :: proc(sec: i64, nsec: i64) -> Time {
     sec, nsec := sec, nsec
     if nsec < 0 || nsec >= 1e9 {
@@ -770,14 +764,13 @@ unix :: proc(sec: i64, nsec: i64) -> Time {
             sec -= 1
         }
     }
-    return Time{(sec*1e9 + nsec)}
+    return Time{(u64(sec) * 1e9 + u64(nsec))}
 }
 
 /*
 Obtain time from unix nanoseconds.
 */
-
-from_nanoseconds :: #force_inline proc(nsec: i64) -> Time {
+from_nanoseconds :: #force_inline proc(nsec: u64) -> Time {
     return Time{nsec}
 }
 
@@ -789,8 +782,7 @@ to_unix_seconds :: time_to_unix
 /*
 Obtain the Unix timestamp in seconds from a Time.
 */
-
-time_to_unix :: proc(t: Time) -> i64 {
+time_to_unix :: proc(t: Time) -> u64 {
     return t._nsec/1e9
 }
 
@@ -803,7 +795,7 @@ to_unix_nanoseconds :: time_to_unix_nano
 Obtain the Unix timestamp in nanoseconds from a Time.
 */
 
-time_to_unix_nano :: proc(t: Time) -> i64 {
+time_to_unix_nano :: proc(t: Time) -> u64 {
     return t._nsec
 }
 
@@ -812,7 +804,7 @@ Add duration to a time.
 */
 
 time_add :: proc(t: Time, d: Duration) -> Time {
-    return Time{t._nsec + i64(d)}
+    return Time{t._nsec + u64(d)}
 }
 
 /*
@@ -864,17 +856,17 @@ accurate_sleep :: proc(d: Duration) {
 }
 
 ABSOLUTE_ZERO_YEAR :: i64(-292277022399) // Day is chosen so that 2001-01-01 is Monday in the calculations
-ABSOLUTE_TO_INTERNAL :: i64(-9223371966579724800) // i64((ABSOLUTE_ZERO_YEAR - 1) * 365.2425 * SECONDS_PER_DAY);
-INTERNAL_TO_ABSOLUTE :: -ABSOLUTE_TO_INTERNAL
+// ABSOLUTE_TO_INTERNAL :: i64(-9223371966579724800) // i64((ABSOLUTE_ZERO_YEAR - 1) * 365.2425 * SECONDS_PER_DAY);
+INTERNAL_TO_ABSOLUTE :: u64(9223371966579724800)
 
-UNIX_TO_INTERNAL :: i64((1969*365 + 1969/4 - 1969/100 + 1969/400) * SECONDS_PER_DAY)
-INTERNAL_TO_UNIX :: -UNIX_TO_INTERNAL
+UNIX_TO_INTERNAL :: u64((1969*365 + 1969/4 - 1969/100 + 1969/400) * SECONDS_PER_DAY)
+INTERNAL_TO_UNIX :: -i64(UNIX_TO_INTERNAL)
 
-WALL_TO_INTERNAL :: i64((1884*365 + 1884/4 - 1884/100 + 1884/400) * SECONDS_PER_DAY)
-INTERNAL_TO_WALL :: -WALL_TO_INTERNAL
+WALL_TO_INTERNAL :: u64((1884*365 + 1884/4 - 1884/100 + 1884/400) * SECONDS_PER_DAY)
+INTERNAL_TO_WALL :: -i64(WALL_TO_INTERNAL)
 
 UNIX_TO_ABSOLUTE :: UNIX_TO_INTERNAL + INTERNAL_TO_ABSOLUTE
-ABSOLUTE_TO_UNIX :: -UNIX_TO_ABSOLUTE
+ABSOLUTE_TO_UNIX :: -i64(UNIX_TO_ABSOLUTE)
 
 
 @(private)
@@ -987,7 +979,7 @@ compound_to_time :: proc(datetime: dt.DateTime) -> (t: Time, ok: bool) {
     if seconds > 9223372036 || (seconds == 9223372036 && delta.nanos > 854775807) {
         return {}, false
     }
-    return Time{_nsec=seconds * 1e9 + delta.nanos}, true
+    return Time{ _nsec = u64(seconds * 1e9 + delta.nanos) }, true
 }
 
 /*
@@ -995,9 +987,9 @@ Convert time into datetime.
 */
 
 time_to_datetime :: proc(t: Time) -> (dt.DateTime, bool) {
-    unix_epoch := dt.DateTime{{1970, 1, 1}, {0, 0, 0, 0}, nil}
+    unix_epoch := dt.DateTime{ {1970, 1, 1}, {0, 0, 0, 0}, nil }
 
-    datetime, err := dt.add_delta_to_datetime(unix_epoch, dt.Delta{ nanos = t._nsec })
+    datetime, err := dt.add_delta_to_datetime(unix_epoch, dt.Delta{ nanos = i64(t._nsec) })
     if err != .None {
         return {}, false
     }

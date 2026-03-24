@@ -27,10 +27,10 @@ is specified in the string, that timezone is applied to time.
 - Leap seconds are smeared into 23:59:59.
 */
 
-iso8601_to_time_utc :: proc(iso_datetime: string, is_leap: ^bool = nil) -> (res: Time, consumed: int) {
+iso8601_to_time_utc :: proc(iso_datetime: string, is_leap: ^bool = nil) -> (res: Time, consumed: uint) {
     offset: int
     res, offset, consumed = iso8601_to_time_and_offset(iso_datetime, is_leap)
-    res._nsec += (i64(-offset) * i64(Minute))
+    res._nsec += (u64(-offset) * u64(Minute))
     return res, consumed
 }
 
@@ -60,7 +60,7 @@ minutes.
 - Leap seconds are smeared into 23:59:59.
 */
 
-iso8601_to_time_and_offset :: proc(iso_datetime: string, is_leap: ^bool = nil) -> (res: Time, utc_offset: int, consumed: int) {
+iso8601_to_time_and_offset :: proc(iso_datetime: string, is_leap: ^bool = nil) -> (res: Time, utc_offset_mins: int, consumed: uint) {
     moment, offset, leap_second, count := iso8601_to_components(iso_datetime)
     if count == 0 {
         return
@@ -104,7 +104,7 @@ minutes.
   string.
 */
 
-iso8601_to_components :: proc(iso_datetime: string) -> (res: dt.DateTime, utc_offset: int, is_leap: bool, consumed: int) {
+iso8601_to_components :: proc(iso_datetime: string) -> (res: dt.DateTime, utc_offset: int, is_leap: bool, consumed: uint) {
     moment, offset, count, leap_second, ok := _iso8601_to_components(iso_datetime)
     if !ok {
         return
@@ -115,7 +115,7 @@ iso8601_to_components :: proc(iso_datetime: string) -> (res: dt.DateTime, utc_of
 // Parses an ISO 8601 string and returns datetime.DateTime.
 // Performs no validation on whether components are valid, e.g. it'll return hour = 25 if that's what it's given
 @(private)
-_iso8601_to_components :: proc(iso_datetime: string) -> (res: dt.DateTime, utc_offset: int, consumed: int, is_leap: bool, ok: bool) {
+_iso8601_to_components :: proc(iso_datetime: string) -> (res: dt.DateTime, utc_offset: int, consumed: uint, is_leap: bool, ok: bool) {
     // A compliant date is at minimum 20 characters long, e.g. YYYY-MM-DDThh:mm:ssZ
     (len(iso_datetime) >= 20) or_return
 
@@ -127,7 +127,7 @@ _iso8601_to_components :: proc(iso_datetime: string) -> (res: dt.DateTime, utc_o
     minute := scan_digits(iso_datetime[14:], ":",  2) or_return
     second := scan_digits(iso_datetime[17:], "",   2) or_return
     nanos  := 0
-    count  := 19
+    count: uint = 19
 
     // Scan fractional seconds
     if iso_datetime[count] == '.' {

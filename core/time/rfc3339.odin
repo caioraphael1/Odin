@@ -39,7 +39,7 @@ rfc3339_to_time_utc :: proc(rfc_datetime: string, is_leap: ^bool = nil) -> (res:
     offset: int
 
     res, offset, consumed = rfc3339_to_time_and_offset(rfc_datetime, is_leap)
-    res._nsec += (i64(-offset) * i64(Minute))
+    res._nsec += (u64(-offset) * u64(Minute))
     return res, consumed
 }
 
@@ -246,7 +246,7 @@ time_to_rfc3339 :: proc(time: Time, utc_offset : int = 0, include_nanos := true,
     print_as_fixed_int(temp_string[:], &offset, 2, i64(datetime.second))
 
     // turn 123_450_000 to 12345, 5
-    strip_trailing_zeroes_nanos :: proc(n: i64) -> (res: i64, n_digits: i8) {
+    strip_trailing_zeroes_nanos :: proc(n: u64) -> (res: u64, n_digits: i8) {
         res = n
         n_digits = 9
         for res % 10 == 0 {
