@@ -17,7 +17,7 @@ How it works:
 */
 
 Telemetry_Allocator :: struct {
-    name:                     cstring,
+    name:                     string,
 
     backing:                  mem.Allocator,
     mutex:                    sync.Mutex,
@@ -39,7 +39,7 @@ Telemetry_Allocator :: struct {
     telemetry_total_memory_freed:       uint,
 }
 
-telemetry_allocator_init :: proc(backing_allocator: ^mem.Allocator, telemetry: ^Telemetry_Allocator, name: cstring) {
+telemetry_allocator_init :: proc(backing_allocator: ^mem.Allocator, telemetry: ^Telemetry_Allocator, name: string) {
     telemetry.name = name
     telemetry.backing = backing_allocator^
     backing_allocator^ = {
@@ -49,7 +49,7 @@ telemetry_allocator_init :: proc(backing_allocator: ^mem.Allocator, telemetry: ^
 }
 
 @(no_sanitize_address)
-telemetry_allocator_log :: proc(telemetry: Telemetry_Allocator, alias: cstring) {  
+telemetry_allocator_log :: proc(telemetry: Telemetry_Allocator, alias: string) {  
     /* 
     allocators.temp_allocator might already be destroyed.
     Log cannot be used, as it uses the allocators.temp_allocator internally.

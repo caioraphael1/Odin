@@ -14,12 +14,11 @@ Note: just Telemetry + mutex, without Compat_Allocator internally.
 This is a problem, as mem.free doesn't have the information from the old size, so a lot of leaks are falsely accused, as the allocator thinks it's freeing 0 bytes.
 */
 
-
 /* 
 A Tracking_Allocator without internal allocations.
 */
 Telemetry_Allocator :: struct {
-    name:                     cstring,
+    name:                     string,
 
     backing:                  mem.Allocator,
     mutex:                    sync.Mutex,
@@ -35,7 +34,7 @@ Telemetry_Allocator :: struct {
 }
 
 
-telemetry_allocator_init :: proc(backing_allocator: ^mem.Allocator, telemetry: ^Telemetry_Allocator, name: cstring) {
+telemetry_allocator_init :: proc(backing_allocator: ^mem.Allocator, telemetry: ^Telemetry_Allocator, name: string) {
     telemetry.name = name
     telemetry.backing = backing_allocator^
     backing_allocator^ = {
@@ -71,7 +70,7 @@ telemetry_allocator_proc :: proc(
     old_memory:      rawptr,
     old_size:        uint,
     loc              := #caller_location,
-    ) -> (bytes: []byte, err: mem.Allocator_Error) {
+    ) -> (new_memory: []byte, err: mem.Allocator_Error) {
     @(no_sanitize_address)
     track_alloc :: proc(data: ^Telemetry_Allocator, size: uint) {
         data.total_memory_allocated += size
@@ -93,23 +92,18 @@ telemetry_allocator_proc :: proc(
 
     sync.mutex_guard(&telemetry_alloc.mutex)
 
-    bytes, err = telemetry_alloc.backing.procedure(telemetry_alloc.backing.data, mode, size, alignment, old_memory, old_size, loc)
+    new_memory, err = telemetry_alloc.backing.procedure(telemetry_alloc.backing.data, mode, size, alignment, old_memory, old_size, loc)
     if err != nil {
         fmt.panicf("[telemetry_allocator_proc] (%v) %v | err '%v'", loc, telemetry_alloc.name, err)
     }
 
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
-        if !strings_tools.contains(string(telemetry_alloc.name), "HOST") {
-            // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Alloc '%v' bytes", loc, telemetry_alloc.name, raw_data(bytes), size)
-        }
+        // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Alloc '%v' bytes", loc, telemetry_alloc.name, raw_data(new_memory), size)
         track_alloc(telemetry_alloc, size)
     case .Free:
         if old_memory != nil {
-            if !strings_tools.contains(string(telemetry_alloc.name), "HOST") {
-            // if old_size != 0 {
-                // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Free '%v' bytes", loc, telemetry_alloc.name, old_memory, old_size)
-            }
+            // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Free '%v' bytes", loc, telemetry_alloc.name, old_memory, old_size)
             track_free(telemetry_alloc, old_size)
         }
     case .Free_All:
@@ -120,7 +114,7 @@ telemetry_allocator_proc :: proc(
             // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Resize Free '%v' bytes", loc, telemetry_alloc.name, old_memory, old_size)
             track_free(telemetry_alloc, old_size)
         }
-        // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Resize Alloc '%v' bytes", loc, telemetry_alloc.name, raw_data(bytes), size)
+        // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Resize Alloc '%v' bytes", loc, telemetry_alloc.name, raw_data(new_memory), size)
         track_alloc(telemetry_alloc, size)
     case .Query_Features:
         unreachable()
