@@ -48,6 +48,7 @@ telemetry_allocator_init :: proc(backing_allocator: ^mem.Allocator, telemetry: ^
     }
 }
 
+
 @(no_sanitize_address)
 telemetry_allocator_log :: proc(telemetry: Telemetry_Allocator, alias: string) {  
     /* 
@@ -57,15 +58,27 @@ telemetry_allocator_log :: proc(telemetry: Telemetry_Allocator, alias: string) {
 
     SPACING :: "    "
     fmt.printfln("[Telemetry_Allocator: '%v']", alias)
-    fmt.printfln(SPACING + "Peak memory: %.2f kb", f32(telemetry.peak_memory_allocated) / 1000.0)
-    fmt.printfln(SPACING + "Telemetry Peak bloat memory: %.2f kb", f32(telemetry.telemetry_peak_memory_allocated) / 1000.0)
+
+    fmt.printf(SPACING + "Peak memory: ")
+    fmt.printf_bytes(telemetry.peak_memory_allocated)
+    fmt.printfln("")
+
+    fmt.printf(SPACING + "Telemetry Peak bloat memory: ")
+    fmt.printf_bytes(telemetry.telemetry_peak_memory_allocated)
+    fmt.printfln("")
+
     if telemetry.current_memory_allocated != 0 {
-        fmt.eprintfln(SPACING + "[ERROR] Leaked %.2f kb.", f32(telemetry.current_memory_allocated) / 1000.0)
+        fmt.printf(SPACING + "[ERROR] Leaked ")
+        fmt.printf_bytes(telemetry.current_memory_allocated)
+        fmt.printfln("")
     } else {
         fmt.printfln(SPACING + "0 leaks.")
     }
+
     if telemetry.telemetry_current_memory_allocated != 0 {
-        fmt.eprintfln(SPACING + "[ERROR] Telemetry bloat leaked %.2f kb.", f32(telemetry.telemetry_current_memory_allocated) / 1000.0)
+        fmt.printf(SPACING + "[ERROR] Telemetry bloat leaked ")
+        fmt.printf_bytes(telemetry.telemetry_current_memory_allocated)
+        fmt.printfln("")
     } else {
         fmt.printfln(SPACING + "0 telemetry leaks.")
     }

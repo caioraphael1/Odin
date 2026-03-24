@@ -53,9 +53,15 @@ telemetry_allocator_log :: proc(telemetry: Telemetry_Allocator, alias: cstring) 
 
     SPACING :: "    "
     fmt.printfln("[Telemetry_Allocator: '%v']", alias)
-    fmt.printfln(SPACING + "Peak memory: %.2f kb", f32(telemetry.peak_memory_allocated) / 1000.0)
+
+    fmt.printf(SPACING + "Peak memory: ")
+    fmt.printf_bytes(telemetry.peak_memory_allocated)
+    fmt.printfln("")
+
     if telemetry.current_memory_allocated != 0 {
-        fmt.eprintfln(SPACING + "[ERROR] Leaked %.2f kb.", f32(telemetry.current_memory_allocated) / 1000.0)
+        fmt.printf(SPACING + "[ERROR] Leaked ")
+        fmt.printf_bytes(telemetry.current_memory_allocated)
+        fmt.printfln("")
     } else {
         fmt.printfln(SPACING + "0 leaks.")
     }
