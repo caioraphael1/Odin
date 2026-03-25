@@ -27,6 +27,14 @@ as_string :: proc(s: ^Fixed_String($N)) -> string {
     return string(slice(s))
 }
 
+as_cstring :: proc(s: ^Fixed_String($N)) -> (cs: cstring, ok: bool) {
+    if s.len + 1 > uint(N) {
+        return nil, false
+    }
+    s.data[s.len] = 0
+    return cstring(&s.data[0]), true
+}
+
 slice :: proc(s: ^Fixed_String($N)) -> []byte {
     return s.data[:s.len]
 }
