@@ -1,78 +1,107 @@
 import "base:internal"
 
 import "core:fmt"
-import "core:terminal"
 import "core:os"
 
 
-default_logger: Logger
-
-@(private) global_subtract_stdout_options: Options
-@(private) global_subtract_stderr_options: Options
+global_logger: Logger
 
 
-// @(init)
-subtract_terminal_options :: proc() {
-    // NOTE(Feoramund): While it is technically possible for these streams to
-    // be redirected during the internal of the program, the cost of checking on
-    // every single log message is not worth it to support such an
-    // uncommonly-used feature.
-    if terminal.color_enabled {
-        // This is done this way because it's possible that only one of these
-        // streams could be redirected to a file.
-        if !terminal.is_terminal(os.stdout) {
-            global_subtract_stdout_options = { .Terminal_Color }
-        }
-        if !terminal.is_terminal(os.stderr) {
-            global_subtract_stderr_options = { .Terminal_Color }
-        }
-    } else {
-        // Override any terminal coloring.
-        global_subtract_stdout_options = { .Terminal_Color }
-        global_subtract_stderr_options = { .Terminal_Color }
-    }
+Logger :: struct {
+    procedure:    Logger_Proc,
+    
+    file_handle:  ^os.File,
+    ident:        string,
+
+    lowest_level: Level,
+    options:      Options,
 }
 
+Logger_Proc :: #type proc(file_handle: ^os.File, ident: string, level: Level, fmt_string: string, args: []any, options: Options, loc := #caller_location)
+
+Level :: enum uint {
+    Debug   = 0,
+    Info    = 10,
+    Warning = 20,
+    Error   = 30,
+    Fatal   = 40,
+}
+
+Option :: enum {
+    Level,
+    Date,
+    Time,
+    Short_File_Path,
+    Long_File_Path,
+    Line,
+    Procedure,
+    Terminal_Color,
+    Thread_Id,
+}
+Options :: bit_set[Option]
+
+
+log :: proc(logger: Logger, level: Level, args: ..any, sep := " ", loc := #caller_location) {
+    if logger.procedure == nil { return }
+    if level < logger.lowest_level { return }
+
+    logger.procedure(logger.file_handle, logger.ident, level, "", args, logger.options, loc)
+}
+
+logf :: proc(logger: Logger, level: Level, fmt_str: string, args: ..any, loc := #caller_location) {
+    if logger.procedure == nil { return }
+    if level < logger.lowest_level { return }
+
+    logger.procedure(logger.file_handle, logger.ident, level, fmt_str, args, logger.options, loc)
+}
 
 debugf :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
-    logf(default_logger, .Debug,   fmt_str, ..args, loc=loc)
+    logf(global_logger, .Debug, fmt_str, ..args, loc=loc)
 }
+
 infof  :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
-    logf(default_logger, .Info,    fmt_str, ..args, loc=loc)
+    logf(global_logger, .Info, fmt_str, ..args, loc=loc)
 }
+
 warnf  :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
-    logf(default_logger, .Warning, fmt_str, ..args, loc=loc)
+    logf(global_logger, .Warning, fmt_str, ..args, loc=loc)
 }
+
 errorf :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
-    logf(default_logger, .Error,   fmt_str, ..args, loc=loc)
+    logf(global_logger, .Error, fmt_str, ..args, loc=loc)
 }
+
 fatalf :: proc(fmt_str: string, args: ..any, loc := #caller_location) {
-    logf(default_logger, .Fatal,   fmt_str, ..args, loc=loc)
+    logf(global_logger, .Fatal, fmt_str, ..args, loc=loc)
 }
 
 debug :: proc(args: ..any, sep := " ", loc := #caller_location) {
-    log(default_logger, .Debug,   ..args, sep=sep, loc=loc)
+    log(global_logger, .Debug, ..args, sep=sep, loc=loc)
 }
+
 info  :: proc(args: ..any, sep := " ", loc := #caller_location) {
-    log(default_logger, .Info,    ..args, sep=sep, loc=loc)
+    log(global_logger, .Info, ..args, sep=sep, loc=loc)
 }
+
 warn  :: proc(args: ..any, sep := " ", loc := #caller_location) {
-    log(default_logger, .Warning, ..args, sep=sep, loc=loc)
+    log(global_logger, .Warning, ..args, sep=sep, loc=loc)
 }
+
 error :: proc(args: ..any, sep := " ", loc := #caller_location) {
-    log(default_logger, .Error,   ..args, sep=sep, loc=loc)
+    log(global_logger, .Error, ..args, sep=sep, loc=loc)
 }
+
 fatal :: proc(args: ..any, sep := " ", loc := #caller_location) {
-    log(default_logger, .Fatal,   ..args, sep=sep, loc=loc)
+    log(global_logger, .Fatal, ..args, sep=sep, loc=loc)
 }
 
 panic :: proc(args: ..any, loc := #caller_location) -> ! {
-    log(default_logger, .Fatal, ..args, loc=loc)
+    log(global_logger, .Fatal, ..args, loc=loc)
     internal.panic("log.panic", loc)
 }
 
 panicf :: proc(fmt_str: string, args: ..any, loc := #caller_location) -> ! {
-    logf(default_logger, .Fatal, fmt_str, ..args, loc=loc)
+    logf(global_logger, .Fatal, fmt_str, ..args, loc=loc)
     internal.panic("log.panicf", loc)
 }
 
@@ -81,7 +110,7 @@ assert :: proc(condition: bool, message := #caller_expression(condition), loc :=
     if !condition {
         @(cold)
         internal_assert :: proc(message: string, loc: internal.Source_Code_Location) {
-            log(default_logger, .Fatal, message, loc=loc)
+            log(global_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("internal assertion", message, loc)
         }
         internal_assert(message, loc)
@@ -98,7 +127,7 @@ assertf :: proc(condition: bool, fmt_str: string, args: ..any, loc := #caller_lo
         @(cold)
         internal_assertf :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
             message := fmt.tprintf(fmt_str, ..args)
-            log(default_logger, .Fatal, message, loc=loc)
+            log(global_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("internal assertion", message, loc)
         }
         internal_assertf(loc, fmt_str, ..args)
@@ -109,7 +138,7 @@ ensure :: proc(condition: bool, message := #caller_expression(condition), loc :=
     if !condition {
         @(cold)
         internal_ensure :: proc(message: string, loc: internal.Source_Code_Location) {
-            log(default_logger, .Fatal, message, loc=loc)
+            log(global_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("unsatisfied ensure", message, loc)
         }
         internal_ensure(message, loc)
@@ -121,7 +150,7 @@ ensuref :: proc(condition: bool, fmt_str: string, args: ..any, loc := #caller_lo
         @(cold)
         internal_ensuref :: proc(loc: internal.Source_Code_Location, fmt_str: string, args: ..any) {
             message := fmt.tprintf(fmt_str, ..args)
-            log(default_logger, .Fatal, message, loc=loc)
+            log(global_logger, .Fatal, message, loc=loc)
             internal.assertion_failure_proc("unsatisfied ensure", message, loc)
         }
         internal_ensuref(loc, fmt_str, ..args)

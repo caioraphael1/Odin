@@ -1,3 +1,4 @@
+import "base:builtin"
 import "base:mem"
 import base_slice "base:container/slice"
 
@@ -17,7 +18,7 @@ cap :: proc(s: Fixed_String($N)) -> uint {
 }
 
 store_string :: proc(s: ^Fixed_String($N), str: string) -> (ok: bool) {
-    ok = resize(s, len(str))
+    ok = resize(s, builtin.len(str))
     base_slice.copy_from_string(slice(s), str)
     return
 }
