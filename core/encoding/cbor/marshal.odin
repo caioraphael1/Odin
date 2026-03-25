@@ -249,11 +249,11 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
         
     case internal.Type_Info_Dynamic_Array:
         if info.elem.id == byte {
-            raw := (^[dynamic]byte)(v.data)
+            raw := (^dyn_array.Dyn_Array(byte))(v.data)
             return err_conv(_encode_bytes(e, raw[:]))
         }
 
-        array := (^dyn_array.Raw_Dynamic_Array)(v.data)
+        array := (^dyn_array.Dyn_Array(byte))(v.data) // Caio: this was untyped before
         err_conv(_encode_u64(e, u64(array.len), .Array)) or_return
 
         if impl, ok := _tag_implementations_type[info.elem.id]; ok {
@@ -351,13 +351,13 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
             }
 
             Encoded_Entry :: struct {
-                key:     ^[dynamic]byte,
+                key:     ^dyn_array.Dyn_Array(byte),
                 val_idx: uintptr,
             }
 
             switch info.key.id {
             case string:
-                entries := dyn_array.create([dynamic]Encoded_Entry_Fast(^[]byte), 0, map_cap, e.temp_allocator) or_return
+                entries := dyn_array.create(Encoded_Entry_Fast(^[]byte), 0, map_cap, e.temp_allocator) or_return
                 defer _ = slice.delete(entries)
 
                 for bucket_index in 0..<map_cap {
@@ -391,7 +391,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
                 return
 
             case cstring:
-                entries := dyn_array.create([dynamic]Encoded_Entry_Fast(^cstring), 0, map_cap, e.temp_allocator) or_return
+                entries := dyn_array.create(Encoded_Entry_Fast(^cstring), 0, map_cap, e.temp_allocator) or_return
                 defer _ = slice.delete(entries)
 
                 for bucket_index in 0..<map_cap {
@@ -427,7 +427,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
                 return
 
             case:
-                entries := dyn_array.create([dynamic]Encoded_Entry, 0, map_cap, e.temp_allocator) or_return
+                entries := dyn_array.create(Encoded_Entry, 0, map_cap, e.temp_allocator) or_return
                 defer _ = slice.delete(entries)
 
                 for bucket_index in 0..<map_cap {
@@ -504,7 +504,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^internal.Type_Info) -> (e
                 name:  []byte,
                 field: int,
             }
-            entries := dyn_array.create([dynamic]Name, 0, n, e.temp_allocator) or_return
+            entries := dyn_array.create(Name, 0, n, e.temp_allocator) or_return
             defer _ = slice.delete(entries)
 
             for _, i in info.names[:info.field_count] {

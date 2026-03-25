@@ -52,10 +52,10 @@ Reader :: struct {
     // internal buffers
     r:             reader.Reader,
     line_count:    int, // current line being read in the CSV file
-    raw_buffer:    [dynamic]byte,
-    record_buffer: [dynamic]byte,
-    field_indices: [dynamic]int,
-    last_record:   [dynamic]string,
+    raw_buffer:    dyn_array.Dyn_Array(byte),
+    record_buffer: dyn_array.Dyn_Array(byte),
+    field_indices: dyn_array.Dyn_Array(int),
+    last_record:   dyn_array.Dyn_Array(string),
     sr: strings.Reader, // used by reader_init_with_string
 
     // Set and used by the iterator. Query using `iterator_last_error`
@@ -173,7 +173,7 @@ is_io_error :: proc(err: Error, io_err: io.Error) -> bool {
 // read_all is defined to read until an EOF, and does not treat EOF as an error
 
 read_all :: proc(r: ^Reader, allocator: mem.Allocator) -> ([][]string, Error) {
-    records: [dynamic][]string
+    records: dyn_array.Dyn_Array([]string)
     for {
         record, rerr := _read_record(r, nil, allocator)
         if is_io_error(rerr, .EOF) {
@@ -229,7 +229,7 @@ is_valid_delim :: proc(r: rune) -> bool {
 }
 
 @(private)
-_read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator) -> ([]string, Error) {
+_read_record :: proc(r: ^Reader, dst: ^dyn_array.Dyn_Array(string), allocator: mem.Allocator) -> ([]string, Error) {
     
     read_line :: proc(r: ^Reader) -> ([]byte, io.Error) {
         if !r.multiline_fields {
@@ -453,7 +453,7 @@ _read_record :: proc(r: ^Reader, dst: ^[dynamic]string, allocator: mem.Allocator
     str := string(r.record_buffer[:])
     if dst == nil {
         // use local variable
-        dst = &([dynamic]string){}
+        dst = &(dyn_array.Dyn_Array(string)){}
     }
     dyn_array.clear(dst)
     _ = dyn_array.resize(dst, len(r.field_indices))

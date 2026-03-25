@@ -47,7 +47,7 @@ Example:
     internal.assert(pq.len(q) == 0)
 */
 Priority_Queue :: struct($T: typeid) {
-    queue: [dynamic]T,
+    queue: dyn_array.Dyn_Array(T),
     
     less:  proc(a, b: T) -> bool,
     swap:  proc(q: []T, i, j: int),
@@ -73,7 +73,7 @@ init :: proc(pq: ^$Q/Priority_Queue($T), less: proc(a, b: T) -> bool, swap: proc
     return .None
 }
 
-init_from_dynamic_array :: proc(pq: ^$Q/Priority_Queue($T), queue: [dynamic]T, less: proc(a, b: T) -> bool, swap: proc(q: []T, i, j: int)) {
+init_from_dynamic_array :: proc(pq: ^$Q/Priority_Queue($T), queue: dyn_array.Dyn_Array(T), less: proc(a, b: T) -> bool, swap: proc(q: []T, i, j: int)) {
     pq.queue = queue
     pq.less = less
     pq.swap = swap

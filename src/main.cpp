@@ -607,7 +607,7 @@ gb_internal bool parse_build_flags(Array<String> args) {
     add_flag(&build_flags, BuildFlag_DynamicMapCalls,         str_lit("dynamic-map-calls"),         BuildFlagParam_None,    Command__does_check);
 
     add_flag(&build_flags, BuildFlag_ObfuscateSourceCodeLocations, str_lit("obfuscate-source-code-locations"), BuildFlagParam_None,    Command__does_build);
-    add_flag(&build_flags, BuildFlag_SourceCodeLocations,       str_lit("source-code-locations"),       BuildFlagParam_String,  Command__does_build);
+    add_flag(&build_flags, BuildFlag_SourceCodeLocations,          str_lit("source-code-locations"),           BuildFlagParam_String,  Command__does_build);
 
     add_flag(&build_flags, BuildFlag_Short,                   str_lit("short"),                     BuildFlagParam_None,    Command_doc);
     add_flag(&build_flags, BuildFlag_AllPackages,             str_lit("all-packages"),              BuildFlagParam_None,    Command_doc | Command_test | Command_build);

@@ -75,18 +75,18 @@ File :: struct {
     fullpath: string,
     src:      string,
 
-    tags: [dynamic]tokenizer.Token,
+    tags: dyn_array.Dyn_Array(tokenizer.Token),
     docs: ^Comment_Group, // possibly nil
 
     pkg_decl:  ^Package_Decl,
     pkg_token: tokenizer.Token,
     pkg_name:  string,
 
-    decls:   [dynamic]^Stmt,
-    imports: [dynamic]^Import_Decl,
+    decls:   dyn_array.Dyn_Array(^Stmt),
+    imports: dyn_array.Dyn_Array(^Import_Decl),
     directive_count: int,
 
-    comments: [dynamic]^Comment_Group,
+    comments: dyn_array.Dyn_Array(^Comment_Group),
 
     syntax_warning_count: int,
     syntax_error_count:   int,
@@ -508,7 +508,7 @@ Bad_Decl :: struct {
 Value_Decl :: struct {
     using node: Decl,
     docs:       ^Comment_Group, // possibly nil
-    attributes: [dynamic]^Attribute, // dynamic as parsing will add to them lazily
+    attributes: dyn_array.Dyn_Array(^Attribute), // dynamic as parsing will add to them lazily
     names:      []^Expr,
     type:       ^Expr, // possibly nil
     values:     []^Expr,
@@ -528,7 +528,7 @@ Package_Decl :: struct {
 Import_Decl :: struct {
     using node: Decl,
     docs:       ^Comment_Group, // possibly nil
-    attributes:  [dynamic]^Attribute, // dynamic as parsing will add to them lazily
+    attributes:  dyn_array.Dyn_Array(^Attribute), // dynamic as parsing will add to them lazily
     is_using:    bool,
     import_tok:  tokenizer.Token,
     name:        tokenizer.Token,
@@ -540,7 +540,7 @@ Import_Decl :: struct {
 Foreign_Block_Decl :: struct {
     using node: Decl,
     docs:            ^Comment_Group, // possibly nil
-    attributes:      [dynamic]^Attribute, // dynamic as parsing will add to them lazily
+    attributes:      dyn_array.Dyn_Array(^Attribute), // dynamic as parsing will add to them lazily
     tok:             tokenizer.Token,
     foreign_library: ^Expr, // possibly nil
     body:            ^Stmt, // possibly nil
@@ -549,7 +549,7 @@ Foreign_Block_Decl :: struct {
 Foreign_Import_Decl :: struct {
     using node: Decl,
     docs:            ^Comment_Group, // possibly nil
-    attributes:      [dynamic]^Attribute, // dynamic as parsing will add to them lazily
+    attributes:      dyn_array.Dyn_Array(^Attribute), // dynamic as parsing will add to them lazily
     foreign_tok:     tokenizer.Token,
     import_tok:      tokenizer.Token,
     name:            ^Ident, // possibly nil

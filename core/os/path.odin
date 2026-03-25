@@ -750,7 +750,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
         _ = slice.delete(m, allocator)
     }
 
-    dmatches, _ := dyn_array.create_len_cap([dynamic]string, 0, 0, allocator)
+    dmatches, _ := dyn_array.create_len_cap(string, 0, 0, allocator)
     for d in m {
         dmatches, err = _glob(d, file, &dmatches, allocator)
         if err != nil {
@@ -919,11 +919,11 @@ get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Error) {
 }
 
 // Internal implementation of `glob`, not meant to be used by the user. Prefer `glob`.
-_glob :: proc(dir, pattern: string, matches: ^[dynamic]string, allocator: mem.Allocator) -> (m: [dynamic]string, e: Error) {
+_glob :: proc(dir, pattern: string, matches: ^dyn_array.Dyn_Array(string), allocator: mem.Allocator) -> (m: dyn_array.Dyn_Array(string), e: Error) {
     if matches != nil {
         m = matches^
     } else {
-        m, _ = dyn_array.create_len_cap([dynamic]string, 0, 0, allocator)
+        m, _ = dyn_array.create_len_cap(string, 0, 0, allocator)
     }
 
 

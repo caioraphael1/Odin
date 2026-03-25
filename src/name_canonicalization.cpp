@@ -784,10 +784,6 @@ gb_internal void write_type_to_canonical_string(TypeWriter *w, Type *type) {
         type_writer_appendc(w, "[]");
         write_type_to_canonical_string(w, type->Array.elem);
         return;
-    case Type_DynamicArray:
-        type_writer_appendc(w, "[dynamic]");
-        write_type_to_canonical_string(w, type->DynamicArray.elem);
-        return;
     case Type_SimdVector:
         type_writer_append_fmt(w, "#simd[%lld]", cast(long long)type->SimdVector.count);
         write_type_to_canonical_string(w, type->SimdVector.elem);
@@ -873,8 +869,7 @@ gb_internal void write_type_to_canonical_string(TypeWriter *w, Type *type) {
         if (type->Struct.soa_kind != StructSoa_None) {
             switch (type->Struct.soa_kind) {
             case StructSoa_Fixed:   type_writer_append_fmt(w, "#soa[%lld]", cast(long long)type->Struct.soa_count); break;
-            case StructSoa_Slice:   type_writer_appendc(w,    "#soa[]");                                    break;
-            case StructSoa_Dynamic: type_writer_appendc(w,    "#soa[dynamic]");                             break;
+            case StructSoa_Slice:   type_writer_appendc(w,    "#soa[]");                                            break;
             default: GB_PANIC("Unknown StructSoaKind"); break;
             }
             return write_type_to_canonical_string(w, type->Struct.soa_elem);

@@ -27,8 +27,8 @@ State :: struct {
     translate_by_grapheme: bool, // translates by codepoint by default
 
     // undo
-    undo: [dynamic]^Undo_State,
-    redo: [dynamic]^Undo_State,
+    undo: dyn_array.Dyn_Array(^Undo_State),
+    redo: dyn_array.Dyn_Array(^Undo_State),
     undo_text_allocator: mem.Allocator,
 
     id: u64, // useful for immediate mode GUIs
@@ -138,7 +138,7 @@ clear_all :: proc(s: ^State) -> (cleared: bool) {
 }
 
 // push current text state to the wanted undo|redo stack
-undo_state_push :: proc(s: ^State, undo: ^[dynamic]^Undo_State) -> mem.Allocator_Error {
+undo_state_push :: proc(s: ^State, undo: ^dyn_array.Dyn_Array(^Undo_State)) -> mem.Allocator_Error {
     if s.builder == nil {
         return nil
     }
@@ -154,7 +154,7 @@ undo_state_push :: proc(s: ^State, undo: ^[dynamic]^Undo_State) -> mem.Allocator
 }
 
 // dyn_array.pop undo|redo state - push to redo|undo - set selection & text
-undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
+undo :: proc(s: ^State, undo, redo: ^dyn_array.Dyn_Array(^Undo_State)) {
     if len(undo) > 0 {
         undo_state_push(s, redo)
         item := dyn_array.pop(undo)
@@ -168,7 +168,7 @@ undo :: proc(s: ^State, undo, redo: ^[dynamic]^Undo_State) {
 }
 
 // iteratively clearn the undo|redo stack and free each allocated text state
-undo_clear :: proc(s: ^State, undo: ^[dynamic]^Undo_State) {
+undo_clear :: proc(s: ^State, undo: ^dyn_array.Dyn_Array(^Undo_State)) {
     for len(undo) > 0 {
         item := dyn_array.pop(undo)
         free(item, s.undo_text_allocator)

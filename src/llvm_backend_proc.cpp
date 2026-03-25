@@ -2286,9 +2286,7 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             GB_PANIC("Array lengths are constant");
         } else if (is_type_slice(t)) {
             return lb_slice_len(p, v);
-        } else if (is_type_dynamic_array(t)) {
-            return lb_dynamic_array_len(p, v);
-        } else if (is_type_map(t)) {
+        }else if (is_type_map(t)) {
             return lb_map_len(p, v);
         } else if (is_type_soa_struct(t)) {
             return lb_soa_struct_len(p, v);
@@ -2311,12 +2309,8 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             GB_PANIC("Array lengths are constant");
         } else if (is_type_slice(t)) {
             return lb_slice_len(p, v);
-        } else if (is_type_dynamic_array(t)) {
-            return lb_dynamic_array_cap(p, v);
         } else if (is_type_map(t)) {
             return lb_map_cap(p, v);
-        } else if (is_type_soa_struct(t)) {
-            return lb_soa_struct_cap(p, v);
         }
 
         GB_PANIC("Unreachable");
@@ -2707,10 +2701,6 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             switch (t->kind) {
             case Type_Slice:
                 res = lb_slice_elem(p, x);
-                res = lb_emit_conv(p, res, tv.type);
-                break;
-            case Type_DynamicArray:
-                res = lb_dynamic_array_elem(p, x);
                 res = lb_emit_conv(p, res, tv.type);
                 break;
             case Type_Basic:

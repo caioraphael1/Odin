@@ -37,7 +37,7 @@ clone_array :: proc(array: $A/[]^$T, allocator: mem.Allocator) -> A {
     return res
 }
 
-clone_dynamic_array :: proc(array: $A/[dynamic]^$T, allocator: mem.Allocator) -> A {
+clone_dynamic_array :: proc(array: $A/dyn_array.Dyn_Array(^$T), allocator: mem.Allocator) -> A {
     if len(array) == 0 {
         return nil
     }

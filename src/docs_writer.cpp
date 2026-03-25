@@ -564,10 +564,7 @@ gb_internal OdinDocTypeIndex odin_doc_type(OdinDocWriter *w, Type *type, bool ca
         doc_type.kind = OdinDocType_Slice;
         doc_type.types = odin_doc_type_as_slice(w, type->Slice.elem);
         break;
-    case Type_DynamicArray:
-        doc_type.kind = OdinDocType_DynamicArray;
-        doc_type.types = odin_doc_type_as_slice(w, type->DynamicArray.elem);
-        break;
+
     case Type_Map:
         doc_type.kind = OdinDocType_Map;
         {
@@ -602,9 +599,6 @@ gb_internal OdinDocTypeIndex odin_doc_type(OdinDocWriter *w, Type *type, bool ca
                 break;
             case StructSoa_Slice:
                 doc_type.kind = OdinDocType_SOAStructSlice;
-                break;
-            case StructSoa_Dynamic:
-                doc_type.kind = OdinDocType_SOAStructDynamic;
                 break;
             }
             doc_type.types = odin_doc_type_as_slice(w, type->Struct.soa_elem);

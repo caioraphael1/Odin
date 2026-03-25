@@ -407,7 +407,7 @@ reader_read_slice :: proc(b: ^Reader, delim: byte) -> (line: []byte, err: io.Err
 // reader_read_bytes reads until the first occurrence of delim from the Reader
 // It returns an allocated slice containing the data up to and including the delimiter
 reader_read_bytes :: proc(b: ^Reader, delim: byte, allocator: mem.Allocator) -> (buf: []byte, err: io.Error) {
-    full: [dynamic]byte
+    full: dyn_array.Dyn_Array(byte)
     full.allocator = allocator
 
     frag: []byte

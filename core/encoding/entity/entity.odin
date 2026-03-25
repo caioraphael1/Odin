@@ -322,7 +322,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
 
 unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (output: string, was_allocation: bool, err: mem.Allocator_Error) {
     
-    do_append :: proc(s: string, amp_idx: int, buf: ^[dynamic]byte) -> (n: int) {
+    do_append :: proc(s: string, amp_idx: int, buf: ^dyn_array.Dyn_Array(byte)) -> (n: int) {
         s, amp_idx := s, amp_idx
 
         n += len(s[:amp_idx])
@@ -358,7 +358,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
     // NOTE(bill): this does a two pass in order to minimize the allocations required
     bytes_required := do_append(s, amp_idx, nil)
 
-    buf := dyn_array.create([dynamic]byte, 0, bytes_required, allocator, loc) or_return
+    buf := dyn_array.create(byte, 0, bytes_required, allocator, loc) or_return
     was_allocation = true
 
     _ = do_append(s, amp_idx, &buf)

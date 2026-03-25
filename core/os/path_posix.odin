@@ -95,7 +95,7 @@ _remove_all :: proc(path: string) -> (err: Error) {
 _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf: [dynamic]byte
+    buf: dyn_array.Dyn_Array(byte)
     buf.allocator = allocators.temp_allocator
     size := uint(posix.PATH_MAX)
 

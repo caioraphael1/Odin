@@ -580,7 +580,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
         return nil, true
     }
 
-    ltt_names, err := dyn_array.create_len_cap([dynamic]string, 0, len(local_time_types), allocator)
+    ltt_names, err := dyn_array.create_len_cap(string, 0, len(local_time_types), allocator)
     if err != nil { return }
     defer if err != nil {
         for name in ltt_names {

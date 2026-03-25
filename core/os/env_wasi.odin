@@ -166,7 +166,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
 
     sync.shared_guard(&g_env_mutex)
 
-    envs := dyn_array.create([dynamic]string, 0, len(g_env), allocator) or_return
+    envs := dyn_array.create(string, 0, len(g_env), allocator) or_return
     defer if err != nil {
         for env in envs {
             _ = slice.delete(env, allocator)

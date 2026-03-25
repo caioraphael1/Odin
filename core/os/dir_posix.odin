@@ -4,7 +4,7 @@ import "core:sys/posix"
 
 Read_Directory_Iterator_Impl :: struct {
     dir:      posix.DIR,
-    fullpath: [dynamic]byte,
+    fullpath: dyn_array.Dyn_Array(byte),
 }
 
 

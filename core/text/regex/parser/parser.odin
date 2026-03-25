@@ -25,8 +25,8 @@ Rune_Class_Range :: struct {
     lower, upper: rune,
 }
 Rune_Class_Data :: struct {
-    runes: [dynamic]rune,
-    ranges: [dynamic]Rune_Class_Range,
+    runes:  dyn_array.Dyn_Array(rune),
+    ranges: dyn_array.Dyn_Array(Rune_Class_Range),
 }
 
 
@@ -46,7 +46,7 @@ Node_Alternation :: struct {
 }
 
 Node_Concatenation :: struct {
-    nodes: [dynamic]Node,
+    nodes: dyn_array.Dyn_Array(Node),
 }
 
 Node_Repeat_Zero :: struct {

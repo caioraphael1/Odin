@@ -92,7 +92,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []uint, err: Error) {
         return
     }
 
-    list_d := dyn_array.create([dynamic]uint, allocator)
+    list_d := dyn_array.create(dyn_array.Dyn_Array(uint), allocator)
 
     entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
     status := win32.Process32FirstW(snap, &entry)

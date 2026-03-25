@@ -151,7 +151,7 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (string, Error) {
     // The largest value I could find was 4096, so might as well use the page size.
     // NOTE(jason): Avoiding libc, so just use 4096 directly
     PATH_MAX :: 4096
-    buf := dyn_array.create([dynamic]u8, PATH_MAX, allocator)
+    buf := dyn_array.create(u8, PATH_MAX, allocator)
     for {
         #no_bounds_check n, errno := linux.getcwd(buf[:])
         if errno == .NONE {
@@ -175,7 +175,7 @@ _set_working_directory :: proc(dir: string) -> Error {
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := dyn_array.create([dynamic]byte, 1024, allocators.temp_allocator) or_return
+    buf := dyn_array.create(byte, 1024, allocators.temp_allocator) or_return
     for {
         n, errno := linux.readlink("/proc/self/exe", buf[:])
         if errno != .NONE {

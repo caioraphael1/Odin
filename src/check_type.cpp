@@ -1615,8 +1615,7 @@ gb_internal Type *determine_type_from_polymorphic(CheckerContext *ctx, Type *pol
         while (pt && pt->kind == Type_Generic && pt->Generic.specialized) {
             pt = pt->Generic.specialized;
         }
-        if (is_type_slice(pt) &&
-            (is_type_dynamic_array(operand.type) || is_type_array(operand.type))) {
+        if (is_type_slice(pt) && is_type_array(operand.type)) {
             Ast *expr = unparen_expr(operand.expr);
             if (expr->kind == Ast_CompoundLit) {
                 gbString es = type_to_string(base_any_array_type(operand.type));
@@ -2973,7 +2972,6 @@ gb_internal bool complete_soa_type(Checker *checker, Type *t, bool wait_to_finis
     switch (t->Struct.soa_kind) {
     case StructSoa_Fixed:   extra_field_count = 0; break;
     case StructSoa_Slice:   extra_field_count = 1; break;
-    case StructSoa_Dynamic: extra_field_count = 3; break;
     }
 
     Scope *scope = t->Struct.scope;
@@ -3034,19 +3032,6 @@ gb_internal bool complete_soa_type(Checker *checker, Type *t, bool wait_to_finis
         t->Struct.fields[field_count+0] = len_field;
         add_entity(scope, len_field);
             len_field->flags |= EntityFlag_Used;
-
-        if (t->Struct.soa_kind == StructSoa_Dynamic) {
-            Entity *cap_field = alloc_entity_field(scope, make_token_ident("__$cap"), t_int, false, cast(i32)field_count+1);
-            t->Struct.fields[field_count+1] = cap_field;
-            add_entity(scope, cap_field);
-            cap_field->flags |= EntityFlag_Used;
-
-            init_mem_allocator(checker);
-            Entity *allocator_field = alloc_entity_field(scope, make_token_ident("allocator"), t_allocator, false, cast(i32)field_count+2);
-            t->Struct.fields[field_count+2] = allocator_field;
-            add_entity(scope, allocator_field);
-            allocator_field->flags |= EntityFlag_Used;
-        }
     }
 
     // add_type_info_type(ctx, original_type);
@@ -3084,7 +3069,6 @@ gb_internal Type *make_soa_struct_internal(CheckerContext *ctx, Ast *array_typ_e
     switch (soa_kind) {
     case StructSoa_Fixed:   extra_field_count = 0; break;
     case StructSoa_Slice:   extra_field_count = 1; break;
-    case StructSoa_Dynamic: extra_field_count = 3; break;
     }
 
     soa_struct = alloc_type_struct();
@@ -3196,19 +3180,6 @@ gb_internal Type *make_soa_struct_internal(CheckerContext *ctx, Ast *array_typ_e
         soa_struct->Struct.fields[field_count+0] = len_field;
         add_entity(ctx, scope, nullptr, len_field);
         add_entity_use(ctx, nullptr, len_field);
-
-        if (soa_kind == StructSoa_Dynamic) {
-            Entity *cap_field = alloc_entity_field(scope, make_token_ident("__$cap"), t_int, false, cast(i32)field_count+1);
-            soa_struct->Struct.fields[field_count+1] = cap_field;
-            add_entity(ctx, scope, nullptr, cap_field);
-            add_entity_use(ctx, nullptr, cap_field);
-
-            init_mem_allocator(ctx->checker);
-            Entity *allocator_field = alloc_entity_field(scope, make_token_ident("allocator"), t_allocator, false, cast(i32)field_count+2);
-            soa_struct->Struct.fields[field_count+2] = allocator_field;
-            add_entity(ctx, scope, nullptr, allocator_field);
-            add_entity_use(ctx, nullptr, allocator_field);
-        }
     }
 
     Token token = {};
@@ -3239,11 +3210,6 @@ gb_internal Type *make_soa_struct_fixed(CheckerContext *ctx, Ast *array_typ_expr
 
 gb_internal Type *make_soa_struct_slice(CheckerContext *ctx, Ast *array_typ_expr, Ast *elem_expr, Type *elem) {
     return make_soa_struct_internal(ctx, array_typ_expr, elem_expr, elem, -1, nullptr, StructSoa_Slice);
-}
-
-
-gb_internal Type *make_soa_struct_dynamic_array(CheckerContext *ctx, Ast *array_typ_expr, Ast *elem_expr, Type *elem) {
-    return make_soa_struct_internal(ctx, array_typ_expr, elem_expr, elem, -1, nullptr, StructSoa_Dynamic);
 }
 
 gb_internal void check_array_type_internal(CheckerContext *ctx, Ast *e, Type **type, Type *named_type) {
@@ -3593,24 +3559,6 @@ gb_internal bool check_type_internal(CheckerContext *ctx, Ast *e, Type **type, T
 
     case_ast_node(at, ArrayType, e);
         check_array_type_internal(ctx, e, type, named_type);
-        set_base_type(named_type, *type);
-        return true;
-    case_end;
-
-    case_ast_node(dat, DynamicArrayType, e);
-        Type *elem = check_type(ctx, dat->elem);
-        if (dat->tag != nullptr) {
-            GB_ASSERT(dat->tag->kind == Ast_BasicDirective);
-            String name = dat->tag->BasicDirective.name.string;
-            if (name == "soa") {
-                *type = make_soa_struct_dynamic_array(ctx, e, dat->elem, elem);
-            } else {
-                error(dat->tag, "Invalid tag applied to dynamic array, got #%.*s", LIT(name));
-                *type = alloc_type_dynamic_array(elem);
-            }
-        } else {
-            *type = alloc_type_dynamic_array(elem);
-        }
         set_base_type(named_type, *type);
         return true;
     case_end;

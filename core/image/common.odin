@@ -395,7 +395,7 @@ PNG_Error :: enum {
 
 PNG_Info :: struct {
     header: PNG_IHDR,
-    chunks: [dynamic]PNG_Chunk,
+    chunks: dyn_array.Dyn_Array(PNG_Chunk),
 }
 
 PNG_Chunk_Header :: struct #packed {
@@ -709,8 +709,8 @@ JPEG_Marker :: enum u8 {
 JPEG_Info :: struct {
     jfif_app0: internal.Maybe(JFIF_APP0),
     jfxx_app0: internal.Maybe(JFXX_APP0),
-    comments: [dynamic]string,
-    exif: [dynamic]Exif,
+    comments:  dyn_array.Dyn_Array(string),
+    exif:      dyn_array.Dyn_Array(Exif),
     frame_type: JPEG_Marker,
 }
 
@@ -740,7 +740,7 @@ pixels_to_image :: proc(pixels: [][$N]$E, width: int, height: int) -> (img: Imag
     img.channels = N
 
     s := transmute(slice.Raw_Slice)pixels
-    d := dyn_array.Raw_Dynamic_Array{
+    d := dyn_array.Dyn_Array(byte){
         data = s.data,
         len  = s.len * size_of(E) * N,
         cap  = s.len * size_of(E) * N,
@@ -748,7 +748,7 @@ pixels_to_image :: proc(pixels: [][$N]$E, width: int, height: int) -> (img: Imag
             // (2026-03-07) it was a nil allocator
     }
     img.pixels = bytes.Buffer{
-        buf = transmute([dynamic]u8)d,
+        buf = transmute(dyn_array.Dyn_Array(u8))d,
     }
 
     return img, true

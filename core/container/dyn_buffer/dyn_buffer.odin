@@ -15,7 +15,7 @@ MIN_READ :: 512
 // A Dyn_Buffer is a variable-sized buffer of bytes with a io.Stream interface
 // The zero value for Dyn_Buffer is an empty buffer ready to use.
 Dyn_Buffer :: struct {
-    buf:       [dynamic]byte,
+    buf:       dyn_array.Dyn_Array(byte),
     off:       uint,
     last_read: Read_Op,
 }
@@ -43,7 +43,7 @@ buffer_init_string :: proc(b: ^Dyn_Buffer, s: string, loc := #caller_location) {
 
 buffer_init_allocator :: proc(b: ^Dyn_Buffer, len, cap: uint, allocator: mem.Allocator, loc := #caller_location) {
     if b.buf == nil {
-        b.buf, _ = dyn_array.create_len_cap([dynamic]byte, len, cap, allocator, loc)
+        b.buf, _ = dyn_array.create_len_cap(byte, len, cap, allocator, loc)
         return
     }
 

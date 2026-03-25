@@ -408,7 +408,7 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
         it = it[i + len(substrs):]
     }
 
-    results := dyn_array.create_len_cap([dynamic]string, 0, n, allocator, loc) or_return
+    results := dyn_array.create_len_cap(string, 0, n, allocator, loc) or_return
     {
         it := s
         for len(it) > 0 {
@@ -526,7 +526,7 @@ Splits a string into a slice of substrings at each run of unicode code points `r
 NOTE: fields_proc makes no guarantee about the order in which it calls `f(r)`, it assumes that `f` always returns the same value for a given `r`
 */
 fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, loc := #caller_location) -> (res: []string, err: mem.Allocator_Error) #no_bounds_check {
-    substrings := dyn_array.create_len_cap([dynamic]string, 0, 32, allocator, loc) or_return
+    substrings := dyn_array.create_len_cap(string, 0, 32, allocator, loc) or_return
 
     start, end := -1, -1
     for r, offset in s {

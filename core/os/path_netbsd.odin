@@ -5,7 +5,7 @@ import "core:sys/posix"
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := dyn_array.create([dynamic]byte, 1024, allocators.temp_allocator) or_return
+    buf := dyn_array.create(byte, 1024, allocators.temp_allocator) or_return
     for {
         n := posix.readlink("/proc/curproc/exe", raw_data(buf), len(buf))
         if n < 0 {

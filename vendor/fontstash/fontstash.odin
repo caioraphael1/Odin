@@ -56,7 +56,7 @@ Font :: struct {
     descender:  f32,
     lineHeight: f32,
 
-    glyphs: [dynamic]Glyph,
+    glyphs: dyn_array.Dyn_Array(Glyph),
     lut:    [HASH_LUT_SIZE]int,
 
     fallbacks:  [MAX_FALLBACKS]int,
@@ -90,10 +90,10 @@ QuadLocation :: enum {
 }
 
 FontContext :: struct {
-    fonts: [dynamic]Font, // allocated using context.allocator
+    fonts: dyn_array.Dyn_Array(Font), // allocated using context.allocator
 
     // always assuming user wants to resize
-    nodes: [dynamic]AtlasNode,
+    nodes: dyn_array.Dyn_Array(AtlasNode),
 
     // actual pixels
     textureData:   []byte, // allocated using context.allocator

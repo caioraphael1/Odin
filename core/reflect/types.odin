@@ -357,7 +357,7 @@ is_enumerated_array :: proc(info: ^Type_Info) -> bool {
     _, ok := type_info_base(info).variant.(Type_Info_Enumerated_Array)
     return ok
 }
-// Returns true when the type is a dynamic-array type ([dynamic]T), false otherwise.
+// Returns true when the type is a dynamic-array type (dyn_array.Dyn_Array(T)), false otherwise.
 
 is_dynamic_array :: proc(info: ^Type_Info) -> bool {
     if info == nil { return false }
@@ -653,7 +653,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
 
     case Type_Info_Dynamic_Array:
         _ = io.write_string(w, "[dynamic]", &n) or_return
-        _ = write_type_writer(w, info.elem,        &n) or_return
+        _ = write_type_writer(w, info.elem, &n) or_return
     case Type_Info_Slice:
         _ = io.write_string(w, "[]", &n) or_return
         _ = write_type_writer(w, info.elem, &n) or_return
@@ -679,7 +679,7 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
             return
         case .Dynamic:
             _ = io.write_string(w, "#soa[dynamic]", &n) or_return
-            _ = write_type_writer(w, info.soa_base_type,   &n) or_return
+            _ = write_type_writer(w, info.soa_base_type, &n) or_return
             return
         }
 

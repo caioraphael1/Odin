@@ -13,7 +13,7 @@ across the same block of memory, in any order, thus providing both stack and
 queue-like behaviors in the same data structure.
 */
 Queue :: struct($T: typeid) {
-    data:   [dynamic]T,
+    data:   dyn_array.Dyn_Array(T),
     len:    uint,
     offset: uint,
 }
@@ -25,10 +25,10 @@ Initialize a `Queue` with a starting `cap` and an `allocator`.
 */
 init :: proc(q: ^$Q/Queue($T), cap := DEFAULT_CAPACITY, allocator: mem.Allocator, loc := #caller_location) -> mem.Allocator_Error {
     q^ = {} // Reset the struct first.
-    q.data = transmute([dynamic]T)dyn_array.Raw_Dynamic_Array{
+    q.data = dyn_array.Dyn_Array(T){
         data = nil,
-        len = 0,
-        cap = 0,
+        len  = 0,
+        cap  = 0,
         allocator = allocator,
     }
     return reserve(q, cap, loc)
@@ -47,10 +47,10 @@ the backing slice runs out of space.
 */
 init_from_slice :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
     dyn_array.clear(q)
-    q.data = transmute([dynamic]T)dyn_array.Raw_Dynamic_Array{
+    q.data = dyn_array.Dyn_Array(T){
         data = raw_data(backing),
-        len = builtin.len(backing),
-        cap = builtin.len(backing),
+        len  = builtin.len(backing),
+        cap  = builtin.len(backing),
         allocator = {},
     }
     return true
@@ -66,10 +66,10 @@ be able to add more elements to the queue until some are taken off.
 */
 init_with_contents :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
     dyn_array.clear(q)
-    q.data = transmute([dynamic]T)dyn_array.Raw_Dynamic_Array{
+    q.data = dyn_array.Dyn_Array(T){
         data = raw_data(backing),
-        len = builtin.len(backing),
-        cap = builtin.len(backing),
+        len  = builtin.len(backing),
+        cap  = builtin.len(backing),
         allocator = {},
     }
     q.len = builtin.len(backing)

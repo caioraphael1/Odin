@@ -386,7 +386,6 @@ print_type :: #force_no_inline proc(ti: ^Type_Info) {
         print_byte(']')
         print_type(info.elem)
 
-
     case Type_Info_Dynamic_Array:
         print_string("[dynamic]")
         print_type(info.elem)

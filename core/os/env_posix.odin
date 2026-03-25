@@ -86,7 +86,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
     n := 0
     for entry := posix.environ[0]; entry != nil; n, entry = n+1, posix.environ[n] {}
 
-    r := dyn_array.create([dynamic]string, 0, n, allocator) or_return
+    r := dyn_array.create(string, 0, n, allocator) or_return
     defer if err != nil {
         for e in r {
             _ = slice.delete(e, allocator)

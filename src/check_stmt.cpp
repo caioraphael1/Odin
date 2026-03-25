@@ -973,13 +973,6 @@ gb_internal void check_unroll_range_stmt(CheckerContext *ctx, Ast *node, u32 mod
                     inline_for_depth = exact_value_i64(unroll_count);
                 }
                 break;
-            case Type_DynamicArray:
-                if (unroll_count > 0) {
-                    val0 = t->DynamicArray.elem;
-                    val1 = t_uint;
-                    inline_for_depth = exact_value_i64(unroll_count);
-                }
-                break;
             }
         }
 
@@ -1805,12 +1798,6 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
             case Type_Array:
                 is_possibly_addressable = operand.mode == Addressing_Variable || is_ptr;
                 array_add(&vals, t->Array.elem);
-                array_add(&vals, t_uint);
-                break;
-
-            case Type_DynamicArray:
-                is_possibly_addressable = true;
-                array_add(&vals, t->DynamicArray.elem);
                 array_add(&vals, t_uint);
                 break;
 

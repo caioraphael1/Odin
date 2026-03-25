@@ -4,11 +4,11 @@ import "base:container/dyn_array"
 import "core:io"
 
 Multi_Reader :: struct {
-    readers: [dynamic]io.Reader,
+    readers: dyn_array.Dyn_Array(io.Reader),
 }
 
 multi_reader_init :: proc(mr: ^Multi_Reader, readers: []io.Reader, allocator: mem.Allocator) -> (r: io.Reader) {
-    all_readers, _ := dyn_array.create_len_cap([dynamic]io.Reader, 0, len(readers), allocator)
+    all_readers, _ := dyn_array.create_len_cap(io.Reader, 0, len(readers), allocator)
 
     for w in readers {
         if w.procedure == _multi_reader_proc {

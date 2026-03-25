@@ -37,7 +37,7 @@ iterate_array :: proc(val: any, it: ^uint) -> (elem: any, index: uint, ok: bool)
             it^ += 1
         }
     case Type_Info_Dynamic_Array:
-        array := (^dyn_array.Raw_Dynamic_Array)(val.data)
+        array := (^dyn_array.Dyn_Array(byte))(val.data)
         if it^ < array.len {
             elem.data = rawptr(uintptr(array.data) + uintptr(it^ * info.elem_size))
             elem.id = info.elem.id

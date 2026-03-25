@@ -460,7 +460,7 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: mem.Allocator
     defer linux.close(fd)
 
     BUF_SIZE_STEP :: 128
-    contents := dyn_array.create([dynamic]u8, 0, BUF_SIZE_STEP, allocator)
+    contents := dyn_array.create(u8, 0, BUF_SIZE_STEP, allocator)
 
     n: int
     i: int

@@ -18,7 +18,7 @@ INDEX_MASK  :: 63
 NUM_BITS :: 64
 
 Bit_Array :: struct {
-    bits:         [dynamic]u64,
+    bits:         dyn_array.Dyn_Array(u64),
     bias:         int,
     length:       int,
     free_pointer: bool,
@@ -313,7 +313,7 @@ init :: proc(res: ^Bit_Array, max_index: int, min_index: int = 0, allocator: mem
     legs := size_in_bits >> INDEX_SHIFT
     if size_in_bits & INDEX_MASK > 0 { legs += 1 }
 
-    bits, err := dyn_array.create_len([dynamic]u64, legs, allocator)
+    bits, err := dyn_array.create_len(u64, legs, allocator)
     ok = err == nil
 
     res.bits         = bits

@@ -133,7 +133,6 @@ enum StructSoaKind : u8 {
     StructSoa_None    = 0,
     StructSoa_Fixed   = 1,
     StructSoa_Slice   = 2,
-    StructSoa_Dynamic = 3,
 };
 
 struct TypeStruct {
@@ -247,7 +246,6 @@ struct TypeNamed {
         bool is_sparse;                                   \
     })                                                        \
     TYPE_KIND(Slice,   struct { Type *elem; })                \
-    TYPE_KIND(DynamicArray, struct { Type *elem; })           \
     TYPE_KIND(Map, struct {                                   \
         Type *key;                                        \
         Type *value;                                      \
@@ -1087,12 +1085,6 @@ gb_internal Type *alloc_type_slice(Type *elem) {
     return t;
 }
 
-gb_internal Type *alloc_type_dynamic_array(Type *elem) {
-    Type *t = alloc_type(Type_DynamicArray);
-    t->DynamicArray.elem = elem;
-    return t;
-}
-
 
 gb_internal Type *alloc_type_struct() {
     Type *t = alloc_type(Type_Struct);
@@ -1643,11 +1635,6 @@ gb_internal bool is_type_valid_for_matrix_elems(Type *t) {
     return false;
 }
 
-gb_internal bool is_type_dynamic_array(Type *t) {
-    t = base_type(t);
-    if (t == nullptr) { return false; }
-    return t->kind == Type_DynamicArray;
-}
 gb_internal bool is_type_slice(Type *t) {
     t = base_type(t);
     if (t == nullptr) { return false; }
@@ -1690,8 +1677,6 @@ gb_internal Type *base_any_array_type(Type *t) {
         return bt->Array.elem;
     } else if (is_type_slice(bt)) {
         return bt->Slice.elem;
-    } else if (is_type_dynamic_array(bt)) {
-        return bt->DynamicArray.elem;
     } else if (is_type_enumerated_array(bt)) {
         return bt->EnumeratedArray.elem;
     } else if (is_type_simd_vector(bt)) {
@@ -2223,7 +2208,6 @@ gb_internal bool is_type_indexable(Type *t) {
         return bt->Basic.kind == Basic_string || bt->Basic.kind == Basic_string16;
     case Type_Array:
     case Type_Slice:
-    case Type_DynamicArray:
     case Type_Map:
         return true;
     case Type_MultiPointer:
@@ -2243,7 +2227,6 @@ gb_internal bool is_type_sliceable(Type *t) {
         return bt->Basic.kind == Basic_string || bt->Basic.kind == Basic_string16;
     case Type_Array:
     case Type_Slice:
-    case Type_DynamicArray:
         return true;
     case Type_EnumeratedArray:
         return false;
@@ -2382,8 +2365,6 @@ gb_internal bool is_type_polymorphic(Type *t, bool or_specialized=false) {
             return true;
         }
         return is_type_polymorphic(t->SimdVector.elem, or_specialized);
-    case Type_DynamicArray:
-        return is_type_polymorphic(t->DynamicArray.elem, or_specialized);
     case Type_Slice:
         return is_type_polymorphic(t->Slice.elem, or_specialized);
 
@@ -2502,7 +2483,6 @@ gb_internal bool type_has_nil(Type *t) {
     case Type_Pointer:
     case Type_SoaPointer:
     case Type_MultiPointer:
-    case Type_DynamicArray:
     case Type_Map:
         return true;
     case Type_Union:
@@ -2512,7 +2492,6 @@ gb_internal bool type_has_nil(Type *t) {
             switch (t->Struct.soa_kind) {
             case StructSoa_Fixed:   return false;
             case StructSoa_Slice:   return true;
-            case StructSoa_Dynamic: return true;
             }
         }
         return false;
@@ -2730,7 +2709,6 @@ gb_internal bool is_type_simple_compare(Type *t) {
         break;
 
     case Type_Slice:
-    case Type_DynamicArray:
     case Type_Map:
         return false;
     }
@@ -2800,7 +2778,6 @@ gb_internal bool is_type_nearly_simple_compare(Type *t) {
         break;
 
     case Type_Slice:
-    case Type_DynamicArray:
     case Type_Map:
         return false;
 
@@ -2825,7 +2802,6 @@ gb_internal bool is_type_load_safe(Type *type) {
     case Type_Pointer:
     case Type_MultiPointer:
     case Type_Slice:
-    case Type_DynamicArray:
     case Type_Proc:
     case Type_SoaPointer:
         return false;
@@ -3033,9 +3009,6 @@ gb_internal bool are_types_identical_internal(Type *x, Type *y, bool check_tuple
                x->Matrix.column_count == y->Matrix.column_count &&
                x->Matrix.is_row_major == y->Matrix.is_row_major &&
                are_types_identical(x->Matrix.elem, y->Matrix.elem);
-
-    case Type_DynamicArray:
-        return are_types_identical(x->DynamicArray.elem, y->DynamicArray.elem);
 
     case Type_Slice:
         return are_types_identical(x->Slice.elem, y->Slice.elem);
@@ -3857,16 +3830,6 @@ gb_internal Selection lookup_field_with_selection(Type *type_, String field_name
         }
 
         return sel;
-    } else if (type->kind == Type_DynamicArray) {
-        GB_ASSERT(t_allocator != nullptr);
-        String allocator_str = str_lit("allocator");
-        gb_local_persist Entity *entity__allocator = alloc_entity_field(nullptr, make_token_ident(allocator_str), t_allocator, false, 3);
-
-        if (field_name == allocator_str) {
-            selection_add_index(&sel, 3);
-            sel.entity = entity__allocator;
-            return sel;
-        }
     } else if (type->kind == Type_Map) {
         GB_ASSERT(t_allocator != nullptr);
         String allocator_str = str_lit("allocator");
@@ -4132,10 +4095,6 @@ gb_internal i64 type_align_of_internal(Type *t, TypePath *path) {
         if (pop) type_path_pop(path);
         return align;
     }
-
-    case Type_DynamicArray:
-        // data, count, capacity, allocator
-        return build_context.int_size;
 
     case Type_Slice:
         return build_context.int_size;
@@ -4404,10 +4363,6 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
     case Type_Slice: // ptr + len
         return 2 * build_context.int_size;
 
-    case Type_DynamicArray:
-        // data + len + cap + allocator(procedure+data)
-        return 3*build_context.int_size + 2*build_context.ptr_size;
-
     case Type_Map:
         /*
             struct {
@@ -4617,22 +4572,6 @@ gb_internal i64 type_offset_of(Type *t, i64 index, Type **field_type_) {
             return 1*build_context.int_size; // len
         }
         break;
-    case Type_DynamicArray:
-        switch (index) {
-        case 0:
-            if (field_type_) *field_type_ = alloc_type_multi_pointer(t->DynamicArray.elem);
-            return 0;                        // data
-        case 1:
-            if (field_type_) *field_type_ = t_int;
-            return 1*build_context.int_size; // len
-        case 2:
-            if (field_type_) *field_type_ = t_int;
-            return 2*build_context.int_size; // cap
-        case 3:
-            if (field_type_) *field_type_ = t_allocator;
-            return 3*build_context.int_size; // allocator
-        }
-        break;
     case Type_Union:
         if (!is_type_union_maybe_pointer(t)) {
             /* i64 s = */ type_size_of(t);
@@ -4690,14 +4629,6 @@ gb_internal i64 type_offset_of_from_selection(Type *type, Selection sel) {
                 case 0: t = t_rawptr; break;
                 case 1: t = t_int;    break;
                 case 2: t = t_int;    break;
-                }
-                break;
-            case Type_DynamicArray:
-                switch (index) {
-                case 0: t = t_rawptr;    break;
-                case 1: t = t_int;       break;
-                case 2: t = t_int;       break;
-                case 3: t = t_allocator; break;
                 }
                 break;
             }
@@ -4840,71 +4771,6 @@ gb_internal Type *alloc_type_proc_from_types(Type **param_types, unsigned param_
     return t;
 }
 
-// gb_internal Type *type_from_selection(Type *type, Selection const &sel) {
-//  for (i32 index : sel.index) {
-//      Type *bt = base_type(type_deref(type));
-//      switch (bt->kind) {
-//      case Type_Struct:
-//          type = bt->Struct.fields[index]->type;
-//          break;
-//      case Type_Tuple:
-//          type = bt->Tuple.variables[index]->type;
-//          break;
-//      case Type_BitField:
-//          type = bt->BitField.fields[index]->type;
-//          break;
-//      case Type_Array:
-//          type = bt->Array.elem;
-//          break;
-//      case Type_EnumeratedArray:
-//          type = bt->Array.elem;
-//          break;
-//      case Type_Slice:
-//          switch (index) {
-//          case 0: type = alloc_type_multi_pointer(bt->Slice.elem); break;
-//          case 1: type = t_int;                                    break;
-//          }
-//          break;
-//      case Type_DynamicArray:
-//          switch (index) {
-//          case 0: type = alloc_type_multi_pointer(bt->DynamicArray.elem); break;
-//          case 1: type = t_int;                                           break;
-//          case 2: type = t_int;                                           break;
-//          case 3: type = t_allocator;                                     break;
-//          }
-//          break;
-//      case Type_Map:
-//          switch (index) {
-//          case 0: type = t_uintptr;   break;
-//          case 1: type = t_int;       break;
-//          case 2: type = t_allocator; break;
-//          }
-//          break;
-//      case Type_Basic:
-//          if (is_type_complex_or_quaternion(bt)) {
-//              type = base_complex_elem_type(bt);
-//          } else {
-//              switch (type->Basic.kind) {
-//              case Basic_any:
-//                  switch (index) {
-//                  case 0: type = t_rawptr; break;
-//                  case 1: type = t_typeid; break;
-//                  }
-//                  break;
-//              case Basic_string:
-//                  switch (index) {
-//                  case 0: type = t_u8_multi_ptr; break;
-//                  case 1: type = t_int;          break;
-//                  }
-//                  break;
-//              }
-//          }
-//          break;
-//      }
-//  }
-//  return type;
-// }
-
 // Index a type that is internally a struct or array.
 gb_internal Type *type_internal_index(Type *t, isize index) {
     Type *bt = base_type(t);
@@ -4948,16 +4814,6 @@ gb_internal Type *type_internal_index(Type *t, isize index) {
         {
             GB_ASSERT(index == 0 || index == 1);
             return index == 0 ? t_rawptr : t_int;
-        }
-    case Type_DynamicArray:
-        {
-            switch (index) {
-            case 0:  return t_rawptr;
-            case 1:  return t_int;
-            case 2:  return t_int;
-            case 3:  return t_allocator;
-            default: GB_PANIC("invalid raw dynamic array index");
-            };
         }
     case Type_Struct:
         return get_struct_field_type(bt, index);
@@ -5052,11 +4908,6 @@ gb_internal gbString write_type_to_string(gbString str, Type *type, bool shortha
         str = write_type_to_string(str, type->Array.elem, shorthand, allow_polymorphic);
         break;
 
-    case Type_DynamicArray:
-        str = gb_string_appendc(str, "[dynamic]");
-        str = write_type_to_string(str, type->DynamicArray.elem, shorthand, allow_polymorphic);
-        break;
-
     case Type_Enum:
         str = gb_string_appendc(str, "enum");
         if (type->Enum.base_type != nullptr) {
@@ -5104,7 +4955,6 @@ gb_internal gbString write_type_to_string(gbString str, Type *type, bool shortha
             switch (type->Struct.soa_kind) {
             case StructSoa_Fixed:   str = gb_string_append_fmt(str, "#soa[%d]", cast(int)type->Struct.soa_count); break;
             case StructSoa_Slice:   str = gb_string_appendc(str,    "#soa[]");                                    break;
-            case StructSoa_Dynamic: str = gb_string_appendc(str,    "#soa[dynamic]");                             break;
             default: GB_PANIC("Unknown StructSoaKind"); break;
             }
             str = write_type_to_string(str, type->Struct.soa_elem, shorthand, allow_polymorphic);

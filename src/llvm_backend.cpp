@@ -1349,13 +1349,6 @@ String lb_get_objc_type_encoding(Type *t, isize pointer_depth = 0) {
         return make_string_c(s);
     }
 
-    case Type_DynamicArray: {
-        String type_str = lb_get_objc_type_encoding(t->DynamicArray.elem, pointer_depth);
-        gbString s = gb_string_make_reserve(temporary_allocator(), type_str.len + 8);
-        s = gb_string_append_fmt(s, "{dynamic=^%.*s%s%sAllocator={?^v}}", LIT(type_str), INT_SIZE_ENCODING, INT_SIZE_ENCODING);
-        return make_string_c(s);
-    }
-
     case Type_Map:
         return str_lit("{^v^v{Allocator=?^v}}");
     case Type_Enum:
@@ -3507,7 +3500,6 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
 
             lb_add_raddbg_string(m, "type_view: {type: \"[]?\",        expr: \"array(data, len)\"}");
             lb_add_raddbg_string(m, "type_view: {type: \"string\",     expr: \"array(data, len)\"}");
-            lb_add_raddbg_string(m, "type_view: {type: \"[dynamic]?\", expr: \"rows($, array(data, len), len, cap, allocator)\"}");
 
             // column major matrices
             lb_add_raddbg_string(m, "type_view: {type: \"matrix[1, ?]?\",  expr: \"columns($.data, $[0])\"}");

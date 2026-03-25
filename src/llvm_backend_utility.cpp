@@ -28,7 +28,6 @@ gb_internal bool lb_is_type_aggregate(Type *t) {
     case Type_Struct:
     case Type_Union:
     case Type_Tuple:
-    case Type_DynamicArray:
     case Type_Map:
     case Type_SimdVector:
         return true;
@@ -1017,15 +1016,6 @@ gb_internal i32 lb_convert_struct_index(lbModule *m, Type *t, i32 index) {
             case 1: return 2; // len
             }
             break;
-        case Type_DynamicArray:
-            GB_ASSERT(build_context.ptr_size*2 == build_context.int_size);
-            switch (index) {
-            case 0: return 0; // data
-            case 1: return 2; // len
-            case 2: return 3; // cap
-            case 3: return 4; // allocator
-            }
-            break;
         case Type_SoaPointer:
             GB_ASSERT(build_context.ptr_size*2 == build_context.int_size);
             switch (index) {
@@ -1201,13 +1191,6 @@ gb_internal lbValue lb_emit_struct_ep(lbProcedure *p, lbValue s, i32 index) {
         case 1: result_type = t_typeid; break;
         default: GB_PANIC("index > 1");
         }
-    } else if (is_type_dynamic_array(t)) {
-        switch (index) {
-        case 0: result_type = alloc_type_pointer(t->DynamicArray.elem); break;
-        case 1: result_type = t_int;       break;
-        case 2: result_type = t_int;       break;
-        case 3: result_type = t_allocator; break;
-        }
     } else if (is_type_map(t)) {
         init_map_internal_debug_types(t);
         Type *itp = alloc_type_pointer(t_raw_map);
@@ -1364,15 +1347,6 @@ gb_internal lbValue lb_emit_struct_ev(lbProcedure *p, lbValue s, i32 index) {
         case 1: result_type = t_int; break;
         }
         break;
-    case Type_DynamicArray:
-        switch (index) {
-        case 0: result_type = alloc_type_pointer(t->DynamicArray.elem); break;
-        case 1: result_type = t_int;                                    break;
-        case 2: result_type = t_int;                                    break;
-        case 3: result_type = t_allocator;                              break;
-        }
-        break;
-
     case Type_Map:
         {
             init_map_internal_debug_types(t);
@@ -1486,8 +1460,6 @@ gb_internal lbValue lb_emit_deep_field_gep(lbProcedure *p, lbValue e, Selection 
                 break;
             }
         } else if (type->kind == Type_Slice) {
-            e = lb_emit_struct_ep(p, e, index);
-        } else if (type->kind == Type_DynamicArray) {
             e = lb_emit_struct_ep(p, e, index);
         } else if (type->kind == Type_Array) {
             e = lb_emit_array_epi(p, e, index);
@@ -1706,22 +1678,12 @@ gb_internal lbValue lb_slice_elem(lbProcedure *p, lbValue slice) {
     GB_ASSERT(is_type_slice(slice.type));
     return lb_emit_struct_ev(p, slice, 0);
 }
+
 gb_internal lbValue lb_slice_len(lbProcedure *p, lbValue slice) {
     GB_ASSERT(is_type_slice(slice.type));
     return lb_emit_struct_ev(p, slice, 1);
 }
-gb_internal lbValue lb_dynamic_array_elem(lbProcedure *p, lbValue da) {
-    GB_ASSERT(is_type_dynamic_array(da.type));
-    return lb_emit_struct_ev(p, da, 0);
-}
-gb_internal lbValue lb_dynamic_array_len(lbProcedure *p, lbValue da) {
-    GB_ASSERT(is_type_dynamic_array(da.type));
-    return lb_emit_struct_ev(p, da, 1);
-}
-gb_internal lbValue lb_dynamic_array_cap(lbProcedure *p, lbValue da) {
-    GB_ASSERT(is_type_dynamic_array(da.type));
-    return lb_emit_struct_ev(p, da, 2);
-}
+
 
 gb_internal lbValue lb_map_len(lbProcedure *p, lbValue value) {
     GB_ASSERT_MSG(is_type_map(value.type) || are_types_identical(value.type, t_raw_map), "%s", type_to_string(value.type));
@@ -1777,8 +1739,7 @@ gb_internal lbValue lb_soa_struct_len(lbProcedure *p, lbValue value) {
         return lb_const_int(p->module, t_int, t->Struct.soa_count);
     }
 
-    GB_ASSERT(t->Struct.soa_kind == StructSoa_Slice ||
-              t->Struct.soa_kind == StructSoa_Dynamic);
+    GB_ASSERT(t->Struct.soa_kind == StructSoa_Slice);
 
     isize n = 0;
     Type *elem = base_type(t->Struct.soa_elem);
@@ -1797,37 +1758,6 @@ gb_internal lbValue lb_soa_struct_len(lbProcedure *p, lbValue value) {
     return lb_emit_struct_ev(p, value, cast(i32)n);
 }
 
-gb_internal lbValue lb_soa_struct_cap(lbProcedure *p, lbValue value) {
-    Type *t = base_type(value.type);
-
-    bool is_ptr = false;
-    if (is_type_pointer(t)) {
-        is_ptr = true;
-        t = base_type(type_deref(t));
-    }
-
-    if (t->Struct.soa_kind == StructSoa_Fixed) {
-        return lb_const_int(p->module, t_int, t->Struct.soa_count);
-    }
-
-    GB_ASSERT(t->Struct.soa_kind == StructSoa_Dynamic);
-
-    isize n = 0;
-    Type *elem = base_type(t->Struct.soa_elem);
-    if (elem->kind == Type_Struct) {
-        n = cast(isize)elem->Struct.fields.count+1;
-    } else if (elem->kind == Type_Array) {
-        n = cast(isize)elem->Array.count+1;
-    } else {
-        GB_PANIC("Unreachable");
-    }
-
-    if (is_ptr) {
-        lbValue v = lb_emit_struct_ep(p, value, cast(i32)n);
-        return lb_emit_load(p, v);
-    }
-    return lb_emit_struct_ev(p, value, cast(i32)n);
-}
 
 gb_internal lbValue lb_emit_mul_add(lbProcedure *p, lbValue a, lbValue b, lbValue c, Type *t) {
     lbModule *m = p->module;

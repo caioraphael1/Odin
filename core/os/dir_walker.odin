@@ -15,7 +15,7 @@ Walker :: struct {
     todo:      dyn_queue.Queue(string),
     skip_dir:  bool,
     err: struct {
-        path: [dynamic]byte,
+        path: dyn_array.Dyn_Array(byte),
         err:  Error,
     },
     iter: Read_Directory_Iterator,

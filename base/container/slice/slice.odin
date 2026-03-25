@@ -243,12 +243,6 @@ clone :: proc(a: $T/[]$E, allocator: mem.Allocator, loc := #caller_location) -> 
     return d, err
 }
 
-clone_to_dynamic :: proc(a: $T/[]$E, allocator: mem.Allocator, loc := #caller_location) -> ([dynamic]E, mem.Allocator_Error) {
-    d, err := dyn_array.create([dynamic]E, len(a), allocator, loc)
-    copy(d[:], a)
-    return d, err
-}
-
 
 //--------------------------------------------------------------------------------------------------
 // Casting

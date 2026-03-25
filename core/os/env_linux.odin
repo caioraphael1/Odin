@@ -21,7 +21,7 @@ when ODIN_NO_CRT {
     NOT_FOUND :: -1
 
     // the environment is a 0 delimited list of <key>=<value> strings
-    _env: [dynamic]string
+    _env: dyn_array.Dyn_Array(string)
 
     _env_mutex: sync.Recursive_Mutex
 
@@ -167,7 +167,7 @@ when ODIN_NO_CRT {
         }
         sync.mutex_guard(&_env_mutex)
 
-        env := dyn_array.create([dynamic]string, 0, len(_env), allocator) or_return
+        env := dyn_array.create(string, 0, len(_env), allocator) or_return
         defer if err != nil {
             for e in env {
                 _ = slice.delete(e, allocator)
@@ -333,7 +333,7 @@ when ODIN_NO_CRT {
         n := 0
         for entry := posix.environ[0]; entry != nil; n, entry = n+1, posix.environ[n] {}
 
-        r := dyn_array.create([dynamic]string, 0, n, allocator) or_return
+        r := dyn_array.create(string, 0, n, allocator) or_return
         defer if err != nil {
             for e in r {
                 _ = slice.delete(e, allocator)
@@ -352,7 +352,7 @@ when ODIN_NO_CRT {
 
 
     export_cstring_environment :: proc(allocator: mem.Allocator) -> []cstring {
-        env := dyn_array.create([dynamic]cstring, allocator)
+        env := dyn_array.create(cstring, allocator)
         for i, entry := 0, posix.environ[0]; entry != nil; i, entry = i+1, posix.environ[i] {
             _ = dyn_array.append(&env, entry)
         }

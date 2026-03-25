@@ -43,7 +43,7 @@ Node_Word_Boundary          :: parser.Node_Word_Boundary
 Node_Match_All_And_Escape   :: parser.Node_Match_All_And_Escape
 
 Opcode :: virtual_machine.Opcode
-Program  :: [dynamic]Opcode
+Program  :: dyn_array.Dyn_Array(Opcode)
 
 JUMP_SIZE  :: size_of(Opcode) + 1 * size_of(u16)
 SPLIT_SIZE :: size_of(Opcode) + 2 * size_of(u16)
@@ -51,7 +51,7 @@ SPLIT_SIZE :: size_of(Opcode) + 2 * size_of(u16)
 
 Compiler :: struct {
     flags: common.Flags,
-    class_data: [dynamic]Rune_Class_Data,
+    class_data: dyn_array.Dyn_Array(Rune_Class_Data),
 }
 
 
@@ -88,7 +88,7 @@ classes_are_exact :: proc(q, w: ^Rune_Class_Data) -> bool #no_bounds_check {
     return true
 }
 
-map_all_classes :: proc(tree: Node, collection: ^[dynamic]Rune_Class_Data) {
+map_all_classes :: proc(tree: Node, collection: ^dyn_array.Dyn_Array(Rune_Class_Data)) {
     if tree == nil {
         return
     }
@@ -383,7 +383,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 }
 
 
-compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (code: Program, class_data: [dynamic]Rune_Class_Data, err: Error) {
+compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (code: Program, class_data: dyn_array.Dyn_Array(Rune_Class_Data), err: Error) {
     if tree == nil {
         if .No_Capture not_in flags {
             _ = dyn_array.append(&code, Opcode.Save); _ = dyn_array.append(&code, Opcode(0x00))

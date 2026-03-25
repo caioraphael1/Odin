@@ -5,7 +5,7 @@ import "base:intrinsics"
 import "core:sys/wasm/wasi"
 
 Read_Directory_Iterator_Impl :: struct {
-    fullpath: [dynamic]byte,
+    fullpath: dyn_array.Dyn_Array(byte),
     buf:      []byte,
     off:      int,
 }
@@ -72,7 +72,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 
     impl := (^File_Impl)(f.impl)
 
-    buf: [dynamic]byte
+    buf: dyn_array.Dyn_Array(byte)
     // NOTE: Allow calling `init` to target a new directory with the same iterator.
     if it.impl.buf != nil {
         buf = slice.into_dynamic(it.impl.buf)

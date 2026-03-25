@@ -2256,12 +2256,6 @@ gb_internal void add_type_info_type_internal(CheckerContext *c, Type *t) {
         add_type_info_type_internal(c, alloc_type_pointer(bt->EnumeratedArray.elem));
         break;
 
-    case Type_DynamicArray:
-        add_type_info_type_internal(c, bt->DynamicArray.elem);
-        add_type_info_type_internal(c, alloc_type_pointer(bt->DynamicArray.elem));
-        add_type_info_type_internal(c, t_int);
-        add_type_info_type_internal(c, t_allocator);
-        break;
     case Type_Slice:
         add_type_info_type_internal(c, bt->Slice.elem);
         add_type_info_type_internal(c, alloc_type_pointer(bt->Slice.elem));
@@ -2297,9 +2291,6 @@ gb_internal void add_type_info_type_internal(CheckerContext *c, Type *t) {
             for (auto const &entry : bt->Struct.scope->elements) {
                 Entity *e = entry.value;
                 switch (bt->Struct.soa_kind) {
-                case StructSoa_Dynamic:
-                    add_type_info_type_internal(c, t_allocator);
-                    /*fallthrough*/
                 case StructSoa_Slice:
                 case StructSoa_Fixed:
                     add_type_info_type_internal(c, alloc_type_pointer(e->type));
@@ -2487,6 +2478,7 @@ gb_internal void add_min_dep_type_info(Checker *c, Type *t) {
         add_min_dep_type_info(c, alloc_type_pointer(bt->Array.elem));
         add_min_dep_type_info(c, t_int);
         break;
+        
     case Type_EnumeratedArray:
         add_min_dep_type_info(c, bt->EnumeratedArray.index);
         add_min_dep_type_info(c, t_int);
@@ -2494,12 +2486,6 @@ gb_internal void add_min_dep_type_info(Checker *c, Type *t) {
         add_min_dep_type_info(c, alloc_type_pointer(bt->EnumeratedArray.elem));
         break;
 
-    case Type_DynamicArray:
-        add_min_dep_type_info(c, bt->DynamicArray.elem);
-        add_min_dep_type_info(c, alloc_type_pointer(bt->DynamicArray.elem));
-        add_min_dep_type_info(c, t_int);
-        add_min_dep_type_info(c, t_allocator);
-        break;
     case Type_Slice:
         add_min_dep_type_info(c, bt->Slice.elem);
         add_min_dep_type_info(c, alloc_type_pointer(bt->Slice.elem));
@@ -2527,11 +2513,6 @@ gb_internal void add_min_dep_type_info(Checker *c, Type *t) {
             for (auto const &entry : bt->Struct.scope->elements) {
                 Entity *e = entry.value;
                 switch (bt->Struct.soa_kind) {
-                case StructSoa_Dynamic:
-                    add_min_dep_type_info(c, t_type_info_ptr); // append_soa
-
-                    add_min_dep_type_info(c, t_allocator);
-                    /*fallthrough*/
                 case StructSoa_Slice:
                     add_min_dep_type_info(c, t_int);
                     add_min_dep_type_info(c, t_uint);
@@ -6811,7 +6792,7 @@ gb_internal void handle_raddbg_type_view(Checker *c, RaddbgTypeView const &type_
                         if (tail.len != 0 && tail != "0") {
                             s = gb_string_appendc(s, "array(");
                             s = gb_string_append_length(s, name.text, name.len);
-                            if (is_type_slice(field->type) || is_type_dynamic_array(field->type)) {
+                            if (is_type_slice(field->type)) {
                                 s = gb_string_appendc(s, ".data");
                             }
                             s = gb_string_appendc(s, ", ");

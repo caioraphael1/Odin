@@ -104,7 +104,6 @@ gb_internal Token ast_token(Ast *node) {
     case Ast_PointerType:      return node->PointerType.token;
     case Ast_MultiPointerType: return node->MultiPointerType.token;
     case Ast_ArrayType:        return node->ArrayType.token;
-    case Ast_DynamicArrayType: return node->DynamicArrayType.token;
     case Ast_StructType:       return node->StructType.token;
     case Ast_UnionType:        return node->UnionType.token;
     case Ast_EnumType:         return node->EnumType.token;
@@ -337,7 +336,6 @@ Token ast_end_token(Ast *node) {
     case Ast_PointerType:      return ast_end_token(node->PointerType.type);
     case Ast_MultiPointerType: return ast_end_token(node->MultiPointerType.type);
     case Ast_ArrayType:        return ast_end_token(node->ArrayType.elem);
-    case Ast_DynamicArrayType: return ast_end_token(node->DynamicArrayType.elem);
     case Ast_StructType:
         if (node->StructType.fields.count > 0) {
             return ast_end_token(node->StructType.fields[node->StructType.fields.count-1]);

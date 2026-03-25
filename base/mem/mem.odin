@@ -50,7 +50,7 @@ nearly half (or more) the amount of physical memory used by an application.
 This is why every implementation of calloc in libc does this optimization.
 
 It may seem counter-intuitive but most allocations in an application are
-wasted and never used. When you consider something like a [dynamic]T which
+wasted and never used. When you consider something like a dyn_array.Dyn_Array(T) which
 always doubles in capacity on resize but you rarely ever actually use the
 full capacity of a dynamic array it means you have a lot of resident waste
 if you actually zeroed the remainder of the memory.

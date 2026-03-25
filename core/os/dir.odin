@@ -29,7 +29,7 @@ read_directory :: proc(f: ^File, n: uint, all: bool, allocator: mem.Allocator) -
     it := read_directory_iterator_create(f, allocator)
     defer _read_directory_iterator_destroy(&it, allocator)
 
-    dfi, _ := dyn_array.create_len_cap([dynamic]File_Info, 0, size, allocators.temp_allocator)
+    dfi, _ := dyn_array.create_len_cap(File_Info, 0, size, allocators.temp_allocator)
     defer if err != nil {
         for fi in dfi {
             file_info_delete(fi, allocator)
@@ -85,7 +85,7 @@ Read_Directory_Iterator :: struct {
     f:     ^File,
     err:   struct {
         err:  Error,
-        path: [dynamic]byte,
+        path: dyn_array.Dyn_Array(byte),
     },
     index: uint,
     impl:  Read_Directory_Iterator_Impl,
@@ -230,7 +230,7 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
     abs_src := get_absolute_path(src, allocators.temp_allocator) or_return
     abs_dst := get_absolute_path(dst, allocators.temp_allocator) or_return
 
-    dst_buf := dyn_array.create_len_cap([dynamic]byte, 0, len(abs_dst) + 256, allocators.temp_allocator) or_return
+    dst_buf := dyn_array.create_len_cap(byte, 0, len(abs_dst) + 256, allocators.temp_allocator) or_return
 
     w: Walker
     walker_init_path(&w, src, allocator)

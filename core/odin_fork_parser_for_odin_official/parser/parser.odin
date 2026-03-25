@@ -214,7 +214,7 @@ parse_file :: proc(p: ^Parser, file: ^ast.File, allocator: mem.Allocator) -> boo
         return false
     }
 
-    p.file.decls, _ = make_dynamic_array([dynamic]^ast.Stmt, allocator)
+    p.file.decls, _ = make_dynamic_array(dyn_array.Dyn_Array(^ast.Stmt), allocator)
 
     for p.curr_tok.kind != .EOF {
         stmt := parse_stmt(p, allocator)
@@ -327,7 +327,7 @@ consume_comment :: proc(p: ^Parser) -> (tok: tokenizer.Token, end_line: int) {
 }
 
 consume_comment_group :: proc(p: ^Parser, n: int, allocator: mem.Allocator) -> (comments: ^ast.Comment_Group, end_line: int) {
-    list: [dynamic]tokenizer.Token
+    list: dyn_array.Dyn_Array(tokenizer.Token)
     list.allocator = allocator
     end_line = p.curr_tok.pos.line
     for p.curr_tok.kind == .Comment &&
@@ -676,7 +676,7 @@ parse_ident :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Ident {
 }
 
 parse_stmt_list :: proc(p: ^Parser, allocator: mem.Allocator) -> []^ast.Stmt {
-    list: [dynamic]^ast.Stmt
+    list: dyn_array.Dyn_Array(^ast.Stmt)
     list.allocator = allocator
     for p.curr_tok.kind != .Case &&
         p.curr_tok.kind != .Close_Brace &&
@@ -1026,7 +1026,7 @@ parse_switch_stmt :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Stmt {
     init: ^ast.Stmt
     tag:  ^ast.Stmt
     is_type_switch := false
-    clauses: [dynamic]^ast.Stmt
+    clauses: dyn_array.Dyn_Array(^ast.Stmt)
     clauses.allocator = allocator
 
     if p.curr_tok.kind != .Open_Brace {
@@ -1094,7 +1094,7 @@ parse_switch_stmt :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Stmt {
 }
 
 parse_attribute :: proc(p: ^Parser, tok: tokenizer.Token, open_kind, close_kind: tokenizer.Token_Kind, docs: ^ast.Comment_Group, allocator: mem.Allocator) -> ^ast.Stmt {
-    elems: [dynamic]^ast.Expr
+    elems: dyn_array.Dyn_Array(^ast.Expr)
 
     open, close: tokenizer.Token
 
@@ -1186,7 +1186,7 @@ parse_foreign_block :: proc(p: ^Parser, tok: tokenizer.Token, allocator: mem.All
         foreign_library = parse_ident(p, allocator)
     }
 
-    decls: [dynamic]^ast.Stmt
+    decls: dyn_array.Dyn_Array(^ast.Stmt)
     decls.allocator = allocator
 
     prev_in_foreign_block := p.in_foreign_block
@@ -1236,7 +1236,7 @@ parse_foreign_decl :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Decl {
             error(p, name.pos, "illegal foreign import name: '_'")
         }
 
-        fullpaths: [dynamic]^ast.Expr
+        fullpaths: dyn_array.Dyn_Array(^ast.Expr)
         if token_allow(p, .Open_Brace, allocator) {
             for p.curr_tok.kind != .Close_Brace &&
                 p.curr_tok.kind != .EOF {
@@ -1279,14 +1279,14 @@ parse_unrolled_for_loop :: proc(p: ^Parser, inline_tok: tokenizer.Token, allocat
     in_tok: tokenizer.Token
     expr: ^ast.Expr
     body: ^ast.Stmt
-    args: [dynamic]^ast.Expr
+    args: dyn_array.Dyn_Array(^ast.Expr)
 
     if token_allow(p, .Open_Paren, allocator) {
         p.expr_level += 1
         if p.curr_tok.kind == .Close_Paren {
             error(p, p.curr_tok.pos, "#unroll expected at least 1 argument, got 0")
         } else {
-            args, _ = make_dynamic_array([dynamic]^ast.Expr, allocator)
+            args, _ = make_dynamic_array(^ast.Expr, allocator)
             for p.curr_tok.kind != .Close_Paren &&
                 p.curr_tok.kind != .EOF {
                 arg := parse_value(p, allocator)
@@ -1427,7 +1427,7 @@ parse_stmt :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Stmt {
             error(p, tok.pos, "you cannot use a return statement within an expression")
         }
 
-        results: [dynamic]^ast.Expr
+        results: dyn_array.Dyn_Array(^ast.Expr)
         for p.curr_tok.kind != .Semicolon && p.curr_tok.kind != .Close_Brace {
             result := parse_expr(p, false, allocator)
             _ = dyn_array.append(&results, result)
@@ -1742,7 +1742,7 @@ Expr_And_Flags :: struct {
 }
 
 convert_to_ident_list :: proc(p: ^Parser, list: []Expr_And_Flags, ignore_flags, allow_poly_names: bool, allocator: mem.Allocator) -> []^ast.Expr {
-    idents, _ := dyn_array.create_len_cap([dynamic]^ast.Expr, 0, len(list), allocator)
+    idents, _ := dyn_array.create_len_cap(^ast.Expr, 0, len(list), allocator)
 
     for ident, i in list {
         if !ignore_flags {
@@ -1922,7 +1922,7 @@ check_procedure_name_list :: proc(p: ^Parser, names: []^ast.Expr) -> bool {
 }
 
 parse_ident_list :: proc(p: ^Parser, allow_poly_names: bool, allocator: mem.Allocator) -> []^ast.Expr {
-    list: [dynamic]^ast.Expr
+    list: dyn_array.Dyn_Array(^ast.Expr)
     list.allocator = allocator
     for {
         if allow_poly_names && p.curr_tok.kind == .Dollar {
@@ -1952,7 +1952,7 @@ parse_ident_list :: proc(p: ^Parser, allow_poly_names: bool, allocator: mem.Allo
 
 parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags: ast.Field_Flags, allocator: mem.Allocator) -> (field_list: ^ast.Field_List, total_name_count: int) {
     handle_field :: proc(p: ^Parser,
-                         seen_ellipsis: ^bool, fields: ^[dynamic]^ast.Field,
+                         seen_ellipsis: ^bool, fields: ^dyn_array.Dyn_Array(^ast.Field),
                          docs: ^ast.Comment_Group,
                          names: []^ast.Expr,
                          allowed_flags, set_flags: ast.Field_Flags,
@@ -2055,9 +2055,9 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
 
     docs := p.lead_comment
 
-    fields: [dynamic]^ast.Field
+    fields: dyn_array.Dyn_Array(^ast.Field)
 
-    list: [dynamic]Expr_And_Flags
+    list: dyn_array.Dyn_Array(Expr_And_Flags)
     defer _ = dyn_array.delete(list)
 
     seen_ellipsis := false
@@ -2495,7 +2495,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
         if p.curr_tok.kind == .Open_Brace {
             open := token_expect(p, .Open_Brace, allocator)
 
-            args: [dynamic]^ast.Expr
+            args: dyn_array.Dyn_Array(^ast.Expr)
 
             for p.curr_tok.kind != .Close_Brace &&
                 p.curr_tok.kind != .EOF {
@@ -2868,7 +2868,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
         _ = skip_possible_newline_for_literal(p, allocator)
         _ = expect_token_after(p, .Open_Brace, "union", allocator)
 
-        variants: [dynamic]^ast.Expr
+        variants: dyn_array.Dyn_Array(^ast.Expr)
         for p.curr_tok.kind != .Close_Brace && p.curr_tok.kind != .EOF {
             type := parse_type(p, allocator)
             if _, ok := type.derived.(^ast.Bad_Expr); !ok {
@@ -2963,7 +2963,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
         _ = skip_possible_newline_for_literal(p, allocator)
         open := expect_token_after(p, .Open_Brace, "bit_field", allocator)
 
-        fields: [dynamic]^ast.Bit_Field_Field
+        fields: dyn_array.Dyn_Array(^ast.Bit_Field_Field)
         for p.curr_tok.kind != .Close_Brace && p.curr_tok.kind != .EOF {
             docs := p.lead_comment
 
@@ -3009,7 +3009,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ^ast.E
     case .Asm:
         tok := token_expect(p, .Asm, allocator)
 
-        param_types: [dynamic]^ast.Expr
+        param_types: dyn_array.Dyn_Array(^ast.Expr)
         return_type: ^ast.Expr
         if token_allow(p, .Open_Paren, allocator) {
             for p.curr_tok.kind != .Close_Paren && p.curr_tok.kind != .EOF {
@@ -3130,7 +3130,7 @@ parse_value :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Expr {
 }
 
 parse_elem_list :: proc(p: ^Parser, allocator: mem.Allocator) -> []^ast.Expr {
-    elems: [dynamic]^ast.Expr
+    elems: dyn_array.Dyn_Array(^ast.Expr)
     elems.allocator = allocator
 
     for p.curr_tok.kind != .Close_Brace && p.curr_tok.kind != .EOF {
@@ -3177,7 +3177,7 @@ parse_literal_value :: proc(p: ^Parser, type: ^ast.Expr, allocator: mem.Allocato
 }
 
 parse_call_expr :: proc(p: ^Parser, operand: ^ast.Expr, allocator: mem.Allocator) -> ^ast.Expr {
-    args: [dynamic]^ast.Expr
+    args: dyn_array.Dyn_Array(^ast.Expr)
 
     ellipsis: tokenizer.Token
 
@@ -3627,7 +3627,7 @@ parse_binary_expr :: proc(p: ^Parser, lhs: bool, prec_in: int, allocator: mem.Al
 
 
 parse_expr_list :: proc(p: ^Parser, lhs: bool, allocator: mem.Allocator) -> ([]^ast.Expr) {
-    list: [dynamic]^ast.Expr
+    list: dyn_array.Dyn_Array(^ast.Expr)
     list.allocator = allocator
     for {
         expr := parse_expr(p, lhs, allocator)

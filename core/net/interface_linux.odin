@@ -133,7 +133,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     // /*
     //  Turn the map into a slice to return.
     // */
-    // _interfaces := dyn_array.create([dynamic]Network_Interface, 0, allocator)
+    // _interfaces := dyn_array.create(Network_Interface, 0, allocator)
     // for _, iface in ifaces {
     //  _ = dyn_array.append(&_interfaces, iface^)
     //  free(iface)

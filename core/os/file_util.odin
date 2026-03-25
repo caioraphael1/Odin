@@ -210,7 +210,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #c
         return
     } else {
         buffer: [1024]u8
-        out_buffer, _ := dyn_array.create_len_cap([dynamic]u8, 0, 0, allocator, loc)
+        out_buffer, _ := dyn_array.create_len_cap(u8, 0, 0, allocator, loc)
         total: uint = 0
         for {
             n: uint

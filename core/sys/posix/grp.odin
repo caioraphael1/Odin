@@ -2,126 +2,126 @@
 import "core:c"
 
 when ODIN_OS == .Darwin {
-	foreign import lib "system:System"
+    foreign import lib "system:System"
 } else {
-	foreign import lib "system:c"
+    foreign import lib "system:c"
 }
 
 // grp.h - group structure
 
 foreign lib {
-	/*
-	Closes the group database.
+    /*
+    Closes the group database.
 
-	Checking status would be done by setting errno to 0, calling this, and checking errno.
+    Checking status would be done by setting errno to 0, calling this, and checking errno.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/endgrent.html ]]
-	*/
-	endgrent :: proc() ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/endgrent.html ]]
+    */
+    endgrent :: proc() ---
 
-	/*
-	Rewinds the group database so getgrent() returns the first entry again.
+    /*
+    Rewinds the group database so getgrent() returns the first entry again.
 
-	Checking status would be done by setting errno to 0, calling this, and checking errno.
+    Checking status would be done by setting errno to 0, calling this, and checking errno.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/endgrent.html ]]
-	*/
-	setgrent :: proc() ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/endgrent.html ]]
+    */
+    setgrent :: proc() ---
 
-	/*
-	Returns a pointer to an entry of the group database.
+    /*
+    Returns a pointer to an entry of the group database.
 
-	Opens the group database if it isn't.
+    Opens the group database if it isn't.
 
-	Returns: nil on failure (setting errno) or EOF (not setting errno), the entry otherwise
+    Returns: nil on failure (setting errno) or EOF (not setting errno), the entry otherwise
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/endgrent.html ]]
-	*/
-	getgrent :: proc() -> ^group ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/endgrent.html ]]
+    */
+    getgrent :: proc() -> ^group ---
 
-	/*
-	Searches for an entry with a matching gid in the group database.
+    /*
+    Searches for an entry with a matching gid in the group database.
 
-	Returns: nil (setting errno) on failure, a pointer to the entry on success
+    Returns: nil (setting errno) on failure, a pointer to the entry on success
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrgid.html ]]
-	*/
-	getgrgid :: proc(gid: gid_t) -> ^group ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrgid.html ]]
+    */
+    getgrgid :: proc(gid: gid_t) -> ^group ---
 
-	/*
-	Searches for an entry with a matching gid in the group database.
+    /*
+    Searches for an entry with a matching gid in the group database.
 
-	Updates grp with the matching entry and stores it (or a nil pointer (setting errno)) into result.
+    Updates grp with the matching entry and stores it (or a nil pointer (setting errno)) into result.
 
-	Strings are allocated into the given buffer, you can call `sysconf(._GETGR_R_SIZE_MAX)` for an appropriate size.
+    Strings are allocated into the given buffer, you can call `sysconf(._GETGR_R_SIZE_MAX)` for an appropriate size.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrgid.html ]]
-	*/
-	getgrgid_r :: proc(gid: gid_t, grp: ^group, buffer: [^]byte, bufsize: c.size_t, result: ^^group) -> Errno ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrgid.html ]]
+    */
+    getgrgid_r :: proc(gid: gid_t, grp: ^group, buffer: [^]byte, bufsize: c.size_t, result: ^^group) -> Errno ---
 
-	/*
-	Searches for an entry with a matching gid in the group database.
+    /*
+    Searches for an entry with a matching gid in the group database.
 
-	Returns: nil (setting errno) on failure, a pointer to the entry on success
+    Returns: nil (setting errno) on failure, a pointer to the entry on success
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrnam.html ]]
-	*/
-	getgrnam :: proc(name: cstring) -> ^group ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrnam.html ]]
+    */
+    getgrnam :: proc(name: cstring) -> ^group ---
 
-	/*
-	Searches for an entry with a matching gid in the group database.
+    /*
+    Searches for an entry with a matching gid in the group database.
 
-	Updates grp with the matching entry and stores it (or a nil pointer (setting errno)) into result.
+    Updates grp with the matching entry and stores it (or a nil pointer (setting errno)) into result.
 
-	Strings are allocated into the given buffer, you can call `sysconf(._GETGR_R_SIZE_MAX)` for an appropriate size.
+    Strings are allocated into the given buffer, you can call `sysconf(._GETGR_R_SIZE_MAX)` for an appropriate size.
 
-	Example:
-		length := posix.sysconf(._GETGR_R_SIZE_MAX)
-		if length == -1 {
-			length = 1024
-		}
+    Example:
+        length := posix.sysconf(._GETGR_R_SIZE_MAX)
+        if length == -1 {
+            length = 1024
+        }
 
-		result:  posix.group
-		resultp: ^posix.group
+        result:  posix.group
+        resultp: ^posix.group
 
-		e: posix.Errno
+        e: posix.Errno
 
-		buffer: [dynamic]byte
-		defer _ = slice.delete(buffer)
+        buffer: dyn_array.Dyn_Array(byte)
+        defer _ = slice.delete(buffer)
 
-		for {
-			mem_err := dyn_array.resize(&buffer, length)
-			internal.assert(mem_err == nil)
+        for {
+            mem_err := dyn_array.resize(&buffer, length)
+            internal.assert(mem_err == nil)
 
-			e = posix.getgrnam_r("nobody", &result, raw_data(buffer), len(buffer), &resultp)
-			if e != .ERANGE {
-				break
-			}
+            e = posix.getgrnam_r("nobody", &result, raw_data(buffer), len(buffer), &resultp)
+            if e != .ERANGE {
+                break
+            }
 
-			length *= 2
-			internal.assert(length > 0)
-		}
+            length *= 2
+            internal.assert(length > 0)
+        }
 
-		if e != .NONE {
-			internal.panic(string(posix.strerror(e)))
-		}
+        if e != .NONE {
+            internal.panic(string(posix.strerror(e)))
+        }
 
-		fmt.println(result)
+        fmt.println(result)
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrnam.html ]]
-	*/
-	getgrnam_r :: proc(name: cstring, grp: ^group, buffer: [^]byte, bufsize: c.size_t, result: ^^group) -> Errno ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrnam.html ]]
+    */
+    getgrnam_r :: proc(name: cstring, grp: ^group, buffer: [^]byte, bufsize: c.size_t, result: ^^group) -> Errno ---
 }
 
 when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Haiku || ODIN_OS == .Linux {
 
-	gid_t :: distinct c.uint32_t
+    gid_t :: distinct c.uint32_t
 
-	group :: struct {
-		gr_name:   cstring,    /* [PSX] group name */
-		gr_passwd: cstring,    /* group password */
-		gr_gid:    gid_t,      /* [PSX] group id */
-		gr_mem:    [^]cstring, /* [PSX] group members */
-	}
+    group :: struct {
+        gr_name:   cstring,    /* [PSX] group name */
+        gr_passwd: cstring,    /* group password */
+        gr_gid:    gid_t,      /* [PSX] group id */
+        gr_mem:    [^]cstring, /* [PSX] group members */
+    }
 
 }

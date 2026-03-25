@@ -996,7 +996,7 @@ internal_int_mod_bits :: proc(remainder, numerator: ^Int, bits: int, allocator: 
     Assumes `a` not to be `nil`.
 */
 internal_int_allocated_cap :: #force_inline proc(a: ^Int) -> (cap: int) {
-    raw := transmute(dyn_array.Raw_Dynamic_Array)a.digit
+    raw := transmute(dyn_array.Dyn_Array(byte))a.digit
     return raw.cap
 }
 
@@ -2077,13 +2077,13 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
     */
     if cap == 0 {
         mem_err: mem.Allocator_Error
-        a.digit, mem_err = dyn_array.create([dynamic]DIGIT, needed, allocator)
+        a.digit, mem_err = dyn_array.create(DIGIT, needed, allocator)
         if mem_err != nil {
             return cast(Error)mem_err
         }
     } else if cap < needed {
         /*
-            `[dynamic]DIGIT` already knows what allocator was used for it, so resize will do the right thing.
+            `dyn_array.Dyn_Array(DIGIT)` already knows what allocator was used for it, so resize will do the right thing.
         */
         _ = dyn_array.resize(&a.digit, needed)
     } else if cap > needed {
@@ -2107,7 +2107,7 @@ internal_int_grow :: proc(a: ^Int, digits: int, allow_shrink := false, allocator
     Assumes `a` not to be `nil`.
 */
 internal_int_clear :: proc(a: ^Int, minimize := false, allocator: mem.Allocator) -> (err: Error) {
-    raw := transmute(dyn_array.Raw_Dynamic_Array)a.digit
+    raw := transmute(dyn_array.Dyn_Array(byte))a.digit
     if raw.cap != 0 {
         slice.zero(a.digit[:a.used])
     }

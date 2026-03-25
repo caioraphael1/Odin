@@ -183,10 +183,10 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         buf = buf[size_of(i32):]
 
         {
-            command_line: [dynamic]byte
+            command_line: dyn_array.Dyn_Array(byte)
             command_line.allocator = allocator
 
-            argv: [dynamic]string
+            argv: dyn_array.Dyn_Array(string)
             argv.allocator = allocator
 
             defer if err != nil {
@@ -230,7 +230,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         }
 
         if .Environment in selection {
-            environment: [dynamic]string
+            environment: dyn_array.Dyn_Array(string)
             environment.allocator = allocator
 
             defer if err != nil {

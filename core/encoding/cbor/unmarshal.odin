@@ -358,7 +358,7 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         if elem_base.id != byte { return _unsupported(v, hdr) }
         
         bytes         := err_conv(_decode_bytes(d, add, allocator=allocator, loc=loc)) or_return
-        raw           := (^dyn_array.Raw_Dynamic_Array)(v.data)
+        raw           := (^dyn_array.Dyn_Array(bytes))(v.data)
         raw.data       = raw_data(bytes)
         raw.len        = len(bytes)
         raw.cap        = len(bytes)
@@ -433,7 +433,7 @@ _unmarshal_string :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Heade
 _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
     assign_array :: proc(
         d: Decoder,
-        da: ^dyn_array.Raw_Dynamic_Array,
+        da: ^dyn_array.Dyn_Array,
         elemt: ^reflect.Type_Info,
         length: int,
         growable := true,
@@ -450,7 +450,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
                 cap := 2 * da.cap
 
-                ok := internal._dyn_array_reserve((^Raw_Dynamic_Array)da, elemt.size, elemt.align, cap, false, loc)
+                ok := internal._dyn_array_reserve((^Dyn_Array)da, elemt.size, elemt.align, cap, false, loc)
                 
                 // NOTE: Might be lying here, but it is at least an allocator error.
                 if !ok { return false, .Out_Of_Memory }
@@ -487,13 +487,13 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         data := mem.alloc_non_zeroed(t.elem.size * scap, t.elem.align, allocator=allocator, loc=loc) or_return
         defer if err != nil { _ = mem.free_bytes(data, allocator=allocator, loc=loc) }
 
-        da := dyn_array.Raw_Dynamic_Array{raw_data(data), 0, scap, /* context.allocator */ }
+        da := dyn_array.Dyn_Array{raw_data(data), 0, scap, /* context.allocator */ }
 
         assign_array(d, &da, t.elem, length) or_return
 
         if .Shrink_Excess in d.flags {
             // Ignoring an error here, but this is not critical to succeed.
-            _ = internal._dyn_array_shrink((^Raw_Dynamic_Array)(&da), t.elem.size, t.elem.align, da.len, loc=loc)
+            _ = internal._dyn_array_shrink((^Dyn_Array)(&da), t.elem.size, t.elem.align, da.len, loc=loc)
         }
 
         raw      := (^slice.Raw_Slice)(v.data)
@@ -507,7 +507,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         data := mem.alloc_non_zeroed(t.elem.size * scap, t.elem.align, loc=loc) or_return
         defer if err != nil { _ = mem.free_bytes(data, allocator=allocator, loc=loc) }
 
-        raw           := (^dyn_array.Raw_Dynamic_Array)(v.data)
+        raw           := (^dyn_array.Dyn_Array)(v.data)
         raw.data       = raw_data(data) 
         raw.len        = 0
         raw.cap        = scap
@@ -517,7 +517,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         if .Shrink_Excess in d.flags {
             // Ignoring an error here, but this is not critical to succeed.
-            _ = internal._dyn_array_shrink((^Raw_Dynamic_Array)raw, t.elem.size, t.elem.align, raw.len, loc=loc)
+            _ = internal._dyn_array_shrink((^Dyn_Array)raw, t.elem.size, t.elem.align, raw.len, loc=loc)
         }
         return
 
@@ -527,7 +527,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
             return _unsupported(v, hdr)
         }
 
-        da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, length, allocator }
+        da := dyn_array.Dyn_Array{rawptr(v.data), 0, length, allocator }
 
         out_of_space := assign_array(d, &da, t.elem, length, growable=false) or_return
         if out_of_space { return _unsupported(v, hdr) }
@@ -539,7 +539,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
             return _unsupported(v, hdr)
         }
 
-        da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, length, allocator }
+        da := dyn_array.Dyn_Array{rawptr(v.data), 0, length, allocator }
 
         out_of_space := assign_array(d, &da, t.elem, length, growable=false) or_return
         if out_of_space { return _unsupported(v, hdr) }
@@ -551,7 +551,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
             return _unsupported(v, hdr)
         }
 
-        da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, 2, allocator }
+        da := dyn_array.Dyn_Array{rawptr(v.data), 0, 2, allocator }
 
         info: ^internal.Type_Info
         switch ti.id {
@@ -571,7 +571,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
             return _unsupported(v, hdr)
         }
 
-        da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, 4, allocator }
+        da := dyn_array.Dyn_Array{rawptr(v.data), 0, 4, allocator }
 
         info: ^internal.Type_Info
         switch ti.id {
@@ -592,7 +592,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
             return _unsupported(v, hdr)
         }
 
-        da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, length, allocator }
+        da := dyn_array.Dyn_Array{rawptr(v.data), 0, length, allocator }
 
         out_of_space := assign_array(d, &da, t.elem, length, growable=false) or_return
         if out_of_space { return _unsupported(v, hdr) }
@@ -604,7 +604,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
             return _unsupported(v, hdr)
         }
 
-        da := dyn_array.Raw_Dynamic_Array{rawptr(v.data), 0, length, allocator }
+        da := dyn_array.Dyn_Array{rawptr(v.data), 0, length, allocator }
 
         out_of_space := assign_array(d, &da, t.elem, length, growable=false) or_return
         if out_of_space { return _unsupported(v, hdr) }

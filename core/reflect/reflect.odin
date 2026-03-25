@@ -185,7 +185,7 @@ any_core :: proc(v: any) -> any {
 //     #soa^T     -> T
 //     [N]T       -> T
 //     []T        -> T
-//     [dynamic]T -> T
+//     dyn_array.Dyn_Array(T) -> T
 //     #simd[N]T  -> T
 
 typeid_elem :: proc(id: typeid) -> typeid {
@@ -278,7 +278,7 @@ is_nil :: proc(v: any) -> bool {
 //     len([N]T) -> N
 //     len(#simd[N]T) -> N
 //     len([]T)
-//     len([dynamic]T)
+//     len(dyn_array.Dyn_Array(T))
 //     len(map[K]V)
 //     len(string) or len(cstring)
 //     len(string16) or len(cstring16)
@@ -303,7 +303,7 @@ length :: proc(val: any) -> uint {
         return (^slice.Raw_Slice)(val.data).len
 
     case Type_Info_Dynamic_Array:
-        return (^dyn_array.Raw_Dynamic_Array)(val.data).len
+        return (^dyn_array.Dyn_Array(byte))(val.data).len
 
     case Type_Info_Map:
         return maps.raw_map_len((^maps.Raw_Map)(val.data)^)
@@ -335,7 +335,7 @@ length :: proc(val: any) -> uint {
 //     cap(^T)        -> cap(T)
 //     cap([N]T)      -> N
 //     cap(#simd[N]T) -> N
-//     cap([dynamic]T)
+//     cap(dyn_array.Dyn_Array(T))
 //     cap(map[K]V)
 
 capacity :: proc(val: any) -> uint {
@@ -355,7 +355,7 @@ capacity :: proc(val: any) -> uint {
         return uint(a.count)
 
     case Type_Info_Dynamic_Array:
-        return (^dyn_array.Raw_Dynamic_Array)(val.data).cap
+        return (^dyn_array.Dyn_Array(byte))(val.data).cap
 
     case Type_Info_Map:
         return internal.map_cap((^maps.Raw_Map)(val.data)^)
@@ -411,7 +411,7 @@ index :: proc(val: any, i: uint, loc := #caller_location) -> any {
         return any{data, a.elem.id}
 
     case Type_Info_Dynamic_Array:
-        raw := (^dyn_array.Raw_Dynamic_Array)(val.data)
+        raw := (^dyn_array.Dyn_Array(byte))(val.data)
         internal.bounds_check_error_loc(loc, i, raw.len)
         offset := uintptr(uint(a.elem.size) * i)
         data := rawptr(uintptr(raw.data) + offset)
@@ -1775,7 +1775,7 @@ as_raw_data :: proc(a: any) -> (value: rawptr, valid: bool) {
 
     case Type_Info_Dynamic_Array:
         valid = true
-        value = (^dyn_array.Raw_Dynamic_Array)(a.data).data
+        value = (^dyn_array.Dyn_Array(byte))(a.data).data
     }
 
     return
@@ -1971,8 +1971,8 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
         if !including_indirect_array_recursion {
             return false
         }
-        array_a := (^dyn_array.Raw_Dynamic_Array)(a.data)
-        array_b := (^dyn_array.Raw_Dynamic_Array)(b.data)
+        array_a := (^dyn_array.Dyn_Array(byte))(a.data)
+        array_b := (^dyn_array.Dyn_Array(byte))(b.data)
         if array_a.len != array_b.len {
             return false
         }

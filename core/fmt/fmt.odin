@@ -3224,7 +3224,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
 
     case internal.Type_Info_Dynamic_Array:
-        array := cast(^dyn_array.Raw_Dynamic_Array)v.data
+        array := cast(^dyn_array.Dyn_Array(byte))v.data
         n := array.len
         ptr := array.data
         if ol, ok := fi.optional_len.?; ok {

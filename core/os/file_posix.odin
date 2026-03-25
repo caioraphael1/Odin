@@ -231,7 +231,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
     cname := strings.cstring_clone_from_string(name, allocators.temp_allocator) or_return
 
-    buf: [dynamic]byte
+    buf: dyn_array.Dyn_Array(byte)
     buf.allocator = allocator
     defer if err != nil { _ = slice.delete(buf) }
 

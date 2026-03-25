@@ -130,7 +130,7 @@ z_bit_reverse :: #force_inline proc(n: u16, bits: u8) -> (r: u16) {
 
 
 @(optimization_mode="favor_size")
-grow_buffer :: proc(buf: ^[dynamic]u8) -> (err: compress.Error) {
+grow_buffer :: proc(buf: ^dyn_array.Dyn_Array(u8)) -> (err: compress.Error) {
     /*
         That we get here at all means that we didn't pass an expected output size,
         or that it was too little.

@@ -78,7 +78,7 @@ Returns:
 */
 
 decode_grapheme_clusters :: proc(str: string, track_graphemes := true, allocator: mem.Allocator) -> (
-    graphemes:      [dynamic]Grapheme,
+    graphemes:      dyn_array.Dyn_Array(Grapheme),
     grapheme_count: uint,
     rune_count:     uint,
     width:          uint,

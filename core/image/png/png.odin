@@ -214,7 +214,7 @@ copy_chunk :: proc(src: image.PNG_Chunk, allocator : mem.Allocator) -> (dest: im
     return
 }
 
-append_chunk :: proc(list: ^[dynamic]image.PNG_Chunk, src: image.PNG_Chunk, allocator : mem.Allocator) -> (err: Error) {
+append_chunk :: proc(list: ^dyn_array.Dyn_Array(image.PNG_Chunk), src: image.PNG_Chunk, allocator : mem.Allocator) -> (err: Error) {
     if int(src.header.length) != len(src.data) {
         return .Invalid_Chunk_Length
     }

@@ -54,7 +54,7 @@ Integer :: i64
 Float   :: f64
 Boolean :: bool
 String  :: string
-Array   :: distinct [dynamic]Value
+Array   :: distinct dyn_array.Dyn_Array(Value)
 Object  :: distinct map[string]Value
 
 Value :: union {

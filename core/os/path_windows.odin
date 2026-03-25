@@ -178,7 +178,7 @@ _set_working_directory :: proc(dir: string) -> (err: Error) {
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := dyn_array.create_len([dynamic]u16, 512, allocators.temp_allocator) or_return
+    buf := dyn_array.create_len(u16, 512, allocators.temp_allocator) or_return
     for {
         ret := win32.GetModuleFileNameW(nil, raw_data(buf), win32.DWORD(len(buf)))
         if ret == 0 {

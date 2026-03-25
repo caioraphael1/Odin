@@ -103,8 +103,8 @@ create :: proc(
     // For the sake of speed and simplicity, we first run all the intermediate
     // processes such as parsing and compilation through the temporary
     // allocator.
-    program: [dynamic]virtual_machine.Opcode = ---
-    class_data: [dynamic]parser.Rune_Class_Data = ---
+    program:    dyn_array.Dyn_Array(virtual_machine).Opcode = ---
+    class_data: dyn_array.Dyn_Array(parser).Rune_Class_Data = ---
 
     ast := parser.parse(pattern, flags, allocators.temp_allocator) or_return
 

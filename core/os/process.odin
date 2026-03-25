@@ -405,10 +405,10 @@ process_exec :: proc(
     }
 
     {
-        stdout_b: [dynamic]byte
+        stdout_b: dyn_array.Dyn_Array(byte)
         stdout_b.allocator = allocator
 
-        stderr_b: [dynamic]byte
+        stderr_b: dyn_array.Dyn_Array(byte)
         stderr_b.allocator = allocator
 
         buf: [1024]u8 = ---

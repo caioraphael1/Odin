@@ -481,7 +481,7 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
             return arr, nil
         case json.Object:
             m  := mem.new(Map) or_return
-            dm := dyn_array.create([dynamic]Map_Entry, 0, len(v)) or_return
+            dm := dyn_array.create(Map_Entry, 0, len(v)) or_return
             for mkey, mval in v {
                 dyn_array.append(&dm, Map_Entry{from_json(mkey) or_return, from_json(mval) or_return}) or_return
             }

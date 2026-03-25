@@ -795,7 +795,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         return assign_array(p, raw.data, t.elem, length)
         
     case reflect.Type_Info_Dynamic_Array:
-        raw := (^dyn_array.Raw_Dynamic_Array)(v.data)
+        raw := (^dyn_array.Dyn_Array(byte))(v.data)
         data := bytes_make(uint(t.elem.size) * uint(length), uint(t.elem.align), p.allocator) or_return
         raw.data = raw_data(data)
         raw.len = uint(length)

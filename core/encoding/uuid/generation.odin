@@ -174,7 +174,7 @@ Example:
     import "core:uuid"
 
     // Create a batch of UUIDs all at once.
-    batch: [dynamic]uuid.Identifier
+    batch: dyn_array.Dyn_Array(uuid).Identifier
 
     for i: u16 = 0; i < 1000; i += 1 {
         my_uuid := uuid.generate_v7_counter(i)

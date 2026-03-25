@@ -332,7 +332,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
 
         decoded := base64.decode(bytes) or_return
         
-        raw           := (^dyn_array.Raw_Dynamic_Array)(v.data)
+        raw           := (^dyn_array.Dyn_Array(byte))(v.data)
         raw.data       = raw_data(decoded)
         raw.len        = len(decoded)
         raw.cap        = len(decoded)
@@ -365,7 +365,7 @@ tag_base64_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marsha
     case string:        bytes = transmute([]byte)val
     case cstring:       bytes = transmute([]byte)string(val)
     case []byte:        bytes = val
-    case [dynamic]byte: bytes = val[:]
+    case dyn_array.Dyn_Array(byte): bytes = val[:]
     case:
         #partial switch t in ti.variant {
         case internal.Type_Info_Array:

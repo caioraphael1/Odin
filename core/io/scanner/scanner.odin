@@ -31,7 +31,7 @@ Scanner :: struct {
     r:              io.Reader,
     split:          Split_Proc,
 
-    buf:            [dynamic]byte,
+    buf:            dyn_array.Dyn_Array(byte),
     max_token_size: uint,
     start:          uint,
     end:            uint,

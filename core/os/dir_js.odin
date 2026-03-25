@@ -9,14 +9,14 @@
 import "base:intrinsics"
 
 Read_Directory_Iterator_Impl :: struct {
-	fullpath: [dynamic]byte,
-	buf:      []byte,
-	off:      int,
+    fullpath: dyn_array.Dyn_Array(byte),
+    buf:      []byte,
+    off:      int,
 }
 
 
 _read_directory_iterator :: proc(it: ^Read_Directory_Iterator) -> (fi: File_Info, index: int, ok: bool) {
-	return {}, -1, false
+    return {}, -1, false
 }
 
 _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File) {

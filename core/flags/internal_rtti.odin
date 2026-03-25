@@ -431,7 +431,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^inte
         }
 
     case internal.Type_Info_Dynamic_Array:
-        ptr := cast(^dyn_array.Raw_Dynamic_Array)ptr
+        ptr := cast(^dyn_array.Dyn_Array(byte))ptr
 
         // Try to convert the value first.
         elem_backing, alloc_error := mem.alloc(specific_type_info.elem.size, specific_type_info.elem.align)
@@ -444,7 +444,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^inte
         defer _ = slice.delete(elem_backing, allocator)
         parse_and_set_pointer_by_type(raw_data(elem_backing), str, specific_type_info.elem, arg_tag) or_return
 
-        if !internal._dyn_array_resize((^Raw_Dynamic_Array)ptr, specific_type_info.elem.size, specific_type_info.elem.align, ptr.len + 1, false) {
+        if !internal._dyn_array_resize(ptr, specific_type_info.elem.size, specific_type_info.elem.align, ptr.len + 1, false) {
             // NOTE: This is purely an assumption that it's OOM.
             // Regardless, the resize failed.
             return Parse_Error {

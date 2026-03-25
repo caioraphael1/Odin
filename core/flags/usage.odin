@@ -96,7 +96,7 @@ write_usage :: proc(out: io.Writer, data_type: typeid, program: string = "", sty
     case .Unix: flag_prefix = "--"; flag_assignment = " "
     }
 
-    visible_flags: [dynamic]Flag
+    visible_flags: dyn_array.Dyn_Array(Flag)
     defer _ = dyn_array.delete(visible_flags)
 
     longest_flag_length: int

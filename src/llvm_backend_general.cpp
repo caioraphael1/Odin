@@ -1307,8 +1307,6 @@ gb_internal lbValue lb_addr_load(lbProcedure *p, lbAddr const &addr) {
             isize field_count = t->Struct.fields.count;
             if (t->Struct.soa_kind == StructSoa_Slice) {
                 field_count -= 1;
-            } else if (t->Struct.soa_kind == StructSoa_Dynamic) {
-                field_count -= 3;
             }
             for (isize i = 0; i < field_count; i++) {
                 Entity *field = t->Struct.fields[i];
@@ -2039,7 +2037,6 @@ gb_internal LLVMTypeRef lb_type_internal(lbModule *m, Type *type) {
             case Type_Array:
             case Type_EnumeratedArray:
             case Type_Slice:
-            case Type_DynamicArray:
             case Type_Map:
             case Type_Enum:
             case Type_BitSet:
@@ -2130,29 +2127,6 @@ gb_internal LLVMTypeRef lb_type_internal(lbModule *m, Type *type) {
                 LLVMTypeRef fields[2] = {
                     LLVMPointerType(lb_type(m, type->Slice.elem), 0), // data
                     lb_type(m, t_int), // len
-                };
-                return LLVMStructTypeInContext(ctx, fields, gb_count_of(fields), false);
-            }
-        }
-        break;
-
-    case Type_DynamicArray:
-        {
-            if (bigger_int) {
-                LLVMTypeRef fields[5] = {
-                    LLVMPointerType(lb_type(m, type->DynamicArray.elem), 0), // data
-                    lb_type_padding_filler(m, build_context.ptr_size, build_context.ptr_size), // padding
-                    lb_type(m, t_int), // len
-                    lb_type(m, t_int), // cap
-                    lb_type(m, t_allocator), // allocator
-                };
-                return LLVMStructTypeInContext(ctx, fields, gb_count_of(fields), false);
-            } else {
-                LLVMTypeRef fields[4] = {
-                    LLVMPointerType(lb_type(m, type->DynamicArray.elem), 0), // data
-                    lb_type(m, t_int), // len
-                    lb_type(m, t_int), // cap
-                    lb_type(m, t_allocator), // allocator
                 };
                 return LLVMStructTypeInContext(ctx, fields, gb_count_of(fields), false);
             }

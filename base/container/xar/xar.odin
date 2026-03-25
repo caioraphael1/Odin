@@ -2,7 +2,7 @@
     Exponential Array (Xar).
 
     A dynamically growing array using exponentially-sized chunks, providing stable
-    memory addresses for all elements. Unlike `[dynamic]T`, elements are never
+    memory addresses for all elements. Unlike `dyn_array.Dyn_Array(T)`, elements are never
     moved once allocated, making it safe to hold pointers to elements.
 
     For more information: https://azmr.uk/dyn/#exponential-arrayxar
@@ -37,7 +37,7 @@ MAX_SHIFT :: PLATFORM_BITS>>1
 /*
     An Exponential Array with stable element addresses.
 
-    Unlike `[dynamic]T` which reallocates and moves elements when growing, `Array`
+    Unlike `dyn_array.Dyn_Array(T)` which reallocates and moves elements when growing, `Array`
     allocates separate chunks of exponentially increasing size. This guarantees
     that pointers to elements remain valid for the lifetime of the container.
 
@@ -247,7 +247,7 @@ Example:
 */
 array_push_back_elem :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc := #caller_location) -> (n: int, err: mem.Allocator_Error) {
     if x.allocator.procedure == nil {
-        // to minic `[dynamic]T` behaviour
+        // to minic `dyn_array.Dyn_Array(T)` behaviour
     }
 
     chunk_idx, elem_idx, chunk_cap := _meta_get(SHIFT, uint(x.len))
@@ -307,7 +307,7 @@ Example:
 */
 array_push_back_elem_and_get_ptr :: proc(x: ^$X/Array($T, $SHIFT), value: T, loc := #caller_location) -> (ptr: ^T, err: mem.Allocator_Error) {
     if x.allocator.procedure == nil {
-        // to minic `[dynamic]T` behaviour
+        // to minic `dyn_array.Dyn_Array(T)` behaviour
         // x.allocator = context.allocator
     }
 

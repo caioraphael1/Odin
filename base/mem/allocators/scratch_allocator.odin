@@ -13,7 +13,7 @@ Scratch :: struct {
     prev_allocation:      rawptr,
     prev_allocation_root: rawptr,
     backup_allocator:     mem.Allocator,
-    leaked_allocations:   [dynamic][]byte,
+    leaked_allocations:   dyn_array.Dyn_Array([]byte),
 }
 
 /*

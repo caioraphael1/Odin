@@ -37,7 +37,7 @@ Width_Proc :: #type proc(str: string) -> int
 
 Table :: struct {
     lpad, rpad: int, // Cell padding (left/right)
-    cells: [dynamic]Cell,
+    cells: dyn_array.Dyn_Array(Cell),
     caption: string,
     nr_rows, nr_cols: int,
     has_header_row: bool,
@@ -45,7 +45,7 @@ Table :: struct {
     format_allocator: mem.Allocator, // Used for allocating Cell.text when applicable
 
     // The following are computed on build()
-    colw: [dynamic]int, // Width of each column (excluding padding and borders)
+    colw: dyn_array.Dyn_Array(int), // Width of each column (excluding padding and borders)
     tblw: int,          // Width of entire table (including padding, excluding borders)
 }
 

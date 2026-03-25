@@ -315,7 +315,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         
     case internal.Type_Info_Dynamic_Array:
         opt_write_start(w, opt, '[') or_return
-        array := cast(^dyn_array.Raw_Dynamic_Array)v.data
+        array := cast(^dyn_array.Dyn_Array(byte))v.data
         for i in 0..<array.len {
             opt_write_iteration(w, opt, i == 0) or_return
             data := uintptr(array.data) + uintptr(i*info.elem_size)
@@ -389,7 +389,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
                 // If we are sorting the map by key, then we temp alloc an array
                 // and sort it, then output the result.
-                sorted, _ := dyn_array.create_len_cap([dynamic]Entry, 0, uint(map_cap), allocators.temp_allocator)
+                sorted, _ := dyn_array.create_len_cap(Entry, 0, uint(map_cap), allocators.temp_allocator)
                 for bucket_index in 0..<map_cap {
                     maps.hash_is_valid(hs[bucket_index]) or_continue
 
@@ -453,7 +453,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                  internal.Type_Info_Procedure:
                 return (^rawptr)(v.data)^ == nil
             case internal.Type_Info_Dynamic_Array:
-                return (^dyn_array.Raw_Dynamic_Array)(v.data).len == 0
+                return (^dyn_array.Dyn_Array(byte))(v.data).len == 0
             case internal.Type_Info_Slice:
                 return (^slice.Raw_Slice)(v.data).len == 0
             case internal.Type_Info_Union,

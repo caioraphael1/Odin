@@ -3576,19 +3576,6 @@ gb_internal lbValue lb_emit_comp_against_nil(lbProcedure *p, TokenKind op_kind, 
         }
         break;
 
-    case Type_DynamicArray:
-        {
-            lbValue data = lb_emit_struct_ev(p, x, 0);
-            if (op_kind == Token_CmpEq) {
-                res.value = LLVMBuildIsNull(p->builder, data.value, "");
-                return res;
-            } else if (op_kind == Token_NotEq) {
-                res.value = LLVMBuildIsNotNull(p->builder, data.value, "");
-                return res;
-            }
-        }
-        break;
-
     case Type_Map:
         {
             lbValue data_ptr = lb_emit_struct_ev(p, x, 0);
@@ -3639,22 +3626,6 @@ gb_internal lbValue lb_emit_comp_against_nil(lbProcedure *p, TokenKind op_kind, 
                 if (bt->Struct.fields.count == 0) {
                     lbValue len = lb_soa_struct_len(p, x);
                     the_value = len.value;
-                } else {
-                    lbValue first_field = lb_emit_struct_ev(p, x, 0);
-                    the_value = first_field.value;
-                }
-                if (op_kind == Token_CmpEq) {
-                    res.value = LLVMBuildIsNull(p->builder, the_value, "");
-                    return res;
-                } else if (op_kind == Token_NotEq) {
-                    res.value = LLVMBuildIsNotNull(p->builder, the_value, "");
-                    return res;
-                }
-            } else if (bt->Struct.soa_kind == StructSoa_Dynamic) {
-                LLVMValueRef the_value = {};
-                if (bt->Struct.fields.count == 0) {
-                    lbValue cap = lb_soa_struct_cap(p, x);
-                    the_value = cap.value;
                 } else {
                     lbValue first_field = lb_emit_struct_ev(p, x, 0);
                     the_value = first_field.value;
@@ -4468,7 +4439,6 @@ gb_internal void lb_build_addr_compound_lit_populate(lbProcedure *p, Slice<Ast *
     case Type_EnumeratedArray: et = bt->EnumeratedArray.elem; break;
     case Type_Slice:           et = bt->Slice.elem;           break;
     case Type_BitSet:          et = bt->BitSet.elem;          break;
-    case Type_DynamicArray:    et = bt->DynamicArray.elem;    break;
     case Type_SimdVector:      et = bt->SimdVector.elem;      break;
     case Type_Matrix:          et = bt->Matrix.elem;          break;
     }
@@ -4480,7 +4450,7 @@ gb_internal void lb_build_addr_compound_lit_populate(lbProcedure *p, Slice<Ast *
         Ast *elem = elems[i];
         if (elem->kind == Ast_FieldValue) {
             ast_node(fv, FieldValue, elem);
-            if (bt->kind != Type_DynamicArray && lb_is_elem_const(fv->value, et)) {
+            if (lb_is_elem_const(fv->value, et)) {
                 continue;
             }
             if (is_ast_range(fv->field)) {
@@ -4546,7 +4516,7 @@ gb_internal void lb_build_addr_compound_lit_populate(lbProcedure *p, Slice<Ast *
             }
 
         } else {
-            if (bt->kind != Type_DynamicArray && lb_is_elem_const(elem, et)) {
+            if (lb_is_elem_const(elem, et)) {
                 continue;
             }
 
@@ -4603,7 +4573,7 @@ gb_internal lbAddr lb_build_addr_index_expr(lbProcedure *p, Ast *expr) {
     }
 
     if (ie->expr->tav.mode == Addressing_SoaVariable) {
-        // SOA Structures for slices/dynamic arrays
+        // SOA Structures for slices arrays
         GB_ASSERT_MSG(is_type_multi_pointer(type_of_expr(ie->expr)), "%s", type_to_string(type_of_expr(ie->expr)));
 
         lbValue field = lb_build_expr(p, ie->expr);
@@ -4742,20 +4712,6 @@ gb_internal lbAddr lb_build_addr_index_expr(lbProcedure *p, Ast *expr) {
         return lb_addr(v);
     }
 
-    case Type_DynamicArray: {
-        lbValue dynamic_array = {};
-        dynamic_array = lb_build_expr(p, ie->expr);
-        if (deref) {
-            dynamic_array = lb_emit_load(p, dynamic_array);
-        }
-        lbValue elem = lb_dynamic_array_elem(p, dynamic_array);
-        lbValue len = lb_dynamic_array_len(p, dynamic_array);
-        lbValue index = lb_emit_conv(p, lb_build_expr(p, ie->index), t_int);
-        lb_emit_bounds_check(p, ast_token(ie->index), index, len);
-        lbValue v = lb_emit_ptr_offset(p, elem, index);
-        return lb_addr(v);
-    }
-
     case Type_Matrix: {
         lbValue matrix = {};
         matrix = lb_build_addr_ptr(p, ie->expr);
@@ -4846,25 +4802,6 @@ gb_internal lbAddr lb_build_addr_slice_expr(lbProcedure *p, Ast *expr) {
         }
 
         lbValue elem    = lb_emit_ptr_offset(p, lb_slice_elem(p, base), low);
-        lbValue new_len = lb_emit_arith(p, Token_Sub, high, low, t_int);
-
-        lbAddr slice = lb_add_local_generated(p, slice_type, false);
-        lb_fill_slice(p, slice, elem, new_len);
-        return slice;
-    }
-
-    case Type_DynamicArray: {
-        Type *elem_type = type->DynamicArray.elem;
-        Type *slice_type = alloc_type_slice(elem_type);
-
-        lbValue len = lb_dynamic_array_len(p, base);
-        if (high.value == nullptr) high = len;
-
-        if (!no_indices) {
-            lb_emit_slice_bounds_check(p, se->open, low, high, len, se->low != nullptr);
-        }
-
-        lbValue elem    = lb_emit_ptr_offset(p, lb_dynamic_array_elem(p, base), low);
         lbValue new_len = lb_emit_arith(p, Token_Sub, high, low, t_int);
 
         lbAddr slice = lb_add_local_generated(p, slice_type, false);
@@ -4995,20 +4932,6 @@ gb_internal lbAddr lb_build_addr_slice_expr(lbProcedure *p, Ast *expr) {
                     lbValue new_len = lb_emit_arith(p, Token_Sub, high, low, t_int);
                     lb_emit_store(p, len_dst, new_len);
                 }
-            } else if (type->Struct.soa_kind == StructSoa_Dynamic) {
-                i32 field_count = cast(i32)type->Struct.fields.count - 3;
-                for (i32 i = 0; i < field_count; i++) {
-                    lbValue field_dst = lb_emit_struct_ep(p, dst.addr, i);
-                    lbValue field_src = lb_emit_struct_ev(p, base, i);
-                    field_src = lb_emit_ptr_offset(p, field_src, low);
-                    field_src = lb_emit_conv(p, field_src, type_deref(field_dst.type));
-                    lb_emit_store(p, field_dst, field_src);
-                }
-
-
-                lbValue len_dst = lb_emit_struct_ep(p, dst.addr, field_count);
-                lbValue new_len = lb_emit_arith(p, Token_Sub, high, low, t_int);
-                lb_emit_store(p, len_dst, new_len);
             }
 
             return dst;
@@ -5416,11 +5339,6 @@ gb_internal lbAddr lb_build_addr_compound_lit(lbProcedure *p, Ast *expr) {
                 lb_fill_slice(p, v, data, count);
             }
         }
-        break;
-    }
-
-    case Type_DynamicArray: {
-        GB_ASSERT(cl->elems.count == 0);
         break;
     }
 

@@ -4,12 +4,12 @@ import "base:container/dyn_array"
 import "core:io"
 
 Multi_Writer :: struct {
-    writers: [dynamic]io.Writer,
+    writers: dyn_array.Dyn_Array(io.Writer),
 }
 
 
 multi_writer_init :: proc(mw: ^Multi_Writer, writers: []io.Writer, allocator: mem.Allocator) -> (out: io.Writer) {
-    mw.writers, _ = dyn_array.create_len_cap([dynamic]io.Writer, 0, len(writers), allocator)
+    mw.writers, _ = dyn_array.create_len_cap(io.Writer, 0, len(writers), allocator)
 
     for w in writers {
         if w.procedure == _multi_writer_proc {

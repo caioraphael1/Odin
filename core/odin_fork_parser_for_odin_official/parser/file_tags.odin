@@ -97,9 +97,9 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
         }
     }
 
-    parse_tag :: proc(text: string, tags: ^File_Tags, build_kinds: ^[dynamic]Build_Kind,
-                      build_project_name_strings: ^[dynamic]string,
-                      build_project_names: ^[dynamic][]string) {
+    parse_tag :: proc(text: string, tags: ^File_Tags, build_kinds: ^dyn_array.Dyn_Array(Build_Kind),
+                      build_project_name_strings: ^dyn_array.Dyn_Array(string),
+                      build_project_names: ^dyn_array.Dyn_Array([]string) {
         i := 0
 
         skip_whitespace(text, &i)
@@ -212,9 +212,9 @@ parse_file_tags :: proc(file: ast.File, allocator: mem.Allocator) -> (tags: File
         return
     }
 
-    build_kinds:                [dynamic]Build_Kind
-    build_project_names:        [dynamic][]string
-    build_project_name_strings: [dynamic]string
+    build_kinds:                dyn_array.Dyn_Array(Build_Kind)
+    build_project_names:        dyn_array.Dyn_Array([]string)
+    build_project_name_strings: dyn_array.Dyn_Array(string)
 
     if file.docs != nil {
         for comment in file.docs.list {

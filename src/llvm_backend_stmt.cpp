@@ -358,14 +358,7 @@ gb_internal void lb_build_range_indexed(lbProcedure *p, lbValue expr, Type *val_
         }
         break;
     }
-    case Type_DynamicArray: {
-        if (val_type != nullptr) {
-            lbValue elem = lb_emit_struct_ep(p, expr, 0);
-            elem = lb_emit_load(p, elem);
-            val = lb_emit_load(p, lb_emit_ptr_offset(p, elem, idx));
-        }
-        break;
-    }
+
     case Type_Struct: {
         GB_ASSERT(is_type_soa_struct(expr_type));
         break;
@@ -1215,16 +1208,7 @@ gb_internal void lb_build_range_stmt(lbProcedure *p, AstRangeStmt *rs, Scope *sc
             lb_build_range_indexed(p, array, val0_type, count_ptr.addr, &val, &key, &loop, &done, rs->reverse);
             break;
         }
-        case Type_DynamicArray: {
-            lbValue count_ptr = {};
-            lbValue array = lb_build_addr_ptr(p, expr);
-            if (is_type_pointer(type_deref(array.type))) {
-                array = lb_emit_load(p, array);
-            }
-            count_ptr = lb_emit_struct_ep(p, array, 1);
-            lb_build_range_indexed(p, array, val0_type, count_ptr, &val, &key, &loop, &done, rs->reverse);
-            break;
-        }
+
         case Type_Slice: {
             lbValue count_ptr = {};
             lbValue slice = lb_build_expr(p, expr);
@@ -1521,8 +1505,7 @@ gb_internal void lb_build_unroll_range_stmt(lbProcedure *p, AstUnrollRangeStmt *
             lbValue count_ptr = {};
 
             switch (t->kind) {
-            case Type_Slice:
-            case Type_DynamicArray: {
+            case Type_Slice: {
                 lbValue slice = lb_build_expr(p, expr);
                 if (is_type_pointer(slice.type)) {
                     count_ptr = lb_emit_struct_ep(p, slice, 1);

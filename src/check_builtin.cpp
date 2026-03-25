@@ -48,7 +48,6 @@ gb_global BuiltinTypeIsProc *builtin_type_is_procs[BuiltinProc__type_simple_bool
     is_type_array,
     is_type_enumerated_array,
     is_type_slice,
-    is_type_dynamic_array,
     is_type_map,
     is_type_struct,
     is_type_union,
@@ -2619,8 +2618,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             value = exact_value_u64(at->EnumeratedArray.count);
         } else if (is_type_slice(op_type) && id == BuiltinProc_len) {
             mode = Addressing_Value;
-        } else if (is_type_dynamic_array(op_type)) {
-            mode = Addressing_Value;
         } else if (is_type_map(op_type)) {
             mode = Addressing_Value;
         } else if (operand->mode == Addressing_Type && is_type_enum(op_type)) {
@@ -2640,9 +2637,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
                 mode  = Addressing_Constant;
                 type = t_untyped_integer;
                 value = exact_value_u64(bt->Struct.soa_count);
-            } else if ((bt->Struct.soa_kind == StructSoa_Slice && id == BuiltinProc_len) ||
-                       bt->Struct.soa_kind == StructSoa_Dynamic) {
-                mode = Addressing_Value;
             }
         } else if (is_type_simd_vector(op_type)) {
             Type *bt = base_type(op_type);
@@ -5115,7 +5109,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             }
             if (!is_operand_value(x)) {
                 gbString s = expr_to_string(x.expr);
-                error(call, "'%.*s' expects a string, slice, dynamic array, or pointer to array type, got %s", LIT(builtin_name), s);
+                error(call, "'%.*s' expects a string, slice, or pointer to array type, got %s", LIT(builtin_name), s);
                 gb_string_free(s);
                 return false;
             }
@@ -5126,9 +5120,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             switch (t->kind) {
             case Type_Slice:
                 operand->type = alloc_type_multi_pointer(t->MultiPointer.elem);
-                break;
-            case Type_DynamicArray:
-                operand->type = alloc_type_multi_pointer(t->DynamicArray.elem);
                 break;
             case Type_Basic:
                 if (t->Basic.kind == Basic_string) {
@@ -5157,7 +5148,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
 
             if (operand->type == nullptr) {
                 gbString s = type_to_string(x.type);
-                error(call, "'%.*s' expects a string, slice, dynamic array, or pointer to array type, got %s", LIT(builtin_name), s);
+                error(call, "'%.*s' expects a string, slice, or pointer to array type, got %s", LIT(builtin_name), s);
                 gb_string_free(s);
                 return false;
             }
@@ -6399,7 +6390,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             case Type_Array:           operand->type = bt->Array.elem;           break;
             case Type_EnumeratedArray: operand->type = bt->EnumeratedArray.elem; break;
             case Type_Slice:           operand->type = bt->Slice.elem;           break;
-            case Type_DynamicArray:    operand->type = bt->DynamicArray.elem;    break;
             case Type_SimdVector:      operand->type = bt->SimdVector.elem;      break;
             }
         }

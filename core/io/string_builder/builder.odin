@@ -9,7 +9,7 @@ The dynamic array is wrapped inside the struct to be more opaque
 You can use `fmt.sbprint*` procedures with a `^string_builder.Builder` directly
 */
 Builder :: struct {
-    buf: [dynamic]byte,
+    buf: dyn_array.Dyn_Array(byte),
 }
 
 
@@ -20,13 +20,13 @@ builder_create :: proc(allocator: mem.Allocator) -> (builder: Builder) {
 
 builder_create_len :: proc(len: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return { 
-        buf = dyn_array.create_len([dynamic]byte, len, allocator, loc) or_return
+        buf = dyn_array.create_len(byte, len, allocator, loc) or_return
     }, nil
 }
 
 builder_create_len_cap :: proc(len, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
-        buf = dyn_array.create_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
+        buf = dyn_array.create_len_cap(byte, len, cap, allocator, loc) or_return
     }, nil
 }
 
@@ -37,13 +37,13 @@ builder_init :: proc(b: ^Builder, allocator: mem.Allocator) {
 
 builder_init_len :: proc(b: ^Builder, len: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     b^ = {} // Reset the struct first.
-    b.buf = dyn_array.create_len([dynamic]byte, len, allocator, loc) or_return
+    b.buf = dyn_array.create_len(byte, len, allocator, loc) or_return
     return nil
 }
 
 builder_init_len_cap :: proc(b: ^Builder, len, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     b^ = {} // Reset the struct first.
-    b.buf = dyn_array.create_len_cap([dynamic]byte, len, cap, allocator, loc) or_return
+    b.buf = dyn_array.create_len_cap(byte, len, cap, allocator, loc) or_return
     return nil
 }
 
@@ -126,8 +126,7 @@ pop_byte :: proc(b: ^Builder) -> (r: byte) {
     }
 
     r = b.buf[len(b.buf)-1]
-    d := (^dyn_array.Raw_Dynamic_Array)(&b.buf)
-    d.len = max(d.len-1, 0)
+    b.buf.len = max(b.buf.len - 1, 0)
     return
 }
 
@@ -147,7 +146,6 @@ pop_rune :: proc(b: ^Builder) -> (r: rune, width: uint) {
     }
 
     r, width = utf8.last_rune_in_bytes(b.buf[:])
-    d := (^dyn_array.Raw_Dynamic_Array)(&b.buf)
-    d.len = max(d.len-width, 0)
+    b.buf.len = max(b.buf.len - width, 0)
     return
 }

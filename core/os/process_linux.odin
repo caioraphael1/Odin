@@ -79,9 +79,9 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
     }
     defer linux.close(dir_fd)
 
-    dynamic_list := dyn_array.create([dynamic]int, allocators.temp_allocator) or_return
+    dynamic_list := dyn_array.create(int, allocators.temp_allocator) or_return
 
-    buf := dyn_array.create([dynamic]u8, 128, 128, allocators.temp_allocator) or_return
+    buf := dyn_array.create(u8, 128, 128, allocators.temp_allocator) or_return
     loop: for {
         buflen: int
         buflen, errno = linux.getdents(dir_fd, buf[:])
@@ -214,7 +214,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             // skip to first arg
             //cmdline = cmdline[terminator + 1:]
             command_line_builder: string_builder.Builder
-            command_args_list: [dynamic]string
+            command_args_list: dyn_array.Dyn_Array(string)
 
             if .Command_Line in selection {
                 command_line_builder = string_builder.builder_create(allocator) or_return
@@ -355,7 +355,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         if env_bytes, env_err := _read_entire_pseudo_file(strings.to_cstring(&path_builder) or_return, allocators.temp_allocator); env_err == nil {
             env := string(env_bytes)
 
-            env_list := dyn_array.create([dynamic]string, allocator) or_return
+            env_list := dyn_array.create(string, allocator) or_return
             for len(env) > 0 {
                 terminator := strings_tools.index_byte(env, 0)
                 if terminator <= 0 {

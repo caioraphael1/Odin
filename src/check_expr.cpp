@@ -104,7 +104,6 @@ gb_internal void add_map_key_type_dependencies(CheckerContext *ctx, Type *key);
 
 gb_internal Type *make_soa_struct_fixed(CheckerContext *ctx, Ast *array_typ_expr, Ast *elem_expr, Type *elem, i64 count, Type *generic_type);
 gb_internal Type *make_soa_struct_slice(CheckerContext *ctx, Ast *array_typ_expr, Ast *elem_expr, Type *elem);
-gb_internal Type *make_soa_struct_dynamic_array(CheckerContext *ctx, Ast *array_typ_expr, Ast *elem_expr, Type *elem);
 
 gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, Ast *call, i32 id, Type *type_hint);
 
@@ -1067,9 +1066,6 @@ gb_internal AstPackage *get_package_of_type(Type *type) {
         case Type_Slice:
             type = type->Slice.elem;
             continue;
-        case Type_DynamicArray:
-            type = type->DynamicArray.elem;
-            continue;
         }
         return nullptr;
     }
@@ -1429,12 +1425,6 @@ gb_internal bool is_polymorphic_type_assignable(CheckerContext *c, Type *poly, T
             return index || elem;
         }
         return false;
-
-    case Type_DynamicArray:
-        if (source->kind == Type_DynamicArray) {
-            return is_polymorphic_type_assignable(c, poly->DynamicArray.elem, source->DynamicArray.elem, true, modify_type);
-        }
-        return false;
     case Type_Slice:
         if (source->kind == Type_Slice) {
             return is_polymorphic_type_assignable(c, poly->Slice.elem, source->Slice.elem, true, modify_type);
@@ -1506,12 +1496,6 @@ gb_internal bool is_polymorphic_type_assignable(CheckerContext *c, Type *poly, T
                 case StructSoa_Slice:
                     if (modify_type) {
                         Type *type = make_soa_struct_slice(c, nullptr, poly->Struct.node, poly->Struct.soa_elem);
-                        gb_memmove(poly, type, gb_size_of(*type));
-                    }
-                    break;
-                case StructSoa_Dynamic:
-                    if (modify_type) {
-                        Type *type = make_soa_struct_dynamic_array(c, nullptr, poly->Struct.node, poly->Struct.soa_elem);
                         gb_memmove(poly, type, gb_size_of(*type));
                     }
                     break;
@@ -2366,13 +2350,7 @@ gb_internal void check_assignment_error_suggestion(CheckerContext *c, Operand *o
         if (are_types_identical(s, d)) {
             error_line("\tSuggestion: The array expression may be sliced with %s[:]\n", a);
         }
-    } else if (is_type_dynamic_array(src) && is_type_slice(dst)) {
-        Type *s = src->DynamicArray.elem;
-        Type *d = dst->Slice.elem;
-        if (are_types_identical(s, d)) {
-            error_line("\tSuggestion: The dynamic array expression may be sliced with %s[:]\n", a);
-        }
-    }else if (are_types_identical(src, dst) && !are_types_identical(o->type, type)) {
+    } else if (are_types_identical(src, dst) && !are_types_identical(o->type, type)) {
         error_line("\tSuggestion: The expression may be directly casted to type %s\n", b);
     } else if (are_types_identical(src, t_string) && is_type_u8_slice(dst)) {
         error_line("\tSuggestion: A string may be transmuted to %s\n", b);
@@ -5354,9 +5332,6 @@ gb_internal Entity *check_entity_from_ident_or_selector(CheckerContext *c, Ast *
 
         if (entity == nullptr && selector->kind == Ast_Ident) {
             String field_name = selector->Ident.token.string;
-            if (is_type_dynamic_array(type_deref(operand.type))) {
-                init_mem_allocator(c->checker);
-            }
             auto sel = lookup_field(operand.type, field_name, operand.mode == Addressing_Type);
             entity = sel.entity;
         }
@@ -5485,9 +5460,6 @@ gb_internal Entity *check_selector(CheckerContext *c, Operand *operand, Ast *nod
         if (t == nullptr) {
             error(operand->expr, "Cannot use a selector expression on 0-value expression");
         } else {
-            if (is_type_dynamic_array(t)) {
-                init_mem_allocator(c->checker);
-            }
             sel = lookup_field(operand->type, field_name, operand->mode == Addressing_Type);
             entity = sel.entity;
 
@@ -7874,12 +7846,6 @@ gb_internal bool check_set_index_data(Operand *o, Type *t, bool indirection, i64
         }
         return true;
 
-    case Type_DynamicArray:
-        o->type = t->DynamicArray.elem;
-        if (o->mode != Addressing_Constant) {
-            o->mode = Addressing_Variable;
-        }
-        return true;
     case Type_Struct:
         if (t->Struct.soa_kind != StructSoa_None) {
             if (t->Struct.soa_kind == StructSoa_Fixed) {
@@ -9236,17 +9202,6 @@ gb_internal ExprKind check_compound_literal(CheckerContext *c, Operand *o, Ast *
                     }
                 }
             }
-        } else if (type_expr->kind == Ast_DynamicArrayType && type_expr->DynamicArrayType.tag != nullptr) {
-            if (cl->elems.count > 0) {
-                Ast *tag = type_expr->DynamicArrayType.tag;
-                GB_ASSERT(tag->kind == Ast_BasicDirective);
-                String name = tag->BasicDirective.name.string;
-                if (name == "soa") {
-                    is_soa = true;
-                    error(node, "#soa dynamic arrays are not supported for compound literals");
-                    return kind;
-                }
-            }
         }
 
         if (type == nullptr) {
@@ -9363,14 +9318,13 @@ gb_internal ExprKind check_compound_literal(CheckerContext *c, Operand *o, Ast *
 
             break;
         } else if (t->Struct.soa_kind != StructSoa_Fixed) {
-            error(node, "#soa slices and dynamic arrays are not supported for compound literals");
+            error(node, "#soa slices are not supported for compound literals");
             break;
         }
         /*fallthrough*/
 
     case Type_Slice:
     case Type_Array:
-    case Type_DynamicArray:
     case Type_SimdVector:
     case Type_Matrix:
     {
@@ -9399,10 +9353,6 @@ gb_internal ExprKind check_compound_literal(CheckerContext *c, Operand *o, Ast *
             if (!is_to_be_determined_array_count) {
                 max_type_count = t->Array.count;
             }
-        } else if (t->kind == Type_DynamicArray) {
-            elem_type = t->DynamicArray.elem;
-            context_name = str_lit("dynamic array literal");
-            is_constant = false;
         } else if (t->kind == Type_SimdVector) {
             elem_type = t->SimdVector.elem;
             context_name = str_lit("simd vector literal");
@@ -9587,13 +9537,6 @@ gb_internal ExprKind check_compound_literal(CheckerContext *c, Operand *o, Ast *
         if (t->kind == Type_SimdVector) {
             if (!is_constant) {
                 // error(node, "Expected all constant elements for a simd vector");
-            }
-        }
-
-        if (t->kind == Type_DynamicArray) {
-            if (cl->elems.count != 0) {
-                ERROR_BLOCK();
-                error(node, "Compound literals of dynamic types are not allowed");
             }
         }
 
@@ -10578,11 +10521,6 @@ gb_internal ExprKind check_slice_expr(CheckerContext *c, Operand *o, Ast *node, 
         o->type = type_deref(o->type);
         break;
 
-    case Type_DynamicArray:
-        valid = true;
-        o->type = alloc_type_slice(t->DynamicArray.elem);
-        break;
-
     case Type_Struct:
         if (is_type_soa_struct(t)) {
             valid = true;
@@ -11107,7 +11045,6 @@ gb_internal ExprKind check_expr_base_internal(CheckerContext *c, Operand *o, Ast
     case Ast_PointerType:
     case Ast_MultiPointerType:
     case Ast_ArrayType:
-    case Ast_DynamicArrayType:
     case Ast_StructType:
     case Ast_UnionType:
     case Ast_EnumType:
@@ -11602,14 +11539,6 @@ gb_internal gbString write_expr_to_string(gbString str, Ast *node, bool shorthan
             str = write_expr_to_string(str, at->count, shorthand);
         }
         str = gb_string_append_rune(str, ']');
-        str = write_expr_to_string(str, at->elem, shorthand);
-    case_end;
-
-    case_ast_node(at, DynamicArrayType, node);
-        if (at->tag) {
-            str = write_expr_to_string(str, at->tag, false);
-        }
-        str = gb_string_appendc(str, "[dynamic]");
         str = write_expr_to_string(str, at->elem, shorthand);
     case_end;
 

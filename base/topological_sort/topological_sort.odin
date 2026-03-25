@@ -71,7 +71,7 @@ add_dependency :: proc(sorter: ^$S/Sorter($K), key, dependency: K) -> bool {
     return true
 }
 
-sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: [dynamic]K) {
+sort :: proc(sorter: ^$S/Sorter($K)) -> (sorted, cycled: dyn_array.Dyn_Array(K)) {
     relations := &sorter.relations
 
     for k, v in relations {

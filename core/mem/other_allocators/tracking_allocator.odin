@@ -45,17 +45,17 @@ Tracking_Allocator_Bad_Free_Callback :: proc(t: ^Tracking_Allocator, memory: raw
 Tracking allocator data.
 */
 Tracking_Allocator :: struct {
-    backing: mem.Allocator,
-    allocation_map: map[rawptr]Tracking_Allocator_Entry,
-    bad_free_callback: Tracking_Allocator_Bad_Free_Callback,
-    bad_free_array: [dynamic]Tracking_Allocator_Bad_Free_Entry,
-    mutex: sync.Mutex,
-    clear_on_free_all: bool,
-    total_memory_allocated: i64,
-    total_allocation_count: i64,
-    total_memory_freed: i64,
-    total_free_count: i64,
-    peak_memory_allocated: i64,
+    backing:                  mem.Allocator,
+    allocation_map:           map[rawptr]Tracking_Allocator_Entry,
+    bad_free_callback:        Tracking_Allocator_Bad_Free_Callback,
+    bad_free_array:           dyn_array.Dyn_Array(Tracking_Allocator_Bad_Free_Entry),
+    mutex:                    sync.Mutex,
+    clear_on_free_all:        bool,
+    total_memory_allocated:   i64,
+    total_allocation_count:   i64,
+    total_memory_freed:       i64,
+    total_free_count:         i64,
+    peak_memory_allocated:    i64,
     current_memory_allocated: i64,
 }
 

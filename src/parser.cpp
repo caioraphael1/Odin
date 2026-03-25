@@ -445,9 +445,6 @@ gb_internal Ast *clone_ast(Ast *node, AstFile *f) {
         n->ArrayType.elem  = clone_ast(n->ArrayType.elem, f);
         n->ArrayType.tag   = clone_ast(n->ArrayType.tag, f);
         break;
-    case Ast_DynamicArrayType:
-        n->DynamicArrayType.elem = clone_ast(n->DynamicArrayType.elem, f);
-        break;
     case Ast_StructType:
         n->StructType.fields             = clone_ast_array(n->StructType.fields, f);
         n->StructType.polymorphic_params = clone_ast(n->StructType.polymorphic_params, f);
@@ -1219,13 +1216,6 @@ gb_internal Ast *ast_array_type(AstFile *f, Token token, Ast *count, Ast *elem) 
     result->ArrayType.token = token;
     result->ArrayType.count = count;
     result->ArrayType.elem = elem;
-    return result;
-}
-
-gb_internal Ast *ast_dynamic_array_type(AstFile *f, Token token, Ast *elem) {
-    Ast *result = alloc_ast_node(f, Ast_DynamicArrayType);
-    result->DynamicArrayType.token = token;
-    result->DynamicArrayType.elem  = elem;
     return result;
 }
 
@@ -2423,7 +2413,6 @@ gb_internal Ast *parse_operand(AstFile *f, bool lhs) {
             Ast *type = unparen_expr(original_type);
             switch (type->kind) {
             case Ast_ArrayType:        type->ArrayType.tag        = tag; break;
-            case Ast_DynamicArrayType: type->DynamicArrayType.tag = tag; break;
             case Ast_PointerType:      type->PointerType.tag      = tag; break;
             default:
                 syntax_error(type, "Expected an array or pointer type after #%.*s, got %.*s", LIT(name.string), LIT(ast_strings[type->kind]));
@@ -2624,9 +2613,6 @@ gb_internal Ast *parse_operand(AstFile *f, bool lhs) {
             return ast_multi_pointer_type(f, token, parse_type(f));
         } else if (f->curr_token.kind == Token_Question) {
             count_expr = ast_unary_expr(f, expect_token(f, Token_Question), nullptr);
-        } else if (allow_token(f, Token_dynamic)) {
-            expect_token(f, Token_CloseBracket);
-            return ast_dynamic_array_type(f, token, parse_type(f));
         } else if (f->curr_token.kind != Token_CloseBracket) {
             f->expr_level++;
             count_expr = parse_expr(f, false);
@@ -3109,7 +3095,6 @@ gb_internal bool is_literal_type(Ast *node) {
     case Ast_StructType:
     case Ast_UnionType:
     case Ast_EnumType:
-    case Ast_DynamicArrayType:
     case Ast_MapType:
     case Ast_BitSetType:
     case Ast_MatrixType:
