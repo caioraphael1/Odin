@@ -2,8 +2,8 @@ import "base:internal"
 import "base:intrinsics"
 import "base:mem"
 
-import "base:container/slice"
-    // only slice.copy
+import base_slice "base:container/slice"
+    // only base_slice.copy
 
 
 DEFAULT_DYNAMIC_ARRAY_CAPACITY :: 8
@@ -37,21 +37,8 @@ create_len_cap :: proc($T: typeid, len: uint, cap: uint, allocator: mem.Allocato
 }
 
 
-_dyn_array_init_len_cap :: proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, len: uint, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    create_error_loc(loc, len, cap)
-    internal.assert(cap > 0, "Capacity must be greater than zero")
-    a.allocator = allocator // initialize allocator before just in case it fails to allocate any memory
-    data := mem.alloc(size_of_elem*cap, align_of_elem, allocator, loc) or_return
-    use_zero := data == nil && size_of_elem != 0
-    a.data = raw_data(data)
-    a.len = 0 if use_zero else len
-    a.cap = 0 if use_zero else cap
-    return
-}
-
-
-from_slice :: proc(backing: []$T) -> Dyn_Array(T) {
-    return Dyn_Array{
+create_from_slice :: proc(backing: []$T) -> Dyn_Array(T) {
+    return Dyn_Array(T){
         data      = raw_data(backing),
         len       = 0,
         cap       = len(backing),
@@ -62,6 +49,19 @@ from_slice :: proc(backing: []$T) -> Dyn_Array(T) {
     }
 }
 
+_dyn_array_init_len_cap :: proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, len: uint, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
+    create_error_loc(loc, len, cap)
+    internal.assert(cap > 0, "Capacity must be greater than zero")
+    a.allocator = allocator // initialize allocator before just in case it fails to allocate any memory
+    data := mem.alloc(size_of_elem*cap, align_of_elem, allocator, loc) or_return
+    use_zero := data == nil && size_of_elem != 0
+    a.data = ([^]T)(raw_data(data))
+    a.len = 0 if use_zero else len
+    a.cap = 0 if use_zero else cap
+    return
+}
+
+
 clear :: proc(a: ^Dyn_Array($T)) {
     a.len = 0
 }
@@ -69,6 +69,12 @@ clear :: proc(a: ^Dyn_Array($T)) {
 delete :: proc(a: Dyn_Array($T), loc := #caller_location) -> mem.Allocator_Error {
     return mem.free_with_size(a.data, a.cap * size_of(T), a.allocator, loc)
 }
+
+
+slice :: proc(a: Dyn_Array($T)) -> []T {
+    return a.data[:a.len]
+}
+
 
 append :: proc(a: ^Dyn_Array($T), #no_broadcast arg: T, loc := #caller_location) -> (err: mem.Allocator_Error) {
     arg := arg
@@ -158,7 +164,7 @@ inject_at :: proc(a: ^Dyn_Array($T), index: uint, #no_broadcast arg: T, loc := #
 
     resize(a, new_size, loc) or_return
 
-    slice.copy(a[index + m:], a[index:])
+    base_slice.copy(a.data[index + m:a.len], a.data[index:a.len])
     a[index] = arg
 
     ok = true
@@ -171,8 +177,8 @@ inject_many_at :: proc(a: ^Dyn_Array($T), index: uint, #no_broadcast args: ..T, 
     new_size := n + m
 
     _ = resize(a, new_size, loc) or_return
-    slice.copy(a[index + m:], a[index:])
-    slice.copy(a[index:], args)
+    base_slice.copy(a.data[index + m:a.len], a.data[index:a.len])
+    base_slice.copy(a.data[index:a.len], args)
     ok = true
     return
 }
@@ -191,8 +197,8 @@ inject_string_at :: proc(a: ^Dyn_Array($T), index: uint, arg: string, loc := #ca
     new_size := n + m
 
     _ = resize(a, new_size, loc) or_return
-    slice.copy(a[index+m:], a[index:])
-    slice.copy(a[index:], arg)
+    base_slice.copy(a.data[index+m:a.len], a.data[index:a.len])
+    base_slice.copy(a.data[index:a.len], arg)
     ok = true
     return
 }
@@ -214,11 +220,11 @@ assign_many_at :: proc(a: ^Dyn_Array($T), index: uint, #no_broadcast args: ..T, 
     if len(args) == 0 {
         ok = true
     } else if new_size < a.len {
-        slice.copy(a[index:], args)
+        base_slice.copy(a.data[index:a.len], args)
         ok = true
     } else {
         _ = resize(a, new_size, loc) or_return
-        slice.copy(a[index:], args)
+        base_slice.copy(a.data[index:a.len], args)
         ok = true
     }
     return
@@ -229,11 +235,11 @@ assign_string_at :: proc(a: ^Dyn_Array($T), index: uint, arg: string, loc := #ca
     if len(arg) == 0 {
         ok = true
     } else if new_size < a.len {
-        slice.copy(a[index:], arg)
+        base_slice.copy(a.data[index:a.len], arg)
         ok = true
     } else {
         _ = resize(a, new_size, loc) or_return
-        slice.copy(a[index:], arg)
+        base_slice.copy(a.data[index:a.len], arg)
         ok = true
     }
     return
@@ -250,7 +256,7 @@ unordered_remove :: proc(a: ^Dyn_Array($T), index: uint, loc := #caller_location
 }
 
 unordered_remove_element :: proc(a: ^Dyn_Array($T), elem: T) -> (ok: bool) {
-    if index, found := slice.linear_search(a[:], elem); found {
+    if index, found := base_slice.linear_search(a.data[:a.len], elem); found {
         unordered_remove(a, index)
         return true
     }
@@ -260,7 +266,7 @@ unordered_remove_element :: proc(a: ^Dyn_Array($T), elem: T) -> (ok: bool) {
 ordered_remove :: proc(a: ^Dyn_Array($T), index: uint, loc := #caller_location) {
     internal.bounds_check_error_loc(loc, index, a.len)
     if index + 1 < a.len {
-        slice.copy(a[index:], a[index+1:])
+        base_slice.copy(a.data[index:a.len], a.data[index+1:a.len])
     }
     a.len -= 1
 }
@@ -270,7 +276,7 @@ remove_range :: proc(a: ^Dyn_Array($T), lo, hi: uint, loc := #caller_location) {
     n := max(hi - lo, 0)
     if n > 0 {
         if hi != a.len {
-            slice.copy(a[lo:], a[hi:])
+            base_slice.copy(a.data[lo:a.len], a.data[hi:a.len])
         }
         a.len -= n
     }
@@ -281,7 +287,7 @@ pop_back :: proc(a: ^Dyn_Array($T)) -> (res: T, ok: bool) {
     if a.len == 0 {
         return
     }
-    res, ok = a[a.len - 1], true
+    res, ok = a.data[a.len - 1], true
     a.len -= 1
     return
 }
@@ -292,7 +298,7 @@ pop_front :: proc(a: ^Dyn_Array($T)) -> (res: T, ok: bool) {
     }
     res, ok = a[0], true
     if a.len > 1 {
-        slice.copy(a[0:], a[1:])
+        base_slice.copy(a.data[0:a.len], a.data[1:a.len])
     }
     a.len -= 1
     return
@@ -309,7 +315,7 @@ reserve_non_zero :: proc(a: ^Dyn_Array($T), cap: uint, loc := #caller_location) 
 }
 
 
-_reserve :: #force_no_inline proc(a: ^Dyn_Array, size_of_elem, align_of_elem: uint, cap: uint, should_zero: bool, loc := #caller_location) -> mem.Allocator_Error {
+_reserve :: #force_no_inline proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, cap: uint, should_zero: bool, loc := #caller_location) -> mem.Allocator_Error {
     internal.assert(a.allocator.procedure != nil, "Allocator not defined", loc)
 
     if cap <= a.cap {
@@ -330,7 +336,7 @@ _reserve :: #force_no_inline proc(a: ^Dyn_Array, size_of_elem, align_of_elem: ui
         return .Out_Of_Memory
     }
 
-    a.data = raw_data(new_data)
+    a.data = (^T)(raw_data(new_data))
     a.cap = cap
     return nil
 }
@@ -345,7 +351,7 @@ resize_non_zero :: proc(a: ^Dyn_Array($T), length: uint, loc := #caller_location
 }
 
 
-_resize :: #force_no_inline proc(a: ^Dyn_Array, size_of_elem, align_of_elem: uint, length: uint, should_zero: bool, loc := #caller_location) -> mem.Allocator_Error {    
+_resize :: #force_no_inline proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, length: uint, should_zero: bool, loc := #caller_location) -> mem.Allocator_Error {    
     internal.assert(a.allocator.procedure != nil, "mem.Allocator not defined", loc)
 
     if should_zero && a.len < length {
@@ -372,9 +378,9 @@ _resize :: #force_no_inline proc(a: ^Dyn_Array, size_of_elem, align_of_elem: uin
         return .Out_Of_Memory
     }
 
-    a.data = raw_data(new_data)
-    a.len = length
-    a.cap = length
+    a.data = (^T)(raw_data(new_data))
+    a.len  = length
+    a.cap  = length
     return nil
 }
 

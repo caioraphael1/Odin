@@ -72,7 +72,7 @@ scratch_destroy :: proc(s: ^Scratch) {
     if s == nil {
         return
     }
-    for ptr in s.leaked_allocations {
+    for ptr in dyn_array.slice(s.leaked_allocations) {
         _ = mem.free_bytes(ptr, s.backup_allocator)
     }
     _ = dyn_array.delete(s.leaked_allocations)
@@ -228,8 +228,8 @@ scratch_free :: proc(s: ^Scratch, ptr: rawptr, loc := #caller_location) -> mem.A
         // NOTE(bill): Cannot free this pointer but it is valid
         return nil
     }
-    if len(s.leaked_allocations) != 0 {
-        for data, i in s.leaked_allocations {
+    if s.leaked_allocations.len != 0 {
+        for data, i in dyn_array.slice(s.leaked_allocations) {
             ptr := raw_data(data)
             if ptr == ptr {
                 _ = mem.free_bytes(data, s.backup_allocator, loc)
@@ -247,7 +247,7 @@ Free all memory back to the scratch allocator.
 scratch_free_all :: proc(s: ^Scratch, loc := #caller_location) {
     s.curr_offset = 0
     s.prev_allocation = nil
-    for ptr in s.leaked_allocations {
+    for ptr in dyn_array.slice(s.leaked_allocations) {
         _ = mem.free_bytes(ptr, s.backup_allocator, loc)
     }
     dyn_array.clear(&s.leaked_allocations)

@@ -123,7 +123,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     res.kernel.patch = format_build_number(&b, int(osvi.dwBuildNumber))
 
     // Finish the string
-    res.full = string_builder.to_string(b)
+    res.full = string_builder.to_string(&b)
 
     format_windows_product_type :: proc (b: ^string_builder.Builder, prod_type: sys.Windows_Product_Type) {
         #partial switch prod_type {
@@ -229,7 +229,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
             string_builder.write_string(b, " (version: ")
             l := string_builder.builder_len(b^)
             string_builder.write_string(b, dv)
-            version = string_builder.to_string(b^)[l:][:len(dv)]
+            version = string_builder.to_string(b)[l:][:len(dv)]
             _, _ = string_builder.write_rune(b, ')')
         }
         return

@@ -180,18 +180,18 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
 
     buf := dyn_array.create_len(u16, 512, allocators.temp_allocator) or_return
     for {
-        ret := win32.GetModuleFileNameW(nil, raw_data(buf), win32.DWORD(len(buf)))
+        ret := win32.GetModuleFileNameW(nil, raw_data(dyn_array.slice(buf)), win32.DWORD(buf.len))
         if ret == 0 {
             err = _get_platform_error()
             return
         }
 
-        if ret == win32.DWORD(len(buf)) && win32.GetLastError() == win32.ERROR_INSUFFICIENT_BUFFER {
-            dyn_array.resize(&buf, len(buf)*2) or_return
+        if ret == win32.DWORD(buf.len) && win32.GetLastError() == win32.ERROR_INSUFFICIENT_BUFFER {
+            dyn_array.resize(&buf, buf.len * 2) or_return
             continue
         }
 
-        return win32_utf16_u16_to_utf8(buf[:ret], allocator)
+        return win32_utf16_u16_to_utf8(buf.data[:ret], allocator)
     }
 }
 

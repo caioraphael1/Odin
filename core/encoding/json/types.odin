@@ -95,7 +95,7 @@ Error :: enum {
 
 
 destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_location) {
-    #partial switch v in value {
+    #partial switch &v in value {
     case Object:
         for key, elem in v {
             _ = strings.string_delete(key, allocator, loc)
@@ -103,7 +103,7 @@ destroy_value :: proc(value: Value, allocator: mem.Allocator, loc := #caller_loc
         }
         _ = maps.delete(v, loc)
     case Array:
-        for elem in v {
+        for elem in dyn_array.slice(v) {
             destroy_value(elem, allocator, loc)
         }
         _ = dyn_array.delete(v, loc)
@@ -122,11 +122,11 @@ clone_value :: proc(value: Value, allocator: mem.Allocator) -> Value {
         }
         return new_o
     case Array:
-        new_a, _ := dyn_array.create_len(Array, len(v), allocator)
-        for elem, idx in v {
-            new_a[idx] = clone_value(elem, allocator)
+        new_a, _ := dyn_array.create_len(Value, v.len, allocator)
+        for elem, idx in dyn_array.slice(v) {
+            new_a.data[idx] = clone_value(elem, allocator)
         }
-        return new_a
+        return Array(new_a)
     case String:
         v_clone, _ := strings.string_clone(v, allocator)
         return v_clone

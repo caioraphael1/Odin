@@ -196,7 +196,7 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
     array: Array
     array.allocator = p.allocator
     defer if err != nil {
-        for elem in array {
+        for elem in dyn_array.slice(array) {
             destroy_value(elem, array.allocator, loc=loc)
         }
         _ = dyn_array.delete(array, loc)

@@ -105,8 +105,8 @@ _dynamic_arena_cycle_new_block :: proc(a: ^Dynamic_Arena, loc := #caller_locatio
         _ = dyn_array.append(&a.used_blocks, a.current_block, loc=loc)
     }
     new_block: rawptr
-    if len(a.unused_blocks) > 0 {
-        new_block = dyn_array.pop(&a.unused_blocks)
+    if a.unused_blocks.len > 0 {
+        new_block, _ = dyn_array.pop_back(&a.unused_blocks)
     } else {
         data: []byte
         data, err = a.block_allocator.procedure(
@@ -223,12 +223,12 @@ dynamic_arena_reset :: proc(a: ^Dynamic_Arena, loc := #caller_location) {
         _ = dyn_array.append(&a.unused_blocks, a.current_block, loc=loc)
         a.current_block = nil
     }
-    for block in a.used_blocks {
+    for block in dyn_array.slice(a.used_blocks) {
         // sanitizer.address_poison(block, a.block_size)
         _ = dyn_array.append(&a.unused_blocks, block, loc=loc)
     }
     dyn_array.clear(&a.used_blocks)
-    for allocation in a.out_band_allocations {
+    for allocation in dyn_array.slice(a.out_band_allocations) {
         _ = mem.free(allocation, a.out_band_allocations.allocator, loc=loc)
     }
     dyn_array.clear(&a.out_band_allocations)
@@ -243,7 +243,7 @@ the unused blocks.
 */
 dynamic_arena_free_all :: proc(a: ^Dynamic_Arena, loc := #caller_location) {
     dynamic_arena_reset(a)
-    for block in a.unused_blocks {
+    for block in dyn_array.slice(a.unused_blocks) {
         // sanitizer.address_unpoison(block, a.block_size)
         _ = mem.free(block, a.block_allocator, loc)
     }

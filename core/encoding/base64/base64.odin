@@ -10,7 +10,7 @@ truncate it from the encoded output.
 
 import "base:internal"
 import "base:mem"
-import "base:container/strings"
+import "base:container/dyn_array"
 
 import "core:io"
 import "core:io/string_builder"
@@ -124,7 +124,7 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
     internal.assert(string_builder.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
 
-    return string_builder.to_string(out), nil
+    return string_builder.to_string(&out), nil
 }
 
 encode_into :: proc(w: io.Writer, data: []byte, ENC_TBL := ENC_TABLE) -> io.Error {
@@ -172,7 +172,7 @@ decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> 
     internal.assert(ioerr == nil,                           "string builder should not IO error")
     internal.assert(string_builder.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
 
-    return out.buf[:], nil
+    return dyn_array.slice(out.buf), nil
 }
 
 decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Error {

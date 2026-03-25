@@ -116,5 +116,5 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
 
         path = path[1:]
     }
-    return string_builder.to_string(sb)
+    return string_builder.to_string(&sb)
 }

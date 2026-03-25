@@ -69,7 +69,7 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
         string_builder.write_string(&b, s[i:][:w])
         i += w
     }
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 
@@ -87,7 +87,7 @@ to_lower :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.
     for r in s {
         _, _ = string_builder.write_rune(&b, unicode.to_lower(r))
     }
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 
@@ -103,7 +103,7 @@ to_upper :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.
     for r in s {
         _, _ = string_builder.write_rune(&b, unicode.to_upper(r))
     }
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*
@@ -138,7 +138,7 @@ to_camel_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err:
         }
     })
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*
@@ -173,7 +173,7 @@ to_pascal_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err
         }
     })
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*
@@ -247,7 +247,7 @@ to_delimiter_case :: proc(
         _, _ = io.write_rune(w, adjust_case(curr))
     }
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*
@@ -408,7 +408,7 @@ to_ada_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: m
         }
     })
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*

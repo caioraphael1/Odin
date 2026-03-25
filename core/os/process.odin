@@ -449,8 +449,8 @@ process_exec :: proc(
             }
         }
 
-        stdout = stdout_b[:]
-        stderr = stderr_b[:]
+        stdout = dyn_array.slice(stdout_b)
+        stderr = dyn_array.slice(stderr_b)
     }
 
     if err != nil {

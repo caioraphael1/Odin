@@ -143,5 +143,5 @@ _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, fmt_
     }
 
     // Write to output file.
-    fmt.fprintf(h, "%s\n", string_builder.to_string(buf))
+    fmt.fprintf(h, "%s\n", string_builder.to_string(&buf))
 }

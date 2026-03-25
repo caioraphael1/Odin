@@ -16,7 +16,7 @@ _builder_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byt
         }
         return
     case .Size:
-        n = i64(len(b.buf))
+        n = i64(b.buf.len)
         return
     case .Destroy:
         builder_destroy(b)
@@ -49,9 +49,9 @@ Output:
 */
 @(optional_results)
 write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: uint) {
-    n0 := len(b.buf)
+    n0 := b.buf.len
     _ = dyn_array.append(&b.buf, x, loc)
-    n1 := len(b.buf)
+    n1 := b.buf.len
     return n1-n0
 }
 
@@ -64,9 +64,9 @@ Example:
 */
 @(optional_results)
 write_bytes :: proc(b: ^Builder, x: []byte, loc := #caller_location) -> (n: uint) {
-    n0 := len(b.buf)
+    n0 := b.buf.len
     _ = dyn_array.append_many(&b.buf, ..x, loc=loc)
-    n1 := len(b.buf)
+    n1 := b.buf.len
     return n1-n0
 }
 
@@ -112,9 +112,9 @@ Output:
 */
 @(optional_results)
 write_string :: proc(b: ^Builder, s: string, loc := #caller_location) -> (n: uint) {
-    n0 := len(b.buf)
+    n0 := b.buf.len
     _ = dyn_array.append_string(&b.buf, s, loc)
-    n1 := len(b.buf)
+    n1 := b.buf.len
     return n1-n0
 }
 

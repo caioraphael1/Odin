@@ -149,8 +149,8 @@ marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc
     opt := opt
     marshal_to_builder(&b, v, &opt) or_return
     
-    if len(b.buf) != 0 {
-        data = b.buf[:]
+    if b.buf.len != 0 {
+        data = dyn_array.slice(b.buf)
     }
 
     return data, nil
@@ -417,9 +417,9 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                     _ = dyn_array.append(&sorted, Entry { key = name, value = any{value, info.value.id}})
                 }
 
-                slice.sort_by(sorted[:], proc(i, j: Entry) -> bool { return i.key < j.key })
+                slice.sort_by(dyn_array.slice(sorted), proc(i, j: Entry) -> bool { return i.key < j.key })
 
-                for s, i in sorted {
+                for s, i in dyn_array.slice(sorted) {
                     opt_write_iteration(w, opt, i == 0) or_return
                     opt_write_key(w, opt, s.key) or_return
                     marshal_to_writer(w, s.value, opt) or_return

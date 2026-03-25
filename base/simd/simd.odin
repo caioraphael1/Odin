@@ -270,24 +270,24 @@ Returns:
 - A vector that is the sum of two input vectors.
 
 Operation:
-	
-	for i in 0 ..< len(res) {
-		res[i] = a[i] + b[i]
-	}
-	return res
+    
+    for i in 0 ..< len(res) {
+        res[i] = a[i] + b[i]
+    }
+    return res
 
 Example:
 
-	   +-----+-----+-----+-----+
-	a: |  0  |  1  |  2  |  3  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  0  |  1  |  2  | -1  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+-----+
-	   |  0  |  2  |  4  |  2  |
-	   +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    a: |  0  |  1  |  2  |  3  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  0  |  1  |  2  | -1  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+-----+
+       |  0  |  2  |  4  |  2  |
+       +-----+-----+-----+-----+
 */
 add :: intrinsics.simd_add
 
@@ -307,23 +307,23 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = a[i] - b[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = a[i] - b[i]
+    }
+    return res
 
 Example:
 
-	   +-----+-----+-----+-----+
-	a: |  2  |  2  |  2  |  2  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  0  |  1  |  2  |  3  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+-----+
-	   |  2  |  1  |  0  | -1  |
-	   +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    a: |  2  |  2  |  2  |  2  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  0  |  1  |  2  |  3  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+-----+
+       |  2  |  1  |  0  | -1  |
+       +-----+-----+-----+-----+
 */
 sub :: intrinsics.simd_sub
 
@@ -342,23 +342,23 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = a[i] * b[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = a[i] * b[i]
+    }
+    return res
 
 Example:
 
-	   +-----+-----+-----+-----+
-	a: |  2  |  2  |  2  |  2  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  0  | -1  |  2  | -3  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+-----+
-	   |  0  | -2  |  4  | -6  |
-	   +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    a: |  2  |  2  |  2  |  2  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  0  | -1  |  2  | -3  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+-----+
+       |  0  | -2  |  4  | -6  |
+       +-----+-----+-----+-----+
 */
 mul :: intrinsics.simd_mul
 
@@ -380,23 +380,23 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = a[i] / b[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = a[i] / b[i]
+    }
+    return res
 
 Example:
 
-	   +-----+-----+-----+-----+
-	a: |  2  |  2  |  2  |  2  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  0  | -1  |  2  | -3  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+------+
-	   | +∞  | -2  |  1  | -2/3 |
-	   +-----+-----+-----+------+
+       +-----+-----+-----+-----+
+    a: |  2  |  2  |  2  |  2  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  0  | -1  |  2  | -3  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+------+
+       | +∞  | -2  |  1  | -2/3 |
+       +-----+-----+-----+------+
 */
 div :: intrinsics.simd_div
 
@@ -420,29 +420,29 @@ specified in the corresponding lane of the vector `b`.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if b[i] < 8*size_of(a[i]) {
-			res[i] = a[i] << b[i]
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if b[i] < 8*size_of(a[i]) {
+            res[i] = a[i] << b[i]
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	// An example for a 4-lane 8-bit signed integer vector `a`.
+    // An example for a 4-lane 8-bit signed integer vector `a`.
 
-	   +-------+-------+-------+-------+
-	a: |  0x11 |  0x55 |  0x03 |  0xff |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   2   |   1   |   33  |   1   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+--------+
-	   |  0x44 |  0xaa |   0   |  0xfe  |
-	   +-------+-------+-------+--------+
+       +-------+-------+-------+-------+
+    a: |  0x11 |  0x55 |  0x03 |  0xff |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   2   |   1   |   33  |   1   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+--------+
+       |  0x44 |  0xaa |   0   |  0xfe  |
+       +-------+-------+-------+--------+
 */
 shl :: intrinsics.simd_shl
 
@@ -470,29 +470,29 @@ specified in the corresponding lane of the vector `b`.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if b[i] < 8*size_of(a[i]) {
-			res[i] = a[i] >> b[i]
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if b[i] < 8*size_of(a[i]) {
+            res[i] = a[i] >> b[i]
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	// An example for a 4-lane 8-bit signed integer vector `a`.
+    // An example for a 4-lane 8-bit signed integer vector `a`.
 
-	   +-------+-------+-------+-------+
-	a: |  0x11 |  0x55 |  0x03 |  0xff |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   2   |   1   |   33  |   1   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+--------+
-	   |  0x04 |  0x2a |   0   |  0xff  |
-	   +-------+-------+-------+--------+
+       +-------+-------+-------+-------+
+    a: |  0x11 |  0x55 |  0x03 |  0xff |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   2   |   1   |   33  |   1   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+--------+
+       |  0x04 |  0x2a |   0   |  0xff  |
+       +-------+-------+-------+--------+
 */
 shr :: intrinsics.simd_shr
 
@@ -515,26 +515,26 @@ specified in the corresponding lane of the vector `b`.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		mask := 8*size_of(a[i]) - 1
-		res[i] = a[i] << (b[i] & mask)
-	}
-	return res
+    for i in 0 ..< len(res) {
+        mask := 8*size_of(a[i]) - 1
+        res[i] = a[i] << (b[i] & mask)
+    }
+    return res
 
 Example:
 
-	// An example for a 4-lane vector `a` of 8-bit signed integers.
+    // An example for a 4-lane vector `a` of 8-bit signed integers.
 
-	   +-------+-------+-------+-------+
-	a: |  0x11 |  0x55 |  0x03 |  0xff |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   2   |   1   |   33  |   1   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+--------+
-	   |  0x44 |  0xaa |  0x06 |  0xfe  |
-	   +-------+-------+-------+--------+
+       +-------+-------+-------+-------+
+    a: |  0x11 |  0x55 |  0x03 |  0xff |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   2   |   1   |   33  |   1   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+--------+
+       |  0x44 |  0xaa |  0x06 |  0xfe  |
+       +-------+-------+-------+--------+
 */
 shl_masked :: intrinsics.simd_shl_masked
 
@@ -561,26 +561,26 @@ specified in the corresponding lane of the vector `b`.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		mask := 8*size_of(a[i]) - 1
-		res[i] = a[i] >> (b[i] & mask)
-	}
-	return res
+    for i in 0 ..< len(res) {
+        mask := 8*size_of(a[i]) - 1
+        res[i] = a[i] >> (b[i] & mask)
+    }
+    return res
 
 Example:
 
-	// An example for a 4-lane vector `a` of 8-bit signed integers.
+    // An example for a 4-lane vector `a` of 8-bit signed integers.
 
-	   +-------+-------+-------+-------+
-	a: |  0x11 |  0x55 |  0x03 |  0xff |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   2   |   1   |   33  |   1   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+--------+
-	   |  0x04 |  0x2a |  0x01 |  0xff  |
-	   +-------+-------+-------+--------+
+       +-------+-------+-------+-------+
+    a: |  0x11 |  0x55 |  0x03 |  0xff |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   2   |   1   |   33  |   1   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+--------+
+       |  0x04 |  0x2a |  0x01 |  0xff  |
+       +-------+-------+-------+--------+
 */
 shr_masked :: intrinsics.simd_shr_masked
 
@@ -604,32 +604,32 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		switch {
-		case b[i] >= max(type_of(a[i])) - a[i]: // (overflow of a[i])
-			res[i] = max(type_of(a[i]))
-		case b[i] <= min(type_of(a[i])) - a[i]: // (underflow of a[i])
-			res[i] = min(type_of(a[i]))
-		} else {
-			res[i] = a[i] + b[i]
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        switch {
+        case b[i] >= max(type_of(a[i])) - a[i]: // (overflow of a[i])
+            res[i] = max(type_of(a[i]))
+        case b[i] <= min(type_of(a[i])) - a[i]: // (underflow of a[i])
+            res[i] = min(type_of(a[i]))
+        } else {
+            res[i] = a[i] + b[i]
+        }
+    }
+    return res
 
 Example:
 
-	// An example for a 4-lane vector `a` of 8-bit signed integers.
+    // An example for a 4-lane vector `a` of 8-bit signed integers.
 
-	   +-----+-----+-----+-----+
-	a: |  0  | 255 |  2  |  3  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  1  |  3  |  2  | -1  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+-----+
-	   |  1  | 255 |  4  |  2  |
-	   +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    a: |  0  | 255 |  2  |  3  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  1  |  3  |  2  | -1  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+-----+
+       |  1  | 255 |  4  |  2  |
+       +-----+-----+-----+-----+
 */
 saturating_add :: intrinsics.simd_saturating_add
 
@@ -653,32 +653,32 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		switch {
-		case b[i] >= max(type_of(a[i])) + a[i]: // (overflow of a[i])
-			res[i] = max(type_of(a[i]))
-		case b[i] <= min(type_of(a[i])) + a[i]: // (underflow of a[i])
-			res[i] = min(type_of(a[i]))
-		} else {
-			res[i] = a[i] - b[i]
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        switch {
+        case b[i] >= max(type_of(a[i])) + a[i]: // (overflow of a[i])
+            res[i] = max(type_of(a[i]))
+        case b[i] <= min(type_of(a[i])) + a[i]: // (underflow of a[i])
+            res[i] = min(type_of(a[i]))
+        } else {
+            res[i] = a[i] - b[i]
+        }
+    }
+    return res
 
 Example:
 
-	// An example for a 4-lane vector `a` of 8-bit signed integers.
+    // An example for a 4-lane vector `a` of 8-bit signed integers.
 
-	   +-----+-----+-----+-----+
-	a: |  0  | 255 |  2  |  3  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  3  |  3  |  2  | -1  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+-----+
-	   |  0  | 252 |  0  |  4  |
-	   +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    a: |  0  | 255 |  2  |  3  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  3  |  3  |  2  | -1  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+-----+
+       |  0  | 252 |  0  |  4  |
+       +-----+-----+-----+-----+
 */
 saturating_sub :: intrinsics.simd_saturating_sub
 
@@ -697,23 +697,23 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = a[i] & b[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = a[i] & b[i]
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: | 0x11 | 0x33 | 0x55 | 0xaa |
-	   +------+------+------+------+
-	   +------+------+------+------+
-	b: | 0xff | 0xf0 | 0x0f | 0x00 |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   | 0x11 | 0x30 | 0x05 | 0x00 |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: | 0x11 | 0x33 | 0x55 | 0xaa |
+       +------+------+------+------+
+       +------+------+------+------+
+    b: | 0xff | 0xf0 | 0x0f | 0x00 |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       | 0x11 | 0x30 | 0x05 | 0x00 |
+       +------+------+------+------+
 */
 bit_and     :: intrinsics.simd_bit_and
 
@@ -732,23 +732,23 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = a[i] | b[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = a[i] | b[i]
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: | 0x11 | 0x33 | 0x55 | 0xaa |
-	   +------+------+------+------+
-	   +------+------+------+------+
-	b: | 0xff | 0xf0 | 0x0f | 0x00 |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   | 0xff | 0xf3 | 0x5f | 0xaa |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: | 0x11 | 0x33 | 0x55 | 0xaa |
+       +------+------+------+------+
+       +------+------+------+------+
+    b: | 0xff | 0xf0 | 0x0f | 0x00 |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       | 0xff | 0xf3 | 0x5f | 0xaa |
+       +------+------+------+------+
 */
 bit_or      :: intrinsics.simd_bit_or
 
@@ -767,23 +767,23 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = a[i] ~ b[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = a[i] ~ b[i]
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: | 0x11 | 0x33 | 0x55 | 0xaa |
-	   +------+------+------+------+
-	   +------+------+------+------+
-	b: | 0xff | 0xf0 | 0x0f | 0x00 |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   | 0xee | 0xc3 | 0x5a | 0xaa |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: | 0x11 | 0x33 | 0x55 | 0xaa |
+       +------+------+------+------+
+       +------+------+------+------+
+    b: | 0xff | 0xf0 | 0x0f | 0x00 |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       | 0xee | 0xc3 | 0x5a | 0xaa |
+       +------+------+------+------+
 */
 bit_xor     :: intrinsics.simd_bit_xor
 
@@ -802,23 +802,23 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = a[i] &~ b[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = a[i] &~ b[i]
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: | 0x11 | 0x33 | 0x55 | 0xaa |
-	   +------+------+------+------+
-	   +------+------+------+------+
-	b: | 0xff | 0xf0 | 0x0f | 0x00 |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   | 0x00 | 0x03 | 0x50 | 0xaa |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: | 0x11 | 0x33 | 0x55 | 0xaa |
+       +------+------+------+------+
+       +------+------+------+------+
+    b: | 0xff | 0xf0 | 0x0f | 0x00 |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       | 0x00 | 0x03 | 0x50 | 0xaa |
+       +------+------+------+------+
 */
 bit_and_not :: intrinsics.simd_bit_and_not
 
@@ -836,20 +836,20 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = -a[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = -a[i]
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: |   0  |   1  |   2  |   3  |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   |   0  |  -1  |  -2  |  -3  |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: |   0  |   1  |   2  |   3  |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       |   0  |  -1  |  -2  |  -3  |
+       +------+------+------+------+
 */
 neg :: intrinsics.simd_neg
 
@@ -867,24 +867,24 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		switch {
-			case a[i] < 0:  res[i] = -a[i]
-			case a[i] > 0:  res[i] = a[i]
-			case a[i] == 0: res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        switch {
+            case a[i] < 0:  res[i] = -a[i]
+            case a[i] > 0:  res[i] = a[i]
+            case a[i] == 0: res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: |   0  |  -1  |   2  |  -3  |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   |   0  |   1  |   2  |   3  |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: |   0  |  -1  |   2  |  -3  |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       |   0  |   1  |   2  |   3  |
+       +------+------+------+------+
 */
 abs   :: intrinsics.simd_abs
 
@@ -903,27 +903,27 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] < b[i] {
-			res[i] = a[i]
-		} else {
-			res[i] = b[i]
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] < b[i] {
+            res[i] = a[i]
+        } else {
+            res[i] = b[i]
+        }
+    }
+    return res
 
 Example:
 
-	   +-----+-----+-----+-----+
-	a: |  0  |  1  |  2  |  3  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  0  |  2  |  1  | -1  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+-----+
-	   |  0  |  1  |  1  | -1  |
-	   +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    a: |  0  |  1  |  2  |  3  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  0  |  2  |  1  | -1  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+-----+
+       |  0  |  1  |  1  | -1  |
+       +-----+-----+-----+-----+
 */
 min   :: intrinsics.simd_min
 
@@ -942,27 +942,27 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] > b[i] {
-			res[i] = a[i]
-		} else {
-			res[i] = b[i]
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] > b[i] {
+            res[i] = a[i]
+        } else {
+            res[i] = b[i]
+        }
+    }
+    return res
 
 Example:
 
-	   +-----+-----+-----+-----+
-	a: |  0  |  1  |  2  |  3  |
-	   +-----+-----+-----+-----+
-	   +-----+-----+-----+-----+
-	b: |  0  |  2  |  1  | -1  |
-	   +-----+-----+-----+-----+
-	res:
-	   +-----+-----+-----+-----+
-	   |  0  |  2  |  2  |  3  |
-	   +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    a: |  0  |  1  |  2  |  3  |
+       +-----+-----+-----+-----+
+       +-----+-----+-----+-----+
+    b: |  0  |  2  |  1  | -1  |
+       +-----+-----+-----+-----+
+    res:
+       +-----+-----+-----+-----+
+       |  0  |  2  |  2  |  3  |
+       +-----+-----+-----+-----+
 */
 max   :: intrinsics.simd_max
 
@@ -983,31 +983,31 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		val := v[i]
-		switch {
-			case val < min: val = min
-			case val > max: val = max
-		}
-		res[i] = val
-	}
-	return res
+    for i in 0 ..< len(res) {
+        val := v[i]
+        switch {
+            case val < min: val = min
+            case val > max: val = max
+        }
+        res[i] = val
+    }
+    return res
 
 Example:
 
-	     +-------+-------+-------+-------+
-	v:   |  -1   |  0.3  |  1.2  |   1   |
-	     +-------+-------+-------+-------+
-	     +-------+-------+-------+-------+
-	min: |   0   |   0   |   0   |   0   |
-	     +-------+-------+-------+-------+
-	     +-------+-------+-------+-------+
-	max: |   1   |   1   |   1   |   1   |
-	     +-------+-------+-------+-------+
-	res:
-	     +-------+-------+-------+-------+
-	     |   0   |  0.3  |   1   |   1   |
-	     +-------+-------+-------+-------+
+         +-------+-------+-------+-------+
+    v:   |  -1   |  0.3  |  1.2  |   1   |
+         +-------+-------+-------+-------+
+         +-------+-------+-------+-------+
+    min: |   0   |   0   |   0   |   0   |
+         +-------+-------+-------+-------+
+         +-------+-------+-------+-------+
+    max: |   1   |   1   |   1   |   1   |
+         +-------+-------+-------+-------+
+    res:
+         +-------+-------+-------+-------+
+         |   0   |  0.3  |   1   |   1   |
+         +-------+-------+-------+-------+
 */
 clamp :: intrinsics.simd_clamp
 
@@ -1029,27 +1029,27 @@ containing the comparison results for each lane.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] == b[i] {
-			res[i] = max(T)
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] == b[i] {
+            res[i] = max(T)
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	   +-------+-------+-------+-------+
-	a: |   0   |   1   |   2   |   3   |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   0   |   2   |   2   |   2   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+-------+
-	   | 0xff  | 0x00  | 0xff  | 0x00  |
-	   +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    a: |   0   |   1   |   2   |   3   |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   0   |   2   |   2   |   2   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+-------+
+       | 0xff  | 0x00  | 0xff  | 0x00  |
+       +-------+-------+-------+-------+
 */
 lanes_eq :: intrinsics.simd_lanes_eq
 
@@ -1071,27 +1071,27 @@ containing the comparison results for each lane.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] != b[i] {
-			res[i] = unsigned(-1)
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] != b[i] {
+            res[i] = unsigned(-1)
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	   +-------+-------+-------+-------+
-	a: |   0   |   1   |   2   |   3   |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   0   |   2   |   2   |   2   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+-------+
-	   | 0x00  | 0xff  | 0x00  | 0xff  |
-	   +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    a: |   0   |   1   |   2   |   3   |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   0   |   2   |   2   |   2   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+-------+
+       | 0x00  | 0xff  | 0x00  | 0xff  |
+       +-------+-------+-------+-------+
 */
 lanes_ne :: intrinsics.simd_lanes_ne
 
@@ -1113,27 +1113,27 @@ containing the comparison results for each lane.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] < b[i] {
-			res[i] = unsigned(-1)
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] < b[i] {
+            res[i] = unsigned(-1)
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	   +-------+-------+-------+-------+
-	a: |   0   |   1   |   2   |   3   |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   0   |   2   |   2   |   2   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+-------+
-	r: | 0x00  | 0xff  | 0x00  | 0x00  |
-	   +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    a: |   0   |   1   |   2   |   3   |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   0   |   2   |   2   |   2   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+-------+
+    r: | 0x00  | 0xff  | 0x00  | 0x00  |
+       +-------+-------+-------+-------+
 */
 lanes_lt :: intrinsics.simd_lanes_lt
 
@@ -1156,27 +1156,27 @@ containing the comparison results for each lane.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] <= b[i] {
-			res[i] = unsigned(-1)
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] <= b[i] {
+            res[i] = unsigned(-1)
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	   +-------+-------+-------+-------+
-	a: |   0   |   1   |   2   |   3   |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   0   |   2   |   2   |   2   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+-------+
-	   | 0xff  | 0xff  | 0xff  | 0x00  |
-	   +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    a: |   0   |   1   |   2   |   3   |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   0   |   2   |   2   |   2   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+-------+
+       | 0xff  | 0xff  | 0xff  | 0x00  |
+       +-------+-------+-------+-------+
 */
 lanes_le :: intrinsics.simd_lanes_le
 
@@ -1199,27 +1199,27 @@ containing the comparison results for each lane.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] > b[i] {
-			res[i] = unsigned(-1)
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] > b[i] {
+            res[i] = unsigned(-1)
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	   +-------+-------+-------+-------+
-	a: |   0   |   1   |   2   |   3   |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   0   |   2   |   2   |   2   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+-------+
-	   | 0x00  | 0x00  | 0x00  | 0xff  |
-	   +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    a: |   0   |   1   |   2   |   3   |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   0   |   2   |   2   |   2   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+-------+
+       | 0x00  | 0x00  | 0x00  | 0xff  |
+       +-------+-------+-------+-------+
 */
 lanes_gt :: intrinsics.simd_lanes_gt
 
@@ -1242,27 +1242,27 @@ containing the comparison results for each lane.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if a[i] >= b[i] {
-			res[i] = unsigned(-1)
-		} else {
-			res[i] = 0
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if a[i] >= b[i] {
+            res[i] = unsigned(-1)
+        } else {
+            res[i] = 0
+        }
+    }
+    return res
 
 Example:
 
-	   +-------+-------+-------+-------+
-	a: |   0   |   1   |   2   |   3   |
-	   +-------+-------+-------+-------+
-	   +-------+-------+-------+-------+
-	b: |   0   |   2   |   2   |   2   |
-	   +-------+-------+-------+-------+
-	res:
-	   +-------+-------+-------+-------+
-	   | 0xff  | 0x00  | 0xff  | 0xff  |
-	   +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    a: |   0   |   1   |   2   |   3   |
+       +-------+-------+-------+-------+
+       +-------+-------+-------+-------+
+    b: |   0   |   2   |   2   |   2   |
+       +-------+-------+-------+-------+
+    res:
+       +-------+-------+-------+-------+
+       | 0xff  | 0x00  | 0xff  | 0xff  |
+       +-------+-------+-------+-------+
 */
 lanes_ge :: intrinsics.simd_lanes_ge
 
@@ -1282,17 +1282,17 @@ for the `ptr` and `mask` parameters.
 
 Inputs:
 - `ptr`: A vector of memory locations. Each pointer points to a single value,
-	of a SIMD vector's lane type that will be loaded into the vector. Pointer
-	in this vector can be `nil` or any other invalid value, if the corresponding
-	value in the `mask` parameter is zero.
+    of a SIMD vector's lane type that will be loaded into the vector. Pointer
+    in this vector can be `nil` or any other invalid value, if the corresponding
+    value in the `mask` parameter is zero.
 - `val`: A vector of values that will be used at corresponding positions
-	of the result vector, if the corresponding memory location has been
-	masked out.
+    of the result vector, if the corresponding memory location has been
+    masked out.
 - `mask`: A vector of booleans or unsigned integers that determines which memory
-	locations to read from. If the value at an index has the value true
-	(lowest bit set), the value at that index will be loaded into the result
-	vector from the corresponding memory location in the `ptr` vector. Otherwise
-	the value will be loaded from the `val` vector.
+    locations to read from. If the value at an index has the value true
+    (lowest bit set), the value at that index will be loaded into the result
+    vector from the corresponding memory location in the `ptr` vector. Otherwise
+    the value will be loaded from the `val` vector.
 
 Returns:
 - A vector with all values from unmasked indices
@@ -1301,66 +1301,66 @@ from the value vector `val`.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if mask[i]&1 == 1 {
-			res[i] = ptr[i]^
-		} else {
-			res[i] = val[i]
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if mask[i]&1 == 1 {
+            res[i] = ptr[i]^
+        } else {
+            res[i] = val[i]
+        }
+    }
+    return res
 
 Example:
 
-	// Example below loads 2 lanes of values from 2 lanes of float vectors, `v1` and
-	// `v2`. From each of these vectors we're loading the second value, into the first
-	// and the third position of the result vector.
+    // Example below loads 2 lanes of values from 2 lanes of float vectors, `v1` and
+    // `v2`. From each of these vectors we're loading the second value, into the first
+    // and the third position of the result vector.
 
-	// Therefore the `ptrs` argument is initialized such that the first and the third
-	// value are the addresses of the values that we want to load into the result
-	// vector, and we'll fill in `nil` for the rest of them. To prevent CPU from
-	// dereferencing those `nil` addresses we provide the mask that only allows us
-	// to load valid positions of the `ptrs` array, and the array of defaults which
-	// will have `127` in each position as the default value.
+    // Therefore the `ptrs` argument is initialized such that the first and the third
+    // value are the addresses of the values that we want to load into the result
+    // vector, and we'll fill in `nil` for the rest of them. To prevent CPU from
+    // dereferencing those `nil` addresses we provide the mask that only allows us
+    // to load valid positions of the `ptrs` array, and the array of defaults which
+    // will have `127` in each position as the default value.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_gather_example :: proc() {
-		v1 := [4] f32 {1, 2, 3, 4};
-		v2 := [4] f32 {9, 10,11,12};
-		ptrs := #simd [4]rawptr { &v1[1], nil, &v2[1], nil }
-		mask := #simd [4]bool { true, false, true, false }
-		defaults := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
-		res := simd.gather(ptrs, defaults, mask)
-		fmt.println(res)
-	}
+    simd_gather_example :: proc() {
+        v1 := [4] f32 {1, 2, 3, 4};
+        v2 := [4] f32 {9, 10,11,12};
+        ptrs := #simd [4]rawptr { &v1[1], nil, &v2[1], nil }
+        mask := #simd [4]bool { true, false, true, false }
+        defaults := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
+        res := simd.gather(ptrs, defaults, mask)
+        fmt.println(res)
+    }
 
 Output:
 
-	<2, 127, 10, 127>
+    <2, 127, 10, 127>
 
 The first and the third positions came from the `ptrs` array, and the other
 2 lanes of from the default vector. The graphic below shows how the values of
 the result are decided based on the mask:
 
-	      +-------------------------------+ 
-	mask: |   1   |   0   |   1   |   0   | 
-	      +-------------------------------+ 
-	        |         |       |       `----------------------------.
-	        |         |       |                                    |
-	        |          `----  |  ------------------------.         |
-	        v                 v                          v         v
-	      +-------------------------------+       +-------------------+
-	ptrs: |  &m0  |  nil  |  &m2  |  nil  | vals: | d0 | d1 | d2 | d3 |
-	      +-------------------------------+       +-------------------+
-	          |               |                          |         |
-	          |          .--- | -------------------------'         |
-	          |         |     |          ,-------------------------'
-	          v         v     v         v
-	        +-------------------------------+
-	result: |   m0  |   d1  |   m2  |  d3   |
-	        +-------------------------------+
+          +-------------------------------+ 
+    mask: |   1   |   0   |   1   |   0   | 
+          +-------------------------------+ 
+            |         |       |       `----------------------------.
+            |         |       |                                    |
+            |          `----  |  ------------------------.         |
+            v                 v                          v         v
+          +-------------------------------+       +-------------------+
+    ptrs: |  &m0  |  nil  |  &m2  |  nil  | vals: | d0 | d1 | d2 | d3 |
+          +-------------------------------+       +-------------------+
+              |               |                          |         |
+              |          .--- | -------------------------'         |
+              |         |     |          ,-------------------------'
+              v         v     v         v
+            +-------------------------------+
+    result: |   m0  |   d1  |   m2  |  d3   |
+            +-------------------------------+
 */
 gather  :: intrinsics.simd_gather
 
@@ -1373,64 +1373,64 @@ opposite of the *gather* operation.
 
 Inputs:
 - `ptr`: A vector of memory locations. Each masked location will be written
-	to with a value from the `val` vector. Pointers in this vector can be `nil`
-	or any other invalid value if the corresponding value in the `mask`
-	parameter is zero.
+    to with a value from the `val` vector. Pointers in this vector can be `nil`
+    or any other invalid value if the corresponding value in the `mask`
+    parameter is zero.
 - `val`: A vector of values to write to the memory locations.
 - `mask`: A vector of booleans or unsigned integers that decides which lanes
-	get written to memory. If the value of the mask is `true` (the lowest bit
-	set), the corresponding lane is written into memory. Otherwise it's not
-	written into memory.
+    get written to memory. If the value of the mask is `true` (the lowest bit
+    set), the corresponding lane is written into memory. Otherwise it's not
+    written into memory.
 
 Operation:
 
-	for i in 0 ..< len(ptr) {
-		if mask[i]&1 == 1 {
-			ptr[i]^ = val[i]
-		}
-	}
+    for i in 0 ..< len(ptr) {
+        if mask[i]&1 == 1 {
+            ptr[i]^ = val[i]
+        }
+    }
 
 Example:
 
-	// Example below writes value `127` to the second element of two different
-	// vectors. The addresses of store destinations are written to the first and the
-	// third argument of the `ptr` vector, and the `mask` is set accordingly.
+    // Example below writes value `127` to the second element of two different
+    // vectors. The addresses of store destinations are written to the first and the
+    // third argument of the `ptr` vector, and the `mask` is set accordingly.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_scatter_example :: proc() {
-		v1 := [4] f32 {1, 2, 3, 4};
-		v2 := [4] f32 {5, 6, 7, 8};
-		ptrs := #simd [4]rawptr { &v1[1], nil, &v2[1], nil }
-		mask := #simd [4]bool { true, false, true, false }
-		vals := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
-		simd.scatter(ptrs, vals, mask)
-		fmt.println(v1)
-		fmt.println(v2)
-	}
+    simd_scatter_example :: proc() {
+        v1 := [4] f32 {1, 2, 3, 4};
+        v2 := [4] f32 {5, 6, 7, 8};
+        ptrs := #simd [4]rawptr { &v1[1], nil, &v2[1], nil }
+        mask := #simd [4]bool { true, false, true, false }
+        vals := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
+        simd.scatter(ptrs, vals, mask)
+        fmt.println(v1)
+        fmt.println(v2)
+    }
 
 Output:
 
-	[1, 127, 3, 4]
-	[5, 127, 7, 8]
+    [1, 127, 3, 4]
+    [5, 127, 7, 8]
 
 The graphic below shows how the data gets written into memory.
 
-	
-	      +-------------------+
-	mask: | 1  | 0  | 1  | 0  |
-	      +-------------------+
-	        |    |    |    |
-	        v    X    v    X
-	      +-------------------+
-	vals: | d0 | d1 | d2 | d3 |
-	      +-------------------+
-	         |         \
-	         v          v
-	      +-----------------------+
-	ptrs: | &m0 | nil | &m2 | nil |
-	      +-----------------------+
+    
+          +-------------------+
+    mask: | 1  | 0  | 1  | 0  |
+          +-------------------+
+            |    |    |    |
+            v    X    v    X
+          +-------------------+
+    vals: | d0 | d1 | d2 | d3 |
+          +-------------------+
+             |         \
+             v          v
+          +-----------------------+
+    ptrs: | &m0 | nil | &m2 | nil |
+          +-----------------------+
 */
 scatter :: intrinsics.simd_scatter
 
@@ -1446,9 +1446,9 @@ corresponding lane of the `val` vector.
 
 Inputs:
 - `ptr`: The address of the vector values to load. Masked-off values are not
-	accessed.
+    accessed.
 - `val`: The vector of values that will be loaded into the masked slots of the
-	result vector.
+    result vector.
 - `mask`: The mask that selects where to load the values from.
 
 Returns:
@@ -1457,55 +1457,55 @@ memory, and the other lanes are loaded from the `val` vector.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		if mask[i]&1 == 1 {
-			res[i] = ptr[i]
-		} else {
-			res[i] = vals[i]
-		}
-	}
-	return res
+    for i in 0 ..< len(res) {
+        if mask[i]&1 == 1 {
+            res[i] = ptr[i]
+        } else {
+            res[i] = vals[i]
+        }
+    }
+    return res
 
 Example:
 
-	// The following code loads two values from the `src` vector, the first and the
-	// third value (selected by the mask). The masked-off values are given the value
-	// of 127 (`0x7f`).
+    // The following code loads two values from the `src` vector, the first and the
+    // third value (selected by the mask). The masked-off values are given the value
+    // of 127 (`0x7f`).
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_masked_load_example :: proc() {
-		src := [4] f32 {1, 2, 3, 4};
-		mask := #simd [4]bool { true, false, true, false }
-		vals := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
-		res := simd.masked_load(&src, vals, mask)
-		fmt.println(res)
-	}
+    simd_masked_load_example :: proc() {
+        src := [4] f32 {1, 2, 3, 4};
+        mask := #simd [4]bool { true, false, true, false }
+        vals := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
+        res := simd.masked_load(&src, vals, mask)
+        fmt.println(res)
+    }
 
 Output:
 
-	<1, 127, 3, 127>
+    <1, 127, 3, 127>
 
 The graphic below demonstrates the flow of lanes.
 
-	      +-------------------------------+ 
-	mask: |   1   |   0   |   1   |   0   | 
-	      +-------------------------------+ 
-	        |         |       |       `----------------------------.
-	        |         |       |                                    |
-	        |          `----  |  ------------------------.         |
-	ptr     v                 v                          v         v
-	+---->+-------------------------------+       +-------------------+
-	      |   v1  |   v2  |   v3  |   v4  | vals: | d0 | d1 | d2 | d3 |
-	      +-------------------------------+       +-------------------+
-	          |               |                          |         |
-	          |          .--- | -------------------------'         |
-	          |         |     |          ,-------------------------'
-	          v         v     v         v
-	        +-------------------------------+
-	result: |  v1   |   d1  |  v3   |  d3   |
-	        +-------------------------------+
+          +-------------------------------+ 
+    mask: |   1   |   0   |   1   |   0   | 
+          +-------------------------------+ 
+            |         |       |       `----------------------------.
+            |         |       |                                    |
+            |          `----  |  ------------------------.         |
+    ptr     v                 v                          v         v
+    +---->+-------------------------------+       +-------------------+
+          |   v1  |   v2  |   v3  |   v4  | vals: | d0 | d1 | d2 | d3 |
+          +-------------------------------+       +-------------------+
+              |               |                          |         |
+              |          .--- | -------------------------'         |
+              |         |     |          ,-------------------------'
+              v         v     v         v
+            +-------------------------------+
+    result: |  v1   |   d1  |  v3   |  d3   |
+            +-------------------------------+
 */
 masked_load  :: intrinsics.simd_masked_load
 
@@ -1525,47 +1525,47 @@ Inputs:
 
 Operation:
 
-	for i in 0 ..< len(val) {
-		if mask[i]&1 == 1 {
-			ptr[i] = val
-		}
-	}
+    for i in 0 ..< len(val) {
+        if mask[i]&1 == 1 {
+            ptr[i] = val
+        }
+    }
 
 Example:
 
-	// Example below stores the value 127 into the first and the third slot of the
-	// vector `v`.
+    // Example below stores the value 127 into the first and the third slot of the
+    // vector `v`.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_masked_store_example :: proc() {
-		v := [4] f32 {1, 2, 3, 4};
-		mask := #simd [4]bool { true, false, true, false }
-		vals := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
-		simd.masked_store(&v, vals, mask)
-		fmt.println(v)
-	}
+    simd_masked_store_example :: proc() {
+        v := [4] f32 {1, 2, 3, 4};
+        mask := #simd [4]bool { true, false, true, false }
+        vals := #simd [4]f32 { 0x7f, 0x7f, 0x7f, 0x7f }
+        simd.masked_store(&v, vals, mask)
+        fmt.println(v)
+    }
 
 Output:
 
-	[127, 2, 127, 4]
+    [127, 2, 127, 4]
 
 The graphic below shows the flow of lanes:
 
-	      +-------------------+
-	mask: | 1  | 0  | 1  | 0  |
-	      +-------------------+
-	        |    |    |    |
-	        v    X    v    X
-	      +-------------------+
-	vals: | v0 | v1 | v2 | v3 |
-	      +-------------------+
-	         |         \
-	ptr      v          v
-	 +--->+-----------------------+
-	      | v0  | ... | v2  | ... |
-	      +-----------------------+
+          +-------------------+
+    mask: | 1  | 0  | 1  | 0  |
+          +-------------------+
+            |    |    |    |
+            v    X    v    X
+          +-------------------+
+    vals: | v0 | v1 | v2 | v3 |
+          +-------------------+
+             |         \
+    ptr      v          v
+     +--->+-----------------------+
+          | v0  | ... | v2  | ... |
+          +-----------------------+
 */
 masked_store :: intrinsics.simd_masked_store
 
@@ -1594,60 +1594,60 @@ Returns:
 
 Operation:
 
-	mem_idx := 0
-	for i in 0 ..< len(mask) {
-		if mask[i]&1 == 1 {
-			res[i] = ptr[mem_idx]
-			mem_idx += 1
-		} else {
-			res[i] = val[i]
-		}
-	}
-	return res
+    mem_idx := 0
+    for i in 0 ..< len(mask) {
+        if mask[i]&1 == 1 {
+            res[i] = ptr[mem_idx]
+            mem_idx += 1
+        } else {
+            res[i] = val[i]
+        }
+    }
+    return res
 
 Example:
 
-	// The example below loads two values from memory of the vector `v`. Two values in
-	// the mask are set to `true`, meaning only two memory items will be loaded into
-	// the result vector. The mask is set to `true` in the first and the third
-	// position, which specifies that the first memory item will be read into the
-	// first lane of the result vector, and the second memory item will be read into
-	// the third lane of the result vector. All the other lanes of the result vector
-	// will be initialized to the default value `127`.
+    // The example below loads two values from memory of the vector `v`. Two values in
+    // the mask are set to `true`, meaning only two memory items will be loaded into
+    // the result vector. The mask is set to `true` in the first and the third
+    // position, which specifies that the first memory item will be read into the
+    // first lane of the result vector, and the second memory item will be read into
+    // the third lane of the result vector. All the other lanes of the result vector
+    // will be initialized to the default value `127`.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_masked_expand_load_example :: proc() {
-		v := [2] f64 {1, 2};
-		mask := #simd [4]bool { true, false, true, false }
-		vals := #simd [4]f64 { 0x7f, 0x7f, 0x7f, 0x7f }
-		res := simd.masked_expand_load(&v, vals, mask)
-		fmt.println(res)
-	}
+    simd_masked_expand_load_example :: proc() {
+        v := [2] f64 {1, 2};
+        mask := #simd [4]bool { true, false, true, false }
+        vals := #simd [4]f64 { 0x7f, 0x7f, 0x7f, 0x7f }
+        res := simd.masked_expand_load(&v, vals, mask)
+        fmt.println(res)
+    }
 
 Output:
 
-	<1, 127, 2, 127>
+    <1, 127, 2, 127>
 
 Graphical representation of the operation:
 
 
-	ptr --->+-----------+-----
-	        | m0  | m1  | ...
-	        +-----------+-----
-	          |      `--.
-	          v         v
-	        +-------------------+         +-------------------+
-	mask:   | 1  | 0  | 1  | 0  |   vals: | v0 | v1 | v2 | v3 |
-	        +-------------------+         +-------------------+
-	          |         |                         |         |
-	          |     .-- | -----------------------'          |
-	          |    |    |     ,----------------------------'
-	          v    v    v    v
-	        +-------------------+
-	result: | m0 | v1 | m1 | v3 |
-	        +-------------------+
+    ptr --->+-----------+-----
+            | m0  | m1  | ...
+            +-----------+-----
+              |      `--.
+              v         v
+            +-------------------+         +-------------------+
+    mask:   | 1  | 0  | 1  | 0  |   vals: | v0 | v1 | v2 | v3 |
+            +-------------------+         +-------------------+
+              |         |                         |         |
+              |     .-- | -----------------------'          |
+              |    |    |     ,----------------------------'
+              v    v    v    v
+            +-------------------+
+    result: | m0 | v1 | m1 | v3 |
+            +-------------------+
 */
 masked_expand_load    :: intrinsics.simd_masked_expand_load
 
@@ -1667,50 +1667,50 @@ Inputs:
 
 Operation:
 
-	mem_idx := 0
-	for i in 0 ..< len(mask) {
-		if mask[i]&1 == 1 {
-			ptr[mem_idx] = val[i]
-			mem_idx += 1
-		}
-	}
+    mem_idx := 0
+    for i in 0 ..< len(mask) {
+        if mask[i]&1 == 1 {
+            ptr[mem_idx] = val[i]
+            mem_idx += 1
+        }
+    }
 
 Example:
 
-	// The code below fills the vector `v` with two values from a 4-element SIMD
-	// vector, the first and the third value. The items in the mask are set to `true`
-	// in those lanes.
+    // The code below fills the vector `v` with two values from a 4-element SIMD
+    // vector, the first and the third value. The items in the mask are set to `true`
+    // in those lanes.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_masked_compress_store_example :: proc() {
-		v := [2] f64 { };
-		mask := #simd [4]bool { true, false, true, false }
-		vals := #simd [4]f64 { 1, 2, 3, 4 }
-		simd.masked_compress_store(&v, vals, mask)
-		fmt.println(v)
-	}
+    simd_masked_compress_store_example :: proc() {
+        v := [2] f64 { };
+        mask := #simd [4]bool { true, false, true, false }
+        vals := #simd [4]f64 { 1, 2, 3, 4 }
+        simd.masked_compress_store(&v, vals, mask)
+        fmt.println(v)
+    }
 
 Output:
 
-	[1, 3]
+    [1, 3]
 
 Graphical representation of the operation:
 
-	      +-------------------+
-	mask: | 1  | 0  | 1  | 0  |
-	      +-------------------+
-	        |         |
-	        v         v
-	      +-------------------+
-	vals: | v0 | v1 | v2 | v3 |
-	      +-------------------+
-	        |      ,--'
-	ptr     v     v
-	 +--->+-----------------
-	      | v0  | v2  | ...
-	      +-----------------
+          +-------------------+
+    mask: | 1  | 0  | 1  | 0  |
+          +-------------------+
+            |         |
+            v         v
+          +-------------------+
+    vals: | v0 | v1 | v2 | v3 |
+          +-------------------+
+            |      ,--'
+    ptr     v     v
+     +--->+-----------------
+          | v0  | v2  | ...
+          +-----------------
 */
 masked_compress_store :: intrinsics.simd_masked_compress_store
 
@@ -1729,7 +1729,7 @@ Returns:
 
 Operation:
 
-	return a[idx]
+    return a[idx]
 */
 extract :: intrinsics.simd_extract
 
@@ -1749,7 +1749,7 @@ Returns:
 
 Operation:
 
-	a[idx] = elem
+    a[idx] = elem
 */
 replace :: intrinsics.simd_replace
 
@@ -1775,29 +1775,29 @@ Result:
 
 Operation:
 
-	for n > 1 {
-		n = n / 2
-		for i in 0 ..< n {
-			a[i] += a[i+n]
-		}
-	}
-	res := a[0]
+    for n > 1 {
+        n = n / 2
+        for i in 0 ..< n {
+            a[i] += a[i+n]
+        }
+    }
+    res := a[0]
 
 Graphical representation of the operation for N=4:
 
-	     +-----------------------+
-	     | v0  | v1  | v2  | v3  |
-	     +-----------------------+
-	        |     |     |     |
-	       [+]<-- | ---'      |
-	        |    [+]<--------'
-	        |     |
-	        `>[+]<'
-	           |
-	           v
-	        +-----+
-	result: | y0  |
-	        +-----+
+         +-----------------------+
+         | v0  | v1  | v2  | v3  |
+         +-----------------------+
+            |     |     |     |
+           [+]<-- | ---'      |
+            |    [+]<--------'
+            |     |
+            `>[+]<'
+               |
+               v
+            +-----+
+    result: | y0  |
+            +-----+
 */
 reduce_add_bisect :: intrinsics.simd_reduce_add_bisect
 
@@ -1823,29 +1823,29 @@ Result:
 
 Operation:
 
-	for n > 1 {
-		n = n / 2
-		for i in 0 ..< n {
-			a[i] *= a[i+n]
-		}
-	}
-	res := a[0]
+    for n > 1 {
+        n = n / 2
+        for i in 0 ..< n {
+            a[i] *= a[i+n]
+        }
+    }
+    res := a[0]
 
 Graphical representation of the operation for N=4:
 
-	     +-----------------------+
-	     | v0  | v1  | v2  | v3  |
-	     +-----------------------+
-	        |     |     |     |
-	       [x]<-- | ---'      |
-	        |    [x]<--------'
-	        |     |
-	        `>[x]<'
-	           |
-	           v
-	        +-----+
-	result: | y0  |
-	        +-----+
+         +-----------------------+
+         | v0  | v1  | v2  | v3  |
+         +-----------------------+
+            |     |     |     |
+           [x]<-- | ---'      |
+            |    [x]<--------'
+            |     |
+            `>[x]<'
+               |
+               v
+            +-----+
+    result: | y0  |
+            +-----+
 */
 reduce_mul_bisect :: intrinsics.simd_reduce_mul_bisect
 
@@ -1865,10 +1865,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res += a[i]
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res += a[i]
+    }
 */
 reduce_add_ordered :: intrinsics.simd_reduce_add_ordered
 
@@ -1888,10 +1888,10 @@ Result:
 
 Operation:
 
-	res := 1
-	for i in 0 ..< len(a) {
-		res *= a[i]
-	}
+    res := 1
+    for i in 0 ..< len(a) {
+        res *= a[i]
+    }
 */
 reduce_mul_ordered :: intrinsics.simd_reduce_mul_ordered
 
@@ -1916,28 +1916,28 @@ Result:
 
 Operation:
 
-	for n > 1 {
-		n = n / 2
-		for i in 0 ..< n {
-			a[i] = a[2*i+0] + a[2*i+1]
-		}
-	}
-	res := a[0]
+    for n > 1 {
+        n = n / 2
+        for i in 0 ..< n {
+            a[i] = a[2*i+0] + a[2*i+1]
+        }
+    }
+    res := a[0]
 
 Graphical representation of the operation for N=4:
 
-	   +-----------------------+
-	v: | v0  | v1  | v2  | v3  |
-	   +-----------------------+
-	      |     |     |     |
-	      `>[+]<'     `>[+]<'
-	         |           |
-	         `--->[+]<--'
-	               |
-	               v
-	            +-----+
-	    result: | y0  |
-	            +-----+
+       +-----------------------+
+    v: | v0  | v1  | v2  | v3  |
+       +-----------------------+
+          |     |     |     |
+          `>[+]<'     `>[+]<'
+             |           |
+             `--->[+]<--'
+                   |
+                   v
+                +-----+
+        result: | y0  |
+                +-----+
 */
 reduce_add_pairs :: intrinsics.simd_reduce_add_pairs
 
@@ -1964,28 +1964,28 @@ Result:
 
 Operation:
 
-	for n > 1 {
-		n = n / 2
-		for i in 0 ..< n {
-			a[i] = a[2*i+0] * a[2*i+1]
-		}
-	}
-	res := a[0]
+    for n > 1 {
+        n = n / 2
+        for i in 0 ..< n {
+            a[i] = a[2*i+0] * a[2*i+1]
+        }
+    }
+    res := a[0]
 
 Graphical representation of the operation for N=4:
 
-	   +-----------------------+
-	v: | v0  | v1  | v2  | v3  |
-	   +-----------------------+
-	      |     |     |     |
-	      `>[x]<'     `>[x]<'
-	         |           |
-	         `--->[x]<--'
-	               |
-	               v
-	            +-----+
-	    result: | y0  |
-	            +-----+
+       +-----------------------+
+    v: | v0  | v1  | v2  | v3  |
+       +-----------------------+
+          |     |     |     |
+          `>[x]<'     `>[x]<'
+             |           |
+             `--->[x]<--'
+                   |
+                   v
+                +-----+
+        result: | y0  |
+                +-----+
 */
 reduce_mul_pairs :: intrinsics.simd_reduce_mul_pairs
 
@@ -2003,10 +2003,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res = min(res, a[i])
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res = min(res, a[i])
+    }
 */
 reduce_min :: intrinsics.simd_reduce_min
 
@@ -2024,10 +2024,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res = max(res, a[i])
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res = max(res, a[i])
+    }
 */
 reduce_max :: intrinsics.simd_reduce_max
 
@@ -2045,10 +2045,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res &= a[i]
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res &= a[i]
+    }
 */
 reduce_and :: intrinsics.simd_reduce_and
 
@@ -2066,10 +2066,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res |= a[i]
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res |= a[i]
+    }
 */
 reduce_or :: intrinsics.simd_reduce_or
 
@@ -2087,10 +2087,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res ~= a[i]
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res ~= a[i]
+    }
 */
 reduce_xor :: intrinsics.simd_reduce_xor
 
@@ -2108,10 +2108,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res |= a[i]
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res |= a[i]
+    }
 */
 reduce_any :: intrinsics.simd_reduce_any
 
@@ -2129,10 +2129,10 @@ Result:
 
 Operation:
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res &= a[i]
-	}
+    res := 0
+    for i in 0 ..< len(a) {
+        res &= a[i]
+    }
 */
 reduce_all :: intrinsics.simd_reduce_all
 
@@ -2154,51 +2154,51 @@ Result:
 
 Operation:
 
-	res = {}
-	for i in 0 ..< len(indices) {
-		res[i] = x[indices[i]]
-	}
-	return res
+    res = {}
+    for i in 0 ..< len(indices) {
+        res[i] = x[indices[i]]
+    }
+    return res
 
 Example:
 
-	// The example below shows how the indices are used to determine which lanes of the
-	// input vector get written into the result vector.
+    // The example below shows how the indices are used to determine which lanes of the
+    // input vector get written into the result vector.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	swizzle_example :: proc() {
-		x := #simd [4]f32 { 1.5, 2.5, 3.5, 4.5 }
-		res := simd.swizzle(x, 0, 3, 1, 1)
-		fmt.println(res)
-	}
+    swizzle_example :: proc() {
+        x := #simd [4]f32 { 1.5, 2.5, 3.5, 4.5 }
+        res := simd.swizzle(x, 0, 3, 1, 1)
+        fmt.println(res)
+    }
 
 Output:
 
-	<1.5, 4.5, 2.5, 2.5>
+    <1.5, 4.5, 2.5, 2.5>
 
 The graphical representation of the operation is as follows. The `idx` vector in
 the picture represents the `indices` parameter:
 
-	      0     1     2     3
-	      +-----+-----+-----+-----+
-	x:    | 1.5 | 2.5 | 3.5 | 4.5 |
-	      +-----+-----+-----+-----+
-	         ^     ^           ^
-	         |     |           |
-	         |      '----.     |
-	         |     .---- | ---'
-	         |     |     |
-	         |     |     +------.
-	      +-----+-----+-----+-----+
-	idx:  |  0  |  3  |  1  |  1  |
-	      +-----+-----+-----+-----+
-	         ^     ^     ^     ^
-	         |     |     |     |
-	      +-----+-----+-----+-----+
-	res:  | 1.5 | 3.5 | 2.5 | 2.5 |
-	      +-----+-----+-----+-----+
+          0     1     2     3
+          +-----+-----+-----+-----+
+    x:    | 1.5 | 2.5 | 3.5 | 4.5 |
+          +-----+-----+-----+-----+
+             ^     ^           ^
+             |     |           |
+             |      '----.     |
+             |     .---- | ---'
+             |     |     |
+             |     |     +------.
+          +-----+-----+-----+-----+
+    idx:  |  0  |  3  |  1  |  1  |
+          +-----+-----+-----+-----+
+             ^     ^     ^     ^
+             |     |     |     |
+          +-----+-----+-----+-----+
+    res:  | 1.5 | 3.5 | 2.5 | 2.5 |
+          +-----+-----+-----+-----+
 */
 swizzle :: builtin.swizzle
 
@@ -2220,31 +2220,31 @@ Result:
 
 Operation:
 
-	bits_per_lane = 8*size_of(a[0])
-	res = bit_set {}
-	for i in 0 ..< len(a) {
-		if a[i] & 1<<(bits_per_lane-1) != 0 {
-			res |= i
-		}
-	}
-	return res
+    bits_per_lane = 8*size_of(a[0])
+    res = bit_set {}
+    for i in 0 ..< len(a) {
+        if a[i] & 1<<(bits_per_lane-1) != 0 {
+            res |= i
+        }
+    }
+    return res
 
 Example:
 
-	// Since lanes 0, 1, 4, 7 contain negative numbers, the most significant
-	// bits for them will be set.
+    // Since lanes 0, 1, 4, 7 contain negative numbers, the most significant
+    // bits for them will be set.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_extract_msbs_example :: proc() {
-		v := #simd [8]i32 { -1, -2, +3, +4, -5, +6, +7, -8 }
-		fmt.println(simd.extract_msbs(v))
-	}
+    simd_extract_msbs_example :: proc() {
+        v := #simd [8]i32 { -1, -2, +3, +4, -5, +6, +7, -8 }
+        fmt.println(simd.extract_msbs(v))
+    }
 
 Output:
 
-	bit_set[0..=7]{0, 1, 4, 7}
+    bit_set[0..=7]{0, 1, 4, 7}
 */
 extract_msbs :: intrinsics.simd_extract_msbs
 
@@ -2266,30 +2266,30 @@ Result:
 
 Operation:
 
-	res = bit_set {}
-	for i in 0 ..< len(a) {
-		if a[i] & 1 != 0 {
-			res |= i
-		}
-	}
-	return res
+    res = bit_set {}
+    for i in 0 ..< len(a) {
+        if a[i] & 1 != 0 {
+            res |= i
+        }
+    }
+    return res
 
 Example:
 
-	// Since lanes 0, 2, 4, 6 contain odd integers, the least significant bits
-	// for these lanes are set.
+    // Since lanes 0, 2, 4, 6 contain odd integers, the least significant bits
+    // for these lanes are set.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_extract_lsbs_example :: proc() {
-		v := #simd [8]i32 { -1, -2, +3, +4, -5, +6, +7, -8 }
-		fmt.println(simd.extract_lsbs(v))
-	}
+    simd_extract_lsbs_example :: proc() {
+        v := #simd [8]i32 { -1, -2, +3, +4, -5, +6, +7, -8 }
+        fmt.println(simd.extract_lsbs(v))
+    }
 
 Output:
 
-	bit_set[0..=7]{0, 2, 4, 6}
+    bit_set[0..=7]{0, 2, 4, 6}
 */
 extract_lsbs :: intrinsics.simd_extract_lsbs
 
@@ -2314,56 +2314,56 @@ Result:
 
 Operation:
 
-	res = {}
-	for i in 0 ..< len(indices) {
-		idx = indices[i];
-		if idx < len(a) {
-			res[i] = a[idx]
-		} else {
-			res[i] = b[idx]
-		}
-	}
-	return res
+    res = {}
+    for i in 0 ..< len(indices) {
+        idx = indices[i];
+        if idx < len(a) {
+            res[i] = a[idx]
+        } else {
+            res[i] = b[idx]
+        }
+    }
+    return res
 
 Example:
 
-	// The example below shows how the indices are used to determine lanes of the
-	// input vector that are shuffled into the result vector.
+    // The example below shows how the indices are used to determine lanes of the
+    // input vector that are shuffled into the result vector.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_shuffle_example :: proc() {
-		a := #simd [4]f32 { 1, 2, 3, 4 }
-		b := #simd [4]f32 { 5, 6, 7, 8 }
-		res := simd.shuffle(a, b, 0, 4, 2, 5)
-		fmt.println(res)
-	}
+    simd_shuffle_example :: proc() {
+        a := #simd [4]f32 { 1, 2, 3, 4 }
+        b := #simd [4]f32 { 5, 6, 7, 8 }
+        res := simd.shuffle(a, b, 0, 4, 2, 5)
+        fmt.println(res)
+    }
 
 Output:
 
-	<1, 5, 3, 6>
+    <1, 5, 3, 6>
 
 The graphical representation of the operation is as follows. The `idx` vector in
 the picture represents the `indices` parameter:
 
-	      0     1     2     3            4     5     6     7
-	      +-----+-----+-----+-----+      +-----+-----+-----+-----+
-	a:    |  1  |  2  |  3  |  4  |  b:  |  5  |  6  |  7  |  8  |
-	      +-----+-----+-----+-----+      +-----+-----+-----+-----+
-	         ^           ^                  ^     ^
-	         |           |                  |     |
-	         |           |                  |     |
-	         |      .--- | ----------------'      |
-	         |     |     |     .-----------------'
-	      +-----+-----+-----+-----+
-	idx:  |  0  |  4  |  2  |  5  |
-	      +-----+-----+-----+-----+
-	         ^     ^     ^     ^
-	         |     |     |     |
-	      +-----+-----+-----+-----+
-	res:  |  1  |  5  |  3  |  6  |
-	      +-----+-----+-----+-----+
+          0     1     2     3            4     5     6     7
+          +-----+-----+-----+-----+      +-----+-----+-----+-----+
+    a:    |  1  |  2  |  3  |  4  |  b:  |  5  |  6  |  7  |  8  |
+          +-----+-----+-----+-----+      +-----+-----+-----+-----+
+             ^           ^                  ^     ^
+             |           |                  |     |
+             |           |                  |     |
+             |      .--- | ----------------'      |
+             |     |     |     .-----------------'
+          +-----+-----+-----+-----+
+    idx:  |  0  |  4  |  2  |  5  |
+          +-----+-----+-----+-----+
+             ^     ^     ^     ^
+             |     |     |     |
+          +-----+-----+-----+-----+
+    res:  |  1  |  5  |  3  |  6  |
+          +-----+-----+-----+-----+
 */
 shuffle :: intrinsics.simd_shuffle
 
@@ -2386,55 +2386,55 @@ Result:
 
 Operation:
 
-	res = {}
-	for i in 0 ..< len(cond) {
-		if cond[i] {
-			res[i] = true[i]
-		} else {
-			res[i] = false[i]
-		}
-	}
-	return res
+    res = {}
+    for i in 0 ..< len(cond) {
+        if cond[i] {
+            res[i] = true[i]
+        } else {
+            res[i] = false[i]
+        }
+    }
+    return res
 
 Example:
 
-	// The following example selects values from the two input vectors, `a` and `b`
-	// into a single vector.
+    // The following example selects values from the two input vectors, `a` and `b`
+    // into a single vector.
 
-	import "core:fmt"
-	import "base:simd"
+    import "core:fmt"
+    import "base:simd"
 
-	simd_select_example :: proc() {
-		a := #simd [4] f64 { 1,2,3,4 }
-		b := #simd [4] f64 { 5,6,7,8 }
-		cond := #simd[4] int { 1, 0, 1, 0 }
-		fmt.println(simd.select(cond,a,b))
-	}
+    simd_select_example :: proc() {
+        a := #simd [4] f64 { 1,2,3,4 }
+        b := #simd [4] f64 { 5,6,7,8 }
+        cond := #simd[4] int { 1, 0, 1, 0 }
+        fmt.println(simd.select(cond,a,b))
+    }
 
 Output:
-	
-	<1, 6, 3, 8>
+    
+    <1, 6, 3, 8>
 
 Graphically, the operation looks as follows. The `t` and `f` represent the
 `true` and `false` vectors respectively:
 
-	      0     1     2     3            0     1     2     3
-	      +-----+-----+-----+-----+      +-----+-----+-----+-----+
-	t:    |  1  |  2  |  3  |  4  |  f:  |  5  |  6  |  7  |  8  |
-	      +-----+-----+-----+-----+      +-----+-----+-----+-----+
-	         ^           ^                        ^           ^
-	         |           |                        |           |
-	         |           |                        |           |
-	         |      .--- | ----------------------'            |
-	         |     |     |     .-----------------------------'
-	      +-----+-----+-----+-----+
-	cond: |  1  |  0  |  1  |  0  |
-	      +-----+-----+-----+-----+
-	         ^     ^     ^     ^
-	         |     |     |     |
-	      +-----+-----+-----+-----+
-	res:  |  1  |  5  |  3  |  6  |
-	      +-----+-----+-----+-----+
+          0     1     2     3            0     1     2     3
+          +-----+-----+-----+-----+      +-----+-----+-----+-----+
+    t:    |  1  |  2  |  3  |  4  |  f:  |  5  |  6  |  7  |  8  |
+          +-----+-----+-----+-----+      +-----+-----+-----+-----+
+             ^           ^                        ^           ^
+             |           |                        |           |
+             |           |                        |           |
+             |      .--- | ----------------------'            |
+             |     |     |     .-----------------------------'
+          +-----+-----+-----+-----+
+    cond: |  1  |  0  |  1  |  0  |
+          +-----+-----+-----+-----+
+             ^     ^     ^     ^
+             |     |     |     |
+          +-----+-----+-----+-----+
+    res:  |  1  |  5  |  3  |  6  |
+          +-----+-----+-----+-----+
 */
 select :: intrinsics.simd_select
 
@@ -2458,33 +2458,33 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(indices) {
-		masked_index := indices[i] & (len(table) - 1)
-		result[i] = table[masked_index]
-	}
-	return result
+    for i in 0 ..< len(indices) {
+        masked_index := indices[i] & (len(table) - 1)
+        result[i] = table[masked_index]
+    }
+    return result
 
 Implementation:
 
-	| Platform    | Lane Size                                 | Implementation      |
-	|-------------|-------------------------------------------|---------------------|
-	| x86-64      | pshufb (16B), vpshufb (32B), AVX512 (64B) | Single vector       |
-	| ARM64       | tbl1 (16B), tbl2 (32B), tbl4 (64B)        | Automatic splitting |
-	| ARM32       | vtbl1 (8B), vtbl2 (16B), vtbl4 (32B)      | Automatic splitting |
-	| WebAssembly | i8x16.swizzle (16B), Emulation (>16B)     | Mixed               |
-	| Other       | Emulation                                 | Software            |
+    | Platform    | Lane Size                                 | Implementation      |
+    |-------------|-------------------------------------------|---------------------|
+    | x86-64      | pshufb (16B), vpshufb (32B), AVX512 (64B) | Single vector       |
+    | ARM64       | tbl1 (16B), tbl2 (32B), tbl4 (64B)        | Automatic splitting |
+    | ARM32       | vtbl1 (8B), vtbl2 (16B), vtbl4 (32B)      | Automatic splitting |
+    | WebAssembly | i8x16.swizzle (16B), Emulation (>16B)     | Mixed               |
+    | Other       | Emulation                                 | Software            |
 
 Example:
 
-	import "base:simd"
-	import "core:fmt"
+    import "base:simd"
+    import "core:fmt"
 
-	runtime_swizzle_example :: proc() {
-		table := simd.u8x16{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-		indices := simd.u8x16{15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
-		result := simd.runtime_swizzle(table, indices)
-		fmt.println(result) // Expected: {15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
-	}
+    runtime_swizzle_example :: proc() {
+        table := simd.u8x16{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+        indices := simd.u8x16{15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
+        result := simd.runtime_swizzle(table, indices)
+        fmt.println(result) // Expected: {15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
+    }
 
 */
 runtime_swizzle :: intrinsics.simd_runtime_swizzle
@@ -2526,7 +2526,7 @@ This procedure reverses the lanes of a vector, putting last lane in the
 first spot, etc. This procedure is equivalent to the following call (for
 4-element vectors):
 
-	swizzle(a, 3, 2, 1, 0)
+    swizzle(a, 3, 2, 1, 0)
 */
 lanes_reverse :: intrinsics.simd_lanes_reverse
 
@@ -2537,7 +2537,7 @@ This procedure rotates the lanes of a vector, putting the first lane of the
 last spot, second lane in the first spot, third lane in the second spot, etc.
 For 4-element vectors, this procedure is equvalent to the following:
 
-	swizzle(a, 1, 2, 3, 0)
+    swizzle(a, 1, 2, 3, 0)
 */
 lanes_rotate_left :: intrinsics.simd_lanes_rotate_left
 
@@ -2548,7 +2548,7 @@ This procedure rotates the lanes of a SIMD vector, putting the first lane of the
 second spot, second lane in the third spot, etc. For 4-element vectors, this
 procedure is equvalent to the following:
 
-	swizzle(a, 3, 0, 1, 2)
+    swizzle(a, 3, 0, 1, 2)
 */
 lanes_rotate_right :: intrinsics.simd_lanes_rotate_right
 
@@ -2596,11 +2596,11 @@ Returns:
 
 **Operation**
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res[i] = fma(a[i], b[i], c[i])
-	}
-	return res
+    res := 0
+    for i in 0 ..< len(a) {
+        res[i] = fma(a[i], b[i], c[i])
+    }
+    return res
 */
 fused_mul_add :: intrinsics.fused_mul_add
 
@@ -2623,11 +2623,11 @@ Returns:
 
 **Operation**
 
-	res := 0
-	for i in 0 ..< len(a) {
-		res[i] = fma(a[i], b[i], c[i])
-	}
-	return res
+    res := 0
+    for i in 0 ..< len(a) {
+        res[i] = fma(a[i], b[i], c[i])
+    }
+    return res
 */
 fma :: intrinsics.fused_mul_add
 
@@ -2636,7 +2636,7 @@ Convert pointer to SIMD vector to an array pointer.
 */
 
 to_array_ptr :: #force_inline proc(v: ^#simd[$LANES]$E) -> ^[LANES]E {
-	return (^[LANES]E)(v)
+    return (^[LANES]E)(v)
 }
 
 /*
@@ -2644,7 +2644,7 @@ Convert SIMD vector to an array.
 */
 
 to_array :: #force_inline proc(v: #simd[$LANES]$E) -> [LANES]E {
-	return transmute([LANES]E)(v)
+    return transmute([LANES]E)(v)
 }
 
 /*
@@ -2652,7 +2652,7 @@ Convert array to SIMD vector.
 */
 
 from_array :: #force_inline proc(v: $A/[$LANES]$E) -> #simd[LANES]E {
-	return transmute(#simd[LANES]E)v
+    return transmute(#simd[LANES]E)v
 }
 
 /*
@@ -2660,12 +2660,12 @@ Convert slice to SIMD vector.
 */
 
 from_slice :: proc($T: typeid/#simd[$LANES]$E, slice: []E) -> T {
-	internal.assert(len(slice) >= LANES, "slice length must be a least the number of lanes")
-	array: [LANES]E
-	#no_bounds_check for i in 0..<LANES {
-		array[i] = slice[i]
-	}
-	return transmute(T)array
+    internal.assert(len(slice) >= LANES, "slice length must be a least the number of lanes")
+    array: [LANES]E
+    #no_bounds_check for i in 0..<LANES {
+        array[i] = slice[i]
+    }
+    return transmute(T)array
 }
 
 /*
@@ -2676,24 +2676,24 @@ NOT operation of the corresponding lane in the vector `a`.
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = ~a[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = ~a[i]
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: | 0x00 | 0x50 | 0x80 | 0xff |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   | 0xff | 0xaf | 0x7f | 0x00 |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: | 0x00 | 0x50 | 0x80 | 0xff |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       | 0xff | 0xaf | 0x7f | 0x00 |
+       +------+------+------+------+
 */
 
 bit_not :: #force_inline proc(v: $T/#simd[$LANES]$E) -> T where intrinsics.type_is_integer(E) {
-	return bit_xor(v, T(~E(0)))
+    return bit_xor(v, T(~E(0)))
 }
 
 /*
@@ -2701,10 +2701,10 @@ Copy the signs from lanes of one SIMD vector into another SIMD vector.
 */
 
 copysign :: #force_inline proc(v, sign: $T/#simd[$LANES]$E) -> T where intrinsics.type_is_float(E) {
-	neg_zero := to_bits(T(-0.0))
-	sign_bit := to_bits(sign) & neg_zero
-	magnitude := to_bits(v) &~ neg_zero
-	return transmute(T)(sign_bit|magnitude)
+    neg_zero := to_bits(T(-0.0))
+    sign_bit := to_bits(sign) & neg_zero
+    magnitude := to_bits(v) &~ neg_zero
+    return transmute(T)(sign_bit|magnitude)
 }
 
 /*
@@ -2717,8 +2717,8 @@ will contain this NaN value as-is.
 */
 
 signum :: #force_inline proc(v: $T/#simd[$LANES]$E) -> T where intrinsics.type_is_float(E) {
-	is_nan := lanes_ne(v, v)
-	return select(is_nan, v, copysign(T(1), v))
+    is_nan := lanes_ne(v, v)
+    return select(is_nan, v, copysign(T(1), v))
 }
 
 /*
@@ -2735,24 +2735,24 @@ Returns:
 
 Operation:
 
-	for i in 0 ..< len(res) {
-		res[i] = 1.0 / a[i]
-	}
-	return res
+    for i in 0 ..< len(res) {
+        res[i] = 1.0 / a[i]
+    }
+    return res
 
 Example:
 
-	   +------+------+------+------+
-	a: |   2  |   1  |   3  |   5  |
-	   +------+------+------+------+
-	res:
-	   +------+------+------+------+
-	   |  0.5 |   1  | 0.33 |  0.2 |
-	   +------+------+------+------+
+       +------+------+------+------+
+    a: |   2  |   1  |   3  |   5  |
+       +------+------+------+------+
+    res:
+       +------+------+------+------+
+       |  0.5 |   1  | 0.33 |  0.2 |
+       +------+------+------+------+
 */
 
 recip :: #force_inline proc(v: $T/#simd[$LANES]$E) -> T where intrinsics.type_is_float(E) {
-	return T(1) / v
+    return T(1) / v
 }
 
 
@@ -2763,8 +2763,8 @@ Inputs:
 Result:
 - A vector of the given type, where each lane contains the index of that lane.
 Operation:
-	for i in 0 ..< N {
-		res[i] = i
-	}
+    for i in 0 ..< N {
+        res[i] = i
+    }
 */
 indices :: intrinsics.simd_indices

@@ -48,12 +48,11 @@ builder_init_len_cap :: proc(b: ^Builder, len, cap: uint, allocator: mem.Allocat
 }
 
 builder_from_bytes :: proc(backing: []byte) -> (res: Builder) {
-    return Builder{ buf = dyn_array.from_slice(backing) }
+    return Builder{ buf = dyn_array.create_from_slice(backing) }
 }
 
 builder_destroy :: proc(b: ^Builder) {
     _ = dyn_array.delete(b.buf)
-    b.buf = nil
 }
 
 builder_clear :: proc(b: ^Builder) {
@@ -67,37 +66,37 @@ builder_grow :: proc(b: ^Builder, cap: uint) {
 
 
 builder_len :: proc(b: Builder) -> uint {
-    return len(b.buf)
+    return b.buf.len
 }
 
 builder_cap :: proc(b: Builder) -> uint {
-    return cap(b.buf)
+    return b.buf.cap
 }
 
 builder_remaining_space :: proc(b: Builder) -> uint {
-    return cap(b.buf) - len(b.buf)
+    return b.buf.cap - b.buf.len
 }
 
 
 
-to_string :: proc(b: Builder) -> (res: string) {
-    return string(b.buf[:])
+to_string :: proc(b: ^Builder) -> (res: string) {
+    return cast(string)(dyn_array.slice(b.buf))
 }
 
 /*
 Appends a trailing null byte after the end of the current Builder byte buffer and then casts it to a cstring
 */
 to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
-    len_before := len(b.buf)
+    len_before := b.buf.len
     dyn_array.append(&b.buf, 0, loc) or_return
-    if len(b.buf) - len_before != 1 {
+    if b.buf.len - len_before != 1 {
         return nil, .Out_Of_Memory
     }
-    dyn_array.pop(&b.buf)
+    _, _ = dyn_array.pop_back(&b.buf)
     #no_bounds_check {
-        internal.assert(b.buf[len(b.buf)] == 0)
+        internal.assert(b.buf.data[b.buf.len] == 0)
     }
-    return cstring(raw_data(b.buf)), nil
+    return cstring(raw_data(dyn_array.slice(b.buf))), nil
 }
 
 /*
@@ -106,8 +105,8 @@ NOTE: This procedure will not check if the backing buffer has enough space to in
 */
 unsafe_to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring) {
     _ = dyn_array.append(&b.buf, 0, loc)
-    dyn_array.pop(&b.buf)
-    return cstring(raw_data(b.buf))
+    _, _ = dyn_array.pop_back(&b.buf)
+    return cstring(raw_data(dyn_array.slice(b.buf)))
 }
 
 
@@ -121,11 +120,11 @@ Returns:
 - r: The last byte in the Builder or 0 if empty
 */
 pop_byte :: proc(b: ^Builder) -> (r: byte) {
-    if len(b.buf) == 0 {
+    if b.buf.len == 0 {
         return 0
     }
 
-    r = b.buf[len(b.buf)-1]
+    r = b.buf.data[b.buf.len - 1]
     b.buf.len = max(b.buf.len - 1, 0)
     return
 }
@@ -141,11 +140,11 @@ Returns:
 - width: The rune width or 0 if the builder was empty
 */
 pop_rune :: proc(b: ^Builder) -> (r: rune, width: uint) {
-    if len(b.buf) == 0 {
+    if b.buf.len == 0 {
         return 0, 0
     }
 
-    r, width = utf8.last_rune_in_bytes(b.buf[:])
+    r, width = utf8.last_rune_in_bytes(dyn_array.slice(b.buf))
     b.buf.len = max(b.buf.len - width, 0)
     return
 }

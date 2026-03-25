@@ -739,7 +739,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
 
     if !has_meta(dir[vol_len:]) {
         m, e := _glob(dir, file, nil, allocator)
-        return m[:], e
+        return dyn_array.slice(m), e
     }
 
     m := glob(dir, allocator) or_return
@@ -757,8 +757,8 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
             break
         }
     }
-    if len(dmatches) > 0 {
-        matches = dmatches[:]
+    if dmatches.len > 0 {
+        matches = dyn_array.slice(dmatches)
     }
     return
 }

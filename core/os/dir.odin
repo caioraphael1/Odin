@@ -31,7 +31,7 @@ read_directory :: proc(f: ^File, n: uint, all: bool, allocator: mem.Allocator) -
 
     dfi, _ := dyn_array.create_len_cap(File_Info, 0, size, allocators.temp_allocator)
     defer if err != nil {
-        for fi in dfi {
+        for fi in dyn_array.slice(dfi) {
             file_info_delete(fi, allocator)
         }
     }
@@ -48,7 +48,7 @@ read_directory :: proc(f: ^File, n: uint, all: bool, allocator: mem.Allocator) -
 
     _ = read_directory_iterator_error(&it) or_return
 
-    return slice.clone(dfi[:], allocator)
+    return slice.clone(dyn_array.slice(dfi), allocator)
 }
 
 
@@ -137,7 +137,7 @@ Retrieve the last error that happened during iteration.
 */
 
 read_directory_iterator_error :: proc(it: ^Read_Directory_Iterator) -> (path: string, err: Error) {
-    return string(it.err.path[:]), it.err.err
+    return string(dyn_array.slice(it.err.path)), it.err.err
 }
 
 @(private)
@@ -147,7 +147,7 @@ read_directory_iterator_set_error :: proc(it: ^Read_Directory_Iterator, path: st
     }
 
     _ = dyn_array.resize(&it.err.path, len(path))
-    slice.copy_from_string(it.err.path[:], path)
+    slice.copy_from_string(dyn_array.slice(it.err.path), path)
 
     it.err.err = err
 }
@@ -248,12 +248,12 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
         dyn_array.append_string(&dst_buf, rel) or_return
 
         if info.type == .Directory {
-            err = make_directory(string(dst_buf[:]), dst_perm)
+            err = make_directory(string(dyn_array.slice(dst_buf)), dst_perm)
             if err != nil && err != .Exist {
                 return err
             }
         } else {
-            copy_file(string(dst_buf[:]), info.fullpath, allocator) or_return
+            copy_file(string(dyn_array.slice(dst_buf)), info.fullpath, allocator) or_return
         }
     }
 

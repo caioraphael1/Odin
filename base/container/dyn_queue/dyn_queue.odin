@@ -13,7 +13,7 @@ across the same block of memory, in any order, thus providing both stack and
 queue-like behaviors in the same data structure.
 */
 Queue :: struct($T: typeid) {
-    data:   dyn_array.Dyn_Array(T),
+    buf:    dyn_array.Dyn_Array(T),
     len:    uint,
     offset: uint,
 }
@@ -25,7 +25,7 @@ Initialize a `Queue` with a starting `cap` and an `allocator`.
 */
 init :: proc(q: ^$Q/Queue($T), cap := DEFAULT_CAPACITY, allocator: mem.Allocator, loc := #caller_location) -> mem.Allocator_Error {
     q^ = {} // Reset the struct first.
-    q.data = dyn_array.Dyn_Array(T){
+    q.buf = dyn_array.Dyn_Array(T){
         data = nil,
         len  = 0,
         cap  = 0,
@@ -47,7 +47,7 @@ the backing slice runs out of space.
 */
 init_from_slice :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
     dyn_array.clear(q)
-    q.data = dyn_array.Dyn_Array(T){
+    q.buf = dyn_array.Dyn_Array(T){
         data = raw_data(backing),
         len  = builtin.len(backing),
         cap  = builtin.len(backing),
@@ -66,7 +66,7 @@ be able to add more elements to the queue until some are taken off.
 */
 init_with_contents :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
     dyn_array.clear(q)
-    q.data = dyn_array.Dyn_Array(T){
+    q.buf = dyn_array.Dyn_Array(T){
         data = raw_data(backing),
         len  = builtin.len(backing),
         cap  = builtin.len(backing),
@@ -84,7 +84,7 @@ Note that this procedure should not be used on queues setup with
 track of the allocator state of the underlying `backing` slice.
 */
 destroy :: proc(q: ^$Q/Queue($T)) {
-    _ = dyn_array.delete(q.data)
+    _ = dyn_array.delete(q.buf)
 }
 
 /*
@@ -98,7 +98,7 @@ len :: proc(q: $Q/Queue($T)) -> uint {
 Return the cap of the queue.
 */
 cap :: proc(q: $Q/Queue($T)) -> uint {
-    return builtin.len(q.data)
+    return q.buf.len
 }
 
 /*
@@ -107,7 +107,7 @@ Return the remaining space in the queue.
 This will be `cap() - len()`.
 */
 space :: proc(q: $Q/Queue($T)) -> uint {
-    return builtin.len(q.data) - uint(q.len)
+    return q.buf.len - uint(q.len)
 }
 
 /*
@@ -128,7 +128,7 @@ Shrink a queue's dynamically allocated array.
 This has no effect if the queue was initialized with a backing slice.
 */
 shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
-    if q.data.allocator.procedure ==  {} {
+    if q.buf.allocator.procedure ==  {} {
         return
     }
 
@@ -137,16 +137,16 @@ shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
         buffer := slice.create([]T, q.len, allocators.temp_allocator)
         defer _ = slice.delete(buffer, allocators.temp_allocator)
 
-        right := uint(builtin.len(q.data)) - q.offset
-        slice.copy(buffer[:],      q.data[q.offset:])
-        slice.copy(buffer[right:], q.data[:q.offset])
+        right := uint(q.buf.len) - q.offset
+        slice.copy(buffer[:],      q.buf.data[q.offset:q.buf.len])
+        slice.copy(buffer[right:], q.buf.data[:q.offset])
 
-        slice.copy(q.data[:], buffer[:])
+        slice.copy(q.buf.data[:q.buf.len], buffer[:])
 
         q.offset = 0
     }
 
-    builtin.dyn_array_shrink(&q.data, q.len, loc)
+    builtin.dyn_array_shrink(&q.buf, q.len, loc)
 }
 
 /*
@@ -157,8 +157,8 @@ This will raise a bounds checking error if `i` is an invalid index.
 get :: proc(q: ^$Q/Queue($T), i: uint, loc := #caller_location) -> T {
     internal.bounds_check_error_loc(loc, i, q.len)
 
-    idx := (uint(i)+q.offset)%builtin.len(q.data)
-    return q.data[idx]
+    idx := (uint(i)+q.offset) % q.buf.len
+    return q.buf[idx]
 }
 
 /*
@@ -169,8 +169,8 @@ This will raise a bounds checking error if `i` is an invalid index.
 get_ptr :: proc(q: ^$Q/Queue($T), i: uint, loc := #caller_location) -> ^T {
     internal.bounds_check_error_loc(loc, i, q.len)
 
-    idx := (uint(i)+q.offset)%builtin.len(q.data)
-    return &q.data[idx]
+    idx := (uint(i)+q.offset) % q.buf.len
+    return &q.buf[idx]
 }
 
 /*
@@ -181,8 +181,8 @@ This will raise a bounds checking error if `i` is an invalid index.
 set :: proc(q: ^$Q/Queue($T), i: uint, val: T, loc := #caller_location) {
     internal.bounds_check_error_loc(loc, i, q.len)
 
-    idx := (uint(i)+q.offset)%builtin.len(q.data)
-    q.data[idx] = val
+    idx := (uint(i)+q.offset) % q.buf.len
+    q.buf[idx] = val
 }
 
 /*
@@ -194,7 +194,7 @@ front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    return q.data[q.offset]
+    return q.buf[q.offset]
 }
 
 /*
@@ -206,7 +206,7 @@ front_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    return &q.data[q.offset]
+    return &q.buf[q.offset]
 }
 
 /*
@@ -218,8 +218,8 @@ back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    idx := (q.offset+uint(q.len - 1))%builtin.len(q.data)
-    return q.data[idx]
+    idx := (q.offset+uint(q.len - 1)) % q.buf.len
+    return q.buf[idx]
 }
 
 /*
@@ -231,8 +231,8 @@ back_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    idx := (q.offset+uint(q.len - 1))%builtin.len(q.data)
-    return &q.data[idx]
+    idx := (q.offset+uint(q.len - 1)) % q.buf.len
+    return &q.buf[idx]
 }
 
 
@@ -260,7 +260,7 @@ Example:
         queue.push_back(&q, 1)
         queue.push_back(&q, 2)
         queue.push_back(&q, 3)
-        // q.data is now [1, 2, 3, ...]
+        // q.buf is now [1, 2, 3, ...]
         internal.assert(queue.dyn_array.pop_front(&q) == 1)
         internal.assert(queue.dyn_array.pop_front(&q) == 2)
         internal.assert(queue.dyn_array.pop_front(&q) == 3)
@@ -270,8 +270,8 @@ push_back :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bo
     if space(q^) == 0 {
         _grow(q, loc = loc) or_return
     }
-    idx := (q.offset+uint(q.len))%builtin.len(q.data)
-    q.data[idx] = elem
+    idx := (q.offset+uint(q.len)) % q.buf.len
+    q.buf.data[idx] = elem
     q.len += 1
     return true, nil
 }
@@ -290,7 +290,7 @@ Example:
         queue.push_back(&q, 1)
         queue.push_back(&q, 2)
         queue.push_back(&q, 3)
-        // q.data is now [1, 2, 3, ...]
+        // q.buf is now [1, 2, 3, ...]
         internal.assert(queue.pop_back(&q) == 3)
         internal.assert(queue.pop_back(&q) == 2)
         internal.assert(queue.pop_back(&q) == 1)
@@ -300,9 +300,9 @@ push_front :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: b
     if space(q^) == 0 {
         _grow(q, loc = loc) or_return
     }
-    q.offset = uint(q.offset - 1 + builtin.len(q.data)) % builtin.len(q.data)
+    q.offset = uint(q.offset - 1 + q.buf.len) % q.buf.len
     q.len += 1
-    q.data[q.offset] = elem
+    q.buf[q.offset] = elem
     return true, nil
 }
 
@@ -319,7 +319,7 @@ Example:
         queue.push_front(&q, 1)
         queue.push_front(&q, 2)
         queue.push_front(&q, 3)
-        // q.data is now [..., 3, 2, 1]
+        // q.buf is now [..., 3, 2, 1]
         log.infof("%#v", q)
         internal.assert(queue.dyn_array.pop_front(&q) == 3)
         internal.assert(queue.dyn_array.pop_front(&q) == 2)
@@ -331,8 +331,8 @@ pop_back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     q.len -= 1
-    idx := (q.offset+uint(q.len))%builtin.len(q.data)
-    elem = q.data[idx]
+    idx := (q.offset+uint(q.len)) % q.buf.len
+    elem = q.buf[idx]
     return
 }
 
@@ -343,8 +343,8 @@ Otherwise, return a nil element and false.
 pop_back_safe :: proc(q: ^$Q/Queue($T)) -> (elem: T, ok: bool) {
     if q.len > 0 {
         q.len -= 1
-        idx := (q.offset+uint(q.len))%builtin.len(q.data)
-        elem = q.data[idx]
+        idx := (q.offset+uint(q.len)) % q.buf.len
+        elem = q.buf.data[idx]
         ok = true
     }
     return
@@ -359,8 +359,8 @@ pop_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    elem = q.data[q.offset]
-    q.offset = (q.offset+1)%builtin.len(q.data)
+    elem = q.buf.data[q.offset]
+    q.offset = (q.offset+1) % q.buf.len
     q.len -= 1
     return
 }
@@ -371,8 +371,8 @@ Otherwise, return a nil element and false.
 */
 dyn_array_pop_front_safe :: proc(q: ^$Q/Queue($T)) -> (elem: T, ok: bool) {
     if q.len > 0 {
-        elem = q.data[q.offset]
-        q.offset = (q.offset+1)%builtin.len(q.data)
+        elem = q.buf.data[q.offset]
+        q.offset = (q.offset+1) % q.buf.len
         q.len -= 1
         ok = true
     }
@@ -391,14 +391,14 @@ push_back_elems :: proc(q: ^$Q/Queue($T), elems: ..T, loc := #caller_location) -
         _grow(q, q.len + n, loc) or_return
     }
 
-    sz := uint(builtin.len(q.data))
+    sz := q.buf.len
     insert_from := (q.offset + q.len) % sz
     insert_to := n
     if insert_from + insert_to > sz {
         insert_to = sz - insert_from
     }
-    slice.copy(q.data[insert_from:], elems[:insert_to])
-    slice.copy(q.data[:insert_from], elems[insert_to:])
+    slice.copy(q.buf.data[insert_from:a.len], elems[:insert_to])
+    slice.copy(q.buf.data[:insert_from], elems[insert_to:])
     q.len += n
     return true, nil
 }
@@ -414,7 +414,7 @@ consume_front :: proc(q: ^$Q/Queue($T), n: uint, loc := #caller_location) {
     }
     if n > 0 {
         nu := uint(n)
-        q.offset = (q.offset + nu) % builtin.len(q.data)
+        q.offset = (q.offset + nu) % q.buf.len
         q.len -= nu
     }
 }
@@ -455,12 +455,12 @@ clear :: proc(q: ^$Q/Queue($T)) {
 
 // Internal growing procedure
 _grow :: proc(q: ^$Q/Queue($T), min_capacity: uint = 0, loc := #caller_location) -> mem.Allocator_Error {
-    new_capacity := max(min_capacity, uint(8), uint(builtin.len(q.data))*2)
-    n := uint(builtin.len(q.data))
-    dyn_array.resize(&q.data, new_capacity, loc) or_return
+    new_capacity := max(min_capacity, uint(8), uint(q.buf.len)*2)
+    n := uint(q.buf.len)
+    dyn_array.resize(&q.buf, new_capacity, loc) or_return
     if q.offset + q.len > n {
         diff := n - q.offset
-        slice.copy(q.data[new_capacity-diff:], q.data[q.offset:][:diff])
+        slice.copy(q.buf.data[new_capacity - diff:q.buf.len], q.buf.data[q.offset:diff])
         q.offset += new_capacity - n
     }
     return nil

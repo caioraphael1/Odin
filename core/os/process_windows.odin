@@ -92,7 +92,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []uint, err: Error) {
         return
     }
 
-    list_d := dyn_array.create(dyn_array.Dyn_Array(uint), allocator)
+    list_d := dyn_array.create(uint, allocator)
 
     entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
     status := win32.Process32FirstW(snap, &entry)
@@ -100,7 +100,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []uint, err: Error) {
         dyn_array.append(&list_d, uint(entry.th32ProcessID)) or_return
         status = win32.Process32NextW(snap, &entry)
     }
-    list = list_d[:]
+    list = dyn_array.slice(list_d)
     return
 }
 
@@ -781,7 +781,7 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> stri
             string_builder.write_string(&builder, arg)
         }
     }
-    return string_builder.to_string(builder)
+    return string_builder.to_string(&builder)
 }
 
 _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (envs: []string, err: Error) {
@@ -846,5 +846,5 @@ _build_environment_block :: proc(environment: []string, allocator: mem.Allocator
     // Note(flysand): In addition to the NUL-terminator for each string, the
     // environment block itself is NUL-terminated.
     string_builder.write_byte(&builder, 0)
-    return string_builder.to_string(builder)
+    return string_builder.to_string(&builder)
 }

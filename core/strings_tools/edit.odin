@@ -158,7 +158,7 @@ scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res:
         str = str[w:]
     }
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*
@@ -270,7 +270,7 @@ expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res
         str = str[w:]
     }
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 
@@ -297,7 +297,7 @@ centre_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Al
     _, _ = io.write_string(w, str)
     write_pad_string(w, pad, pad_len, (remains+1)/2)
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*
@@ -320,7 +320,7 @@ left_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allo
     _, _ = io.write_string(w, str)
     write_pad_string(w, pad, pad_len, remains)
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*
@@ -343,7 +343,7 @@ right_justify :: proc(str: string, length: uint, pad: string, allocator: mem.All
     write_pad_string(w, pad, pad_len, remains)
     _, _ = io.write_string(w, str)
 
-    return string_builder.to_string(b), nil
+    return string_builder.to_string(&b), nil
 }
 
 /*

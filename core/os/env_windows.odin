@@ -122,7 +122,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
 
     r := dyn_array.create_len_cap(string, 0, uint(n), allocator) or_return
     defer if err != nil {
-        for e in r {
+        for e in dyn_array.slice(r) {
             _ = strings.string_delete(e, allocator)
         }
         _ = dyn_array.delete(r)
@@ -140,7 +140,7 @@ _environ :: proc(allocator: mem.Allocator) -> (environ: []string, err: Error) {
         }
     }
 
-    environ = r[:]
+    environ = dyn_array.slice(r)
     return
 }
 

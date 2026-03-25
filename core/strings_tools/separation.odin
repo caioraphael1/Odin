@@ -422,8 +422,8 @@ split_multi :: proc(s: string, substrs: []string, allocator: mem.Allocator, loc 
         }
         _ = dyn_array.append(&results, it)
     }
-    internal.assert(len(results) == n)
-    return results[:], nil
+    internal.assert(results.len == n)
+    return dyn_array.slice(results), nil
 }
 
 /*
@@ -549,7 +549,7 @@ fields_proc :: proc(s: string, f: proc(rune) -> bool, allocator: mem.Allocator, 
         _ = dyn_array.append(&substrings, s[start : len(s)])
     }
 
-    return substrings[:], nil
+    return dyn_array.slice(substrings), nil
 }
 
 /*

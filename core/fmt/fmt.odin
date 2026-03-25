@@ -370,7 +370,7 @@ caprint :: proc(args: []any, sep := " ", allocator: mem.Allocator) -> cstring {
     string_builder.builder_init(&str, allocator)
     sbprint(&str, ..args, sep=sep)
     string_builder.write_byte(&str, 0)
-    s := string_builder.to_string(str)
+    s := string_builder.to_string(&str)
     return cstring(raw_data(s))
 }
 
@@ -391,7 +391,7 @@ caprintf :: proc(format: string, args: []any, allocator: mem.Allocator, newline 
     string_builder.builder_init(&str, allocator)
     _ = sbprintf(&str, format, ..args, newline=newline)
     string_builder.write_byte(&str, 0)
-    s := string_builder.to_string(str)
+    s := string_builder.to_string(&str)
     return cstring(raw_data(s))
 }
 // Creates a formatted C string, followed by a newline.
@@ -463,7 +463,7 @@ ctprintfln :: proc(format: string, args: ..any) -> cstring {
 @(optional_results)
 sbprint :: proc(buf: ^string_builder.Builder, args: ..any, sep := " ") -> string {
     wprint(string_builder.to_writer(buf), ..args, sep=sep, flush=true)
-    return string_builder.to_string(buf^)
+    return string_builder.to_string(buf)
 }
 // Formats and writes to a string_builder.Builder buffer using the default print settings
 //
@@ -477,7 +477,7 @@ sbprint :: proc(buf: ^string_builder.Builder, args: ..any, sep := " ") -> string
 @(optional_results)
 sbprintln :: proc(buf: ^string_builder.Builder, args: ..any, sep := " ") -> string {
     wprintln(string_builder.to_writer(buf), ..args, sep=sep, flush=true)
-    return string_builder.to_string(buf^)
+    return string_builder.to_string(buf)
 }
 // Formats and writes to a string_builder.Builder buffer according to the specified format string
 //
@@ -492,7 +492,7 @@ sbprintln :: proc(buf: ^string_builder.Builder, args: ..any, sep := " ") -> stri
 @(optional_results)
 sbprintf :: proc(buf: ^string_builder.Builder, fmt: string, args: ..any, newline := false) -> string {
     wprintf(string_builder.to_writer(buf), fmt, ..args, flush=true, newline=newline)
-    return string_builder.to_string(buf^)
+    return string_builder.to_string(buf)
 }
 // Formats and writes to a string_builder.Builder buffer according to the specified format string, followed by a newline.
 //

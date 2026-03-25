@@ -69,7 +69,7 @@ Can be called while iterating, or only at the end to check if anything failed.
 */
 
 walker_error :: proc(w: ^Walker) -> (path: string, err: Error) {
-    return string(w.err.path[:]), w.err.err
+    return string(dyn_array.slice(w.err.path)), w.err.err
 }
 
 @(private)
@@ -79,7 +79,7 @@ walker_set_error :: proc(w: ^Walker, path: string, err: Error) {
     }
 
     _ = dyn_array.resize(&w.err.path, len(path))
-    slice.copy_from_string(w.err.path[:], path)
+    slice.copy_from_string(dyn_array.slice(w.err.path), path)
 
     w.err.err = err
 }
@@ -92,7 +92,7 @@ walker_clear :: proc(w: ^Walker, allocator: mem.Allocator) {
     w.err.path.allocator = allocator
     dyn_array.clear(&w.err.path)
 
-    w.todo.data.allocator = allocator
+    w.todo.buf.allocator = allocator
     for path in dyn_queue.dyn_array_pop_front_safe(&w.todo) {
         _ = strings.string_delete(path, allocator)
     }

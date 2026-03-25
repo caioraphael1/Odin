@@ -63,7 +63,7 @@ scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []byte) -> ^Sca
     s.r = r
     s.split = scan_lines
     s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
-    s.buf = dyn_array.from_slice(buf)
+    s.buf = dyn_array.create_from_slice(buf)
     _ = dyn_array.resize(&s.buf, cap(s.buf))
     return s
 }
