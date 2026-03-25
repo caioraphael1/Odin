@@ -110,7 +110,8 @@ resize :: proc(a: ^Fixed_Array($N, $T), length: uint) -> (ok: bool) {
 
     prev_len := a.len
     a.len = length
-    if prev_len < a.len {
+   if a.len > prev_len  {
+        // Zero only the new region after growth.
         mem.zero(&a.data[prev_len], size_of(T)*(a.len - prev_len))
     }
 
@@ -426,5 +427,5 @@ Output:
     AFTER : []
 */
 clear :: proc(a: ^Fixed_Array($N, $T)) {
-    _ = resize(a, 0)
+    a.len = 0
 }

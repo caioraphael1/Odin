@@ -9,6 +9,16 @@ import "base:bytes"
 import "core:io"
 import "core:io/string_builder"
 
+
+string_from_bytes_null_terminated :: proc(bytes: []byte) -> (res: string) {
+    return truncate_to_byte(string(bytes), 0)
+}
+
+string_from_string_null_terminated :: proc(str: string) -> (res: string) {
+    return truncate_to_byte(str, 0)
+}
+
+
 /*
 Truncates a string `str` at the first occurrence of char/byte `b`
 */
