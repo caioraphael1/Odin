@@ -2694,7 +2694,7 @@ gb_internal lbValue lb_emit_conv(lbProcedure *p, lbValue value, Type *t) {
         return lb_emit_transmute(p, value, t);
     }
 
-    // []byte/[]u8 <-> string
+    // []u8 <-> string
     if (is_type_u8_slice(src) && is_type_string(dst)) {
         return lb_emit_transmute(p, value, t);
     }

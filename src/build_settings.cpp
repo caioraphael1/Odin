@@ -1882,12 +1882,13 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
 
     if (bc->metrics.os == TargetOs_freestanding) {
         bc->no_entry_point = true;
-    } else {
-        if (bc->no_rtti) {
-            gb_printf_err("-no-rtti is only allowed on freestanding targets\n");
-            gb_exit(1);
-        }
     }
+    // else {
+    //     if (bc->no_rtti) {
+    //         gb_printf_err("-no-rtti is only allowed on freestanding targets\n");
+    //         gb_exit(1);
+    //     }
+    // }
 
     // Default to subsystem:CONSOLE on Windows targets
     if (bc->ODIN_WINDOWS_SUBSYSTEM == Windows_Subsystem_UNKNOWN && bc->metrics.os == TargetOs_windows) {

@@ -48,6 +48,7 @@ is_integer_negative :: proc(x: u64, is_signed: bool, bit_size: uint) -> (u: u64,
     }
     return
 }
+
 /*
 Writes the string representation of an integer to a buffer with specified base, flags, and digit set.
 
@@ -104,6 +105,7 @@ write_bits :: proc(buf: []u8, x: u64, base: uint, is_signed: bool, bit_size: uin
     slice.copy(buf, out)
     return string(buf[0:len(out)])
 }
+
 /*
 Determines whether the given unsigned 128-bit integer is a negative value by interpreting it as a signed integer with the specified bit size.
 

@@ -36,14 +36,14 @@ gb_internal bool is_operand_uninit(Operand o) {
 }
 
 gb_internal bool check_rtti_type_disallowed(Token const &token, Type *type, char const *format) {
-    if (build_context.no_rtti && type) {
-        if (is_type_any(type)) {
-            gbString t = type_to_string(type);
-            error(token, format, t);
-            gb_string_free(t);
-            return true;
-        }
-    }
+    // if (build_context.no_rtti && type) {
+    //     if (is_type_any(type)) {
+    //         gbString t = type_to_string(type);
+    //         error(token, format, t);
+    //         gb_string_free(t);
+    //         return true;
+    //     }
+    // }
     return false;
 }
 
@@ -1107,7 +1107,6 @@ gb_internal void init_universal(void) {
         String const &name = basic_types[i].Basic.name;
         add_global_type_entity(name, &basic_types[i]);
     }
-    add_global_type_entity(str_lit("byte"), &basic_types[Basic_u8]);
 
     {
         Type *equal_args[2] = {t_rawptr, t_rawptr};

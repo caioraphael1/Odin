@@ -94,8 +94,6 @@ enum BasicKind {
     Basic_UntypedUninit,
 
     Basic_COUNT,
-
-    Basic_byte = Basic_u8,
 };
 
 enum BasicFlag {
@@ -543,30 +541,26 @@ gb_global Type basic_types[] = {
     {Type_Basic, {Basic_i128be, BasicFlag_Integer                      | BasicFlag_EndianBig,    16, STR_LIT("i128be")}},
     {Type_Basic, {Basic_u128be, BasicFlag_Integer | BasicFlag_Unsigned | BasicFlag_EndianBig,    16, STR_LIT("u128be")}},
 
-    {Type_Basic, {Basic_f16le, BasicFlag_Float | BasicFlag_EndianLittle, 2, STR_LIT("f16le")}},
-    {Type_Basic, {Basic_f32le, BasicFlag_Float | BasicFlag_EndianLittle, 4, STR_LIT("f32le")}},
-    {Type_Basic, {Basic_f64le, BasicFlag_Float | BasicFlag_EndianLittle, 8, STR_LIT("f64le")}},
+    {Type_Basic, {Basic_f16le, BasicFlag_Float | BasicFlag_EndianLittle,                          2, STR_LIT("f16le")}},
+    {Type_Basic, {Basic_f32le, BasicFlag_Float | BasicFlag_EndianLittle,                          4, STR_LIT("f32le")}},
+    {Type_Basic, {Basic_f64le, BasicFlag_Float | BasicFlag_EndianLittle,                          8, STR_LIT("f64le")}},
 
-    {Type_Basic, {Basic_f16be, BasicFlag_Float | BasicFlag_EndianBig,    2, STR_LIT("f16be")}},
-    {Type_Basic, {Basic_f32be, BasicFlag_Float | BasicFlag_EndianBig,    4, STR_LIT("f32be")}},
-    {Type_Basic, {Basic_f64be, BasicFlag_Float | BasicFlag_EndianBig,    8, STR_LIT("f64be")}},
+    {Type_Basic, {Basic_f16be, BasicFlag_Float | BasicFlag_EndianBig,                             2, STR_LIT("f16be")}},
+    {Type_Basic, {Basic_f32be, BasicFlag_Float | BasicFlag_EndianBig,                             4, STR_LIT("f32be")}},
+    {Type_Basic, {Basic_f64be, BasicFlag_Float | BasicFlag_EndianBig,                             8, STR_LIT("f64be")}},
 
     // Untyped types
-    {Type_Basic, {Basic_UntypedBool,       BasicFlag_Boolean    | BasicFlag_Untyped,   0, STR_LIT("untyped bool")}},
-    {Type_Basic, {Basic_UntypedInteger,    BasicFlag_Integer    | BasicFlag_Untyped,   0, STR_LIT("untyped integer")}},
-    {Type_Basic, {Basic_UntypedFloat,      BasicFlag_Float      | BasicFlag_Untyped,   0, STR_LIT("untyped float")}},
-    {Type_Basic, {Basic_UntypedComplex,    BasicFlag_Complex    | BasicFlag_Untyped,   0, STR_LIT("untyped complex")}},
-    {Type_Basic, {Basic_UntypedQuaternion, BasicFlag_Quaternion | BasicFlag_Untyped,   0, STR_LIT("untyped quaternion")}},
-    {Type_Basic, {Basic_UntypedString,     BasicFlag_String     | BasicFlag_Untyped,   0, STR_LIT("untyped string")}},
-    {Type_Basic, {Basic_UntypedRune,       BasicFlag_Integer    | BasicFlag_Untyped,   0, STR_LIT("untyped rune")}},
-    {Type_Basic, {Basic_UntypedNil,        BasicFlag_Untyped,                          0, STR_LIT("untyped nil")}},
-    {Type_Basic, {Basic_UntypedUninit,     BasicFlag_Untyped,                          0, STR_LIT("untyped uninitialized")}},
+    {Type_Basic, {Basic_UntypedBool,       BasicFlag_Boolean    | BasicFlag_Untyped,              0, STR_LIT("untyped bool")}},
+    {Type_Basic, {Basic_UntypedInteger,    BasicFlag_Integer    | BasicFlag_Untyped,              0, STR_LIT("untyped integer")}},
+    {Type_Basic, {Basic_UntypedFloat,      BasicFlag_Float      | BasicFlag_Untyped,              0, STR_LIT("untyped float")}},
+    {Type_Basic, {Basic_UntypedComplex,    BasicFlag_Complex    | BasicFlag_Untyped,              0, STR_LIT("untyped complex")}},
+    {Type_Basic, {Basic_UntypedQuaternion, BasicFlag_Quaternion | BasicFlag_Untyped,              0, STR_LIT("untyped quaternion")}},
+    {Type_Basic, {Basic_UntypedString,     BasicFlag_String     | BasicFlag_Untyped,              0, STR_LIT("untyped string")}},
+    {Type_Basic, {Basic_UntypedRune,       BasicFlag_Integer    | BasicFlag_Untyped,              0, STR_LIT("untyped rune")}},
+    {Type_Basic, {Basic_UntypedNil,        BasicFlag_Untyped,                                     0, STR_LIT("untyped nil")}},
+    {Type_Basic, {Basic_UntypedUninit,     BasicFlag_Untyped,                                     0, STR_LIT("untyped uninitialized")}},
 };
 
-// gb_global Type basic_type_aliases[] = {
-//  // {Type_Basic, {Basic_byte, BasicFlag_Integer | BasicFlag_Unsigned, 1, STR_LIT("byte")}},
-//  // {Type_Basic, {Basic_rune, BasicFlag_Integer,                      4, STR_LIT("rune")}},
-// };
 
 gb_global Type *t_invalid         = &basic_types[Basic_Invalid];
 gb_global Type *t_llvm_bool       = &basic_types[Basic_llvm_bool];
