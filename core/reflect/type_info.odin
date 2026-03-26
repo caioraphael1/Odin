@@ -6,35 +6,35 @@ import "base:container/dyn_array"
 import "base:container/maps"
 import "base:container/strings"
 
-Type_Info                        :: internal.Type_Info
-Type_Info_Named                  :: internal.Type_Info_Named
-Type_Info_Integer                :: internal.Type_Info_Integer
-Type_Info_Rune                   :: internal.Type_Info_Rune
-Type_Info_Float                  :: internal.Type_Info_Float
-Type_Info_Complex                :: internal.Type_Info_Complex
-Type_Info_Quaternion             :: internal.Type_Info_Quaternion
-Type_Info_String                 :: internal.Type_Info_String
-Type_Info_Boolean                :: internal.Type_Info_Boolean
-Type_Info_Any                    :: internal.Type_Info_Any
-Type_Info_Type_Id                :: internal.Type_Info_Type_Id
-Type_Info_Pointer                :: internal.Type_Info_Pointer
-Type_Info_Multi_Pointer          :: internal.Type_Info_Multi_Pointer
-Type_Info_Procedure              :: internal.Type_Info_Procedure
-Type_Info_Array                  :: internal.Type_Info_Array
-Type_Info_Enumerated_Array       :: internal.Type_Info_Enumerated_Array
-Type_Info_Dynamic_Array          :: internal.Type_Info_Dynamic_Array
-Type_Info_Slice                  :: internal.Type_Info_Slice
-Type_Info_Parameters             :: internal.Type_Info_Parameters
-Type_Info_Struct                 :: internal.Type_Info_Struct
-Type_Info_Union                  :: internal.Type_Info_Union
-Type_Info_Enum                   :: internal.Type_Info_Enum
-Type_Info_Map                    :: internal.Type_Info_Map
-Type_Info_Bit_Set                :: internal.Type_Info_Bit_Set
-Type_Info_Simd_Vector            :: internal.Type_Info_Simd_Vector
-Type_Info_Matrix                 :: internal.Type_Info_Matrix
-Type_Info_Soa_Pointer            :: internal.Type_Info_Soa_Pointer
-Type_Info_Bit_Field              :: internal.Type_Info_Bit_Field
-Type_Info_Enum_Value             :: internal.Type_Info_Enum_Value
+Type_Info                  :: internal.Type_Info
+Type_Info_Named            :: internal.Type_Info_Named
+Type_Info_Integer          :: internal.Type_Info_Integer
+Type_Info_Rune             :: internal.Type_Info_Rune
+Type_Info_Float            :: internal.Type_Info_Float
+Type_Info_Complex          :: internal.Type_Info_Complex
+Type_Info_Quaternion       :: internal.Type_Info_Quaternion
+Type_Info_String           :: internal.Type_Info_String
+Type_Info_Boolean          :: internal.Type_Info_Boolean
+Type_Info_Any              :: internal.Type_Info_Any
+Type_Info_Type_Id          :: internal.Type_Info_Type_Id
+Type_Info_Pointer          :: internal.Type_Info_Pointer
+Type_Info_Multi_Pointer    :: internal.Type_Info_Multi_Pointer
+Type_Info_Procedure        :: internal.Type_Info_Procedure
+Type_Info_Array            :: internal.Type_Info_Array
+Type_Info_Enumerated_Array :: internal.Type_Info_Enumerated_Array
+Type_Info_Dynamic_Array    :: internal.Type_Info_Dynamic_Array
+Type_Info_Slice            :: internal.Type_Info_Slice
+Type_Info_Parameters       :: internal.Type_Info_Parameters
+Type_Info_Struct           :: internal.Type_Info_Struct
+Type_Info_Union            :: internal.Type_Info_Union
+Type_Info_Enum             :: internal.Type_Info_Enum
+Type_Info_Map              :: internal.Type_Info_Map
+Type_Info_Bit_Set          :: internal.Type_Info_Bit_Set
+Type_Info_Simd_Vector      :: internal.Type_Info_Simd_Vector
+Type_Info_Matrix           :: internal.Type_Info_Matrix
+Type_Info_Soa_Pointer      :: internal.Type_Info_Soa_Pointer
+Type_Info_Bit_Field        :: internal.Type_Info_Bit_Field
+Type_Info_Enum_Value       :: internal.Type_Info_Enum_Value
 
 
 Type_Kind :: enum {
@@ -112,13 +112,13 @@ type_kind :: proc(T: typeid) -> Type_Kind {
 // Returns the `Type_Kind` of the base-type of a typeid.
 
 underlying_type_kind :: proc(T: typeid) -> Type_Kind {
-    return type_kind(internal.typeid_base(T))
+    return type_kind(typeid_base(T))
 }
 
 // Returns the `Type_Kind` of the core-type of a typeid. See
 
 backing_type_kind :: proc(T: typeid) -> Type_Kind {
-    return type_kind(internal.typeid_core(T))
+    return type_kind(typeid_core(T))
 }
 
 
@@ -134,7 +134,7 @@ type_info_core :: internal.type_info_core
 // type_info_base_without_enum returns the core-type of a `^Type_Info` stripping the `distinct`ness from the first level AND/OR
 // returns the backing integer type of an enum or bit_set `^Type_Info`.
 // This is also aliased as `type_info_core`
-type_info_base_without_enum :: type_info_core
+type_info_base_without_enum :: internal.type_info_core
 
 
 when !ODIN_NO_RTTI {
@@ -149,7 +149,7 @@ when !ODIN_NO_RTTI {
     // typeid_base_without_enum returns the core-type of a `typeid` stripping the `distinct`ness from the first level AND/OR
     // returns the backing integer type of an enum or bit_set `typeid`.
     // This is also aliased as `typeid_core`
-    typeid_base_without_enum :: typeid_core
+    typeid_base_without_enum :: internal.typeid_core
 }
 
 
@@ -320,7 +320,7 @@ length :: proc(val: any) -> uint {
             if a.is_cstring {
                 return len((^cstring16)(val.data)^)
             } else {
-                return (^internal.Raw_String16)(val.data).len
+                return (^strings.Raw_String16)(val.data).len
             }
         }
 
@@ -473,8 +473,8 @@ Struct_Field :: struct {
 // Returns a `Struct_Field` containing the information for a struct field of a typeid `T` at index `i`
 
 struct_field_at :: proc(T: typeid, i: uint) -> (field: Struct_Field) {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         if i < uint(s.field_count) {
             field.name     = s.names[i]
             field.type     = s.types[i]
@@ -489,8 +489,8 @@ struct_field_at :: proc(T: typeid, i: uint) -> (field: Struct_Field) {
 // Returns a `Struct_Field` containing the information for a struct field by `name` of a typeid `T`
 
 struct_field_by_name :: proc(T: typeid, name: string) -> (field: Struct_Field) {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         for fname, i in s.names[:s.field_count] {
             if fname == name {
                 field.name     = s.names[i]
@@ -513,9 +513,9 @@ struct_field_by_name :: proc(T: typeid, name: string) -> (field: Struct_Field) {
 struct_field_value_by_name :: proc(a: any, field: string, allow_using := false) -> any {
     if a == nil { return nil }
 
-    ti := internal.type_info_base(type_info_of(a.id))
+    ti := type_info_base(type_info_of(a.id))
 
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         for name, i in s.names[:s.field_count] {
             if name == field {
                 return any{
@@ -555,8 +555,8 @@ struct_field_value :: proc(a: any, field: Struct_Field) -> any {
 // Returns a `[]string` of the names of the struct fields of type `T`
 
 struct_field_names :: proc(T: typeid) -> []string {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         return s.names[:s.field_count]
     }
     return nil
@@ -565,8 +565,8 @@ struct_field_names :: proc(T: typeid) -> []string {
 // Returns a `[]^Type_Info` of the types of the struct fields of type `T`
 
 struct_field_types :: proc(T: typeid) -> []^Type_Info {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         return s.types[:s.field_count]
     }
     return nil
@@ -576,8 +576,8 @@ struct_field_types :: proc(T: typeid) -> []^Type_Info {
 // Returns a `[]Struct_Tag` of the tags of the struct fields of type `T`
 
 struct_field_tags :: proc(T: typeid) -> []Struct_Tag {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         return transmute([]Struct_Tag)s.tags[:s.field_count]
     }
     return nil
@@ -586,8 +586,8 @@ struct_field_tags :: proc(T: typeid) -> []Struct_Tag {
 // Returns a `[]uintptr` of the offsets in bytes of the struct fields of type `T`
 
 struct_field_offsets :: proc(T: typeid) -> []uintptr {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         return s.offsets[:s.field_count]
     }
     return nil
@@ -626,8 +626,8 @@ Example:
 */
 
 struct_field_count :: proc(T: typeid, method := Struct_Field_Count_Method.Top_Level) -> (count: uint) {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         switch method {
         case .Top_Level:
             return uint(s.field_count)
@@ -658,8 +658,8 @@ struct_field_count :: proc(T: typeid, method := Struct_Field_Count_Method.Top_Le
 //  for field, i in reflect.struct_fields_zipped(Foo) { ... }
 
 struct_fields_zipped :: proc(T: typeid) -> (fields: #soa[]Struct_Field) {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Struct); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Struct); ok {
         return soa_zip(
             name     = s.names[:s.field_count],
             type     = s.types[:s.field_count],
@@ -755,8 +755,8 @@ struct_tag_lookup :: proc(tag: Struct_Tag, key: string) -> (value: string, ok: b
 
 enum_string :: proc(a: any) -> string {
     if a == nil { return "" }
-    ti := internal.type_info_base(type_info_of(a.id))
-    if e, ok := ti.variant.(internal.Type_Info_Enum); ok {
+    ti := type_info_base(type_info_of(a.id))
+    if e, ok := ti.variant.(Type_Info_Enum); ok {
         v, _ := as_i64(a)
         for value, i in e.values {
             if value == Type_Info_Enum_Value(v) {
@@ -774,7 +774,7 @@ enum_string :: proc(a: any) -> string {
 
 enum_from_name :: proc($Enum_Type: typeid, name: string) -> (value: Enum_Type, ok: bool) {
     ti := type_info_base(type_info_of(Enum_Type))
-    if eti, eti_ok := ti.variant.(internal.Type_Info_Enum); eti_ok {
+    if eti, eti_ok := ti.variant.(Type_Info_Enum); eti_ok {
         for value_name, i in eti.names {
             if value_name != name {
                 continue
@@ -791,8 +791,8 @@ enum_from_name :: proc($Enum_Type: typeid, name: string) -> (value: Enum_Type, o
 // enum_from_name_any returns the value of an enum field's name if found, returns `0, false` otherwise.
 
 enum_from_name_any :: proc(Enum_Type: typeid, name: string) -> (value: Type_Info_Enum_Value, ok: bool) {
-    ti := internal.type_info_base(type_info_of(Enum_Type))
-    if eti, eti_ok := ti.variant.(internal.Type_Info_Enum); eti_ok {
+    ti := type_info_base(type_info_of(Enum_Type))
+    if eti, eti_ok := ti.variant.(Type_Info_Enum); eti_ok {
         for value_name, i in eti.names {
             if value_name != name {
                 continue
@@ -809,7 +809,7 @@ enum_from_name_any :: proc(Enum_Type: typeid, name: string) -> (value: Type_Info
 
 enum_name_from_value :: proc(value: $Enum_Type) -> (name: string, ok: bool) where intrinsics.type_is_enum(Enum_Type) {
     ti := type_info_base(type_info_of(Enum_Type))
-    e := ti.variant.(internal.Type_Info_Enum) or_return
+    e := ti.variant.(Type_Info_Enum) or_return
     if len(e.values) == 0 {
         return
     }
@@ -829,7 +829,7 @@ enum_name_from_value_any :: proc(value: any) -> (name: string, ok: bool) {
         return
     }
     ti := type_info_base(type_info_of(value.id))
-    e := ti.variant.(internal.Type_Info_Enum) or_return
+    e := ti.variant.(Type_Info_Enum) or_return
     if len(e.values) == 0 {
         return
     }
@@ -867,8 +867,8 @@ enum_value_has_name :: proc(value: $T) -> bool where intrinsics.type_is_enum(T) 
 // enum_field_names returns `[]string` of the names of the fields of type `Enum_Type`
 
 enum_field_names :: proc(Enum_Type: typeid) -> []string {
-    ti := internal.type_info_base(type_info_of(Enum_Type))
-    if eti, eti_ok := ti.variant.(internal.Type_Info_Enum); eti_ok {
+    ti := type_info_base(type_info_of(Enum_Type))
+    if eti, eti_ok := ti.variant.(Type_Info_Enum); eti_ok {
         return eti.names
     }
     return nil
@@ -876,8 +876,8 @@ enum_field_names :: proc(Enum_Type: typeid) -> []string {
 // enum_field_values returns `[]Type_Info_Enum_Value` of the values of the fields of type `Enum_Type`
 
 enum_field_values :: proc(Enum_Type: typeid) -> []Type_Info_Enum_Value {
-    ti := internal.type_info_base(type_info_of(Enum_Type))
-    if eti, eti_ok := ti.variant.(internal.Type_Info_Enum); eti_ok {
+    ti := type_info_base(type_info_of(Enum_Type))
+    if eti, eti_ok := ti.variant.(Type_Info_Enum); eti_ok {
         return eti.values
     }
     return nil
@@ -895,8 +895,8 @@ Enum_Field :: struct {
 //  for field, i in reflect.enum_fields_zipped(Foo) { ... }
 
 enum_fields_zipped :: proc(Enum_Type: typeid) -> (fields: #soa[]Enum_Field) {
-    ti := internal.type_info_base(type_info_of(Enum_Type))
-    if eti, eti_ok := ti.variant.(internal.Type_Info_Enum); eti_ok {
+    ti := type_info_base(type_info_of(Enum_Type))
+    if eti, eti_ok := ti.variant.(Type_Info_Enum); eti_ok {
         return soa_zip(name=eti.names, value=eti.values)
     }
     return nil
@@ -913,7 +913,7 @@ union_variant_type_info :: proc(a: any) -> ^Type_Info {
 
 // Returns whether the `Type_Info_Union` store no tag (called a "pure maybe").
 
-type_info_union_is_pure_maybe :: proc(info: internal.Type_Info_Union) -> bool {
+type_info_union_is_pure_maybe :: proc(info: Type_Info_Union) -> bool {
     return len(info.variants) == 1 && is_pointer_internally(info.variants[0])
 }
 
@@ -922,8 +922,8 @@ type_info_union_is_pure_maybe :: proc(info: internal.Type_Info_Union) -> bool {
 union_variant_typeid :: proc(a: any) -> typeid {
     if a == nil { return nil }
 
-    ti := internal.type_info_base(type_info_of(a.id))
-    if info, ok := ti.variant.(internal.Type_Info_Union); ok {
+    ti := type_info_base(type_info_of(a.id))
+    if info, ok := ti.variant.(Type_Info_Union); ok {
         if type_info_union_is_pure_maybe(info) {
             if a.data != nil {
                 return info.variants[0].id
@@ -963,8 +963,8 @@ union_variant_typeid :: proc(a: any) -> typeid {
 get_union_variant_raw_tag :: proc(a: any) -> i64 {
     if a == nil { return -1 }
 
-    ti := internal.type_info_base(type_info_of(a.id))
-    if info, ok := ti.variant.(internal.Type_Info_Union); ok {
+    ti := type_info_base(type_info_of(a.id))
+    if info, ok := ti.variant.(Type_Info_Union); ok {
         if type_info_union_is_pure_maybe(info) {
             return 1 if a.data != nil else 0
         }
@@ -1025,8 +1025,8 @@ get_union_as_ptr_variants :: proc(val: ^$T) -> (res: intrinsics.type_convert_var
 set_union_variant_raw_tag :: proc(a: any, tag: i64) {
     if a == nil { return }
 
-    ti := internal.type_info_base(type_info_of(a.id))
-    if info, ok := ti.variant.(internal.Type_Info_Union); ok {
+    ti := type_info_base(type_info_of(a.id))
+    if info, ok := ti.variant.(Type_Info_Union); ok {
         if type_info_union_is_pure_maybe(info) {
             // Cannot do anything
             return
@@ -1056,8 +1056,8 @@ set_union_variant_raw_tag :: proc(a: any, tag: i64) {
 set_union_variant_typeid :: proc(a: any, id: typeid) {
     if a == nil { return }
 
-    ti := internal.type_info_base(type_info_of(a.id))
-    if info, ok := ti.variant.(internal.Type_Info_Union); ok {
+    ti := type_info_base(type_info_of(a.id))
+    if info, ok := ti.variant.(Type_Info_Union); ok {
         if type_info_union_is_pure_maybe(info) {
             // Cannot do anything
             return
@@ -1087,8 +1087,8 @@ set_union_variant_typeid :: proc(a: any, id: typeid) {
 set_union_variant_type_info :: proc(a: any, tag_ti: ^Type_Info) {
     if a == nil { return }
 
-    ti := internal.type_info_base(type_info_of(a.id))
-    if info, ok := ti.variant.(internal.Type_Info_Union); ok {
+    ti := type_info_base(type_info_of(a.id))
+    if info, ok := ti.variant.(Type_Info_Union); ok {
         if type_info_union_is_pure_maybe(info) {
             // Cannot do anything
             return
@@ -1118,13 +1118,13 @@ set_union_variant_type_info :: proc(a: any, tag_ti: ^Type_Info) {
 set_union_value :: proc(dst: any, value: any) -> bool {
     if dst == nil { return false }
 
-    ti := internal.type_info_base(type_info_of(dst.id))
-    if info, ok := ti.variant.(internal.Type_Info_Union); ok {
+    ti := type_info_base(type_info_of(dst.id))
+    if info, ok := ti.variant.(Type_Info_Union); ok {
         if value.id == nil {
             mem.zero(dst.data, ti.size)
             return true
         }
-        if ti.id == internal.typeid_base(value.id) {
+        if ti.id == typeid_base(value.id) {
             intrinsics.mem_copy(dst.data, value.data, ti.size)
             return true
         }
@@ -1158,12 +1158,12 @@ set_union_value :: proc(dst: any, value: any) -> bool {
 bit_set_is_big_endian :: proc(value: any, loc := #caller_location) -> bool {
     if value == nil { return ODIN_ENDIAN == .Big }
     
-    ti := internal.type_info_base(type_info_of(value.id))
-    if info, ok := ti.variant.(internal.Type_Info_Bit_Set); ok {
+    ti := type_info_base(type_info_of(value.id))
+    if info, ok := ti.variant.(Type_Info_Bit_Set); ok {
         if info.underlying == nil { return ODIN_ENDIAN == .Big }
 
-        underlying_ti := internal.type_info_base(info.underlying)
-        if underlying_info, uok := underlying_ti.variant.(internal.Type_Info_Integer); uok {
+        underlying_ti := type_info_base(info.underlying)
+        if underlying_info, uok := underlying_ti.variant.(Type_Info_Integer); uok {
             switch underlying_info.endianness {
             case .Platform: return ODIN_ENDIAN == .Big
             case .Little:   return false
@@ -1191,8 +1191,8 @@ Bit_Field :: struct {
 //  for field, i in reflect.bit_fields_zipped(Foo_Bit_Field) { ... }
 
 bit_fields_zipped :: proc(T: typeid) -> (fields: #soa[]Bit_Field) {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Bit_Field); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Bit_Field); ok {
         return soa_zip(
             name   = s.names[:s.field_count],
             type   = s.types[:s.field_count],
@@ -1207,8 +1207,8 @@ bit_fields_zipped :: proc(T: typeid) -> (fields: #soa[]Bit_Field) {
 // bit_field_names returns a `[]string` of the field names of a `bit_field` type `T`
 
 bit_field_names :: proc(T: typeid) -> []string {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Bit_Field); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Bit_Field); ok {
         return s.names[:s.field_count]
     }
     return nil
@@ -1217,8 +1217,8 @@ bit_field_names :: proc(T: typeid) -> []string {
 // bit_field_types returns a `[]^Type_Info` of the field representation types of a `bit_field` type `T`, not the backing integer-bit-width types
 
 bit_field_types :: proc(T: typeid) -> []^Type_Info {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Bit_Field); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Bit_Field); ok {
         return s.types[:s.field_count]
     }
     return nil
@@ -1227,8 +1227,8 @@ bit_field_types :: proc(T: typeid) -> []^Type_Info {
 // bit_field_types returns a `[]uintptr` of the field bit-width-sizes of a `bit_field` type `T`
 
 bit_field_sizes :: proc(T: typeid) -> []uintptr {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Bit_Field); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Bit_Field); ok {
         return s.bit_sizes[:s.field_count]
     }
     return nil
@@ -1237,8 +1237,8 @@ bit_field_sizes :: proc(T: typeid) -> []uintptr {
 // bit_field_types returns a `[]uintptr` of the field offsets in bits of a `bit_field` type `T`
 
 bit_field_offsets :: proc(T: typeid) -> []uintptr {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Bit_Field); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Bit_Field); ok {
         return s.bit_offsets[:s.field_count]
     }
     return nil
@@ -1247,8 +1247,8 @@ bit_field_offsets :: proc(T: typeid) -> []uintptr {
 // bit_field_types returns a `[]Struct_Tag` of the field tags of a `bit_field` type `T`
 
 bit_field_tags :: proc(T: typeid) -> []Struct_Tag {
-    ti := internal.type_info_base(type_info_of(T))
-    if s, ok := ti.variant.(internal.Type_Info_Bit_Field); ok {
+    ti := type_info_base(type_info_of(T))
+    if s, ok := ti.variant.(Type_Info_Bit_Field); ok {
         return transmute([]Struct_Tag)s.tags[:s.field_count]
     }
     return nil
@@ -1259,7 +1259,7 @@ bit_field_tags :: proc(T: typeid) -> []Struct_Tag {
 as_bool :: proc(a: any) -> (value: bool, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1301,7 +1301,7 @@ as_uint :: proc(a: any) -> (value: uint, valid: bool) {
 as_i64 :: proc(a: any) -> (value: i64, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1410,7 +1410,7 @@ as_i64 :: proc(a: any) -> (value: i64, valid: bool) {
 as_u64 :: proc(a: any) -> (value: u64, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1521,7 +1521,7 @@ as_u64 :: proc(a: any) -> (value: u64, valid: bool) {
 as_f64 :: proc(a: any) -> (value: f64, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1639,7 +1639,7 @@ as_f64 :: proc(a: any) -> (value: f64, valid: bool) {
 as_string :: proc(a: any) -> (value: string, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1660,7 +1660,7 @@ as_string :: proc(a: any) -> (value: string, valid: bool) {
 as_string16 :: proc(a: any) -> (value: string16, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1725,7 +1725,7 @@ relative_pointer_to_absolute_raw :: proc(data: rawptr, base_integer_id: typeid) 
 as_pointer :: proc(a: any) -> (value: rawptr, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1751,7 +1751,7 @@ as_pointer :: proc(a: any) -> (value: rawptr, valid: bool) {
 as_raw_data :: proc(a: any) -> (value: rawptr, valid: bool) {
     if a == nil { return }
     a := a
-    ti := internal.type_info_core(type_info_of(a.id))
+    ti := type_info_core(type_info_of(a.id))
     a.id = ti.id
 
     #partial switch info in ti.variant {
@@ -1825,7 +1825,7 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
         return mem.compare(a.data, b.data, uint(t.size)) == 0
     }
     
-    t = internal.type_info_core(t)
+    t = type_info_core(t)
 
     switch v in t.variant {
     case Type_Info_Named:

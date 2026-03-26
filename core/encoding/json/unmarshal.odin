@@ -195,13 +195,13 @@ assign_int :: proc(val: any, i: $T, loc := #caller_location) -> bool {
     case uint:    dst = uint   (i)
     case uintptr: dst = uintptr(i)
     case:
-        is_bit_set_different_endian_to_platform :: proc(ti: ^internal.Type_Info) -> bool {
+        is_bit_set_different_endian_to_platform :: proc(ti: ^reflect.Type_Info) -> bool {
             if ti == nil {
                 return false
             }
-            t := internal.type_info_base(ti)
+            t := reflect.type_info_base(ti)
             #partial switch info in t.variant {
-            case internal.Type_Info_Integer:
+            case reflect.Type_Info_Integer:
                 switch info.endianness {
                 case .Platform: return false
                 case .Little:   return ODIN_ENDIAN != .Little
@@ -212,7 +212,7 @@ assign_int :: proc(val: any, i: $T, loc := #caller_location) -> bool {
         }
 
         ti := type_info_of(v.id)
-        if info, ok := ti.variant.(internal.Type_Info_Bit_Set); ok {
+        if info, ok := ti.variant.(reflect.Type_Info_Bit_Set); ok {
             do_byte_swap := is_bit_set_different_endian_to_platform(info.underlying)
             switch ti.size * 8 {
             case 0: // no-op.
@@ -666,7 +666,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             key_ptr: rawptr
 
             #partial switch tk in t.key.variant {
-                case internal.Type_Info_String:
+                case reflect.Type_Info_String:
                     internal.assert(tk.encoding == .UTF_8)
 
                     key_ptr = rawptr(&key)
@@ -675,7 +675,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
                         key_cstr = cstring(raw_data(key))
                         key_ptr = &key_cstr
                     }
-                case internal.Type_Info_Integer:
+                case reflect.Type_Info_Integer:
                     i, ok := strconv.parse_i128_maybe_prefixed(key)
                     if !ok  { return UNSUPPORTED_TYPE }
                     key_ptr = rawptr(&i)

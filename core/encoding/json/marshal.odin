@@ -173,14 +173,14 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         }
     }
 
-    ti := internal.type_info_base(type_info_of(v.id))
+    ti := reflect.type_info_base(type_info_of(v.id))
     a := any{v.data, ti.id}
 
     switch info in ti.variant {
-    case internal.Type_Info_Named:
+    case reflect.Type_Info_Named:
         unreachable()
 
-    case internal.Type_Info_Integer:
+    case reflect.Type_Info_Integer:
         buf: [40]byte
         u := cast_any_int_to_u128(a)
 
@@ -202,13 +202,13 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         _ = io.write_string(w, s) or_return
 
 
-    case internal.Type_Info_Rune:
+    case reflect.Type_Info_Rune:
         r := a.(rune)
         io.write_byte(w, '"')                      or_return
         _ = io.write_escaped_rune(w, r, '"', true) or_return
         io.write_byte(w, '"')                      or_return
 
-    case internal.Type_Info_Float:
+    case reflect.Type_Info_Float:
         switch f in a {
         case f16: _ = io.write_f16(w, f) or_return
         case f32: _ = io.write_f32(w, f) or_return
@@ -216,7 +216,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         case: return .Unsupported_Type
         }
 
-    case internal.Type_Info_Complex:
+    case reflect.Type_Info_Complex:
         r, i: f64
         switch z in a {
         case complex32:  r, i = f64(real(z)), f64(imag(z))
@@ -231,16 +231,16 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         _ = io.write_f64(w, i)       or_return
         io.write_byte(w, ']')    or_return
 
-    case internal.Type_Info_Quaternion:
+    case reflect.Type_Info_Quaternion:
         return .Unsupported_Type
 
-    case internal.Type_Info_String:
+    case reflect.Type_Info_String:
         switch s in a {
         case string:  _ = io.write_quoted_string(w, s, '"', nil, true)         or_return
         case cstring: _ = io.write_quoted_string(w, string(s), '"', nil, true) or_return
         }
 
-    case internal.Type_Info_Boolean:
+    case reflect.Type_Info_Boolean:
         val: bool
         switch b in a {
         case bool: val = bool(b)
@@ -251,41 +251,41 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         }
         _ = io.write_string(w, val ? "true" : "false") or_return
 
-    case internal.Type_Info_Any:
+    case reflect.Type_Info_Any:
         return .Unsupported_Type
 
-    case internal.Type_Info_Type_Id:
+    case reflect.Type_Info_Type_Id:
         return .Unsupported_Type
 
-    case internal.Type_Info_Pointer:
+    case reflect.Type_Info_Pointer:
         if v.id == typeid_of(Null) {
             _ = io.write_string(w, "null") or_return
         } else {
             return .Unsupported_Type
         }
 
-    case internal.Type_Info_Multi_Pointer:
+    case reflect.Type_Info_Multi_Pointer:
         return .Unsupported_Type
 
-    case internal.Type_Info_Soa_Pointer:
+    case reflect.Type_Info_Soa_Pointer:
         return .Unsupported_Type
 
-    case internal.Type_Info_Procedure:
+    case reflect.Type_Info_Procedure:
         return .Unsupported_Type
 
-    case internal.Type_Info_Parameters:
+    case reflect.Type_Info_Parameters:
         return .Unsupported_Type
 
-    case internal.Type_Info_Simd_Vector:
+    case reflect.Type_Info_Simd_Vector:
         return .Unsupported_Type
         
-    case internal.Type_Info_Matrix:
+    case reflect.Type_Info_Matrix:
         return .Unsupported_Type
 
-    case internal.Type_Info_Bit_Field:
+    case reflect.Type_Info_Bit_Field:
         return .Unsupported_Type
 
-    case internal.Type_Info_Array:
+    case reflect.Type_Info_Array:
         opt_write_start(w, opt, '[') or_return
         for i in 0..<info.count {
             opt_write_iteration(w, opt, i == 0) or_return
@@ -294,13 +294,13 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         }
         opt_write_end(w, opt, ']') or_return
         
-    case internal.Type_Info_Enumerated_Array:
+    case reflect.Type_Info_Enumerated_Array:
         index_type := reflect.type_info_base(info.index)
         enum_type := index_type.variant.(reflect.Type_Info_Enum)
 
         opt_write_start(w, opt, '{') or_return
         for i in 0..<info.count {
-            value := cast(internal.Type_Info_Enum_Value)i
+            value := cast(reflect.Type_Info_Enum_Value)i
             index, found := slice.linear_search(enum_type.values, value)
             if !found {
                 continue
@@ -313,7 +313,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         }
         opt_write_end(w, opt, '}') or_return
         
-    case internal.Type_Info_Dynamic_Array:
+    case reflect.Type_Info_Dynamic_Array:
         opt_write_start(w, opt, '[') or_return
         array := cast(^dyn_array.Dyn_Array(byte))v.data
         for i in 0..<array.len {
@@ -323,7 +323,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         }
         opt_write_end(w, opt, ']') or_return
 
-    case internal.Type_Info_Slice:
+    case reflect.Type_Info_Slice:
         opt_write_start(w, opt, '[') or_return
         slice := cast(^slice.Raw_Slice)v.data
         for i in 0..<slice.len {
@@ -333,7 +333,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         }
         opt_write_end(w, opt, ']') or_return
 
-    case internal.Type_Info_Map:
+    case reflect.Type_Info_Map:
         m := (^maps.Raw_Map)(v.data)
         opt_write_start(w, opt, '{') or_return
 
@@ -358,18 +358,18 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                     // check for string type
                     {
                         kv  := any{key, info.key.id}
-                        kti := internal.type_info_base(type_info_of(kv.id))
+                        kti := reflect.type_info_base(type_info_of(kv.id))
                         ka  := any{kv.data, kti.id}
                         name: string
 
                         #partial switch info in kti.variant {
-                        case internal.Type_Info_String:
+                        case reflect.Type_Info_String:
                             switch s in ka {
                             case string: name = s
                             case cstring: name = string(s)
                             }
                             opt_write_key(w, opt, name) or_return
-                        case internal.Type_Info_Integer:
+                        case reflect.Type_Info_Integer:
                             buf: [40]byte
                             u := cast_any_int_to_u128(ka)
                             name = strconv.write_bits_128(buf[:], u, 10, info.signed, 8*uint(kti.size), "0123456789", nil)
@@ -400,11 +400,11 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                     // check for string type
                     {
                         kv  := any{key, info.key.id}
-                        kti := internal.type_info_base(type_info_of(kv.id))
+                        kti := reflect.type_info_base(type_info_of(kv.id))
                         ka  := any{kv.data, kti.id}
 
                         #partial switch info in kti.variant {
-                        case internal.Type_Info_String:
+                        case reflect.Type_Info_String:
                             switch s in ka {
                             case string: name = s
                             case cstring: name = string(s)
@@ -429,46 +429,46 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
         opt_write_end(w, opt, '}') or_return
 
-    case internal.Type_Info_Struct:
+    case reflect.Type_Info_Struct:
         is_omitempty :: proc(v: any) -> bool {
             v := v
             if v == nil {
                 return true
             }
-            ti := internal.type_info_core(type_info_of(v.id))
+            ti := reflect.type_info_core(type_info_of(v.id))
             #partial switch info in ti.variant {
-            case internal.Type_Info_String:
+            case reflect.Type_Info_String:
                 switch x in v {
                 case string:    return x == ""
                 case cstring:   return x == nil || x == ""
                 case string16:  return x == ""
                 case cstring16: return x == nil || x == ""
                 }
-            case internal.Type_Info_Any:
+            case reflect.Type_Info_Any:
                 return v.(any) == nil
-            case internal.Type_Info_Type_Id:
+            case reflect.Type_Info_Type_Id:
                 return v.(typeid) == nil
-            case internal.Type_Info_Pointer,
-                 internal.Type_Info_Multi_Pointer,
-                 internal.Type_Info_Procedure:
+            case reflect.Type_Info_Pointer,
+                 reflect.Type_Info_Multi_Pointer,
+                 reflect.Type_Info_Procedure:
                 return (^rawptr)(v.data)^ == nil
-            case internal.Type_Info_Dynamic_Array:
+            case reflect.Type_Info_Dynamic_Array:
                 return (^dyn_array.Dyn_Array(byte))(v.data).len == 0
-            case internal.Type_Info_Slice:
+            case reflect.Type_Info_Slice:
                 return (^slice.Raw_Slice)(v.data).len == 0
-            case internal.Type_Info_Union,
-                 internal.Type_Info_Bit_Set,
-                 internal.Type_Info_Soa_Pointer:
+            case reflect.Type_Info_Union,
+                 reflect.Type_Info_Bit_Set,
+                 reflect.Type_Info_Soa_Pointer:
                 return reflect.is_nil(v)
-            case internal.Type_Info_Map:
+            case reflect.Type_Info_Map:
                 return (^internal.Raw_Map)(v.data).len == 0
             }
             return false
         }
 
         marshal_struct_fields :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: Marshal_Error) {
-            ti := internal.type_info_base(type_info_of(v.id))
-            info := ti.variant.(internal.Type_Info_Struct)
+            ti := reflect.type_info_base(type_info_of(v.id))
+            info := ti.variant.(reflect.Type_Info_Struct)
             first_iteration := true
             for name, i in info.names[:info.field_count] {
                 omitempty := false
@@ -524,7 +524,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         marshal_struct_fields(w, v, opt) or_return
         opt_write_end(w, opt, '}') or_return
 
-    case internal.Type_Info_Union:
+    case reflect.Type_Info_Union:
         if len(info.variants) == 0 || v.data == nil {
             _ = io.write_string(w, "null") or_return
             return nil
@@ -556,7 +556,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         id := info.variants[tag].id
         return marshal_to_writer(w, any{v.data, id}, opt)
 
-    case internal.Type_Info_Enum:
+    case reflect.Type_Info_Enum:
         if !opt.use_enum_names || len(info.names) == 0 {
             return marshal_to_writer(w, any{v.data, info.base.id}, opt)
         } else {
@@ -568,14 +568,14 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
             }
         }
 
-    case internal.Type_Info_Bit_Set:
-        is_bit_set_different_endian_to_platform :: proc(ti: ^internal.Type_Info) -> bool {
+    case reflect.Type_Info_Bit_Set:
+        is_bit_set_different_endian_to_platform :: proc(ti: ^reflect.Type_Info) -> bool {
             if ti == nil {
                 return false
             }
-            t := internal.type_info_base(ti)
+            t := reflect.type_info_base(ti)
             #partial switch info in t.variant {
-            case internal.Type_Info_Integer:
+            case reflect.Type_Info_Integer:
                 switch info.endianness {
                 case .Platform: return false
                 case .Little:   return ODIN_ENDIAN != .Little

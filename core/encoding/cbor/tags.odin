@@ -265,19 +265,19 @@ tag_cbor_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, v:
 @(private)
 tag_cbor_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_Error {
     _encode_u8(e.writer, TAG_CBOR_NR, .Tag) or_return
-    ti := internal.type_info_base(type_info_of(v.id))
+    ti := reflect.type_info_base(type_info_of(v.id))
     #partial switch t in ti.variant {
-    case internal.Type_Info_String:
+    case reflect.Type_Info_String:
         return marshal_into(e, v)
-    case internal.Type_Info_Array:
+    case reflect.Type_Info_Array:
         elem_base := reflect.type_info_base(t.elem)
         if elem_base.id != byte { return .Bad_Tag_Value }
         return marshal_into(e, v)
-    case internal.Type_Info_Slice:
+    case reflect.Type_Info_Slice:
         elem_base := reflect.type_info_base(t.elem)
         if elem_base.id != byte { return .Bad_Tag_Value }
         return marshal_into(e, v)
-    case internal.Type_Info_Dynamic_Array:
+    case reflect.Type_Info_Dynamic_Array:
         elem_base := reflect.type_info_base(t.elem)
         if elem_base.id != byte { return .Bad_Tag_Value }
         return marshal_into(e, v)
@@ -357,7 +357,7 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
 tag_base64_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_Error {
     _encode_u8(e.writer, TAG_BASE64_NR, .Tag) or_return
 
-    ti := internal.type_info_base(type_info_of(v.id))
+    ti := reflect.type_info_base(type_info_of(v.id))
     a := any{v.data, ti.id}
 
     bytes: []byte
@@ -368,7 +368,7 @@ tag_base64_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marsha
     case dyn_array.Dyn_Array(byte): bytes = val[:]
     case:
         #partial switch t in ti.variant {
-        case internal.Type_Info_Array:
+        case reflect.Type_Info_Array:
             if t.elem.id != byte { return .Bad_Tag_Value }
             bytes = ([^]byte)(v.data)[:t.count]
         case:

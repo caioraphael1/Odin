@@ -161,7 +161,7 @@ entry_infos :: proc(m: $M/map[$K]$V, allocator: mem.Allocator, loc := #caller_lo
     m := m
     rm := (^maps.Raw_Map)(&m)
 
-    info := internal.type_info_base(type_info_of(M)).variant.(internal.Type_Info_Map)
+    info := reflect.type_info_base(type_info_of(M)).variant.(reflect.Type_Info_Map)
     if info.map_info != nil {
         entries = make(type_of(entries), len(m), allocator, loc) or_return
 

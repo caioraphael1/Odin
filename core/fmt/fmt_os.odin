@@ -2,11 +2,11 @@
 #+build !js
 #+build !orca
 
-import "base:internal"
 
 import "core:os"
 import "core:io"
 import "core:io/writer"
+import "core:reflect"
 
 
 // fprint formats using the default print settings and writes to fd
@@ -53,7 +53,7 @@ fprintfln :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true) -> uint
     return fprintf(fd, fmt, ..args, flush=flush, newline=true)
 }
 
-fprint_type :: proc(fd: ^os.File, info: ^internal.Type_Info, flush := true) -> (n: uint, err: io.Error) {
+fprint_type :: proc(fd: ^os.File, info: ^reflect.Type_Info, flush := true) -> (n: uint, err: io.Error) {
     buf: [1024]byte
     b: writer.Writer
     defer _ = writer.writer_flush(&b)

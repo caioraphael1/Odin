@@ -14,7 +14,7 @@ import            "base:strings"
 import            "core:unicode/utf8"
 
 @(optimization_mode="favor_size")
-parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: ^internal.Type_Info) -> bool {
+parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: ^reflect.Type_Info) -> bool {
     bounded_int :: proc(value, min, max: i128) -> (result: i128, ok: bool) {
         return value, min <= value && value <= max
     }
@@ -41,7 +41,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
     // This seems to be the smallest way for now.
 
     #partial switch specific_type_info in type_info.variant {
-    case internal.Type_Info_Integer:
+    case reflect.Type_Info_Integer:
         if specific_type_info.signed {
             value := strconv.parse_i128_maybe_prefixed(str) or_return
             switch type_info.id {
@@ -87,14 +87,14 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
             }
         }
 
-    case internal.Type_Info_Rune:
+    case reflect.Type_Info_Rune:
         if utf8.string_rune_count(str) != 1 {
             return false
         }
 
         (^rune)(ptr)^ = utf8.rune_at_pos(str, 0)
 
-    case internal.Type_Info_Float:
+    case reflect.Type_Info_Float:
         value := strconv.parse_f64(str) or_return
         switch type_info.id {
         case f16:   (^f16)  (ptr)^ = cast(f16)   value
@@ -110,7 +110,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
         case f64be: (^f64be)(ptr)^ = cast(f64be) value
         }
     
-    case internal.Type_Info_Complex:
+    case reflect.Type_Info_Complex:
         value := strconv.parse_complex128(str) or_return
         switch type_info.id {
         case complex32:  (^complex32) (ptr)^ = (complex32)(value)
@@ -118,7 +118,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
         case complex128: (^complex128)(ptr)^ = value
         }
     
-    case internal.Type_Info_Quaternion:
+    case reflect.Type_Info_Quaternion:
         value := strconv.parse_quaternion256(str) or_return
         switch type_info.id {
         case quaternion64:  (^quaternion64) (ptr)^ = (quaternion64)(value)
@@ -126,7 +126,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
         case quaternion256: (^quaternion256)(ptr)^ = value
         }
 
-    case internal.Type_Info_String:
+    case reflect.Type_Info_String:
         internal.assert(specific_type_info.encoding == .UTF_8)
 
         if specific_type_info.is_cstring {
@@ -140,7 +140,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
             (^string)(ptr)^ = str
         }
 
-    case internal.Type_Info_Boolean:
+    case reflect.Type_Info_Boolean:
         value := strconv.parse_bool(str) or_return
         switch type_info.id {
         case bool: (^bool)(ptr)^ =     value
@@ -150,7 +150,7 @@ parse_and_set_pointer_by_base_type :: proc(ptr: rawptr, str: string, type_info: 
         case b64:  (^b64) (ptr)^ = b64(value)
         }
 
-    case internal.Type_Info_Bit_Set:
+    case reflect.Type_Info_Bit_Set:
         // Parse a string of 1's and 0's, from left to right,
         // least significant bit to most significant bit.
         value: u128
@@ -378,9 +378,9 @@ set_unbounded_integer_by_type :: proc(ptr: rawptr, value: $T, data_type: typeid)
 }
 
 @(optimization_mode="favor_size")
-parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^internal.Type_Info, arg_tag: string) -> (error: Error) {
+parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^reflect.Type_Info, arg_tag: string) -> (error: Error) {
     #partial switch specific_type_info in type_info.variant {
-    case internal.Type_Info_Named:
+    case reflect.Type_Info_Named:
         if global_custom_type_setter != nil {
             // The program gets to go first.
             error_message, handled, alloc_error := global_custom_type_setter(ptr, type_info.id, str, arg_tag)
@@ -409,7 +409,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^inte
         }
 
         // Might be a named enum. Need to check here first, since we handle all enums.
-        if enum_type_info, is_enum := specific_type_info.base.variant.(internal.Type_Info_Enum); is_enum {
+        if enum_type_info, is_enum := specific_type_info.base.variant.(reflect.Type_Info_Enum); is_enum {
             if value, ok := reflect.enum_from_name_any(type_info.id, str); ok {
                 set_unbounded_integer_by_type(ptr, value, enum_type_info.base.id)
             } else {
@@ -430,7 +430,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^inte
             }
         }
 
-    case internal.Type_Info_Dynamic_Array:
+    case reflect.Type_Info_Dynamic_Array:
         ptr := cast(^dyn_array.Dyn_Array(byte))ptr
 
         // Try to convert the value first.
@@ -458,7 +458,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^inte
             uintptr((ptr.len - 1) * specific_type_info.elem.size))
         intrinsics.mem_copy(subptr, raw_data(elem_backing), len(elem_backing))
 
-    case internal.Type_Info_Enum:
+    case reflect.Type_Info_Enum:
         // This is a nameless enum.
         // The code here is virtually the same as above for named enums.
         if value, ok := reflect.enum_from_name_any(type_info.id, str); ok {

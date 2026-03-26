@@ -12,9 +12,9 @@ _error_string :: proc(errno: i32) -> string {
 		return ""
 	}
 
-	err := internal.Type_Info_Enum_Value(e)
+	err := reflect.Type_Info_Enum_Value(e)
 
-	ti := &internal.type_info_base(type_info_of(wasi.errno_t)).variant.(internal.Type_Info_Enum)
+	ti := &reflect.type_info_base(type_info_of(wasi.errno_t)).variant.(reflect.Type_Info_Enum)
 	if idx, ok := slice.binary_search(ti.values, err); ok {
 		return ti.names[idx]
 	}

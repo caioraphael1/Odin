@@ -553,7 +553,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         da := dyn_array.Dyn_Array{rawptr(v.data), 0, 2, allocator }
 
-        info: ^internal.Type_Info
+        info: ^reflect.Type_Info
         switch ti.id {
         case complex32:  info = type_info_of(f16)
         case complex64:  info = type_info_of(f32)
@@ -573,7 +573,7 @@ _unmarshal_array :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
 
         da := dyn_array.Dyn_Array{rawptr(v.data), 0, 4, allocator }
 
-        info: ^internal.Type_Info
+        info: ^reflect.Type_Info
         switch ti.id {
         case quaternion64:  info = type_info_of(f16)
         case quaternion128: info = type_info_of(f32)
@@ -875,7 +875,7 @@ _assign_int :: proc(val: any, i: $T) -> bool {
     case uintptr: dst = uintptr(i)
     case:
         ti := type_info_of(v.id)
-        if _, ok := ti.variant.(internal.Type_Info_Bit_Set); ok {
+        if _, ok := ti.variant.(reflect.Type_Info_Bit_Set); ok {
             do_byte_swap := !reflect.bit_set_is_big_endian(v)
             switch ti.size * 8 {
             case 0: // no-op.

@@ -1,7 +1,8 @@
 #+private
-import "base:internal"
 import "base:container/slice"
+
 import win32 "core:sys/windows"
+import "core:reflect"
 
 _Platform_Error :: win32.System_Error
 
@@ -11,9 +12,9 @@ _error_string :: proc(errno: i32) -> string {
         return ""
     }
 
-    err := internal.Type_Info_Enum_Value(e)
+    err := reflect.Type_Info_Enum_Value(e)
 
-    ti := &internal.type_info_base(type_info_of(win32.System_Error)).variant.(internal.Type_Info_Enum)
+    ti := &reflect.type_info_base(type_info_of(win32.System_Error)).variant.(reflect.Type_Info_Enum)
     if idx, ok := slice.binary_search(ti.values, err); ok {
         return ti.names[idx]
     }
