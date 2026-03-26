@@ -6641,7 +6641,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
     case BuiltinProc_type_is_array:
     case BuiltinProc_type_is_enumerated_array:
     case BuiltinProc_type_is_slice:
-    case BuiltinProc_type_is_dynamic_array:
     case BuiltinProc_type_is_map:
     case BuiltinProc_type_is_struct:
     case BuiltinProc_type_is_union:

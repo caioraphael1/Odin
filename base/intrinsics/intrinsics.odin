@@ -228,7 +228,6 @@ type_is_multi_pointer    :: proc($T: typeid) -> bool ---
 type_is_array            :: proc($T: typeid) -> bool ---
 type_is_enumerated_array :: proc($T: typeid) -> bool ---
 type_is_slice            :: proc($T: typeid) -> bool ---
-type_is_dynamic_array    :: proc($T: typeid) -> bool ---
 type_is_map              :: proc($T: typeid) -> bool ---
 type_is_struct           :: proc($T: typeid) -> bool ---
 type_is_union            :: proc($T: typeid) -> bool ---
