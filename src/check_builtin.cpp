@@ -2637,6 +2637,8 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
                 mode  = Addressing_Constant;
                 type = t_untyped_integer;
                 value = exact_value_u64(bt->Struct.soa_count);
+            } else if (bt->Struct.soa_kind == StructSoa_Slice && id == BuiltinProc_len) {
+                mode = Addressing_Value;
             }
         } else if (is_type_simd_vector(op_type)) {
             Type *bt = base_type(op_type);

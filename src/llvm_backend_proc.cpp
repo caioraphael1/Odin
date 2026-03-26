@@ -2286,7 +2286,7 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             GB_PANIC("Array lengths are constant");
         } else if (is_type_slice(t)) {
             return lb_slice_len(p, v);
-        }else if (is_type_map(t)) {
+        } else if (is_type_map(t)) {
             return lb_map_len(p, v);
         } else if (is_type_soa_struct(t)) {
             return lb_soa_struct_len(p, v);
