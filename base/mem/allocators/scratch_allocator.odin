@@ -8,12 +8,12 @@ import "base:container/dyn_array"
 Scratch allocator data.
 */
 Scratch :: struct {
-    data:                 []byte,
+    data:                 []u8,
     curr_offset:          uint,
     prev_allocation:      rawptr,
     prev_allocation_root: rawptr,
     backup_allocator:     mem.Allocator,
-    leaked_allocations:   dyn_array.Dyn_Array([]byte),
+    leaked_allocations:   dyn_array.Dyn_Array([]u8),
 }
 
 /*
@@ -52,7 +52,7 @@ scratch_allocator :: proc(allocator: ^Scratch) -> mem.Allocator {
 Initialize a scratch allocator.
 */
 scratch_init :: proc(s: ^Scratch, size: uint, backup_allocator: mem.Allocator) -> mem.Allocator_Error {
-    s.data = slice.create_aligned([]byte, size, 2*align_of(rawptr), backup_allocator) or_return
+    s.data = slice.create_aligned([]u8, size, 2*align_of(rawptr), backup_allocator) or_return
     s.curr_offset = 0
     s.prev_allocation = nil
     s.prev_allocation_root = nil
@@ -112,7 +112,7 @@ scratch_alloc_bytes :: proc(
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     bytes, err := scratch_alloc_bytes_non_zeroed(s, size, alignment, loc)
     if bytes != nil {
         slice.zero(bytes)
@@ -151,7 +151,7 @@ scratch_alloc_bytes_non_zeroed :: proc(
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     if s.data == nil {
         internal.panic("Scratch allocator not initialized.", loc)
     }
@@ -159,7 +159,7 @@ scratch_alloc_bytes_non_zeroed :: proc(
     if alignment > 1 {
         // It is possible to do this with less bytes, but this is the
         // mathematically simpler solution, and this being a Scratch allocator,
-        // we don't need to be so strict about every byte.
+        // we don't need to be so strict about every u8.
         aligned_size += alignment - 1
     }
     if aligned_size <= len(s.data) {
@@ -302,11 +302,11 @@ This procedure returns the slice of the resized memory region.
 
 scratch_resize_bytes :: proc(
     s:         ^Scratch,
-    old_data:  []byte,
+    old_data:  []u8,
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     bytes, err := scratch_resize_bytes_non_zeroed(s, old_data, size, alignment, loc)
     if bytes != nil && size > len(old_data) {
         slice.zero(bytes[size:])
@@ -362,11 +362,11 @@ This procedure returns the slice of the resized memory region.
 
 scratch_resize_bytes_non_zeroed :: proc(
     s:         ^Scratch,
-    old_data:  []byte,
+    old_data:  []u8,
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     old_memory := raw_data(old_data)
     old_size := len(old_data)
     if s.data == nil {
@@ -404,7 +404,7 @@ scratch_allocator_proc :: proc(
     old_memory:      rawptr,
     old_size:        uint,
     loc := #caller_location,
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     s := (^Scratch)(allocator_data)
     size := size
     switch mode {

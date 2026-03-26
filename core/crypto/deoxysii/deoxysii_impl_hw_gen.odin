@@ -11,11 +11,11 @@ is_hardware_accelerated :: proc() -> bool {
 }
 
 @(private)
-e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_check {
+e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []u8) #no_bounds_check {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private, require_results)
-d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
+d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []u8) -> bool {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }

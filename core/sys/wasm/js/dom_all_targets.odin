@@ -2,7 +2,7 @@
 import "base:internal"
 
 
-get_element_value_string :: proc(id: string, buf: []byte) -> string {
+get_element_value_string :: proc(id: string, buf: []u8) -> string {
 	internal.panic("vendor:wasm/js not supported on non JS targets")
 }
 

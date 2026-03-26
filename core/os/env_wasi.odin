@@ -6,7 +6,7 @@ import "core:sync"
 import "core:sys/wasm/wasi"
 
 g_env: map[string]string
-g_env_buf: []byte
+g_env_buf: []u8
 g_env_mutex: sync.RW_Mutex
 g_env_error: Error
 g_env_built: bool
@@ -34,7 +34,7 @@ build_env :: proc(allocator: mem.Allocator) -> (err: Error) {
     g_env = maps.create(map[string]string, num_envs, allocator) or_return
     defer if err != nil { _ = slice.delete(g_env) }
 
-    g_env_buf = slice.create([]byte, size_of_envs, allocator) or_return
+    g_env_buf = slice.create([]u8, size_of_envs, allocator) or_return
     defer if err != nil { _ = slice.delete(g_env_buf, allocator) }
 
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()

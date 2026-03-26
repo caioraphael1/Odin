@@ -1,7 +1,7 @@
 #+private
 import "base:intrinsics"
 
-_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []u8) -> (int, _OS_Errno) {
     when ODIN_ARCH == .amd64 {
         SYS_write :: uintptr(1)
     } else when ODIN_ARCH == .arm64 {

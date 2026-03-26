@@ -12,7 +12,7 @@ import "core:reflect"
 // fprint formats using the default print settings and writes to fd
 @(optional_results)
 fprint :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
-    buf: [1024]byte
+    buf: [1024]u8
     b: writer.Writer
     defer _ = writer.writer_flush(&b)
 
@@ -24,7 +24,7 @@ fprint :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
 // fprintln formats using the default print settings and writes to fd
 @(optional_results)
 fprintln :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
-    buf: [1024]byte
+    buf: [1024]u8
     b: writer.Writer
     defer _ = writer.writer_flush(&b)
 
@@ -37,7 +37,7 @@ fprintln :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
 // fprintf formats according to the specified format string and writes to fd
 @(optional_results)
 fprintf :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true, newline := false) -> uint {
-    buf: [1024]byte
+    buf: [1024]u8
     b: writer.Writer
     defer _ = writer.writer_flush(&b)
 
@@ -54,7 +54,7 @@ fprintfln :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true) -> uint
 }
 
 fprint_type :: proc(fd: ^os.File, info: ^reflect.Type_Info, flush := true) -> (n: uint, err: io.Error) {
-    buf: [1024]byte
+    buf: [1024]u8
     b: writer.Writer
     defer _ = writer.writer_flush(&b)
 
@@ -65,7 +65,7 @@ fprint_type :: proc(fd: ^os.File, info: ^reflect.Type_Info, flush := true) -> (n
 }
 
 fprint_typeid :: proc(fd: ^os.File, id: typeid, flush := true) -> (n: uint, err: io.Error) {
-    buf: [1024]byte
+    buf: [1024]u8
     b: writer.Writer
     defer _ = writer.writer_flush(&b)
 

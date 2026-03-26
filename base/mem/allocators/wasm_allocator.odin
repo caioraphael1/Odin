@@ -64,7 +64,7 @@ WASM_Allocator :: struct {
     // Because wasm memory can only be allocated in pages of 64k at a time, we keep any
     // spilled/unused bytes that are left from the allocated pages here, first using this
     // when bytes are needed.
-    spill: []byte,
+    spill: []u8,
     // Mutex for thread safety, only used if the target feature "atomics" is enabled.
     mu: Mutex_State,
 }
@@ -101,7 +101,7 @@ wasm_allocator :: proc(a: ^WASM_Allocator) -> Allocator {
     }
 }
 
-wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: uint, old_memory: rawptr, old_size: uint, loc := #caller_location) -> ([]byte, Allocator_Error) {
+wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: uint, old_memory: rawptr, old_size: uint, loc := #caller_location) -> ([]u8, Allocator_Error) {
     a := (^WASM_Allocator)(a)
     if a == nil {
         a = &global_default_wasm_allocator_data
@@ -118,14 +118,14 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: ui
             return nil, .Out_Of_Memory
         }
         mem.zero(ptr, size)
-        return ([^]byte)(ptr)[:size], nil
+        return ([^]u8)(ptr)[:size], nil
 
     case .Alloc_Non_Zeroed:
         ptr := aligned_alloc(a, uint(alignment), uint(size), loc)
         if ptr == nil {
             return nil, .Out_Of_Memory
         }
-        return ([^]byte)(ptr)[:size], nil
+        return ([^]u8)(ptr)[:size], nil
 
     case .Resize:
         ptr := aligned_realloc(a, old_memory, uint(alignment), uint(size), loc)
@@ -133,7 +133,7 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: ui
             return nil, .Out_Of_Memory
         }
 
-        bytes := ([^]byte)(ptr)[:size]
+        bytes := ([^]u8)(ptr)[:size]
 
         if size > old_size {
             new_region := raw_data(bytes[old_size:])
@@ -147,7 +147,7 @@ wasm_allocator_proc :: proc(a: rawptr, mode: Allocator_Mode, size, alignment: ui
         if ptr == nil {
             return nil, .Out_Of_Memory
         }
-        return ([^]byte)(ptr)[:size], nil
+        return ([^]u8)(ptr)[:size], nil
 
     case .Free:
         _ = mem.free(a, old_memory, loc)
@@ -258,7 +258,7 @@ Region :: struct {
 Root_Region :: struct {
     size:    u32,
     next:    ^Root_Region,
-    end_ptr: ^byte,
+    end_ptr: ^u8,
 }
 
 @(private="file")
@@ -405,13 +405,13 @@ region_is_in_use :: proc(r: ^Region) -> bool {
 }
 
 @(private="file")
-region_payload_start_ptr :: proc(r: ^Region) -> [^]byte {
-    return ([^]byte)(r)[size_of(uint):]
+region_payload_start_ptr :: proc(r: ^Region) -> [^]u8 {
+    return ([^]u8)(r)[size_of(uint):]
 }
 
 @(private="file")
-region_payload_end_ptr :: proc(r: ^Region) -> [^]byte {
-    return ([^]byte)(r)[r.size-size_of(uint):]
+region_payload_end_ptr :: proc(r: ^Region) -> [^]u8 {
+    return ([^]u8)(r)[r.size-size_of(uint):]
 }
 
 @(private="file")
@@ -469,15 +469,15 @@ claim_more_memory :: proc(a: ^WASM_Allocator, num_bytes: uint) -> bool {
 
     PAGE_SIZE :: 64 * 1024
 
-    page_alloc :: proc(page_count: uint) -> []byte {
+    page_alloc :: proc(page_count: uint) -> []u8 {
         prev_page_count := intrinsics.wasm_memory_grow(0, uintptr(page_count))
         if prev_page_count < 0 { return nil }
 
-        ptr := ([^]byte)(uintptr(prev_page_count) * PAGE_SIZE)
+        ptr := ([^]u8)(uintptr(prev_page_count) * PAGE_SIZE)
         return ptr[:page_count * PAGE_SIZE]
     }
 
-    alloc :: proc(a: ^WASM_Allocator, num_bytes: uint) -> (bytes: [^]byte) #no_bounds_check {
+    alloc :: proc(a: ^WASM_Allocator, num_bytes: uint) -> (bytes: [^]u8) #no_bounds_check {
         if uint(len(a.spill)) >= num_bytes {
             bytes = raw_data(a.spill[:num_bytes])
             a.spill = a.spill[num_bytes:]

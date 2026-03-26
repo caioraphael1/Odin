@@ -19,7 +19,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/strerror_r.html ]]
 	*/
-	strerror_r :: proc(errnum: Errno, strerrbuf: [^]byte, buflen: c.size_t) -> Errno ---
+	strerror_r :: proc(errnum: Errno, strerrbuf: [^]u8, buflen: c.size_t) -> Errno ---
 
 	/*
 	Map the signal number to an implementation-defined string.

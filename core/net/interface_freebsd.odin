@@ -48,7 +48,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     }
 
     // Allocate and get the entries.
-    buf, alloc_err := slice.create([]byte, needed)
+    buf, alloc_err := slice.create([]u8, needed)
     if alloc_err != nil {
         return nil, .Allocation_Failure
     }

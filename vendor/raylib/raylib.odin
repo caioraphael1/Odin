@@ -343,7 +343,7 @@ Transform :: struct {
 
 // Bone information
 BoneInfo :: struct {
-    name:   [32]byte `fmt:"s,0"`, // Bone name
+    name:   [32]u8 `fmt:"s,0"`, // Bone name
     parent: c.int,                // Bone parent
 }
 
@@ -369,7 +369,7 @@ ModelAnimation :: struct {
     frameCount: c.int,            // Number of animation frames
     bones:      [^]BoneInfo,      // Bones information (skeleton)
     framePoses: [^][^]Transform,  // Poses array by frame
-    name:       [32]byte `fmt:"s,0"`, // Animation name
+    name:       [32]u8 `fmt:"s,0"`, // Animation name
 }
 
 // Ray type (useful for raycast)
@@ -1065,13 +1065,13 @@ foreign lib {
 
     // Files management functions
 
-    LoadFileData            :: proc(fileName: cstring, dataSize: ^c.int) -> [^]byte ---                   // Load file data as byte array (read)
-    UnloadFileData          :: proc(data: [^]byte) ---                                                    // Unload file data allocated by LoadFileData()
-    SaveFileData            :: proc(fileName: cstring, data: rawptr, dataSize: c.int) -> bool ---         // Save data to file from byte array (write), returns true on success
+    LoadFileData            :: proc(fileName: cstring, dataSize: ^c.int) -> [^]u8 ---                   // Load file data as u8 array (read)
+    UnloadFileData          :: proc(data: [^]u8) ---                                                    // Unload file data allocated by LoadFileData()
+    SaveFileData            :: proc(fileName: cstring, data: rawptr, dataSize: c.int) -> bool ---         // Save data to file from u8 array (write), returns true on success
     ExportDataAsCode        :: proc(data: rawptr, dataSize: c.int, fileName: cstring) -> bool ---         // Export data to code (.h), returns true on success
-    LoadFileText            :: proc(fileName: cstring) -> [^]byte ---                                     // Load text data from file (read), returns a '\0' terminated string
-    UnloadFileText          :: proc(text: [^]byte) ---                                                    // Unload file text data allocated by LoadFileText()
-    SaveFileText            :: proc(fileName: cstring, text: [^]byte) -> bool ---                         // Save text data to file (write), string must be '\0' terminated, returns true on success
+    LoadFileText            :: proc(fileName: cstring) -> [^]u8 ---                                     // Load text data from file (read), returns a '\0' terminated string
+    UnloadFileText          :: proc(text: [^]u8) ---                                                    // Unload file text data allocated by LoadFileText()
+    SaveFileText            :: proc(fileName: cstring, text: [^]u8) -> bool ---                         // Save text data to file (write), string must be '\0' terminated, returns true on success
 
     // File system functions
 
@@ -1100,10 +1100,10 @@ foreign lib {
 
     // Compression/Encoding functionality
 
-    CompressData     :: proc(data: rawptr,     dataSize: c.int,     compDataSize: ^c.int) -> [^]byte ---       // Compress data (DEFLATE algorithm), memory must be MemFree()
-    DecompressData   :: proc(compData: rawptr, compDataSize: c.int, dataSize:     ^c.int) -> [^]byte ---       // Decompress data (DEFLATE algorithm), memory must be MemFree()
-    EncodeDataBase64 :: proc(data: rawptr,     dataSize: c.int,     outputSize:   ^c.int) -> [^]byte ---       // Encode data to Base64 string, memory must be MemFree()
-    DecodeDataBase64 :: proc(data: rawptr,     outputSize: ^c.int) -> [^]byte ---                              // Decode Base64 string data, memory must be MemFree()
+    CompressData     :: proc(data: rawptr,     dataSize: c.int,     compDataSize: ^c.int) -> [^]u8 ---       // Compress data (DEFLATE algorithm), memory must be MemFree()
+    DecompressData   :: proc(compData: rawptr, compDataSize: c.int, dataSize:     ^c.int) -> [^]u8 ---       // Decompress data (DEFLATE algorithm), memory must be MemFree()
+    EncodeDataBase64 :: proc(data: rawptr,     dataSize: c.int,     outputSize:   ^c.int) -> [^]u8 ---       // Encode data to Base64 string, memory must be MemFree()
+    DecodeDataBase64 :: proc(data: rawptr,     outputSize: ^c.int) -> [^]u8 ---                              // Decode Base64 string data, memory must be MemFree()
     ComputeCRC32     :: proc(data: rawptr,     dataSize: c.int) -> c.uint ---                                  // Compute CRC32 hash code
     ComputeMD5       :: proc (data: rawptr,    dataSize: c.int) -> [^]c.uint ---                               // Compute MD5 hash code, returns static int[4] (16 bytes)
     ComputeSHA1      :: proc(data: rawptr,     dataSize: c.int) -> [^]c.uint ---                               // Compute SHA1 hash code, returns static int[5] (20 bytes)
@@ -1481,31 +1481,31 @@ foreign lib {
 
     // Text codepoints management functions (unicode characters)
 
-    LoadUTF8             :: proc(codepoints: [^]rune, length: c.int) -> [^]byte --- // Load UTF-8 text encoded from codepoints array
-    UnloadUTF8           :: proc(text: [^]byte) ---                                 // Unload UTF-8 text encoded from codepoints array
+    LoadUTF8             :: proc(codepoints: [^]rune, length: c.int) -> [^]u8 --- // Load UTF-8 text encoded from codepoints array
+    UnloadUTF8           :: proc(text: [^]u8) ---                                 // Unload UTF-8 text encoded from codepoints array
     LoadCodepoints       :: proc(text: cstring, count: ^c.int) -> [^]rune ---       // Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
     UnloadCodepoints     :: proc(codepoints: [^]rune) ---                           // Unload codepoints data from memory
     GetCodepointCount    :: proc(text: cstring) -> c.int ---                        // Get total number of codepoints in a UTF-8 encoded string
     GetCodepoint         :: proc(text: cstring, codepointSize: ^c.int) -> rune ---  // Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
     GetCodepointNext     :: proc(text: cstring, codepointSize: ^c.int) -> rune ---  // Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
     GetCodepointPrevious :: proc(text: cstring, codepointSize: ^c.int) -> rune ---  // Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-    CodepointToUTF8      :: proc(codepoint: rune, utf8Size: ^c.int) -> cstring ---  // Encode one codepoint into UTF-8 byte array (array length returned as parameter)
+    CodepointToUTF8      :: proc(codepoint: rune, utf8Size: ^c.int) -> cstring ---  // Encode one codepoint into UTF-8 u8 array (array length returned as parameter)
 
-    // Text strings management functions (no UTF-8 strings, only byte chars)
+    // Text strings management functions (no UTF-8 strings, only u8 chars)
     // NOTE: Some strings allocate memory internally for returned strings, just be careful!
 
-    TextCopy      :: proc(dst: [^]byte, src: cstring) -> c.int ---                               // Copy one string to another, returns bytes copied
+    TextCopy      :: proc(dst: [^]u8, src: cstring) -> c.int ---                               // Copy one string to another, returns bytes copied
     TextIsEqual   :: proc(text1, text2: cstring) -> bool ---                                     // Check if two text string are equal
     TextLength    :: proc(text: cstring) -> c.uint ---                                           // Get text length, checks for '\0' ending
 
     // TextFormat is defined at the bottom of this file
 
     TextSubtext   :: proc(text: cstring, position: c.int, length: c.int) -> cstring ---          // Get a piece of a text string
-    TextReplace   :: proc(text: [^]byte, replace, by: cstring) -> [^]byte ---                    // Replace text string (WARNING: memory must be freed!)
-    TextInsert    :: proc(text, insert: cstring, position: c.int) -> [^]byte ---                 // Insert text in a position (WARNING: memory must be freed!)
+    TextReplace   :: proc(text: [^]u8, replace, by: cstring) -> [^]u8 ---                    // Replace text string (WARNING: memory must be freed!)
+    TextInsert    :: proc(text, insert: cstring, position: c.int) -> [^]u8 ---                 // Insert text in a position (WARNING: memory must be freed!)
     TextJoin      :: proc(textList: [^]cstring, count: c.int, delimiter: cstring) -> cstring --- // Join text strings with delimiter
-    TextSplit     :: proc(text: cstring, delimiter: byte, count: ^c.int) -> [^]cstring ---       // Split text into multiple strings
-    TextAppend    :: proc(text: [^]byte, dyn_array.append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
+    TextSplit     :: proc(text: cstring, delimiter: u8, count: ^c.int) -> [^]cstring ---       // Split text into multiple strings
+    TextAppend    :: proc(text: [^]u8, dyn_array.append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
     TextFindIndex :: proc(text, find: cstring) -> c.int ---                                      // Find first text occurrence within a string
     TextToUpper   :: proc(text: cstring) -> cstring ---                                          // Get upper case version of provided string
     TextToLower   :: proc(text: cstring) -> cstring ---                                          // Get lower case version of provided string
@@ -1726,7 +1726,7 @@ IsGestureDetected :: proc "c" (gesture: Gesture) -> bool {
 
 // Text formatting with variables (sprintf style)
 TextFormat :: proc(text: cstring, args: ..any) -> cstring {
-    @(static) buffers: [MAX_TEXTFORMAT_BUFFERS][MAX_TEXT_BUFFER_LENGTH]byte
+    @(static) buffers: [MAX_TEXTFORMAT_BUFFERS][MAX_TEXT_BUFFER_LENGTH]u8
     @(static) index: u32
     
     buffer := buffers[index][:]
@@ -1763,7 +1763,7 @@ MemAllocator :: proc() -> mem.Allocator {
 
 MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                          size, alignment: int,
-                         old_memory: rawptr, old_size: int, loc := #caller_location) -> (data: []byte, err: mem.Allocator_Error)  {
+                         old_memory: rawptr, old_size: int, loc := #caller_location) -> (data: []u8, err: mem.Allocator_Error)  {
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
         ptr := MemAlloc(c.uint(size))

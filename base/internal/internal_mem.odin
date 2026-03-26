@@ -8,7 +8,7 @@ __mem_compare :: proc(x, y: rawptr, n: uint) -> int #no_bounds_check {
     case x == nil: return -1
     case y == nil: return +1
     }
-    a, b := cast([^]byte)x, cast([^]byte)y
+    a, b := cast([^]u8)x, cast([^]u8)y
     
     i: uint
     m: uint
@@ -46,7 +46,7 @@ __mem_compare :: proc(x, y: rawptr, n: uint) -> int #no_bounds_check {
     }
 
     // 64-bit SIMD is faster than using a `uintptr` to detect a difference then
-    // re-iterating with the byte-by-byte loop, at least on AMD64.
+    // re-iterating with the u8-by-u8 loop, at least on AMD64.
     m = (n-i) / 8 * 8
     for ; i < m; i += 8 {
         load_a := intrinsics.unaligned_load(cast(^#simd[8]u8)&a[i])
@@ -129,7 +129,7 @@ __mem_equal :: proc(x, y: rawptr, n: uint) -> bool {
     case n == 0: return true
     case x == y: return true
     }
-    a, b := cast([^]byte)x, cast([^]byte)y
+    a, b := cast([^]u8)x, cast([^]u8)y
 
     i := uint(0)
     m := uint(0)

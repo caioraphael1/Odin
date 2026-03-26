@@ -100,7 +100,7 @@ Value :: union {
     Nil,
 }
 
-Bytes :: []byte
+Bytes :: []u8
 Text :: string
 
 Array :: []Value
@@ -361,17 +361,17 @@ to_diagnostic_format_writer :: proc(w: io.Writer, val: Value, padding := 0) -> i
     // NOTE: not using io.write_float because it removes the sign, 
     // which we want for the diagnostic format.
     case f16:
-        buf: [64]byte
+        buf: [64]u8
         str := strconv.write_float(buf[:], f64(v), 'f', 2*size_of(f16), 8*size_of(f16), false)
         if str[0] == '+' && str != "+Inf" { str = str[1:] }
         _ = io.write_string(w, str) or_return
     case f32:
-        buf: [128]byte
+        buf: [128]u8
         str := strconv.write_float(buf[:], f64(v), 'f', 2*size_of(f32), 8*size_of(f32), false)
         if str[0] == '+' && str != "+Inf" { str = str[1:] }
         _ = io.write_string(w, str) or_return
     case f64:
-        buf: [256]byte
+        buf: [256]u8
         str := strconv.write_float(buf[:], f64(v), 'f', 2*size_of(f64), 8*size_of(f64), false)
         if str[0] == '+' && str != "+Inf" { str = str[1:] }
         _ = io.write_string(w, str) or_return
@@ -469,7 +469,7 @@ from_json :: proc(val: json.Value, allocator: mem.Allocator) -> (Value, mem.Allo
         case json.String:
             container := mem.new(Text) or_return
 
-            // We need the string to have a nil byte at the end so we clone to cstring.
+            // We need the string to have a nil u8 at the end so we clone to cstring.
             container^ = string(strings.cstring_clone_from_string(v) or_return)
             return container, nil
         case json.Array:

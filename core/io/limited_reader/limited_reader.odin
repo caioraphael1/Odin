@@ -40,7 +40,7 @@ copy_n :: proc(dst: io.Writer, src: io.Reader, n: i64) -> (written: i64, err: io
 }
 
 
-_limited_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_limited_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     l := (^Limited_Reader)(stream_data)
     #partial switch mode {
     case .Read:

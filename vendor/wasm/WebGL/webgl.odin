@@ -275,10 +275,10 @@ GetShaderiv :: proc(shader: Shader, pname: Enum) -> (p: i32) {
     return
 }
 
-GetActiveAttribBuf :: proc(program: Program, index: u32, name_buf: []byte) -> (info: ActiveInfo) {
+GetActiveAttribBuf :: proc(program: Program, index: u32, name_buf: []u8) -> (info: ActiveInfo) {
     foreign webgl {
         @(link_name="GetActiveAttrib")
-        _GetActiveAttrib :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []byte, name_len: ^int) ---
+        _GetActiveAttrib :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []u8, name_len: ^int) ---
     }
     name_len: int
     _GetActiveAttrib(program, index, &info.size, &info.type, name_buf, &name_len)
@@ -289,7 +289,7 @@ GetActiveAttribBuf :: proc(program: Program, index: u32, name_buf: []byte) -> (i
 GetActiveAttribAlloc :: proc(program: Program, index: u32, allocator: mem.Allocator, loc := #caller_location) -> (info: ActiveInfo) {
     foreign webgl {
         @(link_name="GetActiveAttrib")
-        _GetActiveAttrib :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []byte, name_len: ^int) ---
+        _GetActiveAttrib :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []u8, name_len: ^int) ---
     }
 
     name_len: int
@@ -298,7 +298,7 @@ GetActiveAttribAlloc :: proc(program: Program, index: u32, allocator: mem.Alloca
     _GetActiveAttrib(program, index, &info.size, &info.type, {}, &name_len)
 
     if name_len > 0 {
-        name_buf := slice.create([]byte, name_len, allocator, loc)
+        name_buf := slice.create([]u8, name_len, allocator, loc)
         _GetActiveAttrib(program, index, &info.size, &info.type, name_buf, &name_len)
         internal.assert(name_len == len(name_buf))
         info.name = string(name_buf[:name_len])
@@ -307,10 +307,10 @@ GetActiveAttribAlloc :: proc(program: Program, index: u32, allocator: mem.Alloca
     return
 }
 
-GetActiveUniformBuf :: proc(program: Program, index: u32, name_buf: []byte) -> (info: ActiveInfo) {
+GetActiveUniformBuf :: proc(program: Program, index: u32, name_buf: []u8) -> (info: ActiveInfo) {
     foreign webgl {
         @(link_name="GetActiveUniform")
-        _GetActiveUniform :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []byte, name_len: ^int) ---
+        _GetActiveUniform :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []u8, name_len: ^int) ---
     }
     name_len: int
     _GetActiveUniform(program, index, &info.size, &info.type, name_buf, &name_len)
@@ -321,7 +321,7 @@ GetActiveUniformBuf :: proc(program: Program, index: u32, name_buf: []byte) -> (
 GetActiveUniformAlloc :: proc(program: Program, index: u32, allocator: mem.Allocator, loc := #caller_location) -> (info: ActiveInfo) {
     foreign webgl {
         @(link_name="GetActiveUniform")
-        _GetActiveUniform :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []byte, name_len: ^int) ---
+        _GetActiveUniform :: proc(shader: Program, index: u32, size: ^int, type: ^Enum, name_buf: []u8, name_len: ^int) ---
     }
 
     name_len: int
@@ -330,7 +330,7 @@ GetActiveUniformAlloc :: proc(program: Program, index: u32, allocator: mem.Alloc
     _GetActiveUniform(program, index, &info.size, &info.type, {}, &name_len)
 
     if name_len > 0 {
-        name_buf := slice.create([]byte, name_len, allocator, loc)
+        name_buf := slice.create([]u8, name_len, allocator, loc)
         _GetActiveUniform(program, index, &info.size, &info.type, name_buf, &name_len)
         internal.assert(name_len == len(name_buf))
         info.name = string(name_buf[:name_len])
@@ -339,10 +339,10 @@ GetActiveUniformAlloc :: proc(program: Program, index: u32, allocator: mem.Alloc
     return
 }
 
-GetProgramInfoLog :: proc(program: Program, buf: []byte) -> string {
+GetProgramInfoLog :: proc(program: Program, buf: []u8) -> string {
     foreign webgl {
         @(link_name="GetProgramInfoLog")
-        _GetProgramInfoLog :: proc(program: Program, buf: []byte, length: ^int) ---
+        _GetProgramInfoLog :: proc(program: Program, buf: []u8, length: ^int) ---
     }
     
     length: int
@@ -350,10 +350,10 @@ GetProgramInfoLog :: proc(program: Program, buf: []byte) -> string {
     return string(buf[:length])
 }
 
-GetShaderInfoLog :: proc(shader: Shader, buf: []byte) -> string {
+GetShaderInfoLog :: proc(shader: Shader, buf: []u8) -> string {
     foreign webgl {
         @(link_name="GetShaderInfoLog")
-        _GetShaderInfoLog :: proc(shader: Shader, buf: []byte, length: ^int) ---
+        _GetShaderInfoLog :: proc(shader: Shader, buf: []u8, length: ^int) ---
     }
     
     length: int

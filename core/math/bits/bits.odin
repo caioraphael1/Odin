@@ -236,7 +236,7 @@ rotate_left :: proc(x: uint, k: int) -> uint {
 /*
 Returns unsigned integer `i`
 
-NOTE: A byte has no endianness, so `from_be_u8` exists to be complementary to `from_be_*`.
+NOTE: A u8 has no endianness, so `from_be_u8` exists to be complementary to `from_be_*`.
 
 Inputs:
 - i: The unsigned integer
@@ -248,49 +248,49 @@ Returns:
 from_be_u8   :: proc(i:   u8) ->   u8 { return i }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_be_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_be_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_be_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_be_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
@@ -298,7 +298,7 @@ from_be_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Big { return i } el
 /*
 Returns unsigned integer `i`
 
-NOTE: A byte has no endianness, so `from_le_u8` exists to be complementary to `from_le_*`.
+NOTE: A u8 has no endianness, so `from_le_u8` exists to be complementary to `from_le_*`.
 
 Inputs:
 - i: The unsigned integer
@@ -310,49 +310,49 @@ Returns:
 from_le_u8   :: proc(i:   u8) ->   u8 { return i }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_le_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_le_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_le_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 from_le_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
@@ -360,7 +360,7 @@ from_le_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Little { return i }
 /*
 Returns unsigned integer `i`
 
-NOTE: A byte has no endianness, so `to_be_u8` exists to be complementary to `to_be_*`.
+NOTE: A u8 has no endianness, so `to_be_u8` exists to be complementary to `to_be_*`.
 
 Inputs:
 - i: The unsigned integer
@@ -373,48 +373,48 @@ to_be_u8   :: proc(i:   u8) ->   u8 { return i }
 
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 to_be_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 to_be_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 to_be_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a little endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 to_be_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
@@ -422,7 +422,7 @@ to_be_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Big { return i } else
 /*
 Returns unsigned integer `i`
 
-NOTE: A byte has no endianness, so `to_le_u8` exists to be complementary to `to_le_*`.
+NOTE: A u8 has no endianness, so `to_le_u8` exists to be complementary to `to_le_*`.
 
 Inputs:
 - i: The unsigned integer
@@ -434,49 +434,49 @@ Returns:
 to_le_u8   :: proc(i:   u8) ->   u8 { return i }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 to_le_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 to_le_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 to_le_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
-Returns unsigned integer `i`, byte-swapped if we're on a big endian target.
+Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
 
 Inputs:
 - i: The unsigned integer
 
 Returns:
-- res: `i`, optionally byte-swapped
+- res: `i`, optionally u8-swapped
 */
 
 to_le_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }

@@ -84,7 +84,7 @@ when ODIN_OS == .Darwin {
 		we_wordc:   c.size_t,   /* [PSX] count of words matched by words */
 		we_wordv:   [^]cstring, /* [PSX] pointer to list of expanded words */
 		we_offs:    c.size_t,   /* [PSX] slots to reserve at the beginning of we_wordv */
-		we_strings: [^]byte,    /* storage for wordv strings */
+		we_strings: [^]u8,    /* storage for wordv strings */
 		we_nbytes:  c.size_t,   /* size of we_strings */
 	}
 

@@ -48,12 +48,12 @@ register_subclass :: proc(
     proto_size: uint
 
     if superclass_overrides != nil {
-        // Align to 8-byte boundary
+        // Align to 8-u8 boundary
         super_size = (superclass_overrides.?.size + 7)/8 * 8
     }
 
     if protocol != nil {
-        // Align to 8-byte boundary
+        // Align to 8-u8 boundary
         proto_size = (protocol.?.size + 7)/8 * 8
     }
 
@@ -79,7 +79,7 @@ register_subclass :: proc(
     meta_cls    := class_get_metaclass(cls)
     meta_size   := uint(class_getInstanceSize(meta_cls))
 
-    // Offsets are always aligned to 8-byte boundary
+    // Offsets are always aligned to 8-u8 boundary
     info_offset         := (meta_size + 7) / 8 * 8
     super_vtable_offset := (info_offset + size_of(Class_VTable_Info) + 7) / 8 * 8
     ptoto_vtable_offset := super_vtable_offset + super_size
@@ -111,7 +111,7 @@ class_get_vtable_info :: proc(cls: Class) -> ^Class_VTable_Info {
     meta_cls  := class_get_metaclass(cls)
     meta_size := uint(class_getInstanceSize(meta_cls))
 
-    // Align to 8-byte boundary
+    // Align to 8-u8 boundary
     info_offset := (meta_size+7) / 8 * 8
 
     p_cls := ([^]u8)(cls)[info_offset:]

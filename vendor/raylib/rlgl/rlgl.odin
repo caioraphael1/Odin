@@ -398,7 +398,7 @@ foreign lib {
 	Vertex3f     :: proc(x, y, z: f32)    --- // Define one vertex (position) - 3 f32
 	TexCoord2f   :: proc(x, y: f32)       --- // Define one vertex (texture coordinate) - 2 f32
 	Normal3f     :: proc(x, y, z: f32)    --- // Define one vertex (normal) - 3 f32
-	Color4ub     :: proc(r, g, b, a: u8)  --- // Define one vertex (color) - 4 byte
+	Color4ub     :: proc(r, g, b, a: u8)  --- // Define one vertex (color) - 4 u8
 	Color3f      :: proc(x, y, z: f32)    --- // Define one vertex (color) - 3 f32
 	Color4f      :: proc(x, y, z, w: f32) --- // Define one vertex (color) - 4 f32
 
@@ -533,7 +533,7 @@ foreign lib {
 	UnloadTexture       :: proc(id: c.uint) ---                                                                             // Unload texture from GPU memory
 	GenTextureMipmaps   :: proc(id: c.uint, width, height: c.int, format: c.int, mipmaps: ^c.int) ---                       // Generate mipmap data for selected texture
 	ReadTexturePixels   :: proc(id: c.uint, width, height: c.int, format: c.int) -> rawptr ---                              // Read texture pixel data
-	ReadScreenPixels    :: proc(width, height: c.int) -> [^]byte ---                                                        // Read screen pixel data (color buffer)
+	ReadScreenPixels    :: proc(width, height: c.int) -> [^]u8 ---                                                        // Read screen pixel data (color buffer)
 
 	// Framebuffer management (fbo)
 	LoadFramebuffer     :: proc() -> c.uint ---                                           // Load an empty framebuffer

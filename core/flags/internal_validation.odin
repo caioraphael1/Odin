@@ -188,7 +188,7 @@ validate_arguments :: proc(model: ^$T, parser: ^Parser) -> Error {
 
         if _, is_array := field.type.variant.(reflect.Type_Info_Dynamic_Array); is_array && has_requirements {
             // If it's an array, make sure it meets the required number of arguments.
-            ptr := cast(^dyn_array.Dyn_Array(byte))(cast(uintptr)model + field.offset)
+            ptr := cast(^dyn_array.Dyn_Array(u8))(cast(uintptr)model + field.offset)
             if required_min == required_max - 1 && ptr.len != required_min {
                 return Validation_Error {
                     fmt.tprintf("The flag `%s` had %i option%s set, but it requires exactly %i.",

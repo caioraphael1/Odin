@@ -117,7 +117,7 @@ context_destroy :: proc(ctx: ^Context) {
     ctx^ = Context{}
 }
 
-buffer_create :: proc(data: []byte, tid: u32 = 0, pid: u32 = 0) -> (buffer: Buffer, ok: bool) #optional_ok {
+buffer_create :: proc(data: []u8, tid: u32 = 0, pid: u32 = 0) -> (buffer: Buffer, ok: bool) #optional_ok {
     internal.assert(len(data) >= 1024)
     buffer.data     = data
     buffer.tid      = tid
@@ -293,7 +293,7 @@ _buffer_name_process :: proc(ctx: ^Context, buffer: ^Buffer, name: string, loc :
 }
 
 @(no_instrumentation, private="package")
-write :: proc(fd: uintptr, buf: []byte) {
+write :: proc(fd: uintptr, buf: []u8) {
     _write(fd, buf)
 }
 

@@ -1493,7 +1493,7 @@ impl_GetnSeparableFilter:                      proc "c" (target: u32, format: u3
 impl_GetnHistogram:                            proc "c" (target: u32, reset: bool, format: u32, type: u32, bufSize: i32, values: rawptr)
 impl_GetnMinmax:                               proc "c" (target: u32, reset: bool, format: u32, type: u32, bufSize: i32, values: rawptr)
 impl_TextureBarrier:                           proc "c" ()
-impl_GetUnsignedBytevEXT:                    proc "c" (pname: u32, data: ^byte)
+impl_GetUnsignedBytevEXT:                    proc "c" (pname: u32, data: ^u8)
 impl_TexPageCommitmentARB:                     proc "c" (target: u32, level: i32, xoffset: i32, yoffset: i32, zoffset: i32, width: i32, height: i32, depth: i32, commit: bool)
 
 load_4_5 :: proc(set_proc_address: Set_Proc_Address_Type) {

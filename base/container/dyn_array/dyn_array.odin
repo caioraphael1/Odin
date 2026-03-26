@@ -327,7 +327,7 @@ _reserve :: #force_no_inline proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem
     new_size  := cap * size_of_elem
     allocator := a.allocator
 
-    new_data: []byte
+    new_data: []u8
     if should_zero {
         new_data = mem.resize(a.data, old_size, new_size, align_of_elem, allocator, loc) or_return
     } else {
@@ -356,7 +356,7 @@ _resize :: #force_no_inline proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem:
 
     if should_zero && a.len < length {
         num_reused := min(a.cap, length) - a.len
-        mem.zero(([^]byte)(a.data)[a.len*size_of_elem:], num_reused*size_of_elem)
+        mem.zero(([^]u8)(a.data)[a.len*size_of_elem:], num_reused*size_of_elem)
     }
 
     if length <= a.cap {
@@ -368,7 +368,7 @@ _resize :: #force_no_inline proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem:
     new_size  := length * size_of_elem
     allocator := a.allocator
 
-    new_data : []byte
+    new_data : []u8
     if should_zero {
         new_data = mem.resize(a.data, old_size, new_size, align_of_elem, allocator, loc) or_return
     } else {

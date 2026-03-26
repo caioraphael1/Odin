@@ -4,7 +4,7 @@ import "base:container/slice"
 import "decimal"
 
 Decimal_Slice :: struct {
-    digits:        []byte,
+    digits:        []u8,
     count:         uint,
     decimal_point: int,
     neg:           bool,
@@ -26,15 +26,15 @@ Converts a floating-point number to a string with the specified format and preci
 
 **Inputs**
 
-buf: A byte slice to store the resulting string
+buf: A u8 slice to store the resulting string
 val: The floating-point value to be converted
-fmt: The formatting byte, accepted values are 'e', 'E', 'f', 'F', 'g', 'G'
+fmt: The formatting u8, accepted values are 'e', 'E', 'f', 'F', 'g', 'G'
 precision: The number of decimal places to round to
 bit_size: The size of the floating-point number in bits, valid values are 16, 32, 64
 
 Example:
 
-    buf: [32]byte
+    buf: [32]u8
     val := 3.141592
     fmt := 'f'
     precision := 2
@@ -42,9 +42,9 @@ Example:
     result := strconv.generic_ftoa(buf[:], val, fmt, precision, bit_size) -> "3.14"
 
 **Returns**
-- A byte slice containing the formatted string
+- A u8 slice containing the formatted string
 */
-generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: uint, shortest: bool) -> []byte {
+generic_ftoa :: proc(buf: []u8, val: f64, fmt: u8, precision, bit_size: uint, shortest: bool) -> []u8 {
     bits: u64
     flt: ^Float_Info
     switch bit_size {
@@ -120,10 +120,10 @@ generic_ftoa :: proc(buf: []byte, val: f64, fmt: byte, precision, bit_size: uint
 }
 
 /*
-Converts a decimal floating-point number into a byte buffer with the given format
+Converts a decimal floating-point number into a u8 buffer with the given format
 
 **Inputs**
-- buf: The byte buffer to store the formatted number
+- buf: The u8 buffer to store the formatted number
 - shortest: If true, generates the shortest representation of the number
 - neg: If true, the number is negative
 - digs: The decimal number to be formatted
@@ -131,18 +131,18 @@ Converts a decimal floating-point number into a byte buffer with the given forma
 - fmt: The format specifier (accepted values: 'f', 'F', 'e', 'E', 'g', 'G')
 
 **Returns**
-- A byte slice containing the formatted decimal floating-point number
+- A u8 slice containing the formatted decimal floating-point number
 */
-format_digits :: proc(buf: []byte, shortest: bool, neg: bool, digs: Decimal_Slice, precision: uint, fmt: byte) -> []byte {
+format_digits :: proc(buf: []u8, shortest: bool, neg: bool, digs: Decimal_Slice, precision: uint, fmt: u8) -> []u8 {
     Buffer :: struct {
-        b: []byte,
+        b: []u8,
         n: uint,
     }
 
-    to_bytes :: proc(b: Buffer) -> []byte {
+    to_bytes :: proc(b: Buffer) -> []u8 {
         return b.b[:b.n]
     }
-    add_bytes :: proc(buf: ^Buffer, bytes: ..byte) {
+    add_bytes :: proc(buf: ^Buffer, bytes: ..u8) {
         buf.n += slice.copy(buf.b[buf.n:], bytes)
     }
 
@@ -169,7 +169,7 @@ format_digits :: proc(buf: []byte, shortest: bool, neg: bool, digs: Decimal_Slic
         if prec > 0 {
             add_bytes(&b, '.')
             for i in 0..<prec {
-                c: byte = '0'
+                c: u8 = '0'
                 if j := digs.decimal_point + int(i); 0 <= j && j < int(digs.count) {
                     c = digs.digits[j]
                 }
@@ -181,7 +181,7 @@ format_digits :: proc(buf: []byte, shortest: bool, neg: bool, digs: Decimal_Slic
     case 'e', 'E':
         add_bytes(&b, '-' if neg else '+')
 
-        ch := byte('0')
+        ch := u8('0')
         if digs.count != 0 {
             ch = digs.digits[0]
         }
@@ -215,9 +215,9 @@ format_digits :: proc(buf: []byte, shortest: bool, neg: bool, digs: Decimal_Slic
         add_bytes(&b, ch)
 
         switch {
-        case exp < 10:  add_bytes(&b, '0', byte(exp)+'0') // add prefix 0
-        case exp < 100: add_bytes(&b, byte(exp/10)+'0',  byte(exp%10)+'0')
-        case:           add_bytes(&b, byte(exp/100)+'0', byte(exp/10)%10+'0', byte(exp%10)+'0')
+        case exp < 10:  add_bytes(&b, '0', u8(exp)+'0') // add prefix 0
+        case exp < 100: add_bytes(&b, u8(exp/10)+'0',  u8(exp%10)+'0')
+        case:           add_bytes(&b, u8(exp/100)+'0', u8(exp/10)%10+'0', u8(exp%10)+'0')
         }
 
         return to_bytes(b)
@@ -300,12 +300,12 @@ round_shortest :: proc(d: ^decimal.Decimal, mant: u64, exp: int, flt: ^Float_Inf
     inclusive := mant%2 == 0
 
     for i in 0..<d.count {
-        l: byte = '0' // lower digit
+        l: u8 = '0' // lower digit
         if i < lower.count {
             l = lower.digits[i]
         }
         m := d.digits[i]   // middle digit
-        u: byte = '0' // upper digit
+        u: u8 = '0' // upper digit
         if i < upper.count {
             u = upper.digits[i]
         }

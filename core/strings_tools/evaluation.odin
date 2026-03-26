@@ -76,7 +76,7 @@ Output:
 index_rune :: proc(s: string, r: rune) -> (res: uint, found: bool) {
     switch {
     case u32(r) < utf8.RUNE_SELF:
-        return index_byte(s, byte(r))
+        return index_byte(s, u8(r))
 
     case r == utf8.RUNE_ERROR:
         for c, i in s {
@@ -364,7 +364,7 @@ index_multi :: proc(s: string, substrs: []string) -> (idx: uint, found: bool) {
     return
 }
 /* 
-Returns the byte offset of the first byte `c` in the string s it finds, -1 when not found.
+Returns the u8 offset of the first u8 `c` in the string s it finds, -1 when not found.
 NOTE: Can't find UTF-8 based runes.
 Example:
     index_byte("test", 't')
@@ -377,12 +377,12 @@ Output:
     -1
     -1
 */
-index_byte :: proc(s: string, c: byte) -> (res: uint, found: bool) {
+index_byte :: proc(s: string, c: u8) -> (res: uint, found: bool) {
     return #force_inline bytes.index_byte(transmute([]u8)s, c)
 }
 
 /* 
-Returns the byte offset of the last byte `c` in the string `s`, -1 when not found.
+Returns the u8 offset of the last u8 `c` in the string `s`, -1 when not found.
 NOTE: Can't find UTF-8 based runes.
 Example:
     last_index_byte("test", 't')
@@ -395,7 +395,7 @@ Output:
     -1
     -1
 */
-last_index_byte :: proc(s: string, c: byte) -> (res: uint, found: bool) {
+last_index_byte :: proc(s: string, c: u8) -> (res: uint, found: bool) {
     return #force_inline bytes.last_index_byte(transmute([]u8)s, c)
 }
 

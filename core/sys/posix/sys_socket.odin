@@ -400,7 +400,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         }
 
         cmsghdr :: struct {
-            cmsg_len:   c.size_t, /* [PSX] data byte count, including cmsghdr */
+            cmsg_len:   c.size_t, /* [PSX] data u8 count, including cmsghdr */
             cmsg_level: c.int,     /* [PSX] originating protocol */
             cmsg_type:  c.int,     /* [PSX] protocol-specific type */
         }
@@ -424,7 +424,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         }
 
         cmsghdr :: struct {
-            cmsg_len:   socklen_t, /* [PSX] data byte count, including cmsghdr */
+            cmsg_len:   socklen_t, /* [PSX] data u8 count, including cmsghdr */
             cmsg_level: c.int,     /* [PSX] originating protocol */
             cmsg_type:  c.int,     /* [PSX] protocol-specific type */
         }

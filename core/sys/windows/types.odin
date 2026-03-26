@@ -2972,7 +2972,7 @@ REPARSE_DATA_BUFFER :: struct {
     ReparseTag:        c_uint,
     ReparseDataLength: c_ushort,
     Reserved:          c_ushort,
-    rest:              [0]byte,
+    rest:              [0]u8,
 }
 
 SYMBOLIC_LINK_REPARSE_BUFFER :: struct {
@@ -3575,8 +3575,8 @@ SECURITY_MAX_SID_SIZE :: 68
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid
 SID :: struct #packed {
-    Revision:            byte,
-    SubAuthorityCount:   byte,
+    Revision:            u8,
+    SubAuthorityCount:   u8,
     IdentifierAuthority: SID_IDENTIFIER_AUTHORITY,
     SubAuthority:        [15]DWORD, // Array of DWORDs
 }
@@ -5063,7 +5063,7 @@ ADDRINFOA :: struct {
 
 sockaddr :: struct {
     sa_family: USHORT,
-    sa_data:   [14]byte,
+    sa_data:   [14]u8,
 }
 
 sockaddr_in :: struct {
@@ -5166,25 +5166,25 @@ ENUMRESNAMEPROCW :: #type proc (hModule: HMODULE, lpType: LPCWSTR, lpName: LPWST
 ENUMRESTYPEPROCW :: #type proc (hModule: HMODULE, lpType: LPCWSTR, lParam: LONG_PTR)-> BOOL
 ENUMRESLANGPROCW :: #type proc (hModule: HMODULE, lpType: LPCWSTR, lpName: LPWSTR, wIDLanguage: LANGID, lParam: LONG_PTR)-> BOOL
 
-DTR_Control :: enum byte {
+DTR_Control :: enum u8 {
     Disable   = 0,
     Enable    = 1,
     Handshake = 2,
 }
-RTS_Control :: enum byte {
+RTS_Control :: enum u8 {
     Disable   = 0,
     Enable    = 1,
     Handshake = 2,
     Toggle    = 3,
 }
-Parity :: enum byte {
+Parity :: enum u8 {
     None  = 0,
     Odd   = 1,
     Even  = 2,
     Mark  = 3,
     Space = 4,
 }
-Stop_Bits :: enum byte {
+Stop_Bits :: enum u8 {
     One            = 0,
     One_And_A_Half = 1,
     Two            = 2,
@@ -5214,11 +5214,11 @@ DCB :: struct {
     ByteSize:   BYTE,
     Parity:     Parity,
     StopBits:   Stop_Bits,
-    XonChar:    byte,
-    XoffChar:   byte,
-    ErrorChar:  byte,
-    EofChar:    byte,
-    EvtChar:    byte,
+    XonChar:    u8,
+    XoffChar:   u8,
+    ErrorChar:  u8,
+    EofChar:    u8,
+    EvtChar:    u8,
     wReserved1: WORD,
 }
 

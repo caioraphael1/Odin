@@ -5,10 +5,10 @@ _HAS_RAND_BYTES :: true
 
 foreign import "odin_env"
 
-_rand_bytes :: proc(dst: []byte) {
+_rand_bytes :: proc(dst: []u8) {
     foreign odin_env {
         @(link_name = "rand_bytes")
-        env_rand_bytes :: proc(buf: []byte) ---
+        env_rand_bytes :: proc(buf: []u8) ---
     }
 
     MAX_PER_CALL_BYTES :: 65536 // 64kiB

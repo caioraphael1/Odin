@@ -158,7 +158,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 	return nil
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []u8, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
 	ctx := &compress.Context_Memory_Input{
 		input_data = data,
 	}
@@ -310,7 +310,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 		}
 	}
 
-	// The byte stream's end is marked with 7 0x00 bytes followed by a single 0x01 byte.
+	// The u8 stream's end is marked with 7 0x00 bytes followed by a single 0x01 u8.
 	trailer, trailer_err := compress.read_data(ctx, u64be)
 	if trailer_err != nil || trailer != 0x1 {
 		return img, .Missing_Or_Corrupt_Trailer

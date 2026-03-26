@@ -26,7 +26,7 @@ _prefix_and_suffix :: proc(pattern: string) -> (prefix, suffix: string, err: Err
     return
 }
 
-random_string :: proc(buf: []byte) -> string {
+random_string :: proc(buf: []u8) -> string {
     for i: uint = 0; i < len(buf); i += 16 {
         n := rand.uint64(rand.global_random_generator)
         end := min(i + 16, len(buf))

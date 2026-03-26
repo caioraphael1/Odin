@@ -15,7 +15,7 @@ IUnknown    :: win.IUnknown
 IUnknown_VTable :: win.IUnknown_VTable
 IID     :: win.IID
 
-APP_LOCAL_DEVICE_ID :: distinct [32]byte
+APP_LOCAL_DEVICE_ID :: distinct [32]u8
 
 Kind :: distinct bit_set[KindFlag; u32]
 KindFlag :: enum u32 {
@@ -592,7 +592,7 @@ BatteryState :: struct {
 String :: struct {
     sizeInBytes:    u32,
     codePointCount: u32,
-    data:           [^]byte,
+    data:           [^]u8,
 }
 
 Usage :: struct {

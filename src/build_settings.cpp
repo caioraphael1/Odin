@@ -1860,14 +1860,14 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
 
     bc->metrics = *metrics;
 
-    bc->ODIN_OS           = target_os_names[metrics->os];
-    bc->ODIN_ARCH         = target_arch_names[metrics->arch];
-    bc->endian_kind       = target_endians[metrics->arch];
-    bc->ptr_size          = metrics->ptr_size;
-    bc->int_size          = metrics->int_size;
-    bc->max_align         = metrics->max_align;
-    bc->max_simd_align    = metrics->max_simd_align;
-    bc->link_flags        = str_lit(" ");
+    bc->ODIN_OS        = target_os_names[metrics->os];
+    bc->ODIN_ARCH      = target_arch_names[metrics->arch];
+    bc->endian_kind    = target_endians[metrics->arch];
+    bc->ptr_size       = metrics->ptr_size;
+    bc->int_size       = metrics->int_size;
+    bc->max_align      = metrics->max_align;
+    bc->max_simd_align = metrics->max_simd_align;
+    bc->link_flags     = str_lit(" ");
 
     #if defined(DEFAULT_TO_THREADED_CHECKER)
     bc->threaded_checker = true;

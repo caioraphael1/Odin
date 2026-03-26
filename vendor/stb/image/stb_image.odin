@@ -30,7 +30,7 @@ NO_STDIO :: ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
 // load image by filename, open file, or memory buffer
 //
 Io_Callbacks :: struct {
-    read: proc "c" (user: rawptr, data: [^]byte, size: c.int) -> c.int, // fill 'data' with 'size' u8s.  return number of u8s actually read
+    read: proc "c" (user: rawptr, data: [^]u8, size: c.int) -> c.int, // fill 'data' with 'size' u8s.  return number of u8s actually read
     skip: proc "c" (user: rawptr, n: c.int),                            // skip the next 'n' u8s, or 'unget' the last -n u8s if negative
     eof:  proc "c" (user: rawptr) -> c.int,                             // returns nonzero if we are at end of file/data
 }
@@ -42,8 +42,8 @@ when !NO_STDIO {
         //
         // 8-bits-per-channel interface
         //
-        load           :: proc(filename: cstring, x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]byte ---
-        load_from_file :: proc(f: ^c.FILE,        x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]byte ---
+        load           :: proc(filename: cstring, x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]u8 ---
+        load_from_file :: proc(f: ^c.FILE,        x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]u8 ---
 
         ////////////////////////////////////
         //
@@ -77,23 +77,23 @@ foreign stbi {
     //
     // 8-bits-per-channel interface
     //
-    load_from_memory    :: proc(buffer: [^]byte, len: c.int,       x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]byte ---
-    load_from_callbacks :: proc(clbk: ^Io_Callbacks, user: rawptr, x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]byte ---
+    load_from_memory    :: proc(buffer: [^]u8, len: c.int,       x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]u8 ---
+    load_from_callbacks :: proc(clbk: ^Io_Callbacks, user: rawptr, x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]u8 ---
 
-    load_gif_from_memory :: proc(buffer: [^]byte, len: c.int, delays: ^[^]c.int, x, y, z, comp: ^c.int, req_comp: c.int) -> [^]byte ---
+    load_gif_from_memory :: proc(buffer: [^]u8, len: c.int, delays: ^[^]c.int, x, y, z, comp: ^c.int, req_comp: c.int) -> [^]u8 ---
 
     ////////////////////////////////////
     //
     // 16-bits-per-channel interface
     //
-    load_16_from_memory    :: proc(buffer: [^]byte, len: c.int, x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]u16 ---
+    load_16_from_memory    :: proc(buffer: [^]u8, len: c.int, x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]u16 ---
     load_16_from_callbacks :: proc(clbk: ^Io_Callbacks,         x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]u16 ---
 
     ////////////////////////////////////
     //
     // float-per-channel interface
     //
-    loadf_from_memory     :: proc(buffer: [^]byte, len: c.int,       x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]f32 ---
+    loadf_from_memory     :: proc(buffer: [^]u8, len: c.int,       x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]f32 ---
     loadf_from_callbacks  :: proc(clbk: ^Io_Callbacks, user: rawptr, x, y, channels_in_file: ^c.int, desired_channels: c.int) -> [^]f32 ---
 
     hdr_to_ldr_gamma :: proc(gamma: f32) ---
@@ -103,7 +103,7 @@ foreign stbi {
     ldr_to_hdr_scale :: proc(scale: f32) ---
 
     is_hdr_from_callbacks :: proc(clbk: ^Io_Callbacks, user: rawptr) -> c.int ---
-    is_hdr_from_memory    :: proc(buffer: [^]byte, len: c.int)       -> c.int ---
+    is_hdr_from_memory    :: proc(buffer: [^]u8, len: c.int)       -> c.int ---
 
     // get a VERY brief reason for failure
     // NOT THREADSAFE
@@ -113,10 +113,10 @@ foreign stbi {
     image_free :: proc(retval_from_load: rawptr) ---
 
     // get image dimensions & components without fully decoding
-    info_from_memory    :: proc(buffer: [^]byte, len: c.int,       x, y, comp: ^c.int) -> c.int ---
+    info_from_memory    :: proc(buffer: [^]u8, len: c.int,       x, y, comp: ^c.int) -> c.int ---
     info_from_callbacks :: proc(clbk: ^Io_Callbacks, user: rawptr, x, y, comp: ^c.int) -> c.int ---
     
-    is_16_bit_from_memory :: proc(buffer: [^]byte, len: c.int) -> c.int ---
+    is_16_bit_from_memory :: proc(buffer: [^]u8, len: c.int) -> c.int ---
 
     // for image formats that explicitly notate that they have premultiplied alpha,
     // we just return the colors as stored in the file. set this flag to force
@@ -138,11 +138,11 @@ foreign stbi {
     set_flip_vertically_on_load_thread :: proc(flag_true_if_should_flip:          b32) ---
 
     // ZLIB client - used by PNG, available for other purposes
-    zlib_decode_malloc_guesssize            :: proc(buffer:  [^]byte, len:  c.int, initial_size: c.int, outlen: ^c.int) -> [^]byte ---
-    zlib_decode_malloc_guesssize_headerflag :: proc(buffer:  [^]byte, len:  c.int, initial_size: c.int, outlen: ^c.int, parse_header: b32) -> [^]byte ---
-    zlib_decode_malloc                      :: proc(buffer:  [^]byte, len:  c.int, outlen: ^c.int) -> [^]byte ---
-    zlib_decode_buffer                      :: proc(obuffer: [^]byte, olen: c.int, ibuffer: [^]byte, ilen: c.int) -> c.int ---
+    zlib_decode_malloc_guesssize            :: proc(buffer:  [^]u8, len:  c.int, initial_size: c.int, outlen: ^c.int) -> [^]u8 ---
+    zlib_decode_malloc_guesssize_headerflag :: proc(buffer:  [^]u8, len:  c.int, initial_size: c.int, outlen: ^c.int, parse_header: b32) -> [^]u8 ---
+    zlib_decode_malloc                      :: proc(buffer:  [^]u8, len:  c.int, outlen: ^c.int) -> [^]u8 ---
+    zlib_decode_buffer                      :: proc(obuffer: [^]u8, olen: c.int, ibuffer: [^]u8, ilen: c.int) -> c.int ---
 
-    zlib_decode_noheader_malloc :: proc(buffer:  [^]byte, len:  c.int, outlen: ^c.int) -> [^]byte ---
-    zlib_decode_noheader_buffer :: proc(obuffer: [^]byte, olen: c.int, ibuffer: [^]byte, ilen: c.int) -> c.int ---
+    zlib_decode_noheader_malloc :: proc(buffer:  [^]u8, len:  c.int, outlen: ^c.int) -> [^]u8 ---
+    zlib_decode_noheader_buffer :: proc(obuffer: [^]u8, olen: c.int, ibuffer: [^]u8, ilen: c.int) -> c.int ---
 }

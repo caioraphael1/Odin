@@ -60,7 +60,7 @@ rev64 :: proc(x: u64) -> u64 {
 //
 // Note: `dst` is both an input and an output, to support easy implementation
 // of GCM.
-ghash :: proc(dst, key, data: []byte) {
+ghash :: proc(dst, key, data: []u8) {
 	internal.ensure(len(dst) == _aes.GHASH_BLOCK_SIZE)
 	internal.ensure(len(key) == _aes.GHASH_BLOCK_SIZE)
 
@@ -77,13 +77,13 @@ ghash :: proc(dst, key, data: []byte) {
 	h2r := h0r ~ h1r
 
 	for l > 0 {
-		src: []byte = ---
+		src: []u8 = ---
 		if l >= _aes.GHASH_BLOCK_SIZE {
 			src = buf
 			buf = buf[_aes.GHASH_BLOCK_SIZE:]
 			l -= _aes.GHASH_BLOCK_SIZE
 		} else {
-			tmp: [_aes.GHASH_BLOCK_SIZE]byte
+			tmp: [_aes.GHASH_BLOCK_SIZE]u8
 			slice.copy(tmp[:], buf)
 			src = tmp[:]
 			l = 0

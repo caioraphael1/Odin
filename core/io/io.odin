@@ -32,7 +32,7 @@ Write_Flush_Closer :: Stream
 Reader_At          :: Stream
 Writer_At          :: Stream
 
-Stream_Proc :: #type proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error)
+Stream_Proc :: #type proc(stream_data: rawptr, mode: Stream_Mode, p: []u8, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error)
 
 Stream_Mode :: enum {
     Close,
@@ -140,7 +140,7 @@ query_utility :: #force_inline proc(set: Stream_Mode_Set) -> (n: i64, err: Error
 //
 // When read encounters an .EOF or error after successfully reading n > 0 bytes, it returns the number of
 // bytes read along with the error.
-read :: proc(s: Reader, p: []byte, n_read: ^uint = nil) -> (n: uint, err: Error) {
+read :: proc(s: Reader, p: []u8, n_read: ^uint = nil) -> (n: uint, err: Error) {
     if s.procedure != nil {
         n64: i64
         n64, err = s.procedure(s.data, .Read, p, 0, nil)
@@ -153,7 +153,7 @@ read :: proc(s: Reader, p: []byte, n_read: ^uint = nil) -> (n: uint, err: Error)
 }
 
 // write writes up to len(p) bytes into p. It returns the number of bytes written and any error if occurred.
-write :: proc(s: Writer, p: []byte, n_written: ^uint = nil, loc := #caller_location) -> (n: uint, err: Error) {
+write :: proc(s: Writer, p: []u8, n_written: ^uint = nil, loc := #caller_location) -> (n: uint, err: Error) {
     if s.procedure != nil {
         n64: i64
         n64, err = s.procedure(s.data, .Write, p, 0, nil, loc)
@@ -222,7 +222,7 @@ size :: proc(s: Stream) -> (n: i64, err: Error) {
 // When read_at returns n < len(p), it returns a non-nil Error explaining why.
 //
 // If n == len(p), err may be either nil or .EOF
-read_at :: proc(r: Reader_At, p: []byte, offset: i64, n_read: ^uint = nil) -> (n: uint, err: Error) {
+read_at :: proc(r: Reader_At, p: []u8, offset: i64, n_read: ^uint = nil) -> (n: uint, err: Error) {
     if r.procedure != nil {
         n64: i64
         n64, err = r.procedure(r.data, .Read_At, p, offset, nil)
@@ -248,7 +248,7 @@ read_at :: proc(r: Reader_At, p: []byte, offset: i64, n_read: ^uint = nil) -> (n
 //
 // If write_at is writing to a Writer_At which has a seek offset, then write_at should not affect the underlying
 // seek offset.
-write_at :: proc(w: Writer_At, p: []byte, offset: i64, n_written: ^uint = nil) -> (n: uint, err: Error) {
+write_at :: proc(w: Writer_At, p: []u8, offset: i64, n_written: ^uint = nil) -> (n: uint, err: Error) {
     if w.procedure != nil {
         n64: i64
         n64, err = w.procedure(w.data, .Write_At, p, offset, nil)
@@ -269,16 +269,16 @@ write_at :: proc(w: Writer_At, p: []byte, offset: i64, n_written: ^uint = nil) -
     return
 }
 
-// read_byte reads and returns the next byte from r.
-read_byte :: proc(r: Reader, n_read: ^uint = nil) -> (b: byte, err: Error) {
-    buf: [1]byte
+// read_byte reads and returns the next u8 from r.
+read_byte :: proc(r: Reader, n_read: ^uint = nil) -> (b: u8, err: Error) {
+    buf: [1]u8
     _, err = read(r, buf[:], n_read)
     b = buf[0]
     return
 }
 
-write_byte :: proc(w: Writer, c: byte, n_written: ^uint = nil, loc := #caller_location) -> Error {
-    buf: [1]byte
+write_byte :: proc(w: Writer, c: u8, n_written: ^uint = nil, loc := #caller_location) -> Error {
+    buf: [1]u8
     buf[0] = c
     _ = write(w, buf[:], n_written, loc) or_return
     return nil
@@ -290,7 +290,7 @@ read_rune :: proc(br: Reader, n_read: ^uint = nil) -> (ch: rune, size: uint, err
         n_read^ += size
     }
 
-    b: [utf8.UTF_MAX]byte
+    b: [utf8.UTF_MAX]u8
     _, err = read(br, b[:1])
 
     s0 := b[0]
@@ -321,7 +321,7 @@ read_rune :: proc(br: Reader, n_read: ^uint = nil) -> (ch: rune, size: uint, err
 
 // write_string writes the contents of the string s to w.
 write_string :: proc(s: Writer, str: string, n_written: ^uint = nil, loc := #caller_location) -> (n: uint, err: Error) {
-    return write(s, transmute([]byte)str, n_written, loc)
+    return write(s, transmute([]u8)str, n_written, loc)
 }
 
 // write_string16 writes the contents of the string16 s to w reencoded as utf-8
@@ -353,7 +353,7 @@ write_rune :: proc(s: Writer, r: rune, n_written: ^uint = nil, loc := #caller_lo
         n_written^ += size
     }
     if r < utf8.RUNE_SELF {
-        err = write_byte(s, byte(r), loc=loc)
+        err = write_byte(s, u8(r), loc=loc)
         if err == nil {
             size = 1
         }
@@ -365,7 +365,7 @@ write_rune :: proc(s: Writer, r: rune, n_written: ^uint = nil, loc := #caller_lo
 
 
 // read_full expected exactly len(buf) bytes from r into buf.
-read_full :: proc(r: Reader, buf: []byte) -> (n: uint, err: Error) {
+read_full :: proc(r: Reader, buf: []u8) -> (n: uint, err: Error) {
     return read_at_least(r, buf, len(buf))
 }
 
@@ -374,7 +374,7 @@ read_full :: proc(r: Reader, buf: []byte) -> (n: uint, err: Error) {
 // of bytes copied and an error if fewer bytes were read. `.EOF` is only returned if no bytes were read.
 // `.Unexpected_EOF` is returned when an `.EOF ` is returned by the passed Reader after reading
 // fewer than min bytes. If len(buf) is less than min, `.Short_Buffer` is returned.
-read_at_least :: proc(r: Reader, buf: []byte, min: uint) -> (n: uint, err: Error) {
+read_at_least :: proc(r: Reader, buf: []u8, min: uint) -> (n: uint, err: Error) {
     if len(buf) < min {
         return 0, .Short_Buffer
     }
@@ -393,13 +393,13 @@ read_at_least :: proc(r: Reader, buf: []byte, min: uint) -> (n: uint, err: Error
 }
 
 // write_full writes until the entire contents of `buf` has been written or an error occurs.
-write_full :: proc(w: Writer, buf: []byte) -> (n: uint, err: Error) {
+write_full :: proc(w: Writer, buf: []u8) -> (n: uint, err: Error) {
     return write_at_least(w, buf, len(buf))
 }
 
 // write_at_least writes at least `buf[:min]` to the writer and returns the amount written.
 // If an error occurs before writing everything it is returned.
-write_at_least :: proc(w: Writer, buf: []byte, min: uint) -> (n: uint, err: Error) {
+write_at_least :: proc(w: Writer, buf: []u8, min: uint) -> (n: uint, err: Error) {
     if len(buf) < min {
         return 0, .Short_Buffer
     }
@@ -420,7 +420,7 @@ copy :: proc(dst: Writer, src: Reader) -> (written: i64, err: Error) {
 // copy_buffer is the same as copy except that it stages through the provided buffer (if one is required)
 // rather than allocating a temporary one on the stack through `intrinsics.alloca`
 // If buf is `nil`, it is allocate through `intrinsics.alloca`; otherwise if it has zero length, it will panic
-copy_buffer :: proc(dst: Writer, src: Reader, buf: []byte) -> (written: i64, err: Error) {
+copy_buffer :: proc(dst: Writer, src: Reader, buf: []u8) -> (written: i64, err: Error) {
     if buf != nil && len(buf) == 0 {
         internal.panic("empty buffer in io.copy_buffer")
     }
@@ -429,7 +429,7 @@ copy_buffer :: proc(dst: Writer, src: Reader, buf: []byte) -> (written: i64, err
 
 
 @(private)
-_copy_buffer :: proc(dst: Writer, src: Reader, buf: []byte) -> (written: i64, err: Error) {
+_copy_buffer :: proc(dst: Writer, src: Reader, buf: []u8) -> (written: i64, err: Error) {
     if dst.procedure == nil || src.procedure == nil {
         return 0, .Unsupported
     }

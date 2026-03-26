@@ -5,7 +5,7 @@ Write_Error :: enum {
 	Failed_File_Write,
 }
 
-write :: proc(buf: []byte, file: File) -> (n: int, err: Write_Error) {
+write :: proc(buf: []u8, file: File) -> (n: int, err: Write_Error) {
 	required := required_write_size(file)
 	if len(buf) < required {
 		err = .Buffer_Too_Small
@@ -26,7 +26,7 @@ required_write_size :: proc(file: File) -> (n: int) {
 
 @(private)
 Writer :: struct {
-	data:   []byte,
+	data:   []u8,
 	offset: int,
 	dummy_pass: bool,
 }
@@ -55,12 +55,12 @@ write_internal :: proc(w: ^Writer, file: File) {
 	write_string :: proc(w: ^Writer, str: string) {
 		if !w.dummy_pass {
 			remaining := len(w.data) - w.offset
-			internal.assert(size_of(byte)*len(str) <= remaining)
+			internal.assert(size_of(u8)*len(str) <= remaining)
 			ptr := raw_data(w.data[w.offset:])
-			dst := ([^]byte)(ptr)[:len(str)]
+			dst := ([^]u8)(ptr)[:len(str)]
 			slice.copy(dst, str)
 		}
-		w.offset += size_of(byte)*len(str)
+		w.offset += size_of(u8)*len(str)
 	}
 
 	write_metadata :: proc(w: ^Writer, meta_data: []Meta) {
@@ -84,7 +84,7 @@ write_internal :: proc(w: ^Writer, file: File) {
 			case string:
 				meta_data_type = .Text
 				length = u32le(len(v))
-			case []byte:
+			case []u8:
 				meta_data_type = .Binary
 				length = u32le(len(v))
 			case []Meta:
@@ -99,7 +99,7 @@ write_internal :: proc(w: ^Writer, file: File) {
 			case []f64le:      write_array(w, v)
 			case []Node_Index: write_array(w, v)
 			case string:       write_string(w, v)
-			case []byte:       write_array(w, v)
+			case []u8:       write_array(w, v)
 			case []Meta:       write_metadata(w, v)
 			}
 		}

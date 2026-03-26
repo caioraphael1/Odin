@@ -10,7 +10,7 @@ PCG_Random_State :: struct {
     inc:   u64,
 }
 
-pcg_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []byte) {
+pcg_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []u8) {
     read_u64 :: proc(r: ^PCG_Random_State) -> u64 {
         old_state := r.state
         r.state = old_state * 6364136223846793005 + (r.inc|1)
@@ -64,7 +64,7 @@ pcg_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: 
                 val := read_u64(r)
                 tail := p[len(p) - rem:]
                 for &b in tail {
-                    b = byte(val)
+                    b = u8(val)
                     val >>= 8
                 }
             }

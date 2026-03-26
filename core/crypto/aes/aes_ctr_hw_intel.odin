@@ -12,7 +12,7 @@ CTR_STRIDE_HW :: 4
 CTR_STRIDE_BYTES_HW :: CTR_STRIDE_HW * BLOCK_SIZE
 
 @(private, enable_target_feature = "sse2,aes")
-ctr_blocks_hw :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) #no_bounds_check {
+ctr_blocks_hw :: proc(ctx: ^Context_CTR, dst, src: []u8, nr_blocks: int) #no_bounds_check {
 	hw_ctx := ctx._impl.(Context_Impl_Hardware)
 
 	sks: [15]x86.__m128i = ---
@@ -134,7 +134,7 @@ ctr_blocks_hw :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) #no_b
 }
 
 @(private, enable_target_feature = "sse2")
-xor_blocks_hw :: proc(dst, src: []byte, blocks: []x86.__m128i) {
+xor_blocks_hw :: proc(dst, src: []u8, blocks: []x86.__m128i) {
 	#no_bounds_check {
 		if src != nil {
 				for i in 0 ..< len(blocks) {

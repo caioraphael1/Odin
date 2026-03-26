@@ -161,7 +161,7 @@ StringEncodings :: enum Index {
 @(link_prefix="CF", default_calling_convention="c")
 foreign CoreFoundation {
     // Copies the character contents of a string to a local C string buffer after converting the characters to a given encoding.
-    StringGetCString :: proc(theString: String, buffer: [^]byte, bufferSize: Index, encoding: StringEncoding) -> b8 ---
+    StringGetCString :: proc(theString: String, buffer: [^]u8, bufferSize: Index, encoding: StringEncoding) -> b8 ---
 
     // Returns the number (in terms of UTF-16 code pairs) of Unicode characters in a string.
     StringGetLength :: proc(theString: String) -> Index ---
@@ -169,8 +169,8 @@ foreign CoreFoundation {
     // Returns the maximum number of bytes a string of a specified length (in Unicode characters) will take up if encoded in a specified encoding.
     StringGetMaximumSizeForEncoding :: proc(length: Index, encoding: StringEncoding) -> Index ---
 
-    // Fetches a range of the characters from a string into a byte buffer after converting the characters to a specified encoding.
-    StringGetBytes :: proc(thestring: String, range: Range, encoding: StringEncoding, lossByte: u8, isExternalRepresentation: b8, buffer: [^]byte, maxBufLen: Index, usedBufLen: ^Index) -> Index ---
+    // Fetches a range of the characters from a string into a u8 buffer after converting the characters to a specified encoding.
+    StringGetBytes :: proc(thestring: String, range: Range, encoding: StringEncoding, lossByte: u8, isExternalRepresentation: b8, buffer: [^]u8, maxBufLen: Index, usedBufLen: ^Index) -> Index ---
 
     StringIsEncodingAvailable :: proc(encoding: StringEncoding) -> b8 ---
 
@@ -184,7 +184,7 @@ StringCopyToOdinString :: proc(theString: String, allocator: mem.Allocator) -> (
     length := StringGetLength(theString)
     max := StringGetMaximumSizeForEncoding(length, StringEncoding(StringBuiltInEncodings.UTF8))
 
-    buf, err := slice.create([]byte, max, allocator)
+    buf, err := slice.create([]u8, max, allocator)
     if err != nil {
         return
     }

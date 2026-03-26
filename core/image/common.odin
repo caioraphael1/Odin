@@ -405,7 +405,7 @@ PNG_Chunk_Header :: struct #packed {
 
 PNG_Chunk :: struct #packed {
     header: PNG_Chunk_Header,
-    data:   []byte,
+    data:   []u8,
     crc:    u32be,
 }
 
@@ -584,9 +584,9 @@ TGA_Info :: struct {
 /*
     JPEG-specific
 */
-JFIF_Magic := [?]byte{0x4A, 0x46, 0x49, 0x46} // "JFIF"
-JFXX_Magic := [?]byte{0x4A, 0x46, 0x58, 0x58} // "JFXX"
-Exif_Magic := [?]byte{0x45, 0x78, 0x69, 0x66} // "Exif"
+JFIF_Magic := [?]u8{0x4A, 0x46, 0x49, 0x46} // "JFIF"
+JFXX_Magic := [?]u8{0x4A, 0x46, 0x58, 0x58} // "JFXX"
+Exif_Magic := [?]u8{0x45, 0x78, 0x69, 0x66} // "Exif"
 
 JPEG_Error :: enum {
     None = 0,
@@ -608,7 +608,7 @@ JPEG_Error :: enum {
     Huffman_Symbols_Exceeds_Max,
 }
 
-JFIF_Unit :: enum byte {
+JFIF_Unit :: enum u8 {
     None = 0,
     Dots_Per_Inch = 1,
     Dots_Per_Centimeter = 2,
@@ -629,7 +629,7 @@ JFXX_APP0 :: struct {
     extension_code: JFXX_Extension_Code,
     x_thumbnail: u8,
     y_thumbnail: u8,
-    thumbnail: []byte `fmt:"-"`,
+    thumbnail: []u8 `fmt:"-"`,
 }
 
 JFXX_Extension_Code :: enum u8 {
@@ -740,7 +740,7 @@ pixels_to_image :: proc(pixels: [][$N]$E, width: int, height: int) -> (img: Imag
     img.channels = N
 
     s := transmute(slice.Raw_Slice)pixels
-    d := dyn_array.Dyn_Array(byte){
+    d := dyn_array.Dyn_Array(u8){
         data = s.data,
         len  = s.len * size_of(E) * N,
         cap  = s.len * size_of(E) * N,
@@ -1131,7 +1131,7 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
             key := alpha_key.(GA_Pixel).r
             bg  := G_Pixel{}
             if temp_bg, temp_bg_ok := img.background.(RGB_Pixel_16); temp_bg_ok {
-                // Background is RGB 16-bit, take just the red channel's topmost byte.
+                // Background is RGB 16-bit, take just the red channel's topmost u8.
                 bg.r = u8(temp_bg.r >> 8)
             }
 
@@ -1148,7 +1148,7 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
                 // Blend with background "color", then drop alpha.
                 bg  := f32(0.0)
                 if temp_bg, temp_bg_ok := img.background.(RGB_Pixel_16); temp_bg_ok {
-                    // Background is RGB 16-bit, take just the red channel's topmost byte.
+                    // Background is RGB 16-bit, take just the red channel's topmost u8.
                     bg = f32(temp_bg.r >> 8)
                 }
 
@@ -1199,7 +1199,7 @@ alpha_drop_if_present :: proc(img: ^Image, options := Options{}, alpha_key := Al
                 // Blend with background "color", then drop alpha.
                 bg := [3]f32{}
                 if temp_bg, temp_bg_ok := img.background.(RGB_Pixel_16); temp_bg_ok {
-                    // Background is RGB 16-bit, take just the red channel's topmost byte.
+                    // Background is RGB 16-bit, take just the red channel's topmost u8.
                     bg = {f32(temp_bg.r >> 8), f32(temp_bg.g >> 8), f32(temp_bg.b >> 8)}
                 }
 

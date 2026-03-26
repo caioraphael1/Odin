@@ -30,32 +30,32 @@ mem_check_client_request_stmt :: #force_inline proc "c" (request: Mem_Check_Clie
 
 // Mark memory at `raw_data(qzz)` as unaddressable for `len(qzz)` bytes.
 // Returns true when run on Valgrind and false otherwise.
-make_mem_no_access :: proc "c" (qzz: []byte) -> bool {
+make_mem_no_access :: proc "c" (qzz: []u8) -> bool {
     return 0 != mem_check_client_request_expr(0, .Make_Mem_No_Access, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 // Mark memory at `raw_data(qzz)` as addressable but undefined for `len(qzz)` bytes.
 // Returns true when run on Valgrind and false otherwise.
-make_mem_undefined :: proc "c" (qzz: []byte) -> bool {
+make_mem_undefined :: proc "c" (qzz: []u8) -> bool {
     return 0 != mem_check_client_request_expr(0, .Make_Mem_Undefined, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 // Mark memory at `raw_data(qzz)` as addressable for `len(qzz)` bytes.
 // Returns true when run on Valgrind and false otherwise.
-make_mem_defined :: proc "c" (qzz: []byte) -> bool {
+make_mem_defined :: proc "c" (qzz: []u8) -> bool {
     return 0 != mem_check_client_request_expr(0, .Make_Mem_Defined, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 
 // Check that memory at `raw_data(qzz)` is addressable for `len(qzz)` bytes.
 // If suitable addressibility is not established, Valgrind prints an error
-// message and returns the address of the first offending byte.
+// message and returns the address of the first offending u8.
 // Otherwise it returns zero.
-check_mem_is_addressable :: proc "c" (qzz: []byte) -> uintptr {
+check_mem_is_addressable :: proc "c" (qzz: []u8) -> uintptr {
     return mem_check_client_request_expr(0, .Check_Mem_Is_Addressable, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 // Check that memory at `raw_data(qzz)` is addressable and defined for `len(qzz)` bytes.
 // If suitable addressibility and definedness are not established,
 // Valgrind prints an error message and returns the address of the first
-// offending byte. Otherwise it returns zero.
-check_mem_is_defined :: proc "c" (qzz: []byte) -> uintptr {
+// offending u8. Otherwise it returns zero.
+check_mem_is_defined :: proc "c" (qzz: []u8) -> uintptr {
     return mem_check_client_request_expr(0, .Check_Mem_Is_Defined, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 
@@ -63,7 +63,7 @@ check_mem_is_defined :: proc "c" (qzz: []byte) -> uintptr {
 // bytes which are addressable are marked as defined, but those which
 // are not addressable are left unchanged.
 // Returns true when run on Valgrind and false otherwise.
-make_mem_defined_if_addressable :: proc "c" (qzz: []byte) -> bool {
+make_mem_defined_if_addressable :: proc "c" (qzz: []u8) -> bool {
     return 0 != mem_check_client_request_expr(0, .Make_Mem_Defined_If_Addressable, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 
@@ -138,7 +138,7 @@ count_leak_blocks :: proc "c" () -> (res: Count_Result) {
 //     3 - if any parts of zzsrc/zzvbits are not addressable.
 // The metadata is not copied in cases 0, 2 or 3 so it should be
 // impossible to segfault your system by using this call.
-get_vbits :: proc(zza, zzvbits: []byte) -> u8 {
+get_vbits :: proc(zza, zzvbits: []u8) -> u8 {
     // assert requires a `context` thus these procedures cannot `proc "c"`
     internal.assert(len(zzvbits) >= len(zza)/8)
     return u8(mem_check_client_request_expr(0, .Get_Vbits, uintptr(raw_data(zza)), uintptr(raw_data(zzvbits)), uintptr(len(zza)), 0, 0))
@@ -152,17 +152,17 @@ get_vbits :: proc(zza, zzvbits: []byte) -> u8 {
 //     3 - if any parts of zza/zzvbits are not addressable.
 // The metadata is not copied in cases 0, 2 or 3 so it should be
 // impossible to segfault your system by using this call.
-set_vbits :: proc(zzvbits, zza: []byte) -> u8 {
+set_vbits :: proc(zzvbits, zza: []u8) -> u8 {
     // assert requires a `context` thus these procedures cannot `proc "c"`
     internal.assert(len(zzvbits) >= len(zza)/8)
     return u8(mem_check_client_request_expr(0, .Set_Vbits, uintptr(raw_data(zza)), uintptr(raw_data(zzvbits)), uintptr(len(zza)), 0, 0))
 }
 
 // (Re-)enable reporting of addressing errors in the specified address range.
-enable_addr_error_reporting_in_range :: proc "c" (qzz: []byte) -> uintptr {
+enable_addr_error_reporting_in_range :: proc "c" (qzz: []u8) -> uintptr {
     return mem_check_client_request_expr(0, .Enable_Addr_Error_Reporting_In_Range, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 // Disable reporting of addressing errors in the specified address range.
-disable_addr_error_reporting_in_range :: proc "c" (qzz: []byte) -> uintptr {
+disable_addr_error_reporting_in_range :: proc "c" (qzz: []u8) -> uintptr {
     return mem_check_client_request_expr(0, .Disable_Addr_Error_Reporting_In_Range, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }

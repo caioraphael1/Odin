@@ -267,7 +267,7 @@ _close :: proc(sock: Any_Socket) {
 }
 
 @(private)
-_recv_tcp :: proc(tcp_sock: TCP_Socket, buf: []byte) -> (int, TCP_Recv_Error) {
+_recv_tcp :: proc(tcp_sock: TCP_Socket, buf: []u8) -> (int, TCP_Recv_Error) {
     if len(buf) <= 0 {
         return 0, nil
     }
@@ -279,7 +279,7 @@ _recv_tcp :: proc(tcp_sock: TCP_Socket, buf: []byte) -> (int, TCP_Recv_Error) {
 }
 
 @(private)
-_recv_udp :: proc(udp_sock: UDP_Socket, buf: []byte) -> (int, Endpoint, UDP_Recv_Error) {
+_recv_udp :: proc(udp_sock: UDP_Socket, buf: []u8) -> (int, Endpoint, UDP_Recv_Error) {
     if len(buf) <= 0 {
         // NOTE(flysand): It was returning no error, I didn't change anything
         return 0, {}, {}
@@ -301,7 +301,7 @@ _recv_udp :: proc(udp_sock: UDP_Socket, buf: []byte) -> (int, Endpoint, UDP_Recv
 }
 
 @(private)
-_send_tcp :: proc(tcp_sock: TCP_Socket, buf: []byte) -> (int, TCP_Send_Error) {
+_send_tcp :: proc(tcp_sock: TCP_Socket, buf: []u8) -> (int, TCP_Send_Error) {
     total_written := 0
     for total_written < len(buf) {
         limit := min(int(max(i32)), len(buf) - total_written)
@@ -316,7 +316,7 @@ _send_tcp :: proc(tcp_sock: TCP_Socket, buf: []byte) -> (int, TCP_Send_Error) {
 }
 
 @(private)
-_send_udp :: proc(udp_sock: UDP_Socket, buf: []byte, to: Endpoint) -> (int, UDP_Send_Error) {
+_send_udp :: proc(udp_sock: UDP_Socket, buf: []u8, to: Endpoint) -> (int, UDP_Send_Error) {
     to_addr := _unwrap_os_addr(to)
     bytes_written, errno := linux.sendto(linux.Fd(udp_sock), buf, {}, &to_addr)
     if errno != .NONE {
@@ -345,7 +345,7 @@ _set_option :: proc(sock: Any_Socket, option: Socket_Option, value: any, loc := 
         level = int(linux.SOL_SOCKET)
     }
     os_sock := _unwrap_os_socket(sock)
-    // NOTE(tetra, 2022-02-15): On Linux, you cannot merely give a single byte for a bool;
+    // NOTE(tetra, 2022-02-15): On Linux, you cannot merely give a single u8 for a bool;
     //  it _has_ to be a b32.
     //  I haven't tested if you can give more than that. <-- (flysand) probably not, posix explicitly specifies an int
     bool_value: b32

@@ -7,7 +7,7 @@ import "base:container/slice"
 
 // Writer is a buffered wrapper for an io.Writer
 Writer :: struct {
-    buf:           []byte,
+    buf:           []u8,
     buf_allocator: mem.Allocator,
 
     wr:            io.Writer,
@@ -28,11 +28,11 @@ writer_init :: proc(b: ^Writer, wr: io.Writer, size: uint = DEFAULT_BUF_SIZE, al
     size = max(size, MIN_READ_BUFFER_SIZE)
     writer_reset(b, wr)
     b.buf_allocator = allocator
-    b.buf, _ = slice.create([]byte, size, allocator)
+    b.buf, _ = slice.create([]u8, size, allocator)
 }
 
 // Initialized a Writer with a user provided buffer `buf`
-writer_init_with_buf :: proc(b: ^Writer, wr: io.Writer, buf: []byte) {
+writer_init_with_buf :: proc(b: ^Writer, wr: io.Writer, buf: []u8) {
     writer_reset(b, wr)
     b.buf_allocator = {}
     b.buf = buf
@@ -94,7 +94,7 @@ writer_buffered :: proc(b: ^Writer) -> uint {
 // writer_write writes the contents of p into the buffer
 // It returns the number of bytes written
 // If n < len(p), it will return an error explaining why the write is short
-writer_write :: proc(b: ^Writer, p: []byte) -> (n: uint, err: io.Error) {
+writer_write :: proc(b: ^Writer, p: []u8) -> (n: uint, err: io.Error) {
     p := p
     for len(p) > writer_available(b) && b.err == nil {
         m: uint
@@ -121,8 +121,8 @@ writer_write :: proc(b: ^Writer, p: []byte) -> (n: uint, err: io.Error) {
     return m, nil
 }
 
-// writer_write_byte writes a single byte
-writer_write_byte :: proc(b: ^Writer, c: byte) -> io.Error {
+// writer_write_byte writes a single u8
+writer_write_byte :: proc(b: ^Writer, c: u8) -> io.Error {
     if b.err != nil {
         return b.err
     }
@@ -137,7 +137,7 @@ writer_write_byte :: proc(b: ^Writer, c: byte) -> io.Error {
 // writer_write_rune writes a single unicode code point, and returns the number of bytes written with any error
 writer_write_rune :: proc(b: ^Writer, r: rune) -> (size: uint, err: io.Error) {
     if r < utf8.RUNE_SELF {
-        err = writer_write_byte(b, byte(r))
+        err = writer_write_byte(b, u8(r))
         size = 0 if err != nil else 1
         return
     }
@@ -172,7 +172,7 @@ writer_write_rune :: proc(b: ^Writer, r: rune) -> (size: uint, err: io.Error) {
 // It returns the number of bytes written
 // If n < len(p), it will return an error explaining why the write is short
 writer_write_string :: proc(b: ^Writer, s: string) -> (uint, io.Error) {
-    return writer_write(b, transmute([]byte)s)
+    return writer_write(b, transmute([]u8)s)
 }
 
 // writer_read_from is to support io.Reader_From types
@@ -235,7 +235,7 @@ writer_to_writer :: proc(b: ^Writer) -> (s: io.Writer) {
 
 
 
-_writer_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_writer_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     b := (^Writer)(stream_data)
     #partial switch mode {
     case .Flush:

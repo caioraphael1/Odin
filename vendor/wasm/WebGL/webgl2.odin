@@ -20,7 +20,7 @@ IsWebGL2Supported :: proc() -> bool {
 foreign webgl2 {
     /* Buffer objects */
     CopyBufferSubData :: proc(readTarget, writeTarget: Enum, readOffset, writeOffset: int, size: int) ---   
-    GetBufferSubData  :: proc(target: Enum, srcByteOffset: int, dst_buffer: []byte, dstOffset: int = 0, length: int = 0) ---
+    GetBufferSubData  :: proc(target: Enum, srcByteOffset: int, dst_buffer: []u8, dstOffset: int = 0, length: int = 0) ---
     
     /* Framebuffer objects */
     BlitFramebuffer          :: proc(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1: i32, mask: u32, filter: Enum) ---
@@ -114,10 +114,10 @@ foreign webgl2 {
     BindVertexArray   :: proc(vertexArray: VertexArrayObject) ---   
 }
 
-GetActiveUniformBlockNameBuf :: proc(program: Program, uniformBlockIndex: i32, buf: []byte) -> string {
+GetActiveUniformBlockNameBuf :: proc(program: Program, uniformBlockIndex: i32, buf: []u8) -> string {
     foreign webgl2 {
         @(link_name="GetActiveUniformBlockName")
-        _GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []byte, length: ^int) ---
+        _GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []u8, length: ^int) ---
     }
     n: int
     _GetActiveUniformBlockName(program, uniformBlockIndex, buf, &n)
@@ -127,13 +127,13 @@ GetActiveUniformBlockNameBuf :: proc(program: Program, uniformBlockIndex: i32, b
 GetActiveUniformBlockNameAlloc :: proc(program: Program, uniformBlockIndex: i32, allocator: mem.Allocator, loc := #caller_location) -> string {
     foreign webgl2 {
         @(link_name="GetActiveUniformBlockName")
-        _GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []byte, length: ^int) ---
+        _GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []u8, length: ^int) ---
     }
     n: int
     _GetActiveUniformBlockName(program, uniformBlockIndex, {}, &n)
 
     if n > 0 {
-        buf := slice.create([]byte, n, allocator, loc)
+        buf := slice.create([]u8, n, allocator, loc)
         _GetActiveUniformBlockName(program, uniformBlockIndex, buf, &n)
         internal.assert(n == len(buf))
         return string(buf[:n])

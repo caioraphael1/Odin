@@ -9,11 +9,11 @@ import "core:encoding/endian"
 import "core:simd/x86"
 
 @(private)
-gcm_seal_hw :: proc(ctx: ^Context_Impl_Hardware, dst, tag, iv, aad, plaintext: []byte) {
-	h: [_aes.GHASH_KEY_SIZE]byte
-	j0: [_aes.GHASH_BLOCK_SIZE]byte
-	j0_enc: [_aes.GHASH_BLOCK_SIZE]byte
-	s: [_aes.GHASH_TAG_SIZE]byte
+gcm_seal_hw :: proc(ctx: ^Context_Impl_Hardware, dst, tag, iv, aad, plaintext: []u8) {
+	h: [_aes.GHASH_KEY_SIZE]u8
+	j0: [_aes.GHASH_BLOCK_SIZE]u8
+	j0_enc: [_aes.GHASH_BLOCK_SIZE]u8
+	s: [_aes.GHASH_TAG_SIZE]u8
 	init_ghash_hw(ctx, &h, &j0, &j0_enc, iv)
 
 	// Note: Our GHASH implementation handles appending padding.
@@ -28,11 +28,11 @@ gcm_seal_hw :: proc(ctx: ^Context_Impl_Hardware, dst, tag, iv, aad, plaintext: [
 }
 
 @(private)
-gcm_open_hw :: proc(ctx: ^Context_Impl_Hardware, dst, iv, aad, ciphertext, tag: []byte) -> bool {
-	h: [_aes.GHASH_KEY_SIZE]byte
-	j0: [_aes.GHASH_BLOCK_SIZE]byte
-	j0_enc: [_aes.GHASH_BLOCK_SIZE]byte
-	s: [_aes.GHASH_TAG_SIZE]byte
+gcm_open_hw :: proc(ctx: ^Context_Impl_Hardware, dst, iv, aad, ciphertext, tag: []u8) -> bool {
+	h: [_aes.GHASH_KEY_SIZE]u8
+	j0: [_aes.GHASH_BLOCK_SIZE]u8
+	j0_enc: [_aes.GHASH_BLOCK_SIZE]u8
+	s: [_aes.GHASH_TAG_SIZE]u8
 	init_ghash_hw(ctx, &h, &j0, &j0_enc, iv)
 
 	hw_intel.ghash(s[:], h[:], aad)
@@ -55,10 +55,10 @@ gcm_open_hw :: proc(ctx: ^Context_Impl_Hardware, dst, iv, aad, ciphertext, tag: 
 @(private = "file")
 init_ghash_hw :: proc(
 	ctx: ^Context_Impl_Hardware,
-	h: ^[_aes.GHASH_KEY_SIZE]byte,
-	j0: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	j0_enc: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	iv: []byte,
+	h: ^[_aes.GHASH_KEY_SIZE]u8,
+	j0: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	j0_enc: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	iv: []u8,
 ) {
 	// 1. Let H = CIPH(k, 0^128)
 	encrypt_block_hw(ctx, h[:], h[:])
@@ -73,7 +73,7 @@ init_ghash_hw :: proc(
 		// and let J0 = GHASHH(IV || 0^(s+64) || ceil(len(IV))^64).
 		hw_intel.ghash(j0[:], h[:], iv)
 
-		tmp: [_aes.GHASH_BLOCK_SIZE]byte
+		tmp: [_aes.GHASH_BLOCK_SIZE]u8
 		endian.unchecked_put_u64be(tmp[8:], u64(l) * 8)
 		hw_intel.ghash(j0[:], h[:], tmp[:])
 	}
@@ -84,13 +84,13 @@ init_ghash_hw :: proc(
 
 @(private = "file", enable_target_feature = "sse2")
 final_ghash_hw :: proc(
-	s: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	h: ^[_aes.GHASH_KEY_SIZE]byte,
-	j0: ^[_aes.GHASH_BLOCK_SIZE]byte,
+	s: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	h: ^[_aes.GHASH_KEY_SIZE]u8,
+	j0: ^[_aes.GHASH_BLOCK_SIZE]u8,
 	a_len: int,
 	t_len: int,
 ) {
-	blk: [_aes.GHASH_BLOCK_SIZE]byte
+	blk: [_aes.GHASH_BLOCK_SIZE]u8
 	endian.unchecked_put_u64be(blk[0:], u64(a_len) * 8)
 	endian.unchecked_put_u64be(blk[8:], u64(t_len) * 8)
 
@@ -104,11 +104,11 @@ final_ghash_hw :: proc(
 @(private = "file", enable_target_feature = "sse2,sse4.1,aes")
 gctr_hw :: proc(
 	ctx: ^Context_Impl_Hardware,
-	dst: []byte,
-	s: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	src: []byte,
-	h: ^[_aes.GHASH_KEY_SIZE]byte,
-	iv: ^[_aes.GHASH_BLOCK_SIZE]byte,
+	dst: []u8,
+	s: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	src: []u8,
+	h: ^[_aes.GHASH_KEY_SIZE]u8,
+	iv: ^[_aes.GHASH_BLOCK_SIZE]u8,
 	is_seal: bool,
 ) #no_bounds_check {
 	sks: [15]x86.__m128i = ---
@@ -213,7 +213,7 @@ gctr_hw :: proc(
 		if l == BLOCK_SIZE {
 			xor_blocks_hw(dst, src, blks[:1])
 		} else {
-			blk: [BLOCK_SIZE]byte
+			blk: [BLOCK_SIZE]u8
 			copy(blk[:], src)
 			xor_blocks_hw(blk[:], blk[:], blks[:1])
 			copy(dst, blk[:l])

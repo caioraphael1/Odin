@@ -26,7 +26,7 @@ Context :: struct {
 
 // init inititializes a Context for ChaCha20 or XChaCha20 with the provided
 // key and iv.
-init :: proc(ctx: ^Context, key, iv: []byte, impl := DEFAULT_IMPLEMENTATION) {
+init :: proc(ctx: ^Context, key, iv: []u8, impl := DEFAULT_IMPLEMENTATION) {
 	internal.ensure(len(key) == KEY_SIZE, "crypto/chacha20: invalid (X)ChaCha20 key size")
 	internal.ensure(len(iv) == IV_SIZE || len(iv) == XIV_SIZE, "crypto/chacha20: invalid (X)ChaCha20 IV size")
 
@@ -36,7 +36,7 @@ init :: proc(ctx: ^Context, key, iv: []byte, impl := DEFAULT_IMPLEMENTATION) {
 
 	is_xchacha := len(iv) == XIV_SIZE
 	if is_xchacha {
-		sub_iv: [IV_SIZE]byte
+		sub_iv: [IV_SIZE]u8
 		sub_key := ctx._state._buffer[:KEY_SIZE]
 		hchacha20(sub_key, k, n, ctx._impl)
 		k = sub_key
@@ -59,10 +59,10 @@ seek :: proc(ctx: ^Context, block_nr: u64) {
 	_chacha20.seek(&ctx._state, block_nr)
 }
 
-// xor_bytes XORs each byte in src with bytes taken from the (X)ChaCha20
+// xor_bytes XORs each u8 in src with bytes taken from the (X)ChaCha20
 // keystream, and writes the resulting output to dst.  Dst and src MUST
 // alias exactly or not at all.
-xor_bytes :: proc(ctx: ^Context, dst, src: []byte) {
+xor_bytes :: proc(ctx: ^Context, dst, src: []u8) {
 	internal.ensure(ctx._state._is_initialized)
 
 	src, dst := src, dst
@@ -107,7 +107,7 @@ xor_bytes :: proc(ctx: ^Context, dst, src: []byte) {
 }
 
 // keystream_bytes fills dst with the raw (X)ChaCha20 keystream output.
-keystream_bytes :: proc(ctx: ^Context, dst: []byte) {
+keystream_bytes :: proc(ctx: ^Context, dst: []u8) {
 	internal.ensure(ctx._state._is_initialized)
 
 	dst, st := dst, &ctx._state

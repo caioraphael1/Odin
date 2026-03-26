@@ -8,7 +8,7 @@ _posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocato
 	allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 	cname := strings.cstring_clone_from_string(name, allocators.temp_allocator) or_return
 
-	buf: [posix.PATH_MAX]byte
+	buf: [posix.PATH_MAX]u8
 	path = posix.realpath(cname, raw_data(buf[:]))
 	if path == nil {
 		err = _get_platform_error()

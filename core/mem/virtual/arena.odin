@@ -74,7 +74,7 @@ arena_init_static :: proc(arena: ^Arena, reserved: uint = DEFAULT_ARENA_STATIC_R
 
 // Allocates memory from the provided arena.
 @(no_sanitize_address)
-arena_alloc :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
+arena_alloc :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_location) -> (data: []u8, err: Allocator_Error) {
     internal.assert(alignment & (alignment-1) == 0, "non-power of two alignment", loc)
 
     size := size
@@ -88,7 +88,7 @@ arena_alloc :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_l
 
 // Allocates memory from the provided arena.
 @(no_sanitize_address, private)
-arena_alloc_unguarded :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
+arena_alloc_unguarded :: proc(arena: ^Arena, size: uint, alignment: uint, loc := #caller_location) -> (data: []u8, err: Allocator_Error) {
     size := size
     if size == 0 {
         return nil, nil
@@ -209,7 +209,7 @@ arena_free_all :: proc(arena: ^Arena, loc := #caller_location) {
 }
 
 // Frees all of the memory allocated by the arena and zeros all of the values of an arena.
-// A buffer based arena does not `_ = slice.delete` the provided `[]byte` bufffer.
+// A buffer based arena does not `_ = slice.delete` the provided `[]u8` bufffer.
 @(no_sanitize_address)
 arena_destroy :: proc(arena: ^Arena, loc := #caller_location) {
     sync.mutex_guard(&arena.mutex)
@@ -287,7 +287,7 @@ arena_allocator :: proc(arena: ^Arena) -> mem.Allocator {
 arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                              size, alignment: uint,
                              old_memory: rawptr, old_size: uint,
-                             loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
+                             loc := #caller_location) -> (data: []u8, err: Allocator_Error) {
     arena := (^Arena)(allocator_data)
 
     switch mode {
@@ -298,7 +298,7 @@ arena_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
     case .Free_All:
         arena_free_all(arena, loc)
     case .Resize, .Resize_Non_Zeroed:
-        old_data := ([^]byte)(old_memory)
+        old_data := ([^]u8)(old_memory)
 
         switch {
         case old_data == nil:

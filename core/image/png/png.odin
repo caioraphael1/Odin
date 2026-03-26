@@ -185,7 +185,7 @@ read_chunk :: proc(ctx: ^$C) -> (chunk: image.PNG_Chunk, err: Error) {
     }
 
     // Compute CRC over chunk type + data
-    type := (^[4]byte)(&ch.type)^
+    type := (^[4]u8)(&ch.type)^
     computed_crc := hash.crc32(type[:])
     computed_crc =  hash.crc32(chunk.data, computed_crc)
 
@@ -311,7 +311,7 @@ chunk_type_to_name :: proc(type: ^image.PNG_Chunk_Type) -> string {
     return string(([^]u8)(type)[:4])
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []u8, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }
@@ -639,7 +639,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
     } else {
         /*
             Because Adam7 divides the image up into sub-images, and each scanline must start
-            with a filter byte, Adam7 interlaced images can have a larger raw size.
+            with a filter u8, Adam7 interlaced images can have a larger raw size.
         */
         for p := 0; p < 7; p += 1 {
             x := (int(header.width)  - ADAM7_X_ORIG[p] + ADAM7_X_SPACING[p] - 1) / ADAM7_X_SPACING[p]
@@ -1078,7 +1078,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             if seen_trns {
                 /*
                     For 8-bit images, the tRNS chunk still contains a triple in u16be.
-                    We use only the low byte in this case.
+                    We use only the low u8 in this case.
                 */
                 key = []u8{trns.data[1], trns.data[3], trns.data[5]}
             }

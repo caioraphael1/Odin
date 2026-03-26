@@ -124,7 +124,7 @@ Example:
             // Imagine CPU intensive work that's been ofloaded to a worker thread.
             time.sleep(time.Second * 1)
 
-            nbio.send_poly(connection.socket, {transmute([]byte)string("Hellope!\n")}, connection, on_sent, l=connection.loop)
+            nbio.send_poly(connection.socket, {transmute([]u8)string("Hellope!\n")}, connection, on_sent, l=connection.loop)
         }
 
         on_sent :: proc(op: ^nbio.Operation, connection: ^Connection) {

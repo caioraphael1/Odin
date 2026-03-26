@@ -297,7 +297,7 @@ MMTIME_TYPE :: enum UINT {
 	TIME_MS      = 0x0001,
 	/* number of wave samples */
 	TIME_SAMPLES = 0x0002,
-	/* current byte offset */
+	/* current u8 offset */
 	TIME_BYTES   = 0x0004,
 	/* SMPTE time */
 	TIME_SMPTE   = 0x0008,
@@ -314,7 +314,7 @@ MMVERSION      :: UINT
 // Input is four characters string
 // Output is little-endian u32 representation
 
-MAKEFOURCC :: #force_inline proc(s: [4]byte) -> DWORD {
+MAKEFOURCC :: #force_inline proc(s: [4]u8) -> DWORD {
 	return (DWORD(s[0])) | (DWORD(s[1]) << 8) | (DWORD(s[2]) << 16) | (DWORD(s[3]) << 24 )
 }
 

@@ -15,7 +15,7 @@ import "base:container/dyn_array"
 import "core:io"
 import "core:io/string_builder"
 
-ENC_TABLE := [64]byte {
+ENC_TABLE := [64]u8 {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
     'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
     'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -27,7 +27,7 @@ ENC_TABLE := [64]byte {
 }
 
 // Encoding table for Base64url variant
-ENC_URL_TABLE := [64]byte {
+ENC_URL_TABLE := [64]u8 {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
     'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
     'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -112,7 +112,7 @@ DEC_URL_TABLE := [256]u8 {
 }
 
 
-encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> (encoded: string, err: mem.Allocator_Error) {
+encode :: proc(data: []u8, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> (encoded: string, err: mem.Allocator_Error) {
     out_length := encoded_len(data)
     if out_length == 0 {
         return
@@ -127,14 +127,14 @@ encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> 
     return string_builder.to_string(&out), nil
 }
 
-encode_into :: proc(w: io.Writer, data: []byte, ENC_TBL := ENC_TABLE) -> io.Error {
+encode_into :: proc(w: io.Writer, data: []u8, ENC_TBL := ENC_TABLE) -> io.Error {
     length := len(data)
     if length == 0 {
         return nil
     }
 
     c0, c1, c2, block: int
-    out: [4]byte
+    out: [4]u8
     for i: uint; i < length; i += 3 {
         #no_bounds_check {
             c0, c1, c2 = int(data[i]), -1, -1
@@ -154,7 +154,7 @@ encode_into :: proc(w: io.Writer, data: []byte, ENC_TBL := ENC_TABLE) -> io.Erro
     return nil
 }
 
-encoded_len :: proc(data: []byte) -> uint {
+encoded_len :: proc(data: []u8) -> uint {
     length := len(data)
     if length == 0 {
         return 0
@@ -163,7 +163,7 @@ encoded_len :: proc(data: []byte) -> uint {
     return ((4 * length / 3) + 3) &~ 3
 }
 
-decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []byte, err: mem.Allocator_Error) {
+decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []u8, err: mem.Allocator_Error) {
     out_length := decoded_len(data)
 
     out   := string_builder.builder_create_len_cap(0, out_length, allocator) or_return
@@ -183,7 +183,7 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
 
     c0, c1, c2, c3: int
     b0, b1, b2: int
-    buf: [3]byte
+    buf: [3]u8
     i: int
     j: uint
     for ; j + 3 <= length; i, j = i + 4, j + 3 {
@@ -197,9 +197,9 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
             b1 = (c1 << 4) | (c2 >> 2)
             b2 = (c2 << 6) | c3
 
-            buf[0] = byte(b0)
-            buf[1] = byte(b1)
-            buf[2] = byte(b2)
+            buf[0] = u8(b0)
+            buf[1] = u8(b1)
+            buf[2] = u8(b2)
         }
 
         _ = io.write_full(w, buf[:]) or_return
@@ -217,8 +217,8 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
         }
 
         switch rest {
-        case 1: io.write_byte(w, byte(b0))                 or_return
-        case 2: _ = io.write_full(w, {byte(b0), byte(b1)}) or_return
+        case 1: io.write_byte(w, u8(b0))                 or_return
+        case 2: _ = io.write_full(w, {u8(b0), u8(b1)}) or_return
         }
     }
 

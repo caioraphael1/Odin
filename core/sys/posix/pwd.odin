@@ -63,7 +63,7 @@ foreign lib {
         length := posix.sysconf(._GETPW_R_SIZE_MAX)
         length  = length == -1 ? 1024 : length
 
-        buffer: dyn_array.Dyn_Array(byte)
+        buffer: dyn_array.Dyn_Array(u8)
         defer _ = slice.delete(buffer)
 
         result:  posix.passwd
@@ -89,7 +89,7 @@ foreign lib {
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwnam.html ]]
     */
     @(link_name=LGETPWNAMR)
-    getpwnam_r :: proc(name: cstring, pwd: ^passwd, buffer: [^]byte, bufsize: c.size_t, result: ^^passwd) -> Errno ---
+    getpwnam_r :: proc(name: cstring, pwd: ^passwd, buffer: [^]u8, bufsize: c.size_t, result: ^^passwd) -> Errno ---
 
     /*
     Searches the database for an entry with a matching uid.
@@ -114,7 +114,7 @@ foreign lib {
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwuid_r.html ]]
     */
     @(link_name=LGETPWUIDR)
-    getpwuid_r :: proc(uid: uid_t, pwd: ^passwd, buffer: [^]byte, bufsize: c.size_t, result: ^^passwd) -> Errno ---
+    getpwuid_r :: proc(uid: uid_t, pwd: ^passwd, buffer: [^]u8, bufsize: c.size_t, result: ^^passwd) -> Errno ---
 }
 
 when ODIN_OS == .NetBSD {

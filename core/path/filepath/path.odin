@@ -80,7 +80,7 @@ rel :: proc(base_path, target_path: string, allocator: mem.Allocator) -> (string
         if tl != t0 {
             size += 1 + tl - t0
         }
-        buf, _ := slice.create([]byte, size, allocator)
+        buf, _ := slice.create([]u8, size, allocator)
         n := slice.copy_from_string(buf, "..")
         for _ in 0..<seps {
             buf[n] = SEPARATOR

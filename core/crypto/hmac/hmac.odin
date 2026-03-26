@@ -12,7 +12,7 @@ import "core:crypto/hash"
 // sum will compute the HMAC with the specified algorithm and key
 // over msg, and write the computed tag to dst.  It requires that
 // the dst buffer is the tag size.
-sum :: proc(algorithm: hash.Algorithm, dst, msg, key: []byte) {
+sum :: proc(algorithm: hash.Algorithm, dst, msg, key: []u8) {
 	ctx: Context
 
 	init(&ctx, algorithm, key)
@@ -23,8 +23,8 @@ sum :: proc(algorithm: hash.Algorithm, dst, msg, key: []byte) {
 // verify will verify the HMAC tag computed with the specified algorithm
 // and key over msg and return true iff the tag is valid.  It requires
 // that the tag is correctly sized.
-verify :: proc(algorithm: hash.Algorithm, tag, msg, key: []byte) -> bool {
-	tag_buf: [hash.MAX_DIGEST_SIZE]byte
+verify :: proc(algorithm: hash.Algorithm, tag, msg, key: []u8) -> bool {
+	tag_buf: [hash.MAX_DIGEST_SIZE]u8
 
 	derived_tag := tag_buf[:hash.DIGEST_SIZES[algorithm]]
 	sum(algorithm, derived_tag, msg, key)
@@ -42,7 +42,7 @@ Context :: struct {
 }
 
 // init initializes a Context with a specific hash Algorithm and key.
-init :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
+init :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []u8) {
 	if ctx._is_initialized {
 		reset(ctx)
 	}
@@ -54,7 +54,7 @@ init :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	internal.ensure(ctx._is_initialized)
 
 	hash.update(&ctx._i_hash, data)
@@ -62,7 +62,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 
 // final finalizes the Context, writes the tag to dst, and calls
 // reset on the Context.
-final :: proc(ctx: ^Context, dst: []byte) {
+final :: proc(ctx: ^Context, dst: []u8) {
 	defer (reset(ctx))
 
 	internal.ensure(ctx._is_initialized)
@@ -118,9 +118,9 @@ _I_PAD :: 0x36
 _O_PAD :: 0x5c
 
 @(private)
-_init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
-	K0_buf: [hash.MAX_BLOCK_SIZE]byte
-	kPad_buf: [hash.MAX_BLOCK_SIZE]byte
+_init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []u8) {
+	K0_buf: [hash.MAX_BLOCK_SIZE]u8
+	kPad_buf: [hash.MAX_BLOCK_SIZE]u8
 
 	kLen := len(key)
 	B := hash.BLOCK_SIZES[algorithm]
@@ -132,15 +132,15 @@ _init_hashes :: proc(ctx: ^Context, algorithm: hash.Algorithm, key: []byte) {
 		// If the length of K = B: set K0 = K.
 		//
 		// If the length of K < B: dyn_array.append zeros to the end of K to
-		// create a B-byte string K0 (e.g., if K is 20 bytes in
+		// create a B-u8 string K0 (e.g., if K is 20 bytes in
 		// length and B = 64, then K will be appended with 44 zero
 		// bytes x’00’).
 		//
 		// K0 is zero-initialized, so the copy handles both cases.
 		copy(K0, key)
 	case kLen > B:
-		// If the length of K > B: hash K to obtain an L byte string,
-		// then dyn_array.append (B-L) zeros to create a B-byte string K0
+		// If the length of K > B: hash K to obtain an L u8 string,
+		// then dyn_array.append (B-L) zeros to create a B-u8 string K0
 		// (i.e., K0 = H(K) || 00...00).
 		tmpCtx := &ctx._o_hash // Saves allocating a hash.Context.
 		hash.init(tmpCtx, algorithm)

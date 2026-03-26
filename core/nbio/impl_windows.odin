@@ -50,7 +50,7 @@ _Operation :: struct {
 @(private)
 _Accept :: struct {
     // Space that gets the local and remote address written into it.
-    addrs: [(size_of(win.sockaddr_in6)+16)*2]byte,
+    addrs: [(size_of(win.sockaddr_in6)+16)*2]u8,
 }
 
 @(private)
@@ -594,7 +594,7 @@ _open_sync :: proc(l: ^Event_Loop, name: string, dir: Handle, mode: File_Flags, 
             return strings_tools.replace_all(path, `/`, `\`)
         }
 
-        path_buf, err := slice.create([]byte, len(PREFIX)+len(path)+1, allocator)
+        path_buf, err := slice.create([]u8, len(PREFIX)+len(path)+1, allocator)
         if err != nil { return }
         defer if !allocated { delete(path_buf, allocator) }
 
@@ -740,7 +740,7 @@ _associate_handle :: proc(handle: uintptr, l: ^Event_Loop) -> (Handle, Associati
         return INVALID_HANDLE, .Not_Possible_To_Associate
     }
 
-    cmode: byte
+    cmode: u8
     cmode |= win.FILE_SKIP_COMPLETION_PORT_ON_SUCCESS
     cmode |= win.FILE_SKIP_SET_EVENT_ON_HANDLE
     ok := win.SetFileCompletionNotificationModes(win.HANDLE(handle), cmode)
@@ -1789,7 +1789,7 @@ sockaddr_to_endpoint :: proc(native_addr: ^win.SOCKADDR_STORAGE_LH) -> (ep: Endp
         addr := cast(^win.sockaddr_in)native_addr
         port := int(addr.sin_port)
         ep = Endpoint {
-            address = IP4_Address(transmute([4]byte)addr.sin_addr),
+            address = IP4_Address(transmute([4]u8)addr.sin_addr),
             port    = port,
         }
     case u16(win.AF_INET6):

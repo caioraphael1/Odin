@@ -22,14 +22,14 @@ ginger_hash16 :: proc(x: u16) -> u16 {
 }
 
 
-ginger8 :: proc(data: []byte) -> u8 {
+ginger8 :: proc(data: []u8) -> u8 {
 	h := ginger_hash8(0)
 	for b in data {
 		h ~= ginger_hash8(b)
 	}
 	return h
 }
-ginger16 :: proc(data: []byte) -> u16 {
+ginger16 :: proc(data: []u8) -> u16 {
 	h := ginger_hash16(0)
 	for b in data {
 		h ~= ginger_hash16(u16(b))

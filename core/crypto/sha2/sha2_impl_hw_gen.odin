@@ -10,6 +10,6 @@ is_hardware_accelerated_256 :: proc() -> bool {
 	return false
 }
 
-sha256_transf_hw :: proc(ctx: ^Context_256, data: []byte) {
+sha256_transf_hw :: proc(ctx: ^Context_256, data: []u8) {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }

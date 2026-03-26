@@ -30,7 +30,7 @@ BLOCK_SIZE :: 64
 
 // Context is a MD5 instance.
 Context :: struct {
-	data:    [BLOCK_SIZE]byte,
+	data:    [BLOCK_SIZE]u8,
 	state:   [4]u32,
 	bitlen:  u64,
 	datalen: u32,
@@ -52,7 +52,7 @@ init :: proc(ctx: ^Context) {
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	internal.ensure(ctx.is_initialized)
 
 	for i := 0; i < len(data); i += 1 {
@@ -71,7 +71,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 //
 // Iff finalize_clone is set, final will work on a copy of the Context,
 // which is useful for for calculating rolling digests.
-final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
+final :: proc(ctx: ^Context, hash: []u8, finalize_clone: bool = false) {
 	internal.ensure(ctx.is_initialized)
 	internal.ensure(len(hash) >= DIGEST_SIZE, "crypto/md5: invalid destination digest size")
 
@@ -157,7 +157,7 @@ II :: #force_inline proc(a, b, c, d, m: u32, s: int, t: u32) -> u32 {
 }
 
 @(private)
-transform :: proc(ctx: ^Context, data: []byte) {
+transform :: proc(ctx: ^Context, data: []u8) {
 	m: [DIGEST_SIZE]u32
 
 	for i := 0; i < DIGEST_SIZE; i += 1 {

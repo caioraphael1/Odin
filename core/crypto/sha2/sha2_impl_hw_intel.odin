@@ -62,7 +62,7 @@ is_hardware_accelerated_256 :: proc() -> bool {
 }
 
 @(private, enable_target_feature="sse2,ssse3,sse4.1,sha")
-sha256_transf_hw :: proc(ctx: ^Context_256, data: []byte) #no_bounds_check {
+sha256_transf_hw :: proc(ctx: ^Context_256, data: []u8) #no_bounds_check {
 	// Load the state
 	tmp := intrinsics.unaligned_load((^x86.__m128i)(&ctx.h[0]))
 	state_1 := intrinsics.unaligned_load((^x86.__m128i)(&ctx.h[4]))

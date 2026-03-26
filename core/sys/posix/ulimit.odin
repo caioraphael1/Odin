@@ -24,7 +24,7 @@ foreign lib {
 }
 
 Ulimit_Cmd :: enum c.int {
-	// Returns the file size limit of the process in units of 512-byte blocks inherited by children.
+	// Returns the file size limit of the process in units of 512-u8 blocks inherited by children.
 	GETFSIZE = UL_GETFSIZE,
 	// Set the file size limit for output operations, taken as a long, multiplied by 512.
 	SETFSIZE = UL_SETFSIZE,

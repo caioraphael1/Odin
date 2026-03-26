@@ -53,7 +53,7 @@ running_on_valgrind :: proc "c" () -> uint {
 
 // Discard translation of code in the slice qzz. Useful if you are debugging a JIT-er or some such,
 // since it provides a way to make sure valgrind will retranslate the invalidated area.
-discard_translations :: proc "c" (qzz: []byte) {
+discard_translations :: proc "c" (qzz: []u8) {
 	client_request_stmt(.Discard_Translations, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 
@@ -80,10 +80,10 @@ monitor_command :: proc "c" (command: cstring) -> bool {
 }
 
 
-malloc_like_block :: proc "c" (mem: []byte, rz_b: uintptr, is_zeroed: bool) {
+malloc_like_block :: proc "c" (mem: []u8, rz_b: uintptr, is_zeroed: bool) {
 	client_request_stmt(.Malloc_Like_Block, uintptr(raw_data(mem)), uintptr(len(mem)), rz_b, uintptr(is_zeroed), 0)
 }
-resize_inplace_block :: proc "c" (old_mem: []byte, new_size: uint, rz_b: uintptr) {
+resize_inplace_block :: proc "c" (old_mem: []u8, new_size: uint, rz_b: uintptr) {
 	client_request_stmt(.Resize_Inplace_Block, uintptr(raw_data(old_mem)), uintptr(len(old_mem)), uintptr(new_size), rz_b, 0)
 }
 free_like_block :: proc "c" (addr: rawptr, rz_b: uintptr) {
@@ -105,7 +105,7 @@ destroy_mem_pool :: proc "c" (pool: rawptr) {
 	client_request_stmt(.Destroy_Mem_Pool, uintptr(pool), 0, 0, 0, 0)
 }
 // Associate a section of memory with a memory pool.
-mem_pool_alloc :: proc "c" (pool: rawptr, mem: []byte) {
+mem_pool_alloc :: proc "c" (pool: rawptr, mem: []u8) {
 	client_request_stmt(.Mem_Pool_Alloc, uintptr(pool), uintptr(raw_data(mem)), uintptr(len(mem)), 0, 0)
 }
 // Disassociate a section of memory from a memory pool.
@@ -113,7 +113,7 @@ mem_pool_free :: proc "c" (pool: rawptr, addr: rawptr) {
 	client_request_stmt(.Mem_Pool_Free, uintptr(pool), uintptr(addr), 0, 0, 0)
 }
 // Disassociate parts of a section of memory outside a particular range.
-mem_pool_trim :: proc "c" (pool: rawptr, mem: []byte) {
+mem_pool_trim :: proc "c" (pool: rawptr, mem: []u8) {
 	client_request_stmt(.Mem_Pool_Trim, uintptr(pool), uintptr(raw_data(mem)), uintptr(len(mem)), 0, 0)
 }
 // Resize and/or move a section of memory associated with a memory pool.
@@ -121,7 +121,7 @@ move_mem_pool :: proc "c" (pool_a, pool_b: rawptr) {
 	client_request_stmt(.Move_Mem_Pool, uintptr(pool_a), uintptr(pool_b), 0, 0, 0)
 }
 // Resize and/or move a section of memory associated with a memory pool.
-mem_pool_change :: proc "c" (pool: rawptr, addr_a: rawptr, mem: []byte) {
+mem_pool_change :: proc "c" (pool: rawptr, addr_a: rawptr, mem: []u8) {
 	client_request_stmt(.Mem_Pool_Change, uintptr(pool), uintptr(addr_a), uintptr(raw_data(mem)), uintptr(len(mem)), 0)
 }
 // Return true if a memory pool exists
@@ -131,7 +131,7 @@ mem_pool_exists :: proc "c" (pool: rawptr) -> bool {
 
 
 // Mark a section of memory as being a stack. Returns a stack id.
-stack_register :: proc "c" (stack: []byte) -> (stack_id: uintptr) {
+stack_register :: proc "c" (stack: []u8) -> (stack_id: uintptr) {
 	ptr := uintptr(raw_data(stack))
 	return client_request_expr(0, .Stack_Register, ptr, ptr+uintptr(len(stack)), 0, 0, 0)
 }
@@ -142,7 +142,7 @@ stack_deregister :: proc "c" (id: uintptr) {
 }
 
 // Change the start and end address of the stack id with the `new_stack` slice.
-stack_change :: proc "c" (id: uint, new_stack: []byte) {
+stack_change :: proc "c" (id: uint, new_stack: []u8) {
 	ptr := uintptr(raw_data(new_stack))
 	client_request_stmt(.Stack_Change, uintptr(id), ptr, ptr + uintptr(len(new_stack)), 0, 0)
 }
@@ -172,9 +172,9 @@ inner_threads :: proc "c" (qzz: rawptr) {
 
 
 // Map a code address to a source file name and line number.
-// `buf64` must point to a 64-byte buffer in the caller's address space.
+// `buf64` must point to a 64-u8 buffer in the caller's address space.
 // The result will be dumped in there and is guaranteed to be zero terminated.
-// If no info is found, the first byte is set to zero.
-map_ip_to_src_loc :: proc "c" (addr: rawptr, buf64: ^[64]byte) -> uintptr {
+// If no info is found, the first u8 is set to zero.
+map_ip_to_src_loc :: proc "c" (addr: rawptr, buf64: ^[64]u8) -> uintptr {
 	return client_request_expr(0, .Map_Ip_To_Src_Loc, uintptr(addr), uintptr(buf64), 0, 0, 0)
 }

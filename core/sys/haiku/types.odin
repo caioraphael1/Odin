@@ -33,7 +33,7 @@ mode_t         :: u32
 umode_t        :: u32
 nlink_t        :: i32
 
-caddr_t        :: [^]byte
+caddr_t        :: [^]u8
 
 addr_t         :: phys_addr_t
 key_t          :: i32

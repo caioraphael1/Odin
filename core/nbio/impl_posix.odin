@@ -85,7 +85,7 @@ _Poll :: struct {}
 
 @(private)
 _Send_File :: struct {
-    mapping: []byte, // `mmap`'d buffer (if native `sendfile` is not supported).
+    mapping: []u8, // `mmap`'d buffer (if native `sendfile` is not supported).
 }
 
 @(private)
@@ -617,7 +617,7 @@ handle_completed :: proc(op: ^Operation) {
         }
     }
 
-    bufs_destroy :: proc(bufs: [][]byte, allocator: mem.Allocator) {
+    bufs_destroy :: proc(bufs: [][]u8, allocator: mem.Allocator) {
         if len(bufs) > 1 {
             delete(bufs, allocator)
         }
@@ -805,7 +805,7 @@ send_exec :: proc(op: ^Operation) -> Op_Result {
 
     return .Done
 
-    sendv :: proc(socket: Any_Socket, bufs: [][]byte, to: net.Endpoint) -> (posix.FD, int) {
+    sendv :: proc(socket: Any_Socket, bufs: [][]u8, to: net.Endpoint) -> (posix.FD, int) {
         internal.assert(len(bufs) < int(max(i32)))
 
         msg: posix.msghdr
@@ -869,7 +869,7 @@ recv_exec :: proc(op: ^Operation) -> Op_Result {
 
     return .Done
 
-    recvv :: proc(socket: Any_Socket, bufs: [][]byte, from: ^Endpoint) -> (fd: posix.FD, n: int) {
+    recvv :: proc(socket: Any_Socket, bufs: [][]u8, from: ^Endpoint) -> (fd: posix.FD, n: int) {
         internal.assert(len(bufs) < int(max(i32)))
 
         msg: posix.msghdr
@@ -976,7 +976,7 @@ sendfile_exec :: proc(op: ^Operation) -> (result: Op_Result) {
                 op.sendfile.err = FS_Error(posix.errno())
                 return .Done
             }
-            op.sendfile._impl.mapping = ([^]byte)(addr)[:op.sendfile.nbytes]
+            op.sendfile._impl.mapping = ([^]u8)(addr)[:op.sendfile.nbytes]
         }
 
         n := posix.send(
@@ -1383,7 +1383,7 @@ sockaddr_to_endpoint :: proc(native_addr: ^posix.sockaddr_storage) -> (ep: Endpo
         addr := cast(^posix.sockaddr_in)native_addr
         port := int(addr.sin_port)
         ep = Endpoint {
-            address = IP4_Address(transmute([4]byte)addr.sin_addr),
+            address = IP4_Address(transmute([4]u8)addr.sin_addr),
             port    = port,
         }
     case .INET6:

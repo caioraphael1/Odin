@@ -60,20 +60,20 @@ REVERB_PARAMETERS :: struct #packed {
 	WetDryMix: f32,               // [0, 100] (percentage)
 	// Delay times
 	ReflectionsDelay: u32,        // [0, 300] in ms
-	ReverbDelay:      byte,       // [0, 85] in ms
-	RearDelay:        byte,       // 7.1: [0, 20] in ms, all other: [0, 5] in ms
-	SideDelay:        byte,       // 7.1: [0, 5] in ms, all other: not used, but still validated
+	ReverbDelay:      u8,       // [0, 85] in ms
+	RearDelay:        u8,       // 7.1: [0, 20] in ms, all other: [0, 5] in ms
+	SideDelay:        u8,       // 7.1: [0, 5] in ms, all other: not used, but still validated
 	// Indexed parameters
-	PositionLeft:        byte,    // [0, 30] no units
-	PositionRight:       byte,    // [0, 30] no units, ignored when configured to mono
-	PositionMatrixLeft:  byte,    // [0, 30] no units
-	PositionMatrixRight: byte,    // [0, 30] no units, ignored when configured to mono
-	EarlyDiffusion:      byte,    // [0, 15] no units
-	LateDiffusion:       byte,    // [0, 15] no units
-	LowEQGain:           byte,    // [0, 12] no units
-	LowEQCutoff:         byte,    // [0, 9] no units
-	HighEQGain:          byte,    // [0, 8] no units
-	HighEQCutoff:        byte,    // [0, 14] no units
+	PositionLeft:        u8,    // [0, 30] no units
+	PositionRight:       u8,    // [0, 30] no units, ignored when configured to mono
+	PositionMatrixLeft:  u8,    // [0, 30] no units
+	PositionMatrixRight: u8,    // [0, 30] no units, ignored when configured to mono
+	EarlyDiffusion:      u8,    // [0, 15] no units
+	LateDiffusion:       u8,    // [0, 15] no units
+	LowEQGain:           u8,    // [0, 12] no units
+	LowEQCutoff:         u8,    // [0, 9] no units
+	HighEQGain:          u8,    // [0, 8] no units
+	HighEQCutoff:        u8,    // [0, 14] no units
 	// Direct parameters
 	RoomFilterFreq:  f32,         // [20, 20000] in Hz
 	RoomFilterMain:  f32,         // [-100, 0] in dB
@@ -242,14 +242,14 @@ ReverbConvertI3DL2ToNative :: proc(pI3DL2: ^REVERB_I3DL2_PARAMETERS, pNative: ^R
 	if pI3DL2.DecayHFRatio >= 1.0 {
 		index := i32(-4.0 * math.log10_f32(pI3DL2.DecayHFRatio))
 		if index < -8 {index = -8}
-		pNative.LowEQGain  = byte((index < 0) ? index + 8 : 8)
+		pNative.LowEQGain  = u8((index < 0) ? index + 8 : 8)
 		pNative.HighEQGain = 8
 		pNative.DecayTime  = pI3DL2.DecayTime * pI3DL2.DecayHFRatio
 	} else {
 		index := i32(4.0 * math.log10_f32(pI3DL2.DecayHFRatio))
 		if index < -8 {index = -8}
 		pNative.LowEQGain  = 8
-		pNative.HighEQGain = byte((index < 0) ? index + 8 : 8)
+		pNative.HighEQGain = u8((index < 0) ? index + 8 : 8)
 		pNative.DecayTime  = pI3DL2.DecayTime
 	}
 
@@ -265,11 +265,11 @@ ReverbConvertI3DL2ToNative :: proc(pI3DL2: ^REVERB_I3DL2_PARAMETERS, pNative: ^R
 	if reverbDelay >= REVERB_MAX_REVERB_DELAY { // 85
 		reverbDelay = f32(REVERB_MAX_REVERB_DELAY - 1)
 	}
-	pNative.ReverbDelay = byte(reverbDelay)
+	pNative.ReverbDelay = u8(reverbDelay)
 
 	pNative.ReflectionsGain = f32(pI3DL2.Reflections) / 100.0
 	pNative.ReverbGain      = f32(pI3DL2.Reverb) / 100.0
-	pNative.EarlyDiffusion  = byte(15.0 * pI3DL2.Diffusion / 100.0)
+	pNative.EarlyDiffusion  = u8(15.0 * pI3DL2.Diffusion / 100.0)
 	pNative.LateDiffusion   = pNative.EarlyDiffusion
 	pNative.Density         = pI3DL2.Density
 	pNative.RoomFilterFreq  = pI3DL2.HFReference

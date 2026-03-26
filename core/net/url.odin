@@ -128,9 +128,9 @@ percent_encode :: proc(s: string, allocator: mem.Allocator) -> string {
             _, _ = string_builder.write_rune(&b, ch)
         case:
             bytes, n := utf8.bytes_from_rune(ch)
-            for byte in bytes[:n] {
+            for u8 in bytes[:n] {
                 buf: [2]u8 = ---
-                t := strconv.write_int(buf[:], i64(byte), 16)
+                t := strconv.write_int(buf[:], i64(u8), 16)
                 _, _ = string_builder.write_rune(&b, '%')
                 string_builder.write_string(&b, t)
             }
@@ -191,8 +191,8 @@ percent_decode :: proc(encoded_string: string, allocator: mem.Allocator) -> (dec
 // // TODO(tetra): The whole "table" stuff in encoding/base64 is too impenetrable for me to
 // // make a table for this ... sigh - so this'll do for now.
 /*
-base64url_encode :: proc(data: []byte, allocator: mem.Allocator) -> string {
-    out := transmute([]byte) base64.encode(data, base64.ENC_TABLE, allocator);
+base64url_encode :: proc(data: []u8, allocator: mem.Allocator) -> string {
+    out := transmute([]u8) base64.encode(data, base64.ENC_TABLE, allocator);
     for b, i in out {
         switch b {
         case '+': out[i] = '-';
@@ -208,7 +208,7 @@ base64url_encode :: proc(data: []byte, allocator: mem.Allocator) -> string {
     return string(out[:i+1]);
 }
 
-base64url_decode :: proc(s: string, allocator: mem.Allocator) -> []byte {
+base64url_decode :: proc(s: string, allocator: mem.Allocator) -> []u8 {
     size := len(s);
     padding := 0;
     for size % 4 != 0 {
@@ -216,8 +216,8 @@ base64url_decode :: proc(s: string, allocator: mem.Allocator) -> []byte {
         padding += 1;
     }
 
-    temp := slice.create([]byte, size, allocators.temp_allocator);
-    slice.copy(temp, transmute([]byte) s);
+    temp := slice.create([]u8, size, allocators.temp_allocator);
+    slice.copy(temp, transmute([]u8) s);
 
     for b, i in temp {
         switch b {

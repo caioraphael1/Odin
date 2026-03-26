@@ -197,7 +197,7 @@ get_dns_records_from_nameservers :: proc(hostname: string, type: DNS_Record_Type
     rand_ok := rand.random_generator_read_ptr(rand.global_random_generator, &id, size_of(id))
     internal.assert(rand_ok, "uninitialized gen/context.random_generator")
 
-    dns_packet_buf: [DNS_PACKET_MIN_LEN]byte = ---
+    dns_packet_buf: [DNS_PACKET_MIN_LEN]u8 = ---
     dns_packet := make_dns_packet(dns_packet_buf[:], id, hostname, type) or_return
 
     dns_response_buf: [4096]u8 = ---
@@ -245,7 +245,7 @@ get_dns_records_from_nameservers :: proc(hostname: string, type: DNS_Record_Type
 
 DNS_PACKET_MIN_LEN :: (size_of(u16be) * 6) + NAME_MAX + (size_of(u16be) * 2)
 
-make_dns_packet :: proc(buf: []byte, id: u16be, hostname: string, type: DNS_Record_Type) -> (packet: []byte, err: DNS_Error) {
+make_dns_packet :: proc(buf: []u8, id: u16be, hostname: string, type: DNS_Record_Type) -> (packet: []u8, err: DNS_Error) {
     internal.assert(len(buf) >= DNS_PACKET_MIN_LEN)
 
     hdr := DNS_Header{

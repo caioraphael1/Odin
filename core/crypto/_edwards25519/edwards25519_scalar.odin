@@ -22,15 +22,15 @@ sc_set_u64 :: proc(sc: ^Scalar, i: u64) {
 }
 
 
-sc_set_bytes :: proc(sc: ^Scalar, b: []byte) -> bool {
+sc_set_bytes :: proc(sc: ^Scalar, b: []u8) -> bool {
 	ensure_contextless(len(b) == 32, "edwards25519: invalid scalar size")
-	b_ := (^[32]byte)(raw_data(b))
+	b_ := (^[32]u8)(raw_data(b))
 	return field.fe_from_bytes(sc, b_)
 }
 
-sc_set_bytes_rfc8032 :: proc(sc: ^Scalar, b: []byte) {
+sc_set_bytes_rfc8032 :: proc(sc: ^Scalar, b: []u8) {
 	ensure_contextless(len(b) == 32, "edwards25519: invalid scalar size")
-	b_ := (^[32]byte)(raw_data(b))
+	b_ := (^[32]u8)(raw_data(b))
 	field.fe_from_bytes_rfc8032(sc, b_)
 }
 

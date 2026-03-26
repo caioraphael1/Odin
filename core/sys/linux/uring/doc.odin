@@ -15,7 +15,7 @@ Example:
 
     Request :: struct {
         path:       cstring,
-        buffer:     []byte,
+        buffer:     []u8,
         completion: linux.IO_Uring_CQE,
     }
 
@@ -61,13 +61,13 @@ Example:
         }
     }
 
-    submit_read_request :: proc(path: cstring, buffer: ^[]byte, ring: ^uring.Ring) {
+    submit_read_request :: proc(path: cstring, buffer: ^[]u8, ring: ^uring.Ring) {
         fd, err := linux.open(path, {})
         fmt.assertf(err == nil, "open(%q): %v", path, err)
 
         file_sz := get_file_size(fd)
 
-        buffer^ = slice.create([]byte, file_sz)
+        buffer^ = slice.create([]u8, file_sz)
 
         _, ok := uring.read(ring, 0, fd, buffer^, 0)
         internal.assert(ok, "could not get read sqe")

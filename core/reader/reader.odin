@@ -7,12 +7,12 @@ import "base:unicode/utf8"
 import "core:io"
 
 Reader :: struct {
-    s:         []byte, // read-only buffer
+    s:         []u8, // read-only buffer
     i:         i64,    // current reading index
     prev_rune: int,    // previous reading index of rune or < 0
 }
 
-reader_init :: proc(r: ^Reader, s: []byte) -> io.Stream {
+reader_init :: proc(r: ^Reader, s: []u8) -> io.Stream {
     r.s = s
     r.i = 0
     r.prev_rune = -1
@@ -36,7 +36,7 @@ reader_size :: proc(r: ^Reader) -> i64 {
     return i64(len(r.s))
 }
 
-reader_read :: proc(r: ^Reader, p: []byte) -> (n: int, err: io.Error) {
+reader_read :: proc(r: ^Reader, p: []u8) -> (n: int, err: io.Error) {
     if len(p) == 0 {
         return 0, nil
     }
@@ -48,7 +48,7 @@ reader_read :: proc(r: ^Reader, p: []byte) -> (n: int, err: io.Error) {
     r.i += i64(n)
     return
 }
-reader_read_at :: proc(r: ^Reader, p: []byte, off: i64) -> (n: int, err: io.Error) {
+reader_read_at :: proc(r: ^Reader, p: []u8, off: i64) -> (n: int, err: io.Error) {
     if len(p) == 0 {
         return 0, nil
     }
@@ -65,27 +65,27 @@ reader_read_at :: proc(r: ^Reader, p: []byte, off: i64) -> (n: int, err: io.Erro
     return
 }
 reader_read_slice :: proc(r: ^Reader, slice: $T/[]$S) -> (n: int, err: io.Error) {
-    b := ([^]byte)(raw_data(slice))[:len(slice)*size_of(S)]
+    b := ([^]u8)(raw_data(slice))[:len(slice)*size_of(S)]
     return reader_read(r, b)
 }
 
 reader_read_slice_at :: proc(r: ^Reader, slice: $T/[]$S, off: i64) -> (n: int, err: io.Error) {
-    b := ([^]byte)(raw_data(slice))[:len(slice)*size_of(S)]
+    b := ([^]u8)(raw_data(slice))[:len(slice)*size_of(S)]
     return reader_read_at(r, b, off)
 }
 
 reader_read_ptr :: proc(r: ^Reader, data: rawptr, len: int) -> (n: int, err: io.Error) {
-    b := ([^]byte)(data)[:len]
+    b := ([^]u8)(data)[:len]
     return reader_read(r, b)
 }
 
 reader_read_ptr_at :: proc(r: ^Reader, data: rawptr, len: int, off: i64) -> (n: int, err: io.Error) {
-    b := ([^]byte)(data)[:len]
+    b := ([^]u8)(data)[:len]
     return reader_read_at(r, b, off)
 }
 
 
-reader_read_byte :: proc(r: ^Reader) -> (byte, io.Error) {
+reader_read_byte :: proc(r: ^Reader) -> (u8, io.Error) {
     r.prev_rune = -1
     if r.i >= i64(len(r.s)) {
         return 0, .EOF
@@ -168,7 +168,7 @@ reader_write_to :: proc(r: ^Reader, w: io.Writer) -> (n: i64, err: io.Error) {
 
 
 @(private)
-_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     r := (^Reader)(stream_data)
     #partial switch mode {
     case .Read:

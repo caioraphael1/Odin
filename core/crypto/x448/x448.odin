@@ -15,7 +15,7 @@ SCALAR_SIZE :: 56
 POINT_SIZE :: 56
 
 @(private, rodata)
-_BASE_POINT: [56]byte = {
+_BASE_POINT: [56]u8 = {
 	5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -23,7 +23,7 @@ _BASE_POINT: [56]byte = {
 }
 
 @(private)
-_scalar_bit :: #force_inline proc(s: ^[56]byte, i: int) -> u8 {
+_scalar_bit :: #force_inline proc(s: ^[56]u8, i: int) -> u8 {
 	if i < 0 {
 		return 0
 	}
@@ -31,7 +31,7 @@ _scalar_bit :: #force_inline proc(s: ^[56]byte, i: int) -> u8 {
 }
 
 @(private)
-_scalarmult :: proc(out, scalar, point: ^[56]byte) {
+_scalarmult :: proc(out, scalar, point: ^[56]u8) {
 	// Montgomery pseudo-multiplication, using the RFC 7748 formula.
 	t1, t2: field.Loose_Field_Element = ---, ---
 
@@ -125,21 +125,21 @@ _scalarmult :: proc(out, scalar, point: ^[56]byte) {
 
 // scalarmult "multiplies" the provided scalar and point, and writes the
 // resulting point to dst.
-scalarmult :: proc(dst, scalar, point: []byte) {
+scalarmult :: proc(dst, scalar, point: []u8) {
 	internal.ensure(len(scalar) == SCALAR_SIZE, "crypto/x448: invalid scalar size")
 	internal.ensure(len(point) == POINT_SIZE, "crypto/x448: invalid point size")
 	internal.ensure(len(dst) == POINT_SIZE, "crypto/x448: invalid destination point size")
 
 	// "clamp" the scalar
-	e: [56]byte = ---
+	e: [56]u8 = ---
 	slice.copy(e[:], scalar)
 	e[0] &= 252
 	e[55] |= 128
 
-	p: [56]byte = ---
+	p: [56]u8 = ---
 	slice.copy(p[:], point)
 
-	d: [56]byte = ---
+	d: [56]u8 = ---
 	_scalarmult(&d, &e, &p)
 	slice.copy(dst, d[:])
 
@@ -149,6 +149,6 @@ scalarmult :: proc(dst, scalar, point: []byte) {
 
 // scalarmult_basepoint "multiplies" the provided scalar with the X448
 // base point and writes the resulting point to dst.
-scalarmult_basepoint :: proc(dst, scalar: []byte) {
+scalarmult_basepoint :: proc(dst, scalar: []u8) {
 	scalarmult(dst, scalar, _BASE_POINT[:])
 }

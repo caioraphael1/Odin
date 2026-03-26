@@ -233,7 +233,7 @@ when ODIN_OS == .Darwin {
 		d_ino:    ino_t,                 /* inode number */
 		d_pino:   ino_t,                 /* parent inode (only for queries) */
 		d_reclen: c.ushort,              /* length of this record, not the name */
-		d_name:   [0]c.char `fmt:"s,0"`, /* name of the entry (null byte terminated) */
+		d_name:   [0]c.char `fmt:"s,0"`, /* name of the entry (null u8 terminated) */
 	}
 
 }

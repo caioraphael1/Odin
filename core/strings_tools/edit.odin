@@ -10,7 +10,7 @@ import "core:io"
 import "core:io/string_builder"
 
 
-string_from_bytes_null_terminated :: proc(bytes: []byte) -> (res: string) {
+string_from_bytes_null_terminated :: proc(bytes: []u8) -> (res: string) {
     return truncate_to_byte(string(bytes), 0)
 }
 
@@ -20,9 +20,9 @@ string_from_string_null_terminated :: proc(str: string) -> (res: string) {
 
 
 /*
-Truncates a string `str` at the first occurrence of char/byte `b`
+Truncates a string `str` at the first occurrence of char/u8 `b`
 */
-truncate_to_byte :: proc(str: string, b: byte) -> (res: string) {
+truncate_to_byte :: proc(str: string, b: u8) -> (res: string) {
     n, found := index_byte(str, b)
     if !found {
         n = len(str)
@@ -88,7 +88,7 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
     }
 
 
-    t, err := slice.create([]byte, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
+    t, err := slice.create([]u8, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
     if err != nil {
         return
     }
@@ -209,7 +209,7 @@ Output:
 reverse :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     str := s
     n := len(str)
-    buf := slice.create([]byte, n, allocator, loc) or_return
+    buf := slice.create([]u8, n, allocator, loc) or_return
     i := n
 
     for len(str) > 0 {

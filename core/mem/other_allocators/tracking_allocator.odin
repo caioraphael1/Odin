@@ -199,7 +199,7 @@ tracking_allocator_proc :: proc(
     old_memory: rawptr,
     old_size: uint,
     loc := #caller_location,
-) -> (result: []byte, err: mem.Allocator_Error) {
+) -> (result: []u8, err: mem.Allocator_Error) {
     @(no_sanitize_address)
     track_alloc :: proc(data: ^Tracking_Allocator, entry: ^Tracking_Allocator_Entry) {
         data.total_memory_allocated += i64(entry.size)

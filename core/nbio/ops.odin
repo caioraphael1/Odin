@@ -481,7 +481,7 @@ Recv :: struct {
 	// The buffers to receive data into.
 	// The outer slice is copied internally, but the backing data must remain alive.
 	// It is safe to access `bufs` during the callback.
-	bufs:     [][]byte,
+	bufs:     [][]u8,
 	// If true, the operation waits until all buffers are filled (TCP only).
 	all:      bool,
 	// When this operation expires and should be timed out.
@@ -505,7 +505,7 @@ Retrieves and preps an operation to do a receive without executing it.
 
 Executing can then be done with the `exec` procedure.
 
-To avoid ambiguity between a closed connection and a 0-byte read, the provided buffers must have a total capacity greater than 0.
+To avoid ambiguity between a closed connection and a 0-u8 read, the provided buffers must have a total capacity greater than 0.
 
 The `bufs` slice itself is copied into the operation, so it can be temporary (e.g. on the stack), but the underlying memory of the buffers must remain valid until the callback is fired.
 
@@ -525,7 +525,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 prep_recv :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	cb: Callback,
 	all := false,
 	timeout: time.Duration = NO_TIMEOUT,
@@ -535,7 +535,7 @@ prep_recv :: #force_inline proc(
 
 	// If we accepted `bufs` that total 0 it would be ambiguous if the result of `received == 0 && err == nil` means connection closed or received 0 bytes.
 	internal.assert(len(bufs) > 0)
-	internal.assert(slice.any_of_proc(bufs, proc(buf: []byte) -> bool { return len(buf) > 0 }))
+	internal.assert(slice.any_of_proc(bufs, proc(buf: []u8) -> bool { return len(buf) > 0 }))
 
 	op := _prep(l, cb, .Recv)
 	op.recv.socket  = socket
@@ -578,7 +578,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 recv :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	cb: Callback,
 	all := false,
 	timeout: time.Duration = NO_TIMEOUT,
@@ -611,7 +611,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 recv_poly :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	p: $T,
 	cb: $C/proc(op: ^Operation, p: T),
 	all := false,
@@ -649,7 +649,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 recv_poly2 :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	p: $T, p2: $T2,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2),
 	all := false,
@@ -688,7 +688,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 recv_poly3 :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	p: $T, p2: $T2, p3: $T3,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2, p3: T3),
 	all := false,
@@ -709,7 +709,7 @@ Send :: struct {
 	// The buffers to send.
 	// The outer slice is copied internally, but the backing data must remain alive.
 	// It is safe to access `bufs` during the callback.
-	bufs:     [][]byte `fmt:"-"`,
+	bufs:     [][]u8 `fmt:"-"`,
 	// The destination endpoint to send to (UDP only).
 	endpoint: Endpoint,
 	// If true, the operation ensures all data is sent before completing.
@@ -750,7 +750,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 prep_send :: proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	cb: Callback,
 	endpoint: Endpoint = {},
 	all := true,
@@ -799,7 +799,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 send :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	cb: Callback,
 	endpoint: Endpoint = {},
 	all := true,
@@ -832,7 +832,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 send_poly :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	p: $T,
 	cb: $C/proc(op: ^Operation, p: T),
 	endpoint: Endpoint = {},
@@ -870,7 +870,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 send_poly2 :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	p: $T, p2: $T2,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2),
 	endpoint: Endpoint = {},
@@ -909,7 +909,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 */
 send_poly3 :: #force_inline proc(
 	socket: Any_Socket,
-	bufs: [][]byte,
+	bufs: [][]u8,
 	p: $T, p2: $T2, p3: $T3,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2, p3: T3),
 	endpoint: Endpoint = {},
@@ -929,7 +929,7 @@ Read :: struct {
 	// Handle to read from.
 	handle:  Handle,
 	// Buffer to read data into.
-	buf:     []byte `fmt:"v,read"`,
+	buf:     []u8 `fmt:"v,read"`,
 	// Offset to read from.
 	offset:	 int,
 	// Whether to read until the buffer is full or an error occurs.
@@ -973,7 +973,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 prep_read :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	cb: Callback,
 	all := false,
 	timeout: time.Duration = NO_TIMEOUT,
@@ -1014,7 +1014,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 read :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	cb: Callback,
 	all := false,
 	timeout: time.Duration = NO_TIMEOUT,
@@ -1048,7 +1048,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 read_poly :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	p: $T,
 	cb: $C/proc(op: ^Operation, p: T),
 	all := false,
@@ -1087,7 +1087,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 read_poly2 :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	p: $T, p2: $T2,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2),
 	all := false,
@@ -1127,7 +1127,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 read_poly3 :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	p: $T, p2: $T2, p3: $T3,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2, p3: T3),
 	all := false,
@@ -1146,7 +1146,7 @@ Write :: struct {
 	// Handle to write to.
 	handle:  Handle,
 	// Buffer containing data to write.
-	buf:     []byte,
+	buf:     []u8,
 	// Offset to write to.
 	offset:  int,
 	// Whether to write until the buffer is fully written or an error occurs.
@@ -1190,7 +1190,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 prep_write :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	cb: Callback,
 	all := true,
 	timeout: time.Duration = NO_TIMEOUT,
@@ -1231,7 +1231,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 write :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	cb: Callback,
 	all := true,
 	timeout: time.Duration = NO_TIMEOUT,
@@ -1265,7 +1265,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 write_poly :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	p: $T,
 	cb: $C/proc(op: ^Operation, p: T),
 	all := true,
@@ -1304,7 +1304,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 write_poly2 :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	p: $T, p2: $T2,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2),
 	all := true,
@@ -1344,7 +1344,7 @@ Returns: A non-nil pointer to the operation, alive until the callback is called
 write_poly3 :: #force_inline proc(
 	handle: Handle,
 	offset: int,
-	buf: []byte,
+	buf: []u8,
 	p: $T, p2: $T2, p3: $T3,
 	cb: $C/proc(op: ^Operation, p: T, p2: T2, p3: T3),
 	all := true,

@@ -38,7 +38,7 @@ cmp_proc :: proc($E: typeid) -> (proc(E, E) -> Ordering) where intrinsics.type_i
 sort :: proc(data: $T/[]$E) where intrinsics.type_is_ordered(E) {
     when size_of(E) != 0 {
         if n := len(data); n > 1 {
-            raw := ([^]byte)(raw_data(data))
+            raw := ([^]u8)(raw_data(data))
             _smoothsort(raw, uint(len(data)), size_of(E), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 x, y := (^E)(lhs)^, (^E)(rhs)^
                 if x < y {
@@ -107,7 +107,7 @@ sort_with_indices :: proc(data: $T/[]$E, allocator: mem.Allocator) -> (indices: 
                 indices[idx] = idx
             }
 
-            raw := ([^]byte)(raw_data(indices))
+            raw := ([^]u8)(raw_data(indices))
             _smoothsort(raw, uint(len(indices)), size_of(uint), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 data := ([^]E)(user_data)
 
@@ -133,7 +133,7 @@ sort_with_indices :: proc(data: $T/[]$E, allocator: mem.Allocator) -> (indices: 
 sort_by :: proc(data: $T/[]$E, less: proc(i, j: E) -> bool) {
     when size_of(E) != 0 {
         if n := len(data); n > 1 {
-            raw := ([^]byte)(raw_data(data))
+            raw := ([^]u8)(raw_data(data))
             _smoothsort(raw, uint(len(data)), size_of(E), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 x, y := (^E)(lhs)^, (^E)(rhs)^
                 less := (proc(E, E) -> bool)(user_data)
@@ -156,7 +156,7 @@ sort_by_with_data :: proc(data: $T/[]$E, less: proc(i, j: E, user_data: rawptr) 
             }
             ctx := &Context{less, user_data}
 
-            raw := ([^]byte)(raw_data(data))
+            raw := ([^]u8)(raw_data(data))
             _smoothsort(raw, uint(len(data)), size_of(E), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 x, y := (^E)(lhs)^, (^E)(rhs)^
                 ctx := (^Context)(user_data)
@@ -186,7 +186,7 @@ sort_by_with_indices :: proc(data: $T/[]$E, less: proc(i, j: E) -> bool, allocat
             }
             ctx := &Context{less, data}
 
-            raw := ([^]byte)(raw_data(indices))
+            raw := ([^]u8)(raw_data(indices))
             _smoothsort(raw, uint(len(indices)), size_of(uint), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 ctx := (^Context)(user_data)
                 xi, yi := (^uint)(lhs)^, (^uint)(rhs)^
@@ -219,7 +219,7 @@ sort_by_with_indices_with_data :: proc(data: $T/[]$E, less: proc(i, j: E, user_d
             }
             ctx := &Context{less, data, user_data}
 
-            raw := ([^]byte)(raw_data(indices))
+            raw := ([^]u8)(raw_data(indices))
             _smoothsort(raw, uint(len(indices)), size_of(uint), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 ctx := (^Context)(user_data)
                 xi, yi := (^uint)(lhs)^, (^uint)(rhs)^
@@ -240,7 +240,7 @@ sort_by_with_indices_with_data :: proc(data: $T/[]$E, less: proc(i, j: E, user_d
 sort_by_cmp :: proc(data: $T/[]$E, cmp: proc(i, j: E) -> Ordering) {
     when size_of(E) != 0 {
         if n := len(data); n > 1 {
-            raw := ([^]byte)(raw_data(data))
+            raw := ([^]u8)(raw_data(data))
             _smoothsort(raw, uint(len(data)), size_of(E), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 x, y := (^E)(lhs)^, (^E)(rhs)^
                 cmp := cast(proc(E, E) -> Ordering)(user_data)
@@ -260,7 +260,7 @@ sort_by_cmp_with_data :: proc(data: $T/[]$E, cmp: proc(i, j: E, user_data: rawpt
             }
             ctx := &Context{cmp, user_data}
 
-            raw := ([^]byte)(raw_data(data))
+            raw := ([^]u8)(raw_data(data))
             _smoothsort(raw, uint(len(data)), size_of(E), proc(lhs, rhs: rawptr, user_data: rawptr) -> Ordering {
                 x, y := (^E)(lhs)^, (^E)(rhs)^
                 ctx := (^Context)(user_data)
@@ -274,7 +274,7 @@ sort_by_cmp_with_data :: proc(data: $T/[]$E, cmp: proc(i, j: E, user_data: rawpt
 sort_by_generic_cmp :: proc(data: $T/[]$E, cmp: Generic_Cmp, user_data: rawptr) {
     when size_of(E) != 0 {
         if n := len(data); n > 1 {
-            raw := ([^]byte)(raw_data(data))
+            raw := ([^]u8)(raw_data(data))
             _smoothsort(raw, uint(len(data)), size_of(E), cmp, user_data)
         }
     }

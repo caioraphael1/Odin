@@ -26,9 +26,9 @@ default_resize_align :: proc(
     allocator: mem.Allocator,
     loc := #caller_location,
 ) -> (res: rawptr, err: mem.Allocator_Error) {
-    data: []byte
+    data: []u8
     data, err = default_resize_bytes_align(
-        ([^]byte) (old_memory)[:old_size],
+        ([^]u8) (old_memory)[:old_size],
         new_size,
         alignment,
         allocator,
@@ -59,12 +59,12 @@ The behavior of the function is as follows:
     freed.
 */
 default_resize_bytes_align_non_zeroed :: proc(
-    old_data:  []byte,
+    old_data:  []u8,
     new_size:  uint,
     alignment: uint,
     allocator: mem.Allocator,
     loc := #caller_location,
-    ) -> ([]byte, mem.Allocator_Error) {
+    ) -> ([]u8, mem.Allocator_Error) {
     return _default_resize_bytes_align(old_data, new_size, alignment, false, allocator, loc)
 }
 
@@ -86,24 +86,24 @@ The behavior of the function is as follows:
     freed.
 */
 default_resize_bytes_align :: proc(
-    old_data:  []byte,
+    old_data:  []u8,
     new_size:  uint,
     alignment: uint,
     allocator: mem.Allocator,
     loc := #caller_location,
-    ) -> ([]byte, mem.Allocator_Error) {
+    ) -> ([]u8, mem.Allocator_Error) {
     return _default_resize_bytes_align(old_data, new_size, alignment, true, allocator, loc)
 }
 
 
 _default_resize_bytes_align :: #force_inline proc(
-    old_data:  []byte,
+    old_data:  []u8,
     new_size:  uint,
     alignment: uint,
     should_zero: bool,
     allocator: mem.Allocator,
     loc := #caller_location,
-    ) -> ([]byte, mem.Allocator_Error) {
+    ) -> ([]u8, mem.Allocator_Error) {
     old_memory := raw_data(old_data)
     old_size := len(old_data)
     if old_memory == nil {
@@ -120,7 +120,7 @@ _default_resize_bytes_align :: #force_inline proc(
     if new_size == old_size && mem.is_aligned(old_memory, alignment) {
         return old_data, .None
     }
-    new_memory : []byte
+    new_memory : []u8
     err : mem.Allocator_Error
     if should_zero {
         new_memory, err = mem.alloc(new_size, alignment, allocator, loc)

@@ -13,7 +13,7 @@ foreign _ {
 		memmove :: proc(dst, src: rawptr, len: int, is_volatile: bool = false) ---
 
 		@(link_name="llvm.memset.p0i8.i32")
-		memset :: proc(dst: rawptr, val: byte, len: int, is_volatile: bool = false) ---
+		memset :: proc(dst: rawptr, val: u8, len: int, is_volatile: bool = false) ---
 	} else {
 		@(link_name="llvm.memcpy.p0i8.p0i8.i64")
 		memcpy :: proc(dst, src: rawptr, len: int, is_volatile: bool = false) ---
@@ -25,7 +25,7 @@ foreign _ {
 		memmove :: proc(dst, src: rawptr, len: int, is_volatile: bool = false) ---
 
 		@(link_name="llvm.memset.p0i8.i64")
-		memset :: proc(dst: rawptr, val: byte, len: int, is_volatile: bool = false) ---
+		memset :: proc(dst: rawptr, val: u8, len: int, is_volatile: bool = false) ---
 	}
 }
 

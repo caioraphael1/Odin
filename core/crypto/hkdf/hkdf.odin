@@ -13,10 +13,10 @@ import "core:crypto/hmac"
 // HKDF-Extract and HKDF-Expand algorithms, with the specified has
 // function, salt, input keying material (IKM), and optional info.
 // The dst buffer must be less-than-or-equal to 255 HMAC tags.
-extract_and_expand :: proc(algorithm: hash.Algorithm, salt, ikm, info, dst: []byte) {
+extract_and_expand :: proc(algorithm: hash.Algorithm, salt, ikm, info, dst: []u8) {
 	h_len := hash.DIGEST_SIZES[algorithm]
 
-	tmp: [hash.MAX_DIGEST_SIZE]byte
+	tmp: [hash.MAX_DIGEST_SIZE]u8
 	prk := tmp[:h_len]
 	defer crypto.zero_explicit(raw_data(prk), h_len)
 
@@ -28,7 +28,7 @@ extract_and_expand :: proc(algorithm: hash.Algorithm, salt, ikm, info, dst: []by
 // with the specified hash function, salt, and input keying material (IKM).
 // It requires that the dst buffer be the HMAC tag size for the specified
 // hash function.
-extract :: proc(algorithm: hash.Algorithm, salt, ikm, dst: []byte) {
+extract :: proc(algorithm: hash.Algorithm, salt, ikm, dst: []u8) {
 	// PRK = HMAC-Hash(salt, IKM)
 	hmac.sum(algorithm, dst, ikm, salt)
 }
@@ -36,7 +36,7 @@ extract :: proc(algorithm: hash.Algorithm, salt, ikm, dst: []byte) {
 // expand derives output keying material (OKM) via the HKDF-Expand algorithm,
 // with the specified hash function, pseudorandom key (PRK), and optional
 // info.  The dst buffer must be less-than-or-equal to 255 HMAC tags.
-expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []byte) {
+expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []u8) {
 	h_len := hash.DIGEST_SIZES[algorithm]
 
 	// (<= 255*HashLen)
@@ -71,7 +71,7 @@ expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []byte) {
 	hmac.init(&base, algorithm, prk)
 
 	dst_blk := dst
-	prev: []byte
+	prev: []u8
 
 	for i in 1 ..= n {
 		_F(&base, prev, info, i, dst_blk[:h_len])
@@ -81,7 +81,7 @@ expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []byte) {
 	}
 
 	if r > 0 {
-		tmp: [hash.MAX_DIGEST_SIZE]byte
+		tmp: [hash.MAX_DIGEST_SIZE]u8
 		blk := tmp[:h_len]
 		defer crypto.zero_explicit(raw_data(blk), h_len)
 
@@ -91,12 +91,12 @@ expand :: proc(algorithm: hash.Algorithm, prk, info, dst: []byte) {
 }
 
 @(private)
-_F :: proc(base: ^hmac.Context, prev, info: []byte, i: int, dst_blk: []byte) {
+_F :: proc(base: ^hmac.Context, prev, info: []u8, i: int, dst_blk: []u8) {
 	prf: hmac.Context
 
 	hmac.clone(&prf, base)
 	hmac.update(&prf, prev)
 	hmac.update(&prf, info)
-	hmac.update(&prf, []byte{u8(i)})
+	hmac.update(&prf, []u8{u8(i)})
 	hmac.final(&prf, dst_blk)
 }

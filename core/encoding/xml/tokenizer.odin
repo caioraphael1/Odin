@@ -146,7 +146,7 @@ advance_rune :: proc(t: ^Tokenizer) {
 				if r == utf8.RUNE_ERROR && w == 1 {
 					error(t, t.offset, "illegal UTF-8 encoding")
 				} else if r == utf8.RUNE_BOM && t.offset > 0 {
-					error(t, t.offset, "illegal byte order mark")
+					error(t, t.offset, "illegal u8 order mark")
 				}
 			}
 			t.read_offset += w
@@ -162,7 +162,7 @@ advance_rune :: proc(t: ^Tokenizer) {
 	}
 }
 
-peek_byte :: proc(t: ^Tokenizer, offset := 0) -> byte {
+peek_byte :: proc(t: ^Tokenizer, offset := 0) -> u8 {
 	if t.read_offset+offset < len(t.src) {
 		#no_bounds_check return t.src[t.read_offset+offset]
 	}
@@ -234,7 +234,7 @@ scan_identifier :: proc(t: ^Tokenizer) -> string {
 	See: https://www.w3.org/TR/2006/REC-xml11-20060816/#dt-comment
 
 	Thanks to the length (4) of the comment start, we also have enough lookback,
-	and the peek at the next byte asserts that there's at least one more character
+	and the peek at the next u8 asserts that there's at least one more character
 	that's a `>`.
 */
 scan_comment :: proc(t: ^Tokenizer) -> (comment: string, err: Error) {

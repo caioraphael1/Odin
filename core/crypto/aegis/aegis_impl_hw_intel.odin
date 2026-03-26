@@ -27,7 +27,7 @@ is_hardware_accelerated :: proc() -> bool {
 }
 
 @(private, enable_target_feature = "sse2,aes")
-init_hw :: proc(ctx: ^Context, st: ^State_HW, iv: []byte) {
+init_hw :: proc(ctx: ^Context, st: ^State_HW, iv: []u8) {
 	switch ctx._key_len {
 	case KEY_SIZE_128L:
 		key := intrinsics.unaligned_load((^x86.__m128i)(&ctx._key[0]))
@@ -95,20 +95,20 @@ update_hw_256 :: #force_inline proc(st: ^State_HW, m: x86.__m128i) {
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-absorb_hw_128l :: #force_inline proc(st: ^State_HW, ai: []byte) {
+absorb_hw_128l :: #force_inline proc(st: ^State_HW, ai: []u8) {
 	t0 := intrinsics.unaligned_load((^x86.__m128i)(&ai[0]))
 	t1 := intrinsics.unaligned_load((^x86.__m128i)(&ai[16]))
 	update_hw_128l(st, t0, t1)
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-absorb_hw_256 :: #force_inline proc(st: ^State_HW, ai: []byte) {
+absorb_hw_256 :: #force_inline proc(st: ^State_HW, ai: []u8) {
 	m := intrinsics.unaligned_load((^x86.__m128i)(&ai[0]))
 	update_hw_256(st, m)
 }
 
 @(private, enable_target_feature = "sse2,aes")
-absorb_hw :: proc(st: ^State_HW, aad: []byte) #no_bounds_check {
+absorb_hw :: proc(st: ^State_HW, aad: []u8) #no_bounds_check {
 	ai, l := aad, len(aad)
 
 	switch st.rate {
@@ -129,7 +129,7 @@ absorb_hw :: proc(st: ^State_HW, aad: []byte) #no_bounds_check {
 
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
-		tmp: [_RATE_MAX]byte // AAD is not confidential.
+		tmp: [_RATE_MAX]u8 // AAD is not confidential.
 		copy(tmp[:], ai)
 		switch st.rate {
 		case _RATE_128L:
@@ -174,7 +174,7 @@ z_hw_256 :: #force_inline proc(st: ^State_HW) -> x86.__m128i {
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-enc_hw_128l :: #force_inline proc(st: ^State_HW, ci, xi: []byte) #no_bounds_check {
+enc_hw_128l :: #force_inline proc(st: ^State_HW, ci, xi: []u8) #no_bounds_check {
 	z0, z1 := z_hw_128l(st)
 
 	t0 := intrinsics.unaligned_load((^x86.__m128i)(&xi[0]))
@@ -188,7 +188,7 @@ enc_hw_128l :: #force_inline proc(st: ^State_HW, ci, xi: []byte) #no_bounds_chec
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-enc_hw_256 :: #force_inline proc(st: ^State_HW, ci, xi: []byte) #no_bounds_check {
+enc_hw_256 :: #force_inline proc(st: ^State_HW, ci, xi: []u8) #no_bounds_check {
 	z := z_hw_256(st)
 
 	xi_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(xi)))
@@ -199,7 +199,7 @@ enc_hw_256 :: #force_inline proc(st: ^State_HW, ci, xi: []byte) #no_bounds_check
 }
 
 @(private, enable_target_feature = "sse2,aes")
-enc_hw :: proc(st: ^State_HW, dst, src: []byte) #no_bounds_check {
+enc_hw :: proc(st: ^State_HW, dst, src: []u8) #no_bounds_check {
 	ci, xi, l := dst, src, len(src)
 
 	switch st.rate {
@@ -221,7 +221,7 @@ enc_hw :: proc(st: ^State_HW, dst, src: []byte) #no_bounds_check {
 
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
-		tmp: [_RATE_MAX]byte // Ciphertext is not confidential.
+		tmp: [_RATE_MAX]u8 // Ciphertext is not confidential.
 		copy(tmp[:], xi)
 		switch st.rate {
 		case _RATE_128L:
@@ -234,7 +234,7 @@ enc_hw :: proc(st: ^State_HW, dst, src: []byte) #no_bounds_check {
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-dec_hw_128l :: #force_inline proc(st: ^State_HW, xi, ci: []byte) #no_bounds_check {
+dec_hw_128l :: #force_inline proc(st: ^State_HW, xi, ci: []u8) #no_bounds_check {
 	z0, z1 := z_hw_128l(st)
 
 	t0 := intrinsics.unaligned_load((^x86.__m128i)(&ci[0]))
@@ -248,7 +248,7 @@ dec_hw_128l :: #force_inline proc(st: ^State_HW, xi, ci: []byte) #no_bounds_chec
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-dec_hw_256 :: #force_inline proc(st: ^State_HW, xi, ci: []byte) #no_bounds_check {
+dec_hw_256 :: #force_inline proc(st: ^State_HW, xi, ci: []u8) #no_bounds_check {
 	z := z_hw_256(st)
 
 	ci_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(ci)))
@@ -259,8 +259,8 @@ dec_hw_256 :: #force_inline proc(st: ^State_HW, xi, ci: []byte) #no_bounds_check
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bounds_check {
-	tmp: [_RATE_128L]byte
+dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []u8) #no_bounds_check {
+	tmp: [_RATE_128L]u8
 	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z0, z1 := z_hw_128l(st)
@@ -284,8 +284,8 @@ dec_partial_hw_128l :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bou
 }
 
 @(private = "file", enable_target_feature = "sse2,aes")
-dec_partial_hw_256 :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_bounds_check {
-	tmp: [_RATE_256]byte
+dec_partial_hw_256 :: #force_inline proc(st: ^State_HW, xn, cn: []u8) #no_bounds_check {
+	tmp: [_RATE_256]u8
 	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z := z_hw_256(st)
@@ -305,7 +305,7 @@ dec_partial_hw_256 :: #force_inline proc(st: ^State_HW, xn, cn: []byte) #no_boun
 }
 
 @(private, enable_target_feature = "sse2,aes")
-dec_hw :: proc(st: ^State_HW, dst, src: []byte) #no_bounds_check {
+dec_hw :: proc(st: ^State_HW, dst, src: []u8) #no_bounds_check {
 	xi, ci, l := dst, src, len(src)
 
 	switch st.rate {
@@ -337,8 +337,8 @@ dec_hw :: proc(st: ^State_HW, dst, src: []byte) #no_bounds_check {
 }
 
 @(private, enable_target_feature = "sse2,aes")
-finalize_hw :: proc(st: ^State_HW, tag: []byte, ad_len, msg_len: int) {
-	tmp: [16]byte
+finalize_hw :: proc(st: ^State_HW, tag: []u8, ad_len, msg_len: int) {
+	tmp: [16]u8
 	endian.unchecked_put_u64le(tmp[0:], u64(ad_len) * 8)
 	endian.unchecked_put_u64le(tmp[8:], u64(msg_len) * 8)
 

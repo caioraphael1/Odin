@@ -980,7 +980,7 @@ MIB_Identifier :: enum c.int {
 	HW_MACHINE = 1,                          /* string: machine class */
 	HW_MODEL = 2,                            /* string: specific machine model */
 	HW_NCPU = 3,                             /* int: number of cpus */
-	HW_BYTEORDER = 4,                        /* int: machine byte order */
+	HW_BYTEORDER = 4,                        /* int: machine u8 order */
 	HW_PHYSMEM = 5,                          /* int: total memory */
 	HW_USERMEM = 6,                          /* int: non-kernel memory */
 	HW_PAGESIZE = 7,                         /* int: software page size */
@@ -1506,7 +1506,7 @@ in_addr_t :: distinct u32be
 // struct in_addr
 IP4_Address :: struct #raw_union {
 	// NOTE(Feoramund): I have modified this struct from its C definition by
-	// introducing the byte variant to make it easier to work with.
+	// introducing the u8 variant to make it easier to work with.
 	addr8: [4]u8,
 	addr32: in_addr_t,
 }

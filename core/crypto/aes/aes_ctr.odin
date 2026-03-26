@@ -11,7 +11,7 @@ CTR_IV_SIZE :: 16
 // Context_CTR is a keyed AES-CTR instance.
 Context_CTR :: struct {
 	_impl:           Context_Impl,
-	_buffer:         [BLOCK_SIZE]byte,
+	_buffer:         [BLOCK_SIZE]u8,
 	_off:            int,
 	_ctr_hi:         u64,
 	_ctr_lo:         u64,
@@ -19,7 +19,7 @@ Context_CTR :: struct {
 }
 
 // init_ctr initializes a Context_CTR with the provided key and IV.
-init_ctr :: proc(ctx: ^Context_CTR, key, iv: []byte, impl := DEFAULT_IMPLEMENTATION) {
+init_ctr :: proc(ctx: ^Context_CTR, key, iv: []u8, impl := DEFAULT_IMPLEMENTATION) {
 	internal.ensure(len(iv) == CTR_IV_SIZE, "crypto/aes: invalid CTR IV size")
 
 	init_impl(&ctx._impl, key, impl)
@@ -29,10 +29,10 @@ init_ctr :: proc(ctx: ^Context_CTR, key, iv: []byte, impl := DEFAULT_IMPLEMENTAT
 	ctx._is_initialized = true
 }
 
-// xor_bytes_ctr XORs each byte in src with bytes taken from the AES-CTR
+// xor_bytes_ctr XORs each u8 in src with bytes taken from the AES-CTR
 // keystream, and writes the resulting output to dst.  dst and src MUST
 // alias exactly or not at all.
-xor_bytes_ctr :: proc(ctx: ^Context_CTR, dst, src: []byte) {
+xor_bytes_ctr :: proc(ctx: ^Context_CTR, dst, src: []u8) {
 	internal.ensure(ctx._is_initialized)
 
 	src, dst := src, dst
@@ -76,7 +76,7 @@ xor_bytes_ctr :: proc(ctx: ^Context_CTR, dst, src: []byte) {
 }
 
 // keystream_bytes_ctr fills dst with the raw AES-CTR keystream output.
-keystream_bytes_ctr :: proc(ctx: ^Context_CTR, dst: []byte) {
+keystream_bytes_ctr :: proc(ctx: ^Context_CTR, dst: []u8) {
 	internal.ensure(ctx._is_initialized)
 
 	dst := dst
@@ -121,7 +121,7 @@ reset_ctr :: proc(ctx: ^Context_CTR) {
 }
 
 @(private = "file")
-ctr_blocks :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) #no_bounds_check {
+ctr_blocks :: proc(ctx: ^Context_CTR, dst, src: []u8, nr_blocks: int) #no_bounds_check {
 	// Use the optimized hardware implementation if available.
 	if _, is_hw := ctx._impl.(Context_Impl_Hardware); is_hw {
 		ctr_blocks_hw(ctx, dst, src, nr_blocks)
@@ -129,7 +129,7 @@ ctr_blocks :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) #no_boun
 	}
 
 	// Portable implementation.
-	ct64_inc_ctr := #force_inline proc(dst: []byte, hi, lo: u64) -> (u64, u64) {
+	ct64_inc_ctr := #force_inline proc(dst: []u8, hi, lo: u64) -> (u64, u64) {
 		endian.unchecked_put_u64be(dst[0:], hi)
 		endian.unchecked_put_u64be(dst[8:], lo)
 
@@ -145,8 +145,8 @@ ctr_blocks :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) #no_boun
 	nr_blocks := nr_blocks
 	ctr_hi, ctr_lo := ctx._ctr_hi, ctx._ctr_lo
 
-	tmp: [ct64.STRIDE][BLOCK_SIZE]byte = ---
-	ctrs: [ct64.STRIDE][]byte = ---
+	tmp: [ct64.STRIDE][BLOCK_SIZE]u8 = ---
+	ctrs: [ct64.STRIDE][]u8 = ---
 	for i in 0 ..< ct64.STRIDE {
 		ctrs[i] = tmp[i][:]
 	}
@@ -175,7 +175,7 @@ ctr_blocks :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) #no_boun
 }
 
 @(private)
-xor_blocks :: #force_inline proc(dst, src: []byte, blocks: [][]byte) {
+xor_blocks :: #force_inline proc(dst, src: []u8, blocks: [][]u8) {
 	// Note: This would be faster `core:simd` was used, however if
 	// performance of this implementation matters to where that
 	// optimization would be worth it, use chacha20poly1305, or a

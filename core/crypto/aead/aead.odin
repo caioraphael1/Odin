@@ -4,7 +4,7 @@
 // with the provided algorithm, key, and iv, stores the output in dst and tag.
 //
 // dst and plaintext MUST alias exactly or not at all.
-seal_oneshot :: proc(algo: Algorithm, dst, tag, key, iv, aad, plaintext: []byte, impl: Implementation = nil) {
+seal_oneshot :: proc(algo: Algorithm, dst, tag, key, iv, aad, plaintext: []u8, impl: Implementation = nil) {
     ctx: Context
     init(&ctx, algo, key, impl)
     defer reset(&ctx)
@@ -18,7 +18,7 @@ seal_oneshot :: proc(algo: Algorithm, dst, tag, key, iv, aad, plaintext: []byte,
 //
 // dst and ciphertext MUST alias exactly or not at all.
 
-open_oneshot :: proc(algo: Algorithm, dst, key, iv, aad, ciphertext, tag: []byte, impl: Implementation = nil) -> bool {
+open_oneshot :: proc(algo: Algorithm, dst, key, iv, aad, ciphertext, tag: []u8, impl: Implementation = nil) -> bool {
     ctx: Context
     init(&ctx, algo, key, impl)
     defer reset(&ctx)

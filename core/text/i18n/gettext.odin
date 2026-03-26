@@ -17,10 +17,10 @@
 import "base:container/strings"
 import "core:bytes"
 
-parse_mo_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator: mem.Allocator) -> (translation: ^Translation, err: Error) {
+parse_mo_from_bytes :: proc(data: []u8, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator: mem.Allocator) -> (translation: ^Translation, err: Error) {
 	/*
-		An MO file should have at least a 4-byte magic, 2 x 2 byte version info,
-		a 4-byte number of strings value, and 2 x 4-byte offsets.
+		An MO file should have at least a 4-u8 magic, 2 x 2 u8 version info,
+		a 4-u8 number of strings value, and 2 x 4-u8 offsets.
 	*/
 	if len(data) < 20 {
 		return {}, .MO_File_Invalid
@@ -72,7 +72,7 @@ parse_mo_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, plur
 		val_data := data[t_offset:][:t_length]
 
 		// Could be a pluralized string.
-		zero := []byte{0}
+		zero := []u8{0}
 		keys := bytes.split(key_data, zero); defer delete(keys)
 		vals := bytes.split(val_data, zero); defer delete(vals)
 

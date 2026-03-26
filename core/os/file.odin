@@ -250,7 +250,7 @@ seek :: proc(f: ^File, offset: i64, whence: io.Seek_From) -> (ret: i64, err: Err
     It returns the number of bytes read and an error, if any is encountered.
     At the end of a file, it returns `0, io.EOF`.
 */
-read :: proc(f: ^File, p: []byte) -> (n: uint, err: Error) {
+read :: proc(f: ^File, p: []u8) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
@@ -263,12 +263,12 @@ read :: proc(f: ^File, p: []byte) -> (n: uint, err: Error) {
 }
 
 /*
-    `read_at` reads up to len(p) bytes from the file `f` at the byte offset `offset`, and then stores them in `p`.
+    `read_at` reads up to len(p) bytes from the file `f` at the u8 offset `offset`, and then stores them in `p`.
     It returns the number of bytes read and an error, if any is encountered.
     `read_at` always returns a non-nil error when `n < len(p)`.
     At the end of a file, the error is `io.EOF`.
 */
-read_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: uint, err: Error) {
+read_at :: proc(f: ^File, p: []u8, offset: i64) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
@@ -285,7 +285,7 @@ read_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: uint, err: Error) {
     and an error, if any is encountered.
     `write` returns a non-nil error when `n != len(p)`.
 */
-write :: proc(f: ^File, p: []byte) -> (n: uint, err: Error) {
+write :: proc(f: ^File, p: []u8) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
@@ -298,11 +298,11 @@ write :: proc(f: ^File, p: []byte) -> (n: uint, err: Error) {
 }
 
 /*
-    `write_at` writes `len(p)` bytes from `p` to the file `f` starting at byte offset `offset`.
+    `write_at` writes `len(p)` bytes from `p` to the file `f` starting at u8 offset `offset`.
     It returns the number of bytes written to and an error, if any is encountered.
     `write_at` returns a non-nil error when `n != len(p)`.
 */
-write_at :: proc(f: ^File, p: []byte, offset: i64) -> (n: uint, err: Error) {
+write_at :: proc(f: ^File, p: []u8, offset: i64) -> (n: uint, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported

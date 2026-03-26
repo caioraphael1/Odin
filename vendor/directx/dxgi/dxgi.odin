@@ -1196,7 +1196,7 @@ HDR_METADATA_HDR10 :: struct {
 }
 
 HDR_METADATA_HDR10PLUS :: struct {
-    Data: [72]byte,
+    Data: [72]u8,
 }
 
 

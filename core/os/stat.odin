@@ -52,7 +52,7 @@ fstat :: proc(f: ^File, allocator: mem.Allocator) -> (File_Info, Error) {
         return {}, nil
     } else if f.stream.procedure != nil {
         fi: File_Info
-        data := ([^]byte)(&fi)[:size_of(fi)]
+        data := ([^]u8)(&fi)[:size_of(fi)]
         _, err := f.stream.procedure(f, .Fstat, data, 0, nil, allocator)
         return fi, err
     }

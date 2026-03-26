@@ -372,7 +372,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
     return img, nil
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []u8, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }

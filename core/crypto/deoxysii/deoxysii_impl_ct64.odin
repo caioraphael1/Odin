@@ -9,7 +9,7 @@ import "base:simd"
 // This uses the bitlsiced 64-bit general purpose register SWAR AES
 // round function.  The encryption pass skips orthogonalizing the
 // AES round function input as it is aways going to be the leading 0
-// padded IV, and doing a 64-byte copy is faster.
+// padded IV, and doing a 64-u8 copy is faster.
 
 @(private = "file")
 TWEAK_SIZE :: 16
@@ -22,8 +22,8 @@ State_SW :: struct {
 
 @(private = "file")
 auth_tweak :: #force_inline proc(
-	dst: ^[TWEAK_SIZE]byte,
-	prefix: byte,
+	dst: ^[TWEAK_SIZE]u8,
+	prefix: u8,
 	block_nr: int,
 ) {
 	endian.unchecked_put_u64be(dst[8:], u64(block_nr))
@@ -32,11 +32,11 @@ auth_tweak :: #force_inline proc(
 
 @(private = "file")
 enc_tweak :: #force_inline proc(
-	dst: ^[TWEAK_SIZE]byte,
-	tag: ^[TAG_SIZE]byte,
+	dst: ^[TWEAK_SIZE]u8,
+	tag: ^[TAG_SIZE]u8,
 	block_nr: int,
 ) {
-	tmp: [8]byte
+	tmp: [8]u8
 	endian.unchecked_put_u64be(tmp[:], u64(block_nr))
 
 	copy(dst[:], tag[:])
@@ -49,9 +49,9 @@ enc_tweak :: #force_inline proc(
 @(private = "file")
 enc_plaintext :: #force_inline proc(
 	dst: ^[8]u64,
-	iv:  []byte,
+	iv:  []u8,
 ) {
-	tmp: [BLOCK_SIZE]byte = ---
+	tmp: [BLOCK_SIZE]u8 = ---
 	tmp[0] = 0
 	copy(tmp[1:], iv[:])
 
@@ -65,8 +65,8 @@ enc_plaintext :: #force_inline proc(
 @(private = "file")
 bc_x4 :: proc(
 	ctx:     ^Context,
-	dst:     []byte,
-	tweaks:  ^[4][TWEAK_SIZE]byte,
+	dst:     []u8,
+	tweaks:  ^[4][TWEAK_SIZE]u8,
 	q_stk:   ^[8]u64,
 	q_b:     ^[8]u64, // Orthogonalized
 	n:       int,
@@ -109,13 +109,13 @@ bc_x4 :: proc(
 @(private = "file", require_results)
 bc_absorb :: proc(
 	st:           ^State_SW,
-	dst:          []byte,
-	src:          []byte,
-	tweak_prefix: byte,
+	dst:          []u8,
+	src:          []u8,
+	tweak_prefix: u8,
 	stk_block_nr: int,
 ) -> int {
-	tweaks: [4][TWEAK_SIZE]byte = ---
-	tmp: [BLOCK_SIZE*4]byte = ---
+	tweaks: [4][TWEAK_SIZE]u8 = ---
+	tmp: [BLOCK_SIZE*4]u8 = ---
 
 	src, stk_block_nr := src, stk_block_nr
 	dst_ := intrinsics.unaligned_load((^simd.u8x16)(raw_data(dst)))
@@ -157,10 +157,10 @@ bc_absorb :: proc(
 @(private = "file")
 bc_final :: proc(
 	st:  ^State_SW,
-	dst: []byte,
-	iv:  []byte,
+	dst: []u8,
+	iv:  []u8,
 ) {
-	tweaks: [4][TWEAK_SIZE]byte = ---
+	tweaks: [4][TWEAK_SIZE]u8 = ---
 
 	tweaks[0][0] = PREFIX_TAG << PREFIX_SHIFT
 	copy(tweaks[0][1:], iv)
@@ -174,14 +174,14 @@ bc_final :: proc(
 @(private = "file", require_results)
 bc_encrypt :: proc(
 	st:           ^State_SW,
-	dst:          []byte,
-	src:          []byte,
+	dst:          []u8,
+	src:          []u8,
 	q_n:          ^[8]u64, // Orthogonalized
-	tweak_tag:    ^[TAG_SIZE]byte,
+	tweak_tag:    ^[TAG_SIZE]u8,
 	stk_block_nr: int,
 ) -> int {
-	tweaks: [4][TWEAK_SIZE]byte = ---
-	tmp: [BLOCK_SIZE*4]byte = ---
+	tweaks: [4][TWEAK_SIZE]u8 = ---
+	tmp: [BLOCK_SIZE*4]u8 = ---
 
 	dst, src, stk_block_nr := dst, src, stk_block_nr
 
@@ -220,7 +220,7 @@ bc_encrypt :: proc(
 }
 
 @(private)
-e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_check {
+e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []u8) #no_bounds_check {
 	st: State_SW = ---
 	st.ctx = ctx
 
@@ -235,12 +235,12 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 	// if A_∗ != nil then
 	//   Auth <- Auth ^ EK(0110 || la, pad10∗(A_∗))
 	// end
-	auth: [TAG_SIZE]byte
+	auth: [TAG_SIZE]u8
 	aad := aad
 	n := bc_absorb(&st, auth[:], aad, PREFIX_AD_BLOCK, 0)
 	aad = aad[n*BLOCK_SIZE:]
 	if l := len(aad); l > 0 {
-		a_star: [BLOCK_SIZE]byte
+		a_star: [BLOCK_SIZE]u8
 
 		copy(a_star[:], aad)
 		a_star[l] = 0x80
@@ -262,7 +262,7 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 	n = bc_absorb(&st, auth[:], m, PREFIX_MSG_BLOCK, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		m_star[l] = 0x80
@@ -287,7 +287,7 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 	n = bc_encrypt(&st, dst, m, &q_iv, &auth, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		_ = bc_encrypt(&st, m_star[:], m_star[:], &q_iv, &auth, n)
@@ -304,7 +304,7 @@ e_ref :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_ch
 }
 
 @(private, require_results)
-d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
+d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []u8) -> bool {
 	st: State_SW = ---
 	st.ctx = ctx
 
@@ -321,14 +321,14 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	q_iv: [8]u64 = ---
 	enc_plaintext(&q_iv, iv)
 
-	auth: [TAG_SIZE]byte
+	auth: [TAG_SIZE]u8
 	copy(auth[:], tag)
 
 	m := ciphertext
 	n := bc_encrypt(&st, dst, m, &q_iv, &auth, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		_ = bc_encrypt(&st, m_star[:], m_star[:], &q_iv, &auth, n)
@@ -352,7 +352,7 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	n = bc_absorb(&st, auth[:], aad, PREFIX_AD_BLOCK, 0)
 	aad = aad[n*BLOCK_SIZE:]
 	if l := len(aad); l > 0 {
-		a_star: [BLOCK_SIZE]byte
+		a_star: [BLOCK_SIZE]u8
 
 		copy(a_star[:], aad)
 		a_star[l] = 0x80
@@ -374,7 +374,7 @@ d_ref :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	n = bc_absorb(&st, auth[:], m, PREFIX_MSG_BLOCK, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		m_star[l] = 0x80

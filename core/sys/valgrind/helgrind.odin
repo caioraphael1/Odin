@@ -121,7 +121,7 @@ helgrind_barrier_destroy_pre :: proc "c" (bar: rawptr) {
 helgrind_clean_memory :: proc "c" (qzz_start: rawptr, qzz_len: uint) {
 	helgrind_client_request_stmt(.Clean_Memory, uintptr(qzz_start), uintptr(qzz_len), 0, 0, 0)
 }
-helgrind_clean_memory_slice :: proc "c" (qzz: []byte) {
+helgrind_clean_memory_slice :: proc "c" (qzz: []u8) {
 	helgrind_client_request_stmt(.Clean_Memory, uintptr(raw_data(qzz)), uintptr(len(qzz)), 0, 0, 0)
 }
 helgrind_clean_memory_heap_block :: proc "c" (qzz_blockstart: rawptr) -> int {

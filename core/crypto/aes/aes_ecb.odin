@@ -12,13 +12,13 @@ Context_ECB :: struct {
 }
 
 // init_ecb initializes a Context_ECB with the provided key.
-init_ecb :: proc(ctx: ^Context_ECB, key: []byte, impl := DEFAULT_IMPLEMENTATION) {
+init_ecb :: proc(ctx: ^Context_ECB, key: []u8, impl := DEFAULT_IMPLEMENTATION) {
 	init_impl(&ctx._impl, key, impl)
 	ctx._is_initialized = true
 }
 
 // encrypt_ecb encrypts the BLOCK_SIZE buffer src, and writes the result to dst.
-encrypt_ecb :: proc(ctx: ^Context_ECB, dst, src: []byte) {
+encrypt_ecb :: proc(ctx: ^Context_ECB, dst, src: []u8) {
 	internal.ensure(ctx._is_initialized)
 	internal.ensure(len(dst) == BLOCK_SIZE, "crypto/aes: invalid dst size")
 	internal.ensure(len(dst) == BLOCK_SIZE, "crypto/aes: invalid src size")
@@ -32,7 +32,7 @@ encrypt_ecb :: proc(ctx: ^Context_ECB, dst, src: []byte) {
 }
 
 // decrypt_ecb decrypts the BLOCK_SIZE buffer src, and writes the result to dst.
-decrypt_ecb :: proc(ctx: ^Context_ECB, dst, src: []byte) {
+decrypt_ecb :: proc(ctx: ^Context_ECB, dst, src: []u8) {
 	internal.ensure(ctx._is_initialized)
 	internal.ensure(len(dst) == BLOCK_SIZE, "crypto/aes: invalid dst size")
 	internal.ensure(len(dst) == BLOCK_SIZE, "crypto/aes: invalid src size")

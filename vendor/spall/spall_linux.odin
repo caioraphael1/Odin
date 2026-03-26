@@ -7,7 +7,7 @@ import "core:sys/linux"
 MAX_RW :: 0x7fffffff
 
 @(no_instrumentation)
-_write :: proc(fd: uintptr, data: []byte) #no_bounds_check /* bounds check would segfault instrumentation */ {
+_write :: proc(fd: uintptr, data: []u8) #no_bounds_check /* bounds check would segfault instrumentation */ {
 	n: int
 	for n < len(data) {
 		chunk := data[:min(len(data), MAX_RW)]

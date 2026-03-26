@@ -7,7 +7,7 @@ import "base:container/strings"
 /*
 Write a UUID in the 8-4-4-4-12 format.
 
-This procedure performs error checking with every byte written.
+This procedure performs error checking with every u8 written.
 
 If you can guarantee beforehand that your stream has enough space to hold the
 UUID (36 bytes), then it is better to use `unsafe_write` instead as that will
@@ -93,7 +93,7 @@ to_string_allocated :: proc(
     str: string,
     error: mem.Allocator_Error,
 ) {
-    buf := slice.create([]byte, EXPECTED_LENGTH, allocator, loc) or_return
+    buf := slice.create([]u8, EXPECTED_LENGTH, allocator, loc) or_return
     builder := string_builder.builder_from_bytes(buf[:])
     unsafe_write(string_builder.to_writer(&builder), id)
     return string_builder.to_string(builder), nil
@@ -104,7 +104,7 @@ Convert a UUID to a string in the 8-4-4-4-12 format.
 
 Inputs:
 - id: The identifier to convert.
-- buffer: A byte buffer to store the result. Must be at least 36 bytes large.
+- buffer: A u8 buffer to store the result. Must be at least 36 bytes large.
 - loc: The caller location for debugging purposes (default: #caller_location)
 
 Returns:
@@ -112,7 +112,7 @@ Returns:
 */
 to_string_buffer :: proc(
     id: Identifier,
-    buffer: []byte,
+    buffer: []u8,
     loc := #caller_location,
 ) -> (
     str: string,

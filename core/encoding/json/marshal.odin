@@ -137,7 +137,7 @@ register_user_marshaler :: proc(id: typeid, marshaler: User_Marshaler) -> Regist
     return .None
 }
 
-marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Marshal_Error) {
+marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc := #caller_location) -> (data: []u8, err: Marshal_Error) {
     b := string_builder.builder_create(allocator)
     defer if err != nil {
         string_builder.builder_destroy(&b)
@@ -181,7 +181,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         unreachable()
 
     case reflect.Type_Info_Integer:
-        buf: [40]byte
+        buf: [40]u8
         u := cast_any_int_to_u128(a)
 
         s: string
@@ -315,7 +315,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         
     case reflect.Type_Info_Dynamic_Array:
         opt_write_start(w, opt, '[') or_return
-        array := cast(^dyn_array.Dyn_Array(byte))v.data
+        array := cast(^dyn_array.Dyn_Array(u8))v.data
         for i in 0..<array.len {
             opt_write_iteration(w, opt, i == 0) or_return
             data := uintptr(array.data) + uintptr(i*info.elem_size)
@@ -370,7 +370,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                             }
                             opt_write_key(w, opt, name) or_return
                         case reflect.Type_Info_Integer:
-                            buf: [40]byte
+                            buf: [40]u8
                             u := cast_any_int_to_u128(ka)
                             name = strconv.write_bits_128(buf[:], u, 10, info.signed, 8*uint(kti.size), "0123456789", nil)
                             
@@ -453,7 +453,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                  reflect.Type_Info_Procedure:
                 return (^rawptr)(v.data)^ == nil
             case reflect.Type_Info_Dynamic_Array:
-                return (^dyn_array.Dyn_Array(byte))(v.data).len == 0
+                return (^dyn_array.Dyn_Array(u8))(v.data).len == 0
             case reflect.Type_Info_Slice:
                 return (^slice.Raw_Slice)(v.data).len == 0
             case reflect.Type_Info_Union,
@@ -665,8 +665,8 @@ opt_write_key :: proc(w: io.Writer, opt: ^Marshal_Options, name: string) -> (err
     return
 }
 
-// insert start byte and increase indentation on pretty
-opt_write_start :: proc(w: io.Writer, opt: ^Marshal_Options, c: byte) -> (err: io.Error)  {
+// insert start u8 and increase indentation on pretty
+opt_write_start :: proc(w: io.Writer, opt: ^Marshal_Options, c: u8) -> (err: io.Error)  {
     // Skip MJSON starting braces. We make sure to only do this for c == '{',
     // skipping a starting '[' is not allowed.
     if opt.spec == .MJSON && !opt.mjson_skipped_first_braces_start && opt.indentation == 0 && c == '{' {
@@ -715,8 +715,8 @@ opt_write_iteration :: proc(w: io.Writer, opt: ^Marshal_Options, first_iteration
     return
 }
 
-// decrease indent, write spacing and insert end byte
-opt_write_end :: proc(w: io.Writer, opt: ^Marshal_Options, c: byte) -> (err: io.Error)  {
+// decrease indent, write spacing and insert end u8
+opt_write_end :: proc(w: io.Writer, opt: ^Marshal_Options, c: u8) -> (err: io.Error)  {
     if opt.spec == .MJSON && opt.mjson_skipped_first_braces_start && !opt.mjson_skipped_first_braces_end && opt.indentation == 0 && c == '}' {
         opt.mjson_skipped_first_braces_end = true
         return

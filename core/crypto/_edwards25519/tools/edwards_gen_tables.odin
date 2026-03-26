@@ -47,7 +47,7 @@ main :: proc() {
     Multiply_Table_hi: [32]Basepoint_Multiply_Table
     Multiply_Table_lo: [32]Basepoint_Multiply_Table
 
-    sc_set_unchecked := proc(sc: ^scalar.Non_Montgomery_Domain_Field_Element, b: []byte) {
+    sc_set_unchecked := proc(sc: ^scalar.Non_Montgomery_Domain_Field_Element, b: []u8) {
         sc[0] = endian.unchecked_get_u64le(b[0:])
         sc[1] = endian.unchecked_get_u64le(b[8:])
         sc[2] = endian.unchecked_get_u64le(b[16:])
@@ -61,7 +61,7 @@ main :: proc() {
 
     // Precompute ([1,15] << n) * G multiples of G, LSB->MSB
     for i in 0..<32 {
-        b: [32]byte
+        b: [32]u8
         for j in 1..<16 {
             b[i] = u8(j)
             sc_set_unchecked(&sc, b[:])
@@ -133,5 +133,5 @@ main :: proc() {
 
     fmt.wprintln(w, "}")
 
-    _ = os.write_entire_file(fn, transmute([]byte)(string_builder.to_string(bld)))
+    _ = os.write_entire_file(fn, transmute([]u8)(string_builder.to_string(bld)))
 }

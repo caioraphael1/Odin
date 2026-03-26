@@ -19,7 +19,7 @@ File_Impl :: struct {
     fd: linux.Fd,
     allocator: mem.Allocator,
 
-    buffer:   []byte,
+    buffer:   []u8,
     rw_mutex: sync.RW_Mutex, // read write calls
     p_mutex:  sync.Mutex, // pread pwrite calls
 }
@@ -132,7 +132,7 @@ _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Rea
     f, err = _open(name, flags, perm, allocator)
     if f != nil && err == nil {
         impl := (^File_Impl)(f.impl)
-        impl.buffer = slice.create([]byte, buffer_size, allocator)
+        impl.buffer = slice.create([]u8, buffer_size, allocator)
         f.stream.procedure = _file_stream_buffered_proc
     }
     return
@@ -208,7 +208,7 @@ _seek :: proc(f: ^File_Impl, offset: i64, whence: io.Seek_From) -> (ret: i64, er
     }
 }
 
-_read :: proc(f: ^File_Impl, p: []byte) -> (i64, Error) {
+_read :: proc(f: ^File_Impl, p: []u8) -> (i64, Error) {
     if len(p) <= 0 {
         return 0, nil
     }
@@ -220,7 +220,7 @@ _read :: proc(f: ^File_Impl, p: []byte) -> (i64, Error) {
     return i64(n), io.Error.EOF if n == 0 else nil
 }
 
-_read_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (i64, Error) {
+_read_at :: proc(f: ^File_Impl, p: []u8, offset: i64) -> (i64, Error) {
     if len(p) <= 0 {
         return 0, nil
     }
@@ -237,7 +237,7 @@ _read_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (i64, Error) {
     return i64(n), nil
 }
 
-_write :: proc(f: ^File_Impl, p: []byte) -> (nt: i64, err: Error) {
+_write :: proc(f: ^File_Impl, p: []u8) -> (nt: i64, err: Error) {
     p := p
     for len(p) > 0 {
         n, errno := linux.write(f.fd, p[:min(len(p), MAX_RW)])
@@ -253,7 +253,7 @@ _write :: proc(f: ^File_Impl, p: []byte) -> (nt: i64, err: Error) {
     return
 }
 
-_write_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (nt: i64, err: Error) {
+_write_at :: proc(f: ^File_Impl, p: []u8, offset: i64) -> (nt: i64, err: Error) {
     if offset < 0 {
         return 0, .Invalid_Offset
     }
@@ -342,7 +342,7 @@ _symlink :: proc(old_name, new_name: string) -> Error {
 
 _read_link_cstr :: proc(name_cstr: cstring, allocator: mem.Allocator) -> (string, Error) {
     bufsz : uint = 256
-    buf := slice.create([]byte, bufsz, allocator)
+    buf := slice.create([]u8, bufsz, allocator)
     for {
         sz, errno := linux.readlink(name_cstr, buf[:])
         if errno != .NONE {
@@ -351,7 +351,7 @@ _read_link_cstr :: proc(name_cstr: cstring, allocator: mem.Allocator) -> (string
         } else if sz == int(bufsz) {
             bufsz *= 2
             _ = slice.delete(buf, allocator)
-            buf = slice.create([]byte, bufsz, allocator)
+            buf = slice.create([]u8, bufsz, allocator)
         } else {
             return string(buf[:sz]), nil
         }
@@ -482,7 +482,7 @@ _read_entire_pseudo_file_cstring :: proc(name: cstring, allocator: mem.Allocator
 }
 
 @(private)
-_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
+_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
     f := (^File_Impl)(stream_data)
     switch mode {
     case .Read:
@@ -520,7 +520,7 @@ _file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte
 
 
 @(private)
-_file_stream_buffered_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
+_file_stream_buffered_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
     f := (^File_Impl)(stream_data)
     switch mode {
     case .Read:

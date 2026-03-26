@@ -94,7 +94,7 @@ foreign lib {
 
     Example:
         sigstk := posix.stack_t {
-            ss_sp    = make([^]byte, posix.SIGSTKSZ) or_else internal.panic("allocation failure"),
+            ss_sp    = make([^]u8, posix.SIGSTKSZ) or_else internal.panic("allocation failure"),
             ss_size  = posix.SIGSTKSZ,
             ss_flags = {},
         }
@@ -743,7 +743,7 @@ when ODIN_OS == .Darwin {
     lwpid_t :: c.int32_t
 
     siginfo_t :: struct #raw_union {
-        si_pad: [128]byte,
+        si_pad: [128]u8,
         using _info: struct {
             si_signo: Signal, /* [PSX] signal number */
             si_code: struct #raw_union { /* [PSX] specific more detailed codes per signal */
@@ -758,7 +758,7 @@ when ODIN_OS == .Darwin {
             },
             si_errno: Errno,  /* [PSX] errno value associated with this signal */
             // #ifdef _LP64
-            /* In _LP64 the union starts on an 8-byte boundary. */
+            /* In _LP64 the union starts on an 8-u8 boundary. */
             _pad: c.int,
             // #endif
             using _reason: struct #raw_union {

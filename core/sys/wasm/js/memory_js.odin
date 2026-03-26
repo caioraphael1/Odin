@@ -4,7 +4,7 @@ import "base:internal"
 import "base:intrinsics"
 
 PAGE_SIZE :: 64 * 1024
-page_alloc :: proc(page_count: int) -> (data: []byte, err: mem.Allocator_Error) {
+page_alloc :: proc(page_count: int) -> (data: []u8, err: mem.Allocator_Error) {
     prev_page_count := intrinsics.wasm_memory_grow(0, uintptr(page_count))
     if prev_page_count < 0 {
         return nil, .Out_Of_Memory
@@ -18,7 +18,7 @@ page_allocator :: proc() -> mem.Allocator {
     procedure :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                       size, alignment: int,
                       old_memory: rawptr, old_size: int,
-                      loc := #caller_location) -> ([]byte, mem.Allocator_Error) {
+                      loc := #caller_location) -> ([]u8, mem.Allocator_Error) {
         switch mode {
         case .Alloc, .Alloc_Non_Zeroed:
             internal.assert(size % PAGE_SIZE == 0)

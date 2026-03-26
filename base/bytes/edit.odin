@@ -4,7 +4,7 @@ import "base:container/slice"
 import "base:unicode/utf8"
 
 
-bytes_truncate_to_byte :: proc(str: []byte, b: byte) -> []byte {
+bytes_truncate_to_byte :: proc(str: []u8, b: u8) -> []u8 {
     n, found := index_byte(str, b)
     if !found {
         n = len(str)
@@ -12,7 +12,7 @@ bytes_truncate_to_byte :: proc(str: []byte, b: byte) -> []byte {
     return str[:n]
 }
 
-bytes_truncate_to_rune :: proc(str: []byte, r: rune) -> []byte {
+bytes_truncate_to_rune :: proc(str: []u8, r: rune) -> []u8 {
     n, found := index_rune(str, r)
     if !found {
         n = len(str)
@@ -21,12 +21,12 @@ bytes_truncate_to_rune :: proc(str: []byte, r: rune) -> []byte {
 }
 
 resize :: proc(
-    old_data:  []byte,
+    old_data:  []u8,
     new_size:  uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     allocator: mem.Allocator,
     loc := #caller_location,
-    ) -> ([]byte, mem.Allocator_Error) {
+    ) -> ([]u8, mem.Allocator_Error) {
     return mem.resize(raw_data(old_data), len(old_data), new_size, alignment, allocator, loc)
 }
 
@@ -77,19 +77,19 @@ any new memory.
 no-op, and should not return errors.
 */
 resize_non_zeroed :: proc(
-    old_data:  []byte,
+    old_data:  []u8,
     new_size:  uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     allocator: mem.Allocator,
     loc := #caller_location,
-    ) -> ([]byte, mem.Allocator_Error) {
+    ) -> ([]u8, mem.Allocator_Error) {
     return mem.resize_non_zero(raw_data(old_data), len(old_data), new_size, alignment, allocator, loc)
 }
 
-reverse :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+reverse :: proc(s: []u8, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     str := s
     n := len(str)
-    buf, _ := slice.create([]byte, n, allocator)
+    buf, _ := slice.create([]u8, n, allocator)
     i := n
 
     for len(str) > 0 {
@@ -101,14 +101,14 @@ reverse :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) ->
     return buf
 }
 
-repeat :: proc(s: []byte, count: uint, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+repeat :: proc(s: []u8, count: uint, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     if count < 0 {
         internal.panic("bytes: negative repeat count")
     } else if count > 0 && (len(s) * count)/count != len(s) {
         internal.panic("bytes: repeat count will cause an overflow")
     }
 
-    b, _ := slice.create([]byte, len(s)*count, allocator)
+    b, _ := slice.create([]u8, len(s)*count, allocator)
     i := slice.copy(b, s)
     for i < len(b) { // 2^N trick to reduce the need to copy
         slice.copy(b[i:], b[:i])
@@ -117,12 +117,12 @@ repeat :: proc(s: []byte, count: uint, allocator: mem.Allocator, loc := #caller_
     return b
 }
 
-replace_all :: proc(s, old, new: []byte, allocator: mem.Allocator, loc := #caller_location) -> (output: []byte, was_allocation: bool) {
+replace_all :: proc(s, old, new: []u8, allocator: mem.Allocator, loc := #caller_location) -> (output: []u8, was_allocation: bool) {
     return replace(s, old, new, count(s, old), allocator, loc)
 }
 
 // if n < 0, no limit on the number of replacements
-replace :: proc(s, old, new: []byte, n: uint, allocator: mem.Allocator, loc := #caller_location) -> (output: []byte, was_allocation: bool) {
+replace :: proc(s, old, new: []u8, n: uint, allocator: mem.Allocator, loc := #caller_location) -> (output: []u8, was_allocation: bool) {
     if string(old) == string(new) || n == 0 {
         was_allocation = false
         output = s
@@ -138,7 +138,7 @@ replace :: proc(s, old, new: []byte, n: uint, allocator: mem.Allocator, loc := #
     }
 
 
-    t, _ := slice.create([]byte, len(s) + byte_count*(len(new) - len(old)), allocator)
+    t, _ := slice.create([]u8, len(s) + byte_count*(len(new) - len(old)), allocator)
     was_allocation = true
 
     w: uint
@@ -167,10 +167,10 @@ replace :: proc(s, old, new: []byte, n: uint, allocator: mem.Allocator, loc := #
     return
 }
 
-remove :: proc(s, key: []byte, n: uint, allocator: mem.Allocator, loc := #caller_location) -> (output: []byte, was_allocation: bool) {
+remove :: proc(s, key: []u8, n: uint, allocator: mem.Allocator, loc := #caller_location) -> (output: []u8, was_allocation: bool) {
     return replace(s, key, {}, n, allocator, loc)
 }
 
-remove_all :: proc(s, key: []byte, allocator: mem.Allocator, loc := #caller_location) -> (output: []byte, was_allocation: bool) {
+remove_all :: proc(s, key: []u8, allocator: mem.Allocator, loc := #caller_location) -> (output: []u8, was_allocation: bool) {
     return remove(s, key, count(s, key), allocator, loc)
 }

@@ -4,7 +4,7 @@ A generic interface to the supported hash algorithms.
 A high-level convenience procedure group `hash` is provided to easily
 accomplish common tasks.
 - `hash_string` - Hash a given string and return the digest.
-- `hash_bytes` - Hash a given byte slice and return the digest.
+- `hash_bytes` - Hash a given u8 slice and return the digest.
 - `hash_string_to_buffer` - Hash a given string and put the digest in
   the third parameter.  It requires that the destination buffer
   is at least as big as the digest size.
@@ -31,7 +31,7 @@ Example:
 
 		// Variant that takes a destination buffer, instead of returning
 		// the digest.
-		digest := slice.create([]byte, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // @note: Destination buffer has to be at least as big as the digest size of the hash.
+		digest := slice.create([]u8, hash.DIGEST_SIZES[hash.Algorithm.BLAKE2B]) // @note: Destination buffer has to be at least as big as the digest size of the hash.
 		defer delete(digest)
 		hash.hash(hash.Algorithm.BLAKE2B, input, digest)
 	}
@@ -49,11 +49,11 @@ Example:
 
 		// Compute the digest, using the low level API.
 		ctx: hash.Context
-		digest := slice.create([]byte, hash.DIGEST_SIZES[hash.Algorithm.SHA3_512])
+		digest := slice.create([]u8, hash.DIGEST_SIZES[hash.Algorithm.SHA3_512])
 		defer delete(digest)
 
 		hash.init(&ctx, hash.Algorithm.SHA3_512)
-		hash.update(&ctx, transmute([]byte)input)
+		hash.update(&ctx, transmute([]u8)input)
 		hash.final(&ctx, digest)
 	}
 */

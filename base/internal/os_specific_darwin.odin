@@ -5,7 +5,7 @@ import "base:intrinsics"
 foreign import libc "system:System"
 
 
-_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []u8) -> (int, _OS_Errno) {
     STDERR :: 2
     when ODIN_NO_CRT {
         WRITE  :: 0x2000004
@@ -16,7 +16,7 @@ _stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
         return int(ret), 0
     } else {
         foreign {
-            write   :: proc(handle: i32, buffer: [^]byte, count: uint) -> int ---
+            write   :: proc(handle: i32, buffer: [^]u8, count: uint) -> int ---
             @(link_name="__error") _error :: proc() -> ^i32 ---
         }
 

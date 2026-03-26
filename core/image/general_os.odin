@@ -18,7 +18,7 @@ which_file :: proc(path: string) -> Which_File_Type {
 	if err != nil {
 		return .Unknown
 	}
-	header: [128]byte
+	header: [128]u8
 	os.read(f, header[:])
 	file_type := which_bytes(header[:])
 	os.close(f)

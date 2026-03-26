@@ -57,7 +57,7 @@ foreign lib {
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrgid.html ]]
     */
-    getgrgid_r :: proc(gid: gid_t, grp: ^group, buffer: [^]byte, bufsize: c.size_t, result: ^^group) -> Errno ---
+    getgrgid_r :: proc(gid: gid_t, grp: ^group, buffer: [^]u8, bufsize: c.size_t, result: ^^group) -> Errno ---
 
     /*
     Searches for an entry with a matching gid in the group database.
@@ -86,7 +86,7 @@ foreign lib {
 
         e: posix.Errno
 
-        buffer: dyn_array.Dyn_Array(byte)
+        buffer: dyn_array.Dyn_Array(u8)
         defer _ = slice.delete(buffer)
 
         for {
@@ -110,7 +110,7 @@ foreign lib {
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrnam.html ]]
     */
-    getgrnam_r :: proc(name: cstring, grp: ^group, buffer: [^]byte, bufsize: c.size_t, result: ^^group) -> Errno ---
+    getgrnam_r :: proc(name: cstring, grp: ^group, buffer: [^]u8, bufsize: c.size_t, result: ^^group) -> Errno ---
 }
 
 when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Haiku || ODIN_OS == .Linux {

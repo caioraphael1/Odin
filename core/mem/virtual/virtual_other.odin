@@ -7,7 +7,7 @@
 #+build !windows
 
 
-_reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
+_reserve :: proc(size: uint) -> (data: []u8, err: Allocator_Error) {
     return nil, nil
 }
 
@@ -29,10 +29,10 @@ _platform_memory_init :: proc() {
 
 }
 
-_map_file :: proc(f: any, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+_map_file :: proc(f: any, size: i64, flags: Map_File_Flags) -> (data: []u8, error: Map_File_Error) {
     return nil, .Map_Failure
 }
 
-_unmap_file :: proc(data: []byte) {
+_unmap_file :: proc(data: []u8) {
 
 }

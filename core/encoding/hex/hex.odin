@@ -9,12 +9,12 @@ import "base:container/slice"
 import "core:io"
 
 /*
-Encodes a byte slice into a lowercase hex sequence
+Encodes a u8 slice into a lowercase hex sequence
 
 *Allocates Using Provided Allocator*
 
 Inputs:
-- src: The `[]byte` to be hex-encoded
+- src: The `[]u8` to be hex-encoded
 - allocator: (default: context.allocator)
 - loc: The caller location for debugging purposes (default: #caller_location)
 
@@ -22,8 +22,8 @@ Returns:
 - res: The hex-encoded result
 - err: An optional allocator error if one occured, `.None` otherwise
 */
-encode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
-    res, err = slice.create([]byte, len(src) * 2, allocator, loc)
+encode :: proc(src: []u8, allocator: mem.Allocator, loc := #caller_location) -> (res: []u8, err: mem.Allocator_Error) {
+    res, err = slice.create([]u8, len(src) * 2, allocator, loc)
     i: uint
     j: uint
     #no_bounds_check for ; i < len(src); i += 1 {
@@ -36,16 +36,16 @@ encode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -
 }
 
 /*
-Encodes a byte slice as a lowercase hex sequence into an `io.Writer`
+Encodes a u8 slice as a lowercase hex sequence into an `io.Writer`
 
 Inputs:
 - dst: The `io.Writer` to encode into
-- src: The `[]byte` to be hex-encoded
+- src: The `[]u8` to be hex-encoded
 
 Returns:
 - err: An `io.Error` if one occured, `.None` otherwise
 */
-encode_into_writer :: proc(dst: io.Writer, src: []byte) -> (err: io.Error) {
+encode_into_writer :: proc(dst: io.Writer, src: []u8) -> (err: io.Error) {
     for v in src {
         _ = io.write(dst, {LOWER[v>>4], LOWER[v&0x0f]}) or_return
     }
@@ -53,12 +53,12 @@ encode_into_writer :: proc(dst: io.Writer, src: []byte) -> (err: io.Error) {
 }
 
 /*
-Encodes a byte slice into an uppercase hex sequence
+Encodes a u8 slice into an uppercase hex sequence
 
 *Allocates Using Provided Allocator*
 
 Inputs:
-- src: The `[]byte` to be hex-encoded
+- src: The `[]u8` to be hex-encoded
 - allocator: (default: context.allocator)
 - loc: The caller location for debugging purposes (default: #caller_location)
 
@@ -66,8 +66,8 @@ Returns:
 - res: The hex-encoded result
 - err: An optional allocator error if one occured, `.None` otherwise
 */
-encode_upper :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
-    res, err = slice.create([]byte, len(src) * 2, allocator, loc)
+encode_upper :: proc(src: []u8, allocator: mem.Allocator, loc := #caller_location) -> (res: []u8, err: mem.Allocator_Error) {
+    res, err = slice.create([]u8, len(src) * 2, allocator, loc)
     i: uint
     j: uint
     #no_bounds_check for ; i < len(src); i += 1 {
@@ -80,16 +80,16 @@ encode_upper :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_locat
 }
 
 /*
-Encodes a byte slice as an uppercase hex sequence into an `io.Writer`
+Encodes a u8 slice as an uppercase hex sequence into an `io.Writer`
 
 Inputs:
 - dst: The `io.Writer` to encode into
-- src: The `[]byte` to be hex-encoded
+- src: The `[]u8` to be hex-encoded
 
 Returns:
 - err: An `io.Error` if one occured, `.None` otherwise
 */
-encode_upper_into_writer :: proc(dst: io.Writer, src: []byte) -> (err: io.Error) {
+encode_upper_into_writer :: proc(dst: io.Writer, src: []u8) -> (err: io.Error) {
     for v in src {
         _ = io.write(dst, {UPPER[v>>4], UPPER[v&0x0f]}) or_return
     }
@@ -97,25 +97,25 @@ encode_upper_into_writer :: proc(dst: io.Writer, src: []byte) -> (err: io.Error)
 }
 
 /*
-Decodes a hex sequence into a byte slice
+Decodes a hex sequence into a u8 slice
 
 *Allocates Using Provided Allocator*
 
 Inputs:
 - dst: The hex sequence decoded into bytes
-- src: The `[]byte` to be hex-decoded
+- src: The `[]u8` to be hex-decoded
 - allocator: (default: context.allocator)
 - loc: The caller location for debugging purposes (default: #caller_location)
 
 Returns:
 - ok:  A bool, `true` if decoding succeeded, `false` otherwise
 */
-decode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -> (dst: []byte, ok: bool) {
+decode :: proc(src: []u8, allocator: mem.Allocator, loc := #caller_location) -> (dst: []u8, ok: bool) {
     if len(src) % 2 == 1 {
         return
     }
 
-    dst, _ = slice.create([]byte, len(src) / 2, allocator, loc)
+    dst, _ = slice.create([]u8, len(src) / 2, allocator, loc)
     i: uint
     j: uint = 1
     #no_bounds_check for ; j < len(src); j += 2 {
@@ -133,16 +133,16 @@ decode :: proc(src: []byte, allocator: mem.Allocator, loc := #caller_location) -
 }
 
 /*
-Decodes the first byte in a hex sequence to a byte
+Decodes the first u8 in a hex sequence to a u8
 
 Inputs:
 - str: A hex-encoded `string`, e.g. `"0x23"`
 
 Returns:
-- res: The decoded byte, e.g. `'#'`
+- res: The decoded u8, e.g. `'#'`
 - ok:  A bool, `true` if decoding succeeded, `false` otherwise
 */
-decode_sequence :: proc(str: string) -> (res: byte, ok: bool) {
+decode_sequence :: proc(str: string) -> (res: u8, ok: bool) {
     str := str
     if strings.string_has_prefix(str, "0x") || strings.string_has_prefix(str, "0X") {
         str = str[2:]
@@ -159,7 +159,7 @@ decode_sequence :: proc(str: string) -> (res: byte, ok: bool) {
 }
 
 @(private)
-LOWER := [16]byte {
+LOWER := [16]u8 {
     '0', '1', '2', '3',
     '4', '5', '6', '7',
     '8', '9', 'a', 'b',
@@ -167,7 +167,7 @@ LOWER := [16]byte {
 }
 
 @(private)
-UPPER := [16]byte {
+UPPER := [16]u8 {
     '0', '1', '2', '3',
     '4', '5', '6', '7',
     '8', '9', 'A', 'B',
@@ -175,7 +175,7 @@ UPPER := [16]byte {
 }
 
 @(private)
-hex_digit :: proc(char: byte) -> (u8, bool) {
+hex_digit :: proc(char: u8) -> (u8, bool) {
     switch char {
     case '0' ..= '9': return char - '0', true
     case 'a' ..= 'f': return char - 'a' + 10, true

@@ -9,7 +9,7 @@ DEFAULT_ARENA_GROWING_MINIMUM_BLOCK_SIZE: uint : #config(DEFAULT_ARENA_GROWING_M
 Growing_Arena_Memory_Block :: struct {
     prev:      ^Growing_Arena_Memory_Block,
     allocator: mem.Allocator,
-    base:      [^]byte,
+    base:      [^]u8,
     used:      uint,
     capacity:  uint,
 }
@@ -38,7 +38,7 @@ growing_arena_memory_block_alloc :: proc(allocator: mem.Allocator, capacity, ali
     end := uintptr(raw_data(data)[len(data):])
 
     block.allocator = allocator
-    block.base = ([^]byte)(uintptr(block) + base_offset)
+    block.base = ([^]u8)(uintptr(block) + base_offset)
     block.capacity = uint(end - uintptr(block.base))
 
     // sanitizer.address_poison(block.base, block.capacity)
@@ -60,7 +60,7 @@ growing_arena_memory_block_dealloc :: proc(block_to_free: ^Growing_Arena_Memory_
 }
 
 
-growing_arena_alloc_from_memory_block :: proc(block: ^Growing_Arena_Memory_Block, min_size, alignment: uint) -> (data: []byte, err: mem.Allocator_Error) {
+growing_arena_alloc_from_memory_block :: proc(block: ^Growing_Arena_Memory_Block, min_size, alignment: uint) -> (data: []u8, err: mem.Allocator_Error) {
     calc_alignment_offset :: proc(block: ^Growing_Arena_Memory_Block, alignment: uintptr) -> uint {
         alignment_offset := uint(0)
         ptr := uintptr(block.base[block.used:])
@@ -92,7 +92,7 @@ growing_arena_alloc_from_memory_block :: proc(block: ^Growing_Arena_Memory_Block
 }
 
 
-growing_arena_alloc :: proc(arena: ^Growing_Arena, size, alignment: uint, loc := #caller_location) -> (data: []byte, err: mem.Allocator_Error) {
+growing_arena_alloc :: proc(arena: ^Growing_Arena, size, alignment: uint, loc := #caller_location) -> (data: []u8, err: mem.Allocator_Error) {
     align_forward_uint :: proc(ptr, align: uint) -> uint {
         p := ptr
         modulo := p & (align-1)
@@ -197,7 +197,7 @@ growing_arena_allocator_proc :: proc(
     old_memory:      rawptr,
     old_size:        uint,
     loc              := #caller_location,
-    ) -> (data: []byte, err: mem.Allocator_Error) {
+    ) -> (data: []u8, err: mem.Allocator_Error) {
     arena := (^Growing_Arena)(allocator_data)
 
     switch mode {
@@ -208,7 +208,7 @@ growing_arena_allocator_proc :: proc(
     case .Free_All:
         growing_arena_free_all(arena, loc)
     case .Resize, .Resize_Non_Zeroed:
-        old_data := ([^]byte)(old_memory)
+        old_data := ([^]u8)(old_memory)
 
         switch {
         case old_data == nil:

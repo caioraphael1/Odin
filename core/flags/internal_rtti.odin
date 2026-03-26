@@ -431,7 +431,7 @@ parse_and_set_pointer_by_type :: proc(ptr: rawptr, str: string, type_info: ^refl
         }
 
     case reflect.Type_Info_Dynamic_Array:
-        ptr := cast(^dyn_array.Dyn_Array(byte))ptr
+        ptr := cast(^dyn_array.Dyn_Array(u8))ptr
 
         // Try to convert the value first.
         elem_backing, alloc_error := mem.alloc(specific_type_info.elem.size, specific_type_info.elem.align)

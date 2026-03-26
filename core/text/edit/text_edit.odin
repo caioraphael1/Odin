@@ -47,7 +47,7 @@ State :: struct {
 Undo_State :: struct {
     selection: [2]int,
     len:       int,
-    text:      [0]byte, // string(us.text[:us.len]) --- requiring #no_bounds_check
+    text:      [0]u8, // string(us.text[:us.len]) --- requiring #no_bounds_check
 }
 
 Translation :: enum u32 {
@@ -250,7 +250,7 @@ insert :: proc(s: ^State, at: int, text: string) -> int {
     return 0
 }
 
-// remove the wanted range withing, usually the selection within byte indices
+// remove the wanted range withing, usually the selection within u8 indices
 remove :: proc(s: ^State, lo, hi: int) {
     undo_check(s)
     if s.builder != nil {
@@ -281,17 +281,17 @@ selection_delete :: proc(s: ^State) {
     s.selection = {lo, lo}
 }
 
-is_continuation_byte :: proc(b: byte) -> bool {
+is_continuation_byte :: proc(b: u8) -> bool {
     return b >= 0x80 && b < 0xc0
 }
 
 // translates the caret position 
 translate_position :: proc(s: ^State, t: Translation) -> int {
-    is_space :: proc(b: byte) -> bool {
+    is_space :: proc(b: u8) -> bool {
         return b == ' ' || b == '\t' || b == '\n'
     }
 
-    buf: []byte
+    buf: []u8
     if s.builder != nil {
         buf = s.builder.buf[:]
     }

@@ -8,7 +8,7 @@ _Path_Separator        :: '/'
 _Path_Separator_String :: "/"
 _Path_List_Separator   :: ':'
 
-_is_path_separator :: proc(c: byte) -> bool {
+_is_path_separator :: proc(c: u8) -> bool {
     return c == _Path_Separator
 }
 
@@ -95,7 +95,7 @@ _remove_all :: proc(path: string) -> (err: Error) {
 _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf: dyn_array.Dyn_Array(byte)
+    buf: dyn_array.Dyn_Array(u8)
     buf.allocator = allocators.temp_allocator
     size := uint(posix.PATH_MAX)
 

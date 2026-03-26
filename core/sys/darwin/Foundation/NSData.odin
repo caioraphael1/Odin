@@ -12,12 +12,12 @@ Data_init :: proc "c" (self: ^Data) -> ^Data {
 }
 
 @(objc_type=Data, objc_name="initWithBytes")
-Data_initWithBytes :: proc "c" (self: ^Data, bytes: []byte) -> ^Data {
+Data_initWithBytes :: proc "c" (self: ^Data, bytes: []u8) -> ^Data {
 	return msgSend(^Data, self, "initWithBytes:length:", raw_data(bytes), len(bytes))
 }
 
 @(objc_type=Data, objc_name="initWithBytesNoCopy")
-Data_initWithBytesNoCopy :: proc "c" (self: ^Data, bytes: []byte, freeWhenDone: BOOL) -> ^Data {
+Data_initWithBytesNoCopy :: proc "c" (self: ^Data, bytes: []u8, freeWhenDone: BOOL) -> ^Data {
 	return msgSend(
 		^Data,
 		self,

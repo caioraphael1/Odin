@@ -8,7 +8,7 @@ import "core:io"
 
 // Reader is a buffered wrapper for an io.Reader
 Reader :: struct {
-    buf:            []byte,
+    buf:            []u8,
     buf_allocator:  mem.Allocator,
 
     rd:             io.Reader, // reader
@@ -16,7 +16,7 @@ Reader :: struct {
 
     err:            io.Error,
 
-    last_byte:      int, // last byte read, invalid is -1
+    last_byte:      int, // last u8 read, invalid is -1
     last_rune_size: int, // size of last rune read, invalid is -1
 
     max_consecutive_empty_reads: uint,
@@ -33,11 +33,11 @@ reader_init :: proc(b: ^Reader, rd: io.Reader, size: uint = DEFAULT_BUF_SIZE, al
     size = max(size, MIN_READ_BUFFER_SIZE)
     reader_reset(b, rd)
     b.buf_allocator = allocator
-    b.buf, _ = slice.create([]byte, size, allocator, loc)
+    b.buf, _ = slice.create([]u8, size, allocator, loc)
 }
 
 // reader_init initializes using a user provided bytes buffer `buf`
-reader_init_with_buf :: proc(b: ^Reader, rd: io.Reader, buf: []byte) {
+reader_init_with_buf :: proc(b: ^Reader, rd: io.Reader, buf: []u8) {
     reader_reset(b, rd)
     b.buf_allocator = {}
     b.buf = buf
@@ -110,7 +110,7 @@ _reader_consume_err :: proc(b: ^Reader) -> io.Error {
 // If reader_peek returns fewer than n bytes, it also return an error
 // explaining why the read is short
 // The error will be .Buffer_Full if n is larger than the internal buffer size
-reader_peek :: proc(b: ^Reader, n: uint) -> (data: []byte, err: io.Error) {
+reader_peek :: proc(b: ^Reader, n: uint) -> (data: []u8, err: io.Error) {
     n := n
 
     if n < 0 {
@@ -175,7 +175,7 @@ reader_discard :: proc(b: ^Reader, n: uint) -> (discarded: uint, err: io.Error) 
 
 // reader_read reads data into p
 // The bytes are taken from at most one read on the underlying Reader, which means n may be less than len(p)
-reader_read :: proc(b: ^Reader, p: []byte) -> (n: uint, err: io.Error) {
+reader_read :: proc(b: ^Reader, p: []u8) -> (n: uint, err: io.Error) {
     n = len(p)
     if n == 0 {
         if reader_buffered(b) > 0 {
@@ -219,9 +219,9 @@ reader_read :: proc(b: ^Reader, p: []byte) -> (n: uint, err: io.Error) {
     return n, nil
 }
 
-// reader_read_byte reads and returns a single byte
-// If no byte is available, it return an error
-reader_read_byte :: proc(b: ^Reader) -> (c: byte, err: io.Error) {
+// reader_read_byte reads and returns a single u8
+// If no u8 is available, it return an error
+reader_read_byte :: proc(b: ^Reader) -> (c: u8, err: io.Error) {
     b.last_rune_size = -1
     for b.r == b.w {
         if b.err != nil {
@@ -235,7 +235,7 @@ reader_read_byte :: proc(b: ^Reader) -> (c: byte, err: io.Error) {
     return
 }
 
-// reader_unread_byte unreads the last byte. Only the most recently read byte can be unread
+// reader_unread_byte unreads the last u8. Only the most recently read u8 can be unread
 reader_unread_byte :: proc(b: ^Reader) -> io.Error {
     if b.last_byte < 0 || b.r == 0 && b.w > 0 {
         return .Invalid_Unread
@@ -246,7 +246,7 @@ reader_unread_byte :: proc(b: ^Reader) -> io.Error {
         // b.r == 0 && b.w == 0
         b.w = 1
     }
-    b.buf[b.r] = byte(b.last_byte)
+    b.buf[b.r] = u8(b.last_byte)
     b.last_byte = -1
     b.last_rune_size = -1
     return nil
@@ -254,7 +254,7 @@ reader_unread_byte :: proc(b: ^Reader) -> io.Error {
 
 // reader_read_rune reads a single UTF-8 encoded unicode character
 // and returns the rune and its size in bytes
-// If the encoded rune is invalid, it consumes one byte and returns utf8.RUNE_ERROR (U+FFFD) with a size of 1
+// If the encoded rune is invalid, it consumes one u8 and returns utf8.RUNE_ERROR (U+FFFD) with a size of 1
 reader_read_rune :: proc(b: ^Reader) -> (r: rune, size: uint, err: io.Error) {
     for b.r+utf8.UTF_MAX > b.w &&
         !utf8.bytes_has_full_rune(b.buf[b.r:b.w]) &&
@@ -335,7 +335,7 @@ reader_to_stream :: proc(b: ^Reader) -> (s: io.Stream) {
 
 
 @(private)
-_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     b := (^Reader)(stream_data)
     #partial switch mode {
     case .Read:
@@ -367,7 +367,7 @@ _reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offse
 //
 // reader_read_slice returns err != nil if and only if line does not end in delim
 //
-reader_read_slice :: proc(b: ^Reader, delim: byte) -> (line: []byte, err: io.Error) {
+reader_read_slice :: proc(b: ^Reader, delim: u8) -> (line: []u8, err: io.Error) {
     s: uint
     for {
         if i, found := bytes.index_byte(b.buf[b.r+s : b.w], delim); found {
@@ -406,11 +406,11 @@ reader_read_slice :: proc(b: ^Reader, delim: byte) -> (line: []byte, err: io.Err
 
 // reader_read_bytes reads until the first occurrence of delim from the Reader
 // It returns an allocated slice containing the data up to and including the delimiter
-reader_read_bytes :: proc(b: ^Reader, delim: byte, allocator: mem.Allocator) -> (buf: []byte, err: io.Error) {
-    full: dyn_array.Dyn_Array(byte)
+reader_read_bytes :: proc(b: ^Reader, delim: u8, allocator: mem.Allocator) -> (buf: []u8, err: io.Error) {
+    full: dyn_array.Dyn_Array(u8)
     full.allocator = allocator
 
-    frag: []byte
+    frag: []u8
     for {
         e: io.Error
         frag, e = reader_read_slice(b, delim)
@@ -430,7 +430,7 @@ reader_read_bytes :: proc(b: ^Reader, delim: byte, allocator: mem.Allocator) -> 
 
 // reader_read_string reads until the first occurrence of delim from the Reader
 // It returns an allocated string containing the data up to and including the delimiter
-reader_read_string :: proc(b: ^Reader, delim: byte, allocator: mem.Allocator) -> (string, io.Error) {
+reader_read_string :: proc(b: ^Reader, delim: u8, allocator: mem.Allocator) -> (string, io.Error) {
     buf, err := reader_read_bytes(b, delim, allocator)
     return string(buf), err
 }

@@ -129,14 +129,14 @@ foreign lib {
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_getstack.html ]]
     */
-    pthread_attr_getstack :: proc(attr: ^pthread_attr_t, stackaddr: ^[^]byte, stacksize: ^c.size_t) -> Errno ---
+    pthread_attr_getstack :: proc(attr: ^pthread_attr_t, stackaddr: ^[^]u8, stacksize: ^c.size_t) -> Errno ---
 
     /*
     Specify the area of storage to be used for the created thread's stack.
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_getstack.html ]]
     */
-    pthread_attr_setstack :: proc(attr: ^pthread_attr_t, stackaddr: [^]byte, stacksize: c.size_t) -> Errno ---
+    pthread_attr_setstack :: proc(attr: ^pthread_attr_t, stackaddr: [^]u8, stacksize: c.size_t) -> Errno ---
 
     /*
     Gets the stack size.
@@ -451,17 +451,17 @@ when ODIN_OS == .Darwin {
     pthread_t :: distinct u64
 
     pthread_attr_t :: struct #align(8) {
-        _: [8]byte,
+        _: [8]u8,
     }
 
     pthread_key_t :: distinct c.int
 
     pthread_mutex_t :: struct #align(8) {
-        _: [8]byte,
+        _: [8]u8,
     }
 
     pthread_cond_t  :: struct #align(8) {
-        _: [8]byte,
+        _: [8]u8,
     }
 
     sched_param :: struct {
@@ -505,11 +505,11 @@ when ODIN_OS == .Darwin {
     pthread_key_t :: distinct c.int
 
     pthread_cond_t :: struct #align(8) {
-        _: [40]byte,
+        _: [40]u8,
     }
 
     pthread_mutex_t :: struct #align(8) {
-        _: [48]byte,
+        _: [48]u8,
     }
 
     sched_param :: struct {

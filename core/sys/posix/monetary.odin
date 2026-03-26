@@ -20,7 +20,7 @@ foreign lib {
 	Example:
 		posix.setlocale(.ALL, "en_US.UTF-8")
 		value := 123456.789
-		buffer: [100]byte
+		buffer: [100]u8
 		size := posix.strfmon(raw_data(buffer[:]), len(buffer), "%n", value)
 		if int(size) == -1 {
 			fmt.panicf("strfmon failure: %s", posix.strerror(posix.errno()))
@@ -33,7 +33,7 @@ foreign lib {
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/strfmon.html ]]
 	*/
 	strfmon :: proc(
-		s:              [^]byte,
+		s:              [^]u8,
 		maxsize:        c.size_t,
 		format:         cstring,
 		#c_vararg args: ..any,

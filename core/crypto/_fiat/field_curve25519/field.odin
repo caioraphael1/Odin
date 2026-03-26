@@ -30,10 +30,10 @@ fe_clear_vec :: proc(
 	}
 }
 
-fe_from_bytes :: proc(out1: ^Tight_Field_Element, arg1: ^[32]byte) {
+fe_from_bytes :: proc(out1: ^Tight_Field_Element, arg1: ^[32]u8) {
 	// Ignore the unused bit by copying the input and masking the bit off
 	// prior to deserialization.
-	tmp1: [32]byte = ---
+	tmp1: [32]u8 = ---
 	slice.copy(tmp1[:], arg1[:])
 	tmp1[31] &= 127
 
@@ -43,7 +43,7 @@ fe_from_bytes :: proc(out1: ^Tight_Field_Element, arg1: ^[32]byte) {
 }
 
 fe_is_negative :: proc(arg1: ^Tight_Field_Element) -> int {
-	tmp1: [32]byte = ---
+	tmp1: [32]u8 = ---
 
 	fe_to_bytes(&tmp1, arg1)
 	ret := tmp1[0] & 1
@@ -54,7 +54,7 @@ fe_is_negative :: proc(arg1: ^Tight_Field_Element) -> int {
 }
 
 fe_equal :: proc(arg1, arg2: ^Tight_Field_Element) -> int {
-	tmp1, tmp2: [32]byte = ---, ---
+	tmp1, tmp2: [32]u8 = ---, ---
 
 	fe_to_bytes(&tmp1, arg1)
 	fe_to_bytes(&tmp2, arg2)
@@ -66,8 +66,8 @@ fe_equal :: proc(arg1, arg2: ^Tight_Field_Element) -> int {
 	return ret
 }
 
-fe_equal_bytes :: proc(arg1: ^Tight_Field_Element, arg2: ^[32]byte) -> int {
-	tmp1: [32]byte = ---
+fe_equal_bytes :: proc(arg1: ^Tight_Field_Element, arg2: ^[32]u8) -> int {
+	tmp1: [32]u8 = ---
 
 	fe_to_bytes(&tmp1, arg1)
 
@@ -154,7 +154,7 @@ fe_carry_sqrt_ratio_m1 :: proc(
 
 	// Serialize `check` once to save on repeated serialization.
 	r, check := &tmp1, &tmp2
-	b: [32]byte = ---
+	b: [32]u8 = ---
 	fe_carry_square(check, fe_relax_cast(r))
 	fe_carry_mul(check, fe_relax_cast(check), arg2) // check * v
 	fe_to_bytes(&b, check)

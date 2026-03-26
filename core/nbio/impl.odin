@@ -145,7 +145,7 @@ _read_entire_file :: proc(l: ^Event_Loop, path: string, user_data: rawptr, cb: R
             return
         }
 
-        buf, err := slice.create([]byte, op.stat.size, allocator)
+        buf, err := slice.create([]u8, op.stat.size, allocator)
         if err != nil {
             close(op.stat.handle)
             cb(user_data, nil, {.Read, .Allocation_Failed})
@@ -207,7 +207,7 @@ debug :: proc(contents: ..Debuggable, loc := #caller_location) {
             string_builder.write_string(&b, "ms")
 
         case time.Time:
-            buf: [time.MIN_HMS_LEN+1]byte
+            buf: [time.MIN_HMS_LEN+1]u8
             h, m, s, ns := time.precise_clock_from_time(val)
             buf[8] = '.'
             buf[7] = '0' + u8(s % 10); s /= 10
@@ -251,16 +251,16 @@ and one for the working copy that we mutate with `all` set.
 */
 
 Bufs :: struct {
-    backing: [1][]byte,
+    backing: [1][]u8,
     working: struct #raw_union {
-        small: [1][]byte,
-        big:   [][]byte,
+        small: [1][]u8,
+        big:   [][]u8,
     },
 }
 
-bufs_init :: proc(bufs: ^Bufs, orig: ^[][]byte, allocator: mem.Allocator) -> mem.Allocator_Error {
+bufs_init :: proc(bufs: ^Bufs, orig: ^[][]u8, allocator: mem.Allocator) -> mem.Allocator_Error {
     if len(orig) > 1 {
-        backing := slice.create([][]byte, len(orig)*2, allocator) or_return
+        backing := slice.create([][]u8, len(orig)*2, allocator) or_return
         bufs.working.big = backing[len(orig):]
         copy(bufs.working.big, orig^)
         copy(backing, orig^)
@@ -273,7 +273,7 @@ bufs_init :: proc(bufs: ^Bufs, orig: ^[][]byte, allocator: mem.Allocator) -> mem
     return nil
 }
 
-bufs_delete :: proc(bufs: ^Bufs, orig: [][]byte, allocator: mem.Allocator) {
+bufs_delete :: proc(bufs: ^Bufs, orig: [][]u8, allocator: mem.Allocator) {
     if len(orig) > 1 {
         backing := raw_data(orig)[:len(orig)*2]
         delete(backing, allocator)
@@ -281,7 +281,7 @@ bufs_delete :: proc(bufs: ^Bufs, orig: [][]byte, allocator: mem.Allocator) {
 }
 
 
-bufs_to_process :: proc(bufs: ^Bufs, orig: [][]byte, processed: int) -> (working: [][]byte, total: int) {
+bufs_to_process :: proc(bufs: ^Bufs, orig: [][]u8, processed: int) -> (working: [][]u8, total: int) {
     if len(orig) > 1 {
         // Reset to length and contents of backing, so a previous modification is removed.
         (^slice.Raw_Slice)(&bufs.working.big).len = len(orig)
@@ -298,7 +298,7 @@ bufs_to_process :: proc(bufs: ^Bufs, orig: [][]byte, processed: int) -> (working
 }
 
 
-constraint_bufs_to_max_rw :: proc(bufs: [][]byte) -> (constrained: [][]byte, total: int) {
+constraint_bufs_to_max_rw :: proc(bufs: [][]u8) -> (constrained: [][]u8, total: int) {
     for buf in bufs {
         total += len(buf)
     }

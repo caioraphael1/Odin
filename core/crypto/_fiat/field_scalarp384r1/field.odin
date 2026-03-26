@@ -29,7 +29,7 @@ fe_clear_vec :: proc(
 
 fe_from_bytes :: proc(
 	out1: ^Montgomery_Domain_Field_Element,
-	arg1: []byte,
+	arg1: []u8,
 ) -> bool {
 	ensure_contextless(len(out1) <= 64, "p384r1: invalid scalar input buffer")
 
@@ -76,7 +76,7 @@ fe_from_bytes :: proc(
 		// "a+b*2^256"
 
 		// Zero extend to 512-bits.
-		src_512: [64]byte
+		src_512: [64]u8
 		copy(src_512[64-s_len:], arg1)
 		defer crypto.zero_explicit(&src_512, size_of(src_512))
 
@@ -94,7 +94,7 @@ fe_from_bytes :: proc(
 }
 
 @(private)
-fe_is_canonical :: proc(arg1: []byte) -> bool {
+fe_is_canonical :: proc(arg1: []u8) -> bool {
 	_, borrow := bits.sub_u64(ELL[0] - 1, endian.unchecked_get_u64be(arg1[40:]), 0)
 	_, borrow = bits.sub_u64(ELL[1], endian.unchecked_get_u64be(arg1[32:]), borrow)
 	_, borrow = bits.sub_u64(ELL[2], endian.unchecked_get_u64be(arg1[24:]), borrow)
@@ -105,7 +105,7 @@ fe_is_canonical :: proc(arg1: []byte) -> bool {
 }
 
 @(private="file")
-fe_unchecked_set_saturated :: proc(out1: ^Non_Montgomery_Domain_Field_Element, arg1: []byte) {
+fe_unchecked_set_saturated :: proc(out1: ^Non_Montgomery_Domain_Field_Element, arg1: []u8) {
 	out1[0] = endian.unchecked_get_u64be(arg1[40:])
 	out1[1] = endian.unchecked_get_u64be(arg1[32:])
 	out1[2] = endian.unchecked_get_u64be(arg1[24:])
@@ -115,8 +115,8 @@ fe_unchecked_set_saturated :: proc(out1: ^Non_Montgomery_Domain_Field_Element, a
 }
 
 @(private)
-fe_unchecked_set :: proc(out1: ^Montgomery_Domain_Field_Element, arg1: []byte) {
-	arg1_384: [48]byte
+fe_unchecked_set :: proc(out1: ^Montgomery_Domain_Field_Element, arg1: []u8) {
+	arg1_384: [48]u8
 	defer crypto.zero_explicit(&arg1_384, size_of(arg1_384))
 	copy(arg1_384[48-len(arg1):], arg1)
 
@@ -127,7 +127,7 @@ fe_unchecked_set :: proc(out1: ^Montgomery_Domain_Field_Element, arg1: []byte) {
 	fe_to_montgomery(out1, &tmp)
 }
 
-fe_to_bytes :: proc(out1: []byte, arg1: ^Montgomery_Domain_Field_Element) {
+fe_to_bytes :: proc(out1: []u8, arg1: ^Montgomery_Domain_Field_Element) {
 	ensure_contextless(len(out1) == 48, "p384r1: invalid scalar output buffer")
 
 	tmp: Non_Montgomery_Domain_Field_Element = ---

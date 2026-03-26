@@ -233,8 +233,8 @@ Gamepad_State :: struct {
 
 	_id_len:      int `fmt:"-"`,
 	_mapping_len: int `fmt:"-"`,
-	_id_buf:      [GAMEPAD_MAX_ID_SIZE]byte      `fmt:"-"`,
-	_mapping_buf: [GAMEPAD_MAX_MAPPING_SIZE]byte `fmt:"-"`,
+	_id_buf:      [GAMEPAD_MAX_ID_SIZE]u8      `fmt:"-"`,
+	_mapping_buf: [GAMEPAD_MAX_MAPPING_SIZE]u8 `fmt:"-"`,
 }
 
 Pointer_Type :: enum u8 {
@@ -283,8 +283,8 @@ Event :: struct {
 
 			_key_len:  int                         `fmt:"-"`,
 			_code_len: int                         `fmt:"-"`,
-			_key_buf:  [KEYBOARD_MAX_KEY_SIZE]byte `fmt:"-"`,
-			_code_buf: [KEYBOARD_MAX_KEY_SIZE]byte `fmt:"-"`,
+			_key_buf:  [KEYBOARD_MAX_KEY_SIZE]u8 `fmt:"-"`,
+			_code_buf: [KEYBOARD_MAX_KEY_SIZE]u8 `fmt:"-"`,
 		},
 
 		mouse: struct {

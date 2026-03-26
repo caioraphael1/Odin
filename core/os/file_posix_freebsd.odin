@@ -25,7 +25,7 @@ _posix_absolute_path :: proc(fd: posix.FD, name: string, allocator: mem.Allocato
 
 		// NOTE(Feoramund): This field represents a complicated union that I am
 		// avoiding implementing for now. I only need the path data below.
-		_union: [336]byte,
+		_union: [336]u8,
 
 		path: [posix.PATH_MAX]c.char,
 	}

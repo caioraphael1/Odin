@@ -2,7 +2,7 @@ import "core:fmt"
 
 CreateProgramFromStrings :: proc(vs_sources, fs_sources: []string) -> (program: Program, ok: bool) {
 	ok = true
-	log: [1024]byte
+	log: [1024]u8
 
 	vs := CreateShader(VERTEX_SHADER)
 	fs := CreateShader(FRAGMENT_SHADER)

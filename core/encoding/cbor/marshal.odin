@@ -16,12 +16,12 @@ Marshal a value into binary CBOR.
 Flags can be used to control the output (mainly determinism, which coincidently affects size).
 
 The default flags `ENCODE_SMALL` (`.Deterministic_Int_Size`, `.Deterministic_Float_Size`) will try
-to put ints and floats into their smallest possible byte size without losing equality.
+to put ints and floats into their smallest possible u8 size without losing equality.
 
 Adding the `.Self_Described_CBOR` flag will wrap the value in a tag that lets generic decoders know
-the contents are CBOR from just reading the first byte.
+the contents are CBOR from just reading the first u8.
 
-Adding the `.Deterministic_Map_Sorting` flag will sort the encoded maps by the byte content of the
+Adding the `.Deterministic_Map_Sorting` flag will sort the encoded maps by the u8 content of the
 encoded key. This flag has a cost on performance and memory efficiency because all keys in a map
 have to be precomputed, sorted and only then written to the output.
 
@@ -33,9 +33,9 @@ This is helpful when the CBOR size is so big that you don't want to collect all 
 allocations until the end.
 */
 
-// Marshals the given value into a CBOR byte stream (allocated using the given allocator).
+// Marshals the given value into a CBOR u8 stream (allocated using the given allocator).
 // See docs on the `marshal_into` proc group for more info.
-marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Marshal_Error) {
+marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []u8, err: Marshal_Error) {
     b, alloc_err := string_builder.builder_create(allocator, loc=loc)
     // The builder as a stream also returns .EOF if it ran out of memory so this is consistent.
     if alloc_err != nil {
@@ -51,20 +51,20 @@ marshal_into_bytes :: proc(v: any, flags := ENCODE_SMALL, allocator: mem.Allocat
     return b.buf[:], nil
 }
 
-// Marshals the given value into a CBOR byte stream written to the given builder.
+// Marshals the given value into a CBOR u8 stream written to the given builder.
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_builder :: proc(b: ^string_builder.Builder, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
     return marshal_into_writer(string_builder.to_writer(b), v, flags)
 }
 
-// Marshals the given value into a CBOR byte stream written to the given writer.
+// Marshals the given value into a CBOR u8 stream written to the given writer.
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_writer :: proc(w: io.Writer, v: any, flags := ENCODE_SMALL) -> Marshal_Error {
     encoder := Encoder{flags, w, allocators.temp_allocator}
     return marshal_into_encoder(encoder, v)
 }
 
-// Marshals the given value into a CBOR byte stream written to the given encoder.
+// Marshals the given value into a CBOR u8 stream written to the given encoder.
 // See docs on the `marshal_into` proc group for more info.
 marshal_into_encoder :: proc(e: Encoder, v: any) -> (err: Marshal_Error) {
     e := e
@@ -206,8 +206,8 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
         }
 
     case reflect.Type_Info_Array:
-        if info.elem.id == byte {
-            raw := ([^]byte)(v.data)
+        if info.elem.id == u8 {
+            raw := ([^]u8)(v.data)
             return err_conv(_encode_bytes(e, raw[:info.count]))
         }
 
@@ -248,12 +248,12 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
         return
         
     case reflect.Type_Info_Dynamic_Array:
-        if info.elem.id == byte {
-            raw := (^dyn_array.Dyn_Array(byte))(v.data)
+        if info.elem.id == u8 {
+            raw := (^dyn_array.Dyn_Array(u8))(v.data)
             return err_conv(_encode_bytes(e, raw[:]))
         }
 
-        array := (^dyn_array.Dyn_Array(byte))(v.data) // Caio: this was untyped before
+        array := (^dyn_array.Dyn_Array(u8))(v.data) // Caio: this was untyped before
         err_conv(_encode_u64(e, u64(array.len), .Array)) or_return
 
         if impl, ok := _tag_implementations_type[info.elem.id]; ok {
@@ -272,8 +272,8 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
         return
 
     case reflect.Type_Info_Slice:
-        if info.elem.id == byte {
-            raw := (^[]byte)(v.data)
+        if info.elem.id == u8 {
+            raw := (^[]u8)(v.data)
             return err_conv(_encode_bytes(e, raw^))
         }
 
@@ -320,7 +320,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
                 return
             }
 
-            // Deterministic_Map_Sorting needs us to sort the entries by the byte contents of the
+            // Deterministic_Map_Sorting needs us to sort the entries by the u8 contents of the
             // encoded key.
             //
             // This means we have to store and sort them before writing incurring extra (temporary) allocations.
@@ -332,7 +332,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
 
             // To sort a string/cstring we need to first sort by their encoded header/length.
             // This fits in 9 bytes at most.
-            pre_key :: #force_inline proc(e: Encoder, str: string) -> (res: [10]byte) {
+            pre_key :: #force_inline proc(e: Encoder, str: string) -> (res: [10]u8) {
                 e := e
                 builder := string_builder.builder_from_bytes(res[:])
                 e.writer = string_builder.to_stream(&builder)
@@ -345,33 +345,33 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
             }
 
             Encoded_Entry_Fast :: struct($T: typeid) {
-                pre_key: [10]byte,
+                pre_key: [10]u8,
                 key:     T,
                 val_idx: uintptr,
             }
 
             Encoded_Entry :: struct {
-                key:     ^dyn_array.Dyn_Array(byte),
+                key:     ^dyn_array.Dyn_Array(u8),
                 val_idx: uintptr,
             }
 
             switch info.key.id {
             case string:
-                entries := dyn_array.create(Encoded_Entry_Fast(^[]byte), 0, map_cap, e.temp_allocator) or_return
+                entries := dyn_array.create(Encoded_Entry_Fast(^[]u8), 0, map_cap, e.temp_allocator) or_return
                 defer _ = slice.delete(entries)
 
                 for bucket_index in 0..<map_cap {
                     internal.maps.hash_is_valid(hs[bucket_index]) or_continue
 
-                    key := (^[]byte)(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    _ = dyn_array.append(&entries, Encoded_Entry_Fast(^[]byte){
+                    key := (^[]u8)(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
+                    _ = dyn_array.append(&entries, Encoded_Entry_Fast(^[]u8){
                         pre_key = pre_key(e, string(key^)),
                         key     = key,
                         val_idx = bucket_index,
                     })
                 }
 
-                slice.sort_by_cmp(entries[:], proc(a, b: Encoded_Entry_Fast(^[]byte)) -> slice.Ordering {
+                slice.sort_by_cmp(entries[:], proc(a, b: Encoded_Entry_Fast(^[]u8)) -> slice.Ordering {
                     a, b := a, b
                     pre_cmp := slice.Ordering(bytes.compare(a.pre_key[:a.pre_key[9]], b.pre_key[:b.pre_key[9]]))
                     if pre_cmp != .Equal {
@@ -412,14 +412,14 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
                         return pre_cmp
                     }
 
-                    ab := transmute([]byte)string(a.key^)
-                    bb := transmute([]byte)string(b.key^)
+                    ab := transmute([]u8)string(a.key^)
+                    bb := transmute([]u8)string(b.key^)
                     return slice.Ordering(bytes.compare(ab, bb))
                 })
 
                 for &entry in entries {
                     _ = io.write_full(e.writer, entry.pre_key[:entry.pre_key[9]]) or_return
-                    _ = io.write_full(e.writer, transmute([]byte)string(entry.key^)) or_return
+                    _ = io.write_full(e.writer, transmute([]u8)string(entry.key^)) or_return
 
                     value := rawptr(internal.map_cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
                     marshal_into(e, any{ value, info.value.id }) or_return
@@ -501,7 +501,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
 
         if .Deterministic_Map_Sorting in e.flags {
             Name :: struct {
-                name:  []byte,
+                name:  []u8,
                 field: int,
             }
             entries := dyn_array.create(Name, 0, n, e.temp_allocator) or_return

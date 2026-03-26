@@ -29,7 +29,7 @@ multi_writer_destroy :: proc(mw: ^Multi_Writer) {
     _ = dyn_array.delete(mw.writers)
 }
 
-_multi_writer_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_multi_writer_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     if mode == .Query {
         return io.query_utility({.Write, .Query})
     } else if mode != .Write {

@@ -11,7 +11,7 @@ LOCALE_NAME_SYSTEM_DEFAULT : wstring = "!x-sys-default-locale"
 // String Length Maximums.
 // 5 ranges, 2 bytes ea., 0 term.
 MAX_LEADBYTES   :: 12
-// single or double byte
+// single or double u8
 MAX_DEFAULTCHAR :: 2
 
 CPINFOEXW :: struct{
@@ -19,7 +19,7 @@ CPINFOEXW :: struct{
 	MaxCharSize:        UINT,
 	// The default is usually the "?" character for the code page.
 	DefaultChar:        [MAX_DEFAULTCHAR]BYTE,
-	// A fixed-length array of lead byte ranges, for which the number of lead byte ranges is variable.
+	// A fixed-length array of lead u8 ranges, for which the number of lead u8 ranges is variable.
 	LeadByte:           [MAX_LEADBYTES]BYTE,
 	// The default is usually the "?" character or the katakana middle dot character.
 	UnicodeDefaultChar: WCHAR,

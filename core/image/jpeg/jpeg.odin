@@ -31,9 +31,9 @@ Component :: enum u8 {
 }
 
 Huffman_Table :: struct {
-    symbols: [HUFFMAN_MAX_SYMBOLS]byte,
+    symbols: [HUFFMAN_MAX_SYMBOLS]u8,
     codes: [HUFFMAN_MAX_SYMBOLS]u32,
-    offsets: [HUFFMAN_MAX_BITS + 1]byte,
+    offsets: [HUFFMAN_MAX_BITS + 1]u8,
 }
 
 Quantization_Table :: [COEFFICIENT_COUNT]u16be
@@ -50,7 +50,7 @@ Color_Component :: struct {
 Block :: [Component][COEFFICIENT_COUNT]i16
 
 @(private="file")
-zigzag := [?]byte{
+zigzag := [?]u8{
     0,   1,  8, 16,  9,  2,  3, 10,
     17, 24, 32, 25, 18, 11,  4,  5,
     12, 19, 26, 33, 40, 48, 41, 34,
@@ -132,7 +132,7 @@ read_bits_msb :: #force_inline proc(z: ^compress.Context_Memory_Input, width: u8
     return k
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []u8, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }
@@ -142,7 +142,7 @@ load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allo
 }
 
 @(private="file")
-get_symbol :: proc(ctx: ^$C, huffman_table: Huffman_Table) -> byte {
+get_symbol :: proc(ctx: ^$C, huffman_table: Huffman_Table) -> u8 {
     possible_code: u32 = 0
 
     for i in 0..<HUFFMAN_MAX_BITS {
@@ -233,7 +233,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
         case .SOI:
             return img, .Duplicate_SOI_Marker
         case .APP0:
-            ident := dyn_array.create(byte, 0, 16, allocators.temp_allocator) or_return
+            ident := dyn_array.create(u8, 0, 16, allocators.temp_allocator) or_return
             length := cast(int)((compress.read_data(ctx, u16be) or_return) - 2)
             for {
                 b := compress.read_u8_from_memory(ctx) or_return
@@ -295,7 +295,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 }
             } else if slice.equal(ident[:], image.JFXX_Magic[:]) {
                 extension_code := cast(image.JFXX_Extension_Code)compress.read_u8_from_memory(ctx) or_return
-                thumbnail: []byte
+                thumbnail: []u8
 
                 switch extension_code {
                 // We return the JPEG-compressed bytes for this type of thumbnail.
@@ -303,12 +303,12 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 // and calling image.load() on the thumbnail.
                 // Not sure where to document that though, maybe it's better if the thumbnail is always raw pixel data.
                 case .Thumbnail_JPEG:
-                    // +1 for the NUL byte
+                    // +1 for the NUL u8
                     thumbnail_len := length - (size_of(image.JFXX_Magic) + 1 + size_of(image.JFXX_Extension_Code))
                     thumbnail_jpeg := compress.read_slice(ctx, thumbnail_len) or_return
 
                     if .return_metadata in options {
-                        thumbnail = slice.create([]byte, thumbnail_len) or_return
+                        thumbnail = slice.create([]u8, thumbnail_len) or_return
                         slice.copy(thumbnail, thumbnail_jpeg)
 
                         info: ^image.JPEG_Info
@@ -331,7 +331,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail * 3) or_return
 
                     if .return_metadata in options {
-                        thumbnail = slice.create([]byte, x_thumbnail * y_thumbnail * 3) or_return
+                        thumbnail = slice.create([]u8, x_thumbnail * y_thumbnail * 3) or_return
                         slice.copy(thumbnail, pixels)
 
                         info: ^image.JPEG_Info
@@ -355,7 +355,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     old_pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail) or_return
 
                     if .return_metadata in options {
-                        pixels := slice.create([]byte, x_thumbnail * y_thumbnail * 3) or_return
+                        pixels := slice.create([]u8, x_thumbnail * y_thumbnail * 3) or_return
                         for i in 0..<x_thumbnail*y_thumbnail {
                             pixel := palette[old_pixels[i]]
                             pixels[i] = pixel.r
@@ -381,7 +381,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     return img, .Invalid_JFXX_Extension_Code
                 }
             } else {
-                // - 1 for the NUL byte
+                // - 1 for the NUL u8
                 compress.read_slice(ctx, length - len(ident) - 1) or_return
                 continue
             }
@@ -398,7 +398,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                 info = img.metadata.(^image.JPEG_Info)
             }
 
-            ident := dyn_array.create(byte, 0, 16, allocators.temp_allocator) or_return
+            ident := dyn_array.create(u8, 0, 16, allocators.temp_allocator) or_return
             for {
                 b := compress.read_u8_from_memory(ctx) or_return
                 if b == 0x00 {
@@ -408,15 +408,15 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             }
 
             if slice.equal(ident[:], image.Exif_Magic[:]) {
-                // Padding byte according to section 4.7.2.2 in Exif spec 3.0
+                // Padding u8 according to section 4.7.2.2 in Exif spec 3.0
                 compress.read_u8_from_memory(ctx) or_return
 
                 exif: image.Exif
-                peek := compress.peek_data(ctx, [4]byte) or_return
+                peek := compress.peek_data(ctx, [4]u8) or_return
                 if peek[0] == 'M' && peek[1] == 'M' {
                     exif.byte_order = .big_endian
                     if peek[2] != 0 || peek[3] != 42 {
-                        // - 2 for the NUL byte and padding byte
+                        // - 2 for the NUL u8 and padding u8
                         compress.read_slice(ctx, length - len(ident) - 2) or_return
                         continue
                     }
@@ -439,15 +439,15 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     }
                 }
 
-                // - 2 for the NUL byte and padding byte
+                // - 2 for the NUL u8 and padding u8
                 data := compress.read_slice(ctx, length - len(ident) - 2) or_return
-                exif.data = slice.create([]byte, len(data)) or_return
+                exif.data = slice.create([]u8, len(data)) or_return
                 slice.copy(exif.data, data)
 
                 dyn_array.append(&info.exif, exif) or_return
                 img.metadata = info
             } else {
-                // - 1 for the NUL byte
+                // - 1 for the NUL u8
                 compress.read_slice(ctx, length - len(ident) - 1) or_return
                 continue
             }
@@ -974,7 +974,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                         mcu_idx   := mcu_row   * block_width + mcu_col
                         pixel_idx := pixel_row * BLOCK_SIZE  + pixel_col
 
-                        luma := cast(byte)blocks[mcu_idx][.Y][pixel_idx]
+                        luma := cast(u8)blocks[mcu_idx][.Y][pixel_idx]
                         out[out_idx] = {luma, luma, luma}
 
                         out_idx += 1
@@ -994,7 +994,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                         mcu_idx   := mcu_row   * block_width + mcu_col
                         pixel_idx := pixel_row * BLOCK_SIZE  + pixel_col
 
-                        luma := cast(byte)blocks[mcu_idx][.Y][pixel_idx]
+                        luma := cast(u8)blocks[mcu_idx][.Y][pixel_idx]
                         out[out_idx] = {luma, luma, luma, 255}
                         out_idx += 1
                     }
@@ -1014,9 +1014,9 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                         pixel_idx := pixel_row * BLOCK_SIZE  + pixel_col
 
                         out[out_idx] = {
-                            cast(byte)blocks[mcu_idx][.Y][pixel_idx],
-                            cast(byte)blocks[mcu_idx][.Cb][pixel_idx],
-                            cast(byte)blocks[mcu_idx][.Cr][pixel_idx],
+                            cast(u8)blocks[mcu_idx][.Y][pixel_idx],
+                            cast(u8)blocks[mcu_idx][.Cb][pixel_idx],
+                            cast(u8)blocks[mcu_idx][.Cr][pixel_idx],
                         }
                         out_idx += 1
                     }
@@ -1036,9 +1036,9 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                         pixel_idx := pixel_row * BLOCK_SIZE  + pixel_col
 
                         out[out_idx] = {
-                            cast(byte)blocks[mcu_idx][.Y][pixel_idx],
-                            cast(byte)blocks[mcu_idx][.Cb][pixel_idx],
-                            cast(byte)blocks[mcu_idx][.Cr][pixel_idx],
+                            cast(u8)blocks[mcu_idx][.Y][pixel_idx],
+                            cast(u8)blocks[mcu_idx][.Cb][pixel_idx],
+                            cast(u8)blocks[mcu_idx][.Cr][pixel_idx],
                             255, // Alpha
                         }
                         out_idx += 1

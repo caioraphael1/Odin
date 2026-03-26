@@ -23,7 +23,7 @@ tee_reader_to_reader :: proc(t: ^Tee_Reader) -> (r: Reader) {
 
 
 @(private)
-_tee_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error) {
+_tee_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []u8, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error) {
     t := (^Tee_Reader)(stream_data)
     #partial switch mode {
     case .Read:

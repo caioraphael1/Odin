@@ -73,7 +73,7 @@ create_soa_aligned :: proc($T: typeid/#soa[]$E, #any_int length, alignment: uint
 
     internal.assert(allocator.procedure != nil)
 
-    new_bytes: []byte
+    new_bytes: []u8
     new_bytes, err = allocator.procedure(
         allocator.data, .Alloc, total_size, max_align,
         nil, 0, loc,

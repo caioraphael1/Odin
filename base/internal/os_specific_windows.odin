@@ -18,7 +18,7 @@ foreign kernel32 {
 }
 
 
-_stderr_write :: proc(data: []byte) -> (n: int, err: _OS_Errno) #no_bounds_check {
+_stderr_write :: proc(data: []u8) -> (n: int, err: _OS_Errno) #no_bounds_check {
     if len(data) == 0 {
         return 0, 0
     }

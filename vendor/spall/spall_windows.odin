@@ -7,7 +7,7 @@ import win32 "core:sys/windows"
 MAX_RW :: 1<<30
 
 @(no_instrumentation)
-_write :: proc(fd: uintptr, data: []byte) #no_bounds_check /* bounds check would segfault instrumentation */ {
+_write :: proc(fd: uintptr, data: []u8) #no_bounds_check /* bounds check would segfault instrumentation */ {
     single_write_length: win32.DWORD
     total_write: i64
     length := i64(len(data))

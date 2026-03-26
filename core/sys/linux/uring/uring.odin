@@ -239,11 +239,11 @@ submission_queue_make :: proc(fd: linux.Fd, params: ^linux.IO_Uring_Params) -> (
 
     // PERF: .POPULATE commits all pages right away, is that desired?
 
-    cqe_map := cast([^]byte)(linux.mmap(0, uint(size), {.READ, .WRITE}, {.SHARED, .POPULATE}, fd, linux.IORING_OFF_SQ_RING) or_return)
+    cqe_map := cast([^]u8)(linux.mmap(0, uint(size), {.READ, .WRITE}, {.SHARED, .POPULATE}, fd, linux.IORING_OFF_SQ_RING) or_return)
     defer if err != nil { linux.munmap(cqe_map, uint(size)) }
 
     size_sqes := params.sq_entries * size_of(linux.IO_Uring_SQE)
-    sqe_map   := cast([^]byte)(linux.mmap(0, uint(size_sqes), {.READ, .WRITE}, {.SHARED, .POPULATE}, fd, linux.IORING_OFF_SQES) or_return)
+    sqe_map   := cast([^]u8)(linux.mmap(0, uint(size_sqes), {.READ, .WRITE}, {.SHARED, .POPULATE}, fd, linux.IORING_OFF_SQES) or_return)
 
     array := cast([^]u32)cqe_map[params.sq_off.array:]
     sqes  := cast([^]linux.IO_Uring_SQE)sqe_map

@@ -18,7 +18,7 @@ load_from_file :: proc(filename: string, allocator : mem.Allocator) -> (img: ^Im
 save_to_file :: proc(filename: string, img: ^Image, custom_info: Info = {}, allocator : mem.Allocator) -> (err: Error) {
 
 
-    data: []byte; defer _ = slice.delete(data)
+    data: []u8; defer _ = slice.delete(data)
     data = save_to_buffer(img, custom_info) or_return
 
     if ok := os.write_entire_file(filename, data); !ok {

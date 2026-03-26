@@ -23,7 +23,7 @@ Return true if `c` is a character used to separate paths into directory and
 file hierarchies on the current system.
 */
 
-is_path_separator :: proc(c: byte) -> bool {
+is_path_separator :: proc(c: u8) -> bool {
     return _is_path_separator(c)
 }
 
@@ -51,8 +51,8 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allo
     buf := slice.create([]u8, length, allocator) or_return
 
     if byte_oriented {
-        // Neither replacement rune or any other rune in the path takes up more than 1 byte
-        str := transmute([]byte)path
+        // Neither replacement rune or any other rune in the path takes up more than 1 u8
+        str := transmute([]u8)path
         #no_bounds_check for b, i in str {
             buf[i] = u8(new_sep) if b == '/' || b == '\\' else b
         }
@@ -174,7 +174,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
 
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    // The extra byte is to simplify appending path elements by letting the
+    // The extra u8 is to simplify appending path elements by letting the
     // loop to end each with a separator. We'll trim the last one when we're done.
     buffer := slice.create([]u8, len(path) + 1, allocators.temp_allocator) or_return
 
@@ -202,7 +202,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
                 } else {
                     // Roll back to the last separator or the head of the buffer.
                     back_to := head
-                    // `buffer_i` will be equal to 1 + the last set byte, so
+                    // `buffer_i` will be equal to 1 + the last set u8, so
                     // skipping two bytes avoids the final separator we just
                     // added.
                     for k := buffer_i-2; k >= head; k -= 1 {
@@ -224,7 +224,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
     }
 
     // Trim the final separator.
-    // NOTE: No need to check if the last byte is a separator, as we always add it.
+    // NOTE: No need to check if the last u8 is a separator, as we always add it.
     if buffer_i > start {
         buffer_i -= 1
     }
@@ -733,7 +733,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
     // NOTE(Jeroen): For `glob`, we need this version of `split`, which leaves the trailing `/` on `dir`.
     dir, file := _split(pattern)
 
-    temp_buf: [8]byte
+    temp_buf: [8]u8
     vol_len:  uint
     vol_len, dir = clean_glob_path(dir, temp_buf[:])
 
@@ -964,7 +964,7 @@ has_meta :: proc(path: string) -> bool {
 }
 
 @(private)
-clean_glob_path :: proc(path: string, temp_buf: []byte) -> (uint, string) {
+clean_glob_path :: proc(path: string, temp_buf: []u8) -> (uint, string) {
     when ODIN_OS == .Windows {
         vol_len := _volume_name_len(path)
         switch {

@@ -299,8 +299,8 @@ attribute_type_t :: enum c.int {
 	COMPRESSION,      // ``u8`` declaring compression present.
 	DOUBLE,           // Double precision floating point number.
 	ENVMAP,           // ``u8`` declaring environment map type.
-	FLOAT,            // Normal (4 byte) precision floating point number.
-	FLOAT_VECTOR,     // List of normal (4 byte) precision floating point numbers.
+	FLOAT,            // Normal (4 u8) precision floating point number.
+	FLOAT_VECTOR,     // List of normal (4 u8) precision floating point numbers.
 	INT,              // 32-bit signed integer value.
 	KEYCODE,          // Struct recording keycode @see attr_keycode_t.
 	LINEORDER,        // ``u8`` declaring scanline ordering.

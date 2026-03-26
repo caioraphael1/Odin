@@ -47,7 +47,7 @@ init_long_path_support :: proc() {
     }
 }
 
-_is_path_separator :: proc(c: byte) -> bool {
+_is_path_separator :: proc(c: u8) -> bool {
     return c == '\\' || c == '/'
 }
 
@@ -231,7 +231,7 @@ _fix_long_path_internal :: proc(path: string) -> string {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     PREFIX :: `\\?`
-    path_buf, _ := slice.create([]byte, len(PREFIX)+len(path)+1, allocators.temp_allocator)
+    path_buf, _ := slice.create([]u8, len(PREFIX)+len(path)+1, allocators.temp_allocator)
     slice.copy_from_string(path_buf, PREFIX)
     n := len(path)
     r: uint = 0 

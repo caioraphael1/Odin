@@ -207,7 +207,7 @@ is_unsigned :: proc(info: ^Type_Info) -> bool {
     return false
 }
 
-// Returns true when it is a 1-byte wide integer type, false otherwise.
+// Returns true when it is a 1-u8 wide integer type, false otherwise.
 
 is_byte :: proc(info: ^Type_Info) -> bool {
     if info == nil { return false }

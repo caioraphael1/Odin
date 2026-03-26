@@ -413,16 +413,16 @@ set_focus :: proc(ctx: ^Context, id: Id) {
 }
 
 
-get_id_string  :: #force_inline proc(ctx: ^Context, str: string)             -> Id { return get_id_bytes(ctx, transmute([]byte) str) }
+get_id_string  :: #force_inline proc(ctx: ^Context, str: string)             -> Id { return get_id_bytes(ctx, transmute([]u8) str) }
 get_id_rawptr  :: #force_inline proc(ctx: ^Context, data: rawptr, size: int) -> Id { return get_id_bytes(ctx, ([^]u8)(data)[:size])  }
 get_id_uintptr :: #force_inline proc(ctx: ^Context, ptr: uintptr) -> Id { 
     ptr := ptr
     return get_id_bytes(ctx, ([^]u8)(&ptr)[:size_of(ptr)])  
 }
-get_id_bytes   :: proc(ctx: ^Context, bytes: []byte) -> Id {
+get_id_bytes   :: proc(ctx: ^Context, bytes: []u8) -> Id {
     /* 32bit fnv-1a hash */
     HASH_INITIAL :: 2166136261
-    hash :: proc(hash: ^Id, data: []byte) {
+    hash :: proc(hash: ^Id, data: []u8) {
         size := len(data)
         cptr := ([^]u8)(raw_data(data))
         for ; size > 0; size -= 1 {
@@ -442,7 +442,7 @@ get_id_bytes   :: proc(ctx: ^Context, bytes: []byte) -> Id {
 push_id_string  :: #force_inline proc(ctx: ^Context, str: string)              { push(&ctx.id_stack, get_id(ctx, str))        }
 push_id_rawptr  :: #force_inline proc(ctx: ^Context, data: rawptr, size: int)  { push(&ctx.id_stack, get_id(ctx, data, size)) }
 push_id_uintptr :: #force_inline proc(ctx: ^Context, ptr: uintptr)             { push(&ctx.id_stack, get_id(ctx, ptr))        }
-push_id_bytes   :: #force_inline proc(ctx: ^Context, bytes: []byte)            { push(&ctx.id_stack, get_id(ctx, bytes))      }
+push_id_bytes   :: #force_inline proc(ctx: ^Context, bytes: []u8)            { push(&ctx.id_stack, get_id(ctx, bytes))      }
 
 pop_id :: proc(ctx: ^Context) {
     dyn_array.pop(&ctx.id_stack)
@@ -689,7 +689,7 @@ draw_text :: proc(ctx: ^Context, font: Font, str: string, pos: Vec2, color: Colo
     text_cmd.color = color
     text_cmd.font = font
     /* copy string */
-    dst_str := ([^]byte)(text_cmd)[size_of(Command_Text):][:len(str)]
+    dst_str := ([^]u8)(text_cmd)[size_of(Command_Text):][:len(str)]
     slice.copy(dst_str, str)
     text_cmd.str = string(dst_str)
     /* reset clipping if it was set */
@@ -1197,7 +1197,7 @@ slider :: proc(ctx: ^Context, value: ^Real, low, high: Real, step: Real = 0.0, f
     thumb := Rect{base.x + x, base.y, w, base.h}
     draw_control_frame(ctx, id, thumb, .BUTTON, opt)
     /* draw text  */
-    text_buf: [4096]byte
+    text_buf: [4096]u8
     draw_control_text(ctx, fmt.bprintf(text_buf[:], fmt_string, v), base, .TEXT, opt)
 
     return
@@ -1228,7 +1228,7 @@ number :: proc(ctx: ^Context, value: ^Real, step: Real, fmt_string: string = SLI
     /* draw base */
     draw_control_frame(ctx, id, base, .BASE, opt)
     /* draw text  */
-    text_buf: [4096]byte
+    text_buf: [4096]u8
     draw_control_text(ctx, fmt.bprintf(text_buf[:], fmt_string, value^), base, .TEXT, opt)
 
     return

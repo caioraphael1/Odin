@@ -9,7 +9,7 @@ foreign libc {
     _errnop :: proc() -> ^i32 ---
 }
 
-_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []u8) -> (int, _OS_Errno) {
     ret := _unix_write(2, raw_data(data), len(data))
     if ret < len(data) {
         err := _errnop()

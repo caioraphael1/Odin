@@ -230,11 +230,11 @@ syscall_fsync :: #force_inline proc(fildes: c.int) -> bool {
     return !(cast(bool)intrinsics.syscall(unix_offset_syscall(.fsync), uintptr(fildes)))
 }
 
-syscall_write :: #force_inline proc(fildes: c.int, buf: ^byte, nbyte: u64) -> bool {
+syscall_write :: #force_inline proc(fildes: c.int, buf: ^u8, nbyte: u64) -> bool {
     return !(cast(bool)intrinsics.syscall(unix_offset_syscall(.write),  uintptr(fildes), uintptr(buf), uintptr(nbyte)))
 }
  
-syscall_read :: #force_inline proc(fildes: c.int, buf: ^byte, nbyte: u64) -> i64 {
+syscall_read :: #force_inline proc(fildes: c.int, buf: ^u8, nbyte: u64) -> i64 {
     return cast(i64)intrinsics.syscall(unix_offset_syscall(.read), uintptr(fildes), uintptr(buf), uintptr(nbyte))
 }
 

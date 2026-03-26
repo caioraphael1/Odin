@@ -1,6 +1,6 @@
 
 /*
-The size, in bytes, of a single byte.
+The size, in bytes, of a single u8.
 
 This constant is equal to the value of `1`.
 */

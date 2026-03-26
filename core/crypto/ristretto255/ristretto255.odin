@@ -10,9 +10,9 @@ import "core:crypto"
 import grp "core:crypto/_edwards25519"
 import field "core:crypto/_fiat/field_curve25519"
 
-// ELEMENT_SIZE is the size of a byte-encoded ristretto255 group element.
+// ELEMENT_SIZE is the size of a u8-encoded ristretto255 group element.
 ELEMENT_SIZE :: 32
-// WIDE_ELEMENT_SIZE is the side of a wide byte-encoded ristretto255
+// WIDE_ELEMENT_SIZE is the side of a wide u8-encoded ristretto255
 // group element.
 WIDE_ELEMENT_SIZE :: 64
 
@@ -97,7 +97,7 @@ ge_generator :: proc(ge: ^Group_Element) {
 // ge_set_bytes sets ge to the result of decoding b as a ristretto255
 // group element, and returns true on success.
 
-ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
+ge_set_bytes :: proc(ge: ^Group_Element, b: []u8) -> bool {
 	// 1.  Interpret the string as an unsigned integer s in little-endian
 	//     representation.  If the length of the string is not 32 bytes or
 	//     if the resulting value is >= p, decoding fails.
@@ -112,7 +112,7 @@ ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
 		return false
 	}
 
-	b_ := (^[32]byte)(raw_data(b))
+	b_ := (^[32]u8)(raw_data(b))
 
 	s: field.Tight_Field_Element = ---
 	defer field.fe_clear(&s)
@@ -197,8 +197,8 @@ ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
 }
 
 // ge_set_wide_bytes sets ge to the result of deriving a ristretto255
-// group element, from a wide (512-bit) byte string.
-ge_set_wide_bytes :: proc(ge: ^Group_Element, b: []byte) {
+// group element, from a wide (512-bit) u8 string.
+ge_set_wide_bytes :: proc(ge: ^Group_Element, b: []u8) {
 	internal.ensure(len(b) == WIDE_ELEMENT_SIZE, "crypto/ristretto255: invalid wide input size")
 
 	// The element derivation function on an input string b proceeds as
@@ -219,7 +219,7 @@ ge_set_wide_bytes :: proc(ge: ^Group_Element, b: []byte) {
 }
 
 // ge_bytes sets dst to the canonical encoding of ge.
-ge_bytes :: proc(ge: ^Group_Element, dst: []byte) {
+ge_bytes :: proc(ge: ^Group_Element, dst: []u8) {
 	_ge_ensure_initialized([]^Group_Element{ge})
 	internal.ensure(len(dst) == ELEMENT_SIZE, "crypto/ristretto255: invalid destination size")
 
@@ -290,10 +290,10 @@ ge_bytes :: proc(ge: ^Group_Element, dst: []byte) {
 	field.fe_carry_mul(&tmp, field.fe_relax_cast(&tmp), &tmp1)
 	field.fe_carry_abs(&tmp, &tmp)
 
-	// 2.  Return the 32-byte little-endian encoding of s.  More
+	// 2.  Return the 32-u8 little-endian encoding of s.  More
 	// specifically, this is the encoding of the canonical
 	// representation of s as an integer between 0 and p-1, inclusive.
-	dst_ := (^[32]byte)(raw_data(dst))
+	dst_ := (^[32]u8)(raw_data(dst))
 	field.fe_to_bytes(dst_, &tmp)
 
 	field.fe_clear_vec([]^field.Tight_Field_Element{&u1, &u2, &tmp, &z_inv, &ix0, &iy0, &x, &y})
@@ -412,12 +412,12 @@ ge_is_identity :: proc(ge: ^Group_Element) -> int {
 }
 
 @(private)
-ge_map :: proc(ge: ^Group_Element, b: []byte) {
-	b_ := (^[32]byte)(raw_data(b))
+ge_map :: proc(ge: ^Group_Element, b: []u8) {
+	b_ := (^[32]u8)(raw_data(b))
 
-	// The MAP function is defined on 32-byte strings as:
+	// The MAP function is defined on 32-u8 strings as:
 	//
-	// 1.  Mask the most significant bit in the final byte of the string,
+	// 1.  Mask the most significant bit in the final u8 of the string,
 	// and interpret the string as an unsigned integer r in little-
 	// endian representation.  Reduce r modulo p to obtain a field
 	// element t.

@@ -42,7 +42,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/dprintf.html ]]
 	*/
-	sprintf :: proc(s: [^]byte, format: cstring, #c_vararg args: ..any) -> c.int ---
+	sprintf :: proc(s: [^]u8, format: cstring, #c_vararg args: ..any) -> c.int ---
 
 	/*
 	Equivalent to getc but unaffected by locks.
@@ -83,7 +83,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/gets.html ]]
 	*/
-	gets :: proc(s: [^]byte) -> cstring ---
+	gets :: proc(s: [^]u8) -> cstring ---
 
 	/*
 	Create a name for a temporary file.
@@ -107,7 +107,7 @@ foreign lib {
 			/* Handle error */
 		}
 
-		path: [1024]byte
+		path: [1024]u8
 		for posix.fgets(raw_data(path[:]), len(path), fp) != nil {
 			posix.printf("%s", &path)
 		}

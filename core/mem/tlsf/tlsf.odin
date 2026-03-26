@@ -11,7 +11,7 @@
 import "base:intrinsics"
 import "base:internal"
 
-Error :: enum byte {
+Error :: enum u8 {
     None                      = 0,
     Invalid_Backing_Allocator = 1,
     Invalid_Alignment         = 2,
@@ -65,7 +65,7 @@ estimate_pool_from_typeid :: proc(count: int, type: typeid) -> (pool_size: int) 
 }
 
 
-init_from_buffer :: proc(control: ^Allocator, buf: []byte) -> Error {
+init_from_buffer :: proc(control: ^Allocator, buf: []u8) -> Error {
     internal.assert(control != nil)
     if uintptr(raw_data(buf)) % ALIGN_SIZE != 0 {
         return .Invalid_Alignment
@@ -96,7 +96,7 @@ init_from_allocator :: proc(control: ^Allocator, backing: mem.Allocator, initial
         return .Backing_Buffer_Too_Large
     }
 
-    buf, backing_err := internal.slice_create_aligned([]byte, pool_bytes, ALIGN_SIZE, backing)
+    buf, backing_err := internal.slice_create_aligned([]u8, pool_bytes, ALIGN_SIZE, backing)
     if backing_err != nil {
         return .Backing_Allocator_Error
     }
@@ -134,7 +134,7 @@ destroy :: proc(control: ^Allocator) {
 
 allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                        size, alignment: int,
-                       old_memory: rawptr, old_size: int, loc := #caller_location) -> ([]byte, mem.Allocator_Error)  {
+                       old_memory: rawptr, old_size: int, loc := #caller_location) -> ([]u8, mem.Allocator_Error)  {
 
     control := (^Allocator)(allocator_data)
     if control == nil {

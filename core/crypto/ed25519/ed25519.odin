@@ -12,11 +12,11 @@ import "core:crypto"
 import grp "core:crypto/_edwards25519"
 import "core:crypto/sha2"
 
-// PRIVATE_KEY_SIZE is the byte-encoded private key size.
+// PRIVATE_KEY_SIZE is the u8-encoded private key size.
 PRIVATE_KEY_SIZE :: 32
-// PUBLIC_KEY_SIZE is the byte-encoded public key size.
+// PUBLIC_KEY_SIZE is the u8-encoded public key size.
 PUBLIC_KEY_SIZE :: 32
-// SIGNATURE_SIZE is the byte-encoded signature size.
+// SIGNATURE_SIZE is the u8-encoded signature size.
 SIGNATURE_SIZE :: 64
 
 @(private)
@@ -30,9 +30,9 @@ Private_Key :: struct {
 	// values are allowed to be altered.
 	//
 	// See: https://github.com/MystenLabs/ed25519-unsafe-libs
-	_b:              [PRIVATE_KEY_SIZE]byte,
+	_b:              [PRIVATE_KEY_SIZE]u8,
 	_s:              grp.Scalar,
-	_hdigest2:       [HDIGEST2_SIZE]byte,
+	_hdigest2:       [HDIGEST2_SIZE]u8,
 	_pub_key:        Public_Key,
 	_is_initialized: bool,
 }
@@ -41,7 +41,7 @@ Private_Key :: struct {
 Public_Key :: struct {
 	// WARNING: All of the members are to be treated as internal (ie:
 	// the Public_Key structure is intended to be opaque).
-	_b:              [PUBLIC_KEY_SIZE]byte,
+	_b:              [PUBLIC_KEY_SIZE]u8,
 	_neg_A:          grp.Group_Element,
 	_is_valid:       bool,
 	_is_initialized: bool,
@@ -57,7 +57,7 @@ private_key_generate :: proc(priv_key: ^Private_Key) -> bool {
 		return false
 	}
 
-	b: [PRIVATE_KEY_SIZE]byte
+	b: [PRIVATE_KEY_SIZE]u8
 	defer crypto.zero_explicit(&b, size_of(b))
 
 	crypto.rand_bytes(b[:])
@@ -66,16 +66,16 @@ private_key_generate :: proc(priv_key: ^Private_Key) -> bool {
 	return true
 }
 
-// private_key_set_bytes decodes a byte-encoded private key, and returns
+// private_key_set_bytes decodes a u8-encoded private key, and returns
 // true iff the operation was successful.
-private_key_set_bytes :: proc(priv_key: ^Private_Key, b: []byte) -> bool {
+private_key_set_bytes :: proc(priv_key: ^Private_Key, b: []u8) -> bool {
 	if len(b) != PRIVATE_KEY_SIZE {
 		return false
 	}
 
 	// Derive the private key.
 	ctx: sha2.Context_512 = ---
-	h_bytes: [sha2.DIGEST_SIZE_512]byte = ---
+	h_bytes: [sha2.DIGEST_SIZE_512]u8 = ---
 	sha2.init_512(&ctx)
 	sha2.update(&ctx, b)
 	sha2.final(&ctx, h_bytes[:])
@@ -97,8 +97,8 @@ private_key_set_bytes :: proc(priv_key: ^Private_Key, b: []byte) -> bool {
 	return true
 }
 
-// private_key_bytes sets dst to byte-encoding of priv_key.
-private_key_bytes :: proc(priv_key: ^Private_Key, dst: []byte) {
+// private_key_bytes sets dst to u8-encoding of priv_key.
+private_key_bytes :: proc(priv_key: ^Private_Key, dst: []u8) {
 	internal.ensure(priv_key._is_initialized, "crypto/ed25519: uninitialized private key")
 	internal.ensure(len(dst) == PRIVATE_KEY_SIZE, "crypto/ed25519: invalid destination size")
 
@@ -111,7 +111,7 @@ private_key_clear :: proc(priv_key: ^Private_Key) {
 }
 
 // sign writes the signature by priv_key over msg to sig.
-sign :: proc(priv_key: ^Private_Key, msg, sig: []byte) {
+sign :: proc(priv_key: ^Private_Key, msg, sig: []u8) {
 	internal.ensure(priv_key._is_initialized, "crypto/ed25519: uninitialized private key")
 	internal.ensure(len(sig) == SIGNATURE_SIZE, "crypto/ed25519: invalid destination size")
 
@@ -124,7 +124,7 @@ sign :: proc(priv_key: ^Private_Key, msg, sig: []byte) {
 	// 2.1 For Ed25519, r = SHA-512(hdigest2 || M); Interpret r as a
 	// 64-octet little-endian integer.
 	ctx: sha2.Context_512 = ---
-	digest_bytes: [sha2.DIGEST_SIZE_512]byte = ---
+	digest_bytes: [sha2.DIGEST_SIZE_512]u8 = ---
 	sha2.init_512(&ctx)
 	sha2.update(&ctx, priv_key._hdigest2[:])
 	sha2.update(&ctx, msg)
@@ -166,9 +166,9 @@ sign :: proc(priv_key: ^Private_Key, msg, sig: []byte) {
 	grp.sc_clear(&r)
 }
 
-// public_key_set_bytes decodes a byte-encoded public key, and returns
+// public_key_set_bytes decodes a u8-encoded public key, and returns
 // true iff the operation was successful.
-public_key_set_bytes :: proc(pub_key: ^Public_Key, b: []byte) -> bool {
+public_key_set_bytes :: proc(pub_key: ^Public_Key, b: []u8) -> bool {
 	if len(b) != PUBLIC_KEY_SIZE {
 		return false
 	}
@@ -197,8 +197,8 @@ public_key_set_priv :: proc(pub_key: ^Public_Key, priv_key: ^Private_Key) {
 	pub_key._is_initialized = src._is_initialized
 }
 
-// public_key_bytes sets dst to byte-encoding of pub_key.
-public_key_bytes :: proc(pub_key: ^Public_Key, dst: []byte) {
+// public_key_bytes sets dst to u8-encoding of pub_key.
+public_key_bytes :: proc(pub_key: ^Public_Key, dst: []u8) {
 	internal.ensure(pub_key._is_initialized, "crypto/ed25519: uninitialized public key")
 	internal.ensure(len(dst) == PUBLIC_KEY_SIZE, "crypto/ed25519: invalid destination size")
 
@@ -218,7 +218,7 @@ public_key_equal :: proc(pub_key, other: ^Public_Key) -> bool {
 // implementation strictly compatible with FIPS 186-5, at the expense of
 // SBS-security.  Doing so is NOT recommended, and the disallowed
 // public keys all have a known discrete-log.
-verify :: proc(pub_key: ^Public_Key, msg, sig: []byte, allow_small_order_A := false) -> bool {
+verify :: proc(pub_key: ^Public_Key, msg, sig: []u8, allow_small_order_A := false) -> bool {
 	switch {
 	case !pub_key._is_initialized:
 		return false
@@ -293,7 +293,7 @@ verify :: proc(pub_key: ^Public_Key, msg, sig: []byte, allow_small_order_A := fa
 	// 4. Compute the hash SHA512(R||A||M) and reduce it mod L to get a
 	// scalar h.
 	ctx: sha2.Context_512 = ---
-	h_bytes: [sha2.DIGEST_SIZE_512]byte = ---
+	h_bytes: [sha2.DIGEST_SIZE_512]u8 = ---
 	sha2.init_512(&ctx)
 	sha2.update(&ctx, r_bytes)
 	sha2.update(&ctx, pub_key._b[:])

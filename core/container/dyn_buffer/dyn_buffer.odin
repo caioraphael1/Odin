@@ -15,7 +15,7 @@ MIN_READ :: 512
 // A Dyn_Buffer is a variable-sized buffer of bytes with a io.Stream interface
 // The zero value for Dyn_Buffer is an empty buffer ready to use.
 Dyn_Buffer :: struct {
-    buf:       dyn_array.Dyn_Array(byte),
+    buf:       dyn_array.Dyn_Array(u8),
     off:       uint,
     last_read: Read_Op,
 }
@@ -31,7 +31,7 @@ Read_Op :: enum i8 {
 }
 
 
-buffer_init :: proc(b: ^Dyn_Buffer, buf: []byte, loc := #caller_location) {
+buffer_init :: proc(b: ^Dyn_Buffer, buf: []u8, loc := #caller_location) {
     _ = dyn_array.resize(&b.buf, len(buf), loc=loc)
     slice.copy(b.buf[:], buf)
 }
@@ -43,7 +43,7 @@ buffer_init_string :: proc(b: ^Dyn_Buffer, s: string, loc := #caller_location) {
 
 buffer_init_allocator :: proc(b: ^Dyn_Buffer, len, cap: uint, allocator: mem.Allocator, loc := #caller_location) {
     if b.buf == nil {
-        b.buf, _ = dyn_array.create_len_cap(byte, len, cap, allocator, loc)
+        b.buf, _ = dyn_array.create_len_cap(u8, len, cap, allocator, loc)
         return
     }
 
@@ -57,7 +57,7 @@ buffer_destroy :: proc(b: ^Dyn_Buffer) {
     buffer_reset(b)
 }
 
-buffer_to_bytes :: proc(b: ^Dyn_Buffer) -> []byte {
+buffer_to_bytes :: proc(b: ^Dyn_Buffer) -> []u8 {
     return b.buf[b.off:]
 }
 
@@ -147,7 +147,7 @@ buffer_grow :: proc(b: ^Dyn_Buffer, n: uint, loc := #caller_location) {
     _ = dyn_array.resize(&b.buf, m, loc=loc)
 }
 
-buffer_write_at :: proc(b: ^Dyn_Buffer, p: []byte, offset: uint, loc := #caller_location) -> (n: uint, err: io.Error) {
+buffer_write_at :: proc(b: ^Dyn_Buffer, p: []u8, offset: uint, loc := #caller_location) -> (n: uint, err: io.Error) {
     if len(p) == 0 {
         return 0, nil
     }
@@ -167,7 +167,7 @@ buffer_write_at :: proc(b: ^Dyn_Buffer, p: []byte, offset: uint, loc := #caller_
 }
 
 
-buffer_write :: proc(b: ^Dyn_Buffer, p: []byte, loc := #caller_location) -> (n: uint, err: io.Error) {
+buffer_write :: proc(b: ^Dyn_Buffer, p: []u8, loc := #caller_location) -> (n: uint, err: io.Error) {
     b.last_read = .Invalid
     m, ok := _buffer_try_grow(b, len(p), loc=loc)
     if !ok {
@@ -177,7 +177,7 @@ buffer_write :: proc(b: ^Dyn_Buffer, p: []byte, loc := #caller_location) -> (n: 
 }
 
 buffer_write_ptr :: proc(b: ^Dyn_Buffer, ptr: rawptr, size: uint, loc := #caller_location) -> (n: uint, err: io.Error) {
-    return buffer_write(b, ([^]byte)(ptr)[:size], loc=loc)
+    return buffer_write(b, ([^]u8)(ptr)[:size], loc=loc)
 }
 
 buffer_write_string :: proc(b: ^Dyn_Buffer, s: string, loc := #caller_location) -> (n: uint, err: io.Error) {
@@ -191,10 +191,10 @@ buffer_write_string :: proc(b: ^Dyn_Buffer, s: string, loc := #caller_location) 
 
 buffer_write_slice :: proc(b: ^Dyn_Buffer, slice: $S/[]$T, loc := #caller_location) -> (n: uint, err: io.Error) {
     size := len(slice)*size_of(T)
-    return buffer_write(b, ([^]byte)(raw_data(slice))[:size], loc=loc)
+    return buffer_write(b, ([^]u8)(raw_data(slice))[:size], loc=loc)
 }
 
-buffer_write_byte :: proc(b: ^Dyn_Buffer, c: byte, loc := #caller_location) -> io.Error {
+buffer_write_byte :: proc(b: ^Dyn_Buffer, c: u8, loc := #caller_location) -> io.Error {
     b.last_read = .Invalid
     m, ok := _buffer_try_grow(b, 1, loc=loc)
     if !ok {
@@ -206,7 +206,7 @@ buffer_write_byte :: proc(b: ^Dyn_Buffer, c: byte, loc := #caller_location) -> i
 
 buffer_write_rune :: proc(b: ^Dyn_Buffer, r: rune, loc := #caller_location) -> (n: uint, err: io.Error) {
     if r < utf8.RUNE_SELF {
-        buffer_write_byte(b, byte(r), loc=loc) or_return
+        buffer_write_byte(b, u8(r), loc=loc) or_return
         return 1, nil
     }
     b.last_read = .Invalid
@@ -214,14 +214,14 @@ buffer_write_rune :: proc(b: ^Dyn_Buffer, r: rune, loc := #caller_location) -> (
     if !ok {
         m = _buffer_grow(b, utf8.UTF_MAX, loc=loc)
     }
-    res: [4]byte
+    res: [4]u8
     res, n = utf8.bytes_from_rune(r)
     slice.copy(b.buf[m:][:utf8.UTF_MAX], res[:n])
     _ = dyn_array.resize(&b.buf, m+n)
     return
 }
 
-buffer_next :: proc(b: ^Dyn_Buffer, n: uint) -> []byte {
+buffer_next :: proc(b: ^Dyn_Buffer, n: uint) -> []u8 {
     n := n
     b.last_read = .Invalid
     m := buffer_length(b)
@@ -236,7 +236,7 @@ buffer_next :: proc(b: ^Dyn_Buffer, n: uint) -> []byte {
     return data
 }
 
-buffer_read :: proc(b: ^Dyn_Buffer, p: []byte) -> (n: uint, err: io.Error) {
+buffer_read :: proc(b: ^Dyn_Buffer, p: []u8) -> (n: uint, err: io.Error) {
     b.last_read = .Invalid
     if buffer_is_empty(b) {
         buffer_reset(b)
@@ -254,10 +254,10 @@ buffer_read :: proc(b: ^Dyn_Buffer, p: []byte) -> (n: uint, err: io.Error) {
 }
 
 buffer_read_ptr :: proc(b: ^Dyn_Buffer, ptr: rawptr, size: uint) -> (n: uint, err: io.Error) {
-    return buffer_read(b, ([^]byte)(ptr)[:size])
+    return buffer_read(b, ([^]u8)(ptr)[:size])
 }
 
-buffer_read_at :: proc(b: ^Dyn_Buffer, p: []byte, offset: uint) -> (n: uint, err: io.Error) {
+buffer_read_at :: proc(b: ^Dyn_Buffer, p: []u8, offset: uint) -> (n: uint, err: io.Error) {
     if len(p) == 0 {
         return 0, nil
     }
@@ -275,7 +275,7 @@ buffer_read_at :: proc(b: ^Dyn_Buffer, p: []byte, offset: uint) -> (n: uint, err
 }
 
 
-buffer_read_byte :: proc(b: ^Dyn_Buffer) -> (byte, io.Error) {
+buffer_read_byte :: proc(b: ^Dyn_Buffer) -> (u8, io.Error) {
     if buffer_is_empty(b) {
         buffer_reset(b)
         return 0, .EOF
@@ -347,7 +347,7 @@ buffer_seek :: proc(b: ^Dyn_Buffer, offset: i64, whence: io.Seek_From) -> (i64, 
     return abs, nil
 }
 
-buffer_read_bytes :: proc(b: ^Dyn_Buffer, delim: byte) -> (line: []byte, err: io.Error) {
+buffer_read_bytes :: proc(b: ^Dyn_Buffer, delim: u8) -> (line: []u8, err: io.Error) {
     i, found := index_byte(b.buf[b.off:], delim)
     end := b.off + i + 1
     if !found {
@@ -360,15 +360,15 @@ buffer_read_bytes :: proc(b: ^Dyn_Buffer, delim: byte) -> (line: []byte, err: io
     return
 }
 
-buffer_read_string :: proc(b: ^Dyn_Buffer, delim: byte) -> (line: string, err: io.Error) {
-    slice: []byte
+buffer_read_string :: proc(b: ^Dyn_Buffer, delim: u8) -> (line: string, err: io.Error) {
+    slice: []u8
     slice, err = buffer_read_bytes(b, delim)
     return string(slice), err
 }
 
 buffer_read_slice :: proc(b: ^Dyn_Buffer, slice: $S/[]$T) -> (n: int, err: io.Error) {
     size := len(slice)*size_of(T)
-    return buffer_read(b, ([^]byte)(raw_data(slice))[:size])
+    return buffer_read(b, ([^]u8)(raw_data(slice))[:size])
 }
 
 buffer_write_to :: proc(b: ^Dyn_Buffer, w: io.Writer) -> (n: i64, err: io.Error) {
@@ -426,7 +426,7 @@ buffer_to_stream :: proc(b: ^Dyn_Buffer) -> (s: io.Stream) {
 
 
 @(private)
-_buffer_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_buffer_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     b := (^Dyn_Buffer)(stream_data)
     n_uint: uint
     #partial switch mode {
@@ -472,7 +472,7 @@ _buffer_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offse
 
 // Scrubs invalid utf-8 characters and replaces them with the replacement string
 // Adjacent invalid bytes are only replaced once
-scrub :: proc(s: []byte, replacement: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+scrub :: proc(s: []u8, replacement: []u8, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     str := s
     b: Dyn_Buffer
     buffer_init_allocator(&b, 0, len(s), allocator, loc)
@@ -506,7 +506,7 @@ scrub :: proc(s: []byte, replacement: []byte, allocator: mem.Allocator, loc := #
 
 
 @(private)
-write_pad_string :: proc(b: ^Dyn_Buffer, pad: []byte, pad_len, remains: uint, loc := #caller_location) {
+write_pad_string :: proc(b: ^Dyn_Buffer, pad: []u8, pad_len, remains: uint, loc := #caller_location) {
     repeats := remains / pad_len
 
     for i := 0; i < repeats; i += 1 {
@@ -523,7 +523,7 @@ write_pad_string :: proc(b: ^Dyn_Buffer, pad: []byte, pad_len, remains: uint, lo
     }
 }
 
-expand_tabs :: proc(s: []byte, tab_size: uint, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+expand_tabs :: proc(s: []u8, tab_size: uint, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     if tab_size <= 0 {
         internal.panic("tab size must be positive")
     }
@@ -569,8 +569,8 @@ expand_tabs :: proc(s: []byte, tab_size: uint, allocator: mem.Allocator, loc := 
 
 center_justify :: centre_justify // NOTE(bill): Because Americans exist
 
-// centre_justify returns a byte slice with a pad byte slice at boths sides if the str's rune length is smaller than length
-centre_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+// centre_justify returns a u8 slice with a pad u8 slice at boths sides if the str's rune length is smaller than length
+centre_justify :: proc(str: []u8, length: uint, pad: []u8, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     n := rune_count(str)
     if n >= length || pad == nil {
         return clone(str, allocator, loc)
@@ -589,8 +589,8 @@ centre_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Al
     return buffer_to_bytes(&b)
 }
 
-// left_justify returns a byte slice with a pad byte slice at left side if the str's rune length is smaller than length
-left_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+// left_justify returns a u8 slice with a pad u8 slice at left side if the str's rune length is smaller than length
+left_justify :: proc(str: []u8, length: uint, pad: []u8, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     n := rune_count(str)
     if n >= length || pad == nil {
         return clone(str, allocator, loc)
@@ -608,8 +608,8 @@ left_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Allo
     return buffer_to_bytes(&b)
 }
 
-// right_justify returns a byte slice with a pad byte slice at right side if the str's rune length is smaller than length
-right_justify :: proc(str: []byte, length: uint, pad: []byte, allocator: mem.Allocator, loc := #caller_location) -> []byte {
+// right_justify returns a u8 slice with a pad u8 slice at right side if the str's rune length is smaller than length
+right_justify :: proc(str: []u8, length: uint, pad: []u8, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     n := rune_count(str)
     if n >= length || pad == nil {
         return clone(str, allocator, loc)

@@ -10,8 +10,8 @@ import "base:container/strings"
 
 import "core:strings_tools"
 
-// is_separator checks whether the byte is a valid separator character
-is_separator :: proc(c: byte) -> bool {
+// is_separator checks whether the u8 is a valid separator character
+is_separator :: proc(c: u8) -> bool {
     return c == '/'
 }
 
@@ -204,25 +204,25 @@ name :: proc(path: string, new := false, allocator: mem.Allocator) -> (name: str
 @(private)
 Lazy_Buffer :: struct {
     s: string,
-    b: []byte,
+    b: []u8,
     w: int, // write index
 }
 
 @(private)
-lazy_buffer_index :: proc(lb: ^Lazy_Buffer, i: int) -> byte {
+lazy_buffer_index :: proc(lb: ^Lazy_Buffer, i: int) -> u8 {
     if lb.b != nil {
         return lb.b[i]
     }
     return lb.s[i]
 }
 @(private)
-lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: byte, allocator: mem.Allocator) {
+lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: u8, allocator: mem.Allocator) {
     if lb.b == nil {
         if lb.w < len(lb.s) && lb.s[lb.w] == c {
             lb.w += 1
             return
         }
-        lb.b, _ = slice.create([]byte, len(lb.s), allocator)
+        lb.b, _ = slice.create([]u8, len(lb.s), allocator)
         slice.copy_from_string(lb.b, lb.s[:lb.w])
     }
     lb.b[lb.w] = c

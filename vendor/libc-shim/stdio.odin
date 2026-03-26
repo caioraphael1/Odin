@@ -36,13 +36,13 @@ fclose :: proc "c" (file: FILE) -> i32 {
 }
 
 @(require, linkage="strong", link_name="fread")
-fread :: proc "c" (buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
+fread :: proc "c" (buffer: [^]u8, size: uint, count: uint, file: FILE) -> uint {
     context = g_ctx
     return _fread(buffer, size, count, file)
 }
 
 @(require, linkage="strong", link_name="fwrite")
-fwrite :: proc "c" (buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
+fwrite :: proc "c" (buffer: [^]u8, size: uint, count: uint, file: FILE) -> uint {
     context = g_ctx
     return _fwrite(buffer, size, count, file)
 }
@@ -60,14 +60,14 @@ getchar :: proc "c" () -> c.int {
 }
 
 @(require, linkage="strong", link_name="vsnprintf")
-vsnprintf :: proc "c" (buf: [^]byte, count: uint, fmt: cstring, args: ^c.va_list) -> i32 {
+vsnprintf :: proc "c" (buf: [^]u8, count: uint, fmt: cstring, args: ^c.va_list) -> i32 {
     i32_count := i32(count)
     assert_contextless(i32_count >= 0)
     return stb.vsnprintf(buf, i32_count, fmt, args)
 }
 
 @(require, linkage="strong", link_name="vsprintf")
-vsprintf :: proc "c" (buf: [^]byte, fmt: cstring, args: ^c.va_list) -> i32 {
+vsprintf :: proc "c" (buf: [^]u8, fmt: cstring, args: ^c.va_list) -> i32 {
     return stb.vsprintf(buf, fmt, args)
 }
 
@@ -77,8 +77,8 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
 
     MAX_STACK :: 4096
 
-    buf: []byte
-    stack_buf: [MAX_STACK]byte = ---
+    buf: []u8
+    stack_buf: [MAX_STACK]u8 = ---
     {
         n := stb.vsnprintf(&stack_buf[0], MAX_STACK, fmt, args)
         if n <= 0 {
@@ -86,7 +86,7 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
         }
 
         if n >= MAX_STACK {
-            buf = slice.create([]byte, n)
+            buf = slice.create([]u8, n)
             n2 := stb.vsnprintf(raw_data(buf), i32(len(buf)), fmt, args)
             internal.assert(n == n2)
         } else {
@@ -99,7 +99,7 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
 
     written: i32
     for len(buf) > 0 {
-        n := _fwrite(raw_data(buf), size_of(byte), len(buf), file)
+        n := _fwrite(raw_data(buf), size_of(u8), len(buf), file)
         if n == 0 { break }
         buf = buf[n:]
         written += i32(n)
@@ -112,7 +112,7 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
 Derived from musl libc - MIT licensed - Copyright © 2005-2020 Rich Felker, et al.
 */
 @(require, linkage="strong", link_name="__sscanf")
-_sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
+_sscanf :: proc "c" (str, fmt: [^]u8, orig_ptrs: [^]rawptr) -> i32 {
     Size :: enum u8 {
         None,
         hh,
@@ -147,12 +147,12 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
 
     pos: u64
     dest: rawptr
-    ch, t: byte
+    ch, t: u8
     // wcs: [^]c.wchar_t
-    s: [^]byte
+    s: [^]u8
     k, i, width: int
     alloc: bool
-    scanset: [257]byte
+    scanset: [257]u8
     invert: u8
     matches: i32
     size: Size
@@ -335,7 +335,7 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
             if size == .l {
                 internal.unimplemented("vendor/libc-shim: sscanf wide character support")
             } else if alloc {
-                s = make([^]byte, k)
+                s = make([^]u8, k)
                 if s == nil {
                     alloc_fail = true
                     break main_loop
@@ -359,7 +359,7 @@ _sscanf :: proc "c" (str, fmt: [^]byte, orig_ptrs: [^]rawptr) -> i32 {
                     ch = str[0]
                 }
             } else {
-                s = cast([^]byte)dest
+                s = cast([^]u8)dest
                 if s != nil {
                     for ch = str[0]; scanset[ch] != 0 && i < width; {
                         s[i] = ch

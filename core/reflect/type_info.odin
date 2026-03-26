@@ -240,10 +240,10 @@ align_of_typeid :: proc(T: typeid) -> uint {
 
 // Reinterprets the data stored at `v` as a slice of bytes
 
-as_bytes :: proc(v: any) -> []byte {
+as_bytes :: proc(v: any) -> []u8 {
     if v != nil {
         sz := size_of_typeid(v.id)
-        return ([^]byte)(v.data)[:sz]
+        return ([^]u8)(v.data)[:sz]
     }
     return nil
 }
@@ -303,7 +303,7 @@ length :: proc(val: any) -> uint {
         return (^slice.Raw_Slice)(val.data).len
 
     case Type_Info_Dynamic_Array:
-        return (^dyn_array.Dyn_Array(byte))(val.data).len
+        return (^dyn_array.Dyn_Array(u8))(val.data).len
 
     case Type_Info_Map:
         return maps.raw_map_len((^maps.Raw_Map)(val.data)^)
@@ -355,7 +355,7 @@ capacity :: proc(val: any) -> uint {
         return uint(a.count)
 
     case Type_Info_Dynamic_Array:
-        return (^dyn_array.Dyn_Array(byte))(val.data).cap
+        return (^dyn_array.Dyn_Array(u8))(val.data).cap
 
     case Type_Info_Map:
         return internal.map_cap((^maps.Raw_Map)(val.data)^)
@@ -411,7 +411,7 @@ index :: proc(val: any, i: uint, loc := #caller_location) -> any {
         return any{data, a.elem.id}
 
     case Type_Info_Dynamic_Array:
-        raw := (^dyn_array.Dyn_Array(byte))(val.data)
+        raw := (^dyn_array.Dyn_Array(u8))(val.data)
         internal.bounds_check_error_loc(loc, i, raw.len)
         offset := uintptr(uint(a.elem.size) * i)
         data := rawptr(uintptr(raw.data) + offset)
@@ -1775,7 +1775,7 @@ as_raw_data :: proc(a: any) -> (value: rawptr, valid: bool) {
 
     case Type_Info_Dynamic_Array:
         valid = true
-        value = (^dyn_array.Dyn_Array(byte))(a.data).data
+        value = (^dyn_array.Dyn_Array(u8))(a.data).data
     }
 
     return
@@ -1971,8 +1971,8 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
         if !including_indirect_array_recursion {
             return false
         }
-        array_a := (^dyn_array.Dyn_Array(byte))(a.data)
-        array_b := (^dyn_array.Dyn_Array(byte))(b.data)
+        array_a := (^dyn_array.Dyn_Array(u8))(a.data)
+        array_b := (^dyn_array.Dyn_Array(u8))(b.data)
         if array_a.len != array_b.len {
             return false
         }
@@ -1980,7 +1980,7 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
             return true
         }
         if .Simple_Compare in v.elem.flags {
-            return mem.compare((^byte)(array_a.data), (^byte)(array_b.data), array_a.len * uint(v.elem.size)) == 0
+            return mem.compare((^u8)(array_a.data), (^u8)(array_b.data), array_a.len * uint(v.elem.size)) == 0
         }
         
         for i in 0..<array_a.len {

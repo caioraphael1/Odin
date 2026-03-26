@@ -172,7 +172,7 @@ when ODIN_OS == .Windows {
 // Used by the built-in directory `#load_directory(path: string) -> []Load_Directory_File`
 Load_Directory_File :: struct {
     name: string,
-    data: []byte, // immutable data
+    data: []u8, // immutable data
 }
 
 
@@ -504,19 +504,19 @@ __fixdfti :: proc "c" (a: u64) -> i128 {
 
 }
 
-__write_bits :: proc(dst, src: [^]byte, offset: uintptr, size: uintptr) {
+__write_bits :: proc(dst, src: [^]u8, offset: uintptr, size: uintptr) {
     for i in 0..<size {
         j := offset+i
-        the_bit := byte((src[i>>3]) & (1<<(i&7)) != 0)
+        the_bit := u8((src[i>>3]) & (1<<(i&7)) != 0)
         dst[j>>3] &~=       1<<(j&7)
         dst[j>>3]  |= the_bit<<(j&7)
     }
 }
 
-__read_bits :: proc(dst, src: [^]byte, offset: uintptr, size: uintptr) {
+__read_bits :: proc(dst, src: [^]u8, offset: uintptr, size: uintptr) {
     for j in 0..<size {
         i := offset+j
-        the_bit := byte((src[i>>3]) & (1<<(i&7)) != 0)
+        the_bit := u8((src[i>>3]) & (1<<(i&7)) != 0)
         dst[j>>3] &~=       1<<(j&7)
         dst[j>>3]  |= the_bit<<(j&7)
     }

@@ -81,7 +81,7 @@ like material index.
 
 Storage:  
 -------  
-All data is stored in little endian byte order with no padding. The layout mirrors the structs
+All data is stored in little endian u8 order with no padding. The layout mirrors the structs
 defined below with a few exceptions. All names are stored as a 8-bit unsigned integer indicating
 the length of the name followed by that many characters. Termination is not stored in the file.
 Text strings stored in meta data are stored the same way as names, but instead of a 8-bit unsigned

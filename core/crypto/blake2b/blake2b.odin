@@ -36,7 +36,7 @@ init :: proc(ctx: ^Context, digest_size := DIGEST_SIZE) {
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	_blake2.update(ctx, data)
 }
 
@@ -45,7 +45,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 //
 // Iff finalize_clone is set, final will work on a copy of the Context,
 // which is useful for for calculating rolling digests.
-final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
+final :: proc(ctx: ^Context, hash: []u8, finalize_clone: bool = false) {
 	_blake2.final(ctx, hash, finalize_clone)
 }
 

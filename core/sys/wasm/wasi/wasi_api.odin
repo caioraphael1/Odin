@@ -65,7 +65,7 @@ errno_t :: enum u16 {
 	HOSTUNREACH = 23,
 	// Identifier removed.
 	IDRM = 24,
-	// Illegal byte sequence.
+	// Illegal u8 sequence.
 	ILSEQ = 25,
 	// Operation in progress.
 	INPROGRESS = 26,
@@ -342,8 +342,8 @@ fd_t :: distinct i32
 // 	buf: [^]u8,
 // 	buf_len: size_t,
 // }
-iovec_t :: []byte
-ciovec_t :: []byte
+iovec_t :: []u8
+ciovec_t :: []u8
 
 
 filedelta_t :: distinct i64
@@ -390,7 +390,7 @@ filetype_t :: enum u8 {
 	SOCKET_DGRAM = 5,
 
 	/**
-	 * The file descriptor or file refers to a byte-stream socket.
+	 * The file descriptor or file refers to a u8-stream socket.
 	 */
 	SOCKET_STREAM = 6,
 
@@ -921,7 +921,7 @@ riflag_t :: enum u16 {
 	RECV_PEEK = 0,
 
 	/**
-	 * On byte-stream sockets, block until the full amount of data can be returned.
+	 * On u8-stream sockets, block until the full amount of data can be returned.
 	 */
 	RECV_WAITALL = 1,
 }
@@ -975,7 +975,7 @@ foreign wasi {
 	 */
 	args_get :: proc(
 		argv: [^]cstring,
-		argv_buf: [^]byte,
+		argv_buf: [^]u8,
 	) -> errno_t ---
 	/**
 	 * Read environment variable data.
@@ -983,7 +983,7 @@ foreign wasi {
 	 */
 	environ_get :: proc(
 		environ: [^]cstring,
-		environ_buf: [^]byte,
+		environ_buf: [^]u8,
 	) -> errno_t ---
 	/**
 	 * Provide file advisory information on a file descriptor.
@@ -1157,7 +1157,7 @@ foreign wasi {
 		/**
 		 * A buffer into which to write the preopened directory name.
 		 */
-		path: []byte,
+		path: []u8,
 	) -> errno_t ---
 	/**
 	 * Create a directory.
@@ -1467,7 +1467,7 @@ fd_readdir :: proc(
 	/**
 	 * The buffer where directory entries are stored
 	 */
-	buf: []byte,
+	buf: []u8,
 	/**
 	 * The location within the directory to start reading
 	 */

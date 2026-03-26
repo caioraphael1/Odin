@@ -64,20 +64,20 @@ _fclose :: proc(_file: FILE) -> i32 {
     return 0
 }
 
-_fread :: proc(buffer: [^]byte, size: uint, count: uint, _file: FILE) -> uint {
+_fread :: proc(buffer: [^]u8, size: uint, count: uint, _file: FILE) -> uint {
     file := __file(_file) 
     n, _ := os.read(file, buffer[:size*count])
     return uint(max(0, n)) / size
 }
 
-_fwrite :: proc(buffer: [^]byte, size: uint, count: uint, _file: FILE) -> uint {
+_fwrite :: proc(buffer: [^]u8, size: uint, count: uint, _file: FILE) -> uint {
     file := __file(_file) 
     n, _ := os.write(file, buffer[:size*count])
     return uint(max(0, n)) / size
 }
 
 _putchar :: proc(char: c.int) -> c.int {
-    n, err := os.write_byte(os.stdout, byte(char))  
+    n, err := os.write_byte(os.stdout, u8(char))  
     if n == 0 || err != nil {
         return EOF
     }
@@ -85,7 +85,7 @@ _putchar :: proc(char: c.int) -> c.int {
 }
 
 _getchar :: proc() -> c.int {
-    ret: [1]byte
+    ret: [1]u8
     n, err := os.read(os.stdin, ret[:])
     if n == 0 || err != nil {
         return EOF

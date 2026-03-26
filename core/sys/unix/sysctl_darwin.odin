@@ -75,7 +75,7 @@ CTL_HW      :: 6
 	HW_MACHINE      :: 1  // x86_64
 	HW_MODEL        :: 2  // MacbookPro14,1
 	HW_NCPU         :: 3  /* int: number of cpus */
-	HW_BYTEORDER    :: 4  /* int: machine byte order */
+	HW_BYTEORDER    :: 4  /* int: machine u8 order */
 	HW_MACHINE_ARCH :: 12 /* string: machine architecture */
 	HW_VECTORUNIT   :: 13 /* int: has HW vector unit? */
 	HW_MEMSIZE      :: 24 // u64

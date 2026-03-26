@@ -180,7 +180,7 @@ _split_iterator :: proc(s: ^string, sep: string, sep_save: uint) -> (res: string
 }
 
 /*
-Splits the input string by the byte separator in an iterator fashion.
+Splits the input string by the u8 separator in an iterator fashion.
 
 Example:
     text := "a.b.c.d.e"

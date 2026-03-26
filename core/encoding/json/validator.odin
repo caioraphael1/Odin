@@ -1,7 +1,7 @@
 import "base:mem"
 
 // NOTE(bill): is_valid will not check for duplicate keys
-is_valid :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := false) -> bool {
+is_valid :: proc(data: []u8, spec := DEFAULT_SPECIFICATION, parse_integers := false) -> bool {
     p := parser_create(data, spec, parse_integers, {})
         // (2026-03-07) it was a nil allocator
     

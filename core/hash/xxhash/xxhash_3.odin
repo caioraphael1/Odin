@@ -157,7 +157,7 @@ XXH3_rrmxmx :: #force_inline proc(h64, length: xxh_u64) -> (res: xxh_u64) {
     even without counting the significantly larger output size.
 
     For example, extra steps are taken to avoid the seed-dependent collisions
-    in 17-240 byte inputs (See XXH3_mix16B and XXH128_mix32B).
+    in 17-240 u8 inputs (See XXH3_mix16B and XXH128_mix32B).
 
     This strength naturally comes at the cost of some speed, especially on short
     lengths. Note that longer hashes are about as fast as the 64-bit version

@@ -235,7 +235,7 @@ is_performant :: proc() -> bool {
 }
 
 @(enable_target_feature = TARGET_SIMD_FEATURES)
-stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []byte, nr_blocks: int) {
+stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []u8, nr_blocks: int) {
 	// Enforce the maximum consumed keystream per IV.
 	_chacha20.check_counter_limit(ctx, nr_blocks)
 
@@ -245,7 +245,7 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []byte, nr_blocks: int)
 	x := &ctx._s
 	n := nr_blocks
 
-	// The state vector is an array of uint32s in native byte-order.
+	// The state vector is an array of uint32s in native u8-order.
 	x_v := ([^]simd.u32x4)(raw_data(x))
 	s0 := intrinsics.unaligned_load((^simd.u32x4)(x_v[0:]))
 	s1 := intrinsics.unaligned_load((^simd.u32x4)(x_v[1:]))
@@ -474,7 +474,7 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []byte, nr_blocks: int)
 }
 
 @(enable_target_feature = TARGET_SIMD_FEATURES)
-hchacha20 :: proc(dst, key, iv: []byte) {
+hchacha20 :: proc(dst, key, iv: []u8) {
 	v0 := simd.u32x4{_chacha20.SIGMA_0, _chacha20.SIGMA_1, _chacha20.SIGMA_2, _chacha20.SIGMA_3}
 	v1 := intrinsics.unaligned_load((^simd.u32x4)(&key[0]))
 	v2 := intrinsics.unaligned_load((^simd.u32x4)(&key[16]))

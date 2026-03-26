@@ -83,7 +83,7 @@ utf8_to_utf16_alloc :: proc(s: string, allocator: mem.Allocator) -> []u16 {
         return nil
     }
 
-    b := transmute([]byte)s
+    b := transmute([]u8)s
     cstr := raw_data(b)
     n := MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cstr, c_int(len(s)), nil, 0)
     if n == 0 {
@@ -154,7 +154,7 @@ wstring_to_utf8_alloc :: proc(s: wstring, N: uint, allocator: mem.Allocator) -> 
     // also be null terminated.
     // If N > 0 it assumes the wide string is not null terminated and the resulting string
     // will not be null terminated.
-    text := slice.create([]byte, uint(n), allocator) or_return
+    text := slice.create([]u8, uint(n), allocator) or_return
 
     n1 := WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, s, c_int(N), raw_data(text), n, nil, nil)
     if n1 == 0 {
@@ -245,8 +245,8 @@ allowed_username :: proc(username: string) -> bool {
         if chars == "" {
             return false
         }
-        for c in transmute([]byte)s {
-            for b in transmute([]byte)chars {
+        for c in transmute([]u8)s {
+            for b in transmute([]u8)chars {
                 if c == b {
                     return true
                 }

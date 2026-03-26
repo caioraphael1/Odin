@@ -13,6 +13,6 @@ is_hardware_accelerated :: proc() -> bool {
 Context_Impl_Hardware :: hw_intel.Context
 
 @(private, enable_target_feature = "sse2,aes")
-init_impl_hw :: proc(ctx: ^Context_Impl_Hardware, key: []byte) {
+init_impl_hw :: proc(ctx: ^Context_Impl_Hardware, key: []u8) {
 	hw_intel.init(ctx, key)
 }

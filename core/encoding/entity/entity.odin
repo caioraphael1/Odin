@@ -272,7 +272,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
         " -> &#34; // &#34; is shorter than &quot;
     */
 
-    b := transmute([]byte)s
+    b := transmute([]u8)s
 
     extra_bytes_needed := 0
 
@@ -290,7 +290,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
         return s, false
     }
 
-    t, err := slice.create([]byte, len(s) + extra_bytes_needed, allocator, loc)
+    t, err := slice.create([]u8, len(s) + extra_bytes_needed, allocator, loc)
     if err != nil {
         return
     }
@@ -322,7 +322,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
 
 unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (output: string, was_allocation: bool, err: mem.Allocator_Error) {
     
-    do_append :: proc(s: string, amp_idx: int, buf: ^dyn_array.Dyn_Array(byte)) -> (n: int) {
+    do_append :: proc(s: string, amp_idx: int, buf: ^dyn_array.Dyn_Array(u8)) -> (n: int) {
         s, amp_idx := s, amp_idx
 
         n += len(s[:amp_idx])
@@ -358,7 +358,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
     // NOTE(bill): this does a two pass in order to minimize the allocations required
     bytes_required := do_append(s, amp_idx, nil)
 
-    buf := dyn_array.create(byte, 0, bytes_required, allocator, loc) or_return
+    buf := dyn_array.create(u8, 0, bytes_required, allocator, loc) or_return
     was_allocation = true
 
     _ = do_append(s, amp_idx, &buf)
@@ -371,7 +371,7 @@ unescape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_locati
 
 // Returns an unescaped string of an encoded XML/HTML entity.
 
-unescape_entity :: proc(s: string) -> (b: [8]byte, w: int, j: int) {
+unescape_entity :: proc(s: string) -> (b: [8]u8, w: int, j: int) {
     s := s
     if len(s) < 2 {
         return

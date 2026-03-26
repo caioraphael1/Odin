@@ -703,7 +703,7 @@ System_Error :: enum DWORD {
 	SHORT_NAMES_NOT_ENABLED_ON_VOLUME = 0x131,
 	// The security stream for the given volume is in an inconsistent state. Please run CHKDSK on the volume.
 	SECURITY_STREAM_IS_INCONSISTENT = 0x132,
-	// A requested file lock operation cannot be processed due to an invalid byte range.
+	// A requested file lock operation cannot be processed due to an invalid u8 range.
 	INVALID_LOCK_RANGE = 0x133,
 	// The subsystem needed to support the image type is not present.
 	IMAGE_SUBSYSTEM_NOT_PRESENT = 0x134,
@@ -878,7 +878,7 @@ System_Error :: enum DWORD {
 	NO_EVENT_PAIR = 0x244,
 	// A Windows Server has an incorrect configuration.
 	DOMAIN_CTRLR_CONFIG_ERROR = 0x245,
-	// An illegal character was encountered. For a multi-byte character set this includes a lead byte without a succeeding trail byte. For the Unicode character set this includes the characters 0xFFFF and 0xFFFE.
+	// An illegal character was encountered. For a multi-u8 character set this includes a lead u8 without a succeeding trail u8. For the Unicode character set this includes the characters 0xFFFF and 0xFFFE.
 	ILLEGAL_CHARACTER = 0x246,
 	// The Unicode character is not defined in the Unicode character set installed on the system.
 	UNDEFINED_CHARACTER = 0x247,
@@ -1439,7 +1439,7 @@ System_Error :: enum DWORD {
 	BUS_RESET = 0x457,
 	// No media in drive.
 	NO_MEDIA_IN_DRIVE = 0x458,
-	// No mapping for the Unicode character exists in the target multi-byte code page.
+	// No mapping for the Unicode character exists in the target multi-u8 code page.
 	NO_UNICODE_TRANSLATION = 0x459,
 	// A dynamic link library (DLL) initialization routine failed.
 	DLL_INIT_FAILED = 0x45A,
@@ -2364,7 +2364,7 @@ System_Error :: enum DWORD {
 	RPC_X_NULL_REF_POINTER = 0x6F4,
 	// The enumeration value is out of range.
 	RPC_X_ENUM_VALUE_OUT_OF_RANGE = 0x6F5,
-	// The byte count is too small.
+	// The u8 count is too small.
 	RPC_X_BYTE_COUNT_TOO_SMALL = 0x6F6,
 	// The stub received bad data.
 	RPC_X_BAD_STUB_DATA = 0x6F7,

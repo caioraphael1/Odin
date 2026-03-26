@@ -32,7 +32,7 @@ _stable_sort_general :: proc(data: $T/[]$E, call: $P, $KIND: Sort_Kind) where (i
 }
 
 @(private)
-_smoothsort :: proc(base: [^]byte, nel: uint, width: uint, cmp: Generic_Cmp, arg: rawptr) {
+_smoothsort :: proc(base: [^]u8, nel: uint, width: uint, cmp: Generic_Cmp, arg: rawptr) {
     pntz :: proc(p: [2]uint) -> int {
         r := intrinsics.count_trailing_zeros(p[0] - 1)
         if r != 0 {
@@ -68,7 +68,7 @@ _smoothsort :: proc(base: [^]byte, nel: uint, width: uint, cmp: Generic_Cmp, arg
         p[1] >>= uint(n)
     }
 
-    cycle :: proc(width: uint, data: [][^]byte, n: int) {
+    cycle :: proc(width: uint, data: [][^]u8, n: int) {
         if len(data) < 2 {
             return
         }
@@ -86,9 +86,9 @@ _smoothsort :: proc(base: [^]byte, nel: uint, width: uint, cmp: Generic_Cmp, arg
         }
     }
 
-    sift :: proc(head: [^]byte, width: uint, cmp: Generic_Cmp, arg: rawptr, pshift: int, lp: []uint) {
+    sift :: proc(head: [^]u8, width: uint, cmp: Generic_Cmp, arg: rawptr, pshift: int, lp: []uint) {
         head := head
-        buf: [14*size_of(uint)+1][^]byte = ---
+        buf: [14*size_of(uint)+1][^]u8 = ---
         buf[0] = head
         i := 1
         pshift := pshift
@@ -110,12 +110,12 @@ _smoothsort :: proc(base: [^]byte, nel: uint, width: uint, cmp: Generic_Cmp, arg
         cycle(width, buf[:], i)
     }
 
-    trinkle :: proc(head: [^]byte, width: uint, cmp: Generic_Cmp, arg: rawptr, pp: []uint, pshift: int, trusty: bool, lp: []uint) {
+    trinkle :: proc(head: [^]u8, width: uint, cmp: Generic_Cmp, arg: rawptr, pp: []uint, pshift: int, trusty: bool, lp: []uint) {
         head := head
 
         p := [2]uint{pp[0], pp[1]}
 
-        buf: [14*size_of(uint)+1][^]byte = ---
+        buf: [14*size_of(uint)+1][^]u8 = ---
         buf[0] = head
 
         i := 1

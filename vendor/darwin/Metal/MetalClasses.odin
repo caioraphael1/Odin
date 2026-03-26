@@ -4846,8 +4846,8 @@ Buffer_addDebugMarker :: #force_inline proc "c" (self: ^Buffer, marker: ^NS.Stri
     msgSend(nil, self, "addDebugMarker:range:", marker, range)
 }
 @(objc_type=Buffer, objc_name="contents")
-Buffer_contents :: #force_inline proc "c" (self: ^Buffer) -> []byte {
-    contents := msgSend([^]byte, self, "contents")
+Buffer_contents :: #force_inline proc "c" (self: ^Buffer) -> []u8 {
+    contents := msgSend([^]u8, self, "contents")
     length := Buffer_length(self)
     return contents[:length]
 }
@@ -4857,7 +4857,7 @@ Buffer_contentsPointer :: #force_inline proc "c" (self: ^Buffer) -> rawptr {
 }
 @(objc_type=Buffer, objc_name="contentsAsSlice")
 Buffer_contentsAsSlice :: #force_inline proc "c" (self: ^Buffer, $T: typeid/[]$E) -> T {
-    contents := msgSend([^]byte, self, "contents")
+    contents := msgSend([^]u8, self, "contents")
     length := Buffer_length(self)
     return slice.data_cast(T, contents[:length])
 }
@@ -5230,7 +5230,7 @@ ComputeCommandEncoder_setBuffers :: #force_inline proc(self: ^ComputeCommandEnco
     msgSend(nil, self, "setBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setBytes")
-ComputeCommandEncoder_setBytes :: #force_inline proc "c" (self: ^ComputeCommandEncoder, bytes: []byte, index: NS.UInteger) {
+ComputeCommandEncoder_setBytes :: #force_inline proc "c" (self: ^ComputeCommandEncoder, bytes: []u8, index: NS.UInteger) {
     msgSend(nil, self, "setBytes:length:atIndex:", raw_data(bytes), NS.UInteger(len(bytes)), index)
 }
 @(objc_type=ComputeCommandEncoder, objc_name="setComputePipelineState")
@@ -5563,11 +5563,11 @@ Device_newBinaryArchive :: #force_inline proc(self: ^Device, descriptor: ^Binary
     return
 }
 @(objc_type=Device, objc_name="newBufferWithBytes")
-Device_newBufferWithBytes :: #force_inline proc "c" (self: ^Device, bytes: []byte, options: ResourceOptions) -> ^Buffer {
+Device_newBufferWithBytes :: #force_inline proc "c" (self: ^Device, bytes: []u8, options: ResourceOptions) -> ^Buffer {
     return msgSend(^Buffer, self, "newBufferWithBytes:length:options:", raw_data(bytes), NS.UInteger(len(bytes)), options)
 }
 @(objc_type=Device, objc_name="newBufferWithBytesNoCopy")
-Device_newBufferWithBytesNoCopy :: #force_inline proc "c" (self: ^Device, bytes: []byte, options: ResourceOptions, deallocator: rawptr) -> ^Buffer {
+Device_newBufferWithBytesNoCopy :: #force_inline proc "c" (self: ^Device, bytes: []u8, options: ResourceOptions, deallocator: rawptr) -> ^Buffer {
     return msgSend(^Buffer, self, "newBufferWithBytesNoCopy:length:options:deallocator:", raw_data(bytes), NS.UInteger(len(bytes)), options, deallocator)
 }
 @(objc_type=Device, objc_name="newBufferWithSlice")
@@ -6792,7 +6792,7 @@ RenderCommandEncoder_setFragmentBuffers :: #force_inline proc "c" (self: ^Render
     msgSend(nil, self, "setFragmentBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
 }
 @(objc_type=RenderCommandEncoder, objc_name="setFragmentBytes")
-RenderCommandEncoder_setFragmentBytes :: #force_inline proc "c" (self: ^RenderCommandEncoder, bytes: []byte, index: NS.UInteger) {
+RenderCommandEncoder_setFragmentBytes :: #force_inline proc "c" (self: ^RenderCommandEncoder, bytes: []u8, index: NS.UInteger) {
     msgSend(nil, self, "setFragmentBytes:length:atIndex:", raw_data(bytes), NS.UInteger(len(bytes)), index)
 }
 @(objc_type=RenderCommandEncoder, objc_name="setFragmentSamplerState")
@@ -6876,7 +6876,7 @@ RenderCommandEncoder_setTileBuffers :: #force_inline proc "c" (self: ^RenderComm
     msgSend(nil, self, "setTileBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
 }
 @(objc_type=RenderCommandEncoder, objc_name="setTileBytes")
-RenderCommandEncoder_setTileBytes :: #force_inline proc "c" (self: ^RenderCommandEncoder, bytes: []byte, index: NS.UInteger) {
+RenderCommandEncoder_setTileBytes :: #force_inline proc "c" (self: ^RenderCommandEncoder, bytes: []u8, index: NS.UInteger) {
     msgSend(nil, self, "setTileBytes:length:atIndex:", raw_data(bytes), NS.UInteger(len(bytes)), index)
 }
 @(objc_type=RenderCommandEncoder, objc_name="setTileSamplerState")
@@ -6924,7 +6924,7 @@ RenderCommandEncoder_setVertexBuffers :: #force_inline proc "c" (self: ^RenderCo
     msgSend(nil, self, "setVertexBuffers:offsets:withRange:", raw_data(buffers), raw_data(offsets), range)
 }
 @(objc_type=RenderCommandEncoder, objc_name="setVertexBytes")
-RenderCommandEncoder_setVertexBytes :: #force_inline proc "c" (self: ^RenderCommandEncoder, bytes: []byte, index: NS.UInteger) {
+RenderCommandEncoder_setVertexBytes :: #force_inline proc "c" (self: ^RenderCommandEncoder, bytes: []u8, index: NS.UInteger) {
     msgSend(nil, self, "setVertexBytes:length:atIndex:", raw_data(bytes), NS.UInteger(len(bytes)), index)
 }
 @(objc_type=RenderCommandEncoder, objc_name="setVertexSamplerState")

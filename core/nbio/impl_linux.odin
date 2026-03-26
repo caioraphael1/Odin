@@ -179,7 +179,7 @@ _init :: proc(l: ^Event_Loop, alloc: mem.Allocator) -> (err: General_Error) {
         l.wake.type        = .Read
         l.wake.cb          = wake_up_callback
         l.wake.read.handle = wakefd
-        l.wake.read.buf    = ([^]byte)(&l.wake.user_data)[:8]
+        l.wake.read.buf    = ([^]u8)(&l.wake.user_data)[:8]
         _exec(l.wake)
 
         return nil
@@ -471,7 +471,7 @@ _wake_up :: proc(l: ^Event_Loop) {
     internal.assert(l != &_tls_event_loop)
     one: u64 = 1
     // Called from another thread, in which we can't use the uring.
-    n, err := linux.write(l.wake.read.handle, ([^]byte)(&one)[:size_of(one)])
+    n, err := linux.write(l.wake.read.handle, ([^]u8)(&one)[:size_of(one)])
     // Shouldn't fail.
     internal.assert(err == nil)
     internal.assert(n == 8)

@@ -2067,7 +2067,7 @@ sys_gettid :: proc() -> int {
 	return int(intrinsics.syscall(SYS_gettid))
 }
 
-sys_getrandom :: proc(buf: [^]byte, buflen: uint, flags: int) -> int {
+sys_getrandom :: proc(buf: [^]u8, buflen: uint, flags: int) -> int {
 	return int(intrinsics.syscall(SYS_getrandom, uintptr(buf), uintptr(buflen), uintptr(flags)))
 }
 

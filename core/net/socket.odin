@@ -219,7 +219,7 @@ close :: proc(socket: Any_Socket) {
     If no error occurs, `recv_tcp` returns the number of bytes received and `buf` will contain this data received.
     If the connection has been gracefully closed, the return value is `0, nil` (0 bytes read and no error).
 */
-recv_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP_Recv_Error) {
+recv_tcp :: proc(socket: TCP_Socket, buf: []u8) -> (bytes_read: int, err: TCP_Recv_Error) {
     return _recv_tcp(socket, buf)
 }
 
@@ -229,7 +229,7 @@ recv_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP_
     If no error occurs, `recv_udp` returns the number of bytes received and `buf` will contain this data received.
     If the "connection" has been gracefully closed, the return value is `0, nil` (0 bytes read and no error).
 */
-recv_udp :: proc(socket: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
+recv_udp :: proc(socket: UDP_Socket, buf: []u8) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
     return _recv_udp(socket, buf)
 }
 
@@ -244,7 +244,7 @@ recv_udp :: proc(socket: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_en
     If no error occurs, `recv_any` returns the number of bytes received and `buf` will contain this data received.
     If the connection has been gracefully closed, the return value is `0, nil, nil` (0 bytes read and no error).
 */
-recv_any :: proc(socket: Any_Socket, buf: []byte) -> (
+recv_any :: proc(socket: Any_Socket, buf: []u8) -> (
     bytes_read: int,
     remote_endpoint: internal.Maybe(Endpoint),
     err: Network_Error,
@@ -264,7 +264,7 @@ recv_any :: proc(socket: Any_Socket, buf: []byte) -> (
     Repeatedly sends data until the entire buffer is sent.
     If a send fails before all data is sent, returns the amount sent up to that point.
 */
-send_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_written: int, err: TCP_Send_Error) {
+send_tcp :: proc(socket: TCP_Socket, buf: []u8) -> (bytes_written: int, err: TCP_Send_Error) {
     return _send_tcp(socket, buf)
 }
 
@@ -274,7 +274,7 @@ send_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_written: int, err: T
     Datagrams are limited in size; attempting to send more than this limit at once will result in a Message_Too_Long error.
     UDP packets are not guarenteed to be received in order.
 */
-send_udp :: proc(socket: UDP_Socket, buf: []byte, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
+send_udp :: proc(socket: UDP_Socket, buf: []u8, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
     return _send_udp(socket, buf, to)
 }
 
@@ -283,7 +283,7 @@ send_udp :: proc(socket: UDP_Socket, buf: []byte, to: Endpoint) -> (bytes_writte
 
     Errors that can be returned: `TCP_Send_Error`, or `UDP_Send_Error`
 */
-send_any :: proc(socket: Any_Socket, buf: []byte, to: internal.Maybe(Endpoint) = nil) -> (
+send_any :: proc(socket: Any_Socket, buf: []u8, to: internal.Maybe(Endpoint) = nil) -> (
     bytes_written: int,
     err: Network_Error,
 ) {

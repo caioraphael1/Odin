@@ -21,7 +21,7 @@ Map_String :: struct {
 // Custom string entry struct
 Map_String_Entry :: struct {
     len:  uint,
-    str:  [1]byte, // string is allocated inline with the entry to keep allocations simple
+    str:  [1]u8, // string is allocated inline with the entry to keep allocations simple
 }
 
 /*

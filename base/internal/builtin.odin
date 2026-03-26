@@ -221,7 +221,7 @@ __ODIN_LLVM_F16_SUPPORTED       :: __ODIN_LLVM_F16_SUPPORTED
 
 
 
-byte :: u8 // alias
+byte          :: u8 // alias
 
 bool          :: bool
 b8            :: b8
@@ -303,13 +303,13 @@ cap :: proc(array: Array_Type) -> int ---
 size_of      :: proc($T: typeid) -> int ---
 align_of     :: proc($T: typeid) -> int ---
 
-// e.g. offset_of(t.f), where t is an instance of the type T
 offset_of_selector :: proc(selector: $T) -> uintptr ---
-// e.g. offset_of(T, f), where T can be the type instead of a variable
+    // e.g. offset_of(t.f), where t is an instance of the type T
+
 offset_of_member   :: proc($T: typeid, member: $M) -> uintptr ---
 
-// e.g. offset_of(T, "f"), where T can be the type instead of a variable
 offset_of_by_string :: proc($T: typeid, member: string) -> uintptr ---
+    // e.g. offset_of(T, "f"), where T can be the type instead of a variable
 
 type_of      :: proc(x: expr) -> type ---
 type_info_of :: proc($T: typeid) -> ^Type_Info ---

@@ -7,7 +7,7 @@ Allocator :: struct {
     procedure: Allocator_Proc,
     data:      rawptr,
 }
-Allocator_Mode :: enum byte {
+Allocator_Mode :: enum u8 {
     Alloc,
     Free,
     Free_All,
@@ -17,7 +17,7 @@ Allocator_Mode :: enum byte {
     Alloc_Non_Zeroed,
     Resize_Non_Zeroed,
 }
-Allocator_Error :: enum byte {
+Allocator_Error :: enum u8 {
     None                 = 0,
     Out_Of_Memory        = 1,
     Invalid_Pointer      = 2,
@@ -32,7 +32,7 @@ Allocator_Proc :: #type proc(
     old_memory:     rawptr, 
     old_size:       uint,
     loc:            Source_Code_Location = #caller_location
-    ) -> (new_memory: []byte, err: Allocator_Error)
+    ) -> (new_memory: []u8, err: Allocator_Error)
 
 
 mem_free_with_size :: #force_no_inline proc(ptr: rawptr, byte_count: uint, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
@@ -45,7 +45,7 @@ mem_free_with_size :: #force_no_inline proc(ptr: rawptr, byte_count: uint, alloc
 }
 
 
-mem_alloc_non_zeroed :: #force_no_inline proc(size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> ([]byte, Allocator_Error) {
+mem_alloc_non_zeroed :: #force_no_inline proc(size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> ([]u8, Allocator_Error) {
     internal.assert(is_power_of_two_uint(alignment), "Alignment must be a power of two", loc)
     internal.assert(allocator.procedure != nil, "Allocator not defined", loc)
     internal.assert(size > 0, "Size must be greater than zero", loc)

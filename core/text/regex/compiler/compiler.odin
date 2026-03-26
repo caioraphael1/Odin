@@ -143,13 +143,13 @@ map_all_classes :: proc(tree: Node, collection: ^dyn_array.Dyn_Array(Rune_Class_
 
 append_raw :: #force_inline proc(code: ^Program, data: $T) {
     // NOTE: This is system-dependent endian.
-    for b in transmute([size_of(T)]byte)data {
+    for b in transmute([size_of(T)]u8)data {
         _ = dyn_array.append(code, cast(Opcode)b)
     }
 }
 inject_raw :: #force_inline proc(code: ^Program, start: int, data: $T) {
     // NOTE: This is system-dependent endian.
-    for b, i in transmute([size_of(T)]byte)data {
+    for b, i in transmute([size_of(T)]u8)data {
         _, _ = dyn_array.inject_at(code, start + i, cast(Opcode)b)
     }
 }
@@ -241,8 +241,8 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         code = left
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
-        inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
-        inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + left_len + JUMP_SIZE))
+        inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE))
+        inject_raw(&code, size_of(u8) + size_of(i16), i16(SPLIT_SIZE + left_len + JUMP_SIZE))
 
         _ = dyn_array.append(&code, Opcode.Jump)
         append_raw(&code, i16(len(right) + JUMP_SIZE))
@@ -264,8 +264,8 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         original_len := len(code)
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
-        inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
-        inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + original_len + JUMP_SIZE))
+        inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE))
+        inject_raw(&code, size_of(u8) + size_of(i16), i16(SPLIT_SIZE + original_len + JUMP_SIZE))
 
         _ = dyn_array.append(&code, Opcode.Jump)
         append_raw(&code, i16(-original_len - SPLIT_SIZE))
@@ -275,8 +275,8 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         original_len := len(code)
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
-        inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE + original_len + JUMP_SIZE))
-        inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE))
+        inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE + original_len + JUMP_SIZE))
+        inject_raw(&code, size_of(u8) + size_of(i16), i16(SPLIT_SIZE))
 
         _ = dyn_array.append(&code, Opcode.Jump)
         append_raw(&code, i16(-original_len - SPLIT_SIZE))
@@ -364,16 +364,16 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         original_len := len(code)
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
-        inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE))
-        inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE + original_len))
+        inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE))
+        inject_raw(&code, size_of(u8) + size_of(i16), i16(SPLIT_SIZE + original_len))
 
     case ^Node_Optional_Non_Greedy:
         code = generate_code(c, specific.inner, allocator)
         original_len := len(code)
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
-        inject_raw(&code, size_of(byte)               , i16(SPLIT_SIZE + original_len))
-        inject_raw(&code, size_of(byte) + size_of(i16), i16(SPLIT_SIZE))
+        inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE + original_len))
+        inject_raw(&code, size_of(u8) + size_of(i16), i16(SPLIT_SIZE))
 
     case ^Node_Match_All_And_Escape:
         _ = dyn_array.append(&code, Opcode.Match_All_And_Escape)
@@ -458,18 +458,18 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 
         // `.*?`
         _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Split)
-        pc_open += size_of(byte)
-        inject_raw(&code, pc_open, i16(SPLIT_SIZE + size_of(byte) + JUMP_SIZE))
+        pc_open += size_of(u8)
+        inject_raw(&code, pc_open, i16(SPLIT_SIZE + size_of(u8) + JUMP_SIZE))
         pc_open += size_of(i16)
         inject_raw(&code, pc_open, i16(SPLIT_SIZE))
         pc_open += size_of(i16)
 
         _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Wildcard)
-        pc_open += size_of(byte)
+        pc_open += size_of(u8)
 
         _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Jump)
-        pc_open += size_of(byte)
-        inject_raw(&code, pc_open, i16(-size_of(byte) - SPLIT_SIZE))
+        pc_open += size_of(u8)
+        inject_raw(&code, pc_open, i16(-size_of(u8) - SPLIT_SIZE))
         pc_open += size_of(i16)
 
     }
@@ -477,7 +477,7 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
     if .No_Capture not_in flags {
         // `(` <generated code>
         _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Save)
-        _, _ = dyn_array.inject_at(&code, pc_open + size_of(byte), Opcode(0x00))
+        _, _ = dyn_array.inject_at(&code, pc_open + size_of(u8), Opcode(0x00))
 
         // `)`
         _ = dyn_array.append(&code, Opcode.Save); _ = dyn_array.append(&code, Opcode(0x01))

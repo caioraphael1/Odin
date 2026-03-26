@@ -1,19 +1,19 @@
 import "base:intrinsics"
 
 @(optimization_mode="favor_size")
-crc32 :: proc(data: []byte, seed := u32(0)) -> u32 #no_bounds_check {
+crc32 :: proc(data: []u8, seed := u32(0)) -> u32 #no_bounds_check {
 	crc := ~seed
 	buffer := raw_data(data)
 	length := len(data)
 
 	for length != 0 && uintptr(buffer) & 7 != 0 {
-		crc = crc32_table[0][byte(crc) ~ buffer[0]] ~ (crc >> 8)
+		crc = crc32_table[0][u8(crc) ~ buffer[0]] ~ (crc >> 8)
 		buffer = buffer[1:]
 		length -= 1
 	}
 
 	for length >= 8 {
-		buf := (^[8]byte)(buffer)
+		buf := (^[8]u8)(buffer)
 		word := u32((^u32le)(buffer)^)
 		crc ~= word
 
@@ -32,7 +32,7 @@ crc32 :: proc(data: []byte, seed := u32(0)) -> u32 #no_bounds_check {
 
 
 	for length != 0 {
-		crc = crc32_table[0][byte(crc) ~ buffer[0]] ~ (crc >> 8)
+		crc = crc32_table[0][u8(crc) ~ buffer[0]] ~ (crc >> 8)
 		buffer = buffer[1:]
 		length -= 1
 	}

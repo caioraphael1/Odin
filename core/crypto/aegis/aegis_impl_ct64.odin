@@ -32,7 +32,7 @@ State_SW :: struct {
 }
 
 @(private)
-init_sw :: proc(ctx: ^Context, st: ^State_SW, iv: []byte) {
+init_sw :: proc(ctx: ^Context, st: ^State_SW, iv: []u8) {
 	switch ctx._key_len {
 	case KEY_SIZE_128L:
 		key_0, key_1 := aes.load_interleaved(ctx._key[:16])
@@ -170,20 +170,20 @@ update_sw_256 :: proc(st: ^State_SW, m_0, m_1: u64) {
 }
 
 @(private = "file")
-absorb_sw_128l :: #force_inline proc(st: ^State_SW, ai: []byte) #no_bounds_check {
+absorb_sw_128l :: #force_inline proc(st: ^State_SW, ai: []u8) #no_bounds_check {
 	t0_0, t0_1 := aes.load_interleaved(ai[:16])
 	t1_0, t1_1 := aes.load_interleaved(ai[16:])
 	update_sw_128l(st, t0_0, t0_1, t1_0, t1_1)
 }
 
 @(private = "file")
-absorb_sw_256 :: #force_inline proc(st: ^State_SW, ai: []byte) {
+absorb_sw_256 :: #force_inline proc(st: ^State_SW, ai: []u8) {
 	m_0, m_1 := aes.load_interleaved(ai)
 	update_sw_256(st, m_0, m_1)
 }
 
 @(private)
-absorb_sw :: proc(st: ^State_SW, aad: []byte) #no_bounds_check {
+absorb_sw :: proc(st: ^State_SW, aad: []u8) #no_bounds_check {
 	ai, l := aad, len(aad)
 
 	switch st.rate {
@@ -204,7 +204,7 @@ absorb_sw :: proc(st: ^State_SW, aad: []byte) #no_bounds_check {
 
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
-		tmp: [_RATE_MAX]byte // AAD is not confidential.
+		tmp: [_RATE_MAX]u8 // AAD is not confidential.
 		copy(tmp[:], ai)
 		switch st.rate {
 		case _RATE_128L:
@@ -237,7 +237,7 @@ z_sw_256 :: proc(st: ^State_SW) -> (u64, u64) {
 }
 
 @(private = "file")
-enc_sw_128l :: #force_inline proc(st: ^State_SW, ci, xi: []byte) #no_bounds_check {
+enc_sw_128l :: #force_inline proc(st: ^State_SW, ci, xi: []u8) #no_bounds_check {
 	z0_0, z0_1, z1_0, z1_1 := z_sw_128l(st)
 
 	t0_0, t0_1 := aes.load_interleaved(xi[:16])
@@ -251,7 +251,7 @@ enc_sw_128l :: #force_inline proc(st: ^State_SW, ci, xi: []byte) #no_bounds_chec
 }
 
 @(private = "file")
-enc_sw_256 :: #force_inline proc(st: ^State_SW, ci, xi: []byte) #no_bounds_check {
+enc_sw_256 :: #force_inline proc(st: ^State_SW, ci, xi: []u8) #no_bounds_check {
 	z_0, z_1 := z_sw_256(st)
 
 	xi_0, xi_1 := aes.load_interleaved(xi)
@@ -262,7 +262,7 @@ enc_sw_256 :: #force_inline proc(st: ^State_SW, ci, xi: []byte) #no_bounds_check
 }
 
 @(private)
-enc_sw :: proc(st: ^State_SW, dst, src: []byte) #no_bounds_check {
+enc_sw :: proc(st: ^State_SW, dst, src: []u8) #no_bounds_check {
 	ci, xi, l := dst, src, len(src)
 
 	switch st.rate {
@@ -284,7 +284,7 @@ enc_sw :: proc(st: ^State_SW, dst, src: []byte) #no_bounds_check {
 
 	// Pad out the remainder with `0`s till it is rate sized.
 	if l > 0 {
-		tmp: [_RATE_MAX]byte // Ciphertext is not confidential.
+		tmp: [_RATE_MAX]u8 // Ciphertext is not confidential.
 		copy(tmp[:], xi)
 		switch st.rate {
 		case _RATE_128L:
@@ -297,7 +297,7 @@ enc_sw :: proc(st: ^State_SW, dst, src: []byte) #no_bounds_check {
 }
 
 @(private = "file")
-dec_sw_128l :: #force_inline proc(st: ^State_SW, xi, ci: []byte) #no_bounds_check {
+dec_sw_128l :: #force_inline proc(st: ^State_SW, xi, ci: []u8) #no_bounds_check {
 	z0_0, z0_1, z1_0, z1_1 := z_sw_128l(st)
 
 	t0_0, t0_1 := aes.load_interleaved(ci[:16])
@@ -311,7 +311,7 @@ dec_sw_128l :: #force_inline proc(st: ^State_SW, xi, ci: []byte) #no_bounds_chec
 }
 
 @(private = "file")
-dec_sw_256 :: #force_inline proc(st: ^State_SW, xi, ci: []byte) #no_bounds_check {
+dec_sw_256 :: #force_inline proc(st: ^State_SW, xi, ci: []u8) #no_bounds_check {
 	z_0, z_1 := z_sw_256(st)
 
 	ci_0, ci_1 := aes.load_interleaved(ci)
@@ -322,8 +322,8 @@ dec_sw_256 :: #force_inline proc(st: ^State_SW, xi, ci: []byte) #no_bounds_check
 }
 
 @(private = "file")
-dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
-	tmp: [_RATE_128L]byte
+dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []u8) #no_bounds_check {
+	tmp: [_RATE_128L]u8
 	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z0_0, z0_1, z1_0, z1_1 := z_sw_128l(st)
@@ -347,8 +347,8 @@ dec_partial_sw_128l :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 }
 
 @(private = "file")
-dec_partial_sw_256 :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
-	tmp: [_RATE_256]byte
+dec_partial_sw_256 :: proc(st: ^State_SW, xn, cn: []u8) #no_bounds_check {
+	tmp: [_RATE_256]u8
 	defer crypto.zero_explicit(&tmp, size_of(tmp))
 
 	z_0, z_1 := z_sw_256(st)
@@ -368,7 +368,7 @@ dec_partial_sw_256 :: proc(st: ^State_SW, xn, cn: []byte) #no_bounds_check {
 }
 
 @(private)
-dec_sw :: proc(st: ^State_SW, dst, src: []byte) #no_bounds_check {
+dec_sw :: proc(st: ^State_SW, dst, src: []u8) #no_bounds_check {
 	xi, ci, l := dst, src, len(src)
 
 	switch st.rate {
@@ -400,8 +400,8 @@ dec_sw :: proc(st: ^State_SW, dst, src: []byte) #no_bounds_check {
 }
 
 @(private)
-finalize_sw :: proc(st: ^State_SW, tag: []byte, ad_len, msg_len: int) {
-	tmp: [16]byte
+finalize_sw :: proc(st: ^State_SW, tag: []u8, ad_len, msg_len: int) {
+	tmp: [16]u8
 	endian.unchecked_put_u64le(tmp[0:], u64(ad_len) * 8)
 	endian.unchecked_put_u64le(tmp[8:], u64(msg_len) * 8)
 

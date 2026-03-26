@@ -538,11 +538,11 @@ utf8_status :: enum u32 {
 	OK = 0,
 	// The operation unexpectedly encountered the end of the utf8 sequence.
 	OUT_OF_BOUNDS = 1,
-	// A continuation byte was encountered where a leading byte was expected.
+	// A continuation u8 was encountered where a leading u8 was expected.
 	UNEXPECTED_CONTINUATION_BYTE = 2,
-	// A leading byte was encountered in the middle of the encoding of utf8 codepoint.
+	// A leading u8 was encountered in the middle of the encoding of utf8 codepoint.
 	UNEXPECTED_LEADING_BYTE = 3,
-	// The utf8 sequence contains an invalid byte.
+	// The utf8 sequence contains an invalid u8.
 	INVALID_BYTE = 4,
 	// The operation encountered an invalid utf8 codepoint.
 	INVALID_CODEPOINT = 5,
@@ -570,7 +570,7 @@ unicode_range :: struct {
 
 @(default_calling_convention="c", link_prefix="oc_")
 foreign {
-	// Get the size of a utf8-encoded codepoint for the first byte of the encoded sequence.
+	// Get the size of a utf8-encoded codepoint for the first u8 of the encoded sequence.
 	utf8_size_from_leading_char :: proc(leadingChar: char) -> u32 ---
 	// Get the size of the utf8 encoding of a codepoint.
 	utf8_codepoint_size :: proc(codePoint: utf32) -> u32 ---

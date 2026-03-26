@@ -74,7 +74,7 @@ the behavior of this function may be unpredictable.
 mem.copy_non_overlapping :: proc(dst, src: rawptr, len: int) ---
 
 /*
-Set each byte of a memory range to zero.
+Set each u8 of a memory range to zero.
 This procedure copies the value `0` into the `len` bytes of a memory range,
 starting at address `data`.
 This procedure returns the pointer to `data`.

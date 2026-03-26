@@ -7,8 +7,8 @@ import secec "core:crypto/_weierstrass"
 
 @(private)
 Drbg_RFC6979 :: struct {
-	v: [hash.MAX_DIGEST_SIZE]byte,
-	k: [hash.MAX_DIGEST_SIZE]byte,
+	v: [hash.MAX_DIGEST_SIZE]u8,
+	k: [hash.MAX_DIGEST_SIZE]u8,
 
 	algorithm: hash.Algorithm,
 	sz: int,
@@ -16,7 +16,7 @@ Drbg_RFC6979 :: struct {
 }
 
 @(private)
-init_drbg_rfc6979 :: proc(rng: ^Drbg_RFC6979, algorithm: hash.Algorithm, x_bytes, e_bytes: []byte, deterministic: bool) {
+init_drbg_rfc6979 :: proc(rng: ^Drbg_RFC6979, algorithm: hash.Algorithm, x_bytes, e_bytes: []u8, deterministic: bool) {
 	rng.algorithm = algorithm
 	rng.sz = hash.DIGEST_SIZES[algorithm]
 	rng.need_update = false
@@ -26,7 +26,7 @@ init_drbg_rfc6979 :: proc(rng: ^Drbg_RFC6979, algorithm: hash.Algorithm, x_bytes
 	}
 
 	if !deterministic {
-		additional_input: [64]byte
+		additional_input: [64]u8
 		crypto.rand_bytes(additional_input[:])
 		defer crypto.zero_explicit(&additional_input, size_of(additional_input))
 
@@ -77,18 +77,18 @@ drbg_update_k :: proc(rng: ^Drbg_RFC6979) {
 	ctx: hmac.Context
 	hmac.init(&ctx, rng.algorithm, k)
 	hmac.update(&ctx, v)
-	hmac.update(&ctx, []byte{0x00})
+	hmac.update(&ctx, []u8{0x00})
 	hmac.final(&ctx, k)
 }
 
 @(private="file")
-drbg_init_update_k :: proc(rng: ^Drbg_RFC6979, i2o_b, b2o_h1: []byte, internal_octet: byte, additional_input: []byte) {
+drbg_init_update_k :: proc(rng: ^Drbg_RFC6979, i2o_b, b2o_h1: []u8, internal_octet: u8, additional_input: []u8) {
 	k, v := rng.k[:rng.sz], rng.v[:rng.sz]
 
 	ctx: hmac.Context
 	hmac.init(&ctx, rng.algorithm, k)
 	hmac.update(&ctx, v)
-	hmac.update(&ctx, []byte{internal_octet})
+	hmac.update(&ctx, []u8{internal_octet})
 	hmac.update(&ctx, i2o_b)
 	hmac.update(&ctx, b2o_h1)
 	if additional_input != nil {

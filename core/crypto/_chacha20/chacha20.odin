@@ -31,7 +31,7 @@ SIGMA_3: u32 : 0x6b206574
 // Context is a ChaCha20 or XChaCha20 instance.
 Context :: struct {
 	_s:              [STATE_SIZE_U32]u32,
-	_buffer:         [BLOCK_SIZE]byte,
+	_buffer:         [BLOCK_SIZE]u8,
 	_off:            int,
 	_is_ietf_flavor: bool,
 	_is_initialized: bool,
@@ -43,7 +43,7 @@ Context :: struct {
 // WARNING: This ONLY handles ChaCha20.  XChaCha20 sub-key and IV
 // derivation is expected to be handled by the caller, so that the
 // HChaCha call can be suitably accelerated.
-init :: proc(ctx: ^Context, key, iv: []byte, is_xchacha: bool) {
+init :: proc(ctx: ^Context, key, iv: []u8, is_xchacha: bool) {
 	internal.ensure(len(key) == KEY_SIZE, "chacha20: invalid key size")
 	internal.ensure(len(iv) == IV_SIZE, "chacha20: invalid key size")
 

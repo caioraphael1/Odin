@@ -363,7 +363,7 @@ Execute the process and capture stdout and stderr streams.
 This procedure creates a new process, with a given command and environment
 strings as parameters, and waits until the process finishes execution. While
 the process is running, this procedure accumulates the output of its stdout
-and stderr streams and returns byte slices containing the captured data from
+and stderr streams and returns u8 slices containing the captured data from
 the streams.
 
 This procedure expects that `stdout` and `stderr` fields of the `desc` parameter
@@ -380,8 +380,8 @@ process_exec :: proc(
     loc := #caller_location,
 ) -> (
     state: Process_State,
-    stdout: []byte,
-    stderr: []byte,
+    stdout: []u8,
+    stderr: []u8,
     err: Error,
 ) {
     internal.assert(desc.stdout == nil, "Cannot redirect stdout when it's being captured", loc)
@@ -405,10 +405,10 @@ process_exec :: proc(
     }
 
     {
-        stdout_b: dyn_array.Dyn_Array(byte)
+        stdout_b: dyn_array.Dyn_Array(u8)
         stdout_b.allocator = allocator
 
-        stderr_b: dyn_array.Dyn_Array(byte)
+        stderr_b: dyn_array.Dyn_Array(u8)
         stderr_b.allocator = allocator
 
         buf: [1024]u8 = ---

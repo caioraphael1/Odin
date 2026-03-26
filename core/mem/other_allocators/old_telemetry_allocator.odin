@@ -76,7 +76,7 @@ telemetry_allocator_proc :: proc(
     old_memory:      rawptr,
     old_size:        uint,
     loc              := #caller_location,
-    ) -> (new_memory: []byte, err: mem.Allocator_Error) {
+    ) -> (new_memory: []u8, err: mem.Allocator_Error) {
     @(no_sanitize_address)
     track_alloc :: proc(data: ^Telemetry_Allocator, size: uint) {
         data.total_memory_allocated += size

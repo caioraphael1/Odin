@@ -19,7 +19,7 @@ fe_clear_vec :: proc(
 
 fe_from_bytes :: proc(
 	out1: ^Montgomery_Domain_Field_Element,
-	arg1: []byte,
+	arg1: []u8,
 	unsafe_assume_canonical := false,
 ) -> bool {
 	ensure_contextless(len(arg1) == 48, "p384r1: invalid fe input buffer")
@@ -53,7 +53,7 @@ fe_from_bytes :: proc(
 	return true
 }
 
-fe_to_bytes :: proc(out1: []byte, arg1: ^Montgomery_Domain_Field_Element) {
+fe_to_bytes :: proc(out1: []u8, arg1: ^Montgomery_Domain_Field_Element) {
 	ensure_contextless(len(out1) == 48, "p384r1: invalid fe output buffer")
 
 	tmp: Non_Montgomery_Domain_Field_Element = ---

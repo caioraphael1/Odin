@@ -4,7 +4,7 @@ import base_slice "base:container/slice"
 
 
 Fixed_String :: struct($N: u32) where N >= 0 {
-    data: [N]byte,
+    data: [N]u8,
     len:  uint,
 }
 
@@ -35,7 +35,7 @@ as_cstring :: proc(s: ^Fixed_String($N)) -> (cs: cstring, ok: bool) {
     return cstring(&s.data[0]), true
 }
 
-slice :: proc(s: ^Fixed_String($N)) -> []byte {
+slice :: proc(s: ^Fixed_String($N)) -> []u8 {
     return s.data[:s.len]
 }
 
@@ -50,7 +50,7 @@ resize :: proc(s: ^Fixed_String($N), length: uint) -> (ok: bool) {
     s.len = length
     if s.len > prev_len  {
         // Zero only the new region after growth.
-        mem.zero(&s.data[prev_len], size_of(byte) * (s.len - prev_len))
+        mem.zero(&s.data[prev_len], size_of(u8) * (s.len - prev_len))
     }
 
     return

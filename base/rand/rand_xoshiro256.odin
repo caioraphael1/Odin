@@ -9,7 +9,7 @@ Xoshiro256_Random_State :: struct {
     s: [4]u64,
 }
 
-xoshiro256_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []byte) {
+xoshiro256_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []u8) {
     read_u64 :: proc(r: ^Xoshiro256_Random_State) -> u64 {
         // xoshiro256** output function and state transition
 
@@ -87,7 +87,7 @@ xoshiro256_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mo
                 val := read_u64(r)
                 tail := p[len(p) - rem:]
                 for &b in tail {
-                    b = byte(val)
+                    b = u8(val)
                     val >>= 8
                 }
             }

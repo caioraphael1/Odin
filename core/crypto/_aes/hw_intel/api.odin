@@ -25,13 +25,13 @@ Context :: struct {
 	// All the people using e-waste processors that don't support an
 	// insturction set that has been around for over 10 years are why
 	// we can't have nice things.
-	_sk_exp_enc: [15][16]byte,
-	_sk_exp_dec: [15][16]byte,
+	_sk_exp_enc: [15][16]u8,
+	_sk_exp_dec: [15][16]u8,
 	_num_rounds: int,
 }
 
 // init initializes a context for AES with the provided key.
-init :: proc(ctx: ^Context, key: []byte) {
+init :: proc(ctx: ^Context, key: []u8) {
 	keysched(ctx, key)
 }
 

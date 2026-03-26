@@ -13,7 +13,7 @@ foreign bcrypt {
 }
 
 
-_rand_bytes :: proc(dst: []byte) {
+_rand_bytes :: proc(dst: []u8) {
     internal.ensure(u64(len(dst)) <= u64(max(u32)), "base/runtime: oversized rand_bytes request")
 
     BCRYPT_USE_SYSTEM_PREFERRED_RNG :: 0x00000002

@@ -11,7 +11,7 @@ foreign Security {
 	@(link_name="kSecRandomDefault") kSecRandomDefault: RandomRef
 
 	// Generates an array of cryptographically secure random bytes.
-	RandomCopyBytes :: proc(rnd: RandomRef = kSecRandomDefault, count: uint, bytes: [^]byte) -> errSec ---
+	RandomCopyBytes :: proc(rnd: RandomRef = kSecRandomDefault, count: uint, bytes: [^]u8) -> errSec ---
 
 	CopyErrorMessageString :: proc(status: errSec, reserved: rawptr = nil) -> CF.String ---
 }

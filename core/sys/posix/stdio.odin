@@ -19,7 +19,7 @@ foreign lib {
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/ctermid.html ]]
     */
-    ctermid :: proc(s: [^]byte) -> cstring ---
+    ctermid :: proc(s: [^]u8) -> cstring ---
 
     /*
     Equivalent to fprintf but output is written to the file descriptor.
@@ -76,7 +76,7 @@ foreign lib {
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/fmemopen.html ]]
     */
-    fmemopen :: proc(buf: [^]byte, size: c.size_t, mode: cstring) -> ^FILE ---
+    fmemopen :: proc(buf: [^]u8, size: c.size_t, mode: cstring) -> ^FILE ---
 
     /*
     Reposition a file-position indicator in a stream.
@@ -101,7 +101,7 @@ foreign lib {
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/open_memstream.html ]]
     */
-    open_memstream :: proc(bufp: ^[^]byte, sizep: ^c.size_t) -> ^FILE ---
+    open_memstream :: proc(bufp: ^[^]u8, sizep: ^c.size_t) -> ^FILE ---
 
     /*
     Read a delimited record from the stream.

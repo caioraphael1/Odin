@@ -39,7 +39,7 @@ Shoco_Model :: struct {
 
 compress_bound :: proc(uncompressed_size: int) -> (worst_case_compressed_size: int) {
     // Worst case compression happens when input is non-ASCII (128-255)
-    // Encoded as 0x00 + the byte in question.
+    // Encoded as 0x00 + the u8 in question.
     return uncompressed_size * 2
 }
 
@@ -203,11 +203,11 @@ compress_string_to_buffer :: proc(input: string, output: []u8, model := DEFAULT_
                     return out, .Output_Too_Short
                 }
 
-                // Put in a sentinel byte
+                // Put in a sentinel u8
                 output[out] = 0x00
                 out += 1
             } else {
-                // An ASCII byte
+                // An ASCII u8
                 if out + 1 > out_end {
                     return out, .Output_Too_Short
                 }

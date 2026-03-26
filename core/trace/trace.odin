@@ -45,7 +45,7 @@ in_resolve :: proc(ctx: ^Context) -> bool {
 	return intrinsics.atomic_load(&ctx.in_resolve)
 }
 
-_format_hex :: proc(buf: []byte, val: uintptr, allocator: mem.Allocator) -> int {
+_format_hex :: proc(buf: []u8, val: uintptr, allocator: mem.Allocator) -> int {
 	_digits := "0123456789abcdef"
 
 	shift := (size_of(uintptr) * 8) - 4
@@ -63,7 +63,7 @@ _format_hex :: proc(buf: []byte, val: uintptr, allocator: mem.Allocator) -> int 
 
 _format_missing_proc :: proc(addr: uintptr, allocator: mem.Allocator) -> string {
 	PREFIX :: "proc:0x"
-	buf, buf_err := slice.create([]byte, len(PREFIX) + 16, allocator)
+	buf, buf_err := slice.create([]u8, len(PREFIX) + 16, allocator)
 	copy(buf, PREFIX)
 
 	if buf_err != nil {

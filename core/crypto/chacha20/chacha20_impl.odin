@@ -32,7 +32,7 @@ init_impl :: proc(ctx: ^Context, impl: Implementation) {
 }
 
 @(private)
-stream_blocks :: proc(ctx: ^Context, dst, src: []byte, nr_blocks: int) {
+stream_blocks :: proc(ctx: ^Context, dst, src: []u8, nr_blocks: int) {
 	switch ctx._impl {
 	case .Simd256:
 		simd256.stream_blocks(&ctx._state, dst, src, nr_blocks)
@@ -44,7 +44,7 @@ stream_blocks :: proc(ctx: ^Context, dst, src: []byte, nr_blocks: int) {
 }
 
 @(private)
-hchacha20 :: proc(dst, key, iv: []byte, impl: Implementation) {
+hchacha20 :: proc(dst, key, iv: []u8, impl: Implementation) {
 	switch impl {
 	case .Simd256:
 		simd256.hchacha20(dst, key, iv)

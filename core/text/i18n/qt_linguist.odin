@@ -26,7 +26,7 @@ TS_XML_Options := xml.Options{
 	expected_doctype = "TS",
 }
 
-parse_qt_linguist_from_bytes :: proc(data: []byte, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator: mem.Allocator) -> (translation: ^Translation, err: Error) {
+parse_qt_linguist_from_bytes :: proc(data: []u8, options := DEFAULT_PARSE_OPTIONS, pluralizer: proc(int) -> int = nil, allocator: mem.Allocator) -> (translation: ^Translation, err: Error) {
 	context.allocator = allocator
 
 	get_str :: proc(val: xml.Value, intern: ^strings.Intern) -> (str: string, err: Error) {

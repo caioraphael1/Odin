@@ -51,9 +51,9 @@ ptr_swap_overlapping :: proc(x, y: rawptr, len: int) {
     }
     
     N :: 512
-    buffer: [N]byte = ---
+    buffer: [N]u8 = ---
     
-    a, b := ([^]byte)(x), ([^]byte)(y)
+    a, b := ([^]u8)(x), ([^]u8)(y)
     
     for n := len; n > 0; n -= N {
         m := min(n, N)

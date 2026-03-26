@@ -231,7 +231,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
     cname := strings.cstring_clone_from_string(name, allocators.temp_allocator) or_return
 
-    buf: dyn_array.Dyn_Array(byte)
+    buf: dyn_array.Dyn_Array(u8)
     buf.allocator = allocator
     defer if err != nil { _ = slice.delete(buf) }
 
@@ -376,7 +376,7 @@ _exists :: proc(path: string) -> bool {
     return posix.access(cpath) == .OK
 }
 
-_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
+_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
     f  := (^File_Impl)(stream_data)
     fd := f.fd
 

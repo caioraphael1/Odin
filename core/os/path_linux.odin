@@ -11,7 +11,7 @@ _Path_List_Separator   :: ':'
 
 _OPENDIR_FLAGS : linux.Open_Flags : {.NONBLOCK, .DIRECTORY, .LARGEFILE, .CLOEXEC}
 
-_is_path_separator :: proc(c: byte) -> bool {
+_is_path_separator :: proc(c: u8) -> bool {
     return c == _Path_Separator
 }
 
@@ -54,7 +54,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     // need something we can edit, and use to generate cstrings
     path_bytes := slice.create([]u8, len(path) + 1, allocators.temp_allocator)
 
-    // zero terminate the byte slice to make it a valid cstring
+    // zero terminate the u8 slice to make it a valid cstring
     slice.copy(path_bytes, path)
     path_bytes[len(path)] = 0
 
@@ -175,7 +175,7 @@ _set_working_directory :: proc(dir: string) -> Error {
 _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buf := dyn_array.create(byte, 1024, allocators.temp_allocator) or_return
+    buf := dyn_array.create(u8, 1024, allocators.temp_allocator) or_return
     for {
         n, errno := linux.readlink("/proc/self/exe", buf[:])
         if errno != .NONE {

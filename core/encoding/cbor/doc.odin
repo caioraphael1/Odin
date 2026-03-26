@@ -57,14 +57,14 @@ By default, the following tags are supported/provided by this implementation:
 
 - *1/epoch*:   Assign this tag to `time.Time` or integer fields to use the defined seconds since epoch format.
 
-- *24/cbor*:   Assign this tag to string or byte fields to store encoded CBOR (not decoding it).
+- *24/cbor*:   Assign this tag to string or u8 fields to store encoded CBOR (not decoding it).
 
-- *34/base64*: Assign this tag to string or byte fields to store and decode the contents in base64.
+- *34/base64*: Assign this tag to string or u8 fields to store and decode the contents in base64.
 
 - *2 & 3*:     Used automatically by the implementation to encode and decode big numbers into/from `core:math/big`.
 
 - *55799*:     Self described CBOR, used when `.Self_Described_CBOR` flag is used to wrap the entire binary.
-               This shows other implementations that we are dealing with CBOR by just looking at the first byte of input.
+               This shows other implementations that we are dealing with CBOR by just looking at the first u8 of input.
 
 - *1010*:      An extension tag that defines a string type followed by its value, this is used by this implementation to support Odin's unions.
 
@@ -103,7 +103,7 @@ Example:
 
     main :: proc() {
         // Example custom tag implementation that instead of breaking down all parts,
-        // just writes the value as a big byte blob. This is an advanced feature but very powerful.
+        // just writes the value as a big u8 blob. This is an advanced feature but very powerful.
         RAW_TAG_NR :: 200
         cbor.tag_register_number({
             marshal = proc(_: ^cbor.Tag_Implementation, e: cbor.Encoder, v: any) -> cbor.Marshal_Error {

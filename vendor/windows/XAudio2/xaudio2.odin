@@ -185,7 +185,7 @@ FILTER_PARAMETERS :: struct #packed {
 BUFFER :: struct #packed {
     Flags:      FLAGS,                                  // Either 0 or END_OF_STREAM.
     AudioBytes: u32,                                    // Size of the audio data buffer in bytes.
-    pAudioData: [^]byte `fmt:"v,AudioBytes"`,           // Pointer to the audio data buffer.
+    pAudioData: [^]u8 `fmt:"v,AudioBytes"`,           // Pointer to the audio data buffer.
     PlayBegin:  u32,                                    // First sample in this buffer to be played.
     PlayLength: u32,                                    // Length of the region to be played in samples, or 0 to play the whole buffer.
     LoopBegin:  u32,                                    // First sample of the region to be looped.

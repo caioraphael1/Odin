@@ -527,7 +527,7 @@ write_markdown_table :: proc(w: io.Writer, tbl: ^Table, width_proc: Width_Proc =
     }
 }
 
-write_byte_repeat :: proc(w: io.Writer, n: int, b: byte) {
+write_byte_repeat :: proc(w: io.Writer, n: int, b: u8) {
     for _ in 0..<n {
         io.write_byte(w, b)
     }

@@ -31,7 +31,7 @@ BLOCK_SIZE :: 64
 
 // Context is a SHA1 instance.
 Context :: struct {
-	data:    [BLOCK_SIZE]byte,
+	data:    [BLOCK_SIZE]u8,
 	state:   [5]u32,
 	k:       [4]u32,
 	bitlen:  u64,
@@ -59,7 +59,7 @@ init :: proc(ctx: ^Context) {
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	internal.ensure(ctx.is_initialized)
 
 	for i := 0; i < len(data); i += 1 {
@@ -78,7 +78,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 //
 // Iff finalize_clone is set, final will work on a copy of the Context,
 // which is useful for for calculating rolling digests.
-final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
+final :: proc(ctx: ^Context, hash: []u8, finalize_clone: bool = false) {
 	internal.ensure(ctx.is_initialized)
 	internal.ensure(len(hash) >= DIGEST_SIZE, "crypto/sha1: invalid destination digest size")
 
@@ -139,7 +139,7 @@ reset :: proc(ctx: ^$T) {
 */
 
 @(private)
-transform :: proc(ctx: ^Context, data: []byte) {
+transform :: proc(ctx: ^Context, data: []u8) {
 	a, b, c, d, e, i, t: u32
 	m: [80]u32
 

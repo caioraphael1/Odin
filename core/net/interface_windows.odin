@@ -164,7 +164,7 @@ parse_socket_address :: proc(addr_in: sys.SOCKET_ADDRESS) -> (addr: Endpoint) {
         win_addr := cast(^sys.sockaddr_in)addr_in.lpSockaddr
         port     := int(win_addr.sin_port)
         return Endpoint {
-            address = IP4_Address(transmute([4]byte)win_addr.sin_addr),
+            address = IP4_Address(transmute([4]u8)win_addr.sin_addr),
             port    = port,
         }
 

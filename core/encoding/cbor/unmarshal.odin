@@ -46,7 +46,7 @@ unmarshal_from_string :: proc(s: string, ptr: ^$T, flags := Decoder_Flags{}, all
 }
 
 // Unmarshals from a slice of bytes, see docs on the proc group `Unmarshal` for more info.
-unmarshal_from_bytes :: proc(bytes: []byte, ptr: ^$T, flags := Decoder_Flags{}, allocator: mem.Allocator, temp_allocator := allocators.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
+unmarshal_from_bytes :: proc(bytes: []u8, ptr: ^$T, flags := Decoder_Flags{}, allocator: mem.Allocator, temp_allocator := allocators.temp_allocator, loc := #caller_location) -> (err: Unmarshal_Error) {
     return unmarshal_from_string(string(bytes), ptr, flags, allocator, temp_allocator, loc)
 }
 
@@ -345,7 +345,7 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
     case reflect.Type_Info_Slice:
         elem_base := reflect.type_info_base(t.elem)
 
-        if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != u8 { return _unsupported(v, hdr) }
 
         bytes := err_conv(_decode_bytes(d, add, allocator=allocator, loc=loc)) or_return
         raw   := (^slice.Raw_Slice)(v.data)
@@ -355,7 +355,7 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
     case reflect.Type_Info_Dynamic_Array:
         elem_base := reflect.type_info_base(t.elem)
 
-        if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != u8 { return _unsupported(v, hdr) }
         
         bytes         := err_conv(_decode_bytes(d, add, allocator=allocator, loc=loc)) or_return
         raw           := (^dyn_array.Dyn_Array(bytes))(v.data)
@@ -368,7 +368,7 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
     case reflect.Type_Info_Array:
         elem_base := reflect.type_info_base(t.elem)
 
-        if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != u8 { return _unsupported(v, hdr) }
 
         bytes := err_conv(_decode_bytes(d, add, allocator=allocators.temp_allocator)) or_return
         defer _ = slice.delete(bytes, allocators.temp_allocator)
@@ -376,7 +376,7 @@ _unmarshal_bytes :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header
         if len(bytes) > t.count { return _unsupported(v, hdr) }
         
         // Copy into array type, _ = slice.delete original.
-        slice := ([^]byte)(v.data)[:len(bytes)]
+        slice := ([^]u8)(v.data)[:len(bytes)]
         n := slice.copy(slice, bytes)
         internal.assert(n == len(bytes))
         return
@@ -944,8 +944,8 @@ _assign_bool :: proc(val: any, b: bool) -> bool {
     return true
 }
 
-// Sanity check that the decoder added a nil byte to the end.
+// Sanity check that the decoder added a nil u8 to the end.
 @(private, disabled=ODIN_DISABLE_ASSERT)
 assert_safe_for_cstring :: proc(s: string, loc := #caller_location) {
-    internal.assert(([^]byte)(raw_data(s))[len(s)] == 0, loc = loc)
+    internal.assert(([^]u8)(raw_data(s))[len(s)] == 0, loc = loc)
 }

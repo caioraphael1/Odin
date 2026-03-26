@@ -108,9 +108,9 @@ ge_set :: proc(ge, a: ^Group_Element) {
 }
 
 
-ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
+ge_set_bytes :: proc(ge: ^Group_Element, b: []u8) -> bool {
 	ensure_contextless(len(b) == 32, "edwards25519: invalid group element size")
-	b_ := (^[32]byte)(raw_data(b))
+	b_ := (^[32]u8)(raw_data(b))
 
 	// Do the work in a scratch element, so that ge is unchanged on
 	// failure.
@@ -153,9 +153,9 @@ ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
 	field.fe_carry_mul(&tmp.t, field.fe_relax_cast(&tmp.x), field.fe_relax_cast(&tmp.y))
 
 	// Reject non-canonical encodings of ge.
-	buf: [32]byte = ---
+	buf: [32]u8 = ---
 	field.fe_to_bytes(&buf, &tmp.y)
-	buf[31] |= byte(field.fe_is_negative(&tmp.x)) << 7
+	buf[31] |= u8(field.fe_is_negative(&tmp.x)) << 7
 	is_canonical := crypto.compare_constant_time(b, buf[:])
 
 	ge_cond_assign(ge, &tmp, is_canonical)
@@ -165,9 +165,9 @@ ge_set_bytes :: proc(ge: ^Group_Element, b: []byte) -> bool {
 	return is_canonical == 1
 }
 
-ge_bytes :: proc(ge: ^Group_Element, dst: []byte) {
+ge_bytes :: proc(ge: ^Group_Element, dst: []u8) {
 	ensure_contextless(len(dst) == 32, "edwards25519: invalid group element size")
-	dst_ := (^[32]byte)(raw_data(dst))
+	dst_ := (^[32]u8)(raw_data(dst))
 
 	// Convert the element to affine (x, y) representation.
 	x, y, z_inv: field.Tight_Field_Element = ---, ---, ---
@@ -180,7 +180,7 @@ ge_bytes :: proc(ge: ^Group_Element, dst: []byte) {
 
 	// Copy the least significant bit of the x-coordinate to the most
 	// significant bit of the encoded y-coordinate.
-	dst_[31] |= byte((x[0] & 1) << 7)
+	dst_[31] |= u8((x[0] & 1) << 7)
 
 	field.fe_clear_vec([]^field.Tight_Field_Element{&x, &y, &z_inv})
 }

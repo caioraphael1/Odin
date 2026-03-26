@@ -33,27 +33,27 @@ _RATE_256 :: 16
 _RATE_MAX :: _RATE_128L
 
 @(private, rodata)
-_C0 := [16]byte{
+_C0 := [16]u8{
 	0x00, 0x01, 0x01, 0x02, 0x03, 0x05, 0x08, 0x0d,
 	0x15, 0x22, 0x37, 0x59, 0x90, 0xe9, 0x79, 0x62,
 }
 
 @(private, rodata)
-_C1 := [16]byte {
+_C1 := [16]u8 {
 	0xdb, 0x3d, 0x18, 0x55, 0x6d, 0xc2, 0x2f, 0xf1,
 	0x20, 0x11, 0x31, 0x42, 0x73, 0xb5, 0x28, 0xdd,
 }
 
 // Context is a keyed AEGIS-128L or AEGIS-256 instance.
 Context :: struct {
-	_key:            [KEY_SIZE_256]byte,
+	_key:            [KEY_SIZE_256]u8,
 	_key_len:        int,
 	_impl:           aes.Implementation,
 	_is_initialized: bool,
 }
 
 @(private)
-_validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte) {
+_validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []u8) {
 	switch len(tag) {
 	case TAG_SIZE_128, TAG_SIZE_256:
 	case:
@@ -77,7 +77,7 @@ _validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte)
 }
 
 // init initializes a Context with the provided key, for AEGIS-128L or AEGIS-256.
-init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
+init :: proc(ctx: ^Context, key: []u8, impl := aes.DEFAULT_IMPLEMENTATION) {
 	switch len(key) {
 	case KEY_SIZE_128L, KEY_SIZE_256:
 	case:
@@ -97,7 +97,7 @@ init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
 // with the provided Context and iv, stores the output in dst and tag.
 //
 // dst and plaintext MUST alias exactly or not at all.
-seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
+seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []u8) {
 	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, plaintext)
@@ -149,14 +149,14 @@ seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 //
 // dst and plaintext MUST alias exactly or not at all.
 
-open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
+open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []u8) -> bool {
 	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, ciphertext)
 	internal.ensure(len(dst) == len(ciphertext), "crypto/aegis: invalid destination plaintext size")
 	internal.ensure(!bytes.alias_inexactly(dst, ciphertext), "crypto/aegis: dst and ciphertext alias inexactly")
 
-	tmp: [TAG_SIZE_256]byte
+	tmp: [TAG_SIZE_256]u8
 	derived_tag := tmp[:len(tag)]
 	aad_len, ct_len := len(aad), len(ciphertext)
 

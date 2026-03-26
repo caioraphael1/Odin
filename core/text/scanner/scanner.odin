@@ -2,7 +2,7 @@
 // It takes a string providing the source, which then can be tokenized through
 // repeated calls to the scan procedure.
 // For compatibility with existing tooling and languages, the NUL character is not allowed.
-// If an UTF-8 encoded byte order mark (BOM) is the first character in the source, it will be discarded.
+// If an UTF-8 encoded u8 order mark (BOM) is the first character in the source, it will be discarded.
 //
 // By default, a Scanner skips white space and Odin comments and recognizes all literals defined by the Odin programming language specification.
 // A Scanner may be customized to recognize only a subset of those literals and to recognize different identifiers and white space characters.
@@ -16,7 +16,7 @@ import "base:unicode/utf8"
 // A position is valid if line > 0
 Position :: struct {
     filename: string, // filename, if present
-    offset:   int,    // byte offset, starting @ 0
+    offset:   int,    // u8 offset, starting @ 0
     line:     int,    // line number, starting @ 1
     column:   int,    // column number, starting @ 1 (character count per line)
 }

@@ -182,7 +182,7 @@ _close :: proc(skt: Any_Socket) {
 }
 
 @(private)
-_recv_tcp :: proc(skt: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP_Recv_Error) {
+_recv_tcp :: proc(skt: TCP_Socket, buf: []u8) -> (bytes_read: int, err: TCP_Recv_Error) {
 	if len(buf) <= 0 {
 		return
 	}
@@ -197,7 +197,7 @@ _recv_tcp :: proc(skt: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP_Re
 }
 
 @(private)
-_recv_udp :: proc(skt: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
+_recv_udp :: proc(skt: UDP_Socket, buf: []u8) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
 	if len(buf) <= 0 {
 		return
 	}
@@ -216,7 +216,7 @@ _recv_udp :: proc(skt: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_endp
 }
 
 @(private)
-_send_tcp :: proc(skt: TCP_Socket, buf: []byte) -> (bytes_written: int, err: TCP_Send_Error) {
+_send_tcp :: proc(skt: TCP_Socket, buf: []u8) -> (bytes_written: int, err: TCP_Send_Error) {
 	for bytes_written < len(buf) {
 		limit := min(int(max(i32)), len(buf) - bytes_written)
 		remaining := buf[bytes_written:][:limit]
@@ -232,7 +232,7 @@ _send_tcp :: proc(skt: TCP_Socket, buf: []byte) -> (bytes_written: int, err: TCP
 }
 
 @(private)
-_send_udp :: proc(skt: UDP_Socket, buf: []byte, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
+_send_udp :: proc(skt: UDP_Socket, buf: []u8, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
 	toaddr := _endpoint_to_sockaddr(to)
 	for bytes_written < len(buf) {
 		limit := min(1<<31, len(buf) - bytes_written)
@@ -261,7 +261,7 @@ _shutdown :: proc(skt: Any_Socket, manner: Shutdown_Manner) -> (err: Shutdown_Er
 _set_option :: proc(s: Any_Socket, option: Socket_Option, value: any, loc := #caller_location) -> Socket_Option_Error {
 	level := posix.SOL_SOCKET if option != .TCP_Nodelay else posix.IPPROTO_TCP
 
-	// NOTE(tetra, 2022-02-15): On Linux, you cannot merely give a single byte for a bool;
+	// NOTE(tetra, 2022-02-15): On Linux, you cannot merely give a single u8 for a bool;
 	//  it _has_ to be a b32.
 	//  I haven't tested if you can give more than that.
 	bool_value: b32
@@ -388,7 +388,7 @@ _sockaddr_to_endpoint :: proc(native_addr: ^posix.sockaddr_storage) -> (ep: Endp
 		addr := cast(^posix.sockaddr_in)native_addr
 		port := int(addr.sin_port)
 		ep = Endpoint {
-			address = IP4_Address(transmute([4]byte)addr.sin_addr),
+			address = IP4_Address(transmute([4]u8)addr.sin_addr),
 			port    = port,
 		}
 	case .INET6:
@@ -411,7 +411,7 @@ _sockaddr_basic_to_endpoint :: proc(native_addr: ^posix.sockaddr) -> (ep: Endpoi
 		addr := cast(^posix.sockaddr_in)native_addr
 		port := int(addr.sin_port)
 		ep = Endpoint {
-			address = IP4_Address(transmute([4]byte)addr.sin_addr),
+			address = IP4_Address(transmute([4]u8)addr.sin_addr),
 			port    = port,
 		}
 	case .INET6:

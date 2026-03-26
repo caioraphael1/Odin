@@ -359,7 +359,7 @@ Read_Entire_File_Error :: struct {
     value:     FS_Error,
 }
 
-Read_Entire_File_Callback :: #type proc(user_data: rawptr, data: []byte, err: Read_Entire_File_Error)
+Read_Entire_File_Callback :: #type proc(user_data: rawptr, data: []u8, err: Read_Entire_File_Error)
 
 /*
 Combines multiple operations (open, stat, read, close) into one that reads an entire regular file.

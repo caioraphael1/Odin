@@ -8,7 +8,7 @@ _Path_Separator        :: '/'
 _Path_Separator_String :: "/"
 _Path_List_Separator   :: ':'
 
-_is_path_separator :: proc(c: byte) -> bool {
+_is_path_separator :: proc(c: u8) -> bool {
     return c == _Path_Separator
 }
 

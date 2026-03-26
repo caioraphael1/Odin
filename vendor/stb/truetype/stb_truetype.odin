@@ -61,9 +61,9 @@ foreign stbtt {
 	// if return is negative, returns the negative of the number of characters that fit
 	// if return is 0, no characters fit and no rows were used
 	// This uses a very crappy packing.
-	BakeFontBitmap :: proc(data: [^]byte, offset: c.int,   // font location (use offset=0 for plain .ttf)
+	BakeFontBitmap :: proc(data: [^]u8, offset: c.int,   // font location (use offset=0 for plain .ttf)
 	                       pixel_height: f32,              // height of font in pixels
-	                       pixels: [^]byte, pw, ph: c.int, // bitmap to be filled in
+	                       pixels: [^]u8, pw, ph: c.int, // bitmap to be filled in
 	                       first_char, num_chars: c.int,   // characters to bake
 	                       chardata: [^]bakedchar,         // you allocate this, it's num_chars long
 	) -> c.int ---
@@ -85,7 +85,7 @@ foreign stbtt {
 	) ---
 	
 	// Query the font vertical metrics without having to create a font first.
-	GetScaledFontVMetrics :: proc(fontdata: [^]byte, index: c.int, size: f32, ascent, descent, lineGap: ^f32) ---
+	GetScaledFontVMetrics :: proc(fontdata: [^]u8, index: c.int, size: f32, ascent, descent, lineGap: ^f32) ---
 
 }
 
@@ -118,7 +118,7 @@ pack_context :: struct {
 	width, height, stride_in_bytes, padding: c.int,
 	skip_missing:                            b32,
 	h_oversample, v_oversample:              u32,
-	pixels:                                  [^]byte,
+	pixels:                                  [^]u8,
 	nodes:                                   rawptr,
 }
 
@@ -136,7 +136,7 @@ foreign stbtt {
 	// bilinear filtering).
 	//
 	// Returns 0 on failure, 1 on success.
-	PackBegin :: proc(spc: ^pack_context, pixels: [^]byte, width, height, stride_in_bytes, padding: c.int, alloc_context: rawptr) -> c.int ---
+	PackBegin :: proc(spc: ^pack_context, pixels: [^]u8, width, height, stride_in_bytes, padding: c.int, alloc_context: rawptr) -> c.int ---
 	
 	// Cleans up the packing context and frees all memory.
 	PackEnd :: proc(spc: ^pack_context) ---
@@ -153,13 +153,13 @@ foreign stbtt {
 	// and pass that result as 'font_size':
 	//       ...,            20 , ... // font max minus min y is 20 pixels tall
 	//       ..., POINT_SIZE(20), ... // 'M' is 20 pixels tall
-	PackFontRange :: proc(spc: ^pack_context, fontdata: [^]byte, font_index: c.int, font_size: f32, first_unicode_char_in_range, num_chars_in_range: c.int, chardata_for_range: ^packedchar) -> c.int ---
+	PackFontRange :: proc(spc: ^pack_context, fontdata: [^]u8, font_index: c.int, font_size: f32, first_unicode_char_in_range, num_chars_in_range: c.int, chardata_for_range: ^packedchar) -> c.int ---
 	
 	// Creates character bitmaps from multiple ranges of characters stored in
 	// ranges. This will usually create a better-packed bitmap than multiple
 	// calls to stbtt_PackFontRange. Note that you can call this multiple
 	// times within a single PackBegin/PackEnd.
-	PackFontRanges :: proc(spc: ^pack_context, fontdata: [^]byte, font_index: c.int, ranges: [^]pack_range, num_ranges: c.int) -> c.int ---
+	PackFontRanges :: proc(spc: ^pack_context, fontdata: [^]u8, font_index: c.int, ranges: [^]pack_range, num_ranges: c.int) -> c.int ---
 	
 	// Oversampling a font increases the quality by allowing higher-quality subpixel
 	// positioning, and is especially valuable at smaller text sizes.
@@ -212,7 +212,7 @@ foreign stbtt {
 
 fontinfo :: struct {
 	userdata:  rawptr,
-	data:      [^]byte,
+	data:      [^]u8,
 	fontstart: c.int,
 
 	numGlyphs: c.int,
@@ -236,21 +236,21 @@ foreign stbtt {
 	// the stbtt_fontinfo yourself, and stbtt_InitFont will fill it out. You don't
 	// need to do anything special to free it, because the contents are pure
 	// value data with no additional data structures. Returns 0 on failure.
-	InitFont :: proc(info: ^fontinfo, data: [^]byte, offset: c.int) -> b32 ---
+	InitFont :: proc(info: ^fontinfo, data: [^]u8, offset: c.int) -> b32 ---
 	
 	// This function will determine the number of fonts in a font file.  TrueType
 	// collection (.ttc) files may contain multiple fonts, while TrueType font
 	// (.ttf) files only contain one font. The number of fonts can be used for
 	// indexing with the previous function where the index is between zero and one
 	// less than the total fonts. If an error occurs, -1 is returned.
-	GetNumberOfFonts :: proc(data: [^]byte) -> c.int ---
+	GetNumberOfFonts :: proc(data: [^]u8) -> c.int ---
 	
 	// Each .ttf/.ttc file may have more than one font. Each font has a sequential
 	// index number starting from 0. Call this function to get the font offset for
 	// a given index; it returns -1 if the index is out of range. A regular .ttf
 	// file will only define one font and it always be at offset 0, so it will
 	// return '0' for index 0, and -1 for all other indices.
-	GetFontOffsetForIndex :: proc(data: [^]byte, index: c.int) -> c.int ---
+	GetFontOffsetForIndex :: proc(data: [^]u8, index: c.int) -> c.int ---
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -354,7 +354,7 @@ vmove :: enum c.int {
 vertex_type :: distinct c.short // can't use stbtt_int16 because that's not visible in the header file
 vertex :: struct {
 	x, y, cx, cy, cx1, cy1: vertex_type,
-	type, padding:          byte,
+	type, padding:          u8,
 }
 
 @(default_calling_convention="c", link_prefix="stbtt_")
@@ -379,7 +379,7 @@ foreign stbtt {
 
 	// fills svg with the character's SVG data.
 	// returns data size or 0 if SVG not found.
-	FindSVGDoc       :: proc(info: ^fontinfo, gl: b32) -> [^]byte ---
+	FindSVGDoc       :: proc(info: ^fontinfo, gl: b32) -> [^]u8 ---
 	GetCodepointSVG  :: proc(info: ^fontinfo, unicode_codepoint: rune, svg: ^cstring) -> c.int ---
 	GetGlyphSVG      :: proc(info: ^fontinfo, gl: b32, svg: ^cstring) -> c.int ---
 }
@@ -392,13 +392,13 @@ foreign stbtt {
 
 _bitmap :: struct {
 	w, h, stride: c.int,
-	pixels: [^]byte,
+	pixels: [^]u8,
 }
 
 @(default_calling_convention="c", link_prefix="stbtt_")
 foreign stbtt {
 	// frees the bitmap allocated below
-	FreeBitmap :: proc(bitmap: [^]byte, userdata: rawptr) ---
+	FreeBitmap :: proc(bitmap: [^]u8, userdata: rawptr) ---
 
 	// allocates a large-enough single-channel 8bpp bitmap and renders the
 	// specified character/glyph at the specified scale into it, with
@@ -407,25 +407,25 @@ foreign stbtt {
 	// which is stored left-to-right, top-to-bottom.
 	//
 	// xoff/yoff are the offset it pixel space from the glyph origin to the top-left of the bitmap
-	GetCodepointBitmap :: proc(info: ^fontinfo, scale_x, scale_y: f32, codepoint: rune, width, height, xoff, yoff: ^c.int) -> [^]byte ---
+	GetCodepointBitmap :: proc(info: ^fontinfo, scale_x, scale_y: f32, codepoint: rune, width, height, xoff, yoff: ^c.int) -> [^]u8 ---
 
 	// the same as stbtt_GetCodepoitnBitmap, but you can specify a subpixel
 	// shift for the character
-	GetCodepointBitmapSubpixel :: proc(info: ^fontinfo, scale_x, scale_y, shift_x, shift_y: f32, codepoint: rune, width, height, xoff, yoff: ^c.int) -> [^]byte ---
+	GetCodepointBitmapSubpixel :: proc(info: ^fontinfo, scale_x, scale_y, shift_x, shift_y: f32, codepoint: rune, width, height, xoff, yoff: ^c.int) -> [^]u8 ---
 
 	// the same as stbtt_GetCodepointBitmap, but you pass in storage for the bitmap
 	// in the form of 'output', with row spacing of 'out_stride' bytes. the bitmap
 	// is clipped to out_w/out_h bytes. Call stbtt_GetCodepointBitmapBox to get the
 	// width and height and positioning info for it first.
-	MakeCodepointBitmap :: proc(info: ^fontinfo, output: [^]byte, out_w, out_h, out_stride: c.int, scale_x, scale_y: f32, codepoint: rune) ---
+	MakeCodepointBitmap :: proc(info: ^fontinfo, output: [^]u8, out_w, out_h, out_stride: c.int, scale_x, scale_y: f32, codepoint: rune) ---
 
 	// same as stbtt_MakeCodepointBitmap, but you can specify a subpixel
 	// shift for the character
-	MakeCodepointBitmapSubpixel :: proc(info: ^fontinfo, output: [^]byte, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, codepoint: rune) ---
+	MakeCodepointBitmapSubpixel :: proc(info: ^fontinfo, output: [^]u8, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, codepoint: rune) ---
 
 	// same as stbtt_MakeCodepointBitmapSubpixel, but prefiltering
 	// is performed (see stbtt_PackSetOversampling)
-	MakeCodepointBitmapSubpixelPrefilter :: proc(info: ^fontinfo, output: [^]byte, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, oversample_x, oversample_y: b32, sub_x, sub_y: ^f32, codepoint: rune) ---
+	MakeCodepointBitmapSubpixelPrefilter :: proc(info: ^fontinfo, output: [^]u8, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, oversample_x, oversample_y: b32, sub_x, sub_y: ^f32, codepoint: rune) ---
 
 	// get the bbox of the bitmap centered around the glyph origin; so the
 	// bitmap width is ix1-ix0, height is iy1-iy0, and location to place
@@ -440,11 +440,11 @@ foreign stbtt {
 
 	// the following functions are equivalent to the above functions, but operate
 	// on glyph indices instead of Unicode codepoints (for efficiency)
-	GetGlyphBitmap                   :: proc(info: ^fontinfo, scale_x, scale_y: f32, glyph: c.int, width, height, xoff, yoff: ^c.int) -> [^]byte ---
-	GetGlyphBitmapSubpixel           :: proc(info: ^fontinfo, scale_x, scale_y, shift_x, shift_y: f32, glyph: c.int, width, height, xoff, yoff: ^c.int) -> [^]byte ---
-	MakeGlyphBitmap                  :: proc(info: ^fontinfo, output: [^]byte, out_w, out_h, out_stride: c.int, scale_x, scale_y: f32, glyph: c.int) ---
-	MakeGlyphBitmapSubpixel          :: proc(info: ^fontinfo, output: [^]byte, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, glyph: c.int) ---
-	MakeGlyphBitmapSubpixelPrefilter :: proc(info: ^fontinfo, output: [^]byte, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, oversample_x, oversample_y: c.int, sub_x, sub_y: ^f32, glyph: c.int) ---
+	GetGlyphBitmap                   :: proc(info: ^fontinfo, scale_x, scale_y: f32, glyph: c.int, width, height, xoff, yoff: ^c.int) -> [^]u8 ---
+	GetGlyphBitmapSubpixel           :: proc(info: ^fontinfo, scale_x, scale_y, shift_x, shift_y: f32, glyph: c.int, width, height, xoff, yoff: ^c.int) -> [^]u8 ---
+	MakeGlyphBitmap                  :: proc(info: ^fontinfo, output: [^]u8, out_w, out_h, out_stride: c.int, scale_x, scale_y: f32, glyph: c.int) ---
+	MakeGlyphBitmapSubpixel          :: proc(info: ^fontinfo, output: [^]u8, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, glyph: c.int) ---
+	MakeGlyphBitmapSubpixelPrefilter :: proc(info: ^fontinfo, output: [^]u8, out_w, out_h, out_stride: c.int, scale_x, scale_y, shift_x, shift_y: f32, oversample_x, oversample_y: c.int, sub_x, sub_y: ^f32, glyph: c.int) ---
 	GetGlyphBitmapBox                :: proc(font: ^fontinfo, glyph: c.int, scale_x, scale_y: f32, ix0, iy0, ix1, iy1: ^c.int) ---
 	GetGlyphBitmapBoxSubpixel        :: proc(font: ^fontinfo, glyph: c.int, scale_x, scale_y, shift_x, shift_y: f32, ix0, iy0, ix1, iy1: ^c.int) ---
 	
@@ -470,7 +470,7 @@ foreign stbtt {
 @(default_calling_convention="c", link_prefix="stbtt_")
 foreign stbtt {
 	// frees the SDF bitmap allocated below
-	FreeSDF :: proc(bitmap: [^]byte, userdata: rawptr) ---
+	FreeSDF :: proc(bitmap: [^]u8, userdata: rawptr) ---
 	
 	// These functions compute a discretized SDF field for a single character, suitable for storing
 	// in a single-channel texture, sampling with bilinear filtering, and testing against
@@ -519,8 +519,8 @@ foreign stbtt {
 	// The algorithm has not been optimized at all, so expect it to be slow
 	// if computing lots of characters or very large sizes.
 
-	GetGlyphSDF     :: proc(info: ^fontinfo, scale: f32, glyph, padding: c.int, onedge_value: u8, pixel_dist_scale: f32, width, height, xoff, yoff: ^c.int) -> [^]byte ---
-	GetCodepointSDF :: proc(info: ^fontinfo, scale: f32, codepoint, padding: c.int, onedge_value: u8, pixel_dist_scale: f32, width, height, xoff, yoff: ^c.int) -> [^]byte ---
+	GetGlyphSDF     :: proc(info: ^fontinfo, scale: f32, glyph, padding: c.int, onedge_value: u8, pixel_dist_scale: f32, width, height, xoff, yoff: ^c.int) -> [^]u8 ---
+	GetCodepointSDF :: proc(info: ^fontinfo, scale: f32, codepoint, padding: c.int, onedge_value: u8, pixel_dist_scale: f32, width, height, xoff, yoff: ^c.int) -> [^]u8 ---
 }
 
 
@@ -558,13 +558,13 @@ foreign stbtt {
 	//   if you use STBTT_MACSTYLE_DONTCARE, use a font name like "Arial Bold".
 	//   if you use any other flag, use a font name like "Arial"; this checks
 	//     the 'macStyle' header field; i don't know if fonts set this consistently
-	FindMatchingFont :: proc(fontdata: [^]byte, name: cstring, flags: c.int) -> c.int ---
+	FindMatchingFont :: proc(fontdata: [^]u8, name: cstring, flags: c.int) -> c.int ---
 	
 	// returns 1/0 whether the first string interpreted as utf8 is identical to
 	// the second string interpreted as big-endian utf16... useful for strings from next func
 	CompareUTF8toUTF16_bigendian :: proc(s1: cstring, len1: c.int, s2: cstring, len2: c.int) -> c.int ---
 
-	// returns the string (which may be big-endian double byte, e.g. for unicode)
+	// returns the string (which may be big-endian double u8, e.g. for unicode)
 	// and puts the length in bytes in *length.
 	//
 	// some of the values for the IDs are below; for more see the truetype spec:
@@ -622,7 +622,7 @@ MAC_LANG_ITALIAN, MAC_LANG_CHINESE_TRAD       :: 3,  19
 
 // private structure
 _buf :: struct {
-	data:   [^]byte,
+	data:   [^]u8,
 	cursor: c.int,
 	size:   c.int,
 }

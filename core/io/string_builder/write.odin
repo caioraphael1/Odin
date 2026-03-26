@@ -6,7 +6,7 @@ import "core:io"
 
 
 @(private)
-_builder_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_builder_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     b := (^Builder)(stream_data)
     #partial switch mode {
     case .Write:
@@ -48,7 +48,7 @@ Output:
     ab
 */
 @(optional_results)
-write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: uint) {
+write_byte :: proc(b: ^Builder, x: u8, loc := #caller_location) -> (n: uint) {
     n0 := b.buf.len
     _ = dyn_array.append(&b.buf, x, loc)
     n1 := b.buf.len
@@ -58,12 +58,12 @@ write_byte :: proc(b: ^Builder, x: byte, loc := #caller_location) -> (n: uint) {
 /*
 Example:
     builder := string_builder.builder_create()
-    bytes := [?]byte { 'a', 'b', 'c' }
+    bytes := [?]u8 { 'a', 'b', 'c' }
     string_builder.write_bytes(&builder, bytes[:]) // 3
     fmt.println(string_builder.to_string(builder)) // -> abc
 */
 @(optional_results)
-write_bytes :: proc(b: ^Builder, x: []byte, loc := #caller_location) -> (n: uint) {
+write_bytes :: proc(b: ^Builder, x: []u8, loc := #caller_location) -> (n: uint) {
     n0 := b.buf.len
     _ = dyn_array.append_many(&b.buf, ..x, loc=loc)
     n1 := b.buf.len
@@ -133,7 +133,7 @@ Output:
     "a"'bc'"xyz"
 */
 @(optional_results)
-write_quoted_string :: proc(b: ^Builder, str: string, quote: byte = '"') -> (n: uint) {
+write_quoted_string :: proc(b: ^Builder, str: string, quote: u8 = '"') -> (n: uint) {
     n, _ = io.write_quoted_string(to_writer(b), str, quote)
     return
 }
@@ -173,14 +173,14 @@ Inputs:
 - `html_safe` flag in case the runes '<', '>', '&' should be encoded as digits e.g. `\u0026`
 */
 @(optional_results)
-write_escaped_rune :: proc(b: ^Builder, r: rune, quote: byte, html_safe := false) -> (n: uint) {
+write_escaped_rune :: proc(b: ^Builder, r: rune, quote: u8, html_safe := false) -> (n: uint) {
     n, _ = io.write_escaped_rune(to_writer(b), r, quote, html_safe)
     return
 }
 
 @(optional_results)
-write_float :: proc(b: ^Builder, f: f64, fmt: byte, prec, bit_size: uint, always_signed := false) -> (n: uint) {
-    buf: [384]byte
+write_float :: proc(b: ^Builder, f: f64, fmt: u8, prec, bit_size: uint, always_signed := false) -> (n: uint) {
+    buf: [384]u8
     s := strconv.write_float(buf[:], f, fmt, prec, bit_size, false)
     // If the result starts with a `+` then unless we always want signed results,
     // we skip it unless it's followed by an `I` (because of +Inf).
@@ -191,8 +191,8 @@ write_float :: proc(b: ^Builder, f: f64, fmt: byte, prec, bit_size: uint, always
 }
 
 @(optional_results)
-write_f16 :: proc(b: ^Builder, f: f16, fmt: byte, always_signed := false) -> (n: uint) {
-    buf: [384]byte
+write_f16 :: proc(b: ^Builder, f: f16, fmt: u8, always_signed := false) -> (n: uint) {
+    buf: [384]u8
     s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f), false)
     if !always_signed && (buf[0] == '+' && buf[1] != 'I') {
         s = s[1:]
@@ -211,8 +211,8 @@ Output:
     3.14159012 - -1.23000003e-01
 */
 @(optional_results)
-write_f32 :: proc(b: ^Builder, f: f32, fmt: byte, always_signed := false) -> (n: uint) {
-    buf: [384]byte
+write_f32 :: proc(b: ^Builder, f: f32, fmt: u8, always_signed := false) -> (n: uint) {
+    buf: [384]u8
     s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f), false)
     if !always_signed && (buf[0] == '+' && buf[1] != 'I') {
         s = s[1:]
@@ -221,8 +221,8 @@ write_f32 :: proc(b: ^Builder, f: f32, fmt: byte, always_signed := false) -> (n:
 }
 
 @(optional_results)
-write_f64 :: proc(b: ^Builder, f: f64, fmt: byte, always_signed := false) -> (n: uint) {
-    buf: [384]byte
+write_f64 :: proc(b: ^Builder, f: f64, fmt: u8, always_signed := false) -> (n: uint) {
+    buf: [384]u8
     s := strconv.write_float(buf[:], f64(f), fmt, 2*size_of(f), 8*size_of(f), false)
     if !always_signed && (buf[0] == '+' && buf[1] != 'I') {
         s = s[1:]
@@ -232,14 +232,14 @@ write_f64 :: proc(b: ^Builder, f: f64, fmt: byte, always_signed := false) -> (n:
 
 @(optional_results)
 write_u64 :: proc(b: ^Builder, i: u64, base: uint = 10) -> (n: uint) {
-    buf: [32]byte
+    buf: [32]u8
     s := strconv.write_bits(buf[:], i, base, false, 64, strconv.digits, nil)
     return write_string(b, s)
 }
 
 @(optional_results)
 write_i64 :: proc(b: ^Builder, i: i64, base: uint = 10) -> (n: uint) {
-    buf: [32]byte
+    buf: [32]u8
     s := strconv.write_bits(buf[:], u64(i), base, true, 64, strconv.digits, nil)
     return write_string(b, s)
 }

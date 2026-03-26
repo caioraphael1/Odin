@@ -2,7 +2,7 @@
 import "base:mem"
 import "core:bytes"
 
-Loader_Proc :: #type proc(data: []byte, options: Options, allocator: mem.Allocator) -> (img: ^Image, err: Error)
+Loader_Proc :: #type proc(data: []u8, options: Options, allocator: mem.Allocator) -> (img: ^Image, err: Error)
 Destroy_Proc :: #type proc(img: ^Image)
 
 @(private)
@@ -19,7 +19,7 @@ register :: proc(kind: Which_File_Type, loader: Loader_Proc, destroyer: Destroy_
 	_internal_destroyers[kind] = destroyer
 }
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []u8, options := Options{}, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
 	loader := _internal_loaders[which(data)]
 	if loader == nil {
 
@@ -76,7 +76,7 @@ Which_File_Type :: enum {
 	XBM, // X BitMap
 }
 
-which_bytes :: proc(data: []byte) -> Which_File_Type {
+which_bytes :: proc(data: []u8) -> Which_File_Type {
 	test_tga :: proc(s: string) -> bool {
 		get8 :: #force_inline proc(s: ^string) -> u8 {
 			v := s[0]
@@ -125,7 +125,7 @@ which_bytes :: proc(data: []byte) -> Which_File_Type {
 		return true
 	}
 
-	header: [128]byte
+	header: [128]u8
 	slice.copy(header[:], data)
 	s := string(header[:])
 

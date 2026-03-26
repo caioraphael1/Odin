@@ -3852,7 +3852,7 @@ gb_internal lbValue lb_build_unary_and(lbProcedure *p, Ast *expr) {
                 }
                 lbValue data_ptr = lb_emit_struct_ev(p, v, 0);
                 if (do_type_check) {
-                    GB_ASSERT(!build_context.no_rtti);
+                    GB_ASSERT(!build_context.no_rtti); // ensure RTTI is enabled.
 
                     lbValue any_id = lb_emit_struct_ev(p, v, 1);
 

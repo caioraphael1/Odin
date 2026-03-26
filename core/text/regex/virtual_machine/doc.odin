@@ -58,7 +58,7 @@ For more information, see: https://swtch.com/~rsc/regexp/regexp2.html
 
     (0x02) Byte
 
-    Consumes one byte from the text using its operand, which is also a byte.
+    Consumes one u8 from the text using its operand, which is also a u8.
 
     (0x03) Rune
 
@@ -67,13 +67,13 @@ For more information, see: https://swtch.com/~rsc/regexp/regexp2.html
 
     (0x04) Rune_Class
 
-    Consumes one character (which may be an ASCII byte or Unicode codepoint,
+    Consumes one character (which may be an ASCII u8 or Unicode codepoint,
     wholly dependent on which mode the virtual machine is running in) from the
     text.
 
     The actual data storing what runes and ranges of runes apply to the class
     are stored alongside the program in the Regular_Expression structure and
-    the operand for this opcode is a single byte which indexes into a
+    the operand for this opcode is a single u8 which indexes into a
     collection of these data structures.
 
     (0x05) Rune_Class_Negated
@@ -83,7 +83,7 @@ For more information, see: https://swtch.com/~rsc/regexp/regexp2.html
 
     (0x06) Wildcard
 
-    Consumes one byte or one Unicode codepoint, depending on the VM mode.
+    Consumes one u8 or one Unicode codepoint, depending on the VM mode.
 
     (0x07) Jump
 

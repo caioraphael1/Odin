@@ -21,12 +21,12 @@ import "base:internal"
 import "core:os"
 
 /*
-	We might add functions to read and write byte-encoded Ints from/to files, using `int_to_bytes_*` functions.
+	We might add functions to read and write u8-encoded Ints from/to files, using `int_to_bytes_*` functions.
 
 	LibTomMath allows exporting/importing to/from a file in ASCII, but it doesn't support a much more compact representation in binary, even though it has several pack functions int_to_bytes_* (which I expanded upon and wrote Python interoperable versions of as well), and (un)pack, which is GMP compatible.
 	Someone could implement their own read/write binary int procedures, of course.
 
-	Could be worthwhile to add a canonical binary file representation with an optional small header that says it's an Odin big.Int, big.Rat or Big.Float, byte count for each component that follows, flag for big/little endian and a flag that says a checksum exists at the end of the file.
+	Could be worthwhile to add a canonical binary file representation with an optional small header that says it's an Odin big.Int, big.Rat or Big.Float, u8 count for each component that follows, flag for big/little endian and a flag that says a checksum exists at the end of the file.
 	For big.Rat and big.Float the header couldn't be optional, because we'd have no way to distinguish where the components end.
 */
 

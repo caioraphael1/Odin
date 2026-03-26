@@ -39,7 +39,7 @@
     5.  All audio data is interleaved in XAudio2.
 	The default audio format for an effect chain is WAVE_FORMAT_IEEE_FLOAT.
 
-    6.  User-defined XAPOs should assume all input and output buffers are 16-byte aligned.   */
+    6.  User-defined XAPOs should assume all input and output buffers are 16-u8 aligned.   */
 
 import win "core:sys/windows"
 
@@ -134,7 +134,7 @@ XAPO_BUFFER_FLAGS :: enum i32 {
 
 // Process buffer parameters:
 // Defines buffer parameters that may change from one processing pass to the next. Used with IXAPO.Process.
-// Note the byte size of the respective buffer must be at least:
+// Note the u8 size of the respective buffer must be at least:
 //      XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS.MaxFrameCount * XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS.pFormat.nBlockAlign
 // Although the audio format and maximum size of the respective buffer is locked (defined by XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS), the actual memory address of the buffer given is permitted to change from one processing pass to the next.
 // For CBR XAPOs, ValidFrameCount is constant while locked and equals the respective XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS.MaxFrameCount.

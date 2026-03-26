@@ -170,7 +170,7 @@ XXH3_reset_internal :: proc(state: ^XXH3_state, seed: XXH64_hash, secret: []u8, 
 
 /*
     Note: when XXH3_consumeStripes() is invoked, there must be a guarantee that at least
-    one more byte must be consumed from input so that the function can blindly consume
+    one more u8 must be consumed from input so that the function can blindly consume
     all stripes using the "normal" secret segment.
 */
 

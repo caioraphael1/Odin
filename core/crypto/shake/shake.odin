@@ -33,25 +33,25 @@ init_256 :: proc(ctx: ^Context) {
 }
 
 // init_cshake_128 initializes a Context for cSHAKE128.
-init_cshake_128 :: proc(ctx: ^Context, domain_sep: []byte) {
+init_cshake_128 :: proc(ctx: ^Context, domain_sep: []u8) {
 	_sha3.init_cshake((^_sha3.Context)(ctx), nil, domain_sep, 128)
 }
 
 // init_cshake_256 initializes a Context for cSHAKE256.
-init_cshake_256 :: proc(ctx: ^Context, domain_sep: []byte) {
+init_cshake_256 :: proc(ctx: ^Context, domain_sep: []u8) {
 	_sha3.init_cshake((^_sha3.Context)(ctx), nil, domain_sep, 256)
 }
 
 // write writes more data into the SHAKE instance.  This MUST not be called
 // after any reads have been done, and attempts to do so will panic.
-write :: proc(ctx: ^Context, data: []byte) {
+write :: proc(ctx: ^Context, data: []u8) {
 	_sha3.update((^_sha3.Context)(ctx), data)
 }
 
 // read reads output from the SHAKE instance.  There is no practical upper
 // limit to the amount of data that can be read from SHAKE.  After read has
 // been called one or more times, further calls to write will panic.
-read :: proc(ctx: ^Context, dst: []byte) {
+read :: proc(ctx: ^Context, dst: []u8) {
 	ctx_ := (^_sha3.Context)(ctx)
 	if !ctx.is_finalized {
 		_sha3.shake_xof(ctx_)

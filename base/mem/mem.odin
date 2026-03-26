@@ -9,7 +9,7 @@ import "base:internal"
 zero :: intrinsics.mem_zero
 
 /*
-Set each byte of a memory range to zero.
+Set each u8 of a memory range to zero.
 
 This procedure copies the value `0` into the `len` bytes of a memory range,
 starting at address `data`.
@@ -65,7 +65,7 @@ process.
 zero_conditional :: proc(data: rawptr, n: uint) #no_bounds_check {
     n_words := n / size_of(uintptr)
     p_words := ([^]uintptr)(data)[:n_words]
-    p_bytes := ([^]byte)(data)[size_of(uintptr) * n_words:n]
+    p_bytes := ([^]u8)(data)[size_of(uintptr) * n_words:n]
     for &p_word in p_words {
         if p_word != 0 {
             p_word = 0
@@ -92,9 +92,9 @@ copy_non_overlapping :: intrinsics.mem_copy_non_overlapping
 //--------------------------------------------------------------------------------------------------
 
 /*
-Compare two memory ranges defined by byte pointers.
+Compare two memory ranges defined by u8 pointers.
 
-This procedure performs a byte-by-byte comparison between memory ranges of size
+This procedure performs a u8-by-u8 comparison between memory ranges of size
 `n` located at addresses `a` and `b`, and returns a value, specifying their relative
 ordering.
 
@@ -104,10 +104,10 @@ If the return value is:
 - Equal to `0`, then `a` and `b` are equal.
 
 The comparison is performed as follows:
-1. Each byte, upto `n` bytes is compared between `a` and `b`.
-    - If the byte in `a` is smaller than a byte in `b`, then comparison stops
+1. Each u8, upto `n` bytes is compared between `a` and `b`.
+    - If the u8 in `a` is smaller than a u8 in `b`, then comparison stops
       and this procedure returns `-1`.
-    - If the byte in `a` is bigger than a byte in `b`, then comparison stops
+    - If the u8 in `a` is bigger than a u8 in `b`, then comparison stops
       and this procedure returns `+1`.
     - Otherwise the comparison continues until `n` bytes are compared.
 2. If all the bytes in the range are equal, this procedure returns `0`.
@@ -123,7 +123,7 @@ This procedure checks whether the memory ranges occupied by objects `a` and `b` 
 */
 equal_simple :: proc(a, b: $T) -> bool where intrinsics.type_is_simple_compare(T) {
     a, b := a, b
-    return compare((^byte)(&a), (^byte)(&b), size_of(T)) == 0
+    return compare((^u8)(&a), (^u8)(&b), size_of(T)) == 0
 }
 
 /*
@@ -151,7 +151,7 @@ is_zero_ptr :: proc(ptr: rawptr, len: uint) -> bool {
     end := start + uintptr(len)
     end_aligned := align_backward_uintptr(end, align_of(uintptr))
     for b in start..<start_aligned {
-        if (^byte)(b)^ != 0 {
+        if (^u8)(b)^ != 0 {
             return false
         }
     }
@@ -161,7 +161,7 @@ is_zero_ptr :: proc(ptr: rawptr, len: uint) -> bool {
         }
     }
     for b in end_aligned..<end {
-        if (^byte)(b)^ != 0 {
+        if (^u8)(b)^ != 0 {
             return false
         }
     }
@@ -396,7 +396,7 @@ memory_prefix_length :: proc(x, y: rawptr, n: uint) -> (idx: uint) #no_bounds_ch
     case x == nil: return 0
     case y == nil: return 0
     }
-    a, b := cast([^]byte)x, cast([^]byte)y
+    a, b := cast([^]u8)x, cast([^]u8)y
 
     i := uint(0)
     m := uint(0)
@@ -434,7 +434,7 @@ memory_prefix_length :: proc(x, y: rawptr, n: uint) -> (idx: uint) #no_bounds_ch
     }
 
     // 64-bit SIMD is faster than using a `uintptr` to detect a difference then
-    // re-iterating with the byte-by-byte loop, at least on AMD64.
+    // re-iterating with the u8-by-u8 loop, at least on AMD64.
     m = (n-i) / 8 * 8
     for ; i < m; i += 8 {
         load_a := intrinsics.unaligned_load(cast(^#simd[8]u8)&a[i])

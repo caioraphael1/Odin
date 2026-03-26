@@ -13,7 +13,7 @@ platform_memory_init :: proc() {
 Allocator_Error :: mem.Allocator_Error
 
 @(no_sanitize_address)
-reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
+reserve :: proc(size: uint) -> (data: []u8, err: Allocator_Error) {
     return _reserve(size)
 }
 
@@ -24,7 +24,7 @@ commit :: proc(data: rawptr, size: uint) -> Allocator_Error {
 }
 
 @(no_sanitize_address)
-reserve_and_commit :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
+reserve_and_commit :: proc(size: uint) -> (data: []u8, err: Allocator_Error) {
     data = reserve(size) or_return
     commit(raw_data(data), size) or_return
     return
@@ -57,7 +57,7 @@ protect :: proc(data: rawptr, size: uint, flags: Protect_Flags) -> bool {
 
 Memory_Block :: struct {
     prev: ^Memory_Block,
-    base:      [^]byte,
+    base:      [^]u8,
     used:      uint,
     committed: uint,
     reserved:  uint,
@@ -96,14 +96,14 @@ memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags
     
     pmblock := platform_memory_alloc(0, total_size) or_return
     
-    pmblock.block.base = ([^]byte)(pmblock)[base_offset:]
+    pmblock.block.base = ([^]u8)(pmblock)[base_offset:]
     platform_memory_commit(pmblock, uint(base_offset) + committed) or_return
 
     // Should be zeroed
     internal.assert(pmblock.block.used == 0)
     internal.assert(pmblock.block.prev == nil)   
     if do_protection {
-        _ = protect(([^]byte)(pmblock)[protect_offset:], page_size, Protect_No_Access)
+        _ = protect(([^]u8)(pmblock)[protect_offset:], page_size, Protect_No_Access)
     }
     
     pmblock.block.committed = committed
@@ -114,7 +114,7 @@ memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags
 }
 
 @(no_sanitize_address)
-alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint, default_commit_size: uint = 0) -> (data: []byte, err: Allocator_Error) {
+alloc_from_memory_block :: proc(block: ^Memory_Block, min_size, alignment: uint, default_commit_size: uint = 0) -> (data: []u8, err: Allocator_Error) {
     @(no_sanitize_address)
     calc_alignment_offset :: proc(block: ^Memory_Block, alignment: uintptr) -> uint {
         alignment_offset := uint(0)

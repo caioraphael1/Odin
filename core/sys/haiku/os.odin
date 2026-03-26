@@ -16,7 +16,7 @@ OS_NAME_LENGTH   :: 32
 
 area_info :: struct {
 	area:       area_id,
-	name:       [OS_NAME_LENGTH]byte,
+	name:       [OS_NAME_LENGTH]u8,
 	size:       uint,
 	lock:       u32,
 	protection: u32,
@@ -80,7 +80,7 @@ foreign libroot {
 port_info :: struct {
 	port:        port_id,
 	team:        team_id,
-	name:        [OS_NAME_LENGTH]byte,
+	name:        [OS_NAME_LENGTH]u8,
 	capacity:    i32, // queue depth
 	queue_count: i32, // # msgs waiting to be read
 	total_count: i32, // total # msgs read so far
@@ -116,7 +116,7 @@ foreign libroot {
 sem_info :: struct {
 	sem:           sem_id,
 	team:          team_id,
-	name:          [OS_NAME_LENGTH]byte,
+	name:          [OS_NAME_LENGTH]u8,
 	count:         i32,
 	latest_holder: thread_id,
 }
@@ -159,7 +159,7 @@ team_info :: struct {
 	debugger_nub_thread: thread_id,
 	debugger_nub_port:   port_id,
 	argc:                i32,
-	args:                [64]byte,
+	args:                [64]u8,
 	uid:                 uid_t,
 	gid:                 gid_t,
 
@@ -169,7 +169,7 @@ team_info :: struct {
 	group_id:            pid_t,
 	session_id:          pid_t,
 	parent:              team_id,
-	name:                [OS_NAME_LENGTH]byte,
+	name:                [OS_NAME_LENGTH]u8,
 	start_time:          bigtime_t,
 }
 
@@ -210,7 +210,7 @@ thread_state :: enum i32 {
 thread_info :: struct {
 	thread:      thread_id,
 	team:        team_id,
-	name:        [OS_NAME_LENGTH]byte,
+	name:        [OS_NAME_LENGTH]u8,
 	state:       thread_state,
 	priority:    thread_priority,
 	sem:         sem_id,
@@ -347,9 +347,9 @@ system_info :: struct {
 	max_teams:         u32,
 	used_teams:        u32,
 
-	kernel_name:       [FILE_NAME_LENGTH]byte,
-	kernel_build_date: [OS_NAME_LENGTH]byte,
-	kernel_build_time: [OS_NAME_LENGTH]byte,
+	kernel_name:       [FILE_NAME_LENGTH]u8,
+	kernel_build_date: [OS_NAME_LENGTH]u8,
+	kernel_build_time: [OS_NAME_LENGTH]u8,
 
 	kernel_version:    i64,
 	abi:               u32,       // the system API
@@ -421,7 +421,7 @@ when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
 	cpuid_info :: struct #raw_union {
 		eax_0: struct {
 			max_eax:   u32,
-			vendor_id: [12]byte,
+			vendor_id: [12]u8,
 		},
 
 		eax_1: struct {
@@ -458,7 +458,7 @@ when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
 			serial_number_low:  u32,
 		},
 
-		as_chars: [16]byte,
+		as_chars: [16]u8,
 
 		regs: struct {
 			eax: u32,

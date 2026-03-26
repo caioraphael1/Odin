@@ -30,7 +30,7 @@ version_check :: proc() {
     v: [3]u32
     version(&v.x, &v.y, &v.z)
     if v != BINDINGS_VERSION {
-        buf: [1024]byte
+        buf: [1024]u8
         n := slice.copy_from_string(buf[:],  "miniaudio version mismatch: ")
         n += slice.copy_from_string(buf[n:], "bindings are for version ")
         n += slice.copy_from_string(buf[n:], BINDINGS_VERSION_STRING)

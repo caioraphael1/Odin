@@ -13,7 +13,7 @@ Header :: struct #packed {
 
 File :: struct {
     using header: Header,
-    backing:   []byte,
+    backing:   []u8,
     allocator: mem.Allocator,
     nodes:     []Node,
 }
@@ -55,7 +55,7 @@ Meta :: struct {
         []f64le,
         []Node_Index, // a reference to another node
         string, // text
-        []byte, // binary data
+        []u8, // binary data
         []Meta,
     },
 }

@@ -1,4 +1,4 @@
-// A convenient and efficient way to index strings by `Unicode` code point (`rune`) rather than byte.
+// A convenient and efficient way to index strings by `Unicode` code point (`rune`) rather than u8.
 import "base:internal"
 import "base:builtin"
 
@@ -66,7 +66,7 @@ at :: proc(s: ^String, i: uint, loc := #caller_location) -> (r: rune) {
         return
 
     case s.rune_count - 1:
-        r, s.width = utf8.last_rune_in_bytes(transmute([]byte)s.contents)
+        r, s.width = utf8.last_rune_in_bytes(transmute([]u8)s.contents)
         s.rune_pos = i
         s.byte_pos = _len(s.contents) - s.width
         return

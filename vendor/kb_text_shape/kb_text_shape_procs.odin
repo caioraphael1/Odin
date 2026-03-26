@@ -37,7 +37,7 @@ foreign lib {
 }
 
 
-PlaceShapeContextFixedMemory :: proc "c" (Memory: []byte) -> ^shape_context {
+PlaceShapeContextFixedMemory :: proc "c" (Memory: []u8) -> ^shape_context {
     @(default_calling_convention="c")
     foreign lib {
         kbts_PlaceShapeContextFixedMemory :: proc(Memory: rawptr, Size: c.int) -> ^shape_context ---
@@ -45,7 +45,7 @@ PlaceShapeContextFixedMemory :: proc "c" (Memory: []byte) -> ^shape_context {
     return kbts_PlaceShapeContextFixedMemory(raw_data(Memory), c.int(len(Memory)))
 }
 
-ShapePushFontFromMemory :: proc "c" (Context: ^shape_context, Memory: []byte, FontIndex: c.int) -> ^font {
+ShapePushFontFromMemory :: proc "c" (Context: ^shape_context, Memory: []u8, FontIndex: c.int) -> ^font {
     @(default_calling_convention="c")
     foreign lib {
         kbts_ShapePushFontFromMemory :: proc(Context: ^shape_context, Memory: rawptr, Size: c.int, FontIndex: c.int) -> ^font ---
@@ -81,14 +81,14 @@ ShapeUtf32WithUserId :: proc "c" (Context: ^shape_context, Utf32: []rune, UserId
 ShapeUtf8 :: proc(Context: ^shape_context, Utf8: string, UserIdGenerationMode: user_id_generation_mode) {
     @(default_calling_convention="c")
     foreign lib {
-        kbts_ShapeUtf8 :: proc(Context: ^shape_context, Utf8: [^]byte, Length: c.int, UserIdGenerationMode: user_id_generation_mode) ---
+        kbts_ShapeUtf8 :: proc(Context: ^shape_context, Utf8: [^]u8, Length: c.int, UserIdGenerationMode: user_id_generation_mode) ---
     }
     kbts_ShapeUtf8(Context, raw_data(Utf8), c.int(len(Utf8)), UserIdGenerationMode)
 }
 ShapeUtf8WithUserId :: proc(Context: ^shape_context, Utf8: string, UserId: c.int, UserIdGenerationMode: user_id_generation_mode) {
     @(default_calling_convention="c")
     foreign lib {
-        kbts_ShapeUtf8WithUserId :: proc(Context: ^shape_context, Utf8: [^]byte, Length: c.int, UserId: c.int, UserIdGenerationMode: user_id_generation_mode) ---
+        kbts_ShapeUtf8WithUserId :: proc(Context: ^shape_context, Utf8: [^]u8, Length: c.int, UserId: c.int, UserIdGenerationMode: user_id_generation_mode) ---
     }
     kbts_ShapeUtf8WithUserId(Context, raw_data(Utf8), c.int(len(Utf8)), UserId, UserIdGenerationMode)
 }
@@ -146,7 +146,7 @@ foreign lib {
 }
 
 
-LoadFont :: proc(Font: ^font, State: ^load_font_state, FontData: []byte, FontIndex: c.int) -> (ScratchSize, OutputSize: c.int, Err: load_font_error) {
+LoadFont :: proc(Font: ^font, State: ^load_font_state, FontData: []u8, FontIndex: c.int) -> (ScratchSize, OutputSize: c.int, Err: load_font_error) {
     @(default_calling_convention="c")
     foreign lib {
         kbts_LoadFont :: proc(Font: ^font, State: ^load_font_state, FontData: rawptr, FontDataSize: c.int, FontIndex: c.int, ScratchSize_: ^c.int, OutputSize_: ^c.int) -> load_font_error ---
@@ -156,7 +156,7 @@ LoadFont :: proc(Font: ^font, State: ^load_font_state, FontData: []byte, FontInd
 }
 
 
-FontCount :: proc "c" (FileData: []byte) -> c.int {
+FontCount :: proc "c" (FileData: []u8) -> c.int {
     @(default_calling_convention="c")
     foreign lib {
         kbts_FontCount :: proc(FileData: rawptr, FileSize: c.int) -> c.int ---
@@ -165,7 +165,7 @@ FontCount :: proc "c" (FileData: []byte) -> c.int {
 }
 
 
-FontFromMemory :: proc "c" (FileData: []byte, FontIndex: c.int, Allocator: allocator_function, AllocatorData: rawptr) -> font {
+FontFromMemory :: proc "c" (FileData: []u8, FontIndex: c.int, Allocator: allocator_function, AllocatorData: rawptr) -> font {
     @(default_calling_convention="c")
     foreign lib {
         kbts_FontFromMemory :: proc(FileData: rawptr, FileSize: c.int, FontIndex: c.int, Allocator: allocator_function, AllocatorData: rawptr) -> font ---
@@ -260,7 +260,7 @@ Break :: proc(State: ^break_state) -> (Break: break_type, Ok: b32) {
 
 
 BreakEntireString :: proc "c" (Direction: direction, JapaneseLineBreakStyle: japanese_line_break_style, ConfigFlags: break_config_flags,
-                               Input: []byte, InputFormat: text_format,
+                               Input: []u8, InputFormat: text_format,
                                Breaks: []break_type, BreakCount: ^c.int,
                                BreakFlags: []break_flags, BreakFlagCount: ^c.int) {
     @(default_calling_convention="c")
@@ -294,7 +294,7 @@ BreakEntireStringUtf8 :: proc "c" (Direction: direction, JapaneseLineBreakStyle:
     @(default_calling_convention="c")
     foreign lib {
         kbts_BreakEntireStringUtf8 :: proc(Direction: direction, JapaneseLineBreakStyle: japanese_line_break_style, ConfigFlags: break_config_flags,
-                                           Utf8: [^]byte, Utf8Length: c.int,
+                                           Utf8: [^]u8, Utf8Length: c.int,
                                            Breaks: [^]break_type, BreakCapacity: c.int, BreakCount: ^c.int,
                                            BreakFlags: [^]break_flags, BreakFlagCapacity: c.int, BreakFlagCount: ^c.int) ---
     }
@@ -329,7 +329,7 @@ foreign lib {
 DecodeUtf8 :: proc "c" (Utf8: string) -> decode {
     @(default_calling_convention="c")
     foreign lib {
-        kbts_DecodeUtf8 :: proc(Utf8: [^]byte, Length: un) -> decode ---
+        kbts_DecodeUtf8 :: proc(Utf8: [^]u8, Length: un) -> decode ---
     }
     return kbts_DecodeUtf8(raw_data(Utf8), un(len(Utf8)))
 }
@@ -337,7 +337,7 @@ DecodeUtf8 :: proc "c" (Utf8: string) -> decode {
 // This is a quick guess that stops at the first glyph that has a strong script/direction associated to it.
 // It is convenient, but only works if you are sure your input text is mono-script and mono-direction.
 
-GuessTextProperties :: proc(Text: []byte, Format: text_format) -> (Direction: direction, Script: script) {
+GuessTextProperties :: proc(Text: []u8, Format: text_format) -> (Direction: direction, Script: script) {
     @(default_calling_convention="c")
     foreign lib {
         kbts_GuessTextProperties :: proc(Text: rawptr, TextSizeInBytes: c.int, Format: text_format, Direction: ^direction, Script: ^script) ---

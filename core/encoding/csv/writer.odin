@@ -39,7 +39,7 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
         case w.comma < utf8.RUNE_SELF: // ASCII optimization
             for i in 0..<len(field) {
                 switch field[i] {
-                case '\n', '\r', '"', byte(w.comma):
+                case '\n', '\r', '"', u8(w.comma):
                     return true
                 }
             }

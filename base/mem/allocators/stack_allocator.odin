@@ -7,7 +7,7 @@ import "base:bytes"
 Stack allocator data.
 */
 Stack :: struct {
-    data:        []byte,
+    data:        []u8,
     prev_offset: uint,
     curr_offset: uint,
     peak_used:   uint,
@@ -51,7 +51,7 @@ Initialize a stack allocator.
 This procedure initializes the stack allocator with a backing buffer specified
 by `data` parameter.
 */
-stack_init :: proc(s: ^Stack, data: []byte) {
+stack_init :: proc(s: ^Stack, data: []u8) {
     s.data        = data
     s.prev_offset = 0
     s.curr_offset = 0
@@ -90,7 +90,7 @@ stack_alloc_bytes :: proc(
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     bytes, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)
     if bytes != nil {
         slice.zero(bytes)
@@ -129,7 +129,7 @@ stack_alloc_bytes_non_zeroed :: proc(
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     if s.data == nil {
         internal.panic("Allocation on an uninitialized Stack allocator.", loc)
     }
@@ -255,11 +255,11 @@ This procedure returns the slice of the resized memory region.
 
 stack_resize_bytes :: proc(
     s:         ^Stack,
-    old_data:  []byte,
+    old_data:  []u8,
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc        := #caller_location,
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     bytes, err := stack_resize_bytes_non_zeroed(s, old_data, size, alignment, loc)
     if err == nil {
         if old_data == nil {
@@ -319,11 +319,11 @@ This procedure returns the slice of the resized memory region.
 
 stack_resize_bytes_non_zeroed :: proc(
     s:         ^Stack,
-    old_data:  []byte,
+    old_data:  []u8,
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     old_memory := raw_data(old_data)
     old_size := len(old_data)
     if s.data == nil {
@@ -391,7 +391,7 @@ stack_allocator_proc :: proc(
     old_memory:     rawptr,
     old_size:       uint,
     loc := #caller_location,
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     s := cast(^Stack)allocator_data
     if s.data == nil {
         return nil, .Invalid_Argument

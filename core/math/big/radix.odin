@@ -86,7 +86,7 @@ int_itoa_cstring :: proc(a: ^Int, radix := i8(10), allocator: mem.Allocator) -> 
 
 	If you determined the buffer size using `radix_size_estimate`, or have a buffer
 	that you reuse that you know is large enough, don't pass this size unless you know what you are doing,
-	because we will always write backwards starting at last byte of the buffer.
+	because we will always write backwards starting at last u8 of the buffer.
 
 	Keep in mind that if you set `size` yourself and it's smaller than the buffer,
 	it'll result in buffer overflows, as we use it to avoid reversing at the end

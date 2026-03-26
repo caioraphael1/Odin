@@ -1,4 +1,4 @@
-// Procedures for manipulation of `[]byte` slices.
+// Procedures for manipulation of `[]u8` slices.
 
 import "base:internal"
 import "base:mem"
@@ -34,11 +34,11 @@ when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
 @(private) SIMD_REG_SIZE_128 :: 16
 @(private) PRIME_RABIN_KARP :: 16777619
 
-equal_fold :: proc(u, v: []byte) -> bool {
+equal_fold :: proc(u, v: []u8) -> bool {
     return utf8.string_equal_fold(string(u), string(v))
 }
 
-count :: proc(s, substr: []byte) -> uint {
+count :: proc(s, substr: []u8) -> uint {
     if len(substr) == 0 { // special case
         return utf8.bytes_rune_count(s) + 1
     }
@@ -74,16 +74,16 @@ count :: proc(s, substr: []byte) -> uint {
 }
 
 
-has_prefix :: proc(s, prefix: []byte) -> bool {
+has_prefix :: proc(s, prefix: []u8) -> bool {
     return len(s) >= len(prefix) && string(s[0:len(prefix)]) == string(prefix)
 }
 
-has_suffix :: proc(s, suffix: []byte) -> bool {
+has_suffix :: proc(s, suffix: []u8) -> bool {
     return len(s) >= len(suffix) && string(s[len(s)-len(suffix):]) == string(suffix)
 }
 
 // Returns true if a and b have a non-zero length, and any part of a overlaps with b.
-overlap :: proc(a, b: []byte) -> bool {
+overlap :: proc(a, b: []u8) -> bool {
     a_len, b_len := len(a), len(b)
     if a_len == 0 || b_len == 0 {
         return false
@@ -99,7 +99,7 @@ overlap :: proc(a, b: []byte) -> bool {
 // the base pointer of a and b are NOT equal, and any part of a overlaps
 // with b (ie: `bytes_overlap(a, b)` with an exception that returns false for
 // `a == b`, `b = a[:len(a)-69]` and similar conditions).
-overlap_but_not_equal :: proc(a, b: []byte) -> bool {
+overlap_but_not_equal :: proc(a, b: []u8) -> bool {
     if raw_data(a) == raw_data(b) {
         return false
     }
@@ -108,7 +108,7 @@ overlap_but_not_equal :: proc(a, b: []byte) -> bool {
 
 /*
 Compare two memory ranges defined by slices.
-This procedure performs a byte-by-byte comparison between memory ranges
+This procedure performs a u8-by-u8 comparison between memory ranges
 specified by slices `a` and `b`, and returns a value, specifying their relative
 ordering.
 If the return value is:
@@ -116,10 +116,10 @@ If the return value is:
 - Equal to `+1`, then `a` is "bigger"  than `b`.
 - Equal to `0`, then `a` and `b` are equal.
 The comparison is performed as follows:
-1. Each byte, upto `min(len(a), len(b))` bytes is compared between `a` and `b`.
-    - If the byte in slice `a` is smaller than a byte in slice `b`, then comparison
+1. Each u8, upto `min(len(a), len(b))` bytes is compared between `a` and `b`.
+    - If the u8 in slice `a` is smaller than a u8 in slice `b`, then comparison
       stops and this procedure returns `-1`.
-    - If the byte in slice `a` is bigger than a byte in slice `b`, then comparison
+    - If the u8 in slice `a` is bigger than a u8 in slice `b`, then comparison
       stops and this procedure returns `+1`.
     - Otherwise the comparison continues until `min(len(a), len(b))` are compared.
 2. If all the bytes in the range are equal, then the lengths of the slices are compared.
@@ -127,8 +127,8 @@ The comparison is performed as follows:
     - If the length of slice `b` is smaller than the length of slice `b`, then `+1` is returned.
     - Otherwise `0` is returned.
 */
-compare :: proc(a, b: []byte) -> int {
-    res := mem.compare(cast(^byte)(raw_data(a)), cast(^byte)(raw_data(b)), min(len(a), len(b)))
+compare :: proc(a, b: []u8) -> int {
+    res := mem.compare(cast(^u8)(raw_data(a)), cast(^u8)(raw_data(b)), min(len(a), len(b)))
     if res == 0 && len(a) != len(b) {
         return len(a) <= len(b) ? -1 : +1
     } else if len(a) == 0 && len(b) == 0 {
@@ -138,18 +138,18 @@ compare :: proc(a, b: []byte) -> int {
 }
 
 
-contain_bytes :: proc(s, substr: []byte) -> bool {
+contain_bytes :: proc(s, substr: []u8) -> bool {
     _, found := index_bytes(s, substr)
     return found
 }
 
-contain_bytes_any :: proc(s, chars: []byte) -> bool {
+contain_bytes_any :: proc(s, chars: []u8) -> bool {
     _, found := index_bytes_any(s, chars)
     return found
 }
 
 
-index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_bounds_check {
+index_byte :: proc(s: []u8, c: u8) -> (idx: uint, found: bool) #no_bounds_check {
     i: uint = 0 
     l := len(s)
 
@@ -178,7 +178,7 @@ index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_bounds_ch
             c_vecs: [4]simd.u8x32 = ---
             m_vec: [4]u8 = ---
 
-            // Scan 128-byte chunks, using 256-bit SIMD.
+            // Scan 128-u8 chunks, using 256-bit SIMD.
             for nr_blocks := l / (4 * SIMD_REG_SIZE_256); nr_blocks > 0; nr_blocks -= 1 {
                 #unroll for j in 0..<4 {
                     s_vecs[j] = intrinsics.unaligned_load(cast(^simd.u8x32)raw_data(s[i+j*SIMD_REG_SIZE_256:]))
@@ -198,7 +198,7 @@ index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_bounds_ch
                 i += 4 * SIMD_REG_SIZE_256
             }
 
-            // Scan 64-byte chunks, using 256-bit SIMD.
+            // Scan 64-u8 chunks, using 256-bit SIMD.
             for nr_blocks := (l - i) / (2 * SIMD_REG_SIZE_256); nr_blocks > 0; nr_blocks -= 1 {
                 #unroll for j in 0..<2 {
                     s_vecs[j] = intrinsics.unaligned_load(cast(^simd.u8x32)raw_data(s[i+j*SIMD_REG_SIZE_256:]))
@@ -222,7 +222,7 @@ index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_bounds_ch
             c_vecs: [4]simd.u8x16 = ---
             m_vecs: [4]u8 = ---
 
-            // Scan 64-byte chunks, using 128-bit SIMD.
+            // Scan 64-u8 chunks, using 128-bit SIMD.
             for nr_blocks := l / (4 * SIMD_REG_SIZE_128); nr_blocks > 0; nr_blocks -= 1 {
                 #unroll for j in 0..<4 {
                     s_vecs[j]= intrinsics.unaligned_load(cast(^simd.u8x16)raw_data(s[i + j*SIMD_REG_SIZE_128:]))
@@ -272,7 +272,7 @@ index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_bounds_ch
     return 0, false
 }
 
-last_index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_bounds_check {
+last_index_byte :: proc(s: []u8, c: u8) -> (idx: uint, found: bool) #no_bounds_check {
     i := len(s)
 
     // Guard against small strings.  On modern systems, it is ALWAYS
@@ -300,7 +300,7 @@ last_index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_boun
             c_vecs: [4]simd.u8x32 = ---
             m_vec: [4]u8 = ---
 
-            // Scan 128-byte chunks, using 256-bit SIMD.
+            // Scan 128-u8 chunks, using 256-bit SIMD.
             for i >= 4 * SIMD_REG_SIZE_256 {
                 i -= 4 * SIMD_REG_SIZE_256
 
@@ -320,7 +320,7 @@ last_index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_boun
                 }
             }
 
-            // Scan 64-byte chunks, using 256-bit SIMD.
+            // Scan 64-u8 chunks, using 256-bit SIMD.
             for i >= 2 * SIMD_REG_SIZE_256 {
                 i -= 2 * SIMD_REG_SIZE_256
 
@@ -344,7 +344,7 @@ last_index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_boun
             c_vecs: [4]simd.u8x16 = ---
             m_vecs: [4]u8 = ---
 
-            // Scan 64-byte chunks, using 128-bit SIMD.
+            // Scan 64-u8 chunks, using 128-bit SIMD.
             for i >= 4 * SIMD_REG_SIZE_128 {
                 i -= 4 * SIMD_REG_SIZE_128
 
@@ -396,8 +396,8 @@ last_index_byte :: proc(s: []byte, c: byte) -> (idx: uint, found: bool) #no_boun
 }
 
 
-index_bytes :: proc(s, substr: []byte) -> (idx: uint, found: bool) {
-    hash_str_rabin_karp :: proc(s: []byte) -> (hash: u32 = 0, pow: u32 = 1) {
+index_bytes :: proc(s, substr: []u8) -> (idx: uint, found: bool) {
+    hash_str_rabin_karp :: proc(s: []u8) -> (hash: u32 = 0, pow: u32 = 1) {
         for i: uint = 0; i < len(s); i += 1 {
             hash = hash*PRIME_RABIN_KARP + u32(s[i])
         }
@@ -446,7 +446,7 @@ index_bytes :: proc(s, substr: []byte) -> (idx: uint, found: bool) {
     return 0, false
 }
 
-index_bytes_any :: proc(s, chars: []byte) -> (idx: uint, found: bool) {
+index_bytes_any :: proc(s, chars: []u8) -> (idx: uint, found: bool) {
     if chars == nil {
         return 0, false
     }
@@ -462,8 +462,8 @@ index_bytes_any :: proc(s, chars: []byte) -> (idx: uint, found: bool) {
     return 0, false
 }
 
-last_index_bytes :: proc(s, substr: []byte) -> (idx: uint, found: bool) {
-    hash_str_rabin_karp_reverse :: proc(s: []byte) -> (hash: u32 = 0, pow: u32 = 1) {
+last_index_bytes :: proc(s, substr: []u8) -> (idx: uint, found: bool) {
+    hash_str_rabin_karp_reverse :: proc(s: []u8) -> (hash: u32 = 0, pow: u32 = 1) {
         for i := int(len(s)) - 1; i >= 0; i -= 1 {
             hash = hash*PRIME_RABIN_KARP + u32(s[i])
         }
@@ -511,7 +511,7 @@ last_index_bytes :: proc(s, substr: []byte) -> (idx: uint, found: bool) {
 }
 
 
-last_index_any :: proc(s, chars: []byte) -> (idx: uint, found: bool) {
+last_index_any :: proc(s, chars: []u8) -> (idx: uint, found: bool) {
     if chars == nil {
         return 0, false
     }
@@ -529,7 +529,7 @@ last_index_any :: proc(s, chars: []byte) -> (idx: uint, found: bool) {
 }
 
 
-last_index_proc :: proc(s: []byte, p: proc(rune) -> bool, truth := true) -> (idx: uint, found: bool) {
+last_index_proc :: proc(s: []u8, p: proc(rune) -> bool, truth := true) -> (idx: uint, found: bool) {
     // TODO(bill): Probably use Rabin-Karp Search
     for i := len(s); i > 0; {
         r, size := utf8.last_rune_in_bytes(s[:i])
@@ -541,7 +541,7 @@ last_index_proc :: proc(s: []byte, p: proc(rune) -> bool, truth := true) -> (idx
     return 0, false
 }
 
-index_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (idx: uint, found: bool) {
+index_proc_with_state :: proc(s: []u8, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (idx: uint, found: bool) {
     for r, i in string(s) {
         if p(state, r) == truth {
             return i, true
@@ -550,7 +550,7 @@ index_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: r
     return 0, false
 }
 
-last_index_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (idx: uint, found: bool) {
+last_index_proc_with_state :: proc(s: []u8, p: proc(rawptr, rune) -> bool, state: rawptr, truth := true) -> (idx: uint, found: bool) {
     // TODO(bill): Probably use Rabin-Karp Search
     for i := len(s); i > 0; {
         r, size := utf8.last_rune_in_bytes(s[:i])
@@ -562,10 +562,10 @@ last_index_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, sta
     return 0, false
 }
 
-index_rune :: proc(s: []byte, r: rune) -> (idx: uint, valid: bool) {
+index_rune :: proc(s: []u8, r: rune) -> (idx: uint, valid: bool) {
     switch {
     case u32(r) < utf8.RUNE_SELF:
-        return index_byte(s, byte(r))
+        return index_byte(s, u8(r))
 
     case r == utf8.RUNE_ERROR:
         for c, i in string(s) {

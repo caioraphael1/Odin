@@ -300,7 +300,7 @@ foreign libc {
 }
 
 to_stream :: proc(file: ^FILE) -> io.Stream {
-    stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+    stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
         unknown_or_eof :: proc(f: ^FILE) -> io.Error {
             switch {
             case ferror(f) != 0:
@@ -325,7 +325,7 @@ to_stream :: proc(file: ^FILE) -> io.Stream {
             }
 
         case .Read:
-            n = i64(fread(raw_data(p), size_of(byte), len(p), file))
+            n = i64(fread(raw_data(p), size_of(u8), len(p), file))
             if n == 0 { err = unknown_or_eof(file) }
 
         case .Read_At:
@@ -340,11 +340,11 @@ to_stream :: proc(file: ^FILE) -> io.Stream {
 
             defer _ = fseek(file, long(curr), .SET)
 
-            n = i64(fread(raw_data(p), size_of(byte), len(p), file))
+            n = i64(fread(raw_data(p), size_of(u8), len(p), file))
             if n == 0 { err = unknown_or_eof(file) }
         
         case .Write:
-            n = i64(fwrite(raw_data(p), size_of(byte), len(p), file))
+            n = i64(fwrite(raw_data(p), size_of(u8), len(p), file))
             if n == 0 { err = unknown_or_eof(file) }
 
         case .Write_At:
@@ -359,7 +359,7 @@ to_stream :: proc(file: ^FILE) -> io.Stream {
 
             defer _ = fseek(file, long(curr), .SET)
 
-            n = i64(fwrite(raw_data(p), size_of(byte), len(p), file))
+            n = i64(fwrite(raw_data(p), size_of(u8), len(p), file))
             if n == 0 { err = unknown_or_eof(file) }
 
         case .Seek:

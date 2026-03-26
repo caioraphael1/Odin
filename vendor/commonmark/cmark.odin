@@ -426,7 +426,7 @@ foreign lib {
     parser_free :: proc(parser: ^Parser) ---
 
     // Feeds a string of length 'len' to 'parser'.
-    parser_feed :: proc(parser: ^Parser, buffer: [^]byte, len: c.size_t) ---
+    parser_feed :: proc(parser: ^Parser, buffer: [^]u8, len: c.size_t) ---
 
     // Finish parsing and return a pointer to a tree of nodes.
     parser_finish :: proc(parser: ^Parser) -> (root: ^Node) ---
@@ -434,7 +434,7 @@ foreign lib {
     // Parse a CommonMark document in 'buffer' of length 'len'.
     // Returns a pointer to a tree of nodes. The memory allocated for
     // the node tree should be released using 'node_free' when it is no longer needed.
-    parse_document :: proc(buffer: [^]byte, len: c.size_t, options: Options) -> (root: ^Node) ---
+    parse_document :: proc(buffer: [^]u8, len: c.size_t, options: Options) -> (root: ^Node) ---
 
     // Parse a CommonMark document in file 'f', returning a pointer to a tree of nodes.
     // The memory allocated for the node tree should be released using 'node_free'
@@ -495,13 +495,13 @@ free_cstring :: proc "c" (str: cstring) {
 @(private)
 cmark_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
                              size, alignment: int,
-                             old_memory: rawptr, old_size: int, loc := #caller_location) -> (res: []byte, err: mem.Allocator_Error) {
+                             old_memory: rawptr, old_size: int, loc := #caller_location) -> (res: []u8, err: mem.Allocator_Error) {
 
     cmark_alloc := cast(^Allocator)allocator_data
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
         ptr := cmark_alloc.calloc(1, c.size_t(size))
-        res = ([^]byte)(ptr)[:size]
+        res = ([^]u8)(ptr)[:size]
         if ptr == nil {
             err = .Out_Of_Memory
         }
@@ -516,7 +516,7 @@ cmark_allocator_proc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
 
     case .Resize, .Resize_Non_Zeroed:
         new_ptr := cmark_alloc.realloc(old_memory, c.size_t(size))
-        res = transmute([]byte)slice.Raw_Slice{new_ptr, size}
+        res = transmute([]u8)slice.Raw_Slice{new_ptr, size}
         if size > old_size {
             mem.zero(raw_data(res[old_size:]), size - old_size)
         }

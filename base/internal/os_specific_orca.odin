@@ -23,10 +23,10 @@ foreign {
 // NOTE: This is all pretty gross, don't look.
 
 // WASM is single threaded so this should be fine.
-orca_stderr_buffer:     [4096]byte
+orca_stderr_buffer:     [4096]u8
 orca_stderr_buffer_idx: int
 
-_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []u8) -> (int, _OS_Errno) {
     for b in data {
         orca_stderr_buffer[orca_stderr_buffer_idx] = b
         orca_stderr_buffer_idx += 1

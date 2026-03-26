@@ -35,7 +35,7 @@ _platform_memory_init :: proc() {
     internal.assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
 }
 
-_map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+_map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []u8, error: Map_File_Error) {
     #assert(i32(posix.Prot_Flag_Bits.READ)  == i32(Map_File_Flag.Read))
     #assert(i32(posix.Prot_Flag_Bits.WRITE) == i32(Map_File_Flag.Write))
 
@@ -43,9 +43,9 @@ _map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byt
     if addr == posix.MAP_FAILED || addr == nil {
         return nil, .Map_Failure
     }
-    return ([^]byte)(addr)[:size], nil
+    return ([^]u8)(addr)[:size], nil
 }
 
-_unmap_file :: proc(data: []byte) {
+_unmap_file :: proc(data: []u8) {
     _release(raw_data(data), uint(len(data)))
 }

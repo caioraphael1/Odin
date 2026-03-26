@@ -19,6 +19,6 @@ Example:
         decoded_val, decode_size, decode_err := varint.decode_uleb128(buf[:])
 
         internal.assert(decoded_val == value && decode_size == encode_size && decode_err == .None)
-        fmt.printf("Decoded as %v, using %v byte%v\n", decoded_val, decode_size, "" if decode_size == 1 else "s")
+        fmt.printf("Decoded as %v, using %v u8%v\n", decoded_val, decode_size, "" if decode_size == 1 else "s")
     }
 */

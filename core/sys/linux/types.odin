@@ -931,7 +931,7 @@ RUsage :: struct {
 	Struct used for IO operations
 */
 IO_Vec :: struct {
-	base: [^]byte,
+	base: [^]u8,
 	len:  uint,
 }
 
@@ -1671,7 +1671,7 @@ IO_Uring_SQE :: struct {
 // The submission queue entry when the .SQE128 flag is set on setup.
 IO_Uring_SQE128 :: struct {
 	using _: IO_Uring_SQE,
-	cmd:     [64]byte,
+	cmd:     [64]u8,
 }
 #assert(size_of(IO_Uring_SQE128) == 128)
 

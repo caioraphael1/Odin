@@ -33,7 +33,7 @@ Point_p384r1 :: struct {
 }
 
 
-pt_set_xy_bytes :: proc(p: ^$T, x_raw, y_raw: []byte) -> bool {
+pt_set_xy_bytes :: proc(p: ^$T, x_raw, y_raw: []u8) -> bool {
 	when T == Point_p256r1 {
 		FE_SZ :: FE_SIZE_P256R1
 		x, y: Field_Element_p256r1
@@ -68,7 +68,7 @@ pt_set_xy_bytes :: proc(p: ^$T, x_raw, y_raw: []byte) -> bool {
 }
 
 
-pt_set_x_bytes :: proc(p: ^$T, x_raw: []byte, y_is_odd: int) -> bool {
+pt_set_x_bytes :: proc(p: ^$T, x_raw: []u8, y_is_odd: int) -> bool {
 	when T == Point_p256r1 {
 		FE_SZ :: FE_SIZE_P256R1
 		x, y, yy, y_neg: Field_Element_p256r1
@@ -105,7 +105,7 @@ pt_set_x_bytes :: proc(p: ^$T, x_raw: []byte, y_is_odd: int) -> bool {
 }
 
 
-pt_bytes :: proc(x, y: []byte, p: ^$T) -> bool {
+pt_bytes :: proc(x, y: []u8, p: ^$T) -> bool {
 	when T == Point_p256r1 {
 		FE_SZ :: FE_SIZE_P256R1
 	} else when T == Point_p384r1 {

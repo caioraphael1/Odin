@@ -23,7 +23,7 @@ MIN_TAG_SIZE :: 32 / 8
 // sum will compute the KMAC with the specified security strength,
 // key, and domain separator over msg, and write the computed digest to
 // dst.
-sum :: proc(sec_strength: int, dst, msg, key, domain_sep: []byte) {
+sum :: proc(sec_strength: int, dst, msg, key, domain_sep: []u8) {
 	ctx: Context
 
 	_init_kmac(&ctx, key, domain_sep, sec_strength)
@@ -34,8 +34,8 @@ sum :: proc(sec_strength: int, dst, msg, key, domain_sep: []byte) {
 // verify will verify the KMAC tag computed with the specified security
 // strength, key and domain separator over msg and return true iff the
 // tag is valid.
-verify :: proc(sec_strength: int, tag, msg, key, domain_sep: []byte, allocator := allocators.temp_allocator) -> bool {
-	derived_tag := slice.create([]byte, len(tag), allocator)
+verify :: proc(sec_strength: int, tag, msg, key, domain_sep: []u8, allocator := allocators.temp_allocator) -> bool {
+	derived_tag := slice.create([]u8, len(tag), allocator)
 	defer(delete(derived_tag))
 
 	sum(sec_strength, derived_tag, msg, key, domain_sep)
@@ -48,25 +48,25 @@ Context :: distinct shake.Context
 
 // init_128 initializes a Context for KMAC28.  This routine will panic if
 // the key length is less than MIN_KEY_SIZE_128.
-init_128 :: proc(ctx: ^Context, key, domain_sep: []byte) {
+init_128 :: proc(ctx: ^Context, key, domain_sep: []u8) {
 	_init_kmac(ctx, key, domain_sep, 128)
 }
 
 // init_256 initializes a Context for KMAC256.  This routine will panic if
 // the key length is less than MIN_KEY_SIZE_256.
-init_256 :: proc(ctx: ^Context, key, domain_sep: []byte) {
+init_256 :: proc(ctx: ^Context, key, domain_sep: []u8) {
 	_init_kmac(ctx, key, domain_sep, 256)
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	shake.write((^shake.Context)(ctx), data)
 }
 
 // final finalizes the Context, writes the tag to dst, and calls reset
 // on the Context.  This routine will panic if the dst length is less than
 // MIN_TAG_SIZE.
-final :: proc(ctx: ^Context, dst: []byte) {
+final :: proc(ctx: ^Context, dst: []u8) {
 	defer reset(ctx)
 
 	internal.ensure(len(dst) >= MIN_TAG_SIZE, "crypto/kmac: invalid KMAC tag_size, too short")
@@ -94,7 +94,7 @@ reset :: proc(ctx: ^Context) {
 }
 
 @(private)
-_init_kmac :: proc(ctx: ^Context, key, s: []byte, sec_strength: int) {
+_init_kmac :: proc(ctx: ^Context, key, s: []u8, sec_strength: int) {
 	if ctx.is_initialized {
 		reset(ctx)
 	}
@@ -103,8 +103,8 @@ _init_kmac :: proc(ctx: ^Context, key, s: []byte, sec_strength: int) {
 
 	ctx_ := (^_sha3.Context)(ctx)
 	_sha3.init_cshake(ctx_, N_KMAC, s, sec_strength)
-	_sha3.bytepad(ctx_, [][]byte{key}, _sha3.rate_cshake(sec_strength))
+	_sha3.bytepad(ctx_, [][]u8{key}, _sha3.rate_cshake(sec_strength))
 }
 
 @(private, rodata)
-N_KMAC := []byte{'K', 'M', 'A', 'C'}
+N_KMAC := []u8{'K', 'M', 'A', 'C'}

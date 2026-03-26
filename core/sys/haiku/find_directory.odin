@@ -159,11 +159,11 @@ current_image_symbol :: proc() -> rawptr { return rawptr(current_image_symbol) }
 
 @(default_calling_convention="c")
 foreign libroot {
-	find_directory         :: proc(which: directory_which, volume: dev_t, createIt: bool, pathString: [^]byte, length: i32) -> status_t ---
-	find_path              :: proc(codePointer: rawptr, baseDirectory: path_base_directory, subPath: cstring, pathBuffer: [^]byte, bufferSize: uint) -> status_t ---
-	find_path_etc          :: proc(codePointer: rawptr, dependency: cstring, architecture: cstring, baseDirectory: path_base_directory, subPath: cstring, flags: find_path_flags, pathBuffer: [^]byte, bufferSize: uint) -> status_t ---
-	find_path_for_path     :: proc(path: cstring, baseDirectory: path_base_directory, subPath: cstring, pathBuffer: [^]byte, bufferSize: uint) -> status_t ---
-	find_path_for_path_etc :: proc(path: cstring, dependency: cstring, architecture: cstring, baseDirectory: path_base_directory, subPath: cstring, flags: find_path_flags, pathBuffer: [^]byte, bufferSize: uint) -> status_t ---
-	find_paths             :: proc(baseDirectory: path_base_directory, subPath: cstring, _paths: ^[^][^]byte, _pathCount: ^uint) -> status_t ---
-	find_paths_etc         :: proc(architecture: cstring, baseDirectory: path_base_directory, subPath: cstring, flags: find_path_flags, _paths: ^[^][^]byte, _pathCount: ^uint) -> status_t ---
+	find_directory         :: proc(which: directory_which, volume: dev_t, createIt: bool, pathString: [^]u8, length: i32) -> status_t ---
+	find_path              :: proc(codePointer: rawptr, baseDirectory: path_base_directory, subPath: cstring, pathBuffer: [^]u8, bufferSize: uint) -> status_t ---
+	find_path_etc          :: proc(codePointer: rawptr, dependency: cstring, architecture: cstring, baseDirectory: path_base_directory, subPath: cstring, flags: find_path_flags, pathBuffer: [^]u8, bufferSize: uint) -> status_t ---
+	find_path_for_path     :: proc(path: cstring, baseDirectory: path_base_directory, subPath: cstring, pathBuffer: [^]u8, bufferSize: uint) -> status_t ---
+	find_path_for_path_etc :: proc(path: cstring, dependency: cstring, architecture: cstring, baseDirectory: path_base_directory, subPath: cstring, flags: find_path_flags, pathBuffer: [^]u8, bufferSize: uint) -> status_t ---
+	find_paths             :: proc(baseDirectory: path_base_directory, subPath: cstring, _paths: ^[^][^]u8, _pathCount: ^uint) -> status_t ---
+	find_paths_etc         :: proc(architecture: cstring, baseDirectory: path_base_directory, subPath: cstring, flags: find_path_flags, _paths: ^[^][^]u8, _pathCount: ^uint) -> status_t ---
 }

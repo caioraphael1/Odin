@@ -1695,7 +1695,7 @@ CreateInstance :: proc "c" (/* NULLABLE */ descriptor: /* const */ ^InstanceDesc
         v := (transmute([4]u8)GetVersion()).wzyx
 
         if v.xyz != BINDINGS_VERSION.xyz {
-            buf: [1024]byte
+            buf: [1024]u8
             n := slice.copy(buf[:],  "wgpu-native version mismatch: ")
             n += slice.copy(buf[n:], "bindings are for version ")
             n += slice.copy(buf[n:], BINDINGS_VERSION_STRING)
@@ -1736,8 +1736,8 @@ AdapterGetFeatures :: proc "c" (adapter: Adapter) -> (features: SupportedFeature
 
 // Wrappers of Buffer
 
-BufferGetConstMappedRange :: proc "c" (buffer: Buffer, offset: uint, size: uint) -> []byte {
-    return ([^]byte)(RawBufferGetConstMappedRange(buffer, offset, size))[:size]
+BufferGetConstMappedRange :: proc "c" (buffer: Buffer, offset: uint, size: uint) -> []u8 {
+    return ([^]u8)(RawBufferGetConstMappedRange(buffer, offset, size))[:size]
 }
 
 BufferGetConstMappedRangeTyped :: proc "c" (buffer: Buffer, offset: uint, $T: typeid) -> ^T
@@ -1750,8 +1750,8 @@ BufferGetConstMappedRangeSlice :: proc "c" (buffer: Buffer, offset: uint, length
     return ([^]T)(RawBufferGetConstMappedRange(buffer, offset, size_of(T)*length))[:length]
 }
 
-BufferGetMappedRange :: proc "c" (buffer: Buffer, offset: uint, size: uint) -> []byte {
-    return ([^]byte)(RawBufferGetMappedRange(buffer, offset, size))[:size]
+BufferGetMappedRange :: proc "c" (buffer: Buffer, offset: uint, size: uint) -> []u8 {
+    return ([^]u8)(RawBufferGetMappedRange(buffer, offset, size))[:size]
 }
 
 BufferGetMappedRangeTyped :: proc "c" (buffer: Buffer, offset: uint, $T: typeid) -> ^T

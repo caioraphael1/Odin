@@ -72,7 +72,7 @@ _init :: proc(ctx: ^Context) {
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	_sha3.update((^_sha3.Context)(ctx), data)
 }
 
@@ -81,7 +81,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 //
 // Iff finalize_clone is set, final will work on a copy of the Context,
 // which is useful for for calculating rolling digests.
-final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
+final :: proc(ctx: ^Context, hash: []u8, finalize_clone: bool = false) {
 	_sha3.final((^_sha3.Context)(ctx), hash, finalize_clone)
 }
 

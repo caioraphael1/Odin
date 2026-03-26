@@ -211,7 +211,7 @@ _close :: proc(socket: Any_Socket) {
 }
 
 @(private)
-_recv_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP_Recv_Error) {
+_recv_tcp :: proc(socket: TCP_Socket, buf: []u8) -> (bytes_read: int, err: TCP_Recv_Error) {
     if len(buf) <= 0 {
         return
     }
@@ -224,7 +224,7 @@ _recv_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP
 }
 
 @(private)
-_recv_udp :: proc(socket: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
+_recv_udp :: proc(socket: UDP_Socket, buf: []u8) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
     if len(buf) <= 0 {
         return
     }
@@ -243,7 +243,7 @@ _recv_udp :: proc(socket: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_e
 }
 
 @(private)
-_send_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_written: int, err: TCP_Send_Error) {
+_send_tcp :: proc(socket: TCP_Socket, buf: []u8) -> (bytes_written: int, err: TCP_Send_Error) {
     for bytes_written < len(buf) {
         limit := min(int(max(i32)), len(buf) - bytes_written)
         remaining := buf[bytes_written:]
@@ -258,7 +258,7 @@ _send_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_written: int, err: 
 }
 
 @(private)
-_send_udp :: proc(socket: UDP_Socket, buf: []byte, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
+_send_udp :: proc(socket: UDP_Socket, buf: []u8, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
     toaddr := _endpoint_to_sockaddr(to)
     for bytes_written < len(buf) {
         limit := min(int(max(i32)), len(buf) - bytes_written)
@@ -409,7 +409,7 @@ _sockaddr_to_endpoint :: proc(native_addr: ^win.SOCKADDR_STORAGE_LH) -> (ep: End
         addr := cast(^win.sockaddr_in) native_addr
         port := int(addr.sin_port)
         ep = Endpoint {
-            address = IP4_Address(transmute([4]byte) addr.sin_addr),
+            address = IP4_Address(transmute([4]u8) addr.sin_addr),
             port = port,
         }
     case u16(win.AF_INET6):

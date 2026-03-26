@@ -3,7 +3,7 @@
 import "core:encoding/endian"
 import "core:math/bits"
 
-init_cshake :: proc(ctx: ^Context, n, s: []byte, sec_strength: int) {
+init_cshake :: proc(ctx: ^Context, n, s: []u8, sec_strength: int) {
 	ctx.mdlen = sec_strength / 8
 
 	// No domain separator is equivalent to vanilla SHAKE.
@@ -15,10 +15,10 @@ init_cshake :: proc(ctx: ^Context, n, s: []byte, sec_strength: int) {
 
 	ctx.dsbyte = DS_CSHAKE
 	init(ctx)
-	bytepad(ctx, [][]byte{n, s}, rate_cshake(sec_strength))
+	bytepad(ctx, [][]u8{n, s}, rate_cshake(sec_strength))
 }
 
-final_cshake :: proc(ctx: ^Context, dst: []byte, finalize_clone: bool = false) {
+final_cshake :: proc(ctx: ^Context, dst: []u8, finalize_clone: bool = false) {
 	ctx := ctx
 	if finalize_clone {
 		tmp_ctx: Context
@@ -53,9 +53,9 @@ rate_cshake :: #force_inline proc(sec_strength: int) -> int {
 // Thus we support 0 <= x < 2^128.
 
 @(private, rodata)
-_PAD: [RATE_128]byte // Biggest possible value of w per spec.
+_PAD: [RATE_128]u8 // Biggest possible value of w per spec.
 
-bytepad :: proc(ctx: ^Context, x_strings: [][]byte, w: int) {
+bytepad :: proc(ctx: ^Context, x_strings: [][]u8, w: int) {
 	// 1. z = left_encode(w) || X.
 	z_hi: u64
 	z_lo := left_right_encode(ctx, 0, u64(w), true)
@@ -73,7 +73,7 @@ bytepad :: proc(ctx: ^Context, x_strings: [][]byte, w: int) {
 		ensure_contextless(carry == 0, "crypto/sha3: bytepad input length overflow")
 	}
 
-	// We skip this step as we are doing a byte-oriented implementation
+	// We skip this step as we are doing a u8-oriented implementation
 	// rather than a bit oriented one.
 	//
 	// 2. while len(z) mod 8 ≠ 0:
@@ -93,7 +93,7 @@ bytepad :: proc(ctx: ^Context, x_strings: [][]byte, w: int) {
 	}
 }
 
-encode_string :: #force_inline proc(ctx: ^Context, s: []byte) -> (u64, u64) {
+encode_string :: #force_inline proc(ctx: ^Context, s: []u8) -> (u64, u64) {
 	l := encode_byte_len(ctx, len(s), true) // left_encode
 	update(ctx, s)
 
@@ -114,7 +114,7 @@ left_right_encode :: proc(ctx: ^Context, hi, lo: u64, is_left: bool) -> u64 {
 	RIGHT_OFFSET :: LO_OFFSET + 8
 	BUF_LEN :: RIGHT_OFFSET + 1
 
-	buf: [BUF_LEN]byte // prefix + largest uint + postfix
+	buf: [BUF_LEN]u8 // prefix + largest uint + postfix
 
 	endian.unchecked_put_u64be(buf[HI_OFFSET:], hi)
 	endian.unchecked_put_u64be(buf[LO_OFFSET:], lo)
@@ -126,10 +126,10 @@ left_right_encode :: proc(ctx: ^Context, hi, lo: u64, is_left: bool) -> u64 {
 			break
 		}
 	}
-	n := byte(RIGHT_OFFSET - off)
+	n := u8(RIGHT_OFFSET - off)
 
 	// 3. Prefix (left_encode) or postfix (right_encode) the length in bytes.
-	b: []byte
+	b: []u8
 	switch is_left {
 	case true:
 		buf[off - 1] = n // n | x

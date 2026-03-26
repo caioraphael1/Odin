@@ -19,7 +19,7 @@ Parser :: struct {
     parse_integers: bool,
 }
 
-parser_create :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator) -> Parser {
+parser_create :: proc(data: []u8, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator) -> Parser {
     return parser_create_from_string(string(data), spec, parse_integers, allocator)
 }
 parser_create_from_string :: proc(data: string, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator) -> Parser {
@@ -32,7 +32,7 @@ parser_create_from_string :: proc(data: string, spec := DEFAULT_SPECIFICATION, p
 }
 
 
-parse :: proc(data: []byte, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator, loc := #caller_location) -> (Value, Error) {
+parse :: proc(data: []u8, spec := DEFAULT_SPECIFICATION, parse_integers := false, allocator: mem.Allocator, loc := #caller_location) -> (Value, Error) {
     return parse_string(string(data), spec, parse_integers, allocator, loc)
 }
 
@@ -217,7 +217,7 @@ parse_array :: proc(p: ^Parser, loc := #caller_location) -> (value: Value, err: 
 }
 
 @(private)
-bytes_make :: proc(size, alignment: uint, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []byte, err: Error) {
+bytes_make :: proc(size, alignment: uint, allocator: mem.Allocator, loc := #caller_location) -> (bytes: []u8, err: Error) {
     b, berr := mem.alloc(size, alignment, allocator, loc)
     if berr != nil {
         if berr == .Out_Of_Memory {

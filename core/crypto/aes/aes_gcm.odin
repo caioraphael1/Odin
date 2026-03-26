@@ -25,7 +25,7 @@ Context_GCM :: struct {
 }
 
 // init_gcm initializes a Context_GCM with the provided key.
-init_gcm :: proc(ctx: ^Context_GCM, key: []byte, impl := DEFAULT_IMPLEMENTATION) {
+init_gcm :: proc(ctx: ^Context_GCM, key: []u8, impl := DEFAULT_IMPLEMENTATION) {
 	init_impl(&ctx._impl, key, impl)
 	ctx._is_initialized = true
 }
@@ -34,7 +34,7 @@ init_gcm :: proc(ctx: ^Context_GCM, key: []byte, impl := DEFAULT_IMPLEMENTATION)
 // with the provided Context_GCM and iv, stores the output in dst and tag.
 //
 // dst and plaintext MUST alias exactly or not at all.
-seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []byte) {
+seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []u8) {
 	internal.ensure(ctx._is_initialized)
 
 	gcm_validate_common_slice_sizes(tag, iv, aad, plaintext)
@@ -46,10 +46,10 @@ seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []byte) {
 		return
 	}
 
-	h: [_aes.GHASH_KEY_SIZE]byte
-	j0: [_aes.GHASH_BLOCK_SIZE]byte
-	j0_enc: [_aes.GHASH_BLOCK_SIZE]byte
-	s: [_aes.GHASH_TAG_SIZE]byte
+	h: [_aes.GHASH_KEY_SIZE]u8
+	j0: [_aes.GHASH_BLOCK_SIZE]u8
+	j0_enc: [_aes.GHASH_BLOCK_SIZE]u8
+	s: [_aes.GHASH_TAG_SIZE]u8
 	init_ghash_ct64(ctx, &h, &j0, &j0_enc, iv)
 
 	// Note: Our GHASH implementation handles appending padding.
@@ -70,7 +70,7 @@ seal_gcm :: proc(ctx: ^Context_GCM, dst, tag, iv, aad, plaintext: []byte) {
 //
 // dst and plaintext MUST alias exactly or not at all.
 
-open_gcm :: proc(ctx: ^Context_GCM, dst, iv, aad, ciphertext, tag: []byte) -> bool {
+open_gcm :: proc(ctx: ^Context_GCM, dst, iv, aad, ciphertext, tag: []u8) -> bool {
 	internal.ensure(ctx._is_initialized)
 
 	gcm_validate_common_slice_sizes(tag, iv, aad, ciphertext)
@@ -81,10 +81,10 @@ open_gcm :: proc(ctx: ^Context_GCM, dst, iv, aad, ciphertext, tag: []byte) -> bo
 		return gcm_open_hw(&impl, dst, iv, aad, ciphertext, tag)
 	}
 
-	h: [_aes.GHASH_KEY_SIZE]byte
-	j0: [_aes.GHASH_BLOCK_SIZE]byte
-	j0_enc: [_aes.GHASH_BLOCK_SIZE]byte
-	s: [_aes.GHASH_TAG_SIZE]byte
+	h: [_aes.GHASH_KEY_SIZE]u8
+	j0: [_aes.GHASH_BLOCK_SIZE]u8
+	j0_enc: [_aes.GHASH_BLOCK_SIZE]u8
+	s: [_aes.GHASH_TAG_SIZE]u8
 	init_ghash_ct64(ctx, &h, &j0, &j0_enc, iv)
 
 	ct64.ghash(s[:], h[:], aad)
@@ -112,7 +112,7 @@ reset_gcm :: proc(ctx: ^Context_GCM) {
 }
 
 @(private = "file")
-gcm_validate_common_slice_sizes :: proc(tag, iv, aad, text: []byte) {
+gcm_validate_common_slice_sizes :: proc(tag, iv, aad, text: []u8) {
 	internal.ensure(len(tag) == GCM_TAG_SIZE, "crypto/aes: invalid GCM tag size")
 
 	// The specification supports IVs in the range [1, 2^64) bits.
@@ -125,10 +125,10 @@ gcm_validate_common_slice_sizes :: proc(tag, iv, aad, text: []byte) {
 @(private = "file")
 init_ghash_ct64 :: proc(
 	ctx: ^Context_GCM,
-	h: ^[_aes.GHASH_KEY_SIZE]byte,
-	j0: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	j0_enc: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	iv: []byte,
+	h: ^[_aes.GHASH_KEY_SIZE]u8,
+	j0: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	j0_enc: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	iv: []u8,
 ) {
 	impl := &ctx._impl.(ct64.Context)
 
@@ -145,7 +145,7 @@ init_ghash_ct64 :: proc(
 		// and let J0 = GHASHH(IV || 0^(s+64) || ceil(len(IV))^64).
 		ct64.ghash(j0[:], h[:], iv)
 
-		tmp: [_aes.GHASH_BLOCK_SIZE]byte
+		tmp: [_aes.GHASH_BLOCK_SIZE]u8
 		endian.unchecked_put_u64be(tmp[8:], u64(l) * 8)
 		ct64.ghash(j0[:], h[:], tmp[:])
 	}
@@ -158,13 +158,13 @@ init_ghash_ct64 :: proc(
 
 @(private = "file")
 final_ghash_ct64 :: proc(
-	s: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	h: ^[_aes.GHASH_KEY_SIZE]byte,
-	j0: ^[_aes.GHASH_BLOCK_SIZE]byte,
+	s: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	h: ^[_aes.GHASH_KEY_SIZE]u8,
+	j0: ^[_aes.GHASH_BLOCK_SIZE]u8,
 	a_len: int,
 	t_len: int,
 ) {
-	blk: [_aes.GHASH_BLOCK_SIZE]byte
+	blk: [_aes.GHASH_BLOCK_SIZE]u8
 	endian.unchecked_put_u64be(blk[0:], u64(a_len) * 8)
 	endian.unchecked_put_u64be(blk[8:], u64(t_len) * 8)
 
@@ -177,21 +177,21 @@ final_ghash_ct64 :: proc(
 @(private = "file")
 gctr_ct64 :: proc(
 	ctx: ^Context_GCM,
-	dst: []byte,
-	s: ^[_aes.GHASH_BLOCK_SIZE]byte,
-	src: []byte,
-	h: ^[_aes.GHASH_KEY_SIZE]byte,
-	iv: ^[_aes.GHASH_BLOCK_SIZE]byte,
+	dst: []u8,
+	s: ^[_aes.GHASH_BLOCK_SIZE]u8,
+	src: []u8,
+	h: ^[_aes.GHASH_KEY_SIZE]u8,
+	iv: ^[_aes.GHASH_BLOCK_SIZE]u8,
 	is_seal: bool,
 ) #no_bounds_check {
-	ct64_inc_ctr32 := #force_inline proc(dst: []byte, ctr: u32) -> u32 {
+	ct64_inc_ctr32 := #force_inline proc(dst: []u8, ctr: u32) -> u32 {
 		endian.unchecked_put_u32be(dst[12:], ctr)
 		return ctr + 1
 	}
 
 	// Setup the counter blocks.
-	tmp, tmp2: [ct64.STRIDE][BLOCK_SIZE]byte = ---, ---
-	ctrs, blks: [ct64.STRIDE][]byte = ---, ---
+	tmp, tmp2: [ct64.STRIDE][BLOCK_SIZE]u8 = ---, ---
+	ctrs, blks: [ct64.STRIDE][]u8 = ---, ---
 	ctr := endian.unchecked_get_u32be(iv[GCM_IV_SIZE:]) + 1
 	for i in 0 ..< ct64.STRIDE {
 		// Setup scratch space for the keystream.

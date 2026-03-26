@@ -238,7 +238,7 @@ fe_cond_assign :: #force_no_inline proc(
 	out1[2] = x3
 }
 
-fe_to_bytes :: proc(out1: ^[32]byte, arg1: ^Tight_Field_Element) {
+fe_to_bytes :: proc(out1: ^[32]u8, arg1: ^Tight_Field_Element) {
 	x1, x2 := _subborrowx_u44(0x0, arg1[0], 0xffffffffffb)
 	x3, x4 := _subborrowx_u43(x2, arg1[1], 0x7ffffffffff)
 	x5, x6 := _subborrowx_u43(x4, arg1[2], 0x7ffffffffff)
@@ -301,7 +301,7 @@ fe_to_bytes :: proc(out1: ^[32]byte, arg1: ^Tight_Field_Element) {
 	out1[16] = x49
 }
 
-_fe_from_bytes :: proc(out1: ^Tight_Field_Element, arg1: ^[32]byte) {
+_fe_from_bytes :: proc(out1: ^Tight_Field_Element, arg1: ^[32]u8) {
 	x1 := (u64(arg1[16]) << 41)
 	x2 := (u64(arg1[15]) << 33)
 	x3 := (u64(arg1[14]) << 25)

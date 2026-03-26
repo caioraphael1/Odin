@@ -14,10 +14,10 @@ import "core:encoding/endian"
 // salt, iteration count, and outputs the derived key to dst.
 derive :: proc(
 	hmac_hash: hash.Algorithm,
-	password: []byte,
-	salt: []byte,
+	password: []u8,
+	salt: []u8,
 	iterations: u32,
-	dst: []byte,
+	dst: []u8,
 ) {
 	h_len := hash.DIGEST_SIZES[hmac_hash]
 
@@ -69,7 +69,7 @@ derive :: proc(
 	// Instead of rounding l up, just proceass the one extra block iff
 	// r != 0.
 	if r > 0 {
-		tmp: [hash.MAX_DIGEST_SIZE]byte
+		tmp: [hash.MAX_DIGEST_SIZE]u8
 		blk := tmp[:h_len]
 		defer crypto.zero_explicit(raw_data(blk), h_len)
 
@@ -79,10 +79,10 @@ derive :: proc(
 }
 
 @(private)
-_F :: proc(base: ^hmac.Context, salt: []byte, c: u32, i: u32, dst_blk: []byte) {
+_F :: proc(base: ^hmac.Context, salt: []u8, c: u32, i: u32, dst_blk: []u8) {
 	h_len := len(dst_blk)
 
-	tmp: [hash.MAX_DIGEST_SIZE]byte
+	tmp: [hash.MAX_DIGEST_SIZE]u8
 	u := tmp[:h_len]
 	defer crypto.zero_explicit(raw_data(u), h_len)
 

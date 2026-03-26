@@ -30,7 +30,7 @@ multi_reader_destroy :: proc(mr: ^Multi_Reader) {
     _ = dyn_array.delete(mr.readers)
 }
 
-_multi_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_multi_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     if mode == .Query {
         return io.query_utility({.Read, .Query})
     } else if mode != .Read {

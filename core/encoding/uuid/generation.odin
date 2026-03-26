@@ -223,7 +223,7 @@ non-legacy alternative to UUID versions 3 and 5.
 Inputs:
 - namespace: An `Identifier` that is used to represent the underlying namespace.
   This can be any one of the `Namespace_*` values provided in this package.
-- name: The byte slice which will be hashed with the namespace.
+- name: The u8 slice which will be hashed with the namespace.
 - algorithm: A hashing algorithm from `core:crypto/hash`.
 
 Returns:
@@ -247,13 +247,13 @@ Output:
 */
 generate_v8_hash_bytes :: proc(
     namespace: Identifier,
-    name: []byte,
+    name: []u8,
     algorithm: hash.Algorithm,
 ) -> (
     result: Identifier,
 ) {
     // 128 bytes should be enough for the foreseeable future.
-    digest: [128]byte
+    digest: [128]u8
 
     internal.assert(hash.DIGEST_SIZES[algorithm] >= 16, "Per RFC 9562, the hashing algorithm used must generate a digest of 128 bits or larger.")
     internal.assert(hash.DIGEST_SIZES[algorithm] < len(digest), "Digest size is too small for this algorithm. The buffer must be increased.")
@@ -318,5 +318,5 @@ generate_v8_hash_string :: proc(
 ) -> (
     result: Identifier,
 ) {
-    return generate_v8_hash_bytes(namespace, transmute([]byte)name, algorithm)
+    return generate_v8_hash_bytes(namespace, transmute([]u8)name, algorithm)
 }

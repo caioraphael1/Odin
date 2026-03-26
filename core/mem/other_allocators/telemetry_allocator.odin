@@ -91,7 +91,7 @@ telemetry_allocator_proc :: proc(
     old_memory:      rawptr,
     old_size:        uint,
     loc              := #caller_location,
-    ) -> (new_memory: []byte, err: mem.Allocator_Error) {
+    ) -> (new_memory: []u8, err: mem.Allocator_Error) {
 
     Header :: struct {
         size:      uint,

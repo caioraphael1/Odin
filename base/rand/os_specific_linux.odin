@@ -4,7 +4,7 @@ import "base:intrinsics"
 _HAS_RAND_BYTES :: true
 
 
-_rand_bytes :: proc(dst: []byte) {
+_rand_bytes :: proc(dst: []u8) {
     when ODIN_ARCH == .amd64 {
         SYS_getrandom :: uintptr(318)
     } else when ODIN_ARCH == .arm64 {

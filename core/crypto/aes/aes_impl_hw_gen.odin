@@ -14,31 +14,31 @@ is_hardware_accelerated :: proc() -> bool {
 Context_Impl_Hardware :: struct {}
 
 @(private)
-init_impl_hw :: proc(ctx: ^Context_Impl_Hardware, key: []byte) {
+init_impl_hw :: proc(ctx: ^Context_Impl_Hardware, key: []u8) {
 	internal.panic(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-encrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []byte) {
+encrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []u8) {
 	internal.panic(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-decrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []byte) {
+decrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []u8) {
 	internal.panic(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-ctr_blocks_hw :: proc(ctx: ^Context_CTR, dst, src: []byte, nr_blocks: int) {
+ctr_blocks_hw :: proc(ctx: ^Context_CTR, dst, src: []u8, nr_blocks: int) {
 	internal.panic(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-gcm_seal_hw :: proc(ctx: ^Context_Impl_Hardware, dst, tag, iv, aad, plaintext: []byte) {
+gcm_seal_hw :: proc(ctx: ^Context_Impl_Hardware, dst, tag, iv, aad, plaintext: []u8) {
 	internal.panic(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-gcm_open_hw :: proc(ctx: ^Context_Impl_Hardware, dst, iv, aad, ciphertext, tag: []byte) -> bool {
+gcm_open_hw :: proc(ctx: ^Context_Impl_Hardware, dst, iv, aad, ciphertext, tag: []u8) -> bool {
 	internal.panic(ERR_HW_NOT_SUPPORTED)
 }

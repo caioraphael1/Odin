@@ -12,7 +12,7 @@ import secec "core:crypto/_weierstrass"
 //
 // The signature format is ASN1. `SEQUECE `{ r INTEGER, s INTEGER }`.
 
-sign_asn1 :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg: []byte, allocator: mem.Allocator, deterministic := !crypto.HAS_RAND_BYTES) -> ([]byte, bool) {
+sign_asn1 :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg: []u8, allocator: mem.Allocator, deterministic := !crypto.HAS_RAND_BYTES) -> ([]u8, bool) {
 	internal.ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
 	internal.ensure(priv_key._curve != .Invalid, "crypto/edsa: invalid curve")
 
@@ -48,7 +48,7 @@ sign_asn1 :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg: []byte
 //
 // The signature format is `r | s`.
 
-sign_raw :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg, sig: []byte, deterministic := !crypto.HAS_RAND_BYTES) -> bool {
+sign_raw :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg, sig: []u8, deterministic := !crypto.HAS_RAND_BYTES) -> bool {
 	internal.ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
 	internal.ensure(priv_key._curve != .Invalid, "crypto/edsa: invalid curve")
 	internal.ensure(len(sig) == RAW_SIGNATURE_SIZES[priv_key._curve], "crypto/ecdsa: invalid destination size")
@@ -84,7 +84,7 @@ sign_raw :: proc(priv_key: ^Private_Key, hash_algo: hash.Algorithm, msg, sig: []
 }
 
 @(private)
-sign_internal :: proc(priv_key, sig_r, sig_s: ^$T, hash_algo: hash.Algorithm, msg: []byte, deterministic: bool) {
+sign_internal :: proc(priv_key, sig_r, sig_s: ^$T, hash_algo: hash.Algorithm, msg: []u8, deterministic: bool) {
 	when T == secec.Scalar_p256r1 {
 		SC_SZ :: secec.SC_SIZE_P256R1
 		FE_SZ :: secec.FE_SIZE_P256R1
@@ -122,7 +122,7 @@ sign_internal :: proc(priv_key, sig_r, sig_s: ^$T, hash_algo: hash.Algorithm, ms
 	// conversion routine specified in Section 2.3.8.
 
 	e: T = ---
-	h_bytes: [hash.MAX_DIGEST_SIZE]byte = ---
+	h_bytes: [hash.MAX_DIGEST_SIZE]u8 = ---
 	e_bytes := hash.hash_bytes_to_buffer(hash_algo, msg, h_bytes[:])
 	if len(e_bytes) > SC_SZ {
 		e_bytes = e_bytes[:SC_SZ]
@@ -132,7 +132,7 @@ sign_internal :: proc(priv_key, sig_r, sig_s: ^$T, hash_algo: hash.Algorithm, ms
 		secec.sc_bytes(e_bytes, &e)
 	}
 
-	x_bytes: [SC_SZ]byte = ---
+	x_bytes: [SC_SZ]u8 = ---
 	defer crypto.zero_explicit(&x_bytes, size_of(x_bytes))
 	secec.sc_bytes(x_bytes[:], priv_key)
 
@@ -172,7 +172,7 @@ sign_internal :: proc(priv_key, sig_r, sig_s: ^$T, hash_algo: hash.Algorithm, ms
 		// 2. Convert the field element xR to an integer xR using the
 		// conversion routine specified in Section 2.3.9.
 
-		rx_bytes: [FE_SZ]byte = ---
+		rx_bytes: [FE_SZ]u8 = ---
 		_ = secec.pt_bytes(rx_bytes[:], nil, &r_pt)
 
 		// 3. Set r = xR mod n. If r = 0, or optionally r fails to meet

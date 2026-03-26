@@ -78,7 +78,7 @@ foreign lib {
     Yield                   :: proc() ---
 
     // Simple djb2 hash function for determinism testing.
-    Hash :: proc(hash: u32, data: [^]byte, count: c.int) -> u32 ---
+    Hash :: proc(hash: u32, data: [^]u8, count: c.int) -> u32 ---
 
     // Box2D bases all length units on meters, but you may need different units for your game.
     // You can set this value to use different units. This should be done at application startup

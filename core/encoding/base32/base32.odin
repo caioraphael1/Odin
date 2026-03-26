@@ -22,15 +22,15 @@ Error :: enum {
 	Malformed_Input,   // Input has improper structure (wrong padding position or incomplete groups)
 }
 
-Validate_Proc :: #type proc(c: byte) -> bool
+Validate_Proc :: #type proc(c: u8) -> bool
 
 @(private)
-_validate_default :: proc(c: byte) -> bool {
+_validate_default :: proc(c: u8) -> bool {
 	return (c >= 'A' && c <= 'Z') || (c >= '2' && c <= '7')
 }
 
 @(rodata)
-ENC_TABLE := [32]byte {
+ENC_TABLE := [32]u8 {
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 	'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
 	'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -59,20 +59,20 @@ DEC_TABLE := [256]u8 {
 	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 }
 
-encode :: proc(data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> string {
+encode :: proc(data: []u8, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> string {
 	out_length := (len(data) + 4) / 5 * 8
-    out, _ := slice.create([]byte, out_length, allocator)
+    out, _ := slice.create([]u8, out_length, allocator)
     _encode(out, data, ENC_TBL, allocator)
 	return string(out[:])
 }
 
 @(private)
-_encode :: proc(out, data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) {
+_encode :: proc(out, data: []u8, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) {
 	out := out
 	data := data
 
 	for len(data) > 0 {
-		carry: byte
+		carry: u8
 		switch len(data) {
 		case:
 			out[7] = ENC_TBL[data[4] & 0x1f]
@@ -98,15 +98,15 @@ _encode :: proc(out, data: []byte, ENC_TBL := ENC_TABLE, allocator: mem.Allocato
 		}
 
 		if len(data) < 5 {
-			out[7] = byte(PADDING)
+			out[7] = u8(PADDING)
 			if len(data) < 4 {
-				out[6] = byte(PADDING)
-				out[5] = byte(PADDING)
+				out[6] = u8(PADDING)
+				out[5] = u8(PADDING)
 				if len(data) < 3 {
-					out[4] = byte(PADDING)
+					out[4] = u8(PADDING)
 					if len(data) < 2 {
-						out[3] = byte(PADDING)
-						out[2] = byte(PADDING)
+						out[3] = u8(PADDING)
+						out[2] = u8(PADDING)
 					}
 				}
 			}
@@ -122,7 +122,7 @@ decode :: proc(
 	data: string,
 	DEC_TBL := DEC_TABLE,
 	validate: Validate_Proc = _validate_default,
-    allocator: mem.Allocator) -> (out: []byte, err: Error) {
+    allocator: mem.Allocator) -> (out: []u8, err: Error) {
 	if len(data) == 0 {
 		return nil, .None
 	}
@@ -135,7 +135,7 @@ decode :: proc(
 	// Validate characters using provided validation function
 	for i := 0; i < len(data); i += 1 {
 		c := data[i]
-		if c == byte(PADDING) {
+		if c == u8(PADDING) {
 			break
 		}
 		if !validate(c) {
@@ -147,7 +147,7 @@ decode :: proc(
 	data_len := len(data)
 	padding_count := 0
 	for i := data_len - 1; i >= 0; i -= 1 {
-		if data[i] != byte(PADDING) {
+		if data[i] != u8(PADDING) {
 			break
 		}
 		padding_count += 1
@@ -155,7 +155,7 @@ decode :: proc(
 
 	// Verify no padding in the middle
 	for i := 0; i < data_len - padding_count; i += 1 {
-		if data[i] == byte(PADDING) {
+		if data[i] == u8(PADDING) {
 			return nil, .Malformed_Input
 		}
 	}
@@ -190,15 +190,15 @@ decode :: proc(
 	// Calculate decoded length: 5 bytes for every 8 input chars
 	input_chars := data_len - padding_count
 	out_len := input_chars * 5 / 8
-    out, _ = slice.create([]byte, out_len, allocator)
+    out, _ = slice.create([]u8, out_len, allocator)
 	defer if err != .None {
         _ = slice.delete(out, allocator)
 	}
 
-	// Process input in 8-byte blocks
+	// Process input in 8-u8 blocks
 	outi := 0
 	for i := 0; i < input_chars; i += 8 {
-		buf: [8]byte
+		buf: [8]u8
 		block_size := min(8, input_chars - i)
 
 		// Decode block

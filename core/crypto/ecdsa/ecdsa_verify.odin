@@ -9,7 +9,7 @@ import secec "core:crypto/_weierstrass"
 //
 // The signature format is `r | s`.
 
-verify_raw :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []byte) -> bool {
+verify_raw :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []u8) -> bool {
 	internal.ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
 	internal.ensure(pub_key._curve != .Invalid, "crypto/edsa: invalid curve")
 
@@ -39,7 +39,7 @@ verify_raw :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []
 //
 // The signature format is ASN.1 `SEQUENCE { r INTEGER, s INTEGER }`.
 
-verify_asn1 :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []byte) -> bool {
+verify_asn1 :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: []u8) -> bool {
 	internal.ensure(hash_algo != .Invalid, "crypto/edsa: invalid hash algorithm")
 	internal.ensure(pub_key._curve != .Invalid, "crypto/edsa: invalid curve")
 
@@ -61,7 +61,7 @@ verify_asn1 :: proc(pub_key: ^Public_Key, hash_algo: hash.Algorithm, msg, sig: [
 }
 
 @(private,require_results)
-verify_internal :: proc(pub_key: ^$T, hash_algo: hash.Algorithm, sig_r, sig_s, msg: []byte) -> bool {
+verify_internal :: proc(pub_key: ^$T, hash_algo: hash.Algorithm, sig_r, sig_s, msg: []u8) -> bool {
 	when T == secec.Point_p256r1 {
 		r, s, e, v: secec.Scalar_p256r1 = ---, ---, ---, ---
 		u1, u2, s_inv: secec.Scalar_p256r1 = ---, ---, ---
@@ -108,7 +108,7 @@ verify_internal :: proc(pub_key: ^$T, hash_algo: hash.Algorithm, sig_r, sig_s, m
 	// 3.4. Convert the octet string E to an integer e using the
 	// conversion routine specified in Section 2.3.8.
 
-	h_bytes: [hash.MAX_DIGEST_SIZE]byte = ---
+	h_bytes: [hash.MAX_DIGEST_SIZE]u8 = ---
 	e_bytes := hash.hash_bytes_to_buffer(hash_algo, msg, h_bytes[:])
 	if len(e_bytes) > SC_SZ {
 		e_bytes = e_bytes[:SC_SZ]
@@ -137,7 +137,7 @@ verify_internal :: proc(pub_key: ^$T, hash_algo: hash.Algorithm, sig_r, sig_s, m
 	//
 	// 7. Set v = xR mod n.
 
-	r_x: [SC_SZ]byte = ---
+	r_x: [SC_SZ]u8 = ---
 	_ = secec.pt_bytes(r_x[:], nil, &r_pt)
 	_ = secec.sc_set_bytes(&v, r_x[:])
 

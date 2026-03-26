@@ -9,18 +9,18 @@ import "core:io"
 // This makes sure that the buffer will not be accidentally read beyond the expected size.
 Lookahead_Reader :: struct {
     r:   io.Reader,
-    buf: []byte,
+    buf: []u8,
     n:   uint,
 }
 
-lookahead_reader_init :: proc(lr: ^Lookahead_Reader, r: io.Reader, buf: []byte) -> ^Lookahead_Reader {
+lookahead_reader_init :: proc(lr: ^Lookahead_Reader, r: io.Reader, buf: []u8) -> ^Lookahead_Reader {
     lr.r = r
     lr.buf = buf
     lr.n = 0
     return lr
 }
 
-lookahead_reader_buffer :: proc(lr: ^Lookahead_Reader) -> []byte {
+lookahead_reader_buffer :: proc(lr: ^Lookahead_Reader) -> []u8 {
     return lr.buf[:lr.n]
 }
 
@@ -28,7 +28,7 @@ lookahead_reader_buffer :: proc(lr: ^Lookahead_Reader) -> []byte {
 // lookahead_reader_peek returns a slice of the Lookahead_Reader which holds n bytes
 // If the Lookahead_Reader cannot hold enough bytes, it will read from the underlying reader to populate the rest.
 // NOTE: The returned buffer is not a copy of the underlying buffer
-lookahead_reader_peek :: proc(lr: ^Lookahead_Reader, n: uint) -> ([]byte, io.Error) {
+lookahead_reader_peek :: proc(lr: ^Lookahead_Reader, n: uint) -> ([]u8, io.Error) {
     if n > len(lr.buf) {
         return nil, .Buffer_Full
     }
@@ -55,7 +55,7 @@ lookahead_reader_peek :: proc(lr: ^Lookahead_Reader, n: uint) -> ([]byte, io.Err
 // lookahead_reader_peek_all returns a slice of the Lookahead_Reader populating the full buffer
 // If the Lookahead_Reader cannot hold enough bytes, it will read from the underlying reader to populate the rest.
 // NOTE: The returned buffer is not a copy of the underlying buffer
-lookahead_reader_peek_all :: proc(lr: ^Lookahead_Reader) -> ([]byte, io.Error) {
+lookahead_reader_peek_all :: proc(lr: ^Lookahead_Reader) -> ([]u8, io.Error) {
     return lookahead_reader_peek(lr, len(lr.buf))
 }
 

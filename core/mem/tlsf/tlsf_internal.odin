@@ -170,7 +170,7 @@ pool_remove :: proc(control: ^Allocator, pool: []u8) {
 }
 
 @(private)
-mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: mem.Allocator_Error) {
+mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []u8, err: mem.Allocator_Error) {
     internal.assert(control != nil)
     adjust := adjust_request_size(size, ALIGN_SIZE)
 
@@ -200,7 +200,7 @@ mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (r
             }
 
             // Trying to allocate a new pool of `control.new_pool_size` bytes.
-            new_pool_buf := internal.slice_create_aligned([]byte, control.new_pool_size, ALIGN_SIZE, control.pool.allocator) or_return
+            new_pool_buf := internal.slice_create_aligned([]u8, control.new_pool_size, ALIGN_SIZE, control.pool.allocator) or_return
 
             // Add new pool to control structure
             if pool_add_err := pool_add(control, new_pool_buf); pool_add_err != .None {
@@ -256,7 +256,7 @@ mem.alloc_non_zeroed :: proc(control: ^Allocator, size: uint, align: uint) -> (r
 }
 
 @(private)
-mem.alloc :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []byte, err: mem.Allocator_Error) {
+mem.alloc :: proc(control: ^Allocator, size: uint, align: uint) -> (res: []u8, err: mem.Allocator_Error) {
     res, err = mem.alloc_non_zeroed(control, size, align)
     if err == nil {
         mem.zero(raw_data(res), len(res))
@@ -284,7 +284,7 @@ mem_free_with_size :: proc(control: ^Allocator, ptr: rawptr, size: uint) {
 
 
 @(private)
-resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: mem.Allocator_Error) {
+resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []u8, err: mem.Allocator_Error) {
     internal.assert(control != nil)
     if ptr != nil && new_size == 0 {
         mem_free_with_size(control, ptr, old_size)
@@ -307,7 +307,7 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
     if adjust > curr_size && (!block_is_free(next) || adjust > combined) {
         res = mem.alloc(control, new_size, alignment) or_return
         if res != nil {
-            slice.copy(res, ([^]byte)(ptr)[:min_size])
+            slice.copy(res, ([^]u8)(ptr)[:min_size])
             mem_free_with_size(control, ptr, curr_size)
         }
         return
@@ -318,18 +318,18 @@ resize :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, align
     }
 
     block_trim_used(control, block, adjust)
-    res = ([^]byte)(ptr)[:new_size]
+    res = ([^]u8)(ptr)[:new_size]
     // sanitizer.address_unpoison(res)
 
     if min_size < new_size {
-        to_zero := ([^]byte)(ptr)[min_size:new_size]
+        to_zero := ([^]u8)(ptr)[min_size:new_size]
         mem.zero(raw_data(to_zero), len(to_zero))
     }
     return
 }
 
 @(private)
-resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []byte, err: mem.Allocator_Error) {
+resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: uint, alignment: uint) -> (res: []u8, err: mem.Allocator_Error) {
     internal.assert(control != nil)
     if ptr != nil && new_size == 0 {
         mem_free_with_size(control, ptr, old_size)
@@ -352,7 +352,7 @@ resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: 
     if adjust > curr_size && (!block_is_free(next) || adjust > combined) {
         res = mem.alloc_non_zeroed(control, new_size, alignment) or_return
         if res != nil {
-            slice.copy(res, ([^]byte)(ptr)[:min_size])
+            slice.copy(res, ([^]u8)(ptr)[:min_size])
             mem_free_with_size(control, ptr, old_size)
         }
         return
@@ -364,7 +364,7 @@ resize_non_zeroed :: proc(control: ^Allocator, ptr: rawptr, old_size, new_size: 
     }
 
     block_trim_used(control, block, adjust)
-    res = ([^]byte)(ptr)[:new_size]
+    res = ([^]u8)(ptr)[:new_size]
     return
 }
 
@@ -781,12 +781,12 @@ block_locate_free :: proc(control: ^Allocator, size: uint) -> (block: ^Block_Hea
 }
 
 @(private, no_sanitize_address)
-block_prepare_used :: proc(control: ^Allocator, block: ^Block_Header, size: uint) -> (res: []byte, err: mem.Allocator_Error) {
+block_prepare_used :: proc(control: ^Allocator, block: ^Block_Header, size: uint) -> (res: []u8, err: mem.Allocator_Error) {
     if block != nil {
         internal.assert(size != 0, "Size must be non-zero")
         block_trim_free(control, block, size)
         block_mark_as_used(block)
-        res = ([^]byte)(block_to_ptr(block))[:size]
+        res = ([^]u8)(block_to_ptr(block))[:size]
         // sanitizer.address_unpoison(res)
     }
     return

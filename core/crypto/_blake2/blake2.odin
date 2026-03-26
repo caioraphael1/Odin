@@ -24,12 +24,12 @@ Blake2s_Context :: struct {
 	h:            [8]u32,
 	t:            [2]u32,
 	f:            [2]u32,
-	x:            [BLAKE2S_BLOCK_SIZE]byte,
+	x:            [BLAKE2S_BLOCK_SIZE]u8,
 	nx:           int,
 	ih:           [8]u32,
-	padded_key:   [BLAKE2S_BLOCK_SIZE]byte,
+	padded_key:   [BLAKE2S_BLOCK_SIZE]u8,
 	is_keyed:     bool,
-	size:         byte,
+	size:         u8,
 	is_last_node: bool,
 
 	is_initialized: bool,
@@ -39,34 +39,34 @@ Blake2b_Context :: struct {
 	h:            [8]u64,
 	t:            [2]u64,
 	f:            [2]u64,
-	x:            [BLAKE2B_BLOCK_SIZE]byte,
+	x:            [BLAKE2B_BLOCK_SIZE]u8,
 	nx:           int,
 	ih:           [8]u64,
-	padded_key:   [BLAKE2B_BLOCK_SIZE]byte,
+	padded_key:   [BLAKE2B_BLOCK_SIZE]u8,
 	is_keyed:     bool,
-	size:         byte,
+	size:         u8,
 	is_last_node: bool,
 
 	is_initialized: bool,
 }
 
 Blake2_Config :: struct {
-	size:   byte,
-	key:    []byte,
-	salt:   []byte,
-	person: []byte,
+	size:   u8,
+	key:    []u8,
+	salt:   []u8,
+	person: []u8,
 	tree:   union {
 		Blake2_Tree,
 	},
 }
 
 Blake2_Tree :: struct {
-	fanout:          byte,
-	max_depth:       byte,
+	fanout:          u8,
+	max_depth:       u8,
 	leaf_size:       u32,
 	node_offset:     u64,
-	node_depth:      byte,
-	inner_hash_size: byte,
+	node_depth:      u8,
+	inner_hash_size: u8,
 	is_last_node:    bool,
 }
 
@@ -97,7 +97,7 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 	p := ctx.x[:]
 
 	p[0] = cfg.size
-	p[1] = byte(len(cfg.key))
+	p[1] = u8(len(cfg.key))
 
 	if cfg.salt != nil {
 		when T == Blake2s_Context {
@@ -119,12 +119,12 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 		p[3] = cfg.tree.(Blake2_Tree).max_depth
 		endian.unchecked_put_u32le(p[4:], cfg.tree.(Blake2_Tree).leaf_size)
 		when T == Blake2s_Context {
-			p[8] = byte(cfg.tree.(Blake2_Tree).node_offset)
-			p[9] = byte(cfg.tree.(Blake2_Tree).node_offset >> 8)
-			p[10] = byte(cfg.tree.(Blake2_Tree).node_offset >> 16)
-			p[11] = byte(cfg.tree.(Blake2_Tree).node_offset >> 24)
-			p[12] = byte(cfg.tree.(Blake2_Tree).node_offset >> 32)
-			p[13] = byte(cfg.tree.(Blake2_Tree).node_offset >> 40)
+			p[8] = u8(cfg.tree.(Blake2_Tree).node_offset)
+			p[9] = u8(cfg.tree.(Blake2_Tree).node_offset >> 8)
+			p[10] = u8(cfg.tree.(Blake2_Tree).node_offset >> 16)
+			p[11] = u8(cfg.tree.(Blake2_Tree).node_offset >> 24)
+			p[12] = u8(cfg.tree.(Blake2_Tree).node_offset >> 32)
+			p[13] = u8(cfg.tree.(Blake2_Tree).node_offset >> 40)
 			p[14] = cfg.tree.(Blake2_Tree).node_depth
 			p[15] = cfg.tree.(Blake2_Tree).inner_hash_size
 		} else when T == Blake2b_Context {
@@ -166,7 +166,7 @@ init :: proc(ctx: ^$T, cfg: ^Blake2_Config) {
 	ctx.is_initialized = true
 }
 
-update :: proc(ctx: ^$T, p: []byte) {
+update :: proc(ctx: ^$T, p: []u8) {
 	internal.ensure(ctx.is_initialized)
 
 	p := p
@@ -194,7 +194,7 @@ update :: proc(ctx: ^$T, p: []byte) {
 	ctx.nx += slice.copy(ctx.x[ctx.nx:], p)
 }
 
-final :: proc(ctx: ^$T, hash: []byte, finalize_clone: bool = false) {
+final :: proc(ctx: ^$T, hash: []u8, finalize_clone: bool = false) {
 	internal.ensure(ctx.is_initialized)
 
 	ctx := ctx
@@ -226,7 +226,7 @@ reset :: proc(ctx: ^$T) {
 }
 
 @(private)
-blake2s_final :: proc(ctx: ^Blake2s_Context, hash: []byte) {
+blake2s_final :: proc(ctx: ^Blake2s_Context, hash: []u8) {
 	if ctx.is_keyed {
 		for i := 0; i < len(ctx.padded_key); i += 1 {
 			ctx.padded_key[i] = 0
@@ -246,7 +246,7 @@ blake2s_final :: proc(ctx: ^Blake2s_Context, hash: []byte) {
 
 	blocks(ctx, ctx.x[:])
 
-	dst: [BLAKE2S_SIZE]byte
+	dst: [BLAKE2S_SIZE]u8
 	for i := 0; i < BLAKE2S_SIZE / 4; i += 1 {
 		endian.unchecked_put_u32le(dst[i * 4:], ctx.h[i])
 	}
@@ -254,7 +254,7 @@ blake2s_final :: proc(ctx: ^Blake2s_Context, hash: []byte) {
 }
 
 @(private)
-blake2b_final :: proc(ctx: ^Blake2b_Context, hash: []byte) {
+blake2b_final :: proc(ctx: ^Blake2b_Context, hash: []u8) {
 	if ctx.is_keyed {
 		for i := 0; i < len(ctx.padded_key); i += 1 {
 			ctx.padded_key[i] = 0
@@ -274,7 +274,7 @@ blake2b_final :: proc(ctx: ^Blake2b_Context, hash: []byte) {
 
 	blocks(ctx, ctx.x[:])
 
-	dst: [BLAKE2B_SIZE]byte
+	dst: [BLAKE2B_SIZE]u8
 	for i := 0; i < BLAKE2B_SIZE / 8; i += 1 {
 		endian.unchecked_put_u64le(dst[i * 8:], ctx.h[i])
 	}
@@ -282,7 +282,7 @@ blake2b_final :: proc(ctx: ^Blake2b_Context, hash: []byte) {
 }
 
 @(private)
-blocks :: proc(ctx: ^$T, p: []byte) {
+blocks :: proc(ctx: ^$T, p: []u8) {
 	when T == Blake2s_Context {
 		blake2s_blocks(ctx, p)
 	} else when T == Blake2b_Context {
@@ -291,7 +291,7 @@ blocks :: proc(ctx: ^$T, p: []byte) {
 }
 
 @(private)
-blake2s_blocks :: #force_inline proc(ctx: ^Blake2s_Context, p: []byte) {
+blake2s_blocks :: #force_inline proc(ctx: ^Blake2s_Context, p: []u8) {
 	h0, h1, h2, h3, h4, h5, h6, h7 :=
 		ctx.h[0], ctx.h[1], ctx.h[2], ctx.h[3], ctx.h[4], ctx.h[5], ctx.h[6], ctx.h[7]
 	p := p
@@ -1471,7 +1471,7 @@ blake2s_blocks :: #force_inline proc(ctx: ^Blake2s_Context, p: []byte) {
 }
 
 @(private)
-blake2b_blocks :: #force_inline proc(ctx: ^Blake2b_Context, p: []byte) {
+blake2b_blocks :: #force_inline proc(ctx: ^Blake2b_Context, p: []u8) {
 	h0, h1, h2, h3, h4, h5, h6, h7 :=
 		ctx.h[0], ctx.h[1], ctx.h[2], ctx.h[3], ctx.h[4], ctx.h[5], ctx.h[6], ctx.h[7]
 	p := p
@@ -2879,7 +2879,7 @@ blake2b_blocks :: #force_inline proc(ctx: ^Blake2b_Context, p: []byte) {
 }
 
 /*
-Set each byte of a memory range to zero.
+Set each u8 of a memory range to zero.
 
 This procedure copies the value `0` into the `len` bytes of a memory range,
 starting at address `data`.

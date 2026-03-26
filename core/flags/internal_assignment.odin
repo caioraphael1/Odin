@@ -199,7 +199,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
         hash := specific_type_info.map_info.key_hasher(key_ptr, internal.map_seed(raw_map^))
 
         backing_alloc := false
-        elem_backing: []byte
+        elem_backing: []u8
         value_ptr: rawptr
 
         if raw_map.allocator.procedure == nil {

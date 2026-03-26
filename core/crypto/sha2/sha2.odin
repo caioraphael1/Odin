@@ -38,7 +38,7 @@ BLOCK_SIZE_512 :: 128
 
 // Context_256 is a SHA-224 or SHA-256 instance.
 Context_256 :: struct {
-	block:     [BLOCK_SIZE_256]byte,
+	block:     [BLOCK_SIZE_256]u8,
 	h:         [8]u32,
 	bitlength: u64,
 	length:    u64,
@@ -49,7 +49,7 @@ Context_256 :: struct {
 
 // Context_512 is a SHA-384, SHA-512 or SHA-512/256 instance.
 Context_512 :: struct {
-	block:     [BLOCK_SIZE_512]byte,
+	block:     [BLOCK_SIZE_512]u8,
 	h:         [8]u64,
 	bitlength: u64,
 	length:    u64,
@@ -157,7 +157,7 @@ _init :: proc(ctx: ^$T) {
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^$T, data: []byte) {
+update :: proc(ctx: ^$T, data: []u8) {
 	internal.ensure(ctx.is_initialized)
 
 	when T == Context_256 {
@@ -193,7 +193,7 @@ update :: proc(ctx: ^$T, data: []byte) {
 //
 // Iff finalize_clone is set, final will work on a copy of the Context,
 // which is useful for for calculating rolling digests.
-final :: proc(ctx: ^$T, hash: []byte, finalize_clone: bool = false) {
+final :: proc(ctx: ^$T, hash: []u8, finalize_clone: bool = false) {
 	internal.ensure(ctx.is_initialized)
 	internal.ensure(len(hash) * 8 >= ctx.md_bits, "crypto/sha2: invalid destination digest size")
 
@@ -207,7 +207,7 @@ final :: proc(ctx: ^$T, hash: []byte, finalize_clone: bool = false) {
 
 	length := ctx.length
 
-	raw_pad: [BLOCK_SIZE_512]byte
+	raw_pad: [BLOCK_SIZE_512]u8
 	when T == Context_256 {
 		CURR_BLOCK_SIZE :: BLOCK_SIZE_256
 		pm_len := 8 // 64-bits for length
@@ -397,7 +397,7 @@ SHA512_F4 :: #force_inline proc(x: u64) -> u64 {
 }
 
 @(private)
-sha2_transf :: proc(ctx: ^$T, data: []byte) #no_bounds_check {
+sha2_transf :: proc(ctx: ^$T, data: []u8) #no_bounds_check {
 	when T == Context_256 {
 		if is_hardware_accelerated_256() {
 			sha256_transf_hw(ctx, data)

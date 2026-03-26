@@ -117,7 +117,7 @@ do_location_header :: proc(opts: Options, buf: ^string_builder.Builder, loc := #
 
 @(private)
 _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, fmt_string: string, args: []any, options: Options, loc: internal.Source_Code_Location) {
-    backing: [1024]byte
+    backing: [1024]u8
     buf := string_builder.builder_from_bytes(backing[:])
 
     do_level_header(options, &buf, level)

@@ -60,7 +60,7 @@ _LFSR_SH7 :: simd.u8x16{
 	0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
 }
 @(private = "file", rodata)
-_RCONS := []byte {
+_RCONS := []u8 {
 	0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a,
 	0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39,
 	0x72,
@@ -68,13 +68,13 @@ _RCONS := []byte {
 
 // Context is a keyed Deoxys-II-256 instance.
 Context :: struct {
-	_subkeys:        [BC_ROUNDS+1][16]byte,
+	_subkeys:        [BC_ROUNDS+1][16]u8,
 	_impl:           aes.Implementation,
 	_is_initialized: bool,
 }
 
 @(private)
-_validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte) {
+_validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []u8) {
 	internal.ensure(len(tag) == TAG_SIZE, "crypto/deoxysii: invalid tag size")
 	internal.ensure(len(iv) == IV_SIZE, "crypto/deoxysii: invalid IV size")
 
@@ -88,7 +88,7 @@ _validate_common_slice_sizes :: proc (ctx: ^Context, tag, iv, aad, text: []byte)
 }
 
 // init initializes a Context with the provided key.
-init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
+init :: proc(ctx: ^Context, key: []u8, impl := aes.DEFAULT_IMPLEMENTATION) {
 	internal.ensure(len(key) == KEY_SIZE, "crypto/deoxysii: invalid key size")
 
 	ctx._impl = impl
@@ -105,7 +105,7 @@ init :: proc(ctx: ^Context, key: []byte, impl := aes.DEFAULT_IMPLEMENTATION) {
 // with the provided Context and iv, stores the output in dst and tag.
 //
 // dst and plaintext MUST alias exactly or not at all.
-seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
+seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []u8) {
 	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, plaintext)
@@ -127,7 +127,7 @@ seal :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) {
 //
 // dst and plaintext MUST alias exactly or not at all.
 
-open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
+open :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []u8) -> bool {
 	internal.ensure(ctx._is_initialized)
 
 	_validate_common_slice_sizes(ctx, tag, iv, aad, ciphertext)
@@ -156,7 +156,7 @@ reset :: proc(ctx: ^Context) {
 }
 
 @(private = "file")
-derive_ks :: proc(ctx: ^Context, key: []byte) {
+derive_ks :: proc(ctx: ^Context, key: []u8) {
 	// Derive the constant component of each subtweakkey.
 	//
 	// The key schedule is as thus:
@@ -228,7 +228,7 @@ derive_ks :: proc(ctx: ^Context, key: []byte) {
 
 @(private = "file")
 lfsr2 :: #force_inline proc(tk: simd.u8x16) -> simd.u8x16 {
-	// LFSR2 is a application of the following LFSR to each byte of input.
+	// LFSR2 is a application of the following LFSR to each u8 of input.
 	// (x7||x6||x5||x4||x3||x2||x1||x0) -> (x6||x5||x4||x3||x2||x1||x0||x7 ^ x5)
 	return simd.bit_or(
 		simd.shl(tk, _LFSR_SH1),
@@ -244,7 +244,7 @@ lfsr2 :: #force_inline proc(tk: simd.u8x16) -> simd.u8x16 {
 
 @(private = "file")
 lfsr3 :: #force_inline proc (tk: simd.u8x16) -> simd.u8x16 {
-	// LFSR3 is a application of the following LFSR to each byte of input.
+	// LFSR3 is a application of the following LFSR to each u8 of input.
 	// (x7||x6||x5||x4||x3||x2||x1||x0) -> (x0 ^ x6||x7||x6||x5||x4||x3||x2||x1)
 	return simd.bit_or(
 		simd.shr(tk, _LFSR_SH1),

@@ -111,7 +111,7 @@ save_to_buffer  :: proc(output: ^bytes.Buffer, img: ^Image, options := Options{}
 }
 
 
-load_from_bytes :: proc(data: []byte, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []u8, options := Options{}, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     ctx := &compress.Context_Memory_Input{
         input_data = data,
     }

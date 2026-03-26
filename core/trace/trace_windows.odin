@@ -29,7 +29,7 @@ _destroy :: proc(ctx: ^Context) -> bool {
 _frames :: proc(ctx: ^Context, skip: uint, frames_buffer: []Frame) -> []Frame {
 	frame_count := win32.RtlCaptureStackBackTrace(u32(skip) + 2, u32(len(frames_buffer)), ([^]rawptr)(&frames_buffer[0]), nil)
 	for i in 0..<frame_count {
-		// NOTE: Return address is one after the call instruction so subtract a byte to
+		// NOTE: Return address is one after the call instruction so subtract a u8 to
 		// end up back inside the call instruction which is needed for SymFromAddr.
 		frames_buffer[i] -= 1
 	}
@@ -45,7 +45,7 @@ _resolve :: proc(ctx: ^Context, frame: Frame, allocator: mem.Allocator) -> (fl: 
 	win32.AcquireSRWLockExclusive(&ctx.impl.lock)
 	defer win32.ReleaseSRWLockExclusive(&ctx.impl.lock)
 
-	data: [size_of(win32.SYMBOL_INFOW) + size_of([256]win32.WCHAR)]byte
+	data: [size_of(win32.SYMBOL_INFOW) + size_of([256]win32.WCHAR)]u8
 	symbol := (^win32.SYMBOL_INFOW)(&data[0])
 	// The value of SizeOfStruct must be the size of the whole struct,
 	// not just the size of the pointer

@@ -67,7 +67,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
     //      case os.AF_PACKET:
     //          /*
     //              For some obscure reason the 64-bit `getifaddrs` call returns a pointer to a
-    //              32-bit `RTNL_LINK_STATS` structure, which of course means that tx/rx byte count
+    //              32-bit `RTNL_LINK_STATS` structure, which of course means that tx/rx u8 count
     //              is truncated beyond usefulness.
 
     //              We're not going to retrieve stats now. Instead this serves as a reminder to use

@@ -22,9 +22,9 @@ Shader_Type :: enum i32 {
 
 
 @(private, thread_local)
-last_compile_error_message: []byte
+last_compile_error_message: []u8
 @(private, thread_local)
-last_link_error_message: []byte
+last_link_error_message: []u8
 
 @(private, thread_local)
 last_compile_error_type: Shader_Type
@@ -63,7 +63,7 @@ when GL_DEBUG {
         if result == 0 {
             if log_func == GetShaderInfoLog {
                 _ = slice.delete(last_compile_error_message)
-                last_compile_error_message = slice.create([]byte, info_log_length)
+                last_compile_error_message = slice.create([]u8, info_log_length)
                 last_compile_error_type = type
 
                 log_func(id, i32(info_log_length), nil, raw_data(last_compile_error_message), loc)
@@ -71,7 +71,7 @@ when GL_DEBUG {
             } else {
 
                 _ = slice.delete(last_link_error_message)
-                last_link_error_message = slice.create([]byte, info_log_length)
+                last_link_error_message = slice.create([]u8, info_log_length)
                 last_compile_error_type = type
 
                 log_func(id, i32(info_log_length), nil, raw_data(last_link_error_message), loc)

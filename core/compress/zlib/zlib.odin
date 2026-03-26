@@ -385,7 +385,7 @@ parse_huffman_block :: proc(z: ^$C, z_repeat, z_offset: ^Huffman_Table) -> (err:
             */
             if distance == 1 {
                 /*
-                    Replicate the last outputted byte, length times.
+                    Replicate the last outputted u8, length times.
                 */
                 if length > 0 {
                     c := z.output.buf[z.bytes_written - i64(distance)]
@@ -530,7 +530,7 @@ inflate_raw :: proc(z: ^$C, expected_output_size := -1, allocator: mem.Allocator
             // fmt.printf("Method 0: STORED\n")
             // Uncompressed block
 
-            // Discard bits until next byte boundary
+            // Discard bits until next u8 boundary
             compress.discard_to_next_byte_lsb(z)
 
             uncompressed_len := u16(compress.read_bits_lsb(z, 16))

@@ -56,9 +56,9 @@ parse_ip4_address :: proc(address_and_maybe_port: string, allow_non_decimal := f
         .65534 then accounts for the last two digits
 
     For the address part the allowed forms are:
-        a.b.c.d - where each part represents a byte
-        a.b.c   - where `a` & `b` represent a byte and `c` a u16
-        a.b     - where `a` represents a byte and `b` supplies the trailing 24 bits
+        a.b.c.d - where each part represents a u8
+        a.b.c   - where `a` & `b` represent a u8 and `c` a u16
+        a.b     - where `a` represents a u8 and `b` supplies the trailing 24 bits
         a       - where `a` gives the entire 32-bit value
 
     The port, if present, is required to be a base 10 number in the range 0-65535, inclusive.
@@ -621,7 +621,7 @@ address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> 
                     immediately followed by the run's own leftmost `:`.
                 */
 
-                buf: [32]byte
+                buf: [32]u8
                 str := strconv.write_bits(buf[:], u64(val), 16, false, size_of(val), strconv.digits, {})
                 string_builder.write_string(b, str)
 
@@ -634,7 +634,7 @@ address_to_string_builder :: proc(addr: Address, b: ^string_builder.Builder) -> 
                     But don't print the `:` at the end of the IP number.
                 */
 
-                buf: [32]byte
+                buf: [32]u8
                 str := strconv.write_bits(buf[:], u64(val), 16, false, size_of(val), strconv.digits, {})
                 string_builder.write_string(b, str)
 
@@ -712,7 +712,7 @@ parse_ip_component :: proc(input: string, max_value := u64(max(u32)), bases := D
     /*
         We keep track of the number of prefix bytes and digit bytes separately.
         This way if a prefix is consumed and we encounter a separator or the end of the string,
-        the number is only considered valid if at least 1 digit byte has been consumed and the value is within range.
+        the number is only considered valid if at least 1 digit u8 has been consumed and the value is within range.
     */
     prefix_bytes := 0
     digit_bytes  := 0
@@ -792,7 +792,7 @@ parse_ip_component :: proc(input: string, max_value := u64(max(u32)), bases := D
         }
     }
 
-    // If we consumed at least 1 digit byte, `value` *should* continue a valid number in an appropriate base in the allowable range.
+    // If we consumed at least 1 digit u8, `value` *should* continue a valid number in an appropriate base in the allowable range.
     return value, digit_bytes + prefix_bytes, digit_bytes >= 1
 }
 

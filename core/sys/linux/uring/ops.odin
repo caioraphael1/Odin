@@ -245,7 +245,7 @@ If poll does indicate that data can be sent, the operation will proceed.
 
 Available since 5.6.
 */
-send :: proc(ring: ^Ring, user_data: u64, sockfd: linux.Fd, buf: []byte, flags: linux.Socket_Msg, poll_first := false) -> (sqe: ^linux.IO_Uring_SQE, ok: bool) {
+send :: proc(ring: ^Ring, user_data: u64, sockfd: linux.Fd, buf: []u8, flags: linux.Socket_Msg, poll_first := false) -> (sqe: ^linux.IO_Uring_SQE, ok: bool) {
     sqe = get_sqe(ring) or_return
     sqe.opcode = .SEND
     sqe.fd = sockfd
@@ -259,7 +259,7 @@ send :: proc(ring: ^Ring, user_data: u64, sockfd: linux.Fd, buf: []byte, flags: 
     return
 }
 
-sendto :: proc(ring: ^Ring, user_data: u64, sockfd: linux.Fd, buf: []byte, flags: linux.Socket_Msg, dest: ^$T, poll_first := false) -> (sqe: ^linux.IO_Uring_SQE, ok: bool)
+sendto :: proc(ring: ^Ring, user_data: u64, sockfd: linux.Fd, buf: []u8, flags: linux.Socket_Msg, dest: ^$T, poll_first := false) -> (sqe: ^linux.IO_Uring_SQE, ok: bool)
     where T == linux.Sock_Addr_In || T == linux.Sock_Addr_In6 || T == linux.Sock_Addr_Un || T == linux.Sock_Addr_Any {
 
     sqe = send(ring, user_data, sockfd, buf, flags, poll_first) or_return
@@ -280,7 +280,7 @@ If poll does indicate that data is ready to be received, the operation will proc
 
 Available since 5.6.
 */
-recv :: proc(ring: ^Ring, user_data: u64, sockfd: linux.Fd, buf: []byte, flags: linux.Socket_Msg, poll_first := false) -> (sqe: ^linux.IO_Uring_SQE, ok: bool) {
+recv :: proc(ring: ^Ring, user_data: u64, sockfd: linux.Fd, buf: []u8, flags: linux.Socket_Msg, poll_first := false) -> (sqe: ^linux.IO_Uring_SQE, ok: bool) {
     sqe = get_sqe(ring) or_return
     sqe.opcode = .RECV
     sqe.fd = sockfd

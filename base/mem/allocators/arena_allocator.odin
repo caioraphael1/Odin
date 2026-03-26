@@ -9,7 +9,7 @@ import "base:bytes"
 Arena allocator data.
 */
 Arena :: struct {
-    data:       []byte,
+    data:       []u8,
     offset:     uint,
     peak_used:  uint,
     temp_count: uint,
@@ -46,7 +46,7 @@ Initialize an arena.
 This procedure initializes the arena `a` with memory region `data` as its
 backing buffer.
 */
-arena_init :: proc(a: ^Arena, data: []byte) {
+arena_init :: proc(a: ^Arena, data: []u8) {
     a.data       = data
     a.offset     = 0
     a.peak_used  = 0
@@ -83,7 +83,7 @@ arena_alloc_bytes :: proc(
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location,
-    ) -> ([]byte, mem.Allocator_Error) {
+    ) -> ([]u8, mem.Allocator_Error) {
     bytes, err := arena_alloc_bytes_non_zeroed(a, size, alignment, loc)
     if bytes != nil {
         slice.zero(bytes)
@@ -122,13 +122,13 @@ arena_alloc_bytes_non_zeroed :: proc(
     size:      uint,
     alignment: uint = mem.DEFAULT_ALIGNMENT,
     loc       := #caller_location
-    ) -> ([]byte, mem.Allocator_Error) {
+    ) -> ([]u8, mem.Allocator_Error) {
     if a.data == nil {
         internal.panic("Allocation on uninitialized Arena allocator.", loc)
     }
     #no_bounds_check end := &a.data[a.offset]
     ptr := mem.align_forward(end, uintptr(alignment))
-    total_size := size + uint(intrinsics.ptr_sub((^byte)(ptr), (^byte)(end)))
+    total_size := size + uint(intrinsics.ptr_sub((^u8)(ptr), (^u8)(end)))
     if a.offset + total_size > len(a.data) {
         return nil, .Out_Of_Memory
     }
@@ -156,7 +156,7 @@ arena_allocator_proc :: proc(
     old_memory:     rawptr,
     old_size:       uint,
     loc := #caller_location,
-    ) -> ([]byte, mem.Allocator_Error)  {
+    ) -> ([]u8, mem.Allocator_Error)  {
     arena := cast(^Arena)allocator_data
     switch mode {
     case .Alloc:

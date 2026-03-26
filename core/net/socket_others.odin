@@ -70,22 +70,22 @@ _accept_tcp :: proc(sock: TCP_Socket, options := DEFAULT_TCP_OPTIONS) -> (client
 _close :: proc(skt: Any_Socket) {
 }
 
-_recv_tcp :: proc(skt: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP_Recv_Error) {
+_recv_tcp :: proc(skt: TCP_Socket, buf: []u8) -> (bytes_read: int, err: TCP_Recv_Error) {
     err = .Network_Unreachable
     return
 }
 
-_recv_udp :: proc(skt: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
+_recv_udp :: proc(skt: UDP_Socket, buf: []u8) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
     err = .Network_Unreachable
     return
 }
 
-_send_tcp :: proc(skt: TCP_Socket, buf: []byte) -> (bytes_written: int, err: TCP_Send_Error) {
+_send_tcp :: proc(skt: TCP_Socket, buf: []u8) -> (bytes_written: int, err: TCP_Send_Error) {
     err = .Network_Unreachable
     return
 }
 
-_send_udp :: proc(skt: UDP_Socket, buf: []byte, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
+_send_udp :: proc(skt: UDP_Socket, buf: []u8, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
     err = .Network_Unreachable
     return
 }

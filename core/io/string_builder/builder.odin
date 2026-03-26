@@ -4,12 +4,12 @@ import "base:container/dyn_array"
 import "base:unicode/utf8"
 
 /*
-A dynamic byte buffer / string builder with helper procedures
+A dynamic u8 buffer / string builder with helper procedures
 The dynamic array is wrapped inside the struct to be more opaque
 You can use `fmt.sbprint*` procedures with a `^string_builder.Builder` directly
 */
 Builder :: struct {
-    buf: dyn_array.Dyn_Array(byte),
+    buf: dyn_array.Dyn_Array(u8),
 }
 
 
@@ -20,13 +20,13 @@ builder_create :: proc(allocator: mem.Allocator) -> (builder: Builder) {
 
 builder_create_len :: proc(len: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return { 
-        buf = dyn_array.create_len(byte, len, allocator, loc) or_return
+        buf = dyn_array.create_len(u8, len, allocator, loc) or_return
     }, nil
 }
 
 builder_create_len_cap :: proc(len, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: Builder, err: mem.Allocator_Error) {
     return Builder{ 
-        buf = dyn_array.create_len_cap(byte, len, cap, allocator, loc) or_return
+        buf = dyn_array.create_len_cap(u8, len, cap, allocator, loc) or_return
     }, nil
 }
 
@@ -37,17 +37,17 @@ builder_init :: proc(b: ^Builder, allocator: mem.Allocator) {
 
 builder_init_len :: proc(b: ^Builder, len: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     b^ = {} // Reset the struct first.
-    b.buf = dyn_array.create_len(byte, len, allocator, loc) or_return
+    b.buf = dyn_array.create_len(u8, len, allocator, loc) or_return
     return nil
 }
 
 builder_init_len_cap :: proc(b: ^Builder, len, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     b^ = {} // Reset the struct first.
-    b.buf = dyn_array.create_len_cap(byte, len, cap, allocator, loc) or_return
+    b.buf = dyn_array.create_len_cap(u8, len, cap, allocator, loc) or_return
     return nil
 }
 
-builder_from_bytes :: proc(backing: []byte) -> (res: Builder) {
+builder_from_bytes :: proc(backing: []u8) -> (res: Builder) {
     return Builder{ buf = dyn_array.create_from_slice(backing) }
 }
 
@@ -84,7 +84,7 @@ to_string :: proc(b: ^Builder) -> (res: string) {
 }
 
 /*
-Appends a trailing null byte after the end of the current Builder byte buffer and then casts it to a cstring
+Appends a trailing null u8 after the end of the current Builder u8 buffer and then casts it to a cstring
 */
 to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring, err: mem.Allocator_Error) {
     len_before := b.buf.len
@@ -100,8 +100,8 @@ to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring, err: 
 }
 
 /*
-Appends a trailing null byte after the end of the current Builder byte buffer and then casts it to a cstring
-NOTE: This procedure will not check if the backing buffer has enough space to include the extra null byte.
+Appends a trailing null u8 after the end of the current Builder u8 buffer and then casts it to a cstring
+NOTE: This procedure will not check if the backing buffer has enough space to include the extra null u8.
 */
 unsafe_to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring) {
     _ = dyn_array.append(&b.buf, 0, loc)
@@ -111,15 +111,15 @@ unsafe_to_cstring :: proc(b: ^Builder, loc := #caller_location) -> (res: cstring
 
 
 /*
-Pops and returns the last byte in the Builder or 0 when the Builder is empty
+Pops and returns the last u8 in the Builder or 0 when the Builder is empty
 
 Inputs:
 - b: A pointer to the Builder
 
 Returns:
-- r: The last byte in the Builder or 0 if empty
+- r: The last u8 in the Builder or 0 if empty
 */
-pop_byte :: proc(b: ^Builder) -> (r: byte) {
+pop_byte :: proc(b: ^Builder) -> (r: u8) {
     if b.buf.len == 0 {
         return 0
     }

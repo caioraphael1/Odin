@@ -39,7 +39,7 @@ sub_word :: proc(x: u32) -> u32 {
 }
 
 @(private)
-keysched :: proc(comp_skey: []u64, key: []byte) -> int {
+keysched :: proc(comp_skey: []u64, key: []u8) -> int {
     num_rounds, key_len := 0, len(key)
     switch key_len {
     case _aes.KEY_SIZE_128:

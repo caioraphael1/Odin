@@ -5,7 +5,7 @@
 //--------------------------------------------------------------------------------------------------
 
 Raw_String :: struct {
-    data: [^]byte,
+    data: [^]u8,
     len:  uint,
 }
 
@@ -189,15 +189,15 @@ string16_cmp :: proc(a, b: string16) -> int {
 //--------------------------------------------------------------------------------------------------
 
 Raw_Cstring :: struct {
-    data: [^]byte,
+    data: [^]u8,
 }
 #assert(size_of(Raw_Cstring) == size_of(cstring))
 
 
 __cstring_len :: proc(s: cstring) -> uint {
-    p0 := uintptr((^byte)(s))
+    p0 := uintptr((^u8)(s))
     p := p0
-    for p != 0 && (^byte)(p)^ != 0 {
+    for p != 0 && (^u8)(p)^ != 0 {
         p += 1
     }
     return uint(p - p0)
@@ -208,15 +208,15 @@ __cstring_to_string :: proc(s: cstring) -> string {
     if s == nil {
         return ""
     }
-    ptr := (^byte)(s)
+    ptr := (^u8)(s)
     n := __cstring_len(s)
     return transmute(string)Raw_String{ptr, n}
 }
 
 
 __cstring_eq :: proc(lhs, rhs: cstring) -> bool {
-    x := ([^]byte)(lhs)
-    y := ([^]byte)(rhs)
+    x := ([^]u8)(lhs)
+    y := ([^]u8)(rhs)
     if x == y {
         return true
     }
@@ -236,8 +236,8 @@ __cstring_gt :: #force_inline proc(a, b: cstring) -> bool { return cstring_cmp(a
 __cstring_le :: #force_inline proc(a, b: cstring) -> bool { return cstring_cmp(a, b) <= 0 }
 __cstring_ge :: #force_inline proc(a, b: cstring) -> bool { return cstring_cmp(a, b) >= 0 }
 cstring_cmp :: proc(lhs, rhs: cstring) -> int {
-    x := ([^]byte)(lhs)
-    y := ([^]byte)(rhs)
+    x := ([^]u8)(lhs)
+    y := ([^]u8)(rhs)
     if x == y {
         return 0
     }

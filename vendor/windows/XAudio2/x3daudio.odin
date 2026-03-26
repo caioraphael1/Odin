@@ -80,7 +80,7 @@ CALCULATE_FLAG :: enum u32 {
 VECTOR :: distinct [3]f32 // float 3D vector
 
 // instance handle of precalculated constants
-HANDLE :: distinct [HANDLE_BYTESIZE]byte
+HANDLE :: distinct [HANDLE_BYTESIZE]u8
 
 // Distance curve point:
 // Defines a DSP setting at a given normalized distance.

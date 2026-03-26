@@ -17,7 +17,7 @@ Obtain the next buddy block.
 */
 @(no_sanitize_address)
 buddy_block_next :: proc(block: ^Buddy_Block) -> ^Buddy_Block {
-    return (^Buddy_Block)(([^]byte)(block)[block.size:])
+    return (^Buddy_Block)(([^]u8)(block)[block.size:])
 }
 
 /*
@@ -177,7 +177,7 @@ and block alignment specified by `alignment`.
 `alignment` may be any power of two, but the backing buffer must be aligned to
 at least `size_of(Buddy_Block)`.
 */
-buddy_allocator_init :: proc(b: ^Buddy_Allocator, data: []byte, alignment: uint, loc := #caller_location) {
+buddy_allocator_init :: proc(b: ^Buddy_Allocator, data: []u8, alignment: uint, loc := #caller_location) {
     internal.assert(data != nil)
     internal.assert(mem.is_power_of_two(uintptr(len(data))), "Size of the backing buffer must be power of two", loc)
     internal.assert(mem.is_power_of_two(uintptr(alignment)), "Alignment must be a power of two", loc)
@@ -192,7 +192,7 @@ buddy_allocator_init :: proc(b: ^Buddy_Allocator, data: []byte, alignment: uint,
     b.head.is_free = true
     b.tail = buddy_block_next(b.head)
     b.alignment = alignment
-    internal.assert(uint(len(data)) >= 2 * buddy_block_size_required(b, 1), "The size of the backing buffer must be large enough to hold at least two 1-byte allocations given the alignment requirements, otherwise it cannot split.", loc)
+    internal.assert(uint(len(data)) >= 2 * buddy_block_size_required(b, 1), "The size of the backing buffer must be large enough to hold at least two 1-u8 allocations given the alignment requirements, otherwise it cannot split.", loc)
     // sanitizer.address_poison(data)
 }
 
@@ -236,7 +236,7 @@ region is zero-initialized. This procedure returns a slice of the allocated
 memory region.
 */
 @(no_sanitize_address)
-buddy_allocator_alloc_bytes :: proc(b: ^Buddy_Allocator, size: uint) -> ([]byte, mem.Allocator_Error) {
+buddy_allocator_alloc_bytes :: proc(b: ^Buddy_Allocator, size: uint) -> ([]u8, mem.Allocator_Error) {
     bytes, err := buddy_allocator_alloc_bytes_non_zeroed(b, size)
     if bytes != nil {
         slice.zero(bytes)
@@ -267,7 +267,7 @@ region is not explicitly zero-initialized. This procedure returns a slice of
 the allocated memory region.
 */
 @(no_sanitize_address)
-buddy_allocator_alloc_bytes_non_zeroed :: proc(b: ^Buddy_Allocator, size: uint) -> ([]byte, mem.Allocator_Error) {
+buddy_allocator_alloc_bytes_non_zeroed :: proc(b: ^Buddy_Allocator, size: uint) -> ([]u8, mem.Allocator_Error) {
     if size != 0 {
         actual_size := buddy_block_size_required(b, size)
         found := buddy_block_find_best(b.head, b.tail, actual_size)
@@ -280,7 +280,7 @@ buddy_allocator_alloc_bytes_non_zeroed :: proc(b: ^Buddy_Allocator, size: uint) 
             return nil, .Out_Of_Memory
         }
         found.is_free = false
-        data := ([^]byte)(found)[b.alignment:][:size]
+        data := ([^]u8)(found)[b.alignment:][:size]
         internal.assert(cast(uintptr)raw_data(data)+cast(uintptr)(size-1) < cast(uintptr)buddy_block_next(found), "Buddy_Allocator has made an allocation which overlaps a block header.")
         // ensure_poisoned(data)
         // sanitizer.address_unpoison(data)
@@ -303,7 +303,7 @@ buddy_allocator_free :: proc(b: ^Buddy_Allocator, ptr: rawptr) -> mem.Allocator_
         if !(b.head <= ptr && ptr <= b.tail) {
             return .Invalid_Pointer
         }
-        block := (^Buddy_Block)(([^]byte)(ptr)[-b.alignment:])
+        block := (^Buddy_Block)(([^]u8)(ptr)[-b.alignment:])
         // sanitizer.address_poison(ptr, block.size)
         block.is_free = true
         buddy_block_coalescence(b.head, b.tail)
@@ -317,8 +317,8 @@ Free all memory back to the buddy allocator.
 @(no_sanitize_address)
 buddy_allocator_free_all :: proc(b: ^Buddy_Allocator) {
     alignment := b.alignment
-    head := ([^]byte)(b.head)
-    tail := ([^]byte)(b.tail)
+    head := ([^]u8)(b.head)
+    tail := ([^]u8)(b.tail)
     data := head[:intrinsics.ptr_sub(tail, head)]
     buddy_allocator_init(b, data, alignment)
 }
@@ -331,7 +331,7 @@ buddy_allocator_proc :: proc(
     old_memory:      rawptr,
     old_size:        uint,
     loc := #caller_location,
-) -> ([]byte, mem.Allocator_Error) {
+) -> ([]u8, mem.Allocator_Error) {
     b := (^Buddy_Allocator)(allocator_data)
     switch mode {
     case .Alloc:
@@ -359,7 +359,7 @@ buddy_allocator_proc :: proc(
             if !(b.head <= ptr && ptr <= b.tail) {
                 return nil, .Invalid_Pointer
             }
-            block := (^Buddy_Block)(([^]byte)(ptr)[-b.alignment:])
+            block := (^Buddy_Block)(([^]u8)(ptr)[-b.alignment:])
             info.size = uint(block.size)
             info.alignment = uint(b.alignment)
             return bytes.bytes(info, size_of(info^)), nil

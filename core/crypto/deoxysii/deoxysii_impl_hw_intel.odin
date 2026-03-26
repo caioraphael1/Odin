@@ -123,7 +123,7 @@ bc_x1 :: #force_inline proc(
 bc_absorb :: proc(
 	ctx:          ^Context,
 	tag:          x86.__m128i,
-	src:          []byte,
+	src:          []u8,
 	tweak_prefix: x86.__m128i,
 	stk_block_nr: int,
 ) -> (x86.__m128i, int) #no_bounds_check {
@@ -174,9 +174,9 @@ bc_absorb :: proc(
 bc_final :: proc(
 	ctx: ^Context,
 	tag: x86.__m128i,
-	iv:  []byte,
+	iv:  []u8,
 ) -> x86.__m128i {
-	tmp: [BLOCK_SIZE]byte
+	tmp: [BLOCK_SIZE]u8
 
 	tmp[0] = PREFIX_TAG << PREFIX_SHIFT
 	copy(tmp[1:], iv)
@@ -189,8 +189,8 @@ bc_final :: proc(
 @(private = "file", enable_target_feature = "sse2,ssse3,aes", require_results)
 bc_encrypt :: proc(
 	ctx:          ^Context,
-	dst:          []byte,
-	src:          []byte,
+	dst:          []u8,
+	src:          []u8,
 	iv:           x86.__m128i,
 	tweak_tag:    x86.__m128i,
 	stk_block_nr: int,
@@ -266,8 +266,8 @@ bc_encrypt :: proc(
 }
 
 @(private)
-e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_check {
-	tmp: [BLOCK_SIZE]byte
+e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []u8) #no_bounds_check {
+	tmp: [BLOCK_SIZE]u8
 	copy(tmp[1:], iv)
 	iv_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(&tmp)))
 
@@ -289,7 +289,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	auth, n = bc_absorb(ctx, auth, aad, _PREFIX_AD_BLOCK, 0)
 	aad = aad[n*BLOCK_SIZE:]
 	if l := len(aad); l > 0 {
-		a_star: [BLOCK_SIZE]byte
+		a_star: [BLOCK_SIZE]u8
 
 		copy(a_star[:], aad)
 		a_star[l] = 0x80
@@ -311,7 +311,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	auth, n = bc_absorb(ctx, auth, m, _PREFIX_MSG_BLOCK, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		m_star[l] = 0x80
@@ -333,7 +333,7 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 	n = bc_encrypt(ctx, dst, m, iv_, auth, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		_ = bc_encrypt(ctx, m_star[:], m_star[:], iv_, auth, n)
@@ -345,8 +345,8 @@ e_hw :: proc(ctx: ^Context, dst, tag, iv, aad, plaintext: []byte) #no_bounds_che
 }
 
 @(private, require_results)
-d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
-	tmp: [BLOCK_SIZE]byte
+d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []u8) -> bool {
+	tmp: [BLOCK_SIZE]u8
 	copy(tmp[1:], iv)
 	iv_ := intrinsics.unaligned_load((^x86.__m128i)(raw_data(&tmp)))
 
@@ -366,7 +366,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	n := bc_encrypt(ctx, dst, m, iv_, auth, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		_ = bc_encrypt(ctx, m_star[:], m_star[:], iv_, auth, n)
@@ -390,7 +390,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	auth, n = bc_absorb(ctx, auth, aad, _PREFIX_AD_BLOCK, 0)
 	aad = aad[BLOCK_SIZE*n:]
 	if l := len(aad); l > 0 {
-		a_star: [BLOCK_SIZE]byte
+		a_star: [BLOCK_SIZE]u8
 
 		copy(a_star[:], aad)
 		a_star[l] = 0x80
@@ -412,7 +412,7 @@ d_hw :: proc(ctx: ^Context, dst, iv, aad, ciphertext, tag: []byte) -> bool {
 	auth, n = bc_absorb(ctx, auth, m, _PREFIX_MSG_BLOCK, 0)
 	m = m[n*BLOCK_SIZE:]
 	if l := len(m); l > 0 {
-		m_star: [BLOCK_SIZE]byte
+		m_star: [BLOCK_SIZE]u8
 
 		copy(m_star[:], m)
 		m_star[l] = 0x80

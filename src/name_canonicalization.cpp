@@ -130,7 +130,7 @@ gb_internal gb_inline TypeInfoPair *type_set_retrieve(TypeSet *s, Type *type) {
 }
 
 
-gb_internal bool type_set_update(TypeSet *s, TypeInfoPair pair) { // returns true if it previously existsed
+gb_internal bool type_set_update(TypeSet *s, TypeInfoPair pair) { // returns true if it previously existed
     if (type_set_exists(s, pair)) {
         return true;
     }

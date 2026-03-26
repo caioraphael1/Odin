@@ -3592,9 +3592,9 @@ move the read pointer forward via the consumer thread, and the write pointer for
 producer thread. If there is too much space between the pointers, move the read pointer forward. If
 there is too little space between the pointers, move the write pointer forward.
 
-You can use a ring buffer at the byte level instead of the PCM frame level by using the `ma_rb`
+You can use a ring buffer at the u8 level instead of the PCM frame level by using the `ma_rb`
 API. This is exactly the same, only you will use the `ma_rb` functions instead of `ma_pcm_rb` and
-instead of frame counts you will pass around byte counts.
+instead of frame counts you will pass around u8 counts.
 
 The maximum size of the buffer in bytes is `0x7FFFFFFF-(MA_SIMD_ALIGNMENT-1)` due to the most
 significant bit being used to encode a loop flag and the internally managed buffers always being

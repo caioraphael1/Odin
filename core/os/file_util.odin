@@ -13,7 +13,7 @@ import "base:unicode/utf8"
     Returns the number of bytes written and an error, if any is encountered.
 */
 write_string :: proc(f: ^File, s: string) -> (n: uint, err: Error) {
-    return write(f, transmute([]byte)s)
+    return write(f, transmute([]u8)s)
 }
 
 /*
@@ -32,11 +32,11 @@ write_strings :: proc(f: ^File, strings: ..string) -> (n: uint, err: Error) {
     return
 }
 /*
-    `write_byte` writes a byte `b` to file `f`.
+    `write_byte` writes a u8 `b` to file `f`.
     Returns the number of bytes written and an error, if any is encountered.
 */
-write_byte :: proc(f: ^File, b: byte) -> (n: uint, err: Error) {
-    return write(f, []byte{b})
+write_byte :: proc(f: ^File, b: u8) -> (n: uint, err: Error) {
+    return write(f, []u8{b})
 }
 
 /*
@@ -45,10 +45,10 @@ write_byte :: proc(f: ^File, b: byte) -> (n: uint, err: Error) {
 */
 write_rune :: proc(f: ^File, r: rune) -> (n: uint, err: Error) {
     if r < utf8.RUNE_SELF {
-        return write_byte(f, byte(r))
+        return write_byte(f, u8(r))
     }
 
-    b: [4]byte
+    b: [4]u8
     b, n = utf8.bytes_from_rune(r)
     return write(f, b[:n])
 }
@@ -81,7 +81,7 @@ write_encoded_rune :: proc(f: ^File, r: rune) -> (n: uint, err: Error) {
     case:
         if r < 32 {
             if wrap(write_string(f, "\\x"), &n, &err) { return }
-            b: [2]byte
+            b: [2]u8
             s := strconv.write_bits(b[:], u64(r), 16, true, 64, strconv.digits, nil)
             switch len(s) {
             case 0: if wrap(write_string(f, "00"), &n, &err) { return }
@@ -99,38 +99,38 @@ write_encoded_rune :: proc(f: ^File, r: rune) -> (n: uint, err: Error) {
 /*
     `write_ptr` is a utility procedure that writes the bytes points at `data` with length `len`.
 
-    It is equivalent to: `write(f, ([^]byte)(data)[:len])`
+    It is equivalent to: `write(f, ([^]u8)(data)[:len])`
 */
 write_ptr :: proc(f: ^File, data: rawptr, len: uint) -> (n: uint, err: Error) {
-    return write(f, ([^]byte)(data)[:len])
+    return write(f, ([^]u8)(data)[:len])
 }
 
 /*
     `read_ptr` is a utility procedure that reads the bytes points at `data` with length `len`.
 
-    It is equivalent to: `read(f, ([^]byte)(data)[:len])`
+    It is equivalent to: `read(f, ([^]u8)(data)[:len])`
 */
 read_ptr :: proc(f: ^File, data: rawptr, len: uint) -> (n: uint, err: Error) {
-    return read(f, ([^]byte)(data)[:len])
+    return read(f, ([^]u8)(data)[:len])
 }
 
 
 /*
     `write_slice` is a utility procedure that writes the bytes points at `slice`.
 
-    It is equivalent to: `write(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])`
+    It is equivalent to: `write(f, ([^]u8)(raw_data(slice))[:len(slice)*size_of(slice[0])])`
 */
 write_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: uint, err: Error) {
-    return write(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])
+    return write(f, ([^]u8)(raw_data(slice))[:len(slice)*size_of(slice[0])])
 }
 
 /*
     `read_slice` is a utility procedure that writes the bytes points at `slice`.
 
-    It is equivalent to: `read(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])`
+    It is equivalent to: `read(f, ([^]u8)(raw_data(slice))[:len(slice)*size_of(slice[0])])`
 */
 read_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: uint, err: Error) {
-    return read(f, ([^]byte)(raw_data(slice))[:len(slice)*size_of(slice[0])])
+    return read(f, ([^]u8)(raw_data(slice))[:len(slice)*size_of(slice[0])])
 }
 
 
@@ -140,7 +140,7 @@ read_slice :: proc(f: ^File, slice: $S/[]$T) -> (n: uint, err: Error) {
     It returns the number of bytes copied and an error if fewer bytes were read.
     The error is only an `io.EOF` if no bytes were read.
 */
-read_at_least :: proc(f: ^File, buf: []byte, min: uint) -> (n: uint, err: Error) {
+read_at_least :: proc(f: ^File, buf: []u8, min: uint) -> (n: uint, err: Error) {
     if len(buf) < min {
         return 0, .Short_Buffer
     }
@@ -162,7 +162,7 @@ read_at_least :: proc(f: ^File, buf: []byte, min: uint) -> (n: uint, err: Error)
 
     It is equivalent to `read_at_least(f, buf, len(buf))`.
 */
-read_full :: proc(f: ^File, buf: []byte) -> (n: uint, err: Error) {
+read_full :: proc(f: ^File, buf: []u8) -> (n: uint, err: Error) {
     return read_at_least(f, buf, len(buf))
 }
 
@@ -171,7 +171,7 @@ read_full :: proc(f: ^File, buf: []byte) -> (n: uint, err: Error) {
     A slice of bytes and an error is returned, if any error is encountered.
 */
 
-read_entire_file_from_path :: proc(name: string, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
+read_entire_file_from_path :: proc(name: string, allocator: mem.Allocator, loc := #caller_location) -> (data: []u8, err: Error) {
     f := open(name, allocator = allocator) or_return
     defer _ = close(f)
     return read_entire_file_from_file(f, allocator, loc)
@@ -182,7 +182,7 @@ read_entire_file_from_path :: proc(name: string, allocator: mem.Allocator, loc :
     A slice of bytes and an error is returned, if any error is encountered.
 */
 
-read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Error) {
+read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #caller_location) -> (data: []u8, err: Error) {
     size: uint
     has_size := false
     if size64, serr := file_size(f); serr == nil {
@@ -194,7 +194,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #c
 
     if has_size && size > 0 {
         total: uint
-        data = slice.create([]byte, size, allocator, loc) or_return
+        data = slice.create([]u8, size, allocator, loc) or_return
         for total < len(data) {
             n: uint
             n, err = read(f, data[total:])
@@ -235,7 +235,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #c
     An error is returned if any is encountered.
 */
 
-write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: mem.Allocator) -> Error {
+write_entire_file_from_bytes :: proc(name: string, data: []u8, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: mem.Allocator) -> Error {
     flags := O_WRONLY|O_CREATE
     if truncate {
         flags |= O_TRUNC
@@ -257,5 +257,5 @@ write_entire_file_from_bytes :: proc(name: string, data: []byte, perm := Permiss
 */
 
 write_entire_file_from_string :: proc(name: string, data: string, perm := Permissions_Read_All + {.Write_User}, truncate := true, allocator: mem.Allocator) -> Error {
-    return write_entire_file_from_bytes(name, transmute([]byte)data, perm, truncate, allocator)
+    return write_entire_file_from_bytes(name, transmute([]u8)data, perm, truncate, allocator)
 }

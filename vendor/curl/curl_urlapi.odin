@@ -121,7 +121,7 @@ foreign lib {
 	 * handle. Returns error code. The returned pointer MUST be freed with
 	 * curl_free() afterwards.
 	 */
-	url_get :: proc(handle: ^CURLU, what: UPart, part: ^[^]byte, flags: UFlags) -> ^Ucode ---
+	url_get :: proc(handle: ^CURLU, what: UPart, part: ^[^]u8, flags: UFlags) -> ^Ucode ---
 
 	/*
 	 * curl_url_set() sets a specific part of the URL in a CURLU handle. Returns

@@ -9,8 +9,8 @@
 import "base:intrinsics"
 
 Read_Directory_Iterator_Impl :: struct {
-    fullpath: dyn_array.Dyn_Array(byte),
-    buf:      []byte,
+    fullpath: dyn_array.Dyn_Array(u8),
+    buf:      []u8,
     off:      int,
 }
 

@@ -10,7 +10,7 @@ Context :: struct {
 }
 
 // init initializes a context for AES with the provided key.
-init :: proc(ctx: ^Context, key: []byte) {
+init :: proc(ctx: ^Context, key: []u8) {
     skey: [30]u64 = ---
 
     ctx._num_rounds = keysched(skey[:], key)
@@ -18,7 +18,7 @@ init :: proc(ctx: ^Context, key: []byte) {
 }
 
 // encrypt_block sets `dst` to `AES-ECB-Encrypt(src)`.
-encrypt_block :: proc(ctx: ^Context, dst, src: []byte) {
+encrypt_block :: proc(ctx: ^Context, dst, src: []u8) {
     q: [8]u64
     load_blockx1(&q, src)
     _encrypt(&q, ctx._sk_exp[:], ctx._num_rounds)
@@ -26,7 +26,7 @@ encrypt_block :: proc(ctx: ^Context, dst, src: []byte) {
 }
 
 // encrypt_block sets `dst` to `AES-ECB-Decrypt(src)`.
-decrypt_block :: proc(ctx: ^Context, dst, src: []byte) {
+decrypt_block :: proc(ctx: ^Context, dst, src: []u8) {
     q: [8]u64
     load_blockx1(&q, src)
     _decrypt(&q, ctx._sk_exp[:], ctx._num_rounds)
@@ -34,7 +34,7 @@ decrypt_block :: proc(ctx: ^Context, dst, src: []byte) {
 }
 
 // encrypt_blocks sets `dst` to `AES-ECB-Encrypt(src[0], .. src[n])`.
-encrypt_blocks :: proc(ctx: ^Context, dst, src: [][]byte) {
+encrypt_blocks :: proc(ctx: ^Context, dst, src: [][]u8) {
     q: [8]u64 = ---
     src, dst := src, dst
 
@@ -56,7 +56,7 @@ encrypt_blocks :: proc(ctx: ^Context, dst, src: [][]byte) {
 }
 
 // decrypt_blocks sets dst to `AES-ECB-Decrypt(src[0], .. src[n])`.
-decrypt_blocks :: proc(ctx: ^Context, dst, src: [][]byte) {
+decrypt_blocks :: proc(ctx: ^Context, dst, src: [][]u8) {
     q: [8]u64 = ---
     src, dst := src, dst
 

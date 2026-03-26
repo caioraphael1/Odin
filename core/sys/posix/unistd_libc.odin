@@ -66,7 +66,7 @@ foreign lib {
             size = int(path_max)
         }
 
-        buf: dyn_array.Dyn_Array(byte)
+        buf: dyn_array.Dyn_Array(u8)
         cwd: cstring
         for ; cwd == nil; size *= 2 {
             if err := resize(&buf, size); err != nil {
@@ -103,7 +103,7 @@ foreign lib {
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/swab.html ]]
     */
     @(link_name=LSWAB)
-    swab :: proc(src: [^]byte, dest: [^]byte, nbytes: c.ssize_t) ---
+    swab :: proc(src: [^]u8, dest: [^]u8, nbytes: c.ssize_t) ---
 
     /*
     Remove a directory entry.

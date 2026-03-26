@@ -111,7 +111,7 @@ Flags :: bit_set[Flag; u8]
 /*
     Errors are a strict superset of internal.Allocation_Error.
 */
-Error :: enum byte {
+Error :: enum u8 {
     None                    = 0,
     Out_Of_Memory           = 1,
     Invalid_Pointer         = 2,

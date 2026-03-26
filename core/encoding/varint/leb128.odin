@@ -8,7 +8,7 @@
 
 // In theory we should use the bigint package. In practice, varints bigger than this indicate a corrupted file.
 // Instead we'll set limits on the values we'll encode/decode
-// 18 * 7 bits = 126, which means that a possible 19th byte may at most be `0b0000_0011`.
+// 18 * 7 bits = 126, which means that a possible 19th u8 may at most be `0b0000_0011`.
 LEB128_MAX_BYTES :: 19
 
 Error :: enum {
@@ -37,13 +37,13 @@ decode_uleb128_buffer :: proc(buf: []u8) -> (val: u128, size: int, err: Error) {
     return
 }
 
-// Decodes an unsigned LEB128 integer into value a byte at a time.
+// Decodes an unsigned LEB128 integer into value a u8 at a time.
 // Returns `.None` when decoded properly, `.Value_Too_Large` when they value
 // exceeds the limits of a u128, and `.Buffer_Too_Small` when it's not yet fully decoded.
 decode_uleb128_byte :: proc(input: u8, offset: int, accumulator: u128) -> (val: u128, size: int, err: Error) {
     size = offset + 1
 
-    // 18 * 7 bits = 126, which means that a possible 19th byte may at most be 0b0000_0011.
+    // 18 * 7 bits = 126, which means that a possible 19th u8 may at most be 0b0000_0011.
     if size > LEB128_MAX_BYTES || size == LEB128_MAX_BYTES && input > 0b0000_0011 {
         return 0, 0, .Value_Too_Large
     }
@@ -80,13 +80,13 @@ decode_ileb128_buffer :: proc(buf: []u8) -> (val: i128, size: int, err: Error) {
     return
 }
 
-// Decode a a signed LEB128 integer into value and number of bytes used, one byte at a time.
+// Decode a a signed LEB128 integer into value and number of bytes used, one u8 at a time.
 // Returns `size` == 0 for an invalid value, empty slice, or a varint > 18 bytes.
 decode_ileb128_byte :: proc(input: u8, offset: int, accumulator: i128) -> (val: i128, size: int, err: Error) {
     size = offset + 1
     shift := uint(offset * 7)
 
-    // 18 * 7 bits = 126, which including sign means we can have a 19th byte.
+    // 18 * 7 bits = 126, which including sign means we can have a 19th u8.
     if size > LEB128_MAX_BYTES || size == LEB128_MAX_BYTES && input > 0x7f {
         return 0, 0, .Value_Too_Large
     }

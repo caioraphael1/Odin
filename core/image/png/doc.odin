@@ -89,7 +89,7 @@ Example:
                     case .eXIf:
                         if res, ok_exif := exif(c); ok_exif {
                             /*
-                                Other than checking the signature and byte order, we don't handle Exif data.
+                                Other than checking the signature and u8 order, we don't handle Exif data.
                                 If you wish to interpret it, pass it to an Exif parser.
                             */
                             fmt.printf("[eXIf] %v\n", res)

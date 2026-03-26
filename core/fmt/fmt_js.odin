@@ -3,7 +3,7 @@
 foreign import "odin_env"
 @(private="file")
 foreign odin_env {
-    write :: proc(fd: u32, p: []byte) ---
+    write :: proc(fd: u32, p: []u8) ---
 }
 
 stdout :: u32(1)
@@ -14,7 +14,7 @@ BUF_SIZE :: 1024
 
 @(private="file")
 // TODO: Find a way to grow this if necessary
-buf: [BUF_SIZE]byte
+buf: [BUF_SIZE]u8
 
 @(private="file")
 get_fd :: proc(f: any, loc := #caller_location) -> (fd: u32) {
@@ -33,7 +33,7 @@ fprint :: proc(f: any, args: ..any, sep := " ", flush := true, loc := #caller_lo
     fd := get_fd(f)
     s := bprint(buf[:], ..args, sep=sep)
     n = len(s)
-    write(fd, transmute([]byte)s)
+    write(fd, transmute([]u8)s)
     return n
 }
 
@@ -43,7 +43,7 @@ fprintln :: proc(f: any, args: ..any, sep := " ", flush := true, loc := #caller_
     fd := get_fd(f)
     s := bprintln(buf[:], ..args, sep=sep)
     n = len(s)
-    write(fd, transmute([]byte)s)
+    write(fd, transmute([]u8)s)
     return n
 }
 
@@ -53,7 +53,7 @@ fprintf :: proc(f: any, fmt: string, args: ..any, flush := true, newline := fals
     fd := get_fd(f)
     s := bprintf(buf[:], fmt, ..args, newline=newline)
     n = len(s)
-    write(fd, transmute([]byte)s)
+    write(fd, transmute([]u8)s)
     return n
 }
 

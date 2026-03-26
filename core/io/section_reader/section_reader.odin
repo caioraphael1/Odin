@@ -20,7 +20,7 @@ section_reader_to_stream :: proc(s: ^Section_Reader) -> (out: Stream) {
 }
 
 @(private)
-_section_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []byte, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error) {
+_section_reader_proc :: proc(stream_data: rawptr, mode: Stream_Mode, p: []u8, offset: i64, whence: Seek_From, loc := #caller_location) -> (n: i64, err: Error) {
     s := (^Section_Reader)(stream_data)
     #partial switch mode {
     case .Read:

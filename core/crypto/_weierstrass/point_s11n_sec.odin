@@ -11,7 +11,7 @@ SEC_PREFIX_COMPRESSED_ODD  :: 0x03
 SEC_PREFIX_UNCOMPRESSED    :: 0x04
 
 
-pt_set_sec_bytes :: proc(p: ^$T, b: []byte) -> bool {
+pt_set_sec_bytes :: proc(p: ^$T, b: []u8) -> bool {
 	when T == Point_p256r1 {
 		FE_SZ :: FE_SIZE_P256R1
 	} else when T == Point_p384r1 {
@@ -50,7 +50,7 @@ pt_set_sec_bytes :: proc(p: ^$T, b: []byte) -> bool {
 }
 
 
-pt_sec_bytes :: proc(b: []byte, p: ^$T, compressed: bool) -> bool {
+pt_sec_bytes :: proc(b: []u8, p: ^$T, compressed: bool) -> bool {
 	when T == Point_p256r1 {
 		FE_SZ :: FE_SIZE_P256R1
 	} else when T == Point_p384r1 {
@@ -68,8 +68,8 @@ pt_sec_bytes :: proc(b: []byte, p: ^$T, compressed: bool) -> bool {
 		return true
 	}
 
-	x, y: []byte
-	y_: [FE_SZ]byte
+	x, y: []u8
+	y_: [FE_SZ]u8
 	switch compressed {
 	case true:
 		if b_len != 1 + FE_SZ {
@@ -90,7 +90,7 @@ pt_sec_bytes :: proc(b: []byte, p: ^$T, compressed: bool) -> bool {
 		// Instead of calling pt_is_y_odd, just serializing
 		// y into a temp buffer and checking the parity saves
 		// 1 redundant rescale call.
-		y_is_odd := byte(y[FE_SZ-1] & 1)
+		y_is_odd := u8(y[FE_SZ-1] & 1)
 		b[0] = SEC_PREFIX_COMPRESSED_EVEN + y_is_odd
 		crypto.zero_explicit(&y_, size_of(y_))
 	}

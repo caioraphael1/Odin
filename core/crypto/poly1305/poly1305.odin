@@ -24,7 +24,7 @@ _BLOCK_SIZE :: 16
 // size.
 //
 // The key SHOULD be unique and MUST be unpredictable for each invocation.
-sum :: proc(dst, msg, key: []byte) {
+sum :: proc(dst, msg, key: []u8) {
 	ctx: Context = ---
 
 	init(&ctx, key)
@@ -35,9 +35,9 @@ sum :: proc(dst, msg, key: []byte) {
 // verify will verify the Poly1305 tag computed with the key over msg and
 // return true iff the tag is valid.  It requires that the tag is correctly
 // sized.
-verify :: proc(tag, msg, key: []byte) -> bool {
+verify :: proc(tag, msg, key: []u8) -> bool {
 	ctx: Context = ---
-	derived_tag: [TAG_SIZE]byte = ---
+	derived_tag: [TAG_SIZE]u8 = ---
 
 	init(&ctx, key)
 	update(&ctx, msg)
@@ -51,14 +51,14 @@ Context :: struct {
 	_r:              field.Tight_Field_Element,
 	_a:              field.Tight_Field_Element,
 	_s:              [2]u64,
-	_buffer:         [_BLOCK_SIZE]byte,
+	_buffer:         [_BLOCK_SIZE]u8,
 	_leftover:       int,
 	_is_initialized: bool,
 }
 
 // init initializes a Context with the specified key.  The key SHOULD be
 // unique and MUST be unpredictable for each invocation.
-init :: proc(ctx: ^Context, key: []byte) {
+init :: proc(ctx: ^Context, key: []u8) {
 	internal.ensure(len(key) == KEY_SIZE, "crypto/poly1305: invalid key size")
 
 	// r = le_bytes_to_num(key[0..15])
@@ -81,7 +81,7 @@ init :: proc(ctx: ^Context, key: []byte) {
 }
 
 // update adds more data to the Context.
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	internal.ensure(ctx._is_initialized)
 
 	msg := data
@@ -120,7 +120,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 
 // final finalizes the Context, writes the tag to dst, and calls
 // reset on the Context.
-final :: proc(ctx: ^Context, dst: []byte) {
+final :: proc(ctx: ^Context, dst: []u8) {
 	defer reset(ctx)
 
 	internal.ensure(ctx._is_initialized)
@@ -136,7 +136,7 @@ final :: proc(ctx: ^Context, dst: []byte) {
 	}
 
 	// a += s (NOT mod p)
-	tmp: [32]byte = ---
+	tmp: [32]u8 = ---
 	field.fe_to_bytes(&tmp, &ctx._a)
 
 	c: u64
@@ -163,9 +163,9 @@ reset :: proc(ctx: ^Context) {
 }
 
 @(private)
-_blocks :: proc(ctx: ^Context, msg: []byte, final := false) {
+_blocks :: proc(ctx: ^Context, msg: []u8, final := false) {
 	n: field.Tight_Field_Element = ---
-	final_byte := byte(!final)
+	final_byte := u8(!final)
 
 	data := msg
 	data_len := len(data)

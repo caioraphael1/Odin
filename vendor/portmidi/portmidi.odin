@@ -96,7 +96,7 @@ GetErrorText :: proc (errnum: Error) -> string {
 	These strings are computed at run time, so client has to allocate storage.
 	After this routine executes, the host error is cleared.
 */
-GetHostErrorText :: proc (buf: []byte) -> string {
+GetHostErrorText :: proc (buf: []u8) -> string {
 	@(default_calling_convention="c")
 	foreign lib {
 		Pm_GetHostErrorText :: proc(msg: [^]u8, len: c.uint) ---
@@ -400,11 +400,11 @@ Message :: distinct i32
 	All midi data comes in the form of Event structures. A sysex
 	message is encoded as a sequence of Event structures, with each
 	structure carrying 4 bytes of the message, i.e. only the first
-	Event carries the status byte.
+	Event carries the status u8.
 
 	Note that MIDI allows nested messages: the so-called "real-time" MIDI 
-	messages can be inserted into the MIDI byte stream at any location, 
-	including within a sysex message. MIDI real-time messages are one-byte
+	messages can be inserted into the MIDI u8 stream at any location, 
+	including within a sysex message. MIDI real-time messages are one-u8
 	messages used mainly for timing (see the MIDI spec). PortMidi retains 
 	the order of non-real-time MIDI messages on both input and output, but 
 	it does not specify exactly how real-time messages are processed. This
@@ -417,21 +417,21 @@ Message :: distinct i32
 	remove these messages as they arrive.
 
 	When receiving sysex messages, the sysex message is terminated
-	by either an EOX status byte (anywhere in the 4 byte messages) or
-	by a non-real-time status byte in the low order byte of the message.
-	If you get a non-real-time status byte but there was no EOX byte, it 
+	by either an EOX status u8 (anywhere in the 4 u8 messages) or
+	by a non-real-time status u8 in the low order u8 of the message.
+	If you get a non-real-time status u8 but there was no EOX u8, it 
 	means the sysex message was somehow truncated. This is not
 	considered an error; e.g., a missing EOX can result from the user
 	disconnecting a MIDI cable during sysex transmission.
 
 	A real-time message can occur within a sysex message. A real-time 
-	message will always occupy a full Event with the status byte in 
-	the low-order byte of the Event message field. (This implies that
-	the byte-order of sysex bytes and real-time message bytes may not
+	message will always occupy a full Event with the status u8 in 
+	the low-order u8 of the Event message field. (This implies that
+	the u8-order of sysex bytes and real-time message bytes may not
 	be preserved -- for example, if a real-time message arrives after
 	3 bytes of a sysex message, the real-time message will be delivered
 	first. The first word of the sysex message will be delivered only
-	after the 4th byte arrives, filling the 4-byte Event message field.
+	after the 4th u8 arrives, filling the 4-u8 Event message field.
 
 	The timestamp field is observed when the output port is opened with
 	a non-zero latency. A timestamp of zero means "use the current time",
@@ -448,7 +448,7 @@ Message :: distinct i32
 	remainder of the sysex message. 
 
 	On input, the timestamp ideally denotes the arrival time of the 
-	status byte of the message. The first timestamp on sysex message 
+	status u8 of the message. The first timestamp on sysex message 
 	data will be valid. Subsequent timestamps may denote 
 	when message bytes were actually received, or they may be simply 
 	copies of the first timestamp.
@@ -456,7 +456,7 @@ Message :: distinct i32
 	Timestamps for nested messages: If a real-time message arrives in 
 	the middle of some other message, it is enqueued immediately with 
 	the timestamp corresponding to its arrival time. The interrupted 
-	non-real-time message or 4-byte packet of sysex data will be enqueued 
+	non-real-time message or 4-u8 packet of sysex data will be enqueued 
 	later. The timestamp of interrupted data will be equal to that of
 	the interrupting real-time message to insure that timestamps are
 	non-decreasing.

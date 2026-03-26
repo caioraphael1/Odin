@@ -137,7 +137,7 @@ foreign lib {
 	May set errno to ENOSYS if the functionality is not supported.
 
 	Example:
-		block: [64]byte
+		block: [64]u8
         slice.copy(block[:], "Hello, World!")
 
 		posix.set_errno(.NONE)
@@ -440,7 +440,7 @@ foreign lib {
 
 	Example:
 		max := posix.sysconf(posix._SC_LOGIN_NAME_MAX)+1
-        buf := slice.create([]byte, max)
+        buf := slice.create([]u8, max)
 		posix.getlogin_r(raw_data(buf), uint(len(max)))
 		fmt.printfln("login: %v", cstring(buf))
 
@@ -684,7 +684,7 @@ foreign lib {
 
 		case 0: /* Child - reads from pipe */
 			BSIZE :: 100
-			buf: [BSIZE]byte
+			buf: [BSIZE]u8
 			nbytes: int
 
 			posix.close(fildes[1])                                  /* Write end is unused */
@@ -697,7 +697,7 @@ foreign lib {
 			posix.exit(0)
 
 		case: /* Parent - write to pipe */
-			msg := raw_data(transmute([]byte)string("Hello world\n"))
+			msg := raw_data(transmute([]u8)string("Hello world\n"))
 			posix.close(fildes[0])           /* Read end is unused */
 			posix.write(fildes[1], msg, 12); /* Write data on pipe */
 			posix.close(fildes[1])
@@ -715,14 +715,14 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/pread.html ]]
 	*/
-	read :: proc(fd: FD, buf: [^]byte, nbyte: c.size_t) -> c.ssize_t ---
+	read :: proc(fd: FD, buf: [^]u8, nbyte: c.size_t) -> c.ssize_t ---
 
 	/*
 	Equivalent to read on a specified offset instead of the internal offset.
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/pread.html ]]
 	*/
-	pread :: proc(fd: FD, buf: [^]byte, nbyte: c.size_t, offset: off_t) -> c.ssize_t ---
+	pread :: proc(fd: FD, buf: [^]u8, nbyte: c.size_t, offset: off_t) -> c.ssize_t ---
 
 	/*
 	Write on a file.
@@ -731,14 +731,14 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html ]]
 	*/
-	write :: proc(fd: FD, buf: [^]byte, buflen: c.size_t) -> c.ssize_t ---
+	write :: proc(fd: FD, buf: [^]u8, buflen: c.size_t) -> c.ssize_t ---
 
 	/*
 	Equivalent to write on a specified offset instead of the internal offset.
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html ]]
 	*/
-	pwrite :: proc(fd: FD, buf: [^]byte, buflen: c.size_t, offset: off_t) -> c.ssize_t ---
+	pwrite :: proc(fd: FD, buf: [^]u8, buflen: c.size_t, offset: off_t) -> c.ssize_t ---
 
 	/*
 	Read the contents of a symbolic link.
@@ -747,14 +747,14 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/readlink.html ]]
 	*/
-	readlink :: proc(path: cstring, buf: [^]byte, bufsize: c.size_t) -> c.ssize_t ---
+	readlink :: proc(path: cstring, buf: [^]u8, bufsize: c.size_t) -> c.ssize_t ---
 
 	/*
 	Equivalent to readlink but relative paths are resolved based on the dir fd.
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/readlink.html ]]
 	*/
-	readlinkat :: proc(fd: FD, path: cstring, buf: [^]byte, bufsize: c.size_t) -> c.ssize_t ---
+	readlinkat :: proc(fd: FD, path: cstring, buf: [^]u8, bufsize: c.size_t) -> c.ssize_t ---
 
 	/*
 	Set the effective group ID.
@@ -869,7 +869,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/ttyname.html ]]
 	*/
-	ttyname_r :: proc(fildes: FD, name: [^]byte, namesize: c.size_t) -> Errno ---
+	ttyname_r :: proc(fildes: FD, name: [^]u8, namesize: c.size_t) -> Errno ---
 
 	/*
 	Equivalent to unlink or rmdir (if flag is .REMOVEDIR) but relative paths are relative to the dir fd.

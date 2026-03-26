@@ -33,8 +33,8 @@ File_Impl :: struct {
 
     allocator: mem.Allocator,
 
-    r_buf: []byte,
-    w_buf: []byte,
+    r_buf: []u8,
+    w_buf: []u8,
     w_n:   int,
     max_consecutive_empty_writes: int,
 
@@ -210,8 +210,8 @@ _new_file_buffered :: proc(handle: uintptr, name: string, buffer_size: uint, all
     f, err = _new_file(handle, name, allocator)
     if f != nil && err == nil {
         impl := (^File_Impl)(f.impl)
-        impl.r_buf, _ = slice.create([]byte, buffer_size, allocator)
-        impl.w_buf, _ = slice.create([]byte, buffer_size, allocator)
+        impl.r_buf, _ = slice.create([]u8, buffer_size, allocator)
+        impl.w_buf, _ = slice.create([]u8, buffer_size, allocator)
     }
     return
 }
@@ -310,17 +310,17 @@ _seek :: proc(f: ^File_Impl, offset: i64, whence: io.Seek_From) -> (ret: i64, er
     return i64(hi)<<32 + i64(dw_ptr), nil
 }
 
-_read :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
+_read :: proc(f: ^File_Impl, p: []u8) -> (n: i64, err: Error) {
     return _read_internal(f, p)
 }
 
-_read_internal :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
+_read_internal :: proc(f: ^File_Impl, p: []u8) -> (n: i64, err: Error) {
     length := len(p)
     if length == 0 {
         return
     }
 
-    read_console :: proc(handle: win32.HANDLE, b: []byte) -> (n: uint, err: Error) {
+    read_console :: proc(handle: win32.HANDLE, b: []u8) -> (n: uint, err: Error) {
         if len(b) == 0 {
             return 0, nil
         }
@@ -404,8 +404,8 @@ _read_internal :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
     return i64(total_read), err
 }
 
-_read_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (n: i64, err: Error) {
-    pread :: proc(f: ^File_Impl, data: []byte, offset: i64) -> (n: i64, err: Error) {
+_read_at :: proc(f: ^File_Impl, p: []u8, offset: i64) -> (n: i64, err: Error) {
+    pread :: proc(f: ^File_Impl, data: []u8, offset: i64) -> (n: i64, err: Error) {
         buf := data
         if len(buf) > MAX_RW {
             buf = buf[:MAX_RW]
@@ -443,10 +443,10 @@ _read_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (n: i64, err: Error) 
     return
 }
 
-_write :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
+_write :: proc(f: ^File_Impl, p: []u8) -> (n: i64, err: Error) {
     return _write_internal(f, p)
 }
-_write_internal :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
+_write_internal :: proc(f: ^File_Impl, p: []u8) -> (n: i64, err: Error) {
     if len(p) == 0 {
         return
     }
@@ -473,8 +473,8 @@ _write_internal :: proc(f: ^File_Impl, p: []byte) -> (n: i64, err: Error) {
     return i64(total_write), nil
 }
 
-_write_at :: proc(f: ^File_Impl, p: []byte, offset: i64) -> (n: i64, err: Error) {
-    pwrite :: proc(f: ^File_Impl, data: []byte, offset: i64) -> (n: i64, err: Error) {
+_write_at :: proc(f: ^File_Impl, p: []u8, offset: i64) -> (n: i64, err: Error) {
+    pwrite :: proc(f: ^File_Impl, data: []u8, offset: i64) -> (n: i64, err: Error) {
         buf := data
         if len(buf) > MAX_RW {
             buf = buf[:MAX_RW]
@@ -698,7 +698,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
     MAXIMUM_REPARSE_DATA_BUFFER_SIZE :: 16 * 1024
 
     @(thread_local)
-    rdb_buf: [MAXIMUM_REPARSE_DATA_BUFFER_SIZE]byte
+    rdb_buf: [MAXIMUM_REPARSE_DATA_BUFFER_SIZE]u8
 
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
@@ -833,7 +833,7 @@ _exists :: proc(path: string) -> bool {
 }
 
 @(private)
-_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
+_file_stream_proc :: proc(stream_data: rawptr, mode: File_Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, allocator: mem.Allocator) -> (n: i64, err: Error) {
     f := (^File_Impl)(stream_data)
     switch mode {
     case .Read:
@@ -884,7 +884,7 @@ win32_utf8_to_utf16 :: proc(s: string, allocator: mem.Allocator) -> (ws: []u16, 
         return
     }
 
-    b := transmute([]byte)s
+    b := transmute([]u8)s
     cstr := raw_data(b)
     n := win32.MultiByteToWideChar(win32.CP_UTF8, win32.MB_ERR_INVALID_CHARS, cstr, i32(len(s)), nil, 0)
     if n == 0 {
@@ -932,7 +932,7 @@ win32_utf16_string16_to_utf8 :: proc(s: string16, allocator: mem.Allocator) -> (
     // also be null terminated.
     // If N > 0 it assumes the wide string is not null terminated and the resulting string
     // will not be null terminated.
-    text := slice.create([]byte, uint(n), allocator) or_return
+    text := slice.create([]u8, uint(n), allocator) or_return
 
     n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
     if n1 == 0 {
@@ -966,7 +966,7 @@ win32_utf16_u16_to_utf8 :: proc(s: []u16, allocator: mem.Allocator) -> (res: str
     // also be null terminated.
     // If N > 0 it assumes the wide string is not null terminated and the resulting string
     // will not be null terminated.
-    text := slice.create([]byte, uint(n), allocator) or_return
+    text := slice.create([]u8, uint(n), allocator) or_return
 
     n1 := win32.WideCharToMultiByte(win32.CP_UTF8, win32.WC_ERR_INVALID_CHARS, cstring16(raw_data(s)), i32(len(s)), raw_data(text), n, nil, nil)
     if n1 == 0 {

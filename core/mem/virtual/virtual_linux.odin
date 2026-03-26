@@ -3,14 +3,14 @@
 
 import "core:sys/linux"
 
-_reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
+_reserve :: proc(size: uint) -> (data: []u8, err: Allocator_Error) {
     addr, errno := linux.mmap(0, size, {}, {.PRIVATE, .ANONYMOUS})
     if errno == .ENOMEM {
         return nil, .Out_Of_Memory
     } else if errno == .EINVAL {
         return nil, .Invalid_Argument
     }
-    return (cast([^]byte)addr)[:size], nil
+    return (cast([^]u8)addr)[:size], nil
 }
 
 _commit :: proc(data: rawptr, size: uint) -> Allocator_Error {
@@ -48,7 +48,7 @@ _platform_memory_init :: proc() {
     internal.assert(DEFAULT_PAGE_SIZE != 0 && (DEFAULT_PAGE_SIZE & (DEFAULT_PAGE_SIZE-1)) == 0)
 }
 
-_map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+_map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []u8, error: Map_File_Error) {
     prot: linux.Mem_Protection
     if .Read in flags {
         prot += {.READ}
@@ -62,9 +62,9 @@ _map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byt
     if addr == nil || errno != nil {
         return nil, .Map_Failure
     }
-    return ([^]byte)(addr)[:size], nil
+    return ([^]u8)(addr)[:size], nil
 }
 
-_unmap_file :: proc(data: []byte) {
+_unmap_file :: proc(data: []u8) {
     _release(raw_data(data), uint(len(data)))
 }

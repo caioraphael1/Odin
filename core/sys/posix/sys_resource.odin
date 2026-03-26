@@ -72,7 +72,7 @@ Which_Usage :: enum c.int {
 }
 
 Resource :: enum c.int {
-	// Maximum byte size of a core file that may be created by a process.
+	// Maximum u8 size of a core file that may be created by a process.
 	CORE   = RLIMIT_CORE,
 	// Maximum amount of CPU time, in seconds, used by a process.
 	CPU    = RLIMIT_CPU,

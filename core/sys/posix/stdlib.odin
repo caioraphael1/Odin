@@ -204,7 +204,7 @@ foreign lib {
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/initstate.html ]]
 	*/
 	@(link_name=LINITSTATE)
-	initstate :: proc(seed: c.uint, state: [^]byte, size: c.size_t) -> [^]byte ---
+	initstate :: proc(seed: c.uint, state: [^]u8, size: c.size_t) -> [^]u8 ---
 
 	/*
 	Sets the state array of the random number generator.
@@ -213,7 +213,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/initstate.html ]]
 	*/
-	setstate :: proc(state: [^]byte) -> [^]byte ---
+	setstate :: proc(state: [^]u8) -> [^]u8 ---
 
 	/*
 	Use a non-linear additive feedback random-number generator employing a default state array
@@ -243,7 +243,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/mkdtemp.html ]]
 	*/
-	mkdtemp :: proc(template: [^]byte) -> cstring ---
+	mkdtemp :: proc(template: [^]u8) -> cstring ---
 
 	/*
 	Creates a regular file with a unique name derived from template and return a file descriptor
@@ -263,7 +263,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_memalign.html ]]
 	*/
-	posix_memalign :: proc(memptr: ^[^]byte, alignment: c.size_t, size: c.size_t) -> Errno ---
+	posix_memalign :: proc(memptr: ^[^]u8, alignment: c.size_t, size: c.size_t) -> Errno ---
 
 	/*
 	Establishes a connection between a master device for a pseudo-terminal and a file descriptor.
@@ -331,7 +331,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/realpath.html ]]
 	*/
-	realpath :: proc(file_name: cstring, resolved_name: [^]byte = nil) -> cstring ---
+	realpath :: proc(file_name: cstring, resolved_name: [^]u8 = nil) -> cstring ---
 
 	/*
 	Provides access to an implementation-defined encoding algorithm.
@@ -346,7 +346,7 @@ foreign lib {
 	If errno is non-zero on return, an error has occurred.
 
 	Example:
-		key: [64]byte
+		key: [64]u8
 		// set key bytes...
 
 		posix.set_errno(.NONE)
@@ -357,7 +357,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/setkey.html ]]
 	*/
-	setkey :: proc(key: [^]byte) ---
+	setkey :: proc(key: [^]u8) ---
 }
 
 when ODIN_OS == .NetBSD {

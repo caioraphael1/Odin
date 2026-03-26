@@ -36,7 +36,7 @@ RUNE1_MAX :: 1<<7 - 1
 RUNE2_MAX :: 1<<11 - 1
 RUNE3_MAX :: 1<<16 - 1
 
-// The default lowest and highest continuation byte.
+// The default lowest and highest continuation u8.
 LOCB :: 0b1000_0000
 HICB :: 0b1011_1111
 
@@ -180,7 +180,7 @@ rune_at :: proc(s: string, byte_index: int) -> rune {
     return r
 }
 
-// Returns the byte position of rune at position pos in s with an optional start byte position.
+// Returns the u8 position of rune at position pos in s with an optional start u8 position.
 // Returns -1 if it runs out of the string.
 rune_offset :: proc(s: string, pos: uint, start: uint = 0) -> int {
     i: uint
@@ -219,15 +219,15 @@ rune_is_valid :: proc(r: rune) -> bool {
 /* 
 | Byte type           |     Binary pattern    | Meaning       |
 | ------------------- | --------------------- | ------------- |
-| 1-byte (ASCII)      |        `0xxxxxxx`     | Start of rune |
-| Start of multi-byte | (0xc0) `11xxxxxx`     | Start of rune |
-| Continuation byte   | (0x80) `10xxxxxx`     | NOT a start   |
+| 1-u8 (ASCII)      |        `0xxxxxxx`     | Start of rune |
+| Start of multi-u8 | (0xc0) `11xxxxxx`     | Start of rune |
+| Continuation u8   | (0x80) `10xxxxxx`     | NOT a start   |
 */
 rune_is_start :: #force_inline proc(b: u8) -> bool {
     return b & 0xc0 != 0x80
         /*
-        b & 0xc0: This extracts the top two bits of the byte
-        then, check if it's different than "Continuation byte (0x80) `10xxxxxx`"
+        b & 0xc0: This extracts the top two bits of the u8
+        then, check if it's different than "Continuation u8 (0x80) `10xxxxxx`"
         */
 }
 
@@ -307,7 +307,7 @@ bytes_rune_count :: proc(s: []u8) -> uint {
 
 // bytes_has_full_rune reports if the bytes in b begin with a full utf-8 encoding of a rune or not
 // An invalid encoding is considered a full rune since it will convert as an error rune of width 1 (RUNE_ERROR)
-bytes_has_full_rune :: proc(b: []byte) -> bool {
+bytes_has_full_rune :: proc(b: []u8) -> bool {
     n := len(b)
     if n == 0 {
         return false
@@ -333,7 +333,7 @@ string_rune_count :: #force_inline proc(s: string) -> uint {
 // string_has_full_rune reports if the bytes in s begin with a full utf-8 encoding of a rune or not
 // An invalid encoding is considered a full rune since it will convert as an error rune of width 1 (RUNE_ERROR)
 string_has_full_rune :: proc(s: string) -> bool {
-    return bytes_has_full_rune(transmute([]byte)s)
+    return bytes_has_full_rune(transmute([]u8)s)
 }
 
 string_is_valid :: proc(s: string) -> bool {
@@ -376,7 +376,7 @@ string_from_runes :: proc(runes: []rune, allocator: mem.Allocator) -> string {
         byte_count += w
     }
 
-    bytes, _ := slice.create([]byte, byte_count, allocator)
+    bytes, _ := slice.create([]u8, byte_count, allocator)
     offset: uint
     for r in runes {
         b, w := bytes_from_rune(r)

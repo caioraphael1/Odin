@@ -690,16 +690,16 @@ parse_u128_maybe_prefixed :: proc(str: string, n: ^uint = nil) -> (value: u128, 
 }
 
 /*
-Converts a byte to lowercase
+Converts a u8 to lowercase
 
 **Inputs**
-- ch: A byte character to be converted to lowercase.
+- ch: A u8 character to be converted to lowercase.
 
 **Returns**
-- A lowercase byte character.
+- A lowercase u8 character.
 */
 @(private)
-lower :: #force_inline proc(ch: byte) -> byte { return ('a' - 'A') | ch }
+lower :: #force_inline proc(ch: u8) -> u8 { return ('a' - 'A') | ch }
 /*
 Parses a 32-bit floating point number from a string
 
@@ -899,7 +899,7 @@ parse_f64_prefix :: proc(str: string) -> (value: f64, nr: uint, ok: bool) {
 
         base := u64(10)
         MAX_MANT_DIGITS := 19
-        exp_char := byte('e')
+        exp_char := u8('e')
         // support stupid 0x1.ABp100 hex floats even if Odin doesn't
         if i + 2 < len(s) && s[i] == '0' && lower(s[i + 1]) == 'x' {
             base = 16
@@ -1310,7 +1310,7 @@ Output:
 - ok: `false` if a quaternion could not be found, or if the input string contained more than just the quaternion.
 */
 parse_quaternion256 :: proc(str: string, n: ^uint = nil) -> (value: quaternion256, ok: bool) {
-    iterate_and_assign :: proc (iter: ^string, terminator: byte, nr_total: ^uint, state: bool) -> (value: f64, ok: bool) {
+    iterate_and_assign :: proc (iter: ^string, terminator: u8, nr_total: ^uint, state: bool) -> (value: f64, ok: bool) {
         if !state {
             return
         }
@@ -1437,7 +1437,7 @@ Example:
 
     import "core:fmt"
     write_bool_example :: proc() {
-        buf: [6]byte
+        buf: [6]u8
         result := strconv.write_bool(buf[:], true)
         fmt.println(result, buf)
     }
@@ -1449,7 +1449,7 @@ Output:
 **Returns**
 - The resulting string after writing the boolean value
 */
-write_bool :: proc(buf: []byte, b: bool) -> string {
+write_bool :: proc(buf: []u8, b: bool) -> string {
     n: uint
     if b {
         n = slice.copy_from_string(buf, "true")
@@ -1470,7 +1470,7 @@ Example:
 
     import "core:fmt"
     write_uint_example :: proc() {
-        buf: [4]byte
+        buf: [4]u8
         result := strconv.write_uint(buf[:], 42, 16)
         fmt.println(result, buf)
     }
@@ -1482,7 +1482,7 @@ Output:
 **Returns**
 - The resulting string after writing the unsigned integer value
 */
-write_uint :: proc(buf: []byte, u: u64, base: uint) -> string {
+write_uint :: proc(buf: []u8, u: u64, base: uint) -> string {
     return write_bits(buf, u, base, false, 8*size_of(uint), digits, nil)
 }
 /*
@@ -1497,7 +1497,7 @@ Example:
 
     import "core:fmt"
     write_int_example :: proc() {
-        buf: [4]byte
+        buf: [4]u8
         result := strconv.write_int(buf[:], -42, 10)
         fmt.println(result, buf)
     }
@@ -1509,13 +1509,13 @@ Output:
 **Returns**
 - The resulting string after writing the signed integer value
 */
-write_int :: proc(buf: []byte, i: i64, base: uint) -> string {
+write_int :: proc(buf: []u8, i: i64, base: uint) -> string {
     return write_bits(buf, u64(i), base, true, 8*size_of(int), digits, nil)
 }
 
 
 
-write_u128 :: proc(buf: []byte, u: u128, base: uint) -> string {
+write_u128 :: proc(buf: []u8, u: u128, base: uint) -> string {
     return write_bits_128(buf, u, base, false, 8*size_of(uint), digits, nil)
 }
 
@@ -1527,7 +1527,7 @@ Writes a float64 value as a string to the given buffer with the specified format
 **Inputs**
 - buf: The buffer to write the float64 value to
 - f: The float64 value to be written
-- fmt: The byte specifying the format to use for the conversion
+- fmt: The u8 specifying the format to use for the conversion
 - prec: The precision to use for the conversion
 - bit_size: The size of the float in bits (32 or 64)
 
@@ -1535,7 +1535,7 @@ Example:
 
     import "core:fmt"
     write_float_example :: proc() {
-        buf: [8]byte
+        buf: [8]u8
         result := strconv.write_float(buf[:], 3.14159, 'f', 2, 64)
         fmt.println(result, buf)
     }
@@ -1547,7 +1547,7 @@ Output:
 **Returns**
 - The resulting string after writing the float
 */
-write_float :: proc(buf: []byte, f: f64, fmt: byte, prec, bit_size: uint, shortest: bool) -> string {
+write_float :: proc(buf: []u8, f: f64, fmt: u8, prec, bit_size: uint, shortest: bool) -> string {
     return string(generic_ftoa(buf, f, fmt, prec, bit_size, shortest))
 }
 // Accepts '0'..='9', otherwise returns ok = false
@@ -1558,10 +1558,10 @@ digit_to_int :: proc(r: rune) -> (value: int, ok: bool) {
     return -1, false
 }
 /*
-Writes a quoted string representation of the input string to a given byte slice and returns the result as a string
+Writes a quoted string representation of the input string to a given u8 slice and returns the result as a string
 
 **Inputs**
-- buf: The byte slice to which the quoted string will be written
+- buf: The u8 slice to which the quoted string will be written
 - str: The input string to be quoted
 
 !! ISSUE !! NOT EXPECTED -- "\"hello\"" was expected
@@ -1570,7 +1570,7 @@ Example:
 
     import "core:fmt"
     quote_example :: proc() {
-        buf: [20]byte
+        buf: [20]u8
         result := strconv.quote(buf[:], "hello")
         fmt.println(result, buf)
     }
@@ -1582,8 +1582,8 @@ Output:
 **Returns**
 - The resulting string after writing the quoted string representation
 */
-quote :: proc(buf: []byte, str: string) -> string {
-    write_byte :: proc(buf: []byte, i: ^uint, bytes: ..byte) {
+quote :: proc(buf: []u8, str: string) -> string {
+    write_byte :: proc(buf: []u8, i: ^uint, bytes: ..u8) {
         if i^ >= len(buf) {
             return
         }
@@ -1620,17 +1620,17 @@ quote :: proc(buf: []byte, str: string) -> string {
     return string(buf[:i])
 }
 /*
-Writes a quoted rune representation of the input rune to a given byte slice and returns the result as a string
+Writes a quoted rune representation of the input rune to a given u8 slice and returns the result as a string
 
 **Inputs**
-- buf: The byte slice to which the quoted rune will be written
+- buf: The u8 slice to which the quoted rune will be written
 - r: The input rune to be quoted
 
 Example:
 
     import "core:fmt"
     quote_rune_example :: proc() {
-        buf: [4]byte
+        buf: [4]u8
         result := strconv.quote_rune(buf[:], 'A')
         fmt.println(result, buf)
     }
@@ -1642,20 +1642,20 @@ Output:
 **Returns**
 - The resulting string after writing the quoted rune representation
 */
-quote_rune :: proc(buf: []byte, r: rune) -> string {
-    write_byte :: proc(buf: []byte, i: ^uint, bytes: ..byte) {
+quote_rune :: proc(buf: []u8, r: rune) -> string {
+    write_byte :: proc(buf: []u8, i: ^uint, bytes: ..u8) {
         if i^ < len(buf) {
             n := slice.copy(buf[i^:], bytes[:])
             i^ += n
         }
     }
-    write_string :: proc(buf: []byte, i: ^uint, s: string) {
+    write_string :: proc(buf: []u8, i: ^uint, s: string) {
         if i^ < len(buf) {
             n := slice.copy_from_string(buf[i^:], s)
             i^ += n
         }
     }
-    write_rune :: proc(buf: []byte, i: ^uint, r: rune) {
+    write_rune :: proc(buf: []u8, i: ^uint, r: rune) {
         if i^ < len(buf) {
             b, w := utf8.bytes_from_rune(r)
             n := slice.copy(buf[i^:], b[:w])
@@ -1682,7 +1682,7 @@ quote_rune :: proc(buf: []byte, r: rune) -> string {
     case:
         if r < 32 {
             write_string(buf, &i, "\\x")
-            b: [2]byte
+            b: [2]u8
             s := write_bits(b[:], u64(r), 16, true, 64, digits, nil)
             switch len(s) {
             case 0: write_string(buf, &i, "00")
@@ -1725,8 +1725,8 @@ Output:
 - tail_string: The remaining portion of the input string after unquoting the character
 - success: A boolean indicating whether the unquoting was successful
 */
-unquote_char :: proc(str: string, quote: byte) -> (r: rune, multiple_bytes: bool, tail_string: string, success: bool) {
-    hex_to_int :: proc(c: byte) -> int {
+unquote_char :: proc(str: string, quote: u8) -> (r: rune, multiple_bytes: bool, tail_string: string, success: bool) {
+    hex_to_int :: proc(c: u8) -> int {
         switch c {
         case '0'..='9': return int(c-'0')
         case 'a'..='f': return int(c-'a')+10
@@ -1905,17 +1905,17 @@ unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, a
     }
 
     buf_len := 3 * len(s) / 2
-    buf, _ := slice.create([]byte, buf_len, allocator)
+    buf, _ := slice.create([]u8, buf_len, allocator)
     offset: uint
     for len(s) > 0 {
-        r, multiple_bytes, tail_string, ok := unquote_char(s, byte(quote))
+        r, multiple_bytes, tail_string, ok := unquote_char(s, u8(quote))
         if !ok {
             _ = slice.delete(buf, allocator)
             return s, false, false
         }
         s = tail_string
         if r < 0x80 || !multiple_bytes {
-            buf[offset] = byte(r)
+            buf[offset] = u8(r)
             offset += 1
         } else {
             b, w := utf8.bytes_from_rune(r)

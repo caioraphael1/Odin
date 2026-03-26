@@ -33,7 +33,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/if_indextoname.html ]]
 	*/
-	if_indextoname :: proc(ifindex: c.uint, ifname: [^]byte) -> cstring ---
+	if_indextoname :: proc(ifindex: c.uint, ifname: [^]u8) -> cstring ---
 
 	/*
 	Frees memory allocated by if_nameindex.

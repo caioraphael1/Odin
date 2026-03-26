@@ -22,7 +22,7 @@ This VTable is used by the Reader struct to provide its functionality
 as an `io.Stream`.
 */
 @(private)
-_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+_reader_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     r := (^Reader)(stream_data)
     #partial switch mode {
     case .Size:
@@ -83,7 +83,7 @@ reader_size :: proc(r: ^Reader) -> (res: i64) {
     return i64(len(r.s))
 }
 
-reader_read :: proc(r: ^Reader, p: []byte) -> (n: uint, err: io.Error) {
+reader_read :: proc(r: ^Reader, p: []u8) -> (n: uint, err: io.Error) {
     if r.i >= i64(len(r.s)) {
         return 0, .EOF
     }
@@ -93,7 +93,7 @@ reader_read :: proc(r: ^Reader, p: []byte) -> (n: uint, err: io.Error) {
     return
 }
 
-reader_read_at :: proc(r: ^Reader, p: []byte, off: i64) -> (n: uint, err: io.Error) {
+reader_read_at :: proc(r: ^Reader, p: []u8, off: i64) -> (n: uint, err: io.Error) {
     if off < 0 {
         return 0, .Invalid_Offset
     }
@@ -107,7 +107,7 @@ reader_read_at :: proc(r: ^Reader, p: []byte, off: i64) -> (n: uint, err: io.Err
     return
 }
 
-reader_read_byte :: proc(r: ^Reader) -> (res: byte, err: io.Error) {
+reader_read_byte :: proc(r: ^Reader) -> (res: u8, err: io.Error) {
     r.prev_rune = -1
     if r.i >= i64(len(r.s)) {
         return 0, .EOF

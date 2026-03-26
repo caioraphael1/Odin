@@ -52,8 +52,8 @@ Reader :: struct {
     // internal buffers
     r:             reader.Reader,
     line_count:    int, // current line being read in the CSV file
-    raw_buffer:    dyn_array.Dyn_Array(byte),
-    record_buffer: dyn_array.Dyn_Array(byte),
+    raw_buffer:    dyn_array.Dyn_Array(u8),
+    record_buffer: dyn_array.Dyn_Array(u8),
     field_indices: dyn_array.Dyn_Array(int),
     last_record:   dyn_array.Dyn_Array(string),
     sr: strings.Reader, // used by reader_init_with_string
@@ -231,7 +231,7 @@ is_valid_delim :: proc(r: rune) -> bool {
 @(private)
 _read_record :: proc(r: ^Reader, dst: ^dyn_array.Dyn_Array(string), allocator: mem.Allocator) -> ([]string, Error) {
     
-    read_line :: proc(r: ^Reader) -> ([]byte, io.Error) {
+    read_line :: proc(r: ^Reader) -> ([]u8, io.Error) {
         if !r.multiline_fields {
             line, err := reader.reader_read_slice(&r.r, '\n')
             if err == .Buffer_Full {
@@ -301,7 +301,7 @@ _read_record :: proc(r: ^Reader, dst: ^dyn_array.Dyn_Array(string), allocator: m
     }
 
     
-    length_newline :: proc(b: []byte) -> int {
+    length_newline :: proc(b: []u8) -> int {
         if len(b) > 0 && b[len(b)-1] == '\n' {
             return 1
         }
@@ -309,7 +309,7 @@ _read_record :: proc(r: ^Reader, dst: ^dyn_array.Dyn_Array(string), allocator: m
     }
 
     
-    next_rune :: proc(b: []byte) -> rune {
+    next_rune :: proc(b: []u8) -> rune {
         r, _ := utf8.rune_from_bytes(b)
         return r
     }
@@ -324,7 +324,7 @@ _read_record :: proc(r: ^Reader, dst: ^dyn_array.Dyn_Array(string), allocator: m
         return nil, err
     }
 
-    line, full_line: []byte
+    line, full_line: []u8
     err_read: io.Error
     for err_read == nil {
         line, err_read = read_line(r)

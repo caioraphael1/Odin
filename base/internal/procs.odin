@@ -1,7 +1,7 @@
 
 /*
 MEMSET
-Set each byte of a memory range to a specific value.
+Set each u8 of a memory range to a specific value.
 This procedure copies value specified by the `value` parameter into each of the
 `len` bytes of a memory range, located at address `data`.
 This procedure returns the pointer to `data`.
@@ -43,8 +43,8 @@ when ODIN_NO_CRT && ODIN_OS == .Windows {
     @(link_name="memset", linkage="strong", require)
     memset :: proc "c" (ptr: rawptr, val: i32, #any_int len: int_t) -> rawptr {
         if ptr != nil && len != 0 {
-            b := byte(val)
-            p := ([^]byte)(ptr)
+            b := u8(val)
+            p := ([^]u8)(ptr)
             for i := int_t(0); i < len; i += 1 {
                 p[i] = b
             }
@@ -55,7 +55,7 @@ when ODIN_NO_CRT && ODIN_OS == .Windows {
     @(link_name="bzero", linkage="strong", require)
     bzero :: proc "c" (ptr: rawptr, #any_int len: int_t) -> rawptr {
         if ptr != nil && len != 0 {
-            p := ([^]byte)(ptr)
+            p := ([^]u8)(ptr)
             for i := int_t(0); i < len; i += 1 {
                 p[i] = 0
             }
@@ -65,7 +65,7 @@ when ODIN_NO_CRT && ODIN_OS == .Windows {
 
     @(link_name="memmove", linkage="strong", require)
     memmove :: proc "c" (dst, src: rawptr, #any_int len: int_t) -> rawptr {
-        d, s := ([^]byte)(dst), ([^]byte)(src)
+        d, s := ([^]u8)(dst), ([^]u8)(src)
         if d == s || len == 0 {
             return dst
         }
@@ -86,7 +86,7 @@ when ODIN_NO_CRT && ODIN_OS == .Windows {
     }
     @(link_name="memcpy", linkage="strong", require)
     memcpy :: proc "c" (dst, src: rawptr, #any_int len: int_t) -> rawptr {
-        d, s := ([^]byte)(dst), ([^]byte)(src)
+        d, s := ([^]u8)(dst), ([^]u8)(src)
         if d != s {
             for i := int_t(0); i < len; i += 1 {
                 d[i] = s[i]
@@ -98,8 +98,8 @@ when ODIN_NO_CRT && ODIN_OS == .Windows {
 } else {
     memset :: proc "c" (ptr: rawptr, val: i32, len: int) -> rawptr {
         if ptr != nil && len != 0 {
-            b := byte(val)
-            p := ([^]byte)(ptr)
+            b := u8(val)
+            p := ([^]u8)(ptr)
             for i := 0; i < len; i += 1 {
                 p[i] = b
             }

@@ -10,7 +10,7 @@ foreign wasi {
     random_get :: proc(buf: []u8) -> u16 ---
 }
 
-_rand_bytes :: proc(dst: []byte) {
+_rand_bytes :: proc(dst: []u8) {
     if errno := random_get(dst); errno != 0 {
         internal.panic("base/runtime: wasi.random_get failed")
     }

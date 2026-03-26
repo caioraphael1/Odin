@@ -39,7 +39,7 @@ used to discriminate between different functions of the allocator.
 
 The type is defined as follows:
 
-    Allocator_Mode :: enum byte {
+    Allocator_Mode :: enum u8 {
         Alloc,
         Alloc_Non_Zeroed,
         Free,
@@ -104,7 +104,7 @@ An allocation request error.
 
 This type represents error values the allocators may return upon requests.
 
-    Allocator_Error :: enum byte {
+    Allocator_Error :: enum u8 {
         None                 = 0,
         Out_Of_Memory        = 1,
         Invalid_Pointer      = 2,
@@ -286,7 +286,7 @@ free :: #force_no_inline proc(ptr: rawptr, allocator: Allocator, loc := #caller_
 free_with_size :: internal.mem_free_with_size
 
 
-free_bytes :: #force_no_inline proc(bytes: []byte, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
+free_bytes :: #force_no_inline proc(bytes: []u8, allocator: Allocator, loc := #caller_location) -> Allocator_Error {
     internal.assert(allocator.procedure != nil, loc=loc)
     if bytes == nil {
         return nil
@@ -301,7 +301,7 @@ free_all :: #force_no_inline proc(allocator: Allocator, loc := #caller_location)
     return
 }
 
-alloc :: #force_no_inline proc(size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> ([]byte, Allocator_Error) {
+alloc :: #force_no_inline proc(size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> ([]u8, Allocator_Error) {
     internal.assert(is_power_of_two_uint(alignment), "Alignment must be a power of two", loc)
     internal.assert(allocator.procedure != nil, "Allocator not defined", loc)
     internal.assert(size > 0, "Size must be greater than zero", loc)
@@ -316,19 +316,19 @@ alloc_raw :: proc(size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Al
 alloc_non_zeroed :: internal.mem_alloc_non_zeroed
 
 
-resize          :: proc(ptr: rawptr, old_size, new_size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
+resize          :: proc(ptr: rawptr, old_size, new_size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> (data: []u8, err: Allocator_Error) {
     internal.assert(is_power_of_two_uint(alignment), "Alignment must be a power of two", loc)
     internal.assert(allocator.procedure != nil, "Allocator not defined", loc)
     return _resize(ptr, old_size, new_size, alignment, allocator, true, loc)
 }
 
-resize_non_zero :: proc(ptr: rawptr, old_size, new_size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
+resize_non_zero :: proc(ptr: rawptr, old_size, new_size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, loc := #caller_location) -> (data: []u8, err: Allocator_Error) {
     internal.assert(is_power_of_two_uint(alignment), "Alignment must be a power of two", loc)
     internal.assert(allocator.procedure != nil, "Allocator not defined", loc)
     return _resize(ptr, old_size, new_size, alignment, allocator, false, loc)
 }
 
-_resize :: #force_no_inline proc(ptr: rawptr, old_size, new_size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, should_zero: bool, loc := #caller_location) -> (data: []byte, err: Allocator_Error) {
+_resize :: #force_no_inline proc(ptr: rawptr, old_size, new_size: uint, alignment: uint = DEFAULT_ALIGNMENT, allocator: Allocator, should_zero: bool, loc := #caller_location) -> (data: []u8, err: Allocator_Error) {
     internal.assert(is_power_of_two_uint(alignment), "Alignment must be a power of two", loc)
     internal.assert(allocator.procedure != nil, loc=loc)
     
@@ -345,7 +345,7 @@ _resize :: #force_no_inline proc(ptr: rawptr, old_size, new_size: uint, alignmen
             return allocator.procedure(allocator.data, .Alloc_Non_Zeroed, new_size, alignment, nil, 0, loc)
         }
     } else if old_size == new_size && uintptr(ptr) % uintptr(alignment) == 0 {
-        data = ([^]byte)(ptr)[:old_size]
+        data = ([^]u8)(ptr)[:old_size]
         return
     }
 
@@ -363,7 +363,7 @@ _resize :: #force_no_inline proc(ptr: rawptr, old_size, new_size: uint, alignmen
         if err != nil {
             return
         }
-        // slice.copy(data, ([^]byte)(ptr)[:old_size])
+        // slice.copy(data, ([^]u8)(ptr)[:old_size])
             // (2026-03-06) Replaced by:
         copy(raw_data(data), ptr, old_size)
 

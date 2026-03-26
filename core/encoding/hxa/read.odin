@@ -7,10 +7,10 @@ Read_Error :: enum {
 	Unable_To_Read_File,
 }
 
-read :: proc(data: []byte, filename := "<input>", print_error := false, allocator: mem.Allocator, loc := #caller_location) -> (file: File, err: Read_Error) {
+read :: proc(data: []u8, filename := "<input>", print_error := false, allocator: mem.Allocator, loc := #caller_location) -> (file: File, err: Read_Error) {
 	Reader :: struct {
 		filename:    string,
-		data:        []byte,
+		data:        []u8,
 		offset:      int,
 		print_error: bool,
 	}
@@ -48,13 +48,13 @@ read :: proc(data: []byte, filename := "<input>", print_error := false, allocato
 	}
 
 	read_string :: proc(r: ^Reader, count: int) -> (string, Read_Error) {
-		buf, err := read_array(r, byte, count)
+		buf, err := read_array(r, u8, count)
 		return string(buf), err
 	}
 
 	read_name :: proc(r: ^Reader) -> (value: string, err: Read_Error) {
 		len  := read_value(r, u8)             or_return
-		data := read_array(r, byte, int(len)) or_return
+		data := read_array(r, u8, int(len)) or_return
 		return string(data[:len]), nil
 	}
 
@@ -80,7 +80,7 @@ read :: proc(data: []byte, filename := "<input>", print_error := false, allocato
 			case .Double: m.value = read_array(r, f64le, int(array_length))      or_return
 			case .Node:   m.value = read_array(r, Node_Index, int(array_length)) or_return
 			case .Text:   m.value = read_string(r, int(array_length))            or_return
-			case .Binary: m.value = read_array(r, byte, int(array_length))       or_return
+			case .Binary: m.value = read_array(r, u8, int(array_length))       or_return
 			case .Meta:   m.value = read_meta(r, array_length)                   or_return
 			}
 

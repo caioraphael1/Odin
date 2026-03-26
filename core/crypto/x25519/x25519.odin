@@ -17,11 +17,11 @@ POINT_SIZE :: 32
 
 when crypto.COMPACT_IMPLS == true {
 	@(private,rodata)
-	_BASE_POINT: [32]byte = {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	_BASE_POINT: [32]u8 = {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 }
 
 @(private)
-_scalar_bit :: #force_inline proc(s: ^[32]byte, i: int) -> u8 {
+_scalar_bit :: #force_inline proc(s: ^[32]u8, i: int) -> u8 {
 	if i < 0 {
 		return 0
 	}
@@ -29,7 +29,7 @@ _scalar_bit :: #force_inline proc(s: ^[32]byte, i: int) -> u8 {
 }
 
 @(private)
-_scalarmult :: proc(out, scalar, point: ^[32]byte) {
+_scalarmult :: proc(out, scalar, point: ^[32]u8) {
 	// Montgomery pseduo-multiplication taken from Monocypher.
 
 	// computes the scalar product
@@ -102,20 +102,20 @@ _scalarmult :: proc(out, scalar, point: ^[32]byte) {
 
 // scalarmult "multiplies" the provided scalar and point, and writes the
 // resulting point to dst.
-scalarmult :: proc(dst, scalar, point: []byte) {
+scalarmult :: proc(dst, scalar, point: []u8) {
 	internal.ensure(len(scalar) == SCALAR_SIZE, "crypto/x25519: invalid scalar size")
 	internal.ensure(len(point) == POINT_SIZE, "crypto/x25519: invalid point size")
 	internal.ensure(len(dst) == POINT_SIZE, "crypto/x25519: invalid destination point size")
 
 	// "clamp" the scalar
-	e: [32]byte = ---
+	e: [32]u8 = ---
 	slice.copy(e[:], scalar)
 	e[0] &= 248
 	e[31] &= 127
 	e[31] |= 64
 
-	p := (^[32]byte)(raw_data(point))
-	d := (^[32]byte)(raw_data(dst))
+	p := (^[32]u8)(raw_data(point))
+	d := (^[32]u8)(raw_data(dst))
 	_scalarmult(d, &e, p)
 
 	crypto.zero_explicit(&e, size_of(e))
@@ -123,7 +123,7 @@ scalarmult :: proc(dst, scalar, point: []byte) {
 
 // scalarmult_basepoint "multiplies" the provided scalar with the X25519
 // base point and writes the resulting point to dst.
-scalarmult_basepoint :: proc(dst, scalar: []byte) {
+scalarmult_basepoint :: proc(dst, scalar: []u8) {
 	when crypto.COMPACT_IMPLS == true {
 		scalarmult(dst, scalar, _BASE_POINT[:])
 	} else {
@@ -146,7 +146,7 @@ scalarmult_basepoint :: proc(dst, scalar: []byte) {
 		field.fe_carry_inv(&u, &z_minus_y)
 		field.fe_carry_mul(&u, &y_plus_z, field.fe_relax_cast(&u))
 
-		dst_ := (^[32]byte)(raw_data(dst))
+		dst_ := (^[32]u8)(raw_data(dst))
 		field.fe_to_bytes(dst_, &u)
 
 		field.fe_clear_vec([]^field.Loose_Field_Element{&y_plus_z, &z_minus_y})

@@ -129,7 +129,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
     }
 
     if .Executable_Path in selection {
-        buffer: [darwin.PIDPATHINFO_MAXSIZE]byte = ---
+        buffer: [darwin.PIDPATHINFO_MAXSIZE]u8 = ---
         ret := darwin.proc_pidpath(posix.pid_t(pid), raw_data(buffer[:]), len(buffer))
         if ret > 0 {
             info.executable_path = strings.string_clone(string(buffer[:ret]), allocator) or_return
@@ -153,7 +153,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
             break args
         }
 
-        buf := internal.slice_create_aligned([]byte, length, 4, allocators.temp_allocator)
+        buf := internal.slice_create_aligned([]u8, length, 4, allocators.temp_allocator)
         if sysctl(raw_data(mib), 3, raw_data(buf), &length, nil, 0) != .OK {
             if err == nil {
                 err = _get_platform_error()
@@ -175,7 +175,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         // Layout isn't really documented anywhere, I deduced it to be:
         // i32        - argc
         // cstring    - command name (skipped)
-        // [^]byte    - couple of 0 bytes (skipped)
+        // [^]u8    - couple of 0 bytes (skipped)
         // [^]cstring - argv (up to argc entries)
         // [^]cstring - key=value env entries until the end (many intermittent 0 bytes and entries without `=` we skip here too)
 
@@ -183,7 +183,7 @@ _process_info_by_pid :: proc(pid: int, selection: Process_Info_Fields, allocator
         buf = buf[size_of(i32):]
 
         {
-            command_line: dyn_array.Dyn_Array(byte)
+            command_line: dyn_array.Dyn_Array(u8)
             command_line.allocator = allocator
 
             argv: dyn_array.Dyn_Array(string)

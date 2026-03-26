@@ -31,12 +31,12 @@ DIGEST_SIZE :: 8
 // sum_string_1_3 will hash the given message with the key and return
 // the computed hash as a u64
 sum_string_1_3 :: proc(msg, key: string) -> u64 {
-    return sum_bytes_1_3(transmute([]byte)(msg), transmute([]byte)(key))
+    return sum_bytes_1_3(transmute([]u8)(msg), transmute([]u8)(key))
 }
 
 // sum_bytes_1_3 will hash the given message with the key and return
 // the computed hash as a u64
-sum_bytes_1_3 :: proc(msg, key: []byte) -> u64 {
+sum_bytes_1_3 :: proc(msg, key: []u8) -> u64 {
     ctx: Context
     hash: u64
     init(&ctx, key, 1, 3)
@@ -47,13 +47,13 @@ sum_bytes_1_3 :: proc(msg, key: []byte) -> u64 {
 
 // sum_string_to_buffer_1_3 will hash the given message with the key and write
 // the computed hash into the provided destination buffer
-sum_string_to_buffer_1_3 :: proc(msg, key: string, dst: []byte) {
-    sum_bytes_to_buffer_1_3(transmute([]byte)(msg), transmute([]byte)(key), dst)
+sum_string_to_buffer_1_3 :: proc(msg, key: string, dst: []u8) {
+    sum_bytes_to_buffer_1_3(transmute([]u8)(msg), transmute([]u8)(key), dst)
 }
 
 // sum_bytes_to_buffer_1_3 will hash the given message with the key and write
 // the computed hash into the provided destination buffer
-sum_bytes_to_buffer_1_3 :: proc(msg, key, dst: []byte) {
+sum_bytes_to_buffer_1_3 :: proc(msg, key, dst: []u8) {
     hash := sum_bytes_1_3(msg, key)
     _collect_output(dst[:], hash)
 }
@@ -61,14 +61,14 @@ sum_bytes_to_buffer_1_3 :: proc(msg, key, dst: []byte) {
 
 // verify_u64_1_3 will check if the supplied tag matches with the output you
 // will get from the provided message and key
-verify_u64_1_3 :: proc(tag: u64, msg, key: []byte) -> bool {
+verify_u64_1_3 :: proc(tag: u64, msg, key: []u8) -> bool {
     return sum_bytes_1_3(msg, key) == tag
 }
 
 // verify_bytes will check if the supplied tag matches with the output you
 // will get from the provided message and key
-verify_bytes_1_3 :: proc(tag, msg, key: []byte) -> bool {
-    derived_tag: [8]byte
+verify_bytes_1_3 :: proc(tag, msg, key: []u8) -> bool {
+    derived_tag: [8]u8
     sum_bytes_to_buffer_1_3(msg, key, derived_tag[:])
     return crypto.compare_constant_time(derived_tag[:], tag) == 1
 }
@@ -76,12 +76,12 @@ verify_bytes_1_3 :: proc(tag, msg, key: []byte) -> bool {
 // sum_string_2_4 will hash the given message with the key and return
 // the computed hash as a u64
 sum_string_2_4 :: proc(msg, key: string) -> u64 {
-    return sum_bytes_2_4(transmute([]byte)(msg), transmute([]byte)(key))
+    return sum_bytes_2_4(transmute([]u8)(msg), transmute([]u8)(key))
 }
 
 // sum_bytes_2_4 will hash the given message with the key and return
 // the computed hash as a u64
-sum_bytes_2_4 :: proc(msg, key: []byte) -> u64 {
+sum_bytes_2_4 :: proc(msg, key: []u8) -> u64 {
     ctx: Context
     hash: u64
     init(&ctx, key, 2, 4)
@@ -92,13 +92,13 @@ sum_bytes_2_4 :: proc(msg, key: []byte) -> u64 {
 
 // sum_string_to_buffer_2_4 will hash the given message with the key and write
 // the computed hash into the provided destination buffer
-sum_string_to_buffer_2_4 :: proc(msg, key: string, dst: []byte) {
-    sum_bytes_to_buffer_2_4(transmute([]byte)(msg), transmute([]byte)(key), dst)
+sum_string_to_buffer_2_4 :: proc(msg, key: string, dst: []u8) {
+    sum_bytes_to_buffer_2_4(transmute([]u8)(msg), transmute([]u8)(key), dst)
 }
 
 // sum_bytes_to_buffer_2_4 will hash the given message with the key and write
 // the computed hash into the provided destination buffer
-sum_bytes_to_buffer_2_4 :: proc(msg, key, dst: []byte) {
+sum_bytes_to_buffer_2_4 :: proc(msg, key, dst: []u8) {
     hash := sum_bytes_2_4(msg, key)
     _collect_output(dst[:], hash)
 }
@@ -112,14 +112,14 @@ sum_bytes_to_buffer :: sum_bytes_to_buffer_2_4
 
 // verify_u64_2_4 will check if the supplied tag matches with the output you
 // will get from the provided message and key
-verify_u64_2_4 :: proc(tag: u64, msg, key: []byte) -> bool {
+verify_u64_2_4 :: proc(tag: u64, msg, key: []u8) -> bool {
     return sum_bytes_2_4(msg, key) == tag
 }
 
 // verify_bytes will check if the supplied tag matches with the output you
 // will get from the provided message and key
-verify_bytes_2_4 :: proc(tag, msg, key: []byte) -> bool {
-    derived_tag: [8]byte
+verify_bytes_2_4 :: proc(tag, msg, key: []u8) -> bool {
+    derived_tag: [8]u8
     sum_bytes_to_buffer_2_4(msg, key, derived_tag[:])
     return crypto.compare_constant_time(derived_tag[:], tag) == 1
 }
@@ -131,12 +131,12 @@ verify_u64 :: verify_u64_2_4
 // sum_string_4_8 will hash the given message with the key and return
 // the computed hash as a u64
 sum_string_4_8 :: proc(msg, key: string) -> u64 {
-    return sum_bytes_4_8(transmute([]byte)(msg), transmute([]byte)(key))
+    return sum_bytes_4_8(transmute([]u8)(msg), transmute([]u8)(key))
 }
 
 // sum_bytes_4_8 will hash the given message with the key and return
 // the computed hash as a u64
-sum_bytes_4_8 :: proc(msg, key: []byte) -> u64 {
+sum_bytes_4_8 :: proc(msg, key: []u8) -> u64 {
     ctx: Context
     hash: u64
     init(&ctx, key, 4, 8)
@@ -147,27 +147,27 @@ sum_bytes_4_8 :: proc(msg, key: []byte) -> u64 {
 
 // sum_string_to_buffer_4_8 will hash the given message with the key and write
 // the computed hash into the provided destination buffer
-sum_string_to_buffer_4_8 :: proc(msg, key: string, dst: []byte) {
-    sum_bytes_to_buffer_4_8(transmute([]byte)(msg), transmute([]byte)(key), dst)
+sum_string_to_buffer_4_8 :: proc(msg, key: string, dst: []u8) {
+    sum_bytes_to_buffer_4_8(transmute([]u8)(msg), transmute([]u8)(key), dst)
 }
 
 // sum_bytes_to_buffer_4_8 will hash the given message with the key and write
 // the computed hash into the provided destination buffer
-sum_bytes_to_buffer_4_8 :: proc(msg, key, dst: []byte) {
+sum_bytes_to_buffer_4_8 :: proc(msg, key, dst: []u8) {
     hash := sum_bytes_4_8(msg, key)
     _collect_output(dst[:], hash)
 }
 
 // verify_u64_4_8 will check if the supplied tag matches with the output you
 // will get from the provided message and key
-verify_u64_4_8 :: proc(tag: u64, msg, key: []byte) -> bool {
+verify_u64_4_8 :: proc(tag: u64, msg, key: []u8) -> bool {
     return sum_bytes_4_8(msg, key) == tag
 }
 
 // verify_bytes will check if the supplied tag matches with the output you
 // will get from the provided message and key
-verify_bytes_4_8 :: proc(tag, msg, key: []byte) -> bool {
-    derived_tag: [8]byte
+verify_bytes_4_8 :: proc(tag, msg, key: []u8) -> bool {
+    derived_tag: [8]u8
     sum_bytes_to_buffer_4_8(msg, key, derived_tag[:])
     return crypto.compare_constant_time(derived_tag[:], tag) == 1
 }
@@ -176,7 +176,7 @@ verify_bytes_4_8 :: proc(tag, msg, key: []byte) -> bool {
     Low level API
 */
 
-init :: proc(ctx: ^Context, key: []byte, c_rounds, d_rounds: int) {
+init :: proc(ctx: ^Context, key: []u8, c_rounds, d_rounds: int) {
     internal.ensure(len(key) == KEY_SIZE,"crypto/siphash; invalid key size")
     ctx.c_rounds = c_rounds
     ctx.d_rounds = d_rounds
@@ -198,7 +198,7 @@ init :: proc(ctx: ^Context, key: []byte, c_rounds, d_rounds: int) {
     ctx.is_initialized = true
 }
 
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
     internal.ensure(ctx.is_initialized)
 
     data := data
@@ -225,9 +225,9 @@ update :: proc(ctx: ^Context, data: []byte) {
 final :: proc(ctx: ^Context, dst: ^u64) {
     internal.ensure(ctx.is_initialized)
 
-    tmp: [BLOCK_SIZE]byte
+    tmp: [BLOCK_SIZE]u8
     copy(tmp[:], ctx.buf[:ctx.last_block])
-    tmp[7] = byte(ctx.total_length & 0xff)
+    tmp[7] = u8(ctx.total_length & 0xff)
     block(ctx, tmp[:])
 
     ctx.v2 ~= 0xff
@@ -259,14 +259,14 @@ Context :: struct {
     k0, k1:         u64, // Split key
     c_rounds:       int, // Number of message rounds
     d_rounds:       int, // Number of finalization rounds
-    buf:            [BLOCK_SIZE]byte, // Provided data
+    buf:            [BLOCK_SIZE]u8, // Provided data
     last_block:     int, // Offset from the last block
     total_length:   int,
     is_initialized: bool,
 }
 
 @(private)
-block :: proc(ctx: ^Context, buf: []byte) {
+block :: proc(ctx: ^Context, buf: []u8) {
     buf := buf
 
     for len(buf) >= BLOCK_SIZE {
@@ -284,12 +284,12 @@ block :: proc(ctx: ^Context, buf: []byte) {
 }
 
 @(private)
-_get_byte :: #force_inline proc(byte_num: byte, into: u64) -> byte {
-    return byte(into >> (((~byte_num) & (size_of(u64) - 1)) << 3))
+_get_byte :: #force_inline proc(byte_num: u8, into: u64) -> u8 {
+    return u8(into >> (((~byte_num) & (size_of(u64) - 1)) << 3))
 }
 
 @(private)
-_collect_output :: #force_inline proc(dst: []byte, hash: u64) {
+_collect_output :: #force_inline proc(dst: []u8, hash: u64) {
     internal.ensure(len(dst) >= DIGEST_SIZE, "crypto/siphash: invalid tag size")
 
     dst[0] = _get_byte(7, hash)

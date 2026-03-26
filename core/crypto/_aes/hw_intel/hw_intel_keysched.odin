@@ -107,7 +107,7 @@ derive_dec_keys :: proc(ctx: ^Context, sks: ^[15]x86.__m128i, num_rounds: int) {
 }
 
 @(private, enable_target_feature = "sse,sse2,aes")
-keysched :: proc(ctx: ^Context, key: []byte) {
+keysched :: proc(ctx: ^Context, key: []u8) {
     sks: [15]x86.__m128i = ---
 
     // Compute the encryption keys.
@@ -176,7 +176,7 @@ keysched :: proc(ctx: ^Context, key: []byte) {
 }
 
 /*
-Set each byte of a memory range to zero.
+Set each u8 of a memory range to zero.
 
 This procedure copies the value `0` into the `len` bytes of a memory range,
 starting at address `data`.

@@ -13,7 +13,7 @@ hash_file_by_handle :: proc(
     load_at_once := false,
     allocator   : mem.Allocator,
 ) -> (
-    []byte,
+    []u8,
     io.Error,
 ) {
     if !load_at_once {
@@ -35,7 +35,7 @@ hash_file_by_name :: proc(
     load_at_once := false,
     allocator   : mem.Allocator,
 ) -> (
-    []byte,
+    []u8,
     io.Error,
 ) {
     handle, err := os.open(filename)

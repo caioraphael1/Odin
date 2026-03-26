@@ -192,7 +192,7 @@ create_raw_unbuffered :: proc(#any_int msg_size, msg_alignment: int, allocator: 
     c = (^Raw_Chan)(ptr)
     c.allocator = allocator
     c.allocation_size = size
-    c.unbuffered_data = ([^]byte)(ptr)[offset:]
+    c.unbuffered_data = ([^]u8)(ptr)[offset:]
     c.msg_size = u16(msg_size)
     return
 }
@@ -244,12 +244,12 @@ create_raw_buffered :: proc(#any_int msg_size, msg_alignment: int, #any_int cap:
     c.allocator = allocator
     c.allocation_size = size
 
-    bptr := ([^]byte)(ptr)
+    bptr := ([^]u8)(ptr)
 
     c.queue = (^Raw_Queue)(bptr[q_offset:])
     c.msg_size = u16(msg_size)
 
-    raw_queue_init(c.queue, ([^]byte)(bptr[offset:]), cap, msg_size)
+    raw_queue_init(c.queue, ([^]u8)(bptr[offset:]), cap, msg_size)
     return
 }
 
@@ -1209,7 +1209,7 @@ level of convenience for typical applications.
 */
 @(private)
 Raw_Queue :: struct {
-    data: [^]byte,
+    data: [^]u8,
     len:  int,
     cap:  int,
     next: int,
@@ -1239,7 +1239,7 @@ Example:
 */
 @(private)
 raw_queue_init :: proc(q: ^Raw_Queue, data: rawptr, cap: int, size: int) {
-    q.data = ([^]byte)(data)
+    q.data = ([^]u8)(data)
     q.len  = 0
     q.cap  = cap
     q.next = 0

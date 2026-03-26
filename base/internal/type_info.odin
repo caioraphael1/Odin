@@ -85,8 +85,8 @@ Type_Info_Dynamic_Array :: struct {elem: ^Type_Info, elem_size: uint}
 Type_Info_Slice         :: struct {elem: ^Type_Info, elem_size: uint}
 
 Type_Info_Parameters :: struct { // Only used for procedures parameters and results
-    types:        []^Type_Info,
-    names:        []string,
+    types: []^Type_Info,
+    names: []string,
 }
 
 Type_Info_Struct_Flags :: distinct bit_set[Type_Info_Struct_Flag; u8]

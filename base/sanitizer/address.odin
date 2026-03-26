@@ -44,7 +44,7 @@ Address_Access_Type :: enum {
 Address_Located_Address :: struct {
     category: string,
     name: string,
-    region: []byte,
+    region: []u8,
 }
 
 Address_Shadow_Mapping :: struct {
@@ -438,12 +438,12 @@ The information provided include:
 When asan is not enabled this procedure returns zero initialised values.
 */
 @(no_sanitize_address)
-address_locate_address :: proc(addr: rawptr, data: []byte) -> Address_Located_Address {
+address_locate_address :: proc(addr: rawptr, data: []u8) -> Address_Located_Address {
     when ASAN_ENABLED {
         out_addr: rawptr
         out_size: uint
         str := __asan_locate_address(addr, raw_data(data), len(data), &out_addr, &out_size)
-        return { string(str), string(cstring(raw_data(data))), (cast([^]byte)out_addr)[:out_size] }, 
+        return { string(str), string(cstring(raw_data(data))), (cast([^]u8)out_addr)[:out_size] }, 
     } else {
         return { "", "", {} }
     }
@@ -535,14 +535,14 @@ Returns if an address belongs to a given fake stack and if so the region of the 
 When asan is not enabled this procedure returns zero initialised values.
 */
 @(no_sanitize_address)
-address_is_in_fake_stack :: proc(fake_stack: rawptr, addr: rawptr) -> ([]byte, bool) {
+address_is_in_fake_stack :: proc(fake_stack: rawptr, addr: rawptr) -> ([]u8, bool) {
     when ASAN_ENABLED {
         begin: rawptr
         end: rawptr
         if __asan_addr_is_in_fake_stack(fake_stack, addr, &begin, &end) == nil {
             return {}, false
         }
-        return ((cast([^]byte)begin)[:uintptr(end)-uintptr(begin)]), true
+        return ((cast([^]u8)begin)[:uintptr(end)-uintptr(begin)]), true
     } else {
         return {}, false
     }

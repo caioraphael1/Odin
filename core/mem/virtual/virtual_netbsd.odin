@@ -1,6 +1,6 @@
 import "core:sys/posix"
 
-_reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
+_reserve :: proc(size: uint) -> (data: []u8, err: Allocator_Error) {
 
 	PROT_MPROTECT :: proc(flags: posix.Prot_Flags) -> posix.Prot_Flags {
 		return transmute(posix.Prot_Flags)(transmute(i32)flags << 3)
@@ -12,7 +12,7 @@ _reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
 		return nil, .Out_Of_Memory
 	}
 
-	return ([^]byte)(uintptr(result))[:size], nil
+	return ([^]u8)(uintptr(result))[:size], nil
 }
 
 _decommit :: proc(data: rawptr, size: uint) {

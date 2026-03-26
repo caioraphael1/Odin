@@ -77,7 +77,7 @@ init :: proc(t: ^Tokenizer, str: string, flags: common.Flags) {
     t.error_state = advance_rune(t)
 }
 
-peek_byte :: proc(t: ^Tokenizer, offset := 0) -> byte {
+peek_byte :: proc(t: ^Tokenizer, offset := 0) -> u8 {
     if t.read_offset+offset < len(t.src) {
         return t.src[t.read_offset+offset]
     }

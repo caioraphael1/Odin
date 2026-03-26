@@ -684,7 +684,6 @@ gb_global Type *t_type_info_multi_pointer        = nullptr;
 gb_global Type *t_type_info_procedure            = nullptr;
 gb_global Type *t_type_info_array                = nullptr;
 gb_global Type *t_type_info_enumerated_array     = nullptr;
-gb_global Type *t_type_info_dynamic_array        = nullptr;
 gb_global Type *t_type_info_slice                = nullptr;
 gb_global Type *t_type_info_parameters           = nullptr;
 gb_global Type *t_type_info_struct               = nullptr;

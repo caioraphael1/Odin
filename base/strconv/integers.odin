@@ -63,12 +63,12 @@ Writes the string representation of an integer to a buffer with specified base, 
 **Returns**
 - The string containing the integer representation appended to the buffer
 */
-write_bits :: proc(buf: []byte, x: u64, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
+write_bits :: proc(buf: []u8, x: u64, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
     if base < 2 || base > MAX_BASE {
         internal.panic("strconv: illegal base passed to write_bits")
     }
 
-    a: [129]byte
+    a: [129]u8
     i := len(a)
     u, neg := is_integer_negative(x, is_signed, bit_size)
     b := u64(base)
@@ -161,12 +161,12 @@ Writes the string representation of a 128-bit integer to a buffer with specified
 **Returns**
 - The string containing the integer representation written to the buffer
 */
-write_bits_128 :: proc(buf: []byte, x: u128, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
+write_bits_128 :: proc(buf: []u8, x: u128, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
     if base < 2 || base > MAX_BASE {
         internal.panic("strconv: illegal base passed to write_bits")
     }
 
-    a: [140]byte
+    a: [140]u8
     i := len(a)
     u, neg := is_integer_negative_128(x, is_signed, bit_size)
     b := u128(base)

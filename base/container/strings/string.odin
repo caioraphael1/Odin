@@ -9,11 +9,11 @@ string_from_cstring :: proc(cstr: cstring) -> string {
     return string(cstr)
 }
 
-string_from_ptr :: proc(ptr: ^byte, len: uint) -> (res: string) {
+string_from_ptr :: proc(ptr: ^u8, len: uint) -> (res: string) {
     return transmute(string)Raw_String{ ptr, len }
 }
 
-string_from_null_terminated_bytes :: proc(b: []byte) -> (res: string) {
+string_from_null_terminated_bytes :: proc(b: []u8) -> (res: string) {
     s := string(b)
     i: uint
     for ; i < len(s); i += 1 {
@@ -25,16 +25,16 @@ string_from_null_terminated_bytes :: proc(b: []byte) -> (res: string) {
 }
 
 string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-    c := slice.create([]byte, len(s), allocator, loc) or_return
+    c := slice.create([]u8, len(s), allocator, loc) or_return
     slice.copy_from_string(c, s)
     return string(c), nil
 }
 
 /*
-Clones a byte array `s` and appends a null-byte
+Clones a u8 array `s` and appends a null-u8
 */
-string_clone_from_bytes :: proc(s: []byte, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-    c := slice.create([]byte, len(s)+1, allocator, loc) or_return
+string_clone_from_bytes :: proc(s: []u8, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
+    c := slice.create([]u8, len(s)+1, allocator, loc) or_return
     slice.copy(c, s)
     c[len(s)] = 0
     return string(c[:len(s)]), nil
@@ -44,7 +44,7 @@ string_clone_from_cstring :: proc(s: cstring, allocator: mem.Allocator, loc := #
     return string_clone(string(s), allocator, loc)
 }
 
-string_clone_from_ptr :: proc(ptr: ^byte, len: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
+string_clone_from_ptr :: proc(ptr: ^u8, len: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     s := string_from_ptr(ptr, len)
     return string_clone(s, allocator, loc)
 }
@@ -72,7 +72,7 @@ string_concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller
     for s in a {
         n += len(s)
     }
-    b := slice.create([]byte, n, allocator, loc) or_return
+    b := slice.create([]u8, n, allocator, loc) or_return
     i: uint
     for s in a {
         i += slice.copy_from_string(b[i:], s)
@@ -81,7 +81,7 @@ string_concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller
 }
 
 
-strings_concatenate_from_buffer :: proc(buf: []byte, strings: ..string) -> string {
+strings_concatenate_from_buffer :: proc(buf: []u8, strings: ..string) -> string {
     n: uint
     for s in strings {
         (n < len(buf)) or_break
@@ -115,7 +115,7 @@ string_join :: proc(a: []string, sep: string, allocator: mem.Allocator, loc := #
         n += len(s)
     }
 
-    b := slice.create([]byte, n, allocator, loc) or_return
+    b := slice.create([]u8, n, allocator, loc) or_return
     i := slice.copy_from_string(b, a[0])
     for s in a[1:] {
         i += slice.copy_from_string(b[i:], sep)
@@ -138,7 +138,7 @@ string_repeat :: proc(s: string, count: uint, allocator: mem.Allocator, loc := #
         internal.panic("strings: repeat count will cause an overflow")
     }
 
-    b := slice.create([]byte, len(s) * count, allocator, loc) or_return
+    b := slice.create([]u8, len(s) * count, allocator, loc) or_return
     i := slice.copy_from_string(b, s)
     for i < len(b) { // 2^N trick to reduce the need to slice.copy_from_string
         slice.copy(b[i:], b[:i])

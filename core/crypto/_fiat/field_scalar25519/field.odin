@@ -26,7 +26,7 @@ fe_clear :: proc(arg1: ^Montgomery_Domain_Field_Element) {
 
 fe_from_bytes :: proc(
 	out1: ^Montgomery_Domain_Field_Element,
-	arg1: ^[32]byte,
+	arg1: ^[32]u8,
 	unsafe_assume_canonical := false,
 ) -> bool {
 	tmp := Non_Montgomery_Domain_Field_Element {
@@ -55,9 +55,9 @@ fe_from_bytes :: proc(
 
 fe_from_bytes_rfc8032 :: proc(
 	out1: ^Montgomery_Domain_Field_Element,
-	arg1: ^[32]byte,
+	arg1: ^[32]u8,
 ) {
-	tmp: [64]byte
+	tmp: [64]u8
 	copy(tmp[:], arg1[:])
 
 	// Apply "clamping" as in RFC 8032.
@@ -72,7 +72,7 @@ fe_from_bytes_rfc8032 :: proc(
 
 fe_from_bytes_wide :: proc(
 	out1: ^Montgomery_Domain_Field_Element,
-	arg1: ^[64]byte,
+	arg1: ^[64]u8,
 ) {
 	tmp: Montgomery_Domain_Field_Element
 	// Use Frank Denis' trick, as documented by Filippo Valsorda
@@ -93,18 +93,18 @@ fe_from_bytes_wide :: proc(
 }
 
 @(private)
-_fe_from_bytes_short :: proc(out1: ^Montgomery_Domain_Field_Element, arg1: []byte) {
+_fe_from_bytes_short :: proc(out1: ^Montgomery_Domain_Field_Element, arg1: []u8) {
 	// INVARIANT: len(arg1) < 32.
 	ensure_contextless(len(arg1) < 32, "edwards25519: oversized short scalar")
 
-	tmp: [32]byte
+	tmp: [32]u8
 	copy(tmp[:], arg1)
 
 	_ = fe_from_bytes(out1, &tmp, true)
 	crypto.zero_explicit(&tmp, size_of(tmp))
 }
 
-fe_to_bytes :: proc(out1: []byte, arg1: ^Montgomery_Domain_Field_Element) {
+fe_to_bytes :: proc(out1: []u8, arg1: ^Montgomery_Domain_Field_Element) {
 	ensure_contextless(len(out1) == 32, "edwards25519: oversized scalar output buffer")
 
 	tmp: Non_Montgomery_Domain_Field_Element

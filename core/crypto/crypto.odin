@@ -16,7 +16,7 @@ HAS_RAND_BYTES :: rand.HAS_RAND_BYTES
 // The execution time of this routine is constant regardless of the contents
 // of the slices being compared, as long as the length of the slices is equal.
 // If the length of the two slices is different, it will early-return 0.
-compare_constant_time :: proc(a, b: []byte) -> int {
+compare_constant_time :: proc(a, b: []u8) -> int {
     // If the length of the slices is different, early return.
     //
     // This leaks the fact that the slices have a different length,
@@ -36,11 +36,11 @@ compare_constant_time :: proc(a, b: []byte) -> int {
 // The execution time of this routine is constant regardless of the
 // contents of the memory being compared.
 @(optimization_mode="none")
-compare_byte_ptrs_constant_time :: proc(a, b: ^byte, n: int) -> int {
-    x := ([^]byte)(a)[:n]
-    y := ([^]byte)(b)[:n]
+compare_byte_ptrs_constant_time :: proc(a, b: ^u8, n: int) -> int {
+    x := ([^]u8)(a)[:n]
+    y := ([^]u8)(b)[:n]
 
-    v: byte
+    v: u8
     for i in 0..<n {
         v |= x[i] ~ y[i]
     }
@@ -51,8 +51,8 @@ compare_byte_ptrs_constant_time :: proc(a, b: ^byte, n: int) -> int {
 }
 
 // is_zero_constant_time returns 1 iff b is all 0s, 0 otherwise.
-is_zero_constant_time :: proc(b: []byte) -> int {
-    v: byte
+is_zero_constant_time :: proc(b: []u8) -> int {
+    v: u8
     for b_ in b {
         v |= b_
     }
@@ -61,7 +61,7 @@ is_zero_constant_time :: proc(b: []byte) -> int {
 }
 
 /*
-Set each byte of a memory range to zero.
+Set each u8 of a memory range to zero.
 
 This procedure copies the value `0` into the `len` bytes of a memory range,
 starting at address `data`.
@@ -84,14 +84,14 @@ zero_explicit :: proc(data: rawptr, len: int) -> rawptr {
 }
 
 /*
-Set each byte of a memory range to a specific value.
+Set each u8 of a memory range to a specific value.
 
 This procedure copies value specified by the `value` parameter into each of the
 `len` bytes of a memory range, located at address `data`.
 
 This procedure returns the pointer to `data`.
 */
-set :: proc(data: rawptr, value: byte, len: int) -> rawptr {
+set :: proc(data: rawptr, value: u8, len: int) -> rawptr {
     return internal.memset(data, i32(value), len)
 }
 
@@ -102,7 +102,7 @@ set :: proc(data: rawptr, value: byte, len: int) -> rawptr {
 //
 // Support for the system entropy source can be checked with the
 // `HAS_RAND_BYTES` boolean constant.
-rand_bytes :: proc (dst: []byte) {
+rand_bytes :: proc (dst: []u8) {
     // zero-fill the buffer first
     mem.zero_explicit(raw_data(dst), len(dst))
 
@@ -116,7 +116,7 @@ rand_bytes :: proc (dst: []byte) {
 // `HAS_RAND_BYTES` boolean constant.
 random_generator :: proc() -> rand.Random_Generator {
     return {
-        procedure = proc(data: rawptr, mode: rand.Random_Generator_Mode, p: []byte) {
+        procedure = proc(data: rawptr, mode: rand.Random_Generator_Mode, p: []u8) {
             switch mode {
             case .Read:
                 rand_bytes(p)

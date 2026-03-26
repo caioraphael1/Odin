@@ -88,13 +88,13 @@ foreign Kernel32 {
 }
 
 @(no_sanitize_address)
-_reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
+_reserve :: proc(size: uint) -> (data: []u8, err: Allocator_Error) {
     result := VirtualAlloc(nil, size, MEM_RESERVE, PAGE_READWRITE)
     if result == nil {
         err = .Out_Of_Memory
         return
     }
-    data = ([^]byte)(result)[:size]
+    data = ([^]u8)(result)[:size]
     return
 }
 
@@ -160,7 +160,7 @@ _platform_memory_init :: proc() {
 
 
 @(no_sanitize_address)
-_map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byte, error: Map_File_Error) {
+_map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []u8, error: Map_File_Error) {
     page_flags: u32
     if flags == {.Read} {
         page_flags = PAGE_READONLY
@@ -186,10 +186,10 @@ _map_file :: proc(fd: uintptr, size: i64, flags: Map_File_Flags) -> (data: []byt
     }
 
     file_data := MapViewOfFile(handle, desired_access, 0, 0, uint(size))
-    return ([^]byte)(file_data)[:size], nil
+    return ([^]u8)(file_data)[:size], nil
 }
 
 @(no_sanitize_address)
-_unmap_file :: proc(data: []byte) {
+_unmap_file :: proc(data: []u8) {
     _ = UnmapViewOfFile(raw_data(data))
 }

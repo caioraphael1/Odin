@@ -55,7 +55,7 @@ Quad :: struct #packed {
 }
 #assert(size_of(Quad) == 64)
 
-// Same memory layout, but takes a []quad instead of []byte
+// Same memory layout, but takes a []quad instead of []u8
 draw_segs_quad_buffer :: proc(x, y: f32, segs: []u8, vertical: bool, c: Color, buf: []Quad, start_offset: int, scale := f32(1.0)) -> (quads: int) {
     x, y := x, y
     quads = start_offset
@@ -88,7 +88,7 @@ draw_segs_quad_buffer :: proc(x, y: f32, segs: []u8, vertical: bool, c: Color, b
 }
 
 // Compatible with original C API
-draw_segs_vertex_buffer :: proc(x, y: f32, segs: []u8, vertical: bool, c: Color, vbuf: []byte, start_offset: int, scale := f32(1.0)) -> (offset: int) {
+draw_segs_vertex_buffer :: proc(x, y: f32, segs: []u8, vertical: bool, c: Color, vbuf: []u8, start_offset: int, scale := f32(1.0)) -> (offset: int) {
     buf := slice.data_cast([]Quad, vbuf)
     offset = draw_segs_quad_buffer(x, y, segs, vertical, c, buf, start_offset / size_of(Quad), scale) * size_of(Quad)
     return offset
@@ -102,7 +102,7 @@ font_spacing :: proc(spacing: f32) {
     _spacing_val = spacing
 }
 
-// Same memory layout, but takes a []quad instead of []byte
+// Same memory layout, but takes a []quad instead of []u8
 print_quad_buffer :: proc(x, y: f32, text: string, color: Color, quad_buffer: []Quad, scale := f32(1.0)) -> (quads: int) {
     x, y, color := x, y, color
     text := text
@@ -138,7 +138,7 @@ print_quad_buffer :: proc(x, y: f32, text: string, color: Color, quad_buffer: []
 }
 
 // Compatible with original C API
-print_vertex_buffer :: proc(x, y: f32, text: string, color: Color, vertex_buffer: []byte, scale := f32(1.0)) -> int {
+print_vertex_buffer :: proc(x, y: f32, text: string, color: Color, vertex_buffer: []u8, scale := f32(1.0)) -> int {
     buf := slice.data_cast([]Quad, vertex_buffer)
     return print_quad_buffer(x, y, text, color, buf, scale)
 }

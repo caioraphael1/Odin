@@ -23,23 +23,23 @@ Example:
 		aad_str := "Get your ass in gear boys."
 		pt_str := "They're immanetizing the Eschaton."
 
-		aad := transmute([]byte)aad_str
-		plaintext := transmute([]byte)pt_str
+		aad := transmute([]u8)aad_str
+		plaintext := transmute([]u8)pt_str
 		pt_len := len(plaintext)
 
 		// Generate a random key for the purposes of illustration.
-		key := slice.create([]byte, aead.KEY_SIZES[algo])
+		key := slice.create([]u8, aead.KEY_SIZES[algo])
 		defer delete(key)
 		crypto.rand_bytes(key)
 
 		// `ciphertext || tag`, is a common way data is transmitted, so
 		// demonstrate that.
-		buf := slice.create([]byte, pt_len + aead.TAG_SIZES[algo])
+		buf := slice.create([]u8, pt_len + aead.TAG_SIZES[algo])
 		defer delete(buf)
 		ciphertext, tag := buf[:pt_len], buf[pt_len:]
 
 		// Seal the AAD + Plaintext.
-		iv := slice.create([]byte, aead.IV_SIZES[algo])
+		iv := slice.create([]u8, aead.IV_SIZES[algo])
 		defer delete(iv)
 		crypto.rand_bytes(iv) // Random IVs are safe with XChaCha20-Poly1305.
 		aead.seal(algo, ciphertext, tag, key, iv, aad, plaintext)

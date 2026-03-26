@@ -190,7 +190,7 @@ _store_simd256_x1 :: #force_inline proc(
 }
 
 @(enable_target_feature = "sse2,ssse3,avx,avx2")
-stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []byte, nr_blocks: int) {
+stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []u8, nr_blocks: int) {
 	// Enforce the maximum consumed keystream per IV.
 	_chacha20.check_counter_limit(ctx, nr_blocks)
 
@@ -200,7 +200,7 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []byte, nr_blocks: int)
 	x := &ctx._s
 	n := nr_blocks
 
-	// The state vector is an array of uint32s in native byte-order.
+	// The state vector is an array of uint32s in native u8-order.
 	// Setup s0 .. s3 such that each register stores 2 copies of the
 	// state.
 	x_v := ([^]simd.u32x4)(raw_data(x))
@@ -304,7 +304,7 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []byte, nr_blocks: int)
 }
 
 @(enable_target_feature = "sse2,ssse3,avx")
-hchacha20 :: proc(dst, key, iv: []byte) {
+hchacha20 :: proc(dst, key, iv: []u8) {
 	// We can just enable AVX and call the simd128 code as going
 	// wider has 0 performance benefit, but VEX encoded instructions
 	// is nice.

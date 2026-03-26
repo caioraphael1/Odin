@@ -39,9 +39,9 @@ create_over_aligned :: proc(
     alignment: uint,
     allocator: mem.Allocator,
     loc := #caller_location,
-    ) -> (slice: T, original_data: []byte, err: mem.Allocator_Error) {
+    ) -> (slice: T, original_data: []u8, err: mem.Allocator_Error) {
     size := size_of(E)*len + alignment-1
-    original_data, err = create([]byte, size, allocator, loc)
+    original_data, err = create([]u8, size, allocator, loc)
     if err == nil {
         ptr := mem.align_forward(raw_data(original_data), uintptr(alignment))
         slice = ([^]E)(ptr)[:len]
@@ -293,7 +293,7 @@ Example:
     }
 
     bytes_as_i64s :: proc() {
-        small_items := [12]byte{}
+        small_items := [12]u8{}
         small_items[0] = 1
         small_items[8] = 2
         large_items := slice.reinterpret([]i64, small_items[:])
@@ -321,10 +321,10 @@ reinterpret :: proc($T: typeid/[]$U, s: []$V) -> []U {
     }
 }
 
-bytes_from_slice :: proc(slice: $E/[]$T) -> []byte {
+bytes_from_slice :: proc(slice: $E/[]$T) -> []u8 {
     s := transmute(Raw_Slice)slice
     s.len *= size_of(T)
-    return transmute([]byte)s
+    return transmute([]u8)s
 }
 
 

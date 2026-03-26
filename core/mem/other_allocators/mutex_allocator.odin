@@ -46,7 +46,7 @@ mutex_allocator_proc :: proc(
     old_memory: rawptr,
     old_size: uint,
     loc := #caller_location,
-) -> (result: []byte, err: mem.Allocator_Error) {
+) -> (result: []u8, err: mem.Allocator_Error) {
     m := (^Mutex_Allocator)(allocator_data)
     sync.mutex_guard(&m.mutex)
     return m.backing.procedure(m.backing.data, mode, size, alignment, old_memory, old_size, loc)

@@ -25,7 +25,7 @@ PFM     :: Formats{.Pf, .PF}
 ASCII   :: Formats{.P1, .P2, .P3}
 BINARY  :: Formats{.P4, .P5, .P6} + PAM + PFM
 
-load_from_bytes :: proc(data: []byte, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
+load_from_bytes :: proc(data: []u8, allocator : mem.Allocator) -> (img: ^Image, err: Error) {
     img = mem.new(Image)
     img.which = .NetPBM
 
@@ -46,7 +46,7 @@ load_from_bytes :: proc(data: []byte, allocator : mem.Allocator) -> (img: ^Image
     return img, nil
 }
 
-save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allocator) -> (buffer: []byte, err: Error) {
+save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allocator) -> (buffer: []u8, err: Error) {
     
 
     info: Info = {}
@@ -124,15 +124,15 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
         p4_buffer_size := (img.width / 8 + 1) * img.height
         _ = dyn_array.reserve(&data.buf, len(header_buf) + p4_buffer_size)
 
-        // we build up a byte value until it is completely filled
+        // we build up a u8 value until it is completely filled
         // or we reach the end the row
         for y in 0 ..< img.height {
-            b: byte
+            b: u8
 
             for x in 0 ..< img.width {
                 i := y * img.width + x
-                bit := byte(7 - (x % 8))
-                v : byte = 0 if pixels[i] == 0 else 1
+                bit := u8(7 - (x % 8))
+                v : u8 = 0 if pixels[i] == 0 else 1
                 b |= (v << bit)
 
                 if bit == 0 {
@@ -228,7 +228,7 @@ save_to_buffer :: proc(img: ^Image, custom_info: Info = {}, allocator : mem.Allo
     return data.buf[:], Format_Error.None
 }
 
-parse_header :: proc(data: []byte, allocator : mem.Allocator) -> (header: Header, length: int, err: Error) {
+parse_header :: proc(data: []u8, allocator : mem.Allocator) -> (header: Header, length: int, err: Error) {
     
 
     // we need the signature and a space
@@ -253,7 +253,7 @@ parse_header :: proc(data: []byte, allocator : mem.Allocator) -> (header: Header
 }
 
 @(private)
-_parse_header_pnm :: proc(data: []byte) -> (header: Header, length: int, err: Error) {
+_parse_header_pnm :: proc(data: []u8) -> (header: Header, length: int, err: Error) {
     SIG_LENGTH :: 2
 
     {
@@ -270,7 +270,7 @@ _parse_header_pnm :: proc(data: []byte) -> (header: Header, length: int, err: Er
         header_fields = {&header.width, &header.height, &header.maxval}
     }
 
-    // we're keeping track of the header byte length
+    // we're keeping track of the header u8 length
     length = SIG_LENGTH
 
     // loop state
@@ -306,7 +306,7 @@ _parse_header_pnm :: proc(data: []byte) -> (header: Header, length: int, err: Er
             // switch to next value
             current_field += 1
             if current_field == len(header_fields) {
-                // header byte length is 1-index so we'll increment again
+                // header u8 length is 1-index so we'll increment again
                 length += 1
                 break parse_loop
             }
@@ -348,7 +348,7 @@ _parse_header_pnm :: proc(data: []byte) -> (header: Header, length: int, err: Er
 }
 
 @(private)
-_parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: Header, length: int, err: Error) {
+_parse_header_pam :: proc(data: []u8, allocator : mem.Allocator) -> (header: Header, length: int, err: Error) {
     
 
     // the spec needs the newline apparently
@@ -446,7 +446,7 @@ _parse_header_pam :: proc(data: []byte, allocator : mem.Allocator) -> (header: H
 }
 
 @(private)
-_parse_header_pfm :: proc(data: []byte) -> (header: Header, length: int, err: Error) {
+_parse_header_pfm :: proc(data: []u8) -> (header: Header, length: int, err: Error) {
     // we can just cycle through tokens for PFM
     field_iterator := string(data)
     field, ok := strings_tools.fields_iterator(&field_iterator)
@@ -523,7 +523,7 @@ _parse_header_pfm :: proc(data: []byte) -> (header: Header, length: int, err: Er
     return
 }
 
-decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator : mem.Allocator) -> (err: Error) {
+decode_image :: proc(img: ^Image, header: Header, data: []u8, allocator : mem.Allocator) -> (err: Error) {
     internal.assert(img != nil)
     
 
@@ -555,7 +555,7 @@ decode_image :: proc(img: ^Image, header: Header, data: []byte, allocator : mem.
     case .P4:
         for d in data {
             for b in 1 ..= 8 {
-                bit := byte(8 - b)
+                bit := u8(8 - b)
                 pix := (d >> bit) & 1
                 _ = bytes.buffer_write_byte(&img.pixels, pix)
                 if len(img.pixels.buf) % img.width == 0 {
@@ -718,7 +718,7 @@ autoselect_pbm_format_from_image :: proc(img: ^Image, prefer_binary := true, for
 
 // @(init)
 _register :: proc() {
-    loader :: proc(data: []byte, options: image.Options, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
+    loader :: proc(data: []u8, options: image.Options, allocator: mem.Allocator) -> (img: ^Image, err: Error) {
         return load_from_bytes(data, allocator)
     }
     destroyer :: proc(img: ^Image) {

@@ -33,12 +33,12 @@ Returns:
 
 create_u64 :: proc(seed: u64) -> (state: Default_Random_State) {
     seed := seed
-    default_random_generator_proc(&state, .Reset, ([^]byte)(&seed)[:size_of(seed)])
+    default_random_generator_proc(&state, .Reset, ([^]u8)(&seed)[:size_of(seed)])
     return
 }
 
 
-create_bytes :: proc(seed: []byte) -> (state: Default_Random_State) {
+create_bytes :: proc(seed: []u8) -> (state: Default_Random_State) {
     default_random_generator_proc(&state, .Reset, seed)
     return
 }
@@ -67,7 +67,7 @@ reset_u64 :: proc(seed: u64, gen: Random_Generator) {
     random_generator_reset_u64(gen, seed)
 }
 
-reset_bytes :: proc(bytes: []byte, gen: Random_Generator) {
+reset_bytes :: proc(bytes: []u8, gen: Random_Generator) {
     random_generator_reset_bytes(gen, bytes)
 }
 
@@ -969,11 +969,11 @@ Possible Output:
 }
 
 /*
-Fills a byte slice with random values using the provided random number generator. If no generator is provided the global random number generator will be used.
+Fills a u8 slice with random values using the provided random number generator. If no generator is provided the global random number generator will be used.
 Due to floating point precision there is no guarantee if the upper and lower bounds are inclusive/exclusive with the exact floating point value.
 
 Inputs:
-- p: The byte slice to fill
+- p: The u8 slice to fill
 
 Returns:
 - n: The number of bytes generated
@@ -983,7 +983,7 @@ Example:
     import "core:fmt"
 
     read_example :: proc() {
-        data: [8]byte
+        data: [8]u8
         n := read(data[:])
         fmt.println(n)
         fmt.println(data)
@@ -996,7 +996,7 @@ Possible Output:
 
 */
 
-read :: proc(p: []byte, gen: Random_Generator) -> (n: uint) {
+read :: proc(p: []u8, gen: Random_Generator) -> (n: uint) {
     if !random_generator_read_bytes(gen, p) {return 0}
     return len(p)
 }

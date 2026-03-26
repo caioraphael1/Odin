@@ -11,7 +11,7 @@ import "core:bytes"
 // void *memset(void *, int, size_t);
 
 @(require, linkage="strong", link_name="memcmp")
-memcmp :: proc "c" (lhs: [^]byte, rhs: [^]byte, count: uint) -> i32 {
+memcmp :: proc "c" (lhs: [^]u8, rhs: [^]u8, count: uint) -> i32 {
     icount := int(count)
     assert_contextless(icount >= 0)
     return i32(mem.compare(lhs[:icount], rhs[:icount]))
@@ -55,7 +55,7 @@ strrchr :: proc "c" (str: cstring, ch: i32) -> cstring {
 }
 
 @(require, linkage="strong", link_name="strncpy")
-strncpy :: proc "c" (dst: [^]byte, src: cstring, count: uint) -> cstring {
+strncpy :: proc "c" (dst: [^]u8, src: cstring, count: uint) -> cstring {
     icount := int(count)
     assert_contextless(icount >= 0)
     cnt := min(len(src), icount)
@@ -65,7 +65,7 @@ strncpy :: proc "c" (dst: [^]byte, src: cstring, count: uint) -> cstring {
 }
 
 @(require, linkage="strong", link_name="strcpy")
-strcpy :: proc "c" (dst: [^]byte, src: cstring) -> cstring {
+strcpy :: proc "c" (dst: [^]u8, src: cstring) -> cstring {
     mem.copy_non_overlapping(dst, rawptr(src), len(src)+1)
     return cstring(dst)
 }
@@ -85,8 +85,8 @@ strcspn :: proc "c" (dst: cstring, src: cstring) -> uint {
 strncmp :: proc "c" (lhs: cstring, rhs: cstring, count: uint) -> i32 {
     icount := int(count)
     assert_contextless(icount >= 0)
-    lhss := strings.string_from_null_terminated_ptr(([^]byte)(lhs), icount)
-    rhss := strings.string_from_null_terminated_ptr(([^]byte)(rhs), icount)
+    lhss := strings.string_from_null_terminated_ptr(([^]u8)(lhs), icount)
+    rhss := strings.string_from_null_terminated_ptr(([^]u8)(rhs), icount)
     return i32(strings.string_compare(lhss, rhss))
 }
 
@@ -106,11 +106,11 @@ strstr :: proc "c" (str: cstring, substr: cstring) -> cstring {
         return nil
     }
 
-    return cstring(([^]byte)(str)[idx:])
+    return cstring(([^]u8)(str)[idx:])
 }
 
 @(require, linkage="strong", link_name="memchr")
-memchr :: proc "c" (str: [^]byte, c: i32, n: uint) -> [^]byte {
+memchr :: proc "c" (str: [^]u8, c: i32, n: uint) -> [^]u8 {
     idx := bytes.index_byte(str[:n], u8(c))
     if idx < 0 {
         return nil

@@ -110,9 +110,9 @@ utf8_advance :: proc(bytes: string, index: ^int) -> (c: rune, err: Error) {
     return
 }
 
-// continuation byte?
+// continuation u8?
 
-is_cont :: proc(b: byte) -> bool {
+is_cont :: proc(b: u8) -> bool {
     return b & 0xc0 == 0x80
 }
 
@@ -863,7 +863,7 @@ Matcher :: struct {
     iter_index: int,
 }
 
-// init using haystack & pattern and an optional byte offset
+// init using haystack & pattern and an optional u8 offset
 
 matcher_init :: proc(haystack, pattern: string, offset: int = 0) -> (res: Matcher) {
     res.haystack = haystack
@@ -873,7 +873,7 @@ matcher_init :: proc(haystack, pattern: string, offset: int = 0) -> (res: Matche
     return
 }
 
-// find the first match and return the byte start / end position in the string, true on success
+// find the first match and return the u8 start / end position in the string, true on success
 
 matcher_find :: proc(matcher: ^Matcher) -> (start, end: int, ok: bool) #no_bounds_check {
     matcher.captures_length, matcher.err = find_aux(

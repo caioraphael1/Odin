@@ -93,8 +93,8 @@ init_preopens :: proc(allocator: mem.Allocator) {
 
         switch desc.tag {
         case .DIR:
-            buf: []byte
-            buf, alloc_err = slice.create([]byte, desc.dir.pr_name_len, allocator)
+            buf: []u8
+            buf, alloc_err = slice.create([]u8, desc.dir.pr_name_len, allocator)
             if alloc_err != nil {
                 print_error(stderr, alloc_err, "could not allocate memory for wasi preopen dir name")
                 continue loop
@@ -358,7 +358,7 @@ _read_link :: proc(name: string, allocator: mem.Allocator) -> (s: string, err: E
         return
     }
 
-    buf := slice.create([]byte, n, allocator) or_return
+    buf := slice.create([]u8, n, allocator) or_return
 
     _, _err = wasi.path_readlink(dir_fd, relative, buf)
     s = string(buf)
@@ -427,7 +427,7 @@ _exists :: proc(path: string) -> bool {
     return true
 }
 
-_file_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From) -> (n: i64, err: io.Error) {
+_file_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From) -> (n: i64, err: io.Error) {
     f  := (^File_Impl)(stream_data)
     fd := f.fd
 

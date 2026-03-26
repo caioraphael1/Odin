@@ -31,12 +31,12 @@ GHASH_STRIDE_HW :: 4
 GHASH_STRIDE_BYTES_HW :: GHASH_STRIDE_HW * _aes.GHASH_BLOCK_SIZE
 
 // GHASH is defined over elements of GF(2^128) with "full little-endian"
-// representation: leftmost byte is least significant, and, within each
-// byte, leftmost _bit_ is least significant. The natural ordering in
+// representation: leftmost u8 is least significant, and, within each
+// u8, leftmost _bit_ is least significant. The natural ordering in
 // x86 is "mixed little-endian": bytes are ordered from least to most
-// significant, but bits within a byte are in most-to-least significant
+// significant, but bits within a u8 are in most-to-least significant
 // order. Going to full little-endian representation would require
-// reversing bits within each byte, which is doable but expensive.
+// reversing bits within each u8, which is doable but expensive.
 //
 // Instead, we go to full big-endian representation, by swapping bytes
 // around, which is done with a single _mm_shuffle_epi8() opcode (it
@@ -151,13 +151,13 @@ square_f128 :: #force_inline proc(kw: x86.__m128i) -> (x86.__m128i, x86.__m128i)
 // Note: `dst` is both an input and an output, to support easy implementation
 // of GCM.
 @(enable_target_feature = "sse2,ssse3,pclmul")
-ghash :: proc(dst, key, data: []byte) #no_bounds_check {
+ghash :: proc(dst, key, data: []u8) #no_bounds_check {
 	if len(dst) != _aes.GHASH_BLOCK_SIZE || len(key) != _aes.GHASH_BLOCK_SIZE {
 		internal.panic("aes/ghash: invalid dst or key size")
 	}
 
 	// Note: BearSSL opts to copy the remainder into a zero-filled
-	// 64-byte buffer.  We do something slightly more simple.
+	// 64-u8 buffer.  We do something slightly more simple.
 
 	// Load key and dst (h and y).
 	yw := intrinsics.unaligned_load((^x86.__m128i)(raw_data(dst)))
@@ -239,13 +239,13 @@ ghash :: proc(dst, key, data: []byte) #no_bounds_check {
 
 	// Process 1 block at a time
 	for l > 0 {
-		src: []byte = ---
+		src: []u8 = ---
 		if l >= _aes.GHASH_BLOCK_SIZE {
 			src = buf
 			buf = buf[_aes.GHASH_BLOCK_SIZE:]
 			l -= _aes.GHASH_BLOCK_SIZE
 		} else {
-			tmp: [_aes.GHASH_BLOCK_SIZE]byte
+			tmp: [_aes.GHASH_BLOCK_SIZE]u8
 			slice.copy(tmp[:], buf)
 			src = tmp[:]
 			l = 0

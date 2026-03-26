@@ -84,8 +84,8 @@ foreign lib {
     */
     getnameinfo :: proc(
         sa:      ^sockaddr, salen:      socklen_t,
-        node:    [^]byte,   nodelen:    socklen_t,
-        service: [^]byte,   servicelen: socklen_t,
+        node:    [^]u8,   nodelen:    socklen_t,
+        service: [^]u8,   servicelen: socklen_t,
         flags: Nameinfo_Flags,
     ) -> Info_Errno ---
 
@@ -144,7 +144,7 @@ foreign lib {
         defer posix.endnetent()
         for ent := posix.getnetent(); ent != nil; ent = posix.getnetent() {
             fmt.println(ent)
-            fmt.println(transmute([4]byte)ent.n_net)
+            fmt.println(transmute([4]u8)ent.n_net)
         }
 
     [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/setnetent.html ]]
@@ -324,7 +324,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         h_aliases:   [^]cstring `fmt:"v,0"`, /* [PSX] alias list */
         h_addrtype:  AF,                     /* [PSX] host address type */
         h_length:    c.int,                  /* [PSX] length of address */
-        h_addr_list: [^][^]byte `fmt:"v,0"`, /* [PSX] list of addresses from name server */
+        h_addr_list: [^][^]u8 `fmt:"v,0"`, /* [PSX] list of addresses from name server */
     }
 
     netent :: struct {

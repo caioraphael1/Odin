@@ -12,7 +12,7 @@ TAG_SEQUENCE :: 0x30
 TAG_INTEGER :: 0x02
 
 @(private,require_results)
-generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []byte {
+generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []u8 {
 	when T == secec.Scalar_p256r1 {
 		SC_SZ :: secec.SC_SIZE_P256R1
 	} else when T == secec.Scalar_p384r1 {
@@ -21,8 +21,8 @@ generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []byte {
 		#panic("crypto/ecdsa: invalid curve")
 	}
 
-	INT_TLP :: 3 // tag, tength, (optional) leading zero-byte
-	encode_uint :: proc(b: []byte) -> []byte {
+	INT_TLP :: 3 // tag, tength, (optional) leading zero-u8
+	encode_uint :: proc(b: []u8) -> []u8 {
 		b := b
 
 		// DER requires minimal encoding.
@@ -42,7 +42,7 @@ generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []byte {
 		// Encode the length (up to 127 octets, adequate for ECDSA).
 		l := len(b[off:])
 		off -= 1
-		b[off] = byte(l)
+		b[off] = u8(l)
 
 		// Encode the tag
 		off -= 1
@@ -51,7 +51,7 @@ generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []byte {
 		return b[off:]
 	}
 
-	r_buf, s_buf: [INT_TLP+SC_SZ]byte = ---, ---
+	r_buf, s_buf: [INT_TLP+SC_SZ]u8 = ---, ---
 	secec.sc_bytes(r_buf[INT_TLP:], r)
 	secec.sc_bytes(s_buf[INT_TLP:], s)
 
@@ -61,9 +61,9 @@ generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []byte {
 	// WARNING: If secp521r1 support is added, this needs to support
 	// long-form length encoding.
 	internal.ensure(seq_len <= 127, "BUG: crypto/ecdsa: signature length too large")
-	b := slice.create([]byte, seq_len + 2, allocator)
+	b := slice.create([]u8, seq_len + 2, allocator)
 	b[0] = TAG_SEQUENCE
-	b[1] = byte(seq_len)
+	b[1] = u8(seq_len)
 	copy(b[2:], r_bytes)
 	copy(b[2+len(r_bytes):], s_bytes)
 
@@ -71,8 +71,8 @@ generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []byte {
 }
 
 @(private,require_results)
-parse_asn1_sig :: proc(sig: []byte) -> (r, s: []byte, ok: bool) {
-	read_seq :: proc(b: []byte) -> (v: []byte, rest: []byte, ok: bool) {
+parse_asn1_sig :: proc(sig: []u8) -> (r, s: []u8, ok: bool) {
+	read_seq :: proc(b: []u8) -> (v: []u8, rest: []u8, ok: bool) {
 		b_len := len(b)
 		if b_len < 3 {
 			return nil, nil, false
@@ -100,7 +100,7 @@ parse_asn1_sig :: proc(sig: []byte) -> (r, s: []byte, ok: bool) {
 		return b[off:off+seq_len], b[off+seq_len:], true
 	}
 
-	read_int :: proc(b: []byte) -> (v: []byte, rest: []byte, ok: bool) {
+	read_int :: proc(b: []u8) -> (v: []u8, rest: []u8, ok: bool) {
 		b_len := len(b)
 		if b_len < 3 {
 			return nil, nil, false
@@ -117,7 +117,7 @@ parse_asn1_sig :: proc(sig: []byte) -> (r, s: []byte, ok: bool) {
 	}
 
 	// SEQUENCE
-	seq_bytes, rest: []byte
+	seq_bytes, rest: []u8
 	seq_bytes, rest, ok = read_seq(sig)
 	if !ok {
 		return nil, nil, false
@@ -141,12 +141,12 @@ parse_asn1_sig :: proc(sig: []byte) -> (r, s: []byte, ok: bool) {
 		return nil, nil, false
 	}
 
-	// DER requires a leading 0 iff the sign bit of the leading byte
+	// DER requires a leading 0 iff the sign bit of the leading u8
 	// is set to distinguish between positive and negative integers,
 	// and the minimal length representation.  `r` and `s` are always
 	// going to be unsigned, so we validate malformed DER and strip
 	// the leading 0 as needed.
-	fixup_der_uint :: proc(b: []byte) -> ([]byte, bool) {
+	fixup_der_uint :: proc(b: []u8) -> ([]u8, bool) {
 		switch len(b) {
 		case 0:
 			// 0 length is invalid

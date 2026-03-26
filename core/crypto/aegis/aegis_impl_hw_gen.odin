@@ -14,27 +14,27 @@ is_hardware_accelerated :: proc() -> bool {
 }
 
 @(private)
-init_hw :: proc(ctx: ^Context, st: ^State_HW, iv: []byte) {
+init_hw :: proc(ctx: ^Context, st: ^State_HW, iv: []u8) {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-absorb_hw :: proc(st: ^State_HW, aad: []byte) {
+absorb_hw :: proc(st: ^State_HW, aad: []u8) {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-enc_hw :: proc(st: ^State_HW, dst, src: []byte) {
+enc_hw :: proc(st: ^State_HW, dst, src: []u8) {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-dec_hw :: proc(st: ^State_HW, dst, src: []byte) {
+dec_hw :: proc(st: ^State_HW, dst, src: []u8) {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 
 @(private)
-finalize_hw :: proc(st: ^State_HW, tag: []byte, ad_len, msg_len: int) {
+finalize_hw :: proc(st: ^State_HW, tag: []u8, ad_len, msg_len: int) {
 	panic_contextless(ERR_HW_NOT_SUPPORTED)
 }
 

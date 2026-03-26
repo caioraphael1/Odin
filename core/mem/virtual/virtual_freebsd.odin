@@ -1,6 +1,6 @@
 import "core:sys/posix"
 
-_reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
+_reserve :: proc(size: uint) -> (data: []u8, err: Allocator_Error) {
 
     PROT_MAX :: proc(flags: posix.Prot_Flags) -> posix.Prot_Flags {
         _PROT_MAX_SHIFT :: 16
@@ -13,7 +13,7 @@ _reserve :: proc(size: uint) -> (data: []byte, err: Allocator_Error) {
         return nil, .Out_Of_Memory
     }
 
-    return ([^]byte)(uintptr(result))[:size], nil
+    return ([^]u8)(uintptr(result))[:size], nil
 }
 
 _decommit :: proc(data: rawptr, size: uint) {

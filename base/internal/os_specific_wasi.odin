@@ -6,7 +6,7 @@ foreign import wasi "wasi_snapshot_preview1"
 foreign wasi {
     fd_write :: proc(
         fd: i32,
-        iovs: [][]byte,
+        iovs: [][]u8,
         n: ^uint,
     ) -> u16 ---
 
@@ -19,7 +19,7 @@ foreign wasi {
     @(private="file")
     args_get :: proc(
         argv:     [^]cstring,
-        argv_buf: [^]byte,
+        argv_buf: [^]u8,
     ) -> u16 ---
 
     @(private="file")
@@ -29,7 +29,7 @@ foreign wasi {
     random_get :: proc(buf: []u8) -> u16 ---
 }
 
-_stderr_write :: proc(data: []byte) -> (int, _OS_Errno) {
+_stderr_write :: proc(data: []u8) -> (int, _OS_Errno) {
     n: uint
     err := fd_write(1, {data}, &n)
     return int(n), _OS_Errno(err)
@@ -47,8 +47,8 @@ _wasi_setup_args :: proc() {
         return
     }
 
-    args_buf: []byte
-    if args_buf, err = slice.create([]byte, size_of_args); err != nil {
+    args_buf: []u8
+    if args_buf, err = slice.create([]u8, size_of_args); err != nil {
         _ = slice.delete(args__)
         return
     }

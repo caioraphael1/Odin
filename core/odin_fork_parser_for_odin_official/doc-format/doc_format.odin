@@ -8,7 +8,7 @@ Array :: struct($T: typeid) {
     length: u32le,
 }
 
-String :: distinct Array(byte)
+String :: distinct Array(u8)
 
 Version_Type_Major :: 0
 Version_Type_Minor :: 3
@@ -28,7 +28,7 @@ Version_Type_Default :: Version_Type{
 Magic_String :: "odindoc\x00"
 
 Header_Base :: struct {
-    magic: [8]byte,
+    magic: [8]u8,
     _: u32le, // padding
     version:     Version_Type,
     total_size:  u32le, // in bytes
@@ -330,7 +330,7 @@ Reader_Error :: enum {
     Invalid_Version,
 }
 
-read_from_bytes :: proc(data: []byte) -> (h: ^Header, err: Reader_Error) {
+read_from_bytes :: proc(data: []u8) -> (h: ^Header, err: Reader_Error) {
     if len(data) < size_of(Header_Base) {
         err = .Header_Too_Small
         return

@@ -7,7 +7,7 @@ import "core:math/bits"
 
 // byte_eq returns 1 iff a == b, 0 otherwise.
 @(optimization_mode="none")
-byte_eq :: proc(a, b: byte) -> int {
+byte_eq :: proc(a, b: u8) -> int {
     v := a ~ b
 
     // v == 0 iff a == b.  The subtraction will underflow, setting the

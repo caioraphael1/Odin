@@ -171,7 +171,7 @@ bytes_rune_count :: proc(s: []u16) -> (n: uint) {
 }
 
 @(optional_results)
-decode_to_utf8 :: proc(d: []byte, s: []u16) -> (n: uint) {
+decode_to_utf8 :: proc(d: []u8, s: []u16) -> (n: uint) {
     for i: uint = 0; i < len(s); i += 1 {
         if n >= len(d) {
             return

@@ -8,7 +8,7 @@ foreign import lib "system:System"
 
 foreign lib {
 	proc_pidinfo     :: proc(pid: posix.pid_t, flavor: PID_Info_Flavor, arg: i64, buffer: rawptr, buffersize: i32) -> i32 ---
-	proc_pidpath     :: proc(pid: posix.pid_t, buffer: [^]byte, buffersize: u32) -> i32 ---
+	proc_pidpath     :: proc(pid: posix.pid_t, buffer: [^]u8, buffersize: u32) -> i32 ---
 	proc_listallpids :: proc(buffer: [^]i32, buffersize: i32) -> i32 ---
 	proc_pid_rusage  :: proc(pid: posix.pid_t, flavor: Pid_Rusage_Flavor, buffer: rawptr) -> i32 ---
 }
@@ -28,8 +28,8 @@ proc_bsdinfo :: struct {
 	pbi_svuid:        posix.uid_t,
 	pbi_svgid:        posix.gid_t,
 	rfu_1:            u32,
-	pbi_comm:         [MAXCOMLEN]byte `fmt:"s,0"`,
-	pbi_name:         [2 * MAXCOMLEN]byte `fmt:"s,0"`,
+	pbi_comm:         [MAXCOMLEN]u8 `fmt:"s,0"`,
+	pbi_name:         [2 * MAXCOMLEN]u8 `fmt:"s,0"`,
 	pbi_nfiles:       u32,
 	pbi_pgid:         u32,
 	pbi_pjobc:        u32,
@@ -45,7 +45,7 @@ proc_bsdshortinfo :: struct {
 	pbsi_ppid:   u32,
 	pbsi_pgid:   u32,
 	pbsi_status: u32,
-	pbsi_comm:   [MAXCOMLEN]byte `fmt:"s,0"`,
+	pbsi_comm:   [MAXCOMLEN]u8 `fmt:"s,0"`,
 	pbsi_flags:  PBI_Flags,
 	pbsi_uid:    posix.uid_t,
 	pbsi_gid:    posix.gid_t,
@@ -63,7 +63,7 @@ proc_vnodepathinfo :: struct {
 
 vnode_info_path :: struct {
 	vip_vi:   vnode_info,
-	vip_path: [posix.PATH_MAX]byte,
+	vip_path: [posix.PATH_MAX]u8,
 }
 
 vnode_info :: struct {

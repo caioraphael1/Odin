@@ -85,7 +85,7 @@ Read_Directory_Iterator :: struct {
     f:     ^File,
     err:   struct {
         err:  Error,
-        path: dyn_array.Dyn_Array(byte),
+        path: dyn_array.Dyn_Array(u8),
     },
     index: uint,
     impl:  Read_Directory_Iterator_Impl,
@@ -230,7 +230,7 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
     abs_src := get_absolute_path(src, allocators.temp_allocator) or_return
     abs_dst := get_absolute_path(dst, allocators.temp_allocator) or_return
 
-    dst_buf := dyn_array.create_len_cap(byte, 0, len(abs_dst) + 256, allocators.temp_allocator) or_return
+    dst_buf := dyn_array.create_len_cap(u8, 0, len(abs_dst) + 256, allocators.temp_allocator) or_return
 
     w: Walker
     walker_init_path(&w, src, allocator)

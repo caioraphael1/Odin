@@ -61,7 +61,7 @@ in `buf`. The procedure only iterates as much data as loaded in the buffer and
 does not automatically make a request for the buffer to be refilled.
 
 Inputs:
-- buf: A byte buffer with data from `getdents()`
+- buf: A u8 buffer with data from `getdents()`
 - offs: An offset to the next possible directory entry in `buf`
 
 Returns:

@@ -11,7 +11,7 @@
     in <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf>.
 
     As the only difference between the legacy Keccak and SHA3 is the domain
-    separation byte, set dsbyte to the appropriate value to pick the desired
+    separation u8, set dsbyte to the appropriate value to pick the desired
     algorithm.
 */
 
@@ -39,7 +39,7 @@ Context :: struct {
 	pt:             int,
 	rsiz:           int,
 	mdlen:          int,
-	dsbyte:         byte,
+	dsbyte:         u8,
 	is_initialized: bool,
 	is_finalized:   bool, // For SHAKE (unlimited squeeze is allowed)
 }
@@ -133,7 +133,7 @@ init :: proc(ctx: ^Context) {
 	ctx.is_finalized = false
 }
 
-update :: proc(ctx: ^Context, data: []byte) {
+update :: proc(ctx: ^Context, data: []u8) {
 	ensure_contextless(ctx.is_initialized)
 	ensure_contextless(!ctx.is_finalized)
 
@@ -149,7 +149,7 @@ update :: proc(ctx: ^Context, data: []byte) {
 	ctx.pt = j
 }
 
-final :: proc(ctx: ^Context, hash: []byte, finalize_clone: bool = false) {
+final :: proc(ctx: ^Context, hash: []u8, finalize_clone: bool = false) {
 	ensure_contextless(ctx.is_initialized)
 	ensure_contextless(len(hash) >= ctx.mdlen, "crypto/sha3: invalid destination digest size")
 
@@ -194,7 +194,7 @@ shake_xof :: proc(ctx: ^Context) {
 	ctx.is_finalized = true // No more absorb, unlimited squeeze.
 }
 
-shake_out :: proc(ctx: ^Context, hash: []byte) {
+shake_out :: proc(ctx: ^Context, hash: []u8) {
 	ensure_contextless(ctx.is_initialized)
 	ensure_contextless(ctx.is_finalized)
 

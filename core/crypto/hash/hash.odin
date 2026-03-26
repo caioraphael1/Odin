@@ -13,14 +13,14 @@ import "core:io"
 
 // hash_bytes will hash the given input and return the computed digest
 // in a newly allocated slice.
-hash_string :: proc(algorithm: Algorithm, data: string, allocator: mem.Allocator) -> []byte {
-	return hash_bytes(algorithm, transmute([]byte)(data), allocator)
+hash_string :: proc(algorithm: Algorithm, data: string, allocator: mem.Allocator) -> []u8 {
+	return hash_bytes(algorithm, transmute([]u8)(data), allocator)
 }
 
 // hash_bytes will hash the given input and return the computed digest
 // in a newly allocated slice.
-hash_bytes :: proc(algorithm: Algorithm, data: []byte, allocator: mem.Allocator) -> []byte {
-	dst := slice.create([]byte, DIGEST_SIZES[algorithm], allocator)
+hash_bytes :: proc(algorithm: Algorithm, data: []u8, allocator: mem.Allocator) -> []u8 {
+	dst := slice.create([]u8, DIGEST_SIZES[algorithm], allocator)
 	return hash_bytes_to_buffer(algorithm, data, dst)
 }
 
@@ -29,8 +29,8 @@ hash_bytes :: proc(algorithm: Algorithm, data: []byte, allocator: mem.Allocator)
 // destination buffer is at least as big as the digest size.  The
 // provided destination buffer is returned to match the behavior of
 // `hash_string`.
-hash_string_to_buffer :: proc(algorithm: Algorithm, data: string, hash: []byte) -> []byte {
-	return hash_bytes_to_buffer(algorithm, transmute([]byte)(data), hash)
+hash_string_to_buffer :: proc(algorithm: Algorithm, data: string, hash: []u8) -> []u8 {
+	return hash_bytes_to_buffer(algorithm, transmute([]u8)(data), hash)
 }
 
 // hash_bytes_to_buffer will hash the given input and write the
@@ -38,7 +38,7 @@ hash_string_to_buffer :: proc(algorithm: Algorithm, data: string, hash: []byte) 
 // destination buffer is at least as big as the digest size.  The
 // provided destination buffer is returned to match the behavior of
 // `hash_bytes`.
-hash_bytes_to_buffer :: proc(algorithm: Algorithm, data, hash: []byte) -> []byte {
+hash_bytes_to_buffer :: proc(algorithm: Algorithm, data, hash: []u8) -> []u8 {
 	ctx: Context
 
 	init(&ctx, algorithm)
@@ -55,12 +55,12 @@ hash_stream :: proc(
 	s: io.Stream,
 	allocator: mem.Allocator,
 ) -> (
-	[]byte,
+	[]u8,
 	io.Error,
 ) {
 	ctx: Context
 
-	buf: [MAX_BLOCK_SIZE * 4]byte
+	buf: [MAX_BLOCK_SIZE * 4]u8
 	defer crypto.zero_explicit(&buf, size_of(buf))
 
 	init(&ctx, algorithm)
@@ -80,7 +80,7 @@ hash_stream :: proc(
 		}
 	}
 
-	dst := slice.create([]byte, DIGEST_SIZES[algorithm], allocator)
+	dst := slice.create([]u8, DIGEST_SIZES[algorithm], allocator)
 	final(&ctx, dst)
 
 	return dst, io.Error.None

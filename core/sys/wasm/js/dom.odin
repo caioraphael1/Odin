@@ -24,21 +24,21 @@ foreign dom_lib {
 	set_document_title :: proc(title: string) ---
 }
 
-get_element_value_string :: proc(id: string, buf: []byte) -> string {
+get_element_value_string :: proc(id: string, buf: []u8) -> string {
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="get_element_value_string")
-		_get_element_value_string :: proc(id: string, buf: []byte) -> int ---
+		_get_element_value_string :: proc(id: string, buf: []u8) -> int ---
 	}
 	n := _get_element_value_string(id, buf)
 	return string(buf[:n])
 }
 
-get_element_key_string :: proc(id: string, key: string, buf: []byte) -> string {
+get_element_key_string :: proc(id: string, key: string, buf: []u8) -> string {
 	@(default_calling_convention="contextless")
 	foreign dom_lib {
 		@(link_name="get_element_key_string")
-		_get_element_key_string :: proc(id: string, key: string, buf: []byte) -> int ---
+		_get_element_key_string :: proc(id: string, key: string, buf: []u8) -> int ---
 	}
 	n := _get_element_key_string(id, key, buf)
 	return string(buf[:n])

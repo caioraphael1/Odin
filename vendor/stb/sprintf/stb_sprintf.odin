@@ -25,11 +25,11 @@ when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
 
 @(link_prefix="stbsp_", default_calling_convention="c")
 foreign stbpf {
-	sprintf    :: proc(buf: [^]byte, fmt: cstring, #c_vararg args: ..any) -> i32 ---
-	snprintf   :: proc(buf: [^]byte, count: i32, fmt: cstring, #c_vararg args: ..any) -> i32 ---
-	vsprintf   :: proc(buf: [^]byte, fmt: cstring, va: ^c.va_list) -> i32 ---
-	vsnprintf  :: proc(buf: [^]byte, count: i32, fmt: cstring, va: ^c.va_list) -> i32 ---
-	vsprintfcb :: proc(callback: SPRINTFCB, user: rawptr, buf: [^]byte, fmt: cstring, va: ^c.va_list) -> i32 ---
+	sprintf    :: proc(buf: [^]u8, fmt: cstring, #c_vararg args: ..any) -> i32 ---
+	snprintf   :: proc(buf: [^]u8, count: i32, fmt: cstring, #c_vararg args: ..any) -> i32 ---
+	vsprintf   :: proc(buf: [^]u8, fmt: cstring, va: ^c.va_list) -> i32 ---
+	vsnprintf  :: proc(buf: [^]u8, count: i32, fmt: cstring, va: ^c.va_list) -> i32 ---
+	vsprintfcb :: proc(callback: SPRINTFCB, user: rawptr, buf: [^]u8, fmt: cstring, va: ^c.va_list) -> i32 ---
 }
 
-SPRINTFCB :: #type proc "c" (buf: [^]byte, user: rawptr, len: i32) -> cstring
+SPRINTFCB :: #type proc "c" (buf: [^]u8, user: rawptr, len: i32) -> cstring

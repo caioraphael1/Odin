@@ -90,9 +90,9 @@ CODEPAGE :: enum UINT {
 	IBM01148                = 1148,
 	// IBM EBCDIC Icelandic (20871 + Euro symbol); IBM EBCDIC (Icelandic-Euro)
 	IBM01149                = 1149,
-	// Unicode UTF-16, little endian byte order (BMP of ISO 10646); available only to managed applications
+	// Unicode UTF-16, little endian u8 order (BMP of ISO 10646); available only to managed applications
 	UTF16                   = 1200,
-	// Unicode UTF-16, big endian byte order; available only to managed applications
+	// Unicode UTF-16, big endian u8 order; available only to managed applications
 	UNICODEFFFE             = 1201,
 	// ANSI Central European; Central European (Windows)
 	WINDOWS_1250            = 1250,
@@ -146,9 +146,9 @@ CODEPAGE :: enum UINT {
 	X_MAC_TURKISH           = 10081,
 	// Croatian (Mac)
 	X_MAC_CROATIAN          = 10082,
-	// Unicode UTF-32, little endian byte order; available only to managed applications
+	// Unicode UTF-32, little endian u8 order; available only to managed applications
 	UTF32                   = 12000,
-	// Unicode UTF-32, big endian byte order; available only to managed applications
+	// Unicode UTF-32, big endian u8 order; available only to managed applications
 	UTF32BE                 = 12001,
 	// CNS Taiwan; Chinese Traditional (CNS)
 	X_CHINESE_CNS           = 20000,
@@ -250,9 +250,9 @@ CODEPAGE :: enum UINT {
 	ISO_8859_8_I            = 38598,
 	// ISO 2022 Japanese with no halfwidth Katakana; Japanese (JIS)
 	ISO_2022_JP             = 50220,
-	// ISO 2022 Japanese with halfwidth Katakana; Japanese (JIS-Allow 1 byte Kana)
+	// ISO 2022 Japanese with halfwidth Katakana; Japanese (JIS-Allow 1 u8 Kana)
 	CSISO2022JP             = 50221,
-	// ISO 2022 Japanese JIS X 0201-1989; Japanese (JIS-Allow 1 byte Kana - SO/SI)
+	// ISO 2022 Japanese JIS X 0201-1989; Japanese (JIS-Allow 1 u8 Kana - SO/SI)
 	ISO_2022_2_JP           = 50222,
 	// ISO 2022 Korean
 	ISO_2022_KR             = 50225,
@@ -266,7 +266,7 @@ CODEPAGE :: enum UINT {
 	EUC_KR                  = 51949,
 	// HZ-GB2312 Simplified Chinese; Chinese Simplified (HZ)
 	HZ_GB_2312              = 52936,
-	// **Windows XP and later:** GB18030 Simplified Chinese (4 byte); Chinese Simplified (GB18030)
+	// **Windows XP and later:** GB18030 Simplified Chinese (4 u8); Chinese Simplified (GB18030)
 	GB18030                 = 54936,
 	// ISCII Devanagari
 	X_ISCII_DE              = 57002,

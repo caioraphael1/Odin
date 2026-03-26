@@ -82,7 +82,7 @@ TIMESTAMP :: "2025-11-05"
 
 /* linked-list structure for the CURLOPT_QUOTE option (and other) */
 slist :: struct {
-    data: [^]byte,
+    data: [^]u8,
     next: ^slist,
 }
 
@@ -165,7 +165,7 @@ httppost :: struct {
     contents:       cstring,                     /* pointer to allocated data contents */
     contentslength: c.long,                      /* length of contents field, see also
                                                     CURL_HTTPPOST_LARGE */
-    buffer:        [^]byte,                      /* pointer to allocated buffer contents */
+    buffer:        [^]u8,                      /* pointer to allocated buffer contents */
     bufferlength:  c.long,                       /* length of buffer field */
     contenttype:   cstring,                      /* Content-Type */
     contentheader: ^slist,                       /* list of extra headers for this form */
@@ -246,7 +246,7 @@ WRITEFUNC_PAUSE :: 0x10000001
 */
 WRITEFUNC_ERROR :: 0xFFFFFFFF
 
-write_callback :: #type proc "c" (buffer: [^]byte,
+write_callback :: #type proc "c" (buffer: [^]u8,
                                   size:   c.size_t,
                                   nitems: c.size_t,
                                   outstream: rawptr) -> c.size_t
@@ -315,7 +315,7 @@ fileinfo :: struct {
 
     /* These are libcurl private struct fields. Previously used by libcurl, so
     they must never be interfered with. */
-    b_data: [^]byte,
+    b_data: [^]u8,
     b_size: c.size_t,
     b_used: c.size_t,
 }
@@ -393,7 +393,7 @@ TRAILERFUNC_OK :: 0
 */
 TRAILERFUNC_ABORT :: 1
 
-read_callback :: #type proc "c" (buffer:   [^]byte,
+read_callback :: #type proc "c" (buffer:   [^]u8,
                            size:     c.size_t,
                            nitems:   c.size_t,
                            instream: rawptr) -> c.size_t
@@ -479,7 +479,7 @@ infotype :: enum c.int {
 debug_callback :: #type proc "c"(
     handle:  ^CURL,    /* the handle/transfer this concerns */
         type:    infotype, /* what kind of data */
-        data:    [^]byte,  /* points to the data */
+        data:    [^]u8,  /* points to the data */
         size:    c.size_t, /* size of the data pointed to */
         userptr: rawptr,   /* whatever the user please */
 ) -> c.int
@@ -676,7 +676,7 @@ proxycode :: enum c.int {
 }
 
 /* This prototype applies to all conversion callbacks */
-conv_callback :: #type proc "c"(buffer: [^]byte, length: c.size_t) -> code
+conv_callback :: #type proc "c"(buffer: [^]u8, length: c.size_t) -> code
 
 ssl_ctx_callback :: #type proc "c" (curl: ^CURL,    /* easy handle */
                                     ssl_ctx: rawptr, /* actually an OpenSSL
@@ -922,7 +922,7 @@ hstsentry :: struct {
     using _: bit_field c.uint {
         includeSubDomains: bool | 1,
     },
-    expire: [18]byte, /* YYYYMMDD HH:MM:SS [null-terminated] */
+    expire: [18]u8, /* YYYYMMDD HH:MM:SS [null-terminated] */
 }
 
 index :: struct {
@@ -2274,7 +2274,7 @@ foreign lib {
      *
      * Set mime part data source from memory data,
      */
-    mime_data :: proc(part: ^mimepart, data: [^]byte, datasize: c.size_t) -> code ---
+    mime_data :: proc(part: ^mimepart, data: [^]u8, datasize: c.size_t) -> code ---
 
     /*
      * NAME curl_mime_filedata()
@@ -2325,7 +2325,7 @@ foreign lib {
  * Should return the buffer length passed to it as the argument "len" on
  *   success.
  */
-formget_callback :: #type proc "c" (arg: rawptr, buf: [^]byte, len: c.size_t) -> c.size_t
+formget_callback :: #type proc "c" (arg: rawptr, buf: [^]u8, len: c.size_t) -> c.size_t
 
 @(default_calling_convention="c", link_prefix="curl_")
 foreign lib {

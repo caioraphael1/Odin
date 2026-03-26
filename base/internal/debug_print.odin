@@ -24,7 +24,7 @@ when !ODIN_NO_RTTI {
 
         case string:  print_string(v)
         case cstring: print_string(string(v))
-        case []byte:  print_string(string(v))
+        case []u8:  print_string(string(v))
 
         case rune:  print_rune(v)
 
@@ -123,14 +123,14 @@ bytes_from_rune :: proc(c: rune) -> ([4]u8, int) {
 
 @(optional_results)
 print_string :: #force_no_inline proc(str: string) -> (n: int) {
-    n, _ = stderr_write(transmute([]byte)str)
+    n, _ = stderr_write(transmute([]u8)str)
     return
 }
 
 @(optional_results)
 print_strings :: #force_no_inline proc(args: ..string) -> (n: int) {
     for str in args {
-        m, err := stderr_write(transmute([]byte)str)
+        m, err := stderr_write(transmute([]u8)str)
         n += m
         if err != 0 {
             break
@@ -140,8 +140,8 @@ print_strings :: #force_no_inline proc(args: ..string) -> (n: int) {
 }
 
 @(optional_results)
-print_byte :: #force_no_inline proc(b: byte) -> (n: int) {
-    n, _ = stderr_write([]byte{b})
+print_byte :: #force_no_inline proc(b: u8) -> (n: int) {
+    n, _ = stderr_write([]u8{b})
     return
 }
 
@@ -177,7 +177,7 @@ print_rune :: #force_no_inline proc(r: rune) -> int #no_bounds_check {
     RUNE_SELF :: 0x80
 
     if r < RUNE_SELF {
-        return print_byte(byte(r))
+        return print_byte(u8(r))
     }
 
     b, n := bytes_from_rune(r)
@@ -186,7 +186,7 @@ print_rune :: #force_no_inline proc(r: rune) -> int #no_bounds_check {
 }
 
 print_u64 :: #force_no_inline proc(x: u64) #no_bounds_check {
-    a: [129]byte
+    a: [129]u8
     i := len(a)
     b := u64(10)
     u := x
@@ -206,7 +206,7 @@ print_i64 :: #force_no_inline proc(x: i64) #no_bounds_check {
     neg := u < 0
     u = abs(u)
 
-    a: [129]byte
+    a: [129]u8
     i := len(a)
     for u >= b {
         i -= 1; a[i] = _INTEGER_DIGITS_VAR[u % b]
@@ -520,7 +520,7 @@ print_type :: #force_no_inline proc(ti: ^Type_Info) {
 }
 
 
-write_string :: proc(i: ^int, dst: []byte, src: string) -> bool {
+write_string :: proc(i: ^int, dst: []u8, src: string) -> bool {
     if i^ < int(len(dst)) {
         // i^ += slice.copy_from_string(dst[i^:], src)
             // FIX:
@@ -530,7 +530,7 @@ write_string :: proc(i: ^int, dst: []byte, src: string) -> bool {
 }
 
 
-write_byte :: proc(i: ^int, dst: []byte, src: byte) -> bool {
+write_byte :: proc(i: ^int, dst: []u8, src: u8) -> bool {
     if i^ < int(len(dst)) {
         dst[i^] = src
         i^ += 1
@@ -540,12 +540,12 @@ write_byte :: proc(i: ^int, dst: []byte, src: byte) -> bool {
 }
 
 
-write_u64 :: proc(j: ^int, dst: []byte, x: u64) -> bool {
+write_u64 :: proc(j: ^int, dst: []u8, x: u64) -> bool {
     if j^ < int(len(dst)) {
         b :: u64(10)
         u := x
 
-        a: [129]byte
+        a: [129]u8
         i := len(a)
         for u >= b {
             i -= 1; a[i] = _INTEGER_DIGITS_VAR[u % b]
@@ -558,13 +558,13 @@ write_u64 :: proc(j: ^int, dst: []byte, x: u64) -> bool {
     return false
 }
 
-write_i64 :: proc(j: ^int, dst: []byte, x: i64) -> bool {
+write_i64 :: proc(j: ^int, dst: []u8, x: i64) -> bool {
     if j^ < int(len(dst)) {
         b :: u64(10)
         u := u64(abs(x))
         neg := x < 0
 
-        a: [129]byte
+        a: [129]u8
         i := len(a)
         for u >= b {
             i -= 1; a[i] = _INTEGER_DIGITS_VAR[u % b]
@@ -581,7 +581,7 @@ write_i64 :: proc(j: ^int, dst: []byte, x: i64) -> bool {
 }
 
 
-write_caller_location :: #force_no_inline proc(i: ^int, buf: []byte, loc: Source_Code_Location) -> bool {
+write_caller_location :: #force_no_inline proc(i: ^int, buf: []u8, loc: Source_Code_Location) -> bool {
     write_string(i, buf, loc.file_path) or_return
 
     when ODIN_ERROR_POS_STYLE == .Default {
@@ -607,7 +607,7 @@ write_caller_location :: #force_no_inline proc(i: ^int, buf: []byte, loc: Source
     }
 }
 
-write_typeid :: #force_no_inline proc(i: ^int, buf: []byte, id: typeid) -> bool {
+write_typeid :: #force_no_inline proc(i: ^int, buf: []u8, id: typeid) -> bool {
     when ODIN_NO_RTTI {
         if id == nil {
             write_string(i, buf, "nil") or_return
@@ -626,11 +626,11 @@ write_typeid :: #force_no_inline proc(i: ^int, buf: []byte, id: typeid) -> bool 
 }
 
 
-write_rune :: #force_no_inline proc(i: ^int, buf: []byte, r: rune) -> (written: int, ok: bool) #no_bounds_check {
+write_rune :: #force_no_inline proc(i: ^int, buf: []u8, r: rune) -> (written: int, ok: bool) #no_bounds_check {
     RUNE_SELF :: 0x80
 
     if r < RUNE_SELF {
-        write_byte(i, buf,byte(r)) or_return
+        write_byte(i, buf,u8(r)) or_return
         return 1, true
     }
 
@@ -640,7 +640,7 @@ write_rune :: #force_no_inline proc(i: ^int, buf: []byte, r: rune) -> (written: 
     return i^ - prev, true
 }
 
-write_encoded_rune :: #force_no_inline proc(i: ^int, buf: []byte, r: rune) -> bool {
+write_encoded_rune :: #force_no_inline proc(i: ^int, buf: []u8, r: rune) -> bool {
     write_byte(i, buf, '\'') or_return
 
     switch r {
@@ -670,7 +670,7 @@ write_encoded_rune :: #force_no_inline proc(i: ^int, buf: []byte, r: rune) -> bo
 }
 
 @(optimization_mode="favor_size")
-write_write_type :: #force_no_inline proc(i: ^int, buf: []byte, ti: ^Type_Info) -> bool {
+write_write_type :: #force_no_inline proc(i: ^int, buf: []u8, ti: ^Type_Info) -> bool {
     if ti == nil {
         write_string(i, buf, "nil") or_return
         return true

@@ -93,7 +93,7 @@ advance_rune :: proc(t: ^Tokenizer) {
 			if r == utf8.RUNE_ERROR && w == 1 {
 				error(t, t.offset, "illegal UTF-8 encoding")
 			} else if r == utf8.RUNE_BOM && t.offset > 0 {
-				error(t, t.offset, "illegal byte order mark")
+				error(t, t.offset, "illegal u8 order mark")
 			}
 		}
 		t.read_offset += w
@@ -108,7 +108,7 @@ advance_rune :: proc(t: ^Tokenizer) {
 	}
 }
 
-peek_byte :: proc(t: ^Tokenizer, offset := 0) -> byte {
+peek_byte :: proc(t: ^Tokenizer, offset := 0) -> u8 {
 	if t.read_offset+offset < len(t.src) {
 		return t.src[t.read_offset+offset]
 	}

@@ -180,7 +180,7 @@ _close :: proc(socket: Any_Socket) {
 }
 
 @(private)
-_recv_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP_Recv_Error) {
+_recv_tcp :: proc(socket: TCP_Socket, buf: []u8) -> (bytes_read: int, err: TCP_Recv_Error) {
     if len(buf) == 0 {
         return
     }
@@ -193,7 +193,7 @@ _recv_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_read: int, err: TCP
 }
 
 @(private)
-_recv_udp :: proc(socket: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
+_recv_udp :: proc(socket: UDP_Socket, buf: []u8) -> (bytes_read: int, remote_endpoint: Endpoint, err: UDP_Recv_Error) {
     if len(buf) == 0 {
         return
     }
@@ -208,7 +208,7 @@ _recv_udp :: proc(socket: UDP_Socket, buf: []byte) -> (bytes_read: int, remote_e
 }
 
 @(private)
-_send_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_written: int, err: TCP_Send_Error) {
+_send_tcp :: proc(socket: TCP_Socket, buf: []u8) -> (bytes_written: int, err: TCP_Send_Error) {
     for bytes_written < len(buf) {
         limit := min(int(max(i32)), len(buf) - bytes_written)
         remaining := buf[bytes_written:][:limit]
@@ -224,7 +224,7 @@ _send_tcp :: proc(socket: TCP_Socket, buf: []byte) -> (bytes_written: int, err: 
 }
 
 @(private)
-_send_udp :: proc(socket: UDP_Socket, buf: []byte, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
+_send_udp :: proc(socket: UDP_Socket, buf: []u8, to: Endpoint) -> (bytes_written: int, err: UDP_Send_Error) {
     toaddr := _endpoint_to_sockaddr(to)
     for bytes_written < len(buf) {
         limit := min(int(max(i32)), len(buf) - bytes_written)

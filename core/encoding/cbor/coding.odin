@@ -48,7 +48,7 @@ Decoder_Flag :: enum {
 
     // Pre-allocates buffers and containers with the size that was set in the CBOR header.
     // This should only be enabled when you control both ends of the encoding, if you don't,
-    // attackers can craft input that causes massive (`max(u64)`) byte allocations for a few bytes of
+    // attackers can craft input that causes massive (`max(u64)`) u8 allocations for a few bytes of
     // CBOR.
     Trusted_Input,
     
@@ -70,7 +70,7 @@ Decoder :: struct {
 /*
 Decodes both deterministic and non-deterministic CBOR into a `Value` variant.
 
-`Text` and `Bytes` can safely be cast to cstrings because of an added 0 byte.
+`Text` and `Bytes` can safely be cast to cstrings because of an added 0 u8.
 
 Allocations are done using the given allocator,
 *no* allocations are done on the `allocators.temp_allocator`.
@@ -170,12 +170,12 @@ Encodes the CBOR value into a binary CBOR.
 Flags can be used to control the output (mainly determinism, which coincidently affects size).
 
 The default flags `ENCODE_SMALL` (`.Deterministic_Int_Size`, `.Deterministic_Float_Size`) will try
-to put ints and floats into their smallest possible byte size without losing equality.
+to put ints and floats into their smallest possible u8 size without losing equality.
 
 Adding the `.Self_Described_CBOR` flag will wrap the value in a tag that lets generic decoders know
-the contents are CBOR from just reading the first byte.
+the contents are CBOR from just reading the first u8.
 
-Adding the `.Deterministic_Map_Sorting` flag will sort the encoded maps by the byte content of the
+Adding the `.Deterministic_Map_Sorting` flag will sort the encoded maps by the u8 content of the
 encoded key. This flag has a cost on performance and memory efficiency because all keys in a map
 have to be precomputed, sorted and only then written to the output.
 
@@ -190,7 +190,7 @@ allocations until the end.
 
 // Encodes the CBOR value into binary CBOR allocated on the given allocator.
 // See the docs on the proc group `encode_into` for more info.
-encode_into_bytes :: proc(v: Value, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (data: []byte, err: Encode_Error) {
+encode_into_bytes :: proc(v: Value, flags := ENCODE_SMALL, allocator: mem.Allocator, loc := #caller_location) -> (data: []u8, err: Encode_Error) {
     b := string_builder.builder_create(allocator, loc) or_return
     encode_into_builder(&b, v, flags, temp_allocator) or_return
     return b.buf[:], nil
@@ -257,9 +257,9 @@ _header_split :: proc(hdr: Header) -> (Major, Add) {
 }
 
 _decode_u8 :: proc(r: io.Reader) -> (v: u8, err: io.Error) {
-    byte: [1]byte = ---
-    io.read_full(r, byte[:]) or_return
-    return byte[0], nil
+    u8: [1]u8 = ---
+    io.read_full(r, u8[:]) or_return
+    return u8[0], nil
 }
 
 _encode_u8 :: proc(w: io.Writer, v: u8, major: Major = .Unsigned) -> (err: io.Error) {
@@ -284,7 +284,7 @@ _decode_tiny_u8 :: proc(additional: Add) -> (u8, Decode_Data_Error) {
 }
 
 _decode_u16 :: proc(r: io.Reader) -> (v: u16, err: io.Error) {
-    bytes: [2]byte = ---
+    bytes: [2]u8 = ---
     io.read_full(r, bytes[:]) or_return
     return endian.unchecked_get_u16be(bytes[:]), nil
 }
@@ -297,7 +297,7 @@ _encode_u16 :: proc(e: Encoder, v: u16, major: Major = .Unsigned) -> Encode_Erro
 }
 
 _encode_u16_exact :: proc(w: io.Writer, v: u16, major: Major = .Unsigned) -> (err: io.Error) {
-    bytes: [3]byte = ---
+    bytes: [3]u8 = ---
     bytes[0] = (u8(major) << 5) | u8(Add.Two_Bytes)
     endian.unchecked_put_u16be(bytes[1:], v)
     _, err = io.write_full(w, bytes[:])
@@ -305,7 +305,7 @@ _encode_u16_exact :: proc(w: io.Writer, v: u16, major: Major = .Unsigned) -> (er
 }
 
 _decode_u32 :: proc(r: io.Reader) -> (v: u32, err: io.Error) {
-    bytes: [4]byte = ---
+    bytes: [4]u8 = ---
     io.read_full(r, bytes[:]) or_return
     return endian.unchecked_get_u32be(bytes[:]), nil
 }
@@ -318,7 +318,7 @@ _encode_u32 :: proc(e: Encoder, v: u32, major: Major = .Unsigned) -> Encode_Erro
 }
 
 _encode_u32_exact :: proc(w: io.Writer, v: u32, major: Major = .Unsigned) -> (err: io.Error) {
-    bytes: [5]byte = ---
+    bytes: [5]u8 = ---
     bytes[0] = (u8(major) << 5) | u8(Add.Four_Bytes)
     endian.unchecked_put_u32be(bytes[1:], v)
     _, err = io.write_full(w, bytes[:])
@@ -326,7 +326,7 @@ _encode_u32_exact :: proc(w: io.Writer, v: u32, major: Major = .Unsigned) -> (er
 }
 
 _decode_u64 :: proc(r: io.Reader) -> (v: u64, err: io.Error) {
-    bytes: [8]byte = ---
+    bytes: [8]u8 = ---
     io.read_full(r, bytes[:]) or_return
     return endian.unchecked_get_u64be(bytes[:]), nil
 }
@@ -339,7 +339,7 @@ _encode_u64 :: proc(e: Encoder, v: u64, major: Major = .Unsigned) -> Encode_Erro
 }
 
 _encode_u64_exact :: proc(w: io.Writer, v: u64, major: Major = .Unsigned) -> (err: io.Error) {
-    bytes: [9]byte = ---
+    bytes: [9]u8 = ---
     bytes[0] = (u8(major) << 5) | u8(Add.Eight_Bytes)
     endian.unchecked_put_u64be(bytes[1:], v)
     _, err = io.write_full(w, bytes[:])
@@ -391,7 +391,7 @@ _decode_bytes :: proc(d: Decoder, add: Add, type: Major = .Bytes, allocator: mem
 
     v = buf.buf[:]
 
-    // Write zero byte so this can be converted to cstring.
+    // Write zero u8 so this can be converted to cstring.
     string_builder.write_byte(&buf, 0)
 
     if .Shrink_Excess in d.flags { dyn_array_shrink(&buf.buf) }
@@ -418,7 +418,7 @@ _decode_text :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #cal
 }
 
 _encode_text :: proc(e: Encoder, val: Text) -> Encode_Error {
-    return _encode_bytes(e, transmute([]byte)val, .Text)
+    return _encode_bytes(e, transmute([]u8)val, .Text)
 }
 
 _decode_array_ptr :: proc(d: Decoder, add: Add, allocator: mem.Allocator, loc := #caller_location) -> (v: ^Array, err: Decode_Error) {
@@ -517,13 +517,13 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
         return
     }
 
-    // Deterministic_Map_Sorting needs us to sort the entries by the byte contents of the
+    // Deterministic_Map_Sorting needs us to sort the entries by the u8 contents of the
     // encoded key.
     //
     // This means we have to store and sort them before writing incurring extra (temporary) allocations.
 
     Map_Entry_With_Key :: struct {
-        encoded_key: []byte,
+        encoded_key: []u8,
         entry:       Map_Entry,
     }
 
@@ -608,7 +608,7 @@ _encode_tag :: proc(e: Encoder, val: Tag) -> Encode_Error {
 }
 
 _decode_simple :: proc(r: io.Reader) -> (v: Simple, err: io.Error) {
-    buf: [1]byte = ---
+    buf: [1]u8 = ---
     io.read_full(r, buf[:]) or_return
     return Simple(buf[0]), nil
 }
@@ -638,14 +638,14 @@ _decode_tiny_simple :: proc(add: Add) -> (Simple, Decode_Data_Error) {
 }
 
 _decode_f16 :: proc(r: io.Reader) -> (v: f16, err: io.Error) {
-    bytes: [2]byte = ---
+    bytes: [2]u8 = ---
     io.read_full(r, bytes[:]) or_return
     n := endian.unchecked_get_u16be(bytes[:])
     return transmute(f16)n, nil
 }
 
 _encode_f16 :: proc(w: io.Writer, v: f16) -> (err: io.Error) {
-    bytes: [3]byte = ---
+    bytes: [3]u8 = ---
     bytes[0] = u8(Header.F16)
     endian.unchecked_put_u16be(bytes[1:], transmute(u16)v)
     _, err = io.write_full(w, bytes[:])
@@ -653,7 +653,7 @@ _encode_f16 :: proc(w: io.Writer, v: f16) -> (err: io.Error) {
 }
 
 _decode_f32 :: proc(r: io.Reader) -> (v: f32, err: io.Error) {
-    bytes: [4]byte = ---
+    bytes: [4]u8 = ---
     io.read_full(r, bytes[:]) or_return
     n := endian.unchecked_get_u32be(bytes[:])
     return transmute(f32)n, nil
@@ -667,7 +667,7 @@ _encode_f32 :: proc(e: Encoder, v: f32) -> io.Error {
 }
 
 _encode_f32_exact :: proc(w: io.Writer, v: f32) -> (err: io.Error) {
-    bytes: [5]byte = ---
+    bytes: [5]u8 = ---
     bytes[0] = u8(Header.F32)
     endian.unchecked_put_u32be(bytes[1:], transmute(u32)v)
     _, err = io.write_full(w, bytes[:])
@@ -675,7 +675,7 @@ _encode_f32_exact :: proc(w: io.Writer, v: f32) -> (err: io.Error) {
 }
 
 _decode_f64 :: proc(r: io.Reader) -> (v: f64, err: io.Error) {
-    bytes: [8]byte = ---
+    bytes: [8]u8 = ---
     io.read_full(r, bytes[:]) or_return
     n := endian.unchecked_get_u64be(bytes[:])
     return transmute(f64)n, nil
@@ -689,7 +689,7 @@ _encode_f64 :: proc(e: Encoder, v: f64) -> io.Error {
 }
 
 _encode_f64_exact :: proc(w: io.Writer, v: f64) -> (err: io.Error) {
-    bytes: [9]byte = ---
+    bytes: [9]u8 = ---
     bytes[0] = u8(Header.F64)
     endian.unchecked_put_u64be(bytes[1:], transmute(u64)v)
     _, err = io.write_full(w, bytes[:])
@@ -754,7 +754,7 @@ _decode_len_str :: proc(d: Decoder, add: Add) -> (n: int, scap: int, err: Decode
     if _n > u64(max(int)) { return -1, -1, .Length_Too_Big }
     n = int(_n)
 
-    scap = n + 1 // Space for zero byte.
+    scap = n + 1 // Space for zero u8.
     if .Trusted_Input not_in d.flags {
         scap = min(d.max_pre_alloc, scap)
     }

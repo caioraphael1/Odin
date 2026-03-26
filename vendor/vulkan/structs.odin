@@ -401,7 +401,7 @@ PhysicalDeviceProperties :: struct {
     vendorID:          u32,
     deviceID:          u32,
     deviceType:        PhysicalDeviceType,
-    deviceName:        [MAX_PHYSICAL_DEVICE_NAME_SIZE]byte,
+    deviceName:        [MAX_PHYSICAL_DEVICE_NAME_SIZE]u8,
     pipelineCacheUUID: [UUID_SIZE]u8,
     limits:            PhysicalDeviceLimits,
     sparseProperties:  PhysicalDeviceSparseProperties,
@@ -437,15 +437,15 @@ DeviceCreateInfo :: struct {
 }
 
 ExtensionProperties :: struct {
-    extensionName: [MAX_EXTENSION_NAME_SIZE]byte,
+    extensionName: [MAX_EXTENSION_NAME_SIZE]u8,
     specVersion:   u32,
 }
 
 LayerProperties :: struct {
-    layerName:             [MAX_EXTENSION_NAME_SIZE]byte,
+    layerName:             [MAX_EXTENSION_NAME_SIZE]u8,
     specVersion:           u32,
     implementationVersion: u32,
-    description:           [MAX_DESCRIPTION_SIZE]byte,
+    description:           [MAX_DESCRIPTION_SIZE]u8,
 }
 
 SubmitInfo :: struct {
@@ -1730,8 +1730,8 @@ PhysicalDeviceVulkan12Properties :: struct {
     sType:                                                StructureType,
     pNext:                                                rawptr,
     driverID:                                             DriverId,
-    driverName:                                           [MAX_DRIVER_NAME_SIZE]byte,
-    driverInfo:                                           [MAX_DRIVER_INFO_SIZE]byte,
+    driverName:                                           [MAX_DRIVER_NAME_SIZE]u8,
+    driverInfo:                                           [MAX_DRIVER_INFO_SIZE]u8,
     conformanceVersion:                                   ConformanceVersion,
     denormBehaviorIndependence:                           ShaderFloatControlsIndependence,
     roundingModeIndependence:                             ShaderFloatControlsIndependence,
@@ -1878,8 +1878,8 @@ PhysicalDeviceDriverProperties :: struct {
     sType:              StructureType,
     pNext:              rawptr,
     driverID:           DriverId,
-    driverName:         [MAX_DRIVER_NAME_SIZE]byte,
-    driverInfo:         [MAX_DRIVER_INFO_SIZE]byte,
+    driverName:         [MAX_DRIVER_NAME_SIZE]u8,
+    driverInfo:         [MAX_DRIVER_INFO_SIZE]u8,
     conformanceVersion: ConformanceVersion,
 }
 
@@ -2279,11 +2279,11 @@ PhysicalDeviceShaderTerminateInvocationFeatures :: struct {
 PhysicalDeviceToolProperties :: struct {
     sType:       StructureType,
     pNext:       rawptr,
-    name:        [MAX_EXTENSION_NAME_SIZE]byte,
-    version:     [MAX_EXTENSION_NAME_SIZE]byte,
+    name:        [MAX_EXTENSION_NAME_SIZE]u8,
+    version:     [MAX_EXTENSION_NAME_SIZE]u8,
     purposes:    ToolPurposeFlags,
-    description: [MAX_DESCRIPTION_SIZE]byte,
-    layer:       [MAX_EXTENSION_NAME_SIZE]byte,
+    description: [MAX_DESCRIPTION_SIZE]u8,
+    layer:       [MAX_EXTENSION_NAME_SIZE]u8,
 }
 
 PhysicalDeviceShaderDemoteToHelperInvocationFeatures :: struct {
@@ -3919,9 +3919,9 @@ PerformanceCounterDescriptionKHR :: struct {
     sType:       StructureType,
     pNext:       rawptr,
     flags:       PerformanceCounterDescriptionFlagsKHR,
-    name:        [MAX_DESCRIPTION_SIZE]byte,
-    category:    [MAX_DESCRIPTION_SIZE]byte,
-    description: [MAX_DESCRIPTION_SIZE]byte,
+    name:        [MAX_DESCRIPTION_SIZE]u8,
+    category:    [MAX_DESCRIPTION_SIZE]u8,
+    description: [MAX_DESCRIPTION_SIZE]u8,
 }
 
 QueryPoolPerformanceCreateInfoKHR :: struct {
@@ -4149,8 +4149,8 @@ PipelineExecutablePropertiesKHR :: struct {
     sType:        StructureType,
     pNext:        rawptr,
     stages:       ShaderStageFlags,
-    name:         [MAX_DESCRIPTION_SIZE]byte,
-    description:  [MAX_DESCRIPTION_SIZE]byte,
+    name:         [MAX_DESCRIPTION_SIZE]u8,
+    description:  [MAX_DESCRIPTION_SIZE]u8,
     subgroupSize: u32,
 }
 
@@ -4171,8 +4171,8 @@ PipelineExecutableStatisticValueKHR :: struct #raw_union {
 PipelineExecutableStatisticKHR :: struct {
     sType:       StructureType,
     pNext:       rawptr,
-    name:        [MAX_DESCRIPTION_SIZE]byte,
-    description: [MAX_DESCRIPTION_SIZE]byte,
+    name:        [MAX_DESCRIPTION_SIZE]u8,
+    description: [MAX_DESCRIPTION_SIZE]u8,
     format:      PipelineExecutableStatisticFormatKHR,
     value:       PipelineExecutableStatisticValueKHR,
 }
@@ -4180,8 +4180,8 @@ PipelineExecutableStatisticKHR :: struct {
 PipelineExecutableInternalRepresentationKHR :: struct {
     sType:       StructureType,
     pNext:       rawptr,
-    name:        [MAX_DESCRIPTION_SIZE]byte,
-    description: [MAX_DESCRIPTION_SIZE]byte,
+    name:        [MAX_DESCRIPTION_SIZE]u8,
+    description: [MAX_DESCRIPTION_SIZE]u8,
     isText:      b32,
     dataSize:    int,
     pData:       rawptr,
@@ -4788,7 +4788,7 @@ PhysicalDeviceLayeredApiPropertiesKHR :: struct {
     vendorID:   u32,
     deviceID:   u32,
     layeredAPI: PhysicalDeviceLayeredApiKHR,
-    deviceName: [MAX_PHYSICAL_DEVICE_NAME_SIZE]byte,
+    deviceName: [MAX_PHYSICAL_DEVICE_NAME_SIZE]u8,
 }
 
 PhysicalDeviceLayeredApiPropertiesListKHR :: struct {
@@ -6895,7 +6895,7 @@ DeviceFaultAddressInfoEXT :: struct {
 }
 
 DeviceFaultVendorInfoEXT :: struct {
-    description:     [MAX_DESCRIPTION_SIZE]byte,
+    description:     [MAX_DESCRIPTION_SIZE]u8,
     vendorFaultCode: u64,
     vendorFaultData: u64,
 }
@@ -6903,7 +6903,7 @@ DeviceFaultVendorInfoEXT :: struct {
 DeviceFaultInfoEXT :: struct {
     sType:             StructureType,
     pNext:             rawptr,
-    description:       [MAX_DESCRIPTION_SIZE]byte,
+    description:       [MAX_DESCRIPTION_SIZE]u8,
     pAddressInfos:     [^]DeviceFaultAddressInfoEXT,
     pVendorInfos:      [^]DeviceFaultVendorInfoEXT,
     pVendorBinaryData: rawptr,
@@ -7727,7 +7727,7 @@ RenderPassCreationFeedbackCreateInfoEXT :: struct {
 
 RenderPassSubpassFeedbackInfoEXT :: struct {
     subpassMergeStatus: SubpassMergeStatusEXT,
-    description:        [MAX_DESCRIPTION_SIZE]byte,
+    description:        [MAX_DESCRIPTION_SIZE]u8,
     postMergeIndex:     u32,
 }
 

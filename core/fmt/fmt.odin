@@ -258,7 +258,7 @@ tprintfln :: proc(fmt: string, args: ..any) -> string {
 //
 // Returns: A formatted string
 //
-bprint :: proc(buf: []byte, args: ..any, sep := " ") -> string {
+bprint :: proc(buf: []u8, args: ..any, sep := " ") -> string {
     sb := string_builder.builder_from_bytes(buf)
     return sbprint(&sb, ..args, sep=sep)
 }
@@ -271,7 +271,7 @@ bprint :: proc(buf: []byte, args: ..any, sep := " ") -> string {
 //
 // Returns: A formatted string with a newline character at the end
 //
-bprintln :: proc(buf: []byte, args: ..any, sep := " ") -> string {
+bprintln :: proc(buf: []u8, args: ..any, sep := " ") -> string {
     sb := string_builder.builder_from_bytes(buf)
     return sbprintln(&sb, ..args, sep=sep)
 }
@@ -285,7 +285,7 @@ bprintln :: proc(buf: []byte, args: ..any, sep := " ") -> string {
 //
 // Returns: A formatted string
 //
-bprintf :: proc(buf: []byte, fmt: string, args: ..any, newline := false) -> string {
+bprintf :: proc(buf: []u8, fmt: string, args: ..any, newline := false) -> string {
     sb := string_builder.builder_from_bytes(buf)
     return sbprintf(&sb, fmt, ..args, newline=newline)
 }
@@ -298,7 +298,7 @@ bprintf :: proc(buf: []byte, fmt: string, args: ..any, newline := false) -> stri
 //
 // Returns: A formatted string
 //
-bprintfln :: proc(buf: []byte, fmt: string, args: ..any) -> string {
+bprintfln :: proc(buf: []u8, fmt: string, args: ..any) -> string {
     return bprintf(buf, fmt, ..args, newline=true)
 }
 // Runtime assertion with a formatted message
@@ -899,7 +899,7 @@ wprint_typeid :: proc(w: io.Writer, id: typeid, flush := true) -> (n: uint, err:
 // - ok: A boolean indicating if the parsing was successful
 //
 _parse_uint :: proc(s: string, offset: uint) -> (result: uint, new_offset: uint, ok: bool) {
-    is_digit :: #force_inline proc(r: byte) -> bool { return '0' <= r && r <= '9' }
+    is_digit :: #force_inline proc(r: u8) -> bool { return '0' <= r && r <= '9' }
 
     new_offset = offset
     for new_offset < len(s) {
@@ -1033,7 +1033,7 @@ fmt_write_padding :: proc(fi: ^Info, width: uint) {
         return
     }
 
-    pad_byte: byte = ' '
+    pad_byte: u8 = ' '
     if !fi.space {
         pad_byte = '0'
     }
@@ -1066,7 +1066,7 @@ _fmt_int :: proc(fi: ^Info, u: u64, base: uint, is_signed: bool, bit_size: uint,
         }
     }
 
-    buf: [BUF_SIZE]byte
+    buf: [BUF_SIZE]u8
     start := 0
 
     if fi.hash && !is_signed {
@@ -1148,7 +1148,7 @@ _fmt_int_128 :: proc(fi: ^Info, u: u128, base: uint, is_signed: bool, bit_size: 
         }
     }
 
-    buf: [256]byte
+    buf: [256]u8
     start := 0
 
     if fi.hash && !is_signed {
@@ -1203,7 +1203,7 @@ _fmt_int_128 :: proc(fi: ^Info, u: u128, base: uint, is_signed: bool, bit_size: 
     s := strconv.write_bits_128(buf[start:], u, base, is_signed, bit_size, digits, flags)
 
     if fi.hash && fi.zero && fi.indent == 0 {
-        c: byte = 0
+        c: u8 = 0
         switch base {
         case 2:  c = 'b'
         case 8:  c = 'o'
@@ -1266,7 +1266,7 @@ _fmt_memory :: proc(fi: ^Info, u: u64, is_signed: bool, bit_size: uint, units: s
         amt = -amt
     }
 
-    buf: [256]byte
+    buf: [256]u8
     str := strconv.write_float(buf[:], amt, 'f', prec, 64, false)
 
     // Add the unit at the end.
@@ -1406,17 +1406,17 @@ _pad :: proc(fi: ^Info, s: string) {
 // - v: The floating-point number to format.
 // - bit_size: The size of the floating-point number in bits (16, 32, or 64).
 // - verb: The format specifier character.
-// - float_fmt: The byte format used for formatting the float (either 'f' or 'e').
+// - float_fmt: The u8 format used for formatting the float (either 'f' or 'e').
 // - prec: precision
 // NOTE: Can return "NaN", "+Inf", "-Inf", "+<value>", or "-<value>".
 //
-_fmt_float_as :: proc(fi: ^Info, v: f64, bit_size: uint, verb: rune, float_fmt: byte, prec: uint, shortest: bool) {
+_fmt_float_as :: proc(fi: ^Info, v: f64, bit_size: uint, verb: rune, float_fmt: u8, prec: uint, shortest: bool) {
     prec := prec
     if fi.prec_set {
         prec = fi.prec
     }
 
-    buf: [386]byte
+    buf: [386]u8
 
     // Can return "NaN", "+Inf", "-Inf", "+<value>", "-<value>".
     str := strconv.write_float(buf[:], v, float_fmt, prec, bit_size, shortest)
@@ -2278,7 +2278,7 @@ fmt_soa_struct_internal :: proc(fi: ^Info, v: any, the_verb: rune, info: reflect
                 if reflect.is_any(t) {
                     _, _ = io.write_string(fi.writer, "any{}", &fi.n)
                 } else {
-                    field_ptr := (^^byte)(uintptr(v.data) + info.offsets[i])^
+                    field_ptr := (^^u8)(uintptr(v.data) + info.offsets[i])^
                     data := rawptr(uintptr(field_ptr) + index*t_size)
                     fmt_arg(fi, any{data, t.id}, verb)
                 }
@@ -2481,7 +2481,7 @@ fmt_array :: proc(fi: ^Info, data: rawptr, n: uint, elem_size: uint, elem: ^refl
         }
 
         switch reflect.type_info_base(elem).id {
-        case byte:  fmt_string(fi,   string  (([^]byte)(data)[:n]), verb); return
+        case u8:  fmt_string(fi,   string  (([^]u8)(data)[:n]), verb); return
         case u16:   fmt_string16(fi, string16(([^]u16) (data)[:n]), verb); return
         case u16le: print_utf16(fi, ([^]u16le)(data)[:n]); return
         case u16be: print_utf16(fi, ([^]u16be)(data)[:n]); return
@@ -2527,7 +2527,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
         return true
 
     case time.Duration:
-        ffrac :: proc(buf: []byte, v: u64, prec: uint) -> (nw: int, nv: u64) {
+        ffrac :: proc(buf: []u8, v: u64, prec: uint) -> (nw: int, nv: u64) {
             v := v
             w := int(len(buf))
             print := false
@@ -2536,7 +2536,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
                 print = print || digit != 0
                 if print {
                     w -= 1
-                    buf[w] = byte(digit) + '0'
+                    buf[w] = u8(digit) + '0'
                 }
                 v /= 10
             }
@@ -2546,7 +2546,7 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
             }
             return w, v
         }
-        fint :: proc(buf: []byte, v: u64) -> int {
+        fint :: proc(buf: []u8, v: u64) -> int {
             v := v
             w := int(len(buf))
             if v == 0 {
@@ -2555,14 +2555,14 @@ fmt_named_buitlin_custom_formatters :: proc(fi: ^Info, v: any, verb: rune, info:
             } else {
                 for v > 0 {
                     w -= 1
-                    buf[w] = byte(v%10) + '0'
+                    buf[w] = u8(v%10) + '0'
                     v /= 10
                 }
             }
             return w
         }
 
-        buf: [32]byte
+        buf: [32]u8
         w := len(buf)
         u := u64(a)
         neg := a < 0
@@ -2820,7 +2820,7 @@ fmt_matrix :: proc(fi: ^Info, v: any, verb: rune, info: reflect.Type_Info_Matrix
 }
 
 fmt_bit_field :: proc(fi: ^Info, v: any, verb: rune, info: reflect.Type_Info_Bit_Field, type_name: string) {
-    read_bits :: proc(ptr: [^]byte, offset, size: uintptr) -> (res: u64) {
+    read_bits :: proc(ptr: [^]u8, offset, size: uintptr) -> (res: u64) {
         for i in 0..<size {
             j := i+offset
             B := ptr[j/8]
@@ -2892,7 +2892,7 @@ fmt_bit_field :: proc(fi: ^Info, v: any, verb: rune, info: reflect.Type_Info_Bit
         bit_size := info.bit_sizes[i]
 
         type := info.types[i]
-        value := read_bits(([^]byte)(v.data), bit_offset, bit_size)
+        value := read_bits(([^]u8)(v.data), bit_offset, bit_size)
         if reflect.is_endian_big(type) {
             value <<= u64(8*type.size) - u64(bit_size)
         }
@@ -3224,7 +3224,7 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
 
     case reflect.Type_Info_Dynamic_Array:
-        array := cast(^dyn_array.Dyn_Array(byte))v.data
+        array := cast(^dyn_array.Dyn_Array(u8))v.data
         n := array.len
         ptr := array.data
         if ol, ok := fi.optional_len.?; ok {

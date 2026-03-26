@@ -113,7 +113,7 @@ load_from_file :: proc(filename: string, buf: ^bytes.Buffer, expected_output_siz
     return
 }
 
-load_from_bytes :: proc(data: []byte, buf: ^bytes.Buffer, known_gzip_size := -1, expected_output_size := -1, allocator: mem.Allocator) -> (err: Error) {
+load_from_bytes :: proc(data: []u8, buf: ^bytes.Buffer, known_gzip_size := -1, expected_output_size := -1, allocator: mem.Allocator) -> (err: Error) {
     buf := buf
 
     z := &compress.Context_Memory_Input{

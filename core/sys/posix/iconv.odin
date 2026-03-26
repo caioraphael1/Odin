@@ -23,9 +23,9 @@ foreign lib {
 	*/
 	iconv :: proc(
 		cd:          iconv_t,
-		inbuf:       ^[^]byte,
+		inbuf:       ^[^]u8,
 		inbytesleft: ^c.size_t,
-		outbuf:      ^[^]byte,
+		outbuf:      ^[^]u8,
 		outbyteslen: ^c.size_t,
 	) -> c.size_t ---
 

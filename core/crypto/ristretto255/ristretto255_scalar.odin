@@ -2,9 +2,9 @@
 
 import grp "core:crypto/_edwards25519"
 
-// SCALAR_SIZE is the size of a byte-encoded ristretto255 scalar.
+// SCALAR_SIZE is the size of a u8-encoded ristretto255 scalar.
 SCALAR_SIZE :: 32
-// WIDE_SCALAR_SIZE is the size of a wide byte-encoded ristretto255
+// WIDE_SCALAR_SIZE is the size of a wide u8-encoded ristretto255
 // scalar.
 WIDE_SCALAR_SIZE :: 64
 
@@ -30,7 +30,7 @@ sc_set_u64 :: proc(sc: ^Scalar, i: u64) {
 // sc_set_bytes sets sc to the result of decoding b as a ristretto255
 // scalar, and returns true on success.
 
-sc_set_bytes :: proc(sc: ^Scalar, b: []byte) -> bool {
+sc_set_bytes :: proc(sc: ^Scalar, b: []u8) -> bool {
 	if len(b) != SCALAR_SIZE {
 		return false
 	}
@@ -39,17 +39,17 @@ sc_set_bytes :: proc(sc: ^Scalar, b: []byte) -> bool {
 }
 
 // sc_set_wide_bytes sets sc to the result of deriving a ristretto255
-// scalar, from a wide (512-bit) byte string by interpreting b as a
+// scalar, from a wide (512-bit) u8 string by interpreting b as a
 // little-endian value, and reducing it mod the group order.
-sc_set_bytes_wide :: proc(sc: ^Scalar, b: []byte) {
+sc_set_bytes_wide :: proc(sc: ^Scalar, b: []u8) {
 	internal.ensure(len(b) == WIDE_SCALAR_SIZE, "crypto/ristretto255: invalid wide input size")
 
-	b_ := (^[WIDE_SCALAR_SIZE]byte)(raw_data(b))
+	b_ := (^[WIDE_SCALAR_SIZE]u8)(raw_data(b))
 	grp.sc_set_bytes_wide(sc, b_)
 }
 
 // sc_bytes sets dst to the canonical encoding of sc.
-sc_bytes :: proc(sc: ^Scalar, dst: []byte) {
+sc_bytes :: proc(sc: ^Scalar, dst: []u8) {
 	internal.ensure(len(dst) == SCALAR_SIZE, "crypto/ristretto255: invalid destination size")
 
 	grp.sc_bytes(dst, sc)

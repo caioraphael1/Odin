@@ -13,7 +13,7 @@ Random_Generator_Query_Info_Flag :: enum u32 {
 }
 Random_Generator_Query_Info :: distinct bit_set[Random_Generator_Query_Info_Flag; u32]
 
-Random_Generator_Proc :: #type proc(data: rawptr, mode: Random_Generator_Mode, p: []byte)
+Random_Generator_Proc :: #type proc(data: rawptr, mode: Random_Generator_Mode, p: []u8)
 
 Random_Generator :: struct {
     procedure: Random_Generator_Proc,
@@ -26,7 +26,7 @@ global_random_generator := Random_Generator{
 }
 
 
-random_generator_read_bytes :: proc(rg: Random_Generator, p: []byte) -> bool {
+random_generator_read_bytes :: proc(rg: Random_Generator, p: []u8) -> bool {
     if rg.procedure != nil {
         rg.procedure(rg.data, .Read, p)
         return true
@@ -37,7 +37,7 @@ random_generator_read_bytes :: proc(rg: Random_Generator, p: []byte) -> bool {
 
 random_generator_read_ptr :: proc(rg: Random_Generator, p: rawptr, len: uint) -> bool {
     if rg.procedure != nil {
-        rg.procedure(rg.data, .Read, ([^]byte)(p)[:len])
+        rg.procedure(rg.data, .Read, ([^]u8)(p)[:len])
         return true
     }
     return false
@@ -46,13 +46,13 @@ random_generator_read_ptr :: proc(rg: Random_Generator, p: rawptr, len: uint) ->
 
 random_generator_query_info :: proc(rg: Random_Generator) -> (info: Random_Generator_Query_Info) {
     if rg.procedure != nil {
-        rg.procedure(rg.data, .Query_Info, ([^]byte)(&info)[:size_of(info)])
+        rg.procedure(rg.data, .Query_Info, ([^]u8)(&info)[:size_of(info)])
     }
     return
 }
 
 
-random_generator_reset_bytes :: proc(rg: Random_Generator, p: []byte) {
+random_generator_reset_bytes :: proc(rg: Random_Generator, p: []u8) {
     if rg.procedure != nil {
         rg.procedure(rg.data, .Reset, p)
     }
@@ -61,6 +61,6 @@ random_generator_reset_bytes :: proc(rg: Random_Generator, p: []byte) {
 random_generator_reset_u64 :: proc(rg: Random_Generator, p: u64) {
     if rg.procedure != nil {
         p := p
-        rg.procedure(rg.data, .Reset, ([^]byte)(&p)[:size_of(p)])
+        rg.procedure(rg.data, .Reset, ([^]u8)(&p)[:size_of(p)])
     }
 }

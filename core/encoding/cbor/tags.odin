@@ -27,7 +27,7 @@ TAG_NEGATIVE_BIG_NR :: 3
 
 // Sometimes it is beneficial to carry an embedded CBOR data item that is not meant to be decoded
 // immediately at the time the enclosing data item is being decoded. Tag number 24 (CBOR data item)
-// can be used to tag the embedded byte string as a single data item encoded in CBOR format.
+// can be used to tag the embedded u8 string as a single data item encoded in CBOR format.
 // Use the struct tag `cbor_tag:"24"` or `cbor_tag:"cbor"` to keep a non-decoded field (string or bytes) of raw CBOR.
 TAG_CBOR_NR :: 24
 TAG_CBOR_ID :: "cbor"
@@ -271,15 +271,15 @@ tag_cbor_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marshal_
         return marshal_into(e, v)
     case reflect.Type_Info_Array:
         elem_base := reflect.type_info_base(t.elem)
-        if elem_base.id != byte { return .Bad_Tag_Value }
+        if elem_base.id != u8 { return .Bad_Tag_Value }
         return marshal_into(e, v)
     case reflect.Type_Info_Slice:
         elem_base := reflect.type_info_base(t.elem)
-        if elem_base.id != byte { return .Bad_Tag_Value }
+        if elem_base.id != u8 { return .Bad_Tag_Value }
         return marshal_into(e, v)
     case reflect.Type_Info_Dynamic_Array:
         elem_base := reflect.type_info_base(t.elem)
-        if elem_base.id != byte { return .Bad_Tag_Value }
+        if elem_base.id != u8 { return .Bad_Tag_Value }
         return marshal_into(e, v)
     case:
         return .Bad_Tag_Value
@@ -319,20 +319,20 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
     case reflect.Type_Info_Slice:
         elem_base := reflect.type_info_base(t.elem)
 
-        if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != u8 { return _unsupported(v, hdr) }
 
-        raw  := (^[]byte)(v.data)
+        raw  := (^[]u8)(v.data)
         raw^  = base64.decode(bytes) or_return
         return
         
     case reflect.Type_Info_Dynamic_Array:
         elem_base := reflect.type_info_base(t.elem)
 
-        if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != u8 { return _unsupported(v, hdr) }
 
         decoded := base64.decode(bytes) or_return
         
-        raw           := (^dyn_array.Dyn_Array(byte))(v.data)
+        raw           := (^dyn_array.Dyn_Array(u8))(v.data)
         raw.data       = raw_data(decoded)
         raw.len        = len(decoded)
         raw.cap        = len(decoded)
@@ -341,11 +341,11 @@ tag_base64_unmarshal :: proc(_: ^Tag_Implementation, d: Decoder, _: Tag_Number, 
     case reflect.Type_Info_Array:
         elem_base := reflect.type_info_base(t.elem)
 
-        if elem_base.id != byte { return _unsupported(v, hdr) }
+        if elem_base.id != u8 { return _unsupported(v, hdr) }
 
         if base64.decoded_len(bytes) > t.count { return _unsupported(v, hdr) }
         
-        slice := ([^]byte)(v.data)[:len(bytes)]
+        slice := ([^]u8)(v.data)[:len(bytes)]
         slice.copy(slice, base64.decode(bytes) or_return)
         return
     }
@@ -360,17 +360,17 @@ tag_base64_marshal :: proc(_: ^Tag_Implementation, e: Encoder, v: any) -> Marsha
     ti := reflect.type_info_base(type_info_of(v.id))
     a := any{v.data, ti.id}
 
-    bytes: []byte
+    bytes: []u8
     switch val in a {
-    case string:        bytes = transmute([]byte)val
-    case cstring:       bytes = transmute([]byte)string(val)
-    case []byte:        bytes = val
-    case dyn_array.Dyn_Array(byte): bytes = val[:]
+    case string:        bytes = transmute([]u8)val
+    case cstring:       bytes = transmute([]u8)string(val)
+    case []u8:        bytes = val
+    case dyn_array.Dyn_Array(u8): bytes = val[:]
     case:
         #partial switch t in ti.variant {
         case reflect.Type_Info_Array:
-            if t.elem.id != byte { return .Bad_Tag_Value }
-            bytes = ([^]byte)(v.data)[:t.count]
+            if t.elem.id != u8 { return .Bad_Tag_Value }
+            bytes = ([^]u8)(v.data)[:t.count]
         case:
             return .Bad_Tag_Value
         }

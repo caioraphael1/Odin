@@ -745,7 +745,7 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
 }
 
 _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> string {
-    _write_byte_n_times :: #force_inline proc(builder: ^string_builder.Builder, b: byte, n: uint) {
+    _write_byte_n_times :: #force_inline proc(builder: ^string_builder.Builder, b: u8, n: uint) {
         for _ in 0..<n {
             string_builder.write_byte(builder, b)
         }

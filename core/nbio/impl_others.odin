@@ -38,11 +38,11 @@ _Close :: struct {}
 _Dial :: struct {}
 
 _Recv :: struct {
-    small_bufs: [1][]byte,
+    small_bufs: [1][]u8,
 }
 
 _Send :: struct {
-    small_bufs: [1][]byte,
+    small_bufs: [1][]u8,
 }
 
 _Read :: struct {}

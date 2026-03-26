@@ -229,8 +229,8 @@ Event :: struct {
 
 			repeat: bool,
 
-			_key_buf:  [KEYBOARD_MAX_KEY_SIZE]byte,
-			_code_buf: [KEYBOARD_MAX_KEY_SIZE]byte,
+			_key_buf:  [KEYBOARD_MAX_KEY_SIZE]u8,
+			_code_buf: [KEYBOARD_MAX_KEY_SIZE]u8,
 		},
 
 		mouse: struct {

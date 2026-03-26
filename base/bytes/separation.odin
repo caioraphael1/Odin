@@ -4,7 +4,7 @@ import "base:container/dyn_array"
 import "base:unicode"
 import "base:unicode/utf8"
 
-partition :: proc(str, sep: []byte) -> (head, match, tail: []byte) {
+partition :: proc(str, sep: []u8) -> (head, match, tail: []u8) {
     i, found := index_bytes(str, sep)
     if found {
         head = str
@@ -18,7 +18,7 @@ partition :: proc(str, sep: []byte) -> (head, match, tail: []byte) {
 }
 
 
-trim_left_proc :: proc(s: []byte, p: proc(rune) -> bool) -> []byte {
+trim_left_proc :: proc(s: []u8, p: proc(rune) -> bool) -> []u8 {
     i, found := index_proc(s, p, false)
     if !found {
         return nil
@@ -26,7 +26,7 @@ trim_left_proc :: proc(s: []byte, p: proc(rune) -> bool) -> []byte {
     return s[i:]
 }
 
-trim_left_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: rawptr) -> []byte {
+trim_left_proc_with_state :: proc(s: []u8, p: proc(rawptr, rune) -> bool, state: rawptr) -> []u8 {
     i, found := index_proc_with_state(s, p, state, false)
     if !found {
         return nil
@@ -34,7 +34,7 @@ trim_left_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, stat
     return s[i:]
 }
 
-trim_right_proc :: proc(s: []byte, p: proc(rune) -> bool) -> []byte {
+trim_right_proc :: proc(s: []u8, p: proc(rune) -> bool) -> []u8 {
     i, found := last_index_proc(s, p, false)
     if found && s[i] >= utf8.RUNE_SELF {
         _, w := utf8.rune_from_bytes(s[i:])
@@ -45,7 +45,7 @@ trim_right_proc :: proc(s: []byte, p: proc(rune) -> bool) -> []byte {
     return s[0:i]
 }
 
-trim_right_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, state: rawptr) -> []byte {
+trim_right_proc_with_state :: proc(s: []u8, p: proc(rawptr, rune) -> bool, state: rawptr) -> []u8 {
     i, found := last_index_proc_with_state(s, p, state, false)
     if found && s[i] >= utf8.RUNE_SELF {
         _, w := utf8.rune_from_bytes(s[i:])
@@ -56,7 +56,7 @@ trim_right_proc_with_state :: proc(s: []byte, p: proc(rawptr, rune) -> bool, sta
     return s[0:i]
 }
 
-trim_left :: proc(s: []byte, cutset: []byte) -> []byte {
+trim_left :: proc(s: []u8, cutset: []u8) -> []u8 {
     if s == nil || cutset == nil {
         return s
     }
@@ -73,7 +73,7 @@ trim_left :: proc(s: []byte, cutset: []byte) -> []byte {
     return s[begin:]
 }
 
-trim_right :: proc(s: []byte, cutset: []byte) -> []byte {
+trim_right :: proc(s: []u8, cutset: []u8) -> []u8 {
     if s == nil || cutset == nil {
         return s
     }
@@ -89,49 +89,49 @@ trim_right :: proc(s: []byte, cutset: []byte) -> []byte {
     return s[:end]
 }
 
-trim :: proc(s: []byte, cutset: []byte) -> []byte {
+trim :: proc(s: []u8, cutset: []u8) -> []u8 {
     return trim_right(trim_left(s, cutset), cutset)
 }
 
-trim_left_space :: proc(s: []byte) -> []byte {
+trim_left_space :: proc(s: []u8) -> []u8 {
     return trim_left_proc(s, unicode.is_space)
 }
 
-trim_right_space :: proc(s: []byte) -> []byte {
+trim_right_space :: proc(s: []u8) -> []u8 {
     return trim_right_proc(s, unicode.is_space)
 }
 
-trim_space :: proc(s: []byte) -> []byte {
+trim_space :: proc(s: []u8) -> []u8 {
     return trim_right_space(trim_left_space(s))
 }
 
-trim_left_null :: proc(s: []byte) -> []byte {
+trim_left_null :: proc(s: []u8) -> []u8 {
     return trim_left_proc(s, unicode.is_null)
 }
 
-trim_right_null :: proc(s: []byte) -> []byte {
+trim_right_null :: proc(s: []u8) -> []u8 {
     return trim_right_proc(s, unicode.is_null)
 }
 
-trim_null :: proc(s: []byte) -> []byte {
+trim_null :: proc(s: []u8) -> []u8 {
     return trim_right_null(trim_left_null(s))
 }
 
-trim_prefix :: proc(s, prefix: []byte) -> []byte {
+trim_prefix :: proc(s, prefix: []u8) -> []u8 {
     if has_prefix(s, prefix) {
         return s[len(prefix):]
     }
     return s
 }
 
-trim_suffix :: proc(s, suffix: []byte) -> []byte {
+trim_suffix :: proc(s, suffix: []u8) -> []u8 {
     if has_suffix(s, suffix) {
         return s[:len(s)-len(suffix)]
     }
     return s
 }
 
-index_proc :: proc(s: []byte, p: proc(rune) -> bool, truth := true) -> (idx: uint, found: bool) {
+index_proc :: proc(s: []u8, p: proc(rune) -> bool, truth := true) -> (idx: uint, found: bool) {
     for r, i in string(s) {
         if p(r) == truth {
             return i, true

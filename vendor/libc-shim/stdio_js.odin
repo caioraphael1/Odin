@@ -20,11 +20,11 @@ _fclose :: proc(file: FILE) -> i32 {
     internal.unimplemented("vendor/libc: fclose in JS")
 }
 
-_fread :: proc(buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
+_fread :: proc(buffer: [^]u8, size: uint, count: uint, file: FILE) -> uint {
     internal.unimplemented("vendor/libc: fread in JS")
 }
 
-_fwrite :: proc(buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
+_fwrite :: proc(buffer: [^]u8, size: uint, count: uint, file: FILE) -> uint {
     fd, ok := _fd_specific(file)
     if !ok {
         return 0
@@ -35,7 +35,7 @@ _fwrite :: proc(buffer: [^]byte, size: uint, count: uint, file: FILE) -> uint {
 }
 
 _putchar :: proc(char: c.int) -> c.int {
-    __write(1, {byte(char)})
+    __write(1, {u8(char)})
     return char
 }
 
@@ -46,7 +46,7 @@ _getchar :: proc() -> c.int {
 @(private="file")
 foreign odin_env {
     @(link_name="write")
-    __write :: proc(fd: u32, p: []byte) ---
+    __write :: proc(fd: u32, p: []u8) ---
 }
 
 @(private="file")

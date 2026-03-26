@@ -25,17 +25,17 @@ Scanner_Error :: union #shared_nil {
 }
 
 // Split_Proc is the signature of the split procedure used to tokenize the input.
-Split_Proc :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool)
+Split_Proc :: proc(data: []u8, at_eof: bool) -> (advance: uint, token: []u8, err: Scanner_Error, final_token: bool)
 
 Scanner :: struct {
     r:              io.Reader,
     split:          Split_Proc,
 
-    buf:            dyn_array.Dyn_Array(byte),
+    buf:            dyn_array.Dyn_Array(u8),
     max_token_size: uint,
     start:          uint,
     end:            uint,
-    token:          []byte,
+    token:          []u8,
 
     _err: Scanner_Error,
     max_consecutive_empty_reads:  uint,
@@ -59,7 +59,7 @@ scanner_init :: proc(s: ^Scanner, r: io.Reader, buf_allocator: mem.Allocator) ->
 }
 
 // Initializes a Scanner buffer a user provided bytes buffer `buf`
-scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []byte) -> ^Scanner {
+scanner_init_with_buffer :: proc(s: ^Scanner, r: io.Reader, buf: []u8) -> ^Scanner {
     s.r = r
     s.split = scan_lines
     s.max_token_size = DEFAULT_MAX_SCAN_TOKEN_SIZE
@@ -85,7 +85,7 @@ scanner_error :: proc(s: ^Scanner) -> Scanner_Error {
 // The underlying array may point to data that may be overwritten
 // by another call to 'scan'.
 // Treat the returned value as if it is immutable.
-scanner_bytes :: proc(s: ^Scanner) -> []byte {
+scanner_bytes :: proc(s: ^Scanner) -> []u8 {
     return s.token
 }
 
@@ -238,8 +238,8 @@ scan :: proc(s: ^Scanner) -> bool {
     }
 }
 
-// scan_bytes is a splitting procedure that returns each byte as a token
-scan_bytes :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
+// scan_bytes is a splitting procedure that returns each u8 as a token
+scan_bytes :: proc(data: []u8, at_eof: bool) -> (advance: uint, token: []u8, err: Scanner_Error, final_token: bool) {
     if at_eof && len(data) == 0 {
         return
     }
@@ -250,7 +250,7 @@ scan_bytes :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte,
 // The lsit of runes return is equivalent to that of iterating over a string in a 'for in' loop, meaning any
 // erroneous UTF-8 encodings will be returned as U+FFFD. Unfortunately this means it is impossible for the "client"
 // to know whether a U+FFFD is an expected replacement rune or an encoding of an error.
-scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
+scan_runes :: proc(data: []u8, at_eof: bool) -> (advance: uint, token: []u8, err: Scanner_Error, final_token: bool) {
     if at_eof && len(data) == 0 {
         return
     }
@@ -272,7 +272,7 @@ scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte,
         return
     }
 
-    @(thread_local) ERROR_RUNE := []byte{0xef, 0xbf, 0xbd}
+    @(thread_local) ERROR_RUNE := []u8{0xef, 0xbf, 0xbd}
 
     advance = 1
     token = ERROR_RUNE
@@ -280,7 +280,7 @@ scan_runes :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte,
 }
 // scan_words is a splitting procedure that returns each Unicode-space-separated word of text, excluding the surrounded spaces.
 // It will never return return an empty string.
-scan_words :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
+scan_words :: proc(data: []u8, at_eof: bool) -> (advance: uint, token: []u8, err: Scanner_Error, final_token: bool) {
     is_space :: proc(r:  rune) -> bool {
         switch r {
         // lower ones
@@ -333,8 +333,8 @@ scan_words :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte,
 
 // scan_lines is a splitting procedure that returns each line of text stripping of any trailing newline and an optional preceding carriage return (\r?\n).
 // A new line is allowed to be empty.
-scan_lines :: proc(data: []byte, at_eof: bool) -> (advance: uint, token: []byte, err: Scanner_Error, final_token: bool) {
-    trim_carriage_return :: proc(data: []byte) -> []byte {
+scan_lines :: proc(data: []u8, at_eof: bool) -> (advance: uint, token: []u8, err: Scanner_Error, final_token: bool) {
+    trim_carriage_return :: proc(data: []u8) -> []u8 {
         if len(data) > 0 && data[len(data)-1] == '\r' {
             return data[0:len(data)-1]
         }

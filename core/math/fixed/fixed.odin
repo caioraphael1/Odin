@@ -107,11 +107,11 @@ round :: proc(x: $T/Fixed($Backing, $Fraction_Width)) -> Backing {
 }
 
 
-write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
+write :: proc(dst: []u8, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
     Integer_Width :: 8*size_of(Backing) - Fraction_Width
 
     x := x
-    buf: [48]byte
+    buf: [48]u8
     i := 0
 
     if !intrinsics.type_is_unsigned(Backing) && x.i == min(Backing) {
@@ -144,7 +144,7 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
             i += 1
             for fraction > 0 {
                 fraction *= 10
-                buf[i] = byte('0' + (fraction>>Fraction_Width) % 10)
+                buf[i] = u8('0' + (fraction>>Fraction_Width) % 10)
                 i += 1
                 fraction &= 1<<Fraction_Width - 1
             }
@@ -158,9 +158,9 @@ write :: proc(dst: []byte, x: $T/Fixed($Backing, $Fraction_Width)) -> string {
 
 
 to_string :: proc(x: $T/Fixed($Backing, $Fraction_Width), allocator: mem.Allocator) -> string {
-    buf: [48]byte
+    buf: [48]u8
     s := write(buf[:], x)
-    str := slice.create([]byte, len(s), allocator)
+    str := slice.create([]u8, len(s), allocator)
     slice.copy(str, s)
     return string(str)
 }

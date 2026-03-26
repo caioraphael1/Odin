@@ -6,7 +6,7 @@ import "core:crypto/_aes"
 import "core:simd/x86"
 
 @(private, enable_target_feature = "sse2,aes")
-encrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []byte) {
+encrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []u8) {
 	blk := intrinsics.unaligned_load((^x86.__m128i)(raw_data(src)))
 
 	blk = x86._mm_xor_si128(blk, intrinsics.unaligned_load((^x86.__m128i)(&ctx._sk_exp_enc[0])))
@@ -32,7 +32,7 @@ encrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []byte) {
 }
 
 @(private, enable_target_feature = "sse2,aes")
-decrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []byte) {
+decrypt_block_hw :: proc(ctx: ^Context_Impl_Hardware, dst, src: []u8) {
 	blk := intrinsics.unaligned_load((^x86.__m128i)(raw_data(src)))
 
 	blk = x86._mm_xor_si128(blk, intrinsics.unaligned_load((^x86.__m128i)(&ctx._sk_exp_dec[0])))

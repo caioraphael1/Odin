@@ -460,7 +460,7 @@ IVersionInfo2 :: struct #raw_union {
 }
 IVersionInfo2_VTable :: struct {
     using idxcversioninfo_vtable: IVersionInfo_VTable,
-    GetCommitInfo: proc "system" (this: ^IVersionInfo2, pCommitCount: ^u32, pCommitHash: ^[^]byte) -> HRESULT,
+    GetCommitInfo: proc "system" (this: ^IVersionInfo2, pCommitCount: ^u32, pCommitHash: ^[^]u8) -> HRESULT,
 }
 
 IVersionInfo3_UUID_STRING :: "5E13E843-9D25-473C-9AD2-03B2D0B44B1E"

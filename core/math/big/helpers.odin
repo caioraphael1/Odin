@@ -548,7 +548,7 @@ int_to_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: 
 
 /*
     Read `Int` from a Big Endian binary representation.
-    Sign is detected from the first byte if `signed` is true.
+    Sign is detected from the first u8 if `signed` is true.
 */
 int_from_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
@@ -560,7 +560,7 @@ int_from_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.A
     size_in_bits := l * 8
     if signed { 
         /*
-            First byte denotes the sign.
+            First u8 denotes the sign.
         */
         size_in_bits -= 8
     }
@@ -585,7 +585,7 @@ int_from_bytes_big :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.A
 
 /*
     Read `Int` from a Big Endian Python binary representation.
-    Sign is detected from the first byte if `signed` is true.
+    Sign is detected from the first u8 if `signed` is true.
 */
 int_from_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
@@ -597,7 +597,7 @@ int_from_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator
     size_in_bits := l * 8
     if signed { 
         /*
-            First byte denotes the sign.
+            First u8 denotes the sign.
         */
         size_in_bits -= 8
     }
@@ -631,7 +631,7 @@ int_from_bytes_big_python :: proc(a: ^Int, buf: []u8, signed := false, allocator
 
 /*
     Read `Int` from a Little Endian binary representation.
-    Sign is detected from the last byte if `signed` is true.
+    Sign is detected from the last u8 if `signed` is true.
 */
 int_from_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
@@ -643,7 +643,7 @@ int_from_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: me
     size_in_bits   := l * 8
     if signed { 
         /*
-            First byte denotes the sign.
+            First u8 denotes the sign.
         */
         size_in_bits -= 8
     }
@@ -669,7 +669,7 @@ int_from_bytes_little :: proc(a: ^Int, buf: []u8, signed := false, allocator: me
 
 /*
     Read `Int` from a Little Endian Python binary representation.
-    Sign is detected from the first byte if `signed` is true.
+    Sign is detected from the first u8 if `signed` is true.
 */
 int_from_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, allocator: mem.Allocator) -> (err: Error) {
     assert_if_nil(a)
@@ -681,7 +681,7 @@ int_from_bytes_little_python :: proc(a: ^Int, buf: []u8, signed := false, alloca
     size_in_bits := l * 8
     if signed { 
         /*
-            First byte denotes the sign.
+            First u8 denotes the sign.
         */
         size_in_bits -= 8
     }

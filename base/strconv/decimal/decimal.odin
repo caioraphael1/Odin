@@ -4,7 +4,7 @@ import "base:container/slice"
 //
 // NOTE: This is only for floating point printing and nothing else.
 Decimal :: struct {
-    digits:        [384]byte, // big-endian digits
+    digits:        [384]u8, // big-endian digits
     count:         uint,
     decimal_point: int,
     neg, trunc:    bool,
@@ -72,7 +72,7 @@ set :: proc(d: ^Decimal, s: string) -> (ok: bool) {
         d.decimal_point = int(d.count)
     }
 
-    lower :: #force_inline proc(ch: byte) -> byte { return ('a' - 'A') | ch }
+    lower :: #force_inline proc(ch: u8) -> u8 { return ('a' - 'A') | ch }
 
     if i < len(s) && lower(s[i]) == 'e' {
         i += 1
@@ -106,14 +106,14 @@ set :: proc(d: ^Decimal, s: string) -> (ok: bool) {
 Converts a Decimal to a string representation, using the provided buffer as storage.
 
 **Inputs**
-- buf: A byte slice buffer to hold the resulting string
+- buf: A u8 slice buffer to hold the resulting string
 - a: The struct to be converted to a string
 
 **Returns**
 - A string representation of the Decimal
 */
-decimal_to_string :: proc(buf: []byte, a: ^Decimal) -> string {
-    digit_zero :: proc(buf: []byte) -> uint {
+decimal_to_string :: proc(buf: []u8, a: ^Decimal) -> string {
+    digit_zero :: proc(buf: []u8) -> uint {
         for _, i in buf {
             buf[i] = '0'
         }
@@ -172,12 +172,12 @@ Converts a given u64 integer `idx` to its Decimal representation in the provided
 - idx: The value to be assigned to the Decimal
 */
 assign :: proc(a: ^Decimal, idx: u64) {
-    buf: [64]byte
+    buf: [64]u8
     n := 0
     for i := idx; i > 0;  {
         j := i/10
         i -= 10*j
-        buf[n] = byte('0'+i)
+        buf[n] = u8('0'+i)
         n += 1
         i = j
     }
@@ -228,7 +228,7 @@ shift_right :: proc(a: ^Decimal, k: uint) {
         c := uint(a.digits[r])
         dig := n>>k
         n &= mask
-        a.digits[w] = byte('0' + dig)
+        a.digits[w] = u8('0' + dig)
         w += 1
         n = n*10 + c - '0'
     }
@@ -237,7 +237,7 @@ shift_right :: proc(a: ^Decimal, k: uint) {
         dig := n>>k
         n &= mask
         if w < len(a.digits) {
-            a.digits[w] = byte('0' + dig)
+            a.digits[w] = u8('0' + dig)
             w += 1
         } else if dig > 0 {
             a.trunc = true
@@ -350,7 +350,7 @@ WARNING: asserts `k < 61`
 - k: The number of places to shift the decimal to the left
 */
 shift_left :: proc(a: ^Decimal, k: uint) #no_bounds_check {
-    prefix_less :: #force_inline proc(b: []byte, s: string) -> bool #no_bounds_check {
+    prefix_less :: #force_inline proc(b: []u8, s: string) -> bool #no_bounds_check {
         for i in 0..<len(s) {
             if i >= len(b) {
                 return true
@@ -379,7 +379,7 @@ shift_left :: proc(a: ^Decimal, k: uint) #no_bounds_check {
         rem := n - 10*quo
         write_index -= 1
         if write_index < len(a.digits) {
-            a.digits[write_index] = byte('0' + rem)
+            a.digits[write_index] = u8('0' + rem)
         } else if rem != 0 {
             a.trunc = true
         }
@@ -391,7 +391,7 @@ shift_left :: proc(a: ^Decimal, k: uint) #no_bounds_check {
         rem := n - 10*quo
         write_index -= 1
         if write_index < len(a.digits) {
-            a.digits[write_index] = byte('0' + rem)
+            a.digits[write_index] = u8('0' + rem)
         } else if rem != 0 {
             a.trunc = true
         }

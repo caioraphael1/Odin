@@ -20,14 +20,14 @@ This UUID is generated with a MD5 hash of a name and a namespace.
 Inputs:
 - namespace: An `Identifier` that is used to represent the underlying namespace.
   This can be any one of the `Namespace_*` values provided in the `uuid` package.
-- name: The byte slice which will be hashed with the namespace.
+- name: The u8 slice which will be hashed with the namespace.
 
 Returns:
 - result: The generated UUID.
 */
 generate_v3_bytes :: proc(
     namespace: Identifier,
-    name: []byte,
+    name: []u8,
 ) -> (
     result: Identifier,
 ) {
@@ -67,7 +67,7 @@ generate_v3_string :: proc(
 ) -> (
     result: Identifier,
 ) {
-    return generate_v3_bytes(namespace, transmute([]byte)name)
+    return generate_v3_bytes(namespace, transmute([]u8)name)
 }
 
 /*
@@ -78,19 +78,19 @@ This UUID is generated with a SHA1 hash of a name and a namespace.
 Inputs:
 - namespace: An `Identifier` that is used to represent the underlying namespace.
   This can be any one of the `Namespace_*` values provided in the `uuid` package.
-- name: The byte slice which will be hashed with the namespace.
+- name: The u8 slice which will be hashed with the namespace.
 
 Returns:
 - result: The generated UUID.
 */
 generate_v5_bytes :: proc(
     namespace: Identifier,
-    name: []byte,
+    name: []u8,
 ) -> (
     result: Identifier,
 ) {
     namespace := namespace
-    digest: [sha1.DIGEST_SIZE]byte
+    digest: [sha1.DIGEST_SIZE]u8
 
     ctx: sha1.Context
     sha1.init(&ctx)
@@ -128,5 +128,5 @@ generate_v5_string :: proc(
 ) -> (
     result: Identifier,
 ) {
-    return generate_v5_bytes(namespace, transmute([]byte)name)
+    return generate_v5_bytes(namespace, transmute([]u8)name)
 }

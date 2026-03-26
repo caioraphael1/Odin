@@ -26,7 +26,7 @@ File_Stream_Mode :: enum {
 File_Stream_Proc :: #type proc(
     stream_data: rawptr,
     mode:        File_Stream_Mode,
-    p:           []byte,
+    p:           []u8,
     offset:      i64,
     whence:      io.Seek_From,
     allocator:   mem.Allocator,
@@ -66,7 +66,7 @@ to_reader :: to_stream
 
 
 @(private)
-file_io_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
+file_io_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []u8, offset: i64, whence: io.Seek_From, loc := #caller_location) -> (n: i64, err: io.Error) {
     f := (^File)(stream_data)
 
     file_stream_mode := transmute(File_Stream_Mode)mode
@@ -78,7 +78,7 @@ file_io_stream_proc :: proc(stream_data: rawptr, mode: io.Stream_Mode, p: []byte
 }
 
 @(private)
-file_stream_fstat_utility :: proc(f: ^File_Impl, p: []byte, allocator: mem.Allocator) -> (err: Error) {
+file_stream_fstat_utility :: proc(f: ^File_Impl, p: []u8, allocator: mem.Allocator) -> (err: Error) {
     fi: File_Info
     if len(p) >= size_of(fi) {
         fi, err = _fstat(&f.file, allocator)

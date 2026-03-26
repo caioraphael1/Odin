@@ -17,11 +17,11 @@ fe_tighten_cast :: #force_inline proc(
 
 fe_from_bytes :: #force_inline proc(
 	out1: ^Tight_Field_Element,
-	arg1: []byte,
-	arg2: byte,
+	arg1: []u8,
+	arg2: u8,
 ) {
 	// fiat-crypto's deserialization routine effectively processes a
-	// single byte at a time, and wants 256-bits of input for a value
+	// single u8 at a time, and wants 256-bits of input for a value
 	// that will be 128-bits or 129-bits.
 	//
 	// This is somewhat cumbersome to use, so at a minimum a wrapper
@@ -50,7 +50,7 @@ fe_from_bytes :: #force_inline proc(
 }
 
 fe_from_u64s :: proc(out1: ^Tight_Field_Element, lo, hi: u64) {
-	tmp: [32]byte
+	tmp: [32]u8
 	endian.unchecked_put_u64le(tmp[0:], lo)
 	endian.unchecked_put_u64le(tmp[8:], hi)
 

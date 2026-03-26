@@ -165,7 +165,7 @@ Context_Stream_Input :: struct #packed {
 /*
     TODO: The stream versions should really only check if a certain method is available once, perhaps even during setup.
 
-    Bit and byte readers may be merged so that reading bytes will grab them from the bit buffer first.
+    Bit and u8 readers may be merged so that reading bytes will grab them from the bit buffer first.
     This simplifies end-of-stream handling where bits may be left in the bit buffer.
 */
 

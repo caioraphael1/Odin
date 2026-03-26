@@ -91,7 +91,7 @@ Raw_Map :: struct {
     //   h: Map_Cell(H) * (capacity / hs_per_cell)
     // }
     //
-    // The data is allocated assuming 64-byte alignment, meaning the address is
+    // The data is allocated assuming 64-u8 alignment, meaning the address is
     // always a multiple of 64. This means we have 6 bits of zeros in the pointer
     // to store the capacity. We can store a value as large as 2^6-1 or 63 in
     // there. This conveniently is the maximum log2 capacity we can have for a map
@@ -684,7 +684,7 @@ __map_insert_hash_dynamic :: #force_inline proc(#no_alias m: ^Raw_Map, #no_alias
 
 __default_hasher :: #force_inline proc(data: rawptr, seed: uintptr, N: uint) -> uintptr {
     h := u64(seed) + INITIAL_HASH_SEED
-    p := ([^]byte)(data)
+    p := ([^]u8)(data)
     for _ in 0..<N {
         h = (h ~ u64(p[0])) * 0x100000001b3
         p = p[1:]
@@ -694,13 +694,13 @@ __default_hasher :: #force_inline proc(data: rawptr, seed: uintptr, N: uint) -> 
 }
 
 __default_hasher_string :: proc(data: rawptr, seed: uintptr) -> uintptr {
-    str := (^[]byte)(data)
+    str := (^[]u8)(data)
     return __default_hasher(raw_data(str^), seed, len(str))
 }
 
 __default_hasher_cstring :: proc(data: rawptr, seed: uintptr) -> uintptr {
     h := u64(seed) + INITIAL_HASH_SEED
-    if ptr := (^[^]byte)(data)^; ptr != nil {
+    if ptr := (^[^]u8)(data)^; ptr != nil {
         for ptr[0] != 0 {
             h = (h ~ u64(ptr[0])) * 0x100000001b3
             ptr = ptr[1:]

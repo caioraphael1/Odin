@@ -62,7 +62,7 @@ Register_User_Unmarshaler_Error :: enum {
 //  }
 //  y: SomeType
 //
-//  unmarshal_err := json.unmarshal(transmute([]byte)data, &y)
+//  unmarshal_err := json.unmarshal(transmute([]u8)data, &y)
 //  fmt.println(y, unmarshal_err)
 // }
 
@@ -103,7 +103,7 @@ register_user_unmarshaler :: proc(id: typeid, unmarshaler: User_Unmarshaler) -> 
     return .None
 }
 
-unmarshal_any :: proc(data: []byte, v: any, spec := DEFAULT_SPECIFICATION, allocator: mem.Allocator) -> Unmarshal_Error {
+unmarshal_any :: proc(data: []u8, v: any, spec := DEFAULT_SPECIFICATION, allocator: mem.Allocator) -> Unmarshal_Error {
     v := v
     if v == nil || v.id == nil {
         return .Invalid_Parameter
@@ -138,12 +138,12 @@ unmarshal_any :: proc(data: []byte, v: any, spec := DEFAULT_SPECIFICATION, alloc
 }
 
 
-unmarshal :: proc(data: []byte, ptr: ^$T, spec := DEFAULT_SPECIFICATION, allocator: mem.Allocator) -> Unmarshal_Error {
+unmarshal :: proc(data: []u8, ptr: ^$T, spec := DEFAULT_SPECIFICATION, allocator: mem.Allocator) -> Unmarshal_Error {
     return unmarshal_any(data, ptr, spec, allocator)
 }
 
 unmarshal_string :: proc(data: string, ptr: ^$T, spec := DEFAULT_SPECIFICATION, allocator: mem.Allocator) -> Unmarshal_Error {
-    return unmarshal_any(transmute([]byte)data, ptr, spec, allocator)
+    return unmarshal_any(transmute([]u8)data, ptr, spec, allocator)
 }
 
 
@@ -611,9 +611,9 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
             }
 
             if field_found {
-                field_test :: #force_inline proc(field_used: [^]byte, offset: uintptr) -> bool {
-                    prev_set := field_used[offset/8] & byte(offset&7) != 0
-                    field_used[offset/8] |= byte(offset&7)
+                field_test :: #force_inline proc(field_used: [^]u8, offset: uintptr) -> bool {
+                    prev_set := field_used[offset/8] & u8(offset&7) != 0
+                    field_used[offset/8] |= u8(offset&7)
                     return prev_set
                 }
                 if field_test(field_used, offset) {
@@ -795,7 +795,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         return assign_array(p, raw.data, t.elem, length)
         
     case reflect.Type_Info_Dynamic_Array:
-        raw := (^dyn_array.Dyn_Array(byte))(v.data)
+        raw := (^dyn_array.Dyn_Array(u8))(v.data)
         data := bytes_make(uint(t.elem.size) * uint(length), uint(t.elem.align), p.allocator) or_return
         raw.data = raw_data(data)
         raw.len = uint(length)

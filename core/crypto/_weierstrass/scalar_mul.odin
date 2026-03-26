@@ -16,7 +16,7 @@ pt_scalar_mul :: proc(
 		#panic("weierstrass: invalid curve")
 	}
 
-	b: [SC_SZ]byte = ---
+	b: [SC_SZ]u8 = ---
 	sc_bytes(b[:], sc)
 
 	pt_scalar_mul_bytes(p, a, b[:], unsafe_is_vartime)
@@ -28,7 +28,7 @@ pt_scalar_mul :: proc(
 
 pt_scalar_mul_bytes :: proc(
 	p, a: ^$T,
-	sc: []byte,
+	sc: []u8,
 	unsafe_is_vartime: bool = false,
 ) {
 	when T == Point_p256r1 {
@@ -92,7 +92,7 @@ pt_double_scalar_mul_generator_vartime :: proc(
 		#panic("weierstrass: invalid curve")
 	}
 
-	sc_q_bytes, sc_g_bytes: [SC_SZ]byte = ---, ---
+	sc_q_bytes, sc_g_bytes: [SC_SZ]u8 = ---, ---
 	sc_bytes(sc_q_bytes[:], sc_q)
 	sc_bytes(sc_g_bytes[:], sc_g)
 
@@ -179,7 +179,7 @@ when crypto.COMPACT_IMPLS == true {
 			#panic("weierstrass: invalid curve")
 		}
 
-		b: [SC_SZ]byte
+		b: [SC_SZ]u8
 		sc_bytes(b[:], sc)
 
 		pt_identity(p)

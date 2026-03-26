@@ -49,7 +49,7 @@ Font :: struct {
     name: string, // allocated
 
     info:           stbtt.fontinfo,
-    loadedData:     []byte,
+    loadedData:     []u8,
     freeLoadedData: bool, // in case you dont want loadedData to be removed
 
     ascender:   f32,
@@ -96,7 +96,7 @@ FontContext :: struct {
     nodes: dyn_array.Dyn_Array(AtlasNode),
 
     // actual pixels
-    textureData:   []byte, // allocated using context.allocator
+    textureData:   []u8, // allocated using context.allocator
     width, height: int,
     // 1 / texture_atlas_width, 1 / texture_atlas_height
     itw, ith: f32,
@@ -126,7 +126,7 @@ Init :: proc(ctx: ^FontContext, w, h: int, loc: QuadLocation) {
 
     ctx.itw, ctx.ith = 1.0 / f32(w), 1.0 / f32(h)
 
-    ctx.textureData = slice.create([]byte, w * h)
+    ctx.textureData = slice.create([]u8, w * h)
     
     ctx.width  = w
     ctx.height = h
@@ -631,7 +631,7 @@ ExpandAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloc
         ctx.callbackResize(ctx.userData, w, h)
     }
 
-    data := slice.create([]byte, w * h, allocator)
+    data := slice.create([]u8, w * h, allocator)
 
     for i in 0..<ctx.height {
         dst := &data[i * w]
@@ -678,7 +678,7 @@ ResetAtlas :: proc(ctx: ^FontContext, width, height: int, allocator : mem.Alloca
     } else {
         // realloc
         _ = slice.delete(ctx.textureData, allocator)
-        ctx.textureData = slice.create([]byte, width * height, allocator)
+        ctx.textureData = slice.create([]u8, width * height, allocator)
     }
 
     ctx.dirtyRect[0] = f32(width)
@@ -826,7 +826,7 @@ utf8d := [400]u8{
 
 // decode codepoints from a state
 @(private)
-__decutf8 :: #force_inline proc(state: ^rune, codep: ^rune, b: byte) -> bool {
+__decutf8 :: #force_inline proc(state: ^rune, codep: ^rune, b: u8) -> bool {
     b := rune(b)
     type := utf8d[b]
     codep^ = (state^ != UTF8_ACCEPT) ? ((b & 0x3f) | (codep^ << 6)) : ((0xff >> type) & (b))
@@ -866,7 +866,7 @@ TextIter :: struct {
     text:           string,
     codepointCount: int,
 
-    // byte indices
+    // u8 indices
     str:  int,
     next: int,
     end:  int,

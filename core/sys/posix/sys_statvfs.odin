@@ -143,7 +143,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
 		f_ffree:    fsblkcnt_t, /* [PSX] total number of free file serial numbers */
 		f_favail:   fsblkcnt_t, /* [PSX] number of file serial numbers available to non-privileged process */
 		f_fsid:     c.ulong,    /* [PSX] file system ID */
-		_:          [2*size_of(c.int)-size_of(c.long)]byte,
+		_:          [2*size_of(c.int)-size_of(c.long)]u8,
 		f_flag:     VFS_Flags,  /* [PSX] bit mask of f_flag values */
 		f_namemax:  c.ulong,    /* [PSX] maximum filename length */
 		f_type:     c.uint,

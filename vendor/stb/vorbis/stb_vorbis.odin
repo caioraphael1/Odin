@@ -49,7 +49,7 @@ when LIB != "" {
 // to use malloc()/alloca()
 
 vorbis_alloc :: struct {
-	alloc_buffer: [^]byte,
+	alloc_buffer: [^]u8,
 	alloc_buffer_length_in_bytes: c.int,
 }
 
@@ -121,7 +121,7 @@ foreign lib {
 	// if returns NULL and *error is VORBIS_need_more_data, then the input block was
 	//       incomplete and you need to pass in a larger block from the start of the file
 	open_pushdata :: proc(
-		datablock: [^]byte, datablock_length_in_bytes: c.int,
+		datablock: [^]u8, datablock_length_in_bytes: c.int,
 		datablock_memory_consumed_in_bytes: ^c.int,
 		error: ^Error,
 		alloc_buffer: ^vorbis_alloc,
@@ -157,7 +157,7 @@ foreign lib {
 	// you need before then.
 	decode_frame_pushdata :: proc(
 	         f: ^vorbis,
-	         datablock: [^]byte, datablock_length_in_bytes: c.int,
+	         datablock: [^]u8, datablock_length_in_bytes: c.int,
 	         channels: ^c.int,   // place to write number of float * buffers
 	         output:   ^[^]^f32, // place to write float ** array of float * buffers
 	         samples:  ^c.int,   // place to write number of output samples
@@ -193,13 +193,13 @@ foreign lib {
 	// decoded, or -1 if the file could not be opened or was not an ogg vorbis file.
 	// When you're done with it, just free() the pointer returned in *output.
 	decode_filename :: proc(filename: cstring, channels, sample_rate: ^c.int, output: ^[^]c.short) -> c.int ---
-	decode_memory :: proc(mem: [^]byte, len: c.int, channels, sample_rate: ^c.int, output: ^[^]c.short) -> c.int ---
+	decode_memory :: proc(mem: [^]u8, len: c.int, channels, sample_rate: ^c.int, output: ^[^]c.short) -> c.int ---
 	
 	
 	
 	// create an ogg vorbis decoder from an ogg vorbis stream in memory (note
 	// this must be the entire stream!). on failure, returns NULL and sets *error
-	open_memory :: proc(data: [^]byte, len: c.int,
+	open_memory :: proc(data: [^]u8, len: c.int,
 	                    error: ^Error, alloc_buffer: ^vorbis_alloc) -> ^vorbis ---
 
 	// create an ogg vorbis decoder from a filename via fopen(). on failure,
@@ -334,7 +334,7 @@ Error :: enum c.int {
 // MAX_CHANNELS [number]
 //     globally define this to the maximum number of channels you need.
 //     The spec does not put a restriction on channels except that
-//     the count is stored in a byte, so 255 is the hard limit.
+//     the count is stored in a u8, so 255 is the hard limit.
 //     Reducing this saves about 16 bytes per value, so using 16 saves
 //     (255-16)*16 or around 4KB. Plus anything other memory usage
 //     I forgot to account for. Can probably go as low as 8 (7.1 audio),

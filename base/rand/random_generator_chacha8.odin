@@ -22,7 +22,7 @@ import "base:mem"
 //    is defined around 992-bytes of RNG output and 32-bytes of input
 //    per iteration.
 //
-// This implementation opts for a 1024-byte buffer for simplicity,
+// This implementation opts for a 1024-u8 buffer for simplicity,
 // under the rationale that modern extremely memory constrained targets
 // provide suitable functionality in hardware, and the language makes
 // supporting the various SIMD flavors easy.
@@ -44,7 +44,7 @@ CHACHA_SIGMA_3: u32 : 0x6b206574
 CHACHA_ROUNDS :: 8
 
 Default_Random_State :: struct {
-    _buf:    [1024]byte,
+    _buf:    [1024]u8,
     _off:    int,
     _seeded: bool,
 }
@@ -57,7 +57,7 @@ default_random_generator :: proc(state: ^Default_Random_State = nil) -> Random_G
     }
 }
 
-default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []byte) {
+default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode, p: []u8) {
     @(thread_local)
     state: Default_Random_State
 

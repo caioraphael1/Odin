@@ -21,7 +21,7 @@ NODE_BUS_COUNT_UNKNOWN :: 255
 stack :: struct {
 	offset:      uint,
 	sizeInBytes: uint,
-	_data:       [1]byte,
+	_data:       [1]u8,
 }
 
 node :: struct {}

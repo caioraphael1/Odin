@@ -49,7 +49,7 @@ foreign lib {
 	 *                or 0 if compression fails
 	 * Note : This function is protected against buffer overflow scenarios (never writes outside 'dst' buffer, nor read outside 'source' buffer).
 	 */
-	compress_default :: proc(src, dst: [^]byte, srcSize, dstCapacity: c.int) -> c.int ---
+	compress_default :: proc(src, dst: [^]u8, srcSize, dstCapacity: c.int) -> c.int ---
 
 	/*! LZ4_decompress_safe() :
 	 * @compressedSize : is the exact complete size of the compressed block.
@@ -66,7 +66,7 @@ foreign lib {
 	 *          The implementation is free to send / store / derive this information in whichever way is most beneficial.
 	 *          If there is a need for a different format which bundles together both compressed data and its metadata, consider looking at lz4frame.h instead.
 	 */
-	decompress_safe :: proc(src, dst: [^]byte, compressedSize, dstCapacity: c.int) -> c.int ---
+	decompress_safe :: proc(src, dst: [^]u8, compressedSize, dstCapacity: c.int) -> c.int ---
 
 
 	/*! LZ4_compressBound() :
@@ -88,7 +88,7 @@ foreign lib {
 	    Values <= 0 will be replaced by LZ4_ACCELERATION_DEFAULT (currently == 1, see lz4.c).
 	    Values > LZ4_ACCELERATION_MAX will be replaced by LZ4_ACCELERATION_MAX (currently == 65537, see lz4.c).
 	*/
-	compress_fast :: proc(src, dst: [^]byte, srcSize, dstCapacity: c.int, acceleration: c.int) -> c.int ---
+	compress_fast :: proc(src, dst: [^]u8, srcSize, dstCapacity: c.int, acceleration: c.int) -> c.int ---
 
 
 	/*! LZ4_compress_fast_extState() :
@@ -98,7 +98,7 @@ foreign lib {
 	 *  Then, provide this buffer as `void* state` to compression function.
 	 */
 	sizeofState :: proc() -> c.int ---
-	compress_fast_extState :: proc (state: rawptr, src, dst: [^]byte, srcSize, dstCapacity: c.int, acceleration: c.int) -> c.int ---
+	compress_fast_extState :: proc (state: rawptr, src, dst: [^]u8, srcSize, dstCapacity: c.int, acceleration: c.int) -> c.int ---
 
 
 	/*! LZ4_compress_destSize() :
@@ -117,15 +117,15 @@ foreign lib {
 	 * Note : from v1.8.2 to v1.9.1, this function had a bug (fixed in v1.9.2+):
 	 *        the produced compressed content could, in specific circumstances,
 	 *        require to be decompressed into a destination buffer larger
-	 *        by at least 1 byte than the content to decompress.
+	 *        by at least 1 u8 than the content to decompress.
 	 *        If an application uses `LZ4_compress_destSize()`,
 	 *        it's highly recommended to update liblz4 to v1.9.2 or better.
 	 *        If this can't be done or ensured,
 	 *        the receiving decompression function should provide
-	 *        a dstCapacity which is > decompressedSize, by at least 1 byte.
+	 *        a dstCapacity which is > decompressedSize, by at least 1 u8.
 	 *        See https://github.com/lz4/lz4/issues/859 for details
 	 */
-	compress_destSize :: proc(src, dst: [^]byte, srcSizePtr: ^c.int, targetDstSize: c.int) -> c.int ---
+	compress_destSize :: proc(src, dst: [^]u8, srcSizePtr: ^c.int, targetDstSize: c.int) -> c.int ---
 
 
 	/*! LZ4_decompress_safe_partial() :
@@ -162,7 +162,7 @@ foreign lib {
 	 *           then targetOutputSize **MUST** be <= block's decompressed size.
 	 *           Otherwise, *silent corruption will occur*.
 	 */
-	decompress_safe_partial :: proc (src, dst: [^]byte, srcSize, targetOutputSize, dstCapacity: c.int) -> c.int ---
+	decompress_safe_partial :: proc (src, dst: [^]u8, srcSize, targetOutputSize, dstCapacity: c.int) -> c.int ---
 
 
 	createStream :: proc() -> ^stream_t ---
@@ -204,7 +204,7 @@ foreign lib {
 	 *  Loading a size of 0 is allowed, and is the same as reset.
 	 * : loaded dictionary size, in bytes (note: only the last 64 KB are loaded)
 	 */
-	loadDict :: proc(streamPtr: ^stream_t, dictionary: [^]byte, dictSize: c.int) -> c.int ---
+	loadDict :: proc(streamPtr: ^stream_t, dictionary: [^]u8, dictSize: c.int) -> c.int ---
 
 	/*! LZ4_loadDictSlow() : v1.10.0+
 	 *  Same as LZ4_loadDict(),
@@ -213,7 +213,7 @@ foreign lib {
 	 *  The extra-cpu cost is likely worth it if the dictionary is re-used across multiple sessions.
 	 * : loaded dictionary size, in bytes (note: only the last 64 KB are loaded)
 	 */
-	loadDictSlow :: proc(streamPtr: ^stream_t, dictionary: [^]byte, dictSize: c.int) -> c.int ---
+	loadDictSlow :: proc(streamPtr: ^stream_t, dictionary: [^]u8, dictSize: c.int) -> c.int ---
 
 	/*! LZ4_attach_dictionary() : stable since v1.10.0
 	 *
@@ -265,14 +265,14 @@ foreign lib {
 	 *  Note 2 : The previous 64KB of source data is __assumed__ to remain present, unmodified, at same address in memory !
 	 *
 	 *  Note 3 : When input is structured as a double-buffer, each buffer can have any size, including < 64 KB.
-	 *           Make sure that buffers are separated, by at least one byte.
+	 *           Make sure that buffers are separated, by at least one u8.
 	 *           This construction ensures that each block only depends on previous block.
 	 *
 	 *  Note 4 : If input buffer is a ring-buffer, it can have any size, including < 64 KB.
 	 *
 	 *  Note 5 : After an error, the stream status is undefined (invalid), it can only be reset or freed.
 	 */
-	compress_fast_continue :: proc(streamPtr: ^stream_t, src, dst: [^]byte, srcSize, dstCapacity: c.int, acceleration: c.int) -> c.int ---
+	compress_fast_continue :: proc(streamPtr: ^stream_t, src, dst: [^]u8, srcSize, dstCapacity: c.int, acceleration: c.int) -> c.int ---
 
 	/*! LZ4_saveDict() :
 	 *  If last 64KB data cannot be guaranteed to remain available at its current memory location,
@@ -281,7 +281,7 @@ foreign lib {
 	 *  but is much faster, because LZ4_saveDict() doesn't need to rebuild tables.
 	 * : saved dictionary size in bytes (necessarily <= maxDictSize), or 0 if error.
 	 */
-	saveDict :: proc(streamPtr: ^stream_t, safeBuffer: [^]byte, maxDictSize: c.int) -> c.int ---
+	saveDict :: proc(streamPtr: ^stream_t, safeBuffer: [^]u8, maxDictSize: c.int) -> c.int ---
 
 
 	createStreamDecode :: proc() -> ^streamDecode_t ---
@@ -294,7 +294,7 @@ foreign lib {
 	 *  Dictionary is presumed stable : it must remain accessible and unmodified during next decompression.
 	 * : 1 if OK, 0 if error
 	 */
-	setStreamDecode :: proc(LZ4_streamDecode: ^streamDecode_t, dictionary: [^]byte, dictSize: c.int) -> c.int ---
+	setStreamDecode :: proc(LZ4_streamDecode: ^streamDecode_t, dictionary: [^]u8, dictSize: c.int) -> c.int ---
 
 	/*! LZ4_decoderRingBufferSize() : v1.8.2+
 	 *  Note : in a ring buffer scenario (optional),
@@ -347,7 +347,7 @@ foreign lib {
 	 *  save the last 64KB of decoded data into a safe buffer where it can't be modified during decompression,
 	 *  then indicate where this data is saved using LZ4_setStreamDecode(), before decompressing next block.
 	*/
-	decompress_safe_continue :: proc(LZ4_streamDecode: ^streamDecode_t, src, dst: [^]byte, srcSize, dstCapacity: c.int) -> c.int ---
+	decompress_safe_continue :: proc(LZ4_streamDecode: ^streamDecode_t, src, dst: [^]u8, srcSize, dstCapacity: c.int) -> c.int ---
 
 
 	/*! LZ4_decompress_safe_usingDict() :
@@ -358,7 +358,7 @@ foreign lib {
 	 *  Performance tip : Decompression speed can be substantially increased
 	 *                    when dst == dictStart + dictSize.
 	 */
-	decompress_safe_usingDict :: proc(src, dst: [^]byte, srcSize, dstCapacity: c.int, dictStart: [^]byte, dictSize: c.int) -> c.int ---
+	decompress_safe_usingDict :: proc(src, dst: [^]u8, srcSize, dstCapacity: c.int, dictStart: [^]u8, dictSize: c.int) -> c.int ---
 
 	/*! LZ4_decompress_safe_partial_usingDict() :
 	 *  Behaves the same as LZ4_decompress_safe_partial()
@@ -366,7 +366,7 @@ foreign lib {
 	 *  Performance tip : Decompression speed can be substantially increased
 	 *                    when dst == dictStart + dictSize.
 	 */
-	decompress_safe_partial_usingDict :: proc(src, dst: [^]byte, compressedSize, targetOutputSize, maxOutputSize: c.int, dictStart: [^]byte, dictSize: c.int) -> c.int ---
+	decompress_safe_partial_usingDict :: proc(src, dst: [^]u8, compressedSize, targetOutputSize, maxOutputSize: c.int, dictStart: [^]u8, dictSize: c.int) -> c.int ---
 
 }
 
@@ -374,7 +374,7 @@ foreign lib {
 STREAM_MINSIZE :: (1 << MEMORY_USAGE) + 32  /* static size, for inter-version compatibility */
 
 stream_t :: struct #raw_union {
-	minStateSize:      [STREAM_MINSIZE]byte,
+	minStateSize:      [STREAM_MINSIZE]u8,
 	internal_donotuse: stream_t_internal,
 }
 
@@ -385,7 +385,7 @@ HASH_SIZE_U32 :: 1 << HASHLOG      /* required as macro for static allocation */
 
 stream_t_internal :: struct {
 	hashTable:     [HASH_SIZE_U32]u32,
-	dictionary:    [^]byte,
+	dictionary:    [^]u8,
 	dictCtx:       ^stream_t_internal,
 	currentOffset: u32,
 	tableType:     u32,
@@ -396,13 +396,13 @@ stream_t_internal :: struct {
 
 STREAMDECODE_MINSIZE :: 32
 streamDecode_t :: struct #raw_union {
-	minStateSize:      [STREAMDECODE_MINSIZE]byte,
+	minStateSize:      [STREAMDECODE_MINSIZE]u8,
 	internal_donotuse: streamDecode_t_internal,
 }
 
 streamDecode_t_internal :: struct {
-	externalDict: [^]byte,
-	prefixEnd:    [^]byte,
+	externalDict: [^]u8,
+	prefixEnd:    [^]u8,
 	extDictSize:  c.size_t,
 	prefixSize:   c.size_t,
 }
@@ -430,7 +430,7 @@ foreign lib {
 	 * : the number of bytes written into 'dst'
 	 *           or 0 if compression fails.
 	 */
-	compress_HC :: proc(src, dst: [^]byte, srcSize, dstCapacity, compressionLevel: c.int) -> c.int ---
+	compress_HC :: proc(src, dst: [^]u8, srcSize, dstCapacity, compressionLevel: c.int) -> c.int ---
 
 
 	/*! LZ4_compress_HC_extStateHC() :
@@ -439,7 +439,7 @@ foreign lib {
 	 *  Memory segment must be aligned on 8-bytes boundaries (which a normal malloc() should do properly).
 	 */
 	sizeofStateHC :: proc() -> c.int ---
-	compress_HC_extStateHC :: proc(stateHC: rawptr, src, dst: [^]byte, srcSize, maxDstSize: c.int, compressionLevel: c.int) -> c.int ---
+	compress_HC_extStateHC :: proc(stateHC: rawptr, src, dst: [^]u8, srcSize, maxDstSize: c.int, compressionLevel: c.int) -> c.int ---
 
 
 	/*! LZ4_compress_HC_destSize() : v1.9.0+
@@ -450,7 +450,7 @@ foreign lib {
 	 *           or 0 if compression fails.
 	 * `srcSizePtr` : on success, *srcSizePtr is updated to indicate how much bytes were read from `src`
 	 */
-	compress_HC_destSize :: proc(stateHC: rawptr, src, dst: [^]byte, srcSizePtr: ^c.int, targetDstSize: c.int, compressionLevel: c.int) -> c.int ---
+	compress_HC_destSize :: proc(stateHC: rawptr, src, dst: [^]u8, srcSizePtr: ^c.int, targetDstSize: c.int, compressionLevel: c.int) -> c.int ---
 
 	/*! LZ4_createStreamHC() and LZ4_freeStreamHC() :
 	 *  These functions create and release memory for LZ4 HC streaming state.
@@ -462,9 +462,9 @@ foreign lib {
 	freeStreamHC :: proc(streamHCPtr: ^streamHC_t) -> c.int ---
 
 	resetStreamHC_fast :: proc(streamHCPtr: ^streamHC_t, compressionLevel: c.int) ---   /* v1.9.0+ */
-	loadDictHC         :: proc(streamHCPtr: ^streamHC_t, dictionary: [^]byte, dictSize: c.int) -> c.int ---
+	loadDictHC         :: proc(streamHCPtr: ^streamHC_t, dictionary: [^]u8, dictSize: c.int) -> c.int ---
 
-	compress_HC_continue :: proc(streamHCPtr: ^streamHC_t, src, dst: [^]byte, srcSize, maxDstSize: c.int) -> c.int ---
+	compress_HC_continue :: proc(streamHCPtr: ^streamHC_t, src, dst: [^]u8, srcSize, maxDstSize: c.int) -> c.int ---
 
 	/*! LZ4_compress_HC_continue_destSize() : v1.9.0+
 	 *  Similar to LZ4_compress_HC_continue(),
@@ -476,9 +476,9 @@ foreign lib {
 	 * `srcSizePtr` : on success, *srcSizePtr will be updated to indicate how much bytes were read from `src`.
 	 *           Note that this function may not consume the entire input.
 	 */
-	compress_HC_continue_destSize:: proc(LZ4_streamHCPtr: ^streamHC_t, src, dst: [^]byte, srcSizePtr: ^c.int, targetDstSize: c.int) -> c.int ---
+	compress_HC_continue_destSize:: proc(LZ4_streamHCPtr: ^streamHC_t, src, dst: [^]u8, srcSizePtr: ^c.int, targetDstSize: c.int) -> c.int ---
 
-	saveDictHC :: proc(streamHCPtr: ^streamHC_t, safeBuffer: [^]byte, maxDictSize: c.int) -> c.int ---
+	saveDictHC :: proc(streamHCPtr: ^streamHC_t, safeBuffer: [^]u8, maxDictSize: c.int) -> c.int ---
 
 	/*! LZ4_attach_HC_dictionary() : stable since v1.10.0
 	 *  This API allows for the efficient re-use of a static dictionary many times.
@@ -520,9 +520,9 @@ HC_HASH_MASK          :: HC_HASHTABLESIZE - 1
 streamHC_internal_t :: struct {
 	hashTable:        [HC_HASHTABLESIZE]u32,
 	chainTable:       [HC_MAXD]u16,
-	end:              [^]byte,  /* next block here to continue on current prefix */
-	prefixStart:      [^]byte,  /* Indexes relative to this position */
-	dictStart:        [^]byte,  /* alternate reference for extDict */
+	end:              [^]u8,  /* next block here to continue on current prefix */
+	prefixStart:      [^]u8,  /* Indexes relative to this position */
+	dictStart:        [^]u8,  /* alternate reference for extDict */
 	dictLimit:        u32,      /* below that point, need extDict */
 	lowLimit:         u32,      /* below that point, no more history */
 	nextToUpdate:     u32,      /* index from which to continue dictionary update */
@@ -536,6 +536,6 @@ streamHC_internal_t :: struct {
 STREAMHC_MINSIZE :: 262200
 
 streamHC_t :: struct #raw_union {
-	minStateSize:      [STREAMHC_MINSIZE]byte,
+	minStateSize:      [STREAMHC_MINSIZE]u8,
 	internal_donotuse: streamHC_internal_t,
 }

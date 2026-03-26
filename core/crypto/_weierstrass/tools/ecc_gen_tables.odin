@@ -49,7 +49,7 @@ gen_tables :: proc($CURVE: string) {
 
 	// Precompute ([1,15] << n) * G multiples of G, MSB->LSB
 	for i in 0..<SC_LEN {
-		b: [SC_LEN]byte
+		b: [SC_LEN]u8
 		for j in 1..<16 {
 			b[i] = u8(j) << 4
 			secec.pt_scalar_mul_bytes(&p, &g, b[:], true)
@@ -130,5 +130,5 @@ gen_tables :: proc($CURVE: string) {
 
 	fmt.wprintln(w, "}")
 
-	_ = os.write_entire_file(fn, transmute([]byte)(string_builder.to_string(bld)))
+	_ = os.write_entire_file(fn, transmute([]u8)(string_builder.to_string(bld)))
 }

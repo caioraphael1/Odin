@@ -78,7 +78,7 @@ foreign libc {
 	// 7.29.5 Wide character time conversion functions
 	wcsftime  :: proc(s: [^]wchar_t, maxsize: size_t, format: [^]wchar_t, timeptr: ^tm) -> size_t ---
 
-	// 7.29.6.1 Single-byte/wide character conversion functions
+	// 7.29.6.1 Single-u8/wide character conversion functions
 	btowc     :: proc(c: int) -> wint_t ---
 	wctob     :: proc(c: wint_t) -> int ---
 

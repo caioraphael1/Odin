@@ -27,7 +27,7 @@ init_cpu_features :: proc() {
 		defer linux.close(fd)
 
 		// This is probably enough right?
-		buf: [4096]byte
+		buf: [4096]u8
 		n, rerr := linux.read(fd, buf[:])
 		if rerr != .NONE || n == 0 { return }
 
@@ -123,7 +123,7 @@ _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
 	defer linux.close(fd)
 
 	// This is probably enough right?
-	buf: [4096]byte
+	buf: [4096]u8
 	n, rerr := linux.read(fd, buf[:])
 	if rerr != .NONE || n == 0 { return }
 
