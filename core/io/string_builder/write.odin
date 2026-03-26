@@ -113,7 +113,7 @@ Output:
 @(optional_results)
 write_string :: proc(b: ^Builder, s: string, loc := #caller_location) -> (n: uint) {
     n0 := b.buf.len
-    _ = dyn_array.append_string(&b.buf, s, loc)
+    _ = dyn_array.append_string_to_bytes(&b.buf, s, loc)
     n1 := b.buf.len
     return n1-n0
 }
