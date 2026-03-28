@@ -31,7 +31,6 @@ Type_Info_Struct_Soa_Kind :: enum u8 {
     None    = 0,
     Fixed   = 1,
     Slice   = 2,
-    Dynamic = 3,
 }
 
 Type_Info_String_Encoding_Kind :: enum u8 {
@@ -81,7 +80,6 @@ Type_Info_Enumerated_Array :: struct {
     max_value: Type_Info_Enum_Value,
     is_sparse: bool,
 }
-Type_Info_Dynamic_Array :: struct {elem: ^Type_Info, elem_size: uint}
 Type_Info_Slice         :: struct {elem: ^Type_Info, elem_size: uint}
 
 Type_Info_Parameters :: struct { // Only used for procedures parameters and results
@@ -186,6 +184,7 @@ Type_Info :: struct {
     flags: Type_Info_Flags,
     id:    typeid,
 
+    // Caio: This options must match the same as `enum Typeid_Kind : u8 {` from the compiler.
     variant: union {
         Type_Info_Named,
         Type_Info_Integer,
@@ -202,7 +201,6 @@ Type_Info :: struct {
         Type_Info_Procedure,
         Type_Info_Array,
         Type_Info_Enumerated_Array,
-        Type_Info_Dynamic_Array,
         Type_Info_Slice,
         Type_Info_Parameters,
         Type_Info_Struct,

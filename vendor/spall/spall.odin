@@ -81,7 +81,7 @@ Buffer :: struct {
 BUFFER_DEFAULT_SIZE :: 0x10_0000
 
 
-context_create_with_scale :: proc(filename: string, precise_time: bool, timestamp_scale: f64) -> (ctx: Context, ok: bool) #optional_ok {
+context_create_with_scale :: proc(filename: string, precise_time: bool, timestamp_scale: f64) -> (ctx: Context, ok: bool) {
     file, err := os.open(filename, {.Write, .Append, .Create, .Trunc}, {.Read_User, .Write_User})
     if err != nil {
         return
@@ -100,7 +100,7 @@ context_create_with_scale :: proc(filename: string, precise_time: bool, timestam
     return
 }
 
-context_create_with_sleep :: proc(filename: string, sleep := 2 * time.Second) -> (ctx: Context, ok: bool) #optional_ok {
+context_create_with_sleep :: proc(filename: string, sleep := 2 * time.Second) -> (ctx: Context, ok: bool) {
     freq, freq_ok := time.tsc_frequency(sleep)
     timestamp_scale: f64 = ((1 / f64(freq)) * 1_000_000_000) if freq_ok else 1
     return context_create_with_scale(filename, freq_ok, timestamp_scale)
@@ -117,7 +117,7 @@ context_destroy :: proc(ctx: ^Context) {
     ctx^ = Context{}
 }
 
-buffer_create :: proc(data: []u8, tid: u32 = 0, pid: u32 = 0) -> (buffer: Buffer, ok: bool) #optional_ok {
+buffer_create :: proc(data: []u8, tid: u32 = 0, pid: u32 = 0) -> (buffer: Buffer, ok: bool) {
     internal.assert(len(data) >= 1024)
     buffer.data     = data
     buffer.tid      = tid
@@ -183,7 +183,7 @@ _trace_now :: proc(ctx: ^Context) -> u64 {
 }
 
 @(no_instrumentation)
-_build_stream_header :: proc(buffer: []u8, timestamp_scale: f64) -> (header_size: int, ok: bool) #optional_ok {
+_build_stream_header :: proc(buffer: []u8, timestamp_scale: f64) -> (header_size: int, ok: bool) {
     header_size = size_of(Manual_Stream_Header)
     if header_size > len(buffer) {
         return 0, false
@@ -199,7 +199,7 @@ _build_stream_header :: proc(buffer: []u8, timestamp_scale: f64) -> (header_size
 }
 
 @(no_instrumentation)
-_build_begin :: #force_inline proc(buffer: []u8, name: string, args: string, ts: u64) -> (event_size: int, ok: bool) #optional_ok #no_bounds_check /* bounds check would segfault instrumentation */ {
+_build_begin :: #force_inline proc(buffer: []u8, name: string, args: string, ts: u64) -> (event_size: int, ok: bool) #no_bounds_check /* bounds check would segfault instrumentation */ {
     ev := (^Begin_Event)(raw_data(buffer))
     name_len := min(len(name), 255)
     args_len := min(len(args), 255)
@@ -221,7 +221,7 @@ _build_begin :: #force_inline proc(buffer: []u8, name: string, args: string, ts:
 }
 
 @(no_instrumentation)
-_build_end :: proc(buffer: []u8, ts: u64) -> (event_size: int, ok: bool) #optional_ok {
+_build_end :: proc(buffer: []u8, ts: u64) -> (event_size: int, ok: bool) {
     ev := (^End_Event)(raw_data(buffer))
     event_size = size_of(End_Event)
     if event_size > len(buffer) {
@@ -236,7 +236,7 @@ _build_end :: proc(buffer: []u8, ts: u64) -> (event_size: int, ok: bool) #option
 }
 
 @(no_instrumentation)
-_build_name_event :: #force_inline proc(buffer: []u8, name: string, type: Manual_Event_Type) -> (event_size: int, ok: bool) #optional_ok #no_bounds_check /* bounds check would segfault instrumentation */ {
+_build_name_event :: #force_inline proc(buffer: []u8, name: string, type: Manual_Event_Type) -> (event_size: int, ok: bool) #no_bounds_check /* bounds check would segfault instrumentation */ {
     ev := (^Name_Event)(raw_data(buffer))
     name_len := min(len(name), 255)
 

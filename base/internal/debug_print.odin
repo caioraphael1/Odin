@@ -386,9 +386,6 @@ print_type :: #force_no_inline proc(ti: ^Type_Info) {
         print_byte(']')
         print_type(info.elem)
 
-    case Type_Info_Dynamic_Array:
-        print_string("[dynamic]")
-        print_type(info.elem)
     case Type_Info_Slice:
         print_string("[]")
         print_type(info.elem)
@@ -410,10 +407,6 @@ print_type :: #force_no_inline proc(ti: ^Type_Info) {
             return
         case .Slice:
             print_string("#soa[]")
-            print_type(info.soa_base_type)
-            return
-        case .Dynamic:
-            print_string("#soa[dynamic]")
             print_type(info.soa_base_type)
             return
         }
@@ -793,10 +786,6 @@ write_write_type :: #force_no_inline proc(i: ^int, buf: []u8, ti: ^Type_Info) ->
         write_byte      (i, buf, ']')        or_return
         write_write_type(i, buf, info.elem)  or_return
 
-
-    case Type_Info_Dynamic_Array:
-        write_string    (i, buf, "[dynamic]") or_return
-        write_write_type(i, buf, info.elem)   or_return
     case Type_Info_Slice:
         write_string    (i, buf, "[]")      or_return
         write_write_type(i, buf, info.elem) or_return
@@ -818,10 +807,6 @@ write_write_type :: #force_no_inline proc(i: ^int, buf: []u8, ti: ^Type_Info) ->
             return true
         case .Slice:
             write_string    (i, buf, "#soa[]")           or_return
-            write_write_type(i, buf, info.soa_base_type) or_return
-            return true
-        case .Dynamic:
-            write_string    (i, buf, "#soa[dynamic]")    or_return
             write_write_type(i, buf, info.soa_base_type) or_return
             return true
         }

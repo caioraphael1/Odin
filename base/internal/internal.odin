@@ -528,4 +528,3 @@ when .Address in ODIN_SANITIZER_FLAGS {
         __asan_unpoison_memory_region :: proc "system" (address: rawptr, size: uint) ---
     }
 }
-
