@@ -498,7 +498,6 @@ struct BuildContext {
     String microarch;
     BuildModeKind build_mode;
     bool   keep_executable;
-    bool   generate_docs;
     bool   custom_optimization_level;
     i32    optimization_level;
     bool   show_timings;

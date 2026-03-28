@@ -70,7 +70,6 @@ gb_global Timings global_timings = {0};
 
 #include "parser.cpp"
 #include "checker.cpp"
-#include "docs.cpp"
 
 #include "cached.cpp"
 
@@ -3271,8 +3270,6 @@ gb_internal void print_show_unused(Checker *c) {
         array_add(&unused, e);
     }
 
-    array_sort(unused, cmp_entities_for_printing);
-
     print_usage_line(0, "Unused Package Declarations");
 
     AstPackage *curr_pkg = nullptr;
@@ -3286,7 +3283,6 @@ gb_internal void print_show_unused(Checker *c) {
         }
         if (curr_entity_kind != e->kind) {
             curr_entity_kind = e->kind;
-            print_usage_line(1, "%s", print_entity_names[e->kind]);
         }
         if (build_context.show_unused_with_location) {
             TokenPos pos = e->token.pos;
@@ -3692,7 +3688,6 @@ int main(int arg_count, char const **arg_ptr) {
 
 
         build_context.no_output_files = true;
-        build_context.generate_docs = true;
         build_context.no_entry_point = true; // ignore entry point
         #if 0
         print_usage_line(0, "Documentation generation is not yet supported");
@@ -4041,22 +4036,6 @@ int main(int arg_count, char const **arg_ptr) {
 
     if (build_context.command_kind == Command_strip_semicolon) {
         return strip_semicolons(parser);
-    }
-
-    if (build_context.generate_docs) {
-        MAIN_TIME_SECTION("generate documentation");
-        if (global_error_collector.count != 0) {
-            return 1;
-        }
-        generate_documentation(checker);
-
-        if (build_context.show_timings) {
-            show_timings(checker, &global_timings);
-        }
-        if (build_context.show_import_graph) {
-            show_import_graph(checker);
-        }
-        return 0;
     }
 
     if (build_context.no_output_files) {
