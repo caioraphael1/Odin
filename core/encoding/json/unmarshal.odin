@@ -793,17 +793,7 @@ unmarshal_array :: proc(p: ^Parser, v: any) -> (err: Unmarshal_Error) {
         raw.len = uint(length)
             
         return assign_array(p, raw.data, t.elem, length)
-        
-    case reflect.Type_Info_Dynamic_Array:
-        raw := (^dyn_array.Dyn_Array(u8))(v.data)
-        data := bytes_make(uint(t.elem.size) * uint(length), uint(t.elem.align), p.allocator) or_return
-        raw.data = raw_data(data)
-        raw.len = uint(length)
-        raw.cap = uint(length)
-        raw.allocator = p.allocator
-        
-        return assign_array(p, raw.data, t.elem, length)
-        
+                
     case reflect.Type_Info_Array:
         // NOTE(bill): Allow lengths which are less than the dst array
         if uint(length) > uint(t.count) {

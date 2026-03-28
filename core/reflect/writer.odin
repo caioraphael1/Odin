@@ -149,9 +149,6 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
         _ = io.write_string(w, "]",   &n) or_return
         _ = write_type_writer(w, info.elem,  &n) or_return
 
-    case Type_Info_Dynamic_Array:
-        _ = io.write_string(w, "[dynamic]", &n) or_return
-        _ = write_type_writer(w, info.elem, &n) or_return
     case Type_Info_Slice:
         _ = io.write_string(w, "[]", &n) or_return
         _ = write_type_writer(w, info.elem, &n) or_return
@@ -173,10 +170,6 @@ write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_writt
             return
         case .Slice:
             _ = io.write_string(w, "#soa[]",      &n) or_return
-            _ = write_type_writer(w, info.soa_base_type, &n) or_return
-            return
-        case .Dynamic:
-            _ = io.write_string(w, "#soa[dynamic]", &n) or_return
             _ = write_type_writer(w, info.soa_base_type, &n) or_return
             return
         }

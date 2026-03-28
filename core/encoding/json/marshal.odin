@@ -312,16 +312,6 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
             marshal_to_writer(w, any{rawptr(data), info.elem.id}, opt) or_return
         }
         opt_write_end(w, opt, '}') or_return
-        
-    case reflect.Type_Info_Dynamic_Array:
-        opt_write_start(w, opt, '[') or_return
-        array := cast(^dyn_array.Dyn_Array(u8))v.data
-        for i in 0..<array.len {
-            opt_write_iteration(w, opt, i == 0) or_return
-            data := uintptr(array.data) + uintptr(i*info.elem_size)
-            marshal_to_writer(w, any{rawptr(data), info.elem.id}, opt) or_return
-        }
-        opt_write_end(w, opt, ']') or_return
 
     case reflect.Type_Info_Slice:
         opt_write_start(w, opt, '[') or_return
@@ -452,8 +442,6 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                  reflect.Type_Info_Multi_Pointer,
                  reflect.Type_Info_Procedure:
                 return (^rawptr)(v.data)^ == nil
-            case reflect.Type_Info_Dynamic_Array:
-                return (^dyn_array.Dyn_Array(u8))(v.data).len == 0
             case reflect.Type_Info_Slice:
                 return (^slice.Raw_Slice)(v.data).len == 0
             case reflect.Type_Info_Union,

@@ -2213,10 +2213,6 @@ fmt_soa_struct_internal :: proc(fi: ^Info, v: any, the_verb: rune, info: reflect
 
         n = uintptr((^uint)(uintptr(v.data) + info.offsets[actual_field_count])^)
 
-    } else if info.soa_kind == .Dynamic {
-        actual_field_count = info.field_count-3 // len, cap, allocator
-
-        n = uintptr((^uint)(uintptr(v.data) + info.offsets[actual_field_count])^)
     }
 
     if hash && n > 0 {
@@ -2685,7 +2681,6 @@ fmt_named :: proc(fi: ^Info, v: any, verb: rune, info: reflect.Type_Info_Named) 
             #partial switch _ in info.base.variant {
             case reflect.Type_Info_Array,
                  reflect.Type_Info_Enumerated_Array,
-                 reflect.Type_Info_Dynamic_Array,
                  reflect.Type_Info_Slice,
                  reflect.Type_Info_Struct,
                  reflect.Type_Info_Enum,
@@ -2924,7 +2919,6 @@ fmt_pointer_from_value :: proc(fi: ^Info, v: any, info: reflect.Type_Info_Pointe
                 #partial switch &e in elem.variant {
                 case reflect.Type_Info_Array,
                      reflect.Type_Info_Slice,
-                     reflect.Type_Info_Dynamic_Array,
                      reflect.Type_Info_Map:
                     if ptr == nil {
                         _, _ = io.write_string(fi.writer, "<nil>", &fi.n)
@@ -2998,7 +2992,6 @@ fmt_multi_pointer :: proc(fi: ^Info, v: any, info: reflect.Type_Info_Multi_Point
 
             case reflect.Type_Info_Array,
                  reflect.Type_Info_Slice,
-                 reflect.Type_Info_Dynamic_Array,
                  reflect.Type_Info_Map:
                 if fi.indirection_level < 1 {
                     fi.indirection_level += 1
@@ -3213,20 +3206,6 @@ fmt_value :: proc(fi: ^Info, v: any, verb: rune) {
         slice := cast(^slice.Raw_Slice)v.data
         n := slice.len
         ptr := slice.data
-        if ol, ok := fi.optional_len.?; ok {
-            fi.optional_len = nil
-            n = min(n, ol)
-        } else if fi.use_nul_termination {
-            fi.use_nul_termination = false
-            fmt_array_nul_terminated(fi, ptr, int(n), info.elem_size, info.elem, verb)
-            return
-        }
-        fmt_array(fi, ptr, n, info.elem_size, info.elem, verb)
-
-    case reflect.Type_Info_Dynamic_Array:
-        array := cast(^dyn_array.Dyn_Array(u8))v.data
-        n := array.len
-        ptr := array.data
         if ol, ok := fi.optional_len.?; ok {
             fi.optional_len = nil
             n = min(n, ol)

@@ -362,7 +362,6 @@ enum Typeid_Kind : u8 {
     Typeid_Procedure,
     Typeid_Array,
     Typeid_Enumerated_Array,
-    Typeid_Dynamic_Array,
     Typeid_Slice,
     Typeid_Tuple,
     Typeid_Struct,

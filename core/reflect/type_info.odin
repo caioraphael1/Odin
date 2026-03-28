@@ -22,7 +22,6 @@ Type_Info_Multi_Pointer    :: internal.Type_Info_Multi_Pointer
 Type_Info_Procedure        :: internal.Type_Info_Procedure
 Type_Info_Array            :: internal.Type_Info_Array
 Type_Info_Enumerated_Array :: internal.Type_Info_Enumerated_Array
-Type_Info_Dynamic_Array    :: internal.Type_Info_Dynamic_Array
 Type_Info_Slice            :: internal.Type_Info_Slice
 Type_Info_Parameters       :: internal.Type_Info_Parameters
 Type_Info_Struct           :: internal.Type_Info_Struct
@@ -91,7 +90,6 @@ type_kind :: proc(T: typeid) -> Type_Kind {
         case Type_Info_Procedure:        return .Procedure
         case Type_Info_Array:            return .Array
         case Type_Info_Enumerated_Array: return .Enumerated_Array
-        case Type_Info_Dynamic_Array:    return .Dynamic_Array
         case Type_Info_Slice:            return .Slice
         case Type_Info_Parameters:       return .Parameters
         case Type_Info_Struct:           return .Struct
@@ -213,7 +211,6 @@ typeid_elem :: proc(id: typeid) -> typeid {
     case Type_Info_Array:            return v.elem.id
     case Type_Info_Enumerated_Array: return v.elem.id
     case Type_Info_Slice:            return v.elem.id
-    case Type_Info_Dynamic_Array:    return v.elem.id
     case Type_Info_Simd_Vector:      return v.elem.id
     }
     return id
@@ -302,9 +299,6 @@ length :: proc(val: any) -> uint {
     case Type_Info_Slice:
         return (^slice.Raw_Slice)(val.data).len
 
-    case Type_Info_Dynamic_Array:
-        return (^dyn_array.Dyn_Array(u8))(val.data).len
-
     case Type_Info_Map:
         return maps.raw_map_len((^maps.Raw_Map)(val.data)^)
 
@@ -354,9 +348,6 @@ capacity :: proc(val: any) -> uint {
     case Type_Info_Enumerated_Array:
         return uint(a.count)
 
-    case Type_Info_Dynamic_Array:
-        return (^dyn_array.Dyn_Array(u8))(val.data).cap
-
     case Type_Info_Map:
         return internal.map_cap((^maps.Raw_Map)(val.data)^)
 
@@ -405,13 +396,6 @@ index :: proc(val: any, i: uint, loc := #caller_location) -> any {
 
     case Type_Info_Slice:
         raw := (^slice.Raw_Slice)(val.data)
-        internal.bounds_check_error_loc(loc, i, raw.len)
-        offset := uintptr(uint(a.elem.size) * i)
-        data := rawptr(uintptr(raw.data) + offset)
-        return any{data, a.elem.id}
-
-    case Type_Info_Dynamic_Array:
-        raw := (^dyn_array.Dyn_Array(u8))(val.data)
         internal.bounds_check_error_loc(loc, i, raw.len)
         offset := uintptr(uint(a.elem.size) * i)
         data := rawptr(uintptr(raw.data) + offset)
@@ -1773,9 +1757,6 @@ as_raw_data :: proc(a: any) -> (value: rawptr, valid: bool) {
         valid = true
         value = (^slice.Raw_Slice)(a.data).data
 
-    case Type_Info_Dynamic_Array:
-        valid = true
-        value = (^dyn_array.Dyn_Array(u8))(a.data).data
     }
 
     return
@@ -1959,30 +1940,6 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
         if array_a.data == array_b.data {
             return true
         }
-        for i in 0..<array_a.len {
-            x := rawptr(uintptr(array_a.data) + uintptr(v.elem_size*i))
-            y := rawptr(uintptr(array_b.data) + uintptr(v.elem_size*i))
-            if !equal(any{x, v.elem.id}, any{y, v.elem.id}, including_indirect_array_recursion, recursion_level+1) {
-                return false
-            }   
-        }
-        return true
-    case Type_Info_Dynamic_Array:
-        if !including_indirect_array_recursion {
-            return false
-        }
-        array_a := (^dyn_array.Dyn_Array(u8))(a.data)
-        array_b := (^dyn_array.Dyn_Array(u8))(b.data)
-        if array_a.len != array_b.len {
-            return false
-        }
-        if array_a.data == array_b.data {
-            return true
-        }
-        if .Simple_Compare in v.elem.flags {
-            return mem.compare((^u8)(array_a.data), (^u8)(array_b.data), array_a.len * uint(v.elem.size)) == 0
-        }
-        
         for i in 0..<array_a.len {
             x := rawptr(uintptr(array_a.data) + uintptr(v.elem_size*i))
             y := rawptr(uintptr(array_b.data) + uintptr(v.elem_size*i))
