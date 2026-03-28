@@ -542,18 +542,6 @@ gb_internal lbAddr lb_addr(lbValue addr) {
 }
 
 
-gb_internal lbAddr lb_addr_map(lbValue addr, lbValue map_key, Type *map_type, Type *map_result) {
-    GB_ASSERT(is_type_pointer(addr.type));
-    Type *mt = type_deref(addr.type);
-    GB_ASSERT(is_type_map(mt));
-
-    lbAddr v = {lbAddr_Map, addr};
-    v.map.key    = map_key;
-    v.map.type   = map_type;
-    v.map.result = map_result;
-    return v;
-}
-
 
 gb_internal lbAddr lb_addr_soa_variable(lbValue addr, lbValue index, Ast *index_expr) {
     lbAddr v = {lbAddr_SoaVariable, addr};
@@ -598,12 +586,6 @@ gb_internal Type *lb_addr_type(lbAddr const &addr) {
         return nullptr;
     }
     switch (addr.kind) {
-    case lbAddr_Map:
-        {
-            Type *t = base_type(addr.map.type);
-            GB_ASSERT(is_type_map(t));
-            return t->Map.value;
-        }
     case lbAddr_Swizzle:
         return addr.swizzle.type;
     case lbAddr_SwizzleLarge:
@@ -629,9 +611,6 @@ gb_internal lbValue lb_addr_get_ptr(lbProcedure *p, lbAddr const &addr) {
     }
 
     switch (addr.kind) {
-    case lbAddr_Map:
-        return lb_internal_dynamic_map_get_ptr(p, addr.addr, addr.map.key);
-
     case lbAddr_SoaVariable:
         {
             Type *soa_ptr_type = alloc_type_soa_pointer(lb_addr_type(addr));
@@ -938,9 +917,6 @@ gb_internal void lb_addr_store(lbProcedure *p, lbAddr addr, lbValue value) {
             lb_emit_internal_call(p, "__write_bits", args);
         }
         return;
-    } else if (addr.kind == lbAddr_Map) {
-        lb_internal_dynamic_map_set(p, addr.addr, addr.map.type, addr.map.key, value, p->curr_stmt);
-        return;
     } else if (addr.kind == lbAddr_SoaVariable) {
         Type *t = type_deref(addr.addr.type);
         t = base_type(t);
@@ -1242,35 +1218,6 @@ gb_internal lbValue lb_addr_load(lbProcedure *p, lbAddr const &addr) {
         }
 
         return r;
-    } else if (addr.kind == lbAddr_Map) {
-        Type *map_type = base_type(type_deref(addr.addr.type));
-        GB_ASSERT(map_type->kind == Type_Map);
-        lbAddr v = lb_add_local_generated(p, map_type->Map.lookup_result_type, true);
-
-        lbValue ptr = lb_internal_dynamic_map_get_ptr(p, addr.addr, addr.map.key);
-        lbValue ok = lb_emit_conv(p, lb_emit_comp_against_nil(p, Token_NotEq, ptr), t_bool);
-        lb_emit_store(p, lb_emit_struct_ep(p, v.addr, 1), ok);
-
-        lbBlock *then = lb_create_block(p, "map.get.then");
-        lbBlock *done = lb_create_block(p, "map.get.done");
-        lb_emit_if(p, ok, then, done);
-        lb_start_block(p, then);
-        {
-            // TODO(bill): mem copy it instead?
-            lbValue gep0 = lb_emit_struct_ep(p, v.addr, 0);
-            lbValue value = lb_emit_conv(p, ptr, gep0.type);
-            lb_emit_store(p, gep0, lb_emit_load(p, value));
-        }
-        lb_emit_jump(p, done);
-        lb_start_block(p, done);
-
-
-        if (is_type_tuple(addr.map.result)) {
-            return lb_addr_load(p, v);
-        } else {
-            lbValue single = lb_emit_struct_ep(p, v.addr, 0);
-            return lb_emit_load(p, single);
-        }
     } else if (addr.kind == lbAddr_SoaVariable) {
         Type *t = type_deref(addr.addr.type);
         t = base_type(t);
@@ -2037,7 +1984,6 @@ gb_internal LLVMTypeRef lb_type_internal(lbModule *m, Type *type) {
             case Type_Array:
             case Type_EnumeratedArray:
             case Type_Slice:
-            case Type_Map:
             case Type_Enum:
             case Type_BitSet:
             case Type_SimdVector:
@@ -2132,11 +2078,6 @@ gb_internal LLVMTypeRef lb_type_internal(lbModule *m, Type *type) {
             }
         }
         break;
-
-    case Type_Map:
-        init_map_internal_debug_types(type);
-        GB_ASSERT(t_raw_map != nullptr);
-        return lb_type_internal(m, t_raw_map);
 
     case Type_Struct:
         {

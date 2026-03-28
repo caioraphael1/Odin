@@ -800,14 +800,6 @@ gb_internal LLVMMetadataRef lb_debug_type_internal(lbModule *m, Type *type) {
         return LLVMDIBuilderCreateTypedef(m->debug_builder, array_type, name, gb_string_length(name), nullptr, 0, nullptr, cast(u32)(8*type_align_of(type)));
     }
 
-    case Type_Map: {
-        init_map_internal_debug_types(type);
-        Type *bt = base_type(type->Map.debug_metadata_type);
-        GB_ASSERT(bt->kind == Type_Struct);
-
-        return lb_debug_struct(m, type, bt, type_to_canonical_string(temporary_allocator(), type), nullptr, nullptr, 0);
-    }
-
     case Type_Struct:       return lb_debug_struct(       m, type, type, type_to_canonical_string(temporary_allocator(), type), nullptr, nullptr, 0);
     case Type_Slice:        return lb_debug_slice(        m, type,       type_to_canonical_string(temporary_allocator(), type), nullptr, nullptr, 0);
     case Type_Union:        return lb_debug_union(        m, type,       type_to_canonical_string(temporary_allocator(), type), nullptr, nullptr, 0);
@@ -1016,13 +1008,6 @@ gb_internal LLVMMetadataRef lb_debug_type(lbModule *m, Type *type) {
             );
             lb_set_llvm_metadata(m, type, final_decl);
             return final_decl;
-        }
-
-        case Type_Map: {
-            init_map_internal_debug_types(bt);
-            bt = base_type(bt->Map.debug_metadata_type);
-            GB_ASSERT(bt->kind == Type_Struct);
-            return lb_debug_struct(m, type, bt, name, scope, file, line);
         }
 
         case Type_Struct:       return lb_debug_struct(m, type, bt, name, scope, file, line);

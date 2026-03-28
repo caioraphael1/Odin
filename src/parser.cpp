@@ -470,11 +470,6 @@ gb_internal Ast *clone_ast(Ast *node, AstFile *f) {
         n->BitFieldType.backing_type = clone_ast(n->BitFieldType.backing_type, f);
         n->BitFieldType.fields = clone_ast_array(n->BitFieldType.fields, f);
         break;
-    case Ast_MapType:
-        n->MapType.count = clone_ast(n->MapType.count, f);
-        n->MapType.key   = clone_ast(n->MapType.key, f);
-        n->MapType.value = clone_ast(n->MapType.value, f);
-        break;
     case Ast_MatrixType:
         n->MatrixType.row_count    = clone_ast(n->MatrixType.row_count, f);
         n->MatrixType.column_count = clone_ast(n->MatrixType.column_count, f);
@@ -1281,15 +1276,6 @@ gb_internal Ast *ast_bit_field_type(AstFile *f, Token token, Ast *backing_type, 
     return result;
 }
 
-
-gb_internal Ast *ast_map_type(AstFile *f, Token token, Ast *key, Ast *value) {
-    Ast *result = alloc_ast_node(f, Ast_MapType);
-    result->MapType.token = token;
-    result->MapType.key   = key;
-    result->MapType.value = value;
-    return result;
-}
-
 gb_internal Ast *ast_matrix_type(AstFile *f, Token token, Ast *row_count, Ast *column_count, Ast *elem) {
     Ast *result = alloc_ast_node(f, Ast_MatrixType);
     result->MatrixType.token = token;
@@ -2051,7 +2037,6 @@ gb_internal void parse_proc_tags(AstFile *f, u64 *tags) {
         }
 
         if (false) {}
-        ELSE_IF_ADD_TAG(optional_ok)
         ELSE_IF_ADD_TAG(optional_results)
         ELSE_IF_ADD_TAG(bounds_check)
         ELSE_IF_ADD_TAG(no_bounds_check)
@@ -2622,20 +2607,6 @@ gb_internal Ast *parse_operand(AstFile *f, bool lhs) {
         expect_token(f, Token_CloseBracket);
         return ast_array_type(f, token, count_expr, parse_type(f));
     } break;
-
-    case Token_map: {
-        Token token = expect_token(f, Token_map);
-        Ast *key   = nullptr;
-        Ast *value = nullptr;
-        Token open, close;
-
-        open  = expect_token_after(f, Token_OpenBracket, "map");
-        key   = parse_expr(f, true);
-        close = expect_token(f, Token_CloseBracket);
-        value = parse_type(f);
-
-        return ast_map_type(f, token, key, value);
-    } break;
     
     case Token_matrix: {
         Token token = expect_token(f, Token_matrix);
@@ -3095,7 +3066,6 @@ gb_internal bool is_literal_type(Ast *node) {
     case Ast_StructType:
     case Ast_UnionType:
     case Ast_EnumType:
-    case Ast_MapType:
     case Ast_BitSetType:
     case Ast_MatrixType:
     case Ast_CallExpr:

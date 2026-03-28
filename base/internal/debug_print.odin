@@ -390,12 +390,6 @@ print_type :: #force_no_inline proc(ti: ^Type_Info) {
         print_string("[]")
         print_type(info.elem)
 
-    case Type_Info_Map:
-        print_string("map[")
-        print_type(info.key)
-        print_byte(']')
-        print_type(info.value)
-
     case Type_Info_Struct:
         switch info.soa_kind {
         case .None: // Ignore
@@ -789,12 +783,6 @@ write_write_type :: #force_no_inline proc(i: ^int, buf: []u8, ti: ^Type_Info) ->
     case Type_Info_Slice:
         write_string    (i, buf, "[]")      or_return
         write_write_type(i, buf, info.elem) or_return
-
-    case Type_Info_Map:
-        write_string    (i, buf, "map[")     or_return
-        write_write_type(i, buf, info.key)   or_return
-        write_byte      (i, buf, ']')        or_return
-        write_write_type(i, buf, info.value) or_return
 
     case Type_Info_Struct:
         switch info.soa_kind {

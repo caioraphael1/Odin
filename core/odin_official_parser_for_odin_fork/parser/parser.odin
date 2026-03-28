@@ -2204,7 +2204,6 @@ parse_proc_tags :: proc(p: ^Parser) -> (tags: ast.Proc_Tags) {
         switch ident.text {
         case "bounds_check":    tags += {.Bounds_Check}
         case "no_bounds_check": tags += {.No_Bounds_Check}
-        case "optional_ok":     tags += {.Optional_Ok}
         case "optional_allocator_error": tags += {.Optional_Allocator_Error}
         case:
         }

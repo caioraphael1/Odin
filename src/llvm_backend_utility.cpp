@@ -28,7 +28,6 @@ gb_internal bool lb_is_type_aggregate(Type *t) {
     case Type_Struct:
     case Type_Union:
     case Type_Tuple:
-    case Type_Map:
     case Type_SimdVector:
         return true;
 
@@ -309,10 +308,6 @@ gb_internal lbValue lb_emit_transmute(lbProcedure *p, lbValue value, Type *t) {
         ap = lb_emit_conv(p, ap, alloc_type_pointer(value.type));
         lb_emit_store(p, ap, value);
         return lb_addr_load(p, addr);
-    } else if (is_type_map(src) && are_types_identical(t_raw_map, t)) {
-        res.value = value.value;
-        res.type = t;
-        return res;
     } else if (lb_is_type_aggregate(src) || lb_is_type_aggregate(dst)) {
         lbValue s = lb_address_from_load_or_generate_local(p, value);
         lbValue d = lb_emit_transmute(p, s, alloc_type_pointer(t));
@@ -729,12 +724,8 @@ gb_internal lbValue lb_emit_union_cast(lbProcedure *p, lbValue value, Type *type
     Type *src_type = value.type;
     bool is_ptr = is_type_pointer(src_type);
 
-    bool is_tuple = true;
+    bool is_tuple = type->kind == Type_Tuple;
     Type *tuple = type;
-    if (type->kind != Type_Tuple) {
-        is_tuple = false;
-        tuple = make_optional_ok_type(type);
-    }
 
     lbAddr v = lb_add_local_generated(p, tuple, true);
 
@@ -833,12 +824,9 @@ gb_internal lbAddr lb_emit_any_cast_addr(lbProcedure *p, lbValue value, Type *ty
         value = lb_emit_load(p, value);
     }
 
-    bool is_tuple = true;
+    bool is_tuple = type->kind == Type_Tuple;
     Type *tuple = type;
-    if (type->kind != Type_Tuple) {
-        is_tuple = false;
-        tuple = make_optional_ok_type(type);
-    }
+
     Type *dst_type = tuple->Tuple.variables[0]->type;
 
     if ((p->state_flags & StateFlag_no_type_assert) != 0 && !is_tuple) {
@@ -1191,16 +1179,6 @@ gb_internal lbValue lb_emit_struct_ep(lbProcedure *p, lbValue s, i32 index) {
         case 1: result_type = t_typeid; break;
         default: GB_PANIC("index > 1");
         }
-    } else if (is_type_map(t)) {
-        init_map_internal_debug_types(t);
-        Type *itp = alloc_type_pointer(t_raw_map);
-        s = lb_emit_transmute(p, s, itp);
-
-        switch (index) {
-        case 0: result_type = get_struct_field_type(t_raw_map, 0); break;
-        case 1: result_type = get_struct_field_type(t_raw_map, 1); break;
-        case 2: result_type = get_struct_field_type(t_raw_map, 2); break;
-        }
     } else if (is_type_array(t)) {
         return lb_emit_array_epi(p, s, index);
     } else if (is_type_soa_pointer(t)) {
@@ -1341,20 +1319,11 @@ gb_internal lbValue lb_emit_struct_ev(lbProcedure *p, lbValue s, i32 index) {
 
     case Type_Tuple:
         return lb_emit_tuple_ev(p, s, index);
+
     case Type_Slice:
         switch (index) {
         case 0: result_type = alloc_type_pointer(t->Slice.elem); break;
         case 1: result_type = t_int; break;
-        }
-        break;
-    case Type_Map:
-        {
-            init_map_internal_debug_types(t);
-            switch (index) {
-            case 0: result_type = get_struct_field_type(t_raw_map, 0); break;
-            case 1: result_type = get_struct_field_type(t_raw_map, 1); break;
-            case 2: result_type = get_struct_field_type(t_raw_map, 2); break;
-            }
         }
         break;
 
@@ -1463,8 +1432,6 @@ gb_internal lbValue lb_emit_deep_field_gep(lbProcedure *p, lbValue e, Selection 
             e = lb_emit_struct_ep(p, e, index);
         } else if (type->kind == Type_Array) {
             e = lb_emit_array_epi(p, e, index);
-        } else if (type->kind == Type_Map) {
-            e = lb_emit_struct_ep(p, e, index);
         } else {
             GB_PANIC("un-gep-able type %s", type_to_string(type));
         }
@@ -1682,47 +1649,6 @@ gb_internal lbValue lb_slice_elem(lbProcedure *p, lbValue slice) {
 gb_internal lbValue lb_slice_len(lbProcedure *p, lbValue slice) {
     GB_ASSERT(is_type_slice(slice.type));
     return lb_emit_struct_ev(p, slice, 1);
-}
-
-
-gb_internal lbValue lb_map_len(lbProcedure *p, lbValue value) {
-    GB_ASSERT_MSG(is_type_map(value.type) || are_types_identical(value.type, t_raw_map), "%s", type_to_string(value.type));
-    lbValue len = lb_emit_struct_ev(p, value, 1);
-    return lb_emit_conv(p, len, t_int);
-}
-gb_internal lbValue lb_map_len_ptr(lbProcedure *p, lbValue map_ptr) {
-    Type *type = map_ptr.type;
-    GB_ASSERT(is_type_pointer(type));
-    type = type_deref(type);
-    GB_ASSERT_MSG(is_type_map(type) || are_types_identical(type, t_raw_map), "%s", type_to_string(type));
-    return lb_emit_struct_ep(p, map_ptr, 1);
-}
-
-gb_internal lbValue lb_map_cap(lbProcedure *p, lbValue value) {
-    GB_ASSERT_MSG(is_type_map(value.type) || are_types_identical(value.type, t_raw_map), "%s", type_to_string(value.type));
-    lbValue zero = lb_const_int(p->module, t_uintptr, 0);
-    lbValue one = lb_const_int(p->module, t_uintptr, 1);
-
-    lbValue mask = lb_const_int(p->module, t_uintptr, MAP_CACHE_LINE_SIZE-1);
-
-    lbValue data = lb_emit_struct_ev(p, value, 0);
-    lbValue log2_cap = lb_emit_arith(p, Token_And, data, mask, t_uintptr);
-    lbValue cap = lb_emit_arith(p, Token_Shl, one, log2_cap, t_uintptr);
-    lbValue cmp = lb_emit_comp(p, Token_CmpEq, data, zero);
-    return lb_emit_conv(p, lb_emit_select(p, cmp, zero, cap), t_int);
-}
-
-gb_internal lbValue lb_map_data_uintptr(lbProcedure *p, lbValue value) {
-    GB_ASSERT(is_type_map(value.type) || are_types_identical(value.type, t_raw_map));
-    lbValue data = lb_emit_struct_ev(p, value, 0);
-    u64 mask_value = 0;
-    if (build_context.ptr_size == 4) {
-        mask_value = 0xfffffffful & ~(MAP_CACHE_LINE_SIZE-1);
-    } else {
-        mask_value = 0xffffffffffffffffull & ~(MAP_CACHE_LINE_SIZE-1);
-    }
-    lbValue mask = lb_const_int(p->module, t_uintptr, mask_value);
-    return lb_emit_arith(p, Token_And, data, mask, t_uintptr);
 }
 
 

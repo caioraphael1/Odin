@@ -106,9 +106,8 @@ enum OdinDocTypeFlag_Union : u32 {
 enum OdinDocTypeFlag_Proc : u32 {
     OdinDocTypeFlag_Proc_polymorphic = 1<<0,
     OdinDocTypeFlag_Proc_diverging   = 1<<1,
-    OdinDocTypeFlag_Proc_optional_ok = 1<<2,
-    OdinDocTypeFlag_Proc_variadic    = 1<<3,
-    OdinDocTypeFlag_Proc_c_vararg    = 1<<4,
+    OdinDocTypeFlag_Proc_variadic    = 1<<2,
+    OdinDocTypeFlag_Proc_c_vararg    = 1<<3,
 };
 
 enum OdinDocTypeFlag_BitSet : u32 {
@@ -164,8 +163,6 @@ struct OdinDocType {
     // .Array              - 1 type:    0=element
     // .Enumerated_Array   - 2 types:   0=index and 1=element
     // .Slice              - 1 type:    0=element
-    // .Dynamic_Array      - 1 type:    0=element
-    // .Map                - 2 types:   0=key, 1=value
     // .SOA_Struct_Fixed   - 1 type:    underlying SOA struct element
     // .SOA_Struct_Slice   - 1 type:    underlying SOA struct element
     // .SOA_Struct_Dynamic - 1 type:    underlying SOA struct element

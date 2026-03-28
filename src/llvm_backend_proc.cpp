@@ -2286,8 +2286,6 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             GB_PANIC("Array lengths are constant");
         } else if (is_type_slice(t)) {
             return lb_slice_len(p, v);
-        } else if (is_type_map(t)) {
-            return lb_map_len(p, v);
         } else if (is_type_soa_struct(t)) {
             return lb_soa_struct_len(p, v);
         }
@@ -2309,10 +2307,7 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             GB_PANIC("Array lengths are constant");
         } else if (is_type_slice(t)) {
             return lb_slice_len(p, v);
-        } else if (is_type_map(t)) {
-            return lb_map_cap(p, v);
         }
-
         GB_PANIC("Unreachable");
 
         break;
@@ -3241,19 +3236,10 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
         }
     }
 
-
     case BuiltinProc_type_equal_proc:
         return lb_equal_proc_for_type(p->module, ce->args[0]->tav.type);
-
     case BuiltinProc_type_hasher_proc:
         return lb_hasher_proc_for_type(p->module, ce->args[0]->tav.type);
-
-    case BuiltinProc_type_map_info:
-        return lb_gen_map_info_ptr(p->module, ce->args[0]->tav.type);
-
-    case BuiltinProc_type_map_cell_info:
-        return lb_gen_map_cell_info_ptr(p->module, ce->args[0]->tav.type);
-
 
     case BuiltinProc_fixed_point_mul:
     case BuiltinProc_fixed_point_div:
@@ -3722,7 +3708,7 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             
             lbValue res = {};
             res.value = LLVMBuildCall2(p->builder, func_type, inline_asm, args, arg_count, "");
-            res.type = make_optional_ok_type(t_uintptr, true);
+            res.type  = t_uintptr;
 
             return res;
         }
@@ -4069,11 +4055,6 @@ gb_internal lbValue lb_build_call_expr(lbProcedure *p, Ast *expr) {
 
     lbValue res = lb_build_call_expr_internal(p, expr);
 
-    if (ce->optional_ok_one) {
-        GB_ASSERT(is_type_tuple(res.type));
-        GB_ASSERT(res.type->Tuple.variables.count == 2);
-        return lb_emit_struct_ev(p, res, 0);
-    }
     return res;
 }
 

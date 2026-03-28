@@ -205,7 +205,6 @@ struct TypeProc {
     bool     has_named_results;
     bool     diverging; // no return
     bool     return_by_pointer;
-    bool     optional_ok;
 };
 
 struct TypeNamed {
@@ -244,12 +243,6 @@ struct TypeNamed {
         bool is_sparse;                                   \
     })                                                        \
     TYPE_KIND(Slice,   struct { Type *elem; })                \
-    TYPE_KIND(Map, struct {                                   \
-        Type *key;                                        \
-        Type *value;                                      \
-        Type *lookup_result_type;                         \
-        Type *debug_metadata_type;                        \
-    })                                                        \
     TYPE_KIND(Struct,  TypeStruct)                            \
     TYPE_KIND(Union,   TypeUnion)                             \
     TYPE_KIND(Enum, struct {                                  \
@@ -345,7 +338,7 @@ struct Type {
     bool failure;
 };
 
-// IMPORTANT NOTE(bill): This must match the same as the in core.odin
+// Caio: This must match the same as `Type_Info.variant` from the odin file.
 enum Typeid_Kind : u8 {
     Typeid_Invalid,
     Typeid_Integer,
@@ -362,13 +355,11 @@ enum Typeid_Kind : u8 {
     Typeid_Procedure,
     Typeid_Array,
     Typeid_Enumerated_Array,
-    Typeid_Dynamic_Array,
     Typeid_Slice,
     Typeid_Tuple,
     Typeid_Struct,
     Typeid_Union,
     Typeid_Enum,
-    Typeid_Map,
     Typeid_Bit_Set,
     Typeid_Simd_Vector,
     Typeid_Matrix,
@@ -683,7 +674,6 @@ gb_global Type *t_type_info_parameters           = nullptr;
 gb_global Type *t_type_info_struct               = nullptr;
 gb_global Type *t_type_info_union                = nullptr;
 gb_global Type *t_type_info_enum                 = nullptr;
-gb_global Type *t_type_info_map                  = nullptr;
 gb_global Type *t_type_info_bit_set              = nullptr;
 gb_global Type *t_type_info_simd_vector          = nullptr;
 gb_global Type *t_type_info_matrix               = nullptr;
@@ -711,7 +701,6 @@ gb_global Type *t_type_info_parameters_ptr       = nullptr;
 gb_global Type *t_type_info_struct_ptr           = nullptr;
 gb_global Type *t_type_info_union_ptr            = nullptr;
 gb_global Type *t_type_info_enum_ptr             = nullptr;
-gb_global Type *t_type_info_map_ptr              = nullptr;
 gb_global Type *t_type_info_bit_set_ptr          = nullptr;
 gb_global Type *t_type_info_simd_vector_ptr      = nullptr;
 gb_global Type *t_type_info_matrix_ptr           = nullptr;
@@ -730,18 +719,8 @@ gb_global Type *t_load_directory_file            = nullptr;
 gb_global Type *t_load_directory_file_ptr        = nullptr;
 gb_global Type *t_load_directory_file_slice      = nullptr;
 
-gb_global Type *t_map_info                       = nullptr;
-gb_global Type *t_map_cell_info                  = nullptr;
-gb_global Type *t_raw_map                        = nullptr;
-gb_global Type *t_map_info_ptr                   = nullptr;
-gb_global Type *t_map_cell_info_ptr              = nullptr;
-gb_global Type *t_raw_map_ptr                    = nullptr;
-
-
 gb_global Type *t_equal_proc  = nullptr;
 gb_global Type *t_hasher_proc = nullptr;
-gb_global Type *t_map_get_proc = nullptr;
-gb_global Type *t_map_set_proc = nullptr;
 
 gb_global Type *t_objc_object   = nullptr;
 gb_global Type *t_objc_selector = nullptr;
@@ -1158,8 +1137,6 @@ gb_internal Type *alloc_type_proc(Scope *scope, Type *params, isize param_count,
     t->Proc.calling_convention = calling_convention;
     return t;
 }
-
-gb_internal bool is_type_valid_for_keys(Type *t);
 
 
 gb_internal Type *alloc_type_bit_set() {
@@ -1869,11 +1846,7 @@ gb_internal bool is_type_bit_field(Type *t) {
     if (t == nullptr) { return false; }
     return (t->kind == Type_BitField);
 }
-gb_internal bool is_type_map(Type *t) {
-    t = base_type(t);
-    if (t == nullptr) { return false; }
-    return t->kind == Type_Map;
-}
+
 
 gb_internal bool is_type_union_maybe_pointer(Type *t) {
     t = base_type(t);
@@ -2104,16 +2077,6 @@ gb_internal bool is_type_empty_union(Type *t) {
     return t->kind == Type_Union && t->Union.variants.count == 0;
 }
 
-gb_internal bool is_type_valid_for_keys(Type *t) {
-    t = core_type(t);
-    if (t->kind == Type_Generic) {
-        return true;
-    }
-    if (is_type_untyped(t)) {
-        return false;
-    }
-    return type_size_of(t) > 0 && is_type_comparable(t);
-}
 
 gb_internal bool is_type_valid_bit_set_elem(Type *t) {
     if (is_type_enum(t)) {
@@ -2201,8 +2164,6 @@ gb_internal bool is_type_indexable(Type *t) {
         return bt->Basic.kind == Basic_string || bt->Basic.kind == Basic_string16;
     case Type_Array:
     case Type_Slice:
-    case Type_Map:
-        return true;
     case Type_MultiPointer:
         return true;
     case Type_EnumeratedArray:
@@ -2426,18 +2387,6 @@ gb_internal bool is_type_polymorphic(Type *t, bool or_specialized=false) {
         }
         break;
 
-    case Type_Map:
-        if (t->Map.key == nullptr || t->Map.value == nullptr) {
-            return false;
-        }
-        if (is_type_polymorphic(t->Map.key, or_specialized)) {
-            return true;
-        }
-        if (is_type_polymorphic(t->Map.value, or_specialized)) {
-            return true;
-        }
-        break;
-
     case Type_BitSet:
         if (is_type_polymorphic(t->BitSet.elem, or_specialized)) {
             return true;
@@ -2476,7 +2425,6 @@ gb_internal bool type_has_nil(Type *t) {
     case Type_Pointer:
     case Type_SoaPointer:
     case Type_MultiPointer:
-    case Type_Map:
         return true;
     case Type_Union:
         return t->Union.kind != UnionType_no_nil;
@@ -2702,7 +2650,6 @@ gb_internal bool is_type_simple_compare(Type *t) {
         break;
 
     case Type_Slice:
-    case Type_Map:
         return false;
     }
 
@@ -2771,7 +2718,6 @@ gb_internal bool is_type_nearly_simple_compare(Type *t) {
         break;
 
     case Type_Slice:
-    case Type_Map:
         return false;
 
     }
@@ -3152,13 +3098,8 @@ gb_internal bool are_types_identical_internal(Type *x, Type *y, bool check_tuple
                x->Proc.c_vararg    == y->Proc.c_vararg    &&
                x->Proc.variadic    == y->Proc.variadic    &&
                x->Proc.diverging   == y->Proc.diverging   &&
-               x->Proc.optional_ok == y->Proc.optional_ok &&
                are_types_identical_internal(x->Proc.params, y->Proc.params, check_tuple_names) &&
                are_types_identical_internal(x->Proc.results, y->Proc.results, check_tuple_names);
-
-    case Type_Map:
-        return are_types_identical(x->Map.key,   y->Map.key) &&
-               are_types_identical(x->Map.value, y->Map.value);
 
     case Type_SimdVector:
         if (x->SimdVector.count == y->SimdVector.count) {
@@ -3823,17 +3764,6 @@ gb_internal Selection lookup_field_with_selection(Type *type_, String field_name
         }
 
         return sel;
-    } else if (type->kind == Type_Map) {
-        GB_ASSERT(t_allocator != nullptr);
-        String allocator_str = str_lit("allocator");
-        gb_local_persist Entity *entity__allocator = alloc_entity_field(nullptr, make_token_ident(allocator_str), t_allocator, false, 2);
-
-        if (field_name == allocator_str) {
-            selection_add_index(&sel, 2);
-            sel.entity = entity__allocator;
-            return sel;
-        }
-
 
 #define _ARRAY_FIELD_CASE_IF(_length, _name) \
     if (field_name == (_name)) { \
@@ -3841,13 +3771,12 @@ gb_internal Selection lookup_field_with_selection(Type *type_, String field_name
         sel.entity = alloc_entity_array_elem(nullptr, make_token_ident(str_lit(_name)), elem, (_length)-1); \
         return sel; \
     }
+    
 #define _ARRAY_FIELD_CASE(_length, _name0, _name1) \
 case (_length): \
     _ARRAY_FIELD_CASE_IF(_length, _name0); \
     _ARRAY_FIELD_CASE_IF(_length, _name1); \
     /*fallthrough*/
-
-
     } else if (type->kind == Type_Array) {
 
         Type *elem = type->Array.elem;
@@ -4106,8 +4035,6 @@ gb_internal i64 type_align_of_internal(Type *t, TypePath *path) {
         return max;
     } break;
 
-    case Type_Map:
-        return build_context.ptr_size;
     case Type_Enum:
         return type_align_of_internal(t->Enum.base_type, path);
 
@@ -4355,16 +4282,6 @@ gb_internal i64 type_size_of_internal(Type *t, TypePath *path) {
 
     case Type_Slice: // ptr + len
         return 2 * build_context.int_size;
-
-    case Type_Map:
-        /*
-            struct {
-                data:      uintptr,           // 1 word
-                size:      uintptr,           // 1 word
-                allocator: Allocator, // 2 words
-            }
-        */
-        return (1 + 1 + 2)*build_context.ptr_size;
 
     case Type_Tuple: {
         i64 count, align, size;
@@ -4824,8 +4741,6 @@ gb_internal Type *type_internal_index(Type *t, isize index) {
             GB_ASSERT(index == 0 || index == 1);
             return index == 0 ? t_rawptr : t_int;
         }
-    case Type_Map:
-        return type_internal_index(bt->Map.debug_metadata_type, index);
     case Type_BitField:
         return type_internal_index(bt->BitField.backing_type, index);
     case Type_Generic:
@@ -4985,13 +4900,6 @@ gb_internal gbString write_type_to_string(gbString str, Type *type, bool shortha
             }
         }
         str = gb_string_append_rune(str, '}');
-    } break;
-
-    case Type_Map: {
-        str = gb_string_appendc(str, "map[");
-        str = write_type_to_string(str, type->Map.key, shorthand, allow_polymorphic);
-        str = gb_string_append_rune(str, ']');
-        str = write_type_to_string(str, type->Map.value, shorthand, allow_polymorphic);
     } break;
 
     case Type_Named:

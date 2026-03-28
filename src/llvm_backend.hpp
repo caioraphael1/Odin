@@ -61,7 +61,6 @@ struct lbValue {
 
 enum lbAddrKind {
     lbAddr_Default,
-    lbAddr_Map,
     lbAddr_SoaVariable,
 
     lbAddr_Swizzle,
@@ -522,9 +521,7 @@ gb_internal lbValue lb_cstring_len(lbProcedure *p, lbValue value);
 gb_internal lbValue lb_array_elem(lbProcedure *p, lbValue array_ptr);
 gb_internal lbValue lb_slice_elem(lbProcedure *p, lbValue slice);
 gb_internal lbValue lb_slice_len(lbProcedure *p, lbValue slice);
-gb_internal lbValue lb_dynamic_array_allocator(lbProcedure *p, lbValue da);
-gb_internal lbValue lb_map_len(lbProcedure *p, lbValue value);
-gb_internal lbValue lb_map_cap(lbProcedure *p, lbValue value);
+
 gb_internal lbValue lb_soa_struct_len(lbProcedure *p, lbValue value);
 gb_internal void lb_emit_increment(lbProcedure *p, lbValue addr);
 gb_internal lbValue lb_emit_select(lbProcedure *p, lbValue cond, lbValue x, lbValue y);
@@ -545,19 +542,12 @@ gb_internal String lb_get_const_string(lbModule *m, lbValue value);
 
 gb_internal lbValue lb_generate_local_array(lbProcedure *p, Type *elem_type, i64 count, bool zero_init=true);
 gb_internal lbValue lb_generate_global_array(lbModule *m, Type *elem_type, i64 count, String prefix, i64 id);
-gb_internal lbValue lb_gen_map_key_hash(lbProcedure *p, lbValue const &map_ptr, lbValue key, lbValue *key_ptr_);
-gb_internal lbValue lb_gen_map_cell_info_ptr(lbModule *m, Type *type);
-gb_internal lbValue lb_gen_map_info_ptr(lbModule *m, Type *map_type);
-
-gb_internal lbValue lb_internal_dynamic_map_get_ptr(lbProcedure *p, lbValue const &map_ptr, lbValue const &key);
-gb_internal void    lb_internal_dynamic_map_set(lbProcedure *p, lbValue const &map_ptr, Type *map_type, lbValue const &map_key, lbValue const &map_value, Ast *node);
-gb_internal lbValue lb_dynamic_map_reserve(lbProcedure *p, lbValue const &map_ptr, isize const capacity, TokenPos const &pos);
 
 gb_internal lbValue lb_find_procedure_value_from_entity(lbModule *m, Entity *e);
 gb_internal lbValue lb_find_value_from_entity(lbModule *m, Entity *e);
 
-gb_internal void lb_store_type_case_implicit(lbProcedure *p, Ast *clause, lbValue value, bool is_default_case);
-gb_internal lbAddr lb_store_range_stmt_val(lbProcedure *p, Ast *stmt_val, lbValue value);
+gb_internal void    lb_store_type_case_implicit(lbProcedure *p, Ast *clause, lbValue value, bool is_default_case);
+gb_internal lbAddr  lb_store_range_stmt_val(lbProcedure *p, Ast *stmt_val, lbValue value);
 gb_internal lbValue lb_emit_source_code_location_const(lbProcedure *p, String const &procedure, TokenPos const &pos);
 gb_internal lbValue lb_const_source_code_location_const(lbModule *m, String const &procedure, TokenPos const &pos);
 
@@ -565,6 +555,7 @@ gb_internal lbValue lb_handle_param_value(lbProcedure *p, Type *parameter_type, 
 
 gb_internal lbValue lb_equal_proc_for_type(lbModule *m, Type *type);
 gb_internal lbValue lb_hasher_proc_for_type(lbModule *m, Type *type);
+
 gb_internal lbValue lb_emit_conv(lbProcedure *p, lbValue value, Type *t);
 
 gb_internal LLVMMetadataRef lb_debug_type(lbModule *m, Type *type);

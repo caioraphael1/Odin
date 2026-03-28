@@ -18,9 +18,6 @@ gb_internal bool is_operand_value(Operand o) {
     case Addressing_Value:
     case Addressing_Variable:
     case Addressing_Constant:
-    case Addressing_MapIndex:
-    case Addressing_OptionalOk:
-    case Addressing_OptionalOkPtr:
     case Addressing_SoaVariable:
     case Addressing_SwizzleValue:
     case Addressing_SwizzleVariable:
@@ -1114,9 +1111,6 @@ gb_internal void init_universal(void) {
 
         Type *hasher_args[2] = {t_rawptr, t_uintptr};
         t_hasher_proc = alloc_type_proc_from_types(hasher_args, gb_count_of(hasher_args), t_uintptr, false, ProcCC_Odin);
-
-        Type *map_get_args[3] = {/*map*/t_rawptr, /*hash*/t_uintptr, /*key*/t_rawptr};
-        t_map_get_proc = alloc_type_proc_from_types(map_get_args, gb_count_of(map_get_args), t_rawptr, false, ProcCC_Odin);
     }
 
 // Constants
@@ -2310,14 +2304,6 @@ gb_internal void add_type_info_type_internal(CheckerContext *c, Type *t) {
         add_comparison_procedures_for_fields(c, bt);
         break;
 
-    case Type_Map:
-        init_map_internal_types(bt);
-        add_type_info_type_internal(c, bt->Map.key);
-        add_type_info_type_internal(c, bt->Map.value);
-        add_type_info_type_internal(c, t_uintptr); // hash value
-        add_type_info_type_internal(c, t_allocator);
-        break;
-
     case Type_Tuple:
         for_array(i, bt->Tuple.variables) {
             Entity *var = bt->Tuple.variables[i];
@@ -2530,14 +2516,6 @@ gb_internal void add_min_dep_type_info(Checker *c, Type *t) {
             Entity *f = bt->Struct.fields[i];
             add_min_dep_type_info(c, f->type);
         }
-        break;
-
-    case Type_Map:
-        init_map_internal_types(bt);
-        add_min_dep_type_info(c, bt->Map.key);
-        add_min_dep_type_info(c, bt->Map.value);
-        add_min_dep_type_info(c, t_uintptr); // hash value
-        add_min_dep_type_info(c, t_allocator);
         break;
 
     case Type_Tuple:
@@ -3210,7 +3188,6 @@ gb_internal void init_core_type_info(Checker *c) {
     t_type_info_struct               = find_core_type(c, str_lit("Type_Info_Struct"));
     t_type_info_union                = find_core_type(c, str_lit("Type_Info_Union"));
     t_type_info_enum                 = find_core_type(c, str_lit("Type_Info_Enum"));
-    t_type_info_map                  = find_core_type(c, str_lit("Type_Info_Map"));
     t_type_info_bit_set              = find_core_type(c, str_lit("Type_Info_Bit_Set"));
     t_type_info_simd_vector          = find_core_type(c, str_lit("Type_Info_Simd_Vector"));
     t_type_info_matrix               = find_core_type(c, str_lit("Type_Info_Matrix"));
@@ -3237,7 +3214,6 @@ gb_internal void init_core_type_info(Checker *c) {
     t_type_info_struct_ptr           = alloc_type_pointer(t_type_info_struct);
     t_type_info_union_ptr            = alloc_type_pointer(t_type_info_union);
     t_type_info_enum_ptr             = alloc_type_pointer(t_type_info_enum);
-    t_type_info_map_ptr              = alloc_type_pointer(t_type_info_map);
     t_type_info_bit_set_ptr          = alloc_type_pointer(t_type_info_bit_set);
     t_type_info_simd_vector_ptr      = alloc_type_pointer(t_type_info_simd_vector);
     t_type_info_matrix_ptr           = alloc_type_pointer(t_type_info_matrix);
@@ -3271,21 +3247,6 @@ gb_internal void init_core_load_directory_file(Checker *c) {
     t_load_directory_file_slice = alloc_type_slice(t_load_directory_file);
 }
 
-
-gb_internal void init_core_map_type(Checker *c) {
-    if (t_map_info != nullptr) {
-        return;
-    }
-    init_mem_allocator(c);
-    t_map_info      = find_core_type(c, str_lit("Map_Info"));
-    t_map_cell_info = find_core_type(c, str_lit("Map_Cell_Info"));
-    t_raw_map       = find_core_type(c, str_lit("Raw_Map"));
-
-    t_map_info_ptr      = alloc_type_pointer(t_map_info);
-    t_map_cell_info_ptr = alloc_type_pointer(t_map_cell_info);
-    t_raw_map_ptr       = alloc_type_pointer(t_raw_map);
-}
-
 gb_internal void init_core_objc_c(Checker *c) {
     if (build_context.metrics.os == TargetOs_darwin) {
         t_objc_super     = find_core_type(c, str_lit("objc_super"));
@@ -3297,7 +3258,6 @@ gb_internal void init_preload(Checker *c) {
     init_core_type_info(c);
     init_mem_allocator(c);
     init_core_source_code_location(c);
-    init_core_map_type(c);
     init_core_objc_c(c);
 }
 
@@ -7148,7 +7108,7 @@ gb_internal void check_parsed_files(Checker *c) {
     TIME_SECTION("map full filepaths to scope");
     add_type_info_type(&c->builtin_ctx, t_invalid);
 
-    // Map full filepaths to Scopes
+    // Maps full filepaths to Scopes
     for_array(i, c->parser->packages) {
         AstPackage *p = c->parser->packages[i];
         Scope *scope = create_scope_from_package(&c->builtin_ctx, p);

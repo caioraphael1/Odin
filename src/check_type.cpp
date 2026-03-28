@@ -2499,22 +2499,6 @@ gb_internal bool check_procedure_type(CheckerContext *ctx, Type *type, Ast *proc
         type->Proc.has_named_results = first->token.string != "";
     }
 
-    bool optional_ok = (pt->tags & ProcTag_optional_ok) != 0;
-    if (optional_ok) {
-        if (result_count != 2) {
-            error(proc_type_node, "A procedure type with the #optional_ok tag requires 2 return values, got %td", result_count);
-        } else {
-            Entity *second = results->Tuple.variables[1];
-            if (is_type_polymorphic(second->type)) {
-                // ignore
-            } else if (is_type_boolean(second->type)) {
-                // GOOD
-            } else {
-                error(second->token, "Second return value of an #optional_ok procedure must be a boolean, got %s", type_to_string(second->type));
-            }
-        }
-    }
-
     type->Proc.node                 = proc_type_node;
     type->Proc.scope                = c->scope;
     type->Proc.params               = params;
@@ -2527,7 +2511,6 @@ gb_internal bool check_procedure_type(CheckerContext *ctx, Type *type, Ast *proc
     type->Proc.is_polymorphic       = pt->generic;
     type->Proc.specialization_count = specialization_count;
     type->Proc.diverging            = pt->diverging;
-    type->Proc.optional_ok          = optional_ok;
 
     bool is_polymorphic = false;
     for (isize i = 0; i < param_count; i++) {
@@ -2665,15 +2648,6 @@ gb_internal i64 check_array_count(CheckerContext *ctx, Operand *o, Ast *e) {
     return 0;
 }
 
-gb_internal Type *make_optional_ok_type(Type *value, bool typed) {
-    gbAllocator a = permanent_allocator();
-    Type *t = alloc_type_tuple();
-    slice_init(&t->Tuple.variables, a, 2);
-    t->Tuple.variables[0] = alloc_entity_field(nullptr, blank_token, value,  false, 0);
-    t->Tuple.variables[1] = alloc_entity_field(nullptr, blank_token, typed ? t_bool : t_untyped_bool, false, 1);
-    return t;
-}
-
 
 // IMPORTANT NOTE(bill): This must match the definition in dynamic_map_internal.odin
 enum : i64 {
@@ -2716,163 +2690,6 @@ gb_internal Type *get_map_cell_type(Type *type) {
     gb_unused(type_size_of(s));
 
     return s;
-}
-
-gb_internal void init_map_internal_debug_types(Type *type) {
-    GB_ASSERT(type->kind == Type_Map);
-    GB_ASSERT(t_allocator != nullptr);
-    if (type->Map.debug_metadata_type != nullptr) return;
-
-    Type *key   = type->Map.key;
-    Type *value = type->Map.value;
-    GB_ASSERT(key != nullptr);
-    GB_ASSERT(value != nullptr);
-
-    Type *key_cell   = get_map_cell_type(key);
-    Type *value_cell = get_map_cell_type(value);
-
-    Type *metadata_type = alloc_type_struct();
-    Scope *metadata_scope = create_scope(nullptr, nullptr);
-    metadata_type->Struct.fields = permanent_slice_make<Entity *>(5);
-    metadata_type->Struct.fields[0] = alloc_entity_field(metadata_scope, make_token_ident("key"),    key,       false, 0, EntityState_Resolved);
-    metadata_type->Struct.fields[1] = alloc_entity_field(metadata_scope, make_token_ident("value"),  value,     false, 1, EntityState_Resolved);
-    metadata_type->Struct.fields[2] = alloc_entity_field(metadata_scope, make_token_ident("hash"),   t_uintptr, false, 2, EntityState_Resolved);
-    metadata_type->Struct.fields[3] = alloc_entity_field(metadata_scope, make_token_ident("key_cell"),   key_cell,   false, 3, EntityState_Resolved);
-    metadata_type->Struct.fields[4] = alloc_entity_field(metadata_scope, make_token_ident("value_cell"), value_cell, false, 4, EntityState_Resolved);
-    metadata_type->Struct.scope = metadata_scope;
-    metadata_type->Struct.node = nullptr;
-    wait_signal_set(&metadata_type->Struct.fields_wait_signal);
-
-    gb_unused(type_size_of(metadata_type));
-
-    // NOTE(bill): ^struct{key: Key, value: Value, hash: uintptr}
-    metadata_type = alloc_type_pointer(metadata_type);
-
-
-    Scope *scope = create_scope(nullptr, nullptr);
-    Type *debug_type = alloc_type_struct();
-    debug_type->Struct.fields = permanent_slice_make<Entity *>(3);
-    debug_type->Struct.fields[0] = alloc_entity_field(scope, make_token_ident("data"),       metadata_type, false, 0, EntityState_Resolved);
-    debug_type->Struct.fields[1] = alloc_entity_field(scope, make_token_ident("len"),        t_uint,        false, 1, EntityState_Resolved);
-    debug_type->Struct.fields[2] = alloc_entity_field(scope, make_token_ident("allocator"),  t_allocator,   false, 2, EntityState_Resolved);
-    debug_type->Struct.scope = scope;
-    debug_type->Struct.node = nullptr;
-    wait_signal_set(&debug_type->Struct.fields_wait_signal);
-
-    gb_unused(type_size_of(debug_type));
-
-    type->Map.debug_metadata_type = debug_type;
-}
-
-
-gb_internal void init_map_internal_types(Type *type) {
-    GB_ASSERT(type->kind == Type_Map);
-    GB_ASSERT(t_allocator != nullptr);
-    if (type->Map.lookup_result_type != nullptr) return;
-
-    Type *key   = type->Map.key;
-    Type *value = type->Map.value;
-    GB_ASSERT(key != nullptr);
-    GB_ASSERT(value != nullptr);
-
-    type->Map.lookup_result_type = make_optional_ok_type(value);
-}
-
-gb_internal void add_map_key_type_dependencies(CheckerContext *ctx, Type *key) {
-    key = core_type(key);
-
-    if (is_type_cstring(key)) {
-        add_package_dependency(ctx, "internal", "__default_hasher_cstring");
-    } else if (is_type_string(key)) {
-        add_package_dependency(ctx, "internal", "__default_hasher_string");
-    } else if (!is_type_polymorphic(key)) {
-        if (!is_type_comparable(key)) {
-            return;
-        }
-
-        if (is_type_simple_compare(key)) {
-            add_package_dependency(ctx, "internal", "__default_hasher");
-            return;
-        }
-
-        if (key->kind == Type_Basic) {
-            if (key->Basic.flags & BasicFlag_Quaternion) {
-                add_package_dependency(ctx, "internal", "__default_hasher_f64");
-                add_package_dependency(ctx, "internal", "__default_hasher_quaternion256");
-                return;
-            } else if (key->Basic.flags & BasicFlag_Complex) {
-                add_package_dependency(ctx, "internal", "__default_hasher_f64");
-                add_package_dependency(ctx, "internal", "__default_hasher_complex128");
-                return;
-            } else if (key->Basic.flags & BasicFlag_Float) {
-                add_package_dependency(ctx, "internal", "__default_hasher_f64");
-                return;
-            }
-        }
-
-        if (key->kind == Type_Struct) {
-            add_package_dependency(ctx, "internal", "__default_hasher");
-            for_array(i, key->Struct.fields) {
-                Entity *field = key->Struct.fields[i];
-                add_map_key_type_dependencies(ctx, field->type);
-            }
-        } else if (key->kind == Type_Union) {
-            add_package_dependency(ctx, "internal", "__default_hasher");
-            for_array(i, key->Union.variants) {
-                Type *v = key->Union.variants[i];
-                add_map_key_type_dependencies(ctx, v);
-            }
-        } else if (key->kind == Type_EnumeratedArray) {
-            add_package_dependency(ctx, "internal", "__default_hasher");
-            add_map_key_type_dependencies(ctx, key->EnumeratedArray.elem);
-        } else if (key->kind == Type_Array) {
-            add_package_dependency(ctx, "internal", "__default_hasher");
-            add_map_key_type_dependencies(ctx, key->Array.elem);
-        }
-    }
-}
-
-gb_internal void check_map_type(CheckerContext *ctx, Type *type, Ast *node) {
-    GB_ASSERT(type->kind == Type_Map);
-    ast_node(mt, MapType, node);
-
-    if (mt->key == NULL) {
-        if (mt->value != NULL) {
-            Type *value = check_type(ctx, mt->value);
-            gbString str = type_to_string(value);
-            error(node, "Missing map key type, got 'map[]%s'", str);
-            gb_string_free(str);
-            return;
-        }
-        error(node, "Missing map key type, got 'map[]T'");
-        return;
-    }
-
-    Type *key   = check_type(ctx, mt->key);
-    Type *value = check_type(ctx, mt->value);
-
-    if (!is_type_valid_for_keys(key)) {
-        if (is_type_boolean(key)) {
-            error(node, "A boolean cannot be used as a key for a map, use an array instead for this case");
-        } else {
-            gbString str = type_to_string(key);
-            error(node, "Invalid type of a key for a map, got '%s'", str);
-            gb_string_free(str);
-        }
-    }
-    if (type_size_of(key) == 0) {
-        gbString str = type_to_string(key);
-        error(node, "Invalid type of a key for a map of size 0, got '%s'", str);
-        gb_string_free(str);
-    }
-
-    type->Map.key   = key;
-    type->Map.value = value;
-
-    add_map_key_type_dependencies(ctx, key);
-
-    init_core_map_type(ctx->checker);
-    init_map_internal_types(type);
 }
 
 gb_internal void check_matrix_type(CheckerContext *ctx, Type **type, Ast *node) {
@@ -3640,17 +3457,6 @@ gb_internal bool check_type_internal(CheckerContext *ctx, Ast *e, Type **type, T
         check_open_scope(ctx, e);
         check_procedure_type(ctx, *type, e);
         check_close_scope(ctx);
-        return true;
-    case_end;
-
-    case_ast_node(mt, MapType, e);
-        bool ips = ctx->in_polymorphic_specialization;
-        defer (ctx->in_polymorphic_specialization = ips);
-        ctx->in_polymorphic_specialization = false;
-
-        *type = alloc_type(Type_Map);
-        set_base_type(named_type, *type);
-        check_map_type(ctx, *type, e);
         return true;
     case_end;
 

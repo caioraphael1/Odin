@@ -715,7 +715,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
         return
 
     case reflect.Type_Info_Map:
-        raw_map := (^maps.Raw_Map)(v.data)
+        raw_map := (^maps.Map)(v.data)
         if raw_map.allocator.procedure == nil {
             // raw_map.allocator = context.allocator
         }
@@ -729,7 +729,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
         if !unknown {
             // Reserve space before setting so we can return allocation errors and be efficient on big maps.
             new_len := uintptr(min(scap, internal.maps.raw_map_len(raw_map^)+length))
-            internal.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
+            map._reserve(raw_map, t.map_info, new_len) or_return
         }
 
         // Temporary memory to unmarshal values into before inserting them into the map.
@@ -746,7 +746,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
             if unknown || idx > scap {
                 // Reserve space for new element so we can return allocator errors.
                 new_len := uintptr(internal.maps.raw_map_len(raw_map^)+1)
-                internal.map_reserve_dynamic(raw_map, t.map_info, new_len) or_return
+                map._reserve(raw_map, t.map_info, new_len) or_return
             }
 
             slice.zero(key_backing)
@@ -761,7 +761,7 @@ _unmarshal_map :: proc(d: Decoder, v: any, ti: ^reflect.Type_Info, hdr: Header, 
         }
     
         if .Shrink_Excess in d.flags {
-            _, _ = internal.maps.shrink_dynamic(raw_map, t.map_info)
+            _, _ = map._shrink(raw_map, t.map_info)
         }
         return
 

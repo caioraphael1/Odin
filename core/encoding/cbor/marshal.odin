@@ -296,22 +296,21 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
         return
 
     case reflect.Type_Info_Map:
-        m := (^maps.Raw_Map)(v.data)
+        m := (^maps.Map)(v.data)
         err_conv(_encode_u64(e, u64(internal.maps.raw_map_len(m^)), .Map)) or_return
         if m != nil {
             if info.map_info == nil {
                 return _unsupported(v.id, nil)
             }
 
-            map_cap := uintptr(internal.map_cap(m^))
-            ks, vs, hs, _, _ := internal.map_kvh_data_dynamic(m^, info.map_info)
+            ks, vs, hs, _, _ := internal._map_kvh_data_dynamic(m^, info.map_info)
 
             if .Deterministic_Map_Sorting not_in e.flags {
-                for bucket_index in 0..<map_cap {
+                for bucket_index in 0..<m.cap {
                     internal.maps.hash_is_valid(hs[bucket_index]) or_continue
 
-                    key   := rawptr(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    value := rawptr(internal.map_cell_index_dynamic(vs, info.map_info.vs, bucket_index))
+                    key   := rawptr(internal._cell_index_dynamic(ks, info.map_info.ks, bucket_index))
+                    value := rawptr(internal._cell_index_dynamic(vs, info.map_info.vs, bucket_index))
 
                     marshal_into(e, any{ key, info.key.id }) or_return
                     marshal_into(e, any{ value, info.value.id }) or_return
@@ -357,13 +356,13 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
 
             switch info.key.id {
             case string:
-                entries := dyn_array.create(Encoded_Entry_Fast(^[]u8), 0, map_cap, e.temp_allocator) or_return
+                entries := dyn_array.create(Encoded_Entry_Fast(^[]u8), 0, m.cap, e.temp_allocator) or_return
                 defer _ = slice.delete(entries)
 
-                for bucket_index in 0..<map_cap {
+                for bucket_index in 0..<m.cap {
                     internal.maps.hash_is_valid(hs[bucket_index]) or_continue
 
-                    key := (^[]u8)(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
+                    key := (^[]u8)(internal._cell_index_dynamic(ks, info.map_info.ks, bucket_index))
                     _ = dyn_array.append(&entries, Encoded_Entry_Fast(^[]u8){
                         pre_key = pre_key(e, string(key^)),
                         key     = key,
@@ -385,19 +384,19 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
                     _ = io.write_full(e.writer, entry.pre_key[:entry.pre_key[9]]) or_return
                     _ = io.write_full(e.writer, entry.key^) or_return
 
-                    value := rawptr(internal.map_cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
+                    value := rawptr(internal._cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
                     marshal_into(e, any{ value, info.value.id }) or_return
                 }
                 return
 
             case cstring:
-                entries := dyn_array.create(Encoded_Entry_Fast(^cstring), 0, map_cap, e.temp_allocator) or_return
+                entries := dyn_array.create(Encoded_Entry_Fast(^cstring), 0, m.cap, e.temp_allocator) or_return
                 defer _ = slice.delete(entries)
 
-                for bucket_index in 0..<map_cap {
+                for bucket_index in 0..<m.cap {
                     internal.maps.hash_is_valid(hs[bucket_index]) or_continue
 
-                    key := (^cstring)(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
+                    key := (^cstring)(internal._cell_index_dynamic(ks, info.map_info.ks, bucket_index))
                     _ = dyn_array.append(&entries, Encoded_Entry_Fast(^cstring){
                         pre_key = pre_key(e, string(key^)),
                         key     = key,
@@ -421,19 +420,19 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
                     _ = io.write_full(e.writer, entry.pre_key[:entry.pre_key[9]]) or_return
                     _ = io.write_full(e.writer, transmute([]u8)string(entry.key^)) or_return
 
-                    value := rawptr(internal.map_cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
+                    value := rawptr(internal._cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
                     marshal_into(e, any{ value, info.value.id }) or_return
                 }
                 return
 
             case:
-                entries := dyn_array.create(Encoded_Entry, 0, map_cap, e.temp_allocator) or_return
+                entries := dyn_array.create(Encoded_Entry, 0, m.cap, e.temp_allocator) or_return
                 defer _ = slice.delete(entries)
 
-                for bucket_index in 0..<map_cap {
+                for bucket_index in 0..<m.cap {
                     internal.maps.hash_is_valid(hs[bucket_index]) or_continue
 
-                    key := rawptr(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
+                    key := rawptr(internal._cell_index_dynamic(ks, info.map_info.ks, bucket_index))
                     key_builder := string_builder.builder_create(0, 8, e.temp_allocator) or_return
                     marshal_into(Encoder{e.flags, string_builder.to_stream(&key_builder), e.temp_allocator}, any{ key, info.key.id }) or_return
                     dyn_array.append(&entries, Encoded_Entry{ &key_builder.buf, bucket_index }) or_return
@@ -447,7 +446,7 @@ _marshal_into_encoder :: proc(e: Encoder, v: any, ti: ^reflect.Type_Info) -> (er
                     _ = io.write_full(e.writer, entry.key[:]) or_return
                     _ = slice.delete(entry.key^)
 
-                    value := rawptr(internal.map_cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
+                    value := rawptr(internal._cell_index_dynamic(vs, info.map_info.vs, entry.val_idx))
                     marshal_into(e, any{ value, info.value.id }) or_return
                 }
                 return

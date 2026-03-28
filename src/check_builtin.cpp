@@ -39,7 +39,6 @@ gb_global BuiltinTypeIsProc *builtin_type_is_procs[BuiltinProc__type_simple_bool
     is_type_simple_compare, // easily compared using memcmp
     is_type_nearly_simple_compare, // easily compared using memcmp (including floats)
     is_type_dereferenceable,
-    is_type_valid_for_keys,
     is_type_valid_for_matrix_elems,
 
     is_type_named,
@@ -48,7 +47,6 @@ gb_global BuiltinTypeIsProc *builtin_type_is_procs[BuiltinProc__type_simple_bool
     is_type_array,
     is_type_enumerated_array,
     is_type_slice,
-    is_type_map,
     is_type_struct,
     is_type_union,
     is_type_enum,
@@ -91,8 +89,6 @@ gb_internal void check_or_else_split_types(CheckerContext *c, Operand *x, String
         }
 
         right_type = rhs->type;
-    } else {
-        check_promote_optional_ok(c, x, &left_type, &right_type);
     }
 
     if (left_type_)  *left_type_  = left_type;
@@ -146,8 +142,6 @@ gb_internal void check_or_return_split_types(CheckerContext *c, Operand *x, Stri
         }
 
         right_type = rhs->type;
-    } else {
-        check_promote_optional_ok(c, x, &left_type, &right_type);
     }
 
     if (left_type_)  *left_type_  = left_type;
@@ -2617,8 +2611,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             type = t_untyped_integer;
             value = exact_value_u64(at->EnumeratedArray.count);
         } else if (is_type_slice(op_type) && id == BuiltinProc_len) {
-            mode = Addressing_Value;
-        } else if (is_type_map(op_type)) {
             mode = Addressing_Value;
         } else if (operand->mode == Addressing_Type && is_type_enum(op_type)) {
             Type *bt = base_type(op_type);
@@ -5387,7 +5379,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             }
 
             operand->mode = Addressing_Value;
-            operand->type = make_optional_ok_type(default_type(x.type));
+            operand->type = default_type(x.type);
         }
         break;
 
@@ -5994,7 +5986,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
                 gb_string_free(str);
             }
 
-            operand->mode = Addressing_OptionalOk;
+            operand->mode = Addressing_Value;
             operand->type = elem;
             break;
         }
@@ -6090,7 +6082,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
                 );
             }
 
-            operand->mode = Addressing_OptionalOk;
+            operand->mode = Addressing_Value;
             operand->type = elem;
             break;
         }
@@ -6350,7 +6342,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             }
             
             operand->mode = Addressing_Value;
-            operand->type = make_optional_ok_type(t_uintptr);
+            operand->type = t_uintptr;
             return true;
         }
         break;
@@ -6633,7 +6625,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
     case BuiltinProc_type_is_simple_compare: // easily compared using memcmp
     case BuiltinProc_type_is_nearly_simple_compare: // easily compared using memcmp (including floats)
     case BuiltinProc_type_is_dereferenceable:
-    case BuiltinProc_type_is_valid_map_key:
     case BuiltinProc_type_is_valid_matrix_elements:
     case BuiltinProc_type_is_named:
     case BuiltinProc_type_is_pointer:
@@ -6641,7 +6632,6 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
     case BuiltinProc_type_is_array:
     case BuiltinProc_type_is_enumerated_array:
     case BuiltinProc_type_is_slice:
-    case BuiltinProc_type_is_map:
     case BuiltinProc_type_is_struct:
     case BuiltinProc_type_is_union:
     case BuiltinProc_type_is_enum:
@@ -7670,8 +7660,8 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
             operand->type = t_equal_proc;
             break;
         }
-
-    case BuiltinProc_type_hasher_proc:
+        
+        case BuiltinProc_type_hasher_proc:
         {
             Operand op = {};
             Type *bt = check_type(c, ce->args[0]);
@@ -7680,57 +7670,11 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
                 error(ce->args[0], "Expected a type for '%.*s'", LIT(builtin_name));
                 return false;
             }
-            if (!is_type_valid_for_keys(type)) {
-                gbString t = type_to_string(type);
-                error(ce->args[0], "Expected a valid type for map keys for '%.*s', got %s", LIT(builtin_name), t);
-                gb_string_free(t);
-                return false;
-            }
-
-            add_map_key_type_dependencies(c, type);
-
+            
             operand->mode = Addressing_Value;
             operand->type = t_hasher_proc;
             break;
         }
-
-    case BuiltinProc_type_map_info:
-        {
-            Operand op = {};
-            Type *bt = check_type(c, ce->args[0]);
-            Type *type = base_type(bt);
-            if (type == nullptr || type == t_invalid) {
-                error(ce->args[0], "Expected a type for '%.*s'", LIT(builtin_name));
-                return false;
-            }
-            if (!is_type_map(type)) {
-                gbString t = type_to_string(type);
-                error(ce->args[0], "Expected a map type for '%.*s', got %s", LIT(builtin_name), t);
-                gb_string_free(t);
-                return false;
-            }
-
-            add_map_key_type_dependencies(c, type);
-
-            operand->mode = Addressing_Value;
-            operand->type = t_map_info_ptr;
-            break;
-        }
-    case BuiltinProc_type_map_cell_info:
-        {
-            Operand op = {};
-            Type *bt = check_type(c, ce->args[0]);
-            Type *type = base_type(bt);
-            if (type == nullptr || type == t_invalid) {
-                error(ce->args[0], "Expected a type for '%.*s'", LIT(builtin_name));
-                return false;
-            }
-
-            operand->mode = Addressing_Value;
-            operand->type = t_map_cell_info_ptr;
-            break;
-        }
-
     case BuiltinProc_type_canonical_name:
         {
             Operand op = {};

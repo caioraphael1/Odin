@@ -795,12 +795,6 @@ gb_internal void write_type_to_canonical_string(TypeWriter *w, Type *type) {
         type_writer_append_fmt(w, "matrix[%lld, %lld]", cast(long long)type->Matrix.row_count, cast(long long)type->Matrix.column_count);
         write_type_to_canonical_string(w, type->Matrix.elem);
         return;
-    case Type_Map:
-        type_writer_appendc(w, "map[");
-        write_type_to_canonical_string(w, type->Map.key);
-        type_writer_appendc(w, "]");
-        write_type_to_canonical_string(w, type->Map.value);
-        return;
 
     case Type_Enum:
         type_writer_appendc(w, "enum");

@@ -7,22 +7,16 @@ struct AstFile;
 struct AstPackage;
 
 enum AddressingMode : u8 {
-    Addressing_Invalid   = 0,        // invalid addressing mode
-    Addressing_NoValue   = 1,        // no value (void in C)
-    Addressing_Value     = 2,        // computed value (rvalue)
-    Addressing_Variable  = 3,        // addressable variable (lvalue)
-    Addressing_Constant  = 4,        // constant
-    Addressing_Type      = 5,        // type
-    Addressing_Builtin   = 6,        // built-in procedure
-    Addressing_MapIndex  = 7,        // map index expression -
-                                     //         lhs: acts like a Variable
-                                     //         rhs: acts like OptionalOk
-    Addressing_OptionalOk    = 8,   // rhs: acts like a value with an optional boolean part (for existence check)
-    Addressing_OptionalOkPtr = 9,   // rhs: same as OptionalOk but the value is a pointer
-    Addressing_SoaVariable   = 10,   // Struct-Of-Arrays indexed variable
-
-    Addressing_SwizzleValue    = 11, // Swizzle indexed value
-    Addressing_SwizzleVariable = 12, // Swizzle indexed variable
+    Addressing_Invalid         = 0, // invalid addressing mode
+    Addressing_NoValue         = 1, // no value (void in C)
+    Addressing_Value           = 2, // computed value (rvalue)
+    Addressing_Variable        = 3, // addressable variable (lvalue)
+    Addressing_Constant        = 4, // constant
+    Addressing_Type            = 5, // type
+    Addressing_Builtin         = 6, // built-in procedure
+    Addressing_SoaVariable     = 7, // Struct-Of-Arrays indexed variable
+    Addressing_SwizzleValue    = 8, // Swizzle indexed value
+    Addressing_SwizzleVariable = 9, // Swizzle indexed variable
 };
 
 gb_global String const addressing_mode_strings[] = {
@@ -34,9 +28,6 @@ gb_global String const addressing_mode_strings[] = {
     str_lit("Constant"),
     str_lit("Type"),
     str_lit("Builtin"),
-    str_lit("MapIndex"),
-    str_lit("OptionalOk"),
-    str_lit("OptionalOkPtr"),
     str_lit("SoaVariable"),
     str_lit("SwizzleValue"),
     str_lit("SwizzleVariable"),
@@ -274,7 +265,6 @@ enum ProcTag {
     ProcTag_no_type_assert   = 1<<3,
 
     ProcTag_optional_results = 1<<4,
-    ProcTag_optional_ok      = 1<<5,
 };
 
 enum ProcCallingConvention : i32 {
@@ -481,7 +471,6 @@ AST_KIND(_ExprBegin,  "",  bool) \
         Token        ellipsis; \
         ProcInlining inlining; \
         ProcTailing  tailing; \
-        bool         optional_ok_one; \
         bool         was_selector; \
         AstSplitArgs *split_args; \
         Entity *entity_procedure_of; \
@@ -784,12 +773,6 @@ AST_KIND(_TypeBegin, "", bool) \
         Token open; \
         Slice<Ast *> fields; /* BitFieldField */ \
         Token close; \
-    }) \
-    AST_KIND(MapType, "map type", struct { \
-        Token token; \
-        Ast *count; \
-        Ast *key; \
-        Ast *value; \
     }) \
     AST_KIND(MatrixType, "matrix type", struct { \
         Token token;       \

@@ -76,7 +76,6 @@ gb_internal ExprKind check_expr_base                (CheckerContext *c, Operand 
 gb_internal void     check_expr_with_type_hint      (CheckerContext *c, Operand *o, Ast *e, Type *t);
 gb_internal Type *   check_type                     (CheckerContext *c, Ast *expression);
 gb_internal Type *   check_type_expr                (CheckerContext *c, Ast *expression, Type *named_type);
-gb_internal Type *   make_optional_ok_type          (Type *value, bool typed=true);
 gb_internal Entity * check_selector                 (CheckerContext *c, Operand *operand, Ast *node, Type *type_hint);
 gb_internal Entity * check_ident                    (CheckerContext *c, Operand *o, Ast *n, Type *named_type, Type *type_hint, bool allow_import_name);
 gb_internal void     check_not_tuple                (CheckerContext *c, Operand *operand);
@@ -100,14 +99,11 @@ gb_internal Type *   check_init_variable            (CheckerContext *c, Entity *
 
 
 gb_internal void check_assignment_error_suggestion(CheckerContext *c, Operand *o, Type *type, i64 max_bit_size=0);
-gb_internal void add_map_key_type_dependencies(CheckerContext *ctx, Type *key);
 
 gb_internal Type *make_soa_struct_fixed(CheckerContext *ctx, Ast *array_typ_expr, Ast *elem_expr, Type *elem, i64 count, Type *generic_type);
 gb_internal Type *make_soa_struct_slice(CheckerContext *ctx, Ast *array_typ_expr, Ast *elem_expr, Type *elem);
 
 gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, Ast *call, i32 id, Type *type_hint);
-
-gb_internal void check_promote_optional_ok(CheckerContext *c, Operand *x, Type **val_type_, Type **ok_type_, bool change_operand=true);
 
 gb_internal void check_or_else_right_type(CheckerContext *c, Ast *expr, String const &name, Type *right_type);
 gb_internal void check_or_else_split_types(CheckerContext *c, Operand *x, String const &name, Type **left_type_, Type **right_type_);
@@ -316,38 +312,6 @@ gb_internal void error_operand_no_value(Operand *o) {
         o->mode = Addressing_Invalid;
     }
 }
-
-gb_internal void add_map_get_dependencies(CheckerContext *c) {
-    if (build_context.dynamic_map_calls) {
-        add_package_dependency(c, "internal", "__dynamic_map_get");
-    } else {
-        add_package_dependency(c, "internal", "__map_desired_position");
-        add_package_dependency(c, "internal", "__map_probe_distance");
-    }
-}
-
-gb_internal void add_map_set_dependencies(CheckerContext *c) {
-    init_core_source_code_location(c->checker);
-
-    if (t_map_set_proc == nullptr) {
-        Type *map_set_args[5] = {/*map*/t_rawptr, /*hash*/t_uintptr, /*key*/t_rawptr, /*value*/t_rawptr, /*#caller_location*/t_source_code_location};
-        t_map_set_proc = alloc_type_proc_from_types(map_set_args, gb_count_of(map_set_args), t_rawptr, false, ProcCC_Odin);
-    }
-
-    if (build_context.dynamic_map_calls) {
-        add_package_dependency(c, "internal", "__dynamic_map_set");
-    } else {
-        add_package_dependency(c, "internal", "__dynamic_map_check_grow");
-        add_package_dependency(c, "internal", "__map_insert_hash_dynamic");
-    }
-}
-
-gb_internal void add_map_reserve_dependencies(CheckerContext *c) {
-    init_core_source_code_location(c->checker);
-    add_package_dependency(c, "internal", "__dynamic_map_reserve");
-}
-
-
 
 gb_internal void check_scope_decls(CheckerContext *c, Slice<Ast *> const &nodes, isize reserve_size) {
     Scope *s = c->scope;
@@ -568,7 +532,6 @@ gb_internal bool find_or_generate_polymorphic_procedure(CheckerContext *old_c, E
     final_proc_type->Proc.has_named_results      = src->Proc.has_named_results;
     final_proc_type->Proc.diverging              = src->Proc.diverging;
     final_proc_type->Proc.return_by_pointer      = src->Proc.return_by_pointer;
-    final_proc_type->Proc.optional_ok            = src->Proc.optional_ok;
     final_proc_type->Proc.enable_target_feature  = src->Proc.enable_target_feature;
     final_proc_type->Proc.require_target_feature = src->Proc.require_target_feature;
 
@@ -1554,18 +1517,7 @@ gb_internal bool is_polymorphic_type_assignable(CheckerContext *c, Type *poly, T
             return true;
         }
         return false;
-    case Type_Map:
-        if (source->kind == Type_Map) {
-            bool key   = is_polymorphic_type_assignable(c, poly->Map.key, source->Map.key, true, modify_type);
-            bool value = is_polymorphic_type_assignable(c, poly->Map.value, source->Map.value, true, modify_type);
-            if (key || value) {
-                poly->Map.lookup_result_type = nullptr;
-                init_map_internal_types(poly);
-                return true;
-            }
-        }
-        return false;
-        
+
     case Type_Matrix:
         if (source->kind == Type_Matrix) {
             if (poly->Matrix.generic_row_count != nullptr) {
@@ -2475,27 +2427,6 @@ gb_internal bool check_is_not_addressable(CheckerContext *c, Operand *o) {
             return true;
         }
     }
-    if (o->mode == Addressing_OptionalOk) {
-        Ast *expr = unselector_expr(o->expr);
-        if (expr->kind != Ast_TypeAssertion) {
-            return true;
-        }
-        ast_node(ta, TypeAssertion, expr);
-        TypeAndValue tv = ta->expr->tav;
-        if (is_type_pointer(tv.type)) {
-            return false;
-        }
-        if (is_type_union(tv.type) && tv.mode == Addressing_Variable) {
-            return false;
-        }
-        if (is_type_any(tv.type)) {
-            return false;
-        }
-        return true;
-    }
-    if (o->mode == Addressing_MapIndex) {
-        return false;
-    }
 
     Ast *expr = unparen_expr(o->expr);
     if (expr->kind == Ast_CompoundLit) {
@@ -2623,11 +2554,7 @@ gb_internal void check_unary_expr(CheckerContext *c, Operand *o, Token op, Ast *
                                     error_line("\tSuggestion: Did you want to pass the iterable value to the for statement by pointer to get addressable semantics?\n");
                                 }
 
-                                if (parent_type != nullptr && is_type_map(parent_type)) {
-                                    error_line("\t            Prefer doing 'for key, &%.*s in ...'\n", LIT(e->token.string));
-                                } else {
-                                    error_line("\t            Prefer doing 'for &%.*s in ...'\n", LIT(e->token.string));
-                                }
+                                error_line("\t            Prefer doing 'for &%.*s in ...'\n", LIT(e->token.string));
                             }
                             if ((e->flags & EntityFlag_SwitchValue) != 0) {
                                 error_line("\tSuggestion: Did you want to pass the value to the switch statement by pointer to get addressable semantics?\n");
@@ -2657,15 +2584,7 @@ gb_internal void check_unary_expr(CheckerContext *c, Operand *o, Token op, Ast *
             o->type = alloc_type_pointer(o->type);
         }
 
-        switch (o->mode) {
-        case Addressing_OptionalOk:
-        case Addressing_MapIndex:
-            o->mode = Addressing_OptionalOkPtr;
-            break;
-        default:
-            o->mode = Addressing_Value;
-            break;
-        }
+        o->mode = Addressing_Value;
 
         return;
     }
@@ -3139,26 +3058,6 @@ gb_internal bool check_is_castable_to(CheckerContext *c, Operand *operand, Type 
     if (are_types_identical(src, dst)) {
         return true;
     }
-
-    // if (is_type_tuple(src)) {
-    //  Ast *expr = unparen_expr(operand->expr);
-    //  if (expr && expr->kind == Ast_CallExpr) {
-    //      // NOTE(bill, 2021-04-19): Allow casting procedure calls with #optional_ok
-    //      ast_node(ce, CallExpr, expr);
-    //      Type *pt = base_type(type_of_expr(ce->proc));
-    //      if (pt->kind == Type_Proc && pt->Proc.optional_ok) {
-    //          if (pt->Proc.result_count > 0) {
-    //              Operand op = *operand;
-    //              op.type = pt->Proc.results->Tuple.variables[0]->type;
-    //              bool ok = check_is_castable_to(c, &op, y);
-    //              if (ok) {
-    //                  ce->optional_ok_one = true;
-    //              }
-    //              return ok;
-    //          }
-    //      }
-    //  }
-    // }
 
     if (is_constant && is_type_untyped(src) && is_type_string(src)) {
         if (is_type_u8_array(dst)) {
@@ -3966,9 +3865,6 @@ gb_internal void check_binary_expr(CheckerContext *c, Operand *x, Ast *node, Typ
         if (is_type_bit_set(rhs_type)) {
             Type *elem = base_type(rhs_type)->BitSet.elem;
             check_expr_with_type_hint(c, x, be->left, elem);
-        } else if (is_type_map(rhs_type)) {
-            Type *key = base_type(rhs_type)->Map.key;
-            check_expr_with_type_hint(c, x, be->left, key);
         } else {
             check_expr(c, x, be->left);
         }
@@ -3982,16 +3878,7 @@ gb_internal void check_binary_expr(CheckerContext *c, Operand *x, Ast *node, Typ
             return;
         }
 
-        if (is_type_map(rhs_type)) {
-            Type *yt = base_type(rhs_type);
-            if (op.kind == Token_in) {
-                check_assignment(c, x, yt->Map.key, str_lit("map 'in'"));
-            } else {
-                check_assignment(c, x, yt->Map.key, str_lit("map 'not_in'"));
-            }
-
-            add_map_get_dependencies(c);
-        } else if (is_type_bit_set(rhs_type)) {
+        if (is_type_bit_set(rhs_type)) {
             Type *yt = base_type(rhs_type);
 
             if (op.kind == Token_in) {
@@ -5718,12 +5605,8 @@ gb_internal Entity *check_selector(CheckerContext *c, Operand *operand, Ast *nod
         }
         if (sel.indirect) {
             operand->mode = Addressing_Variable;
-        } else if (operand->mode == Addressing_MapIndex) {
-            operand->mode = Addressing_Value;
         } else if (entity->flags & EntityFlag_SoaPtrField) {
             operand->mode = Addressing_SoaVariable;
-        } else if (operand->mode == Addressing_OptionalOk || operand->mode == Addressing_OptionalOkPtr) {
-            operand->mode = Addressing_Value;
         } else if (operand->mode == Addressing_SoaVariable) {
             operand->mode = Addressing_Variable;
         } else if (operand->mode != Addressing_Value) {
@@ -5811,8 +5694,7 @@ gb_internal bool check_identifier_exists(Scope *s, Ast *node, bool nested = fals
     return false;
 }
 
-gb_internal bool check_assignment_arguments(CheckerContext *ctx, Array<Operand> const &lhs, Array<Operand> *operands, Slice<Ast *> const &rhs) {
-    bool optional_ok = false;
+gb_internal void check_assignment_arguments(CheckerContext *ctx, Array<Operand> const &lhs, Array<Operand> *operands, Slice<Ast *> const &rhs) {
     isize tuple_index = 0;
     for (Ast *rhs_expr : rhs) {
         CheckerContext c_ = *ctx;
@@ -5833,49 +5715,8 @@ gb_internal bool check_assignment_arguments(CheckerContext *ctx, Array<Operand> 
         }
 
         if (o.type == nullptr || o.type->kind != Type_Tuple) {
-            if (lhs.count == 2 && rhs.count == 1 &&
-                (o.mode == Addressing_MapIndex || o.mode == Addressing_OptionalOk || o.mode == Addressing_OptionalOkPtr)) {
-                Ast *expr = unparen_expr(o.expr);
-
-                Operand val0 = o;
-                Operand val1 = o;
-                val0.mode = Addressing_Value;
-                val1.mode = Addressing_Value;
-                val1.type = t_untyped_bool;
-
-                check_promote_optional_ok(c, &o, nullptr, &val1.type);
-
-                if (expr->kind == Ast_TypeAssertion &&
-                    (o.mode == Addressing_OptionalOk || o.mode == Addressing_OptionalOkPtr)) {
-                    // NOTE(bill): Used only for optimizations in the backend
-                    if (is_blank_ident(lhs[0].expr)) {
-                        expr->TypeAssertion.ignores[0] = true;
-                    }
-                    if (is_blank_ident(lhs[1].expr)) {
-                        expr->TypeAssertion.ignores[1] = true;
-                    }
-                }
-
-                array_add(operands, val0);
-                array_add(operands, val1);
-                optional_ok = true;
-                tuple_index += 2;
-            } else if (o.mode == Addressing_OptionalOk && is_type_tuple(o.type)) {
-                Type *tuple = o.type;
-                GB_ASSERT(tuple->Tuple.variables.count == 2);
-                Ast *expr = unparen_expr(o.expr);
-                if (expr->kind == Ast_CallExpr) {
-                    expr->CallExpr.optional_ok_one = true;
-                }
-                Operand val = o;
-                val.type = tuple->Tuple.variables[0]->type;
-                val.mode = Addressing_Value;
-                array_add(operands, val);
-                tuple_index += tuple->Tuple.variables.count;
-            } else {
-                array_add(operands, o);
-                tuple_index += 1;
-            }
+            array_add(operands, o);
+            tuple_index += 1;
         } else {
             TypeTuple *tuple = &o.type->Tuple;
             for (Entity *e : tuple->variables) {
@@ -5887,7 +5728,7 @@ gb_internal bool check_assignment_arguments(CheckerContext *ctx, Array<Operand> 
         }
     }
 
-    return optional_ok;
+    return;
 }
 
 
@@ -5899,7 +5740,7 @@ enum UnpackFlag : u32 {
 };
 
 
-gb_internal bool check_unpack_arguments(CheckerContext *ctx, Entity **lhs, isize lhs_count, Array<Operand> *operands, Slice<Ast *> const &rhs_arguments, UnpackFlags flags,
+gb_internal void check_unpack_arguments(CheckerContext *ctx, Entity **lhs, isize lhs_count, Array<Operand> *operands, Slice<Ast *> const &rhs_arguments, UnpackFlags flags,
     isize variadic_index = -1) {
     auto const &add_dependencies_from_unpacking = [](CheckerContext *c, Entity **lhs, isize lhs_count, isize tuple_index, isize tuple_count) -> isize {
         if (lhs == nullptr || c->decl == nullptr) {
@@ -5925,7 +5766,6 @@ gb_internal bool check_unpack_arguments(CheckerContext *ctx, Entity **lhs, isize
         return tuple_count;
     };
 
-    bool allow_ok    = (flags & UnpackFlag_AllowOk) != 0;
     bool allow_undef = (flags & UnpackFlag_AllowUndef) != 0;
 
     bool is_variadic = variadic_index > -1;
@@ -5933,7 +5773,6 @@ gb_internal bool check_unpack_arguments(CheckerContext *ctx, Entity **lhs, isize
         variadic_index = lhs_count;
     }
 
-    bool optional_ok = false;
     isize tuple_index = 0;
     for (Ast *rhs : rhs_arguments) {
         if (rhs->kind == Ast_FieldValue) {
@@ -5981,37 +5820,8 @@ gb_internal bool check_unpack_arguments(CheckerContext *ctx, Entity **lhs, isize
         }
 
         if (o.type == nullptr || o.type->kind != Type_Tuple) {
-            if (allow_ok && lhs_count == 2 && rhs_arguments.count == 1 &&
-                (o.mode == Addressing_MapIndex || o.mode == Addressing_OptionalOk || o.mode == Addressing_OptionalOkPtr)) {
-                Ast *expr = unparen_expr(o.expr);
-
-                Operand val0 = o;
-                Operand val1 = o;
-                val0.mode = Addressing_Value;
-                val1.mode = Addressing_Value;
-                val1.type = t_untyped_bool;
-
-                check_promote_optional_ok(c, &o, nullptr, &val1.type);
-
-                if (expr->kind == Ast_TypeAssertion &&
-                    (o.mode == Addressing_OptionalOk || o.mode == Addressing_OptionalOkPtr)) {
-                    // NOTE(bill): Used only for optimizations in the backend
-                    if (is_blank_ident(lhs[0]->token)) {
-                        expr->TypeAssertion.ignores[0] = true;
-                    }
-                    if (is_blank_ident(lhs[1]->token)) {
-                        expr->TypeAssertion.ignores[1] = true;
-                    }
-                }
-
-                array_add(operands, val0);
-                array_add(operands, val1);
-                optional_ok = true;
-                tuple_index += add_dependencies_from_unpacking(c, lhs, lhs_count, tuple_index, 2);
-            } else {
-                array_add(operands, o);
-                tuple_index += 1;
-            }
+            array_add(operands, o);
+            tuple_index += 1;
         } else {
             TypeTuple *tuple = &o.type->Tuple;
             for (Entity *e : tuple->variables) {
@@ -6024,7 +5834,7 @@ gb_internal bool check_unpack_arguments(CheckerContext *ctx, Entity **lhs, isize
         }
     }
 
-    return optional_ok;
+    return;
 }
 
 gb_internal isize get_procedure_param_count_excluding_defaults(Type *pt, isize *param_count_) {
@@ -7718,13 +7528,6 @@ gb_internal ExprKind check_call_expr(CheckerContext *c, Operand *operand, Ast *c
             type = pt;
         }
         type = base_type(type);
-        if (type->kind == Type_Proc && type->Proc.optional_ok && type->Proc.result_count > 0) {
-            operand->mode = Addressing_OptionalOk;
-            operand->type = type->Proc.results->Tuple.variables[0]->type;
-            if (operand->expr != nullptr && operand->expr->kind == Ast_CallExpr) {
-                operand->expr->CallExpr.optional_ok_one = true;
-            }
-        }
     }
 
     Entity *proc_entity = entity_from_expr(call->CallExpr.proc);
@@ -8112,49 +7915,6 @@ gb_internal ExprKind check_implicit_selector_expr(CheckerContext *c, Operand *o,
 
     o->expr = node;
     return Expr_Expr;
-}
-
-
-gb_internal void check_promote_optional_ok(CheckerContext *c, Operand *x, Type **val_type_, Type **ok_type_, bool change_operand) {
-    switch (x->mode) {
-    case Addressing_MapIndex:
-    case Addressing_OptionalOk:
-    case Addressing_OptionalOkPtr:
-        if (val_type_) *val_type_ = x->type;
-        break;
-    default:
-        if (ok_type_) *ok_type_ = x->type;
-        return;
-    }
-
-    Ast *expr = unparen_expr(x->expr);
-
-    if (expr->kind == Ast_CallExpr) {
-        Type *pt = base_type(type_of_expr(expr->CallExpr.proc));
-        if (is_type_proc(pt)) {
-            Type *tuple = pt->Proc.results;
-
-            if (pt->Proc.result_count >= 2) {
-                if (ok_type_) *ok_type_ = tuple->Tuple.variables[1]->type;
-            }
-            if (change_operand) {
-                expr->CallExpr.optional_ok_one = false;
-                x->type = tuple;
-                add_type_and_value(c, x->expr, x->mode, tuple, x->value);
-            }
-            return;
-        }
-    }
-
-    Type *tuple = make_optional_ok_type(x->type);
-
-    if (ok_type_) *ok_type_ = tuple->Tuple.variables[1]->type;
-
-    if (change_operand) {
-        add_type_and_value(c, x->expr, x->mode, tuple, x->value);
-        x->type = tuple;
-        GB_ASSERT(is_type_tuple(type_of_expr(x->expr)));
-    }
 }
 
 
@@ -9896,14 +9656,6 @@ gb_internal ExprKind check_compound_literal(CheckerContext *c, Operand *o, Ast *
         break;
     }
 
-    case Type_Map: {
-        if (cl->elems.count != 0) {
-            ERROR_BLOCK();
-            error(node, "Compound literals of dynamic types are not allowed");
-        }
-        break;
-    }
-
     case Type_BitSet: {
         if (cl->elems.count == 0) {
             break; // NOTE(bill): No need to init
@@ -10114,7 +9866,7 @@ gb_internal ExprKind check_type_assertion(CheckerContext *c, Operand *o, Ast *no
             if (allowed) {
                 add_type_info_type(c, o->type);
                 o->type = type_hint;
-                o->mode = Addressing_OptionalOk;
+                o->mode = Addressing_Value;
                 goto end;
             }
         }
@@ -10130,7 +9882,7 @@ gb_internal ExprKind check_type_assertion(CheckerContext *c, Operand *o, Ast *no
         add_type_info_type(c, bsrc->Union.variants[0]);
 
         o->type = bsrc->Union.variants[0];
-        o->mode = Addressing_OptionalOk;
+        o->mode = Addressing_Value;
     } else {
         Type *t = check_type(c, ta->type);
         Type *dst = t;
@@ -10163,10 +9915,10 @@ gb_internal ExprKind check_type_assertion(CheckerContext *c, Operand *o, Ast *no
             add_type_info_type(c, t);
 
             o->type = t;
-            o->mode = Addressing_OptionalOk;
+            o->mode = Addressing_Value;
         } else if (is_type_any(src)) {
             o->type = t;
-            o->mode = Addressing_OptionalOk;
+            o->mode = Addressing_Value;
 
             add_type_info_type(c, o->type);
             add_type_info_type(c, t);
@@ -10347,28 +10099,6 @@ gb_internal ExprKind check_index_expr(CheckerContext *c, Operand *o, Ast *node, 
     Type *t = base_type(type_deref(o->type));
     bool is_ptr = is_type_pointer(o->type);
     bool is_const = o->mode == Addressing_Constant;
-
-    if (is_type_map(t)) {
-        Operand key = {};
-        if (is_type_typeid(t->Map.key)) {
-            check_expr_or_type(c, &key, ie->index, t->Map.key);
-        } else {
-            check_expr_with_type_hint(c, &key, ie->index, t->Map.key);
-        }
-        check_assignment(c, &key, t->Map.key, str_lit("map index"));
-        if (key.mode == Addressing_Invalid) {
-            o->mode = Addressing_Invalid;
-            o->expr = node;
-            return kind;
-        }
-        o->mode = Addressing_MapIndex;
-        o->type = t->Map.value;
-        o->expr = node;
-
-        add_map_get_dependencies(c);
-        add_map_set_dependencies(c);
-        return Expr_Expr;
-    }
 
     i64 max_count = -1;
     bool valid = check_set_index_data(o, t, is_ptr, &max_count, o->type);
@@ -11048,7 +10778,6 @@ gb_internal ExprKind check_expr_base_internal(CheckerContext *c, Operand *o, Ast
     case Ast_StructType:
     case Ast_UnionType:
     case Ast_EnumType:
-    case Ast_MapType:
     case Ast_BitSetType:
     case Ast_MatrixType:
     case Ast_RelativeType:
@@ -11546,14 +11275,6 @@ gb_internal gbString write_expr_to_string(gbString str, Ast *node, bool shorthan
         str = gb_string_appendc(str, "bit_set[");
         str = write_expr_to_string(str, bs->elem, shorthand);
         str = gb_string_appendc(str, "]");
-    case_end;
-
-
-    case_ast_node(mt, MapType, node);
-        str = gb_string_appendc(str, "map[");
-        str = write_expr_to_string(str, mt->key, shorthand);
-        str = gb_string_append_rune(str, ']');
-        str = write_expr_to_string(str, mt->value, shorthand);
     case_end;
     
     case_ast_node(mt, MatrixType, node);

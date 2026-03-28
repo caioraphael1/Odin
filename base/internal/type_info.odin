@@ -131,11 +131,6 @@ Type_Info_Enum :: struct {
     names:  []string,
     values: []Type_Info_Enum_Value,
 }
-Type_Info_Map :: struct {
-    key:      ^Type_Info,
-    value:    ^Type_Info,
-    map_info: ^Map_Info,
-}
 Type_Info_Bit_Set :: struct {
     elem:       ^Type_Info,
     underlying: ^Type_Info, // Possibly nil
@@ -206,7 +201,6 @@ Type_Info :: struct {
         Type_Info_Struct,
         Type_Info_Union,
         Type_Info_Enum,
-        Type_Info_Map,
         Type_Info_Bit_Set,
         Type_Info_Simd_Vector,
         Type_Info_Matrix,

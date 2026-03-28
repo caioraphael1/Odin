@@ -306,7 +306,7 @@ length :: proc(val: any) -> uint {
         return (^dyn_array.Dyn_Array(u8))(val.data).len
 
     case Type_Info_Map:
-        return maps.raw_map_len((^maps.Raw_Map)(val.data)^)
+        return maps.raw_map_len((^maps.Map)(val.data)^)
 
     case Type_Info_String:
         switch a.encoding {
@@ -358,7 +358,7 @@ capacity :: proc(val: any) -> uint {
         return (^dyn_array.Dyn_Array(u8))(val.data).cap
 
     case Type_Info_Map:
-        return internal.map_cap((^maps.Raw_Map)(val.data)^)
+        return ((^maps.Map)(val.data)^).cap
 
     case Type_Info_Simd_Vector:
         return uint(a.count)

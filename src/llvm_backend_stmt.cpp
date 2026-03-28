@@ -427,67 +427,6 @@ gb_internal lbValue lb_map_hash_is_valid(lbProcedure *p, lbValue hash) {
     return lb_emit_arith(p, Token_And, not_deleted, not_empty, t_uintptr);
 }
 
-gb_internal void lb_build_range_map(lbProcedure *p, lbValue expr, Type *val_type,
-                                    lbValue *val_, lbValue *key_, lbBlock **loop_, lbBlock **done_) {
-    lbModule *m = p->module;
-
-    Type *type = base_type(type_deref(expr.type));
-    GB_ASSERT(type->kind == Type_Map);
-
-    lbValue idx = {};
-    lbBlock *loop = nullptr;
-    lbBlock *done = nullptr;
-    lbBlock *body = nullptr;
-    lbBlock *hash_check = nullptr;
-
-
-    lbAddr index = lb_add_local_generated(p, t_int, false);
-    lb_addr_store(p, index, lb_const_int(m, t_int, cast(u64)-1));
-
-    loop = lb_create_block(p, "for.index.loop");
-    lb_emit_jump(p, loop);
-    lb_start_block(p, loop);
-
-    lbValue incr = lb_emit_arith(p, Token_Add, lb_addr_load(p, index), lb_const_int(m, t_int, 1), t_int);
-    lb_addr_store(p, index, incr);
-
-    hash_check = lb_create_block(p, "for.index.hash_check");
-    body = lb_create_block(p, "for.index.body");
-    done = lb_create_block(p, "for.index.done");
-
-    lbValue map_value = lb_emit_load(p, expr);
-    lbValue capacity = lb_map_cap(p, map_value);
-    lbValue cond = lb_emit_comp(p, Token_Lt, incr, capacity);
-    lb_emit_if(p, cond, hash_check, done);
-    lb_start_block(p, hash_check);
-
-    idx = lb_addr_load(p, index);
-
-    lbValue ks = lb_map_data_uintptr(p, map_value);
-    lbValue vs = lb_emit_conv(p, lb_map_cell_index_static(p, type->Map.key, ks, capacity), alloc_type_pointer(type->Map.value));
-    lbValue hs = lb_emit_conv(p, lb_map_cell_index_static(p, type->Map.value, vs, capacity), alloc_type_pointer(t_uintptr));
-
-    // NOTE(bill): no need to use lb_map_cell_index_static for that hashes
-    // since it will always be packed without padding into the cells
-    lbValue hash = lb_emit_load(p, lb_emit_ptr_offset(p, hs, idx));
-
-    lbValue hash_cond = lb_map_hash_is_valid(p, hash);
-    lb_emit_if(p, hash_cond, body, loop);
-    lb_start_block(p, body);
-
-
-    lbValue key_ptr = lb_map_cell_index_static(p, type->Map.key, ks, idx);
-    lbValue val_ptr = lb_map_cell_index_static(p, type->Map.value, vs, idx);
-    lbValue key = lb_emit_load(p, key_ptr);
-    lbValue val = lb_emit_load(p, val_ptr);
-
-    if (val_)  *val_  = val;
-    if (key_)  *key_  = key;
-    if (loop_) *loop_ = loop;
-    if (done_) *done_ = done;
-}
-
-
 
 gb_internal void lb_build_range_string(lbProcedure *p, lbValue expr, Type *val_type,
                                        lbValue *val_, lbValue *idx_, lbBlock **loop_, lbBlock **done_,
@@ -1167,15 +1106,6 @@ gb_internal void lb_build_range_stmt(lbProcedure *p, AstRangeStmt *rs, Scope *sc
         Type *expr_type = type_of_expr(expr);
         Type *et = base_type(type_deref(expr_type));
         switch (et->kind) {
-        case Type_Map: {
-            is_map = true;
-            lbValue map = lb_build_addr_ptr(p, expr);
-            if (is_type_pointer(type_deref(map.type))) {
-                map = lb_emit_load(p, map);
-            }
-            lb_build_range_map(p, map, val1_type, &val, &key, &loop, &done);
-            break;
-        }
         case Type_Array: {
             lbValue array;
             lbAddr addr = lb_build_addr(p, expr);

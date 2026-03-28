@@ -565,15 +565,6 @@ gb_internal OdinDocTypeIndex odin_doc_type(OdinDocWriter *w, Type *type, bool ca
         doc_type.types = odin_doc_type_as_slice(w, type->Slice.elem);
         break;
 
-    case Type_Map:
-        doc_type.kind = OdinDocType_Map;
-        {
-            OdinDocTypeIndex types[2] = {};
-            types[0] = odin_doc_type(w, type->Map.key);
-            types[1] = odin_doc_type(w, type->Map.value);
-            doc_type.types = odin_write_slice(w, types, gb_count_of(types));
-        }
-        break;
     case Type_BitField:
         doc_type.kind = OdinDocType_BitField;
         {
@@ -701,7 +692,6 @@ gb_internal OdinDocTypeIndex odin_doc_type(OdinDocWriter *w, Type *type, bool ca
         doc_type.kind = OdinDocType_Proc;
         if (type->Proc.is_polymorphic) { doc_type.flags |= OdinDocTypeFlag_Proc_polymorphic; }
         if (type->Proc.diverging)      { doc_type.flags |= OdinDocTypeFlag_Proc_diverging; }
-        if (type->Proc.optional_ok)    { doc_type.flags |= OdinDocTypeFlag_Proc_optional_ok; }
         if (type->Proc.variadic)       { doc_type.flags |= OdinDocTypeFlag_Proc_variadic; }
         if (type->Proc.c_vararg)       { doc_type.flags |= OdinDocTypeFlag_Proc_c_vararg; }
         {

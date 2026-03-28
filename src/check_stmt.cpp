@@ -484,25 +484,6 @@ gb_internal Type *check_assignment_variable(CheckerContext *ctx, Operand *lhs, O
         }
         break;
 
-    case Addressing_MapIndex: {
-        Ast *ln = unparen_expr(lhs->expr);
-        if (ln->kind == Ast_IndexExpr) {
-            Ast *x = ln->IndexExpr.expr;
-            TypeAndValue tav = x->tav;
-            GB_ASSERT(tav.mode != Addressing_Invalid);
-            if (tav.mode != Addressing_Variable) {
-                if (!is_type_pointer(tav.type)) {
-                    gbString str = expr_to_string(lhs->expr);
-                    error(lhs->expr, "Cannot assign to the value of a map '%s'", str);
-                    gb_string_free(str);
-                    return nullptr;
-                }
-            }
-        }
-
-        break;
-    }
-
     case Addressing_SoaVariable:
         break;
 
@@ -515,12 +496,6 @@ gb_internal Type *check_assignment_variable(CheckerContext *ctx, Operand *lhs, O
             Operand op_c = {Addressing_Invalid};
             ast_node(se, SelectorExpr, lhs->expr);
             check_expr(ctx, &op_c, se->expr);
-            if (op_c.mode == Addressing_MapIndex) {
-                gbString str = expr_to_string(lhs->expr);
-                error(lhs->expr, "Cannot assign to struct field '%s' in map", str);
-                gb_string_free(str);
-                return nullptr;
-            }
         }
 
         Entity *e = entity_of_node(lhs->expr);
@@ -556,11 +531,7 @@ gb_internal Type *check_assignment_variable(CheckerContext *ctx, Operand *lhs, O
             if (e && e->flags & EntityFlag_ForValue) {
                 isize offset = show_error_on_line(e->token.pos, token_pos_end(e->token));
                 if (offset < 0) {
-                    if (is_type_map(e->type)) {
-                        error_line("\tSuggestion: Did you mean? 'for key, &%.*s in ...'\n", LIT(e->token.string));
-                    } else {
-                        error_line("\tSuggestion: Did you mean? 'for &%.*s in ...'\n", LIT(e->token.string));
-                    }
+                    error_line("\tSuggestion: Did you mean? 'for &%.*s in ...'\n", LIT(e->token.string));
                 } else {
                     error_line("\t");
                     for (isize i = 0; i < offset-1; i++) {
@@ -1730,16 +1701,6 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                 goto skip_expr_range_stmt;
             }
         } else if (operand.mode != Addressing_Invalid) {
-            if (operand.mode == Addressing_OptionalOk || operand.mode == Addressing_OptionalOkPtr) {
-                Ast *expr = unparen_expr(operand.expr);
-                if (expr->kind != Ast_TypeAssertion) { // Only for procedure calls
-                    Type *end_type = nullptr;
-                    check_promote_optional_ok(ctx, &operand, nullptr, &end_type, false);
-                    if (is_type_boolean(end_type)) {
-                        check_promote_optional_ok(ctx, &operand, nullptr, &end_type, true);
-                    }
-                }
-            }
             bool is_ptr = is_type_pointer(operand.type);
             Type *t = base_type(type_deref(operand.type));
 
@@ -1805,28 +1766,6 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
                 is_possibly_addressable = true;
                 array_add(&vals, t->Slice.elem);
                 array_add(&vals, t_uint);
-                break;
-
-            case Type_Map:
-                is_possibly_addressable = true;
-                is_map = true;
-                array_add(&vals, t->Map.key);
-                array_add(&vals, t->Map.value);
-                if (is_reverse) {
-                    error(node, "#reverse for is not supported for map types, as maps are unordered");
-                }
-                if (rs->vals.count == 1 && rs->vals[0] && rs->vals[0]->kind == Ast_Ident) {
-                    AstIdent *ident = &rs->vals[0]->Ident;
-                    String name = ident->token.string;
-                    Entity *found = scope_lookup(ctx->scope, name, ident->hash);
-                    if (found && are_types_identical(found->type, t->Map.key)) {
-                        ERROR_BLOCK();
-                        gbString s = expr_to_string(expr);
-                        error(rs->vals[0], "'%.*s' shadows a previous declaration which might be ambiguous with 'for (%.*s in %s)'", LIT(name), LIT(name), s);
-                        error_line("\tSuggestion: Use a different identifier if iteration is wanted, or surround in parentheses if a normal for loop is wanted\n");
-                        gb_string_free(s);
-                    }
-                }
                 break;
 
             case Type_Tuple:
@@ -1906,7 +1845,7 @@ gb_internal void check_range_stmt(CheckerContext *ctx, Ast *node, u32 mod_flags)
 
             if (rs->vals.count == 1) {
                 Type *t = type_deref(operand.type);
-                if (t != NULL && (is_type_map(t) || is_type_bit_set(t))) {
+                if (t != NULL && (is_type_bit_set(t))) {
                     gbString v = expr_to_string(rs->vals[0]);
                     defer (gb_string_free(v));
                     error_line("\tSuggestion: place parentheses around the expression\n");
@@ -2382,7 +2321,6 @@ gb_internal void check_expr_stmt(CheckerContext *ctx, Ast *node) {
 
         switch (be->left->tav.mode) {
         case Addressing_Variable:
-        case Addressing_MapIndex:
         case Addressing_SoaVariable:
             {
                 gbString lhs = expr_to_string(be->left);

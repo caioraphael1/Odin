@@ -194,9 +194,9 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
             _ = slice.delete(key_cstr)
         }
 
-        raw_map := (^internal.Raw_Map)(cast(uintptr)model + field.offset)
+        raw_map := (^internal.Map)(cast(uintptr)model + field.offset)
 
-        hash := specific_type_info.map_info.key_hasher(key_ptr, internal.map_seed(raw_map^))
+        hash := specific_type_info.map_info.key_hasher(key_ptr, internal.seed(raw_map^))
 
         backing_alloc := false
         elem_backing: []u8
@@ -205,7 +205,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
         if raw_map.allocator.procedure == nil {
             // raw_map.allocator = context.allocator
         } else {
-            value_ptr = internal.__dynamic_map_get(raw_map,
+            value_ptr = internal._dynamic_get(raw_map,
                 specific_type_info.map_info,
                 hash,
                 key_ptr,
@@ -240,7 +240,7 @@ set_key_value :: proc(model: ^$T, parser: ^Parser, name, key, value: string) -> 
         }
 
         if backing_alloc {
-            internal.__dynamic_map_set(raw_map,
+            internal._dynamic_set(raw_map,
                 specific_type_info.map_info,
                 hash,
                 key_ptr,

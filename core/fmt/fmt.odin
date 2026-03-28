@@ -3102,15 +3102,14 @@ fmt_map :: proc(fi: ^Info, v: any, info: reflect.Type_Info_Map, verb: rune) {
             }
         }
 
-        m := (^maps.Raw_Map)(v.data)
+        m := (^maps.Map)(v.data)
         if m != nil {
             if info.map_info == nil {
                 return
             }
-            map_cap := uintptr(internal.map_cap(m^))
-            ks, vs, hs, _, _ := internal.map_kvh_data_dynamic(m^, info.map_info)
+            ks, vs, hs, _, _ := internal._map_kvh_data_dynamic(m^, info.map_info)
             j := 0
-            for bucket_index in 0..<map_cap {
+            for bucket_index in 0..<m.cap {
                 maps.hash_is_valid(hs[bucket_index]) or_continue
 
                 if !do_trailing_comma && j > 0 { _, _ = io.write_string(fi.writer, ", ") }
@@ -3119,8 +3118,8 @@ fmt_map :: proc(fi: ^Info, v: any, info: reflect.Type_Info_Map, verb: rune) {
                 }
                 j += 1
 
-                key   := internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index)
-                value := internal.map_cell_index_dynamic(vs, info.map_info.vs, bucket_index)
+                key   := internal._cell_index_dynamic(ks, info.map_info.ks, bucket_index)
+                value := internal._cell_index_dynamic(vs, info.map_info.vs, bucket_index)
 
                 fmt_arg(&Info{writer = fi.writer}, any{rawptr(key), info.key.id}, verb)
                 if hash {

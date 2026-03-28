@@ -1787,18 +1787,6 @@ gb_internal lbValue lb_build_binary_in(lbProcedure *p, lbValue left, lbValue rig
     }
 
     switch (rt->kind) {
-    case Type_Map:
-        {
-            lbValue map_ptr = lb_address_from_load_or_generate_local(p, right);
-            lbValue key = left;
-            lbValue ptr = lb_internal_dynamic_map_get_ptr(p, map_ptr, key);
-            if (op == Token_in) {
-                return lb_emit_conv(p, lb_emit_comp_against_nil(p, Token_NotEq, ptr), t_bool);
-            } else {
-                return lb_emit_conv(p, lb_emit_comp_against_nil(p, Token_CmpEq, ptr), t_bool);
-            }
-        }
-        break;
     case Type_BitSet:
         {
             Type *key_type = rt->BitSet.elem;
@@ -3575,20 +3563,6 @@ gb_internal lbValue lb_emit_comp_against_nil(lbProcedure *p, TokenKind op_kind, 
             }
         }
         break;
-
-    case Type_Map:
-        {
-            lbValue data_ptr = lb_emit_struct_ev(p, x, 0);
-
-            if (op_kind == Token_CmpEq) {
-                res.value = LLVMBuildIsNull(p->builder, data_ptr.value, "");
-                return res;
-            } else {
-                res.value = LLVMBuildIsNotNull(p->builder, data_ptr.value, "");
-                return res;
-            }
-        }
-        break;
     
     case Type_SoaPointer:
         {
@@ -3659,38 +3633,7 @@ gb_internal lbValue lb_build_unary_and(lbProcedure *p, Ast *expr) {
     auto tv = type_and_value_of_expr(expr);
 
     Ast *ue_expr = unparen_expr(ue->expr);
-    if (ue_expr->kind == Ast_IndexExpr && tv.mode == Addressing_OptionalOkPtr && is_type_tuple(tv.type)) {
-        Type *tuple = tv.type;
-
-        Type *map_type = type_of_expr(ue_expr->IndexExpr.expr);
-        Type *ot = base_type(map_type);
-        Type *t = base_type(type_deref(ot));
-        bool deref = t != ot;
-        GB_ASSERT(t->kind == Type_Map);
-        ast_node(ie, IndexExpr, ue_expr);
-
-        lbValue map_val = lb_build_addr_ptr(p, ie->expr);
-        if (deref) {
-            map_val = lb_emit_load(p, map_val);
-        }
-
-        lbValue key = lb_build_expr(p, ie->index);
-        key = lb_emit_conv(p, key, t->Map.key);
-
-        lbAddr addr = lb_addr_map(map_val, key, t, alloc_type_pointer(t->Map.value));
-        lbValue ptr = lb_addr_get_ptr(p, addr);
-
-        lbValue ok = lb_emit_comp_against_nil(p, Token_NotEq, ptr);
-        ok = lb_emit_conv(p, ok, tuple->Tuple.variables[1]->type);
-
-        lbAddr res = lb_add_local_generated(p, tuple, false);
-        lbValue gep0 = lb_emit_struct_ep(p, res.addr, 0);
-        lbValue gep1 = lb_emit_struct_ep(p, res.addr, 1);
-        lb_emit_store(p, gep0, ptr);
-        lb_emit_store(p, gep1, ok);
-        return lb_addr_load(p, res);
-
-    } else if (is_type_soa_pointer(tv.type)) {
+    if (is_type_soa_pointer(tv.type)) {
         ast_node(ie, IndexExpr, ue_expr);
         lbValue addr = lb_build_addr_ptr(p, ie->expr);
 
@@ -4614,19 +4557,6 @@ gb_internal lbAddr lb_build_addr_index_expr(lbProcedure *p, Ast *expr) {
 
     GB_ASSERT_MSG(is_type_indexable(t), "%s %s", type_to_string(t), expr_to_string(expr));
 
-    if (is_type_map(t)) {
-        lbAddr map_addr = lb_build_addr(p, ie->expr);
-        lbValue key = lb_build_expr(p, ie->index);
-        key = lb_emit_conv(p, key, t->Map.key);
-
-        Type *result_type = type_of_expr(expr);
-        lbValue map_ptr = lb_addr_get_ptr(p, map_addr);
-        if (is_type_pointer(type_deref(map_ptr.type))) {
-            map_ptr = lb_emit_load(p, map_ptr);
-        }
-        return lb_addr_map(map_ptr, key, t, result_type);
-    }
-
     switch (t->kind) {
     case Type_Array: {
         lbValue array = {};
@@ -5267,11 +5197,6 @@ gb_internal lbAddr lb_build_addr_compound_lit(lbProcedure *p, Ast *expr) {
         break;
     }
 
-    case Type_Map: {
-        GB_ASSERT(cl->elems.count == 0);
-        break;
-    }
-
     case Type_Array: {
         if (cl->elems.count > 0) {
             lb_addr_store(p, v, lb_const_value(p->module, type, exact_value_compound(expr)));
@@ -5598,12 +5523,7 @@ gb_internal lbAddr lb_build_addr_internal(lbProcedure *p, Ast *expr) {
             }
 
             {
-                if (addr.kind == lbAddr_Map) {
-                    lbValue v = lb_addr_load(p, addr);
-                    lbValue a = lb_address_from_load_or_generate_local(p, v);
-                    a = lb_emit_deep_field_gep(p, a, sel);
-                    return lb_addr(a);
-                } else if (addr.kind == lbAddr_SoaVariable) {
+                if (addr.kind == lbAddr_SoaVariable) {
                     lbValue index = addr.soa.index;
                     i32 first_index = sel.index[0];
                     Selection sub_sel = sel;

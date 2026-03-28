@@ -642,7 +642,7 @@ unmarshal_object :: proc(p: ^Parser, v: any, end_token: Token_Kind) -> (err: Unm
         if !reflect.is_string(t.key) && !reflect.is_integer(t.key) {
             return UNSUPPORTED_TYPE
         }
-        raw_map := (^maps.Raw_Map)(v.data)
+        raw_map := (^maps.Map)(v.data)
         if raw_map.allocator.procedure == nil {
             raw_map.allocator = p.allocator
         }

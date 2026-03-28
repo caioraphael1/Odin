@@ -365,7 +365,6 @@ gb_internal bool is_type_distinct(Ast *node) {
 
     case Ast_PointerType:
     case Ast_ArrayType:
-    case Ast_MapType:
         return false;
     }
     return false;

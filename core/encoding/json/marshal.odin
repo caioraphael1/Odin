@@ -334,26 +334,25 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
         opt_write_end(w, opt, ']') or_return
 
     case reflect.Type_Info_Map:
-        m := (^maps.Raw_Map)(v.data)
+        m := (^maps.Map)(v.data)
         opt_write_start(w, opt, '{') or_return
 
         if m != nil {
             if info.map_info == nil {
                 return .Unsupported_Type
             }
-            map_cap := uintptr(internal.map_cap(m^))
-            ks, vs, hs, _, _ := internal.map_kvh_data_dynamic(m^, info.map_info)
+            ks, vs, hs, _, _ := internal._map_kvh_data_dynamic(m^, info.map_info)
 
             if !opt.sort_maps_by_key {
                 i := 0
-                for bucket_index in 0..<map_cap {
+                for bucket_index in 0..<m.cap {
                     maps.hash_is_valid(hs[bucket_index]) or_continue
 
                     opt_write_iteration(w, opt, i == 0) or_return
                     i += 1
 
-                    key   := rawptr(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    value := rawptr(internal.map_cell_index_dynamic(vs, info.map_info.vs, bucket_index))
+                    key   := rawptr(internal._cell_index_dynamic(ks, info.map_info.ks, bucket_index))
+                    value := rawptr(internal._cell_index_dynamic(vs, info.map_info.vs, bucket_index))
 
                     // check for string type
                     {
@@ -389,12 +388,12 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
 
                 // If we are sorting the map by key, then we temp alloc an array
                 // and sort it, then output the result.
-                sorted, _ := dyn_array.create_len_cap(Entry, 0, uint(map_cap), allocators.temp_allocator)
-                for bucket_index in 0..<map_cap {
+                sorted, _ := dyn_array.create_len_cap(Entry, 0, m.cap, allocators.temp_allocator)
+                for bucket_index in 0..<m.cap {
                     maps.hash_is_valid(hs[bucket_index]) or_continue
 
-                    key   := rawptr(internal.map_cell_index_dynamic(ks, info.map_info.ks, bucket_index))
-                    value := rawptr(internal.map_cell_index_dynamic(vs, info.map_info.vs, bucket_index))
+                    key   := rawptr(internal._cell_index_dynamic(ks, info.map_info.ks, bucket_index))
+                    value := rawptr(internal._cell_index_dynamic(vs, info.map_info.vs, bucket_index))
                     name: string
 
                     // check for string type
@@ -461,7 +460,7 @@ marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: 
                  reflect.Type_Info_Soa_Pointer:
                 return reflect.is_nil(v)
             case reflect.Type_Info_Map:
-                return (^internal.Raw_Map)(v.data).len == 0
+                return (^internal.Map)(v.data).len == 0
             }
             return false
         }

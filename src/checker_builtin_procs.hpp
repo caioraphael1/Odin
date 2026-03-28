@@ -278,7 +278,6 @@ BuiltinProc__type_simple_boolean_begin,
     BuiltinProc_type_is_simple_compare, // easily compared using memcmp
     BuiltinProc_type_is_nearly_simple_compare, // easily compared using memcmp (including floats)
     BuiltinProc_type_is_dereferenceable,
-    BuiltinProc_type_is_valid_map_key,
     BuiltinProc_type_is_valid_matrix_elements,
 
     BuiltinProc_type_is_named,
@@ -287,7 +286,6 @@ BuiltinProc__type_simple_boolean_begin,
     BuiltinProc_type_is_array,
     BuiltinProc_type_is_enumerated_array,
     BuiltinProc_type_is_slice,
-    BuiltinProc_type_is_map,
     BuiltinProc_type_is_struct,
     BuiltinProc_type_is_union,
     BuiltinProc_type_is_enum,
@@ -296,7 +294,6 @@ BuiltinProc__type_simple_boolean_begin,
     BuiltinProc_type_is_simd_vector,
     BuiltinProc_type_is_matrix,
     BuiltinProc_type_is_raw_union,
-
 
     BuiltinProc_type_is_specialized_polymorphic_record,
     BuiltinProc_type_is_unspecialized_polymorphic_record,
@@ -347,8 +344,6 @@ BuiltinProc__type_simple_boolean_end,
 
     BuiltinProc_type_equal_proc,
     BuiltinProc_type_hasher_proc,
-    BuiltinProc_type_map_info,
-    BuiltinProc_type_map_cell_info,
 
     BuiltinProc_type_has_shared_fields,
 
@@ -654,7 +649,6 @@ gb_global BuiltinProc builtin_procs[BuiltinProc_COUNT] = {
     {STR_LIT("type_is_simple_compare"),    1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_nearly_simple_compare"), 1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_dereferenceable"),   1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
-    {STR_LIT("type_is_valid_map_key"),     1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_valid_matrix_elements"), 1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
 
     {STR_LIT("type_is_named"),             1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
@@ -663,7 +657,6 @@ gb_global BuiltinProc builtin_procs[BuiltinProc_COUNT] = {
     {STR_LIT("type_is_array"),             1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_enumerated_array"),  1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_slice"),             1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
-    {STR_LIT("type_is_map"),               1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_struct"),            1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_union"),             1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_is_enum"),              1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
@@ -721,8 +714,6 @@ gb_global BuiltinProc builtin_procs[BuiltinProc_COUNT] = {
 
     {STR_LIT("type_equal_proc"),    1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_hasher_proc"),   1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
-    {STR_LIT("type_map_info"),      1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
-    {STR_LIT("type_map_cell_info"), 1, false, Expr_Expr, BuiltinProcPkg_intrinsics},
 
     {STR_LIT("type_has_shared_fields"), 2, false, Expr_Expr, BuiltinProcPkg_intrinsics},
     {STR_LIT("type_canonical_name"), 1, false, Expr_Expr, BuiltinProcPkg_intrinsics},

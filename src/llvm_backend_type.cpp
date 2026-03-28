@@ -58,7 +58,6 @@ gb_internal u64 lb_typeid_kind(lbModule *m, Type *type, u64 id=0) {
     case Type_Matrix:          kind = Typeid_Matrix;           break;
     case Type_EnumeratedArray: kind = Typeid_Enumerated_Array; break;
     case Type_Slice:           kind = Typeid_Slice;            break;
-    case Type_Map:             kind = Typeid_Map;              break;
     case Type_Struct:          kind = Typeid_Struct;           break;
     case Type_Enum:            kind = Typeid_Enum;             break;
     case Type_Union:           kind = Typeid_Union;            break;
@@ -886,20 +885,6 @@ gb_internal void lb_setup_type_info_data_giant_array(lbModule *m, i64 global_typ
                     vals[i]  = LLVMConstNull(lb_type(m, get_struct_field_type(tag_type, i)));
                 }
             }
-
-            variant_value = llvm_const_named_struct(m, tag_type, vals, gb_count_of(vals));
-            break;
-        }
-
-        case Type_Map: {
-            tag_type = t_type_info_map;
-            init_map_internal_debug_types(t);
-
-            LLVMValueRef vals[3] = {
-                get_type_info_ptr(m, t->Map.key),
-                get_type_info_ptr(m, t->Map.value),
-                lb_gen_map_info_ptr(m, t).value
-            };
 
             variant_value = llvm_const_named_struct(m, tag_type, vals, gb_count_of(vals));
             break;
