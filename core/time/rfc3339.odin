@@ -292,7 +292,7 @@ time_to_rfc3339 :: proc(time: Time, utc_offset : int = 0, include_nanos := true,
         print_as_fixed_int(temp_string[:], &offset, 2, i64(utc_offset % 60))
     }
 
-    res_as_slice, res_alloc := slice.create([]u8, len=offset, allocator = allocator)
+    res_as_slice, res_alloc := slice.create(u8, len=offset, allocator = allocator)
     if res_alloc != nil {
         return "", false
     }

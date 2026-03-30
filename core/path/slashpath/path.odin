@@ -222,7 +222,7 @@ lazy_buffer_append :: proc(lb: ^Lazy_Buffer, c: u8, allocator: mem.Allocator) {
             lb.w += 1
             return
         }
-        lb.b, _ = slice.create([]u8, len(lb.s), allocator)
+        lb.b, _ = slice.create(u8, len(lb.s), allocator)
         slice.copy_from_string(lb.b, lb.s[:lb.w])
     }
     lb.b[lb.w] = c

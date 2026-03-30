@@ -150,7 +150,7 @@ _get_working_directory :: proc(allocator: mem.Allocator) -> (dir: string, err: E
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     sz_utf16 := win32.GetCurrentDirectoryW(0, nil)
-    dir_buf_wstr := slice.create([]u16, uint(sz_utf16), allocators.temp_allocator) or_return
+    dir_buf_wstr := slice.create(u16, uint(sz_utf16), allocators.temp_allocator) or_return
 
     sz_utf16 = win32.GetCurrentDirectoryW(win32.DWORD(len(dir_buf_wstr)), raw_data(dir_buf_wstr))
     internal.assert(uint(sz_utf16) + 1 == len(dir_buf_wstr)) // the second time, it _excludes_ the NUL.
@@ -231,7 +231,7 @@ _fix_long_path_internal :: proc(path: string) -> string {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     PREFIX :: `\\?`
-    path_buf, _ := slice.create([]u8, len(PREFIX)+len(path)+1, allocators.temp_allocator)
+    path_buf, _ := slice.create(u8, len(PREFIX)+len(path)+1, allocators.temp_allocator)
     slice.copy_from_string(path_buf, PREFIX)
     n := len(path)
     r: uint = 0 
@@ -320,7 +320,7 @@ _get_absolute_path :: proc(path: string, allocator: mem.Allocator) -> (absolute_
         return "", _get_platform_error()
     }
 
-    buf := slice.create([]u16, uint(n), allocators.temp_allocator) or_return
+    buf := slice.create(u16, uint(n), allocators.temp_allocator) or_return
     n = win32.GetFullPathNameW(cstring16(raw_data(rel_utf16)), u32(n), cstring16(raw_data(buf)), nil)
     if n == 0 {
         return "", _get_platform_error()

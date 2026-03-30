@@ -9,10 +9,10 @@ import "base:internal"
 
 Opcode_Iterator :: struct {
     code: Program,
-    pc: int,
+    pc:   uint,
 }
 
-iterate_opcodes :: proc(iter: ^Opcode_Iterator) -> (opcode: Opcode, pc: int, ok: bool) {
+iterate_opcodes :: proc(iter: ^Opcode_Iterator) -> (opcode: Opcode, pc: uint, ok: bool) {
     if iter.pc >= len(iter.code) {
         return
     }

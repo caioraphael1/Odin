@@ -42,7 +42,7 @@ int_itoa_string :: proc(a: ^Int, radix := i8(10), zero_terminate := false, alloc
 	/*
 		Allocate the buffer we need.
 	*/
-    buffer, mem_err := slice.create([]u8, size, allocator)
+    buffer, mem_err := slice.create(u8, size, allocator)
 	if mem_err != nil {
 		err = cast(Error)mem_err
 		return

@@ -43,12 +43,12 @@ _wasi_setup_args :: proc() {
     }
 
     err: Allocator_Error
-    if args__, err = slice.create([]cstring, num_of_args); err != nil {
+    if args__, err = slice.create(cstring, num_of_args); err != nil {
         return
     }
 
     args_buf: []u8
-    if args_buf, err = slice.create([]u8, size_of_args); err != nil {
+    if args_buf, err = slice.create(u8, size_of_args); err != nil {
         _ = slice.delete(args__)
         return
     }

@@ -571,7 +571,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
             return .Corrupt
         }
 
-        data := slice.create([]u8, int(pixel_size) + 4)
+        data := slice.create(u8, int(pixel_size) + 4)
         defer _ = slice.delete(data)
 
         for i in 0..<pixel_size {
@@ -645,7 +645,7 @@ decode_rle :: proc(ctx: ^$C, img: ^Image, info: image.BMP_Header, allocator : me
             return .Corrupt
         }
 
-        data := slice.create([]u8, int(pixel_size) + 4)
+        data := slice.create(u8, int(pixel_size) + 4)
         defer _ = slice.delete(data)
 
         for i in 0..<pixel_size {

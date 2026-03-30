@@ -197,7 +197,7 @@ when ODIN_NO_CRT {
         sync.mutex_guard(&_env_mutex)
 
         // NOTE: already terminated by nil pointer via + 1
-        env := slice.create([]cstring, len(_env) + 1, allocator)
+        env := slice.create(cstring, len(_env) + 1, allocator)
 
         for entry, i in _env {
             env[i] = cstring(raw_data(entry))

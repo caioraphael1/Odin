@@ -9,6 +9,7 @@
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
+import "base:container/dyn_array"
 import "base:container/slice"
 
 import "core:text/regex/common"
@@ -103,8 +104,8 @@ create :: proc(
     // For the sake of speed and simplicity, we first run all the intermediate
     // processes such as parsing and compilation through the temporary
     // allocator.
-    program:    dyn_array.Dyn_Array(virtual_machine).Opcode = ---
-    class_data: dyn_array.Dyn_Array(parser).Rune_Class_Data = ---
+    program:    dyn_array.Dyn_Array(virtual_machine.Opcode) = ---
+    class_data: dyn_array.Dyn_Array(parser.Rune_Class_Data) = ---
 
     ast := parser.parse(pattern, flags, allocators.temp_allocator) or_return
 
@@ -118,22 +119,22 @@ create :: proc(
     // allocator so everything can be tightly packed.
     result.flags = flags
 
-    if len(class_data) > 0 {
-        result.class_data, _ = slice.create([]virtual_machine.Rune_Class_Data, len(class_data), allocator)
+    if class_data.len > 0 {
+        result.class_data, _ = slice.create(virtual_machine.Rune_Class_Data, class_data.len, allocator)
     }
-    for data, i in class_data {
-        if len(data.runes) > 0 {
-            result.class_data[i].runes, _ = slice.create([]rune, len(data.runes), allocator)
-            slice.copy(result.class_data[i].runes, data.runes[:])
+    for data, i in dyn_array.slice(class_data) {
+        if data.runes.len > 0 {
+            result.class_data[i].runes, _ = slice.create(rune, data.runes.len, allocator)
+            slice.copy(result.class_data[i].runes, dyn_array.slice(data.runes))
         }
-        if len(data.ranges) > 0 {
-            result.class_data[i].ranges, _ = slice.create([]virtual_machine.Rune_Class_Range, len(data.ranges), allocator)
-            slice.copy(result.class_data[i].ranges, data.ranges[:])
+        if data.ranges.len > 0 {
+            result.class_data[i].ranges, _ = slice.create(virtual_machine.Rune_Class_Range, data.ranges.len, allocator)
+            slice.copy(result.class_data[i].ranges, dyn_array.slice(data.ranges))
         }
     }
 
-    result.program, _ = slice.create([]virtual_machine.Opcode, len(program), allocator)
-    slice.copy(result.program, program[:])
+    result.program, _ = slice.create(virtual_machine.Opcode, program.len, allocator)
+    slice.copy(result.program, dyn_array.slice(program))
 
     return
 }
@@ -207,7 +208,7 @@ create_by_user :: proc(
         }
 
         if start == -1 {
-            start = i
+            start = int(i)
         }
 
         if escaping {
@@ -219,7 +220,7 @@ create_by_user :: proc(
         case '\\':
             escaping = true
         case delimiter:
-            end = i
+            end = int(i)
             break parse_loop
         }
     }
@@ -315,7 +316,7 @@ match_and_allocate_capture :: proc(
     }
 
     if saved != nil {
-        num_groups := 0
+        num_groups: uint
         #no_bounds_check for i := 0; i < len(saved); i += 2 {
             a, b := saved[i], saved[i + 1]
             if a == -1 || b == -1 {
@@ -325,8 +326,8 @@ match_and_allocate_capture :: proc(
         }
 
         if num_groups > 0 {
-            capture.groups, _ = slice.create([]string, num_groups, allocator)
-            capture.pos, _ = slice.create([][2]int, num_groups, allocator)
+            capture.groups, _ = slice.create(string, num_groups, allocator)
+            capture.pos, _ = slice.create([2]int, num_groups, allocator)
             n := 0
 
             #no_bounds_check for i := 0; i < len(saved); i += 2 {
@@ -462,7 +463,7 @@ match_iterator :: proc(it: ^Match_Iterator) -> (result: Capture, index: int, ok:
         // loop if we do not intervene.
         it.done = true
     }
-    if it.vm.string_pointer == len(it.vm.memory) {
+    if it.vm.string_pointer == int(len(it.vm.memory)) {
         // The VM hit the end of the string.
         //
         // We do not check at the start, because a match of pattern `$`
@@ -535,8 +536,8 @@ Returns:
 */
 
 preallocate_capture :: proc(allocator: mem.Allocator) -> (result: Capture) {
-    result.pos   , _ = slice.create([][2]int, common.MAX_CAPTURE_GROUPS, allocator)
-    result.groups, _ = slice.create([]string, common.MAX_CAPTURE_GROUPS, allocator)
+    result.pos   , _ = slice.create([2]int, common.MAX_CAPTURE_GROUPS, allocator)
+    result.groups, _ = slice.create(string, common.MAX_CAPTURE_GROUPS, allocator)
     return
 }
 

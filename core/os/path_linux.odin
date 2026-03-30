@@ -52,7 +52,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
     }
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     // need something we can edit, and use to generate cstrings
-    path_bytes := slice.create([]u8, len(path) + 1, allocators.temp_allocator)
+    path_bytes := slice.create(u8, len(path) + 1, allocators.temp_allocator)
 
     // zero terminate the u8 slice to make it a valid cstring
     slice.copy(path_bytes, path)
@@ -78,7 +78,7 @@ _mkdir_all :: proc(path: string, perm: int) -> Error {
 _remove_all :: proc(path: string) -> Error {
     remove_all_dir :: proc(dfd: linux.Fd) -> Error {
         n := 64
-        buf := slice.create([]u8, n)
+        buf := slice.create(u8, n)
         defer _ = slice.delete(buf)
 
         loop: for {
@@ -87,7 +87,7 @@ _remove_all :: proc(path: string) -> Error {
             case .EINVAL:
                 _ = slice.delete(buf)
                 n *= 2
-                buf = slice.create([]u8, n)
+                buf = slice.create(u8, n)
                 continue loop
             case .NONE:
                 if buflen == 0 { break loop }

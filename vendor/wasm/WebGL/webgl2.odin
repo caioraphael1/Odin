@@ -133,7 +133,7 @@ GetActiveUniformBlockNameAlloc :: proc(program: Program, uniformBlockIndex: i32,
     _GetActiveUniformBlockName(program, uniformBlockIndex, {}, &n)
 
     if n > 0 {
-        buf := slice.create([]u8, n, allocator, loc)
+        buf := slice.create(u8, n, allocator, loc)
         _GetActiveUniformBlockName(program, uniformBlockIndex, buf, &n)
         internal.assert(n == len(buf))
         return string(buf[:n])

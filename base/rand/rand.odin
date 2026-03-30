@@ -1035,7 +1035,7 @@ Possible Output:
 */
 
 perm :: proc(n: int, allocator: mem.Allocator, gen: Random_Generator) -> (res: []int, err: mem.Allocator_Error) {
-    m := slice.create([]int, uint(n), allocator) or_return
+    m := slice.create(int, uint(n), allocator) or_return
     for i := 0; i < n; i += 1 {
         j := int_max(i+1, gen)
         m[i] = m[j]

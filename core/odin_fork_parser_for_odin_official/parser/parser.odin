@@ -1038,8 +1038,8 @@ parse_switch_stmt :: proc(p: ^Parser, allocator: mem.Allocator) -> ^ast.Stmt {
             in_tok := token_expect(p, .In, allocator)
             is_type_switch = true
 
-            lhs, _ := slice.create([]^ast.Expr, 1, allocator)
-            rhs, _ := slice.create([]^ast.Expr, 1, allocator)
+            lhs, _ := slice.create(^ast.Expr, 1, allocator)
+            rhs, _ := slice.create(^ast.Expr, 1, allocator)
             lhs[0] = new_blank_ident(p, tok.pos, allocator)
             rhs[0] = parse_expr(p, true, allocator)
 
@@ -1696,7 +1696,7 @@ convert_stmt_to_body :: proc(p: ^Parser, stmt: ^ast.Stmt, allocator: mem.Allocat
 
     bs := ast.new_from_pos_and_end_node(ast.Block_Stmt, stmt.pos, stmt, allocator)
     bs.open = stmt.pos
-    bs.stmts, _ = slice.create([]^ast.Stmt, 1, allocator)
+    bs.stmts, _ = slice.create(^ast.Stmt, 1, allocator)
     bs.stmts[0] = stmt
     bs.close = stmt.end
     bs.uses_do = true
@@ -2093,7 +2093,7 @@ parse_field_list :: proc(p: ^Parser, follow: tokenizer.Token_Kind, allowed_flags
                 tok.text = "_"
             }
 
-            names, _ := slice.create([]^ast.Expr, 1, allocator)
+            names, _ := slice.create(^ast.Expr, 1, allocator)
             names[0] = ast.new_from_positions(ast.Ident, tok.pos, end_pos(tok), allocator)
             #partial switch ident in names[0].derived_expr {
             case ^ast.Ident:
@@ -2157,7 +2157,7 @@ parse_results :: proc(p: ^Parser, allocator: mem.Allocator) -> (list: ^ast.Field
         field := new_ast_field(nil, type, nil, allocator)
 
         list = ast.new_from_positions(ast.Field_List, field.pos, field.end, allocator)
-        list.list, _ = slice.create([]^ast.Field, 1, allocator)
+        list.list, _ = slice.create(^ast.Field, 1, allocator)
         list.list[0] = field
         return
     }
@@ -3679,7 +3679,7 @@ parse_simple_stmt :: proc(p: ^Parser, flags: Stmt_Allow_Flags, allocator: mem.Al
             expr := parse_expr(p, false, allocator)
             p.allow_range = prev_allow_range
 
-            rhs, _ := slice.create([]^ast.Expr, 1, allocator)
+            rhs, _ := slice.create(^ast.Expr, 1, allocator)
             rhs[0] = expr
 
             stmt := ast.new_from_pos_and_end_node(ast.Assign_Stmt, lhs[0].pos, rhs[len(rhs)-1], allocator)

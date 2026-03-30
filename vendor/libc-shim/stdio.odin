@@ -86,7 +86,7 @@ vfprintf :: proc "c" (file: FILE, fmt: cstring, args: ^c.va_list) -> i32 {
         }
 
         if n >= MAX_STACK {
-            buf = slice.create([]u8, n)
+            buf = slice.create(u8, n)
             n2 := stb.vsnprintf(raw_data(buf), i32(len(buf)), fmt, args)
             internal.assert(n == n2)
         } else {

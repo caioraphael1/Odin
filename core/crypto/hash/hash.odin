@@ -20,7 +20,7 @@ hash_string :: proc(algorithm: Algorithm, data: string, allocator: mem.Allocator
 // hash_bytes will hash the given input and return the computed digest
 // in a newly allocated slice.
 hash_bytes :: proc(algorithm: Algorithm, data: []u8, allocator: mem.Allocator) -> []u8 {
-	dst := slice.create([]u8, DIGEST_SIZES[algorithm], allocator)
+	dst := slice.create(u8, DIGEST_SIZES[algorithm], allocator)
 	return hash_bytes_to_buffer(algorithm, data, dst)
 }
 
@@ -80,7 +80,7 @@ hash_stream :: proc(
 		}
 	}
 
-	dst := slice.create([]u8, DIGEST_SIZES[algorithm], allocator)
+	dst := slice.create(u8, DIGEST_SIZES[algorithm], allocator)
 	final(&ctx, dst)
 
 	return dst, io.Error.None

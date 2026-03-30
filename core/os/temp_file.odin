@@ -23,7 +23,7 @@ create_temp_file :: proc(dir, pattern: string, allocator: mem.Allocator) -> (f: 
     prefix = temp_join_path(dir, prefix, allocators.temp_allocator) or_return
 
     rand_buf: [10]u8
-    name_buf, _ := slice.create([]u8, len(prefix)+len(rand_buf)+len(suffix), allocators.temp_allocator)
+    name_buf, _ := slice.create(u8, len(prefix)+len(rand_buf)+len(suffix), allocators.temp_allocator)
 
     attempts := 0
     for {
@@ -55,7 +55,7 @@ make_directory_temp :: proc(dir, pattern: string, allocator: mem.Allocator) -> (
     prefix = temp_join_path(dir, prefix, allocators.temp_allocator) or_return
 
     rand_buf: [10]u8
-    name_buf, _ := slice.create([]u8, len(prefix)+len(rand_buf)+len(suffix), allocators.temp_allocator)
+    name_buf, _ := slice.create(u8, len(prefix)+len(rand_buf)+len(suffix), allocators.temp_allocator)
 
     attempts := 0
     for {

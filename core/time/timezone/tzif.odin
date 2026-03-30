@@ -600,7 +600,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
     }
 
     records: []datetime.TZ_Record
-    records, err = slice.create([]datetime.TZ_Record, len(transition_times), allocator)
+    records, err = slice.create(datetime.TZ_Record, len(transition_times), allocator)
     if err != nil { return }
     defer if err != nil { _ = slice.delete(records, allocator) }
 

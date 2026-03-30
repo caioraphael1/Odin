@@ -237,7 +237,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator: mem.Allocat
         }
     }
 
-    color_map := slice.create([]RGBA_Pixel, header.color_map_length)
+    color_map := slice.create(RGBA_Pixel, header.color_map_length)
     defer _ = slice.delete(color_map)
 
     if color_mapped {

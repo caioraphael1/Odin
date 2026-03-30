@@ -36,7 +36,7 @@ update_peak :: proc(a: ^Heap_Array($T)) {
 
 
 create :: proc(cap: uint, $T: typeid, allocator: mem.Allocator) -> (heap_array: Heap_Array(T), err: mem.Allocator_Error) {
-    heap_array.data = base_slice.create([]T, cap, allocator) or_return
+    heap_array.data = base_slice.create(T, cap, allocator) or_return
     return
 }
 

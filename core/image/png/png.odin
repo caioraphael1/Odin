@@ -208,7 +208,7 @@ copy_chunk :: proc(src: image.PNG_Chunk, allocator : mem.Allocator) -> (dest: im
 
     dest.header = src.header
     dest.crc    = src.crc
-    dest.data   = slice.create([]u8, dest.header.length, allocator) or_return
+    dest.data   = slice.create(u8, dest.header.length, allocator) or_return
 
     slice.copy(dest.data[:], src.data[:])
     return
@@ -1215,7 +1215,7 @@ defilter_8 :: proc(params: ^Filter_Params) -> (ok: bool) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // Apron so we don't need to special case first rows.
-    up := slice.create([]u8, row_stride, allocators.temp_allocator)
+    up := slice.create(u8, row_stride, allocators.temp_allocator)
     ok = true
 
     for _ in 0..<height {
@@ -1282,7 +1282,7 @@ defilter_less_than_8 :: proc(params: ^Filter_Params) -> bool #no_bounds_check {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
 
     // Apron so we don't need to special case first rows.
-    up := slice.create([]u8, row_stride_out, allocators.temp_allocator)
+    up := slice.create(u8, row_stride_out, allocators.temp_allocator)
 
     #no_bounds_check for _ in 0..<height {
         nk := row_stride_in - channels
@@ -1437,7 +1437,7 @@ defilter_16 :: proc(params: ^Filter_Params) -> bool {
 
     // TODO: See about doing a Duff's #unroll where practicable
     // Apron so we don't need to special case first rows.
-    up := slice.create([]u8, row_stride, allocators.temp_allocator)
+    up := slice.create(u8, row_stride, allocators.temp_allocator)
 
     for y := 0; y < height; y += 1 {
         nk := row_stride - stride

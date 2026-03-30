@@ -33,7 +33,7 @@ reader_init :: proc(b: ^Reader, rd: io.Reader, size: uint = DEFAULT_BUF_SIZE, al
     size = max(size, MIN_READ_BUFFER_SIZE)
     reader_reset(b, rd)
     b.buf_allocator = allocator
-    b.buf, _ = slice.create([]u8, size, allocator, loc)
+    b.buf, _ = slice.create(u8, size, allocator, loc)
 }
 
 // reader_init initializes using a user provided bytes buffer `buf`

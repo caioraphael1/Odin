@@ -68,7 +68,7 @@ _get_processor_core_count :: proc() -> uint {
     thread_count: uint
     if !result && win32.GetLastError() == 122 && length > 0 {
         allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-        processors, _ := slice.create([]win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, uint(length), allocators.temp_allocator)
+        processors, _ := slice.create(win32.SYSTEM_LOGICAL_PROCESSOR_INFORMATION, uint(length), allocators.temp_allocator)
 
         result = win32.GetLogicalProcessorInformation(&processors[0], &length)
         if result {
@@ -194,7 +194,7 @@ _process_info_by_pid :: proc(pid: uint, selection: Process_Info_Fields, allocato
         allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
         if selection >= {.Command_Line, .Command_Args} {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cmdline_w := slice.create([]u16, uint(process_params.CommandLine.Length), allocators.temp_allocator) or_return
+            cmdline_w := slice.create(u16, uint(process_params.CommandLine.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CommandLine.Buffer, cmdline_w)
             if err != nil {
                 break read_peb
@@ -211,7 +211,7 @@ _process_info_by_pid :: proc(pid: uint, selection: Process_Info_Fields, allocato
         if .Environment in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             env_len := process_params.EnvironmentSize / 2
-            envs_w := slice.create([]u16, uint(env_len), allocators.temp_allocator) or_return
+            envs_w := slice.create(u16, uint(env_len), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.Environment, envs_w)
             if err != nil {
                 break read_peb
@@ -221,7 +221,7 @@ _process_info_by_pid :: proc(pid: uint, selection: Process_Info_Fields, allocato
         }
         if .Working_Dir in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cwd_w := slice.create([]u16, uint(process_params.CurrentDirectoryPath.Length), allocators.temp_allocator) or_return
+            cwd_w := slice.create(u16, uint(process_params.CurrentDirectoryPath.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CurrentDirectoryPath.Buffer, cwd_w)
             if err != nil {
                 break read_peb
@@ -305,7 +305,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         arena_temp, _ := allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
         if selection >= {.Command_Line, .Command_Args} {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cmdline_w := slice.create([]u16, uint(process_params.CommandLine.Length), allocators.temp_allocator) or_return
+            cmdline_w := slice.create(u16, uint(process_params.CommandLine.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CommandLine.Buffer, cmdline_w)
             if err != nil {
                 break read_peb
@@ -322,7 +322,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         if .Environment in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             env_len := process_params.EnvironmentSize / 2
-            envs_w := slice.create([]u16, uint(env_len), allocators.temp_allocator) or_return
+            envs_w := slice.create(u16, uint(env_len), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.Environment, envs_w)
             if err != nil {
                 break read_peb
@@ -332,7 +332,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         }
         if .Working_Dir in selection {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-            cwd_w := slice.create([]u16, uint(process_params.CurrentDirectoryPath.Length), allocators.temp_allocator) or_return
+            cwd_w := slice.create(u16, uint(process_params.CurrentDirectoryPath.Length), allocators.temp_allocator) or_return
             _, err = read_memory_as_slice(ph, process_params.CurrentDirectoryPath.Buffer, cwd_w)
             if err != nil {
                 break read_peb
@@ -704,7 +704,7 @@ _get_process_user :: proc(process_handle: win32.HANDLE, allocator: mem.Allocator
         }
         err = nil
     }
-    token_user := (^win32.TOKEN_USER)(raw_data(slice.create([]u8, uint(token_user_size), allocators.temp_allocator) or_return))
+    token_user := (^win32.TOKEN_USER)(raw_data(slice.create(u8, uint(token_user_size), allocators.temp_allocator) or_return))
     if !win32.GetTokenInformation(token_handle, .TokenUser, token_user, token_user_size, &token_user_size) {
         err = _get_platform_error()
         return
@@ -731,7 +731,7 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
     if argv_w == nil {
         return nil, _get_platform_error()
     }
-    argv = slice.create([]string, uint(argc), allocator) or_return
+    argv = slice.create(string, uint(argc), allocator) or_return
     defer if err != nil {
         for arg in argv {
             _ = strings.string_delete(arg, allocator)
@@ -803,7 +803,7 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
     // environment block is the number of NUL character minus the
     // block terminator.
     env_count := zt_count - 1
-    envs = slice.create([]string, env_count, allocator) or_return
+    envs = slice.create(string, env_count, allocator) or_return
     defer if err != nil {
         for env in envs {
             _ = strings.string_delete(env, allocator)

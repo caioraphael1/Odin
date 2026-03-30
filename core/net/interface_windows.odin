@@ -49,7 +49,7 @@ _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Networ
         switch res {
         case 111: // ERROR_BUFFER_OVERFLOW:
             _ = slice.delete(buf, allocator)
-            buf, _ = slice.create([]u8, buf_size, allocator)
+            buf, _ = slice.create(u8, buf_size, allocator)
         case 0:
             break gaa
         case:

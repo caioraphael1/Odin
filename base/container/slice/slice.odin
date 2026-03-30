@@ -13,13 +13,13 @@ Raw_Slice :: struct {
 // Initialization
 //--------------------------------------------------------------------------------------------------
 
-create :: proc($T: typeid/[]$E, len: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: T, err: mem.Allocator_Error) {
-    err = _init_aligned(&res, size_of(E), len, align_of(E), allocator, loc)
+create :: proc($T: typeid, len: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: []T, err: mem.Allocator_Error) {
+    err = _init_aligned(&res, size_of(T), len, align_of(T), allocator, loc)
     return
 }
 
-create_aligned :: proc($T: typeid/[]$E, len: uint, alignment: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: T, err: mem.Allocator_Error) {
-    err = _init_aligned(&res, size_of(E), len, alignment, allocator, loc)
+create_aligned :: proc($T: typeid, len: uint, alignment: uint, allocator: mem.Allocator, loc := #caller_location) -> (res: []T, err: mem.Allocator_Error) {
+    err = _init_aligned(&res, size_of(T), len, alignment, allocator, loc)
     return
 }
 
@@ -34,14 +34,14 @@ on a boundary specified by `alignment` from an allocator specified by
 The user should `_ = delete` the return `original_data` slice not the typed `slice`.
 */
 create_over_aligned :: proc(
-    $T: typeid/[]$E,
+    $T: typeid,
     len: uint,
     alignment: uint,
     allocator: mem.Allocator,
     loc := #caller_location,
-    ) -> (slice: T, original_data: []u8, err: mem.Allocator_Error) {
-    size := size_of(E)*len + alignment-1
-    original_data, err = create([]u8, size, allocator, loc)
+    ) -> (slice: []T, original_data: []u8, err: mem.Allocator_Error) {
+    size := size_of(E) * len + alignment - 1
+    original_data, err = create(u8, size, allocator, loc)
     if err == nil {
         ptr := mem.align_forward(raw_data(original_data), uintptr(alignment))
         slice = ([^]E)(ptr)[:len]
@@ -65,13 +65,13 @@ _init_aligned :: proc(slice: rawptr, elem_size: uint, len: uint, alignment: uint
 
 // `delete` will try to free the underlying data of the passed sliced, with the given `allocator` if the allocator supports this operation.
 delete :: proc(array: $T/[]$E, allocator: mem.Allocator, loc := #caller_location) -> mem.Allocator_Error {
-    return mem.free_with_size(raw_data(array), len(array)*size_of(E), allocator, loc)
+    return mem.free_with_size(raw_data(array), len(array) * size_of(E), allocator, loc)
 }
 
 
 zero :: proc(array: $T/[]$E) #no_bounds_check {
     if len(array) > 0 {
-        mem.zero(raw_data(array), size_of(E)*len(array))
+        mem.zero(raw_data(array), size_of(E) * len(array))
     }
 }
 
@@ -238,7 +238,7 @@ _rawptr_mem_copy :: proc(dst, src: rawptr, dst_len, src_len, elem_size: uint) ->
 
 
 clone :: proc(a: $T/[]$E, allocator: mem.Allocator, loc := #caller_location) -> ([]E, mem.Allocator_Error) {
-    d, err := create([]E, len(a), allocator, loc)
+    d, err := create(E, len(a), allocator, loc)
     copy(d[:], a)
     return d, err
 }

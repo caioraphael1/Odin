@@ -464,7 +464,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
 
     // args and environment need to be a list of cstrings
     // that are terminated by a nil pointer.
-    cargs := slice.create([]cstring, len(desc.command) + 1, allocators.temp_allocator) or_return
+    cargs := slice.create(cstring, len(desc.command) + 1, allocators.temp_allocator) or_return
     for command, i in desc.command {
         cargs[i] = strings.cstring_clone_from_string(command, allocators.temp_allocator) or_return
     }
@@ -475,7 +475,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         // take this process's current environment
         env = raw_data(export_cstring_environment(allocators.temp_allocator))
     } else {
-        cenv := slice.create([]cstring, len(desc.env) + 1, allocators.temp_allocator) or_return
+        cenv := slice.create(cstring, len(desc.env) + 1, allocators.temp_allocator) or_return
         for env, i in desc.env {
             cenv[i] = strings.cstring_clone_from_string(env, allocators.temp_allocator) or_return
         }

@@ -30,7 +30,7 @@ walker_init_path :: proc(w: ^Walker, path: string, allocator: mem.Allocator) {
 
     walker_clear(w, allocator)
 
-    if _, err = dyn_queue.push(&w.todo, cloned_path); err != nil {
+    if _, err = dyn_queue.push_back(&w.todo, cloned_path); err != nil {
         walker_set_error(w, cloned_path, err)
         return
     }
@@ -93,7 +93,7 @@ walker_clear :: proc(w: ^Walker, allocator: mem.Allocator) {
     dyn_array.clear(&w.err.path)
 
     w.todo.buf.allocator = allocator
-    for path in dyn_queue.dyn_array_pop_front_safe(&w.todo) {
+    for path in dyn_queue.pop_front_safe(&w.todo) {
         _ = strings.string_delete(path, allocator)
     }
 }

@@ -59,26 +59,26 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         //
         // DO: `.*$` =>     <special opcode>
         // DO: `.+$` => `.` <special opcode>
-        if .Multiline not_in flags && len(specific.nodes) >= 2 {
-            i := len(specific.nodes) - 2
+        if .Multiline not_in flags && specific.nodes.len >= 2 {
+            i := specific.nodes.len - 2
             wrza: {
-                subnode := specific.nodes[i].(^Node_Repeat_Zero) or_break wrza
+                subnode := specific.nodes.data[i].(^Node_Repeat_Zero) or_break wrza
                 _ = subnode.inner.(^Node_Wildcard) or_break wrza
-                next_node := specific.nodes[i+1].(^Node_Anchor) or_break wrza
+                next_node := specific.nodes.data[i+1].(^Node_Anchor) or_break wrza
                 if next_node.start == false {
-                    specific.nodes[i], _ = mem.new(Node_Match_All_And_Escape, allocator)
+                    specific.nodes.data[i], _ = mem.new(Node_Match_All_And_Escape, allocator)
                     dyn_array.ordered_remove(&specific.nodes, i + 1)
                     changes += 1
                     break
                 }
             }
             wroa: {
-                subnode := specific.nodes[i].(^Node_Repeat_One) or_break wroa
+                subnode := specific.nodes.data[i].(^Node_Repeat_One) or_break wroa
                 subsubnode := subnode.inner.(^Node_Wildcard) or_break wroa
-                next_node := specific.nodes[i+1].(^Node_Anchor) or_break wroa
+                next_node := specific.nodes.data[i+1].(^Node_Anchor) or_break wroa
                 if next_node.start == false {
-                    specific.nodes[i] = subsubnode
-                    specific.nodes[i+1], _ = mem.new(Node_Match_All_And_Escape, allocator)
+                    specific.nodes.data[i] = subsubnode
+                    specific.nodes.data[i+1], _ = mem.new(Node_Match_All_And_Escape, allocator)
                     changes += 1
                     break
                 }
@@ -86,22 +86,23 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         }
 
         // Only recursive optimizations:
-        #no_bounds_check for i := 0; i < len(specific.nodes); i += 1 {
-            subnode, subnode_changes := optimize_subtree(specific.nodes[i], flags, allocator)
+        // Note(Caio): This has to be an int, otherwise we get an underflow.
+        #no_bounds_check for i: int; i < int(specific.nodes.len); i += 1 {
+            subnode, subnode_changes := optimize_subtree(specific.nodes.data[i], flags, allocator)
             changes += subnode_changes
             if subnode == nil {
-                dyn_array.ordered_remove(&specific.nodes, i)
+                dyn_array.ordered_remove(&specific.nodes, uint(i))
                 i -= 1
                 changes += 1
             } else {
-                specific.nodes[i] = subnode
+                specific.nodes.data[i] = subnode
             }
         }
 
-        if len(specific.nodes) == 1 {
-            result = specific.nodes[0]
+        if specific.nodes.len == 1 {
+            result = specific.nodes.data[0]
             changes += 1
-        } else if len(specific.nodes) == 0 {
+        } else if specific.nodes.len == 0 {
             return nil, changes + 1
         }
 
@@ -162,11 +163,11 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         runes_seen: map[rune]bool
         runes_seen.allocator = allocator
 
-        for r in specific.runes {
+        for r in dyn_array.slice(specific.runes) {
             runes_seen[r] = true
         }
 
-        if len(runes_seen) != len(specific.runes) {
+        if len(runes_seen) != specific.runes.len {
             dyn_array.clear(&specific.runes)
             for key in runes_seen {
                 _ = dyn_array.append(&specific.runes, key)
@@ -177,8 +178,8 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         // * Class Reduction
         //
         // DO: `[a]` => `a`
-        if !specific.negating && len(specific.runes) == 1 && len(specific.ranges) == 0 {
-            only_rune := specific.runes[0]
+        if !specific.negating && specific.runes.len == 1 && specific.ranges.len == 0 {
+            only_rune := specific.runes.data[0]
 
             node, _ := mem.new(Node_Rune, allocator)
             node.data = only_rune
@@ -189,14 +190,14 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         // * Range Construction
         //
         // DO: `[abc]` => `[a-c]`
-        slice.sort(specific.runes[:])
-        if len(specific.runes) > 1 {
+        slice.sort(dyn_array.slice(specific.runes))
+        if specific.runes.len > 1 {
             new_range: Rune_Class_Range
-            new_range.lower = specific.runes[0]
-            new_range.upper = specific.runes[0]
-
-            #no_bounds_check for i := 1; i < len(specific.runes); i += 1 {
-                r := specific.runes[i]
+            new_range.lower = specific.runes.data[0]
+            new_range.upper = specific.runes.data[0]
+            // Note(Caio): This has to be an int, otherwise we get an underflow.
+            #no_bounds_check for i: int = 1; i < int(specific.runes.len); i += 1 {
+                r := specific.runes.data[i]
                 if new_range.lower == -1 {
                     new_range = { r, r }
                     continue
@@ -204,12 +205,12 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 
                 if r == new_range.lower - 1 {
                     new_range.lower -= 1
-                    dyn_array.ordered_remove(&specific.runes, i)
+                    dyn_array.ordered_remove(&specific.runes, uint(i))
                     i -= 1
                     changes += 1
                 } else if r == new_range.upper + 1 {
                     new_range.upper += 1
-                    dyn_array.ordered_remove(&specific.runes, i)
+                    dyn_array.ordered_remove(&specific.runes, uint(i))
                     i -= 1
                     changes += 1
                 } else if new_range.lower != new_range.upper {
@@ -228,11 +229,12 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         // * Rune Merging into Range
         //
         // DO: `[aa-c]` => `[a-c]`
-        for range in specific.ranges {
-            #no_bounds_check for i := 0; i < len(specific.runes); i += 1 {
-                r := specific.runes[i]
+        for range in dyn_array.slice(specific.ranges) {
+            // Note(Caio): This has to be an int, otherwise we get an underflow.
+            #no_bounds_check for i: int; i < int(specific.runes.len); i += 1 {
+                r := specific.runes.data[i]
                 if range.lower <= r && r <= range.upper {
-                    dyn_array.ordered_remove(&specific.runes, i)
+                    dyn_array.ordered_remove(&specific.runes, uint(i))
                     i -= 1
                     changes += 1
                 }
@@ -244,17 +246,18 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         // DO: `[a-cc-e]` => `[a-e]`
         // DO: `[a-cd-e]` => `[a-e]`
         // DO: `[a-cb-e]` => `[a-e]`
-        slice.sort_by(specific.ranges[:], class_range_sorter)
-        #no_bounds_check for i := 0; i < len(specific.ranges) - 1; i += 1 {
-            for j := i + 1; j < len(specific.ranges); j += 1 {
-                left_range  := &specific.ranges[i]
-                right_range :=  specific.ranges[j]
+        slice.sort_by(dyn_array.slice(specific.ranges), class_range_sorter)
+        // Note(Caio): This has to be an int, otherwise we get an underflow.
+        #no_bounds_check for i: int; i < int(specific.ranges.len) - 1; i += 1 {
+            for j := i + 1; j < int(specific.ranges.len); j += 1 {
+                left_range  := &specific.ranges.data[i]
+                right_range :=  specific.ranges.data[j]
 
                 if left_range.upper == right_range.lower     ||
                    left_range.upper == right_range.lower - 1 ||
                    left_range.lower <= right_range.lower && right_range.lower <= left_range.upper {
                     left_range.upper = max(left_range.upper, right_range.upper)
-                    dyn_array.ordered_remove(&specific.ranges, j)
+                    dyn_array.ordered_remove(&specific.ranges, uint(j))
                     j -= 1
                     changes += 1
                 } else {
@@ -263,22 +266,22 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
             }
         }
 
-        if len(specific.ranges) == 0 {
+        if specific.ranges.len == 0 {
             specific.ranges = {}
         }
-        if len(specific.runes) == 0 {
+        if specific.runes.len == 0 {
             specific.runes = {}
         }
 
         // * NOP
         //
         // DO: `[]` => <nil>
-        if len(specific.ranges) + len(specific.runes) == 0 {
+        if specific.ranges.len + specific.runes.len == 0 {
             return nil, 1
         }
 
-        slice.sort(specific.runes[:])
-        slice.sort_by(specific.ranges[:], class_range_sorter)
+        slice.sort(dyn_array.slice(specific.runes))
+        slice.sort_by(dyn_array.slice(specific.ranges), class_range_sorter)
 
     case ^Node_Alternation:
         // Perform recursive optimization first.
@@ -341,10 +344,10 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         left_class, left_is_class := specific.left.(^Node_Rune_Class)
         right_class, right_is_class := specific.right.(^Node_Rune_Class)
         if left_is_class && right_is_class {
-            for r in right_class.runes {
+            for r in dyn_array.slice(right_class.runes) {
                 _ = dyn_array.append(&left_class.runes, r)
             }
-            for range in right_class.ranges {
+            for range in dyn_array.slice(right_class.ranges) {
                 _ = dyn_array.append(&left_class.ranges, range)
             }
             return left_class, 1
@@ -402,13 +405,14 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         // DO: `blueberry|strawberry` => `(?:blue|straw)berry`
         if left_is_concatenation && right_is_concatenation {
             // Remember that a concatenation could contain any node, not just runes.
-            left_len  := len(left_concatenation.nodes)
-            right_len := len(right_concatenation.nodes)
+            left_len  := left_concatenation.nodes.len
+            right_len := right_concatenation.nodes.len
             least_len := min(left_len, right_len)
-            same_len  := 0
-            for i := 1; i <= least_len; i += 1 {
-                left_subrune, left_is_subrune := left_concatenation.nodes[left_len - i].(^Node_Rune)
-                right_subrune, right_is_subrune := right_concatenation.nodes[right_len - i].(^Node_Rune)
+            same_len: uint
+            // Note(Caio): This has to be an int, otherwise we get an underflow.
+            for i: int = 1; i <= int(least_len); i += 1 {
+                left_subrune,  left_is_subrune  := left_concatenation.nodes.data[int(left_len) - i].(^Node_Rune)
+                right_subrune, right_is_subrune := right_concatenation.nodes.data[int(right_len) - i].(^Node_Rune)
 
                 if !left_is_subrune || !right_is_subrune {
                     // One of the nodes isn't a rune; there's nothing more we can do.
@@ -431,13 +435,13 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 
                 // Turn the concatenation into the common suffix.
                 for i := left_len - same_len; i < left_len; i += 1 {
-                    _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes[i])
+                    _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes.data[i])
                 }
 
                 // Construct the group of alternating prefixes.
                 for i := same_len; i > 0; i -= 1 {
-                    dyn_array.pop(&left_concatenation.nodes)
-                    dyn_array.pop(&right_concatenation.nodes)
+                    _, _ = dyn_array.pop_back(&left_concatenation.nodes)
+                    _, _ = dyn_array.pop_back(&right_concatenation.nodes)
                 }
 
                 // (Re-using this alternation node.)
@@ -456,11 +460,12 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
         if left_is_concatenation && right_is_concatenation {
             // Try to identify a common prefix.
             // Remember that a concatenation could contain any node, not just runes.
-            least_len := min(len(left_concatenation.nodes), len(right_concatenation.nodes))
-            same_len := 0
-            for i := 0; i < least_len; i += 1 {
-                left_subrune, left_is_subrune := left_concatenation.nodes[i].(^Node_Rune)
-                right_subrune, right_is_subrune := right_concatenation.nodes[i].(^Node_Rune)
+            least_len := min(left_concatenation.nodes.len, right_concatenation.nodes.len)
+            same_len: int
+            // Note(Caio): This has to be an int, otherwise we get an underflow.
+            for i: int; i < int(least_len); i += 1 {
+                left_subrune,  left_is_subrune  := left_concatenation.nodes.data[i].(^Node_Rune)
+                right_subrune, right_is_subrune := right_concatenation.nodes.data[i].(^Node_Rune)
 
                 if !left_is_subrune || !right_is_subrune {
                     // One of the nodes isn't a rune; there's nothing more we can do.
@@ -477,8 +482,9 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 
             if same_len > 0 {
                 cat_node, _ := mem.new(Node_Concatenation, allocator)
-                for i := 0; i < same_len; i += 1 {
-                    _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes[i])
+                // Note(Caio): This has to be an int, otherwise we get an underflow.
+                for i: int; i < int(same_len); i += 1 {
+                    _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes.data[i])
                 }
                 for i := same_len; i > 0; i -= 1 {
                     dyn_array.ordered_remove(&left_concatenation.nodes, 0)

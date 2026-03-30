@@ -72,7 +72,7 @@ rune_from_string :: #force_inline proc(s: string) -> (r: rune, bytes_used: uint)
 runes_from_string :: proc(s: string, allocator: mem.Allocator) -> (runes: []rune) {
     n := string_rune_count(s)
 
-    runes, _ = slice.create([]rune, n, allocator)
+    runes, _ = slice.create(rune, n, allocator)
     i := 0
     for r in s {
         runes[i] = r
@@ -376,7 +376,7 @@ string_from_runes :: proc(runes: []rune, allocator: mem.Allocator) -> string {
         byte_count += w
     }
 
-    bytes, _ := slice.create([]u8, byte_count, allocator)
+    bytes, _ := slice.create(u8, byte_count, allocator)
     offset: uint
     for r in runes {
         b, w := bytes_from_rune(r)

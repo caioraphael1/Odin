@@ -194,7 +194,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #c
 
     if has_size && size > 0 {
         total: uint
-        data = slice.create([]u8, size, allocator, loc) or_return
+        data = slice.create(u8, size, allocator, loc) or_return
         for total < len(data) {
             n: uint
             n, err = read(f, data[total:])
@@ -210,7 +210,7 @@ read_entire_file_from_file :: proc(f: ^File, allocator: mem.Allocator, loc := #c
         return
     } else {
         buffer: [1024]u8
-        out_buffer, _ := dyn_array.create_len_cap(u8, 0, 0, allocator, loc)
+        out_buffer := dyn_array.create(u8, allocator)
         total: uint = 0
         for {
             n: uint

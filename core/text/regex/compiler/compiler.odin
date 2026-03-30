@@ -69,18 +69,18 @@ classes_are_exact :: proc(q, w: ^Rune_Class_Data) -> bool #no_bounds_check {
         return true
     }
 
-    if len(q.runes) != len(w.runes) || len(q.ranges) != len(w.ranges) {
+    if q.runes.len != w.runes.len || q.ranges.len != w.ranges.len {
         return false
     }
 
-    for r, i in q.runes {
-        if r != w.runes[i] {
+    for r, i in dyn_array.slice(q.runes) {
+        if r != w.runes.data[i] {
             return false
         }
     }
 
-    for r, i in q.ranges {
-        if r.lower != w.ranges[i].lower || r.upper != w.ranges[i].upper {
+    for r, i in dyn_array.slice(q.ranges) {
+        if r.lower != w.ranges.data[i].lower || r.upper != w.ranges.data[i].upper {
             return false
         }
     }
@@ -101,7 +101,7 @@ map_all_classes :: proc(tree: Node, collection: ^dyn_array.Dyn_Array(Rune_Class_
     case ^Node_Match_All_And_Escape: break
 
     case ^Node_Concatenation:
-        for subnode in specific.nodes {
+        for subnode in dyn_array.slice(specific.nodes) {
             map_all_classes(subnode, collection)
         }
 
@@ -128,7 +128,7 @@ map_all_classes :: proc(tree: Node, collection: ^dyn_array.Dyn_Array(Rune_Class_
 
     case ^Node_Rune_Class:
         unseen := true
-        for &value in collection {
+        for &value in dyn_array.slice(collection^) {
             if classes_are_exact(&specific.data, &value) {
                 unseen = false
                 break
@@ -147,7 +147,8 @@ append_raw :: #force_inline proc(code: ^Program, data: $T) {
         _ = dyn_array.append(code, cast(Opcode)b)
     }
 }
-inject_raw :: #force_inline proc(code: ^Program, start: int, data: $T) {
+
+inject_raw :: #force_inline proc(code: ^Program, start: uint, data: $T) {
     // NOTE: This is system-dependent endian.
     for b, i in transmute([size_of(T)]u8)data {
         _, _ = dyn_array.inject_at(code, start + i, cast(Opcode)b)
@@ -184,9 +185,9 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         }
 
         index := -1
-        for &data, i in c.class_data {
+        for &data, i in dyn_array.slice(c.class_data) {
             if classes_are_exact(&data, &specific.data) {
-                index = i
+                index = int(i)
                 break
             }
         }
@@ -235,7 +236,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         left := generate_code(c, specific.left, allocator)
         right := generate_code(c, specific.right, allocator)
 
-        left_len := len(left)
+        left_len := left.len
 
         // Avoiding duplicate allocation by reusing `left`.
         code = left
@@ -245,23 +246,23 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         inject_raw(&code, size_of(u8) + size_of(i16), i16(SPLIT_SIZE + left_len + JUMP_SIZE))
 
         _ = dyn_array.append(&code, Opcode.Jump)
-        append_raw(&code, i16(len(right) + JUMP_SIZE))
+        append_raw(&code, i16(right.len + JUMP_SIZE))
 
-        for opcode in right {
+        for opcode in dyn_array.slice(right) {
             _ = dyn_array.append(&code, opcode)
         }
 
     case ^Node_Concatenation:
-        for subnode in specific.nodes {
+        for subnode in dyn_array.slice(specific.nodes) {
             subnode_code := generate_code(c, subnode, allocator)
-            for opcode in subnode_code {
+            for opcode in dyn_array.slice(subnode_code) {
                 _ = dyn_array.append(&code, opcode)
             }
         }
 
     case ^Node_Repeat_Zero:
         code = generate_code(c, specific.inner, allocator)
-        original_len := len(code)
+        original_len := code.len
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
         inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE))
@@ -272,7 +273,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 
     case ^Node_Repeat_Zero_Non_Greedy:
         code = generate_code(c, specific.inner, allocator)
-        original_len := len(code)
+        original_len := code.len
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
         inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE + original_len + JUMP_SIZE))
@@ -283,7 +284,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 
     case ^Node_Repeat_One:
         code = generate_code(c, specific.inner, allocator)
-        original_len := len(code)
+        original_len := code.len
 
         _ = dyn_array.append(&code, Opcode.Split)
         append_raw(&code, i16(-original_len))
@@ -291,7 +292,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 
     case ^Node_Repeat_One_Non_Greedy:
         code = generate_code(c, specific.inner, allocator)
-        original_len := len(code)
+        original_len := code.len
 
         _ = dyn_array.append(&code, Opcode.Split)
         append_raw(&code, i16(SPLIT_SIZE))
@@ -299,12 +300,12 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 
     case ^Node_Repeat_N:
         inside := generate_code(c, specific.inner, allocator)
-        original_len := len(inside)
+        original_len := inside.len
 
         if specific.lower == specific.upper { // {N}
             // e{N} ... evaluates to ... e^N
             for i := 0; i < specific.upper; i += 1 {
-                for opcode in inside {
+                for opcode in dyn_array.slice(inside) {
                     _ = dyn_array.append(&code, opcode)
                 }
             }
@@ -315,7 +316,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
                 _ = dyn_array.append(&code, Opcode.Split)
                 append_raw(&code, i16(SPLIT_SIZE))
                 append_raw(&code, i16(SPLIT_SIZE + original_len))
-                for opcode in inside {
+                for opcode in dyn_array.slice(inside) {
                     _ = dyn_array.append(&code, opcode)
                 }
             }
@@ -323,7 +324,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         } else if specific.lower >= 0 && specific.upper == -1 { // {N,}
             // e{N,} ... evaluates to ... e^N e*
             for i := 0; i < specific.lower; i += 1 {
-                for opcode in inside {
+                for opcode in dyn_array.slice(inside) {
                     _ = dyn_array.append(&code, opcode)
                 }
             }
@@ -332,7 +333,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
             append_raw(&code, i16(SPLIT_SIZE))
             append_raw(&code, i16(SPLIT_SIZE + original_len + JUMP_SIZE))
 
-            for opcode in inside {
+            for opcode in dyn_array.slice(inside) {
                 _ = dyn_array.append(&code, opcode)
             }
 
@@ -342,7 +343,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
         } else if specific.lower >= 0 && specific.upper > 0 {
             // e{N,M}  evaluates to ... e^N e?^(M-N)
             for i := 0; i < specific.lower; i += 1 {
-                for opcode in inside {
+                for opcode in dyn_array.slice(inside) {
                     _ = dyn_array.append(&code, opcode)
                 }
             }
@@ -350,7 +351,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
                 _ = dyn_array.append(&code, Opcode.Split)
                 append_raw(&code, i16(SPLIT_SIZE + original_len))
                 append_raw(&code, i16(SPLIT_SIZE))
-                for opcode in inside {
+                for opcode in dyn_array.slice(inside) {
                     _ = dyn_array.append(&code, opcode)
                 }
             }
@@ -361,7 +362,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 
     case ^Node_Optional:
         code = generate_code(c, specific.inner, allocator)
-        original_len := len(code)
+        original_len := code.len
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
         inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE))
@@ -369,7 +370,7 @@ generate_code :: proc(c: ^Compiler, node: Node, allocator: mem.Allocator) -> (co
 
     case ^Node_Optional_Non_Greedy:
         code = generate_code(c, specific.inner, allocator)
-        original_len := len(code)
+        original_len := code.len
 
         _, _ = dyn_array.inject_at(&code, 0, Opcode.Split)
         inject_raw(&code, size_of(u8)               , i16(SPLIT_SIZE + original_len))
@@ -400,7 +401,7 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 
     class_data.allocator = allocator
     map_all_classes(tree, &class_data)
-    if len(class_data) >= common.MAX_CLASSES {
+    if class_data.len >= uint(common.MAX_CLASSES) {
         err = .Too_Many_Classes
         return
     }
@@ -408,23 +409,23 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 
     code = generate_code(&c, tree, allocator)
 
-    pc_open := 0
+    pc_open: uint
 
     optimize_opening: {
         // Check if the opening to the pattern is predictable.
         // If so, use one of the optimized Wait opcodes.
-        iter := virtual_machine.Opcode_Iterator{ code[:], 0 }
+        iter := virtual_machine.Opcode_Iterator{ dyn_array.slice(code), 0 }
         seek_loop: for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
             #partial switch opcode {
             case .Byte:
                 _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Wait_For_Byte)
                 pc_open += size_of(Opcode)
-                _, _ = dyn_array.inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
+                _, _ = dyn_array.inject_at(&code, pc_open, Opcode(code.data[pc + size_of(Opcode) + pc_open]))
                 pc_open += size_of(u8)
                 break optimize_opening
 
             case .Rune:
-                operand := intrinsics.unaligned_load(cast(^rune)&code[pc+1])
+                operand := intrinsics.unaligned_load(cast(^rune)&code.data[pc+1])
                 _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Wait_For_Rune)
                 pc_open += size_of(Opcode)
                 inject_raw(&code, pc_open, operand)
@@ -434,14 +435,14 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
             case .Rune_Class:
                 _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Wait_For_Rune_Class)
                 pc_open += size_of(Opcode)
-                _, _ = dyn_array.inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
+                _, _ = dyn_array.inject_at(&code, pc_open, Opcode(code.data[pc + size_of(Opcode) + pc_open]))
                 pc_open += size_of(u8)
                 break optimize_opening
 
             case .Rune_Class_Negated:
                 _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Wait_For_Rune_Class_Negated)
                 pc_open += size_of(Opcode)
-                _, _ = dyn_array.inject_at(&code, pc_open, Opcode(code[pc + size_of(Opcode) + pc_open]))
+                _, _ = dyn_array.inject_at(&code, pc_open, Opcode(code.data[pc + size_of(Opcode) + pc_open]))
                 pc_open += size_of(u8)
                 break optimize_opening
 
@@ -487,7 +488,7 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
         _ = dyn_array.append(&code, Opcode.Match_And_Exit)
     }
 
-    if len(code) >= common.MAX_PROGRAM_SIZE {
+    if code.len >= uint(common.MAX_PROGRAM_SIZE) {
         err = .Program_Too_Big
         return
     }
@@ -504,29 +505,29 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
         for passes_left := 1; passes_left > 0; passes_left -= 1 {
             do_another_pass := false
 
-            iter := virtual_machine.Opcode_Iterator{ code[:], 0 }
+            iter := virtual_machine.Opcode_Iterator{ dyn_array.slice(code), 0 }
             for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
                 #partial switch opcode {
                 case .Jump:
-                    jmp   := cast(^i16)&code[pc+size_of(Opcode)]
+                    jmp   := cast(^i16)&code.data[pc+size_of(Opcode)]
                     jmp_value := intrinsics.unaligned_load(jmp)
-                    if code[cast(i16)pc+jmp_value] == .Jump {
-                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code[cast(i16)pc+jmp_value+size_of(Opcode)])
+                    if code.data[cast(i16)pc+jmp_value] == .Jump {
+                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_value+size_of(Opcode)])
                         intrinsics.unaligned_store(jmp, jmp_value + next_jmp)
                         do_another_pass = true
                     }
                 case .Split:
-                    jmp_x := cast(^i16)&code[pc+size_of(Opcode)]
+                    jmp_x := cast(^i16)&code.data[pc+size_of(Opcode)]
                     jmp_x_value := intrinsics.unaligned_load(jmp_x)
-                    if code[cast(i16)pc+jmp_x_value] == .Jump {
-                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code[cast(i16)pc+jmp_x_value+size_of(Opcode)])
+                    if code.data[cast(i16)pc+jmp_x_value] == .Jump {
+                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_x_value+size_of(Opcode)])
                         intrinsics.unaligned_store(jmp_x, jmp_x_value + next_jmp)
                         do_another_pass = true
                     }
-                    jmp_y := cast(^i16)&code[pc+size_of(Opcode)+size_of(i16)]
+                    jmp_y := cast(^i16)&code.data[pc+size_of(Opcode)+size_of(i16)]
                     jmp_y_value := intrinsics.unaligned_load(jmp_y)
-                    if code[cast(i16)pc+jmp_y_value] == .Jump {
-                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code[cast(i16)pc+jmp_y_value+size_of(Opcode)])
+                    if code.data[cast(i16)pc+jmp_y_value] == .Jump {
+                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_y_value+size_of(Opcode)])
                         intrinsics.unaligned_store(jmp_y, jmp_y_value + next_jmp)
                         do_another_pass = true
                     }
@@ -542,17 +543,17 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
     // * Relative Jump to Absolute Jump
     //
     // RelJmp{PC +/- N} => AbsJmp{M}
-    iter := virtual_machine.Opcode_Iterator{ code[:], 0 }
+    iter := virtual_machine.Opcode_Iterator{ dyn_array.slice(code), 0 }
     for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
         // NOTE: The virtual machine implementation depends on this.
         #partial switch opcode {
         case .Jump:
-            jmp   := cast(^u16)&code[pc+size_of(Opcode)]
+            jmp   := cast(^u16)&code.data[pc+size_of(Opcode)]
             intrinsics.unaligned_store(jmp, intrinsics.unaligned_load(jmp) + cast(u16)pc)
         case .Split:
-            jmp_x := cast(^u16)&code[pc+size_of(Opcode)]
+            jmp_x := cast(^u16)&code.data[pc+size_of(Opcode)]
             intrinsics.unaligned_store(jmp_x, intrinsics.unaligned_load(jmp_x) + cast(u16)pc)
-            jmp_y := cast(^u16)&code[pc+size_of(Opcode)+size_of(i16)]
+            jmp_y := cast(^u16)&code.data[pc+size_of(Opcode)+size_of(i16)]
             intrinsics.unaligned_store(jmp_y, intrinsics.unaligned_load(jmp_y) + cast(u16)pc)
         }
     }

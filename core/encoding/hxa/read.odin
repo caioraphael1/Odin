@@ -59,7 +59,7 @@ read :: proc(data: []u8, filename := "<input>", print_error := false, allocator:
 	}
 
     read_meta :: proc(r: ^Reader, capacity: u32le, allocator: mem.Allocator, loc := #caller_location) -> (meta_data: []Meta, err: Read_Error) {
-        meta_data = slice.create([]Meta, int(capacity), allocator=allocator)
+        meta_data = slice.create(Meta, int(capacity), allocator=allocator)
 		count := 0
 		for &m in meta_data {
 			m.name = read_name(r) or_return
@@ -147,7 +147,7 @@ read :: proc(data: []u8, filename := "<input>", print_error := false, allocator:
 
 	node_count := 0
 	file.header = header^
-    file.nodes = slice.create([]Node, header.internal_node_count, allocator=allocator, loc=loc)
+    file.nodes = slice.create(Node, header.internal_node_count, allocator=allocator, loc=loc)
 	file.allocator = allocator
 	defer if err != nil {
 		nodes_destroy(file.nodes)

@@ -88,7 +88,7 @@ replace :: proc(s, old, new: string, n: int, allocator: mem.Allocator, loc := #c
     }
 
 
-    t, err := slice.create([]u8, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
+    t, err := slice.create(u8, len(s) + byte_count*(len(new) - len(old)), allocator, loc)
     if err != nil {
         return
     }
@@ -209,7 +209,7 @@ Output:
 reverse :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
     str := s
     n := len(str)
-    buf := slice.create([]u8, n, allocator, loc) or_return
+    buf := slice.create(u8, n, allocator, loc) or_return
     i := n
 
     for len(str) > 0 {

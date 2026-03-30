@@ -228,7 +228,7 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
         node.runes.allocator  = allocator
         node.ranges.allocator = allocator
 
-        #no_bounds_check for i := 0; i < len(token.text); /**/ {
+        #no_bounds_check for i: uint; i < len(token.text); /**/ {
             r, size := utf8.rune_from_string(token.text[i:])
             if i == 0 && r == '^' {
                 node.negating = true
@@ -286,10 +286,10 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
                 continue
             }
 
-            if r == '-' && len(node.runes) > 0 {
+            if r == '-' && node.runes.len > 0 {
                 next_r, next_size := utf8.rune_from_string(token.text[i:])
                 if next_size > 0 {
-                    last := dyn_array.pop(&node.runes)
+                    last, _ := dyn_array.pop_back(&node.runes)
                     i += next_size
 
                     _ = dyn_array.append(&node.ranges, Rune_Class_Range{ last, next_r })
@@ -303,9 +303,9 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
         if .Case_Insensitive in p.flags {
             // These two loops cannot be in the form of `for x in y` because
             // they _ = dyn_array.append to the data that they iterate over.
-            length := len(node.runes)
-            #no_bounds_check for i := 0; i < length; i += 1 {
-                r := node.runes[i]
+            length := node.runes.len
+            #no_bounds_check for i: uint; i < length; i += 1 {
+                r := node.runes.data[i]
                 lower := unicode.to_lower(r)
                 upper := unicode.to_upper(r)
 
@@ -318,9 +318,9 @@ null_denotation :: proc(p: ^Parser, token: Token, allocator: mem.Allocator) -> (
                 }
             }
 
-            length = len(node.ranges)
-            #no_bounds_check for i := 0; i < length; i += 1 {
-                range := &node.ranges[i]
+            length = node.ranges.len
+            #no_bounds_check for i: uint; i < length; i += 1 {
+                range := &node.ranges.data[i]
 
                 min_lower := unicode.to_lower(range.lower)
                 max_lower := unicode.to_lower(range.upper)
@@ -478,10 +478,9 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
         node, _ := mem.new(Node_Repeat_N, allocator)
         node.inner = left
 
-        comma := strings_tools.index_byte(token.text, ',')
+        comma, comma_found := strings_tools.index_byte(token.text, ',')
 
-        switch comma {
-        case -1: // {N}
+        if !comma_found {
             exact, ok := strconv.parse_u64_of_base(token.text, base = 10)
             if !ok {
                 return nil, Invalid_Repetition{ pos = token.pos }
@@ -492,47 +491,50 @@ left_denotation :: proc(p: ^Parser, token: Token, left: Node, allocator: mem.All
 
             node.lower = cast(int)exact
             node.upper = cast(int)exact
+        } else {
+            switch comma {
+            case 0: // {,M}
+                upper, ok := strconv.parse_u64_of_base(token.text[1:], base = 10)
+                if !ok {
+                    return nil, Invalid_Repetition{ pos = token.pos }
+                }
+                if upper == 0 {
+                    return nil, Invalid_Repetition{ pos = token.pos }
+                }
 
-        case 0: // {,M}
-            upper, ok := strconv.parse_u64_of_base(token.text[1:], base = 10)
-            if !ok {
-                return nil, Invalid_Repetition{ pos = token.pos }
-            }
-            if upper == 0 {
-                return nil, Invalid_Repetition{ pos = token.pos }
-            }
+                node.lower = -1
+                node.upper = cast(int)upper
 
-            node.lower = -1
-            node.upper = cast(int)upper
+            case len(token.text) - 1: // {N,}
+                lower, ok := strconv.parse_u64_of_base(token.text[:comma], base = 10)
+                if !ok {
+                    return nil, Invalid_Repetition{ pos = token.pos }
+                }
 
-        case len(token.text) - 1: // {N,}
-            lower, ok := strconv.parse_u64_of_base(token.text[:comma], base = 10)
-            if !ok {
-                return nil, Invalid_Repetition{ pos = token.pos }
-            }
+                node.lower = cast(int)lower
+                node.upper = -1
 
-            node.lower = cast(int)lower
-            node.upper = -1
+            case: // {N,M}
+                lower, lower_ok := strconv.parse_u64_of_base(token.text[:comma], base = 10)
+                if !lower_ok {
+                    return nil, Invalid_Repetition{ pos = token.pos }
+                }
+                upper, upper_ok := strconv.parse_u64_of_base(token.text[comma+1:], base = 10)
+                if !upper_ok {
+                    return nil, Invalid_Repetition{ pos = token.pos }
+                }
+                if lower > upper {
+                    return nil, Invalid_Repetition{ pos = token.pos }
+                }
+                if upper == 0 {
+                    return nil, Invalid_Repetition{ pos = token.pos }
+                }
 
-        case: // {N,M}
-            lower, lower_ok := strconv.parse_u64_of_base(token.text[:comma], base = 10)
-            if !lower_ok {
-                return nil, Invalid_Repetition{ pos = token.pos }
+                node.lower = cast(int)lower
+                node.upper = cast(int)upper
             }
-            upper, upper_ok := strconv.parse_u64_of_base(token.text[comma+1:], base = 10)
-            if !upper_ok {
-                return nil, Invalid_Repetition{ pos = token.pos }
-            }
-            if lower > upper {
-                return nil, Invalid_Repetition{ pos = token.pos }
-            }
-            if upper == 0 {
-                return nil, Invalid_Repetition{ pos = token.pos }
-            }
-
-            node.lower = cast(int)lower
-            node.upper = cast(int)upper
         }
+
 
         result = node
 

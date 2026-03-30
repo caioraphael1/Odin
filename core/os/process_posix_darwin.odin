@@ -267,14 +267,14 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []int, err: Error) {
 
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
-    buffer := slice.create([]i32, ret, allocators.temp_allocator)
+    buffer := slice.create(i32, ret, allocators.temp_allocator)
     ret = darwin.proc_listallpids(raw_data(buffer), ret*size_of(i32))
     if ret < 0 {
         err = _get_platform_error()
         return
     }
 
-    list = slice.create([]int, ret, allocator) or_return
+    list = slice.create(int, ret, allocator) or_return
     #no_bounds_check for &entry, i in list {
         entry = int(buffer[i])
     }

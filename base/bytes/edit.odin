@@ -89,7 +89,7 @@ resize_non_zeroed :: proc(
 reverse :: proc(s: []u8, allocator: mem.Allocator, loc := #caller_location) -> []u8 {
     str := s
     n := len(str)
-    buf, _ := slice.create([]u8, n, allocator)
+    buf, _ := slice.create(u8, n, allocator)
     i := n
 
     for len(str) > 0 {
@@ -108,7 +108,7 @@ repeat :: proc(s: []u8, count: uint, allocator: mem.Allocator, loc := #caller_lo
         internal.panic("bytes: repeat count will cause an overflow")
     }
 
-    b, _ := slice.create([]u8, len(s)*count, allocator)
+    b, _ := slice.create(u8, len(s)*count, allocator)
     i := slice.copy(b, s)
     for i < len(b) { // 2^N trick to reduce the need to copy
         slice.copy(b[i:], b[:i])
@@ -138,7 +138,7 @@ replace :: proc(s, old, new: []u8, n: uint, allocator: mem.Allocator, loc := #ca
     }
 
 
-    t, _ := slice.create([]u8, len(s) + byte_count*(len(new) - len(old)), allocator)
+    t, _ := slice.create(u8, len(s) + byte_count*(len(new) - len(old)), allocator)
     was_allocation = true
 
     w: uint

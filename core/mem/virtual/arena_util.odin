@@ -46,7 +46,7 @@ create_aligned :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, alignm
 
 // `multi_pointer_create` allocates and initializes a dynamic array. Like `new`, the second argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
-// This is "similar" to doing `raw_data(slice.create([]E, len, allocator))`.
+// This is "similar" to doing `raw_data(slice.create(E, len, allocator))`.
 multi_pointer_create :: proc(arena: ^Arena, $T: typeid/[^]$E, #any_int len: int, loc := #caller_location) -> (T, Allocator_Error) {
     internal.slice_create_error_loc(loc, len)
     data, err := arena_alloc(arena, size_of(E)*uint(len), align_of(E), loc)

@@ -145,7 +145,7 @@ _read_entire_file :: proc(l: ^Event_Loop, path: string, user_data: rawptr, cb: R
             return
         }
 
-        buf, err := slice.create([]u8, op.stat.size, allocator)
+        buf, err := slice.create(u8, op.stat.size, allocator)
         if err != nil {
             close(op.stat.handle)
             cb(user_data, nil, {.Read, .Allocation_Failed})
@@ -260,7 +260,7 @@ Bufs :: struct {
 
 bufs_init :: proc(bufs: ^Bufs, orig: ^[][]u8, allocator: mem.Allocator) -> mem.Allocator_Error {
     if len(orig) > 1 {
-        backing := slice.create([][]u8, len(orig)*2, allocator) or_return
+        backing := slice.create([]u8, len(orig)*2, allocator) or_return
         bufs.working.big = backing[len(orig):]
         copy(bufs.working.big, orig^)
         copy(backing, orig^)

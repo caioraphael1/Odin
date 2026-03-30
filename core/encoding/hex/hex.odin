@@ -23,7 +23,7 @@ Returns:
 - err: An optional allocator error if one occured, `.None` otherwise
 */
 encode :: proc(src: []u8, allocator: mem.Allocator, loc := #caller_location) -> (res: []u8, err: mem.Allocator_Error) {
-    res, err = slice.create([]u8, len(src) * 2, allocator, loc)
+    res, err = slice.create(u8, len(src) * 2, allocator, loc)
     i: uint
     j: uint
     #no_bounds_check for ; i < len(src); i += 1 {
@@ -67,7 +67,7 @@ Returns:
 - err: An optional allocator error if one occured, `.None` otherwise
 */
 encode_upper :: proc(src: []u8, allocator: mem.Allocator, loc := #caller_location) -> (res: []u8, err: mem.Allocator_Error) {
-    res, err = slice.create([]u8, len(src) * 2, allocator, loc)
+    res, err = slice.create(u8, len(src) * 2, allocator, loc)
     i: uint
     j: uint
     #no_bounds_check for ; i < len(src); i += 1 {
@@ -115,7 +115,7 @@ decode :: proc(src: []u8, allocator: mem.Allocator, loc := #caller_location) -> 
         return
     }
 
-    dst, _ = slice.create([]u8, len(src) / 2, allocator, loc)
+    dst, _ = slice.create(u8, len(src) / 2, allocator, loc)
     i: uint
     j: uint = 1
     #no_bounds_check for ; j < len(src); j += 2 {

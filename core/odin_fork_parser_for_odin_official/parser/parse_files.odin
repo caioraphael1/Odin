@@ -66,7 +66,7 @@ parse_package :: proc(pkg: ^ast.Package, p: ^Parser, allocator: mem.Allocator) -
 
     ok := true
 
-    files, _ := slice.create([]^ast.File, len(pkg.files), allocators.temp_allocator)
+    files, _ := slice.create(^ast.File, len(pkg.files), allocators.temp_allocator)
     i := 0
     for _, file in pkg.files {
         files[i] = file

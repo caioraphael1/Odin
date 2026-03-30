@@ -51,7 +51,7 @@ create_from_slice :: proc(backing: []$T) -> Dyn_Array(T) {
 
 _dyn_array_init_len_cap :: proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, len: uint, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     create_error_loc(loc, len, cap)
-    internal.assert(cap > 0, "Capacity must be greater than zero")
+    internal.assert(cap > 0, "Capacity must be greater than zero", loc=loc)
     a.allocator = allocator // initialize allocator before just in case it fails to allocate any memory
     data := mem.alloc(size_of_elem*cap, align_of_elem, allocator, loc) or_return
     use_zero := data == nil && size_of_elem != 0
@@ -253,7 +253,7 @@ unordered_remove :: proc(a: ^Dyn_Array($T), index: uint, loc := #caller_location
     internal.bounds_check_error_loc(loc, index, a.len)
     n := a.len - 1
     if index != n {
-        a[index] = a[n]
+        a.data[index] = a.data[n]
     }
     a.len -= 1
 }
@@ -356,7 +356,7 @@ _resize :: #force_no_inline proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem:
 
     if should_zero && a.len < length {
         num_reused := min(a.cap, length) - a.len
-        mem.zero(([^]u8)(a.data)[a.len*size_of_elem:], num_reused*size_of_elem)
+        mem.zero(([^]u8)(a.data)[a.len * size_of_elem:], num_reused * size_of_elem)
     }
 
     if length <= a.cap {
@@ -366,13 +366,12 @@ _resize :: #force_no_inline proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem:
 
     old_size  := a.cap  * size_of_elem
     new_size  := length * size_of_elem
-    allocator := a.allocator
 
     new_data : []u8
     if should_zero {
-        new_data = mem.resize(a.data, old_size, new_size, align_of_elem, allocator, loc) or_return
+        new_data = mem.resize(a.data, old_size, new_size, align_of_elem, a.allocator, loc) or_return
     } else {
-        new_data = mem.resize_non_zero(a.data, old_size, new_size, align_of_elem, allocator, loc) or_return
+        new_data = mem.resize_non_zero(a.data, old_size, new_size, align_of_elem, a.allocator, loc) or_return
     }
     if new_data == nil && new_size > 0 {
         return .Out_Of_Memory

@@ -395,7 +395,7 @@ foreign lib {
 			fmt.panicf("getgroups failure: %v", posix.strerror(posix.errno()))
 		}
 
-        groups := slice.create([]posix.gid_t, length) or_else internal.panic("allocation failure")
+        groups := slice.create(posix.gid_t, length) or_else internal.panic("allocation failure")
 		if posix.getgroups(length, raw_data(groups)) != length {
 			fmt.panicf("getgroups failure: %v", posix.strerror(posix.errno()))
 		}
@@ -440,7 +440,7 @@ foreign lib {
 
 	Example:
 		max := posix.sysconf(posix._SC_LOGIN_NAME_MAX)+1
-        buf := slice.create([]u8, max)
+        buf := slice.create(u8, max)
 		posix.getlogin_r(raw_data(buf), uint(len(max)))
 		fmt.printfln("login: %v", cstring(buf))
 

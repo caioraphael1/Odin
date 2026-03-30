@@ -290,7 +290,7 @@ escape_html :: proc(s: string, allocator: mem.Allocator, loc := #caller_location
         return s, false
     }
 
-    t, err := slice.create([]u8, len(s) + extra_bytes_needed, allocator, loc)
+    t, err := slice.create(u8, len(s) + extra_bytes_needed, allocator, loc)
     if err != nil {
         return
     }

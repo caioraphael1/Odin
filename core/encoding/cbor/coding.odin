@@ -527,7 +527,7 @@ _encode_map :: proc(e: Encoder, m: Map) -> (err: Encode_Error) {
         entry:       Map_Entry,
     }
 
-    entries := slice.create([]Map_Entry_With_Key, len(m), e.temp_allocator) or_return
+    entries := slice.create(Map_Entry_With_Key, len(m), e.temp_allocator) or_return
     defer _ = slice.delete(entries, e.temp_allocator)
 
     for &entry, i in entries {

@@ -20,7 +20,7 @@ Arguments to the current process.
 args: []string
 
 init_args :: proc(allocator: mem.Allocator) {
-    args, _ = slice.create([]string, len(internal.args__), allocator)
+    args, _ = slice.create(string, len(internal.args__), allocator)
     for rt_arg, i in internal.args__ {
         args[i] = string(rt_arg)
     }

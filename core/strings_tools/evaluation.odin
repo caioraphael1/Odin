@@ -480,7 +480,7 @@ levenshtein_distance :: proc(a, b: string, allocator: mem.Allocator, loc := #cal
     costs: []uint
 
     if n + 1 > len(LEVENSHTEIN_DEFAULT_COSTS) {
-        costs = slice.create([]uint, n + 1, allocator, loc) or_return
+        costs = slice.create(uint, n + 1, allocator, loc) or_return
         for k in 0..=n {
             costs[k] = k
         }

@@ -26,7 +26,7 @@ _lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: stri
         return "", true
     }
 
-    b, _ := slice.create([]u16, uint(n) + 1, allocators.temp_allocator)
+    b, _ := slice.create(u16, uint(n) + 1, allocators.temp_allocator)
 
     n = win32.GetEnvironmentVariableW(wkey, raw_data(b), u32(len(b)))
     if n == 0 {

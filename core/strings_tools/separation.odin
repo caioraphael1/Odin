@@ -58,7 +58,7 @@ _split :: proc(s, sep: string, sep_save, n: uint, all: bool, allocator: mem.Allo
             n = l
         }
 
-        res = slice.create([]string, n, allocator, loc) or_return
+        res = slice.create(string, n, allocator, loc) or_return
         for i: uint = 0; i < n-1; i += 1 {
             _, w := utf8.rune_from_string(s)
             res[i] = s[:w]
@@ -74,7 +74,7 @@ _split :: proc(s, sep: string, sep_save, n: uint, all: bool, allocator: mem.Allo
         n = count(s, sep) + 1
     }
 
-    res = slice.create([]string, n, allocator, loc) or_return
+    res = slice.create(string, n, allocator, loc) or_return
 
     n -= 1
 
@@ -494,7 +494,7 @@ fields :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> 
         return nil, nil
     }
 
-    a := slice.create([]string, n, allocator, loc) or_return
+    a := slice.create(string, n, allocator, loc) or_return
     na := 0
     field_start: uint
     i: uint

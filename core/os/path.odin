@@ -48,7 +48,7 @@ replace_path_separators :: proc(path: string, new_sep: rune, allocator: mem.Allo
         }
     }
 
-    buf := slice.create([]u8, length, allocator) or_return
+    buf := slice.create(u8, length, allocator) or_return
 
     if byte_oriented {
         // Neither replacement rune or any other rune in the path takes up more than 1 u8
@@ -176,7 +176,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
 
     // The extra u8 is to simplify appending path elements by letting the
     // loop to end each with a separator. We'll trim the last one when we're done.
-    buffer := slice.create([]u8, len(path) + 1, allocators.temp_allocator) or_return
+    buffer := slice.create(u8, len(path) + 1, allocators.temp_allocator) or_return
 
     // This is the only point where Windows and POSIX differ, as Windows has
     // alphabet-based volumes for root paths.
@@ -233,7 +233,7 @@ clean_path :: proc(path: string, allocator: mem.Allocator) -> (cleaned: string, 
         return strings.string_clone(".", allocator)
     }
 
-    compact := slice.create([]u8, buffer_i, allocator) or_return
+    compact := slice.create(u8, buffer_i, allocator) or_return
     slice.copy(compact, buffer) // NOTE(bill): buffer[:buffer_i] is redundant here
     return string(compact), nil
 }
@@ -332,7 +332,7 @@ get_relative_path :: proc(base, target: string, allocator: mem.Allocator) -> (pa
     }
 
     // Build the string.
-    buf := slice.create([]u8, size, allocator) or_return
+    buf := slice.create(u8, size, allocator) or_return
     n := 0
     if seps > 0 {
         buf[0] = '.'
@@ -580,7 +580,7 @@ join_filename :: proc(base: string, ext: string, allocator: mem.Allocator) -> (j
         return strings.string_clone(base, allocator)
     }
 
-    buf := slice.create([]u8, len(base) + 1 + len(ext), allocator) or_return
+    buf := slice.create(u8, len(base) + 1 + len(ext), allocator) or_return
     slice.copy_from_string(buf, base)
     buf[len(base)] = '.'
     slice.copy_from_string(buf[1+len(base):], ext)
@@ -620,7 +620,7 @@ split_path_list :: proc(path: string, allocator: mem.Allocator) -> (list: []stri
     }
 
     start, quote = 0, false
-    list = slice.create([]string, count + 1, allocator) or_return
+    list = slice.create(string, count + 1, allocator) or_return
     index: uint
     for i: uint; i < len(path); i += 1 {
         c := path[i]
@@ -725,7 +725,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
 
     if !has_meta(pattern) {
         // TODO(bill): os.lstat on here to check for error
-        m, _ := slice.create([]string, 1, allocator)
+        m, _ := slice.create(string, 1, allocator)
         m[0] = pattern
         return m[:], nil
     }

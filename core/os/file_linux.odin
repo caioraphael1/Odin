@@ -132,7 +132,7 @@ _open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Rea
     f, err = _open(name, flags, perm, allocator)
     if f != nil && err == nil {
         impl := (^File_Impl)(f.impl)
-        impl.buffer = slice.create([]u8, buffer_size, allocator)
+        impl.buffer = slice.create(u8, buffer_size, allocator)
         f.stream.procedure = _file_stream_buffered_proc
     }
     return
@@ -342,7 +342,7 @@ _symlink :: proc(old_name, new_name: string) -> Error {
 
 _read_link_cstr :: proc(name_cstr: cstring, allocator: mem.Allocator) -> (string, Error) {
     bufsz : uint = 256
-    buf := slice.create([]u8, bufsz, allocator)
+    buf := slice.create(u8, bufsz, allocator)
     for {
         sz, errno := linux.readlink(name_cstr, buf[:])
         if errno != .NONE {
@@ -351,7 +351,7 @@ _read_link_cstr :: proc(name_cstr: cstring, allocator: mem.Allocator) -> (string
         } else if sz == int(bufsz) {
             bufsz *= 2
             _ = slice.delete(buf, allocator)
-            buf = slice.create([]u8, bufsz, allocator)
+            buf = slice.create(u8, bufsz, allocator)
         } else {
             return string(buf[:sz]), nil
         }

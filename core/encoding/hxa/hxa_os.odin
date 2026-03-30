@@ -20,7 +20,7 @@ read_from_file :: proc(filename: string, print_error := false, allocator: mem.Al
 
 write_to_file :: proc(filepath: string, file: File) -> (err: Write_Error) {
 	required := required_write_size(file)
-	buf, alloc_err := slice.create([]u8, required)
+	buf, alloc_err := slice.create(u8, required)
 	if alloc_err == .Out_Of_Memory {
 		return .Failed_File_Write
 	}

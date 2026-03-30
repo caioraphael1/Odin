@@ -13,7 +13,7 @@ _get_executable_path :: proc(allocator: mem.Allocator) -> (path: string, err: Er
     }
     internal.assert(size > 0)
 
-    buf := slice.create([]u8, size, allocator) or_return
+    buf := slice.create(u8, size, allocator) or_return
     defer if err != nil { _ = slice.delete(buf, allocator) }
 
     internal.assert(uint(len(buf)) == size)

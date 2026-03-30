@@ -52,7 +52,7 @@ Token :: struct {
 
 Tokenizer :: struct {
     flags: common.Flags,
-    src: string,
+    src:   string,
 
     ch: rune,
     offset: int,
@@ -78,7 +78,7 @@ init :: proc(t: ^Tokenizer, str: string, flags: common.Flags) {
 }
 
 peek_byte :: proc(t: ^Tokenizer, offset := 0) -> u8 {
-    if t.read_offset+offset < len(t.src) {
+    if uint(t.read_offset+offset) < len(t.src) {
         return t.src[t.read_offset+offset]
     }
     return 0
@@ -89,9 +89,10 @@ advance_rune :: proc(t: ^Tokenizer) -> (err: Error) {
         return t.error_state
     }
 
-    if t.read_offset < len(t.src) {
+    if t.read_offset < int(len(t.src)) {
         t.offset = t.read_offset
-        r, w := rune(t.src[t.read_offset]), 1
+        r := rune(t.src[t.read_offset])
+        w: uint = 1
         switch {
         case r == 0:
             err = .Illegal_Null_Character
@@ -103,10 +104,10 @@ advance_rune :: proc(t: ^Tokenizer) -> (err: Error) {
                 err = .Illegal_Byte_Order_Mark
             }
         }
-        t.read_offset += w
+        t.read_offset += int(w)
         t.ch = r
     } else {
-        t.offset = len(t.src)
+        t.offset = int(len(t.src))
         t.ch = -1
     }
 

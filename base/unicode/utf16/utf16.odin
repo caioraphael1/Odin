@@ -135,7 +135,7 @@ rune_from_string :: proc(s: string16) -> (r: rune, width: int) {
 runes_from_string :: proc(s: string16, allocator: mem.Allocator) -> (runes: []rune) {
     n := string_rune_count(s)
 
-    runes, _ = slice.create([]rune, n, allocator)
+    runes, _ = slice.create(rune, n, allocator)
     i := 0
     for r in s {
         runes[i] = r

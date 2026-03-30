@@ -47,7 +47,7 @@ the backing slice runs out of space.
 */
 init_from_slice :: proc(q: ^$Q/Queue($T), backing: []T) -> bool {
     dyn_array.clear(q)
-    q.buf = dyn_array.Dyn_Array(T){
+    q.buf = {
         data = raw_data(backing),
         len  = builtin.len(backing),
         cap  = builtin.len(backing),
@@ -107,7 +107,7 @@ Return the remaining space in the queue.
 This will be `cap() - len()`.
 */
 space :: proc(q: $Q/Queue($T)) -> uint {
-    return q.buf.len - uint(q.len)
+    return q.buf.len - q.len
 }
 
 /*
@@ -117,7 +117,7 @@ This may return an error if allocation failed.
 */
 reserve :: proc(q: ^$Q/Queue($T), cap: uint, loc := #caller_location) -> mem.Allocator_Error {
     if cap > space(q^) {
-        return _grow(q, uint(cap), loc)
+        return _grow(q, cap, loc)
     }
     return nil
 }
@@ -133,11 +133,12 @@ shrink :: proc(q: ^$Q/Queue($T), loc := #caller_location) {
     }
 
     if q.len > 0 && q.offset > 0 {
-        // Make the array contiguous again.
-        buffer := slice.create([]T, q.len, allocators.temp_allocator)
-        defer _ = slice.delete(buffer, allocators.temp_allocator)
+        allocators.TEMP_ALLOCATOR_GUARD()
 
-        right := uint(q.buf.len) - q.offset
+        // Make the array contiguous again.
+        buffer := slice.create(T, q.len, allocators.temp_allocator)
+
+        right := q.buf.len - q.offset
         slice.copy(buffer[:],      q.buf.data[q.offset:q.buf.len])
         slice.copy(buffer[right:], q.buf.data[:q.offset])
 
@@ -157,8 +158,8 @@ This will raise a bounds checking error if `i` is an invalid index.
 get :: proc(q: ^$Q/Queue($T), i: uint, loc := #caller_location) -> T {
     internal.bounds_check_error_loc(loc, i, q.len)
 
-    idx := (uint(i)+q.offset) % q.buf.len
-    return q.buf[idx]
+    idx := (i + q.offset) % q.buf.len
+    return q.buf.data[idx]
 }
 
 /*
@@ -169,8 +170,8 @@ This will raise a bounds checking error if `i` is an invalid index.
 get_ptr :: proc(q: ^$Q/Queue($T), i: uint, loc := #caller_location) -> ^T {
     internal.bounds_check_error_loc(loc, i, q.len)
 
-    idx := (uint(i)+q.offset) % q.buf.len
-    return &q.buf[idx]
+    idx := (i + q.offset) % q.buf.len
+    return &q.buf.data[idx]
 }
 
 /*
@@ -181,8 +182,8 @@ This will raise a bounds checking error if `i` is an invalid index.
 set :: proc(q: ^$Q/Queue($T), i: uint, val: T, loc := #caller_location) {
     internal.bounds_check_error_loc(loc, i, q.len)
 
-    idx := (uint(i)+q.offset) % q.buf.len
-    q.buf[idx] = val
+    idx := (i + q.offset) % q.buf.len
+    q.buf.data[idx] = val
 }
 
 /*
@@ -194,7 +195,7 @@ front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    return q.buf[q.offset]
+    return q.buf.data[q.offset]
 }
 
 /*
@@ -206,7 +207,7 @@ front_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    return &q.buf[q.offset]
+    return &q.buf.data[q.offset]
 }
 
 /*
@@ -218,8 +219,8 @@ back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    idx := (q.offset+uint(q.len - 1)) % q.buf.len
-    return q.buf[idx]
+    idx := (q.offset + q.len - 1) % q.buf.len
+    return q.buf.data[idx]
 }
 
 /*
@@ -231,20 +232,10 @@ back_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
     when !ODIN_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
-    idx := (q.offset+uint(q.len - 1)) % q.buf.len
-    return &q.buf[idx]
+    idx := (q.offset + q.len - 1) % q.buf.len
+    return &q.buf.data[idx]
 }
 
-
-@(deprecated="Use `front_ptr` instead")
-peek_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
-    return front_ptr(q, loc)
-}
-
-@(deprecated="Use `back_ptr` instead")
-peek_back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
-    return back_ptr(q, loc)
-}
 
 /*
 Push an element to the back of the queue.
@@ -270,9 +261,33 @@ push_back :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: bo
     if space(q^) == 0 {
         _grow(q, loc = loc) or_return
     }
-    idx := (q.offset+uint(q.len)) % q.buf.len
+    idx := (q.offset + q.len) % q.buf.len
     q.buf.data[idx] = elem
     q.len += 1
+    return true, nil
+}
+
+
+/*
+Push many elements at once to the back of the queue.
+
+If there is not enough space left and allocation fails to get more, this will
+return false with an `Allocator_Error`.
+*/
+push_back_many :: proc(q: ^$Q/Queue($T), elems: ..T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error)  {
+    n := builtin.len(elems)
+    if space(q^) < n {
+        _grow(q, q.len + n, loc) or_return
+    }
+
+    insert_from := (q.offset + q.len) % q.buf.len
+    insert_to := n
+    if insert_from + insert_to > q.buf.len {
+        insert_to = q.buf.len - insert_from
+    }
+    slice.copy(q.buf.data[insert_from:q.buf.len], elems[:insert_to])
+    slice.copy(q.buf.data[:insert_from],          elems[insert_to:])
+    q.len += n
     return true, nil
 }
 
@@ -300,9 +315,9 @@ push_front :: proc(q: ^$Q/Queue($T), elem: T, loc := #caller_location) -> (ok: b
     if space(q^) == 0 {
         _grow(q, loc = loc) or_return
     }
-    q.offset = uint(q.offset - 1 + q.buf.len) % q.buf.len
+    q.offset = (q.offset - 1 + q.buf.len) % q.buf.len
     q.len += 1
-    q.buf[q.offset] = elem
+    q.buf.data[q.offset] = elem
     return true, nil
 }
 
@@ -331,8 +346,8 @@ pop_back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     q.len -= 1
-    idx := (q.offset+uint(q.len)) % q.buf.len
-    elem = q.buf[idx]
+    idx := (q.offset + q.len) % q.buf.len
+    elem = q.buf.data[idx]
     return
 }
 
@@ -343,7 +358,7 @@ Otherwise, return a nil element and false.
 pop_back_safe :: proc(q: ^$Q/Queue($T)) -> (elem: T, ok: bool) {
     if q.len > 0 {
         q.len -= 1
-        idx := (q.offset+uint(q.len)) % q.buf.len
+        idx := (q.offset + q.len) % q.buf.len
         elem = q.buf.data[idx]
         ok = true
     }
@@ -360,7 +375,7 @@ pop_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     elem = q.buf.data[q.offset]
-    q.offset = (q.offset+1) % q.buf.len
+    q.offset = (q.offset + 1) % q.buf.len
     q.len -= 1
     return
 }
@@ -369,38 +384,14 @@ pop_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
 Pop an element from the front of the queue if one exists and return true.
 Otherwise, return a nil element and false.
 */
-dyn_array_pop_front_safe :: proc(q: ^$Q/Queue($T)) -> (elem: T, ok: bool) {
+pop_front_safe :: proc(q: ^$Q/Queue($T)) -> (elem: T, ok: bool) {
     if q.len > 0 {
         elem = q.buf.data[q.offset]
-        q.offset = (q.offset+1) % q.buf.len
+        q.offset = (q.offset + 1) % q.buf.len
         q.len -= 1
         ok = true
     }
     return
-}
-
-/*
-Push many elements at once to the back of the queue.
-
-If there is not enough space left and allocation fails to get more, this will
-return false with an `Allocator_Error`.
-*/
-push_back_elems :: proc(q: ^$Q/Queue($T), elems: ..T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error)  {
-    n := builtin.len(elems)
-    if space(q^) < n {
-        _grow(q, q.len + n, loc) or_return
-    }
-
-    sz := q.buf.len
-    insert_from := (q.offset + q.len) % sz
-    insert_to := n
-    if insert_from + insert_to > sz {
-        insert_to = sz - insert_from
-    }
-    slice.copy(q.buf.data[insert_from:a.len], elems[:insert_to])
-    slice.copy(q.buf.data[:insert_from], elems[insert_to:])
-    q.len += n
-    return true, nil
 }
 
 /*
@@ -410,12 +401,11 @@ This will raise a bounds checking error if the queue does not have enough elemen
 */
 consume_front :: proc(q: ^$Q/Queue($T), n: uint, loc := #caller_location) {
     when !ODIN_NO_BOUNDS_CHECK {
-        internal.ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
+        internal.ensure(q.len >= n, "Queue does not have enough elements to consume.", loc)
     }
     if n > 0 {
-        nu := uint(n)
-        q.offset = (q.offset + nu) % q.buf.len
-        q.len -= nu
+        q.offset = (q.offset + n) % q.buf.len
+        q.len -= n
     }
 }
 
@@ -434,15 +424,6 @@ consume_back :: proc(q: ^$Q/Queue($T), n: uint, loc := #caller_location) {
 }
 
 
-push        :: push_back
-append      :: push_back
-enqueue     :: push_back
-
-append_many :: push_back_elems
-
-dequeue     :: dyn_array.pop_front
-
-
 /*
 Reset the queue's length and offset to zero, letting it write new elements over
 old memory, in effect clearing the accessible contents.
@@ -455,12 +436,15 @@ clear :: proc(q: ^$Q/Queue($T)) {
 
 // Internal growing procedure
 _grow :: proc(q: ^$Q/Queue($T), min_capacity: uint = 0, loc := #caller_location) -> mem.Allocator_Error {
-    new_capacity := max(min_capacity, uint(8), uint(q.buf.len)*2)
-    n := uint(q.buf.len)
+    new_capacity := max(min_capacity, 8, q.buf.len * 2)
+    n := q.buf.len
     dyn_array.resize(&q.buf, new_capacity, loc) or_return
     if q.offset + q.len > n {
         diff := n - q.offset
-        slice.copy(q.buf.data[new_capacity - diff:q.buf.len], q.buf.data[q.offset:diff])
+
+        a := q.buf.data[new_capacity - diff : q.buf.len]
+        b := q.buf.data[q.offset : q.buf.len][:diff] // This makes sense: "get the first range, and then get the N first elements from the first range".
+        slice.copy(a, b)
         q.offset += new_capacity - n
     }
     return nil

@@ -25,7 +25,7 @@ string_from_null_terminated_bytes :: proc(b: []u8) -> (res: string) {
 }
 
 string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-    c := slice.create([]u8, len(s), allocator, loc) or_return
+    c := slice.create(u8, len(s), allocator, loc) or_return
     slice.copy_from_string(c, s)
     return string(c), nil
 }
@@ -34,7 +34,7 @@ string_clone :: proc(s: string, allocator: mem.Allocator, loc := #caller_locatio
 Clones a u8 array `s` and appends a null-u8
 */
 string_clone_from_bytes :: proc(s: []u8, allocator: mem.Allocator, loc := #caller_location) -> (res: string, err: mem.Allocator_Error) {
-    c := slice.create([]u8, len(s)+1, allocator, loc) or_return
+    c := slice.create(u8, len(s)+1, allocator, loc) or_return
     slice.copy(c, s)
     c[len(s)] = 0
     return string(c[:len(s)]), nil
@@ -72,7 +72,7 @@ string_concatenate :: proc(a: []string, allocator: mem.Allocator, loc := #caller
     for s in a {
         n += len(s)
     }
-    b := slice.create([]u8, n, allocator, loc) or_return
+    b := slice.create(u8, n, allocator, loc) or_return
     i: uint
     for s in a {
         i += slice.copy_from_string(b[i:], s)
@@ -115,7 +115,7 @@ string_join :: proc(a: []string, sep: string, allocator: mem.Allocator, loc := #
         n += len(s)
     }
 
-    b := slice.create([]u8, n, allocator, loc) or_return
+    b := slice.create(u8, n, allocator, loc) or_return
     i := slice.copy_from_string(b, a[0])
     for s in a[1:] {
         i += slice.copy_from_string(b[i:], sep)
@@ -138,7 +138,7 @@ string_repeat :: proc(s: string, count: uint, allocator: mem.Allocator, loc := #
         internal.panic("strings: repeat count will cause an overflow")
     }
 
-    b := slice.create([]u8, len(s) * count, allocator, loc) or_return
+    b := slice.create(u8, len(s) * count, allocator, loc) or_return
     i := slice.copy_from_string(b, s)
     for i < len(b) { // 2^N trick to reduce the need to slice.copy_from_string
         slice.copy(b[i:], b[:i])

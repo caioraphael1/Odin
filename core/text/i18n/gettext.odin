@@ -111,7 +111,7 @@ parse_mo_from_bytes :: proc(data: []u8, options := DEFAULT_PARSE_OPTIONS, plural
 				return translation, .Duplicate_Key
 			}
 
-			interned_vals := slice.create([]string, len(vals))
+			interned_vals := slice.create(string, len(vals))
 			last_val: string
 
 			for v, i in vals {

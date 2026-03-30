@@ -8,12 +8,13 @@
 
 import "base:internal"
 import "base:intrinsics"
-@(require) import "core:io"
 import "base:mem"
+import "base:unicode/utf8"
 import "base:container/slice"
+
+import "core:io"
 import "core:text/regex/common"
 import "core:text/regex/parser"
-import "base:unicode/utf8"
 
 Rune_Class_Range  :: parser.Rune_Class_Range
 
@@ -167,26 +168,26 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             continue
 
         case .Assert_Start:
-            sp := vm.string_pointer+vm.current_rune_size
+            sp := vm.string_pointer + vm.current_rune_size
             if sp == 0 {
                 pc += size_of(Opcode)
                 continue
             }
         case .Assert_Start_Multiline:
-            sp := vm.string_pointer+vm.current_rune_size
+            sp := vm.string_pointer + vm.current_rune_size
             if sp == 0 || vm.last_rune == '\n' || vm.last_rune == '\r' {
                 pc += size_of(Opcode)
                 continue
             }
         case .Assert_End:
-            sp := vm.string_pointer+vm.current_rune_size
-            if sp == len(vm.memory) {
+            sp := vm.string_pointer + vm.current_rune_size
+            if uint(sp) == len(vm.memory) {
                 pc += size_of(Opcode)
                 continue
             }
         case .Multiline_Open:
-            sp := vm.string_pointer+vm.current_rune_size
-            if sp == len(vm.memory) {
+            sp := vm.string_pointer + vm.current_rune_size
+            if uint(sp) == len(vm.memory) {
                 // Skip the `Multiline_Close` opcode.
                 pc += 2 * size_of(Opcode)
                 continue
@@ -203,7 +204,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             }
         case .Assert_Word_Boundary:
             sp := vm.string_pointer+vm.current_rune_size
-            if sp == 0 || sp == len(vm.memory) {
+            if sp == 0 || uint(sp) == len(vm.memory) {
                 pc += size_of(Opcode)
                 continue
             } else {
@@ -217,7 +218,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             }
         case .Assert_Non_Word_Boundary:
             sp := vm.string_pointer+vm.current_rune_size
-            if sp != 0 && sp != len(vm.memory) {
+            if sp != 0 && uint(sp) != len(vm.memory) {
                 last_rune_is_wc := is_word_class(vm.current_rune)
                 this_rune_is_wc := is_word_class(vm.next_rune)
 
@@ -326,7 +327,8 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
 
 run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, ok: bool) #no_bounds_check {
     when UNICODE_MODE {
-        vm.next_rune, vm.next_rune_size = utf8.rune_from_string(vm.memory[vm.string_pointer:])
+        a, b := utf8.rune_from_string(vm.memory[vm.string_pointer:])
+        vm.next_rune, vm.next_rune_size = a, int(b)
     } else {
         if len(vm.memory) > 0 {
             vm.next_rune = cast(rune)vm.memory[vm.string_pointer]
@@ -357,15 +359,16 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
     for {
         slice.zero(vm.busy_map[:])
 
-        internal.assert(vm.string_pointer <= len(vm.memory), "VM string pointer went out of bounds.")
+        internal.assert(vm.string_pointer <= int(len(vm.memory)), "VM string pointer went out of bounds.")
 
         current_rune := vm.next_rune
         vm.current_rune = current_rune
         vm.current_rune_size = vm.next_rune_size
         when UNICODE_MODE {
-            vm.next_rune, vm.next_rune_size = utf8.rune_from_string(vm.memory[vm.string_pointer+vm.current_rune_size:])
+            a, b := utf8.rune_from_string(vm.memory[vm.string_pointer+vm.current_rune_size:])
+            vm.next_rune, vm.next_rune_size = a, int(b)
         } else {
-            if vm.string_pointer+size_of(u8) < len(vm.memory) {
+            if uint(vm.string_pointer) + size_of(u8) < len(vm.memory) {
                 vm.next_rune = cast(rune)vm.memory[vm.string_pointer+size_of(u8)]
                 vm.next_rune_size = size_of(u8)
             } else {
@@ -568,7 +571,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
 
                     case .Save:
                         index := vm.code[t.pc + size_of(Opcode)]
-                        t.saved[index] = len(vm.memory)
+                        t.saved[index] = int(len(vm.memory))
                         t.pc += size_of(Opcode) + size_of(u8)
 
                     case .Match_All_And_Escape:
@@ -606,7 +609,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
             io.write_string(common.debug_stream, ")\n")
         }
 
-        if vm.string_pointer == len(vm.memory) || vm.top_thread == 0 {
+        if uint(vm.string_pointer) == len(vm.memory) || vm.top_thread == 0 {
             break
         }
 
@@ -633,9 +636,9 @@ create :: proc(code: Program, str: string, allocator: mem.Allocator) -> (vm: Mac
 
     sizing := len(code) >> 6 + (1 if len(code) & 0x3F > 0 else 0)
     internal.assert(sizing > 0)
-    vm.busy_map, _ = slice.create([]u64, sizing, allocator)
+    vm.busy_map, _ = slice.create(u64, sizing, allocator)
 
-    max_possible_threads := max(1, opcode_count(vm.code) - 1)
+    max_possible_threads := uint(max(1, opcode_count(vm.code) - 1))
 
     vm.threads, _ = mem.multi_pointer_create([^]Thread, max_possible_threads, allocator)
     vm.next_threads, _ = mem.multi_pointer_create([^]Thread, max_possible_threads, allocator)

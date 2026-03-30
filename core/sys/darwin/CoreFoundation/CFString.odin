@@ -184,7 +184,7 @@ StringCopyToOdinString :: proc(theString: String, allocator: mem.Allocator) -> (
     length := StringGetLength(theString)
     max := StringGetMaximumSizeForEncoding(length, StringEncoding(StringBuiltInEncodings.UTF8))
 
-    buf, err := slice.create([]u8, max, allocator)
+    buf, err := slice.create(u8, max, allocator)
     if err != nil {
         return
     }

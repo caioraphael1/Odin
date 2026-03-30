@@ -1905,7 +1905,7 @@ unquote_string :: proc(lit: string, allocator: mem.Allocator) -> (res: string, a
     }
 
     buf_len := 3 * len(s) / 2
-    buf, _ := slice.create([]u8, buf_len, allocator)
+    buf, _ := slice.create(u8, buf_len, allocator)
     offset: uint
     for len(s) > 0 {
         r, multiple_bytes, tail_string, ok := unquote_char(s, u8(quote))

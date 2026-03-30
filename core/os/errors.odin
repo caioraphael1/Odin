@@ -129,7 +129,7 @@ print_error :: proc(f: ^File, ferr: Error, msg: string) {
 
     // msg + ": " + err_str + '\n'
     length := len(msg) + 2 + len(err_str) + 1
-    buf, _ := slice.create([]u8, length, allocators.temp_allocator)
+    buf, _ := slice.create(u8, length, allocators.temp_allocator)
 
     slice.copy_from_string(buf, msg)
     buf[len(msg)] = ':'

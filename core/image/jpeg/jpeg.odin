@@ -271,7 +271,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     thumb_pixels := slice.reinterpret([]image.RGB_Pixel, compress.read_slice_from_memory(ctx, x_thumbnail * y_thumbnail) or_return)
 
                     if .return_metadata in options {
-                        thumbnail = slice.create([]image.RGB_Pixel, x_thumbnail * y_thumbnail) or_return
+                        thumbnail = slice.create(image.RGB_Pixel, x_thumbnail * y_thumbnail) or_return
                         slice.copy(thumbnail, thumb_pixels)
 
                         info: ^image.JPEG_Info
@@ -308,7 +308,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     thumbnail_jpeg := compress.read_slice(ctx, thumbnail_len) or_return
 
                     if .return_metadata in options {
-                        thumbnail = slice.create([]u8, thumbnail_len) or_return
+                        thumbnail = slice.create(u8, thumbnail_len) or_return
                         slice.copy(thumbnail, thumbnail_jpeg)
 
                         info: ^image.JPEG_Info
@@ -331,7 +331,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail * 3) or_return
 
                     if .return_metadata in options {
-                        thumbnail = slice.create([]u8, x_thumbnail * y_thumbnail * 3) or_return
+                        thumbnail = slice.create(u8, x_thumbnail * y_thumbnail * 3) or_return
                         slice.copy(thumbnail, pixels)
 
                         info: ^image.JPEG_Info
@@ -355,7 +355,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
                     old_pixels := compress.read_slice(ctx, x_thumbnail * y_thumbnail) or_return
 
                     if .return_metadata in options {
-                        pixels := slice.create([]u8, x_thumbnail * y_thumbnail * 3) or_return
+                        pixels := slice.create(u8, x_thumbnail * y_thumbnail * 3) or_return
                         for i in 0..<x_thumbnail*y_thumbnail {
                             pixel := palette[old_pixels[i]]
                             pixels[i] = pixel.r
@@ -441,7 +441,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
 
                 // - 2 for the NUL u8 and padding u8
                 data := compress.read_slice(ctx, length - len(ident) - 2) or_return
-                exif.data = slice.create([]u8, len(data)) or_return
+                exif.data = slice.create(u8, len(data)) or_return
                 slice.copy(exif.data, data)
 
                 dyn_array.append(&info.exif, exif) or_return
@@ -707,7 +707,7 @@ load_from_context :: proc(ctx: ^$C, options := Options{}, allocator : mem.Alloca
             Ah_Al := compress.read_u8_from_memory(ctx) or_return
             _ = Ah_Al
 
-            blocks = slice.create([]Block, block_height * block_width) or_return
+            blocks = slice.create(Block, block_height * block_width) or_return
 
             previous_dc: [Component]i16
 

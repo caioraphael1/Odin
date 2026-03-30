@@ -52,7 +52,7 @@ scratch_allocator :: proc(allocator: ^Scratch) -> mem.Allocator {
 Initialize a scratch allocator.
 */
 scratch_init :: proc(s: ^Scratch, size: uint, backup_allocator: mem.Allocator) -> mem.Allocator_Error {
-    s.data = slice.create_aligned([]u8, size, 2*align_of(rawptr), backup_allocator) or_return
+    s.data = slice.create_aligned(u8, size, 2*align_of(rawptr), backup_allocator) or_return
     s.curr_offset = 0
     s.prev_allocation = nil
     s.prev_allocation_root = nil

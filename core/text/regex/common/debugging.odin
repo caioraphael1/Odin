@@ -8,12 +8,11 @@
 */
 
 import "base:mem"
-import "base:container/strings"
 
 import "core:io"
-import "core:strings_tools"
+import "core:io/string_builder"
 
-write_padded_hex :: proc(w: io.Writer, #any_int n, zeroes: int, allocator: mem.Allocator) {
+write_padded_hex :: proc(w: io.Writer, #any_int n: int, zeroes: uint, allocator: mem.Allocator) {
     sb := string_builder.builder_create(allocator)
     defer string_builder.builder_destroy(&sb)
 

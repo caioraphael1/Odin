@@ -57,7 +57,7 @@ _open_file_dialog :: proc(title: string, dir: string,
                           flags: u32, default_ext: string,
                           mode: Open_Save_Mode, allocator := allocators.temp_allocator) -> (path: string, ok: bool = true) {
 
-    file_buf := slice.create([]u16, MAX_PATH_WIDE)
+    file_buf := slice.create(u16, MAX_PATH_WIDE)
     defer if !ok {
         _ = slice.delete(file_buf)
     }

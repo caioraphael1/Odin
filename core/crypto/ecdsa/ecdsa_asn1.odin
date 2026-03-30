@@ -61,7 +61,7 @@ generate_asn1_sig :: proc(r, s: ^$T, allocator: mem.Allocator) -> []u8 {
 	// WARNING: If secp521r1 support is added, this needs to support
 	// long-form length encoding.
 	internal.ensure(seq_len <= 127, "BUG: crypto/ecdsa: signature length too large")
-	b := slice.create([]u8, seq_len + 2, allocator)
+	b := slice.create(u8, seq_len + 2, allocator)
 	b[0] = TAG_SEQUENCE
 	b[1] = u8(seq_len)
 	copy(b[2:], r_bytes)
