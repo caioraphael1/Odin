@@ -158,7 +158,7 @@ parse_file :: proc(p: ^Parser, file: ^ast.File) -> bool {
 
     docs := p.lead_comment
 
-    invalid_pre_package_token: internal.Maybe(tokenizer.Token)
+    invalid_pre_package_token: Maybe(tokenizer.Token)
 
     token_that_is_not_comment_or_tag_found: bool
     first_token_that_is_not_comment_or_tag: tokenizer.Token
@@ -325,7 +325,7 @@ next_token0 :: proc(p: ^Parser) -> bool {
 
 consume_comment :: proc(p: ^Parser) -> (tok: tokenizer.Token, end_line: int) {
     tok = p.curr_tok
-    internal.assert(tok.kind == .Comment)
+    assert(tok.kind == .Comment)
     end_line = tok.pos.line
 
     if tok.text[1] == '*' {
@@ -387,7 +387,7 @@ consume_comment_groups :: proc(p: ^Parser, prev: tokenizer.Token) {
         p.lead_comment = comment
     }
 
-    internal.assert(p.curr_tok.kind != .Comment)
+    assert(p.curr_tok.kind != .Comment)
 }
 
 advance_token :: proc(p: ^Parser) -> tokenizer.Token {
@@ -953,7 +953,7 @@ parse_for_stmt :: proc(p: ^Parser) -> ^ast.Stmt {
                         if next_token.kind == .In || next_token.kind == .Comma {
                             cond = parse_simple_stmt(p, {.In})
                             as := cond.derived_stmt.(^ast.Assign_Stmt)
-                            internal.assert(as.op.kind == .In)
+                            assert(as.op.kind == .In)
                             is_range = true
                             break general_conds
                         }
@@ -1862,7 +1862,7 @@ check_field_flag_prefixes :: proc(p: ^Parser, name_count: int, allowed_flags, se
             case .Unknown, .Invalid:
                 // ignore
             case .Tags, .Ellipsis, .Results, .Default_Parameters, .Typeid_Token:
-                internal.panic("Impossible prefixes")
+                panic("Impossible prefixes")
             case:
                 error(p, p.curr_tok.pos, "'%s' is not allowed within this field list", ast.field_flag_strings[flag])
             }
@@ -2473,7 +2473,7 @@ parse_operand :: proc(p: ^Parser, lhs: bool) -> ^ast.Expr {
                 if .Bounds_Check in operand.state_flags {
                     error(p, name.pos, "#bounds_check and #no_bounds_check cannot be applied together")
                 }
-            case: internal.unimplemented()
+            case: unimplemented()
             }
             return operand
 

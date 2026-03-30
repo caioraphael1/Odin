@@ -1,7 +1,8 @@
 // The `.odin-doc` file format, as used by these package docs at `pkg.odin-lang.org`.
 package odin_doc_format
 
-import "base:mem"
+import "core:mem"
+import "base:runtime"
 
 Array :: struct($T: typeid) {
 	offset: u32le,
@@ -310,7 +311,7 @@ Type_Flag_Bit_Set :: enum u32le {
 }
 
 from_array :: proc(base: ^Header_Base, a: $A/Array($T)) -> []T {
-	s: slice.Raw_Slice
+	s: runtime.Raw_Slice
 	s.data = rawptr(uintptr(base) + uintptr(a.offset))
 	s.len = int(a.length)
 	return transmute([]T)s

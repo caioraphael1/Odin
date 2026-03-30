@@ -1,7 +1,7 @@
 package odin_ast
 
 import "base:intrinsics"
-import "base:mem"
+import "core:mem"
 import "core:fmt"
 import "core:reflect"
 import "../tokenizer"
@@ -88,7 +88,7 @@ clone_node :: proc(node: ^Node) -> ^Node {
 
 	#partial switch _ in node.derived {
 	case ^Package, ^File:
-		internal.panic("Cannot clone this node type")
+		panic("Cannot clone this node type")
 	}
 
 	res := cast(^Node)(mem.alloc(size, align) or_else nil)
