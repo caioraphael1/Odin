@@ -43,7 +43,7 @@ scalar_triple_product :: proc(a, b, c: $T/[$N]$E) -> E where intrinsics.type_is_
     // a . (b x c)
     // b . (c x a)
     // c . (a x b)
-    return dot(a, cross(b, c))
+    return vec_dot(a, cross(b, c))
 }
 
 
@@ -101,7 +101,7 @@ vec_angle_between :: proc(a, b: $V/[$N]$E) -> E {
 }
 
 vec_slerp :: proc(x, y: $T/[$N]$E, a: E) -> T #no_bounds_check {
-    cos_alpha := dot(x, y)
+    cos_alpha := vec_dot(x, y)
     alpha := math.acos(cos_alpha)
     sin_alpha := math.sin(alpha)
 
@@ -127,7 +127,7 @@ quaternion_length :: proc(q: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
 }
 
 quaternion_length_squared :: proc(q: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
-    return dot(q, q)
+    return vec_dot(q, q)
 }
 
 quaternionf16_dot :: proc(a, b: $T/quaternion64) -> (c: f16) {
@@ -179,7 +179,7 @@ quaternionf64_mul_vec3 :: proc(q: $Q/quaternion256, v: $V/[3]$F/f64) -> V {
 }
 
 quaternion_inverse :: proc(q: $Q) -> Q where intrinsics.type_is_quaternion(Q) {
-    return conj(q) * quaternion(w=1.0/dot(q, q), x=0, y=0, z=0)
+    return conj(q) * quaternion(w=1.0/vec_dot(q, q), x=0, y=0, z=0)
 }
 
 quaternionf16_angle_between :: proc(a, b: $Q/quaternion64) -> f16 {
@@ -210,7 +210,7 @@ clamp_length :: proc(v: $T/[$N]$E, a: E) -> T where intrinsics.type_is_float(E) 
 }
 
 projection :: proc(x, normal: $T/[$N]$E) -> T where intrinsics.type_is_numeric(E) {
-    return dot(x, normal) / dot(normal, normal) * normal
+    return vec_dot(x, normal) / vec_dot(normal, normal) * normal
 }
 
 identity_array_based_matrix :: proc($T: typeid/[$N][N]$E) -> (m: T) #no_bounds_check {
@@ -273,7 +273,14 @@ matrix_minor :: proc(m: $M/matrix[$N, N]$T, #any_int row, column: int) -> (minor
             cut_down[row_idx, col_idx] = m[i, j]
         }
     }
-    return determinant(cut_down)
+
+    when K == 2 {
+        return matrix2x2_determinant(cut_down)
+    } else when K == 3 {
+        return matrix3x3_determinant(cut_down)
+    } else when K == 4 {
+        return matrix4x4_determinant(cut_down)
+    }
 }
 
 matrix1x1_determinant :: proc(m: $M/matrix[1, 1]$T) -> (det: T) #no_bounds_check {
@@ -292,7 +299,7 @@ matrix3x3_determinant :: proc(m: $M/matrix[3, 3]$T) -> (det: T) #no_bounds_check
 }
 
 matrix4x4_determinant :: proc(m: $M/matrix[4, 4]$T) -> (det: T) #no_bounds_check {
-    c := cofactor(m)
+    c := matrix4x4_cofactor(m)
     for i in 0..<4 {
         det += m[0, i] * c[0, i]
     }
@@ -479,7 +486,7 @@ matrix3x3_inverse :: proc(x: $M/matrix[3, 3]$T) -> (y: M) #no_bounds_check {
 }
 
 matrix4x4_inverse :: proc(x: $M/matrix[4, 4]$T) -> (y: M) #no_bounds_check {
-    c := cofactor(x)
+    c := matrix4x4_cofactor(x)
     d: T
     for i in 0..<4 {
         d += x[0, i] * c[0, i]

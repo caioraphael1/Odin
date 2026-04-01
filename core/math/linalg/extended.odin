@@ -458,22 +458,22 @@ mod :: proc(x, m: $T) -> T where intrinsics.type_is_float(intrinsics.type_elem_t
 
 
 face_forward :: proc(N, I, N_ref: $T) -> (out: T) where intrinsics.type_is_array(T), intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
-    return dot(N_ref, I) < 0 ? N : -N
+    return vec_dot(N_ref, I) < 0 ? N : -N
 }
 
 
 distance :: proc(p0, p1: $V/[$N]$E) -> E where intrinsics.type_is_numeric(E) {
-    return length(p1 - p0)
+    return vec_length(p1 - p0)
 }
 
 
 reflect :: proc(I, N: $T) -> (out: T) where intrinsics.type_is_array(T), intrinsics.type_is_float(intrinsics.type_elem_type(T)) {
-    b := N * (2 * dot(N, I))
+    b := N * (2 * vec_dot(N, I))
     return I - b
 }
 
 refract :: proc(I, Normal: $V/[$N]$E, eta: E) -> (out: V) where intrinsics.type_is_array(V), intrinsics.type_is_float(intrinsics.type_elem_type(V)) {
-    dv := dot(Normal, I)
+    dv := vec_dot(Normal, I)
     k := 1 - eta*eta * (1 - dv*dv)
     a := I * eta
     b := Normal * (eta*dv+math.sqrt(k))

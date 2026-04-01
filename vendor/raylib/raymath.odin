@@ -36,7 +36,7 @@ Remap :: proc(value: f32, inputStart, inputEnd: f32, outputStart, outputEnd: f32
 // Wrap input value from min to max
 
 Wrap :: proc(value: f32, min, max: f32) -> f32 {
-    return value - (max - min)*math.floor((value - min)/(max - min))
+    return value - (max - min)*math.floor_f32((value - min)/(max - min))
 }
 
 // Check whether two given floats are almost equal
@@ -82,20 +82,20 @@ Vector2Subtract :: proc(a, b: Vector2) -> Vector2 {
 Vector2SubtractValue :: proc(v: Vector2, value: f32) -> Vector2 {
     return v - value
 }
-// Calculate vector length
+// Calculate vector vec_length
 
 Vector2Length :: proc(v: Vector2) -> f32 {
-    return linalg.length(v)
+    return linalg.vec_length(v)
 }
-// Calculate vector square length
+// Calculate vector square vec_length
 
 Vector2LengthSqr :: proc(v: Vector2) -> f32 {
-    return linalg.length2(v)
+    return linalg.vec_length_squared(v)
 }
-// Calculate two vectors dot product
+// Calculate two vectors vec_dot product
 
 Vector2DotProduct :: proc(v1, v2: Vector2) -> f32 {
-    return linalg.dot(v1, v2)
+    return linalg.vec_dot(v1, v2)
 }
 // Calculate distance between two vectors
 
@@ -105,13 +105,13 @@ Vector2Distance :: proc(v1, v2: Vector2) -> f32 {
 // Calculate square distance between two vectors
 
 Vector2DistanceSqrt :: proc(v1, v2: Vector2) -> f32 {
-    return linalg.length2(v2-v1)
+    return linalg.vec_length_squared(v2-v1)
 }
 // Calculate angle between two vectors
 // NOTE: Angle is calculated from origin point (0, 0)
 
 Vector2Angle :: proc(v1, v2: Vector2) -> f32 {
-    return linalg.angle_between(v1, v2)
+    return linalg.vec_angle_between(v1, v2)
 }
 
 // Calculate angle defined by a two vectors line
@@ -146,7 +146,7 @@ Vector2Divide :: proc(v1, v2: Vector2) -> Vector2 {
 // Normalize provided vector
 
 Vector2Normalize :: proc(v: Vector2) -> Vector2 {
-    return linalg.normalize0(v)
+    return linalg.vec_normalize_safe(v)
 }
 // Transforms a Vector2 by a given Matrix
 
@@ -167,7 +167,7 @@ Vector2Reflect :: proc(v, normal: Vector2) -> Vector2 {
 // Rotate vector by angle
 
 Vector2Rotate :: proc(v: Vector2, angle: f32) -> Vector2 {
-    c, s := math.cos(angle), math.sin(angle)
+    c, s := math.cos_f32(angle), math.sin_f32(angle)
 
     return Vector2{
         v.x*c - v.y*s,
@@ -179,7 +179,7 @@ Vector2Rotate :: proc(v: Vector2, angle: f32) -> Vector2 {
 
 Vector2MoveTowards :: proc(v, target: Vector2, maxDistance: f32) -> Vector2 {
     dv := target - v
-    value := linalg.dot(dv, dv)
+    value := linalg.vec_dot(dv, dv)
 
     if value == 0 || (maxDistance >= 0 && value <= maxDistance*maxDistance) {
         return target
@@ -210,14 +210,14 @@ Vector2Clamp :: proc(v: Vector2, min, max: Vector2) -> Vector2 {
 Vector2ClampValue :: proc(v: Vector2, min, max: f32) -> Vector2 {
     result := v
 
-    length := linalg.dot(v, v)
-    if length > 0 {
-        length = math.sqrt(length)
+    vec_length := linalg.vec_dot(v, v)
+    if vec_length > 0 {
+        vec_length = math.sqrt(vec_length)
         scale := f32(1)
-        if length < min {
-            scale = min/length
-        } else if length > max {
-            scale = max/length
+        if vec_length < min {
+            scale = min/vec_length
+        } else if vec_length > max {
+            scale = max/vec_length
         }
         result = v*scale
     }
@@ -267,25 +267,25 @@ Vector3Subtract :: proc(a, b: Vector3) -> Vector3 {
 Vector3SubtractValue :: proc(v: Vector3, value: f32) -> Vector3 {
     return v - value
 }
-// Calculate vector length
+// Calculate vector vec_length
 
 Vector3Length :: proc(v: Vector3) -> f32 {
-    return linalg.length(v)
+    return linalg.vec_length(v)
 }
-// Calculate vector square length
+// Calculate vector square vec_length
 
 Vector3LengthSqr :: proc(v: Vector3) -> f32 {
-    return linalg.length2(v)
+    return linalg.vec_length_squared(v)
 }
-// Calculate two vectors dot product
+// Calculate two vectors vec_dot product
 
 Vector3DotProduct :: proc(v1, v2: Vector3) -> f32 {
-    return linalg.dot(v1, v2)
+    return linalg.vec_dot(v1, v2)
 }
-// Calculate two vectors dot product
+// Calculate two vectors vec_dot product
 
 Vector3CrossProduct :: proc(v1, v2: Vector3) -> Vector3 {
-    return linalg.cross(v1, v2)
+    return linalg.vec3_cross(v1, v2)
 }
 // Calculate distance between two vectors
 
@@ -295,13 +295,13 @@ Vector3Distance :: proc(v1, v2: Vector3) -> f32 {
 // Calculate square distance between two vectors
 
 Vector3DistanceSqrt :: proc(v1, v2: Vector3) -> f32 {
-    return linalg.length2(v2-v1)
+    return linalg.vec_length_squared(v2-v1)
 }
 // Calculate angle between two vectors
 // NOTE: Angle is calculated from origin point (0, 0)
 
 Vector3Angle :: proc(v1, v2: Vector3) -> f32 {
-    return linalg.angle_between(v1, v2)
+    return linalg.vec_angle_between(v1, v2)
 }
 
 // Calculate angle defined by a two vectors line
@@ -336,7 +336,7 @@ Vector3Divide :: proc(v1, v2: Vector3) -> Vector3 {
 // Normalize provided vector
 
 Vector3Normalize :: proc(v: Vector3) -> Vector3 {
-    return linalg.normalize0(v)
+    return linalg.vec_normalize_safe(v)
 }
 
 // Calculate the projection of the vector v1 on to v2
@@ -348,7 +348,7 @@ Vector3Project :: proc(v1, v2: Vector3) -> Vector3 {
 // Calculate the rejection  of the vector v1 on to v2
 
 Vector3Reject :: proc(v1, v2: Vector3) -> Vector3 {
-    mag := linalg.dot(v1, v2)/linalg.dot(v2, v2)
+    mag := linalg.vec_dot(v1, v2)/linalg.vec_dot(v2, v2)
     return v1 - v2*mag
 }
 
@@ -356,15 +356,15 @@ Vector3Reject :: proc(v1, v2: Vector3) -> Vector3 {
 // Makes vectors normalized and orthogonal to each other
 // Gram-Schmidt function implementation
 Vector3OrthoNormalize :: proc(v1, v2: ^Vector3) {
-    v1^ = linalg.normalize0(v1^)
-    v3 := linalg.normalize0(linalg.cross(v1^, v2^))
-    v2^ = linalg.cross(v3, v1^)
+    v1^ = linalg.vec_normalize_safe(v1^)
+    v3 := linalg.vec_normalize_safe(linalg.vec3_cross(v1^, v2^))
+    v2^ = linalg.vec3_cross(v3, v1^)
 }
 
 // Transform a vector by quaternion rotation
 
 Vector3RotateByQuaternion :: proc(v: Vector3, q: Quaternion) -> Vector3 {
-    return linalg.mul(q, v)
+    return linalg.quaternionf32_mul_vec3(q, v)
 }
 
 // Rotates a vector around an axis
@@ -372,18 +372,18 @@ Vector3RotateByQuaternion :: proc(v: Vector3, q: Quaternion) -> Vector3 {
 Vector3RotateByAxisAngle :: proc(v: Vector3, axis: Vector3, angle: f32) -> Vector3 {
     axis, angle := axis, angle
 
-    axis = linalg.normalize0(axis)
+    axis = linalg.vec_normalize_safe(axis)
 
     angle *= 0.5
-    a := math.sin(angle)
+    a := math.sin_f32(angle)
     b := axis.x*a
     c := axis.y*a
     d := axis.z*a
-    a = math.cos(angle)
+    a = math.cos_f32(angle)
     w := Vector3{b, c, d}
 
-    wv := linalg.cross(w, v)
-    wwv := linalg.cross(w, wv)
+    wv := linalg.vec3_cross(w, v)
+    wwv := linalg.vec3_cross(w, wv)
 
     a *= 2
     wv *= a
@@ -424,7 +424,7 @@ Vector3Refract :: proc(v, n: Vector3, r: f32) -> Vector3 {
 
 Vector3MoveTowards :: proc(v, target: Vector3, maxDistance: f32) -> Vector3 {
     dv := target - v
-    value := linalg.dot(dv, dv)
+    value := linalg.vec_dot(dv, dv)
 
     if value == 0 || (maxDistance >= 0 && value <= maxDistance*maxDistance) {
         return target
@@ -456,14 +456,14 @@ Vector3Clamp :: proc(v: Vector3, min, max: Vector3) -> Vector3 {
 Vector3ClampValue :: proc(v: Vector3, min, max: f32) -> Vector3 {
     result := v
 
-    length := linalg.dot(v, v)
-    if length > 0 {
-        length = math.sqrt(length)
+    vec_length := linalg.vec_dot(v, v)
+    if vec_length > 0 {
+        vec_length = math.sqrt(vec_length)
         scale := f32(1)
-        if length < min {
-            scale = min/length
-        } else if length > max {
-            scale = max/length
+        if vec_length < min {
+            scale = min/vec_length
+        } else if vec_length > max {
+            scale = max/vec_length
         }
         result = v*scale
     }
@@ -478,17 +478,6 @@ Vector3Equals :: proc(p, q: Vector3) -> bool {
 }
 
 
-
-Vector3Min :: proc(v1, v2: Vector3) -> Vector3 {
-    return linalg.min(v1, v2)
-}
-
-
-Vector3Max :: proc(v1, v2: Vector3) -> Vector3 {
-    return linalg.max(v1, v2)
-}
-
-
 // Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
 // NOTE: Assumes P is on the plane of the triangle
 
@@ -496,11 +485,11 @@ Vector3Barycenter :: proc(p: Vector3, a, b, c: Vector3) -> (result: Vector3) {
     v0 := b - a
     v1 := c - a
     v2 := p - a
-    d00 := linalg.dot(v0, v0)
-    d01 := linalg.dot(v0, v1)
-    d11 := linalg.dot(v1, v1)
-    d20 := linalg.dot(v2, v0)
-    d21 := linalg.dot(v2, v1)
+    d00 := linalg.vec_dot(v0, v0)
+    d01 := linalg.vec_dot(v0, v1)
+    d11 := linalg.vec_dot(v1, v1)
+    d20 := linalg.vec_dot(v2, v0)
+    d21 := linalg.vec_dot(v2, v1)
 
     denom := d00*d11 - d01*d01
 
@@ -517,7 +506,7 @@ Vector3Barycenter :: proc(p: Vector3, a, b, c: Vector3) -> (result: Vector3) {
 Vector3Unproject :: proc(source: Vector3, projection: Matrix, view: Matrix) -> Vector3 {
     matViewProj := view * projection
 
-    matViewProjInv := linalg.inverse(matViewProj)
+    matViewProjInv := linalg.matrix4x4_inverse(matViewProj)
 
     quat: Quaternion
     quat.x = source.x
@@ -539,7 +528,7 @@ Vector3Unproject :: proc(source: Vector3, projection: Matrix, view: Matrix) -> V
 // Compute matrix determinant
 
 MatrixDeterminant :: proc(mat: Matrix) -> f32 {
-    return linalg.determinant(mat)
+    return linalg.matrix4x4_determinant(mat)
 }
 
 // Get the trace of the matrix (sum of the values along the diagonal)
@@ -557,7 +546,7 @@ MatrixTranspose :: proc(mat: Matrix) -> Matrix {
 // Invert provided matrix
 
 MatrixInvert :: proc(mat: Matrix) -> Matrix {
-    return linalg.inverse(mat)
+    return linalg.matrix4x4_inverse(mat)
 }
 
 // Get identity matrix
@@ -594,73 +583,6 @@ MatrixTranslate :: proc(x, y, z: f32) -> Matrix {
         0, 0, 1, z,
         0, 0, 0, 1,
     }
-}
-
-// Create rotation matrix from axis and angle
-// NOTE: Angle should be provided in radians
-
-MatrixRotate :: proc(axis: Vector3, angle: f32) -> Matrix {
-    return auto_cast linalg.matrix4_rotate(angle, axis)
-}
-
-// Get x-rotation matrix
-// NOTE: Angle must be provided in radians
-
-MatrixRotateX :: proc(angle: f32) -> Matrix {
-    return auto_cast linalg.matrix4_rotate(angle, Vector3{1, 0, 0})
-}
-
-// Get y-rotation matrix
-// NOTE: Angle must be provided in radians
-
-MatrixRotateY :: proc(angle: f32) -> Matrix {
-    return auto_cast linalg.matrix4_rotate(angle, Vector3{0, 1, 0})
-}
-
-// Get z-rotation matrix
-// NOTE: Angle must be provided in radians
-
-MatrixRotateZ :: proc(angle: f32) -> Matrix {
-    return auto_cast linalg.matrix4_rotate(angle, Vector3{0, 0, 1})
-}
-
-// Get xyz-rotation matrix
-// NOTE: Angle must be provided in radians
-
-MatrixRotateXYZ :: proc(angle: Vector3) -> Matrix {
-    return auto_cast linalg.matrix4_from_euler_angles_xyz(angle.x, angle.y, angle.z)
-}
-
-// Get zyx-rotation matrix
-// NOTE: Angle must be provided in radians
-
-MatrixRotateZYX :: proc(angle: Vector3) -> Matrix {
-    return auto_cast linalg.matrix4_from_euler_angles_zyx(angle.x, angle.y, angle.z)
-}
-
-
-// Get scaling matrix
-
-MatrixScale :: proc(x, y, z: f32) -> Matrix {
-    return auto_cast linalg.matrix4_scale(Vector3{x, y, z})
-}
-
-// Get orthographic projection matrix
-
-MatrixOrtho :: proc(left, right, bottom, top, near, far: f32) -> Matrix {
-    return auto_cast linalg.matrix_ortho3d(left, right, bottom, top, near, far)
-}
-
-// Get perspective projection matrix
-// NOTE: Fovy angle must be provided in radians
-
-MatrixPerspective :: proc(fovY, aspect, nearPlane, farPlane: f32) -> Matrix {
-    return auto_cast linalg.matrix4_perspective(fovY, aspect, nearPlane, farPlane)
-}
-// Get camera look-at matrix (view matrix)
-
-MatrixLookAt :: proc(eye, target, up: Vector3) -> Matrix {
-    return auto_cast linalg.matrix4_look_at(eye, target, up)
 }
 
 // Get float array of matrix data
@@ -701,7 +623,7 @@ QuaternionSubtractValue :: proc(q: Quaternion, sub: f32) -> Quaternion {
 QuaternionIdentity :: proc() -> Quaternion {
     return 1
 }
-// Computes the length of a quaternion
+// Computes the vec_length of a quaternion
 @(deprecated="Prefer abs(q)")
 QuaternionLength :: proc(q: Quaternion) -> f32 {
     return abs(q)
@@ -709,7 +631,7 @@ QuaternionLength :: proc(q: Quaternion) -> f32 {
 // Normalize provided quaternion
 
 QuaternionNormalize :: proc(q: Quaternion) -> Quaternion {
-    return linalg.normalize0(q)
+    return linalg.quaternion_normalize_safe(q)
 }
 // Invert provided quaternion
 @(deprecated="Prefer 1/q")
@@ -740,49 +662,6 @@ QuaternionLerp :: proc(q1, q2: Quaternion, amount: f32) -> (q3: Quaternion) {
     q3.w = q1.w + (q2.w-q1.w)*amount
     return
 }
-// Calculate slerp-optimized interpolation between two quaternions
-
-QuaternionNlerp :: proc(q1, q2: Quaternion, amount: f32) -> Quaternion {
-    return linalg.quaternion_nlerp(q1, q2, amount)
-}
-// Calculates spherical linear interpolation between two quaternions
-
-QuaternionSlerp :: proc(q1, q2: Quaternion, amount: f32) -> Quaternion {
-    return linalg.quaternion_slerp(q1, q2, amount)
-}
-// Calculate quaternion based on the rotation from one vector to another
-
-QuaternionFromVector3ToVector3 :: proc(from, to: Vector3) -> Quaternion {
-    return linalg.quaternion_between_two_vector3(from, to)
-}
-// Get a quaternion for a given rotation matrix
-
-QuaternionFromMatrix :: proc(mat: Matrix) -> Quaternion {
-    return linalg.quaternion_from_matrix4((matrix[4, 4]f32)(mat))
-}
-// Get a matrix for a given quaternion
-
-QuaternionToMatrix :: proc(q: Quaternion) -> Matrix {
-    return auto_cast linalg.matrix4_from_quaternion(q)
-}
-// Get rotation quaternion for an angle and axis NOTE: Angle must be provided in radians
-
-QuaternionFromAxisAngle :: proc(axis: Vector3, angle: f32) -> Quaternion {
-    return linalg.quaternion_angle_axis(angle, axis)
-}
-// Get the rotation angle and axis for a given quaternion
-
-QuaternionToAxisAngle :: proc(q: Quaternion) -> (outAxis: Vector3, outAngle: f32) {
-    outAngle, outAxis = linalg.angle_axis_from_quaternion(q)
-    return
-}
-// Get the quaternion equivalent to Euler angles NOTE: Rotation order is ZYX
-
-QuaternionFromEuler :: proc(pitch, yaw, roll: f32) -> Quaternion {
-    return linalg.quaternion_from_pitch_yaw_roll(pitch, yaw, roll)
-}
-// Get the Euler angles equivalent to quaternion (roll, pitch, yaw) NOTE: Angles are returned in a Vector3 struct in radians
-
 QuaternionToEuler :: proc(q: Quaternion) -> Vector3 {
     result: Vector3
 
@@ -821,16 +700,16 @@ QuaternionEquals :: proc(p, q: Quaternion) -> bool {
 
 @(private)
 fmaxf :: proc(x, y: f32) -> f32 {
-    if math.is_nan(x) {
+    if math.is_nan_f32(x) {
         return y
     }
 
-    if math.is_nan(y) {
+    if math.is_nan_f32(y) {
         return x
     }
 
-    if math.sign_bit(x) != math.sign_bit(y) {
-        return y if math.sign_bit(x) else x
+    if math.sign_bit_f32(x) != math.sign_bit_f32(y) {
+        return y if math.sign_bit_f32(x) else x
     }
 
     return y if x < y else x

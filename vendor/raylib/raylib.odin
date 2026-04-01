@@ -85,9 +85,12 @@ Bindings for [[ raylib v5.5 ; https://www.raylib.com ]].
     *
     *********************************************************************************************
 */
+import "base:mem"
+import "base:bytes"
+import "base:container/slice"
+
 import "core:c"
 import "core:fmt"
-import "base:mem"
 
 import "core:math/linalg"
 _ :: linalg
@@ -1505,7 +1508,7 @@ foreign lib {
     TextInsert    :: proc(text, insert: cstring, position: c.int) -> [^]u8 ---                 // Insert text in a position (WARNING: memory must be freed!)
     TextJoin      :: proc(textList: [^]cstring, count: c.int, delimiter: cstring) -> cstring --- // Join text strings with delimiter
     TextSplit     :: proc(text: cstring, delimiter: u8, count: ^c.int) -> [^]cstring ---       // Split text into multiple strings
-    TextAppend    :: proc(text: [^]u8, dyn_array.append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
+    TextAppend    :: proc(text: [^]u8, append: cstring, position: ^c.int) ---                  // Append text at specific position and move cursor!
     TextFindIndex :: proc(text, find: cstring) -> c.int ---                                      // Find first text occurrence within a string
     TextToUpper   :: proc(text: cstring) -> cstring ---                                          // Get upper case version of provided string
     TextToLower   :: proc(text: cstring) -> cstring ---                                          // Get lower case version of provided string
@@ -1762,8 +1765,8 @@ MemAllocator :: proc() -> mem.Allocator {
 }
 
 MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
-                         size, alignment: int,
-                         old_memory: rawptr, old_size: int, loc := #caller_location) -> (data: []u8, err: mem.Allocator_Error)  {
+                         size, alignment: uint,
+                         old_memory: rawptr, old_size: uint, loc := #caller_location) -> (data: []u8, err: mem.Allocator_Error)  {
     switch mode {
     case .Alloc, .Alloc_Non_Zeroed:
         ptr := MemAlloc(c.uint(size))
@@ -1771,10 +1774,10 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.bytes.bytes(ptr, size)
+        data = bytes.bytes(ptr, size)
         return
     case .Free:
-        MemFree(old_memory)
+        MemFreePtr(old_memory)
         return nil, nil
     
     case .Resize, .Resize_Non_Zeroed:
@@ -1783,7 +1786,7 @@ MemAllocatorProc :: proc(allocator_data: rawptr, mode: mem.Allocator_Mode,
             err = .Out_Of_Memory
             return
         }
-        data = mem.bytes.bytes(ptr, size)
+        data = bytes.bytes(ptr, size)
         return
     
     case .Free_All, .Query_Features, .Query_Info:
