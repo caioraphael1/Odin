@@ -356,6 +356,7 @@ Output:
 */
 consume :: proc(a: ^Fixed_Array($N, $T), count: uint, loc := #caller_location) {
     internal.assert(a.len >= count, loc=loc)
+    if a.len == 0 { return }
     a.len -= count
 }
 

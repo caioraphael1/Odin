@@ -18,7 +18,7 @@ Bindings for [[ raylib v5.5 ; https://www.raylib.com ]].
     *       - Flexible Materials system, supporting classic maps and PBR maps
     *       - Animated 3D models supported (skeletal bones animation) (IQM, M3D, GLTF)
     *       - Shaders support, including Model shaders and Postprocessing shaders
-    *       - Powerful math module for Vector, Matrix and Quaternion operations: [raymath]
+    *       - Powerful math module for Vector, Mat4_RowMajor and quaternion128 operations: [raymath]
     *       - Audio loading and playing with streaming support (WAV, OGG, MP3, FLAC, QOA, XM, MOD)
     *       - VR stereo rendering with configurable HMD device parameters
     *       - Bindings to multiple programming languages available!
@@ -178,23 +178,10 @@ BLANK      :: Color{ 0, 0, 0, 0 }           // Blank (Transparent)
 MAGENTA    :: Color{ 255, 0, 255, 255 }     // Magenta
 RAYWHITE   :: Color{ 245, 245, 245, 255 }   // My own White (raylib logo)
 
-// Vector2 type
-Vector2 :: [2]f32
-// Vector3 type
-Vector3 :: [3]f32
-// Vector4 type
-Vector4 :: [4]f32
 
-// Quaternion type
-Quaternion :: quaternion128
-
-// Matrix type (right handed, stored row major)
-Matrix :: #row_major matrix[4, 4]f32
-
+Mat4_RowMajor :: #row_major matrix[4, 4]f32
 
 // Color, 4 components, R8G8B8A8 (32bit)
-//
-// Note: In Raylib this is a struct. But here we use a fixed array, so that .rgba swizzling etc work.
 Color :: distinct [4]u8
 
 // Rectangle type
@@ -272,9 +259,9 @@ Font :: struct {
 
 // Camera type, defines a camera position/orientation in 3d space
 Camera3D :: struct {
-    position: Vector3,            // Camera position
-    target:   Vector3,            // Camera target it looks-at
-    up:       Vector3,            // Camera up vector (rotation over its axis)
+    position: [3]f32,            // Camera position
+    target:   [3]f32,            // Camera target it looks-at
+    up:       [3]f32,            // Camera up vector (rotation over its axis)
     fovy:     f32,                // Camera field-of-view apperture in Y (degrees) in perspective, used as near plane width in orthographic
     projection: CameraProjection, // Camera projection: `.PERSPECTIVE` or `.ORTHOGRAPHIC`
 }
@@ -283,8 +270,8 @@ Camera :: Camera3D                    // Camera type fallback, defaults to Camer
 
 // Camera2D type, defines a 2d camera
 Camera2D :: struct {
-    offset:   Vector2,            // Camera offset (displacement from target)
-    target:   Vector2,            // Camera target (rotation and zoom origin)
+    offset:   [2]f32,            // Camera offset (displacement from target)
+    target:   [2]f32,            // Camera target (rotation and zoom origin)
     rotation: f32,                // Camera rotation in degrees
     zoom:     f32,                // Camera zoom (scaling), should be 1.0f by default
 }
@@ -309,7 +296,7 @@ Mesh :: struct {
     animNormals:  [^]f32,         // Animated normals (after bones transformations)
     boneIds:      [^]u8,          // Vertex bone ids, up to 4 bones influence by vertex (skinning)
     boneWeights:  [^]f32,         // Vertex bone weight, up to 4 bones influence by vertex (skinning)
-    boneMatrices: [^]Matrix,      // Bones animated transformation matrices
+    boneMatrices: [^]Mat4_RowMajor,      // Bones animated transformation matrices
     boneCount:    c.int,          // Number of bones
 
     // OpenGL identifiers
@@ -339,9 +326,9 @@ Material :: struct {
 
 // Transformation properties
 Transform :: struct {
-    translation: Vector3,         // Translation
-    rotation:    Quaternion,      // Rotation
-    scale:       Vector3,         // Scale
+    translation: [3]f32,         // Translation
+    rotation:    quaternion128,      // Rotation
+    scale:       [3]f32,         // Scale
 }
 
 // Bone information
@@ -352,7 +339,7 @@ BoneInfo :: struct {
 
 // Model type
 Model :: struct #align(align_of(uintptr)) {
-    transform: Matrix,            // Local transform matrix
+    transform: Mat4_RowMajor,            // Local transform matrix
 
     meshCount: c.int,             // Number of meshes
     materialCount: c.int,         // Number of materials
@@ -377,22 +364,22 @@ ModelAnimation :: struct {
 
 // Ray type (useful for raycast)
 Ray :: struct {
-    position:  Vector3,           // Ray position (origin)
-    direction: Vector3,           // Ray direction (normalized)
+    position:  [3]f32,           // Ray position (origin)
+    direction: [3]f32,           // Ray direction (normalized)
 }
 
 // RayCollision, ray hit information
 RayCollision :: struct {
     hit:      bool,               // Did the ray hit something?
     distance: f32,                // Distance to nearest hit
-    point:    Vector3,            // Point of nearest hit
-    normal:   Vector3,            // Surface normal of hit
+    point:    [3]f32,            // Point of nearest hit
+    normal:   [3]f32,            // Surface normal of hit
 }
 
 // Bounding box type
 BoundingBox :: struct {
-    min: Vector3,                 // Minimum vertex box-corner
-    max: Vector3,                 // Maximum vertex box-corner
+    min: [3]f32,                 // Minimum vertex box-corner
+    max: [3]f32,                 // Maximum vertex box-corner
 }
 
 // Wave type, defines audio wave data
@@ -447,8 +434,8 @@ VrDeviceInfo :: struct {
 
 // VR Stereo rendering configuration for simulator
 VrStereoConfig :: struct #align(4) {
-    projection:        [2]Matrix,     // VR projection matrices (per eye)
-    viewOffset:        [2]Matrix,     // VR view offset matrices (per eye)
+    projection:        [2]Mat4_RowMajor,     // VR projection matrices (per eye)
+    viewOffset:        [2]Mat4_RowMajor,     // VR view offset matrices (per eye)
     leftLensCenter:    [2]f32,        // VR left lens center
     rightLensCenter:   [2]f32,        // VR right lens center
     leftScreenCenter:  [2]f32,        // VR left screen center
@@ -944,14 +931,14 @@ foreign lib {
     GetRenderHeight          :: proc() -> c.int ---                             // Get current render height (it considers HiDPI)
     GetMonitorCount          :: proc() -> c.int ---                             // Get number of connected monitors
     GetCurrentMonitor        :: proc() -> c.int ---                             // Get current monitor where window is placed
-    GetMonitorPosition       :: proc(monitor: c.int) -> Vector2 ---             // Get specified monitor position
+    GetMonitorPosition       :: proc(monitor: c.int) -> [2]f32 ---             // Get specified monitor position
     GetMonitorWidth          :: proc(monitor: c.int) -> c.int ---               // Get specified monitor width (current video mode used by monitor)
     GetMonitorHeight         :: proc(monitor: c.int) -> c.int ---               // Get specified monitor height (current video mode used by monitor)
     GetMonitorPhysicalWidth  :: proc(monitor: c.int) -> c.int ---               // Get specified monitor physical width in millimetres
     GetMonitorPhysicalHeight :: proc(monitor: c.int) -> c.int ---               // Get specified monitor physical height in millimetres
     GetMonitorRefreshRate    :: proc(monitor: c.int) -> c.int ---               // Get specified monitor refresh rate
-    GetWindowPosition        :: proc() -> Vector2 ---                           // Get window position XY on monitor
-    GetWindowScaleDPI        :: proc() -> Vector2 ---                           // Get window scale DPI factor
+    GetWindowPosition        :: proc() -> [2]f32 ---                           // Get window position XY on monitor
+    GetWindowScaleDPI        :: proc() -> [2]f32 ---                           // Get window scale DPI factor
     GetMonitorName           :: proc(monitor: c.int) -> cstring ---             // Get the human-readable, UTF-8 encoded name of the specified monitor
     SetClipboardText         :: proc(text: cstring) ---                         // Set clipboard text content
     GetClipboardText         :: proc() -> cstring ---                           // Get clipboard text content
@@ -1016,20 +1003,20 @@ foreign lib {
     // We use #any_int here so we can pass ShaderLocationIndex
     SetShaderValue          :: proc(shader: Shader, #any_int locIndex: c.int, value: rawptr, uniformType: ShaderUniformDataType) ---               // Set shader uniform value
     SetShaderValueV         :: proc(shader: Shader, #any_int locIndex: c.int, value: rawptr, uniformType: ShaderUniformDataType, count: c.int) --- // Set shader uniform value vector
-    SetShaderValueMatrix    :: proc(shader: Shader, #any_int locIndex: c.int, mat: Matrix) ---                                                     // Set shader uniform value (matrix 4x4)
+    SetShaderValueMatrix    :: proc(shader: Shader, #any_int locIndex: c.int, mat: Mat4_RowMajor) ---                                                     // Set shader uniform value (matrix 4x4)
     SetShaderValueTexture   :: proc(shader: Shader, #any_int locIndex: c.int, texture: Texture2D) ---                                              // Set shader uniform value for texture (sampler2d)
     UnloadShader            :: proc(shader: Shader) ---                                                                                   // Unload shader from GPU memory (VRAM)
 
     // Screen-space-related functions
 
-    GetScreenToWorldRay   :: proc(position: Vector2, camera: Camera) -> Ray ---                                  // Get a ray trace from screen position (i.e mouse)
-    GetScreenToWorldRayEx :: proc(position: Vector2, camera: Camera, width: c.int, height: c.int) ->Ray ---      // Get a ray trace from screen position (i.e mouse) in a viewport
-    GetWorldToScreen      :: proc(position: Vector3, camera: Camera) -> Vector2 ---                              // Get the screen space position for a 3d world space position
-    GetWorldToScreenEx    :: proc(position: Vector3, camera: Camera, width: c.int, height: c.int) -> Vector2 --- // Get size position for a 3d world space position
-    GetWorldToScreen2D    :: proc(position: Vector2, camera: Camera2D) -> Vector2 ---                            // Get the screen space position for a 2d camera world space position
-    GetScreenToWorld2D    :: proc(position: Vector2, camera: Camera2D) -> Vector2 ---                            // Get the world space position for a 2d camera screen space position
-    GetCameraMatrix       :: proc(camera: Camera) -> Matrix ---                                                  // Get camera transform matrix (view matrix)
-    GetCameraMatrix2D     :: proc(camera: Camera2D) -> Matrix ---                                                // Get camera 2d transform matrix
+    GetScreenToWorldRay   :: proc(position: [2]f32, camera: Camera) -> Ray ---                                  // Get a ray trace from screen position (i.e mouse)
+    GetScreenToWorldRayEx :: proc(position: [2]f32, camera: Camera, width: c.int, height: c.int) ->Ray ---      // Get a ray trace from screen position (i.e mouse) in a viewport
+    GetWorldToScreen      :: proc(position: [3]f32, camera: Camera) -> [2]f32 ---                              // Get the screen space position for a 3d world space position
+    GetWorldToScreenEx    :: proc(position: [3]f32, camera: Camera, width: c.int, height: c.int) -> [2]f32 --- // Get size position for a 3d world space position
+    GetWorldToScreen2D    :: proc(position: [2]f32, camera: Camera2D) -> [2]f32 ---                            // Get the screen space position for a 2d camera world space position
+    GetScreenToWorld2D    :: proc(position: [2]f32, camera: Camera2D) -> [2]f32 ---                            // Get the world space position for a 2d camera screen space position
+    GetCameraMatrix       :: proc(camera: Camera) -> Mat4_RowMajor ---                                                  // Get camera transform matrix (view matrix)
+    GetCameraMatrix2D     :: proc(camera: Camera2D) -> Mat4_RowMajor ---                                                // Get camera 2d transform matrix
     
     // Timing-related functions
 
@@ -1162,20 +1149,20 @@ foreign lib {
     
     GetMouseX             :: proc() -> c.int ---                      // Returns mouse position X
     GetMouseY             :: proc() -> c.int ---                      // Returns mouse position Y
-    GetMousePosition      :: proc() -> Vector2 ---                    // Returns mouse position XY
-    GetMouseDelta         :: proc() -> Vector2 ---                    // Returns mouse delta XY
+    GetMousePosition      :: proc() -> [2]f32 ---                    // Returns mouse position XY
+    GetMouseDelta         :: proc() -> [2]f32 ---                    // Returns mouse delta XY
     SetMousePosition      :: proc(x, y: c.int) ---                    // Set mouse position XY
     SetMouseOffset        :: proc(offsetX, offsetY: c.int) ---        // Set mouse offset
     SetMouseScale         :: proc(scaleX, scaleY: f32) ---            // Set mouse scaling
     GetMouseWheelMove     :: proc() -> f32 ---                        // Returns mouse wheel movement Y
-    GetMouseWheelMoveV    :: proc() -> Vector2 ---                    // Get mouse wheel movement for both X and Y
+    GetMouseWheelMoveV    :: proc() -> [2]f32 ---                    // Get mouse wheel movement for both X and Y
     SetMouseCursor        :: proc(cursor: MouseCursor) ---            // Set mouse cursor
 
     // Input-related functions: touch
 
     GetTouchX          :: proc() -> c.int ---               // Returns touch position X for touch point 0 (relative to screen size)
     GetTouchY          :: proc() -> c.int ---               // Returns touch position Y for touch point 0 (relative to screen size)
-    GetTouchPosition   :: proc(index: c.int) -> Vector2 --- // Returns touch position XY for a touch point index (relative to screen size)
+    GetTouchPosition   :: proc(index: c.int) -> [2]f32 --- // Returns touch position XY for a touch point index (relative to screen size)
     GetTouchPointId    :: proc(index: c.int) -> c.int ---   // Get touch point identifier for given index
     GetTouchPointCount :: proc() -> c.int ---               // Get number of touch points
 
@@ -1187,9 +1174,9 @@ foreign lib {
 
     GetGestureDetected     :: proc() -> Gestures ---             // Get latest detected gesture
     GetGestureHoldDuration :: proc() -> f32 ---                  // Get gesture hold time in seconds
-    GetGestureDragVector   :: proc() -> Vector2 ---              // Get gesture drag vector
+    GetGestureDragVector   :: proc() -> [2]f32 ---              // Get gesture drag vector
     GetGestureDragAngle    :: proc() -> f32 ---                  // Get gesture drag angle
-    GetGesturePinchVector  :: proc() -> Vector2 ---              // Get gesture pinch delta
+    GetGesturePinchVector  :: proc() -> [2]f32 ---              // Get gesture pinch delta
     GetGesturePinchAngle   :: proc() -> f32 ---                  // Get gesture pinch angle
 
     //------------------------------------------------------------------------------------
@@ -1197,11 +1184,11 @@ foreign lib {
     //------------------------------------------------------------------------------------
 
     UpdateCamera :: proc(camera: ^Camera, mode: CameraMode) ---                                   // Set camera mode (multiple camera modes available)
-    UpdateCameraPro :: proc(camera: ^Camera, movement: Vector3, rotation: Vector3, zoom: f32) --- // Update camera movement/rotation
+    UpdateCameraPro :: proc(camera: ^Camera, movement: [3]f32, rotation: [3]f32, zoom: f32) --- // Update camera movement/rotation
 
-    GetCameraForward :: proc(camera: ^Camera) -> Vector3 --- // returns the camera's forward vector (normalized)
-    GetCameraUp :: proc(camera: ^Camera) -> Vector3 --- // returns the camera's up vector (normalized) - might not be perpendicular to forward vector
-    GetCameraRight :: proc(camera: ^Camera) -> Vector3 --- // returns the camera's right vector (normalized)
+    GetCameraForward :: proc(camera: ^Camera) -> [3]f32 --- // returns the camera's forward vector (normalized)
+    GetCameraUp :: proc(camera: ^Camera) -> [3]f32 --- // returns the camera's up vector (normalized) - might not be perpendicular to forward vector
+    GetCameraRight :: proc(camera: ^Camera) -> [3]f32 --- // returns the camera's right vector (normalized)
 
     // Camera Movement/Rotation. Angle is provided in radians
 
@@ -1213,8 +1200,8 @@ foreign lib {
     CameraPitch :: proc(camera: ^Camera, angle: f32, lockView: bool, rotateAroundTarget: bool, rotateUp: bool) --- // rotates the camera around its right vector (up and down)
     CameraRoll :: proc(camera: ^Camera, angle: f32) --- // rotates the camera around its forward vector (left and right)
 
-    GetCameraViewMatrix :: proc(camera: ^Camera) -> Matrix --- // returns the camera view matrix
-    GetCameraProjectionMatrix :: proc(camera: ^Camera, aspect: f32) -> Matrix --- // returns the camera projection matrix
+    GetCameraViewMatrix :: proc(camera: ^Camera) -> Mat4_RowMajor --- // returns the camera view matrix
+    GetCameraProjectionMatrix :: proc(camera: ^Camera, aspect: f32) -> Mat4_RowMajor --- // returns the camera projection matrix
 
     //------------------------------------------------------------------------------------
     // Basic Shapes Drawing Functions (Module: shapes)
@@ -1231,27 +1218,27 @@ foreign lib {
     // Basic shapes drawing functions
 
     DrawPixel                   :: proc(posX, posY: c.int, color: Color) ---                                                                          // Draw a pixel using geometry [Can be slow, use with care]
-    DrawPixelV                  :: proc(position: Vector2, color: Color) ---                                                                          // Draw a pixel using geometry (Vector version) [Can be slow, use with care]
+    DrawPixelV                  :: proc(position: [2]f32, color: Color) ---                                                                          // Draw a pixel using geometry (Vector version) [Can be slow, use with care]
     DrawLine                    :: proc(startPosX, startPosY, endPosX, endPosY: c.int, color: Color) ---                                              // Draw a line
-    DrawLineV                   :: proc(startPos, endPos: Vector2, color: Color) ---                                                                  // Draw a line (using gl lines)
-    DrawLineEx                  :: proc(startPos, endPos: Vector2, thick: f32, color: Color) ---                                                      // Draw a line (using triangles/quads)
-    DrawLineStrip               :: proc(points: [^]Vector2, pointCount: c.int, color: Color) ---                                                      // Draw lines sequence (using gl lines)
-    DrawLineBezier              :: proc(startPos, endPos: Vector2, thick: f32, color: Color) ---                                                      // Draw line segment cubic-bezier in-out interpolation
+    DrawLineV                   :: proc(startPos, endPos: [2]f32, color: Color) ---                                                                  // Draw a line (using gl lines)
+    DrawLineEx                  :: proc(startPos, endPos: [2]f32, thick: f32, color: Color) ---                                                      // Draw a line (using triangles/quads)
+    DrawLineStrip               :: proc(points: [^][2]f32, pointCount: c.int, color: Color) ---                                                      // Draw lines sequence (using gl lines)
+    DrawLineBezier              :: proc(startPos, endPos: [2]f32, thick: f32, color: Color) ---                                                      // Draw line segment cubic-bezier in-out interpolation
     DrawCircle                  :: proc(centerX, centerY: c.int, radius: f32, color: Color) ---                                                       // Draw a color-filled circle
-    DrawCircleSector            :: proc(center: Vector2, radius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) ---                   // Draw a piece of a circle
-    DrawCircleSectorLines       :: proc(center: Vector2, radius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) ---                   // Draw circle sector outline
+    DrawCircleSector            :: proc(center: [2]f32, radius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) ---                   // Draw a piece of a circle
+    DrawCircleSectorLines       :: proc(center: [2]f32, radius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) ---                   // Draw circle sector outline
     DrawCircleGradient          :: proc(centerX, centerY: c.int, radius: f32, inner, outer: Color) ---                                                // Draw a gradient-filled circle
-    DrawCircleV                 :: proc(center: Vector2, radius: f32, color: Color) ---                                                               // Draw a color-filled circle (Vector version)
+    DrawCircleV                 :: proc(center: [2]f32, radius: f32, color: Color) ---                                                               // Draw a color-filled circle (Vector version)
     DrawCircleLines             :: proc(centerX, centerY: c.int, radius: f32, color: Color) ---                                                       // Draw circle outline
-    DrawCircleLinesV            :: proc(center: Vector2, radius: f32, color: Color) ---                                                               // Draw circle outline (Vector version)
+    DrawCircleLinesV            :: proc(center: [2]f32, radius: f32, color: Color) ---                                                               // Draw circle outline (Vector version)
     DrawEllipse                 :: proc(centerX, centerY: c.int, radiusH, radiusV: f32, color: Color) ---                                             // Draw ellipse
     DrawEllipseLines            :: proc(centerX, centerY: c.int, radiusH, radiusV: f32, color: Color) ---                                             // Draw ellipse outline
-    DrawRing                    :: proc(center: Vector2, innerRadius, outerRadius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) --- // Draw ring
-    DrawRingLines               :: proc(center: Vector2, innerRadius, outerRadius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) --- // Draw ring outline
+    DrawRing                    :: proc(center: [2]f32, innerRadius, outerRadius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) --- // Draw ring
+    DrawRingLines               :: proc(center: [2]f32, innerRadius, outerRadius: f32, startAngle, endAngle: f32, segments: c.int, color: Color) --- // Draw ring outline
     DrawRectangle               :: proc(posX, posY: c.int, width, height: c.int, color: Color) ---                                                    // Draw a color-filled rectangle
-    DrawRectangleV              :: proc(position: Vector2, size: Vector2, color: Color) ---                                                           // Draw a color-filled rectangle (Vector version)
+    DrawRectangleV              :: proc(position: [2]f32, size: [2]f32, color: Color) ---                                                           // Draw a color-filled rectangle (Vector version)
     DrawRectangleRec            :: proc(rec: Rectangle, color: Color) ---                                                                             // Draw a color-filled rectangle
-    DrawRectanglePro            :: proc(rec: Rectangle, origin: Vector2, rotation: f32, color: Color) ---                                             // Draw a color-filled rectangle with pro parameters
+    DrawRectanglePro            :: proc(rec: Rectangle, origin: [2]f32, rotation: f32, color: Color) ---                                             // Draw a color-filled rectangle with pro parameters
     DrawRectangleGradientV      :: proc(posX, posY: c.int, width, height: c.int, top, bottom: Color) ---                                              // Draw a vertical-gradient-filled rectangle
     DrawRectangleGradientH      :: proc(posX, posY: c.int, width, height: c.int, left, right: Color) ---                                              // Draw a horizontal-gradient-filled rectangle
     DrawRectangleGradientEx     :: proc(rec: Rectangle, topLeft, bottomLeft, topRight, bottomRight: Color) ---                                        // Draw a gradient-filled rectangle with custom vertex colors
@@ -1260,43 +1247,43 @@ foreign lib {
     DrawRectangleRounded        :: proc(rec: Rectangle, roundness: f32, segments: c.int, color: Color) ---                                            // Draw rectangle with rounded edges
     DrawRectangleRoundedLines   :: proc(rec: Rectangle, roundness: f32, segments: c.int, color: Color) ---                                            // Draw rectangle lines with rounded edges
     DrawRectangleRoundedLinesEx :: proc(rec: Rectangle, roundness: f32, segments: c.int, lineThick: f32, color: Color) ---                            // Draw rectangle with rounded edges outline
-    DrawTriangle                :: proc(v1, v2, v3: Vector2, color: Color) ---                                                                        // Draw a color-filled triangle (vertex in counter-clockwise order!)
-    DrawTriangleLines           :: proc(v1, v2, v3: Vector2, color: Color) ---                                                                        // Draw triangle outline (vertex in counter-clockwise order!)
-    DrawTriangleFan             :: proc(points: [^]Vector2, pointCount: c.int, color: Color) ---                                                      // Draw a triangle fan defined by points (first vertex is the center)
-    DrawTriangleStrip           :: proc(points: [^]Vector2, pointCount: c.int, color: Color) ---                                                      // Draw a triangle strip defined by points
-    DrawPoly                    :: proc(center: Vector2, sides: c.int, radius: f32, rotation: f32, color: Color) ---                                  // Draw a regular polygon (Vector version)
-    DrawPolyLines               :: proc(center: Vector2, sides: c.int, radius: f32, rotation: f32, color: Color) ---                                  // Draw a polygon outline of n sides
-    DrawPolyLinesEx             :: proc(center: Vector2, sides: c.int, radius: f32, rotation: f32, lineThick: f32, color: Color) ---                  // Draw a polygon outline of n sides with extended parameters
+    DrawTriangle                :: proc(v1, v2, v3: [2]f32, color: Color) ---                                                                        // Draw a color-filled triangle (vertex in counter-clockwise order!)
+    DrawTriangleLines           :: proc(v1, v2, v3: [2]f32, color: Color) ---                                                                        // Draw triangle outline (vertex in counter-clockwise order!)
+    DrawTriangleFan             :: proc(points: [^][2]f32, pointCount: c.int, color: Color) ---                                                      // Draw a triangle fan defined by points (first vertex is the center)
+    DrawTriangleStrip           :: proc(points: [^][2]f32, pointCount: c.int, color: Color) ---                                                      // Draw a triangle strip defined by points
+    DrawPoly                    :: proc(center: [2]f32, sides: c.int, radius: f32, rotation: f32, color: Color) ---                                  // Draw a regular polygon (Vector version)
+    DrawPolyLines               :: proc(center: [2]f32, sides: c.int, radius: f32, rotation: f32, color: Color) ---                                  // Draw a polygon outline of n sides
+    DrawPolyLinesEx             :: proc(center: [2]f32, sides: c.int, radius: f32, rotation: f32, lineThick: f32, color: Color) ---                  // Draw a polygon outline of n sides with extended parameters
 
     // Splines drawing functions
-    DrawSplineLinear                 :: proc(points: [^]Vector2, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Linear, minimum 2 points
-    DrawSplineBasis                  :: proc(points: [^]Vector2, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: B-Spline, minimum 4 points
-    DrawSplineCatmullRom             :: proc(points: [^]Vector2, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Catmull-Rom, minimum 4 points
-    DrawSplineBezierQuadratic        :: proc(points: [^]Vector2, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Quadratic Bezier, minimum 3 points (1 control point): [p1, c2, p3, c4...]
-    DrawSplineBezierCubic            :: proc(points: [^]Vector2, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Cubic Bezier, minimum 4 points (2 control points): [p1, c2, c3, p4, c5, c6...]
-    DrawSplineSegmentLinear          :: proc(p1, p2: Vector2, thick: f32, color: Color) ---                       // Draw spline segment: Linear, 2 points
-    DrawSplineSegmentBasis           :: proc(p1, p2, p3, p4: Vector2, thick: f32, color: Color) ---               // Draw spline segment: B-Spline, 4 points
-    DrawSplineSegmentCatmullRom      :: proc(p1, p2, p3, p4: Vector2, thick: f32, color: Color) ---               // Draw spline segment: Catmull-Rom, 4 points
-    DrawSplineSegmentBezierQuadratic :: proc(p1, c2, p3: Vector2, thick: f32, color: Color) ---                   // Draw spline segment: Quadratic Bezier, 2 points, 1 control point
-    DrawSplineSegmentBezierCubic     :: proc(p1, c2, c3, p4: Vector2, thick: f32, color: Color) ---               // Draw spline segment: Cubic Bezier, 2 points, 2 control points
+    DrawSplineLinear                 :: proc(points: [^][2]f32, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Linear, minimum 2 points
+    DrawSplineBasis                  :: proc(points: [^][2]f32, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: B-Spline, minimum 4 points
+    DrawSplineCatmullRom             :: proc(points: [^][2]f32, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Catmull-Rom, minimum 4 points
+    DrawSplineBezierQuadratic        :: proc(points: [^][2]f32, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Quadratic Bezier, minimum 3 points (1 control point): [p1, c2, p3, c4...]
+    DrawSplineBezierCubic            :: proc(points: [^][2]f32, pointCount: c.int, thick: f32, color: Color) --- // Draw spline: Cubic Bezier, minimum 4 points (2 control points): [p1, c2, c3, p4, c5, c6...]
+    DrawSplineSegmentLinear          :: proc(p1, p2: [2]f32, thick: f32, color: Color) ---                       // Draw spline segment: Linear, 2 points
+    DrawSplineSegmentBasis           :: proc(p1, p2, p3, p4: [2]f32, thick: f32, color: Color) ---               // Draw spline segment: B-Spline, 4 points
+    DrawSplineSegmentCatmullRom      :: proc(p1, p2, p3, p4: [2]f32, thick: f32, color: Color) ---               // Draw spline segment: Catmull-Rom, 4 points
+    DrawSplineSegmentBezierQuadratic :: proc(p1, c2, p3: [2]f32, thick: f32, color: Color) ---                   // Draw spline segment: Quadratic Bezier, 2 points, 1 control point
+    DrawSplineSegmentBezierCubic     :: proc(p1, c2, c3, p4: [2]f32, thick: f32, color: Color) ---               // Draw spline segment: Cubic Bezier, 2 points, 2 control points
 
     // Spline segment point evaluation functions, for a given t [0.0f .. 1.0f]
-    GetSplinePointLinear      :: proc(startPos, endPos: Vector2, t: f32) -> Vector2 ---    // Get (evaluate) spline point: Linear
-    GetSplinePointBasis       :: proc(p1, p2, p3, p4: Vector2, t: f32) -> Vector2 ---      // Get (evaluate) spline point: B-Spline
-    GetSplinePointCatmullRom  :: proc(p1, p2, p3, p4: Vector2, t: f32) -> Vector2 ---      // Get (evaluate) spline point: Catmull-Rom
-    GetSplinePointBezierQuad  :: proc(p1, c2, p3: Vector2, t: f32) -> Vector2 ---          // Get (evaluate) spline point: Quadratic Bezier
-    GetSplinePointBezierCubic :: proc(p1, c2, c3, p4: Vector2, t: f32) -> Vector2 ---      // Get (evaluate) spline point: Cubic Bezier
+    GetSplinePointLinear      :: proc(startPos, endPos: [2]f32, t: f32) -> [2]f32 ---    // Get (evaluate) spline point: Linear
+    GetSplinePointBasis       :: proc(p1, p2, p3, p4: [2]f32, t: f32) -> [2]f32 ---      // Get (evaluate) spline point: B-Spline
+    GetSplinePointCatmullRom  :: proc(p1, p2, p3, p4: [2]f32, t: f32) -> [2]f32 ---      // Get (evaluate) spline point: Catmull-Rom
+    GetSplinePointBezierQuad  :: proc(p1, c2, p3: [2]f32, t: f32) -> [2]f32 ---          // Get (evaluate) spline point: Quadratic Bezier
+    GetSplinePointBezierCubic :: proc(p1, c2, c3, p4: [2]f32, t: f32) -> [2]f32 ---      // Get (evaluate) spline point: Cubic Bezier
                                                                                                                                                         // Basic shapes collision detection functions
     CheckCollisionRecs          :: proc(rec1, rec2: Rectangle) -> bool ---                                                                          // Check collision between two rectangles
-    CheckCollisionCircles       :: proc(center1: Vector2, radius1: f32, center2: Vector2, radius2: f32) -> bool ---                                 // Check collision between two circles
-    CheckCollisionCircleRec     :: proc(center: Vector2, radius: f32, rec: Rectangle) -> bool ---                                                   // Check collision between circle and rectangle
-    CheckCollisionCircleLine    :: proc(center: Vector2, radius: f32, p1, p2: Vector2) -> bool ---                                                  // Check if circle collides with a line created betweeen two points [p1] and [p2]
-    CheckCollisionPointRec      :: proc(point: Vector2, rec: Rectangle) -> bool ---                                                                 // Check if point is inside rectangle
-    CheckCollisionPointCircle   :: proc(point, center: Vector2, radius: f32) -> bool ---                                                            // Check if point is inside circle
-    CheckCollisionPointTriangle :: proc(point: Vector2, p1, p2, p3: Vector2) -> bool ---                                                            // Check if point is inside a triangle
-    CheckCollisionPointLine     :: proc(point: Vector2, p1, p2: Vector2, threshold: c.int) -> bool ---                                              // Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
-    CheckCollisionPointPoly     :: proc(point: Vector2, points: [^]Vector2, pointCount: c.int) -> bool ---                                          // Check if point is within a polygon described by array of vertices
-    CheckCollisionLines         :: proc(startPos1, endPos1, startPos2, endPos2: Vector2, collisionPoint: [^]Vector2) -> bool ---                    // Check the collision between two lines defined by two points each, returns collision point by reference
+    CheckCollisionCircles       :: proc(center1: [2]f32, radius1: f32, center2: [2]f32, radius2: f32) -> bool ---                                 // Check collision between two circles
+    CheckCollisionCircleRec     :: proc(center: [2]f32, radius: f32, rec: Rectangle) -> bool ---                                                   // Check collision between circle and rectangle
+    CheckCollisionCircleLine    :: proc(center: [2]f32, radius: f32, p1, p2: [2]f32) -> bool ---                                                  // Check if circle collides with a line created betweeen two points [p1] and [p2]
+    CheckCollisionPointRec      :: proc(point: [2]f32, rec: Rectangle) -> bool ---                                                                 // Check if point is inside rectangle
+    CheckCollisionPointCircle   :: proc(point, center: [2]f32, radius: f32) -> bool ---                                                            // Check if point is inside circle
+    CheckCollisionPointTriangle :: proc(point: [2]f32, p1, p2, p3: [2]f32) -> bool ---                                                            // Check if point is inside a triangle
+    CheckCollisionPointLine     :: proc(point: [2]f32, p1, p2: [2]f32, threshold: c.int) -> bool ---                                              // Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
+    CheckCollisionPointPoly     :: proc(point: [2]f32, points: [^][2]f32, pointCount: c.int) -> bool ---                                          // Check if point is within a polygon described by array of vertices
+    CheckCollisionLines         :: proc(startPos1, endPos1, startPos2, endPos2: [2]f32, collisionPoint: [^][2]f32) -> bool ---                    // Check the collision between two lines defined by two points each, returns collision point by reference
     GetCollisionRec             :: proc(rec1, rec2: Rectangle) -> Rectangle ---                                                                     // Get collision rectangle for two rectangles collision
 
 
@@ -1373,26 +1360,26 @@ foreign lib {
 
     ImageClearBackground    :: proc(dst: ^Image, color: Color) ---                                                                           // Clear image background with given color
     ImageDrawPixel          :: proc(dst: ^Image, posX, posY: c.int, color: Color) ---                                                        // Draw pixel within an image
-    ImageDrawPixelV         :: proc(dst: ^Image, position: Vector2, color: Color) ---                                                        // Draw pixel within an image (Vector version)
+    ImageDrawPixelV         :: proc(dst: ^Image, position: [2]f32, color: Color) ---                                                        // Draw pixel within an image (Vector version)
     ImageDrawLine           :: proc(dst: ^Image, startPosX, startPosY, endPosX, endPosY: c.int, color: Color) ---                            // Draw line within an image
-    ImageDrawLineV          :: proc(dst: ^Image, start, end: Vector2, color: Color) ---                                                      // Draw line within an image (Vector version)
-    ImageDrawLineEx         :: proc(dst: ^Image, start, end: Vector2, thick: c.int, color: Color) ---                                        // Draw a line defining thickness within an image
+    ImageDrawLineV          :: proc(dst: ^Image, start, end: [2]f32, color: Color) ---                                                      // Draw line within an image (Vector version)
+    ImageDrawLineEx         :: proc(dst: ^Image, start, end: [2]f32, thick: c.int, color: Color) ---                                        // Draw a line defining thickness within an image
     ImageDrawCircle         :: proc(dst: ^Image, centerX, centerY: c.int, radius: c.int, color: Color) ---                                   // Draw a filled circle within an image
-    ImageDrawCircleV        :: proc(dst: ^Image, center: Vector2, radius: c.int, color: Color) ---                                           // Draw a filled circle within an image (Vector version)
+    ImageDrawCircleV        :: proc(dst: ^Image, center: [2]f32, radius: c.int, color: Color) ---                                           // Draw a filled circle within an image (Vector version)
     ImageDrawCircleLines    :: proc(dst: ^Image, centerX, centerY: c.int, radius: c.int, color: Color) ---                                   // Draw circle outline within an image
-    ImageDrawCircleLinesV   :: proc(dst: ^Image, center: Vector2, radius: c.int, color: Color) ---                                           // Draw circle outline within an image (Vector version)
+    ImageDrawCircleLinesV   :: proc(dst: ^Image, center: [2]f32, radius: c.int, color: Color) ---                                           // Draw circle outline within an image (Vector version)
     ImageDrawRectangle      :: proc(dst: ^Image, posX, posY: c.int, width, height: c.int, color: Color) ---                                  // Draw rectangle within an image
-    ImageDrawRectangleV     :: proc(dst: ^Image, position, size: Vector2, color: Color) ---                                                  // Draw rectangle within an image (Vector version)
+    ImageDrawRectangleV     :: proc(dst: ^Image, position, size: [2]f32, color: Color) ---                                                  // Draw rectangle within an image (Vector version)
     ImageDrawRectangleRec   :: proc(dst: ^Image, rec: Rectangle, color: Color) ---                                                           // Draw rectangle within an image
     ImageDrawRectangleLines :: proc(dst: ^Image, rec: Rectangle, thick: c.int, color: Color) ---                                             // Draw rectangle lines within an image
-    ImageDrawTriangle       :: proc(dst: ^Image, v1, v2, v3: Vector2, color: Color) ---                                                      // Draw triangle within an image
-    ImageDrawTriangleEx     :: proc(dst: ^Image, v1, v2, v3: Vector2, c1, c2, c3: Color) ---                                                 // Draw triangle with interpolated colors within an image
-    ImageDrawTriangleLines  :: proc(dst: ^Image, v1, v2, v3: Vector2, color: Color) ---                                                      // Draw triangle outline within an image
-    ImageDrawTriangleFan    :: proc(dst: ^Image, points: [^]Vector2, pointCount: c.int, color: Color) ---                                    // Draw a triangle fan defined by points within an image (first vertex is the center)
-    ImageDrawTriangleStrip  :: proc(dst: ^Image, points: [^]Vector2, pointCount: c.int, color: Color) ---                                    // Draw a triangle strip defined by points within an image
+    ImageDrawTriangle       :: proc(dst: ^Image, v1, v2, v3: [2]f32, color: Color) ---                                                      // Draw triangle within an image
+    ImageDrawTriangleEx     :: proc(dst: ^Image, v1, v2, v3: [2]f32, c1, c2, c3: Color) ---                                                 // Draw triangle with interpolated colors within an image
+    ImageDrawTriangleLines  :: proc(dst: ^Image, v1, v2, v3: [2]f32, color: Color) ---                                                      // Draw triangle outline within an image
+    ImageDrawTriangleFan    :: proc(dst: ^Image, points: [^][2]f32, pointCount: c.int, color: Color) ---                                    // Draw a triangle fan defined by points within an image (first vertex is the center)
+    ImageDrawTriangleStrip  :: proc(dst: ^Image, points: [^][2]f32, pointCount: c.int, color: Color) ---                                    // Draw a triangle strip defined by points within an image
     ImageDraw               :: proc(dst: ^Image, src: Image, srcRec, dstRec: Rectangle, tint: Color) ---                                     // Draw a source image within a destination image (tint applied to source)
     ImageDrawText           :: proc(dst: ^Image, text: cstring, posX, posY: c.int, fontSize: c.int, color: Color) ---                        // Draw text (using default font) within an image (destination)
-    ImageDrawTextEx         :: proc(dst: ^Image, font: Font, text: cstring, position: Vector2, fontSize: f32, spacing: f32, tint: Color) --- // Draw text (custom sprite font) within an image (destination)
+    ImageDrawTextEx         :: proc(dst: ^Image, font: Font, text: cstring, position: [2]f32, fontSize: f32, spacing: f32, tint: Color) --- // Draw text (custom sprite font) within an image (destination)
 
     // Texture loading functions
     // NOTE: These functions require GPU access
@@ -1416,11 +1403,11 @@ foreign lib {
 
                                                                                                                                                 // Texture drawing functions
     DrawTexture       :: proc(texture: Texture2D, posX, posY: c.int, tint: Color) ---                                                       // Draw a Texture2D
-    DrawTextureV      :: proc(texture: Texture2D, position: Vector2, tint: Color) ---                                                       // Draw a Texture2D with position defined as Vector2
-    DrawTextureEx     :: proc(texture: Texture2D, position: Vector2, rotation: f32, scale: f32, tint: Color) ---                            // Draw a Texture2D with extended parameters
-    DrawTextureRec    :: proc(texture: Texture2D, source: Rectangle, position: Vector2, tint: Color) ---                                    // Draw a part of a texture defined by a rectangle
-    DrawTexturePro    :: proc(texture: Texture2D, source, dest: Rectangle, origin: Vector2, rotation: f32, tint: Color) ---                 // Draw a part of a texture defined by a rectangle with 'pro' parameters
-    DrawTextureNPatch :: proc(texture: Texture2D, nPatchInfo: NPatchInfo, dest: Rectangle, origin: Vector2, rotation: f32, tint: Color) --- // Draws a texture (or part of it) that stretches or shrinks nicely
+    DrawTextureV      :: proc(texture: Texture2D, position: [2]f32, tint: Color) ---                                                       // Draw a Texture2D with position defined as [2]f32
+    DrawTextureEx     :: proc(texture: Texture2D, position: [2]f32, rotation: f32, scale: f32, tint: Color) ---                            // Draw a Texture2D with extended parameters
+    DrawTextureRec    :: proc(texture: Texture2D, source: Rectangle, position: [2]f32, tint: Color) ---                                    // Draw a part of a texture defined by a rectangle
+    DrawTexturePro    :: proc(texture: Texture2D, source, dest: Rectangle, origin: [2]f32, rotation: f32, tint: Color) ---                 // Draw a part of a texture defined by a rectangle with 'pro' parameters
+    DrawTextureNPatch :: proc(texture: Texture2D, nPatchInfo: NPatchInfo, dest: Rectangle, origin: [2]f32, rotation: f32, tint: Color) --- // Draws a texture (or part of it) that stretches or shrinks nicely
 
     // Color/pixel related functions
     
@@ -1428,9 +1415,9 @@ foreign lib {
     ColorIsEqual        :: proc(col1, col2: Color) ---                                  // Check if two colors are equal
     Fade                :: proc(color: Color, alpha: f32) -> Color ---                  // Get color with alpha applied, alpha goes from 0.0f to 1.0f
     ColorToInt          :: proc(color: Color) -> c.uint ---                             // Get hexadecimal value for a Color (0xRRGGBBAA)
-    ColorNormalize      :: proc(color: Color) -> Vector4 ---                            // Get Color normalized as float [0..1]
-    ColorFromNormalized :: proc(normalized: Vector4) -> Color ---                       // Get Color from normalized values [0..1]
-    ColorToHSV          :: proc(color: Color) -> Vector3 ---                            // Get HSV values for a Color, hue [0..360], saturation/value [0..1]
+    ColorNormalize      :: proc(color: Color) -> [4]f32 ---                            // Get Color normalized as float [0..1]
+    ColorFromNormalized :: proc(normalized: [4]f32) -> Color ---                       // Get Color from normalized values [0..1]
+    ColorToHSV          :: proc(color: Color) -> [3]f32 ---                            // Get HSV values for a Color, hue [0..360], saturation/value [0..1]
     ColorFromHSV        :: proc(hue, saturation, value: f32) -> Color ---               // Get a Color from HSV values, hue [0..360], saturation/value [0..1]
     ColorTint           :: proc(color, tint: Color) -> Color ---                        // Get color multiplied with another color
     ColorBrightness     :: proc(color: Color, factor: f32) -> Color ---                 // Get color with brightness correction, brightness factor goes from -1.0f to 1.0f
@@ -1468,16 +1455,16 @@ foreign lib {
 
     DrawFPS            :: proc(posX, posY: c.int) ---                                                                                                   // Draw current FPS
     DrawText           :: proc(text: cstring, posX, posY: c.int, fontSize: c.int, color: Color) ---                                                     // Draw text (using default font)
-    DrawTextEx         :: proc(font: Font, text: cstring, position: Vector2, fontSize: f32, spacing: f32, tint: Color) ---                              // Draw text using font and additional parameters
-    DrawTextPro        :: proc(font: Font, text: cstring, position, origin: Vector2, rotation: f32, fontSize: f32, spacing: f32, tint: Color) ---       // Draw text using Font and pro parameters (rotation)
-    DrawTextCodepoint  :: proc(font: Font, codepoint: rune, position: Vector2, fontSize: f32, tint: Color) ---                                          // Draw one character (codepoint)
-    DrawTextCodepoints :: proc(font: Font, codepoints: [^]rune, codepointCount: c.int, position: Vector2, fontSize: f32, spacing: f32, tint: Color) ---     // Draw multiple character (codepoint)
+    DrawTextEx         :: proc(font: Font, text: cstring, position: [2]f32, fontSize: f32, spacing: f32, tint: Color) ---                              // Draw text using font and additional parameters
+    DrawTextPro        :: proc(font: Font, text: cstring, position, origin: [2]f32, rotation: f32, fontSize: f32, spacing: f32, tint: Color) ---       // Draw text using Font and pro parameters (rotation)
+    DrawTextCodepoint  :: proc(font: Font, codepoint: rune, position: [2]f32, fontSize: f32, tint: Color) ---                                          // Draw one character (codepoint)
+    DrawTextCodepoints :: proc(font: Font, codepoints: [^]rune, codepointCount: c.int, position: [2]f32, fontSize: f32, spacing: f32, tint: Color) ---     // Draw multiple character (codepoint)
 
     // Text font info functions
 
     SetTextLineSpacing :: proc(spacing: c.int) ---                                                      // Set vertical line spacing when drawing with line-breaks
     MeasureText        :: proc(text: cstring, fontSize: c.int) -> c.int ---                             // Measure string width for default font
-    MeasureTextEx      :: proc(font: Font, text: cstring, fontSize: f32, spacing: f32) -> Vector2 ---   // Measure string size for Font
+    MeasureTextEx      :: proc(font: Font, text: cstring, fontSize: f32, spacing: f32) -> [2]f32 ---   // Measure string size for Font
     GetGlyphIndex      :: proc(font: Font, codepoint: rune) -> c.int ---                                // Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
     GetGlyphInfo       :: proc(font: Font, codepoint: rune) -> GlyphInfo ---                            // Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
     GetGlyphAtlasRec   :: proc(font: Font, codepoint: rune) -> Rectangle ---                            // Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
@@ -1526,25 +1513,25 @@ foreign lib {
 
     // Basic geometric 3D shapes drawing functions
 
-    DrawLine3D           :: proc(startPos, endPos: Vector3, color: Color) ---                                                   // Draw a line in 3D world space
-    DrawPoint3D          :: proc(position: Vector3, color: Color) ---                                                           // Draw a point in 3D space, actually a small line
-    DrawCircle3D         :: proc(center: Vector3, radius: f32, rotationAxis: Vector3, rotationAngle: f32, color: Color) ---     // Draw a circle in 3D world space
-    DrawTriangle3D       :: proc(v1, v2, v3: Vector3, color: Color) ---                                                         // Draw a color-filled triangle (vertex in counter-clockwise order!)
-    DrawTriangleStrip3D  :: proc(points: [^]Vector3, pointCount: c.int, color: Color) ---                                       // Draw a triangle strip defined by points
-    DrawCube             :: proc(position: Vector3, width, height, length: f32, color: Color) ---                               // Draw cube
-    DrawCubeV            :: proc(position: Vector3, size: Vector3, color: Color) ---                                            // Draw cube (Vector version)
-    DrawCubeWires        :: proc(position: Vector3, width, height, length: f32, color: Color) ---                               // Draw cube wires
-    DrawCubeWiresV       :: proc(position, size: Vector3, color: Color) ---                                                     // Draw cube wires (Vector version)
-    DrawSphere           :: proc(centerPos: Vector3, radius: f32, color: Color) ---                                             // Draw sphere
-    DrawSphereEx         :: proc(centerPos: Vector3, radius: f32, rings, slices: c.int, color: Color) ---                       // Draw sphere with extended parameters
-    DrawSphereWires      :: proc(centerPos: Vector3, radius: f32, rings, slices: c.int, color: Color) ---                       // Draw sphere wires
-    DrawCylinder         :: proc(position: Vector3, radiusTop, radiusBottom: f32, height: f32, slices: c.int, color: Color) --- // Draw a cylinder/cone
-    DrawCylinderEx       :: proc(startPos, endPos: Vector3, startRadius, endRadius: f32, sides: c.int, color: Color) ---        // Draw a cylinder with base at startPos and top at endPos
-    DrawCylinderWires    :: proc(position: Vector3, radiusTop, radiusBottom, height: f32, slices: c.int, color: Color) ---      // Draw a cylinder/cone wires
-    DrawCylinderWiresEx  :: proc(startPos, endPos: Vector3, startRadius, endRadius: f32, sides: c.int, color: Color) ---        // Draw a cylinder wires with base at startPos and top at endPos
-    DrawCapsule          :: proc(startPos, endPos: Vector3, radius: f32, slices, rings: c.int, color: Color) ---                // Draw a capsule with the center of its sphere caps at startPos and endPos
-    DrawCapsuleWires     :: proc(startPos, endPos: Vector3, radius: f32, slices, rings: c.int, color: Color) ---                // Draw capsule wireframe with the center of its sphere caps at startPos and endPos
-    DrawPlane            :: proc(centerPos: Vector3, size: Vector2, color: Color) ---                                           // Draw a plane XZ
+    DrawLine3D           :: proc(startPos, endPos: [3]f32, color: Color) ---                                                   // Draw a line in 3D world space
+    DrawPoint3D          :: proc(position: [3]f32, color: Color) ---                                                           // Draw a point in 3D space, actually a small line
+    DrawCircle3D         :: proc(center: [3]f32, radius: f32, rotationAxis: [3]f32, rotationAngle: f32, color: Color) ---     // Draw a circle in 3D world space
+    DrawTriangle3D       :: proc(v1, v2, v3: [3]f32, color: Color) ---                                                         // Draw a color-filled triangle (vertex in counter-clockwise order!)
+    DrawTriangleStrip3D  :: proc(points: [^][3]f32, pointCount: c.int, color: Color) ---                                       // Draw a triangle strip defined by points
+    DrawCube             :: proc(position: [3]f32, width, height, length: f32, color: Color) ---                               // Draw cube
+    DrawCubeV            :: proc(position: [3]f32, size: [3]f32, color: Color) ---                                            // Draw cube (Vector version)
+    DrawCubeWires        :: proc(position: [3]f32, width, height, length: f32, color: Color) ---                               // Draw cube wires
+    DrawCubeWiresV       :: proc(position, size: [3]f32, color: Color) ---                                                     // Draw cube wires (Vector version)
+    DrawSphere           :: proc(centerPos: [3]f32, radius: f32, color: Color) ---                                             // Draw sphere
+    DrawSphereEx         :: proc(centerPos: [3]f32, radius: f32, rings, slices: c.int, color: Color) ---                       // Draw sphere with extended parameters
+    DrawSphereWires      :: proc(centerPos: [3]f32, radius: f32, rings, slices: c.int, color: Color) ---                       // Draw sphere wires
+    DrawCylinder         :: proc(position: [3]f32, radiusTop, radiusBottom: f32, height: f32, slices: c.int, color: Color) --- // Draw a cylinder/cone
+    DrawCylinderEx       :: proc(startPos, endPos: [3]f32, startRadius, endRadius: f32, sides: c.int, color: Color) ---        // Draw a cylinder with base at startPos and top at endPos
+    DrawCylinderWires    :: proc(position: [3]f32, radiusTop, radiusBottom, height: f32, slices: c.int, color: Color) ---      // Draw a cylinder/cone wires
+    DrawCylinderWiresEx  :: proc(startPos, endPos: [3]f32, startRadius, endRadius: f32, sides: c.int, color: Color) ---        // Draw a cylinder wires with base at startPos and top at endPos
+    DrawCapsule          :: proc(startPos, endPos: [3]f32, radius: f32, slices, rings: c.int, color: Color) ---                // Draw a capsule with the center of its sphere caps at startPos and endPos
+    DrawCapsuleWires     :: proc(startPos, endPos: [3]f32, radius: f32, slices, rings: c.int, color: Color) ---                // Draw capsule wireframe with the center of its sphere caps at startPos and endPos
+    DrawPlane            :: proc(centerPos: [3]f32, size: [2]f32, color: Color) ---                                           // Draw a plane XZ
     DrawRay              :: proc(ray: Ray, color: Color) ---                                                                    // Draw a ray line
     DrawGrid             :: proc(slices: c.int, spacing: f32) ---                                                               // Draw a grid (centered at (0, 0, 0))
 
@@ -1562,24 +1549,24 @@ foreign lib {
 
     // Model drawing functions
 
-    DrawModel         :: proc(model: Model, position: Vector3, scale: f32, tint: Color) ---                                                                                          // Draw a model (with texture if set)
-    DrawModelEx       :: proc(model: Model, position: Vector3, rotationAxis: Vector3, rotationAngle: f32, scale: Vector3, tint: Color) ---                                           // Draw a model with extended parameters
-    DrawModelWires    :: proc(model: Model, position: Vector3, scale: f32, tint: Color) ---                                                                                          // Draw a model wires (with texture if set)
-    DrawModelWiresEx  :: proc(model: Model, position: Vector3, rotationAxis: Vector3, rotationAngle: f32, scale: Vector3, tint: Color) ---                                           // Draw a model wires (with texture if set) with extended parameters
-    DrawModelPoints   :: proc(model: Model, position: Vector3, scale: f32, tint: Color) ---                                                                                          // Draw a model as points
-    DrawModelPointsEx :: proc(model: Model, position: Vector3, rotationAxis: Vector3, rotationAngle: f32, scale: Vector3, tint: Color) ---                                           // Draw a model as points with extended parameters
+    DrawModel         :: proc(model: Model, position: [3]f32, scale: f32, tint: Color) ---                                                                                          // Draw a model (with texture if set)
+    DrawModelEx       :: proc(model: Model, position: [3]f32, rotationAxis: [3]f32, rotationAngle: f32, scale: [3]f32, tint: Color) ---                                           // Draw a model with extended parameters
+    DrawModelWires    :: proc(model: Model, position: [3]f32, scale: f32, tint: Color) ---                                                                                          // Draw a model wires (with texture if set)
+    DrawModelWiresEx  :: proc(model: Model, position: [3]f32, rotationAxis: [3]f32, rotationAngle: f32, scale: [3]f32, tint: Color) ---                                           // Draw a model wires (with texture if set) with extended parameters
+    DrawModelPoints   :: proc(model: Model, position: [3]f32, scale: f32, tint: Color) ---                                                                                          // Draw a model as points
+    DrawModelPointsEx :: proc(model: Model, position: [3]f32, rotationAxis: [3]f32, rotationAngle: f32, scale: [3]f32, tint: Color) ---                                           // Draw a model as points with extended parameters
     DrawBoundingBox   :: proc(box: BoundingBox, color: Color) ---                                                                                                                    // Draw bounding box (wires)
-    DrawBillboard     :: proc(camera: Camera, texture: Texture2D, position: Vector3, scale: f32, tint: Color) ---                                                                    // Draw a billboard texture
-    DrawBillboardRec  :: proc(camera: Camera, texture: Texture2D, source: Rectangle, position: Vector3, size: Vector2, tint: Color) ---                                              // Draw a billboard texture defined by source
-    DrawBillboardPro  :: proc(camera: Camera, texture: Texture2D, source: Rectangle, position: Vector3, up: Vector3, size: Vector2, origin: Vector2, rotation: f32, tint: Color) --- // Draw a billboard texture defined by source and rotation
+    DrawBillboard     :: proc(camera: Camera, texture: Texture2D, position: [3]f32, scale: f32, tint: Color) ---                                                                    // Draw a billboard texture
+    DrawBillboardRec  :: proc(camera: Camera, texture: Texture2D, source: Rectangle, position: [3]f32, size: [2]f32, tint: Color) ---                                              // Draw a billboard texture defined by source
+    DrawBillboardPro  :: proc(camera: Camera, texture: Texture2D, source: Rectangle, position: [3]f32, up: [3]f32, size: [2]f32, origin: [2]f32, rotation: f32, tint: Color) --- // Draw a billboard texture defined by source and rotation
 
     // Mesh management functions
 
     UploadMesh         :: proc(mesh: ^Mesh, is_dynamic: bool) ---                                             // Upload mesh vertex data in GPU and provide VAO/VBO ids
     UpdateMeshBuffer   :: proc(mesh: Mesh, index: c.int, data: rawptr, dataSize: c.int, offset: c.int) ---    // Update mesh vertex data in GPU for a specific buffer index
     UnloadMesh         :: proc(mesh: Mesh) ---                                                                // Unload mesh data from CPU and GPU
-    DrawMesh           :: proc(mesh: Mesh, material: Material, transform: Matrix) ---                         // Draw a 3d mesh with material and transform
-    DrawMeshInstanced  :: proc(mesh: Mesh, material: Material, transforms: [^]Matrix, instances: c.int) ---   // Draw multiple mesh instances with material and different transforms
+    DrawMesh           :: proc(mesh: Mesh, material: Material, transform: Mat4_RowMajor) ---                         // Draw a 3d mesh with material and transform
+    DrawMeshInstanced  :: proc(mesh: Mesh, material: Material, transforms: [^]Mat4_RowMajor, instances: c.int) ---   // Draw multiple mesh instances with material and different transforms
     GetMeshBoundingBox :: proc(mesh: Mesh) -> BoundingBox ---                                                 // Compute mesh bounding box limits
     GenMeshTangents    :: proc(mesh: ^Mesh) ---                                                               // Compute mesh tangents
     ExportMesh         :: proc(mesh: Mesh, fileName: cstring) -> bool ---                                     // Export mesh data to file, returns true on success
@@ -1596,8 +1583,8 @@ foreign lib {
     GenMeshCone       :: proc(radius, height: f32, slices: c.int) -> Mesh ---      // Generate cone/pyramid mesh
     GenMeshTorus      :: proc(radius, size: f32, radSeg, sides: c.int) -> Mesh --- // Generate torus mesh
     GenMeshKnot       :: proc(radius, size: f32, radSeg, sides: c.int) -> Mesh --- // Generate trefoil knot mesh
-    GenMeshHeightmap  :: proc(heightmap: Image, size: Vector3) -> Mesh ---         // Generate heightmap mesh from image data
-    GenMeshCubicmap   :: proc(cubicmap: Image, cubeSize: Vector3) -> Mesh ---      // Generate cubes-based map mesh from image data
+    GenMeshHeightmap  :: proc(heightmap: Image, size: [3]f32) -> Mesh ---         // Generate heightmap mesh from image data
+    GenMeshCubicmap   :: proc(cubicmap: Image, cubeSize: [3]f32) -> Mesh ---      // Generate cubes-based map mesh from image data
 
     // Material loading/unloading functions
 
@@ -1619,14 +1606,14 @@ foreign lib {
 
     // Collision detection functions
 
-    CheckCollisionSpheres   :: proc(center1: Vector3, radius1: f32, center2: Vector3, radius2: f32) -> bool --- // Check collision between two spheres
+    CheckCollisionSpheres   :: proc(center1: [3]f32, radius1: f32, center2: [3]f32, radius2: f32) -> bool --- // Check collision between two spheres
     CheckCollisionBoxes     :: proc(box1, box2: BoundingBox) -> bool ---                                        // Check collision between two bounding boxes
-    CheckCollisionBoxSphere :: proc(box: BoundingBox, center: Vector3, radius: f32) -> bool ---                 // Check collision between box and sphere
-    GetRayCollisionSphere   :: proc(ray: Ray, center: Vector3, radius: f32) -> RayCollision ---                 // Get collision info between ray and sphere
+    CheckCollisionBoxSphere :: proc(box: BoundingBox, center: [3]f32, radius: f32) -> bool ---                 // Check collision between box and sphere
+    GetRayCollisionSphere   :: proc(ray: Ray, center: [3]f32, radius: f32) -> RayCollision ---                 // Get collision info between ray and sphere
     GetRayCollisionBox      :: proc(ray: Ray, box: BoundingBox) -> RayCollision ---                             // Get collision info between ray and box
-    GetRayCollisionMesh     :: proc(ray: Ray, mesh: Mesh, transform: Matrix) -> RayCollision ---                // Get collision info between ray and mesh
-    GetRayCollisionTriangle :: proc(ray: Ray, p1, p2, p3: Vector3) -> RayCollision ---                          // Get collision info between ray and triangle
-    GetRayCollisionQuad     :: proc(ray: Ray, p1, p2, p3, p4: Vector3) -> RayCollision ---                      // Get collision info between ray and quad
+    GetRayCollisionMesh     :: proc(ray: Ray, mesh: Mesh, transform: Mat4_RowMajor) -> RayCollision ---                // Get collision info between ray and mesh
+    GetRayCollisionTriangle :: proc(ray: Ray, p1, p2, p3: [3]f32) -> RayCollision ---                          // Get collision info between ray and triangle
+    GetRayCollisionQuad     :: proc(ray: Ray, p1, p2, p3, p4: [3]f32) -> RayCollision ---                      // Get collision info between ray and quad
 
     //------------------------------------------------------------------------------------
     // Audio Loading and Playing Functions (Module: audio)

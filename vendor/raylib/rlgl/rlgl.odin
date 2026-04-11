@@ -54,7 +54,7 @@
 *       #define RL_DEFAULT_BATCH_DRAWCALLS          256    // Default number of batch draw calls (by state changes: mode, texture)
 *       #define RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS    4    // Maximum number of textures units that can be activated on batch drawing (SetShaderValueTexture())
 *
-*       #define RL_MAX_MATRIX_STACK_SIZE             32    // Maximum size of internal Matrix stack
+*       #define RL_MAX_MATRIX_STACK_SIZE             32    // Maximum size of internal Mat4_RowMajor stack
 *       #define RL_MAX_SHADER_LOCATIONS              32    // Maximum number of shader locations supported
 *       #define RL_CULL_DISTANCE_NEAR              0.01    // Default projection matrix near cull distance
 *       #define RL_CULL_DISTANCE_FAR             1000.0    // Default projection matrix far cull distance
@@ -178,8 +178,8 @@ DEFAULT_BATCH_BUFFERS            :: 1                    // Default number of ba
 DEFAULT_BATCH_DRAWCALLS          :: 256                  // Default number of batch draw calls (by state changes: mode, texture)
 DEFAULT_BATCH_MAX_TEXTURE_UNITS  :: 4                    // Maximum number of additional textures that can be activated on batch drawing (SetShaderValueTexture())
 
-// Internal Matrix stack
-MAX_MATRIX_STACK_SIZE          :: 32                   // Maximum size of Matrix stack
+// Internal Mat4_RowMajor stack
+MAX_MATRIX_STACK_SIZE          :: 32                   // Maximum size of Mat4_RowMajor stack
 
 // Shader limits
 MAX_SHADER_LOCATIONS           :: 32                   // Maximum number of shader locations supported
@@ -207,7 +207,7 @@ TEXTURE_WRAP_CLAMP                   :: 0x812F      // GL_CLAMP_TO_EDGE
 TEXTURE_WRAP_MIRROR_REPEAT           :: 0x8370      // GL_MIRRORED_REPEAT
 TEXTURE_WRAP_MIRROR_CLAMP            :: 0x8742      // GL_MIRROR_CLAMP_EXT
 
-// Matrix modes (equivalent to OpenGL)
+// Mat4_RowMajor modes (equivalent to OpenGL)
 MODELVIEW                            :: 0x1700      // GL_MODELVIEW
 PROJECTION                           :: 0x1701      // GL_PROJECTION
 TEXTURE                              :: 0x1702      // GL_TEXTURE
@@ -366,12 +366,12 @@ CullMode :: enum c.int {
 	BACK,
 }
 
-Matrix :: rl.Matrix
+Mat4_RowMajor :: rl.Mat4_RowMajor
 
 @(default_calling_convention="c", link_prefix="rl")
 foreign lib {
 	//------------------------------------------------------------------------------------
-	// Functions Declaration - Matrix operations
+	// Functions Declaration - Mat4_RowMajor operations
 	//------------------------------------------------------------------------------------
 	MatrixMode          :: proc(mode: c.int) ---                 // Choose the current matrix to be transformed
 	PushMatrix          :: proc() ---                            // Push the current matrix to stack
@@ -549,7 +549,7 @@ foreign lib {
 	GetLocationUniform  :: proc(shaderId: c.uint, uniformName: cstring) -> c.int ---                  // Get shader location uniform
 	GetLocationAttrib   :: proc(shaderId: c.uint, attribName: cstring) -> c.int ---                   // Get shader location attribute
 	SetUniform          :: proc(locIndex: c.int, value: rawptr, uniformType: c.int, count: c.int) --- // Set shader value uniform
-	SetUniformMatrix    :: proc(locIndex: c.int, mat: Matrix) ---                                     // Set shader value matrix
+	SetUniformMatrix    :: proc(locIndex: c.int, mat: Mat4_RowMajor) ---                                     // Set shader value matrix
 	SetUniformSampler   :: proc(locIndex: c.int, textureId: c.uint) ---                               // Set shader value sampler
 	SetShader           :: proc(id: c.uint, locs: [^]c.int) ---                                       // Set shader currently active (id and locations)
 
@@ -569,16 +569,16 @@ foreign lib {
 	// Buffer management
 	BindImageTexture :: proc(id: c.uint, index: c.uint, format: c.int, readonly: bool) ---  // Bind image texture
 
-	// Matrix state management
-	GetMatrixModelview        :: proc() -> Matrix ---           // Get internal modelview matrix
-	GetMatrixProjection       :: proc() -> Matrix ---           // Get internal projection matrix
-	GetMatrixTransform        :: proc() -> Matrix ---           // Get internal accumulated transform matrix
-	GetMatrixProjectionStereo :: proc(eye: c.int) -> Matrix --- // Get internal projection matrix for stereo render (selected eye)
-	GetMatrixViewOffsetStereo :: proc(eye: c.int) -> Matrix --- // Get internal view offset matrix for stereo render (selected eye)
-	SetMatrixProjection       :: proc(proj: Matrix) ---         // Set a custom projection matrix (replaces internal projection matrix)
-	SetMatrixModelview        :: proc(view: Matrix) ---         // Set a custom modelview matrix (replaces internal modelview matrix)
-	SetMatrixProjectionStereo :: proc(right, left: Matrix) ---  // Set eyes projection matrices for stereo rendering
-	SetMatrixViewOffsetStereo :: proc(right, left: Matrix) ---  // Set eyes view offsets matrices for stereo rendering
+	// Mat4_RowMajor state management
+	GetMatrixModelview        :: proc() -> Mat4_RowMajor ---           // Get internal modelview matrix
+	GetMatrixProjection       :: proc() -> Mat4_RowMajor ---           // Get internal projection matrix
+	GetMatrixTransform        :: proc() -> Mat4_RowMajor ---           // Get internal accumulated transform matrix
+	GetMatrixProjectionStereo :: proc(eye: c.int) -> Mat4_RowMajor --- // Get internal projection matrix for stereo render (selected eye)
+	GetMatrixViewOffsetStereo :: proc(eye: c.int) -> Mat4_RowMajor --- // Get internal view offset matrix for stereo render (selected eye)
+	SetMatrixProjection       :: proc(proj: Mat4_RowMajor) ---         // Set a custom projection matrix (replaces internal projection matrix)
+	SetMatrixModelview        :: proc(view: Mat4_RowMajor) ---         // Set a custom modelview matrix (replaces internal modelview matrix)
+	SetMatrixProjectionStereo :: proc(right, left: Mat4_RowMajor) ---  // Set eyes projection matrices for stereo rendering
+	SetMatrixViewOffsetStereo :: proc(right, left: Mat4_RowMajor) ---  // Set eyes view offsets matrices for stereo rendering
 
 	// Quick and dirty cube/quad buffers load->draw->unload
 	LoadDrawCube :: proc() --- // Load and draw a cube

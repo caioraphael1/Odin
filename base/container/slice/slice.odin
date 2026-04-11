@@ -202,15 +202,15 @@ is_zero :: proc(data: []$T) -> bool {
 // Copy
 //--------------------------------------------------------------------------------------------------
 
-// `copy` is a built-in procedure that copies elements from a source slice `src` to a destination slice `dst`.
-// The source and destination may overlap. Copy returns the number of elements copied, which will be the minimum
-// of len(src) and len(dst).
+// Copies elements from a source slice `src` to a destination slice `dst`.
+// The source and destination may overlap.
+// Returns the number of elements copied, which will be the minimum of len(src) and len(dst).
 @(optional_results)
 copy :: #force_inline proc(dst, src: $T/[]$E) -> uint {
     return _rawptr_mem_copy(raw_data(dst), raw_data(src), uint(len(dst)), uint(len(src)), size_of(E))
 }
 
-// `copy_from_string` is a built-in procedure that copies elements from a source string `src` to a destination slice `dst`.
+// `copy_from_string` is a procedure that copies elements from a source string `src` to a destination slice `dst`.
 // The source and destination may overlap. Copy returns the number of elements copied, which will be the minimum
 // of len(src) and len(dst).
 @(optional_results)
@@ -218,7 +218,7 @@ copy_from_string :: #force_inline proc(dst: $T/[]$E/u8, src: $S/string) -> uint 
     return _rawptr_mem_copy(raw_data(dst), raw_data(src), uint(len(dst)), uint(len(src)), 1)
 }
 
-// `copy_from_string16` is a built-in procedure that copies elements from a source string `src` to a destination slice `dst`.
+// `copy_from_string16` is a procedure that copies elements from a source string `src` to a destination slice `dst`.
 // The source and destination may overlap. Copy returns the number of elements copied, which will be the minimum
 // of len(src) and len(dst).
 @(optional_results)
