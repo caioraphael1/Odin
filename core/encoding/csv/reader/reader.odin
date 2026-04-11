@@ -6,7 +6,9 @@ import "base:unicode/utf8"
 
 import "core:io"
 
-// Reader is a buffered wrapper for an io.Reader
+
+
+
 Reader :: struct {
     buf:            []u8,
     buf_allocator:  mem.Allocator,

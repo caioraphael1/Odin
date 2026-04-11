@@ -6,7 +6,7 @@ import "base:container/strings"
 import "base:unicode/utf8"
 
 import "core:io"
-import "core:io/reader"
+import "reader"
 
 // Reader is a data structure used for reading records from a CSV-encoded file
 //

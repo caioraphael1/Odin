@@ -18,17 +18,14 @@ Writer             :: Stream
 Closer             :: Stream
 Flusher            :: Stream
 Seeker             :: Stream
-
 Read_Writer        :: Stream
 Read_Closer        :: Stream
 Read_Write_Closer  :: Stream
 Read_Write_Seeker  :: Stream
-
 Write_Closer       :: Stream
 Write_Seeker       :: Stream
 Write_Flusher      :: Stream
 Write_Flush_Closer :: Stream
-
 Reader_At          :: Stream
 Writer_At          :: Stream
 
@@ -74,9 +71,9 @@ Error :: enum i32 {
     // Short_Buffer means that a read/write required a longer buffer than was provided
     Short_Buffer,
 
-    // No_Progress is returned by some implementations of `io.Reader` when many calls
+    // No_Progress is returned by some implementations of `Reader` when many calls
     // to `read` have failed to return any data or error.
-    // This is usually a sign of a broken `io.Reader` implementation
+    // This is usually a sign of a broken `Reader` implementation
     No_Progress,
 
     // Invalid whence argument
@@ -103,7 +100,7 @@ Error :: enum i32 {
     // Stream cannot be used since it has been Closed
     Closed,
 
-    // Unsupported is returned when a procedure has not been implemented for an io.Stream
+    // Unsupported is returned when a procedure has not been implemented for an Stream
     Unsupported = -1,
 
     Empty = Unsupported,
@@ -422,7 +419,7 @@ copy :: proc(dst: Writer, src: Reader) -> (written: i64, err: Error) {
 // If buf is `nil`, it is allocate through `intrinsics.alloca`; otherwise if it has zero length, it will panic
 copy_buffer :: proc(dst: Writer, src: Reader, buf: []u8) -> (written: i64, err: Error) {
     if buf != nil && len(buf) == 0 {
-        internal.panic("empty buffer in io.copy_buffer")
+        internal.panic("empty buffer in copy_buffer")
     }
     return _copy_buffer(dst, src, buf)
 }

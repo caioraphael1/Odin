@@ -28,7 +28,7 @@ import "base:container/dyn_array"
 import "base:container/strings"
 import "base:rand"
 
-import "core:io/scanner"
+import "scanner"
 import "core:io"
 import "core:io/string_builder"
 @(require) import "core:sync"
