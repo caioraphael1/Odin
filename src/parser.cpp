@@ -3164,11 +3164,6 @@ gb_internal Ast *parse_call_expr(AstFile *f, Ast *operand) {
 
     Ast *call = ast_call_expr(f, operand, args, open_paren, close_paren, ellipsis);
 
-    Ast *o = unparen_expr(operand);
-    if (o && o->kind == Ast_SelectorExpr && o->SelectorExpr.token.kind == Token_ArrowRight) {
-        return ast_selector_call_expr(f, o->SelectorExpr.token, o, call);
-    }
-
     return call;
 }
 

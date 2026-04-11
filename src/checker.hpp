@@ -559,7 +559,7 @@ struct CheckerContext {
     UntypedExprInfoMap *untyped;
 
 #define MAX_INLINE_FOR_DEPTH 1024ll
-    i64 inline_for_depth;
+    i64        inline_for_depth;
 
     u32        stmt_flags;
     bool       in_enum_type;
@@ -570,11 +570,10 @@ struct CheckerContext {
     bool       no_polymorphic_errors;
     bool       hide_polymorphic_errors;
     bool       in_polymorphic_specialization;
-    bool       allow_arrow_right_selector_expr;
     u8         bit_field_bit_size;
     Scope *    polymorphic_scope;
 
-    Ast *assignment_lhs_hint;
+    Ast *      assignment_lhs_hint;
 };
 
 gb_internal u64 check_vet_flags(CheckerContext *c);

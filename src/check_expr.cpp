@@ -5352,21 +5352,6 @@ gb_internal Entity *check_selector(CheckerContext *c, Operand *operand, Ast *nod
     Entity *entity = nullptr;
     Selection sel = {}; // NOTE(bill): Not used if it's an import name
 
-    if (!c->allow_arrow_right_selector_expr && se->token.kind == Token_ArrowRight) {
-        ERROR_BLOCK();
-        error(node, "Illegal use of -> selector shorthand outside of a call");
-        gbString x = expr_to_string(se->expr);
-        gbString y = expr_to_string(se->selector);
-        error_line("\tSuggestion: Did you mean '%s.%s'?\n", x, y);
-        gb_string_free(y);
-        gb_string_free(x);
-
-        // TODO(bill): Should this terminate here or propagate onwards?
-        // operand->mode = Addressing_Invalid;
-        // operand->expr = node;
-        // return nullptr;
-    }
-
     operand->expr = node;
 
     Ast *op_expr  = se->expr;
@@ -10214,12 +10199,8 @@ gb_internal ExprKind check_selector_call_expr(CheckerContext *c, Operand *o, Ast
         return Expr_Expr;
     }
 
-    bool allow_arrow_right_selector_expr;
-    allow_arrow_right_selector_expr = c->allow_arrow_right_selector_expr;
-    c->allow_arrow_right_selector_expr = true;
     Operand x = {};
     ExprKind kind = check_expr_base(c, &x, se->expr, nullptr);
-    c->allow_arrow_right_selector_expr = allow_arrow_right_selector_expr;
 
     if (x.mode == Addressing_Invalid || x.type == t_invalid) {
         o->mode = Addressing_Invalid;
@@ -10324,10 +10305,7 @@ gb_internal ExprKind check_selector_call_expr(CheckerContext *c, Operand *o, Ast
     ce->args = modified_args;
     se->modified_call = true;
 
-    allow_arrow_right_selector_expr = c->allow_arrow_right_selector_expr;
-    c->allow_arrow_right_selector_expr = true;
     check_expr_base(c, o, se->call, type_hint);
-    c->allow_arrow_right_selector_expr = allow_arrow_right_selector_expr;
 
     o->expr = node;
     return Expr_Expr;
