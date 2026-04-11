@@ -225,6 +225,11 @@ close :: proc(f: ^File) -> Error {
     return nil
 }
 
+Seek_From :: enum {
+    Start   = 0, // seek relative to the origin of the file
+    Current = 1, // seek relative to the current offset
+    End     = 2, // seek relative to the end
+}
 /*
     seek sets the offsets for the next read or write on a file to a specified `offset`,
     according to what `whence` is set.
@@ -235,12 +240,12 @@ close :: proc(f: ^File) -> Error {
     Prefer `read_at` or `write_at` if the offset does not want to be changed.
 
 */
-seek :: proc(f: ^File, offset: i64, whence: io.Seek_From) -> (ret: i64, err: Error) {
+seek :: proc(f: ^File, offset: i64, whence: Seek_From) -> (ret: i64, err: Error) {
     if f != nil {
         if f.stream.procedure == nil {
             return 0, .Unsupported
         }
-        return f.stream.procedure(f, .Seek, nil, offset, whence, {})
+        return f.stream.procedure(f, .Seek, nil, offset, io.Seek_From(whence), {})
     }
     return 0, .Invalid_File
 }

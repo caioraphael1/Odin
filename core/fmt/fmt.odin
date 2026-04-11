@@ -1,21 +1,20 @@
 import "base:intrinsics"
 import "base:internal"
+import "base:math"
 import "base:mem"
 import "base:mem/allocators"
-import "base:math"
 import "base:container/slice"
-import "base:container/dyn_array"
 import "base:container/maps"
-import "base:container/strings"
-import "base:strconv"
 import "base:unicode/utf8"
+import "base:strconv"
 
 import "core:strings_tools"
 import "core:math/bits"
-import "core:io"
-import "core:io/string_builder"
 import "core:reflect"
 import "core:time"
+
+import "core:io"
+import "core:io/string_builder"
 
 
 // Internal data structure that stores the required information for formatted printing
@@ -506,10 +505,9 @@ sbprintf :: proc(buf: ^string_builder.Builder, fmt: string, args: ..any, newline
 sbprintfln :: proc(buf: ^string_builder.Builder, format: string, args: ..any) -> string {
     return sbprintf(buf, format, ..args, newline=true)
 }
-// Formats and writes to an io.Writer using the default print settings
-//
+
 // Inputs:
-// - w: An io.Writer to write to
+// - w: An Writer to write to
 // - args: A variadic list of arguments to be formatted
 // - sep: An optional separator string (default is a single space)
 //
@@ -519,21 +517,6 @@ sbprintfln :: proc(buf: ^string_builder.Builder, format: string, args: ..any) ->
 wprint :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> uint {
     fi: Info
     fi.writer = w
-
-    // NOTE(bill): Old approach
-    // prev_string := false;
-    // for arg, i in args {
-    //  is_string := arg != nil && reflect.is_string(type_info_of(arg.id));
-    //  if i > 0 && !is_string && !prev_string {
-    //      _ = io.write_byte(writer, ' ');
-    //  }
-    //  fmt_value(&fi, args[i], 'v');
-    //  prev_string = is_string;
-    // }
-    // NOTE(bill, 2020-06-19): I have found that the previous approach was not what people were expecting
-    // and were expecting `*print` to be the same `*println` except for the added newline
-    // so I am going to keep the same behaviour as `*println` for `*print`
-
 
     for _, i in args {
         if i > 0 {
@@ -548,10 +531,10 @@ wprint :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> uint {
 
     return fi.n
 }
-// Formats and writes to an io.Writer using the default print settings with a newline character at the end
+// Formats and writes to an Writer using the default print settings with a newline character at the end
 //
 // Inputs:
-// - w: An io.Writer to write to
+// - w: An Writer to write to
 // - args: A variadic list of arguments to be formatted
 // - sep: An optional separator string (default is a single space)
 //
@@ -575,10 +558,10 @@ wprintln :: proc(w: io.Writer, args: ..any, sep := " ", flush := true) -> uint {
     }
     return fi.n
 }
-// Formats and writes to an io.Writer according to the specified format string
+// Formats and writes to an Writer according to the specified format string
 //
 // Inputs:
-// - w: An io.Writer to write to
+// - w: An Writer to write to
 // - fmt: The format string
 // - args: A variadic list of arguments to be formatted
 // - newline: Whether a trailing newline should be written. (See `wprintfln`.)
@@ -846,10 +829,10 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
 
     return fi.n
 }
-// Formats and writes to an io.Writer according to the specified format string, followed by a newline.
+// Formats and writes to an Writer according to the specified format string, followed by a newline.
 //
 // Inputs:
-// - w: The io.Writer to write to.
+// - w: The Writer to write to.
 // - args: A variadic list of arguments to be formatted.
 //
 // Returns: The number of bytes written.
@@ -857,13 +840,13 @@ wprintf :: proc(w: io.Writer, fmt: string, args: ..any, flush := true, newline :
 wprintfln :: proc(w: io.Writer, format: string, args: ..any, flush := true) -> uint {
     return wprintf(w, format, ..args, flush=flush, newline=true)
 }
-// Writes a ^reflect.Type_Info value to an io.Writer
+// Writes a ^reflect.Type_Info value to an Writer
 //
 // Inputs:
-// - w: An io.Writer to write to
+// - w: An Writer to write to
 // - info: A pointer to a reflect.Type_Info value
 //
-// Returns: The number of bytes written and an io.Error if encountered
+// Returns: The number of bytes written and an Error if encountered
 //
 wprint_type :: proc(w: io.Writer, info: ^reflect.Type_Info, flush := true) -> (n: uint, err: io.Error) {
     n, err = reflect.write_type_writer(w, info)
@@ -872,13 +855,13 @@ wprint_type :: proc(w: io.Writer, info: ^reflect.Type_Info, flush := true) -> (n
     }
     return n, err
 }
-// Writes a typeid value to an io.Writer
+// Writes a typeid value to an Writer
 //
 // Inputs:
-// - w: An io.Writer to write to
+// - w: An Writer to write to
 // - id: A typeid value
 //
-// Returns: The number of bytes written and an io.Error if encountered
+// Returns: The number of bytes written and an Error if encountered
 //
 wprint_typeid :: proc(w: io.Writer, id: typeid, flush := true) -> (n: uint, err: io.Error) {
     n, err = reflect.write_type_writer(w, type_info_of(id))

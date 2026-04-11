@@ -1,7 +1,6 @@
 #+build !freestanding
 #+build !js
 
-import "core:io"
 import "core:c"
 import "core:os"
 
@@ -38,7 +37,7 @@ _fopen :: proc(path, _mode: cstring) -> FILE {
 
 _fseek :: proc(_file: FILE, offset: c.long, whence: i32) -> i32 {
     file := __file(_file) 
-    if _, err := os.seek(file, i64(offset), io.Seek_From(whence)); err != nil {
+    if _, err := os.seek(file, i64(offset), os.Seek_From(whence)); err != nil {
         return -1
     }
 

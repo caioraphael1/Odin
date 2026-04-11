@@ -7,17 +7,15 @@
         Jeroen van Rijn: Initial implementation.
         Ginger Bill:     Cosmetic changes.
 */
+import "base:internal"
+import "base:mem"
 
 import "core:compress"
 import "core:compress/zlib"
 import "core:image"
-
 import "core:hash"
 import "core:bytes"
 import "core:io"
-import "base:mem"
-import "base:intrinsics"
-import "base:internal"
 
 // Limit chunk sizes.
 // By default: IDAT = 8k x 8k x 16-bits + 8k filter bytes.

@@ -1,6 +1,5 @@
 import "base:mem"
 import "base:container/strings"
-import "base:container/slice"
 import "base:unicode"
 import "base:unicode/utf8"
 

@@ -4,8 +4,8 @@
 
 
 import "core:os"
+import "core:os/writer"
 import "core:io"
-import "core:io/writer"
 import "core:reflect"
 
 
@@ -13,10 +13,10 @@ import "core:reflect"
 @(optional_results)
 fprint :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
     buf: [1024]u8
-    b: writer.Writer
+    b: writer.File_Writer
     defer _ = writer.writer_flush(&b)
 
-    writer.writer_init_with_buf(&b, os.to_stream(fd), buf[:])
+    writer.writer_init(&b, fd, buf[:])
     w := writer.writer_to_writer(&b)
     return wprint(w, ..args, sep=sep, flush=flush)
 }
@@ -25,10 +25,10 @@ fprint :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
 @(optional_results)
 fprintln :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
     buf: [1024]u8
-    b: writer.Writer
+    b: writer.File_Writer
     defer _ = writer.writer_flush(&b)
 
-    writer.writer_init_with_buf(&b, os.to_stream(fd), buf[:])
+    writer.writer_init(&b, fd, buf[:])
 
     w := writer.writer_to_writer(&b)
     return wprintln(w, ..args, sep=sep, flush=flush)
@@ -38,10 +38,10 @@ fprintln :: proc(fd: ^os.File, args: ..any, sep := " ", flush := true) -> uint {
 @(optional_results)
 fprintf :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true, newline := false) -> uint {
     buf: [1024]u8
-    b: writer.Writer
+    b: writer.File_Writer
     defer _ = writer.writer_flush(&b)
 
-    writer.writer_init_with_buf(&b, os.to_stream(fd), buf[:])
+    writer.writer_init(&b, fd, buf[:])
 
     w := writer.writer_to_writer(&b)
     return wprintf(w, fmt, ..args, flush=flush, newline=newline)
@@ -55,10 +55,10 @@ fprintfln :: proc(fd: ^os.File, fmt: string, args: ..any, flush := true) -> uint
 
 fprint_type :: proc(fd: ^os.File, info: ^reflect.Type_Info, flush := true) -> (n: uint, err: io.Error) {
     buf: [1024]u8
-    b: writer.Writer
+    b: writer.File_Writer
     defer _ = writer.writer_flush(&b)
 
-    writer.writer_init_with_buf(&b, os.to_stream(fd), buf[:])
+    writer.writer_init(&b, fd, buf[:])
 
     w := writer.writer_to_writer(&b)
     return wprint_type(w, info, flush=flush)
@@ -66,10 +66,10 @@ fprint_type :: proc(fd: ^os.File, info: ^reflect.Type_Info, flush := true) -> (n
 
 fprint_typeid :: proc(fd: ^os.File, id: typeid, flush := true) -> (n: uint, err: io.Error) {
     buf: [1024]u8
-    b: writer.Writer
+    b: writer.File_Writer
     defer _ = writer.writer_flush(&b)
 
-    writer.writer_init_with_buf(&b, os.to_stream(fd), buf[:])
+    writer.writer_init(&b, fd, buf[:])
 
     w := writer.writer_to_writer(&b)
     return wprint_typeid(w, id, flush=flush)

@@ -2553,16 +2553,6 @@ gb_internal Ast *parse_operand(AstFile *f, bool lhs) {
             }
 
             return ast_proc_lit(f, type, body, tags, where_token, where_clauses);
-        } else if (allow_token(f, Token_do)) {
-            Ast *curr_proc = f->curr_proc;
-            Ast *body = nullptr;
-            f->curr_proc = type;
-            body = convert_stmt_to_body(f, parse_stmt(f));
-            f->curr_proc = curr_proc;
-
-            syntax_error(body, "'do' for procedure bodies is not allowed, prefer {}");
-
-            return ast_proc_lit(f, type, body, tags, where_token, where_clauses);
         }
 
         if (tags != 0) {

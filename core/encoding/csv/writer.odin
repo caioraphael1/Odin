@@ -58,7 +58,7 @@ write :: proc(w: ^Writer, record: []string) -> io.Error {
     }
 
     if !is_valid_delim(w.comma) {
-        return .No_Progress // TODO(bill): Is this a good error?
+        return .No_Progress
     }
 
     for _, field_idx in record {
