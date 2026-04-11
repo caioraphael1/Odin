@@ -63,7 +63,7 @@ BEGIN
             VALUE "ProductName", "Odin Programming Language"
             VALUE "ProductVersion", QUOTE(VP)
             VALUE "Comments", QUOTE(git-sha: GIT_SHA)
-			// custom values
+            // custom values
             VALUE "GitSha", QUOTE(GIT_SHA)
             VALUE "NightlyBuild", QUOTE(NIGHTLY)
         END

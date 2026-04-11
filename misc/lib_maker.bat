@@ -8,5 +8,5 @@ FOR %%f IN (name) do (
 )
 
 cl -nologo -O2 -MT -TP -c %file_input% ^
-	&& lib -nologo %name%.obj -out:%name%.lib ^
-	&& del *.obj
+    && lib -nologo %name%.obj -out:%name%.lib ^
+    && del *.obj

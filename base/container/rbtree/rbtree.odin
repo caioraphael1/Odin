@@ -4,7 +4,7 @@ import "base:container/slice"
 import "base:mem"
 
 // Originally based on the CC0 implementation from literateprograms.org
-// But with API design mimicking `core:container/avl` for ease of use.
+// But with API design mimicking `base:container/avl` for ease of use.
 
 // Direction specifies the traversal direction for a tree iterator.
 Direction :: enum i8 {

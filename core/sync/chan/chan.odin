@@ -1203,7 +1203,7 @@ select_raw :: proc(recvs: []^Raw_Chan, sends: []^Raw_Chan, send_msgs: []rawptr, 
 `Raw_Queue` is a non-thread-safe queue implementation designed to store messages
 of fixed size and alignment.
 
-Note: For most use cases, it is recommended to use `core:container/queue` instead,
+Note: For most use cases, it is recommended to use `base:container/queue` instead,
 as `Raw_Queue` is used internally by `Raw_Chan` and may not provide the desired
 level of convenience for typical applications.
 */

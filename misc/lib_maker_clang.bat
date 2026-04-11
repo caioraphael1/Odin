@@ -8,4 +8,4 @@ FOR %%f IN (name) do (
 )
 
 call clang -O2 -c %file_input% -o %name%.o ^
-	&& call ar %name%.o -rcs %name%.lib
+    && call ar %name%.o -rcs %name%.lib
