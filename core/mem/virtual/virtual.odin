@@ -82,7 +82,7 @@ memory_block_alloc :: proc(committed, reserved: uint, alignment: uint = 0, flags
     committed = clamp(committed, 0, reserved)
     
     total_size     := reserved + alignment + size_of(Platform_Memory_Block)
-    base_offset    := mem.align_forward_uintptr(size_of(Platform_Memory_Block), max(uintptr(alignment), align_of(Platform_Memory_Block)))
+    base_offset    := mem.align_forward_uintptr(uintptr(size_of(Platform_Memory_Block)), max(uintptr(alignment), uintptr(align_of(Platform_Memory_Block))))
     protect_offset := uintptr(0)
     
     do_protection := false

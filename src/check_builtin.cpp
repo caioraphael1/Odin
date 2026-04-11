@@ -2691,9 +2691,9 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
         }
         t = default_type(t);
 
-        operand->mode = Addressing_Constant;
+        operand->mode  = Addressing_Constant;
         operand->value = exact_value_u64(type_size_of(t));
-        operand->type = t_untyped_integer;
+        operand->type  = t_uint;
 
         break;
     }
@@ -2714,7 +2714,7 @@ gb_internal bool check_builtin_procedure(CheckerContext *c, Operand *operand, As
 
         operand->mode = Addressing_Constant;
         operand->value = exact_value_u64(type_align_of(t));
-        operand->type = t_untyped_integer;
+        operand->type = t_uint;
 
         break;
     }

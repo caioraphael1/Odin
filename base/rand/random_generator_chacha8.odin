@@ -88,7 +88,7 @@ default_random_generator_proc :: proc(data: rawptr, mode: Random_Generator_Mode,
         internal.assert(r._off % 8 == 0, "chacha8rand/BUG: buffered output is not a multiple of 8-bytes")
 
         p_len := int(len(p))
-        if p_len == size_of(u64) {
+        if p_len == int(size_of(u64)) {
             #no_bounds_check {
                 // Fast path for a 64-bit destination.
                 src := (^u64)(raw_data(r._buf[r._off:]))

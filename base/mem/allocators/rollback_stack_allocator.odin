@@ -65,7 +65,7 @@ rb_find_ptr :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> (
     ) {
     for block = stack.head; block != nil; block = block.next_block {
         if rb_ptr_in_bounds(block, ptr) {
-            header = cast(^Rollback_Stack_Header)(cast(uintptr)ptr - size_of(Rollback_Stack_Header))
+            header = cast(^Rollback_Stack_Header)(cast(uintptr)ptr - uintptr(size_of(Rollback_Stack_Header)))
             return
         }
         parent = block
@@ -81,7 +81,7 @@ rb_find_last_alloc :: proc(stack: ^Rollback_Stack, ptr: rawptr) -> (
     ) {
     for block = stack.head; block != nil; block = block.next_block {
         if block.last_alloc == ptr {
-            header = cast(^Rollback_Stack_Header)(cast(uintptr)ptr - size_of(Rollback_Stack_Header))
+            header = cast(^Rollback_Stack_Header)(cast(uintptr)ptr - uintptr(size_of(Rollback_Stack_Header)))
             return block, header, true
         }
     }
@@ -95,7 +95,7 @@ rb_rollback_block :: proc(block: ^Rollback_Stack_Block, header: ^Rollback_Stack_
     for block.offset > 0 && header.is_free {
         block.offset = header.prev_offset
         block.last_alloc = raw_data(block.buffer)[header.prev_ptr:]
-        header = cast(^Rollback_Stack_Header)(raw_data(block.buffer)[header.prev_ptr - size_of(Rollback_Stack_Header):])
+        header = cast(^Rollback_Stack_Header)(raw_data(block.buffer)[header.prev_ptr - uintptr(size_of(Rollback_Stack_Header)):])
     }
 }
 
@@ -227,7 +227,7 @@ rb_alloc_bytes_non_zeroed :: proc(
             parent = block
             continue
         }
-        header := cast(^Rollback_Stack_Header)(start[padding - size_of(Rollback_Stack_Header):])
+        header := cast(^Rollback_Stack_Header)(start[padding - uintptr(size_of(Rollback_Stack_Header)):])
         ptr := start[padding:]
         header^ = {
             prev_offset = block.offset,

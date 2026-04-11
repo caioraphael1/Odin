@@ -140,7 +140,7 @@ small_stack_alloc_bytes_non_zeroed :: proc(
     }
     s.offset += padding
     next_addr := curr_addr + uintptr(padding)
-    header := (^Small_Stack_Allocation_Header)(next_addr - size_of(Small_Stack_Allocation_Header))
+    header := (^Small_Stack_Allocation_Header)(next_addr - uintptr(size_of(Small_Stack_Allocation_Header)))
     header.padding = cast(u8)padding
     // We must poison the header, no matter what its state is, because there
     // may have been an out-of-order free before this point.
@@ -182,7 +182,7 @@ small_stack_free :: proc(
         // NOTE(bill): Allow double frees
         return nil
     }
-    header := (^Small_Stack_Allocation_Header)(curr_addr - size_of(Small_Stack_Allocation_Header))
+    header := (^Small_Stack_Allocation_Header)(curr_addr - uintptr(size_of(Small_Stack_Allocation_Header)))
     old_offset := uint(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
     // sanitizer.address_poison(s.data[old_offset:s.offset])
     s.offset = old_offset

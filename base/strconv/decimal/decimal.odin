@@ -412,14 +412,14 @@ Shifts the decimal of the input value by the specified number of places
 */
 shift :: proc(a: ^Decimal, i: int) {
     uint_size :: 8*size_of(uint)
-    max_shift :: uint_size-4
+    max_shift :: int(uint_size-4)
 
     switch k := i; {
     case a.count == 0:
         // no need to update
     case k > 0:
         for k > max_shift {
-            shift_left(a, max_shift)
+            shift_left(a, uint(max_shift))
             k -= max_shift
         }
         shift_left(a, uint(k))
@@ -427,7 +427,7 @@ shift :: proc(a: ^Decimal, i: int) {
 
     case k < 0:
         for k < -max_shift {
-            shift_right(a, max_shift)
+            shift_right(a, uint(max_shift))
             k += max_shift
         }
         shift_right(a, uint(-k))

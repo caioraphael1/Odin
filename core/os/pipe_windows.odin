@@ -5,7 +5,7 @@ import win32 "core:sys/windows"
 _pipe :: proc(allocator: mem.Allocator) -> (r, w: ^File, err: Error) {
     p: [2]win32.HANDLE
     sa := win32.SECURITY_ATTRIBUTES {
-        nLength = size_of(win32.SECURITY_ATTRIBUTES),
+        nLength = win32.DWORD(size_of(win32.SECURITY_ATTRIBUTES)),
         bInheritHandle = true,
     }
     if !win32.CreatePipe(&p[0], &p[1], &sa, 0) {

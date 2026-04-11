@@ -313,7 +313,7 @@ __floattidf :: proc "c" (a: i128) -> f64 {
     N :: size_of(i128) * 8
     s := a >> (N-1)
     a = (a ~ s) - s
-    sd: = N - intrinsics.count_leading_zeros(a)  // number of significant digits
+    sd := i128(N) - intrinsics.count_leading_zeros(a)  // number of significant digits
     e := i32(sd - 1)        // exponent
     if sd > DBL_MANT_DIG {
         switch sd {
@@ -323,7 +323,7 @@ __floattidf :: proc "c" (a: i128) -> f64 {
             // okay
         case:
             a = i128(u128(a) >> u128(sd - (DBL_MANT_DIG+2))) |
-                i128(u128(a) & (~u128(0) >> u128(N + DBL_MANT_DIG+2 - sd)) != 0)
+                i128(u128(a) & (~u128(0) >> u128(i128(N) + DBL_MANT_DIG+2 - sd)) != 0)
         }
 
         a |= i128((a & 4) != 0)
@@ -353,7 +353,7 @@ __floattidf_unsigned :: proc "c" (a: u128) -> f64 {
     }
     a := a
     N :: size_of(u128) * 8
-    sd: = N - intrinsics.count_leading_zeros(a)  // number of significant digits
+    sd: = u128(N) - intrinsics.count_leading_zeros(a)  // number of significant digits
     e := i32(sd - 1)        // exponent
     if sd > DBL_MANT_DIG {
         switch sd {
@@ -363,7 +363,7 @@ __floattidf_unsigned :: proc "c" (a: u128) -> f64 {
             // okay
         case:
             a = u128(u128(a) >> u128(sd - (DBL_MANT_DIG+2))) |
-                u128(u128(a) & (~u128(0) >> u128(N + DBL_MANT_DIG+2 - sd)) != 0)
+                u128(u128(a) & (~u128(0) >> u128(u128(N) + DBL_MANT_DIG+2 - sd)) != 0)
         }
 
         a |= u128((a & 4) != 0)
@@ -490,7 +490,7 @@ __fixdfti :: proc "c" (a: u64) -> i128 {
     }
 
     // If the value is too large for the integer type, saturate.
-    if exponent >= size_of(i128) * 8 {
+    if exponent >= u64(size_of(i128)) * 8 {
         return max(i128) if sign == 1 else min(i128)
     }
 

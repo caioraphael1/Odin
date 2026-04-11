@@ -596,7 +596,7 @@ run_as_user :: proc(username, password, application, commandline: string, pi: ^P
         // fmt.printf("GetLastError: %v\n", err);
     }
     si := STARTUPINFOW{}
-    si.cb = size_of(STARTUPINFOW)
+    si.cb = DWORD(size_of(STARTUPINFOW))
     pi := pi
 
     ok = bool(CreateProcessAsUserW(

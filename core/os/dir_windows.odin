@@ -34,7 +34,7 @@ find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, al
     fi.modification_time = time.unix(0, win32.FILETIME_as_unix_nanoseconds(d.ftLastWriteTime))
     fi.access_time       = time.unix(0, win32.FILETIME_as_unix_nanoseconds(d.ftLastAccessTime))
 
-    if file_id_info: win32.FILE_ID_INFO; handle != nil && win32.GetFileInformationByHandleEx(handle, .FileIdInfo, &file_id_info, size_of(file_id_info)) {
+    if file_id_info: win32.FILE_ID_INFO; handle != nil && win32.GetFileInformationByHandleEx(handle, .FileIdInfo, &file_id_info, win32.DWORD(size_of(file_id_info))) {
         #assert(size_of(fi.inode) == size_of(file_id_info.FileId))
         #assert(size_of(fi.inode) == 16)
         mem.copy_non_overlapping(&fi.inode, &file_id_info.FileId, 16)

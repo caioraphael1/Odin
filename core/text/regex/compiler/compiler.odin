@@ -470,7 +470,7 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
 
         _, _ = dyn_array.inject_at(&code, pc_open, Opcode.Jump)
         pc_open += size_of(u8)
-        inject_raw(&code, pc_open, i16(-size_of(u8) - SPLIT_SIZE))
+        inject_raw(&code, pc_open, i16(-i16(size_of(u8)) - i16(SPLIT_SIZE)))
         pc_open += size_of(i16)
 
     }
@@ -512,7 +512,7 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
                     jmp   := cast(^i16)&code.data[pc+size_of(Opcode)]
                     jmp_value := intrinsics.unaligned_load(jmp)
                     if code.data[cast(i16)pc+jmp_value] == .Jump {
-                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_value+size_of(Opcode)])
+                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_value+i16(size_of(Opcode))])
                         intrinsics.unaligned_store(jmp, jmp_value + next_jmp)
                         do_another_pass = true
                     }
@@ -520,14 +520,14 @@ compile :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (c
                     jmp_x := cast(^i16)&code.data[pc+size_of(Opcode)]
                     jmp_x_value := intrinsics.unaligned_load(jmp_x)
                     if code.data[cast(i16)pc+jmp_x_value] == .Jump {
-                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_x_value+size_of(Opcode)])
+                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_x_value+i16(size_of(Opcode))])
                         intrinsics.unaligned_store(jmp_x, jmp_x_value + next_jmp)
                         do_another_pass = true
                     }
                     jmp_y := cast(^i16)&code.data[pc+size_of(Opcode)+size_of(i16)]
                     jmp_y_value := intrinsics.unaligned_load(jmp_y)
                     if code.data[cast(i16)pc+jmp_y_value] == .Jump {
-                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_y_value+size_of(Opcode)])
+                        next_jmp := intrinsics.unaligned_load(cast(^i16)&code.data[cast(i16)pc+jmp_y_value+i16(size_of(Opcode))])
                         intrinsics.unaligned_store(jmp_y, jmp_y_value + next_jmp)
                         do_another_pass = true
                     }

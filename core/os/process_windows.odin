@@ -45,7 +45,7 @@ _get_ppid :: proc() -> int {
         return -1
     }
     defer _ = win32.CloseHandle(snap)
-    entry := win32.PROCESSENTRY32W { dwSize = size_of(win32.PROCESSENTRY32W) }
+    entry := win32.PROCESSENTRY32W { dwSize = win32.DWORD(size_of(win32.PROCESSENTRY32W)) }
     for status := win32.Process32FirstW(snap, &entry); status; /**/ {
         if entry.th32ProcessID == our_pid {
             return int(entry.th32ParentProcessID)
@@ -94,7 +94,7 @@ _process_list :: proc(allocator: mem.Allocator) -> (list: []uint, err: Error) {
 
     list_d := dyn_array.create(uint, allocator)
 
-    entry := win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
+    entry := win32.PROCESSENTRY32W{dwSize = win32.DWORD(size_of(win32.PROCESSENTRY32W))}
     status := win32.Process32FirstW(snap, &entry)
     for status {
         dyn_array.append(&list_d, uint(entry.th32ProcessID)) or_return
@@ -173,7 +173,7 @@ _process_info_by_pid :: proc(pid: uint, selection: Process_Info_Fields, allocato
     read_peb: if selection >= {.Command_Line, .Environment, .Working_Dir} {
         process_info_size: u32
         process_info: win32.PROCESS_BASIC_INFORMATION
-        status := win32.NtQueryInformationProcess(ph, .ProcessBasicInformation, &process_info, size_of(process_info), &process_info_size)
+        status := win32.NtQueryInformationProcess(ph, .ProcessBasicInformation, &process_info, u32(size_of(process_info)), &process_info_size)
         if status != 0 {
             // TODO(flysand): There's probably a mismatch between NTSTATUS and
             // windows userland error codes, I haven't checked.
@@ -284,7 +284,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
     read_peb: if selection >= {.Command_Line, .Environment, .Working_Dir} {
         process_info_size: u32
         process_info: win32.PROCESS_BASIC_INFORMATION
-        status := win32.NtQueryInformationProcess(ph, .ProcessBasicInformation, &process_info, size_of(process_info), &process_info_size)
+        status := win32.NtQueryInformationProcess(ph, .ProcessBasicInformation, &process_info, u32(size_of(process_info)), &process_info_size)
         if status != 0 {
             // TODO(flysand): There's probably a mismatch between NTSTATUS and
             // windows userland error codes, I haven't checked.
@@ -302,7 +302,7 @@ _process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields
         if err != nil {
             break read_peb
         }
-        arena_temp, _ := allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
+        _, _ = allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
         if selection >= {.Command_Line, .Command_Args} {
             allocators.TEMP_ALLOCATOR_TEMP_GUARD()
             cmdline_w := slice.create(u16, uint(process_params.CommandLine.Length), allocators.temp_allocator) or_return
@@ -471,7 +471,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
             win32.GENERIC_READ|win32.GENERIC_WRITE,
             win32.FILE_SHARE_READ|win32.FILE_SHARE_WRITE,
             &win32.SECURITY_ATTRIBUTES{
-                nLength        = size_of(win32.SECURITY_ATTRIBUTES),
+                nLength        = win32.DWORD(size_of(win32.SECURITY_ATTRIBUTES)),
                 bInheritHandle = true,
             },
             win32.OPEN_EXISTING,
@@ -517,7 +517,7 @@ _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
         raw_data(environment_block_w),
         working_dir_w,
         &win32.STARTUPINFOW{
-            cb = size_of(win32.STARTUPINFOW),
+            cb = win32.DWORD(size_of(win32.STARTUPINFOW)),
             hStdError  = stderr_handle,
             hStdOutput = stdout_handle,
             hStdInput  = stdin_handle,
@@ -650,7 +650,7 @@ _process_entry_by_pid :: proc(pid: uint) -> (entry: win32.PROCESSENTRY32W, err: 
     }
     defer _ = win32.CloseHandle(snap)
 
-    entry = win32.PROCESSENTRY32W{dwSize = size_of(win32.PROCESSENTRY32W)}
+    entry = win32.PROCESSENTRY32W{dwSize = win32.DWORD(size_of(win32.PROCESSENTRY32W))}
     status := win32.Process32FirstW(snap, &entry)
     for status {
         if u32(pid) == entry.th32ProcessID {
@@ -679,7 +679,7 @@ _process_exe_by_pid :: proc(pid: uint, allocator: mem.Allocator) -> (exe_path: s
     }
     defer _ = win32.CloseHandle(snap)
 
-    entry := win32.MODULEENTRY32W { dwSize = size_of(win32.MODULEENTRY32W) }
+    entry := win32.MODULEENTRY32W { dwSize = win32.DWORD(size_of(win32.MODULEENTRY32W)) }
     status := win32.Module32FirstW(snap, &entry)
     if !status {
         err =_get_platform_error()

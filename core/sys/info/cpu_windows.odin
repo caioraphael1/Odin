@@ -12,11 +12,11 @@ _cpu_core_count :: proc() -> (physical, logical: u32, ok: bool) {
     returned_length: sys.DWORD
     _ = sys.GetLogicalProcessorInformation(nil, &returned_length)
 
-    if int(returned_length) > size_of(infos) {
+    if int(returned_length) > int(size_of(infos)) {
         return 0, 0, false
     }
 
-    count := int(returned_length) / size_of(sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION)
+    count := int(returned_length) / int(size_of(sys.SYSTEM_LOGICAL_PROCESSOR_INFORMATION))
 
     // If it still doesn't work, return
     if ok := sys.GetLogicalProcessorInformation(raw_data(infos[:]), &returned_length); !ok {

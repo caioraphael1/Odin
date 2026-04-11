@@ -237,7 +237,7 @@ map_reserve_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias in
         if z > 0 && x & (x-1) != 0 {
             z -= 1
         }
-        return size_of(uintptr)*8 - 1 - z
+        return uintptr(size_of(uintptr))*8 - 1 - z
     }
 
     internal.assert(m.allocator.procedure != nil, "Allocator not defined", loc=loc)

@@ -146,7 +146,7 @@ stack_alloc_bytes_non_zeroed :: proc(
     s.prev_offset = s.curr_offset
     s.curr_offset += padding
     next_addr := curr_addr + uintptr(padding)
-    header := (^Stack_Allocation_Header)(next_addr - size_of(Stack_Allocation_Header))
+    header := (^Stack_Allocation_Header)(next_addr - uintptr(size_of(Stack_Allocation_Header)))
     header.padding = padding
     header.prev_offset = old_offset
     s.curr_offset += size
@@ -185,7 +185,7 @@ stack_free :: proc(
         // NOTE(bill): Allow double frees
         return nil
     }
-    header := (^Stack_Allocation_Header)(curr_addr - size_of(Stack_Allocation_Header))
+    header := (^Stack_Allocation_Header)(curr_addr - uintptr(size_of(Stack_Allocation_Header)))
     old_offset := uint(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
     if old_offset != s.prev_offset {
         return .Invalid_Pointer
@@ -358,7 +358,7 @@ stack_resize_bytes_non_zeroed :: proc(
     if old_size == size {
         return bytes.bytes(old_memory, size), nil
     }
-    header := (^Stack_Allocation_Header)(curr_addr - size_of(Stack_Allocation_Header))
+    header := (^Stack_Allocation_Header)(curr_addr - uintptr(size_of(Stack_Allocation_Header)))
     old_offset := uint(curr_addr - uintptr(header.padding) - uintptr(raw_data(s.data)))
     if old_offset != header.prev_offset {
         data, err := stack_alloc_bytes_non_zeroed(s, size, alignment, loc)

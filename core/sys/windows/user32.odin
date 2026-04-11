@@ -431,7 +431,7 @@ MAKEINTRESOURCEW :: #force_inline proc(#any_int i: int) -> LPWSTR {
 
 
 RAWINPUT_ALIGN :: proc(x: uintptr) -> uintptr {
-    return (x + size_of(uintptr) - 1) & ~uintptr(size_of(uintptr) - 1)
+    return (x + uintptr(size_of(uintptr)) - 1) & ~uintptr(size_of(uintptr) - 1)
 }
 
 

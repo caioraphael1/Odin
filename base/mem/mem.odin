@@ -147,15 +147,15 @@ is_zero_ptr :: proc(ptr: rawptr, len: uint) -> bool {
     case 8: return intrinsics.unaligned_load((^u64)(ptr)) == 0
     }
     start := uintptr(ptr)
-    start_aligned := align_forward_uintptr(start, align_of(uintptr))
+    start_aligned := align_forward_uintptr(start, uintptr(align_of(uintptr)))
     end := start + uintptr(len)
-    end_aligned := align_backward_uintptr(end, align_of(uintptr))
+    end_aligned := align_backward_uintptr(end, uintptr(align_of(uintptr)))
     for b in start..<start_aligned {
         if (^u8)(b)^ != 0 {
             return false
         }
     }
-    for b := start_aligned; b < end_aligned; b += size_of(uintptr) {
+    for b := start_aligned; b < end_aligned; b += uintptr(size_of(uintptr)) {
         if (^uintptr)(b)^ != 0 {
             return false
         }

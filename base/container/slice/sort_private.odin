@@ -47,24 +47,24 @@ _smoothsort :: proc(base: [^]u8, nel: uint, width: uint, cmp: Generic_Cmp, arg: 
 
     shl :: proc(p: []uint, n: int) {
         n := n
-        if n >= 8*size_of(uint) {
-            n -= 8*size_of(uint)
+        if n >= 8 * int(size_of(uint)) {
+            n -= 8 * int(size_of(uint))
             p[1] = p[0]
             p[0] = 0
         }
         p[1] <<= uint(n)
-        p[0] |= p[0] >> uint(8*size_of(uint) - n)
+        p[0] |= p[0] >> uint(8*int(size_of(uint)) - n)
         p[0] <<= uint(n)
     }
     shr :: proc(p: []uint, n: int) {
         n := n
-        if n >= 8*size_of(uint) {
-            n -= 8*size_of(uint)
+        if n >= 8 * int(size_of(uint)) {
+            n -= 8 * int(size_of(uint))
             p[0] = p[1]
             p[1] = 0
         }
         p[0] >>= uint(n)
-        p[0] |= p[1] << uint(8*size_of(uint) - n)
+        p[0] |= p[1] << uint(8*int(size_of(uint)) - n)
         p[1] >>= uint(n)
     }
 
@@ -76,7 +76,7 @@ _smoothsort :: proc(base: [^]u8, nel: uint, width: uint, cmp: Generic_Cmp, arg: 
         data[n] = raw_data(buf[:])
         width := width
         for width != 0 {
-            l := min(size_of(buf), int(width))
+            l := min(int(size_of(buf)), int(width))
             copy(data[n][:l], data[0][:l])
             for i in 0..<n {
                 copy(data[i][:l], data[i+1][:l])

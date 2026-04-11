@@ -5,7 +5,6 @@ import "base:container/strings"
 import "base:unicode/utf16"
 
 import "core:io/string_builder"
-import "core:strings_tools"
 import sys "core:sys/windows"
 
 @(private)
@@ -21,7 +20,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
     res.platform = .Windows
 
     osvi: sys.OSVERSIONINFOEXW
-    osvi.dwOSVersionInfoSize = size_of(osvi)
+    osvi.dwOSVersionInfoSize = sys.ULONG(size_of(osvi))
     if status := sys.RtlGetVersion(&osvi); status != 0 {
         return res, false
     }
@@ -258,7 +257,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 _ram_stats :: proc() -> (total_ram, free_ram, total_swap, free_swap: i64, ok: bool) {
     state: sys.MEMORYSTATUSEX
 
-    state.dwLength = size_of(state)
+    state.dwLength = sys.DWORD(size_of(state))
     if ok := sys.GlobalMemoryStatusEx(&state); !ok {
         return
     }

@@ -104,7 +104,7 @@ _open_internal :: proc(name: string, flags: File_Flags, perm: Permissions) -> (h
     }
     share_mode := u32(win32.FILE_SHARE_READ | win32.FILE_SHARE_WRITE)
     sa := win32.SECURITY_ATTRIBUTES {
-        nLength = size_of(win32.SECURITY_ATTRIBUTES),
+        nLength = win32.DWORD(size_of(win32.SECURITY_ATTRIBUTES)),
         bInheritHandle = .Inheritable in flags,
     }
 
@@ -766,7 +766,7 @@ _fchmod :: proc(f: ^File, mode: Permissions) -> Error {
 
     info: win32.FILE_BASIC_INFO
     info.FileAttributes = attrs
-    if !win32.SetFileInformationByHandle(_handle(f), .FileBasicInfo, &info, size_of(d)) {
+    if !win32.SetFileInformationByHandle(_handle(f), .FileBasicInfo, &info, win32.DWORD(size_of(d))) {
         return _get_platform_error()
     }
     return nil
@@ -819,7 +819,7 @@ _fchtimes :: proc(f: ^File, atime, mtime: time.Time) -> Error {
     info: win32.FILE_BASIC_INFO
     info.LastAccessTime = time_as_filetime(atime)
     info.LastWriteTime  = time_as_filetime(mtime)
-    if !win32.SetFileInformationByHandle(_handle(f), .FileBasicInfo, &info, size_of(info)) {
+    if !win32.SetFileInformationByHandle(_handle(f), .FileBasicInfo, &info, win32.DWORD(size_of(info))) {
         return _get_platform_error()
     }
     return nil

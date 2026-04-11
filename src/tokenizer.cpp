@@ -52,8 +52,6 @@ TOKEN_KIND(Token__AssignOpBegin, ""), \
     TOKEN_KIND(Token_CmpAndEq, "&&="), \
     TOKEN_KIND(Token_CmpOrEq,  "||="), \
 TOKEN_KIND(Token__AssignOpEnd, ""), \
-    TOKEN_KIND(Token_Increment, "++"), \
-    TOKEN_KIND(Token_Decrement, "--"), \
     TOKEN_KIND(Token_ArrowRight,"->"), \
     TOKEN_KIND(Token_Uninit,    "---"), \
 \
@@ -905,10 +903,6 @@ gb_internal void tokenizer_get_token(Tokenizer *t, Token *token, int repeat=0) {
                 advance_to_next_rune(t);
                 token->kind = Token_AddEq;
                 break;
-            case '+':
-                advance_to_next_rune(t);
-                token->kind = Token_Increment;
-                break;
             }
             break;
         case '-':
@@ -920,7 +914,6 @@ gb_internal void tokenizer_get_token(Tokenizer *t, Token *token, int repeat=0) {
                 break;
             case '-':
                 advance_to_next_rune(t);
-                token->kind = Token_Decrement;
                 if (t->curr_rune == '-') {
                     advance_to_next_rune(t);
                     token->kind = Token_Uninit;
@@ -1107,9 +1100,6 @@ semicolon_check:;
     case Token_CloseParen:
     case Token_CloseBracket:
     case Token_CloseBrace:
-        /*fallthrough*/
-    case Token_Increment:
-    case Token_Decrement:
         /*fallthrough*/
         t->insert_semicolon = true;
         break;
