@@ -795,27 +795,14 @@ gb_internal lbValue lb_emit_union_cast(lbProcedure *p, lbValue value, Type *type
     if (!is_tuple) {
         if (!build_context.no_type_assert) {
             GB_ASSERT((p->state_flags & StateFlag_no_type_assert) == 0);
-            // NOTE(bill): Panic on invalid conversion
-            Type *dst_type = tuple->Tuple.variables[0]->type;
-
-            isize arg_count = 7;
-            if (build_context.no_rtti) {
-                arg_count = 4;
-            }
-
+            isize arg_count = 4;
             lbValue ok = lb_emit_load(p, lb_emit_struct_ep(p, v.addr, 1));
             auto args = array_make<lbValue>(permanent_allocator(), arg_count);
             args[0] = ok;
 
             lb_set_file_line_col(p, array_slice(args, 1, args.count), pos);
 
-            if (!build_context.no_rtti) {
-                args[4] = lb_typeid(m, src_type);
-                args[5] = lb_typeid(m, dst_type);
-                args[6] = lb_emit_conv(p, value_, t_rawptr);
-            }
-
-            char const *name = "__type_assertion_check2";
+            char const *name = "__type_assertion_check";
             lb_emit_internal_call(p, name, args);
         }
 
@@ -876,21 +863,13 @@ gb_internal lbAddr lb_emit_any_cast_addr(lbProcedure *p, lbValue value, Type *ty
         if (!build_context.no_type_assert) {
             lbValue ok = lb_emit_load(p, lb_emit_struct_ep(p, v.addr, 1));
 
-            isize arg_count = 7;
-            if (build_context.no_rtti) {
-                arg_count = 4;
-            }
+            isize arg_count = 4;
             auto args = array_make<lbValue>(permanent_allocator(), arg_count);
             args[0] = ok;
 
             lb_set_file_line_col(p, array_slice(args, 1, args.count), pos);
 
-            if (!build_context.no_rtti) {
-                args[4] = any_typeid;
-                args[5] = dst_typeid;
-                args[6] = lb_emit_struct_ev(p, value, 0);
-            }
-            char const *name = "__type_assertion_check2";
+            char const *name = "__type_assertion_check";
             lb_emit_internal_call(p, name, args);
         }
 

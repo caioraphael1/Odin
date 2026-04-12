@@ -1,22 +1,12 @@
-import "core:strings_tools"
 import "core:io"
-import "core:io/string_builder"
 
-// Writes a typeid in standard (non-canonical) form to a `string_builder.Builder`
-write_typeid_builder :: proc(buf: ^string_builder.Builder, id: typeid, n_written: ^uint = nil) -> (n: uint, err: io.Error) {
-    return write_type_writer(string_builder.to_writer(buf), type_info_of(id))
-}
+
 // Writes a typeid in standard (non-canonical) form to an `io.Writer`
 write_typeid_writer :: proc(writer: io.Writer, id: typeid, n_written: ^uint = nil) -> (n: uint, err: io.Error) {
     return write_type_writer(writer, type_info_of(id), n_written)
 }
 
 
-// Writes a `^Type_Info` in standard (non-canonical) form to a `string_builder.Builder`
-write_type_builder :: proc(buf: ^string_builder.Builder, ti: ^Type_Info) -> uint {
-    n, _ := write_type_writer(string_builder.to_writer(buf), ti)
-    return n
-}
 // Writes a `^Type_Info` in standard (non-canonical) form to an `io.Writer`
 write_type_writer :: #force_no_inline proc(w: io.Writer, ti: ^Type_Info, n_written: ^uint = nil) -> (n: uint, err: io.Error) {
     defer if n_written != nil {

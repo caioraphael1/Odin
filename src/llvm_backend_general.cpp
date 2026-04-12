@@ -2381,6 +2381,7 @@ gb_internal LLVMTypeRef lb_type(lbModule *m, Type *type) {
     LLVMTypeRef llvm_type = nullptr;
 
     m->internal_type_level += 1;
+    GB_ASSERT(type != t_invalid);
     llvm_type = lb_type_internal(m, type);
     m->internal_type_level -= 1;
     if (m->internal_type_level == 0) {

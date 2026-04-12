@@ -34,11 +34,11 @@ on a boundary specified by `alignment` from an allocator specified by
 The user should `_ = delete` the return `original_data` slice not the typed `slice`.
 */
 create_over_aligned :: proc(
-    $T: typeid,
-    len: uint,
+    $T:        typeid,
+    len:       uint,
     alignment: uint,
     allocator: mem.Allocator,
-    loc := #caller_location,
+    loc        := #caller_location,
     ) -> (slice: []T, original_data: []u8, err: mem.Allocator_Error) {
     size := size_of(E) * len + alignment - 1
     original_data, err = create(u8, size, allocator, loc)
@@ -231,7 +231,7 @@ copy_from_string16 :: #force_inline proc(dst: $T/[]$E/u16, src: $S/string16) -> 
 _rawptr_mem_copy :: proc(dst, src: rawptr, dst_len, src_len, elem_size: uint) -> uint {
     n := min(dst_len, src_len)
     if n > 0 {
-        mem.copy(dst, src, n*elem_size)
+        mem.copy(dst, src, n * elem_size)
     }
     return n
 }

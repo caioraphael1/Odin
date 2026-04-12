@@ -2,7 +2,6 @@ import "base:internal"
 @(require) import "base:intrinsics"
 import "base:mem"
 import "base:container/slice"
-import "base:container/dyn_array"
 import "base:container/maps"
 import "base:container/strings"
 
@@ -183,7 +182,6 @@ any_core :: proc(v: any) -> any {
 //     #soa^T     -> T
 //     [N]T       -> T
 //     []T        -> T
-//     dyn_array.Dyn_Array(T) -> T
 //     #simd[N]T  -> T
 
 typeid_elem :: proc(id: typeid) -> typeid {
@@ -275,7 +273,6 @@ is_nil :: proc(v: any) -> bool {
 //     len([N]T) -> N
 //     len(#simd[N]T) -> N
 //     len([]T)
-//     len(dyn_array.Dyn_Array(T))
 //     len(map[K]V)
 //     len(string) or len(cstring)
 //     len(string16) or len(cstring16)
@@ -329,7 +326,6 @@ length :: proc(val: any) -> uint {
 //     cap(^T)        -> cap(T)
 //     cap([N]T)      -> N
 //     cap(#simd[N]T) -> N
-//     cap(dyn_array.Dyn_Array(T))
 //     cap(map[K]V)
 
 capacity :: proc(val: any) -> uint {
@@ -1957,7 +1953,5 @@ equal :: proc(a, b: any, including_indirect_array_recursion := false, recursion_
 
     }
     
-    internal.print_typeid(a.id)
-    internal.print_string("\n")
     return true
 }

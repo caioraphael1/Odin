@@ -10169,7 +10169,6 @@ end:;
 
     if ((c->state_flags & StateFlag_no_type_assert) == 0) {
         add_package_dependency(c, "internal", "__type_assertion_check");
-        add_package_dependency(c, "internal", "__type_assertion_check2");
     }
     return kind;
 }

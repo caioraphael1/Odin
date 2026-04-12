@@ -3,7 +3,6 @@ import "base:container/slice"
 import "base:unicode/utf8"
 
 import "core:io"
-
 import "core:os"
 
 @(private) DEFAULT_BUF_SIZE :: 4096
@@ -12,11 +11,13 @@ import "core:os"
 
 
 File_Writer :: struct {
+    // buffered data
     buf:  []u8,
+    len:  uint,
+
+    // flush to
     file: ^os.File,
-    n:    uint,
     err:  io.Error,
-    max_consecutive_empty_writes: uint,
 }
 
 // Initialized a File_Writer with a user provided buffer `buf`
@@ -31,20 +32,19 @@ writer_size :: proc(writer: ^File_Writer) -> uint {
 }
 
 writer_reset :: proc(writer: ^File_Writer, file: ^os.File) {
+    writer.len = 0
     writer.file = file
-    writer.n = 0
     writer.err = nil
 }
 
-
 // writer_available returns how many bytes are unused in the buffer
 writer_available :: proc(writer: ^File_Writer) -> uint {
-    return len(writer.buf) - writer.n
+    return len(writer.buf) - writer.len
 }
 
 // writer_buffered returns the number of bytes that have been writted into the current buffer
 writer_buffered :: proc(writer: ^File_Writer) -> uint {
-    return writer.n
+    return writer.len
 }
 
 
@@ -56,8 +56,8 @@ writer_write_byte :: proc(writer: ^File_Writer, c: u8) -> io.Error {
     if writer_available(writer) <= 0 && writer_flush(writer) != nil {
         return writer.err
     }
-    writer.buf[writer.n] = c
-    writer.n += 1
+    writer.buf[writer.len] = c
+    writer.len += 1
     return nil
 }
 
@@ -90,8 +90,8 @@ writer_write_rune :: proc(writer: ^File_Writer, r: rune) -> (size: uint, err: io
     }
 
     buf, size = utf8.bytes_from_rune(r)
-    slice.copy(writer.buf[writer.n:], buf[:size])
-    writer.n += size
+    slice.copy(writer.buf[writer.len:], buf[:size])
+    writer.len += size
     return
 }
 
@@ -122,23 +122,23 @@ writer_flush :: proc(writer: ^File_Writer) -> io.Error {
     if writer.err != nil {
         return writer.err
     }
-    if writer.n == 0 {
+    if writer.len == 0 {
         return nil
     }
 
-    n, err := io.write(os.to_stream(writer.file), writer.buf[0:writer.n])
-    if n < writer.n && err == nil {
+    n, err := io.write(os.to_stream(writer.file), writer.buf[0:writer.len])
+    if n < writer.len && err == nil {
         err = .Short_Write
     }
     if err != nil {
-        if n > 0 && n < writer.n {
-            slice.copy(writer.buf[:writer.n-n], writer.buf[n : writer.n])
+        if n > 0 && n < writer.len {
+            slice.copy(writer.buf[:writer.len-n], writer.buf[n : writer.len])
         }
-        writer.n -= n
+        writer.len -= n
         writer.err = err
         return err
     }
-    writer.n = 0
+    writer.len = 0
     return nil
 }
 
@@ -159,8 +159,8 @@ writer_write :: proc(writer: ^File_Writer, buf: []u8) -> (n: uint, err: io.Error
                 break
             }
         } else {
-            m = slice.copy(writer.buf[writer.n:], buf)
-            writer.n += m
+            m = slice.copy(writer.buf[writer.len:], buf)
+            writer.len += m
             _ = writer_flush(writer)
         }
         n += m
@@ -169,8 +169,8 @@ writer_write :: proc(writer: ^File_Writer, buf: []u8) -> (n: uint, err: io.Error
     if writer.err != nil {
         return n, writer.err
     }
-    m := slice.copy(writer.buf[writer.n:], buf)
-    writer.n += m
+    m := slice.copy(writer.buf[writer.len:], buf)
+    writer.len += m
     m += n
     return m, nil
 }

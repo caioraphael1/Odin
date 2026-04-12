@@ -147,7 +147,7 @@ marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc
     allocators.TEMP_ALLOCATOR_TEMP_GUARD(allocator)
 
     opt := opt
-    marshal_to_builder(&b, v, &opt) or_return
+    marshal_to_writer(string_builder.to_writer(&b), v, &opt) or_return
     
     if b.buf.len != 0 {
         data = dyn_array.slice(b.buf)
@@ -156,9 +156,6 @@ marshal :: proc(v: any, opt: Marshal_Options = {}, allocator: mem.Allocator, loc
     return data, nil
 }
 
-marshal_to_builder :: proc(b: ^string_builder.Builder, v: any, opt: ^Marshal_Options) -> Marshal_Error {
-    return marshal_to_writer(string_builder.to_writer(b), v, opt)
-}
 
 marshal_to_writer :: proc(w: io.Writer, v: any, opt: ^Marshal_Options) -> (err: Marshal_Error) {
     if v == nil {

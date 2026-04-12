@@ -21,8 +21,8 @@ import "core:io/string_builder"
 Info :: struct {
     using state: Info_State,
 
-    writer: io.Writer,
-    arg: any, // Temporary
+    writer:            io.Writer,
+    arg:               any, // Temporary
     indirection_level: uint,
     record_level:      uint,
 

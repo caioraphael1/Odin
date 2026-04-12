@@ -1,4 +1,3 @@
-
 import ed "core:crypto/_edwards25519"
 import field "core:crypto/_fiat/field_curve25519"
 import scalar "core:crypto/_fiat/field_scalar25519"
@@ -6,7 +5,6 @@ import "core:encoding/endian"
 import "core:fmt"
 import path "core:path/filepath"
 import "core:os"
-import "base:container/strings"
 
 // Yes this leaks memory, fite me IRL.
 

@@ -48,7 +48,7 @@ resize :: proc(s: ^Fixed_String($N), length: uint) -> (ok: bool) {
 
     prev_len := s.len
     s.len = length
-    if s.len > prev_len  {
+    if s.len > prev_len {
         // Zero only the new region after growth.
         mem.zero(&s.data[prev_len], size_of(u8) * (s.len - prev_len))
     }

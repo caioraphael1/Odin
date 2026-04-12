@@ -129,111 +129,15 @@ type_assertion_trap :: proc() -> ! {
     }
 }
 
-when ODIN_NO_RTTI {
-    __type_assertion_check :: proc(ok: bool, file: string, line, column: i32) {
-        if ok {
-            return
-        }
-        @(cold, no_instrumentation)
-        handle_error :: proc(file: string, line, column: i32) -> ! {
-            print_caller_location(Source_Code_Location{file, line, column, ""})
-            print_string(" Invalid type assertion\n")
-            type_assertion_trap()
-        }
-        handle_error(file, line, column)
+__type_assertion_check :: proc(ok: bool, file: string, line, column: i32) {
+    if ok {
+        return
     }
-
-    __type_assertion_check2 :: proc(ok: bool, file: string, line, column: i32) {
-        if ok {
-            return
-        }
-        @(cold, no_instrumentation)
-        handle_error :: proc(file: string, line, column: i32) -> ! {
-            print_caller_location(Source_Code_Location{file, line, column, ""})
-            print_string(" Invalid type assertion\n")
-            type_assertion_trap()
-        }
-        handle_error(file, line, column)
+    @(cold, no_instrumentation)
+    handle_error :: proc(file: string, line, column: i32) -> ! {
+        print_caller_location(Source_Code_Location{file, line, column, ""})
+        print_string(" Invalid type assertion\n")
+        type_assertion_trap()
     }
-} else {
-    @(private="file") TYPE_ASSERTION_BUFFER_SIZE :: 1024
-
-    __type_assertion_check :: proc(ok: bool, file: string, line, column: i32, from, to: typeid) {
-        if ok {
-            return
-        }
-        @(cold, no_instrumentation)
-        handle_error :: proc(file: string, line, column: i32, from, to: typeid) -> ! {
-            print_caller_location(Source_Code_Location{file, line, column, ""})
-            print_string(" Invalid type assertion from ")
-            print_typeid(from)
-            print_string(" to ")
-            print_typeid(to)
-            print_byte('\n')
-            type_assertion_trap()
-        }
-        handle_error(file, line, column, from, to)
-    }
-    
-    __type_assertion_check2 :: proc(ok: bool, file: string, line, column: i32, from, to: typeid, from_data: rawptr) {
-        if ok {
-            return
-        }
-
-        @(cold, no_instrumentation)
-        handle_error :: proc(file: string, line, column: i32, from, to: typeid, from_data: rawptr) -> ! {
-
-            actual := type_assertion_variant_type(from, from_data)
-
-            print_caller_location(Source_Code_Location{file, line, column, ""})
-            print_string(" Invalid type assertion from ")
-            print_typeid(from)
-            print_string(" to ")
-            print_typeid(to)
-            if actual != from {
-                print_string(", actual type: ")
-                print_typeid(actual)
-            }
-            print_byte('\n')
-            type_assertion_trap()
-        }
-        handle_error(file, line, column, from, to, from_data)
-    }
-
-    @(private="file")
-    type_assertion_variant_type :: proc(id: typeid, data: rawptr) -> typeid {
-        if id == nil || data == nil {
-            return id
-        }
-        ti := type_info_base(type_info_of(id))
-        #partial switch v in ti.variant {
-        case Type_Info_Any:
-            return (^any)(data).id
-        case Type_Info_Union:
-            if v.tag_type == nil {
-                if (^rawptr)(data)^ == nil {
-                    return nil
-                }
-                return v.variants[0].id
-
-            }
-
-            tag_ptr := uintptr(data) + v.tag_offset
-            idx := 0
-            switch v.tag_type.size {
-            case 1:  idx = int(  (^u8)(tag_ptr)^); if !v.no_nil { idx -= 1 }
-            case 2:  idx = int( (^u16)(tag_ptr)^); if !v.no_nil { idx -= 1 }
-            case 4:  idx = int( (^u32)(tag_ptr)^); if !v.no_nil { idx -= 1 }
-            case 8:  idx = int( (^u64)(tag_ptr)^); if !v.no_nil { idx -= 1 }
-            case 16: idx = int((^u128)(tag_ptr)^); if !v.no_nil { idx -= 1 }
-            }
-            if idx < 0 {
-                return nil
-            } else if idx < int(len(v.variants)) {
-                return v.variants[idx].id
-            }
-        }
-        return id
-    }
+    handle_error(file, line, column)
 }
-

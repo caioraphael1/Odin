@@ -3822,22 +3822,12 @@ gb_internal lbValue lb_build_unary_and(lbProcedure *p, Ast *expr) {
                         dst_tag = lb_const_union_tag(p->module, src_type, dst_type);
                     }
 
-
-                    isize arg_count = 6;
-                    if (build_context.no_rtti) {
-                        arg_count = 4;
-                    }
-
+                    isize arg_count = 4;
                     lbValue ok = lb_emit_comp(p, Token_CmpEq, src_tag, dst_tag);
                     auto args = array_make<lbValue>(permanent_allocator(), arg_count);
                     args[0] = ok;
 
                     lb_set_file_line_col(p, array_slice(args, 1, args.count), pos);
-
-                    if (!build_context.no_rtti) {
-                        args[4] = lb_typeid(p->module, src_type);
-                        args[5] = lb_typeid(p->module, dst_type);
-                    }
 
                     char const *name = "__type_assertion_check";
                     lb_emit_internal_call(p, name, args);
@@ -3856,10 +3846,7 @@ gb_internal lbValue lb_build_unary_and(lbProcedure *p, Ast *expr) {
 
                     lbValue any_id = lb_emit_struct_ev(p, v, 1);
 
-                    isize arg_count = 6;
-                    if (build_context.no_rtti) {
-                        arg_count = 4;
-                    }
+                    isize arg_count = 4;
 
                     lbValue id = lb_typeid(p->module, type);
                     lbValue ok = lb_emit_comp(p, Token_CmpEq, any_id, id);
@@ -3867,11 +3854,6 @@ gb_internal lbValue lb_build_unary_and(lbProcedure *p, Ast *expr) {
                     args[0] = ok;
 
                     lb_set_file_line_col(p, array_slice(args, 1, args.count), pos);
-
-                    if (!build_context.no_rtti) {
-                        args[4] = any_id;
-                        args[5] = id;
-                    }
 
                     char const *name = "__type_assertion_check";
                     lb_emit_internal_call(p, name, args);
