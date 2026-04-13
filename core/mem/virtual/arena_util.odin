@@ -27,14 +27,13 @@ new_clone :: proc(arena: ^Arena, data: $T, loc := #caller_location) -> (ptr: ^T,
 
 // `slice.create` allocates and initializes a slice. Like `new`, the second argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
-create :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, loc := #caller_location) -> (T, Allocator_Error) {
+create :: proc(arena: ^Arena, $T: typeid/[]$E, len: uint, loc := #caller_location) -> (T, Allocator_Error) {
     return create_aligned(arena, T, len, align_of(E), loc)
 }
 
 // `slice_create_aligned` allocates and initializes a slice. Like `new`, the second argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
-create_aligned :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, alignment: uint, loc := #caller_location) -> (T, Allocator_Error) {
-    internal.slice_create_error_loc(loc, len)
+create_aligned :: proc(arena: ^Arena, $T: typeid/[]$E, len: uint, alignment: uint, loc := #caller_location) -> (T, Allocator_Error) {
     data, err := arena_alloc(arena, size_of(E)*uint(len), alignment, loc)
     if data == nil && size_of(E) != 0 {
         return nil, err
@@ -47,8 +46,7 @@ create_aligned :: proc(arena: ^Arena, $T: typeid/[]$E, #any_int len: int, alignm
 // `multi_pointer_create` allocates and initializes a dynamic array. Like `new`, the second argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
 // This is "similar" to doing `raw_data(slice.create(E, len, allocator))`.
-multi_pointer_create :: proc(arena: ^Arena, $T: typeid/[^]$E, #any_int len: int, loc := #caller_location) -> (T, Allocator_Error) {
-    internal.slice_create_error_loc(loc, len)
+multi_pointer_create :: proc(arena: ^Arena, $T: typeid/[^]$E, len: uint, loc := #caller_location) -> (T, Allocator_Error) {
     data, err := arena_alloc(arena, size_of(E)*uint(len), align_of(E), loc)
     if data == nil && size_of(E) != 0 {
         return nil, err

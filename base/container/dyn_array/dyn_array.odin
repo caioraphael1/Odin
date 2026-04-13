@@ -38,7 +38,7 @@ create_len_cap :: proc($T: typeid, len: uint, cap: uint, allocator: mem.Allocato
 
 
 create_from_slice :: proc(backing: []$T) -> Dyn_Array(T) {
-    return Dyn_Array(T){
+    return {
         data      = raw_data(backing),
         len       = 0,
         cap       = len(backing),
@@ -49,9 +49,24 @@ create_from_slice :: proc(backing: []$T) -> Dyn_Array(T) {
     }
 }
 
-_dyn_array_init_len_cap :: proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, len: uint, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
-    create_error_loc(loc, len, cap)
-    internal.assert(cap > 0, "Capacity must be greater than zero", loc=loc)
+
+Init_Error :: union {
+    enum {
+        None,
+        Out_Of_Bounds,
+        Invalid_Capacity,
+    },
+    mem.Allocator_Error,
+}
+
+
+_dyn_array_init_len_cap :: proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, len: uint, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: Init_Error) {
+    if len < 0 || len > cap {
+        return .Out_Of_Bounds
+    }
+    if cap == 0 {
+        return .Invalid_Capacity
+    }
     a.allocator = allocator // initialize allocator before just in case it fails to allocate any memory
     data := mem.alloc(size_of_elem*cap, align_of_elem, allocator, loc) or_return
     use_zero := data == nil && size_of_elem != 0
@@ -70,11 +85,9 @@ delete :: proc(a: Dyn_Array($T), loc := #caller_location) -> mem.Allocator_Error
     return mem.free_with_size(a.data, a.cap * size_of(T), a.allocator, loc)
 }
 
-
 slice :: proc(a: Dyn_Array($T)) -> []T {
     return a.data[:a.len]
 }
-
 
 append :: proc(a: ^Dyn_Array($T), #no_broadcast arg: T, loc := #caller_location) -> (err: mem.Allocator_Error) {
     // where !intrinsics.type_is_string(T) {
@@ -266,16 +279,22 @@ unordered_remove_element :: proc(a: ^Dyn_Array($T), elem: T) -> (ok: bool) {
     return false
 }
 
-ordered_remove :: proc(a: ^Dyn_Array($T), index: uint, loc := #caller_location) {
-    internal.bounds_check_error_loc(loc, index, a.len)
+ordered_remove :: proc(a: ^Dyn_Array($T), index: uint, loc := #caller_location) -> (ok: bool) {
+    if uint(index) >= uint(a.len) {
+        return false
+    }
     if index + 1 < a.len {
         base_slice.copy(a.data[index:a.len], a.data[index+1:a.len])
     }
     a.len -= 1
+    return true
 }
 
-remove_range :: proc(a: ^Dyn_Array($T), lo, hi: uint, loc := #caller_location) {
-    slice_expr_error_lo_hi_loc(loc, lo, hi, a.len)
+remove_range :: proc(a: ^Dyn_Array($T), lo, hi: uint) -> (ok: bool) {
+    if lo < 0 || lo > a.len || lo > hi || hi > a.len {
+        return false
+    }
+
     n := max(hi - lo, 0)
     if n > 0 {
         if hi != a.len {
@@ -283,6 +302,7 @@ remove_range :: proc(a: ^Dyn_Array($T), lo, hi: uint, loc := #caller_location) {
         }
         a.len -= n
     }
+    return true
 }
 
 
@@ -405,53 +425,3 @@ _shrink :: proc(a: ^Dyn_Array, size_of_elem, align_of_elem: uint, new_cap: uint,
     a.cap = new_cap
     return true, nil
 }
-
-
-//--------------------------------------------------------------------------------------------------
-// Error Checks
-//--------------------------------------------------------------------------------------------------
-
-@(disabled=ODIN_NO_BOUNDS_CHECK)
-expr_error :: proc(file: string, line, column: i32, low, high, max: int) {
-    if 0 <= low && low <= high && high <= max {
-        return
-    }
-    @(cold, no_instrumentation)
-    handle_error :: proc(file: string, line, column: i32, low, high, max: int) -> ! {
-        internal.print_caller_location(internal.Source_Code_Location{file, line, column, ""})
-        internal.print_string(" Invalid dynamic a indices ")
-        internal.print_i64(i64(low))
-        internal.print_string(":")
-        internal.print_i64(i64(high))
-        internal.print_string(" is out of range 0..<")
-        internal.print_i64(i64(max))
-        internal.print_byte('\n')
-        internal.bounds_trap()
-    }
-    handle_error(file, line, column, low, high, max)
-}
-
-@(disabled=ODIN_NO_BOUNDS_CHECK)
-create_error_loc :: #force_inline proc(loc := #caller_location, len, cap: uint) {
-    if 0 <= len && len <= cap {
-        return
-    }
-    @(cold, no_instrumentation)
-    handle_error :: proc(loc: internal.Source_Code_Location, len, cap: uint)  -> ! {
-        internal.print_caller_location(loc)
-        internal.print_string(" Invalid dynamic a parameters for make: ")
-        internal.print_i64(i64(len))
-        internal.print_byte(':')
-        internal.print_i64(i64(cap))
-        internal.print_byte('\n')
-        internal.bounds_trap()
-    }
-    handle_error(loc, len, cap)
-}
-
-@(disabled=ODIN_NO_BOUNDS_CHECK)
-expr_error_loc :: #force_inline proc(loc := #caller_location, low, high, max: int) {
-    expr_error(loc.file_path, loc.line, loc.column, low, high, max)
-}
-
-

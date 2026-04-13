@@ -22,7 +22,6 @@ create :: proc($T: typeid/map[$K]$E, allocator: mem.Allocator, loc := #caller_lo
 // Like `new`, the first argument is a type, not a value.
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
 create_cap :: proc($T: typeid/map[$K]$E, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (m: T, err: mem.Allocator_Error) {
-    map_expr_create_error_loc(loc, cap)
     m.allocator = allocator
     err = reserve(&m, cap, loc)
     return
@@ -274,28 +273,6 @@ shrink_dynamic :: #force_no_inline proc(#no_alias m: ^Raw_Map, #no_alias info: ^
     internal.map_free_dynamic(m^, info, loc) or_return
     m.data = shrunk.data
     return true, nil
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-// Error Checks
-//--------------------------------------------------------------------------------------------------
-
-@(disabled=ODIN_NO_BOUNDS_CHECK)
-map_expr_create_error_loc :: #force_inline proc(loc := #caller_location, cap: uint) {
-    if 0 <= cap {
-        return
-    }
-    @(cold, no_instrumentation)
-    handle_error :: proc(loc: internal.Source_Code_Location, cap: uint)  -> ! {
-        internal.print_caller_location(loc)
-        internal.print_string(" Invalid map cap for make: ")
-        internal.print_i64(i64(cap))
-        internal.print_byte('\n')
-        internal.bounds_trap()
-    }
-    handle_error(loc, cap)
 }
 
 

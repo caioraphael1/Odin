@@ -1,5 +1,3 @@
-
-import "base:internal"
 import "base:mem"
 import "base:bytes"
 import "base:container/slice"

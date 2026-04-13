@@ -4,9 +4,7 @@ import "base:container/strings"
 import "base:container/slice"
 import "base:unicode"
 import "base:unicode/utf8"
-import "base:bytes"
 
-import "core:io"
 import "core:io/string_builder"
 
 
@@ -231,7 +229,7 @@ Example:
 Output:
     abc1    abc2    abc3
 */
-expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res: string, err: io.Error) {
+expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     if tab_size <= 0 {
         internal.panic("tab size must be positive")
     }
@@ -242,7 +240,6 @@ expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res
 
     b: string_builder.Builder
     string_builder.builder_init(&b, allocator)
-    writer := string_builder.to_writer(&b)
     str := s
     column: uint
 
@@ -253,7 +250,7 @@ expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res
             expand := tab_size - column % tab_size
 
             for i: uint = 0; i < expand; i += 1 {
-                io.write_byte(writer, ' ') or_return
+                _ = string_builder.write_byte(&b, ' ') or_return
             }
 
             column += expand
@@ -264,7 +261,7 @@ expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res
                 column += w
             }
 
-            _ = io.write_rune(writer, r) or_return
+            _ = string_builder.write_rune(&b, r) or_return
         }
 
         str = str[w:]
@@ -291,11 +288,9 @@ centre_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Al
     b: string_builder.Builder
     string_builder.builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-    w := string_builder.to_writer(&b)
-
-    write_pad_string(w, pad, pad_len, remains/2)
-    _, _ = io.write_string(w, str)
-    write_pad_string(w, pad, pad_len, (remains+1)/2)
+    write_pad_string(&b, pad, pad_len, remains/2)
+    _, _ = string_builder.write_string(&b, str)
+    write_pad_string(&b, pad, pad_len, (remains+1)/2)
 
     return string_builder.to_string(&b), nil
 }
@@ -315,10 +310,8 @@ left_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allo
     b: string_builder.Builder
     string_builder.builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-    w := string_builder.to_writer(&b)
-
-    _, _ = io.write_string(w, str)
-    write_pad_string(w, pad, pad_len, remains)
+    _, _ = string_builder.write_string(&b, str)
+    write_pad_string(&b, pad, pad_len, remains)
 
     return string_builder.to_string(&b), nil
 }
@@ -338,27 +331,25 @@ right_justify :: proc(str: string, length: uint, pad: string, allocator: mem.All
     b: string_builder.Builder
     string_builder.builder_init_len_cap(&b, 0, len(str) + (remains/pad_len + 1)*len(pad), allocator) or_return
 
-    w := string_builder.to_writer(&b)
-
-    write_pad_string(w, pad, pad_len, remains)
-    _, _ = io.write_string(w, str)
+    write_pad_string(&b, pad, pad_len, remains)
+    _, _ = string_builder.write_string(&b, str)
 
     return string_builder.to_string(&b), nil
 }
 
 /*
-Writes a given pad string a specified number of times to an `io.Writer`
-- w: The io.Writer to write the pad string to
+Writes a given pad string a specified number of times to an `string_builder.Writer`
+- w: The string_builder.Writer to write the pad string to
 - pad: The pad string to be written
 - pad_len: The length of the pad string, in runes
 - remains: The number of times to write the pad string, in runes
 */
 @(private)
-write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: uint) {
+write_pad_string :: proc(b: ^string_builder.Builder, pad: string, pad_len, remains: uint) {
     repeats := remains / pad_len
 
     for i: uint = 0; i < repeats; i += 1 {
-        _, _ = io.write_string(w, pad)
+        _, _ = string_builder.write_string(b, pad)
     }
 
     n := remains % pad_len
@@ -366,7 +357,7 @@ write_pad_string :: proc(w: io.Writer, pad: string, pad_len, remains: uint) {
 
     for i: uint = 0; i < n; i += 1 {
         r, width := utf8.rune_from_string(p)
-        _, _ = io.write_rune(w, r)
+        _, _ = string_builder.write_rune(b, r)
         p = p[width:]
     }
 }

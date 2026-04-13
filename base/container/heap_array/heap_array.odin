@@ -150,7 +150,7 @@ Output:
     [1]
     [1, 2, 0, 0, 0]
 */
-non_zero_resize :: proc(a: ^Heap_Array($T), length: uint) {
+resize_non_zero :: proc(a: ^Heap_Array($T), length: uint) {
     a.len = min(length, uint(N))
 
     update_peak(a)

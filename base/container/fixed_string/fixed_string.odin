@@ -19,6 +19,7 @@ cap :: proc(s: Fixed_String($N)) -> uint {
 
 store_string :: proc(s: ^Fixed_String($N), str: string) -> (ok: bool) {
     ok = resize(s, builtin.len(str))
+    if !ok { return }
     base_slice.copy_from_string(slice(s), str)
     return
 }

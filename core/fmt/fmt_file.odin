@@ -1,3 +1,6 @@
+#+ignore
+
+
 #+build !freestanding
 #+build !js
 #+build !orca
@@ -7,7 +10,6 @@ import "core:os"
 import "core:os/writer"
 import "core:io"
 import "core:reflect"
-
 
 // fprint formats using the default print settings and writes to fd
 @(optional_results)

@@ -1,4 +1,5 @@
 
+/* 
 printf_bytes :: proc(bytes: uint) {
     if bytes > 1_000_000_000 {
         printf("%.9f gb", f64(bytes) / 1_000_000_000.0)
@@ -10,3 +11,5 @@ printf_bytes :: proc(bytes: uint) {
         printf("%v b", bytes)
     }
 }
+
+*/

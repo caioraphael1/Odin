@@ -4,7 +4,9 @@ import "base:internal"
 // Unlike `new`, `make`'s return value is the same as the type of its argument, not a pointer to it.
 // This is "similar" to doing `raw_data(slice.create(E, len, allocator))`.
 multi_pointer_create :: proc($T: typeid/[^]$E, len: uint, allocator: Allocator, loc := #caller_location) -> (mp: T, err: Allocator_Error) {
-    internal.slice_create_error_loc(loc, len)
+    if len == 0 {
+        return
+    }
     data := alloc(size_of(E)*len, align_of(E), allocator, loc) or_return
     if data == nil && size_of(E) != 0 {
         return

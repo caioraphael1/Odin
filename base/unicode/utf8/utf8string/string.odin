@@ -123,15 +123,17 @@ at :: proc(s: ^String, i: uint, loc := #caller_location) -> (r: rune) {
     }
 }
 
-slice :: proc(s: ^String, i, j: uint, loc := #caller_location) -> string {
-    internal.slice_expr_error_lo_hi_loc(loc, i, j, s.rune_count)
+slice :: proc(s: ^String, i, j: uint, loc := #caller_location) -> (str: string, ok: bool) {
+    if i < 0 || i > s.rune_count || i > j || j > s.rune_count {
+        return "", false
+    }
 
     if j < s.non_ascii {
-        return s.contents[i:j]
+        return s.contents[i:j], true
     }
 
     if i == j {
-        return ""
+        return "", true
     }
 
     lo, hi: uint
@@ -151,5 +153,5 @@ slice :: proc(s: ^String, i, j: uint, loc := #caller_location) -> string {
         hi = s.byte_pos
     }
 
-    return s.contents[lo:hi]
+    return s.contents[lo:hi], true
 }

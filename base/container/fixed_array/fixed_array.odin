@@ -108,7 +108,7 @@ resize :: proc(a: ^Fixed_Array($N, $T), length: uint) -> (ok: bool) {
     return
 }
 
-non_zero_resize :: proc(a: ^Fixed_Array($N, $T), length: uint) {
+resize_non_zero :: proc(a: ^Fixed_Array($N, $T), length: uint) {
     a.len = min(length, uint(N))
 
     update_peak(a)

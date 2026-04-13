@@ -1,21 +1,11 @@
-// Procedures for manipulation of `[]u8` slices.
-
-import "base:internal"
 import "base:mem"
 import "base:intrinsics"
 import "base:simd"
-
-import "base:container/slice"
-import "base:container/strings"
-import "base:container/dyn_array"
-
-import "base:unicode"
 import "base:unicode/utf8"
 
 
-
 when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
-    @(private) SCANNER_INDICES_256 : simd.u8x32 : {
+    @(private) SCANNER_INDICES_256: simd.u8x32 : {
         0,  1,  2,  3,  4,  5,  6,  7,
         8,  9, 10, 11, 12, 13, 14, 15,
         16, 17, 18, 19, 20, 21, 22, 23,
@@ -25,14 +15,14 @@ when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
     @(private) SCANNER_SENTINEL_MIN_256: simd.u8x32 : u8(0xff)
     @(private) SIMD_REG_SIZE_256 :: 32
 }
-@(private) SCANNER_INDICES_128 : simd.u8x16 : {
+@(private) SCANNER_INDICES_128: simd.u8x16 : {
     0,  1,  2,  3,  4,  5,  6,  7,
     8,  9, 10, 11, 12, 13, 14, 15,
 }
 @(private) SCANNER_SENTINEL_MAX_128: simd.u8x16 : u8(0x00)
 @(private) SCANNER_SENTINEL_MIN_128: simd.u8x16 : u8(0xff)
 @(private) SIMD_REG_SIZE_128 :: 16
-@(private) PRIME_RABIN_KARP :: 16777619
+@(private) PRIME_RABIN_KARP  :: 16777619
 
 equal_fold :: proc(u, v: []u8) -> bool {
     return utf8.string_equal_fold(string(u), string(v))

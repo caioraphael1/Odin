@@ -67,10 +67,10 @@ specified with `backing_allocator`. The `internals_allocator` will used to
 allocate the tracked data.
 */
 @(no_sanitize_address)
-tracking_allocator_init :: proc(t: ^Tracking_Allocator, backing_allocator: mem.Allocator, internals_allocator: mem.Allocator) {
+tracking_allocator_init :: proc(t: ^Tracking_Allocator, backing_allocator: mem.Allocator, internals_allocator: mem.Allocator, bad_free_cb: Tracking_Allocator_Bad_Free_Callback) {
     t.backing = backing_allocator
     t.allocation_map.allocator = internals_allocator
-    t.bad_free_callback = tracking_allocator_bad_free_callback_panic
+    t.bad_free_callback = bad_free_cb
     t.bad_free_array.allocator = internals_allocator
     if .Free_All in mem.query_features(t.backing) {
         t.clear_on_free_all = true
@@ -120,23 +120,6 @@ tracking_allocator_reset :: proc(t: ^Tracking_Allocator) {
     t.peak_memory_allocated = 0
     t.current_memory_allocated = 0
     sync.mutex_unlock(&t.mutex)
-}
-
-/*
-Default behavior for a bad free: Crash with error message that says where the
-bad free happened.
-
-Override Tracking_Allocator.bad_free_callback to have something else happen. For
-example, you can use tracking_allocator_bad_free_callback_add_to_array to return
-the tracking allocator to the old behavior, where the bad_free_array was used.
-*/
-@(no_sanitize_address)
-tracking_allocator_bad_free_callback_panic :: proc(t: ^Tracking_Allocator, memory: rawptr, loc: internal.Source_Code_Location) {
-    internal.print_caller_location(loc)
-    internal.print_string(" Tracking allocator error: Bad free of pointer ")
-    internal.print_uintptr(uintptr(memory))
-    internal.print_string("\n")
-    internal.trap()
 }
 
 /*

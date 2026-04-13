@@ -451,13 +451,13 @@ _process_open :: proc(pid: uint, flags: Process_Open_Flags) -> (process: Process
 @(private)
 _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-    command_line   := _build_command_line(desc.command, allocators.temp_allocator)
+    command_line   := _build_command_line(desc.command, allocators.temp_allocator) or_return
     command_line_w := win32_utf8_to_wstring(command_line, allocators.temp_allocator) or_return
     environment := desc.env
     if desc.env == nil {
         environment = environ(allocators.temp_allocator) or_return
     }
-    environment_block   := _build_environment_block(environment, allocators.temp_allocator)
+    environment_block   := _build_environment_block(environment, allocators.temp_allocator) or_return
     environment_block_w := win32_utf8_to_utf16(environment_block, allocators.temp_allocator) or_return
 
     stderr_handle: win32.HANDLE 
@@ -744,20 +744,21 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
     return
 }
 
-_build_command_line :: proc(command: []string, allocator: mem.Allocator) -> string {
-    _write_byte_n_times :: #force_inline proc(builder: ^string_builder.Builder, b: u8, n: uint) {
+_build_command_line :: proc(command: []string, allocator: mem.Allocator) -> (str: string, err: mem.Allocator_Error) {
+    _write_byte_n_times :: #force_inline proc(builder: ^string_builder.Builder, b: u8, n: uint) -> (err: mem.Allocator_Error) {
         for _ in 0..<n {
-            string_builder.write_byte(builder, b)
+            _ = string_builder.write_byte(builder, b) or_return
         }
+        return
     }
     builder := string_builder.builder_create(allocator)
     for arg, i in command {
         if i != 0 {
-            string_builder.write_byte(&builder, ' ')
+            _ = string_builder.write_byte(&builder, ' ') or_return
         }
         j: uint
         if strings_tools.contains_any(arg, "()[]{}^=;!'+,`~\" ") {
-            string_builder.write_byte(&builder, '"')
+            _ = string_builder.write_byte(&builder, '"') or_return
             for j < len(arg) {
                 backslashes: uint = 0
                 for j < len(arg) && arg[j] == '\\' {
@@ -765,23 +766,23 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> stri
                     j += 1
                 }
                 if j == len(arg) {
-                    _write_byte_n_times(&builder, '\\', 2*backslashes)
+                    _write_byte_n_times(&builder, '\\', 2*backslashes) or_return
                     break
                 } else if arg[j] == '"' {
-                    _write_byte_n_times(&builder, '\\', 2*backslashes+1)
-                    string_builder.write_byte(&builder, arg[j])
+                    _write_byte_n_times(&builder, '\\', 2*backslashes+1) or_return
+                    _ = string_builder.write_byte(&builder, arg[j]) or_return
                 } else {
-                    _write_byte_n_times(&builder, '\\', backslashes)
-                    string_builder.write_byte(&builder, arg[j])
+                    _write_byte_n_times(&builder, '\\', backslashes) or_return
+                    _ = string_builder.write_byte(&builder, arg[j]) or_return
                 }
                 j += 1
             }
-            string_builder.write_byte(&builder, '"')
+            _ = string_builder.write_byte(&builder, '"') or_return
         } else {
-            string_builder.write_string(&builder, arg)
+            _ = string_builder.write_string(&builder, arg) or_return
         }
     }
-    return string_builder.to_string(&builder)
+    return string_builder.to_string(&builder), nil
 }
 
 _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (envs: []string, err: Error) {
@@ -827,7 +828,7 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
     return
 }
 
-_build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> string {
+_build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> (str: string, err: mem.Allocator_Error) {
     builder := string_builder.builder_create(allocator)
     loop: #reverse for kv, cur_idx in environment {
         eq_idx, eq_found := strings_tools.index_byte(kv, '=')
@@ -841,10 +842,10 @@ _build_environment_block :: proc(environment: []string, allocator: mem.Allocator
             }
         }
         string_builder.write_string(&builder, kv)
-        string_builder.write_byte(&builder, 0)
+        _ = string_builder.write_byte(&builder, 0) or_return
     }
     // Note(flysand): In addition to the NUL-terminator for each string, the
     // environment block itself is NUL-terminated.
-    string_builder.write_byte(&builder, 0)
-    return string_builder.to_string(&builder)
+    _ = string_builder.write_byte(&builder, 0) or_return
+    return string_builder.to_string(&builder), nil
 }

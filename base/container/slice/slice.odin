@@ -50,7 +50,6 @@ create_over_aligned :: proc(
 }
 
 _init_aligned :: proc(slice: rawptr, elem_size: uint, len: uint, alignment: uint, allocator: mem.Allocator, loc := #caller_location) -> mem.Allocator_Error {
-    internal.slice_create_error_loc(loc, len)
     if len == 0 {
         return nil
     }
@@ -87,6 +86,10 @@ fill :: proc(array: $T/[]$E, value: E) #no_bounds_check {
 
 from_ptr :: proc(ptr: ^$T, len: uint) -> []T {
     return ([^]T)(ptr)[:len]
+}
+
+slice :: proc(a: [^]$T, low, high: uint) -> []T {
+    return ([^]T)(a)[low:high]
 }
 
 concatenate :: proc(a: []$T/[]$E, allocator: mem.Allocator) -> (res: T, err: mem.Allocator_Error) {

@@ -1,3 +1,4 @@
+import "base:internal"
 import "base:container/slice"
 
 // Multiple precision decimal numbers for use by the `strconv` package.
@@ -250,31 +251,6 @@ shift_right :: proc(a: ^Decimal, k: uint) {
     trim(a)
 }
 
-import "base:internal"
-println :: proc(args: ..any) {
-    for arg, i in args {
-        if i != 0 {
-            internal.print_string(" ")
-        }
-        switch v in arg {
-        case string:  internal.print_string(v)
-        case rune:    internal.print_rune(v)
-        case int:     internal.print_int(v)
-        case uint:    internal.print_uint(v)
-        case u8:      internal.print_u64(u64(v))
-        case u16:     internal.print_u64(u64(v))
-        case u32:     internal.print_u64(u64(v))
-        case u64:     internal.print_u64(v)
-        case i8:      internal.print_i64(i64(v))
-        case i16:     internal.print_i64(i64(v))
-        case i32:     internal.print_i64(i64(v))
-        case i64:     internal.print_i64(v)
-        case uintptr: internal.print_uintptr(v)
-        case bool:    internal.print_string("true" if v else "false")
-        }
-    }
-    internal.print_string("\n")
-}
 
 @(private="file")
 _shift_left_offsets := [?]struct{delta: int, cutoff: string}{

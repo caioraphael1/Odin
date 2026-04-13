@@ -32,6 +32,7 @@ File_Stream_Proc :: #type proc(
     allocator:   mem.Allocator,
 ) -> (n: i64, err: Error)
 
+
 File_Stream :: struct {
     procedure: File_Stream_Proc,
     data:      rawptr,
