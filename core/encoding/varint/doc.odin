@@ -5,7 +5,6 @@ Example:
     package main
 
     import "core:encoding/varint"
-    import "core:fmt"
 
     main :: proc() {
         buf: [varint.LEB128_MAX_BYTES]u8

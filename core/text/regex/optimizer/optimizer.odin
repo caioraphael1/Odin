@@ -67,7 +67,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                 next_node := specific.nodes.data[i+1].(^Node_Anchor) or_break wrza
                 if next_node.start == false {
                     specific.nodes.data[i], _ = mem.new(Node_Match_All_And_Escape, allocator)
-                    dyn_array.ordered_remove(&specific.nodes, i + 1)
+                    _ = dyn_array.ordered_remove(&specific.nodes, i + 1)
                     changes += 1
                     break
                 }
@@ -91,7 +91,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
             subnode, subnode_changes := optimize_subtree(specific.nodes.data[i], flags, allocator)
             changes += subnode_changes
             if subnode == nil {
-                dyn_array.ordered_remove(&specific.nodes, uint(i))
+                _ = dyn_array.ordered_remove(&specific.nodes, uint(i))
                 i -= 1
                 changes += 1
             } else {
@@ -487,8 +487,8 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                     _ = dyn_array.append(&cat_node.nodes, left_concatenation.nodes.data[i])
                 }
                 for i := same_len; i > 0; i -= 1 {
-                    dyn_array.ordered_remove(&left_concatenation.nodes, 0)
-                    dyn_array.ordered_remove(&right_concatenation.nodes, 0)
+                    _ = dyn_array.ordered_remove(&left_concatenation.nodes, 0)
+                    _ = dyn_array.ordered_remove(&right_concatenation.nodes, 0)
                 }
 
                 group_node, _ := mem.new(Node_Group, allocator)

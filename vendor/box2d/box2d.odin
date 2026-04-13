@@ -1,8 +1,6 @@
 // Bindings for [[ Box2D ; https://box2d.org ]].
-import "base:intrinsics"
+@(require) import "base:intrinsics"
 import "core:c"
-
-_ :: intrinsics
 
 when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
     @(private) VECTOR_EXT :: "_simd" when #config(VENDOR_BOX2D_ENABLE_SIMD128, intrinsics.has_target_feature("simd128")) else ""

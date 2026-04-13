@@ -39,7 +39,7 @@ File_Impl :: struct {
     max_consecutive_empty_writes: int,
 
     rw_mutex: sync.RW_Mutex, // read write calls
-    p_mutex:  sync.Mutex, // pread pwrite calls
+    p_mutex:  sync.Mutex,    // pread pwrite calls
 }
 
 // @(init)

@@ -151,7 +151,6 @@ Example:
     package foo
 
     import "base:mem"
-    import "core:fmt"
 
     main :: proc() {
         track: mem.Tracking_Allocator

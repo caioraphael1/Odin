@@ -74,7 +74,7 @@ Parses an integer value from the input string in base 10, unless there's a prefi
 
 Example:
 
-    import "core:fmt"
+
     parse_i64_maybe_prefixed_example :: proc() {
         n, ok := strconv.parse_i64_maybe_prefixed("1234")
         fmt.println(n,ok)
@@ -157,7 +157,7 @@ Parses an unsigned 64-bit integer value from the input string without a prefix, 
 
 Example:
 
-    import "core:fmt"
+
     parse_u64_of_base_example :: proc() {
         n, ok := strconv.parse_u64_of_base("1234e3", 10)
         fmt.println(n,ok)
@@ -219,7 +219,7 @@ Parses an unsigned 64-bit integer value from the input string, using the specifi
 
 Example:
 
-    import "core:fmt"
+
     parse_u64_maybe_prefixed_example :: proc() {
         n, ok := strconv.parse_u64_maybe_prefixed("1234")
         fmt.println(n,ok)
@@ -291,7 +291,7 @@ Parses a signed integer value from the input string, using the specified base or
 
 Example:
 
-    import "core:fmt"
+
     parse_int_example :: proc() {
         n, ok := strconv.parse_int("1234") // without prefix, inferred base 10
         fmt.println(n,ok)
@@ -333,7 +333,7 @@ Parses an unsigned integer value from the input string, using the specified base
 
 Example:
 
-    import "core:fmt"
+
     parse_uint_example :: proc() {
         n, ok := strconv.parse_uint("1234") // without prefix, inferred base 10
         fmt.println(n,ok)
@@ -375,7 +375,7 @@ Parses an integer value from a string in the given base, without any prefix
 
 Example:
 
-    import "core:fmt"
+
     parse_i128_of_base_example :: proc() {
         n, ok := strconv.parse_i128_of_base("-1234eeee", 10)
         fmt.println(n,ok)
@@ -441,7 +441,7 @@ Parses an integer value from a string in base 10, unless there's a prefix
 
 Example:
 
-    import "core:fmt"
+
     parse_i128_maybe_prefixed_example :: proc() {
         n, ok := strconv.parse_i128_maybe_prefixed("1234")
         fmt.println(n, ok)
@@ -523,7 +523,7 @@ Parses an unsigned integer value from a string in the given base, without any pr
 
 Example:
 
-    import "core:fmt"
+
     parse_u128_of_base_example :: proc() {
         n, ok := strconv.parse_u128_of_base("1234eeee", 10)
         fmt.println(n, ok)
@@ -581,7 +581,7 @@ Parses an unsigned integer value from a string in base 10, unless there's a pref
 
 Example:
 
-    import "core:fmt"
+
     parse_u128_maybe_prefixed_example :: proc() {
         n, ok := strconv.parse_u128_maybe_prefixed("1234")
         fmt.println(n, ok)
@@ -662,7 +662,7 @@ Parses a 32-bit floating point number from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_f32_example :: proc() {
         n, ok := strconv.parse_f32("1234eee")
         fmt.printfln("%.3f %v", n, ok)
@@ -694,7 +694,7 @@ Parses a 64-bit floating point number from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_f64_example :: proc() {
         n, ok := strconv.parse_f64("1234eee")
         fmt.printfln("%.3f %v", n, ok)
@@ -729,7 +729,7 @@ Parses a 32-bit floating point number from a string and returns the parsed numbe
 
 Example:
 
-    import "core:fmt"
+
     parse_f32_prefix_example :: proc() {
         n, _, ok := strconv.parse_f32_prefix("1234eee")
         fmt.printfln("%.3f %v", n, ok)
@@ -763,7 +763,7 @@ Parses a 64-bit floating point number from a string and returns the parsed numbe
 
 Example:
 
-    import "core:fmt"
+
     parse_f64_prefix_example :: proc() {
         n, _, ok := strconv.parse_f64_prefix("12.34eee")
         fmt.printfln("%.3f %v", n, ok)
@@ -1125,7 +1125,7 @@ Parses a 128-bit complex number from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_complex128_example :: proc() {
         n: int
         c, ok := strconv.parse_complex128("3+1i", &n)
@@ -1177,7 +1177,7 @@ Parses a 64-bit complex number from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_complex64_example :: proc() {
         n: int
         c, ok := strconv.parse_complex64("3+1i", &n)
@@ -1210,7 +1210,7 @@ Parses a 32-bit complex number from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_complex32_example :: proc() {
         n: int
         c, ok := strconv.parse_complex32("3+1i", &n)
@@ -1243,7 +1243,7 @@ Parses a 256-bit quaternion from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_quaternion256_example :: proc() {
         n: int
         q, ok := strconv.parse_quaternion256("1+2i+3j+4k", &n)
@@ -1322,7 +1322,7 @@ Parses a 128-bit quaternion from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_quaternion128_example :: proc() {
         n: int
         q, ok := strconv.parse_quaternion128("1+2i+3j+4k", &n)
@@ -1355,7 +1355,7 @@ Parses a 64-bit quaternion from a string
 
 Example:
 
-    import "core:fmt"
+
     parse_quaternion64_example :: proc() {
         n: int
         q, ok := strconv.parse_quaternion64("1+2i+3j+4k", &n)

@@ -2,12 +2,10 @@
 // Helper for loading shaders into a program
 
 import    "core:os"
-import    "core:fmt"
+@(require) import "core:fmt"
 import    "base:strings"
 @(require) import "core:time"
-import    "base:internal"
-_ :: fmt
-_ :: runtime
+@(require) import "base:internal"
 
 Shader_Type :: enum i32 {
     NONE = 0x0000,

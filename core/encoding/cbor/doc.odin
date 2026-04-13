@@ -81,7 +81,6 @@ Example:
     import "base:intrinsics"
 
     import "core:encoding/cbor"
-    import "core:fmt"
     import "core:reflect"
     import "core:time"
 

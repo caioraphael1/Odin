@@ -1,4 +1,12 @@
+import "base:internal"
 import "base:container/slice"
+
+Int_Flag :: enum {
+    Prefix,
+    Plus,
+}
+Int_Flags :: bit_set[Int_Flag]
+
 
 /*
 Writes a boolean value as a string to the given buffer
@@ -9,7 +17,6 @@ Writes a boolean value as a string to the given buffer
 
 Example:
 
-    import "core:fmt"
     write_bool_example :: proc() {
         buf: [6]u8
         result := strconv.write_bool(buf[:], true)
@@ -43,7 +50,6 @@ Writes an unsigned integer value as a string to the given buffer with the specif
 
 Example:
 
-    import "core:fmt"
     write_uint_example :: proc() {
         buf: [4]u8
         result := strconv.write_uint(buf[:], 42, 16)
@@ -71,7 +77,6 @@ Writes a signed integer value as a string to the given buffer with the specified
 
 Example:
 
-    import "core:fmt"
     write_int_example :: proc() {
         buf: [4]u8
         result := strconv.write_int(buf[:], -42, 10)
@@ -107,7 +112,6 @@ Writes a float64 value as a string to the given buffer with the specified format
 
 Example:
 
-    import "core:fmt"
     write_float_example :: proc() {
         buf: [8]u8
         result := strconv.write_float(buf[:], 3.14159, 'f', 2, 64)
@@ -123,4 +127,126 @@ Output:
 */
 write_float :: proc(buf: []u8, f: f64, fmt: u8, prec, bit_size: uint, shortest: bool) -> string {
     return string(generic_ftoa(buf, f, fmt, prec, bit_size, shortest))
+}
+
+
+/*
+Writes the string representation of an integer to a buffer with specified base, flags, and digit set.
+
+**Inputs**
+- buf: The buffer to dyn_array.append the integer representation to
+- x: The integer value to convert
+- base: The base for the integer representation (2 <= base <= MAX_BASE)
+- is_signed: A boolean indicating if the input should be treated as a signed integer
+- bit_size: The bit size of the signed integer representation (8, 16, 32, or 64)
+- digits: The digit set used for the integer representation
+- flags: The Int_Flags bit set to control integer formatting
+
+**Returns**
+- The string containing the integer representation appended to the buffer
+*/
+write_bits :: proc(buf: []u8, x: u64, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
+    if base < 2 || base > MAX_BASE {
+        internal.panic("strconv: illegal base passed to write_bits")
+    }
+
+    a: [129]u8
+    i := len(a)
+    u, neg := is_integer_negative(x, is_signed, bit_size)
+    b := u64(base)
+    for u >= b {
+        i-=1; a[i] = digits[u % b]
+        u /= b
+    }
+    i-=1; a[i] = digits[u % b]
+
+    if .Prefix in flags {
+        ok := true
+        switch base {
+        case  2: i-=1; a[i] = 'b'
+        case  8: i-=1; a[i] = 'o'
+        // case 10: i-=1; a[i] = 'd';
+        case 12: i-=1; a[i] = 'z'
+        case 16: i-=1; a[i] = 'x'
+        case: ok = false
+        }
+        if ok {
+            i-=1; a[i] = '0'
+        }
+    }
+
+    switch {
+    case neg:
+        i-=1; a[i] = '-'
+    case .Plus in flags:
+        i-=1; a[i] = '+'
+    }
+
+    out := a[i:]
+    slice.copy(buf, out)
+    return string(buf[0:len(out)])
+}
+
+/*
+Writes the string representation of a 128-bit integer to a buffer with specified base, flags, and digit set.
+
+**Inputs**
+- buf: The buffer to dyn_array.append the integer representation to
+- x: The 128-bit integer value to convert
+- base: The base for the integer representation (2 <= base <= MAX_BASE)
+- is_signed: A boolean indicating if the input should be treated as a signed integer
+- bit_size: The bit size of the signed integer representation (8, 16, 32, 64, or 128)
+- digits: The digit set used for the integer representation
+- flags: The Int_Flags bit set to control integer formatting
+
+**Returns**
+- The string containing the integer representation written to the buffer
+*/
+write_bits_128 :: proc(buf: []u8, x: u128, base: uint, is_signed: bool, bit_size: uint, digits: string, flags: Int_Flags) -> string {
+    if base < 2 || base > MAX_BASE {
+        internal.panic("strconv: illegal base passed to write_bits")
+    }
+
+    a: [140]u8
+    i := len(a)
+    u, neg := is_integer_negative_128(x, is_signed, bit_size)
+    b := u128(base)
+    for u >= b && i >= 0 {
+        i-=1
+        // rem: u128;
+        // u = internal.udivmod128(u, b, &rem);
+        // u /= b;
+        rem := u % b
+        u /= b
+
+        idx := u32(rem)
+        a[i] = digits[idx]
+    }
+    i-=1; a[i] = digits[u64(u % b)]
+
+    if .Prefix in flags {
+        ok := true
+        switch base {
+        case  2: i-=1; a[i] = 'b'
+        case  8: i-=1; a[i] = 'o'
+        case 10: i-=1; a[i] = 'd'
+        case 12: i-=1; a[i] = 'z'
+        case 16: i-=1; a[i] = 'x'
+        case: ok = false
+        }
+        if ok {
+            i-=1; a[i] = '0'
+        }
+    }
+
+    switch {
+    case neg:
+        i-=1; a[i] = '-'
+    case .Plus in flags:
+        i-=1; a[i] = '+'
+    }
+
+    out := a[i:]
+    slice.copy(buf, out)
+    return string(buf[0:len(out)])
 }

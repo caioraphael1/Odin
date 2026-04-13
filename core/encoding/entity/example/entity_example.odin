@@ -1,6 +1,4 @@
 import "core:encoding/xml"
-import "base:container/strings"
-import "base:mem"
 import "core:fmt"
 import "core:time"
 

@@ -2,16 +2,12 @@
 import "base:internal"
 import "base:intrinsics"
 
-import "core:sync"
-import "base:container/slice"
+@(require) import "core:sync"
+@(require) import "base:container/slice"
 import "base:container/strings"
-import "core:sys/linux"
-import "core:sys/posix"
+@(require) import "core:sys/linux"
+@(require) import "core:sys/posix"
 
-_ :: sync
-_ :: slice
-_ :: linux
-_ :: posix
 
 when ODIN_NO_CRT {
     // TODO: Override the libc environment functions' weak linkage to

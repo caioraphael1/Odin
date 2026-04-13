@@ -295,26 +295,20 @@ stable_sort :: proc(data: $T/[]$E) where intrinsics.type_is_ordered(E) {
 /*
 Sorts a slice while maintaining the relative order of elements with the same key. Two items `i` and `j` are ordered if `less(i, j)` returns `true`.
 
-Example:
-    import "base:container/slice"
-    import "core:fmt"
-    
-    main :: proc() {
-        arr := []Example {
-            {2, "name"},
-            {3, "Bill"},
-            {1, "My"},
-            {2, "is"}
-        }
-        slice.stable_sort_by(arr, proc(i, j: Example) -> bool {
-            return i.n < j.n
-        })
-        
-        for e in arr do  fmt.printf("%s ", e.s)
-    }
-    
-    Example :: struct { n: uint, s: string }
+Example:    
+arr := []Example {
+    {2, "name"},
+    {3, "Bill"},
+    {1, "My"},
+    {2, "is"}
+}
+slice.stable_sort_by(arr, proc(i, j: Example) -> bool {
+    return i.n < j.n
+})
 
+for e in arr do  fmt.printf("%s ", e.s)
+
+Example :: struct { n: uint, s: string }
 Output:
     My name is Bill 
 */
@@ -330,25 +324,22 @@ stable_sort_by :: proc(data: $T/[]$E, less: proc(i, j: E) -> bool) {
 /*
 Sorts a slice while maintaining the relative order of elements with the same key. The ordering of the any two items is defined by the user-provided `cmp`.
 
-Example:
-    import "base:container/slice"
-    import "core:fmt"
-    
-    main :: proc() {
-        arr := []Example {
-            {2, "name"},
-            {3, "Bill"},
-            {1, "My"},
-            {2, "is"}
-        }
-        slice.stable_sort_by_cmp(arr, proc(i, j: Example) -> slice.Ordering {
-            return slice.cmp(i.n, j.n)
-        })
-        
-        for e in arr do  fmt.printf("%s ", e.s)
+Example:    
+main :: proc() {
+    arr := []Example {
+        {2, "name"},
+        {3, "Bill"},
+        {1, "My"},
+        {2, "is"}
     }
+    slice.stable_sort_by_cmp(arr, proc(i, j: Example) -> slice.Ordering {
+        return slice.cmp(i.n, j.n)
+    })
     
-    Example :: struct { n: uint, s: string }
+    for e in arr do  fmt.printf("%s ", e.s)
+}
+
+Example :: struct { n: uint, s: string }
 Output:
     My name is Bill 
 */

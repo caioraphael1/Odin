@@ -50,22 +50,12 @@ create_from_slice :: proc(backing: []$T) -> Dyn_Array(T) {
 }
 
 
-Init_Error :: union {
-    enum {
-        None,
-        Out_Of_Bounds,
-        Invalid_Capacity,
-    },
-    mem.Allocator_Error,
-}
-
-
-_dyn_array_init_len_cap :: proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, len: uint, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: Init_Error) {
+_dyn_array_init_len_cap :: proc(a: ^Dyn_Array($T), size_of_elem, align_of_elem: uint, len: uint, cap: uint, allocator: mem.Allocator, loc := #caller_location) -> (err: mem.Allocator_Error) {
     if len < 0 || len > cap {
-        return .Out_Of_Bounds
+        return .Invalid_Argument
     }
     if cap == 0 {
-        return .Invalid_Capacity
+        return .Invalid_Argument
     }
     a.allocator = allocator // initialize allocator before just in case it fails to allocate any memory
     data := mem.alloc(size_of_elem*cap, align_of_elem, allocator, loc) or_return

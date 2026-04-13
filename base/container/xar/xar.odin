@@ -419,25 +419,20 @@ Create an iterator for traversing the exponential array.
 - an iterator positioned at the start
 
 Example:
+iterator_example :: proc() {
+    x: xar.Array(int, 4)
+    defer xar.destroy(&x)
 
-    import "core:fmt"
+    xar.push_back(&x, 10)
+    xar.push_back(&x, 20)
+    xar.push_back(&x, 30)
 
-    iterator_example :: proc() {
-        x: xar.Array(int, 4)
-        defer xar.destroy(&x)
-
-        xar.push_back(&x, 10)
-        xar.push_back(&x, 20)
-        xar.push_back(&x, 30)
-
-        it := xar.iterator(&x)
-        for val in xar.iterate_by_ptr(&it) {
-            fmt.println(val^)
-        }
+    it := xar.iterator(&x)
+    for val in xar.iterate_by_ptr(&it) {
+        fmt.println(val^)
     }
-
+}
 Output:
-
     10
     20
     30

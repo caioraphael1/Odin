@@ -972,11 +972,9 @@ with open("../structs.odin", 'w', encoding='utf-8') as f:
     f.write("""
 import "core:c"
 
-import win32 "core:sys/windows"
-_ :: win32
+@(require) import win32 "core:sys/windows"
 
-import "vendor:x11/xlib"
-_ :: xlib
+@(require) import "vendor:x11/xlib"
 
 when ODIN_OS == .Windows {
 \tHINSTANCE           :: win32.HINSTANCE

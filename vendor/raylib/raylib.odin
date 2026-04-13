@@ -92,8 +92,7 @@ import "base:container/slice"
 import "core:c"
 import "core:fmt"
 
-import "core:math/linalg"
-_ :: linalg
+@(require) import "core:math/linalg"
 
 MAX_TEXTFORMAT_BUFFERS :: #config(RAYLIB_MAX_TEXTFORMAT_BUFFERS, 4)
 MAX_TEXT_BUFFER_LENGTH :: #config(RAYLIB_MAX_TEXT_BUFFER_LENGTH, 1024)

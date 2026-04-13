@@ -119,7 +119,6 @@ If an error occurred opening a directory, you may get zero'd info struct and
 Example:
     package main
 
-    import "core:fmt"
     import "base:container/strings"
     import "core:os"
 

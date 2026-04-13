@@ -1,3 +1,4 @@
+#+ignore
 import "base:internal"
 
 import "core:io/string_builder"
@@ -87,12 +88,10 @@ wprintln :: proc(b: ^string_builder.Builder, args: ..any, sep := " ", flush := t
     return
 }
 
-
-
-/* 
 wprintfln :: proc(b: ^string_builder.Builder, format: string, args: ..any, flush := true) -> uint {
     return wprintf(b, format, ..args, flush=flush, newline=true)
 }
+
 @(optional_results)
 wprintf :: proc(b: ^string_builder.Builder, fmt: string, args: ..any, flush := true, newline := false) -> uint {
     MAX_CHECKED_ARGS :: 64
@@ -354,6 +353,9 @@ wprintf :: proc(b: ^string_builder.Builder, fmt: string, args: ..any, flush := t
 
     return b.n
 }
+
+
+/* 
 
 
 

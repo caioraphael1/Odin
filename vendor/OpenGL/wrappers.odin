@@ -1,9 +1,7 @@
 #assert(size_of(bool) == size_of(u8))
 
-import "base:internal"
-import "core:fmt"
-_ :: runtime
-_ :: fmt
+@(require) import "base:internal"
+@(require) import "core:fmt"
 
 when !GL_DEBUG {
     // VERSION_1_0

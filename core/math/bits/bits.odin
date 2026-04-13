@@ -73,7 +73,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
     import "core:math/bits"
 
     log2_example :: proc() {
@@ -120,7 +119,6 @@ Returns:
 
 Example:
 
-    import "core:fmt"
     import "core:math/bits"
 
     rotate_left8_example :: proc() {

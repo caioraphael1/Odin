@@ -1,7 +1,5 @@
-import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
-import "base:container/strings"
 
 import "core:io/string_builder"
 
@@ -9,7 +7,6 @@ import "core:io/string_builder"
 // It returns the value, which will be empty if the variable is not present
 // To distinguish between an empty value and an unset value, use lookup_env
 // NOTE: the value will be allocated with the supplied allocator
-
 get_env_alloc :: proc(key: string, allocator: mem.Allocator) -> string {
     value, _ := lookup_env_alloc(key, allocator)
     return value
@@ -19,7 +16,6 @@ get_env_alloc :: proc(key: string, allocator: mem.Allocator) -> string {
 // It returns the value, which will be empty if the variable is not present
 // To distinguish between an empty value and an unset value, use lookup_env
 // NOTE: this version takes a backing buffer for the string value
-
 get_env_buf :: proc(buf: []u8, key: string) -> string {
     value, _ := lookup_env_buf(buf, key)
     return value
@@ -29,7 +25,6 @@ get_env_buf :: proc(buf: []u8, key: string) -> string {
 // If the variable is found in the environment the value (which can be empty) is returned and the boolean is true
 // Otherwise the returned value will be empty and the boolean will be false
 // NOTE: the value will be allocated with the supplied allocator
-
 lookup_env_alloc :: proc(key: string, allocator: mem.Allocator) -> (value: string, found: bool) {
     return _lookup_env_alloc(key, allocator)
 }

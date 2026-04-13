@@ -5,7 +5,6 @@ Example:
     import "core:bytes"
     import "core:os"
     import "core:compress"
-    import "core:fmt"
 
     // Small GZIP file with fextra, fname and fcomment present.
     @(private)

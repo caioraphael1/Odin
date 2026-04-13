@@ -4,7 +4,6 @@ Reader and writer for comma-separated values (`CSV`) files, per [[ RFC 4180 ; ht
 Example:
     package main
 
-    import "core:fmt"
     import "core:encoding/csv"
     import "core:os"
 

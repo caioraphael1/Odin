@@ -1,5 +1,5 @@
-import "core:c"
-_ :: c
+@(require) import "core:c"
+
 when ODIN_OS == .Darwin {
     #assert(size_of(c.long)  == size_of(int))
     #assert(size_of(c.ulong) == size_of(uint))

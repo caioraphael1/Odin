@@ -94,29 +94,14 @@ ptr_offset :: proc(ptr: ^$T, offset: int) -> ^T ---
 
 /*
 Subtract two pointers of the same type, and return the number of `T` between them.
-
 This procedure subtracts pointer `b` from pointer `a`, both of type `^T`,
 and returns an integer count of the `T` between them.
 
-**Inputs**
-- `a`: A pointer to a type T
-- `b`: A pointer to a type T
-
-**Returns**
-- `a` - `b` in items of T as an `int`.
-
-Example:
-
-    import "base:mem"
-    import "core:fmt"
-
-    ptr_sub_example :: proc() {
-        arr: [2]int
-        fmt.println(mem.ptr_sub(&arr[1], &arr[0]))
-    }
-
+ptr_sub_example :: proc() {
+    arr: [2]int
+    fmt.println(mem.ptr_sub(&arr[1], &arr[0]))
+}
 Output:
-
     1
 */
 ptr_sub    :: proc(a, b: ^$T) -> int ---

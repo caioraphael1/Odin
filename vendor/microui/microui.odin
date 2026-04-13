@@ -323,7 +323,7 @@ init :: proc(
     set_clipboard: proc(user_data: rawptr, text: string) -> (ok: bool) = nil,
     get_clipboard: proc(user_data: rawptr) -> (text: string, ok: bool) = nil,
     clipboard_user_data: rawptr = nil,
-) {
+    ) {
     ctx^ = {} // zero memory
     ctx.draw_frame  = default_draw_frame
     ctx._style      = default_style

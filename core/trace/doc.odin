@@ -5,8 +5,6 @@ Example:
     import "base:internal"
     import "core:debug/trace"
 
-    import "core:fmt"
-
     global_trace_ctx: trace.Context
 
     debug_trace_assertion_failure_proc :: proc(prefix, message: string, loc := #caller_location) -> ! {

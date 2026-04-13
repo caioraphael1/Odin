@@ -19,7 +19,7 @@ Writes a quoted string representation of the input string to a given u8 slice an
 
 !! ISSUE !! NOT EXPECTED -- "\"hello\"" was expected
 Example:
-    import "core:fmt"
+
     quote_example :: proc() {
         buf: [20]u8
         result := strconv.quote(buf[:], "hello")
@@ -77,7 +77,7 @@ Writes a quoted rune representation of the input rune to a given u8 slice and re
 
 Example:
 
-    import "core:fmt"
+
     quote_rune_example :: proc() {
         buf: [4]u8
         result := strconv.quote_rune(buf[:], 'A')
@@ -156,7 +156,7 @@ Unquotes a single character from the input string, considering the given quote c
 
 Example:
 
-    import "core:fmt"
+
     unquote_char_example :: proc() {
         src:="\'The\' raven"
         r, multiple_bytes, tail_string, success  := strconv.unquote_char(src,'\'')
@@ -281,7 +281,7 @@ WARNING: This procedure gives unexpected results if the quotes are not the first
 
 Example:
 
-    import "core:fmt"
+
     unquote_string_example :: proc() {
         src:="\"The raven Huginn is black.\""
         s, allocated, ok := strconv.unquote_string(src)

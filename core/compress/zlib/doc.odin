@@ -6,7 +6,6 @@ Example:
 
     import "core:bytes"
     import "core:compress/zlib"
-    import "core:fmt"
 
     main :: proc() {
         ODIN_DEMO := []u8{

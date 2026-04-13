@@ -860,7 +860,6 @@ because they cannot hold elements.
 Example:
 
     import "core:sync/chan"
-    import "core:fmt"
 
     len_example :: proc() {
         c, _ := chan.create(chan.Chan(int), 2, context.allocator)
@@ -900,7 +899,6 @@ because they cannot hold elements.
 Example:
 
     import "core:sync/chan"
-    import "core:fmt"
 
     cap_example :: proc() {
         c, _ := chan.create(chan.Chan(int), 2, context.allocator)
@@ -1088,7 +1086,6 @@ If the message is nil, corresponding send channel will be skipped.
 Example:
 
     import "core:sync/chan"
-    import "core:fmt"
 
     select_raw_example :: proc() {
         c, err := chan.create(chan.Chan(int), 1, context.allocator)

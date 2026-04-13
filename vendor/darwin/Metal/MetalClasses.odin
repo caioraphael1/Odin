@@ -1,7 +1,6 @@
 // Bindings for [[ Metal ; https://developer.apple.com/documentation/metal ]].
 import NS "core:sys/darwin/Foundation"
-import "base:mem"
-_ :: mem
+@(require) import "base:mem"
 
 ////////////////////////////////////////////////////////////////////////////////
 

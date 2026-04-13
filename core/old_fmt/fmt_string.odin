@@ -1,3 +1,5 @@
+#+ignore
+
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"

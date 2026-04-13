@@ -32,7 +32,6 @@ Output:
 Example:
     package main
 
-    import "core:fmt"
     import "core:io"
     import "core:text/table"
 
@@ -113,7 +112,6 @@ it may be more efficient to cache the results of your write into a string.
 Example:
     package main
 
-    import "core:fmt"
     import "base:container/strings"
     import "core:text/table"
 
@@ -187,7 +185,6 @@ grapheme cluster in monospace cells.
 Example:
     package main
 
-    import "core:fmt"
     import "core:io"
     import "core:os"
     import "core:text/table"
@@ -266,7 +263,6 @@ corners and dividers.
 Example:
     package main
 
-    import "core:fmt"
     import "core:io"
     import "core:os"
     import "core:text/table"

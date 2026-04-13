@@ -233,7 +233,7 @@ scratch_free :: proc(s: ^Scratch, ptr: rawptr, loc := #caller_location) -> mem.A
             ptr := raw_data(data)
             if ptr == ptr {
                 _ = mem.free_bytes(data, s.backup_allocator, loc)
-                dyn_array.ordered_remove(&s.leaked_allocations, i, loc)
+                _ = dyn_array.ordered_remove(&s.leaked_allocations, i, loc)
                 return nil
             }
         }

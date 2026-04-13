@@ -12,7 +12,6 @@ CPU feature flags can be tested against `cpu_features`, where applicable, e.g.:
 Example:
     package main
 
-    import "core:fmt"
     import si "core:sys/info"
 
     main :: proc() {

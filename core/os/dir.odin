@@ -161,7 +161,6 @@ extend its lifetime.
 Example:
     package main
 
-    import    "core:fmt"
     import "core:os"
 
     main :: proc() {

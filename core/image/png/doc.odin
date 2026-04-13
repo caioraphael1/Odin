@@ -9,7 +9,6 @@ Example:
     import "core:image"
     // import "core:image/png"
     import "core:bytes"
-    import "core:fmt"
 
     // For PPM writer
     import "base:mem"

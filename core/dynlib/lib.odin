@@ -37,7 +37,6 @@ On `windows` refer to `LoadLibraryW`. Also temporarily needs an allocator to con
 
 Example:
     import "core:dynlib"
-    import "core:fmt"
 
     load_my_library :: proc() {
         LIBRARY_PATH :: "my_library.dll"
@@ -62,7 +61,6 @@ On `windows` refer to `FreeLibrary`.
 
 Example:
     import "core:dynlib"
-    import "core:fmt"
 
     load_then_unload_my_library :: proc() {
         LIBRARY_PATH :: "my_library.dll"
@@ -92,7 +90,6 @@ On `windows` refer to `GetProcAddress`. Also temporarily needs an allocator to c
 
 Example:
     import "core:dynlib"
-    import "core:fmt"
 
     find_a_in_my_library :: proc() {
         LIBRARY_PATH :: "my_library.dll"

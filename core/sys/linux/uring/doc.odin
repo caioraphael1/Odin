@@ -8,7 +8,6 @@ Example:
 
     import "base:internal"
 
-    import "core:fmt"
     import "core:os"
     import "core:sys/linux"
     import "core:sys/linux/uring"

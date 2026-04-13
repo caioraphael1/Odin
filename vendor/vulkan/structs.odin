@@ -1,10 +1,7 @@
 import "core:c"
 
-import win32 "core:sys/windows"
-_ :: win32
-
-import "vendor:x11/xlib"
-_ :: xlib
+@(require) import win32 "core:sys/windows"
+@(require) import "vendor:x11/xlib"
 
 when ODIN_OS == .Windows {
     HINSTANCE           :: win32.HINSTANCE

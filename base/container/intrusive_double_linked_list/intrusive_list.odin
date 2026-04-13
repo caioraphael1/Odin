@@ -292,43 +292,33 @@ iterator_from_node :: proc(node: ^Node, $T: typeid, $field_name: string) -> Iter
 
 /*
 Retrieves the next element in a list and advances the iterator.
-
 **Inputs**  
 - it: The iterator
-
 **Returns**
 - ptr: The next list element
 - ok: `true` if the element is valid (the iterator could advance), `false` otherwise
 
-Example:
+iterate_next_example :: proc() {
+    l: list.List
 
-    import "core:fmt"
+    one := My_Next_Struct{value=1}
+    two := My_Next_Struct{value=2}
 
-    iterate_next_example :: proc() {
-        l: list.List
+    list.push_back(&l, &one.node)
+    list.push_back(&l, &two.node)
 
-        one := My_Next_Struct{value=1}
-        two := My_Next_Struct{value=2}
-
-        list.push_back(&l, &one.node)
-        list.push_back(&l, &two.node)
-
-        it := list.iterator_head(l, My_Next_Struct, "node")
-        for num in list.iterate_next(&it) {
-            fmt.println(num.value)
-        }
+    it := list.iterator_head(l, My_Next_Struct, "node")
+    for num in list.iterate_next(&it) {
+        fmt.println(num.value)
     }
-
-    My_Next_Struct :: struct {
-        node : list.Node,
-        value: int,
-    }
-
+}
+My_Next_Struct :: struct {
+    node : list.Node,
+    value: int,
+}
 Output:
-
     1
     2
-
 */
 iterate_next :: proc(it: ^Iterator($T)) -> (ptr: ^T, ok: bool) {
     node := it.curr
@@ -339,45 +329,37 @@ iterate_next :: proc(it: ^Iterator($T)) -> (ptr: ^T, ok: bool) {
 
     return (^T)(uintptr(node) - it.offset), true
 }
+
 /*
 Retrieves the previous element in a list and recede the iterator.
-
 **Inputs**  
 - it: The iterator
-
 **Returns**
 - ptr: The previous list element
 - ok: `true` if the element is valid (the iterator could recede), `false` otherwise
-
 Example:
+iterate_prev_example :: proc() {
+    l: list.List
 
-    import "core:fmt"
+    one := My_Prev_Struct{value=1}
+    two := My_Prev_Struct{value=2}
 
-    iterate_prev_example :: proc() {
-        l: list.List
+    list.push_back(&l, &one.node)
+    list.push_back(&l, &two.node)
 
-        one := My_Prev_Struct{value=1}
-        two := My_Prev_Struct{value=2}
-
-        list.push_back(&l, &one.node)
-        list.push_back(&l, &two.node)
-
-        it := list.iterator_tail(l, My_Prev_Struct, "node")
-        for num in list.iterate_prev(&it) {
-            fmt.println(num.value)
-        }
+    it := list.iterator_tail(l, My_Prev_Struct, "node")
+    for num in list.iterate_prev(&it) {
+        fmt.println(num.value)
     }
-
-    My_Prev_Struct :: struct {
-        node : list.Node,
-        value: int,
-    }
+}
+My_Prev_Struct :: struct {
+    node : list.Node,
+    value: int,
+}
 
 Output:
-
     2
     1
-
 */
 iterate_prev :: proc(it: ^Iterator($T)) -> (ptr: ^T, ok: bool) {
     node := it.curr

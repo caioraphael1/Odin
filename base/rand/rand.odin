@@ -49,16 +49,11 @@ Inputs:
 - seed: The seed value
 
 Example:
-    import "core:math/rand"
-    import "core:fmt"
-
-    reset_example :: proc() {
-        reset(1)
-        fmt.println(uint64())
-    }
-
+reset_example :: proc() {
+    reset(1)
+    fmt.println(uint64())
+}
 Possible Output:
-
     10
 */
 
@@ -84,7 +79,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint32_example :: proc() {
         fmt.println(uint32())
@@ -107,7 +101,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint64_example :: proc() {
         fmt.println(uint64())
@@ -134,7 +127,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint128_example :: proc() {
         fmt.println(uint128())
@@ -162,7 +154,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int31_example :: proc() {
         fmt.println(int31())
@@ -185,7 +176,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int63_example :: proc() {
         fmt.println(int63())
@@ -208,7 +198,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int127_example :: proc() {
         fmt.println(int127())
@@ -235,7 +224,6 @@ WARNING: Panics if n is less than or equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int31_max_example :: proc() {
         fmt.println(int31_max(16))
@@ -276,7 +264,6 @@ WARNING: Panics if n is less than or equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int63_max_example :: proc() {
         fmt.println(int63_max(16))
@@ -317,7 +304,6 @@ WARNING: Panics if n is less than or equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int127_max_example :: proc() {
         fmt.println(int127_max(16))
@@ -358,7 +344,6 @@ WARNING: Panics if n is less than or equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int_max_example :: proc() {
         fmt.println(int_max(16))
@@ -395,7 +380,6 @@ WARNING: Panics if n is equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint32_max_example :: proc() {
         fmt.println(uint32_max(16))
@@ -436,7 +420,6 @@ WARNING: Panics if n is equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint64_max_example :: proc() {
         fmt.println(uint64_max(16))
@@ -477,7 +460,6 @@ WARNING: Panics if n is equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint128_max_example :: proc() {
         fmt.println(uint128_max(16))
@@ -518,7 +500,6 @@ WARNING: Panics if n is equal to 0
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint_max_example :: proc() {
         fmt.println(uint_max(16))
@@ -556,7 +537,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint32_range_example :: proc() {
         fmt.println(uint32_range(5,15))
@@ -596,7 +576,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint64_range_example :: proc() {
         fmt.println(uint64_range(5,15))
@@ -636,7 +615,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint128_range_example :: proc() {
         fmt.println(uint128_range(5,15))
@@ -676,7 +654,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     uint_range_example :: proc() {
         fmt.println(uint_range(5,15))
@@ -712,7 +689,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int32_range_example :: proc() {
         fmt.println(int32_range(-10,10))
@@ -752,7 +728,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int64_range_example :: proc() {
         fmt.println(int64_range(-10,10))
@@ -792,7 +767,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int128_range_example :: proc() {
         fmt.println(int128_range(-10,10))
@@ -832,7 +806,6 @@ WARNING: Panics if `lo` is greater or equal to `hi`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     int_range_example :: proc() {
         fmt.println(int_range(-10,10))
@@ -862,7 +835,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     float64_example :: proc() {
         fmt.println(float64())
@@ -884,7 +856,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     float32_example :: proc() {
         fmt.println(float32())
@@ -912,7 +883,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     float64_range_example :: proc() {
         fmt.println(float64_range(-10, 300))
@@ -947,7 +917,6 @@ WARNING: Panics if `high < low`
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     float32_range_example :: proc() {
         fmt.println(float32_range(-10, 300))
@@ -980,7 +949,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     read_example :: proc() {
         data: [8]u8
@@ -1017,7 +985,6 @@ Returns:
 Example:
     import "core:math/rand"
     import "base:mem"
-    import "core:fmt"
 
     perm_example :: proc() -> (err: mem.Allocator_Error) {
         data := perm(4) or_return
@@ -1052,7 +1019,6 @@ Inputs:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     shuffle_example :: proc() {
         data: [4]int = { 1, 2, 3, 4 }
@@ -1096,7 +1062,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     choice_example :: proc() {
         data: [4]int = { 1, 2, 3, 4 }
@@ -1155,7 +1120,6 @@ Returns:
 
 Example:
     import "core:math/rand"
-    import "core:fmt"
 
     choice_bit_set_example :: proc() {
         Flags :: enum {

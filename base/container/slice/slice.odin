@@ -284,35 +284,27 @@ Only converts the type and length of the slice itself.
 The length is rounded down to the nearest whole number of items.
 
 Example:
-
-    import "core:fmt"
-    import "base:container/slice"
-
-    i64s_as_i32s :: proc() {
-        large_items := []i64{1, 2, 3, 4}
-        small_items := slice.reinterpret([]i32, large_items)
-        internal.assert(len(small_items) == 8)
-        fmt.println(large_items, "->", small_items)
-    }
-
-    bytes_as_i64s :: proc() {
-        small_items := [12]u8{}
-        small_items[0] = 1
-        small_items[8] = 2
-        large_items := slice.reinterpret([]i64, small_items[:])
-        internal.assert(len(large_items) == 1) // only enough bytes to make 1 x i64; two would need at least 8 bytes.
-        fmt.println(small_items, "->", large_items)
-    }
-
-    reinterpret_example :: proc() {
-        i64s_as_i32s()
-        bytes_as_i64s()
-    }
-
+i64s_as_i32s :: proc() {
+    large_items := []i64{1, 2, 3, 4}
+    small_items := slice.reinterpret([]i32, large_items)
+    internal.assert(len(small_items) == 8)
+    fmt.println(large_items, "->", small_items)
+}
+bytes_as_i64s :: proc() {
+    small_items := [12]u8{}
+    small_items[0] = 1
+    small_items[8] = 2
+    large_items := slice.reinterpret([]i64, small_items[:])
+    internal.assert(len(large_items) == 1) // only enough bytes to make 1 x i64; two would need at least 8 bytes.
+    fmt.println(small_items, "->", large_items)
+}
+reinterpret_example :: proc() {
+    i64s_as_i32s()
+    bytes_as_i64s()
+}
 Output:
     [1, 2, 3, 4] -> [1, 0, 2, 0, 3, 0, 4, 0]
     [1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0] -> [1]
-
 */
 reinterpret :: proc($T: typeid/[]$U, s: []$V) -> []U {
     when size_of(U) == 0 || size_of(V) == 0 {

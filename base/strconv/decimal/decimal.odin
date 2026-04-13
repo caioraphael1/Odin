@@ -476,7 +476,6 @@ Rounds down the decimal value to the specified number of decimal places
 
 Example:
 
-    import "core:fmt"
     import "core:strconv/decimal"
     round_down_example :: proc() {
         d: decimal.Decimal
@@ -508,7 +507,6 @@ WARNING: There are no guarantees about overflow.
 
 Example:
 
-    import "core:fmt"
     import "core:strconv/decimal"
     rounded_integer_example :: proc() {
         d: decimal.Decimal
