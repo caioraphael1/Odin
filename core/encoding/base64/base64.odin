@@ -10,10 +10,9 @@ truncate it from the encoded output.
 
 import "base:internal"
 import "base:mem"
-import "base:container/dyn_array"
+import "base:container/slice"
+import sb "base:container/string_buffer"
 
-import "core:io"
-import "core:io/string_builder"
 
 ENC_TABLE := [64]u8 {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -112,25 +111,24 @@ DEC_URL_TABLE := [256]u8 {
 }
 
 
-encode :: proc(data: []u8, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> (encoded: string, err: mem.Allocator_Error) {
+encode :: proc(data: []u8, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> (encoded: string, ok: bool) {
     out_length := encoded_len(data)
     if out_length == 0 {
         return
     }
 
-    out   := string_builder.builder_create_len_cap(0, out_length, allocator) or_return
-    ioerr := encode_into(string_builder.to_stream(&out), data, ENC_TBL)
+    backing, _ := slice.create(u8, out_length, allocator)
+    out := sb.create(raw_data(backing), len(backing), 0)
 
-    internal.assert(ioerr == nil,                           "string builder should not IO error")
-    internal.assert(string_builder.builder_cap(out) == out_length, "buffer resized, `encoded_len` was wrong")
+    encode_into(&out, data, ENC_TBL) or_return
 
-    return string_builder.to_string(&out), nil
+    return string(sb.slice(out)), true
 }
 
-encode_into :: proc(w: io.Writer, data: []u8, ENC_TBL := ENC_TABLE) -> io.Error {
+encode_into :: proc(buf: ^sb.String_Buffer, data: []u8, ENC_TBL := ENC_TABLE) -> (ok: bool) {
     length := len(data)
     if length == 0 {
-        return nil
+        return false
     }
 
     c0, c1, c2, block: int
@@ -149,9 +147,10 @@ encode_into :: proc(w: io.Writer, data: []u8, ENC_TBL := ENC_TABLE) -> io.Error 
             out[2] = c1 == -1 ? PADDING : ENC_TBL[block >> 6 & 63]
             out[3] = c2 == -1 ? PADDING : ENC_TBL[block & 63]
         }
-        _ = io.write_full(w, out[:]) or_return
+
+        sb.write_bytes(buf, out[:]) or_return
     }
-    return nil
+    return true
 }
 
 encoded_len :: proc(data: []u8) -> uint {
@@ -163,27 +162,25 @@ encoded_len :: proc(data: []u8) -> uint {
     return ((4 * length / 3) + 3) &~ 3
 }
 
-decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []u8, err: mem.Allocator_Error) {
+decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []u8, ok: bool) {
     out_length := decoded_len(data)
 
-    out   := string_builder.builder_create_len_cap(0, out_length, allocator) or_return
-    ioerr := decode_into(string_builder.to_stream(&out), data, DEC_TBL)
+    backing, _ := slice.create(u8, out_length, allocator)
+    out := sb.create(raw_data(backing), len(backing), 0)
+    decode_into(&out, data, DEC_TBL) or_return
 
-    internal.assert(ioerr == nil,                           "string builder should not IO error")
-    internal.assert(string_builder.builder_cap(out) == out_length, "buffer resized, `decoded_len` was wrong")
-
-    return dyn_array.slice(out.buf), nil
+    return sb.slice(out), true
 }
 
-decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Error {
+decode_into :: proc(buf: ^sb.String_Buffer, data: string, DEC_TBL := DEC_TABLE) -> (ok: bool) {
     length := decoded_len(data)
     if length == 0 {
-        return nil
+        return
     }
 
     c0, c1, c2, c3: int
     b0, b1, b2: int
-    buf: [3]u8
+    _buf: [3]u8
     i: int
     j: uint
     for ; j + 3 <= length; i, j = i + 4, j + 3 {
@@ -197,12 +194,12 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
             b1 = (c1 << 4) | (c2 >> 2)
             b2 = (c2 << 6) | c3
 
-            buf[0] = u8(b0)
-            buf[1] = u8(b1)
-            buf[2] = u8(b2)
+            _buf[0] = u8(b0)
+            _buf[1] = u8(b1)
+            _buf[2] = u8(b2)
         }
 
-        _ = io.write_full(w, buf[:]) or_return
+        sb.write_bytes(buf, _buf[:]) or_return
     }
 
     rest := length - j
@@ -217,12 +214,12 @@ decode_into :: proc(w: io.Writer, data: string, DEC_TBL := DEC_TABLE) -> io.Erro
         }
 
         switch rest {
-        case 1: io.write_byte(w, u8(b0))                 or_return
-        case 2: _ = io.write_full(w, {u8(b0), u8(b1)}) or_return
+        case 1: sb.write_byte(buf, u8(b0)) or_return
+        case 2: sb.write_bytes(buf, { u8(b0), u8(b1) }) or_return
         }
     }
 
-    return nil
+    return true
 }
 
 decoded_len :: proc(data: string) -> uint {

@@ -1,7 +1,4 @@
 import "base:mem"
-import "base:mem/allocators"
-
-import "core:io/string_builder"
 
 // `get_env` retrieves the value of the environment variable named by the key
 // It returns the value, which will be empty if the variable is not present
@@ -62,7 +59,8 @@ environ :: proc(allocator: mem.Allocator) -> ([]string, Error) {
 }
 
 // Always allocates for consistency.
-replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator) -> (res: string) {
+/* TODO: (2026-04-14) I just removed string_builder. `res` has to be allocated using string_buffer.
+replace_environment_placeholders :: proc(path: string, res: string) {
     path := path
 
     sb: string_builder.Builder
@@ -113,3 +111,4 @@ replace_environment_placeholders :: proc(path: string, allocator: mem.Allocator)
     }
     return string_builder.to_string(&sb)
 }
+*/

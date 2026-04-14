@@ -5,8 +5,6 @@ import "base:container/slice"
 import "base:unicode"
 import "base:unicode/utf8"
 
-import "core:io/string_builder"
-
 
 string_from_bytes_null_terminated :: proc(bytes: []u8) -> (res: string) {
     return truncate_to_byte(string(bytes), 0)
@@ -127,6 +125,7 @@ Example:
 Output:
     Hello?
 */
+/* 
 scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     str := s
     b: string_builder.Builder
@@ -158,6 +157,7 @@ scrub :: proc(s: string, replacement: string, allocator: mem.Allocator) -> (res:
 
     return string_builder.to_string(&b), nil
 }
+*/
 
 /*
 Removes the key string `n` times from the `s` string
@@ -229,6 +229,7 @@ Example:
 Output:
     abc1    abc2    abc3
 */
+/* 
 expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     if tab_size <= 0 {
         internal.panic("tab size must be positive")
@@ -269,12 +270,14 @@ expand_tabs :: proc(s: string, tab_size: uint, allocator: mem.Allocator) -> (res
 
     return string_builder.to_string(&b), nil
 }
+*/
 
 
 
 /*
 Centers the input string within a field of specified length by adding pad string on both sides, if its length is less than the target length.
 */
+/* 
 center_justify :: centre_justify
 centre_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     n := utf8.string_rune_count(str)
@@ -294,10 +297,12 @@ centre_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Al
 
     return string_builder.to_string(&b), nil
 }
+*/
 
 /*
 Left-justifies the input string within a field of specified length by adding pad string on the right side, if its length is less than the target length.
 */
+/* 
 left_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     n := utf8.string_rune_count(str)
     if n >= length || pad == "" {
@@ -315,10 +320,12 @@ left_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allo
 
     return string_builder.to_string(&b), nil
 }
+*/
 
 /*
 Right-justifies the input string within a field of specified length by adding pad string on the left side, if its length is less than the target length.
 */
+/* 
 right_justify :: proc(str: string, length: uint, pad: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     n := utf8.string_rune_count(str)
     if n >= length || pad == "" {
@@ -336,6 +343,7 @@ right_justify :: proc(str: string, length: uint, pad: string, allocator: mem.All
 
     return string_builder.to_string(&b), nil
 }
+*/
 
 /*
 Writes a given pad string a specified number of times to an `string_builder.Writer`
@@ -344,6 +352,7 @@ Writes a given pad string a specified number of times to an `string_builder.Writ
 - pad_len: The length of the pad string, in runes
 - remains: The number of times to write the pad string, in runes
 */
+/* 
 @(private)
 write_pad_string :: proc(b: ^string_builder.Builder, pad: string, pad_len, remains: uint) {
     repeats := remains / pad_len
@@ -361,6 +370,7 @@ write_pad_string :: proc(b: ^string_builder.Builder, pad: string, pad_len, remai
         p = p[width:]
     }
 }
+*/
 
 /*
 Trims the cutset string from the `s` string

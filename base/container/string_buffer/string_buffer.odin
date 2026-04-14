@@ -112,6 +112,13 @@ write_byte :: proc(b: ^String_Buffer, x: u8) -> (ok: bool) {
     return true
 }
 
+write_bytes :: proc(b: ^String_Buffer, bytes: []u8) -> (ok: bool) {
+    for x in bytes {
+        write_byte(b, x) or_return
+    }
+    return true
+}
+
 
 write_string :: proc(b: ^String_Buffer, str: string) -> (ok: bool) {
     // not enough available space
@@ -129,11 +136,7 @@ write_string :: proc(b: ^String_Buffer, str: string) -> (ok: bool) {
 String_Type :: union {
     string,              // "pointer to a [N]u8"
     fs.Fixed_String(20), // "the [N]u8"
-    fs.Fixed_String(4), // "the [N]u8"
-    /*
-    1. maybe just keep adding random values, I guess, idk
-    2. Use a big enough fixed_string for all values, so all "from_" procs uses the same size.
-    */
+    fs.Fixed_String(4),  // "the [N]u8"
 }
 
 

@@ -1,17 +1,16 @@
+#+ignore
+
 import "base:mem"
 import "base:container/strings"
+import sb "base:container/string_buffer"
 import "base:unicode"
 import "base:unicode/utf8"
 
-import "core:io/string_builder"
-
 /*
 Converts invalid UTF-8 sequences in the input string `s` to the `replacement` string.
-Allocation does not occur when len(s) == 0
 Inputs:
 - s: Input string that may contain invalid UTF-8 sequences.
 - replacement: String to replace invalid UTF-8 sequences with.
-- allocator: 
 Returns:
 - res: A valid UTF-8 string with invalid sequences replaced by `replacement`.
 - err: An optional allocator error if one occured, `nil` otherwise
@@ -74,10 +73,7 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
 
 
 /*
-Example:
-    fmt.println(strings_tools.to_lower("TeST"))
-Output:
-    test
+lowercase
 */
 to_lower :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     b: string_builder.Builder
@@ -90,10 +86,7 @@ to_lower :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.
 
 
 /*
-Example:
-    fmt.println(strings.to_upper("Test"))
-Output:
-    TEST
+UPPERCASE
 */
 to_upper :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     b: string_builder.Builder
@@ -105,17 +98,7 @@ to_upper :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.
 }
 
 /*
-Converts the input string `s` to "lowerCamelCase".
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: Input string to be converted.
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
+lowerCamelCase
 */
 to_camel_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     s := s
@@ -139,17 +122,7 @@ to_camel_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err:
 }
 
 /*
-Converts the input string `s` to "UpperCamelCase" (PascalCase).
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: Input string to be converted.
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
+UpperCamelCase (PascalCase)
 */
 to_pascal_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     s := s
@@ -173,34 +146,14 @@ to_pascal_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err
 }
 
 /*
-Returns a string converted to a delimiter-separated case with configurable casing
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: The input string to be converted
-- delimiter: The rune to be used as the delimiter between words
-- all_upper_case: A boolean indicating if the output should be all uppercased (true) or lowercased (false)
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
-
 Example:
-
-    to_delimiter_case_example :: proc() {
-        fmt.println(strings.to_delimiter_case("Hello World", '_', false))
-        fmt.println(strings.to_delimiter_case("Hello World", ' ', true))
-        fmt.println(strings.to_delimiter_case("aBC", '_', false))
-    }
-
+    strings.to_delimiter_case("Hello World", '_', false)
+    strings.to_delimiter_case("Hello World", ' ', true)
+    strings.to_delimiter_case("aBC", '_', false)
 Output:
-
     hello_world
     HELLO WORLD
     a_bc
-
 */
 to_delimiter_case :: proc(
     s: string,
@@ -246,142 +199,35 @@ to_delimiter_case :: proc(
 }
 
 /*
-Converts a string to "snake_case" with all runes lowercased
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: The input string to be converted
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
-
-Example:
-
-    to_snake_case_example :: proc() {
-        fmt.println(strings.to_snake_case("HelloWorld"))
-        fmt.println(strings.to_snake_case("Hello World"))
-    }
-
-Output:
-
-    hello_world
-    hello_world
-
+snake_case
 */
 to_snake_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     return to_delimiter_case(s, '_', false, allocator)
 }
 
 /*
-Converts a string to "SNAKE_CASE" with all runes uppercased
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: The input string to be converted
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
-
-Example:
-
-    to_upper_snake_case_example :: proc() {
-        fmt.println(strings.to_upper_snake_case("HelloWorld"))
-    }
-
-Output:
-
-    HELLO_WORLD
-
+UPPER_SNAKE_CASE
 */
 to_upper_snake_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     return to_delimiter_case(s, '_', true, allocator)
 }
 
 /*
-Converts a string to "kebab-case" with all runes lowercased
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: The input string to be converted
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
-
-Example:
-
-    to_kebab_case_example :: proc() {
-        fmt.println(strings.to_kebab_case("HelloWorld"))
-    }
-
-Output:
-
-    hello-world
-
+kebab-case
 */
 to_kebab_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error)  {
     return to_delimiter_case(s, '-', false, allocator)
 }
 
 /*
-Converts a string to "KEBAB-CASE" with all runes uppercased
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: The input string to be converted
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
-
-Example:
-
-    to_upper_kebab_case_example :: proc() {
-        fmt.println(strings.to_upper_kebab_case("HelloWorld"))
-    }
-
-Output:
-
-    HELLO-WORLD
-
+UPPER-KEBAB-CASE
 */
 to_upper_kebab_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error)  {
     return to_delimiter_case(s, '-', true, allocator)
 }
 
 /*
-Converts a string to "Ada_Case"
-
-*Allocates Using Provided Allocator*
-
-Inputs:
-- s: The input string to be converted
-- allocator:
-
-Returns:
-- res: The converted string
-- err: An optional allocator error if one occured, `nil` otherwise
-
-Example:
-
-    to_ada_case_example :: proc() {
-        fmt.println(strings.to_ada_case("HelloWorld"))
-    }
-
-Output:
-
-    Hello_World
-
+Ada_Case
 */
 to_ada_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error)  {
     s := s
@@ -407,11 +253,9 @@ to_ada_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: m
 
 /*
 Iterates over a string, calling a callback for each rune with the previous, current, and next runes as arguments.
-Inputs:
 - w: An io.Writer to be used by the callback for writing output.
 - s: The input string to be iterated over.
 - callback: A procedure to be called for each rune in the string, with arguments (w: io.Writer, prev, curr, next: rune).
-The callback can utilize the provided io.Writer to write output during the iteration.
 Example:
     my_callback :: proc(w: io.Writer, prev, curr, next: rune) {
         fmt.println("my_callback", curr) // <-- Custom logic here

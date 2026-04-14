@@ -6,11 +6,11 @@ import "base:mem/allocators"
 import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/strings"
+import sb "base:container/string_buffer"
 
 import "core:strings_tools"
 import win32 "core:sys/windows"
 import "core:time"
-import "core:io/string_builder"
 
 @(private)
 _get_uid :: proc() -> int {
@@ -451,13 +451,15 @@ _process_open :: proc(pid: uint, flags: Process_Open_Flags) -> (process: Process
 @(private)
 _process_start :: proc(desc: Process_Desc) -> (process: Process, err: Error) {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
-    command_line   := _build_command_line(desc.command, allocators.temp_allocator) or_return
+    command_line, ok_cmdline := _build_command_line(desc.command, allocators.temp_allocator)
+    assert(ok_cmdline)
     command_line_w := win32_utf8_to_wstring(command_line, allocators.temp_allocator) or_return
     environment := desc.env
     if desc.env == nil {
         environment = environ(allocators.temp_allocator) or_return
     }
-    environment_block   := _build_environment_block(environment, allocators.temp_allocator) or_return
+    environment_block, ok_env := _build_environment_block(environment, allocators.temp_allocator)
+    assert(ok_env)
     environment_block_w := win32_utf8_to_utf16(environment_block, allocators.temp_allocator) or_return
 
     stderr_handle: win32.HANDLE 
@@ -744,21 +746,24 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
     return
 }
 
-_build_command_line :: proc(command: []string, allocator: mem.Allocator) -> (str: string, err: mem.Allocator_Error) {
-    _write_byte_n_times :: #force_inline proc(builder: ^string_builder.Builder, b: u8, n: uint) -> (err: mem.Allocator_Error) {
+_build_command_line :: proc(command: []string, allocator: mem.Allocator) -> (str: string, ok: bool) {
+    _write_byte_n_times :: #force_inline proc(buf: ^sb.String_Buffer, b: u8, n: uint) -> (ok: bool) {
         for _ in 0..<n {
-            _ = string_builder.write_byte(builder, b) or_return
+            sb.write_byte(buf, b) or_return
         }
-        return
+        return true
     }
-    builder := string_builder.builder_create(allocator)
+    
+    backing, _ := slice.create(u8, 1024, allocator)
+    buf := sb.create(raw_data(backing), len(backing), 0)
+
     for arg, i in command {
         if i != 0 {
-            _ = string_builder.write_byte(&builder, ' ') or_return
+            sb.write_byte(&buf, ' ') or_return
         }
         j: uint
         if strings_tools.contains_any(arg, "()[]{}^=;!'+,`~\" ") {
-            _ = string_builder.write_byte(&builder, '"') or_return
+            sb.write_byte(&buf, '"') or_return
             for j < len(arg) {
                 backslashes: uint = 0
                 for j < len(arg) && arg[j] == '\\' {
@@ -766,23 +771,23 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> (str
                     j += 1
                 }
                 if j == len(arg) {
-                    _write_byte_n_times(&builder, '\\', 2*backslashes) or_return
+                    _write_byte_n_times(&buf, '\\', 2*backslashes) or_return
                     break
                 } else if arg[j] == '"' {
-                    _write_byte_n_times(&builder, '\\', 2*backslashes+1) or_return
-                    _ = string_builder.write_byte(&builder, arg[j]) or_return
+                    _write_byte_n_times(&buf, '\\', 2*backslashes+1) or_return
+                    sb.write_byte(&buf, arg[j]) or_return
                 } else {
-                    _write_byte_n_times(&builder, '\\', backslashes) or_return
-                    _ = string_builder.write_byte(&builder, arg[j]) or_return
+                    _write_byte_n_times(&buf, '\\', backslashes) or_return
+                    sb.write_byte(&buf, arg[j]) or_return
                 }
                 j += 1
             }
-            _ = string_builder.write_byte(&builder, '"') or_return
+            sb.write_byte(&buf, '"') or_return
         } else {
-            _ = string_builder.write_string(&builder, arg) or_return
+            sb.write(&buf, arg) or_return
         }
     }
-    return string_builder.to_string(&builder), nil
+    return string(sb.slice(buf)), true
 }
 
 _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (envs: []string, err: Error) {
@@ -828,8 +833,10 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
     return
 }
 
-_build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> (str: string, err: mem.Allocator_Error) {
-    builder := string_builder.builder_create(allocator)
+_build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> (str: string, ok: bool) {
+    backing, _ := slice.create(u8, 1024, allocator)
+    buf := sb.create(raw_data(backing), len(backing), 0)
+
     loop: #reverse for kv, cur_idx in environment {
         eq_idx, eq_found := strings_tools.index_byte(kv, '=')
         internal.assert(eq_found, "Malformed environment string. Expected '=' to separate keys and values")
@@ -841,11 +848,11 @@ _build_environment_block :: proc(environment: []string, allocator: mem.Allocator
                 continue loop
             }
         }
-        string_builder.write_string(&builder, kv)
-        _ = string_builder.write_byte(&builder, 0) or_return
+        sb.write(&buf, kv) or_return
+        sb.write_byte(&buf, 0) or_return
     }
     // Note(flysand): In addition to the NUL-terminator for each string, the
     // environment block itself is NUL-terminated.
-    _ = string_builder.write_byte(&builder, 0) or_return
-    return string_builder.to_string(&builder), nil
+    sb.write_byte(&buf, 0) or_return
+    return string(sb.slice(buf)), true
 }
