@@ -129,6 +129,7 @@ write_string :: proc(b: ^String_Buffer, str: string) -> (ok: bool) {
 String_Type :: union {
     string,              // "pointer to a [N]u8"
     fs.Fixed_String(20), // "the [N]u8"
+    fs.Fixed_String(4), // "the [N]u8"
     /*
     1. maybe just keep adding random values, I guess, idk
     2. Use a big enough fixed_string for all values, so all "from_" procs uses the same size.
@@ -142,6 +143,8 @@ write :: proc(buf: ^String_Buffer, strs: ..String_Type) -> (ok: bool) {
             case string:
                 write_string(buf, v) or_return
             case fs.Fixed_String(20):
+                write_string(buf, fs.as_string(&v)) or_return
+            case fs.Fixed_String(4):
                 write_string(buf, fs.as_string(&v)) or_return
             }
     }
@@ -161,6 +164,8 @@ write_fmt :: proc(buf: ^String_Buffer, format: string, strs: ..String_Type) -> (
             case string:
                 write_string(buf, v) or_return
             case fs.Fixed_String(20):
+                write_string(buf, fs.as_string(&v)) or_return
+            case fs.Fixed_String(4):
                 write_string(buf, fs.as_string(&v)) or_return
             }
             str_i += 1
@@ -184,6 +189,12 @@ from_uint :: proc(num: uint, base: uint = 10) -> (str: fs.Fixed_String(20)/*the 
 
 from_int :: proc(num: int, base: uint = 10) -> (str: fs.Fixed_String(20)/*the biggest int requires 20 bytes */) {
     s := strconv.write_int(str.data[:], i64(num), base)
+    str.len += len(s)
+    return
+}
+
+from_bool :: proc(b: bool) -> (str: fs.Fixed_String(4)) {
+    s := strconv.write_bool(str.data[:], b)
     str.len += len(s)
     return
 }

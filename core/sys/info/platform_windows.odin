@@ -7,119 +7,7 @@ import "base:unicode/utf16"
 import sys "core:sys/windows"
 
 @(private)
-_os_version :: proc(loc := #caller_location) -> (res: OS_Version, ok: bool) {
-    /*
-    NOTE(Jeroen):
-        `GetVersionEx`  will return 6.2 for Windows 10 unless the program is manifested for Windows 10.
-        `RtlGetVersion` will return the true version.
-
-        Rather than include the WinDDK, we ask the kernel directly.
-        `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion` is for the minor build version (Update Build Release)
-    */
-    res.platform = .Windows
-
-    osvi: sys.OSVERSIONINFOEXW
-    osvi.dwOSVersionInfoSize = sys.ULONG(size_of(osvi))
-    if status := sys.RtlGetVersion(&osvi); status != 0 {
-        return res, false
-    }
-
-    product_type: sys.Windows_Product_Type
-    _ = sys.GetProductInfo(
-        osvi.dwMajorVersion,         osvi.dwMinorVersion,
-        u32(osvi.wServicePackMajor), u32(osvi.wServicePackMinor),
-        &product_type,
-    )
-
-    res.os.major     = int(osvi.dwMajorVersion)
-    res.os.minor     = int(osvi.dwMinorVersion)
-    res.kernel.major = int(osvi.dwMajorVersion)
-    res.kernel.minor = int(osvi.dwBuildNumber)
-
-    buf := sb.create(raw_data(res.full.data[:]), len(res.full.data), 0)
-
-    sb.write(&buf, "Windows ") or_return
-
-    switch osvi.dwMajorVersion {
-    case 10:
-        switch osvi.wProductType {
-        case 1: // VER_NT_WORKSTATION:
-            if osvi.dwBuildNumber < 22000 {
-                sb.write(&buf, "10 ") or_return
-            } else {
-                sb.write(&buf, "11 ") or_return
-            }
-            format_windows_product_type(&buf, product_type) or_return
-
-        case: // Server or Domain Controller
-            switch osvi.dwBuildNumber {
-            case 14393:
-                sb.write(&buf, "2016 Server") or_return
-            case 17763:
-                sb.write(&buf, "2019 Server") or_return
-            case 20348:
-                sb.write(&buf, "2022 Server") or_return
-            case:
-                sb.write(&buf, "Unknown Server") or_return
-            }
-        }
-
-    case 6:
-        switch osvi.dwMinorVersion {
-        case 0:
-            switch osvi.wProductType {
-            case 1: // VER_NT_WORKSTATION
-                sb.write(&buf, "Windows Vista ") or_return
-                format_windows_product_type(&buf, product_type) or_return
-            case 3:
-                sb.write(&buf, "Windows Server 2008") or_return
-            }
-
-        case 1:
-            switch osvi.wProductType {
-            case 1: // VER_NT_WORKSTATION:
-                sb.write(&buf, "Windows 7 ") or_return
-                format_windows_product_type(&buf, product_type) or_return
-            case 3:
-                sb.write(&buf, "Windows Server 2008 R2") or_return
-            }
-
-        case 2:
-            switch osvi.wProductType {
-            case 1: // VER_NT_WORKSTATION:
-                sb.write(&buf, "Windows 8 ") or_return
-                format_windows_product_type(&buf, product_type) or_return
-            case 3:
-                sb.write(&buf, "Windows Server 2012") or_return
-            }
-
-        case 3:
-            switch osvi.wProductType {
-            case 1: // VER_NT_WORKSTATION:
-                sb.write(&buf, "Windows 8.1 ") or_return
-                format_windows_product_type(&buf, product_type) or_return
-            case 3:
-                sb.write(&buf, "Windows Server 2012 R2") or_return
-            }
-        }
-
-    case 5:
-        switch osvi.dwMinorVersion {
-        case 0:
-            sb.write(&buf, "Windows 2000") or_return
-        case 1:
-            sb.write(&buf, "Windows XP") or_return
-        case 2:
-            sb.write(&buf, "Windows Server 2003") or_return
-        }
-    }
-
-    // Grab DisplayVersion
-    res.release = format_display_version(&buf) or_return
-
-    // Grab build number and UBR
-    res.kernel.patch = format_build_number(&buf, int(osvi.dwBuildNumber)) or_return
-
+_os_version :: proc(res: ^OS_Version, loc := #caller_location) -> (ok: bool) {
     format_windows_product_type :: proc (buf: ^sb.String_Buffer, prod_type: sys.Windows_Product_Type) -> (ok: bool) {
         #partial switch prod_type {
         case .ULTIMATE:
@@ -225,7 +113,7 @@ _os_version :: proc(loc := #caller_location) -> (res: OS_Version, ok: bool) {
             sb.write(buf, " (version: ") or_return
             l := buf.len
             sb.write(buf, dv) or_return
-            version = string(sb.slice(buf^))[l:][:len(dv)]
+            version = string(sb.slice(buf^)[l:][:len(dv)])
             sb.write_byte(buf, ')') or_return
         }
         return version, true
@@ -247,7 +135,120 @@ _os_version :: proc(loc := #caller_location) -> (res: OS_Version, ok: bool) {
         return ubr, true
     }
 
-    return res, true
+    /*
+    NOTE(Jeroen):
+        `GetVersionEx`  will return 6.2 for Windows 10 unless the program is manifested for Windows 10.
+        `RtlGetVersion` will return the true version.
+
+        Rather than include the WinDDK, we ask the kernel directly.
+        `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion` is for the minor build version (Update Build Release)
+    */
+    res.platform = .Windows
+
+    osvi: sys.OSVERSIONINFOEXW
+    osvi.dwOSVersionInfoSize = sys.ULONG(size_of(osvi))
+    if status := sys.RtlGetVersion(&osvi); status != 0 {
+        return false
+    }
+
+    product_type: sys.Windows_Product_Type
+    _ = sys.GetProductInfo(
+        osvi.dwMajorVersion,         osvi.dwMinorVersion,
+        u32(osvi.wServicePackMajor), u32(osvi.wServicePackMinor),
+        &product_type,
+    )
+
+    res.os.major     = int(osvi.dwMajorVersion)
+    res.os.minor     = int(osvi.dwMinorVersion)
+    res.kernel.major = int(osvi.dwMajorVersion)
+    res.kernel.minor = int(osvi.dwBuildNumber)
+
+    buf := sb.create(raw_data(res.full.data[:]), len(res.full.data), 0)
+    defer res.full.len = buf.len
+
+    sb.write(&buf, "Windows ") or_return
+
+    switch osvi.dwMajorVersion {
+    case 10:
+        switch osvi.wProductType {
+        case 1: // VER_NT_WORKSTATION:
+            if osvi.dwBuildNumber < 22000 {
+                sb.write(&buf, "10 ") or_return
+            } else {
+                sb.write(&buf, "11 ") or_return
+            }
+            format_windows_product_type(&buf, product_type) or_return
+
+        case: // Server or Domain Controller
+            switch osvi.dwBuildNumber {
+            case 14393:
+                sb.write(&buf, "2016 Server") or_return
+            case 17763:
+                sb.write(&buf, "2019 Server") or_return
+            case 20348:
+                sb.write(&buf, "2022 Server") or_return
+            case:
+                sb.write(&buf, "Unknown Server") or_return
+            }
+        }
+
+    case 6:
+        switch osvi.dwMinorVersion {
+        case 0:
+            switch osvi.wProductType {
+            case 1: // VER_NT_WORKSTATION
+                sb.write(&buf, "Windows Vista ") or_return
+                format_windows_product_type(&buf, product_type) or_return
+            case 3:
+                sb.write(&buf, "Windows Server 2008") or_return
+            }
+
+        case 1:
+            switch osvi.wProductType {
+            case 1: // VER_NT_WORKSTATION:
+                sb.write(&buf, "Windows 7 ") or_return
+                format_windows_product_type(&buf, product_type) or_return
+            case 3:
+                sb.write(&buf, "Windows Server 2008 R2") or_return
+            }
+
+        case 2:
+            switch osvi.wProductType {
+            case 1: // VER_NT_WORKSTATION:
+                sb.write(&buf, "Windows 8 ") or_return
+                format_windows_product_type(&buf, product_type) or_return
+            case 3:
+                sb.write(&buf, "Windows Server 2012") or_return
+            }
+
+        case 3:
+            switch osvi.wProductType {
+            case 1: // VER_NT_WORKSTATION:
+                sb.write(&buf, "Windows 8.1 ") or_return
+                format_windows_product_type(&buf, product_type) or_return
+            case 3:
+                sb.write(&buf, "Windows Server 2012 R2") or_return
+            }
+        }
+
+    case 5:
+        switch osvi.dwMinorVersion {
+        case 0:
+            sb.write(&buf, "Windows 2000") or_return
+        case 1:
+            sb.write(&buf, "Windows XP") or_return
+        case 2:
+            sb.write(&buf, "Windows Server 2003") or_return
+        }
+    }
+
+    // Grab DisplayVersion
+    res.release = format_display_version(&buf) or_return
+
+    // Grab build number and UBR
+    res.kernel.patch = format_build_number(&buf, int(osvi.dwBuildNumber)) or_return
+
+    return true
 }
 
 @(private)

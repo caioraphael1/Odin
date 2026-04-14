@@ -2,7 +2,27 @@ import "base:intrinsics"
 import sb "base:container/string_buffer"
 
 @(optional_results)
-print :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
+print :: proc(strs: ..sb.String_Type) -> (ok: bool) {
+    array: [1024]u8
+
+    buf := sb.create(raw_data(array[:]), len(array), 0)
+    sb.write(&buf, ..strs) or_return
+    
+    return printb(sb.slice(buf))
+}
+
+@(optional_results)
+eprint :: proc(strs: ..sb.String_Type) -> (ok: bool) {
+    array: [1024]u8
+
+    buf := sb.create(raw_data(array[:]), len(array), 0)
+    sb.write(&buf, ..strs) or_return
+    
+    return eprintb(sb.slice(buf))
+}
+
+@(optional_results)
+printf :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
     array: [1024]u8
 
     buf := sb.create(raw_data(array[:]), len(array), 0)
@@ -12,7 +32,7 @@ print :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
 }
 
 @(optional_results)
-eprint :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
+eprintf :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
     array: [1024]u8
 
     buf := sb.create(raw_data(array[:]), len(array), 0)
@@ -35,25 +55,50 @@ eprintb :: proc(buf: []u8) -> (ok: bool) {
 
 
 @(disabled=ODIN_DISABLE_ASSERT)
-assert :: proc(condition: bool, format: string, strs: ..sb.String_Type, loc := #caller_location) {
+assert :: proc(condition: bool, strs: ..sb.String_Type, loc := #caller_location) {
     if !condition {
         print("[ASSERT] ")
-        print(format, ..strs)
+        print(..strs)
         intrinsics.trap()
     }
 }
 
-ensure :: proc(condition: bool, format: string, strs: ..sb.String_Type, loc := #caller_location) {
+ensure :: proc(condition: bool, strs: ..sb.String_Type, loc := #caller_location) {
     if !condition {
         print("[ENSURE] ")
-        print(format, ..strs)
+        print(..strs)
         intrinsics.trap()
     }
 }
 
-panic :: proc(format: string, strs: ..sb.String_Type, loc := #caller_location) -> ! {
+panic :: proc(strs: ..sb.String_Type, loc := #caller_location) -> ! {
     print("[PANIC] ")
-    print(format, ..strs)
+    print(..strs)
     intrinsics.trap()
 }
+
+
+@(disabled=ODIN_DISABLE_ASSERT)
+assertf :: proc(condition: bool, format: string, strs: ..sb.String_Type, loc := #caller_location) {
+    if !condition {
+        print("[ASSERT] ")
+        printf(format, ..strs)
+        intrinsics.trap()
+    }
+}
+
+ensuref :: proc(condition: bool, format: string, strs: ..sb.String_Type, loc := #caller_location) {
+    if !condition {
+        print("[ENSURE] ")
+        printf(format, ..strs)
+        intrinsics.trap()
+    }
+}
+
+panicf :: proc(format: string, strs: ..sb.String_Type, loc := #caller_location) -> ! {
+    print("[PANIC] ")
+    printf(format, ..strs)
+    intrinsics.trap()
+}
+
 

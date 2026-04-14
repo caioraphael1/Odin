@@ -78,8 +78,9 @@ Returns:
 - res:        An `OS_Version` struct
 - ok:         `true` when we could retrieve OS version information, `false` otherwise
 */
-os_version :: proc(loc := #caller_location) -> (res: OS_Version, ok: bool) {
-    return _os_version(loc = loc)
+os_version :: proc(res: ^OS_Version, loc := #caller_location) -> (ok: bool) {
+    _os_version(res, loc = loc) or_return
+    return true
 }
 
 
