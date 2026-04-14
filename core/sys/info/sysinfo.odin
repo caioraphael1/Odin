@@ -1,7 +1,5 @@
 
-import "base:internal"
-import "base:mem"
-import "base:container/strings"
+import fs "base:container/fixed_string"
 
 import "base:strconv"
 import "core:strings_tools"
@@ -80,28 +78,15 @@ Returns:
 - res:        An `OS_Version` struct
 - ok:         `true` when we could retrieve OS version information, `false` otherwise
 */
-os_version :: proc(allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
-    return _os_version(allocator = allocator, loc = loc)
+os_version :: proc(loc := #caller_location) -> (res: OS_Version, ok: bool) {
+    return _os_version(loc = loc)
 }
 
-/*
-Releases an `OS_Version`'s strings
-
-*Frees Using Provided Allocator*
-
-Inputs:
-- version:    An `OS_Version` struct
-- allocator:  A `mem.Allocator` on which the version strings will be freed
-*/
-destroy_os_version :: proc(version: OS_Version, allocator: mem.Allocator) {
-    _ = strings.string_delete(version.full, allocator)
-    // `version.release` is part of `version.full` and does not need to be freed separately.
-}
 
 OS_Version :: struct {
-    platform: OS_Version_Platform, // Windows, Linux, MacOS, iOS, etc.
-    full:     string,              // e.g. Windows 10 Professional (version: 22H2), build: 19045.6575
-    release:  string,              // e.g. 22H2
+    platform: OS_Version_Platform,  // Windows, Linux, MacOS, iOS, etc.
+    full:     fs.Fixed_String(256), // e.g. Windows 10 Professional (version: 22H2), build: 19045.6575
+    release:  string,               // e.g. 22H2
 
     os:       Version,             // e.g. {major = 10, minor = 10,    patch = 0}
     kernel:   Version,             // e.g. {major = 10, minor = 19045, patch = 6575}

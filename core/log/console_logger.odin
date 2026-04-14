@@ -1,3 +1,5 @@
+import sb "base:container/string_buffer"
+
 import "core:os"
 import "core:terminal"
 
@@ -45,7 +47,7 @@ console_logger_init :: proc(lowest_level := Level.Debug, opt := Default_Console_
     }
 }
 
-console_logger_proc :: proc(file_handle: ^os.File, ident: string, level: Level, fmt_string: string, args: []any, options: Options, loc := #caller_location) {
+console_logger_proc :: proc(file_handle: ^os.File, ident: string, level: Level, strs: []sb.String_Type, options: Options, loc := #caller_location) {
     options := options
     h: ^os.File = ---
     if level < Level.Error {
@@ -55,5 +57,5 @@ console_logger_proc :: proc(file_handle: ^os.File, ident: string, level: Level, 
         h = os.stderr
         options -= global_subtract_stderr_options
     }
-    _file_console_logger_proc(h, ident, level, fmt_string, args, options, loc)
+    _file_console_logger_proc(h, ident, level, strs, options, loc)
 }

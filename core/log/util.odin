@@ -1,7 +1,6 @@
 import "base:internal"
 
-// import "core:fmt"
-import "core:io/string_builder"
+import sb "base:container/string_buffer"
 import "core:time"
 import "core:os"
 import "core:terminal/ansi"
@@ -33,7 +32,7 @@ Location_File_Opts :: Options{
 }
 
 
-do_level_header :: proc(opts: Options, str: ^string_builder.Builder, level: Level) {
+do_level_header :: proc(opts: Options, str: ^sb.String_Buffer, level: Level) {
 
     RESET     :: ansi.CSI + ansi.RESET           + ansi.SGR
     RED       :: ansi.CSI + ansi.FG_RED          + ansi.SGR
@@ -50,38 +49,38 @@ do_level_header :: proc(opts: Options, str: ^string_builder.Builder, level: Leve
 
     if .Level in opts {
         if .Terminal_Color in opts {
-            fmt.sbprint(str, col)
+            _ = sb.write(str, col)
         }
-        fmt.sbprint(str, Level_Headers[level])
+        _ = sb.write(str, Level_Headers[level])
         if .Terminal_Color in opts {
-            fmt.sbprint(str, RESET)
+            _ = sb.write(str, RESET)
         }
     }
 }
 
-do_time_header :: proc(opts: Options, buf: ^string_builder.Builder, t: time.Time) {
+do_time_header :: proc(opts: Options, buf: ^sb.String_Buffer, t: time.Time) {
     when time.IS_SUPPORTED {
         if Full_Timestamp_Opts & opts != nil {
-            fmt.sbprint(buf, "[")
+            _ = sb.write(buf, "[")
             y, m, d := time.date(t)
             h, min, s := time.clock_from_time(t)
             if .Date in opts {
-                fmt.sbprintf(buf, "%d-%02d-%02d", y, m, d)
+                _ = sb.write(buf, sb.from_int(y), "-", sb.from_int(int(m)), "-", sb.from_int(d))
                 if .Time in opts {
-                    fmt.sbprint(buf, " ")
+                    _ = sb.write(buf, " ")
                 }
             }
-            if .Time in opts { fmt.sbprintf(buf, "%02d:%02d:%02d", h, min, s) }
-            fmt.sbprint(buf, "] ")
+            if .Time in opts { _ = sb.write(buf, sb.from_uint(h), ":", sb.from_uint(min), ":", sb.from_uint(s)) }
+            _ = sb.write(buf, "] ")
         }
     }
 }
 
-do_location_header :: proc(opts: Options, buf: ^string_builder.Builder, loc := #caller_location) {
+do_location_header :: proc(opts: Options, buf: ^sb.String_Buffer, loc := #caller_location) {
     if Location_Header_Opts & opts == nil {
         return
     }
-    fmt.sbprint(buf, "[")
+    _ = sb.write(buf, "[")
 
     file := loc.file_path
     if .Short_File_Path in opts {
@@ -95,30 +94,32 @@ do_location_header :: proc(opts: Options, buf: ^string_builder.Builder, loc := #
     }
 
     if Location_File_Opts & opts != nil {
-        fmt.sbprint(buf, file)
+        _ = sb.write(buf, file)
     }
     if .Line in opts {
         if Location_File_Opts & opts != nil {
-            fmt.sbprint(buf, ":")
+            _ = sb.write(buf, ":")
         }
-        fmt.sbprint(buf, loc.line)
+        _ = sb.write(buf, sb.from_int(int(loc.line)))
     }
 
     if .Procedure in opts {
         if (Location_File_Opts | {.Line}) & opts != nil {
-            fmt.sbprint(buf, ":")
+            _ = sb.write(buf, ":")
         }
-        fmt.sbprintf(buf, "%s()", loc.procedure)
+        _ = sb.write(buf, loc.procedure, "()")
     }
 
-    fmt.sbprint(buf, "] ")
+    _ = sb.write(buf, "] ")
 }
 
 
 @(private)
-_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, fmt_string: string, args: []any, options: Options, loc: internal.Source_Code_Location) {
+_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, strs: []sb.String_Type, options: Options, loc: internal.Source_Code_Location) {
     backing: [1024]u8
-    buf := string_builder.builder_from_bytes(backing[:])
+
+    buf := sb.create(raw_data(backing[:]), len(backing), 0)
+
 
     do_level_header(options, &buf, level)
 
@@ -129,19 +130,16 @@ _file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, fmt_
     do_location_header(options, &buf, loc)
 
     if .Thread_Id in options {
-        fmt.sbprintf(&buf, "[{}] ", os.get_current_thread_id())
+        _ = sb.write(&buf, "[", sb.from_uint(os.get_current_thread_id()), "]")
     }
 
     if ident != "" {
-        fmt.sbprintf(&buf, "[%s] ", ident)
+        _ = sb.write(&buf, "[", ident, "]")
     }
 
-    if fmt_string == "" {
-        fmt.sbprint(&buf, ..args)
-    } else {
-        fmt.sbprintf(&buf, fmt_string, ..args)
-    }
+    _ = sb.write(&buf, ..strs)
+    _ = sb.write(&buf, "\n")
 
     // Write to output file.
-    fmt.fprintf(h, "%s\n", string_builder.to_string(&buf))
+    os.printb(sb.slice(buf))
 }

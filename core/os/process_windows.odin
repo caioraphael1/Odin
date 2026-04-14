@@ -46,7 +46,7 @@ _get_ppid :: proc() -> int {
     }
     defer _ = win32.CloseHandle(snap)
     entry := win32.PROCESSENTRY32W { dwSize = win32.DWORD(size_of(win32.PROCESSENTRY32W)) }
-    for status := win32.Process32FirstW(snap, &entry); status; /**/ {
+    for status := win32.Process32FirstW(snap, &entry); status; {
         if entry.th32ProcessID == our_pid {
             return int(entry.th32ParentProcessID)
         }

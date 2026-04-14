@@ -1,27 +1,16 @@
+import sb "base:container/string_buffer"
 
-/*
-    (c) Copyright 2024 Feoramund <rune@swevencraft.org>.
-    Made available under Odin's license.
 
-    List of contributors:
-        Feoramund: Initial implementation.
-*/
+write_padded_hex :: proc(buf: ^sb.String_Buffer, #any_int n: int, zeroes: uint) {
+    // temp, just for measure....
+    temp_backing: [32]u8
+    temp_buf := sb.create(raw_data(temp_backing[:]), len(temp_backing), 0)
+    _ = sb.write(&temp_buf, sb.from_int(n, 0x10))
 
-import "base:mem"
-
-import "core:io"
-import "core:io/string_builder"
-
-write_padded_hex :: proc(w: io.Writer, #any_int n: int, zeroes: uint, allocator: mem.Allocator) {
-    sb := string_builder.builder_create(allocator)
-    defer string_builder.builder_destroy(&sb)
-
-    sbw := string_builder.to_writer(&sb)
-    _, _ = io.write_int(sbw, n, 0x10)
-
-    _, _ = io.write_string(w, "0x")
-    for _ in 0..<max(0, zeroes - string_builder.builder_len(sb)) {
-        _ = io.write_byte(w, '0')
+    // buf
+    _ = sb.write(buf, "0x")
+    for _ in 0..<max(0, zeroes - temp_buf.len) {
+        _ = sb.write_byte(buf, '0')
     }
-    _, _ = io.write_int(w, n, 0x10)
+    _ = sb.write(buf, sb.from_int(n, 0x10))
 }

@@ -1,6 +1,5 @@
 #+build openbsd, netbsd
 
-import "base:internal"
 import "base:container/strings"
 import sys "core:sys/unix"
 

@@ -42,142 +42,19 @@ Negs:
     - It requires calling something to clear the buffer.
 */
 
-/* 
-TODO:
-"concatenate" might be better than "format"
-*/
 
 
 /* 
 BEFORE
-    
+    - fmt -> os -> io -> wprintf -> io -> os
+
+    - fmt uses a file, which is transformed to a io.Stream, to then be used to be writen to by the wprintf, calling io functions inside it to append the data to the io.Stream (append to what? that's abstract, but in the end it's a io.Writer, in specific the renamed File_Writer, which contains a []u8 inside it. After all that, a flush function is called from within the wprintf via the os.File -> io.Stream interface, which then executes the file_windows.odin stuff to finally copy the stuff from the File_Writer to the stdout.
 
 AFTER
     - write to a buffer ("base:container/buffer")
     - write formated to a buffer (this file + "base:container/fixed_string")
     - copy that to stdout. (this file)
 */
-
-
-main :: proc() {
-    os.init_std_files()
-
-    algo: [256]u8
-    buf := buffer.create(raw_data(algo[:]), len(algo), 0)
-    ok := buffer.write_string(&buf, "sup!\n")
-    trem := from_uint(~uint(0))
-    ok = sb_write(&buf, "Caio said '%' and also said '%'  -> %", "hello", "DAMN", fs.as_string(&trem))
-    ok = sb_write(&buf, "Caio said '%' and also said '%'  -> %", "hello", "DAMN", from_uint(~uint(0)))
-    printb(buffer.slice(buf))
-    // eprintb(buffer.slice(buf))
-
-    print("Caio said '%' and also said '%'  -> %\n", "hello", "DAMN", from_uint(~uint(0)))
-    print("HERE\nTHERE\n")
-
-
-    assert(false, "asserting que algo aconteceu aqui '%'", #procedure)
-    // ensure(false, "ensuring que algo aconteceu aqui '%'", #procedure)
-    // panic("ensuring que algo aconteceu aqui '%'", #procedure)
-
-    // internal.print_string("\ntrue" if ok else "\nfalse")
-}
-
-
-@(optional_results)
-print :: proc(format: string, strs: ..String_Type) -> (ok: bool) {
-    array: [1024]u8
-
-    buf := buffer.create(raw_data(array[:]), len(array), 0)
-    sb_write(&buf, format, ..strs) or_return
-    
-    return printb(buffer.slice(buf))
-}
-
-@(optional_results)
-eprint :: proc(format: string, strs: ..String_Type) -> (ok: bool) {
-    array: [1024]u8
-
-    buf := buffer.create(raw_data(array[:]), len(array), 0)
-    sb_write(&buf, format, ..strs) or_return
-    
-    return eprintb(buffer.slice(buf))
-}
-
-@(optional_results)
-printb :: proc(buf: []u8) -> (ok: bool) {
-    _, err := os._write(cast(^os.File_Impl)os.stdout, buf)
-    return err != nil
-}
-
-@(optional_results)
-eprintb :: proc(buf: []u8) -> (ok: bool) {
-    _, err := os._write(cast(^os.File_Impl)os.stderr, buf)
-    return err != nil
-}
-
-
-@(disabled=ODIN_DISABLE_ASSERT)
-assert :: proc(condition: bool, format: string, strs: ..String_Type, loc := #caller_location) {
-    if !condition {
-        print("[ASSERT] ")
-        print(format, ..strs)
-        intrinsics.trap()
-    }
-}
-
-ensure :: proc(condition: bool, format: string, strs: ..String_Type, loc := #caller_location) {
-    if !condition {
-        print("[ENSURE] ")
-        print(format, ..strs)
-        intrinsics.trap()
-    }
-}
-
-panic :: proc(format: string, strs: ..String_Type, loc := #caller_location) -> ! {
-    print("[PANIC] ")
-    print(format, ..strs)
-    intrinsics.trap()
-}
-
-
-from_uint :: proc(num: uint) -> (str: fs.Fixed_String(20)/*the biggest uint requires 20 bytes */) {
-    s := strconv.write_uint(str.data[:], u64(num), 10)
-    str.len += len(s)
-    return
-}
-
-
-String_Type :: union {
-    string,              // "pointer to a [N]u8"
-    fs.Fixed_String(20), // "the [N]u8"
-    /*
-    1. maybe just keep adding random values, I guess, idk
-    2. Use a big enough fixed_string for all values, so all "from_" procs uses the same size.
-    */
-}
-
-sb_write :: proc(buf: ^buffer.Buffer, format: string, strs: ..String_Type) -> (ok: bool) {
-    str_i: uint
-    i: uint
-    loop: for i < len(format) {
-        char := format[i]
-        switch char {
-        case '%':
-            switch &v in strs[str_i] {
-            case string:
-                buffer.write_string(buf, v) or_return
-            case fs.Fixed_String(20):
-                buffer.write_string(buf, fs.as_string(&v)) or_return
-            }
-            str_i += 1
-        case:
-            buffer.write_byte(buf, char) or_return
-        }
-        i += 1
-    }
-    return true
-}
-
 
 /* 
 /* Idea 1
