@@ -4,17 +4,14 @@ import "base:mem"
 import base_slice "base:container/slice"
 
 
-DEBUG_HEAP_ARRAY :: #config(DEBUG_HEAP_ARRAY, true)
+DEBUG_ARRAY_VIEW :: #config(DEBUG_ARRAY_VIEW, true)
 
 /*
-Just like a Fixed_Array, but on the heap; that's all.
-
-A fixed-size heap-allocated array operated on in a dynamic fashion.
 - `data`: The underlying array
-- `len`: Amount of items that the `Heap_Array` currently holds
+- `len`: Amount of items that the `Array_View` currently holds
 */
-when DEBUG_HEAP_ARRAY {
-    Heap_Array :: struct($T: typeid) {
+when DEBUG_ARRAY_VIEW {
+    Array_View :: struct($T: typeid) {
         data: []T,
         len:  uint,
         
@@ -22,70 +19,70 @@ when DEBUG_HEAP_ARRAY {
         peak: uint,
     }
 } else {
-    Heap_Array :: struct($T: typeid) {
+    Array_View :: struct($T: typeid) {
         data: []T,
         len:  uint,
     }
 }
 
 
-@(disabled=!DEBUG_HEAP_ARRAY)
-update_peak :: proc(a: ^Heap_Array($T)) {
+@(disabled=!DEBUG_ARRAY_VIEW)
+update_peak :: proc(a: ^Array_View($T)) {
     a.peak = max(a.peak, a.len)
 }
 
 
-create :: proc(cap: uint, $T: typeid, allocator: mem.Allocator) -> (heap_array: Heap_Array(T), err: mem.Allocator_Error) {
+create :: proc(cap: uint, $T: typeid, allocator: mem.Allocator) -> (heap_array: Array_View(T), err: mem.Allocator_Error) {
     heap_array.data = base_slice.create(T, cap, allocator) or_return
     return
 }
 
-delete :: proc(a: Heap_Array($T)) -> (err: mem.Allocator_Error) {
+delete :: proc(a: Array_View($T)) -> (err: mem.Allocator_Error) {
     base_slice.delete(a.data) or_return
     return
 }
 
 
-len :: proc(a: Heap_Array($T)) -> uint {
+len :: proc(a: Array_View($T)) -> uint {
     return a.len
 }
 
-cap :: proc(a: Heap_Array($T)) -> uint {
+cap :: proc(a: Array_View($T)) -> uint {
     return builtin.len(a.data)
 }
 
 
-remaining_space :: proc(a: Heap_Array($T)) -> int {
+remaining_space :: proc(a: Array_View($T)) -> int {
     return builtin.len(a.data) - a.len
 }
 
-slice :: proc(a: ^Heap_Array($T)) -> []T {
+slice :: proc(a: ^Array_View($T)) -> []T {
     return a.data[:a.len]
 }
 
-get :: proc(a: Heap_Array($T), index: uint) -> T {
+get :: proc(a: Array_View($T), index: uint) -> T {
     return a.data[index]
 }
 
-get_safe :: proc(a: Heap_Array($T), index: uint) -> (T, bool) #no_bounds_check {
+get_safe :: proc(a: Array_View($T), index: uint) -> (T, bool) #no_bounds_check {
     if index < 0 || index >= a.len {
         return {}, false
     }
     return a.data[index], true
 }
 
-get_ptr :: proc(a: ^Heap_Array($T), index: uint) -> ^T {
+get_ptr :: proc(a: ^Array_View($T), index: uint) -> ^T {
     return &a.data[index]
 }
 
-get_ptr_safe :: proc(a: ^Heap_Array($T), index: uint) -> (^T, bool) #no_bounds_check {
+get_ptr_safe :: proc(a: ^Array_View($T), index: uint) -> (^T, bool) #no_bounds_check {
     if index < 0 || index >= a.len {
         return {}, false
     }
     return &a.data[index], true
 }
 
-set :: proc(a: ^Heap_Array($T), index: uint, item: T) {
+set :: proc(a: ^Array_View($T), index: uint, item: T) {
     a.data[index] = item
     update_peak(a)
 }
@@ -97,7 +94,7 @@ The new length will be:
     - `length` if `length` <= capacity
     - capacity if length > capacity
 Example:
-    a: fixed_array.Heap_Array(5, int)
+    a: fixed_array.Array_View(5, int)
 
     fixed_array.push_back(&a, 1)
     fixed_array.push_back(&a, 2)
@@ -113,7 +110,7 @@ Output:
     [1]
     [1, 0, 0, 0, 0]
 */
-resize :: proc(a: ^Heap_Array($T), length: uint) -> (ok: bool) {
+resize :: proc(a: ^Array_View($T), length: uint) -> (ok: bool) {
     
     length := length
     ok = length <= uint(N)
@@ -134,7 +131,7 @@ resize :: proc(a: ^Heap_Array($T), length: uint) -> (ok: bool) {
 /*
 Tries to resize the small-array to the specified length.
 Example:
-    a: fixed_array.Heap_Array(5, int)
+    a: fixed_array.Array_View(5, int)
 
     fixed_array.push_back(&a, 1)
     fixed_array.push_back(&a, 2)
@@ -150,7 +147,7 @@ Output:
     [1]
     [1, 2, 0, 0, 0]
 */
-resize_non_zero :: proc(a: ^Heap_Array($T), length: uint) {
+resize_non_zero :: proc(a: ^Array_View($T), length: uint) {
     a.len = min(length, uint(N))
 
     update_peak(a)
@@ -159,7 +156,7 @@ resize_non_zero :: proc(a: ^Heap_Array($T), length: uint) {
 /*
 Attempts to add the given element to the end.
 Example:
-    a: fixed_array.Heap_Array(2, int)
+    a: fixed_array.Array_View(2, int)
 
     internal.assert(fixed_array.push_back(&a, 1), "this should fit")
     internal.assert(fixed_array.push_back(&a, 2), "this should fit")
@@ -169,7 +166,7 @@ Example:
 Output:
     [1, 2]
 */
-push_back :: proc(a: ^Heap_Array($T), item: T) -> bool {
+push_back :: proc(a: ^Array_View($T), item: T) -> bool {
     if a.len < cap(a^) {
         a.data[a.len] = item
         a.len += 1
@@ -186,13 +183,13 @@ Attempts to dyn_array.append all elements to the small-array returning
 false if there is not enough space to fit all of them.
 
 Example:
-    a: fixed_array.Heap_Array(100, int)
+    a: fixed_array.Array_View(100, int)
     fixed_array.push_back_many(&a, 0, 1, 2, 3, 4)
     fmt.println(fixed_array.slice(&a))
 Output:
     [0, 1, 2, 3, 4]
 */
-push_back_many :: proc(a: ^Heap_Array($T), items: ..T) -> bool {
+push_back_many :: proc(a: ^Array_View($T), items: ..T) -> bool {
     if a.len + uint(builtin.len(items)) <= cap(a^) {
         n := base_slice.copy(a.data[a.len:], items[:])
         a.len += n
@@ -208,14 +205,14 @@ Tries to insert an element at the specified position.
 Note: Performing this operation will cause pointers obtained
 through get_ptr(_save) to reference incorrect elements.
 Example:
-    arr: fixed_array.Heap_Array(100, rune)
+    arr: fixed_array.Array_View(100, rune)
     fixed_array.push(&arr,  'A', 'C', 'D')
     fixed_array.dyn_array.inject_at(&arr, 'B', 1)
     fmt.println(fixed_array.slice(&arr))
 Output:
     [A, B, C, D]
 */
-inject_at :: proc(a: ^Heap_Array($T), item: T, index: uint) -> bool #no_bounds_check {
+inject_at :: proc(a: ^Array_View($T), item: T, index: uint) -> bool #no_bounds_check {
     if a.len < cap(a^) && index >= 0 && index <= len(a^) {
         a.len += 1
         for i := a.len - 1; i >= index + 1; i -= 1 {
@@ -234,7 +231,7 @@ This operation assumes that the small-array is not empty.
 Note: Performing this operation will cause pointers obtained
 through get_ptr(_save) to reference incorrect elements.
 Example:
-    a: fixed_array.Heap_Array(2, int)
+    a: fixed_array.Array_View(2, int)
 
     internal.assert(fixed_array.push_front(&a, 2), "this should fit")
     internal.assert(fixed_array.push_front(&a, 1), "this should fit")
@@ -244,7 +241,7 @@ Example:
 Output:
     [1, 2]
 */
-push_front :: proc(a: ^Heap_Array($T), item: T) -> bool {
+push_front :: proc(a: ^Array_View($T), item: T) -> bool {
     if a.len < cap(a^) {
         a.len += 1
         data := slice(a)
@@ -260,7 +257,7 @@ push_front :: proc(a: ^Heap_Array($T), item: T) -> bool {
 Removes and returns the last element of the small-array.
 This operation assumes that the small-array is not empty.
 Example:
-    a: fixed_array.Heap_Array(5, int)
+    a: fixed_array.Array_View(5, int)
     fixed_array.push(&a, 0, 1, 2)
 
     fmt.println("BEFORE:", fixed_array.slice(&a))
@@ -270,7 +267,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER:  [0, 1]
 */
-pop_back :: proc(a: ^Heap_Array($T), loc := #caller_location) -> T {
+pop_back :: proc(a: ^Array_View($T), loc := #caller_location) -> T {
     internal.assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[a.len-1]
     a.len -= 1
@@ -283,7 +280,7 @@ This operation assumes that the small-array is not empty.
 Note: Performing this operation will cause pointers obtained
 through get_ptr(_save) to reference incorrect elements.
 Example:
-    a: fixed_array.Heap_Array(5, int)
+    a: fixed_array.Array_View(5, int)
     fixed_array.push(&a, 0, 1, 2)
 
     fmt.println("BEFORE:", fixed_array.slice(&a))
@@ -293,7 +290,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER:  [1, 2]
 */
-pop_front :: proc(a: ^Heap_Array($T), loc := #caller_location) -> T {
+pop_front :: proc(a: ^Array_View($T), loc := #caller_location) -> T {
     internal.assert(condition=(N > 0 && a.len > 0), loc=loc)
     item := a.data[0]
     s := slice(a)
@@ -306,7 +303,7 @@ pop_front :: proc(a: ^Heap_Array($T), loc := #caller_location) -> T {
 Attempts to remove and return the last element of the small array.
 Unlike `pop_back`, it does not assume that the array is non-empty.
 Example:
-    a: fixed_array.Heap_Array(3, int)
+    a: fixed_array.Array_View(3, int)
     fixed_array.push(&a, 1)
 
     el, ok := fixed_array.pop_back_safe(&a)
@@ -315,7 +312,7 @@ Example:
     el, ok = fixed_array.pop_back_safe(&a)
     internal.assert(!ok, "there was NO element in the array")
 */
-pop_back_safe :: proc(a: ^Heap_Array($T)) -> (item: T, ok: bool) {
+pop_back_safe :: proc(a: ^Array_View($T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[a.len-1]
         a.len -= 1
@@ -330,7 +327,7 @@ Unlike `dyn_array.pop_front`, it does not assume that the array is non-empty.
 Note: Performing this operation will cause pointers obtained
 through get_ptr(_save) to reference incorrect elements.
 Example:
-    a: fixed_array.Heap_Array(3, int)
+    a: fixed_array.Array_View(3, int)
     fixed_array.push(&a, 1)
 
     el, ok := fixed_array.dyn_array_pop_front_safe(&a)
@@ -339,7 +336,7 @@ Example:
     el, ok = fixed_array.pop_front_(&a)
     internal.assert(!ok, "there was NO element in the array")
 */
-pop_front_safe :: proc(a: ^Heap_Array($T)) -> (item: T, ok: bool) {
+pop_front_safe :: proc(a: ^Array_View($T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[0]
         s := slice(a)
@@ -356,7 +353,7 @@ The elements are therefore not really removed and can be
 recovered by calling `resize`.
 Note: This procedure assumes that the array has a sufficient length.
 Example:
-    a: fixed_array.Heap_Array(3, int)
+    a: fixed_array.Array_View(3, int)
     fixed_array.push(&a, 0, 1, 2)
 
     fmt.println("BEFORE:", fixed_array.slice(&a))
@@ -366,7 +363,7 @@ Output:
     BEFORE: [0, 1, 2]
     AFTER : [0]
 */
-consume :: proc(a: ^Heap_Array($T), count: uint, loc := #caller_location) {
+consume :: proc(a: ^Array_View($T), count: uint, loc := #caller_location) {
     internal.assert(a.len >= count, loc=loc)
     a.len -= count
 }
@@ -376,7 +373,7 @@ Removes the element at the specified index while retaining order.
 Note: Performing this operation will cause pointers obtained
 through get_ptr(_save) to reference incorrect elements.
 Example:
-    a: fixed_array.Heap_Array(4, int)
+    a: fixed_array.Array_View(4, int)
     fixed_array.push(&a, 0, 1, 2, 3)
 
     fmt.println("BEFORE:", fixed_array.slice(&a))
@@ -386,7 +383,7 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : [0, 2, 3]
 */
-ordered_remove :: proc(a: ^Heap_Array($T), index: uint, loc := #caller_location) #no_bounds_check {
+ordered_remove :: proc(a: ^Array_View($T), index: uint, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, a.len)
     if index+1 < a.len {
         base_slice.copy(a.data[index:], a.data[index+1:])
@@ -397,7 +394,7 @@ ordered_remove :: proc(a: ^Heap_Array($T), index: uint, loc := #caller_location)
 /*
 Removes the element at the specified index without retaining order.
 Example:
-    a: fixed_array.Heap_Array(4, int)
+    a: fixed_array.Array_View(4, int)
     fixed_array.push(&a, 0, 1, 2, 3)
 
     fmt.println("BEFORE:", fixed_array.slice(&a))
@@ -407,7 +404,7 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : [0, 3, 2]
 */
-unordered_remove :: proc(a: ^Heap_Array($T), index: uint, loc := #caller_location) #no_bounds_check {
+unordered_remove :: proc(a: ^Array_View($T), index: uint, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, a.len)
     n := a.len-1
     if index != n {
@@ -416,7 +413,7 @@ unordered_remove :: proc(a: ^Heap_Array($T), index: uint, loc := #caller_locatio
     a.len -= 1
 }
 
-unordered_remove_element :: proc(a: ^Heap_Array($T), elem: T, loc := #caller_location) -> (ok: bool){
+unordered_remove_element :: proc(a: ^Array_View($T), elem: T, loc := #caller_location) -> (ok: bool){
     if index, found := base_slice.linear_search(slice(a), elem); found {
         unordered_remove(a, index)
         return true
@@ -428,7 +425,7 @@ unordered_remove_element :: proc(a: ^Heap_Array($T), elem: T, loc := #caller_loc
 Sets the length of the small-array to 0.
 
 Example:
-    a: fixed_array.Heap_Array(4, int)
+    a: fixed_array.Array_View(4, int)
     fixed_array.push(&a, 0, 1, 2, 3)
 
     fmt.println("BEFORE:", fixed_array.slice(&a))
@@ -438,6 +435,6 @@ Output:
     BEFORE: [0, 1, 2, 3]
     AFTER : []
 */
-clear :: proc(a: ^Heap_Array($T)) {
+clear :: proc(a: ^Array_View($T)) {
     _ = resize(a, 0)
 }

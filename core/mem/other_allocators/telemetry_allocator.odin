@@ -1,7 +1,8 @@
 import "base:internal"
 import "base:mem"
+import "base:container/str"
 
-import "core:fmt"
+import "core:os"
 import "core:sync"
 
 
@@ -57,30 +58,21 @@ telemetry_allocator_log :: proc(telemetry: Telemetry_Allocator, alias: string) {
     */
 
     SPACING :: "    "
-    fmt.printfln("[Telemetry_Allocator: '%v']", alias)
+    os.printfln("[Telemetry_Allocator: '%v']", alias)
 
-    fmt.printf(SPACING + "Peak memory: ")
-    fmt.printf_bytes(telemetry.peak_memory_allocated)
-    fmt.printfln("")
-
-    fmt.printf(SPACING + "Telemetry Peak bloat memory: ")
-    fmt.printf_bytes(telemetry.telemetry_peak_memory_allocated)
-    fmt.printfln("")
+    os.printfln(SPACING + "Peak memory: %", str.from_uint(telemetry.peak_memory_allocated))
+    os.printfln(SPACING + "Telemetry Peak bloat memory: %", str.from_uint(telemetry.telemetry_peak_memory_allocated))
 
     if telemetry.current_memory_allocated != 0 {
-        fmt.printf(SPACING + "[ERROR] Leaked ")
-        fmt.printf_bytes(telemetry.current_memory_allocated)
-        fmt.printfln("")
+        os.printfln(SPACING + "[ERROR] Leaked %", str.from_uint(telemetry.current_memory_allocated))
     } else {
-        fmt.printfln(SPACING + "0 leaks.")
+        os.println(SPACING + "0 leaks.")
     }
 
     if telemetry.telemetry_current_memory_allocated != 0 {
-        fmt.printf(SPACING + "[ERROR] Telemetry bloat leaked ")
-        fmt.printf_bytes(telemetry.telemetry_current_memory_allocated)
-        fmt.printfln("")
+        os.printfln(SPACING + "[ERROR] Telemetry bloat leaked %", str.from_uint(telemetry.telemetry_current_memory_allocated))
     } else {
-        fmt.printfln(SPACING + "0 telemetry leaks.")
+        os.println(SPACING + "0 telemetry leaks.")
     }
 }
 
@@ -195,10 +187,10 @@ telemetry_allocator_proc :: proc(
         }
 
         if old_memory != nil {
-            // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Resize Free '%v' new_memory", loc, telemetry.name, old_memory, old_size)
+            // os.printfln("[telemetry_allocator_proc] (%v) %v | %p | Resize Free '%v' new_memory", loc, telemetry.name, old_memory, old_size)
             track_free(telemetry, header.size, orig_a)
         }
-        // fmt.printfln("[telemetry_allocator_proc] (%v) %v | %p | Resize Alloc '%v' new_memory", loc, telemetry.name, raw_data(new_memory), size)
+        // os.printfln("[telemetry_allocator_proc] (%v) %v | %p | Resize Alloc '%v' new_memory", loc, telemetry.name, raw_data(new_memory), size)
         track_alloc(telemetry, size, a)
 
         // sanitizer.address_poison(raw_data(allocation), a)
@@ -207,7 +199,7 @@ telemetry_allocator_proc :: proc(
     case .Free_All:
         new_memory = telemetry.backing.procedure(telemetry.backing.data, mode, size, alignment, old_memory, old_size, loc) or_return
 
-        // fmt.printfln("[telemetry_allocator_proc] (%v) %v | Free_All '%v' new_memory", loc, telemetry.name, telemetry.current_memory_allocated)
+        // os.printfln("[telemetry_allocator_proc] (%v) %v | Free_All '%v' new_memory", loc, telemetry.name, telemetry.current_memory_allocated)
         telemetry.current_memory_allocated = 0
 
         return 

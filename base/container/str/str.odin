@@ -232,8 +232,14 @@ from_int :: proc(num: int, base: uint = 10) -> (str: String(20)/*the biggest int
     return
 }
 
-from_bool :: proc(s: bool) -> (str: String(4)) {
-    s := strconv.write_bool(str.data[:], s)
+from_bool :: proc(b: bool) -> (str: String(4)) {
+    s := strconv.write_bool(str.data[:], b)
+    str.len += len(s)
+    return
+}
+
+from_float :: proc(f: f64, prec: uint = 10) -> (str: String(20)) {
+    s := strconv.write_float(str.data[:], f, 'f', prec, 64, false)
     str.len += len(s)
     return
 }
@@ -255,7 +261,7 @@ from_enum :: proc(#any_int e: uint) -> (str: String(20)) {
 //     return from_uint(intrinsics.type_union_base_tag_value(TYPE))
 // }
 from_union :: proc(un: $T) -> (str: string) {
-    // placeholder
+    // TODO: placeholder
     return
 }
 

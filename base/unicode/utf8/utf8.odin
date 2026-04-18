@@ -1,5 +1,4 @@
 // Procedures and constants to support text-encoding in the `UTF-8` character encoding.
-import "base:internal"
 import "base:mem"
 import "base:container/slice"
 

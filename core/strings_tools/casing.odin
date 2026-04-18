@@ -1,5 +1,3 @@
-#+ignore
-
 import "base:mem"
 import "base:container/str"
 import "base:container/strings"
@@ -15,41 +13,34 @@ Returns:
 - res: A valid UTF-8 string with invalid sequences replaced by `replacement`.
 - err: An optional allocator error if one occured, `nil` otherwise
 */
-to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    if len(s) == 0 {
-        return "", nil
+/* 
+to_valid_utf8 :: proc(s: ^str.String($N), replacement: string) -> (ok: bool) {
+    if s.len == 0 {
+        return false
     }
 
-    b: string_builder.Builder
-    string_builder.builder_init_len_cap(&b, 0, 0, allocator) or_return
+    old := s^
 
-    s := s
-    for c, i in s {
+    for c, i in str.str(old) {
         if c != utf8.RUNE_ERROR {
             continue
         }
 
         _, w := utf8.rune_from_string(s[i:])
         if w == 1 {
-            string_builder.builder_grow(&b, len(s) + len(replacement))
-            _ = string_builder.write_string(&b, s[:i]) or_return
-            s = s[i:]
+            str.write(s, old.data[:i]) or_return
+            // s = s[i:]
             break
         }
     }
 
-    if string_builder.builder_cap(b) == 0 {
-        return strings.string_clone(s, allocator)
-    }
-
     invalid := false
-
-    for i: uint = 0; i < len(s); {
+    for i: uint = 0; i < s.len; {
         c := s[i]
         if c < utf8.RUNE_SELF {
             i += 1
             invalid = false
-            _ = string_builder.write_byte(&b, c) or_return
+            str.write_byte(s, c) or_return
             continue
         }
 
@@ -58,16 +49,17 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
             i += 1
             if !invalid {
                 invalid = true
-                _ = string_builder.write_string(&b, replacement) or_return
+                str.write_string(s, replacement) or_return
             }
             continue
         }
         invalid = false
-        _ = string_builder.write_string(&b, s[i:][:w]) or_return
+        str.write_string(s, s[i:][:w]) or_return
         i += w
     }
-    return string_builder.to_string(&b), nil
+    return res, true
 }
+*/
 
 
 
@@ -75,50 +67,43 @@ to_valid_utf8 :: proc(s, replacement: string, allocator: mem.Allocator) -> (res:
 /*
 lowercase
 */
-to_lower :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    b: string_builder.Builder
-    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
-    for r in s {
-        _, _ = string_builder.write_rune(&b, unicode.to_lower(r))
+to_lower :: proc(s: ^str.String($N)) {
+    for r in str.str(s) {
+        _ = str.write_rune(s, unicode.to_lower(r))
     }
-    return string_builder.to_string(&b), nil
 }
 
 
 /*
 UPPERCASE
 */
-to_upper :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    b: string_builder.Builder
-    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
-    for r in s {
-        _, _ = string_builder.write_rune(&b, unicode.to_upper(r))
+to_upper :: proc(s: ^str.String($N)) {
+    for r in str.str(s) {
+        _ = str.write_rune(s, unicode.to_upper(r))
     }
-    return string_builder.to_string(&b), nil
 }
+
+/*
 
 /*
 lowerCamelCase
 */
-to_camel_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
-    s := s
+to_camel_case :: proc(s: ^str.String($N)) {
     s = trim_space(s)
-    b: string_builder.Builder
-    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
 
-    _string_case_iterator(&b, s, proc(b: ^string_builder.Builder, prev, curr, next: rune) {
+    _string_case_iterator(&s, s, proc(s: ^str.String($N), prev, curr, next: rune) {
         if !unicode.is_delimiter(curr) {
             if unicode.is_delimiter(prev) {
-                _, _ = string_builder.write_rune(b, unicode.to_upper(curr))
+                _, _ = str.write_rune(s, unicode.to_upper(curr))
             } else if unicode.is_lower(prev) {
-                _, _ = string_builder.write_rune(b, curr)
+                _, _ = str.write_rune(s, curr)
             } else {
-                _, _ = string_builder.write_rune(b, unicode.to_lower(curr))
+                _, _ = str.write_rune(s, unicode.to_lower(curr))
             }
         }
     })
 
-    return string_builder.to_string(&b), nil
+    return str.to_string(&s), nil
 }
 
 /*
@@ -127,22 +112,22 @@ UpperCamelCase (PascalCase)
 to_pascal_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error) {
     s := s
     s = trim_space(s)
-    b: string_builder.Builder
-    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    s: str.String($N)
+    str.builder_init_len_cap(&s, 0, len(s), allocator) or_return
 
-    _string_case_iterator(&b, s, proc(b: ^string_builder.Builder, prev, curr, next: rune) {
+    _string_case_iterator(&s, s, proc(s: ^str.String($N), prev, curr, next: rune) {
         if !unicode.is_delimiter(curr) {
             if unicode.is_delimiter(prev) || prev == 0 {
-                _, _ = string_builder.write_rune(b, unicode.to_upper(curr))
+                _, _ = str.write_rune(s, unicode.to_upper(curr))
             } else if unicode.is_lower(prev) {
-                _, _ = string_builder.write_rune(b, curr)
+                _, _ = str.write_rune(s, curr)
             } else {
-                _, _ = string_builder.write_rune(b, unicode.to_lower(curr))
+                _, _ = str.write_rune(s, unicode.to_lower(curr))
             }
         }
     })
 
-    return string_builder.to_string(&b), nil
+    return str.to_string(&s), nil
 }
 
 /*
@@ -163,8 +148,8 @@ to_delimiter_case :: proc(
     ) -> (res: string, err: mem.Allocator_Error) {
     s := s
     s = trim_space(s)
-    b: string_builder.Builder
-    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    s: str.String($N)
+    str.builder_init_len_cap(&s, 0, len(s), allocator) or_return
 
     adjust_case := unicode.to_upper if all_upper_case else unicode.to_lower
 
@@ -173,15 +158,15 @@ to_delimiter_case :: proc(
     for next in s {
         if unicode.is_delimiter(curr) {
             if !unicode.is_delimiter(prev) {
-                _, _ = string_builder.write_rune(&b, delimiter)
+                _, _ = str.write_rune(&s, delimiter)
             }
         } else if unicode.is_upper(curr) {
             if unicode.is_lower(prev) || (unicode.is_upper(prev) && unicode.is_lower(next)) {
-                _, _ = string_builder.write_rune(&b, delimiter)
+                _, _ = str.write_rune(&s, delimiter)
             }
-            _, _ = string_builder.write_rune(&b, adjust_case(curr))
+            _, _ = str.write_rune(&s, adjust_case(curr))
         } else if curr != 0 {
-            _, _ = string_builder.write_rune(&b, adjust_case(curr))
+            _, _ = str.write_rune(&s, adjust_case(curr))
         }
 
         prev = curr
@@ -190,12 +175,12 @@ to_delimiter_case :: proc(
 
     if len(s) > 0 {
         if unicode.is_upper(curr) && unicode.is_lower(prev) && prev != 0 {
-            _, _ = string_builder.write_rune(&b, delimiter)
+            _, _ = str.write_rune(&s, delimiter)
         }
-        _, _ = string_builder.write_rune(&b, adjust_case(curr))
+        _, _ = str.write_rune(&s, adjust_case(curr))
     }
 
-    return string_builder.to_string(&b), nil
+    return str.to_string(&s), nil
 }
 
 /*
@@ -232,23 +217,23 @@ Ada_Case
 to_ada_case :: proc(s: string, allocator: mem.Allocator) -> (res: string, err: mem.Allocator_Error)  {
     s := s
     s = trim_space(s)
-    b: string_builder.Builder
-    string_builder.builder_init_len_cap(&b, 0, len(s), allocator) or_return
+    s: str.String($N)
+    str.builder_init_len_cap(&s, 0, len(s), allocator) or_return
 
-    _string_case_iterator(&b, s, proc(b: ^string_builder.Builder, prev, curr, next: rune) {
+    _string_case_iterator(&s, s, proc(s: ^str.String($N), prev, curr, next: rune) {
         if !unicode.is_delimiter(curr) {
             if unicode.is_delimiter(prev) || prev == 0 || (unicode.is_lower(prev) && unicode.is_upper(curr)) {
                 if prev != 0 {
-                    _, _ = string_builder.write_rune(b, '_')
+                    _, _ = str.write_rune(s, '_')
                 }
-                _, _ = string_builder.write_rune(b, unicode.to_upper(curr))
+                _, _ = str.write_rune(s, unicode.to_upper(curr))
             } else {
-                _, _ = string_builder.write_rune(b, unicode.to_lower(curr))
+                _, _ = str.write_rune(s, unicode.to_lower(curr))
             }
         }
     })
 
-    return string_builder.to_string(&b), nil
+    return str.to_string(&s), nil
 }
 
 /*
@@ -258,12 +243,12 @@ Iterates over a string, calling a callback for each rune with the previous, curr
 - callback: A procedure to be called for each rune in the string, with arguments (w: io.Writer, prev, curr, next: rune).
 Example:
     my_callback :: proc(w: io.Writer, prev, curr, next: rune) {
-        fmt.println("my_callback", curr) // <-- Custom logic here
+        os.println("my_callback", curr) // <-- Custom logic here
     }
     s := "hello"
-    b: strings_tools.string_builder.Builder
-    strings.builder_init_len(&b, len(s))
-    w := strings_tools.string_builder.to_writer(&b)
+    s: strings_tools.str.String($N)
+    strings.builder_init_len(&s, len(s))
+    w := strings_tools.str.to_writer(&s)
     strings._string_case_iterator(w, s, my_callback)
 Output:
     my_callback h
@@ -273,9 +258,9 @@ Output:
     my_callback o
 */
 _string_case_iterator :: proc(
-    b:        ^string_builder.Builder,
+    s:        ^str.String($N),
     s:        string,
-    callback: proc(b: ^string_builder.Builder, prev, curr, next: rune),
+    callback: proc(s: ^str.String($N), prev, curr, next: rune),
 ) {
     prev, curr: rune
     for next in s {
@@ -285,13 +270,16 @@ _string_case_iterator :: proc(
             continue
         }
 
-        callback(b, prev, curr, next)
+        callback(s, prev, curr, next)
 
         prev = curr
         curr = next
     }
 
     if len(s) > 0 {
-        callback(b, prev, curr, 0)
+        callback(s, prev, curr, 0)
     }
 }
+
+
+*/
