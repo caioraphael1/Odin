@@ -1,9 +1,9 @@
 #+build windows
 #+private
 import "base:mem"
+import "base:container/strings"
 
 import win32 "core:sys/windows"
-import "base:container/strings"
 import "core:reflect"
 
 _LIBRARY_FILE_EXTENSION :: "dll"

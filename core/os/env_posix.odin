@@ -1,7 +1,5 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
-import "base:internal"
-
 import "base:container/strings"
 import "core:sys/posix"
 

@@ -23,11 +23,11 @@ An Odin-native source port of [[ rxi's microui ; https://github.com/rxi/microui 
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 ** IN THE SOFTWARE.
 */
-import "core:fmt"
-import "core:sort"
-import "base:container/strings"
 import "base:strconv"
 import "base:math"
+
+import "core:fmt"
+import "core:sort"
 import textedit "core:text/edit"
 
 COMMAND_LIST_SIZE    :: #config(MICROUI_COMMAND_LIST_SIZE,    256 * 1024)

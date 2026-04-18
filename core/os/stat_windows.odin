@@ -1,12 +1,10 @@
 #+private
-import "base:internal"
+
 import "base:mem"
 import "base:mem/allocators"
-import "base:container/strings"
 import "base:container/slice"
 import "base:unicode/utf8"
 
-import "core:strings_tools"
 import "core:time"
 import win32 "core:sys/windows"
 

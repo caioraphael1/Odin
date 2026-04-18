@@ -4,7 +4,6 @@
 import "base:internal"
 import "base:unicode"
 import "base:unicode/utf8"
-import "base:container/strings"
 
 MAX_CAPTURES :: 32
 

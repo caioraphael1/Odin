@@ -3,7 +3,6 @@ import "base:internal"
 import "base:mem"
 import "base:container/slice"
 import "base:container/maps"
-import "base:container/strings"
 
 Type_Info                  :: internal.Type_Info
 Type_Info_Named            :: internal.Type_Info_Named
@@ -305,13 +304,13 @@ length :: proc(val: any) -> uint {
             if a.is_cstring {
                 return len((^cstring)(val.data)^)
             } else {
-                return (^strings.Raw_String)(val.data).len
+                return (^internal.Raw_String)(val.data).len
             }
         case .UTF_16:
             if a.is_cstring {
                 return len((^cstring16)(val.data)^)
             } else {
-                return (^strings.Raw_String16)(val.data).len
+                return (^internal.Raw_String16)(val.data).len
             }
         }
 
@@ -402,7 +401,7 @@ index :: proc(val: any, i: uint, loc := #caller_location) -> any {
 
         switch a.encoding {
         case .UTF_8:
-            raw := (^strings.Raw_String)(val.data)
+            raw := (^internal.Raw_String)(val.data)
             internal.bounds_check_error_loc(loc, i, raw.len)
             offset := uintptr(size_of(u8) * i)
             data := rawptr(uintptr(raw.data) + offset)

@@ -1,11 +1,10 @@
-import "base:intrinsics"
-
+import "base:internal"
 import "base:container/slice"
 import "base:container/strings"
-import "core:os"
 import "base:strconv"
+
 import "core:time/datetime"
-import "base:internal"
+import "core:os"
 
 // Implementing RFC8536 [https://datatracker.ietf.org/doc/html/rfc8536]
 

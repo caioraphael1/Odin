@@ -1,7 +1,6 @@
 #+build linux
 #+private file
 
-
 import "base:internal"
 import "base:intrinsics"
 

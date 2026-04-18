@@ -1,7 +1,6 @@
 #+private
 #+build darwin, netbsd, freebsd, openbsd
 
-
 import "base:internal"
 
 import "core:time"

@@ -17,15 +17,13 @@
         Jeroen van Rijn: Cross platform unification, code style, documentation
         Feoramund:       FreeBSD platform code
 */
-
-import "base:container/strings"
 import "base:mem"
 import "base:container/slice"
 import "base:container/maps"
-
-import "core:strings_tools"
 import "base:strconv"
 import "base:unicode/utf8"
+
+import "core:strings_tools"
 import "core:encoding/hex"
 
 split_url :: proc(url: string, allocator: mem.Allocator) -> (scheme, host, path: string, queries: map[string]string, fragment: string) {

@@ -110,11 +110,6 @@ If you only need to build a table once but display it potentially many times,
 it may be more efficient to cache the results of your write into a string.
 
 Example:
-    package main
-
-    import "base:container/strings"
-    import "core:text/table"
-
     main :: proc() {
         string_buffer := string_builder.builder_create()
         defer string_builder.builder_destroy(&string_buffer)

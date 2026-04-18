@@ -7,7 +7,6 @@ import "core:c"
 import "base:container/slice"
 import "core:sort"
 import "base:strconv"
-import "base:container/strings"
 
 @(require, linkage="strong", link_name="malloc")
 malloc :: proc "c" (size: uint) -> rawptr {

@@ -1,4 +1,3 @@
-import "base:internal"
 import "base:mem"
 import "base:container/slice"
 import "base:container/dyn_array"
@@ -117,11 +116,6 @@ If an error occurred opening a directory, you may get zero'd info struct and
 `walker_error` will return the error.
 
 Example:
-    package main
-
-    import "base:container/strings"
-    import "core:os"
-
     main :: proc() {
         w := os.walker_create("core")
         defer os.walker_destroy(&w)

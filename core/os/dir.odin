@@ -1,8 +1,6 @@
-import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
 import "base:container/slice"
-import "base:container/strings"
 import "base:container/dyn_array"
 
 import "core:strings_tools"

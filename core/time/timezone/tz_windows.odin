@@ -1,9 +1,11 @@
 #+build windows
 #+private
+
 import "base:container/strings"
+import "base:internal"
+
 import "core:sys/windows"
 import "core:time/datetime"
-import "base:internal"
 
 TZ_Abbrev :: struct {
     std: string,

@@ -19,9 +19,9 @@
         Jeroen van Rijn: Cross platform unification, code style, documentation
         Feoramund:       FreeBSD platform code
 */
+import "base:container/strings"
 
 import "core:c"
-import "base:container/strings"
 import "core:sys/freebsd"
 
 @(private)

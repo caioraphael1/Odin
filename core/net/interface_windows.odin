@@ -23,7 +23,6 @@ import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/strings"
 
-import "core:strings_tools"
 import sys "core:sys/windows"
 
 _enumerate_interfaces :: proc(allocator: mem.Allocator) -> (interfaces: []Network_Interface, err: Interfaces_Error) {

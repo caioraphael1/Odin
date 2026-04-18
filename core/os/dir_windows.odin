@@ -1,5 +1,4 @@
 #+private
-import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
 import "base:container/slice"

@@ -10,11 +10,11 @@
         Jeroen van Rijn: Initial implementation.
 */
 
-
-import "core:fmt"
 import "base:unicode"
 import "base:unicode/utf8"
 import "base:container/strings"
+
+import "core:fmt"
 
 Error_Handler :: #type proc(pos: Pos, fmt: string, args: ..any)
 

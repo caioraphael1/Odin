@@ -33,7 +33,6 @@ cap :: #force_inline proc(s: String($N)) -> uint {
 
 
 
-
 resize :: proc(s: ^String($N), len: uint) -> (ok: bool) {
     if len > N {
         return false

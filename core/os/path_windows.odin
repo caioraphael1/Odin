@@ -7,7 +7,6 @@ import "base:container/dyn_array"
 import "base:container/strings"
 import "base:unicode/utf8"
 
-import "core:strings_tools"
 import win32 "core:sys/windows"
 
 _Path_Separator        :: '\\'

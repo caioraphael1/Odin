@@ -5,13 +5,11 @@ Based off the articles by rxi:
 - [[ https://rxi.github.io/textbox_behaviour.html ]]
 - [[ https://rxi.github.io/a_simple_undo_system.html ]]
 */
-
-
 import "base:internal"
-import "core:time"
 import "base:mem"
-import "base:container/strings"
 import "base:unicode/utf8"
+
+import "core:time"
 
 DEFAULT_UNDO_TIMEOUT :: 300 * time.Millisecond
 

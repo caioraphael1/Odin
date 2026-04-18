@@ -1,36 +1,35 @@
 #+build i386, amd64
 #+build linux
-import "base:internal"
+
 import "core:sys/linux"
-import "base:container/strings"
 import "base:strconv"
 
 @(private)
 _cpu_core_count :: proc() -> (physical: int, logical: int, ok: bool) {
-	fd, err := linux.open("/proc/cpuinfo", {})
-	if err != .NONE { return }
-	defer linux.close(fd)
+    fd, err := linux.open("/proc/cpuinfo", {})
+    if err != .NONE { return }
+    defer linux.close(fd)
 
-	// This is probably enough right?
-	buf: [4096]u8
-	n, rerr := linux.read(fd, buf[:])
-	if rerr != .NONE || n == 0 { return }
+    // This is probably enough right?
+    buf: [4096]u8
+    n, rerr := linux.read(fd, buf[:])
+    if rerr != .NONE || n == 0 { return }
 
-	physical_ok, logical_ok: bool
+    physical_ok, logical_ok: bool
 
-	str := string(buf[:n])
-	for line in strings_tools.split_lines_iterator(&str) {
-		key, _, value := strings_tools.partition(line, ":")
-		key   = strings_tools.trim_space(key)
-		value = strings_tools.trim_space(value)
+    str := string(buf[:n])
+    for line in strings_tools.split_lines_iterator(&str) {
+        key, _, value := strings_tools.partition(line, ":")
+        key   = strings_tools.trim_space(key)
+        value = strings_tools.trim_space(value)
 
-		if key == "cpu cores" && !physical_ok{
-			physical, physical_ok = strconv.parse_int(value)
-		}
+        if key == "cpu cores" && !physical_ok{
+            physical, physical_ok = strconv.parse_int(value)
+        }
 
-		if key == "siblings" && !logical_ok{
-			logical, logical_ok = strconv.parse_int(value)
-		}
-	}
-	return physical, logical, physical_ok || logical_ok
+        if key == "siblings" && !logical_ok{
+            logical, logical_ok = strconv.parse_int(value)
+        }
+    }
+    return physical, logical, physical_ok || logical_ok
 }

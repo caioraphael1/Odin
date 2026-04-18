@@ -20,8 +20,6 @@
     This file uses `getifaddrs` libc call to enumerate interfaces.
     TODO: When we have raw sockets, split off into its own file for Linux so we can use the NETLINK protocol and bypass libc.
 */
-
-//import "base:container/strings"
 import "base:mem"
 
 

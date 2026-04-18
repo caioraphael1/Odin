@@ -1,8 +1,5 @@
-import "base:mem"
 import "base:container/str"
-import "base:container/strings"
 import "base:unicode"
-import "base:unicode/utf8"
 
 /*
 Converts invalid UTF-8 sequences in the input string `s` to the `replacement` string.

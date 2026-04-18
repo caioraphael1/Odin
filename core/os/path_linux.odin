@@ -1,5 +1,4 @@
 #+private
-import "base:internal"
 
 import "base:container/strings"
 import "base:strconv"
