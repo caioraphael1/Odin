@@ -160,7 +160,7 @@ to_delimiter_case :: proc(
     delimiter: rune,
     all_upper_case: bool,
     allocator: mem.Allocator,
-) -> (res: string, err: mem.Allocator_Error) {
+    ) -> (res: string, err: mem.Allocator_Error) {
     s := s
     s = trim_space(s)
     b: string_builder.Builder

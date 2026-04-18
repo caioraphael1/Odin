@@ -593,7 +593,7 @@ parse_tzif :: proc(_buffer: []u8, region_name: string, allocator: mem.Allocator)
         name := cstring(raw_data(timezone_string_table[ltt.idx:]))
         ltt_name: string
 
-        ltt_name, err = strings.clone_from_cstring_bounded(name, len(timezone_string_table), allocator)
+        ltt_name, err = strings.string_clone_from_cstring_bounded(name, len(timezone_string_table), allocator)
         if err != nil { return }
 
         _ = dyn_array.append(&ltt_names, ltt_name)

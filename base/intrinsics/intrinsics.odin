@@ -130,12 +130,12 @@ syscall_bsd :: proc(id: uintptr, args: ..uintptr) -> (uintptr, bool) ---
 
 // Atomics
 Atomic_Memory_Order :: enum {
-	Relaxed = 0, // Unordered
-	Consume = 1, // Monotonic
-	Acquire = 2,
-	Release = 3,
-	Acq_Rel = 4,
-	Seq_Cst = 5,
+    Relaxed = 0, // Unordered
+    Consume = 1, // Monotonic
+    Acquire = 2,
+    Release = 3,
+    Acq_Rel = 4,
+    Seq_Cst = 5,
 }
 
 atomic_type_is_lock_free :: proc($T: typeid) -> bool ---

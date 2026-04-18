@@ -12,6 +12,41 @@ print :: proc(strs: ..sb.String_Type) -> (ok: bool) {
 }
 
 @(optional_results)
+println :: proc(strs: ..sb.String_Type) -> (ok: bool) {
+    array: [1024]u8
+
+    buf := sb.create(raw_data(array[:]), len(array), 0)
+    sb.write(&buf, ..strs) or_return
+    
+    sb.write_byte(&buf, '\n') or_return
+
+    return printb(sb.slice(buf))
+}
+
+@(optional_results)
+printf :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
+    array: [1024]u8
+
+    buf := sb.create(raw_data(array[:]), len(array), 0)
+    sb.writef(&buf, format, ..strs) or_return
+    
+    return printb(sb.slice(buf))
+}
+
+@(optional_results)
+printfln :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
+    array: [1024]u8
+
+    buf := sb.create(raw_data(array[:]), len(array), 0)
+    sb.writef(&buf, format, ..strs) or_return
+
+    sb.write_byte(&buf, '\n') or_return
+    
+    return printb(sb.slice(buf))
+}
+
+
+@(optional_results)
 eprint :: proc(strs: ..sb.String_Type) -> (ok: bool) {
     array: [1024]u8
 
@@ -22,13 +57,15 @@ eprint :: proc(strs: ..sb.String_Type) -> (ok: bool) {
 }
 
 @(optional_results)
-printf :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
+eprintln :: proc(strs: ..sb.String_Type) -> (ok: bool) {
     array: [1024]u8
 
     buf := sb.create(raw_data(array[:]), len(array), 0)
-    sb.write_fmt(&buf, format, ..strs) or_return
+    sb.write(&buf, ..strs) or_return
+
+    sb.write_byte(&buf, '\n') or_return
     
-    return printb(sb.slice(buf))
+    return eprintb(sb.slice(buf))
 }
 
 @(optional_results)
@@ -36,10 +73,23 @@ eprintf :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
     array: [1024]u8
 
     buf := sb.create(raw_data(array[:]), len(array), 0)
-    sb.write_fmt(&buf, format, ..strs) or_return
+    sb.writef(&buf, format, ..strs) or_return
     
     return eprintb(sb.slice(buf))
 }
+
+@(optional_results)
+eprintfln :: proc(format: string, strs: ..sb.String_Type) -> (ok: bool) {
+    array: [1024]u8
+
+    buf := sb.create(raw_data(array[:]), len(array), 0)
+    sb.writef(&buf, format, ..strs) or_return
+
+    sb.write_byte(&buf, '\n') or_return
+    
+    return eprintb(sb.slice(buf))
+}
+
 
 @(optional_results)
 printb :: proc(buf: []u8) -> (ok: bool) {
@@ -58,7 +108,7 @@ eprintb :: proc(buf: []u8) -> (ok: bool) {
 assert :: proc(condition: bool, strs: ..sb.String_Type, loc := #caller_location) {
     if !condition {
         print("[ASSERT] ")
-        print(..strs)
+        println(..strs)
         intrinsics.trap()
     }
 }
@@ -66,14 +116,14 @@ assert :: proc(condition: bool, strs: ..sb.String_Type, loc := #caller_location)
 ensure :: proc(condition: bool, strs: ..sb.String_Type, loc := #caller_location) {
     if !condition {
         print("[ENSURE] ")
-        print(..strs)
+        println(..strs)
         intrinsics.trap()
     }
 }
 
 panic :: proc(strs: ..sb.String_Type, loc := #caller_location) -> ! {
     print("[PANIC] ")
-    print(..strs)
+    println(..strs)
     intrinsics.trap()
 }
 
@@ -82,7 +132,7 @@ panic :: proc(strs: ..sb.String_Type, loc := #caller_location) -> ! {
 assertf :: proc(condition: bool, format: string, strs: ..sb.String_Type, loc := #caller_location) {
     if !condition {
         print("[ASSERT] ")
-        printf(format, ..strs)
+        printfln(format, ..strs)
         intrinsics.trap()
     }
 }
@@ -90,14 +140,14 @@ assertf :: proc(condition: bool, format: string, strs: ..sb.String_Type, loc := 
 ensuref :: proc(condition: bool, format: string, strs: ..sb.String_Type, loc := #caller_location) {
     if !condition {
         print("[ENSURE] ")
-        printf(format, ..strs)
+        printfln(format, ..strs)
         intrinsics.trap()
     }
 }
 
 panicf :: proc(format: string, strs: ..sb.String_Type, loc := #caller_location) -> ! {
     print("[PANIC] ")
-    printf(format, ..strs)
+    printfln(format, ..strs)
     intrinsics.trap()
 }
 

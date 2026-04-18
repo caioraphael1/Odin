@@ -8,7 +8,6 @@ In case your specific version does not use padding, you may
 truncate it from the encoded output.
 */
 
-import "base:internal"
 import "base:mem"
 import "base:container/slice"
 import sb "base:container/string_buffer"

@@ -76,14 +76,6 @@ e.g. `cbor_tag:"69"` or `cbor_tag:"my_tag"`.
 You can look at the default tags provided for pointers on how these implementations work.
 
 Example:
-    package main
-
-    import "base:intrinsics"
-
-    import "core:encoding/cbor"
-    import "core:reflect"
-    import "core:time"
-
     Possibilities :: union {
         string,
         int,

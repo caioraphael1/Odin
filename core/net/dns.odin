@@ -30,7 +30,7 @@ import "base:rand"
 
 import "scanner"
 import "core:io"
-import "core:io/string_builder"
+// import "core:io/string_builder"
 @(require) import "core:sync"
 import "core:time"
 import "core:strings_tools"

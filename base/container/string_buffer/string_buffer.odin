@@ -1,12 +1,13 @@
 import "base:mem"
 import fs "base:container/fixed_string"
 import "base:strconv"
+import "base:unicode/utf8"
 
 
 String_Buffer :: struct {
-    buf: ^u8,
-    cap: uint,
     len: uint,
+    cap: uint,
+    buf: ^u8,
 }
 
 
@@ -18,16 +19,21 @@ create :: proc(buf: ^u8, cap: uint, len: uint) -> String_Buffer {
     }
 }
 
+from_fs :: #force_inline proc(s: ^fs.Fixed_String($N)) -> String_Buffer {
+    return { s.len, N, &s.data[0] }
+}
+
+
 remaining_space :: #force_inline proc(b: String_Buffer) -> uint {
     return b.cap - b.len
 }
 
-get :: #force_inline proc(ptr: $T, len: uint) -> T {
+ptr_get :: #force_inline proc(ptr: $T, len: uint) -> T {
     return T(uintptr(ptr) + uintptr(len))
 }
 
-set :: proc(ptr: $T, index: uint, item: u8) {
-    get(ptr, index)^ = item
+ptr_set :: #force_inline proc(ptr: $T, index: uint, item: u8) {
+    ptr_get(ptr, index)^ = item
 }
 
 resize :: proc(b: ^String_Buffer, len: uint) -> (ok: bool) {
@@ -56,13 +62,16 @@ resize_and_zero :: proc(b: ^String_Buffer, len: uint) -> (ok: bool) {
 
 
 // temp:
-slice :: proc(b: String_Buffer) -> []u8 {
+slice :: #force_inline proc(b: String_Buffer) -> []u8 {
     return (cast([^]u8)(b.buf))[:b.len]
 }
-
-slice_all :: proc(b: String_Buffer) -> []u8 {
+slice_all :: #force_inline proc(b: String_Buffer) -> []u8 {
     return (cast([^]u8)(b.buf))[:b.cap]
 }
+str :: #force_inline proc(b: String_Buffer) -> string {
+    return string((cast([^]u8)(b.buf))[:b.len])
+}
+
 
 
 zero :: proc(b: ^String_Buffer, len: uint) {
@@ -76,7 +85,7 @@ unordered_remove :: proc(b: ^String_Buffer, index: uint, loc := #caller_location
     }
     n := b.len - 1
     if index != n {
-        set(b.buf, index, get(b.buf, n)^)
+        ptr_set(b.buf, index, ptr_get(b.buf, n)^)
             // equivalent to b.buf[index] = b.buf[n]
     }
     b.len -= 1
@@ -92,12 +101,9 @@ consume :: proc(b: ^String_Buffer, count: uint, loc := #caller_location) -> (ok:
 }
 
 
-clear :: proc(b: ^String_Buffer) {
+clear :: #force_inline proc(b: ^String_Buffer) {
     b.len = 0
 }
-
-
-
 
 
 
@@ -105,8 +111,7 @@ write_byte :: proc(b: ^String_Buffer, x: u8) -> (ok: bool) {
     if b.len >= b.cap {
         return false
     }
-
-    ptr := (^u8)(get(b.buf, b.len))
+    ptr := (^u8)(ptr_get(b.buf, b.len))
     ptr^ = x
     b.len += 1
     return true
@@ -126,9 +131,26 @@ write_string :: proc(b: ^String_Buffer, str: string) -> (ok: bool) {
         return false
     }
 
-    mem.copy(get(b.buf, b.len), raw_data(str), len(str))
+    mem.copy(ptr_get(b.buf, b.len), raw_data(str), len(str))
     b.len += len(str)
     return true
+}
+
+// write_string2 :: proc(buf: ^u8, cap: uint, len: ^uint, str: string) -> (ok: bool) {
+//     // not enough available space
+//     if cap - len^ < len(str) {
+//         return false
+//     }
+
+//     mem.copy(ptr_get(buf, len^), raw_data(str), len(str))
+//     len^ += len(str)
+//     return true
+// }
+
+write_rune :: proc(b: ^String_Buffer, r: rune) -> (ok: bool) {
+    bytes, width := utf8.bytes_from_rune(r)
+
+    return write_bytes(b, bytes[:width])
 }
 
 
@@ -146,9 +168,9 @@ write :: proc(buf: ^String_Buffer, strs: ..String_Type) -> (ok: bool) {
             case string:
                 write_string(buf, v) or_return
             case fs.Fixed_String(20):
-                write_string(buf, fs.as_string(&v)) or_return
+                write_string(buf, fs.str(&v)) or_return
             case fs.Fixed_String(4):
-                write_string(buf, fs.as_string(&v)) or_return
+                write_string(buf, fs.str(&v)) or_return
             }
     }
 
@@ -156,7 +178,7 @@ write :: proc(buf: ^String_Buffer, strs: ..String_Type) -> (ok: bool) {
 }
 
 
-write_fmt :: proc(buf: ^String_Buffer, format: string, strs: ..String_Type) -> (ok: bool) {
+writef :: proc(buf: ^String_Buffer, format: string, strs: ..String_Type) -> (ok: bool) {
     str_i: uint
     i: uint
     loop: for i < len(format) {
@@ -167,9 +189,9 @@ write_fmt :: proc(buf: ^String_Buffer, format: string, strs: ..String_Type) -> (
             case string:
                 write_string(buf, v) or_return
             case fs.Fixed_String(20):
-                write_string(buf, fs.as_string(&v)) or_return
+                write_string(buf, fs.str(&v)) or_return
             case fs.Fixed_String(4):
-                write_string(buf, fs.as_string(&v)) or_return
+                write_string(buf, fs.str(&v)) or_return
             }
             str_i += 1
         case:
@@ -179,6 +201,19 @@ write_fmt :: proc(buf: ^String_Buffer, format: string, strs: ..String_Type) -> (
     }
     return true
 }
+
+
+set :: proc(buf: ^String_Buffer, strs: ..String_Type) -> (ok: bool) {
+    clear(buf)
+    return write(buf, ..strs)
+}
+
+
+setf :: proc(buf: ^String_Buffer, format: string, strs: ..String_Type) -> (ok: bool) {
+    clear(buf)
+    return writef(buf, format, ..strs)
+}
+
 
 
 
@@ -200,4 +235,31 @@ from_bool :: proc(b: bool) -> (str: fs.Fixed_String(4)) {
     s := strconv.write_bool(str.data[:], b)
     str.len += len(s)
     return
+}
+
+/* 
+This is giving a compiler error:
+    e: $T where intrinsics.type_is_enum(T)
+*/
+from_enum :: proc(#any_int e: uint) -> (str: fs.Fixed_String(20)) {
+    return from_uint(uint(e))
+}
+
+// TODO: I don't have a proper way to ptr_get the value under the index.
+// type_union_tag_type       :: proc($T: typeid) -> typeid
+// type_union_tag_offset     :: proc($T: typeid) -> uintptr
+// type_union_base_tag_value :: proc($T: typeid) -> int
+// type_union_variant_count  :: proc($T: typeid) -> int
+// from_union :: proc($TYPE: typeid) -> (str: fs.Fixed_String(20)) where intrinsics.type_is_union(T) {
+//     return from_uint(intrinsics.type_union_base_tag_value(TYPE))
+// }
+from_union :: proc(un: $T) -> (str: string) {
+    // placeholder
+    return
+}
+
+
+from_ptr :: proc(p: rawptr) -> (str: fs.Fixed_String(20)) {
+    str = from_uint(uint(uintptr(p)))    
+    return 
 }

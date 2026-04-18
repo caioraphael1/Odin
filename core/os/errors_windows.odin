@@ -1,8 +1,6 @@
 #+private
-import "base:container/slice"
 
 import win32 "core:sys/windows"
-import "core:reflect"
 
 _Platform_Error :: win32.System_Error
 
@@ -12,13 +10,12 @@ _error_string :: proc(errno: i32) -> string {
         return ""
     }
 
-    err := reflect.Type_Info_Enum_Value(e)
-
-    ti := &reflect.type_info_base(type_info_of(win32.System_Error)).variant.(reflect.Type_Info_Enum)
-    if idx, ok := slice.binary_search(ti.values, err); ok {
-        return ti.names[idx]
-    }
-    return "<unknown platform error>"
+    // err := reflect.Type_Info_Enum_Value(e)
+    // ti := &reflect.type_info_base(type_info_of(win32.System_Error)).variant.(reflect.Type_Info_Enum)
+    // if idx, ok := slice.binary_search(ti.values, err); ok {
+    //     return ti.names[idx]
+    // }
+    return "[_error_string] TODO: Get the correct error. <unknown platform error>"
 }
 
 _get_platform_error :: proc() -> Error {
