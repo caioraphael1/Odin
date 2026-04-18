@@ -2,7 +2,7 @@
 #+build !orca
 #+build !js
 
-import sb "base:container/string_buffer"
+import "base:container/str"
 
 import "core:os"
 
@@ -30,7 +30,7 @@ file_logger_deinit :: proc(log: Logger) {
     }
 }
 
-file_logger_proc :: proc(file_handle: ^os.File, ident: string, level: Level, strs: []sb.String_Type, options: Options, loc := #caller_location) {
+file_logger_proc :: proc(file_handle: ^os.File, ident: string, level: Level, strs: []str.String_Type, options: Options, loc := #caller_location) {
     _file_console_logger_proc(file_handle, ident, level, strs, options, loc)
 }
 

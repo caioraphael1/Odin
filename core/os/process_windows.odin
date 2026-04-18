@@ -3,10 +3,10 @@ import "base:intrinsics"
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
+import "base:container/str"
 import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/strings"
-import sb "base:container/string_buffer"
 
 import "core:strings_tools"
 import win32 "core:sys/windows"
@@ -746,24 +746,23 @@ _parse_command_line :: proc(cmd_line_w: cstring16, allocator: mem.Allocator) -> 
     return
 }
 
-_build_command_line :: proc(command: []string, allocator: mem.Allocator) -> (str: string, ok: bool) {
-    _write_byte_n_times :: #force_inline proc(buf: ^sb.String_Buffer, b: u8, n: uint) -> (ok: bool) {
+_build_command_line :: proc(command: []string, allocator: mem.Allocator) -> (str_: string, ok: bool) {
+    _write_byte_n_times :: #force_inline proc(s: ^str.String($N), b: u8, n: uint) -> (ok: bool) {
         for _ in 0..<n {
-            sb.write_byte(buf, b) or_return
+            str.write_byte(s, b) or_return
         }
         return true
     }
     
-    backing, _ := slice.create(u8, 1024, allocator)
-    buf := sb.create(raw_data(backing), len(backing), 0)
+    s: str.String(1024)
 
     for arg, i in command {
         if i != 0 {
-            sb.write_byte(&buf, ' ') or_return
+            str.write_byte(&s, ' ') or_return
         }
         j: uint
         if strings_tools.contains_any(arg, "()[]{}^=;!'+,`~\" ") {
-            sb.write_byte(&buf, '"') or_return
+            str.write_byte(&s, '"') or_return
             for j < len(arg) {
                 backslashes: uint = 0
                 for j < len(arg) && arg[j] == '\\' {
@@ -771,23 +770,23 @@ _build_command_line :: proc(command: []string, allocator: mem.Allocator) -> (str
                     j += 1
                 }
                 if j == len(arg) {
-                    _write_byte_n_times(&buf, '\\', 2*backslashes) or_return
+                    _write_byte_n_times(&s, '\\', 2*backslashes) or_return
                     break
                 } else if arg[j] == '"' {
-                    _write_byte_n_times(&buf, '\\', 2*backslashes+1) or_return
-                    sb.write_byte(&buf, arg[j]) or_return
+                    _write_byte_n_times(&s, '\\', 2*backslashes+1) or_return
+                    str.write_byte(&s, arg[j]) or_return
                 } else {
-                    _write_byte_n_times(&buf, '\\', backslashes) or_return
-                    sb.write_byte(&buf, arg[j]) or_return
+                    _write_byte_n_times(&s, '\\', backslashes) or_return
+                    str.write_byte(&s, arg[j]) or_return
                 }
                 j += 1
             }
-            sb.write_byte(&buf, '"') or_return
+            str.write_byte(&s, '"') or_return
         } else {
-            sb.write(&buf, arg) or_return
+            str.write(&s, arg) or_return
         }
     }
-    return string(sb.slice(buf)), true
+    return string(str.slice(&s)), true
 }
 
 _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (envs: []string, err: Error) {
@@ -833,9 +832,8 @@ _parse_environment_block :: proc(block: [^]u16, allocator: mem.Allocator) -> (en
     return
 }
 
-_build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> (str: string, ok: bool) {
-    backing, _ := slice.create(u8, 1024, allocator)
-    buf := sb.create(raw_data(backing), len(backing), 0)
+_build_environment_block :: proc(environment: []string, allocator: mem.Allocator) -> (str_: string, ok: bool) {
+    s: str.String(1024)
 
     loop: #reverse for kv, cur_idx in environment {
         eq_idx, eq_found := strings_tools.index_byte(kv, '=')
@@ -848,11 +846,11 @@ _build_environment_block :: proc(environment: []string, allocator: mem.Allocator
                 continue loop
             }
         }
-        sb.write(&buf, kv) or_return
-        sb.write_byte(&buf, 0) or_return
+        str.write(&s, kv) or_return
+        str.write_byte(&s, 0) or_return
     }
     // Note(flysand): In addition to the NUL-terminator for each string, the
     // environment block itself is NUL-terminated.
-    sb.write_byte(&buf, 0) or_return
-    return string(sb.slice(buf)), true
+    str.write_byte(&s, 0) or_return
+    return string(str.slice(&s)), true
 }

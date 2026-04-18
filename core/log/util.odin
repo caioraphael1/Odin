@@ -1,6 +1,6 @@
 import "base:internal"
 
-import sb "base:container/string_buffer"
+import "base:container/str"
 import "core:time"
 import "core:os"
 import "core:terminal/ansi"
@@ -32,7 +32,7 @@ Location_File_Opts :: Options{
 }
 
 
-do_level_header :: proc(opts: Options, str: ^sb.String_Buffer, level: Level) {
+do_level_header :: proc(opts: Options, s: ^str.String($N), level: Level) {
 
     RESET     :: ansi.CSI + ansi.RESET           + ansi.SGR
     RED       :: ansi.CSI + ansi.FG_RED          + ansi.SGR
@@ -49,38 +49,38 @@ do_level_header :: proc(opts: Options, str: ^sb.String_Buffer, level: Level) {
 
     if .Level in opts {
         if .Terminal_Color in opts {
-            _ = sb.write(str, col)
+            _ = str.write(s, col)
         }
-        _ = sb.write(str, Level_Headers[level])
+        _ = str.write(s, Level_Headers[level])
         if .Terminal_Color in opts {
-            _ = sb.write(str, RESET)
+            _ = str.write(s, RESET)
         }
     }
 }
 
-do_time_header :: proc(opts: Options, buf: ^sb.String_Buffer, t: time.Time) {
+do_time_header :: proc(opts: Options, s: ^str.String($N), t: time.Time) {
     when time.IS_SUPPORTED {
         if Full_Timestamp_Opts & opts != nil {
-            _ = sb.write(buf, "[")
+            _ = str.write(s, "[")
             y, m, d := time.date(t)
-            h, min, s := time.clock_from_time(t)
+            h, min, sec := time.clock_from_time(t)
             if .Date in opts {
-                _ = sb.write(buf, sb.from_int(y), "-", sb.from_int(int(m)), "-", sb.from_int(d))
+                _ = str.write(s, str.from_int(y), "-", str.from_int(int(m)), "-", str.from_int(d))
                 if .Time in opts {
-                    _ = sb.write(buf, " ")
+                    _ = str.write(s, " ")
                 }
             }
-            if .Time in opts { _ = sb.write(buf, sb.from_uint(h), ":", sb.from_uint(min), ":", sb.from_uint(s)) }
-            _ = sb.write(buf, "] ")
+            if .Time in opts { _ = str.write(s, str.from_uint(h), ":", str.from_uint(min), ":", str.from_uint(sec)) }
+            _ = str.write(s, "] ")
         }
     }
 }
 
-do_location_header :: proc(opts: Options, buf: ^sb.String_Buffer, loc := #caller_location) {
+do_location_header :: proc(opts: Options, s: ^str.String($N), loc := #caller_location) {
     if Location_Header_Opts & opts == nil {
         return
     }
-    _ = sb.write(buf, "[")
+    _ = str.write(s, "[")
 
     file := loc.file_path
     if .Short_File_Path in opts {
@@ -94,52 +94,50 @@ do_location_header :: proc(opts: Options, buf: ^sb.String_Buffer, loc := #caller
     }
 
     if Location_File_Opts & opts != nil {
-        _ = sb.write(buf, file)
+        _ = str.write(s, file)
     }
     if .Line in opts {
         if Location_File_Opts & opts != nil {
-            _ = sb.write(buf, ":")
+            _ = str.write(s, ":")
         }
-        _ = sb.write(buf, sb.from_int(int(loc.line)))
+        _ = str.write(s, str.from_int(int(loc.line)))
     }
 
     if .Procedure in opts {
         if (Location_File_Opts | {.Line}) & opts != nil {
-            _ = sb.write(buf, ":")
+            _ = str.write(s, ":")
         }
-        _ = sb.write(buf, loc.procedure, "()")
+        _ = str.write(s, loc.procedure, "()")
     }
 
-    _ = sb.write(buf, "] ")
+    _ = str.write(s, "] ")
 }
 
 
 @(private)
-_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, strs: []sb.String_Type, options: Options, loc: internal.Source_Code_Location) {
-    backing: [1024]u8
-
-    buf := sb.create(raw_data(backing[:]), len(backing), 0)
+_file_console_logger_proc :: proc(h: ^os.File, ident: string, level: Level, strs: []str.String_Type, options: Options, loc: internal.Source_Code_Location) {
+    s: str.String(1024)
 
 
-    do_level_header(options, &buf, level)
+    do_level_header(options, &s, level)
 
     when time.IS_SUPPORTED {
-        do_time_header(options, &buf, time.now())
+        do_time_header(options, &s, time.now())
     }
 
-    do_location_header(options, &buf, loc)
+    do_location_header(options, &s, loc)
 
     if .Thread_Id in options {
-        _ = sb.write(&buf, "[", sb.from_uint(os.get_current_thread_id()), "]")
+        _ = str.write(&s, "[", str.from_uint(os.get_current_thread_id()), "]")
     }
 
     if ident != "" {
-        _ = sb.write(&buf, "[", ident, "]")
+        _ = str.write(&s, "[", ident, "]")
     }
 
-    _ = sb.write(&buf, ..strs)
-    _ = sb.write(&buf, "\n")
+    _ = str.write(&s, ..strs)
+    _ = str.write(&s, "\n")
 
     // Write to output file.
-    os.printb(sb.slice(buf))
+    os.printb(str.slice(&s))
 }

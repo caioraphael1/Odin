@@ -1,6 +1,5 @@
-import sb "base:container/string_buffer"
+import "base:container/str"
 
-// import "core:fmt"
 import "core:os"
 
 
@@ -17,7 +16,7 @@ Logger :: struct {
     options:      Options,
 }
 
-Logger_Proc :: #type proc(file_handle: ^os.File, ident: string, level: Level, strs: []sb.String_Type, options: Options, loc := #caller_location)
+Logger_Proc :: #type proc(file_handle: ^os.File, ident: string, level: Level, strs: []str.String_Type, options: Options, loc := #caller_location)
 
 Level :: enum uint {
     Debug   = 0,
@@ -41,25 +40,25 @@ Option :: enum {
 Options :: bit_set[Option]
 
 
-log :: proc(logger: Logger, level: Level, strs: []sb.String_Type, loc := #caller_location) {
+log :: proc(logger: Logger, level: Level, strs: []str.String_Type, loc := #caller_location) {
     if logger.procedure == nil { return }
     if level < logger.lowest_level { return }
 
     logger.procedure(logger.file_handle, logger.ident, level, strs, logger.options, loc)
 }
 
-debug :: proc(strs: ..sb.String_Type, loc := #caller_location) {
+debug :: proc(strs: ..str.String_Type, loc := #caller_location) {
     log(global_logger, .Debug, strs, loc=loc)
 }
 
-info  :: proc(strs: ..sb.String_Type, loc := #caller_location) {
+info  :: proc(strs: ..str.String_Type, loc := #caller_location) {
     log(global_logger, .Info, strs, loc=loc)
 }
 
-warn  :: proc(strs: ..sb.String_Type, loc := #caller_location) {
+warn  :: proc(strs: ..str.String_Type, loc := #caller_location) {
     log(global_logger, .Warning, strs, loc=loc)
 }
 
-error :: proc(strs: ..sb.String_Type, loc := #caller_location) {
+error :: proc(strs: ..str.String_Type, loc := #caller_location) {
     log(global_logger, .Error, strs, loc=loc)
 }

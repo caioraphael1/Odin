@@ -1,8 +1,8 @@
 #+ignore
 
 import "base:mem"
+import "base:container/str"
 import "base:container/strings"
-import sb "base:container/string_buffer"
 import "base:unicode"
 import "base:unicode/utf8"
 

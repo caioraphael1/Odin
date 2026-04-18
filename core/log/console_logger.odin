@@ -1,4 +1,4 @@
-import sb "base:container/string_buffer"
+import "base:container/str"
 
 import "core:os"
 import "core:terminal"
@@ -47,7 +47,7 @@ console_logger_init :: proc(lowest_level := Level.Debug, opt := Default_Console_
     }
 }
 
-console_logger_proc :: proc(file_handle: ^os.File, ident: string, level: Level, strs: []sb.String_Type, options: Options, loc := #caller_location) {
+console_logger_proc :: proc(file_handle: ^os.File, ident: string, level: Level, strs: []str.String_Type, options: Options, loc := #caller_location) {
     options := options
     h: ^os.File = ---
     if level < Level.Error {

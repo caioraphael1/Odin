@@ -1,5 +1,5 @@
 
-import fs "base:container/fixed_string"
+import "base:container/str"
 
 import "base:strconv"
 import "core:strings_tools"
@@ -86,7 +86,7 @@ os_version :: proc(res: ^OS_Version, loc := #caller_location) -> (ok: bool) {
 
 OS_Version :: struct {
     platform: OS_Version_Platform,  // Windows, Linux, MacOS, iOS, etc.
-    full:     fs.Fixed_String(256), // e.g. Windows 10 Professional (version: 22H2), build: 19045.6575
+    full:     str.String(256), // e.g. Windows 10 Professional (version: 22H2), build: 19045.6575
     release:  string,               // e.g. 22H2
 
     os:       Version,             // e.g. {major = 10, minor = 10,    patch = 0}

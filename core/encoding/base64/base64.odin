@@ -8,9 +8,7 @@ In case your specific version does not use padding, you may
 truncate it from the encoded output.
 */
 
-import "base:mem"
-import "base:container/slice"
-import sb "base:container/string_buffer"
+import "base:container/str"
 
 
 ENC_TABLE := [64]u8 {
@@ -110,28 +108,25 @@ DEC_URL_TABLE := [256]u8 {
 }
 
 
-encode :: proc(data: []u8, ENC_TBL := ENC_TABLE, allocator: mem.Allocator) -> (encoded: string, ok: bool) {
+encode :: proc(out: ^str.String($N), data: []u8, ENC_TBL := ENC_TABLE) -> (ok: bool) {
     out_length := encoded_len(data)
     if out_length == 0 {
         return
     }
 
-    backing, _ := slice.create(u8, out_length, allocator)
-    out := sb.create(raw_data(backing), len(backing), 0)
+    encode_into(out, data, ENC_TBL) or_return
 
-    encode_into(&out, data, ENC_TBL) or_return
-
-    return string(sb.slice(out)), true
+    return true
 }
 
-encode_into :: proc(buf: ^sb.String_Buffer, data: []u8, ENC_TBL := ENC_TABLE) -> (ok: bool) {
+encode_into :: proc(out: ^str.String($N), data: []u8, ENC_TBL := ENC_TABLE) -> (ok: bool) {
     length := len(data)
     if length == 0 {
         return false
     }
 
     c0, c1, c2, block: int
-    out: [4]u8
+    buf: [4]u8
     for i: uint; i < length; i += 3 {
         #no_bounds_check {
             c0, c1, c2 = int(data[i]), -1, -1
@@ -141,13 +136,13 @@ encode_into :: proc(buf: ^sb.String_Buffer, data: []u8, ENC_TBL := ENC_TABLE) ->
 
             block = (c0 << 16) | (max(c1, 0) << 8) | max(c2, 0)
             
-            out[0] = ENC_TBL[block >> 18 & 63]
-            out[1] = ENC_TBL[block >> 12 & 63]
-            out[2] = c1 == -1 ? PADDING : ENC_TBL[block >> 6 & 63]
-            out[3] = c2 == -1 ? PADDING : ENC_TBL[block & 63]
+            buf[0] = ENC_TBL[block >> 18 & 63]
+            buf[1] = ENC_TBL[block >> 12 & 63]
+            buf[2] = c1 == -1 ? PADDING : ENC_TBL[block >> 6 & 63]
+            buf[3] = c2 == -1 ? PADDING : ENC_TBL[block & 63]
         }
 
-        sb.write_bytes(buf, out[:]) or_return
+        str.write_bytes(out, buf[:]) or_return
     }
     return true
 }
@@ -161,17 +156,12 @@ encoded_len :: proc(data: []u8) -> uint {
     return ((4 * length / 3) + 3) &~ 3
 }
 
-decode :: proc(data: string, DEC_TBL := DEC_TABLE, allocator: mem.Allocator) -> (decoded: []u8, ok: bool) {
-    out_length := decoded_len(data)
-
-    backing, _ := slice.create(u8, out_length, allocator)
-    out := sb.create(raw_data(backing), len(backing), 0)
-    decode_into(&out, data, DEC_TBL) or_return
-
-    return sb.slice(out), true
+decode :: proc(out: ^str.String($N), data: string, DEC_TBL := DEC_TABLE) -> (ok: bool) {
+    decode_into(out, data, DEC_TBL) or_return
+    return true
 }
 
-decode_into :: proc(buf: ^sb.String_Buffer, data: string, DEC_TBL := DEC_TABLE) -> (ok: bool) {
+decode_into :: proc(out: ^str.String($N), data: string, DEC_TBL := DEC_TABLE) -> (ok: bool) {
     length := decoded_len(data)
     if length == 0 {
         return
@@ -179,7 +169,7 @@ decode_into :: proc(buf: ^sb.String_Buffer, data: string, DEC_TBL := DEC_TABLE) 
 
     c0, c1, c2, c3: int
     b0, b1, b2: int
-    _buf: [3]u8
+    buf: [3]u8
     i: int
     j: uint
     for ; j + 3 <= length; i, j = i + 4, j + 3 {
@@ -193,12 +183,12 @@ decode_into :: proc(buf: ^sb.String_Buffer, data: string, DEC_TBL := DEC_TABLE) 
             b1 = (c1 << 4) | (c2 >> 2)
             b2 = (c2 << 6) | c3
 
-            _buf[0] = u8(b0)
-            _buf[1] = u8(b1)
-            _buf[2] = u8(b2)
+            buf[0] = u8(b0)
+            buf[1] = u8(b1)
+            buf[2] = u8(b2)
         }
 
-        sb.write_bytes(buf, _buf[:]) or_return
+        str.write_bytes(out, buf[:]) or_return
     }
 
     rest := length - j
@@ -213,8 +203,8 @@ decode_into :: proc(buf: ^sb.String_Buffer, data: string, DEC_TBL := DEC_TABLE) 
         }
 
         switch rest {
-        case 1: sb.write_byte(buf, u8(b0)) or_return
-        case 2: sb.write_bytes(buf, { u8(b0), u8(b1) }) or_return
+        case 1: str.write_byte(out, u8(b0)) or_return
+        case 2: str.write_bytes(out, { u8(b0), u8(b1) }) or_return
         }
     }
 

@@ -1,107 +1,107 @@
 
 import "base:container/slice"
+import "base:container/str"
 import "base:container/strings"
-import sb "base:container/string_buffer"
 import "base:unicode/utf16"
 
 import sys "core:sys/windows"
 
 @(private)
 _os_version :: proc(res: ^OS_Version, loc := #caller_location) -> (ok: bool) {
-    format_windows_product_type :: proc (buf: ^sb.String_Buffer, prod_type: sys.Windows_Product_Type) -> (ok: bool) {
+    format_windows_product_type :: proc (s: ^str.String($N), prod_type: sys.Windows_Product_Type) -> (ok: bool) {
         #partial switch prod_type {
         case .ULTIMATE:
-            sb.write(buf, "Ultimate") or_return
+            str.write(s, "Ultimate") or_return
 
         case .HOME_BASIC:
-            sb.write(buf, "Home Basic") or_return
+            str.write(s, "Home Basic") or_return
 
         case .HOME_PREMIUM:
-            sb.write(buf, "Home Premium") or_return
+            str.write(s, "Home Premium") or_return
 
         case .ENTERPRISE:
-            sb.write(buf, "Enterprise") or_return
+            str.write(s, "Enterprise") or_return
 
         case .CORE:
-            sb.write(buf, "Home Basic") or_return
+            str.write(s, "Home Basic") or_return
 
         case .HOME_BASIC_N:
-            sb.write(buf, "Home Basic N") or_return
+            str.write(s, "Home Basic N") or_return
 
         case .EDUCATION:
-            sb.write(buf, "Education") or_return
+            str.write(s, "Education") or_return
 
         case .EDUCATION_N:
-            sb.write(buf, "Education N") or_return
+            str.write(s, "Education N") or_return
 
         case .BUSINESS:
-            sb.write(buf, "Business") or_return
+            str.write(s, "Business") or_return
 
         case .STANDARD_SERVER:
-            sb.write(buf, "Standard Server") or_return
+            str.write(s, "Standard Server") or_return
 
         case .DATACENTER_SERVER:
-            sb.write(buf, "Datacenter") or_return
+            str.write(s, "Datacenter") or_return
 
         case .SMALLBUSINESS_SERVER:
-            sb.write(buf, "Windows Small Business Server") or_return
+            str.write(s, "Windows Small Business Server") or_return
 
         case .ENTERPRISE_SERVER:
-            sb.write(buf, "Enterprise Server") or_return
+            str.write(s, "Enterprise Server") or_return
 
         case .STARTER:
-            sb.write(buf, "Starter") or_return
+            str.write(s, "Starter") or_return
 
         case .DATACENTER_SERVER_CORE:
-            sb.write(buf, "Datacenter Server Core") or_return
+            str.write(s, "Datacenter Server Core") or_return
 
         case .STANDARD_SERVER_CORE:
-            sb.write(buf, "Server Standard Core") or_return
+            str.write(s, "Server Standard Core") or_return
 
         case .ENTERPRISE_SERVER_CORE:
-            sb.write(buf, "Enterprise Server Core") or_return
+            str.write(s, "Enterprise Server Core") or_return
 
         case .BUSINESS_N:
-            sb.write(buf, "Business N") or_return
+            str.write(s, "Business N") or_return
 
         case .HOME_SERVER:
-            sb.write(buf, "Home Server") or_return
+            str.write(s, "Home Server") or_return
 
         case .SERVER_FOR_SMALLBUSINESS:
-            sb.write(buf, "Windows Server 2008 for Windows Essential Server Solutions") or_return
+            str.write(s, "Windows Server 2008 for Windows Essential Server Solutions") or_return
 
         case .SMALLBUSINESS_SERVER_PREMIUM:
-            sb.write(buf, "Small Business Server Premium") or_return
+            str.write(s, "Small Business Server Premium") or_return
 
         case .HOME_PREMIUM_N:
-            sb.write(buf, "Home Premium N") or_return
+            str.write(s, "Home Premium N") or_return
 
         case .ENTERPRISE_N:
-            sb.write(buf, "Enterprise N") or_return
+            str.write(s, "Enterprise N") or_return
 
         case .ULTIMATE_N:
-            sb.write(buf, "Ultimate N") or_return
+            str.write(s, "Ultimate N") or_return
 
         case .HYPERV:
-            sb.write(buf, "HyperV") or_return
+            str.write(s, "HyperV") or_return
 
         case .STARTER_N:
-            sb.write(buf, "Starter N") or_return
+            str.write(s, "Starter N") or_return
 
         case .PROFESSIONAL:
-            sb.write(buf, "Professional") or_return
+            str.write(s, "Professional") or_return
 
         case .PROFESSIONAL_N:
-            sb.write(buf, "Professional N") or_return
+            str.write(s, "Professional N") or_return
 
         case:
-            sb.write(buf, "Unknown Edition") or_return
+            str.write(s, "Unknown Edition") or_return
         }
         return true
     }
 
     // Grab Windows DisplayVersion (like 20H02)
-    format_display_version :: proc (buf: ^sb.String_Buffer) -> (version: string, ok: bool) {
+    format_display_version :: proc (s: ^str.String($N)) -> (version: string, ok: bool) {
         scratch: [512]u8
 
         if dv, read_ok := read_reg_string(
@@ -110,27 +110,27 @@ _os_version :: proc(res: ^OS_Version, loc := #caller_location) -> (ok: bool) {
             "DisplayVersion",
             scratch[:],
         ); read_ok {
-            sb.write(buf, " (version: ") or_return
-            l := buf.len
-            sb.write(buf, dv) or_return
-            version = string(sb.slice(buf^)[l:][:len(dv)])
-            sb.write_byte(buf, ')') or_return
+            str.write(s, " (version: ") or_return
+            l := s.len
+            str.write(s, dv) or_return
+            version = string(str.slice(s)[l:][:len(dv)])
+            str.write_byte(s, ')') or_return
         }
         return version, true
     }
 
     // Grab build number and UBR
-    format_build_number :: proc (buf: ^sb.String_Buffer, major_build: int) -> (ubr: int, ok: bool) {
+    format_build_number :: proc (s: ^str.String($N), major_build: int) -> (ubr: int, ok: bool) {
         if res, read_ok := read_reg_i32(
             sys.HKEY_LOCAL_MACHINE,
             "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
             "UBR",
         ); read_ok {
             ubr = int(res)
-            sb.write(buf, ", build: ") or_return
-            sb.write(buf, sb.from_int(major_build)) or_return
-            sb.write_byte(buf, '.') or_return
-            sb.write(buf, sb.from_int(ubr)) or_return
+            str.write(s, ", build: ") or_return
+            str.write(s, str.from_int(major_build)) or_return
+            str.write_byte(s, '.') or_return
+            str.write(s, str.from_int(ubr)) or_return
         }
         return ubr, true
     }
@@ -163,32 +163,29 @@ _os_version :: proc(res: ^OS_Version, loc := #caller_location) -> (ok: bool) {
     res.kernel.major = int(osvi.dwMajorVersion)
     res.kernel.minor = int(osvi.dwBuildNumber)
 
-    buf := sb.create(raw_data(res.full.data[:]), len(res.full.data), 0)
-    defer res.full.len = buf.len
-
-    sb.write(&buf, "Windows ") or_return
+    str.write(&res.full, "Windows ") or_return
 
     switch osvi.dwMajorVersion {
     case 10:
         switch osvi.wProductType {
         case 1: // VER_NT_WORKSTATION:
             if osvi.dwBuildNumber < 22000 {
-                sb.write(&buf, "10 ") or_return
+                str.write(&res.full, "10 ") or_return
             } else {
-                sb.write(&buf, "11 ") or_return
+                str.write(&res.full, "11 ") or_return
             }
-            format_windows_product_type(&buf, product_type) or_return
+            format_windows_product_type(&res.full, product_type) or_return
 
         case: // Server or Domain Controller
             switch osvi.dwBuildNumber {
             case 14393:
-                sb.write(&buf, "2016 Server") or_return
+                str.write(&res.full, "2016 Server") or_return
             case 17763:
-                sb.write(&buf, "2019 Server") or_return
+                str.write(&res.full, "2019 Server") or_return
             case 20348:
-                sb.write(&buf, "2022 Server") or_return
+                str.write(&res.full, "2022 Server") or_return
             case:
-                sb.write(&buf, "Unknown Server") or_return
+                str.write(&res.full, "Unknown Server") or_return
             }
         }
 
@@ -197,56 +194,56 @@ _os_version :: proc(res: ^OS_Version, loc := #caller_location) -> (ok: bool) {
         case 0:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION
-                sb.write(&buf, "Windows Vista ") or_return
-                format_windows_product_type(&buf, product_type) or_return
+                str.write(&res.full, "Windows Vista ") or_return
+                format_windows_product_type(&res.full, product_type) or_return
             case 3:
-                sb.write(&buf, "Windows Server 2008") or_return
+                str.write(&res.full, "Windows Server 2008") or_return
             }
 
         case 1:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION:
-                sb.write(&buf, "Windows 7 ") or_return
-                format_windows_product_type(&buf, product_type) or_return
+                str.write(&res.full, "Windows 7 ") or_return
+                format_windows_product_type(&res.full, product_type) or_return
             case 3:
-                sb.write(&buf, "Windows Server 2008 R2") or_return
+                str.write(&res.full, "Windows Server 2008 R2") or_return
             }
 
         case 2:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION:
-                sb.write(&buf, "Windows 8 ") or_return
-                format_windows_product_type(&buf, product_type) or_return
+                str.write(&res.full, "Windows 8 ") or_return
+                format_windows_product_type(&res.full, product_type) or_return
             case 3:
-                sb.write(&buf, "Windows Server 2012") or_return
+                str.write(&res.full, "Windows Server 2012") or_return
             }
 
         case 3:
             switch osvi.wProductType {
             case 1: // VER_NT_WORKSTATION:
-                sb.write(&buf, "Windows 8.1 ") or_return
-                format_windows_product_type(&buf, product_type) or_return
+                str.write(&res.full, "Windows 8.1 ") or_return
+                format_windows_product_type(&res.full, product_type) or_return
             case 3:
-                sb.write(&buf, "Windows Server 2012 R2") or_return
+                str.write(&res.full, "Windows Server 2012 R2") or_return
             }
         }
 
     case 5:
         switch osvi.dwMinorVersion {
         case 0:
-            sb.write(&buf, "Windows 2000") or_return
+            str.write(&res.full, "Windows 2000") or_return
         case 1:
-            sb.write(&buf, "Windows XP") or_return
+            str.write(&res.full, "Windows XP") or_return
         case 2:
-            sb.write(&buf, "Windows Server 2003") or_return
+            str.write(&res.full, "Windows Server 2003") or_return
         }
     }
 
     // Grab DisplayVersion
-    res.release = format_display_version(&buf) or_return
+    res.release = format_display_version(&res.full) or_return
 
     // Grab build number and UBR
-    res.kernel.patch = format_build_number(&buf, int(osvi.dwBuildNumber)) or_return
+    res.kernel.patch = format_build_number(&res.full, int(osvi.dwBuildNumber)) or_return
 
     return true
 }
