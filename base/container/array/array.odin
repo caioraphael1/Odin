@@ -6,15 +6,15 @@ import "base:container/new_slice"
 import base_slice "base:container/slice"
 
 
-DEBUG_FIXED_ARRAY :: #config(DEBUG_FIXED_ARRAY, true)
+DEBUG_ARRAY :: #config(DEBUG_ARRAY, true)
 
 /*
 A fixed-size stack-allocated array operated on in a dynamic fashion.
 - `data`: The underlying array
-- `len`: Amount of items that the `Fixed_Array` currently holds
+- `len`: Amount of items that the `Array` currently holds
 */
-when DEBUG_FIXED_ARRAY {
-    Fixed_Array :: struct($N: u32, $T: typeid) where N >= 0 {
+when DEBUG_ARRAY {
+    Array :: struct($N: u32, $T: typeid) where N >= 0 {
         data: [N]T,
         len:  uint,
         
@@ -22,38 +22,24 @@ when DEBUG_FIXED_ARRAY {
         peak: uint,
     }
 } else {
-    Fixed_Array :: struct($N: u32, $T: typeid) where N >= 0 {
+    Array :: struct($N: u32, $T: typeid) where N >= 0 {
         data: [N]T,
         len:  uint,
     }
 }
 
 
-@(disabled=!DEBUG_FIXED_ARRAY)
-update_peak :: proc(a: ^Fixed_Array($N, $T)) {
+@(disabled=!DEBUG_ARRAY)
+update_peak :: proc(a: ^Array($N, $T)) {
     a.peak = max(a.peak, a.len)
 }
 
 
-len :: proc(a: Fixed_Array($N, $T)) -> uint {
-    return a.len
-}
-
-cap :: proc(a: Fixed_Array($N, $T)) -> uint {
-    return uint(N)
-}
-
-
-remaining_space :: proc(a: Fixed_Array($N, $T)) -> int {
-    return uint(N) - a.len
-}
-
-
-slice :: proc(a: ^Fixed_Array($N, $T)) -> []T {
+// temp:
+slice :: proc(a: ^Array($N, $T)) -> []T {
     return a.data[:a.len]
 }
-
-new_slice :: proc(a: ^Fixed_Array($N, $T)) -> new_slice.Slice(T) {
+new_slice :: proc(a: ^Array($N, $T)) -> new_slice.Slice(T) {
     return {
         data = raw_data(a.data),
         len  = a.len,
@@ -61,35 +47,50 @@ new_slice :: proc(a: ^Fixed_Array($N, $T)) -> new_slice.Slice(T) {
 }
 
 
-get :: proc(a: Fixed_Array($N, $T), index: uint) -> T {
+
+cap :: proc(a: Array($N, $T)) -> uint {
+    return uint(N)
+}
+
+
+remaining_space :: proc(a: Array($N, $T)) -> int {
+    return uint(N) - a.len
+}
+
+
+
+
+get :: proc(a: Array($N, $T), index: uint) -> T {
     return a.data[index]
 }
 
-get_safe :: proc(a: Fixed_Array($N, $T), index: uint) -> (T, bool) #no_bounds_check {
+get_safe :: proc(a: Array($N, $T), index: uint) -> (T, bool) #no_bounds_check {
     if index < 0 || index >= a.len {
         return {}, false
     }
     return a.data[index], true
 }
 
-get_ptr :: proc(a: ^Fixed_Array($N, $T), index: uint) -> ^T {
+get_ptr :: proc(a: ^Array($N, $T), index: uint) -> ^T {
     return &a.data[index]
 }
 
-get_ptr_safe :: proc(a: ^Fixed_Array($N, $T), index: uint) -> (^T, bool) #no_bounds_check {
+get_ptr_safe :: proc(a: ^Array($N, $T), index: uint) -> (^T, bool) #no_bounds_check {
     if index < 0 || index >= a.len {
         return {}, false
     }
     return &a.data[index], true
 }
 
-set :: proc(a: ^Fixed_Array($N, $T), index: uint, item: T) {
+set :: proc(a: ^Array($N, $T), index: uint, item: T) {
     a.data[index] = item
     update_peak(a)
 }
 
 
-resize :: proc(a: ^Fixed_Array($N, $T), length: uint) -> (ok: bool) {
+
+
+resize :: proc(a: ^Array($N, $T), length: uint) -> (ok: bool) {
     
     length := length
     ok = length <= uint(N)
@@ -108,14 +109,14 @@ resize :: proc(a: ^Fixed_Array($N, $T), length: uint) -> (ok: bool) {
     return
 }
 
-resize_non_zero :: proc(a: ^Fixed_Array($N, $T), length: uint) {
+resize_non_zero :: proc(a: ^Array($N, $T), length: uint) {
     a.len = min(length, uint(N))
 
     update_peak(a)
 }
 
 
-push_back :: proc(a: ^Fixed_Array($N, $T), item: T) -> bool {
+push_back :: proc(a: ^Array($N, $T), item: T) -> bool {
     if a.len < cap(a^) {
         a.data[a.len] = item
         a.len += 1
@@ -127,7 +128,7 @@ push_back :: proc(a: ^Fixed_Array($N, $T), item: T) -> bool {
 append :: push_back
 
 
-push_back_many :: proc(a: ^Fixed_Array($N, $T), items: ..T) -> bool {
+push_back_many :: proc(a: ^Array($N, $T), items: ..T) -> bool {
     if a.len + uint(builtin.len(items)) <= cap(a^) {
         n := base_slice.copy(a.data[a.len:], items[:])
         a.len += n
@@ -139,7 +140,7 @@ push_back_many :: proc(a: ^Fixed_Array($N, $T), items: ..T) -> bool {
 append_many :: push_back_many
 
 
-inject_at :: proc(a: ^Fixed_Array($N, $T), item: T, index: uint) -> bool #no_bounds_check {
+inject_at :: proc(a: ^Array($N, $T), item: T, index: uint) -> bool #no_bounds_check {
     if a.len < cap(a^) && index >= 0 && index <= len(a^) {
         a.len += 1
         for i := a.len - 1; i >= index + 1; i -= 1 {
@@ -153,7 +154,7 @@ inject_at :: proc(a: ^Fixed_Array($N, $T), item: T, index: uint) -> bool #no_bou
 }
 
 
-push_front :: proc(a: ^Fixed_Array($N, $T), item: T) -> bool {
+push_front :: proc(a: ^Array($N, $T), item: T) -> bool {
     if a.len < cap(a^) {
         a.len += 1
         data := slice(a)
@@ -166,7 +167,7 @@ push_front :: proc(a: ^Fixed_Array($N, $T), item: T) -> bool {
 }
 
 
-pop_back :: proc(a: ^Fixed_Array($N, $T), loc := #caller_location) -> T {
+pop_back :: proc(a: ^Array($N, $T), loc := #caller_location) -> T {
     internal.assert(N > 0 && a.len > 0, loc=loc)
     item := a.data[a.len-1]
     a.len -= 1
@@ -174,7 +175,7 @@ pop_back :: proc(a: ^Fixed_Array($N, $T), loc := #caller_location) -> T {
 }
 
 
-pop_front :: proc(a: ^Fixed_Array($N, $T), loc := #caller_location) -> T {
+pop_front :: proc(a: ^Array($N, $T), loc := #caller_location) -> T {
     internal.assert(N > 0 && a.len > 0, loc=loc)
     item := a.data[0]
     s := slice(a)
@@ -184,7 +185,7 @@ pop_front :: proc(a: ^Fixed_Array($N, $T), loc := #caller_location) -> T {
 }
 
 
-pop_back_safe :: proc(a: ^Fixed_Array($N, $T)) -> (item: T, ok: bool) {
+pop_back_safe :: proc(a: ^Array($N, $T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[a.len-1]
         a.len -= 1
@@ -194,7 +195,7 @@ pop_back_safe :: proc(a: ^Fixed_Array($N, $T)) -> (item: T, ok: bool) {
 }
 
 
-pop_front_safe :: proc(a: ^Fixed_Array($N, $T)) -> (item: T, ok: bool) {
+pop_front_safe :: proc(a: ^Array($N, $T)) -> (item: T, ok: bool) {
     if N > 0 && a.len > 0 {
         item = a.data[0]
         s := slice(a)
@@ -206,14 +207,14 @@ pop_front_safe :: proc(a: ^Fixed_Array($N, $T)) -> (item: T, ok: bool) {
 }
 
 
-consume :: proc(a: ^Fixed_Array($N, $T), count: uint, loc := #caller_location) {
+consume :: proc(a: ^Array($N, $T), count: uint, loc := #caller_location) {
     internal.assert(a.len >= count, loc=loc)
     if a.len == 0 { return }
     a.len -= count
 }
 
 
-ordered_remove :: proc(a: ^Fixed_Array($N, $T), index: uint, loc := #caller_location) #no_bounds_check {
+ordered_remove :: proc(a: ^Array($N, $T), index: uint, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, a.len)
     if index+1 < a.len {
         base_slice.copy(a.data[index:], a.data[index+1:])
@@ -222,7 +223,7 @@ ordered_remove :: proc(a: ^Fixed_Array($N, $T), index: uint, loc := #caller_loca
 }
 
 
-unordered_remove :: proc(a: ^Fixed_Array($N, $T), index: uint, loc := #caller_location) #no_bounds_check {
+unordered_remove :: proc(a: ^Array($N, $T), index: uint, loc := #caller_location) #no_bounds_check {
     internal.bounds_check_error_loc(loc, index, a.len)
     n := a.len-1
     if index != n {
@@ -231,7 +232,7 @@ unordered_remove :: proc(a: ^Fixed_Array($N, $T), index: uint, loc := #caller_lo
     a.len -= 1
 }
 
-unordered_remove_element :: proc(a: ^Fixed_Array($N, $T), elem: T, loc := #caller_location) -> (ok: bool){
+unordered_remove_element :: proc(a: ^Array($N, $T), elem: T, loc := #caller_location) -> (ok: bool){
     if index, found := base_slice.linear_search(slice(a), elem); found {
         unordered_remove(a, index)
         return true
@@ -240,6 +241,6 @@ unordered_remove_element :: proc(a: ^Fixed_Array($N, $T), elem: T, loc := #calle
 }
 
 
-clear :: proc(a: ^Fixed_Array($N, $T)) {
+clear :: proc(a: ^Array($N, $T)) {
     a.len = 0
 }
