@@ -1,6 +1,17 @@
 import "base:intrinsics"
 import "base:container/str"
 
+
+console_init :: proc() {
+    std_files_init()
+    terminal_colors_init()
+}
+
+console_deinit :: proc() {
+    terminal_colors_deinit()
+}
+
+
 @(optional_results)
 print :: proc(strs: ..str.String_Type) -> (ok: bool) {
     s: str.String(1024)

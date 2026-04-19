@@ -1,5 +1,4 @@
 #+private
-import "base:internal"
 
 import "core:sync"
 import "core:sys/wasm/wasi"

@@ -1,4 +1,3 @@
-import "base:internal"
 import "base:mem"
 
 /*

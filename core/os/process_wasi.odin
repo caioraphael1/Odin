@@ -1,8 +1,5 @@
 #+private
 
-
-import "base:internal"
-
 import "core:time"
 // import "core:sys/wasm/wasi"
 

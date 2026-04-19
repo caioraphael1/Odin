@@ -59,7 +59,7 @@ environ :: proc(allocator: mem.Allocator) -> ([]string, Error) {
 }
 
 // Always allocates for consistency.
-/* TODO: (2026-04-14) I just removed string_builder. `res` has to be allocated using string_buffer.
+/* FIX: (2026-04-14) I just removed string_builder. `res` has to be allocated using string_buffer.
 replace_environment_placeholders :: proc(path: string, res: string) {
     path := path
 

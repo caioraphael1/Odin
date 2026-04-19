@@ -1,6 +1,5 @@
 #+build darwin, netbsd, freebsd, openbsd
 
-
 import "base:internal"
 
 import "core:io"
@@ -23,8 +22,7 @@ File_Impl :: struct {
     allocator: mem.Allocator,
 }
 
-// @(init)
-init_std_files :: proc() {
+std_files_init :: proc() {
     new_std :: proc(impl: ^File_Impl, fd: posix.FD, name: cstring) -> ^File {
         impl.file.impl = impl
         impl.fd = fd

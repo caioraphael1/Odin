@@ -539,15 +539,21 @@ is_directory :: proc(path: string) -> bool {
     return fi.type == .Directory
 }
 
-/*
-    `copy_file` copies a file from `src_path` to `dst_path` and returns an error if any was encountered.
-*/
 
+/*
+Returns true if the `File` is attached to a terminal.
+
+This is normally true for `os.stdout` and `os.stderr` unless they are
+redirected to a file.
+*/
 is_tty :: proc(f: ^File) -> bool {
     return _is_tty(f)
 }
 
 
+/*
+    `copy_file` copies a file from `src_path` to `dst_path` and returns an error if any was encountered.
+*/
 copy_file :: proc(dst_path, src_path: string, allocator: mem.Allocator) -> Error {
     when #defined(_copy_file_native) {
         return _copy_file_native(dst_path, src_path)

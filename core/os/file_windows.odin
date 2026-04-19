@@ -1,4 +1,3 @@
-
 import "base:internal"
 import "base:mem"
 import "base:mem/allocators"
@@ -42,8 +41,7 @@ File_Impl :: struct {
     p_mutex:  sync.Mutex,    // pread pwrite calls
 }
 
-// @(init)
-init_std_files :: proc() {
+std_files_init :: proc() {
     new_std :: proc(impl: ^File_Impl, code: u32, name: string) -> ^File {
         impl.file.impl = impl
 

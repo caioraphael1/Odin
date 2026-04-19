@@ -2,7 +2,7 @@
 
 BEL     :: "\a" // Bell
 BS      :: "\b" // Backspace
-ESC     :: "\e" // Escape
+ESC     :: "\e" // Escape (\033)
 
 // Fe Escape sequences
 
@@ -41,16 +41,10 @@ DECTCEM_HIDE :: "?25l" // Text Cursor Enable Mode (Invisible)
 
 // SGR sequences
 
-RESET                   :: "0"
-BOLD                    :: "1"
-FAINT                   :: "2"
-ITALIC                  :: "3" // Not widely supported.
-UNDERLINE               :: "4"
 BLINK_SLOW              :: "5"
 BLINK_RAPID             :: "6" // Not widely supported.
 INVERT                  :: "7" // Also known as reverse video.
 HIDE                    :: "8" // Not widely supported.
-STRIKE                  :: "9"
 FONT_PRIMARY            :: "10"
 FONT_ALT1               :: "11"
 FONT_ALT2               :: "12"
@@ -72,27 +66,12 @@ NO_REVERSE              :: "27"
 NO_HIDE                 :: "28"
 NO_STRIKE               :: "29"
 
-FG_BLACK                :: "30"
-FG_RED                  :: "31"
-FG_GREEN                :: "32"
-FG_YELLOW               :: "33"
-FG_BLUE                 :: "34"
-FG_MAGENTA              :: "35"
-FG_CYAN                 :: "36"
-FG_WHITE                :: "37"
+
 FG_COLOR                :: "38"
 FG_COLOR_8_BIT          :: "38;5" // Followed by ";n" where n is in 0..=255
 FG_COLOR_24_BIT         :: "38;2" // Followed by ";r;g;b" where r,g,b are in 0..=255
 FG_DEFAULT              :: "39"
 
-BG_BLACK                :: "40"
-BG_RED                  :: "41"
-BG_GREEN                :: "42"
-BG_YELLOW               :: "43"
-BG_BLUE                 :: "44"
-BG_MAGENTA              :: "45"
-BG_CYAN                 :: "46"
-BG_WHITE                :: "47"
 BG_COLOR                :: "48"
 BG_COLOR_8_BIT          :: "48;5" // Followed by ";n" where n is in 0..=255
 BG_COLOR_24_BIT         :: "48;2" // Followed by ";r;g;b" where r,g,b are in 0..=255
@@ -105,7 +84,54 @@ OVERLINED               :: "53"
 NO_FRAME_ENCIRCLE       :: "54"
 NO_OVERLINE             :: "55"
 
-// SGR: non-standard bright colors
+// Fp Escape sequences
+
+DECSC :: ESC + "7" // DEC Save Cursor
+DECRC :: ESC + "8" // DEC Restore Cursor
+
+// OSC sequences
+
+WINDOW_TITLE :: "2"  // Followed by ";<text>" ST.
+HYPERLINK    :: "8"  // Followed by ";[params];<URI>" ST. Closed by OSC HYPERLINK ";;" ST.
+CLIPBOARD    :: "52" // Followed by ";c;<Base64-encoded string>" ST.
+
+
+// -------------------------------------------------------------------
+// TEXT EDIT / COLORS
+// -------------------------------------------------------------------
+
+// TEXT EDIT
+
+SGR_RESET               :: "0"
+BOLD                    :: "1"
+FAINT                   :: "2"
+ITALIC                  :: "3" // Not widely supported.
+UNDERLINE               :: "4"
+STRIKE                  :: "9"
+
+
+// STANDARD COLORS
+
+FG_BLACK                :: "30"
+FG_RED                  :: "31"
+FG_GREEN                :: "32"
+FG_YELLOW               :: "33"
+FG_BLUE                 :: "34"
+FG_MAGENTA              :: "35"
+FG_CYAN                 :: "36"
+FG_WHITE                :: "37"
+
+
+BG_BLACK                :: "40"
+BG_RED                  :: "41"
+BG_GREEN                :: "42"
+BG_YELLOW               :: "43"
+BG_BLUE                 :: "44"
+BG_MAGENTA              :: "45"
+BG_CYAN                 :: "46"
+BG_WHITE                :: "47"
+
+// NON-STANDARD BRIGHT COLORS
 
 FG_BRIGHT_BLACK         :: "90" // Also known as grey.
 FG_BRIGHT_RED           :: "91"
@@ -125,13 +151,21 @@ BG_BRIGHT_MAGENTA       :: "105"
 BG_BRIGHT_CYAN          :: "106"
 BG_BRIGHT_WHITE         :: "107"
 
-// Fp Escape sequences
 
-DECSC :: ESC + "7" // DEC Save Cursor
-DECRC :: ESC + "8" // DEC Restore Cursor
+// -------------------------------------------------------------------
+// COLORING
+// -------------------------------------------------------------------
 
-// OSC sequences
+RESET  :: CSI + SGR_RESET + SGR
+RED    :: CSI + FG_RED    + SGR
+YELLOW :: CSI + FG_YELLOW + SGR
 
-WINDOW_TITLE :: "2"  // Followed by ";<text>" ST.
-HYPERLINK    :: "8"  // Followed by ";[params];<URI>" ST. Closed by OSC HYPERLINK ";;" ST.
-CLIPBOARD    :: "52" // Followed by ";c;<Base64-encoded string>" ST.
+// color :: #force_inline proc($s: string) -> (out: string) {
+//     out += CSI
+//     // for _s in s {
+//         // out += _s
+//     // }
+//     out += s
+//     out += SGR
+//     return
+// }

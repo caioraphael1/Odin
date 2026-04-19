@@ -1,4 +1,3 @@
-
 import "base:internal"
 
 import "core:io"
@@ -27,8 +26,7 @@ Preopen :: struct {
 }
 preopens: []Preopen
 
-// @(init)
-init_std_files :: proc() {
+std_files_init :: proc() {
     new_std :: proc(impl: ^File_Impl, fd: wasi.fd_t, name: string) -> ^File {
         impl.file.impl = impl
         impl.allocator = {}
@@ -48,7 +46,7 @@ init_std_files :: proc() {
 }
 
 // @(init)
-init_preopens :: proc(allocator: mem.Allocator) {
+preopens_init :: proc(allocator: mem.Allocator) {
     strip_prefixes :: proc(path: string) -> string {
         path := path
         loop: for len(path) > 0 {

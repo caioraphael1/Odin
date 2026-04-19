@@ -1,7 +1,6 @@
 import "base:container/str"
 
 import "core:os"
-import "core:terminal"
 
 @(private) global_subtract_stdout_options: Options
 @(private) global_subtract_stderr_options: Options
@@ -12,17 +11,17 @@ subtract_terminal_options :: proc() {
     // be redirected during the internal of the program, the cost of checking on
     // every single log message is not worth it to support such an
     // uncommonly-used feature.
-    if terminal.color_enabled {
+    if os.color_enabled {
         // This is done this way because it's possible that only one of these
         // streams could be redirected to a file.
-        if !terminal.is_terminal(os.stdout) {
+        if !os.is_tty(os.stdout) {
             global_subtract_stdout_options = { .Terminal_Color }
         }
-        if !terminal.is_terminal(os.stderr) {
+        if !os.is_tty(os.stderr) {
             global_subtract_stderr_options = { .Terminal_Color }
         }
     } else {
-        // Override any terminal coloring.
+        // Override any os coloring.
         global_subtract_stdout_options = { .Terminal_Color }
         global_subtract_stderr_options = { .Terminal_Color }
     }

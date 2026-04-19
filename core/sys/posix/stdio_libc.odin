@@ -3,135 +3,135 @@ import "core:c"
 import "core:c/libc"
 
 when ODIN_OS == .Windows {
-	foreign import lib {
-		"system:libucrt.lib",
-		"system:legacy_stdio_definitions.lib",
-	}
+    foreign import lib {
+        "system:libucrt.lib",
+        "system:legacy_stdio_definitions.lib",
+    }
 } else when ODIN_OS == .Darwin {
-	foreign import lib "system:System"
+    foreign import lib "system:System"
 } else {
-	foreign import lib "system:c"
+    foreign import lib "system:c"
 }
 
 // stdio.h - standard buffered input/output
 
 when ODIN_OS == .Windows {
-	@(private) LGETC_UNLOCKED    :: "_getc_nolock"
-	@(private) LGETCHAR_UNLOCKED :: "_getchar_nolock"
-	@(private) LPUTC_UNLOCKED    :: "_putc_nolock"
-	@(private) LPUTCHAR_UNLOCKED :: "_putchar_nolock"
-	@(private) LTEMPNAM          :: "_tempnam"
-	@(private) LPOPEN            :: "_popen"
-	@(private) LPCLOSE           :: "_pclose"
+    @(private) LGETC_UNLOCKED    :: "_getc_nolock"
+    @(private) LGETCHAR_UNLOCKED :: "_getchar_nolock"
+    @(private) LPUTC_UNLOCKED    :: "_putc_nolock"
+    @(private) LPUTCHAR_UNLOCKED :: "_putchar_nolock"
+    @(private) LTEMPNAM          :: "_tempnam"
+    @(private) LPOPEN            :: "_popen"
+    @(private) LPCLOSE           :: "_pclose"
 } else {
-	@(private) LGETC_UNLOCKED    :: "getc_unlocked"
-	@(private) LGETCHAR_UNLOCKED :: "getchar_unlocked"
-	@(private) LPUTC_UNLOCKED    :: "putc_unlocked"
-	@(private) LPUTCHAR_UNLOCKED :: "putchar_unlocked"
-	@(private) LTEMPNAM          :: "tempnam"
-	@(private) LPOPEN            :: "popen"
-	@(private) LPCLOSE           :: "pclose"
+    @(private) LGETC_UNLOCKED    :: "getc_unlocked"
+    @(private) LGETCHAR_UNLOCKED :: "getchar_unlocked"
+    @(private) LPUTC_UNLOCKED    :: "putc_unlocked"
+    @(private) LPUTCHAR_UNLOCKED :: "putchar_unlocked"
+    @(private) LTEMPNAM          :: "tempnam"
+    @(private) LPOPEN            :: "popen"
+    @(private) LPCLOSE           :: "pclose"
 }
 
 foreign lib {
-	/*
-	Equivalent to fprintf but output is written to s, it is the user's responsibility to
-	ensure there is enough space.
+    /*
+    Equivalent to fprintf but output is written to s, it is the user's responsibility to
+    ensure there is enough space.
 
-	Return: number of bytes written, negative (setting errno) on failure
+    Return: number of bytes written, negative (setting errno) on failure
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/dprintf.html ]]
-	*/
-	sprintf :: proc(s: [^]u8, format: cstring, #c_vararg args: ..any) -> c.int ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/dprintf.html ]]
+    */
+    sprintf :: proc(s: [^]u8, format: cstring, #c_vararg args: ..any) -> c.int ---
 
-	/*
-	Equivalent to getc but unaffected by locks.
+    /*
+    Equivalent to getc but unaffected by locks.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
-	*/
-	@(link_name=LGETC_UNLOCKED)
-	getc_unlocked :: proc(stream: ^FILE) -> c.int ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
+    */
+    @(link_name=LGETC_UNLOCKED)
+    getc_unlocked :: proc(stream: ^FILE) -> c.int ---
 
-	/*
-	Equivalent to getchar but unaffected by locks.
+    /*
+    Equivalent to getchar but unaffected by locks.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
-	*/
-	@(link_name=LGETCHAR_UNLOCKED)
-	getchar_unlocked :: proc() -> c.int ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
+    */
+    @(link_name=LGETCHAR_UNLOCKED)
+    getchar_unlocked :: proc() -> c.int ---
 
-	/*
-	Equivalent to putc but unaffected by locks.
+    /*
+    Equivalent to putc but unaffected by locks.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
-	*/
-	@(link_name=LPUTC_UNLOCKED)
-	putc_unlocked :: proc(ch: c.int, stream: ^FILE) -> c.int ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
+    */
+    @(link_name=LPUTC_UNLOCKED)
+    putc_unlocked :: proc(ch: c.int, stream: ^FILE) -> c.int ---
 
-	/*
-	Equivalent to putchar but unaffected by locks.
+    /*
+    Equivalent to putchar but unaffected by locks.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
-	*/
-	@(link_name=LPUTCHAR_UNLOCKED)
-	putchar_unlocked :: proc(ch: c.int) -> c.int ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/getc_unlocked.html ]]
+    */
+    @(link_name=LPUTCHAR_UNLOCKED)
+    putchar_unlocked :: proc(ch: c.int) -> c.int ---
 
-	/*
-	Get a string from the stdin stream.
+    /*
+    Get a string from the stdin stream.
 
-	It is up to the user to make sure s is big enough.
+    It is up to the user to make sure s is big enough.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/gets.html ]]
-	*/
-	gets :: proc(s: [^]u8) -> cstring ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/gets.html ]]
+    */
+    gets :: proc(s: [^]u8) -> cstring ---
 
-	/*
-	Create a name for a temporary file.
+    /*
+    Create a name for a temporary file.
 
-	Returns: an allocated cstring that needs to be freed, nil on failure
+    Returns: an allocated cstring that needs to be freed, nil on failure
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/tempnam.html ]]
-	*/
-	@(link_name=LTEMPNAM)
-	tempnam :: proc(dir: cstring, pfx: cstring) -> cstring ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/tempnam.html ]]
+    */
+    @(link_name=LTEMPNAM)
+    tempnam :: proc(dir: cstring, pfx: cstring) -> cstring ---
 
-	/*
-	Executes the command specified, creating a pipe and returning a pointer to a stream that can 
-	read or write from/to the pipe.
+    /*
+    Executes the command specified, creating a pipe and returning a pointer to a stream that can 
+    read or write from/to the pipe.
 
-	Returns: nil (setting errno) on failure or a pointer to the stream
+    Returns: nil (setting errno) on failure or a pointer to the stream
 
-	Example:
-		fp := posix.popen("ls *", "r")
-		if fp == nil {
-			/* Handle error */
-		}
+    Example:
+        fp := posix.popen("ls *", "r")
+        if fp == nil {
+            /* Handle error */
+        }
 
-		path: [1024]u8
-		for posix.fgets(raw_data(path[:]), len(path), fp) != nil {
-			posix.printf("%s", &path)
-		}
+        path: [1024]u8
+        for posix.fgets(raw_data(path[:]), len(path), fp) != nil {
+            posix.printf("%s", &path)
+        }
 
-		status := posix.pclose(fp)
-		if status == -1 {
-			/* Error reported by pclose() */
-		} else {
-			/* Use functions described under wait() to inspect `status` in order
-			   to determine success/failure of the command executed by popen() */
-		}
+        status := posix.pclose(fp)
+        if status == -1 {
+            /* Error reported by pclose() */
+        } else {
+            /* Use functions described under wait() to inspect `status` in order
+               to determine success/failure of the command executed by popen() */
+        }
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/popen.html ]]
-	*/
-	@(link_name=LPOPEN)
-	popen :: proc(command: cstring, mode: cstring) -> ^FILE ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/popen.html ]]
+    */
+    @(link_name=LPOPEN)
+    popen :: proc(command: cstring, mode: cstring) -> ^FILE ---
 
-	/*
-	Closes a pipe stream to or from a process.
+    /*
+    Closes a pipe stream to or from a process.
 
-	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/pclose.html ]]	
-	*/
-	@(link_name=LPCLOSE)
-	pclose :: proc(stream: ^FILE) -> c.int ---
+    [[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/pclose.html ]]  
+    */
+    @(link_name=LPCLOSE)
+    pclose :: proc(stream: ^FILE) -> c.int ---
 }
 
 clearerr  :: libc.clearerr

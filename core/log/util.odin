@@ -3,7 +3,7 @@ import "base:internal"
 import "base:container/str"
 import "core:time"
 import "core:os"
-import "core:terminal/ansi"
+// import "core:terminal/ansi"
 
 
 Level_Headers := [?]string{
@@ -34,27 +34,27 @@ Location_File_Opts :: Options{
 
 do_level_header :: proc(opts: Options, s: ^str.String($N), level: Level) {
 
-    RESET     :: ansi.CSI + ansi.RESET           + ansi.SGR
-    RED       :: ansi.CSI + ansi.FG_RED          + ansi.SGR
-    YELLOW    :: ansi.CSI + ansi.FG_YELLOW       + ansi.SGR
-    DARK_GREY :: ansi.CSI + ansi.FG_BRIGHT_BLACK + ansi.SGR
+    // RESET     :: ansi.CSI + ansi.RESET           + ansi.SGR
+    // RED       :: ansi.CSI + ansi.FG_RED          + ansi.SGR
+    // YELLOW    :: ansi.CSI + ansi.FG_YELLOW       + ansi.SGR
+    // DARK_GREY :: ansi.CSI + ansi.FG_BRIGHT_BLACK + ansi.SGR
 
-    col := RESET
-    switch level {
-    case .Debug:   col = DARK_GREY
-    case .Info:    col = RESET
-    case .Warning: col = YELLOW
-    case .Error, .Fatal: col = RED
-    }
+    // col := RESET
+    // switch level {
+    // case .Debug:   col = DARK_GREY
+    // case .Info:    col = RESET
+    // case .Warning: col = YELLOW
+    // case .Error, .Fatal: col = RED
+    // }
 
     if .Level in opts {
-        if .Terminal_Color in opts {
-            _ = str.write(s, col)
-        }
+        // if .Terminal_Color in opts {
+        //     _ = str.write(s, col)
+        // }
         _ = str.write(s, Level_Headers[level])
-        if .Terminal_Color in opts {
-            _ = str.write(s, RESET)
-        }
+        // if .Terminal_Color in opts {
+        //     _ = str.write(s, RESET)
+        // }
     }
 }
 
