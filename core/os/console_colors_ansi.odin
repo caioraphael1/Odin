@@ -4,6 +4,8 @@ BEL     :: "\a" // Bell
 BS      :: "\b" // Backspace
 ESC     :: "\e" // Escape (\033)
 
+SEP     :: ";"
+
 // Fe Escape sequences
 
 CSI     :: ESC + "["  // Control Sequence Introducer
@@ -156,9 +158,20 @@ BG_BRIGHT_WHITE         :: "107"
 // COLORING
 // -------------------------------------------------------------------
 
-RESET  :: CSI + SGR_RESET + SGR
-RED    :: CSI + FG_RED    + SGR
-YELLOW :: CSI + FG_YELLOW + SGR
+PANIC  :: RED    + "[PANIC] --- "  + RESET
+ASSERT :: RED    + "[ASSERT] --- " + RESET
+ENSURE :: RED    + "[ENSURE] --- " + RESET
+ERROR  :: RED    + "[ERROR] --- "  + RESET
+WARN   :: YELLOW + "[WARN ] --- "  + RESET
+INFO   :: WHITE  + "[INFO ] --- "  + RESET
+DEBUG  :: GRAY   + "[DEBUG] --- "  + RESET
+
+RESET  :: CSI + SGR_RESET       + SGR
+
+RED    :: CSI + FG_RED          + SGR
+YELLOW :: CSI + FG_YELLOW       + SGR
+WHITE  :: CSI + FG_WHITE        + SGR
+GRAY   :: CSI + FG_BRIGHT_BLACK + SGR
 
 // color :: #force_inline proc($s: string) -> (out: string) {
 //     out += CSI
