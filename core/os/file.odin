@@ -19,8 +19,6 @@ import "base:mem/allocators"
     - Character device
     - Symlink
     - Socket
-
-    See `File_Type` enum for more information on file types.
 */
 File :: struct {
     impl:   rawptr,
@@ -38,20 +36,27 @@ File :: struct {
 File_Type :: enum {
     // The type of a file could not be determined for the current platform.
     Undetermined,
+
     // Represents a regular file.
     Regular,
+
     // Represents a directory.
     Directory,
+
     // Represents a symbolic link.
     Symlink,
+
     // Represents a named pipe (FIFO).
     Named_Pipe,
+
     // Represents a socket.
     // **Note(windows)**: Not returned on windows
     Socket,
+
     // Represents a block device.
     // **Note(windows)**: On windows represents all devices.
     Block_Device,
+    
     // Represents a character device.
     // **Note(windows)**: Not returned on windows
     Character_Device,
@@ -123,11 +128,9 @@ Permissions_Default           :: Permissions_Default_Directory
 /*
     `perm_number` converts an integer value `perm` to the bit set `Permissions`
 */
-
 perm_number :: proc(perm: u32) -> Permissions {
     return transmute(Permissions)u32(perm & 0o777)
 }
-
 
 
 // `stdin` is an open file pointing to the standard input file stream
@@ -139,6 +142,7 @@ stdout: ^File = nil // OS-Specific
 // `stderr` is an open file pointing to the standard error file stream
 stderr: ^File = nil // OS-Specific
 
+
 /*
     `create` creates or truncates a named file `name`.
     If the file already exists, it is truncated.
@@ -146,10 +150,10 @@ stderr: ^File = nil // OS-Specific
     If successful, a `^File` is return which can be used for I/O.
     And error is returned if any is encountered.
 */
-
 create :: proc(name: string, allocator: mem.Allocator) -> (^File, Error) {
     return open(name, {.Read, .Write, .Create, .Trunc}, Permissions_Default_File, allocator = allocator)
 }
+
 
 /*
     `open` is a generalized open call, which defaults to opening for reading.
@@ -158,10 +162,10 @@ create :: proc(name: string, allocator: mem.Allocator) -> (^File, Error) {
     If successful, a `^File` is return which can be used for I/O.
     And error is returned if any is encountered.
 */
-
 open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Default, allocator: mem.Allocator) -> (^File, Error) {
     return _open(name, flags, perm, allocator)
 }
+
 
 // 
 // open_buffered :: proc(name: string, buffer_size: uint, flags := File_Flags{.Read}, perm := 0o777) -> (^File, Error) {
@@ -171,11 +175,11 @@ open :: proc(name: string, flags := File_Flags{.Read}, perm := Permissions_Defau
 //  return _open_buffered(name, buffer_size, flags, perm)
 // }
 
+
 /*
     `new_file` returns a new `^File` with the given file descriptor `handle` and `name`.
     The return value will only be `nil` IF the `handle` is not a valid file descriptor.
 */
-
 new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> ^File {
     file, err := _new_file(handle, name, allocator)
     if err != nil {
@@ -184,29 +188,30 @@ new_file :: proc(handle: uintptr, name: string, allocator: mem.Allocator) -> ^Fi
     return file
 }
 
+
 /*
     `clone` returns a new `^File` based on the passed file `f` with the same underlying file descriptor.
 */
-
 clone :: proc(f: ^File, allocator: mem.Allocator) -> (^File, Error) {
     return _clone(f, allocator)
 }
 
+
 /*
     `fd` returns the file descriptor of the file `f` passed. If the file is not valid, an invalid handle will be returned.
 */
-
 fd :: proc(f: ^File) -> uintptr {
     return _fd(f)
 }
 
+
 /*
     `name` returns the name of the file. The lifetime of this string lasts as long as the file handle itself.
 */
-
 name :: proc(f: ^File) -> string {
     return _name(f)
 }
+
 
 /*
     Close a file and its stream.
@@ -225,11 +230,13 @@ close :: proc(f: ^File) -> Error {
     return nil
 }
 
+
 Seek_From :: enum {
     Start   = 0, // seek relative to the origin of the file
     Current = 1, // seek relative to the current offset
     End     = 2, // seek relative to the end
 }
+
 /*
     seek sets the offsets for the next read or write on a file to a specified `offset`,
     according to what `whence` is set.
@@ -250,6 +257,7 @@ seek :: proc(f: ^File, offset: i64, whence: Seek_From) -> (ret: i64, err: Error)
     return 0, .Invalid_File
 }
 
+
 /*
     `read` reads up to len(p) bytes from the file `f`, and then stores them in `p`.
     It returns the number of bytes read and an error, if any is encountered.
@@ -266,6 +274,7 @@ read :: proc(f: ^File, p: []u8) -> (n: uint, err: Error) {
     }
     return 0, .Invalid_File
 }
+
 
 /*
     `read_at` reads up to len(p) bytes from the file `f` at the u8 offset `offset`, and then stores them in `p`.
@@ -285,6 +294,7 @@ read_at :: proc(f: ^File, p: []u8, offset: i64) -> (n: uint, err: Error) {
     return 0, .Invalid_File
 }
 
+
 /*
     `write` writes `len(p)` bytes from `p` to the file `f`. It returns the number of bytes written to
     and an error, if any is encountered.
@@ -302,6 +312,7 @@ write :: proc(f: ^File, p: []u8) -> (n: uint, err: Error) {
     return 0, .Invalid_File
 }
 
+
 /*
     `write_at` writes `len(p)` bytes from `p` to the file `f` starting at u8 offset `offset`.
     It returns the number of bytes written to and an error, if any is encountered.
@@ -318,6 +329,7 @@ write_at :: proc(f: ^File, p: []u8, offset: i64) -> (n: uint, err: Error) {
     }
     return 0, .Invalid_File
 }
+
 
 /*
     `file_size` returns the length of the file `f` in bytes and an error, if any is encountered.
@@ -340,6 +352,7 @@ file_size :: proc(f: ^File) -> (n: i64, err: Error) {
     return 0, .Invalid_File
 }
 
+
 /*
     `flush` flushes a file `f`
 */
@@ -354,6 +367,7 @@ flush :: proc(f: ^File) -> Error {
     return nil
 }
 
+
 /*
     `sync` commits the current contents of the file `f` to stable storage.
     This usually means flushing the file system's in-memory copy to disk.
@@ -361,6 +375,7 @@ flush :: proc(f: ^File) -> Error {
 sync :: proc(f: ^File) -> Error {
     return _sync(f)
 }
+
 
 /*
     `truncate` changes the size of the file `f` to `size` in bytes.
@@ -371,12 +386,14 @@ truncate :: proc(f: ^File, size: i64) -> Error {
     return _truncate(f, size)
 }
 
+
 /*
     `remove` removes a named file or (empty) directory.
 */
 remove :: proc(name: string) -> Error {
     return _remove(name)
 }
+
 
 /*
     `rename`  renames (moves) `old_path` to `new_path`.
@@ -385,6 +402,7 @@ rename :: proc(old_path, new_path: string) -> Error {
     return _rename(old_path, new_path)
 }
 
+
 /*
     `link` creates a `new_name` as a hard link to the `old_name` file.
 */
@@ -392,12 +410,11 @@ link :: proc(old_name, new_name: string) -> Error {
     return _link(old_name, new_name)
 }
 
-/*
-    `symlink` creates a `new_name` as a symbolic link to the `old_name` file.
-*/
-symlink :: proc(old_name, new_name: string) -> Error {
-    return _symlink(old_name, new_name)
+
+symlink :: proc(to_be_created, source: string, flags: u32) -> Error {
+    return _symlink(to_be_created, source, flags)
 }
+
 
 /*
     `read_link` returns the destinction of the named symbolic link `name`.
@@ -407,16 +424,14 @@ read_link :: proc(name: string, allocator: mem.Allocator) -> (string, Error) {
 }
 
 
-chdir :: change_directory
-
 /*
     Changes the current working directory to the named directory.
 */
 change_directory :: proc(name: string) -> Error {
     return _chdir(name)
 }
+chdir :: change_directory
 
-chmod :: change_mode
 
 /*
     Changes the mode/permissions of the named file to `mode`.
@@ -429,8 +444,8 @@ chmod :: change_mode
 change_mode :: proc(name: string, mode: Permissions, allocator: mem.Allocator) -> Error {
     return _chmod(name, mode, allocator)
 }
+chmod :: change_mode
 
-chown :: change_owner
 
 /*
     Changes the numeric `uid` and `gid` of a named file. If the file is a symbolic link,
@@ -441,8 +456,8 @@ chown :: change_owner
 change_owner :: proc(name: string, uid, gid: int) -> Error {
     return _chown(name, uid, gid)
 }
+chown :: change_owner
 
-fchdir :: fchange_directory
 
 /*
     Changes the current working directory to the file, which must be a directory.
@@ -450,8 +465,8 @@ fchdir :: fchange_directory
 fchange_directory :: proc(f: ^File) -> Error {
     return _fchdir(f)
 }
+fchdir :: fchange_directory
 
-fchmod :: fchange_mode
 
 /*
     Changes the current `mode` permissions of the file `f`.
@@ -459,8 +474,8 @@ fchmod :: fchange_mode
 fchange_mode :: proc(f: ^File, mode: Permissions) -> Error {
     return _fchmod(f, mode)
 }
+fchmod :: fchange_mode
 
-fchown :: fchange_owner
 
 /*
     Changes the numeric `uid` and `gid` of the file `f`. If the file is a symbolic link,
@@ -471,9 +486,8 @@ fchown :: fchange_owner
 fchange_owner :: proc(f: ^File, uid, gid: int) -> Error {
     return _fchown(f, uid, gid)
 }
+fchown :: fchange_owner
 
-
-lchown :: change_owner_do_not_follow_links
 
 /*
     Changes the numeric `uid` and `gid` of the file `f`. If the file is a symbolic link,
@@ -484,8 +498,8 @@ lchown :: change_owner_do_not_follow_links
 change_owner_do_not_follow_links :: proc(name: string, uid, gid: int) -> Error {
     return _lchown(name, uid, gid)
 }
+lchown :: change_owner_do_not_follow_links
 
-chtimes :: change_times
 
 /*
     Changes the access `atime` and modification `mtime` times of a named file.
@@ -493,8 +507,8 @@ chtimes :: change_times
 change_times :: proc(name: string, atime, mtime: time.Time, allocator: mem.Allocator) -> Error {
     return _chtimes(name, atime, mtime, allocator)
 }
+chtimes :: change_times
 
-fchtimes :: fchange_times
 
 /*
     Changes the access `atime` and modification `mtime` times of the file `f`.
@@ -502,19 +516,18 @@ fchtimes :: fchange_times
 fchange_times :: proc(f: ^File, atime, mtime: time.Time) -> Error {
     return _fchtimes(f, atime, mtime)
 }
+fchtimes :: fchange_times
 
 /*
     `exists` returns whether or not a named file exists.
 */
-
 exists :: proc(path: string) -> bool {
     return _exists(path)
 }
 
 /*
-    `is_file` returns whether or not the type of a named file is a `File_Type.Regular` file.
+    If is a `File_Type.Regular`.
 */
-
 is_file :: proc(path: string) -> bool {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     fi, err := stat(path, allocators.temp_allocator)
@@ -524,12 +537,10 @@ is_file :: proc(path: string) -> bool {
     return fi.type == .Regular
 }
 
-is_dir :: is_directory
 
 /*
-    Returns whether or not the type of a named file is a `File_Type.Directory` file.
+    If is a `File_Type.Directory`.
 */
-
 is_directory :: proc(path: string) -> bool {
     allocators.TEMP_ALLOCATOR_TEMP_GUARD()
     fi, err := stat(path, allocators.temp_allocator)
@@ -538,6 +549,7 @@ is_directory :: proc(path: string) -> bool {
     }
     return fi.type == .Directory
 }
+is_dir :: is_directory
 
 
 /*
@@ -561,6 +573,7 @@ copy_file :: proc(dst_path, src_path: string, allocator: mem.Allocator) -> Error
         return _copy_file(dst_path, src_path, allocator = allocator)
     }
 }
+
 
 @(private)
 _copy_file :: proc(dst_path, src_path: string, allocator: mem.Allocator) -> Error {

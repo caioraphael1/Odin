@@ -44,7 +44,7 @@ printfln :: proc(format: string, strs: ..str.String_Type) -> (ok: bool) {
     str.writef(&s, format, ..strs) or_return
 
     str.write_byte(&s, '\n') or_return
-    
+
     return printb(str.slice(&s))
 }
 
@@ -93,13 +93,13 @@ eprintfln :: proc(format: string, strs: ..str.String_Type) -> (ok: bool) {
 @(optional_results)
 printb :: proc(s: []u8) -> (ok: bool) {
     _, err := _write(cast(^File_Impl)stdout, s)
-    return err != nil
+    return err == nil
 }
 
 @(optional_results)
 eprintb :: proc(s: []u8) -> (ok: bool) {
     _, err := _write(cast(^File_Impl)stderr, s)
-    return err != nil
+    return err == nil
 }
 
 

@@ -38,14 +38,14 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
     for opcode, pc in virtual_machine.iterate_opcodes(&iter) {
         if src, ok := jump_targets[int(pc)]; ok {
             _, _ = io.write_string(w, "--")
-            common.write_padded_hex(w, src, 4, allocator)
+            common.write_padded_hex(w, src, 4)
             _, _ = io.write_string(w, "--> ")
         } else {
             _, _ = io.write_string(w, "            ")
         }
 
         _, _ = io.write_string(w, "[PC: ")
-        common.write_padded_hex(w, int(pc), 4, allocator)
+        common.write_padded_hex(w, int(pc), 4)
         _, _ = io.write_string(w, "] ")
         _, _ = io.write_string(w, virtual_machine.opcode_to_name(opcode))
         _ = io.write_byte(w, ' ')
@@ -59,21 +59,21 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
             _, _ = io.write_encoded_rune(w, operand)
         case .Rune_Class, .Rune_Class_Negated:
             operand := cast(u8)code[pc+1]
-            common.write_padded_hex(w, operand, 2, allocator)
+            common.write_padded_hex(w, operand, 2)
         case .Jump:
             jmp   := intrinsics.unaligned_load(cast(^u16)&code[pc+1])
             _, _ = io.write_string(w, "-> $")
-            common.write_padded_hex(w, jmp, 4, allocator)
+            common.write_padded_hex(w, jmp, 4)
         case .Split:
             jmp_x := intrinsics.unaligned_load(cast(^u16)&code[pc+1])
             jmp_y := intrinsics.unaligned_load(cast(^u16)&code[pc+3])
             _, _ = io.write_string(w, "=> $")
-            common.write_padded_hex(w, jmp_x, 4, allocator)
+            common.write_padded_hex(w, jmp_x, 4)
             _, _ = io.write_string(w, ", $")
-            common.write_padded_hex(w, jmp_y, 4, allocator)
+            common.write_padded_hex(w, jmp_y, 4)
         case .Save:
             operand := cast(u8)code[pc+1]
-            common.write_padded_hex(w, operand, 2, allocator)
+            common.write_padded_hex(w, operand, 2)
         case .Wait_For_Byte:
             operand := cast(rune)code[pc+1]
             _, _ = io.write_encoded_rune(w, operand)
@@ -82,10 +82,10 @@ trace :: proc(w: io.Writer, code: []Opcode, allocator: mem.Allocator) {
             _, _ = io.write_encoded_rune(w, operand)
         case .Wait_For_Rune_Class:
             operand := cast(u8)code[pc+1]
-            common.write_padded_hex(w, operand, 2, allocator)
+            common.write_padded_hex(w, operand, 2)
         case .Wait_For_Rune_Class_Negated:
             operand := cast(u8)code[pc+1]
-            common.write_padded_hex(w, operand, 2, allocator)
+            common.write_padded_hex(w, operand, 2)
         }
 
         _ = io.write_byte(w, '\n')

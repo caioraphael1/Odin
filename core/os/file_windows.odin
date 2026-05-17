@@ -618,8 +618,14 @@ _link :: proc(old_name, new_name: string) -> Error {
     return _get_platform_error()
 }
 
-_symlink :: proc(old_name, new_name: string) -> Error {
-    return .Unsupported
+_symlink :: proc(to_be_created, source: string, flags: u32) -> Error {
+    allocators.TEMP_ALLOCATOR_TEMP_GUARD()
+    src := _fix_long_path(source,        allocators.temp_allocator) or_return
+    dst := _fix_long_path(to_be_created, allocators.temp_allocator) or_return
+    if win32.CreateSymbolicLinkW(dst, src, flags) {
+        return nil
+    }
+    return _get_platform_error()
 }
 
 _open_sym_link :: proc(p: cstring16) -> (handle: win32.HANDLE, err: Error) {

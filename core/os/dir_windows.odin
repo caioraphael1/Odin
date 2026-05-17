@@ -42,6 +42,7 @@ find_data_to_file_info :: proc(base_path: string, d: ^win32.WIN32_FIND_DATAW, al
     return
 }
 
+
 Read_Directory_Iterator_Impl :: struct {
     find_data:     win32.WIN32_FIND_DATAW,
     find_handle:   win32.HANDLE,
@@ -49,7 +50,6 @@ Read_Directory_Iterator_Impl :: struct {
     prev_fi:       File_Info,
     no_more_files: bool,
 }
-
 
 
 _read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) -> (fi: File_Info, index: uint, ok: bool) {
@@ -93,7 +93,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
         return
     }
 
-    it.f = f
+    it.file = f
     impl := (^File_Impl)(f.impl)
 
     // NOTE: Allow calling `init` to target a new directory with the same iterator - reset idx.
@@ -137,7 +137,7 @@ _read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, al
 }
 
 _read_directory_iterator_destroy :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) {
-    if it.f == nil {
+    if it.file == nil {
         return
     }
     file_info_delete(it.impl.prev_fi, allocator)

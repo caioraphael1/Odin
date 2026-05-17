@@ -80,7 +80,7 @@ read_all_directory_by_path :: proc(path: string, allocator: mem.Allocator) -> (f
 
 
 Read_Directory_Iterator :: struct {
-    f:     ^File,
+    file:  ^File,
     err:   struct {
         err:  Error,
         path: dyn_array.Dyn_Array(u8),
@@ -111,7 +111,7 @@ read_directory_iterator_init :: proc(it: ^Read_Directory_Iterator, f: ^File, all
     it.err.path.allocator = allocator
     dyn_array.clear(&it.err.path)
 
-    it.f = f
+    it.file = f
     it.index = 0
 
     _read_directory_iterator_init(it, f, allocator)
@@ -195,7 +195,7 @@ Example:
 */
 
 read_directory_iterator :: proc(it: ^Read_Directory_Iterator, allocator: mem.Allocator) -> (fi: File_Info, index: uint, ok: bool) {
-    if it.f == nil {
+    if it.file == nil {
         return
     }
 
@@ -230,7 +230,7 @@ _copy_directory_all :: proc(dst, src: string, dst_perm := Permissions_Default, a
     dst_buf := dyn_array.create_len_cap(u8, 0, len(abs_dst) + 256, allocators.temp_allocator) or_return
 
     w: Walker
-    walker_init_path(&w, src, allocator)
+    walker_init_path(&w, abs_src, allocator)
     defer walker_destroy(&w, allocator)
 
     for info in walker_walk(&w, allocator) {

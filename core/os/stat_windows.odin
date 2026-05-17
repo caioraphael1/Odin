@@ -220,16 +220,15 @@ _file_type_mode_from_file_attributes :: proc(file_attributes: win32.DWORD, h: wi
         mode += Permissions_Read_Write_All
     }
 
-    is_sym := false
-    if file_attributes & win32.FILE_ATTRIBUTE_REPARSE_POINT == 0 {
-        is_sym = false
-    } else {
-        is_sym = ReparseTag == win32.IO_REPARSE_TAG_SYMLINK || ReparseTag == win32.IO_REPARSE_TAG_MOUNT_POINT
-    }
+    is_sym := file_attributes & win32.FILE_ATTRIBUTE_REPARSE_POINT != 0 &&
+        (ReparseTag == win32.IO_REPARSE_TAG_SYMLINK ||
+         ReparseTag == win32.IO_REPARSE_TAG_MOUNT_POINT)
+
+    is_dir := file_attributes & win32.FILE_ATTRIBUTE_DIRECTORY != 0
 
     if is_sym {
         type = .Symlink
-    } else if file_attributes & win32.FILE_ATTRIBUTE_DIRECTORY != 0 {
+    } else if is_dir {
         type = .Directory
         mode += Permissions_Execute_All
     } else if h != nil {

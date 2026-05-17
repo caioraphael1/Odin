@@ -3,6 +3,8 @@ import "base:mem"
 import "base:container/slice"
 import "base:container/dyn_array"
 import "base:container/strings"
+import "base:container/array"
+// import "base:container/str"
 
 import "core:time"
 
@@ -15,18 +17,17 @@ TIMEOUT_INFINITE :: time.MIN_DURATION // Note(flysand): Any negative duration wi
 /*
 Arguments to the current process.
 */
-args: []string
+args: array.Array(32, string)
 
-init_args :: proc(allocator: mem.Allocator) {
-    args, _ = slice.create(string, len(internal.args__), allocator)
-    for rt_arg, i in internal.args__ {
-        args[i] = string(rt_arg)
+init_args :: proc() {
+    for rt_arg in internal.args__ {
+        append_ok := array.append(&args, string(rt_arg))
+        if !append_ok {
+            panic("More than 32 terminal args used.")
+        }
     }
 }
 
-fini_args :: proc(allocator: mem.Allocator) {
-    _ = slice.delete(args, allocator)
-}
 
 /*
 Exit the current process.
@@ -41,7 +42,6 @@ Obtain the UID of the current process.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-
 get_uid :: proc() -> int {
     return _get_uid()
 }
@@ -57,7 +57,6 @@ the real UID of the process and the effective UID are different.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-
 get_euid :: proc() -> int {
     return _get_euid()
 }
@@ -68,7 +67,6 @@ Obtain the GID of the current process.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-
 get_gid :: proc() -> int {
     return _get_gid()
 }
@@ -84,7 +82,6 @@ the real GID of the process and the effective GID are different.
 **Note(windows)**: Windows doesn't follow the posix permissions model, so
 the function simply returns -1.
 */
-
 get_egid :: proc() -> int {
     return _get_egid()
 }
@@ -92,7 +89,6 @@ get_egid :: proc() -> int {
 /*
 Obtain the ID of the current process.
 */
-
 get_pid :: proc() -> uint {
     return _get_pid()
 }
@@ -106,7 +102,6 @@ that has created the current process. In case the parent has died, the ID
 returned by this function can identify a non-existent or a different
 process.
 */
-
 get_ppid :: proc() -> int {
     return _get_ppid()
 }
@@ -114,7 +109,6 @@ get_ppid :: proc() -> int {
 /*
 Obtain the current thread id
 */
-
 get_current_thread_id :: proc() -> uint {
     return _get_current_thread_id()
 }
@@ -129,7 +123,6 @@ get_processor_core_count :: proc() -> uint {
 /*
 Obtain ID's of all processes running in the system.
 */
-
 process_list :: proc(allocator: mem.Allocator) -> ([]uint, Error) {
     return _process_list(allocator)
 }
@@ -196,7 +189,6 @@ by the `selection` parameter. Always check whether the returned
 `Process_Info` struct has the required fields before checking the error code
 returned by this procedure.
 */
-
 process_info_by_pid :: proc(pid: uint, selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
     return _process_info_by_pid(pid, selection, allocator)
 }
@@ -217,7 +209,6 @@ by the `selection` parameter. Always check whether the returned
 `Process_Info` struct has the required fields before checking the error code
 returned by this procedure.
 */
-
 process_info_by_handle :: proc(process: Process, selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
     return _process_info_by_handle(process, selection, allocator)
 }
@@ -237,7 +228,6 @@ by the `selection` parameter. Always check whether the returned
 `Process_Info` struct has the required fields before checking the error code
 returned by this procedure.
 */
-
 current_process_info :: proc(selection: Process_Info_Fields, allocator: mem.Allocator) -> (Process_Info, Error) {
     return _current_process_info(selection, allocator)
 }

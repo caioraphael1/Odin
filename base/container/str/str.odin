@@ -156,7 +156,7 @@ write_rune :: proc(s: ^String($N), r: rune) -> (ok: bool) {
 
 
 String_Type :: union {
-    string,              // "pointer to a [N]u8"
+    string,     // "pointer to a [N]u8"
     String(20), // "the [N]u8"
     String(4),  // "the [N]u8"
 }
@@ -174,6 +174,12 @@ write :: proc(s: ^String($N), strs: ..String_Type) -> (ok: bool) {
             }
     }
 
+    return true
+}
+
+writeln :: proc(s: ^String($N), strs: ..String_Type) -> (ok: bool) {
+    write(s, ..strs) or_return
+    write(s, "\n")   or_return
     return true
 }
 
@@ -199,6 +205,12 @@ writef :: proc(s: ^String($N), format: string, strs: ..String_Type) -> (ok: bool
         }
         i += 1
     }
+    return true
+}
+
+writefln :: proc(s: ^String($N), format: string, strs: ..String_Type) -> (ok: bool) {
+    writef(s, format, ..strs) or_return
+    write(s, "\n") or_return
     return true
 }
 

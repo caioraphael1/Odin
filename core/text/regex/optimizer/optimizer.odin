@@ -11,6 +11,7 @@ import "base:mem"
 import "base:container/dyn_array"
 
 @(require) import "core:io"
+import "core:os"
 import "core:text/regex/common"
 import "core:text/regex/parser"
 
@@ -205,12 +206,12 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
 
                 if r == new_range.lower - 1 {
                     new_range.lower -= 1
-                    dyn_array.ordered_remove(&specific.runes, uint(i))
+                    os.assert(dyn_array.ordered_remove(&specific.runes, uint(i)))
                     i -= 1
                     changes += 1
                 } else if r == new_range.upper + 1 {
                     new_range.upper += 1
-                    dyn_array.ordered_remove(&specific.runes, uint(i))
+                    os.assert(dyn_array.ordered_remove(&specific.runes, uint(i)))
                     i -= 1
                     changes += 1
                 } else if new_range.lower != new_range.upper {
@@ -234,7 +235,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
             #no_bounds_check for i: int; i < int(specific.runes.len); i += 1 {
                 r := specific.runes.data[i]
                 if range.lower <= r && r <= range.upper {
-                    dyn_array.ordered_remove(&specific.runes, uint(i))
+                    os.assert(dyn_array.ordered_remove(&specific.runes, uint(i)))
                     i -= 1
                     changes += 1
                 }
@@ -257,7 +258,7 @@ optimize_subtree :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocat
                    left_range.upper == right_range.lower - 1 ||
                    left_range.lower <= right_range.lower && right_range.lower <= left_range.upper {
                     left_range.upper = max(left_range.upper, right_range.upper)
-                    dyn_array.ordered_remove(&specific.ranges, uint(j))
+                    os.assert(dyn_array.ordered_remove(&specific.ranges, uint(j)))
                     j -= 1
                     changes += 1
                 } else {
