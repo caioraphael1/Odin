@@ -19,6 +19,12 @@
     </a>
 </p>
 
+---
+
+# This repo is archived while I'm working on a new project with a new compiler
+
+---
+
 # Odin Language fork focused on exploring language design, memory safety, explicitness, and other completely subjective things
 
 - One of the goals of this fork is to make Odin a safer language, breaking the implicit patterns from the C language, improving code readability, and making it more enjoyable to work with memory.
