@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -53,7 +53,7 @@ ITimer :: enum c.int {
 	PROF    = ITIMER_PROF,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LGETITIMER    :: "__getitimer50"
 	@(private) LSETITIMER    :: "__setitimer50"
 	@(private) LGETTIMEOFDAY :: "__gettimeofday50"
@@ -65,7 +65,7 @@ when ODIN_OS == .NetBSD {
 	@(private) LUTIMES       :: "utimes"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux {
 
 	itimerval :: struct {
 		it_interval: timeval, /* [PSX] timer interval */
@@ -76,7 +76,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 	ITIMER_VIRTUAL :: 1
 	ITIMER_PROF    :: 2
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	itimerval :: struct {
 		it_interval: timeval, /* [PSX] timer interval */

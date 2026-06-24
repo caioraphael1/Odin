@@ -14,7 +14,7 @@ __mem_compare :: proc(x, y: rawptr, n: uint) -> int #no_bounds_check {
     m: uint
 
     when HAS_HARDWARE_SIMD {
-        when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+        when DUSK_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
             m = n / 32 * 32
             for ; i < m; i += 32 {
                 load_a := intrinsics.unaligned_load(cast(^#simd[32]u8)&a[i])
@@ -84,7 +84,7 @@ __mem_compare_zero :: proc(a: rawptr, n: int) -> int #no_bounds_check {
 
     if n >= 8 {
         when HAS_HARDWARE_SIMD {
-            when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+            when DUSK_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
                 scanner32: #simd[32]u8
                 m = n / 32 * 32
                 for ; i < m; i += 32 {
@@ -138,7 +138,7 @@ __mem_equal :: proc(x, y: rawptr, n: uint) -> bool {
         when HAS_HARDWARE_SIMD {
             // Avoid using 256-bit SIMD on platforms where its emulation is
             // likely to be less than ideal.
-            when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+            when DUSK_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
                 m = n / 32 * 32
                 for ; i < m; i += 32 {
                     load_a := intrinsics.unaligned_load(cast(^#simd[32]u8)&a[i])

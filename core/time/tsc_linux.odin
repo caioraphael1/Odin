@@ -4,7 +4,7 @@ import "base:intrinsics"
 @(require) import linux "core:sys/linux"
 
 _get_tsc_frequency :: proc() -> (u64, bool) {
-	when ODIN_ARCH == .arm64 {
+	when DUSK_ARCH == .arm64 {
 		frequency := u64(intrinsics.read_cycle_counter_frequency())
 		return frequency, true
 	} else {

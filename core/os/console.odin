@@ -103,7 +103,7 @@ eprintb :: proc(s: []u8) -> (ok: bool) {
 }
 
 
-@(disabled=ODIN_DISABLE_ASSERT)
+@(disabled=DUSK_DISABLE_ASSERT)
 assert :: proc(condition: bool, strs: ..str.String_Type, loc := #caller_location) {
     if !condition {
         print(ASSERT)
@@ -133,7 +133,7 @@ panic :: proc(strs: ..str.String_Type, loc := #caller_location) -> ! {
 }
 
 
-@(disabled=ODIN_DISABLE_ASSERT)
+@(disabled=DUSK_DISABLE_ASSERT)
 assertf :: proc(condition: bool, format: string, strs: ..str.String_Type, loc := #caller_location) {
     if !condition {
         print(ASSERT)

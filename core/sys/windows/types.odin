@@ -2033,7 +2033,7 @@ GWL_STYLE   :: -16
 GWL_EXSTYLE :: -20
 GWL_ID      :: -12
 
-when ODIN_ARCH == .i386 {
+when DUSK_ARCH == .i386 {
     GWL_WNDPROC    :: -4
     GWL_HINSTANCE  :: -6
     GWL_HWNDPARENT :: -8
@@ -2052,7 +2052,7 @@ GCL_CBCLSEXTRA :: -20
 GCL_STYLE      :: -26
 GCW_ATOM       :: -32
 
-when ODIN_ARCH == .i386 {
+when DUSK_ARCH == .i386 {
     GCL_MENUNAME      :: -8
     GCL_HBRBACKGROUND :: -10
     GCL_HCURSOR       :: -12

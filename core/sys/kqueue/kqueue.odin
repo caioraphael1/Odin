@@ -1,6 +1,6 @@
 #+build darwin, netbsd, openbsd, freebsd
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -107,7 +107,7 @@ USER_FLAGS_MASK         :: transmute(User_Flags)u32(0x00FFFFFF)
 // Data is nanoseconds.
 TIMER_FLAGS_NSECONDS :: _TIMER_FLAGS_NSECONDS
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
     _Filter_Backing :: distinct i16
     _Flags_Backing  :: distinct u16
@@ -149,7 +149,7 @@ when ODIN_OS == .Darwin {
         udata:  rawptr,
     }
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
     _Filter_Backing :: distinct i16
     _Flags_Backing  :: distinct u16
@@ -192,7 +192,7 @@ when ODIN_OS == .Darwin {
         // Extensions.
         ext: [4]u64,
     }
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
     _Filter_Backing :: distinct u32
     _Flags_Backing  :: distinct u32
@@ -232,7 +232,7 @@ when ODIN_OS == .Darwin {
         // Opaque user data passed through the kernel unchanged.
         udata:  rawptr,
     }
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
     _Filter_Backing :: distinct i16
     _Flags_Backing  :: distinct u16
@@ -275,7 +275,7 @@ when ODIN_OS == .Darwin {
     }
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     @(private)
     LKEVENT :: "__kevent50"
 } else {

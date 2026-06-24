@@ -10,11 +10,11 @@ when MINIAUDIO_SHARED {
 }
 
 @(private)
-LIB :: "lib/miniaudio.lib" when ODIN_OS == .Windows else "lib/miniaudio.a"
+LIB :: "lib/miniaudio.lib" when DUSK_OS == .Windows else "lib/miniaudio.a"
 
 when !#exists(LIB) {
     // Windows library is shipped with the compiler, so a Windows specific message should not be needed.
-    #panic("Could not find the compiled miniaudio library, it can be compiled by running `make -C \"" + ODIN_ROOT + "vendor/miniaudio/src\"`")
+    #panic("Could not find the compiled miniaudio library, it can be compiled by running `make -C \"" + DUSK_ROOT + "vendor/miniaudio/src\"`")
 }
 
 foreign import lib { LIB }
@@ -38,7 +38,7 @@ version_check :: proc() {
         n += slice.copy_from_string(buf[n:], string(version_string()))
         n += slice.copy_from_string(buf[n:], " is linked, make sure to compile the correct miniaudio version by going to `vendor/miniaudio/src` ")
 
-        when ODIN_OS == .Windows {
+        when DUSK_OS == .Windows {
             n += slice.copy_from_string(buf[n:], "and executing `build.bat`")
         } else {
             n += slice.copy_from_string(buf[n:], "and executing `make`")

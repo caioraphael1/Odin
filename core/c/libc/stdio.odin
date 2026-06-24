@@ -1,12 +1,12 @@
 import "core:c"
 import "core:io"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import libc {
         "system:libucrt.lib",
         "system:legacy_stdio_definitions.lib",
     }
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"
@@ -23,7 +23,7 @@ Whence :: enum int {
 }
 
 // MSVCRT compatible.
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     _IOFBF       :: 0x0000
     _IONBF       :: 0x0004
     _IOLBF       :: 0x0040
@@ -58,7 +58,7 @@ when ODIN_OS == .Windows {
 }
 
 // GLIBC and MUSL compatible.
-when ODIN_OS == .Linux {
+when DUSK_OS == .Linux {
     fpos_t        :: struct #raw_union { _: [16]char, _: longlong, _: double, }
 
     _IOFBF        :: 0
@@ -88,7 +88,7 @@ when ODIN_OS == .Linux {
     }
 }
 
-when ODIN_OS == .JS {
+when DUSK_OS == .JS {
     fpos_t        :: struct #raw_union { _: [16]char, _: longlong, _: double, }
 
     _IOFBF        :: 0
@@ -112,7 +112,7 @@ when ODIN_OS == .JS {
     TMP_MAX       :: 308915776
 }
 
-when ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD {
+when DUSK_OS == .OpenBSD || DUSK_OS == .NetBSD {
     fpos_t :: distinct i64
 
     _IOFBF :: 0
@@ -141,7 +141,7 @@ when ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD {
     stderr: ^FILE = &__sF[2]
 }
 
-when ODIN_OS == .FreeBSD {
+when DUSK_OS == .FreeBSD {
     fpos_t :: distinct i64
 
     _IOFBF :: 0
@@ -168,7 +168,7 @@ when ODIN_OS == .FreeBSD {
     }
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     fpos_t :: distinct i64
     
     _IOFBF        :: 0
@@ -198,7 +198,7 @@ when ODIN_OS == .Darwin {
     }
 }
 
-when ODIN_OS == .Haiku {
+when DUSK_OS == .Haiku {
     fpos_t :: distinct i64
     
     _IOFBF        :: 0
@@ -228,7 +228,7 @@ when ODIN_OS == .Haiku {
     }
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     @(private) LRENAME  :: "__posix_rename"
     @(private) LFGETPOS :: "__fgetpos50"
     @(private) LFSETPOS :: "__fsetpos50"

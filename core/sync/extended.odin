@@ -159,7 +159,7 @@ This procedure initializes the barrier for the specified amount of participant
 threads.
 */
 barrier_init :: proc(b: ^Barrier, thread_count: int) {
-    when ODIN_VALGRIND_SUPPORT {
+    when DUSK_VALGRIND_SUPPORT {
         vg.helgrind_barrier_resize_pre(b, uint(thread_count))
     }
     b.index = 0
@@ -175,7 +175,7 @@ have reached the same point in the execution of the thread proc. Multiple calls
 to `barrier_wait` are allowed within the thread procedure.
 */
 barrier_wait :: proc(b: ^Barrier) -> (is_leader: bool) {
-    when ODIN_VALGRIND_SUPPORT {
+    when DUSK_VALGRIND_SUPPORT {
         vg.helgrind_barrier_wait_pre(b)
     }
     mutex_guard(&b.mutex)

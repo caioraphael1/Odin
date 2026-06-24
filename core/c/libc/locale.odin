@@ -1,8 +1,8 @@
 import "core:c"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
 	foreign import libc "system:System"
 } else {
 	foreign import libc "system:c"
@@ -44,13 +44,13 @@ Locale_Category :: enum c.int {
 	TIME     = LC_TIME,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LSETLOCALE :: "__setlocale50"
 } else {
 	@(private) LSETLOCALE :: "setlocale"
 }
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	lconv :: struct {
 		decimal_point:        cstring,
 		thousand_sep:         cstring,
@@ -108,7 +108,7 @@ when ODIN_OS == .Windows {
 	}
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD  || ODIN_OS == .OpenBSD || ODIN_OS == .Haiku || ODIN_OS == .Windows {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD  || DUSK_OS == .OpenBSD || DUSK_OS == .Haiku || DUSK_OS == .Windows {
 
 	LC_ALL      :: 0
 	LC_COLLATE  :: 1
@@ -118,7 +118,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD  || ODIN_OS
 	LC_NUMERIC  :: 4
 	LC_TIME     :: 5
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	LC_CTYPE    :: 0
 	LC_NUMERIC  :: 1

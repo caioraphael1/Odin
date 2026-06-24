@@ -123,8 +123,6 @@ Loading the same library twice unloads the previous incarnation, allowing for st
 Returns:
 * `-1, false` if the library could not be loaded.
 * The number of symbols assigned on success. `ok` = true if `count` > 0
-
-See doc.odin for an example.
 */
 initialize_symbols :: proc(
     symbol_table: ^$T, library_path: string,

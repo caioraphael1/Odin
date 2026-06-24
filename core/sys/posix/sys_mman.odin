@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -90,7 +90,7 @@ foreign lib {
 
 	[[ More; https://pubs.opengroup.org/onlinepubs/9699919799/functions/shm_open.html ]]
 	*/
-	when ODIN_OS == .Darwin {
+	when DUSK_OS == .Darwin {
 		// https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/shm_open.2.html
 		shm_open :: proc(name: cstring, oflag: O_Flags, #c_vararg args: ..any) -> FD ---
 	} else {
@@ -163,13 +163,13 @@ MAdvice :: enum c.int {
 	WILLNEED   = POSIX_MADV_WILLNEED,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LMSYNC :: "__msync13"
 } else {
 	@(private) LMSYNC :: "msync"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux {
+when DUSK_OS == .Darwin || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux {
 
 	PROT_EXEC   :: 0x04
 	_PROT_NONE  :: 0x00
@@ -179,15 +179,15 @@ when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS 
 	MAP_FIXED     :: 0x0010
 	MAP_PRIVATE   :: 0x0002
 	MAP_SHARED    :: 0x0001
-	MAP_ANONYMOUS :: 0x0020 when ODIN_OS == .Linux else 0x1000
+	MAP_ANONYMOUS :: 0x0020 when DUSK_OS == .Linux else 0x1000
 
-	when ODIN_OS == .Darwin || ODIN_OS == .Linux {
+	when DUSK_OS == .Darwin || DUSK_OS == .Linux {
 		MS_INVALIDATE :: 0x0002
 		_MS_SYNC      :: 0x0010
-	} else when ODIN_OS == .NetBSD {
+	} else when DUSK_OS == .NetBSD {
 		MS_INVALIDATE :: 0x0002
 		_MS_SYNC      :: 0x0004
-	} else when ODIN_OS == .OpenBSD {
+	} else when DUSK_OS == .OpenBSD {
 		MS_INVALIDATE :: 0x0004
 		_MS_SYNC      :: 0x0002
 	}
@@ -206,7 +206,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS 
 	POSIX_MADV_SEQUENTIAL :: 2
 	POSIX_MADV_WILLNEED   :: 3
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
 	PROT_EXEC   :: 0x04
 	_PROT_NONE  :: 0x00

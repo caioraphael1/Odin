@@ -3,7 +3,7 @@ import "base:intrinsics"
 
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -341,7 +341,7 @@ Sig :: enum c.int {
     SETMASK = SIG_SETMASK,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     @(private) LSIGPROCMASK :: "__sigprocmask14"
     @(private) LSIGACTION   :: "__sigaction_siginfo"
     @(private) LSIGADDSET   :: "__sigaddset14"
@@ -365,7 +365,7 @@ when ODIN_OS == .NetBSD {
     @(private) LSIGSUSPEND  :: "sigsuspend"
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
     // Request that signal be held
     SIG_HOLD :: rawptr(uintptr(5))
@@ -503,7 +503,7 @@ when ODIN_OS == .Darwin {
     SI_ASYNCIO :: 0x10004
     SI_MESGQ   :: 0x10005
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
     // Request that signal be held
     SIG_HOLD :: rawptr(uintptr(3))
@@ -565,9 +565,9 @@ when ODIN_OS == .Darwin {
     SS_ONSTACK :: 0x0001
     SS_DISABLE :: 0x0004
 
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .arm32 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .arm32 {
         MINSIGSTKSZ :: 1024 * 4
-    } else when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+    } else when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
         MINSIGSTKSZ :: 512 * 4
     }
 
@@ -669,7 +669,7 @@ when ODIN_OS == .Darwin {
     SI_ASYNCIO :: 0x10004
     SI_MESGQ   :: 0x10005
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
     // Request that signal be held
     SIG_HOLD :: rawptr(uintptr(3))
@@ -849,7 +849,7 @@ when ODIN_OS == .Darwin {
     SI_ASYNCIO :: -3
     SI_MESGQ   :: -4
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
     // Request that signal be held
     SIG_HOLD :: rawptr(uintptr(3))
@@ -1008,7 +1008,7 @@ when ODIN_OS == .Darwin {
     SI_ASYNCIO :: -4 // NOTE: not implemented
     SI_MESGQ   :: -5 // NOTE: not implemented
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
     // Request that signal be held
     SIG_HOLD :: rawptr(uintptr(2))
@@ -1070,7 +1070,7 @@ when ODIN_OS == .Darwin {
     SS_ONSTACK :: 1
     SS_DISABLE :: 2
 
-    when ODIN_ARCH == .arm64 {
+    when DUSK_ARCH == .arm64 {
         MINSIGSTKSZ :: 6144
         SIGSTKSZ    :: 12288
     } else {
@@ -1184,7 +1184,7 @@ when ODIN_OS == .Darwin {
     SI_MESGQ   :: -3
     SI_ASYNCIO :: -4
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
     // Request that signal be held
     SIG_HOLD :: rawptr(uintptr(3))

@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -36,10 +36,10 @@ foreign lib {
     uname :: proc(uname: ^utsname) -> c.int ---
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Haiku {
 
     @(private)
-    _SYS_NAMELEN :: 32 when ODIN_OS == .Haiku else 256
+    _SYS_NAMELEN :: 32 when DUSK_OS == .Haiku else 256
 
     utsname :: struct {
         sysname:  [_SYS_NAMELEN]c.char `fmt:"s,0"`, /* [PSX] name of OS */
@@ -49,7 +49,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         machine:  [_SYS_NAMELEN]c.char `fmt:"s,0"`, /* [PSX] hardware type */
     }
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
     @(private)
     _SYS_NAMELEN :: 65

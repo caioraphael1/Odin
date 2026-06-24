@@ -3,8 +3,8 @@
 #+no-instrumentation
 import "base:intrinsics"
 
-when !ODIN_TEST && !ODIN_NO_ENTRY_POINT {
-    when ODIN_OS == .Orca {
+when !DUSK_TEST && !DUSK_NO_ENTRY_POINT {
+    when DUSK_OS == .Orca {
         @(linkage="strong", require, export)
         oc_on_init :: proc "c" () {
             intrinsics.__entry_point()
@@ -15,7 +15,7 @@ when !ODIN_TEST && !ODIN_NO_ENTRY_POINT {
     } else {
         @(link_name="_start", linkage="strong", require, export)
         _start :: proc "c" () {
-            when ODIN_OS == .WASI {
+            when DUSK_OS == .WASI {
                 _wasi_setup_args()
             }
             intrinsics.__entry_point()

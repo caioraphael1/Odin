@@ -1,6 +1,6 @@
 // Bindings for [[ DXC ; https://learn.microsoft.com/en-us/windows/win32/api/dxcapi/ ]].
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import dxcompiler "dxcompiler.lib"
 } else {
     foreign import dxcompiler "system:dxcompiler"

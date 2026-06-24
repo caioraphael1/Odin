@@ -1,8 +1,8 @@
 // 7.14 Signal handling
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"
@@ -19,7 +19,7 @@ foreign libc {
     raise  :: proc(sig: int) -> int ---
 }
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     SIG_ERR :: rawptr(~uintptr(0)) 
     SIG_DFL :: rawptr(uintptr(0))
     SIG_IGN :: rawptr(uintptr(1))
@@ -32,7 +32,7 @@ when ODIN_OS == .Windows {
     SIGTERM :: 15
 }
 
-when ODIN_OS == .Linux || ODIN_OS == .FreeBSD || ODIN_OS == .Haiku || ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD || ODIN_OS == .Darwin {
+when DUSK_OS == .Linux || DUSK_OS == .FreeBSD || DUSK_OS == .Haiku || DUSK_OS == .OpenBSD || DUSK_OS == .NetBSD || DUSK_OS == .Darwin {
     SIG_ERR  :: rawptr(~uintptr(0))
     SIG_DFL  :: rawptr(uintptr(0))
     SIG_IGN  :: rawptr(uintptr(1)) 

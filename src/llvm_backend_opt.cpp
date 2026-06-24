@@ -58,12 +58,12 @@ gb_internal void lb_basic_populate_function_pass_manager(LLVMPassManagerRef fpm,
 	}
 
 #if !LB_USE_NEW_PASS_SYSTEM
-	if (false && optimization_level <= 0 && build_context.ODIN_DEBUG) {
+	if (false && optimization_level <= 0 && build_context.DUSK_DEBUG) {
 		LLVMAddMergedLoadStoreMotionPass(fpm);
 	} else {
 		LLVMAddPromoteMemoryToRegisterPass(fpm);
 		LLVMAddMergedLoadStoreMotionPass(fpm);
-		if (!build_context.ODIN_DEBUG) {
+		if (!build_context.DUSK_DEBUG) {
 			LLVMAddEarlyCSEPass(fpm);
 		}
 	}
@@ -186,7 +186,7 @@ gb_internal void lb_populate_module_pass_manager(LLVMTargetMachineRef target_mac
 
 	// NOTE(bill): Treat -opt:3 as if it was -opt:2
 	// TODO(bill): Determine which opt definitions should exist in the first place
-	if (optimization_level <= 0 && build_context.ODIN_DEBUG) {
+	if (optimization_level <= 0 && build_context.DUSK_DEBUG) {
 		return;
 	}
 #if !LB_USE_NEW_PASS_SYSTEM

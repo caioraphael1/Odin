@@ -1,5 +1,5 @@
 // A generic `O(V+E)` topological sorter implementation. This is the fastest known method for topological sorting.
-// Odin's map type is being used to accelerate lookups.
+// Dusk's map type is being used to accelerate lookups.
 @(require) import "base:intrinsics"
 import "base:mem"
 

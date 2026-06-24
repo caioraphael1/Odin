@@ -26,7 +26,7 @@
 - Besides that, I also changed a lot of things I consider subjective. I'm taking this as an experiment around language design, as I think it's fun.
 - Feel free to use at your own discretion. That might be a **LOT** of things you don't agree with. I went far enough to remove libraries I won't use, so this is not really for public use, but I decided to keep this as a public fork so I could share a little bit of some of my design choices. 
 
-- Most of the changes are in `.odin` files (std). Few changes were made to the `.cpp` source code, so the compiler is mostly untouched.
+- Most of the changes are in `.dusk` files (std). Few changes were made to the `.cpp` source code, so the compiler is mostly untouched.
 
 <br>
 
@@ -191,7 +191,7 @@ msg := aprint({1, 2, 3, 4}, allocator = my_allocator)
 
 - `_startup_runtime` and `_cleanup_runtime` were **removed**.
 - This means that `@init` and `@fini` no longer work and have to be manually called.
-- Patterns like `a: T = b()` no longer work as well; I've only found this pattern inside the `core:os/os2/process.odin` for `args := get_args()` in the global scope.
+- Patterns like `a: T = b()` no longer work as well; I've only found this pattern inside the `core:os/os2/process.dusk` for `args := get_args()` in the global scope.
 - I wish using these annotations or calling a function in the global scope would be a compiler error, but for now this is not the case, and you have to ensure this doesn't happen. If it does, the operation will be ignored by the compiler.
 - Check this [Proposal](https://github.com/odin-lang/Odin/discussions/5524) to know more.
 - Check [Odin#Entry Point](https://caioraphael1.github.io/studies/Low-Level%20Systems/Odin/Odin.html#entry-point) to know more.
@@ -240,10 +240,10 @@ defer runtime.temp_allocator_destroy()
 
 - After all the changes, there are **NO** implicit allocations with `runtime.heap_allocator` / `context.allocator` (removed) / `os2.heap_allocator` (removed) / `os2.file_allocator` (removed) anywhere in the Odin libraries.
 - The `runtime.temp_allocator` (previous `context.temp_allocator`) still does implicit allocations; after testing with this, I decided to keep it as implicit, as it was a lot of trouble having to pass this allocator in every one of its VAST uses.
-- This is the **ONLY** code inside all Odin libraries that refers to implicit allocations, located on `base:runtime/default_temp_allocator.odin`.
+- This is the **ONLY** code inside all Odin libraries that refers to implicit allocations, located on `base:runtime/default_temp_allocator.dusk`.
 ```odin
 // Temp Allocator
-when ODIN_ARCH == .i386 && ODIN_OS == .Windows {
+when DUSK_ARCH == .i386 && DUSK_OS == .Windows {
     // Thread-local storage is problematic on Windows i386
     temp_allocator: Allocator
     @(private="file") temp_allocator_arena: Arena
@@ -316,7 +316,7 @@ println_any :: #force_no_inline proc "contextless" (args: ..any) {
 Assertion_Failure_Proc :: #type proc "contextless" (prefix, message: string, loc: Source_Code_Location) -> !
 assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 
-@(disabled=ODIN_DISABLE_ASSERT)
+@(disabled=DUSK_DISABLE_ASSERT)
 assert :: proc "contextless" (condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         @(cold)

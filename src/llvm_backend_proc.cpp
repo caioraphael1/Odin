@@ -3925,7 +3925,7 @@ gb_internal lbValue lb_build_builtin_proc(lbProcedure *p, Ast *expr, TypeAndValu
             for (isize i = 0; i < 7; i++) {
                 args[i] = lb_emit_conv(p, lb_build_expr(p, ce->args[i]), t_uintptr);
             }
-            if (!build_context.ODIN_VALGRIND_SUPPORT) {
+            if (!build_context.DUSK_VALGRIND_SUPPORT) {
                 return args[0];
             }
             lbValue array = lb_generate_local_array(p, t_uintptr, 6, false);

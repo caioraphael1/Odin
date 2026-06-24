@@ -1,9 +1,9 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .Linux {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .Linux {
     foreign import lib "system:pthread"
 } else {
     foreign import lib "system:c"
@@ -366,7 +366,7 @@ Cancel_Type :: enum c.int {
     ASYNCHRONOUS = PTHREAD_CANCEL_ASYNCHRONOUS,
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
     PTHREAD_CANCEL_ASYNCHRONOUS :: 0x00
     PTHREAD_CANCEL_DEFERRED     :: 0x02
@@ -422,7 +422,7 @@ when ODIN_OS == .Darwin {
         _:              [4]c.char,
     }
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
     PTHREAD_CANCEL_ASYNCHRONOUS :: 0x02
     PTHREAD_CANCEL_DEFERRED     :: 0x00
@@ -468,7 +468,7 @@ when ODIN_OS == .Darwin {
         sched_priority: c.int,     /* [PSX] process or thread execution scheduling priority */
     }
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
     PTHREAD_CANCEL_ASYNCHRONOUS :: 1
     PTHREAD_CANCEL_DEFERRED     :: 0
@@ -516,7 +516,7 @@ when ODIN_OS == .Darwin {
         sched_priority: c.int,     /* [PSX] process or thread execution scheduling priority */
     }
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
     PTHREAD_CANCEL_ASYNCHRONOUS :: 2
     PTHREAD_CANCEL_DEFERRED     :: 0
@@ -552,7 +552,7 @@ when ODIN_OS == .Darwin {
         sched_priority: c.int,     /* [PSX] process or thread execution scheduling priority */
     }
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
     PTHREAD_CANCEL_ASYNCHRONOUS :: 2
     PTHREAD_CANCEL_DEFERRED     :: 0
@@ -602,7 +602,7 @@ when ODIN_OS == .Darwin {
         sched_priority: c.int,     /* [PSX] process or thread execution scheduling priority */
     }
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
     PTHREAD_CANCEL_DEFERRED     :: 0
     PTHREAD_CANCEL_ASYNCHRONOUS :: 1
@@ -630,7 +630,7 @@ when ODIN_OS == .Darwin {
 
     pthread_t :: distinct c.ulong
 
-    when ODIN_ARCH == .arm64 {
+    when DUSK_ARCH == .arm64 {
         @(private)
         __SIZEOF_PTHREAD_ATTR_T :: 64
     } else {

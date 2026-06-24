@@ -106,7 +106,7 @@ MINIDUMP_CALLBACK_INPUT :: struct {
 	},
 }
 
-_MINIDUMP_ARM64_PAD :: ULONG when ODIN_ARCH == .arm64 else struct {}
+_MINIDUMP_ARM64_PAD :: ULONG when DUSK_ARCH == .arm64 else struct {}
 
 MINIDUMP_THREAD_CALLBACK :: struct {
 	ThreadId:      ULONG,

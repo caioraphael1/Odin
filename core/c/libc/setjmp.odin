@@ -1,13 +1,13 @@
 // 7.13 Nonlocal jumps
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
 	foreign import libc "system:System"
 } else {
 	foreign import libc "system:c"
 }
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	@(default_calling_convention="c")
 	foreign libc {
 		// 7.13.1 Save calling environment
@@ -60,7 +60,7 @@ foreign libc {
 // relevant platforms.
 jmp_buf :: struct #align(16) { _: [4096]char, }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LSETJMP  :: "__setjmp14"
 	@(private) LLONGJMP :: "__longjmp14"
 } else {

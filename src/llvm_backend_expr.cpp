@@ -331,7 +331,7 @@ gb_internal bool lb_try_direct_vector_arith(lbProcedure *p, TokenKind op, lbValu
     GB_ASSERT(is_type_array_like(type));
     Type *elem_type = base_array_type(type);
 
-    // NOTE(bill): Shift operations cannot be easily dealt with due to Odin's semantics
+    // NOTE(bill): Shift operations cannot be easily dealt with due to Dusk's semantics
     if (op == Token_Shl || op == Token_Shr) {
         return false;
     }

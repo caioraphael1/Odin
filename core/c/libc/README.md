@@ -5,28 +5,28 @@ The following is a mostly-complete projection of the C11 standard library as def
 ## Support matrix
 | Header            | Status                                             |
 |:------------------|:---------------------------------------------------|
-| `<assert.h>`      | Not applicable, use Odin's `#assert`               |
+| `<assert.h>`      | Not applicable, use Dusk's `#assert`               |
 | `<complex.h>`     | Mostly projected, see [limitations](#Limitations)  |
 | `<ctype.h>`       | Fully projected                                    |
 | `<errno.h>`       | Fully projected                                    |
 | `<fenv.h>`        | Not projected                                      |
 | `<float.h>`       | Not projected                                      |
 | `<inttypes.h>`    | Fully projected                                    |
-| `<iso646.h>`      | Not applicable, use Odin's operators               |
+| `<iso646.h>`      | Not applicable, use Dusk's operators               |
 | `<limits.h>`      | Not projected                                      |
 | `<locale.h>`      | Fully projected                                    |
 | `<math.h>`        | Mostly projected, see [limitations](#Limitations)  |
 | `<setjmp.h>`      | Fully projected                                    |
 | `<signal.h>`      | Fully projected                                    |
-| `<stdalign.h>`    | Not applicable, use Odin's `#align`                |
+| `<stdalign.h>`    | Not applicable, use Dusk's `#align`                |
 | `<stdarg.h>`      | Mostly projected, see [limitations](#Limitations)  |
 | `<stdatomic.h>`   | Fully projected                                    |
-| `<stdbool.h>`     | Not applicable, use Odin's `b32`                   |
+| `<stdbool.h>`     | Not applicable, use Dusk's `b32`                   |
 | `<stddef.h>`      | Mostly projected, see [limitations](#Limitations)  |
 | `<stdint.h>`      | Fully projected                                    |
 | `<stdio.h>`       | Fully projected                                    |
 | `<stdlib.h>`      | Fully projected                                    |
-| `<stdnoreturn.h>` | Not applicable, use Odin's divergent return `!`    |
+| `<stdnoreturn.h>` | Not applicable, use Dusk's divergent return `!`    |
 | `<string.h>`      | Fully projected                                    |
 | `<tgmath.h>`      | Mostly projected, see [limitations](#Limitations)  |
 | `<threads.h>`     | Fully projected                                    |
@@ -54,7 +54,7 @@ While Odin can interact with variable argument C functions through the use of th
 `offsetof` is not realizable in Odin, however you can use `offset_of` instead.
 
 ### `<tgmath.h>`
-C has some strange promotion and type-coercion behavior for `<tgmath.h>` which isn't correctly handled by this projection, specifically involving the use of complex arithmetic and kernels. We do mostly support type-generic math through the use of Odin's explicit procedure overloading, however the semantic behavior of that doesn't match C and so literal expressions of complex type in C may not call the same underlying math kernel functions as they do in Odin through this projection.
+C has some strange promotion and type-coercion behavior for `<tgmath.h>` which isn't correctly handled by this projection, specifically involving the use of complex arithmetic and kernels. We do mostly support type-generic math through the use of Dusk's explicit procedure overloading, however the semantic behavior of that doesn't match C and so literal expressions of complex type in C may not call the same underlying math kernel functions as they do in Odin through this projection.
 
 ## Caveats
 
@@ -65,7 +65,7 @@ In addition to limitations, there are some minor caveats you should be aware whe
 * Currently only works on Windows (MSVCRT) and Linux (GLIBC or MUSL)
 
 ## License
-Every file within this directory is made available under Odin's BSD-2 license
+Every file within this directory is made available under Dusk's BSD-2 license
 with the following copyright.
 
 ```

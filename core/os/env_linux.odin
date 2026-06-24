@@ -9,7 +9,7 @@ import "base:container/strings"
 @(require) import "core:sys/posix"
 
 
-when ODIN_NO_CRT {
+when DUSK_NO_CRT {
     // TODO: Override the libc environment functions' weak linkage to
     //       allow us to interact with 3rd party code that DOES link
     //       to libc. Otherwise, our environment can be out of sync.

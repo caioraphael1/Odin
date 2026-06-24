@@ -183,7 +183,7 @@ Example:
         img := image
 
         // PBM 16-bit images are big endian
-        when ODIN_ENDIAN == .Little {
+        when DUSK_ENDIAN == .Little {
             if img.depth == 16 {
                 // The pixel components are in Big Endian. Let's byteswap back.
                 input  := slice.data_cast([]u16,   img.pixels.buf[:])
@@ -201,7 +201,7 @@ Example:
         }
 
         mode: int = 0
-        when ODIN_OS == .Linux || ODIN_OS == .Darwin {
+        when DUSK_OS == .Linux || DUSK_OS == .Darwin {
             // NOTE(justasd): 644 (owner read, write; group read; others read)
             mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
         }

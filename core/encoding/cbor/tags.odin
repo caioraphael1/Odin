@@ -93,7 +93,7 @@ tag_register_number :: proc(impl: Tag_Implementation, nr: Tag_Number, id: string
 }
 
 // Controls initialization of default tag implementations.
-INITIALIZE_DEFAULT_TAGS :: #config(CBOR_INITIALIZE_DEFAULT_TAGS, !ODIN_DEFAULT_TO_PANIC_ALLOCATOR && !ODIN_DEFAULT_TO_NIL_ALLOCATOR)
+INITIALIZE_DEFAULT_TAGS :: #config(CBOR_INITIALIZE_DEFAULT_TAGS, !DUSK_DEFAULT_TO_PANIC_ALLOCATOR && !DUSK_DEFAULT_TO_NIL_ALLOCATOR)
 
 // @(init) 
 @(private, disabled=!INITIALIZE_DEFAULT_TAGS)

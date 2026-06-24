@@ -1,5 +1,5 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -17,13 +17,13 @@ foreign lib {
 	times :: proc(buffer: ^tms) -> clock_t ---
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LTIMES :: "__times13"
 } else {
 	@(private) LTIMES :: "times"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
 	tms :: struct {
 		tms_utime:  clock_t, /* [PSX] user CPU time */

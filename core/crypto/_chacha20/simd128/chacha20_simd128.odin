@@ -20,15 +20,15 @@ import "base:simd"
 // setting the microarchitecture at compile time will allow for better
 // code gen when applicable (eg: AVX).  This is somewhat redundant with
 // the default microarchitecture configurations.
-when ODIN_ARCH == .arm64 || ODIN_ARCH == .arm32 {
+when DUSK_ARCH == .arm64 || DUSK_ARCH == .arm32 {
 	@(private = "file")
 	TARGET_SIMD_FEATURES :: "neon"
-} else when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+} else when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
 	// Note: LLVM appears to be smart enough to use PSHUFB despite not
 	// explicitly using simd.u8x16 shuffles.
 	@(private = "file")
 	TARGET_SIMD_FEATURES :: "sse2,ssse3"
-} else when ODIN_ARCH == .riscv64 {
+} else when DUSK_ARCH == .riscv64 {
 	@(private = "file")
 	TARGET_SIMD_FEATURES :: "v"
 } else {
@@ -44,7 +44,7 @@ when ODIN_ARCH == .arm64 || ODIN_ARCH == .arm32 {
 // See:
 // - https://github.com/WebAssembly/design/issues/1161
 @(private = "file")
-TARGET_IS_DESIGNED_BY_IDIOTS :: (ODIN_ARCH == .wasm64p32 || ODIN_ARCH == .wasm32) && !intrinsics.has_target_feature("simd128")
+TARGET_IS_DESIGNED_BY_IDIOTS :: (DUSK_ARCH == .wasm64p32 || DUSK_ARCH == .wasm32) && !intrinsics.has_target_feature("simd128")
 
 @(private = "file")
 _ROT_7L: simd.u32x4 : {7, 7, 7, 7}
@@ -61,7 +61,7 @@ _ROT_8R: simd.u32x4 : {24, 24, 24, 24}
 @(private = "file")
 _ROT_16: simd.u32x4 : {16, 16, 16, 16}
 
-when ODIN_ENDIAN == .Big {
+when DUSK_ENDIAN == .Big {
 	@(private = "file")
 	_increment_counter :: #force_inline proc(ctx: ^_chacha20.Context) -> simd.u32x4 {
 		// In the Big Endian case, the low and high portions in the vector
@@ -173,7 +173,7 @@ _add_state_simd128 :: #force_inline proc(
 	v2 = simd.add(v2, s2)
 	v3 = simd.add(v3, s3)
 
-	when ODIN_ENDIAN == .Big {
+	when DUSK_ENDIAN == .Big {
 		v0 = _byteswap_u32x4(v0)
 		v1 = _byteswap_u32x4(v1)
 		v2 = _byteswap_u32x4(v2)
@@ -217,17 +217,17 @@ _store_simd128 :: #force_inline proc(
 // is_performant returns true iff the target and current host both support
 // "enough" 128-bit SIMD to make this implementation performant.
 is_performant :: proc() -> bool {
-	when ODIN_ARCH == .arm64 || ODIN_ARCH == .arm32 || ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 || ODIN_ARCH == .riscv64 {
-		when ODIN_ARCH == .arm64 || ODIN_ARCH == .arm32 {
+	when DUSK_ARCH == .arm64 || DUSK_ARCH == .arm32 || DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 || DUSK_ARCH == .riscv64 {
+		when DUSK_ARCH == .arm64 || DUSK_ARCH == .arm32 {
 			req_features :: info.CPU_Features{.asimd}
-		} else when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+		} else when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
 			req_features :: info.CPU_Features{.sse2, .ssse3}
-		} else when ODIN_ARCH == .riscv64 {
+		} else when DUSK_ARCH == .riscv64 {
 			req_features :: info.CPU_Features{.V}
 		}
 
 		return info.cpu_features() >= req_features
-	} else when ODIN_ARCH == .wasm64p32 || ODIN_ARCH == .wasm32 {
+	} else when DUSK_ARCH == .wasm64p32 || DUSK_ARCH == .wasm32 {
 		return intrinsics.has_target_feature("simd128")
 	} else {
 		return false
@@ -264,53 +264,53 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []u8, nr_blocks: int) {
 	// may change in the future (ARMv7 is still relevant), and things
 	// like Cortex-A8/A9 does "pretend" 128-bit SIMD 64-bits at a time
 	// thus needs bemchmarking.
-	when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+	when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
 		for ; n >= 8; n = n - 8 {
 			v0, v1, v2, v3 := s0, s1, s2, s3
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s7 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s3, _VEC_ONE)
 			} else {
 				s7 := _increment_counter(ctx)
 			}
 			v4, v5, v6, v7 := s0, s1, s2, s7
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s11 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s7, _VEC_ONE)
 			} else {
 				s11 := _increment_counter(ctx)
 			}
 			v8, v9, v10, v11 := s0, s1, s2, s11
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s15 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s11, _VEC_ONE)
 			} else {
 				s15 := _increment_counter(ctx)
 			}
 			v12, v13, v14, v15 := s0, s1, s2, s15
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s19 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s15, _VEC_ONE)
 			} else {
 				s19 := _increment_counter(ctx)
 			}
 
 			v16, v17, v18, v19 := s0, s1, s2, s19
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s23 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s19, _VEC_ONE)
 			} else {
 				s23 := _increment_counter(ctx)
 			}
 
 			v20, v21, v22, v23 := s0, s1, s2, s23
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s27 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s23, _VEC_ONE)
 			} else {
 				s27 := _increment_counter(ctx)
 			}
 
 			v24, v25, v26, v27 := s0, s1, s2, s27
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s31 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s27, _VEC_ONE)
 			} else {
 				s31 := _increment_counter(ctx)
@@ -361,7 +361,7 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []u8, nr_blocks: int) {
 				dst_v = dst_v[32:]
 			}
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				// s31 holds the most current counter, so `s3 = s31 + 1`.
 				s3 = transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s31, _VEC_ONE)
 			} else {
@@ -376,25 +376,25 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []u8, nr_blocks: int) {
 	// - i386 lacks the required number of registers
 	// - Generating code when runtime "hardware" SIMD support is impossible
 	//   to detect is pointless, since this will be emulated using GP regs.
-	when ODIN_ARCH != .i386 && !TARGET_IS_DESIGNED_BY_IDIOTS {
+	when DUSK_ARCH != .i386 && !TARGET_IS_DESIGNED_BY_IDIOTS {
 		for ; n >= 4; n = n - 4 {
 			v0, v1, v2, v3 := s0, s1, s2, s3
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s7 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s3, _VEC_ONE)
 			} else {
 				s7 := _increment_counter(ctx)
 			}
 			v4, v5, v6, v7 := s0, s1, s2, s7
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s11 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s7, _VEC_ONE)
 			} else {
 				s11 := _increment_counter(ctx)
 			}
 			v8, v9, v10, v11 := s0, s1, s2, s11
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				s15 := transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s11, _VEC_ONE)
 			} else {
 				s15 := _increment_counter(ctx)
@@ -429,7 +429,7 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []u8, nr_blocks: int) {
 				dst_v = dst_v[16:]
 			}
 
-			when ODIN_ENDIAN == .Little {
+			when DUSK_ENDIAN == .Little {
 				// s15 holds the most current counter, so `s3 = s15 + 1`.
 				s3 = transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s15, _VEC_ONE)
 			} else {
@@ -460,14 +460,14 @@ stream_blocks :: proc(ctx: ^_chacha20.Context, dst, src: []u8, nr_blocks: int) {
 		// Increment the counter.  Overflow checking is done upon
 		// entry into the routine, so a 64-bit increment safely
 		// covers both cases.
-		when ODIN_ENDIAN == .Little {
+		when DUSK_ENDIAN == .Little {
 			s3 = transmute(simd.u32x4)simd.add(transmute(simd.u64x2)s3, _VEC_ONE)
 		} else {
 			s3 = _increment_counter(ctx)
 		}
 	}
 
-	when ODIN_ENDIAN == .Little {
+	when DUSK_ENDIAN == .Little {
 		// Write back the counter to the state.
 		intrinsics.unaligned_store((^simd.u32x4)(x_v[3:]), s3)
 	}
@@ -480,7 +480,7 @@ hchacha20 :: proc(dst, key, iv: []u8) {
 	v2 := intrinsics.unaligned_load((^simd.u32x4)(&key[16]))
 	v3 := intrinsics.unaligned_load((^simd.u32x4)(&iv[0]))
 
-	when ODIN_ENDIAN == .Big {
+	when DUSK_ENDIAN == .Big {
 		v1 = _byteswap_u32x4(v1)
 		v2 = _byteswap_u32x4(v2)
 		v3 = _byteswap_u32x4(v3)
@@ -490,7 +490,7 @@ hchacha20 :: proc(dst, key, iv: []u8) {
 		v0, v1, v2, v3 = _dq_round_simd128(v0, v1, v2, v3)
 	}
 
-	when ODIN_ENDIAN == .Big {
+	when DUSK_ENDIAN == .Big {
 		v0 = _byteswap_u32x4(v0)
 		v3 = _byteswap_u32x4(v3)
 	}

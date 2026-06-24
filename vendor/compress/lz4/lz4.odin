@@ -1,5 +1,5 @@
 //  Bindings for [[LZ4 ; https://github.com/lz4/lz4]].
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	@(extra_linker_flags="/NODEFAULTLIB:libcmt")
 	foreign import lib { "lib/liblz4_static.lib", "system:ucrt.lib" }
 }

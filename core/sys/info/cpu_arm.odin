@@ -53,14 +53,14 @@ _cpu_name :: proc() -> (name: string) {
 
 //@(init)
 init_cpu_name :: proc() {
-    when ODIN_OS == .Darwin {
+    when DUSK_OS == .Darwin {
         if unix.sysctlbyname("machdep.cpu.brand_string", &_name_buf) {
             _name = string(cstring(rawptr(&_name_buf)))
             return
         }
     }
 
-    when ODIN_ARCH == .arm64 {
+    when DUSK_ARCH == .arm64 {
         copy(_name_buf[:], "ARM64")
         _name = string(_name_buf[:len("ARM64")])
     } else {

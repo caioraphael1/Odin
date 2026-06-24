@@ -3,9 +3,9 @@
 
 import "core:c"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import lib "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -114,7 +114,7 @@ foreign lib {
     unlink :: proc(path: cstring) -> result ---
 }
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     @(private) LACCESS :: "_access"
     @(private) LCHDIR  :: "_chdir"
     @(private) LGETCWD :: "_getcwd"
@@ -144,7 +144,7 @@ Mode_Flags :: bit_set[Mode_Flag_Bits; c.int]
 #assert(_F_OK == 0)
 F_OK :: Mode_Flags{}
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     _F_OK :: 0
     X_OK  :: 1
     W_OK  :: 2

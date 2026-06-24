@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -153,7 +153,7 @@ Wait_Flag_Bits :: enum c.int {
 }
 Wait_Flags :: bit_set[Wait_Flag_Bits; c.int]
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	id_t :: distinct c.uint
 
@@ -212,7 +212,7 @@ when ODIN_OS == .Darwin {
 		return _WSTATUS(x) == _WSTOPPED && WSTOPSIG(x) == .SIGCONT
 	}
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
 	id_t :: distinct c.int64_t
 
@@ -270,7 +270,7 @@ when ODIN_OS == .Darwin {
 	_WIFCONTINUED :: #force_inline proc(x: c.int) -> bool {
 		return x == c.int(Signal.SIGCONT)
 	}
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
 	id_t :: distinct c.uint32_t
 
@@ -329,7 +329,7 @@ when ODIN_OS == .Darwin {
 		return x == 0xffff
 	}
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
 	id_t :: distinct c.uint32_t
 
@@ -390,7 +390,7 @@ when ODIN_OS == .Darwin {
 		return (x & _WCONTINUED) == _WCONTINUED
 	}
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	id_t :: distinct c.uint
 
@@ -441,7 +441,7 @@ when ODIN_OS == .Darwin {
 		return x == 0xffff
 	}
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	id_t :: distinct c.int32_t
 

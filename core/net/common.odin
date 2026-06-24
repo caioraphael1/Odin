@@ -4,7 +4,7 @@
     For other protocols and their features, see subdirectories of this package.
 
     This file collects structs, enums and settings applicable to the entire package in one handy place.
-    Platform-specific ones can be found in their respective `*_windows.odin` and similar files.
+    Platform-specific ones can be found in their respective `*_windows.dusk` and similar files.
 */
 
 /*
@@ -12,7 +12,7 @@
     Copyright 2022 Colin Davidson  <colrdavidson@gmail.com>
     Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
     Copyright 2024 Feoramund       <rune@swevencraft.org>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Tetralux:        Initial implementation
@@ -24,7 +24,7 @@
 import "base:internal"
 
 /*
-    TUNEABLES - See also top of `dns.odin` for DNS configuration.
+    TUNEABLES - See also top of `dns.dusk` for DNS configuration.
 
     Determines the default value for whether dial_tcp() and accept_tcp() will set TCP_NODELAY on the new
     socket, and the client socket, respectively.
@@ -45,7 +45,7 @@ import "base:internal"
     short data chunks, when TCP_NODELAY is enabled on that socket.
 */
 
-ODIN_NET_TCP_NODELAY_DEFAULT :: #config(ODIN_NET_TCP_NODELAY_DEFAULT, true)
+DUSK_NET_TCP_NODELAY_DEFAULT :: #config(DUSK_NET_TCP_NODELAY_DEFAULT, true)
 
 // COMMON DEFINITIONS
 Maybe :: internal.Maybe
@@ -108,7 +108,7 @@ TCP_Options :: struct {
 }
 
 DEFAULT_TCP_OPTIONS :: TCP_Options {
-    no_delay = ODIN_NET_TCP_NODELAY_DEFAULT,
+    no_delay = DUSK_NET_TCP_NODELAY_DEFAULT,
 }
 
 /*

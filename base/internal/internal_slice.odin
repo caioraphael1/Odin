@@ -18,7 +18,7 @@ _slice_handle_error :: proc(file: string, line, column: i32, lo, hi: uint, len: 
 }
 
 // lb_emit_slice_bounds_check
-@(disabled=ODIN_NO_BOUNDS_CHECK)
+@(disabled=DUSK_NO_BOUNDS_CHECK)
 __slice_expr_error_hi :: proc(file: string, line, column: i32, hi: uint, len: uint) {
     if 0 <= hi && hi <= len {
         return
@@ -27,7 +27,7 @@ __slice_expr_error_hi :: proc(file: string, line, column: i32, hi: uint, len: ui
 }
 
 // lb_emit_slice_bounds_check
-@(disabled=ODIN_NO_BOUNDS_CHECK)
+@(disabled=DUSK_NO_BOUNDS_CHECK)
 __slice_expr_error_lo_hi :: proc(file: string, line, column: i32, lo, hi: uint, len: uint) {
     if 0 <= lo && lo <= len && lo <= hi && hi <= len {
         return

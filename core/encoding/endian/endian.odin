@@ -6,7 +6,7 @@ Byte_Order :: enum u8 {
 	Big,
 }
 
-PLATFORM_BYTE_ORDER :: Byte_Order.Little when ODIN_ENDIAN == .Little else Byte_Order.Big
+PLATFORM_BYTE_ORDER :: Byte_Order.Little when DUSK_ENDIAN == .Little else Byte_Order.Big
 
 unchecked_get_u16le :: #force_inline proc(b: []u8) -> u16 {
 	return bits.from_le_u16(intrinsics.unaligned_load((^u16)(raw_data(b))))

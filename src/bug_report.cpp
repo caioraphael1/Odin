@@ -662,7 +662,7 @@ gb_internal void print_bug_report_help() {
 
     gb_printf("Useful information to add to a bug report:\n\n");
 
-    gb_printf("\tOdin:    %.*s", LIT(ODIN_VERSION));
+    gb_printf("\tOdin:    %.*s", LIT(DUSK_VERSION));
 
     #ifdef NIGHTLY
     gb_printf("-nightly");

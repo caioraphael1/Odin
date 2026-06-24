@@ -1,9 +1,9 @@
 import "core:c"
 import vk "vendor:vulkan"
 
-GLFW_SHARED :: #config(GLFW_SHARED, ODIN_OS != .Windows && ODIN_OS != .Darwin)
+GLFW_SHARED :: #config(GLFW_SHARED, DUSK_OS != .Windows && DUSK_OS != .Darwin)
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     when GLFW_SHARED {
         foreign import glfw {
             "../lib/glfw3dll.lib",
@@ -19,7 +19,7 @@ when ODIN_OS == .Windows {
             "system:shell32.lib",
         }
     }
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     when GLFW_SHARED {
         foreign import glfw {
             "system:glfw",
@@ -42,7 +42,7 @@ when ODIN_OS == .Windows {
         @(private)
         LIBGLFW3 :: "../lib/libglfw3.a"
         when !#exists(LIBGLFW3) {
-            #panic("Could not find the static glfw library, add it at \"" + ODIN_ROOT + "vendor/glfw/lib/\"`")
+            #panic("Could not find the static glfw library, add it at \"" + DUSK_ROOT + "vendor/glfw/lib/\"`")
         }
 
         foreign import glfw { LIBGLFW3 }
@@ -210,9 +210,9 @@ foreign glfw {
     // Functions added in 3.4, Linux links against system glfw so we define these as weak to be able
     // to check at runtime if they are available.
 
-    @(linkage="strong" when ODIN_OS == .Windows else "weak")
+    @(linkage="strong" when DUSK_OS == .Windows else "weak")
     GetPlatform       :: proc() -> c.int ---
-    @(linkage="strong" when ODIN_OS == .Windows else "weak")
+    @(linkage="strong" when DUSK_OS == .Windows else "weak")
     PlatformSupported :: proc(platform: c.int) -> b32 ---
 }
 

@@ -4,7 +4,7 @@ import "base:simd"
 import "base:unicode/utf8"
 
 
-when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+when DUSK_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
     @(private) SCANNER_INDICES_256: simd.u8x32 : {
         0,  1,  2,  3,  4,  5,  6,  7,
         8,  9, 10, 11, 12, 13, 14, 15,
@@ -161,7 +161,7 @@ index_byte :: proc(s: []u8, c: u8) -> (idx: uint, found: bool) #no_bounds_check 
         // advantage of AVX512, the various downclocking and power
         // consumption related woes make premature to have a dedicated
         // code path.
-        when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+        when DUSK_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
             c_vec_256: simd.u8x32 = c
 
             s_vecs: [4]simd.u8x32 = ---
@@ -283,7 +283,7 @@ last_index_byte :: proc(s: []u8, c: u8) -> (idx: uint, found: bool) #no_bounds_c
         // advantage of AVX512, the various downclocking and power
         // consumption related woes make premature to have a dedicated
         // code path.
-        when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+        when DUSK_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
             c_vec_256: simd.u8x32 = c
 
             s_vecs: [4]simd.u8x32 = ---

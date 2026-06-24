@@ -3,7 +3,7 @@
 #+no-instrumentation
 import "base:intrinsics"
 
-when ODIN_BUILD_MODE == .Dynamic {
+when DUSK_BUILD_MODE == .Dynamic {
     @(link_name="_odin_entry_point", linkage="strong", require/*, link_section=".init"*/)
     _odin_entry_point :: proc "c" () {
         intrinsics.__entry_point()
@@ -15,20 +15,20 @@ when ODIN_BUILD_MODE == .Dynamic {
     main :: proc "c" (argc: i32, argv: [^]cstring) -> i32 {
         return 0
     }
-} else when !ODIN_TEST && !ODIN_NO_ENTRY_POINT {
-    when ODIN_NO_CRT {
+} else when !DUSK_TEST && !DUSK_NO_ENTRY_POINT {
+    when DUSK_NO_CRT {
         // NOTE(flysand): We need to start from assembly because we need
         // to retrieve argc and argv from the stack
-        when ODIN_ARCH == .amd64 {
+        when DUSK_ARCH == .amd64 {
             @(require) foreign import entry "entry_unix_no_crt_amd64.asm"
             SYS_exit :: 60
-        } else when ODIN_ARCH == .i386 {
+        } else when DUSK_ARCH == .i386 {
             @(require) foreign import entry "entry_unix_no_crt_i386.asm"
             SYS_exit :: 1
-        } else when ODIN_OS == .Darwin && ODIN_ARCH == .arm64 {
+        } else when DUSK_OS == .Darwin && DUSK_ARCH == .arm64 {
             @(require) foreign import entry "entry_unix_no_crt_darwin_arm64.asm"
             SYS_exit :: 1
-        } else when ODIN_ARCH == .riscv64 {
+        } else when DUSK_ARCH == .riscv64 {
             @(require) foreign import entry "entry_unix_no_crt_riscv64.asm"
             SYS_exit :: 93
         }

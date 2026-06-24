@@ -3,7 +3,7 @@
     Internationalization helpers.
 
     Copyright 2021-2022 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.
@@ -14,7 +14,7 @@ import    "base:strings"
 ACTIVE: ^Translation
 
 // Allow between 1 and 255 plural forms. Default: 10.
-MAX_PLURALS :: min(max(#config(ODIN_i18N_MAX_PLURAL_FORMS, 10), 1), 255)
+MAX_PLURALS :: min(max(#config(DUSK_i18N_MAX_PLURAL_FORMS, 10), 1), 255)
 
 // The main data structure. This can be generated from various different file formats, as long as we have a parser for them.
 Section :: map[string][]string

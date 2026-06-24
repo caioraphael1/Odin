@@ -5,15 +5,15 @@ _HAS_RAND_BYTES :: true
 
 
 _rand_bytes :: proc(dst: []u8) {
-    when ODIN_ARCH == .amd64 {
+    when DUSK_ARCH == .amd64 {
         SYS_getrandom :: uintptr(318)
-    } else when ODIN_ARCH == .arm64 {
+    } else when DUSK_ARCH == .arm64 {
         SYS_getrandom :: uintptr(278)
-    } else when ODIN_ARCH == .i386 {
+    } else when DUSK_ARCH == .i386 {
         SYS_getrandom :: uintptr(355)
-    } else when ODIN_ARCH == .arm32 {
+    } else when DUSK_ARCH == .arm32 {
         SYS_getrandom :: uintptr(384)
-    } else when ODIN_ARCH == .riscv64 {
+    } else when DUSK_ARCH == .riscv64 {
         SYS_getrandom :: uintptr(278)
     } else {
         #panic("base/runtime: no SYS_getrandom definition for target")

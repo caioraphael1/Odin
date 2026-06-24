@@ -17,7 +17,7 @@ windows_trap_type_assertion :: proc() -> ! {
     windows_trap_array_bounds()
 }
 
-when ODIN_NO_CRT {
+when DUSK_NO_CRT {
     @(require)
     foreign import crt_lib "procs_windows_amd64.asm"
 }

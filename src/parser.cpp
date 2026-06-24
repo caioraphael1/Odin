@@ -4965,7 +4965,7 @@ gb_internal Ast *parse_import_decl(AstFile *f, ImportDeclKind kind) {
     }
 
     if (f->in_when_statement) {
-        syntax_error(import_name, "Cannot use 'import' within a 'when' statement. Prefer using the file suffixes (e.g. foo_windows.odin) or '#+build' tags");
+        syntax_error(import_name, "Cannot use 'import' within a 'when' statement. Prefer using the file suffixes (e.g. foo_windows.dusk) or '#+build' tags");
     }
 
     if (kind != ImportDecl_Standard) {
@@ -5503,7 +5503,7 @@ gb_internal ParseFileError init_ast_file(AstFile *f, String const &fullpath, Tok
     f->directory = directory_from_path(f->fullpath);
     set_file_path_string(f->id, f->fullpath);
     thread_safe_set_ast_file_from_id(f->id, f);
-    if (!string_ends_with(f->fullpath, str_lit(".odin"))) {
+    if (!string_ends_with(f->fullpath, str_lit(".dusk"))) {
         return ParseFile_WrongExtension;
     }
     gb_zero_item(&f->tokenizer);
@@ -5685,7 +5685,7 @@ gb_internal void parser_add_foreign_file_to_process(Parser *p, AstPackage *pkg, 
 
 // NOTE(bill): Returns true if it's added
 gb_internal AstPackage *try_add_import_path(Parser *p, String path, String const &rel_path, TokenPos pos, PackageKind kind = Package_Normal) {
-    String const FILE_EXT = str_lit(".odin");
+    String const FILE_EXT = str_lit(".dusk");
 
     MUTEX_GUARD_BLOCK(&p->imported_files_mutex) {
         if (string_set_update(&p->imported_files, path)) {
@@ -5747,8 +5747,8 @@ gb_internal AstPackage *try_add_import_path(Parser *p, String path, String const
         return nullptr;
     }
 
-    if (string_ends_with(path, str_lit(".odin"))) {
-        error(pos, "'import' declarations cannot import directories with a .odin extension/suffix");
+    if (string_ends_with(path, str_lit(".dusk"))) {
+        error(pos, "'import' declarations cannot import directories with a .dusk extension/suffix");
         return nullptr;
     }
 
@@ -5767,12 +5767,12 @@ gb_internal AstPackage *try_add_import_path(Parser *p, String path, String const
     if (files_with_ext == 0 || files_to_reserve == 1) {
         ERROR_BLOCK();
         if (files_with_ext != 0) {
-            syntax_error(pos, "Directory contains no .odin files for the specified platform: %.*s", LIT(rel_path));
+            syntax_error(pos, "Directory contains no .dusk files for the specified platform: %.*s", LIT(rel_path));
         } else {
-            syntax_error(pos, "Empty directory that contains no .odin files: %.*s", LIT(rel_path));
+            syntax_error(pos, "Empty directory that contains no .dusk files: %.*s", LIT(rel_path));
         }
         if (build_context.command_kind == Command_test) {
-            error_line("\tSuggestion: Make an .odin file that imports packages to test and use the `-all-packages` flag.");
+            error_line("\tSuggestion: Make an .dusk file that imports packages to test and use the `-all-packages` flag.");
         }
         return nullptr;
     }
@@ -6487,9 +6487,9 @@ gb_internal bool parse_build_project_directory_tag(Token token_for_pos, String s
             }
 
             if (is_notted) {
-                this_kind_correct = this_kind_correct && (p != build_context.ODIN_BUILD_PROJECT_NAME);
+                this_kind_correct = this_kind_correct && (p != build_context.dusk_BUILD_PROJECT_NAME);
             } else {
-                this_kind_correct = this_kind_correct && (p == build_context.ODIN_BUILD_PROJECT_NAME);
+                this_kind_correct = this_kind_correct && (p == build_context.dusk_BUILD_PROJECT_NAME);
             }
         } while (s.len > 0);
 
@@ -6692,7 +6692,7 @@ gb_internal ParseFileError process_imported_file(Parser *p, ImportedFile importe
         } else {
             switch (err) {
             case ParseFile_WrongExtension:
-                syntax_error(pos, "Failed to parse file: %.*s; invalid file extension: File must have the extension '.odin'", LIT(fi.name));
+                syntax_error(pos, "Failed to parse file: %.*s; invalid file extension: File must have the extension '.dusk'", LIT(fi.name));
                 break;
             case ParseFile_InvalidFile:
                 syntax_error(pos, "Failed to parse file: %.*s; invalid file or cannot be found", LIT(fi.name));
@@ -6776,9 +6776,9 @@ gb_internal ParseFileError parse_packages(Parser *p, String init_filename) {
     String init_fullpath = path_to_full_path(permanent_allocator(), init_filename);
 
     if (!path_is_directory(init_fullpath)) {
-        String const ext = str_lit(".odin");
+        String const ext = str_lit(".dusk");
         if (!string_ends_with(init_fullpath, ext)) {
-            error({}, "Expected either a directory or a .odin file, got '%.*s'\n", LIT(init_filename));
+            error({}, "Expected either a directory or a .dusk file, got '%.*s'\n", LIT(init_filename));
             return ParseFile_WrongExtension;
         }
     } else if (init_fullpath.len != 0) {
@@ -6803,7 +6803,7 @@ gb_internal ParseFileError parse_packages(Parser *p, String init_filename) {
             bool ok = false;
             String s = get_fullpath_base_collection(permanent_allocator(), str_lit("internal"), &ok);
             if (!ok) {
-                compiler_error("Unable to find The 'base:internal' package. Is the ODIN_ROOT set up correctly?");
+                compiler_error("Unable to find The 'base:internal' package. Is the DUSK_ROOT set up correctly?");
             }
             try_add_import_path(p, s, s, init_pos, Package_Internal);
         }
@@ -6815,7 +6815,7 @@ gb_internal ParseFileError parse_packages(Parser *p, String init_filename) {
             bool ok = false;
             String s = get_fullpath_core_collection(permanent_allocator(), str_lit("testing"), &ok);
             if (!ok) {
-                compiler_error("Unable to find The 'core:testing' package. Is the ODIN_ROOT set up correctly?");
+                compiler_error("Unable to find The 'core:testing' package. Is the DUSK_ROOT set up correctly?");
             }
             try_add_import_path(p, s, s, init_pos, Package_Normal);
         }
@@ -6824,9 +6824,9 @@ gb_internal ParseFileError parse_packages(Parser *p, String init_filename) {
         for (String const &path : build_context.extra_packages) {
             String fullpath = path_to_full_path(permanent_allocator(), path); // LEAK?
             if (!path_is_directory(fullpath)) {
-                String const ext = str_lit(".odin");
+                String const ext = str_lit(".dusk");
                 if (!string_ends_with(fullpath, ext)) {
-                    error({}, "Expected either a directory or a .odin file, got '%.*s'\n", LIT(fullpath));
+                    error({}, "Expected either a directory or a .dusk file, got '%.*s'\n", LIT(fullpath));
                     return ParseFile_WrongExtension;
                 }
             }

@@ -21,7 +21,7 @@ _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res:
 
     res.os = {int(version.majorVersion), int(version.minorVersion), int(version.patchVersion)}
 
-    when ODIN_PLATFORM_SUBTARGET_IOS {
+    when DUSK_PLATFORM_SUBTARGET_IOS {
         res.platform = .iOS
         ws(&b, "iOS")
     } else {

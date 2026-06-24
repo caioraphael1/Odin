@@ -2,7 +2,7 @@
     An implementation of Yann Collet's [xxhash Fast Hash Algorithm](https://cyan4973.github.io/xxHash/).
     Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
 
-    Made available under Odin's license, based on the original C code.
+    Made available under Dusk's license, based on the original C code.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.
@@ -92,7 +92,7 @@ XXH3_128_canonical_from_hash :: proc(hash: XXH128_hash_t) -> (canonical: XXH128_
     #assert(size_of(XXH128_canonical) == size_of(XXH128_hash_t))
 
     t := hash
-    when ODIN_ENDIAN == .Little {
+    when DUSK_ENDIAN == .Little {
         t.high = byte_swap(t.high)
         t.low  = byte_swap(t.low)
     }

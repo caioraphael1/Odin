@@ -304,7 +304,7 @@ map_cell_index_static :: #force_inline proc(cells: [^]Map_Cell($T), index: uintp
         }
 
         // Compute the integer log 2 of N, this is the shift amount to index the
-        // correct cell. Odin's intrinsics.count_leading_zeros does not produce a
+        // correct cell. Dusk's intrinsics.count_leading_zeros does not produce a
         // constant, hence this approach. We only need to check up to N = 64.
         SHIFT :: 1 when N == 2  else
                  2 when N == 4  else

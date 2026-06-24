@@ -8,8 +8,8 @@ import "core:sys/posix"
 
 _IS_SUPPORTED :: true
 
-// NOTE(tetra): Aligned here because of core/unix/pthread_linux.odin/pthread_t.
-// Also see core/sys/darwin/mach_darwin.odin/semaphore_t.
+// NOTE(tetra): Aligned here because of core/unix/pthread_linux.dusk/pthread_t.
+// Also see core/sys/darwin/mach_darwin.dusk/semaphore_t.
 Thread_Os_Specific :: struct #align(16) {
     unix_thread: posix.pthread_t, // NOTE: very large on Darwin, small on Linux.
     start_ok:    sync.Sema,
@@ -63,7 +63,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
     // NOTE(tetra, 2019-11-01): These only fail if their argument is invalid.
     res = posix.pthread_attr_setdetachstate(&attrs, .CREATE_JOINABLE)
     internal.assert(res == nil)
-    when ODIN_OS != .Haiku && ODIN_OS != .NetBSD {
+    when DUSK_OS != .Haiku && DUSK_OS != .NetBSD {
         res = posix.pthread_attr_setinheritsched(&attrs, .EXPLICIT_SCHED)
         internal.assert(res == nil)
     }
@@ -75,7 +75,7 @@ _create :: proc(procedure: Thread_Proc, priority: Thread_Priority, allocator: me
 
     // Set thread priority.
     policy: posix.Sched_Policy
-    when ODIN_OS != .Haiku && ODIN_OS != .NetBSD {
+    when DUSK_OS != .Haiku && DUSK_OS != .NetBSD {
         res = posix.pthread_attr_getschedpolicy(&attrs, &policy)
         internal.assert(res == nil)
     }

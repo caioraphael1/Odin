@@ -9,8 +9,8 @@ Default page size.
 This value is the default page size for the current platform.
 */
 DEFAULT_PAGE_SIZE ::
-    64 * 1024 when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 else
-    16 * 1024 when ODIN_OS == .Darwin && ODIN_ARCH == .arm64 else
+    64 * 1024 when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32 else
+    16 * 1024 when DUSK_OS == .Darwin && DUSK_ARCH == .arm64 else
     4 * 1024
 
 

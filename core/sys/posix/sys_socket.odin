@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"
@@ -320,17 +320,17 @@ Sock_Option :: enum c.int {
     TYPE       = SO_TYPE,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     @(private) LSOCKET :: "__socket30"
 } else {
     @(private) LSOCKET :: "socket"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
     socklen_t :: distinct c.uint
 
-    when ODIN_OS == .Haiku {
+    when DUSK_OS == .Haiku {
         @(private)
         _SA_DATASIZE :: 30
     } else {
@@ -338,7 +338,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         _SA_DATASIZE :: 14
     }
 
-    when ODIN_OS == .Linux {
+    when DUSK_OS == .Linux {
         _sa_family_t :: distinct c.ushort
 
         sockaddr :: struct {
@@ -356,17 +356,17 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
     }
 
 
-    when ODIN_OS == .OpenBSD {
+    when DUSK_OS == .OpenBSD {
         @(private)
         _SS_PAD1SIZE :: 6
         @(private)
         _SS_PAD2SIZE :: 240
-    } else when ODIN_OS == .Haiku {
+    } else when DUSK_OS == .Haiku {
         @(private)
         _SS_PAD1SIZE :: 6
         @(private)
         _SS_PAD2SIZE :: 112
-    } else when ODIN_OS == .Linux {
+    } else when DUSK_OS == .Linux {
         @(private)
         _SS_SIZE :: 128
         @(private)
@@ -382,7 +382,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         _SS_PAD2SIZE  :: _SS_MAXSIZE - size_of(c.uint8_t) - size_of(sa_family_t) - _SS_PAD1SIZE - _SS_ALIGNSIZE
     }
 
-    when ODIN_OS == .Linux {
+    when DUSK_OS == .Linux {
         sockaddr_storage :: struct {
             ss_family:    sa_family_t,          /* [PSX] address family */
             __ss_padding: [_SS_PADSIZE]c.char,
@@ -477,7 +477,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
     SOCK_STREAM    :: 1
 
     // Options to be accessed at socket level, not protocol level.
-    when ODIN_OS == .Linux {
+    when DUSK_OS == .Linux {
         SOL_SOCKET :: 1
 
         SO_ACCEPTCONN :: 30
@@ -497,7 +497,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 
         SO_RCVTIMEO   :: 66
         SO_SNDTIMEO   :: 67
-    } else when ODIN_OS == .Haiku {
+    } else when DUSK_OS == .Haiku {
         SOL_SOCKET :: -1
 
         SO_ACCEPTCONN :: 0x00000001
@@ -534,19 +534,19 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         SO_SNDLOWAT   :: 0x1003
         SO_TYPE       :: 0x1008
 
-        when ODIN_OS == .Darwin {
+        when DUSK_OS == .Darwin {
             SO_LINGER   :: 0x1080
             SO_RCVTIMEO :: 0x1006
             SO_SNDTIMEO :: 0x1005
-        } else when ODIN_OS == .FreeBSD {
+        } else when DUSK_OS == .FreeBSD {
             SO_LINGER   :: 0x0080
             SO_RCVTIMEO :: 0x1006
             SO_SNDTIMEO :: 0x1005
-        } else when ODIN_OS == .NetBSD {
+        } else when DUSK_OS == .NetBSD {
             SO_LINGER   :: 0x0080
             SO_RCVTIMEO :: 0x100c
             SO_SNDTIMEO :: 0x100b
-        } else when ODIN_OS == .OpenBSD {
+        } else when DUSK_OS == .OpenBSD {
             SO_LINGER   :: 0x0080
             SO_RCVTIMEO :: 0x1006
             SO_SNDTIMEO :: 0x1005
@@ -554,13 +554,13 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
     }
 
     // The maximum backlog queue length for listen().
-    when ODIN_OS == .Haiku {
+    when DUSK_OS == .Haiku {
         SOMAXCONN :: 32
     } else {
         SOMAXCONN :: 128
     }
 
-    when ODIN_OS == .Linux {
+    when DUSK_OS == .Linux {
         MSG_CTRUNC    :: 0x008
         MSG_DONTROUTE :: 0x004
         MSG_EOR       :: 0x080
@@ -578,18 +578,18 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         MSG_TRUNC     :: 0x10
         MSG_WAITALL   :: 0x40
 
-        when ODIN_OS == .Darwin {
+        when DUSK_OS == .Darwin {
             MSG_NOSIGNAL :: 0x80000
-        } else when ODIN_OS == .FreeBSD {
+        } else when DUSK_OS == .FreeBSD {
             MSG_NOSIGNAL :: 0x00020000
-        } else when ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+        } else when DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
             MSG_NOSIGNAL :: 0x0400
-        } else when ODIN_OS == .Haiku {
+        } else when DUSK_OS == .Haiku {
             MSG_NOSIGNAL :: 0x800
         }
     }
 
-    when ODIN_OS == .Haiku {
+    when DUSK_OS == .Haiku {
         AF_INET :: 1
         AF_UNIX :: 9
     } else {
@@ -597,15 +597,15 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         AF_UNIX :: 1
     }
 
-    when ODIN_OS == .Darwin {
+    when DUSK_OS == .Darwin {
         AF_INET6 :: 30
-    } else when ODIN_OS == .FreeBSD {
+    } else when DUSK_OS == .FreeBSD {
         AF_INET6 :: 28
-    } else when ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+    } else when DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
         AF_INET6 :: 24
-    } else when ODIN_OS == .Linux {
+    } else when DUSK_OS == .Linux {
         AF_INET6 :: 10
-    } else when ODIN_OS == .Haiku {
+    } else when DUSK_OS == .Haiku {
         AF_INET6 :: 5
     }
 

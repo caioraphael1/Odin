@@ -3,7 +3,7 @@
 thrd_start_t :: proc "c" (rawptr) -> int
 tss_dtor_t   :: proc "c" (rawptr)
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign import libc {
 		"system:libucrt.lib", 
 		"system:msvcprt.lib",
@@ -31,7 +31,7 @@ when ODIN_OS == .Windows {
 	// because they held off implementing <threads.h> and C11 support for so
 	// long that people started implementing their own. To prevent symbol
 	// conflict with existing customers code they had to namespace them
-	// differently. Thus we need to alias the correct symbol names with Odin's
+	// differently. Thus we need to alias the correct symbol names with Dusk's
 	// link_name attribute.
 	@(default_calling_convention="c")
 	foreign libc {
@@ -72,7 +72,7 @@ when ODIN_OS == .Windows {
 }
 
 // GLIBC and MUSL compatible constants and types.
-when ODIN_OS == .Linux {
+when DUSK_OS == .Linux {
 	foreign import libc {
 		"system:c",
 		"system:pthread",
@@ -136,6 +136,6 @@ when ODIN_OS == .Linux {
 }
 
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	// TODO: find out what this is meant to be!
 }

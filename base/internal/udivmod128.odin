@@ -9,7 +9,7 @@ udivmod128 :: proc "c" (a, b: u128, rem: ^u128) -> u128 {
     q, r: [2]u64
     sr: u32 = 0
 
-    low  :: 1 when ODIN_ENDIAN == .Big else 0
+    low  :: 1 when DUSK_ENDIAN == .Big else 0
     high :: 1 - low
     U64_BITS  :: u32(8 * size_of(u64))
     U128_BITS :: u32(8 * size_of(u128))

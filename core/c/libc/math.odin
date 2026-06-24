@@ -2,15 +2,15 @@
 
 import "base:intrinsics"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"
 }
 
-// To support C's tgmath behavior we use Odin's explicit procedure overloading,
+// To support C's tgmath behavior we use Dusk's explicit procedure overloading,
 // but we cannot use the same names as exported by libc so use @(link_name)
 // and keep them as private symbols of name "libc_"
 @(private="file")

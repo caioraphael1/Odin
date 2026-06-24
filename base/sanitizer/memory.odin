@@ -1,7 +1,7 @@
 #+no-instrumentation
 
 @(private="file")
-MSAN_ENABLED :: .Memory in ODIN_SANITIZER_FLAGS
+MSAN_ENABLED :: .Memory in DUSK_SANITIZER_FLAGS
 
 @(private="file")
 @(default_calling_convention="system")

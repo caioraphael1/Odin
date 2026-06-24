@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -80,26 +80,26 @@ Sched_Policy :: enum c.int {
 	OTHER    = SCHED_OTHER,
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	SCHED_FIFO     :: 4
 	SCHED_RR       :: 2
 	// SCHED_SPORADIC :: 3 NOTE: not a thing on freebsd, netbsd and probably others, leaving it out
 	SCHED_OTHER    :: 1
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .OpenBSD {
 
 	SCHED_FIFO     :: 1
 	SCHED_RR       :: 3
 	SCHED_OTHER    :: 2
 
-} else when ODIN_OS == .NetBSD || ODIN_OS == .Linux {
+} else when DUSK_OS == .NetBSD || DUSK_OS == .Linux {
 
 	SCHED_OTHER    :: 0
 	SCHED_FIFO     :: 1
 	SCHED_RR       :: 2
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	SCHED_FIFO     :: 1
 	SCHED_RR       :: 2

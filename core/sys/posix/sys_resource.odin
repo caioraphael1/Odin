@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -88,27 +88,27 @@ Resource :: enum c.int {
 	AS     = RLIMIT_AS,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LGETRUSAGE :: "__getrusage50"
 } else {
 	@(private) LGETRUSAGE :: "getrusage"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
 	PRIO_PROCESS :: 0
 	PRIO_PGRP    :: 1
 	PRIO_USER    :: 2
 
-	when ODIN_OS == .Haiku {
+	when DUSK_OS == .Haiku {
 		rlim_t :: distinct c.ulong
 	} else {
 		rlim_t :: distinct c.uint64_t
 	}
 
-	when ODIN_OS == .Haiku {
+	when DUSK_OS == .Haiku {
 		RLIM_INFINITY :: rlim_t(0xFFFFFFFF)
-	} else when ODIN_OS == .Linux {
+	} else when DUSK_OS == .Linux {
 		RLIM_INFINITY :: ~rlim_t(0)
 	} else {
 		RLIM_INFINITY :: (rlim_t(1) << 63) - 1
@@ -149,7 +149,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 		ru_nivcsw:   c.long, /* involuntary " */
 	}
 
-	when ODIN_OS == .Haiku {
+	when DUSK_OS == .Haiku {
 		RLIMIT_CORE   :: 0
 		RLIMIT_CPU    :: 1
 		RLIMIT_DATA   :: 2
@@ -162,12 +162,12 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 		RLIMIT_CPU    :: 0
 		RLIMIT_DATA   :: 2
 		RLIMIT_FSIZE  :: 1
-		RLIMIT_NOFILE :: 7 when ODIN_OS == .Linux else 8
+		RLIMIT_NOFILE :: 7 when DUSK_OS == .Linux else 8
 		RLIMIT_STACK  :: 3
 	
-		when ODIN_OS == .Linux {
+		when DUSK_OS == .Linux {
 			RLIMIT_AS :: 9
-		} else when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
+		} else when DUSK_OS == .Darwin || DUSK_OS == .OpenBSD {
 			RLIMIT_AS :: 5
 		} else {
 			RLIMIT_AS :: 10

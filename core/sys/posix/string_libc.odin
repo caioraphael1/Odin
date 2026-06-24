@@ -1,7 +1,7 @@
 #+build linux, windows, darwin, netbsd, openbsd, freebsd, haiku
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign import lib "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"

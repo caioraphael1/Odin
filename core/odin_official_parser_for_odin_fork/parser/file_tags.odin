@@ -161,8 +161,8 @@ parse_file_tags :: proc(file: ast.File, allocator := context.allocator) -> (tags
 					arch_negative: runtime.Odin_Arch_Types
 
 					defer append(build_kinds, Build_Kind{
-						os   = (os_positive   == {} ? runtime.ALL_ODIN_OS_TYPES   : os_positive)  -os_negative,
-						arch = (arch_positive == {} ? runtime.ALL_ODIN_ARCH_TYPES : arch_positive)-arch_negative,
+						os   = (os_positive   == {} ? runtime.ALL_DUSK_OS_TYPES   : os_positive)  -os_negative,
+						arch = (arch_positive == {} ? runtime.ALL_DUSK_ARCH_TYPES : arch_positive)-arch_negative,
 					})
 
 					for {

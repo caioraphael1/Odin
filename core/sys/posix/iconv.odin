@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	// NOTE: iconv is in a different library
 	foreign import lib "system:iconv"
 } else {

@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -50,13 +50,13 @@ foreign lib {
 	msgsnd :: proc(msgid: FD, msgp: rawptr, msgsz: c.size_t, msgflg: IPC_Flags) -> result ---
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LMSGCTL :: "__msgctl50"
 } else {
 	@(private) LMSGCTL :: "msgctl"
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	msgqnum_t :: distinct c.ulong
 	msglen_t  :: distinct c.ulong
@@ -81,7 +81,7 @@ when ODIN_OS == .Darwin {
 		msg_pad4:   [4]c.int32_t,
 	}
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
 	msgqnum_t :: distinct c.ulong
 	msglen_t  :: distinct c.ulong
@@ -102,7 +102,7 @@ when ODIN_OS == .Darwin {
 		msg_ctime:   time_t,    /* [PSX] time of last change */
 	}
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
 	msgqnum_t :: distinct c.ulong
 	msglen_t  :: distinct c.size_t
@@ -124,7 +124,7 @@ when ODIN_OS == .Darwin {
 		_msg_cbytes: msglen_t,
 	}
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
 	msgqnum_t :: distinct c.ulong
 	msglen_t  :: distinct c.ulong
@@ -149,7 +149,7 @@ when ODIN_OS == .Darwin {
 		msg_pad4:    [4]c.long,
 	}
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	msgqnum_t :: distinct c.ulong
 	msglen_t  :: distinct c.ulong
@@ -169,7 +169,7 @@ when ODIN_OS == .Darwin {
 		__unused:    [2]c.ulong,
 	}
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	msgqnum_t :: distinct c.uint32_t
 	msglen_t  :: distinct c.uint32_t

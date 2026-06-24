@@ -1,4 +1,4 @@
-# Custom Makefile to build box2d for Odin's WASM targets.
+# Custom Makefile to build box2d for Dusk's WASM targets.
 # I tried to make a cmake toolchain file for this / use cmake but this is far easier.
 # NOTE: We are pretending to be emscripten to box2d so it takes WASM code paths, but we don't actually use emscripten.
 

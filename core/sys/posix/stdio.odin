@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -149,21 +149,21 @@ foreign lib {
     renameat :: proc(oldfd: FD, old: cstring, newfd: FD, new: cstring) -> result ---
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
     L_ctermid :: 1024
     L_tmpnam  :: 1024
 
     P_tmpdir :: "/var/tmp/"
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
 
     L_ctermid :: 1024
     L_tmpnam  :: 1024
 
     P_tmpdir :: "/tmp/"
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
     L_ctermid :: 20 // 20 on musl, 9 on glibc
     L_tmpnam  :: 20

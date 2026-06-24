@@ -1,7 +1,7 @@
 #+build linux, darwin, freebsd, openbsd, netbsd, haiku
 #+private
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"

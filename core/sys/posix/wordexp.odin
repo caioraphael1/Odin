@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -57,7 +57,7 @@ WRDE_Errno :: enum c.int {
 	SYNTAX  = WRDE_SYNTAX,
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	wordexp_t :: struct {
 		we_wordc: c.size_t,   /* [PSX] count of words matched by words */
@@ -78,7 +78,7 @@ when ODIN_OS == .Darwin {
 	WRDE_NOSPACE :: 4
 	WRDE_SYNTAX  :: 6
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
 
 	wordexp_t :: struct {
 		we_wordc:   c.size_t,   /* [PSX] count of words matched by words */
@@ -101,7 +101,7 @@ when ODIN_OS == .Darwin {
 	WRDE_NOSPACE :: 4
 	WRDE_SYNTAX  :: 6
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	wordexp_t :: struct {
 		we_wordc: c.size_t,   /* [PSX] count of words matched by words */

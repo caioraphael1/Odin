@@ -192,7 +192,7 @@ load_shaders_source :: proc(vs_source, fs_source: string, binary_retrievable := 
 }
 
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     update_shader_if_changed :: proc(
         vertex_name, fragment_name: string, 
         program: u32, 

@@ -6,7 +6,7 @@ foreign libc {
     @(link_name="write")
     _unix_write :: proc(fd: i32, buf: rawptr, size: int) -> int ---
 
-    when ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+    when DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
         @(link_name="__errno") _error :: proc() -> ^i32 ---
     } else {
         @(link_name="__error") _error :: proc() -> ^i32 ---

@@ -4,9 +4,9 @@ import "base:intrinsics"
 import "core:c"
 import "core:c/libc"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import lib "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -90,9 +90,9 @@ div_t   :: libc.div_t
 ldiv_t  :: libc.ldiv_t
 lldiv_t :: libc.lldiv_t
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     @(private) LPUTENV :: "_putenv"
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
     @(private) LPUTENV :: "__putenv50"
 } else {
     @(private) LPUTENV :: "putenv"

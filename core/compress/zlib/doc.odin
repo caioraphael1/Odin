@@ -8,7 +8,7 @@ Example:
     import "core:compress/zlib"
 
     main :: proc() {
-        ODIN_DEMO := []u8{
+        DUSK_DEMO := []u8{
             120, 218, 101, 144,  65, 110, 131,  48,  16,  69, 215, 246,  41, 190,  44,  69,  73,  32, 148, 182,
              75,  75,  28,  32, 251,  46, 217,  88, 238,   0,  86, 192,  32, 219,  36, 170, 170, 172, 122, 137,
             238, 122, 197,  30, 161,  70, 162,  20,  81, 203, 139,  25, 191, 255, 191,  60,  51,  40, 125,  81,
@@ -28,20 +28,20 @@ Example:
         buf: bytes.Buffer
 
         // We can pass ", true" to inflate a raw DEFLATE stream instead of a ZLIB wrapped one.
-        err := zlib.inflate(input=ODIN_DEMO, buf=&buf, expected_output_size=OUTPUT_SIZE)
+        err := zlib.inflate(input=DUSK_DEMO, buf=&buf, expected_output_size=OUTPUT_SIZE)
         defer bytes.buffer_destroy(&buf)
 
         if err != nil {
             fmt.printf("\nError: %v\n", err)
         }
         s := bytes.buffer_to_string(&buf)
-        fmt.printf("Input: %v bytes, output (%v bytes):\n%v\n", len(ODIN_DEMO), len(s), s)
+        fmt.printf("Input: %v bytes, output (%v bytes):\n%v\n", len(DUSK_DEMO), len(s), s)
         internal.assert(len(s) == OUTPUT_SIZE)
     }
 */
 /*
     Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.

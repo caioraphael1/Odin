@@ -7,7 +7,7 @@ _Sema :: struct {
 }
 
 _sema_post :: proc(s: ^Sema, count := 1) {
-    when ODIN_VALGRIND_SUPPORT {
+    when DUSK_VALGRIND_SUPPORT {
         vg.helgrind_sem_post_pre(s)
     }
     atomic_sema_post(&s.impl.atomic, count)
@@ -15,13 +15,13 @@ _sema_post :: proc(s: ^Sema, count := 1) {
 
 _sema_wait :: proc(s: ^Sema) {
     atomic_sema_wait(&s.impl.atomic)
-    when ODIN_VALGRIND_SUPPORT {
+    when DUSK_VALGRIND_SUPPORT {
         vg.helgrind_sem_wait_post(s)
     }
 }
 
 _sema_wait_with_timeout :: proc(s: ^Sema, duration: time.Duration) -> bool {
-    when ODIN_VALGRIND_SUPPORT {
+    when DUSK_VALGRIND_SUPPORT {
         defer vg.helgrind_sem_wait_post(s)
     }
     return atomic_sema_wait_with_timeout(&s.impl.atomic, duration)
@@ -34,7 +34,7 @@ _Recursive_Mutex :: struct {
 }
 
 _recursive_mutex_lock :: proc(m: ^Recursive_Mutex) {
-    when ODIN_VALGRIND_SUPPORT {
+    when DUSK_VALGRIND_SUPPORT {
         vg.helgrind_mutex_lock_pre(m, false)
         defer vg.helgrind_mutex_lock_post(m)
     }
@@ -54,7 +54,7 @@ _recursive_mutex_lock :: proc(m: ^Recursive_Mutex) {
 }
 
 _recursive_mutex_unlock :: proc(m: ^Recursive_Mutex) {
-    when ODIN_VALGRIND_SUPPORT {
+    when DUSK_VALGRIND_SUPPORT {
         vg.helgrind_mutex_unlock_pre(m)
         defer vg.helgrind_mutex_unlock_post(m)
     }
@@ -83,13 +83,13 @@ _recursive_mutex_try_lock :: proc(m: ^Recursive_Mutex) -> bool {
 }
 
 
-when ODIN_OS != .Windows {
+when DUSK_OS != .Windows {
     _Mutex :: struct {
         mutex: Atomic_Mutex,
     }
 
     _mutex_lock :: proc(m: ^Mutex) {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_mutex_lock_pre(m, false)
             defer vg.helgrind_mutex_lock_post(m)
         }
@@ -97,7 +97,7 @@ when ODIN_OS != .Windows {
     }
 
     _mutex_unlock :: proc(m: ^Mutex) {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_mutex_unlock_pre(m)
             defer vg.helgrind_mutex_unlock_post(m)
         }
@@ -105,7 +105,7 @@ when ODIN_OS != .Windows {
     }
 
     _mutex_try_lock :: proc(m: ^Mutex) -> bool {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_mutex_lock_pre(m, true)
             defer vg.helgrind_mutex_lock_post(m)
         }
@@ -117,7 +117,7 @@ when ODIN_OS != .Windows {
     }
 
     _cond_wait :: proc(c: ^Cond, m: ^Mutex) {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             _ = vg.helgrind_cond_wait_pre(c, m)
             defer _ = vg.helgrind_cond_wait_post(c, m)
         }
@@ -125,7 +125,7 @@ when ODIN_OS != .Windows {
     }
 
     _cond_wait_with_timeout :: proc(c: ^Cond, m: ^Mutex, duration: time.Duration) -> bool {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             _ = vg.helgrind_cond_wait_pre(c, m)
             defer _ = vg.helgrind_cond_wait_post(c, m)
         }
@@ -133,14 +133,14 @@ when ODIN_OS != .Windows {
     }
 
     _cond_signal :: proc(c: ^Cond) {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_cond_signal_pre(c)
         }
         atomic_cond_signal(&c.impl.cond)
     }
 
     _cond_broadcast :: proc(c: ^Cond) {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_cond_broadcast_pre(c)
         }
         atomic_cond_broadcast(&c.impl.cond)
@@ -152,7 +152,7 @@ when ODIN_OS != .Windows {
     }
 
     _rw_mutex_lock :: proc(rw: ^RW_Mutex) {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_rwlock_lock_pre(rw, true)
         }
         atomic_rw_mutex_lock(&rw.impl.mutex)
@@ -160,7 +160,7 @@ when ODIN_OS != .Windows {
 
     _rw_mutex_unlock :: proc(rw: ^RW_Mutex) {
         atomic_rw_mutex_unlock(&rw.impl.mutex)
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_rwlock_unlock_post(rw, true)
         }
     }
@@ -170,7 +170,7 @@ when ODIN_OS != .Windows {
     }
 
     _rw_mutex_shared_lock :: proc(rw: ^RW_Mutex) {
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_rwlock_lock_pre(rw, false)
         }
         atomic_rw_mutex_shared_lock(&rw.impl.mutex)
@@ -178,7 +178,7 @@ when ODIN_OS != .Windows {
 
     _rw_mutex_shared_unlock :: proc(rw: ^RW_Mutex) {
         atomic_rw_mutex_shared_unlock(&rw.impl.mutex)
-        when ODIN_VALGRIND_SUPPORT {
+        when DUSK_VALGRIND_SUPPORT {
             vg.helgrind_rwlock_unlock_post(rw, false)
         }
     }

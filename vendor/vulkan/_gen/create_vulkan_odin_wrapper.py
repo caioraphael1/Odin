@@ -976,7 +976,7 @@ import "core:c"
 
 @(require) import "vendor:x11/xlib"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 \tHINSTANCE           :: win32.HINSTANCE
 \tHWND                :: win32.HWND
 \tHMONITOR            :: win32.HMONITOR

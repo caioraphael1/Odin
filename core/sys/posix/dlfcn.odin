@@ -1,9 +1,9 @@
 #+build darwin, linux, freebsd, openbsd, netbsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD {
 	foreign import lib "system:dl"
 } else {
 	foreign import lib {
@@ -86,7 +86,7 @@ RTLD_Flags :: bit_set[RTLD_Flag_Bits; c.int]
 
 Symbol_Table :: distinct rawptr
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	RTLD_LAZY    :: 0x1
 	RTLD_NOW     :: 0x2
@@ -95,7 +95,7 @@ when ODIN_OS == .Darwin {
 
 	RTLD_LOCAL   :: RTLD_Flags{RTLD_Flag_Bits(log2(_RTLD_LOCAL))}
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .OpenBSD {
 
 	RTLD_LAZY    :: 1
 	RTLD_NOW     :: 2
@@ -104,7 +104,7 @@ when ODIN_OS == .Darwin {
 
 	RTLD_LOCAL   :: RTLD_Flags{}
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
 	RTLD_LAZY    :: 0x1
 	RTLD_NOW     :: 0x2
@@ -113,7 +113,7 @@ when ODIN_OS == .Darwin {
 
 	RTLD_LOCAL   :: RTLD_Flags{RTLD_Flag_Bits(log2(_RTLD_LOCAL))}
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	RTLD_LAZY    :: 0x001
 	RTLD_NOW     :: 0x002

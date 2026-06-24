@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -36,7 +36,7 @@ VFS_Flag_Bits :: enum c.ulong {
 }
 VFS_Flags :: bit_set[VFS_Flag_Bits; c.ulong]
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LFSTATVFS :: "__fstatvfs90"
 	@(private) LSTATVFS  :: "__statvfs90"
 } else {
@@ -44,7 +44,7 @@ when ODIN_OS == .NetBSD {
 	@(private) LSTATVFS  :: "statvfs"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
+when DUSK_OS == .Darwin || DUSK_OS == .OpenBSD {
 	
 	fsblkcnt_t :: distinct c.uint
 
@@ -65,7 +65,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
 	ST_RDONLY :: 0x00000001
 	ST_NOSUID :: 0x00000002
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 	
 	fsblkcnt_t :: distinct c.uint64_t
 
@@ -86,7 +86,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
 	ST_RDONLY :: 0x00000001
 	ST_NOSUID :: 0x00000002
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 	
 	fsblkcnt_t :: distinct c.uint64_t
 
@@ -129,7 +129,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
 	ST_RDONLY :: 0x00000001
 	ST_NOSUID :: 0x00000008
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	fsblkcnt_t :: distinct c.uint64_t
 

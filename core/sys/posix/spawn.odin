@@ -1,5 +1,5 @@
 #+build linux, darwin, openbsd, freebsd, netbsd, haiku
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System.framework"
 } else {
 	foreign import lib "system:c"

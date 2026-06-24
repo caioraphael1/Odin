@@ -192,7 +192,7 @@ Get the element at the front of the queue.
 This will raise a bounds checking error if the queue is empty.
 */
 front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     return q.buf.data[q.offset]
@@ -204,7 +204,7 @@ Get a pointer to the element at the front of the queue.
 This will raise a bounds checking error if the queue is empty.
 */
 front_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     return &q.buf.data[q.offset]
@@ -216,7 +216,7 @@ Get the element at the back of the queue.
 This will raise a bounds checking error if the queue is empty.
 */
 back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     idx := (q.offset + q.len - 1) % q.buf.len
@@ -229,7 +229,7 @@ Get a pointer to the element at the back of the queue.
 This will raise a bounds checking error if the queue is empty.
 */
 back_ptr :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> ^T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     idx := (q.offset + q.len - 1) % q.buf.len
@@ -342,7 +342,7 @@ Example:
     }
 */
 pop_back :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     q.len -= 1
@@ -371,7 +371,7 @@ Pop an element from the front of the queue
 This will raise a bounds checking error if the queue is empty.
 */
 pop_front :: proc(q: ^$Q/Queue($T), loc := #caller_location) -> (elem: T) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     elem = q.buf.data[q.offset]
@@ -400,7 +400,7 @@ Consume `n` elements from the back of the queue.
 This will raise a bounds checking error if the queue does not have enough elements.
 */
 consume_front :: proc(q: ^$Q/Queue($T), n: uint, loc := #caller_location) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len >= n, "Queue does not have enough elements to consume.", loc)
     }
     if n > 0 {
@@ -415,7 +415,7 @@ Consume `n` elements from the back of the queue.
 This will raise a bounds checking error if the queue does not have enough elements.
 */
 consume_back :: proc(q: ^$Q/Queue($T), n: uint, loc := #caller_location) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len >= n, "Queue does not have enough elements to consume.", loc)
     }
     if n > 0 {

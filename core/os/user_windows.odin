@@ -63,7 +63,7 @@ _user_videos_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) 
 
 _get_known_folder_path :: proc(rfid: win32.REFKNOWNFOLDERID, allocator: mem.Allocator) -> (dir: string, err: Error) {
     // https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetknownfolderpath
-    // See also `known_folders.odin` in `core:sys/windows` for the GUIDs.
+    // See also `known_folders.dusk` in `core:sys/windows` for the GUIDs.
     path_w: win32.LPWSTR
     res  := win32.SHGetKnownFolderPath(rfid, 0, nil, &path_w)
     defer win32.CoTaskMemFree(path_w)

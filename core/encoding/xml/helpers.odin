@@ -2,7 +2,7 @@
 	An XML 1.0 / 1.1 parser
 
 	Copyright 2021-2022 Jeroen van Rijn <nom@duclavier.com>.
-	Made available under Odin's license.
+	Made available under Dusk's license.
 
 	This file contains helper functions.
 */

@@ -45,21 +45,21 @@ set :: proc(q: ^$Q/Queue($N, $T), i: uint, val: T, loc := #caller_location) {
 }
 
 front :: proc(q: ^$Q/Queue($N, $T), loc := #caller_location) -> T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     return q.data[q.offset]
 }
 
 front_ptr :: proc(q: ^$Q/Queue($N, $T), loc := #caller_location) -> ^T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     return &q.data[q.offset]
 }
 
 back :: proc(q: ^$Q/Queue($N, $T), loc := #caller_location) -> T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     idx := (q.offset + uint(q.len - 1))%builtin.len(q.data)
@@ -67,7 +67,7 @@ back :: proc(q: ^$Q/Queue($N, $T), loc := #caller_location) -> T {
 }
 
 back_ptr :: proc(q: ^$Q/Queue($N, $T), loc := #caller_location) -> ^T {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     idx := (q.offset + uint(q.len - 1)) % builtin.len(q.data)
@@ -95,7 +95,7 @@ push_front :: proc(q: ^$Q/Queue($N, $T), elem: T, loc := #caller_location) -> (o
 }
 
 pop_back :: proc(q: ^$Q/Queue($N, $T), loc := #caller_location) -> (elem: T) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     q.len -= 1
@@ -115,7 +115,7 @@ pop_back_safe :: proc(q: ^$Q/Queue($N, $T)) -> (elem: T, ok: bool) {
 }
 
 pop_front :: proc(q: ^$Q/Queue($N, $T), loc := #caller_location) -> (elem: T) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len > 0, "Queue is empty.", loc)
     }
     elem = q.data[q.offset]
@@ -153,7 +153,7 @@ push_back_elems :: proc(q: ^$Q/Queue($N, $T), elems: ..T, loc := #caller_locatio
 }
 
 consume_front :: proc(q: ^$Q/Queue($N, $T), n: uint, loc := #caller_location) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
     }
     if n > 0 {
@@ -164,7 +164,7 @@ consume_front :: proc(q: ^$Q/Queue($N, $T), n: uint, loc := #caller_location) {
 }
 
 consume_back :: proc(q: ^$Q/Queue($N, $T), n: uint, loc := #caller_location) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(q.len >= uint(n), "Queue does not have enough elements to consume.", loc)
     }
     if n > 0 {

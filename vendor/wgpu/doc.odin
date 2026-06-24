@@ -7,7 +7,7 @@ the wgpu-native library provides support for all other targets.
 
 **Examples**
 
-You can find a number of examples on [[Odin's official examples repository; https://github.com/odin-lang/examples/tree/master/wgpu]].
+You can find a number of examples on [[Dusk's official examples repository; https://github.com/odin-lang/examples/tree/master/wgpu]].
 
 **Getting the wgpu-native libraries**
 

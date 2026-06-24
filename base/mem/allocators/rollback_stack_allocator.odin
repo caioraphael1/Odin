@@ -201,7 +201,7 @@ rb_alloc_bytes_non_zeroed :: proc(
     parent: ^Rollback_Stack_Block
 
     for block := stack.head; /**/; block = block.next_block {
-        when !ODIN_DISABLE_ASSERT {
+        when !DUSK_DISABLE_ASSERT {
             allocated_new_block: bool
         }
         if block == nil {
@@ -212,14 +212,14 @@ rb_alloc_bytes_non_zeroed :: proc(
             new_block_size := max(minimum_size_required, stack.block_size)
             block = rb_make_block(new_block_size, stack.block_allocator) or_return
             parent.next_block = block
-            when !ODIN_DISABLE_ASSERT {
+            when !DUSK_DISABLE_ASSERT {
                 allocated_new_block = true
             }
         }
         start := raw_data(block.buffer)[block.offset:]
         padding := cast(uintptr)mem.calc_padding_with_header(cast(uintptr)start, cast(uintptr)alignment, size_of(Rollback_Stack_Header))
         if block.offset + padding + cast(uintptr)size > cast(uintptr)len(block.buffer) {
-            when !ODIN_DISABLE_ASSERT {
+            when !DUSK_DISABLE_ASSERT {
                 if allocated_new_block {
                     internal.panic("Rollback Stack mem.Allocator allocated a new block but did not use it.")
                 }

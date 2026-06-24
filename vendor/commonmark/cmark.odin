@@ -10,13 +10,13 @@ when COMMONMARK_SHARED {
     #panic("Shared linking for vendor:commonmark is not supported yet")
 }
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import lib {
         "cmark_static.lib",
     }
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
     foreign import lib "system:cmark"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import lib "system:cmark"
 } else {
     foreign import lib "system:cmark"
@@ -440,7 +440,7 @@ foreign lib {
     // The memory allocated for the node tree should be released using 'node_free'
     // when it is no longer needed.
     //
-    // Called `parse_from_libc_file` so as not to confuse with Odin's file handling.
+    // Called `parse_from_libc_file` so as not to confuse with Dusk's file handling.
 
     @(link_name = "parse_from_file")
     parse_from_libc_file :: proc(file: ^c.FILE, options: Options) -> (root: ^Node) ---

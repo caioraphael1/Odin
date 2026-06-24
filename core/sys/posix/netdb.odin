@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -317,7 +317,7 @@ Info_Errno :: enum c.int {
     OVERFLOW = EAI_OVERFLOW,
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
     hostent :: struct {
         h_name:      cstring,                /* [PSX] official name of host */
@@ -350,7 +350,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
     // The highest reserved port number.
     IPPORT_RESERVED :: 1024
 
-    when ODIN_OS == .Linux || ODIN_OS == .OpenBSD {
+    when DUSK_OS == .Linux || DUSK_OS == .OpenBSD {
         addrinfo :: struct {
             ai_flags:     Addrinfo_Flags, /* [PSX] input flags */
             ai_family:    AF,             /* [PSX] address family of socket */
@@ -374,7 +374,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         }
     }
 
-    when ODIN_OS == .Darwin {
+    when DUSK_OS == .Darwin {
 
         AI_PASSIVE     :: 0x00000001
         AI_CANONNAME   :: 0x00000002
@@ -391,7 +391,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         NI_NUMERICSCOPE :: 0x00000100
         NI_DGRAM        :: 0x00000010
 
-    } else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD {
+    } else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD {
 
         AI_PASSIVE     :: 0x00000001
         AI_CANONNAME   :: 0x00000002
@@ -408,7 +408,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         NI_NUMERICSCOPE :: 0x00000010
         NI_DGRAM        :: 0x00000020
 
-    } else when ODIN_OS == .OpenBSD {
+    } else when DUSK_OS == .OpenBSD {
 
         AI_PASSIVE     :: 1
         AI_CANONNAME   :: 2
@@ -425,7 +425,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         NI_NUMERICSCOPE :: 32
         NI_DGRAM        :: 16
 
-    } else when ODIN_OS == .Linux {
+    } else when DUSK_OS == .Linux {
 
         AI_PASSIVE     :: 0x001
         AI_CANONNAME   :: 0x002
@@ -442,7 +442,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         NI_NUMERICSCOPE :: 0x100
         NI_DGRAM        :: 16
 
-    } else when ODIN_OS == .Haiku {
+    } else when DUSK_OS == .Haiku {
 
         AI_PASSIVE     :: 0x001
         AI_CANONNAME   :: 0x002
@@ -461,7 +461,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 
     }
 
-    when ODIN_OS == .OpenBSD {
+    when DUSK_OS == .OpenBSD {
 
         EAI_AGAIN    :: -3
         EAI_BADFLAGS :: -1
@@ -474,7 +474,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
         EAI_SYSTEM   :: -11
         EAI_OVERFLOW :: -14
 
-    } else when ODIN_OS == .Linux {
+    } else when DUSK_OS == .Linux {
 
         EAI_AGAIN    :: -3
         EAI_BADFLAGS :: -1

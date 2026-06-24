@@ -2,16 +2,16 @@
 
 // 7.22 General utilities
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"
 }
 
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     RAND_MAX :: 0x7fff
 
     @(private="file")
@@ -25,7 +25,7 @@ when ODIN_OS == .Windows {
     }
 }
 
-when ODIN_OS == .Linux {
+when DUSK_OS == .Linux {
     RAND_MAX :: 0x7fffffff
 
     // GLIBC and MUSL only
@@ -40,7 +40,7 @@ when ODIN_OS == .Linux {
     }
 }
 
-when ODIN_OS == .Haiku {
+when DUSK_OS == .Haiku {
     RAND_MAX :: 0x7fffffff
 
     // GLIBC and MUSL only
@@ -56,7 +56,7 @@ when ODIN_OS == .Haiku {
 }
 
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .OpenBSD {
     RAND_MAX :: 0x7fffffff
 
     @(private="file")
@@ -70,7 +70,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD {
     }
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     RAND_MAX :: 0x7fffffff
 
     @(private="file")
@@ -156,12 +156,12 @@ foreign libc {
 
 
 aligned_alloc :: #force_inline proc "c" (alignment, size: size_t) -> rawptr {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         foreign libc {
             _aligned_malloc :: proc(size, alignment: size_t) -> rawptr ---
         }
         return _aligned_malloc(size=size, alignment=alignment)
-    } else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
+    } else when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32 {
         data, _ := mem.alloc(auto_cast size, auto_cast alignment)
         return raw_data(data)
     } else {
@@ -174,12 +174,12 @@ aligned_alloc :: #force_inline proc "c" (alignment, size: size_t) -> rawptr {
 
 
 aligned_free :: #force_inline proc "c" (ptr: rawptr) {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         foreign libc {
             _aligned_free :: proc(ptr: rawptr) ---
         }
         _aligned_free(ptr)
-    } else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
+    } else when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32 {
         mem.free(ptr)
     } else {
         _ = mem.free(ptr)

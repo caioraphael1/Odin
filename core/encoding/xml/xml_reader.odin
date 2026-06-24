@@ -2,7 +2,7 @@
     An XML 1.0 / 1.1 parser
 
     2021-2022 Jeroen van Rijn <nom@duclavier.com>.
-    available under Odin's license.
+    available under Dusk's license.
 
     List of contributors:
     - Jeroen van Rijn: Initial implementation.

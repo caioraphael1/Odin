@@ -1,34 +1,34 @@
 // 7.30 Wide character classification and mapping utilities
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
 	foreign import libc "system:System"
 } else {
 	foreign import libc "system:c"
 }
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	wctrans_t :: distinct wchar_t
 	wctype_t  :: distinct ushort
 
-} else when ODIN_OS == .Linux || ODIN_OS == .JS {
+} else when DUSK_OS == .Linux || DUSK_OS == .JS {
 	wctrans_t :: distinct intptr_t
 	wctype_t  :: distinct ulong
 
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
 	wctrans_t :: distinct int
 	wctype_t  :: distinct u32
 
-} else when ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD {
+} else when DUSK_OS == .OpenBSD || DUSK_OS == .NetBSD {
 	wctrans_t :: distinct rawptr
 	wctype_t  :: distinct rawptr
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 	wctrans_t :: distinct int
 	wctype_t  :: distinct ulong
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 	wctrans_t :: distinct i32
 	wctype_t  :: distinct i32
 

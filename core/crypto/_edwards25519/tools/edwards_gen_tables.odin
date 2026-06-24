@@ -75,9 +75,9 @@ main :: proc() {
         }
     }
 
-    fn, err := path.join({ODIN_ROOT, "core", "crypto", "_edwards25519", "edwards25519_table.odin"}, context.allocator)
+    fn, err := path.join({DUSK_ROOT, "core", "crypto", "_edwards25519", "edwards25519_table.dusk"}, context.allocator)
     if err != .None {
-        fmt.eprintfln("Join path error for edwards25519_table.odin: %v", err);
+        fmt.eprintfln("Join path error for edwards25519_table.dusk: %v", err);
         os.exit(1);
     }
     bld: string_builder.Builder

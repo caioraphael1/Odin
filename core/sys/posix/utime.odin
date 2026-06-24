@@ -1,5 +1,5 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -17,13 +17,13 @@ foreign lib {
 	utime :: proc(path: cstring, times: ^utimbuf) -> result ---
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LUTIME :: "__utime50"
 } else {
 	@(private) LUTIME :: "utime"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
 	utimbuf :: struct {
 		actime:  time_t, /* [PSX] access time (seconds since epoch) */

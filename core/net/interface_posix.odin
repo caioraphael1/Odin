@@ -11,7 +11,7 @@
     Copyright 2022 Colin Davidson  <colrdavidson@gmail.com>
     Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
     Copyright 2024 Feoramund       <rune@swevencraft.org>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Tetralux:        Initial implementation
@@ -133,7 +133,7 @@ IF_Flag :: enum u32 {
 @(private)
 IF_Flags :: bit_set[IF_Flag; u32]
 
-when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
+when DUSK_OS == .Darwin || DUSK_OS == .OpenBSD {
     @(private)
     ifaddrs :: struct {
         next:    ^ifaddrs,
@@ -144,7 +144,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .OpenBSD {
         dstaddr: ^posix.sockaddr,
         data:    rawptr,
     }
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
     @(private)
     ifaddrs :: struct {
         next:      ^ifaddrs,

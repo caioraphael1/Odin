@@ -24,10 +24,10 @@ i32 bundle_android(String original_init_directory) {
     }
     init_directory = normalize_path(temporary_allocator(), init_directory, NIX_SEPARATOR_STRING);
 
-    int const ODIN_ANDROID_API_LEVEL = build_context.ODIN_ANDROID_API_LEVEL;
+    int const DUSK_ANDROID_API_LEVEL = build_context.DUSK_ANDROID_API_LEVEL;
 
     String android_sdk_build_tools = concatenate3_strings(temporary_allocator(),
-        build_context.ODIN_ANDROID_SDK, str_lit("build-tools"), NIX_SEPARATOR_STRING);
+        build_context.DUSK_ANDROID_SDK, str_lit("build-tools"), NIX_SEPARATOR_STRING);
 
     Array<FileInfo> list = {};
     ReadDirectoryError rd_err = read_directory(android_sdk_build_tools, &list);
@@ -97,7 +97,7 @@ i32 bundle_android(String original_init_directory) {
 
     isize closest_number_idx = -1;
     for (isize i = 0; i < possible_valid_dirs.count; i++) {
-        if (dir_numbers[i] >= ODIN_ANDROID_API_LEVEL) {
+        if (dir_numbers[i] >= DUSK_ANDROID_API_LEVEL) {
             if (closest_number_idx < 0) {
                 closest_number_idx = i;
             } else if (dir_numbers[i] < dir_numbers[closest_number_idx]) {
@@ -107,7 +107,7 @@ i32 bundle_android(String original_init_directory) {
     }
 
     if (closest_number_idx < 0) {
-        gb_printf_err("Unable to find any Android SDK/API Level in %.*s meeting the minimum API level of %d\n", LIT(android_sdk_build_tools), ODIN_ANDROID_API_LEVEL);
+        gb_printf_err("Unable to find any Android SDK/API Level in %.*s meeting the minimum API level of %d\n", LIT(android_sdk_build_tools), DUSK_ANDROID_API_LEVEL);
         return 1;
     }
 
@@ -115,7 +115,7 @@ i32 bundle_android(String original_init_directory) {
 
     android_sdk_build_tools = concatenate_strings(temporary_allocator(), android_sdk_build_tools, api_number);
     String android_sdk_platforms = concatenate_strings(temporary_allocator(),
-        build_context.ODIN_ANDROID_SDK,
+        build_context.DUSK_ANDROID_SDK,
         make_string_c(gb_bprintf("platforms/android-%d/", dir_numbers[closest_number_idx]))
     );
 

@@ -1,9 +1,9 @@
 // Bindings for [[ libz ; https://zlib.net ]] ZLIB compression library.
 import "core:c"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign import zlib "libz.lib"
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 	foreign import zlib "system:z"
 } else {
 	foreign import zlib "system:z"

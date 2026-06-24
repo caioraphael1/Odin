@@ -7,7 +7,7 @@ This allocator needs to be manually initialized by the user.
 
 
 // Temp Allocator
-when ODIN_ARCH == .i386 && ODIN_OS == .Windows {
+when DUSK_ARCH == .i386 && DUSK_OS == .Windows {
     // Thread-local storage is problematic on Windows i386
     temp_allocator: mem.Allocator
     temp_allocator_growing_arena: Growing_Arena

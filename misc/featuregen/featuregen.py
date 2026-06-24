@@ -17,7 +17,7 @@ SEEKING_CPUS     = 0
 PARSING_CPUS     = 1
 PARSING_FEATURES = 2
 
-with tempfile.NamedTemporaryFile(suffix=".odin", delete=True) as temp_file:
+with tempfile.NamedTemporaryFile(suffix=".dusk", delete=True) as temp_file:
     temp_file.write(b"package main\n")
 
     for arch, target, triple, cpus, features in archs:

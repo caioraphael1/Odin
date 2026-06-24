@@ -4,20 +4,20 @@ import stbrp "vendor:stb/rect_pack"
 
 @(private)
 LIB :: (
-	     "../lib/stb_truetype.lib"      when ODIN_OS == .Windows
-	else "../lib/stb_truetype.a"        when ODIN_OS == .Linux
-	else "../lib/darwin/stb_truetype.a" when ODIN_OS == .Darwin
-	else "../lib/stb_truetype_wasm.o"   when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
+	     "../lib/stb_truetype.lib"      when DUSK_OS == .Windows
+	else "../lib/stb_truetype.a"        when DUSK_OS == .Linux
+	else "../lib/darwin/stb_truetype.a" when DUSK_OS == .Darwin
+	else "../lib/stb_truetype_wasm.o"   when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32
 	else ""
 )
 
 when LIB != "" {
 	when !#exists(LIB) {
-		#panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + ODIN_ROOT + "vendor/stb/src\"`")
+		#panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + DUSK_ROOT + "vendor/stb/src\"`")
 	}
 }
 
-when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
+when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32 {
 	foreign import stbtt "../lib/stb_truetype_wasm.o"
 } else when LIB != "" {
 	foreign import stbtt { LIB }

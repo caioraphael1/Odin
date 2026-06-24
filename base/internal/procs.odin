@@ -8,7 +8,7 @@ This procedure returns the pointer to `data`.
 */
 
 
-when ODIN_NO_CRT && ODIN_OS == .Windows {
+when DUSK_NO_CRT && DUSK_OS == .Windows {
     foreign import lib "system:NtDll.lib"
     
     @(private="file")
@@ -33,12 +33,12 @@ when ODIN_NO_CRT && ODIN_OS == .Windows {
         RtlMoveMemory(dst, src, len)
         return dst
     }
-} else when ODIN_NO_CRT || (ODIN_OS != .Orca && (ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32)) {
+} else when DUSK_NO_CRT || (DUSK_OS != .Orca && (DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32)) {
     // NOTE: on wasm, calls to these procs are generated (by LLVM) with type `i32` instead of `int`.
     //
     // NOTE: `#any_int` is also needed, because calls that we generate (and package code)
     //       will be using `int` and need to be converted.
-    int_t :: i32 when ODIN_ARCH == .wasm64p32 else int
+    int_t :: i32 when DUSK_ARCH == .wasm64p32 else int
 
     @(link_name="memset", linkage="strong", require)
     memset :: proc "c" (ptr: rawptr, val: i32, #any_int len: int_t) -> rawptr {

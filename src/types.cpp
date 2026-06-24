@@ -345,7 +345,7 @@ struct Type {
     bool failure;
 };
 
-// IMPORTANT NOTE(bill): This must match the same as the in core.odin
+// IMPORTANT NOTE(bill): This must match the same as the in core.dusk
 enum Typeid_Kind : u8 {
     Typeid_Invalid,
     Typeid_Integer,
@@ -378,7 +378,7 @@ enum Typeid_Kind : u8 {
 
 };
 
-// IMPORTANT NOTE(bill): This must match the same as the in core.odin
+// IMPORTANT NOTE(bill): This must match the same as the in core.dusk
 enum TypeInfoFlag : u32 {
     TypeInfoFlag_Comparable     = 1<<0,
     TypeInfoFlag_Simple_Compare = 1<<1,

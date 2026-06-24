@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import libc "system:System"
 } else {
 	foreign import libc "system:c"
@@ -29,7 +29,7 @@ foreign libc {
 	writev :: proc(fildes: FD, iov: [^]iovec, iovcnt: c.int) -> c.ssize_t ---
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
 	iovec :: struct {
 		iov_base: rawptr,   /* [PSX] base address of I/O memory region */

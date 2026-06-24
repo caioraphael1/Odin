@@ -4,9 +4,9 @@ import "base:intrinsics"
 import "core:c"
 import "core:c/libc"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import lib "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -117,7 +117,7 @@ SIGINT  :: libc.SIGINT
 SIGSEGV :: libc.SIGSEGV
 SIGTERM :: libc.SIGTERM
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     SIGALRM   :: -1
     SIGBUS    :: -1
     SIGCHLD   :: -1

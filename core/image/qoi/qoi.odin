@@ -3,7 +3,7 @@
 // The QOI specification is at [[ https://qoiformat.org ]].
 /*
 	Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
-	Made available under Odin's license.
+	Made available under Dusk's license.
 
 	List of contributors:
 		Jeroen van Rijn: Initial implementation.

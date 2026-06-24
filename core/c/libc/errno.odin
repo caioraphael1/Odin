@@ -1,8 +1,8 @@
 // 7.5 Errors
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"
@@ -12,7 +12,7 @@ when ODIN_OS == .Windows {
 //  EDOM,
 //  EILSEQ
 //  ERANGE
-when ODIN_OS == .Linux {
+when DUSK_OS == .Linux {
     @(private="file")
     @(default_calling_convention="c")
     foreign libc {
@@ -25,7 +25,7 @@ when ODIN_OS == .Linux {
     ERANGE :: 34
 }
 
-when ODIN_OS == .FreeBSD {
+when DUSK_OS == .FreeBSD {
     @(private="file")
     @(default_calling_convention="c")
     foreign libc {
@@ -38,7 +38,7 @@ when ODIN_OS == .FreeBSD {
     ERANGE :: 34
 }
 
-when ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD {
+when DUSK_OS == .OpenBSD || DUSK_OS == .NetBSD {
     @(private="file")
     @(default_calling_convention="c")
     foreign libc {
@@ -51,7 +51,7 @@ when ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD {
     ERANGE :: 34
 }
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     @(private="file")
     @(default_calling_convention="c")
     foreign libc {
@@ -64,7 +64,7 @@ when ODIN_OS == .Windows {
     ERANGE :: 34
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     @(private="file")
     @(default_calling_convention="c")
     foreign libc {
@@ -78,7 +78,7 @@ when ODIN_OS == .Darwin {
     ERANGE :: 34
 }
 
-when ODIN_OS == .Haiku {
+when DUSK_OS == .Haiku {
     @(private="file")
     @(default_calling_convention="c")
     foreign libc {
@@ -97,7 +97,7 @@ when ODIN_OS == .Haiku {
     ERANGE :: _POSIX_ERROR_FACTOR * (_POSIX_ERROR_BASE + 17)
 }
 
-when ODIN_OS == .JS {
+when DUSK_OS == .JS {
     _ :: libc
     _get_errno :: proc "c" () -> ^int {
         @(static) errno: int

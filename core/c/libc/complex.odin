@@ -1,8 +1,8 @@
 // 7.3 Complex arithmetic
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import libc "system:System"
 } else {
     foreign import libc "system:c"

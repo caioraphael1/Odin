@@ -3,7 +3,7 @@
     A parser for GNU GetText .MO files.
 
     Copyright 2021-2022 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     A from-scratch implementation based after the specification found here:
         https://www.gnu.org/software/gettext/manual/html_node/MO-Files.html
@@ -134,7 +134,7 @@ read_u32 :: proc(data: []u8, native_endian := true) -> (res: u32, err: Error) {
     if native_endian {
         return val, .None
     } else {
-        when ODIN_ENDIAN == .Little {
+        when DUSK_ENDIAN == .Little {
             return u32(transmute(u32be)val), .None
         } else {
             return u32(transmute(u32le)val), .None
@@ -151,7 +151,7 @@ read_u16 :: proc(data: []u8, native_endian := true) -> (res: u16, err: Error) {
     if native_endian {
         return val, .None
     } else {
-        when ODIN_ENDIAN == .Little {
+        when DUSK_ENDIAN == .Little {
             return u16(transmute(u16be)val), .None
         } else {
             return u16(transmute(u16le)val), .None

@@ -13,7 +13,7 @@ import "core:sys/info"
 // supercop-20230530/crypto_stream/chacha20/krovetz/vec128
 // supercop-20230530/crypto_stream/chacha20/krovetz/avx2
 
-#assert(ODIN_ENDIAN == .Little)
+#assert(DUSK_ENDIAN == .Little)
 
 @(private = "file")
 _ROT_7L: simd.u32x8 : {7, 7, 7, 7, 7, 7, 7, 7}

@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -51,18 +51,18 @@ SHM_Flag_Bits :: enum c.int {
 }
 SHM_Flags :: bit_set[SHM_Flag_Bits; c.int]
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LSHMCTL :: "__shmctl50"
 } else {
 	@(private) LSHMCTL :: "shmctl"
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	SHM_RDONLY :: 0o10000
 	SHM_RND    :: 0o20000
 
-	SHMLBA     :: 16 * 1024 when ODIN_ARCH == .arm64 else 4096
+	SHMLBA     :: 16 * 1024 when DUSK_ARCH == .arm64 else 4096
 
 	shmatt_t :: distinct c.ushort
 
@@ -78,7 +78,7 @@ when ODIN_OS == .Darwin {
 		shm_internal: rawptr,
 	}
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD {
 
 	SHM_RDONLY :: 0o10000
 	SHM_RND    :: 0o20000
@@ -87,7 +87,7 @@ when ODIN_OS == .Darwin {
 
 	shmatt_t :: distinct c.uint
 
-	when ODIN_OS == .FreeBSD {
+	when DUSK_OS == .FreeBSD {
 		shmid_ds :: struct {
 			shm_perm:     ipc_perm, /* [PSX] operation permission structure */
 			shm_segsz:    c.size_t, /* [PSX] size of segment in bytes */
@@ -112,7 +112,7 @@ when ODIN_OS == .Darwin {
 		}
 	}
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
 	SHM_RDONLY :: 0o10000
 	SHM_RND    :: 0o20000
@@ -136,7 +136,7 @@ when ODIN_OS == .Darwin {
 		_shm_internal:   rawptr,
 	}
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	SHM_RDONLY :: 0o10000
 	SHM_RND    :: 0o20000

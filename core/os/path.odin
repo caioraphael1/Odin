@@ -769,7 +769,7 @@ glob :: proc(pattern: string, allocator: mem.Allocator) -> (matches: []string, e
         Everything else will be "".
 */
 volume_name :: proc(path: string) -> string {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         return path[:_volume_name_len(path)]
     } else {
         return ""
@@ -789,7 +789,7 @@ scan_chunk :: proc(pattern: string) -> (star: bool, chunk, rest: string) {
     scan_loop: for i = 0; i < len(pattern); i += 1 {
         switch pattern[i] {
         case '\\':
-            when ODIN_OS != .Windows {
+            when DUSK_OS != .Windows {
                 if i+1 < len(pattern) {
                     i += 1
                 }
@@ -867,7 +867,7 @@ match_chunk :: proc(chunk, s: string) -> (rest: string, ok: bool, err: Error) {
             chunk = chunk[1:]
 
         case '\\':
-            when ODIN_OS != .Windows {
+            when DUSK_OS != .Windows {
                 chunk = chunk[1:]
                 if len(chunk) == 0 {
                     err = .Pattern_Syntax_Error
@@ -894,7 +894,7 @@ get_escape :: proc(chunk: string) -> (r: rune, next_chunk: string, err: Error) {
         return
     }
     chunk := chunk
-    if chunk[0] == '\\' && ODIN_OS != .Windows {
+    if chunk[0] == '\\' && DUSK_OS != .Windows {
         chunk = chunk[1:]
         if len(chunk) == 0 {
             err = .Pattern_Syntax_Error
@@ -953,7 +953,7 @@ _glob :: proc(dir, pattern: string, matches: ^dyn_array.Dyn_Array(string), alloc
 
 @(private)
 has_meta :: proc(path: string) -> bool {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         CHARS :: `*?[`
     } else {
         CHARS :: `*?[\`
@@ -963,7 +963,7 @@ has_meta :: proc(path: string) -> bool {
 
 @(private)
 clean_glob_path :: proc(path: string, temp_buf: []u8) -> (uint, string) {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         vol_len := _volume_name_len(path)
         switch {
         case path == "":

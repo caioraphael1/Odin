@@ -1,7 +1,7 @@
 // `Shoco` short string compression and decompression.
 /*
     Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.
@@ -134,7 +134,7 @@ decompress_slice_to_output_buffer :: proc(input: []u8, output: []u8, model := DE
             }
 
             code := intrinsics.unaligned_load((^u32)(&input[inp]))
-            when ODIN_ENDIAN == .Little {
+            when DUSK_ENDIAN == .Little {
                 code = intrinsics.byte_swap(code)
             }
 
@@ -264,7 +264,7 @@ compress_string_to_buffer :: proc(input: string, output: []u8, model := DEFAULT_
                 }
 
                 // In the little-endian world, we need to swap what's in the register to match the memory representation.
-                when ODIN_ENDIAN == .Little {
+                when DUSK_ENDIAN == .Little {
                     code = intrinsics.byte_swap(code)
                 }
                 out_ptr := raw_data(output[out:])

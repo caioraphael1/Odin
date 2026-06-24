@@ -1,6 +1,6 @@
 /*
     (c) Copyright 2024 Feoramund <rune@swevencraft.org>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Feoramund: Initial implementation.
@@ -124,7 +124,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             return
         }
 
-        when common.ODIN_DEBUG_REGEX {
+        when common.DUSK_DEBUG_REGEX {
             _, _ = io.write_string(common.debug_stream, "Thread [PC:")
             common.write_padded_hex(common.debug_stream, pc, 4)
             _, _ = io.write_string(common.debug_stream, "] thinking about ")
@@ -154,7 +154,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             sp := vm.string_pointer+vm.current_rune_size
             saved[index] = sp
 
-            when common.ODIN_DEBUG_REGEX {
+            when common.DUSK_DEBUG_REGEX {
                 io.write_string(common.debug_stream, "Thread [PC:")
                 common.write_padded_hex(common.debug_stream, pc, 4)
                 io.write_string(common.debug_stream, "] saving state: (slot ")
@@ -194,7 +194,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             } else {
                 // Not at the end of the string.
                 // Try to consume a newline next frame in the other opcode loop.
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "*** New thread added [PC:")
                     common.write_padded_hex(common.debug_stream, pc, 4)
                     io.write_string(common.debug_stream, "]\n")
@@ -234,7 +234,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
                 add_thread(vm, saved, pc + int(size_of(Opcode)) + int(size_of(u8)), allocator)
             }
 
-            when common.ODIN_DEBUG_REGEX {
+            when common.DUSK_DEBUG_REGEX {
                 io.write_string(common.debug_stream, "*** New thread added [PC:")
                 common.write_padded_hex(common.debug_stream, pc, 4)
                 io.write_string(common.debug_stream, "]\n")
@@ -248,7 +248,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
                 add_thread(vm, saved, pc + int(size_of(Opcode)) + int(size_of(rune)), allocator)
             }
 
-            when common.ODIN_DEBUG_REGEX {
+            when common.DUSK_DEBUG_REGEX {
                 io.write_string(common.debug_stream, "*** New thread added [PC:")
                 common.write_padded_hex(common.debug_stream, pc, 4)
                 io.write_string(common.debug_stream, "]\n")
@@ -275,7 +275,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
                     }
                 }
             }
-            when common.ODIN_DEBUG_REGEX {
+            when common.DUSK_DEBUG_REGEX {
                 io.write_string(common.debug_stream, "*** New thread added [PC:")
                 common.write_padded_hex(common.debug_stream, pc, 4)
                 io.write_string(common.debug_stream, "]\n")
@@ -301,7 +301,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
                 }
                 add_thread(vm, saved, pc + int(size_of(Opcode)) + int(size_of(u8)), allocator)
             }
-            when common.ODIN_DEBUG_REGEX {
+            when common.DUSK_DEBUG_REGEX {
                 io.write_string(common.debug_stream, "*** New thread added [PC:")
                 common.write_padded_hex(common.debug_stream, pc, 4)
                 io.write_string(common.debug_stream, "]\n")
@@ -310,7 +310,7 @@ add_thread :: proc(vm: ^Machine, saved: ^[2 * common.MAX_CAPTURE_GROUPS]int, pc:
             vm.top_thread += 1
 
         case:
-            when common.ODIN_DEBUG_REGEX {
+            when common.DUSK_DEBUG_REGEX {
                 io.write_string(common.debug_stream, "*** New thread added [PC:")
                 common.write_padded_hex(common.debug_stream, pc, 4)
                 io.write_string(common.debug_stream, "]\n")
@@ -336,7 +336,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
         }
     }
 
-    when common.ODIN_DEBUG_REGEX {
+    when common.DUSK_DEBUG_REGEX {
         io.write_string(common.debug_stream, "### Adding initial thread.\n")
     }
 
@@ -351,7 +351,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
     // thread in the current thread buffer.
     vm.threads, vm.next_threads = vm.next_threads, vm.threads
 
-    when common.ODIN_DEBUG_REGEX {
+    when common.DUSK_DEBUG_REGEX {
         io.write_string(common.debug_stream, "### VM starting.\n")
         defer io.write_string(common.debug_stream, "### VM finished.\n")
     }
@@ -377,7 +377,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
             }
         }
 
-        when common.ODIN_DEBUG_REGEX {
+        when common.DUSK_DEBUG_REGEX {
             io.write_string(common.debug_stream, ">>> Dispatching rune: ")
             _, _ = io.write_encoded_rune(common.debug_stream, current_rune)
             io.write_byte(common.debug_stream, '\n')
@@ -388,7 +388,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
         thread_loop: for i := 0; i < thread_count; i += 1 {
             t := vm.threads[i]
 
-            when common.ODIN_DEBUG_REGEX {
+            when common.DUSK_DEBUG_REGEX {
                 io.write_string(common.debug_stream, "Thread [PC:")
                 common.write_padded_hex(common.debug_stream, t.pc, 4)
                 io.write_string(common.debug_stream, "] stepping on ")
@@ -398,7 +398,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
 
             #partial opcode: switch vm.code[t.pc] {
             case .Match:
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "Thread matched!\n")
                 }
                 saved = t.saved
@@ -406,7 +406,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
                 break thread_loop
 
             case .Match_And_Exit:
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "Thread matched! (Exiting)\n")
                 }
                 return nil, true
@@ -482,7 +482,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
                 if vm.next_rune == operand {
                     add_thread(vm, t.saved, t.pc + int(size_of(Opcode)) + int(size_of(u8)), allocator)
                 }
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "*** New thread added [PC:")
                     common.write_padded_hex(common.debug_stream, t.pc, 4)
                     io.write_string(common.debug_stream, "]\n")
@@ -495,7 +495,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
                 if vm.next_rune == operand {
                     add_thread(vm, t.saved, t.pc + int(size_of(Opcode)) + int(size_of(rune)), allocator)
                 }
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "*** New thread added [PC:")
                     common.write_padded_hex(common.debug_stream, t.pc, 4)
                     io.write_string(common.debug_stream, "]\n")
@@ -522,7 +522,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
                         }
                     }
                 }
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "*** New thread added [PC:")
                     common.write_padded_hex(common.debug_stream, t.pc, 4)
                     io.write_string(common.debug_stream, "]\n")
@@ -548,7 +548,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
                     }
                     add_thread(vm, t.saved, t.pc + int(size_of(Opcode)) + int(size_of(u8)), allocator)
                 }
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "*** New thread added [PC:")
                     common.write_padded_hex(common.debug_stream, t.pc, 4)
                     io.write_string(common.debug_stream, "]\n")
@@ -592,7 +592,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
                 return
 
             case:
-                when common.ODIN_DEBUG_REGEX {
+                when common.DUSK_DEBUG_REGEX {
                     io.write_string(common.debug_stream, "Opcode: ")
                     io.write_int(common.debug_stream, cast(int)vm.code[t.pc])
                     io.write_string(common.debug_stream, "\n")
@@ -603,7 +603,7 @@ run :: proc(vm: ^Machine, $UNICODE_MODE: bool, allocator: mem.Allocator) -> (sav
 
         vm.threads, vm.next_threads = vm.next_threads, vm.threads
 
-        when common.ODIN_DEBUG_REGEX {
+        when common.DUSK_DEBUG_REGEX {
             io.write_string(common.debug_stream, "<<< Frame ended. (Threads: ")
             io.write_int(common.debug_stream, vm.top_thread)
             io.write_string(common.debug_stream, ")\n")

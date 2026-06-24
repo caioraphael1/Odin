@@ -32,7 +32,7 @@ _CTR_INC_4: u32x4 : {4, 4, 4, 4}
 @(private = "file")
 _CTR_INC_8: u32x4 : {8, 8, 8, 8}
 
-when ODIN_ENDIAN == .Big {
+when DUSK_ENDIAN == .Big {
     @(private = "file")
     _byteswap_u32x4 :: #force_inline proc(v: u32x4) -> u32x4 {
         u8x16 :: #simd[16]u8
@@ -50,7 +50,7 @@ when ODIN_ENDIAN == .Big {
 chacha8rand_refill_simd128 :: proc(r: ^Default_Random_State) {
     // Initialize the base state.
     k: [^]u32 = (^u32)(raw_data(r._buf[RNG_OUTPUT_PER_ITER:]))
-    when ODIN_ENDIAN == .Little {
+    when DUSK_ENDIAN == .Little {
         s4_ := k[0]
         s5_ := k[1]
         s6_ := k[2]
@@ -118,7 +118,7 @@ chacha8rand_refill_simd128 :: proc(r: ^Default_Random_State) {
     // may change in the future (ARMv7 is still relevant), and things
     // like Cortex-A8/A9 does "pretend" 128-bit SIMD 64-bits at a time
     // thus needs bemchmarking.
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         for _ in 0..<2 {
             x0_0, x1_0, x2_0, x3_0 := S0, S1, S2, S3
             x4_0, x5_0, x6_0, x7_0 := s4, s5, s6, s7
@@ -151,7 +151,7 @@ chacha8rand_refill_simd128 :: proc(r: ^Default_Random_State) {
                 x3_1, x4_1, x9_1, x14_1 = quarter_round(x3_1, x4_1, x9_1, x14_1)
             }
 
-            when ODIN_ENDIAN == .Little {
+            when DUSK_ENDIAN == .Little {
                 intrinsics.unaligned_store((^u32x4)(dst[0:]), x0_0)
                 intrinsics.unaligned_store((^u32x4)(dst[1:]), x1_0)
                 intrinsics.unaligned_store((^u32x4)(dst[2:]), x2_0)
@@ -244,7 +244,7 @@ chacha8rand_refill_simd128 :: proc(r: ^Default_Random_State) {
                 x3, x4, x9, x14 = quarter_round(x3, x4, x9, x14)
             }
 
-            when ODIN_ENDIAN == .Little {
+            when DUSK_ENDIAN == .Little {
                 intrinsics.unaligned_store((^u32x4)(dst[0:]), x0)
                 intrinsics.unaligned_store((^u32x4)(dst[1:]), x1)
                 intrinsics.unaligned_store((^u32x4)(dst[2:]), x2)

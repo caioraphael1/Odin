@@ -945,7 +945,7 @@ _assign_bool :: proc(val: any, b: bool) -> bool {
 }
 
 // Sanity check that the decoder added a nil u8 to the end.
-@(private, disabled=ODIN_DISABLE_ASSERT)
+@(private, disabled=DUSK_DISABLE_ASSERT)
 assert_safe_for_cstring :: proc(s: string, loc := #caller_location) {
     internal.assert(([^]u8)(raw_data(s))[len(s)] == 0, loc = loc)
 }

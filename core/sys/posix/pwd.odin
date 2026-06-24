@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -117,7 +117,7 @@ foreign lib {
     getpwuid_r :: proc(uid: uid_t, pwd: ^passwd, buffer: [^]u8, bufsize: c.size_t, result: ^^passwd) -> Errno ---
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     @(private) LGETPWENT  :: "__getpwent50"
     @(private) LGETPWNAM  :: "__getpwnam50"
     @(private) LGETPWNAMR :: "__getpwnam_r50"
@@ -131,7 +131,7 @@ when ODIN_OS == .NetBSD {
     @(private) LGETPWUIDR :: "getpwuid_r"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+when DUSK_OS == .Darwin || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
 
     passwd :: struct {
         pw_name:   cstring, /* [PSX] user name */
@@ -146,7 +146,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
         pw_expire: time_t,  /* account expiration */
     }
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
     passwd :: struct {
         pw_name:   cstring, /* [PSX] user name */
@@ -162,7 +162,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
         pw_fields: c.int,
     }
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
     passwd :: struct {
         pw_name:   cstring, /* [PSX] user name */
@@ -174,7 +174,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
         pw_shell:  cstring, /* Shell program.  */
     }
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
     passwd :: struct {
         pw_name:   cstring, /* [PSX] user name */

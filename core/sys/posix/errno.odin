@@ -105,7 +105,7 @@ Errno :: enum c.int {
     EXDEV           = EXDEV,
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     EPERM           :: 1
     ENOENT          :: 2
     ESRCH           :: 3
@@ -184,7 +184,7 @@ when ODIN_OS == .Darwin {
     ETIME           :: 101
     ENOTRECOVERABLE :: 104
     EOWNERDEAD      :: 105
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
     EPERM           :: 1
     ENOENT          :: 2
     ESRCH           :: 3
@@ -265,7 +265,7 @@ when ODIN_OS == .Darwin {
     ENOSR           :: -1
     ENOSTR          :: -1
     ETIME           :: -1
-} else when ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
     EPERM           :: 1
     ENOENT          :: 2
     ESRCH           :: 3
@@ -331,7 +331,7 @@ when ODIN_OS == .Darwin {
     ENOLCK          :: 77
     ENOSYS          :: 78
 
-    when ODIN_OS == .NetBSD {
+    when DUSK_OS == .NetBSD {
         EOVERFLOW       :: 84
         EIDRM           :: 82
         ENOMSG          :: 83
@@ -364,7 +364,7 @@ when ODIN_OS == .Darwin {
         ETIME           :: -1
     }
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
     EPERM           :: 1
     ENOENT          :: 2
     ESRCH           :: 3
@@ -453,7 +453,7 @@ when ODIN_OS == .Darwin {
 
     EOWNERDEAD      :: 130
     ENOTRECOVERABLE :: 131
-} else when ODIN_OS == .Windows {
+} else when DUSK_OS == .Windows {
     E2BIG           :: 7
     EACCES          :: 13
     EADDRINUSE      :: 100
@@ -532,7 +532,7 @@ when ODIN_OS == .Darwin {
     ETXTBSY         :: 139
     EWOULDBLOCK     :: 140
     EXDEV           :: 18
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
     _HAIKU_USE_POSITIVE_POSIX_ERRORS :: libc._HAIKU_USE_POSITIVE_POSIX_ERRORS
     _POSIX_ERROR_FACTOR              :: libc._POSIX_ERROR_FACTOR
     

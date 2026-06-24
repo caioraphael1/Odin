@@ -9,7 +9,7 @@ See:
 
 /*
     Copyright 2021 zhibog
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         zhibog, dotbmp:  Initial implementation.

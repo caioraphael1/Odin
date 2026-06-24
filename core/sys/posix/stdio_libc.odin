@@ -2,12 +2,12 @@
 import "core:c"
 import "core:c/libc"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import lib {
         "system:libucrt.lib",
         "system:legacy_stdio_definitions.lib",
     }
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -15,7 +15,7 @@ when ODIN_OS == .Windows {
 
 // stdio.h - standard buffered input/output
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     @(private) LGETC_UNLOCKED    :: "_getc_nolock"
     @(private) LGETCHAR_UNLOCKED :: "_getchar_nolock"
     @(private) LPUTC_UNLOCKED    :: "_putc_nolock"

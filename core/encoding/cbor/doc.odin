@@ -66,7 +66,7 @@ By default, the following tags are supported/provided by this implementation:
 - *55799*:     Self described CBOR, used when `.Self_Described_CBOR` flag is used to wrap the entire binary.
                This shows other implementations that we are dealing with CBOR by just looking at the first u8 of input.
 
-- *1010*:      An extension tag that defines a string type followed by its value, this is used by this implementation to support Odin's unions.
+- *1010*:      An extension tag that defines a string type followed by its value, this is used by this implementation to support Dusk's unions.
 
 Users can provide their own tag implementations using the `cbor.tag_register_type(...)` to register a tag for a distinct Odin type
 used automatically when it is encountered during marshal and unmarshal.

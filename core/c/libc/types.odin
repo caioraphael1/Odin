@@ -1,6 +1,6 @@
 import "core:c"
 
-#assert(!ODIN_NO_CRT, `"core:c/libc" cannot be imported when '-no-crt' is used`)
+#assert(!DUSK_NO_CRT, `"core:c/libc" cannot be imported when '-no-crt' is used`)
 
 char           :: c.char // assuming -funsigned-char
 
@@ -85,6 +85,6 @@ WCHAR_MAX      :: c.WCHAR_MAX
 
 NULL           :: rawptr(uintptr(0))
 
-NDEBUG         :: !ODIN_DEBUG
+NDEBUG         :: !DUSK_DEBUG
 
 CHAR_BIT :: 8

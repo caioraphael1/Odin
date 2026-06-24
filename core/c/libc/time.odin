@@ -1,8 +1,8 @@
 // 7.27 Date and time
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign import libc "system:libucrt.lib"
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
 	foreign import libc "system:System"
 } else {
 	foreign import libc "system:c"
@@ -10,7 +10,7 @@ when ODIN_OS == .Windows {
 
 // We enforce 64-bit time_t and timespec as there is no reason to use 32-bit as
 // we approach the 2038 problem. Windows has defaulted to this since VC8 (2005).
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	foreign libc {
 		// 7.27.2 Time manipulation functions
 		                               clock        :: proc() -> clock_t ---
@@ -43,7 +43,7 @@ when ODIN_OS == .Windows {
 	}
 }
 
-when ODIN_OS == .Linux || ODIN_OS == .FreeBSD || ODIN_OS == .Darwin || ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD || ODIN_OS == .Haiku || ODIN_OS == .JS  {
+when DUSK_OS == .Linux || DUSK_OS == .FreeBSD || DUSK_OS == .Darwin || DUSK_OS == .OpenBSD || DUSK_OS == .NetBSD || DUSK_OS == .Haiku || DUSK_OS == .JS  {
 	@(default_calling_convention="c")
 	foreign libc {
 		// 7.27.2 Time manipulation functions
@@ -67,7 +67,7 @@ when ODIN_OS == .Linux || ODIN_OS == .FreeBSD || ODIN_OS == .Darwin || ODIN_OS =
 		strftime     :: proc(s: [^]char, maxsize: size_t, format: cstring, timeptr: ^tm) -> size_t ---
 	}
 
-	when ODIN_OS == .NetBSD {
+	when DUSK_OS == .NetBSD {
 		@(private) LDIFFTIME  :: "__difftime50"
 		@(private) LMKTIME    :: "__mktime50"
 		@(private) LTIME      :: "__time50"
@@ -83,7 +83,7 @@ when ODIN_OS == .Linux || ODIN_OS == .FreeBSD || ODIN_OS == .Darwin || ODIN_OS =
 		@(private) LLOCALTIME :: "localtime"
 	}
 
-	when ODIN_OS == .OpenBSD {
+	when DUSK_OS == .OpenBSD {
 		CLOCKS_PER_SEC :: 100
 	} else {
 		CLOCKS_PER_SEC :: 1000000
@@ -93,7 +93,7 @@ when ODIN_OS == .Linux || ODIN_OS == .FreeBSD || ODIN_OS == .Darwin || ODIN_OS =
 
 	time_t :: distinct i64
 
-	when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .Haiku {
+	when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .Haiku {
 		clock_t :: distinct int32_t
 	} else {
 		clock_t :: distinct long

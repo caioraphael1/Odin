@@ -84,7 +84,7 @@ init_cpu_features :: proc() {
 	try_set(&_features, .os_xsave,  27, ecx1)
 	try_set(&_features, .rdrand,    30, ecx1)
 
-	when ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD {
+	when DUSK_OS == .FreeBSD || DUSK_OS == .OpenBSD || DUSK_OS == .NetBSD {
 		// xgetbv is an illegal instruction under FreeBSD 13, OpenBSD 7.1 and NetBSD 10
 		// return before probing further
 		return

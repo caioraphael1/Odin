@@ -9,7 +9,7 @@
     * nested (more scopes) - pkg::parent1::parent2::name[4]
         * [4] indicates the 4th scope within a procedure numbered in depth-first order
     * file private - pkg::[file_name]::name
-        * Example: `pkg::[file.odin]::Type`
+        * Example: `pkg::[file.dusk]::Type`
     * polymorphic procedure/type - pkg::foo:TYPE
         * naming convention for parameters
             * type
@@ -17,7 +17,7 @@
             * $$constant_parameter
         * Example: `foo::to_thing:proc(u64)->([]u8)`
     * nested decl in polymorphic procedure - pkg::foo:TYPE::name
-    * anonymous procedures - pkg::foo::$anon[file.odin:123]
+    * anonymous procedures - pkg::foo::$anon[file.dusk:123]
         * 123 is the file offset in bytes
 */
 

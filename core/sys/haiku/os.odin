@@ -417,7 +417,7 @@ cpu_topology_node_info :: struct {
 	},
 }
 
-when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
 	cpuid_info :: struct #raw_union {
 		eax_0: struct {
 			max_eax:   u32,
@@ -475,7 +475,7 @@ foreign libroot {
 	_get_cpu_info_etc     :: proc(firstCPU: u32, cpuCount: u32, info: ^cpu_info, size: uint) -> status_t ---
 	get_cpu_topology_info :: proc(topologyInfos: [^]cpu_topology_node_info, topologyInfoCount: ^u32) -> status_t ---
 
-	when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+	when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
 		get_cpuid :: proc(info: ^cpuid_info, eaxRegister: u32, cpuNum: u32) -> status_t ---
 	}
 

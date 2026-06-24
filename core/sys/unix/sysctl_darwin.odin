@@ -5,7 +5,7 @@
 
 sysctl :: proc(mib: []i32, val: ^$T) -> (ok: bool) {
     result_size := uint(size_of(T))
-    when ODIN_NO_CRT {
+    when DUSK_NO_CRT {
         res := darwin.syscall_sysctl(
             raw_data(mib), len(mib),
             val, &result_size,
@@ -31,7 +31,7 @@ sysctl :: proc(mib: []i32, val: ^$T) -> (ok: bool) {
 
 sysctlbyname :: proc(name: cstring, val: ^$T) -> (ok: bool) {
     result_size := uint(size_of(T))
-    when ODIN_NO_CRT {
+    when DUSK_NO_CRT {
         res := darwin.syscall_sysctlbyname(
             string(name),
             val, &result_size,

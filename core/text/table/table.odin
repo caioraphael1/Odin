@@ -1,6 +1,6 @@
 /*
     Copyright 2023 oskarnp <oskarnp@proton.me>
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         oskarnp: Initial implementation.

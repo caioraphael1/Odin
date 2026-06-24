@@ -5,7 +5,7 @@ import "base:internal"
 Address_Death_Callback :: #type proc "c" (pc: rawptr, bp: rawptr, sp: rawptr, addr: rawptr, is_write: i32, access_size: uint)
 
 @(private="file")
-ASAN_ENABLED :: .Address in ODIN_SANITIZER_FLAGS
+ASAN_ENABLED :: .Address in DUSK_SANITIZER_FLAGS
 
 @(private="file")
 @(default_calling_convention="system")

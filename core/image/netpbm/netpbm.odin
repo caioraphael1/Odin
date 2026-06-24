@@ -668,7 +668,7 @@ autoselect_pbm_format_from_image :: proc(img: ^Image, prefer_binary := true, for
     channels = img.channels
     depth    = img.depth
     maxval   = 255 if img.depth == 8 else 65535
-    little_endian = true if ODIN_ENDIAN == .Little else false
+    little_endian = true if DUSK_ENDIAN == .Little else false
 
     // Assume we'll find a suitable format
     ok = true

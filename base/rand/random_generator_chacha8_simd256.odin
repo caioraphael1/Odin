@@ -1,7 +1,7 @@
 #+build amd64
 import "base:intrinsics"
 
-#assert(ODIN_ENDIAN == .Little)
+#assert(DUSK_ENDIAN == .Little)
 
 @(private = "file")
 u32x8 :: #simd[8]u32

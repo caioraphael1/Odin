@@ -3,7 +3,7 @@
 import "base:container/strings"
 
 _user_cache_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Library/Caches", allocator)
     case: // Unix
@@ -12,7 +12,7 @@ _user_cache_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 }
 
 _user_config_dir :: proc(allocator: mem.Allocator, _roaming: bool) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Library/Application Support", allocator)
     case: // Unix
@@ -21,7 +21,7 @@ _user_config_dir :: proc(allocator: mem.Allocator, _roaming: bool) -> (dir: stri
 }
 
 _user_state_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Library/Application Support", allocator)
     case: // Unix
@@ -30,7 +30,7 @@ _user_state_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 }
 
 _user_log_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Library/Logs", allocator)
     case: // Unix
@@ -39,7 +39,7 @@ _user_log_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 }
 
 _user_data_dir :: proc(allocator: mem.Allocator, _roaming: bool) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Library/Application Support", allocator)
     case: // Unix
@@ -48,7 +48,7 @@ _user_data_dir :: proc(allocator: mem.Allocator, _roaming: bool) -> (dir: string
 }
 
 _user_music_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Music", allocator)
     case: // Unix
@@ -57,7 +57,7 @@ _user_music_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
 }
 
 _user_desktop_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Desktop", allocator)
     case: // Unix
@@ -66,7 +66,7 @@ _user_desktop_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error)
 }
 
 _user_documents_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Documents", allocator)
     case: // Unix
@@ -75,7 +75,7 @@ _user_documents_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Erro
 }
 
 _user_downloads_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Downloads", allocator)
     case: // Unix
@@ -84,7 +84,7 @@ _user_downloads_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Erro
 }
 
 _user_pictures_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Pictures", allocator)
     case: // Unix
@@ -93,7 +93,7 @@ _user_pictures_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error
 }
 
 _user_public_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Public", allocator)
     case: // Unix
@@ -102,7 +102,7 @@ _user_public_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) 
 }
 
 _user_videos_dir :: proc(allocator: mem.Allocator) -> (dir: string, err: Error) {
-    #partial switch ODIN_OS {
+    #partial switch DUSK_OS {
     case .Darwin:
         return _xdg_lookup("", "/Movies", allocator)
     case: // Unix

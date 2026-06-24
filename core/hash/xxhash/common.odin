@@ -4,7 +4,7 @@
 /*
     Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
 
-    Made available under Odin's license, based on the original C code.
+    Made available under Dusk's license, based on the original C code.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.
@@ -108,7 +108,7 @@ XXH64_read64_simd :: #force_inline proc(buf: []$E, $W: uint, alignment := Alignm
         res = intrinsics.unaligned_load((^#simd[W]u64)(raw_data(buf)))
     }
 
-    when ODIN_ENDIAN == .Big {
+    when DUSK_ENDIAN == .Big {
         bytes := transmute(#simd[W*8]u8)res
         bytes = intrinsics.simd_lanes_reverse(bytes)
         res = transmute(#simd[W]u64)bytes
@@ -119,7 +119,7 @@ XXH64_read64_simd :: #force_inline proc(buf: []$E, $W: uint, alignment := Alignm
 
 XXH64_write64_simd :: #force_inline proc(buf: []$E, value: $V/#simd[$W]u64, alignment := Alignment.Unaligned) {
     value := value
-    when ODIN_ENDIAN == .Big {
+    when DUSK_ENDIAN == .Big {
         bytes := transmute(#simd[W*8]u8)value
         bytes = intrinsics.simd_lanes_reverse(bytes)
         value = transmute(#simd[W]u64)bytes

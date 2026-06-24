@@ -3,7 +3,7 @@ import "base:intrinsics"
 
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -360,7 +360,7 @@ foreign lib {
 	setkey :: proc(key: [^]u8) ---
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LINITSTATE :: "__initstate60"
 	@(private) LSRANDOM   :: "__srandom60"
 	@(private) LUNSETENV  :: "__unsetenv13"

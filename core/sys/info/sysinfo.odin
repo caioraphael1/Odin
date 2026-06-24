@@ -5,10 +5,10 @@ import "base:strconv"
 import "core:strings_tools"
 
 #assert(
-    ODIN_ARCH == .amd64   || ODIN_ARCH == .i386      || \
-    ODIN_ARCH == .arm32   || ODIN_ARCH == .arm64     || \
-    ODIN_ARCH == .wasm32  || ODIN_ARCH == .wasm64p32 || \
-    ODIN_ARCH == .riscv64,
+    DUSK_ARCH == .amd64   || DUSK_ARCH == .i386      || \
+    DUSK_ARCH == .arm32   || DUSK_ARCH == .arm64     || \
+    DUSK_ARCH == .wasm32  || DUSK_ARCH == .wasm64p32 || \
+    DUSK_ARCH == .riscv64,
     "This package is unsupported on this architecture.")
 
 /*
@@ -128,7 +128,7 @@ Returns:
     ok:     `true` if this was a success and we should continue, `false` otherwise
 */
 iterate_gpus :: proc(it: ^GPU_Iterator, minimum_vram := i64(256 * 1024 * 1024)) -> (gpu: GPU, index: int, ok: bool) {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         return _iterate_gpus(it, minimum_vram)
     } else {
         // Not implemented on another OS, yet

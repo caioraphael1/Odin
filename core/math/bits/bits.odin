@@ -255,7 +255,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_be_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+from_be_u16  :: proc(i:  u16) ->  u16 { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
@@ -267,7 +267,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_be_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+from_be_u32  :: proc(i:  u32) ->  u32 { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
@@ -279,7 +279,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_be_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+from_be_u64  :: proc(i:  u64) ->  u64 { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
@@ -291,7 +291,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_be_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+from_be_uint :: proc(i: uint) -> uint { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`
@@ -317,7 +317,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_le_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+from_le_u16  :: proc(i:  u16) ->  u16 { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
@@ -329,7 +329,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_le_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+from_le_u32  :: proc(i:  u32) ->  u32 { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
@@ -341,7 +341,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_le_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+from_le_u64  :: proc(i:  u64) ->  u64 { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
@@ -353,7 +353,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-from_le_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+from_le_uint :: proc(i: uint) -> uint { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`
@@ -379,7 +379,7 @@ Inputs:
 Returns:
 - res: `i`, optionally u8-swapped
 */
-to_be_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+to_be_u16  :: proc(i:  u16) ->  u16 { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
@@ -391,7 +391,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-to_be_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+to_be_u32  :: proc(i:  u32) ->  u32 { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
@@ -403,7 +403,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-to_be_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+to_be_u64  :: proc(i:  u64) ->  u64 { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a little endian target.
@@ -415,7 +415,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-to_be_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Big { return i } else { return byte_swap(i) } }
+to_be_uint :: proc(i: uint) -> uint { when DUSK_ENDIAN == .Big { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`
@@ -441,7 +441,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-to_le_u16  :: proc(i:  u16) ->  u16 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+to_le_u16  :: proc(i:  u16) ->  u16 { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
@@ -453,7 +453,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-to_le_u32  :: proc(i:  u32) ->  u32 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+to_le_u32  :: proc(i:  u32) ->  u32 { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
@@ -465,7 +465,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-to_le_u64  :: proc(i:  u64) ->  u64 { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+to_le_u64  :: proc(i:  u64) ->  u64 { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 /*
 Returns unsigned integer `i`, u8-swapped if we're on a big endian target.
@@ -477,7 +477,7 @@ Returns:
 - res: `i`, optionally u8-swapped
 */
 
-to_le_uint :: proc(i: uint) -> uint { when ODIN_ENDIAN == .Little { return i } else { return byte_swap(i) } }
+to_le_uint :: proc(i: uint) -> uint { when DUSK_ENDIAN == .Little { return i } else { return byte_swap(i) } }
 
 // returns the minimum number of bits required to represent x
 

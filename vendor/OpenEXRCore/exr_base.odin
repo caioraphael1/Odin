@@ -1,7 +1,7 @@
 // Bindings for [[ OpenEXRCore ; https://github.com/AcademySoftwareFoundation/openexr/tree/main/src/lib/OpenEXRCore ]].
 OPENEXRCORE_SHARED :: #config(OPENEXRCORE_SHARED, false)
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	when OPENEXRCORE_SHARED {
 		#panic("Dynamic linking is not supported for OpenEXRCore yet")
 	} else {

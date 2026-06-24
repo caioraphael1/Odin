@@ -76,7 +76,7 @@ gb_global Timings global_timings = {0};
 #include "linker.cpp"
 #include "bundle_command.cpp"
 
-#if defined(GB_SYSTEM_WINDOWS) && defined(ODIN_TILDE_BACKEND)
+#if defined(GB_SYSTEM_WINDOWS) && defined(DUSK_TILDE_BACKEND)
 #define ALLOW_TILDE 1
 #else
 #define ALLOW_TILDE 0
@@ -275,14 +275,14 @@ gb_internal void usage(String argv0, String argv1 = {}) {
     print_usage_line(0, "Usage:");
     print_usage_line(1, "%.*s command [arguments]", LIT(argv0));
     print_usage_line(0, "Commands:");
-    print_usage_line(1, "build             Compiles directory of .odin files, as an executable.");
+    print_usage_line(1, "build             Compiles directory of .dusk files, as an executable.");
     print_usage_line(1, "                  One must contain the program's entry point, all must be in the same package.");
     print_usage_line(1, "run               Same as 'build', but also then runs the newly compiled executable.");
     print_usage_line(1, "bundle            Bundles a directory in a specific layout for that platform.");
-    print_usage_line(1, "check             Parses and type checks a directory of .odin files.");
+    print_usage_line(1, "check             Parses and type checks a directory of .dusk files.");
     print_usage_line(1, "strip-semicolon   Parses, type checks, and removes unneeded semicolons from the entire program.");
     print_usage_line(1, "test              Builds and runs procedures with the attribute @(test) in the initial package.");
-    print_usage_line(1, "doc               Generates documentation from a directory of .odin files.");
+    print_usage_line(1, "doc               Generates documentation from a directory of .dusk files.");
     print_usage_line(1, "version           Prints version.");
     print_usage_line(1, "report            Prints information useful to reporting a bug.");
     print_usage_line(1, "root              Prints the root path where Odin looks for the builtin collections.");
@@ -1230,10 +1230,10 @@ gb_internal bool parse_build_flags(Array<String> args) {
                             break;
 
                         case BuildFlag_Debug:
-                            build_context.ODIN_DEBUG = true;
+                            build_context.dusk_DEBUG = true;
                             break;
                         case BuildFlag_DisableAssert:
-                            build_context.ODIN_DISABLE_ASSERT = true;
+                            build_context.dusk_DISABLE_ASSERT = true;
                             break;
                         case BuildFlag_NoBoundsCheck:
                             build_context.no_bounds_check = true;
@@ -1470,22 +1470,22 @@ gb_internal bool parse_build_flags(Array<String> args) {
                             break;
 
                         case BuildFlag_DefaultToNilAllocator:
-                            if (build_context.ODIN_DEFAULT_TO_PANIC_ALLOCATOR) {
+                            if (build_context.dusk_DEFAULT_TO_PANIC_ALLOCATOR) {
                                 gb_printf_err("'-default-to-panic-allocator' cannot be used with '-default-to-nil-allocator'\n");
                                 bad_flags = true;
                             }
-                            build_context.ODIN_DEFAULT_TO_NIL_ALLOCATOR = true;
+                            build_context.dusk_DEFAULT_TO_NIL_ALLOCATOR = true;
                             break;
                         case BuildFlag_DefaultToPanicAllocator:
-                            if (build_context.ODIN_DEFAULT_TO_NIL_ALLOCATOR) {
+                            if (build_context.dusk_DEFAULT_TO_NIL_ALLOCATOR) {
                                 gb_printf_err("'-default-to-nil-allocator' cannot be used with '-default-to-panic-allocator'\n");
                                 bad_flags = true;
                             }
-                            build_context.ODIN_DEFAULT_TO_PANIC_ALLOCATOR = true;
+                            build_context.dusk_DEFAULT_TO_PANIC_ALLOCATOR = true;
                             break;
 
                         case BuildFlag_ForeignErrorProcedures:
-                            build_context.ODIN_FOREIGN_ERROR_PROCEDURES = true;
+                            build_context.dusk_FOREIGN_ERROR_PROCEDURES = true;
                             break;
                         case BuildFlag_StrictStyle:
                             build_context.strict_style = true;
@@ -1537,9 +1537,9 @@ gb_internal bool parse_build_flags(Array<String> args) {
                             GB_ASSERT(value.kind == ExactValue_String);
 
                             if (str_eq_ignore_case(value.value_string, str_lit("odin")) || str_eq_ignore_case(value.value_string, str_lit("default"))) {
-                                build_context.ODIN_ERROR_POS_STYLE = ErrorPosStyle_Default;
+                                build_context.dusk_ERROR_POS_STYLE = ErrorPosStyle_Default;
                             } else if (str_eq_ignore_case(value.value_string, str_lit("unix"))) {
-                                build_context.ODIN_ERROR_POS_STYLE = ErrorPosStyle_Unix;
+                                build_context.dusk_ERROR_POS_STYLE = ErrorPosStyle_Unix;
                             } else {
                                 gb_printf_err("-error-pos-style options are 'unix', 'odin', and 'default' (odin)\n");
                                 bad_flags = true;
@@ -1745,7 +1745,7 @@ gb_internal bool parse_build_flags(Array<String> args) {
                             bool subsystem_found = false;
                             for (int i = 1; i < Windows_Subsystem_COUNT; i++) {
                                 if (str_eq_ignore_case(subsystem, windows_subsystem_names[i])) {
-                                    build_context.ODIN_WINDOWS_SUBSYSTEM = Windows_Subsystem(i);
+                                    build_context.dusk_WINDOWS_SUBSYSTEM = Windows_Subsystem(i);
                                     subsystem_found = true;
                                     break;
                                 }
@@ -1754,7 +1754,7 @@ gb_internal bool parse_build_flags(Array<String> args) {
                             // WINDOW is a hidden alias for WINDOWS. Check it.
                             String subsystem_windows_alias = str_lit("WINDOW");
                             if (!subsystem_found && str_eq_ignore_case(subsystem, subsystem_windows_alias)) {
-                                build_context.ODIN_WINDOWS_SUBSYSTEM = Windows_Subsystem_WINDOWS;
+                                build_context.dusk_WINDOWS_SUBSYSTEM = Windows_Subsystem_WINDOWS;
                                 subsystem_found = true;
                                 break;
                             }
@@ -2507,13 +2507,13 @@ gb_internal int print_show_help(String const arg0, String command, String option
 
     if (command == "build") {
         print_usage_header_once();
-        print_usage_line(1, "build   Compiles directory of .odin files as an executable.");
+        print_usage_line(1, "build   Compiles directory of .dusk files as an executable.");
         print_usage_line(2, "One must contain the program's entry point, all must be in the same package.");
         print_usage_line(2, "Use `-file` to build a single file instead.");
         print_usage_line(2, "Examples:");
         print_usage_line(3, "odin build .                     Builds package in current directory.");
         print_usage_line(3, "odin build <dir>                 Builds package in <dir>.");
-        print_usage_line(3, "odin build filename.odin -file   Builds single-file package, must contain entry point.");
+        print_usage_line(3, "odin build filename.dusk -file   Builds single-file package, must contain entry point.");
     } else if (command == "run") {
         print_usage_header_once();
         print_usage_line(1, "run     Same as 'build', but also then runs the newly compiled executable.");
@@ -2521,31 +2521,31 @@ gb_internal int print_show_help(String const arg0, String command, String option
         print_usage_line(2, "Examples:");
         print_usage_line(3, "odin run .                     Builds and runs package in current directory.");
         print_usage_line(3, "odin run <dir>                 Builds and runs package in <dir>.");
-        print_usage_line(3, "odin run filename.odin -file   Builds and runs single-file package, must contain entry point.");
+        print_usage_line(3, "odin run filename.dusk -file   Builds and runs single-file package, must contain entry point.");
     } else if (command == "check") {
         print_usage_header_once();
-        print_usage_line(1, "check   Parses and type checks directory of .odin files.");
+        print_usage_line(1, "check   Parses and type checks directory of .dusk files.");
         print_usage_line(2, "Examples:");
         print_usage_line(3, "odin check .                     Type checks package in current directory.");
         print_usage_line(3, "odin check <dir>                 Type checks package in <dir>.");
-        print_usage_line(3, "odin check filename.odin -file   Type checks single-file package, must contain entry point.");
+        print_usage_line(3, "odin check filename.dusk -file   Type checks single-file package, must contain entry point.");
     } else if (command == "test") {
         print_usage_header_once();
         print_usage_line(1, "test    Builds and runs procedures with the attribute @(test) in the initial package.");
     } else if (command == "doc") {
         print_usage_header_once();
-        print_usage_line(1, "doc     Generates documentation from a directory of .odin files.");
+        print_usage_line(1, "doc     Generates documentation from a directory of .dusk files.");
         print_usage_line(2, "Examples:");
         print_usage_line(3, "odin doc .                     Generates documentation on package in current directory.");
         print_usage_line(3, "odin doc <dir>                 Generates documentation on package in <dir>.");
-        print_usage_line(3, "odin doc filename.odin -file   Generates documentation on single-file package.");
+        print_usage_line(3, "odin doc filename.dusk -file   Generates documentation on single-file package.");
     } else if (command == "version") {
         print_usage_header_once();
         print_usage_line(1, "version   Prints version.");
     } else if (command == "strip-semicolon") {
         print_usage_header_once();
         print_usage_line(1, "strip-semicolon");
-        print_usage_line(2, "Parses and type checks .odin file(s) and then removes unneeded semicolons from the entire project.");
+        print_usage_line(2, "Parses and type checks .dusk file(s) and then removes unneeded semicolons from the entire project.");
     } else if (command == "bundle")  {
         print_usage_header_once();
         print_usage_line(1, "bundle <platform>   Bundles a directory in a specific layout for that platform");
@@ -2658,7 +2658,7 @@ gb_internal int print_show_help(String const arg0, String command, String option
 
     if (run_or_build) {
         if (print_flag("-debug")) {
-            print_usage_line(2, "Enables debug information, and defines the global constant ODIN_DEBUG to be 'true'.");
+            print_usage_line(2, "Enables debug information, and defines the global constant DUSK_DEBUG to be 'true'.");
         }
     }
 
@@ -2673,7 +2673,7 @@ gb_internal int print_show_help(String const arg0, String command, String option
 
     if (run_or_build) {
         if (print_flag("-disable-assert")) {
-            print_usage_line(2, "Disables the code generation of the built-in run-time 'assert' procedure, and defines the global constant ODIN_DISABLE_ASSERT to be 'true'.");
+            print_usage_line(2, "Disables the code generation of the built-in run-time 'assert' procedure, and defines the global constant DUSK_DISABLE_ASSERT to be 'true'.");
         }
 
         if (print_flag("-disable-red-zone")) {
@@ -2689,7 +2689,7 @@ gb_internal int print_show_help(String const arg0, String command, String option
 
     if (doc) {
         if (print_flag("-doc-format")) {
-            print_usage_line(2, "Generates documentation as the .odin-doc format (useful for external tooling).");
+            print_usage_line(2, "Generates documentation as the .dusk-doc format (useful for external tooling).");
         }
     }
 
@@ -2750,7 +2750,7 @@ gb_internal int print_show_help(String const arg0, String command, String option
     if (check) {
         if (print_flag("-file")) {
             print_usage_line(2, "Tells `%.*s %.*s` to treat the given file as a self-contained package.", LIT(arg0), LIT(command));
-            print_usage_line(2, "This means that `<dir>/a.odin` won't have access to `<dir>/b.odin`'s contents.");
+            print_usage_line(2, "This means that `<dir>/a.dusk` won't have access to `<dir>/b.dusk`'s contents.");
         }
 
         if (print_flag("-foreign-error-procedures")) {
@@ -2938,8 +2938,8 @@ gb_internal int print_show_help(String const arg0, String command, String option
 
     if (doc) {
         if (print_flag("-out:<filepath>")) {
-            print_usage_line(2, "Sets the base name of the resulting .odin-doc file.");
-            print_usage_line(2, "The extension can be optionally included; the resulting file will always have an extension of '.odin-doc'.");
+            print_usage_line(2, "Sets the base name of the resulting .dusk-doc file.");
+            print_usage_line(2, "The extension can be optionally included; the resulting file will always have an extension of '.dusk-doc'.");
             print_usage_line(2, "Example: -out:foo");
         }
     }
@@ -3298,16 +3298,16 @@ gb_internal bool check_env(void) {
     TIME_SECTION("init check env");
 
     gbAllocator a = heap_allocator();
-    char const *odin_root = gb_get_env("ODIN_ROOT", a);
+    char const *odin_root = gb_get_env("DUSK_ROOT", a);
     defer (gb_free(a, cast(void *)odin_root));
     if (odin_root) {
         if (!gb_file_exists(odin_root)) {
-            gb_printf_err("Invalid ODIN_ROOT, directory does not exist, got %s\n", odin_root);
+            gb_printf_err("Invalid DUSK_ROOT, directory does not exist, got %s\n", odin_root);
             return false;
         }
         String path = make_string_c(odin_root);
         if (!path_is_directory(path)) {
-            gb_printf_err("Invalid ODIN_ROOT, expected a directory, got %s\n", odin_root);
+            gb_printf_err("Invalid DUSK_ROOT, expected a directory, got %s\n", odin_root);
             return false;
         }
     }
@@ -3385,11 +3385,11 @@ gb_internal int strip_semicolons(Parser *parser) {
 
             String old_fullpath = copy_string(permanent_allocator(), file->fullpath);
 
-            // assumes .odin extension
+            // assumes .dusk extension
             String fullpath_base = substring(old_fullpath, 0, old_fullpath.len-5);
 
-            String old_fullpath_backup = concatenate_strings(permanent_allocator(), fullpath_base, str_lit("~backup.odin-temp"));
-            String new_fullpath = concatenate_strings(permanent_allocator(), fullpath_base, str_lit("~temp.odin-temp"));
+            String old_fullpath_backup = concatenate_strings(permanent_allocator(), fullpath_base, str_lit("~backup.dusk-temp"));
+            String new_fullpath = concatenate_strings(permanent_allocator(), fullpath_base, str_lit("~temp.dusk-temp"));
 
             array_add(&generated_files, StripSemicolonFile{old_fullpath, old_fullpath_backup, new_fullpath, file});
         }
@@ -3535,7 +3535,7 @@ gb_internal void init_terminal(void) {
 #endif
 
     if (!build_context.has_ansi_terminal_colours) {
-        char const *odin_terminal_ = gb_get_env("ODIN_TERMINAL", a);
+        char const *odin_terminal_ = gb_get_env("DUSK_TERMINAL", a);
         defer (gb_free(a, cast(void *)odin_terminal_));
         String odin_terminal = make_string_c(odin_terminal_);
         if (str_eq_ignore_case(odin_terminal, str_lit("ansi"))) {
@@ -3573,7 +3573,7 @@ int main(int arg_count, char const **arg_ptr) {
         bool ok = false;
         add_library_collection(name, get_fullpath_relative(heap_allocator(), odin_root_dir(), name, &ok));
         if (!ok) {
-            compiler_error("Cannot find the library collection '%.*s'. Is the ODIN_ROOT set up correctly?", LIT(name));
+            compiler_error("Cannot find the library collection '%.*s'. Is the DUSK_ROOT set up correctly?", LIT(name));
         }
     };
 
@@ -3699,7 +3699,7 @@ int main(int arg_count, char const **arg_ptr) {
             return 1;
         }
         build_context.command_kind = Command_version;
-        gb_printf("%.*s version %.*s", LIT(args[0]), LIT(ODIN_VERSION));
+        gb_printf("%.*s version %.*s", LIT(args[0]), LIT(DUSK_VERSION));
 
         #ifdef NIGHTLY
         gb_printf("-nightly");
@@ -3774,7 +3774,7 @@ int main(int arg_count, char const **arg_ptr) {
             if (!single_file_package) {
                 gb_printf_err("ERROR: `%.*s %.*s` takes a package/directory as its first argument.\n", LIT(args[0]), LIT(command));
                 if (init_filename == "-file") {
-                    gb_printf_err("Did you mean `%.*s %.*s <filename.odin> -file`?\n", LIT(args[0]), LIT(command));
+                    gb_printf_err("Did you mean `%.*s %.*s <filename.dusk> -file`?\n", LIT(args[0]), LIT(command));
                 } else {
                     if (!gb_file_exists(cast(const char*)init_filename.text)) {
                         gb_printf_err("The file '%.*s' was not found.\n", LIT(init_filename));
@@ -3786,9 +3786,9 @@ int main(int arg_count, char const **arg_ptr) {
                 gb_printf_err("The `-file` flag tells it to treat a file as a self-contained package.\n");
                 return 1;
             } else {
-                String const ext = str_lit(".odin");
+                String const ext = str_lit(".dusk");
                 if (!string_ends_with(init_filename, ext)) {
-                    gb_printf_err("Expected either a directory or a .odin file, got '%.*s'\n", LIT(init_filename));
+                    gb_printf_err("Expected either a directory or a .dusk file, got '%.*s'\n", LIT(init_filename));
                     return 1;
                 }
                 if (!gb_file_exists(cast(const char*)init_filename.text)) {
@@ -4178,7 +4178,7 @@ end_of_code_gen:;
             char const *filename = cast(char const *)exe_name.text;
             gb_file_remove(filename);
 
-            if (build_context.ODIN_DEBUG) {
+            if (build_context.dusk_DEBUG) {
                 if (build_context.metrics.os == TargetOs_windows || build_context.metrics.os == TargetOs_darwin) {
                     String symbol_path = path_to_string(heap_allocator(), build_context.build_paths[BuildPath_Symbols]);
                     defer (gb_free(heap_allocator(), symbol_path.text));

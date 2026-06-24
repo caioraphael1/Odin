@@ -1,5 +1,5 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -73,7 +73,7 @@ foreign lib {
 	dirname :: proc(path: cstring) -> cstring ---
 }
 
-when ODIN_OS == .Linux {
+when DUSK_OS == .Linux {
 	@(private) LBASENAME :: "__xpg_basename"
 } else {
 	@(private) LBASENAME :: "basename"

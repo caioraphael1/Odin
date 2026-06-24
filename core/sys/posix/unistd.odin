@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -1051,7 +1051,7 @@ Lock_Function :: enum c.int {
 	ULOCK = F_ULOCK,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LCHOWN  :: "__posix_chown"
 	@(private) LFCHOWN :: "__posix_fchown"
 	@(private) LLCHOWN :: "__posix_lchown"
@@ -1061,7 +1061,7 @@ when ODIN_OS == .NetBSD {
 	@(private) LLCHOWN :: "lchown"
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	_F_OK :: 0
 	X_OK :: (1<<0)
@@ -1242,7 +1242,7 @@ when ODIN_OS == .Darwin {
 
 	_POSIX_VDISABLE :: '\377'
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
 	_F_OK :: 0
 	X_OK :: 0x01
@@ -1423,7 +1423,7 @@ when ODIN_OS == .Darwin {
 
 	_POSIX_VDISABLE :: 0xff
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
 	_F_OK :: 0
 	X_OK :: 0x01
@@ -1608,7 +1608,7 @@ when ODIN_OS == .Darwin {
 	_SC_TRACE_SYS_MAX                :: 129
 	_SC_TRACE_USER_EVENT_MAX         :: 130
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
 	_F_OK :: 0
 	X_OK :: 0x01
@@ -1802,7 +1802,7 @@ when ODIN_OS == .Darwin {
 
 	_POSIX_VDISABLE :: '\377'
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	_F_OK :: 0
 	X_OK :: 1
@@ -2030,7 +2030,7 @@ when ODIN_OS == .Darwin {
 	// NOTE: Not implemented.
 	_POSIX_VDISABLE :: 0
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	_F_OK   :: 0
 	X_OK    :: 1

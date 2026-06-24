@@ -19,7 +19,7 @@ if [ -d ".git" ] && [ -n "$(command -v git)" ]; then
 else
     GIT_DATE=$(date +"%Y-%m")
 fi
-CPPFLAGS="$CPPFLAGS -DODIN_VERSION_RAW=\"dev-$GIT_DATE\""
+CPPFLAGS="$CPPFLAGS -DDUSK_VERSION_RAW=\"dev-$GIT_DATE\""
 
 error() {
     printf "ERROR: %s\n" "$1"

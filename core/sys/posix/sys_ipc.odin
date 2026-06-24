@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -35,7 +35,7 @@ IPC_Flag_Bits :: enum c.int {
 }
 IPC_Flags :: bit_set[IPC_Flag_Bits; c.int]
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	key_t :: distinct c.int32_t
 
@@ -59,7 +59,7 @@ when ODIN_OS == .Darwin {
 	IPC_SET  :: 1
 	IPC_STAT :: 2
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
 
 	key_t :: distinct c.long
 
@@ -83,7 +83,7 @@ when ODIN_OS == .Darwin {
 	IPC_SET  :: 1
 	IPC_STAT :: 2
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	key_t :: distinct c.int32_t
 
@@ -109,7 +109,7 @@ when ODIN_OS == .Darwin {
 	IPC_SET  :: 1
 	IPC_STAT :: 2
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	key_t :: distinct c.int32_t
 

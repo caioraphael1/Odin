@@ -157,7 +157,7 @@ _append_string :: proc(a: ^Dyn_Array($T), arg: string, should_zero: bool, loc :=
 
 
 inject_at :: proc(a: ^Dyn_Array($T), index: uint, #no_broadcast arg: T, loc := #caller_location) -> (ok: bool, err: mem.Allocator_Error) {
-    when !ODIN_NO_BOUNDS_CHECK {
+    when !DUSK_NO_BOUNDS_CHECK {
         internal.ensure(index >= 0, "Index must be positive.", loc)
     }
     if a == nil {

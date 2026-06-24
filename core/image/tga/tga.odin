@@ -1,7 +1,7 @@
 // Reader and writer for 8-bit RGB and RGBA `TGA` images.
 /*
     Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.

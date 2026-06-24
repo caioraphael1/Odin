@@ -39,7 +39,7 @@ write :: proc(fd: Fd, buf: []u8) -> (int, Errno) {
     On ARM64 available since Linux 2.6.16.
 */
 open :: proc(name: cstring, flags: Open_Flags, mode: Mode = {}) -> (Fd, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         ret := syscall(SYS_openat, AT_FDCWD, transmute(uintptr) name, transmute(u32) flags, transmute(u32) mode)
         return errno_unwrap(ret, Fd)
     } else {
@@ -68,7 +68,7 @@ close :: proc(fd: Fd) -> (Errno) {
 */
 stat :: proc(filename: cstring, stat: ^Stat) -> (Errno) {
     when size_of(int) == 8 {
-        when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+        when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
             ret := syscall(SYS_fstatat, AT_FDCWD, cast(rawptr) filename, stat, 0)
             return Errno(-ret)
         } else {
@@ -111,7 +111,7 @@ fstat :: proc(fd: Fd, stat: ^Stat) -> (Errno) {
 */
 lstat :: proc(filename: cstring, stat: ^Stat) -> (Errno) {
     when size_of(int) == 8 {
-        when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+        when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
             return fstatat(AT_FDCWD, filename, stat, {.SYMLINK_NOFOLLOW})
         } else {
             ret := syscall(SYS_lstat, cast(rawptr) filename, stat)
@@ -128,7 +128,7 @@ lstat :: proc(filename: cstring, stat: ^Stat) -> (Errno) {
     Available since Linux 2.2.
 */
 poll :: proc(fds: []Poll_Fd, timeout: i32) -> (i32, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         seconds := cast(uint) timeout / 1000
         nanoseconds := cast(uint) (timeout % 1000) * 1_000_000
         timeout_spec := Time_Spec{seconds, nanoseconds}
@@ -214,7 +214,7 @@ rt_sigreturn :: proc "c" () -> ! {
 */
 rt_sigaction :: proc(sig: Signal, sigaction: ^Sig_Action($T), old_sigaction: ^Sig_Action($U)) -> Errno {
     // NOTE(jason): It appears that the restorer is required for i386 and amd64
-    when ODIN_ARCH == .i386 || ODIN_ARCH == .amd64 {
+    when DUSK_ARCH == .i386 || DUSK_ARCH == .amd64 {
         sigaction.flags += {.RESTORER}
     }
     if sigaction != nil && sigaction.restorer == nil && .RESTORER in sigaction.flags {
@@ -252,7 +252,7 @@ ioctl :: proc(fd: Fd, request: u32, arg: uintptr) -> (uintptr) {
     Available since Linux 2.2.
 */
 pread :: proc(fd: Fd, buf: []u8, offset: i64) -> (int, Errno) {
-    when ODIN_ARCH == .arm32 {
+    when DUSK_ARCH == .arm32 {
         ret := syscall(SYS_pread64, fd, raw_data(buf), len(buf), 0, compat64_arg_pair(offset))
     } else {
         ret := syscall(SYS_pread64, fd, raw_data(buf), len(buf), compat64_arg_pair(offset))
@@ -266,7 +266,7 @@ pread :: proc(fd: Fd, buf: []u8, offset: i64) -> (int, Errno) {
     Available since Linux 2.2.
 */
 pwrite :: proc(fd: Fd, buf: []u8, offset: i64) -> (int, Errno) {
-    when ODIN_ARCH == .arm32 {
+    when DUSK_ARCH == .arm32 {
         ret := syscall(SYS_pwrite64, fd, raw_data(buf), len(buf), 0, compat64_arg_pair(offset))
     } else {
         ret := syscall(SYS_pwrite64, fd, raw_data(buf), len(buf), compat64_arg_pair(offset))
@@ -300,7 +300,7 @@ writev :: proc(fd: Fd, iov: []IO_Vec) -> (int, Errno) {
     For ARM64 available since Linux 2.6.16.
 */
 access :: proc(name: cstring, mode: Mode = F_OK) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         ret := syscall(SYS_faccessat, AT_FDCWD, cast(rawptr) name, transmute(u32) mode)
         return Errno(-ret)
     } else {
@@ -410,7 +410,7 @@ dup :: proc(fd: Fd) -> (Fd, Errno) {
     On ARM64 available since Linux 2.6.27.
 */
 dup2 :: proc(old: Fd, new: Fd) -> (Fd, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         ret := syscall(SYS_dup3, old, new, 0)
         return errno_unwrap(ret, Fd)
     } else {
@@ -425,7 +425,7 @@ dup2 :: proc(old: Fd, new: Fd) -> (Fd, Errno) {
     On ARM64 available since Linux 2.6.16.
 */
 pause :: proc() {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         syscall(SYS_ppoll, 0, 0, 0, 0)
     } else {
         syscall(SYS_pause)
@@ -455,7 +455,7 @@ getitimer :: proc(which: ITimer_Which, cur: ^ITimer_Val) -> (Errno) {
     Available since Linux 1.0.
 */
 alarm :: proc(seconds: u32) -> u32 {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         new := ITimer_Val { value = { seconds = cast(int) seconds } }
         old := ITimer_Val {}
         syscall(SYS_setitimer, ITimer_Which.REAL, &new, &old)
@@ -1035,7 +1035,7 @@ getppid :: proc() -> Pid {
     Available since Linux 1.0.
 */
 getpgrp :: proc() -> (Pid, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         ret := syscall(SYS_getpgid, 0)
         return errno_unwrap(ret, Pid)
     } else {
@@ -1258,7 +1258,7 @@ sigaltstack :: proc(stack: ^Sig_Stack, old_stack: ^Sig_Stack) -> (Errno) {
     On ARM64 available since Linux 2.6.16.
 */
 mknod :: proc(name: cstring, mode: Mode, dev: Dev) -> (Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         ret := syscall(SYS_mknodat, AT_FDCWD, cast(rawptr) name, transmute(u32) mode, cast(uint) dev)
         return Errno(-ret)
     } else {
@@ -1449,7 +1449,7 @@ vhangup :: proc() -> (Errno) {
     return Errno(-ret)
 }
 
-when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
     /*
         Get or set local descriptor table
         Available since Linux 2.1
@@ -1482,7 +1482,7 @@ prctl :: proc(op: i32, args: ..uint) -> (Errno) {
     return Errno(-ret)
 }
 
-when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
     /* 
         Set architecture-specific thread state
         Available since Linux 2.6.19
@@ -1615,7 +1615,7 @@ setdomainname :: proc(name: string) -> (Errno) {
 // TODO(flysand): iopl
 // deprecated
 
-when ODIN_ARCH == .amd64 || ODIN_ARCH == .i386 {
+when DUSK_ARCH == .amd64 || DUSK_ARCH == .i386 {
     /*
         Set port input/output permissions
         Available since Linux 1.0
@@ -1800,7 +1800,7 @@ fremovexattr :: proc(fd: Fd, name: cstring) -> (Errno) {
     Available since Linux 1.0.
 */
 time :: proc(tloc: ^uint) -> (Errno) {
-    when ODIN_ARCH != .arm64 && ODIN_ARCH != .riscv64 {
+    when DUSK_ARCH != .arm64 && DUSK_ARCH != .riscv64 {
         ret := syscall(SYS_time, tloc)
         return Errno(-ret)
     } else {
@@ -1936,7 +1936,7 @@ sched_getaffinity :: proc(pid: Pid, cpusetsize: uint, mask: rawptr) -> (int, Err
     Available since Linux 2.6.
 */
 epoll_create :: proc(size: i32 = 1) -> (Fd, Errno) {
-    when ODIN_ARCH != .arm64 && ODIN_ARCH != .riscv64 {
+    when DUSK_ARCH != .arm64 && DUSK_ARCH != .riscv64 {
         ret := syscall(SYS_epoll_create, i32(1))
         return errno_unwrap(ret, Fd)
     } else {
@@ -2061,7 +2061,7 @@ exit_group :: proc(code: i32) -> ! {
     Available since Linux 2.6.
 */
 epoll_wait :: proc(epfd: Fd, events: [^]EPoll_Event, count: i32, timeout: i32) -> (i32, Errno) {
-    when ODIN_ARCH != .arm64 && ODIN_ARCH != .riscv64 {
+    when DUSK_ARCH != .arm64 && DUSK_ARCH != .riscv64 {
         ret := syscall(SYS_epoll_wait, epfd, events, count, timeout)
         return errno_unwrap(ret, i32)
     } else {
@@ -2137,7 +2137,7 @@ waitid :: proc(id_type: Id_Type, id: Id, sig_info: ^Sig_Info, options: Wait_Opti
 // TODO(flysand): ioprio_get
 
 inotify_init :: proc() -> (Fd, Errno) {
-    when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+    when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
         ret := syscall(SYS_inotify_init1, 0)
         return errno_unwrap(ret, Fd)
     } else {
@@ -2207,7 +2207,7 @@ fstatat :: proc(dirfd: Fd, name: cstring, stat: ^Stat, flags: FD_Flags) -> (Errn
     when size_of(int) == 4 {
         ret := syscall(SYS_fstatat64, dirfd, cast(rawptr) name, stat, transmute(i32) flags)
         return Errno(-ret)
-    } else when ODIN_ARCH == .amd64 {
+    } else when DUSK_ARCH == .amd64 {
         ret := syscall(SYS_newfstatat, dirfd, cast(rawptr) name, stat, transmute(i32) flags)
         return Errno(-ret)
     } else {
@@ -2696,7 +2696,7 @@ epoll_pwait2 :: proc(epfd: Fd, events: [^]EPoll_Event, count: i32, timeout: ^Tim
 
 // TODO(flysand): map_shadow_stack
 
-when ODIN_ARCH == .riscv64 {
+when DUSK_ARCH == .riscv64 {
     /*
         Probe for RISC-V Hardware Support.
         Available since Linux 6.4.

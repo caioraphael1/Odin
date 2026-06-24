@@ -28,9 +28,9 @@
 #endif
 
 #if LLVM_VERSION_MAJOR > 14 || (LLVM_VERSION_MAJOR == 14 && LLVM_VERSION_MINOR >= 0 && LLVM_VERSION_PATCH > 0)
-#define ODIN_LLVM_MINIMUM_VERSION_14 1
+#define DUSK_LLVM_MINIMUM_VERSION_14 1
 #else
-#define ODIN_LLVM_MINIMUM_VERSION_14 0
+#define DUSK_LLVM_MINIMUM_VERSION_14 0
 #endif
 
 #if LLVM_VERSION_MAJOR == 15 || LLVM_VERSION_MAJOR == 16
@@ -405,7 +405,7 @@ struct lbProcedure {
 #endif
 
 
-#if !ODIN_LLVM_MINIMUM_VERSION_14
+#if !DUSK_LLVM_MINIMUM_VERSION_14
 #define LLVMConstGEP2(Ty__, ConstantVal__, ConstantIndices__, NumIndices__) LLVMConstGEP(ConstantVal__, ConstantIndices__, NumIndices__)
 #define LLVMConstInBoundsGEP2(Ty__, ConstantVal__, ConstantIndices__, NumIndices__) LLVMConstInBoundsGEP(ConstantVal__, ConstantIndices__, NumIndices__)
 #define LLVMBuildPtrDiff2(Builder__, Ty__, LHS__, RHS__, Name__) LLVMBuildPtrDiff(Builder__, LHS__, RHS__, Name__)
@@ -779,6 +779,6 @@ gb_global char const *llvm_linkage_strings[] = {
     "linker private weak linkage"
 };
 
-#define ODIN_METADATA_IS_PACKED str_lit("odin-is-packed")
-#define ODIN_METADATA_MIN_ALIGN str_lit("odin-min-align")
-#define ODIN_METADATA_MAX_ALIGN str_lit("odin-max-align")
+#define DUSK_METADATA_IS_PACKED str_lit("odin-is-packed")
+#define DUSK_METADATA_MIN_ALIGN str_lit("odin-min-align")
+#define DUSK_METADATA_MAX_ALIGN str_lit("odin-max-align")

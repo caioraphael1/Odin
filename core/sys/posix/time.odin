@@ -2,7 +2,7 @@
 import "core:c"
 import "core:c/libc"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -158,7 +158,7 @@ Clock :: enum clockid_t {
     THREAD_CPUTIME_ID  = CLOCK_THREAD_CPUTIME_ID,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     @(private) LCTIMER       :: "__ctime_r50"
     @(private) LGMTIMER      :: "__gmtime_r50"
     @(private) LLOCALTIMER   :: "__localtime_r50"
@@ -178,7 +178,7 @@ when ODIN_OS == .NetBSD {
     @(private) LTIMEZONE     :: "timezone"
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
     clockid_t :: distinct c.int
 
@@ -191,7 +191,7 @@ when ODIN_OS == .Darwin {
         getdate_err: Errno
     }
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
     clockid_t :: distinct c.int
 
@@ -204,7 +204,7 @@ when ODIN_OS == .Darwin {
         getdate_err: Errno
     }
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
     clockid_t :: distinct c.uint
 
@@ -217,7 +217,7 @@ when ODIN_OS == .Darwin {
         getdate_err: Errno
     }
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
     clockid_t :: distinct c.uint
 
@@ -228,7 +228,7 @@ when ODIN_OS == .Darwin {
 
     getdate_err: Errno = .ENOSYS // NOTE: looks like it's not a thing on OpenBSD.
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
     clockid_t :: distinct c.int32_t
 
@@ -239,7 +239,7 @@ when ODIN_OS == .Darwin {
 
     getdate_err: Errno = .ENOSYS // NOTE: looks like it's not a thing on Haiku.
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
     clockid_t :: distinct c.int
 

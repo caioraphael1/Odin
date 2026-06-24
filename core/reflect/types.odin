@@ -414,18 +414,18 @@ is_endian_little :: proc(info: ^Type_Info) -> bool {
     #partial switch v in info.variant {
     case Type_Info_Integer:
         if v.endianness == .Platform {
-            return ODIN_ENDIAN == .Little
+            return DUSK_ENDIAN == .Little
         }
         return v.endianness == .Little
     case Type_Info_Bit_Set:
         if v.underlying != nil {
             return is_endian_platform(v.underlying)
         }
-        return ODIN_ENDIAN == .Little
+        return DUSK_ENDIAN == .Little
     case Type_Info_Pointer:
-        return ODIN_ENDIAN == .Little
+        return DUSK_ENDIAN == .Little
     }
-    return ODIN_ENDIAN == .Little
+    return DUSK_ENDIAN == .Little
 }
 
 // Returns true when the core-type is represented with a platform-native endian type or the same endianness as the system.
@@ -438,18 +438,18 @@ is_endian_big :: proc(info: ^Type_Info) -> bool {
     #partial switch v in info.variant {
     case Type_Info_Integer:
         if v.endianness == .Platform {
-            return ODIN_ENDIAN == .Big
+            return DUSK_ENDIAN == .Big
         }
         return v.endianness == .Big
     case Type_Info_Bit_Set:
         if v.underlying != nil {
             return is_endian_platform(v.underlying)
         }
-        return ODIN_ENDIAN == .Big
+        return DUSK_ENDIAN == .Big
     case Type_Info_Pointer:
-        return ODIN_ENDIAN == .Big
+        return DUSK_ENDIAN == .Big
     }
-    return ODIN_ENDIAN == .Big
+    return DUSK_ENDIAN == .Big
 }
 
 

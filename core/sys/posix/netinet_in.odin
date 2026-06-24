@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -29,13 +29,13 @@ Protocol :: enum c.int {
     UDP  = IPPROTO_UDP,
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
     in_addr :: struct {
         s_addr: in_addr_t, /* [PSX] big endian address */
     }
 
-    when ODIN_OS == .Haiku {
+    when DUSK_OS == .Haiku {
         in6_addr :: struct #packed {
             using _: struct #raw_union {
                 s6_addr:     [16]c.uint8_t, /* [PSX] big endian address */
@@ -54,7 +54,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
     }
 
 
-    when ODIN_OS == .Linux {
+    when DUSK_OS == .Linux {
 
         sockaddr_in :: struct {
             sin_family: sa_family_t, /* [PSX] AF_INET (but a smaller size) */
@@ -86,7 +86,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 
     } else {
 
-        when ODIN_OS == .Haiku {
+        when DUSK_OS == .Haiku {
             @(private)
             _SIN_ZEROSIZE :: 24
         } else {
@@ -116,7 +116,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
             ipv6mr_interface: c.uint,   /* [PSX] interface index */
         }
 
-        when ODIN_OS == .Haiku {
+        when DUSK_OS == .Haiku {
             IPV6_JOIN_GROUP     :: 28
             IPV6_LEAVE_GROUP    :: 29
             IPV6_MULTICAST_HOPS :: 25

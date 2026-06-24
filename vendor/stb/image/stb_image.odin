@@ -3,17 +3,17 @@ import "core:c"
 
 @(private)
 LIB :: (
-         "../lib/stb_image.lib"      when ODIN_OS == .Windows
-    else "../lib/stb_image.a"        when ODIN_OS == .Linux
-    else "../lib/darwin/stb_image.a" when ODIN_OS == .Darwin
-    else "../lib/stb_image_wasm.o"   when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
+         "../lib/stb_image.lib"      when DUSK_OS == .Windows
+    else "../lib/stb_image.a"        when DUSK_OS == .Linux
+    else "../lib/darwin/stb_image.a" when DUSK_OS == .Darwin
+    else "../lib/stb_image_wasm.o"   when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32
     else ""
 )
 
 when LIB != "" {
     when !#exists(LIB) {
         // The STB libraries are shipped with the compiler on Windows so a Windows specific message should not be needed.
-        #panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + ODIN_ROOT + "vendor/stb/src\"`")
+        #panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + DUSK_ROOT + "vendor/stb/src\"`")
     }
 }
 
@@ -21,7 +21,7 @@ foreign import stbi {
     LIB when LIB != "" else "system:stb_image",
 }
 
-NO_STDIO :: ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
+NO_STDIO :: DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32
 
 #assert(size_of(c.int) == size_of(b32))
 #assert(size_of(b32) == size_of(c.int))

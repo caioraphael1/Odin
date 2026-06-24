@@ -14,7 +14,7 @@ multi_pointer_slice_handle_error :: proc(file: string, line, column: i32, lo, hi
     bounds_trap()
 }
 
-@(disabled=ODIN_NO_BOUNDS_CHECK)
+@(disabled=DUSK_NO_BOUNDS_CHECK)
 __multi_pointer_slice_expr_error :: proc(file: string, line, column: i32, lo, hi: int) {
     if lo <= hi {
         return

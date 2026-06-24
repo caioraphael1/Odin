@@ -11,7 +11,7 @@ See:
 
 /*
     Copyright 2022 zhibog
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         zhibog:  Initial implementation.

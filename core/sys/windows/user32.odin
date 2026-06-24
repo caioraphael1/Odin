@@ -376,7 +376,7 @@ CreateWindowW :: #force_inline proc "system" (
     )
 }
 
-when ODIN_ARCH == .amd64 {
+when DUSK_ARCH == .amd64 {
     @(default_calling_convention="system")
     foreign user32 {
         GetClassLongPtrW :: proc(hWnd: HWND, nIndex: INT) -> ULONG_PTR ---
@@ -385,7 +385,7 @@ when ODIN_ARCH == .amd64 {
         GetWindowLongPtrW :: proc(hWnd: HWND, nIndex: INT) -> LONG_PTR ---
         SetWindowLongPtrW :: proc(hWnd: HWND, nIndex: INT, dwNewLong: LONG_PTR) -> LONG_PTR ---
     }
-} else when ODIN_ARCH == .i386 {
+} else when DUSK_ARCH == .i386 {
     GetClassLongPtrW :: GetClassLongW
     SetClassLongPtrW :: SetClassLongW
 

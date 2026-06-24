@@ -1,7 +1,7 @@
 // A collection of utilities to aid with other `compress`ion packages.
 /*
     Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation, optimization.
@@ -85,7 +85,7 @@ GZIP_Error :: enum {
     Payload_Size_Exceeds_Max_Payload,
 
     // For buffered instead of streamed output, the payload size can't exceed
-    // the max set by the `COMPRESS_OUTPUT_ALLOCATE_MAX` switch in compress/common.odin.
+    // the max set by the `COMPRESS_OUTPUT_ALLOCATE_MAX` switch in compress/common.dusk.
     //
     // You can tweak this setting using `-define:COMPRESS_OUTPUT_ALLOCATE_MAX=size_in_bytes`
 

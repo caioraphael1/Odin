@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -65,7 +65,7 @@ Glob_Result :: enum c.int {
 	NOSPACE = GLOB_NOSPACE,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LGLOB     :: "__glob30"
 	@(private) LGLOBFREE :: "__globfree30"
 } else {
@@ -73,7 +73,7 @@ when ODIN_OS == .NetBSD {
 	@(private) LGLOBFREE :: "globfree"
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	glob_t :: struct {
 		gl_pathc:  c.size_t,                      /* [PSX] count of paths matched by pattern */
@@ -107,7 +107,7 @@ when ODIN_OS == .Darwin {
 	GLOB_NOMATCH :: -3
 	GLOB_NOSPACE :: -1
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .Haiku {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .Haiku {
 
 	glob_t :: struct {
 		gl_pathc:  c.size_t,                      /* [PSX] count of paths matched by pattern */
@@ -132,14 +132,14 @@ when ODIN_OS == .Darwin {
 	GLOB_ERR      :: 0x0004
 	GLOB_MARK     :: 0x0008
 	GLOB_NOCHECK  :: 0x0010
-	GLOB_NOESCAPE :: 0x2000 when ODIN_OS == .FreeBSD || ODIN_OS == .Haiku else 0x0100
+	GLOB_NOESCAPE :: 0x2000 when DUSK_OS == .FreeBSD || DUSK_OS == .Haiku else 0x0100
 	GLOB_NOSORT   :: 0x0020
 
 	GLOB_ABORTED :: -2
 	GLOB_NOMATCH :: -3
 	GLOB_NOSPACE :: -1
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
 	glob_t :: struct {
 		gl_pathc:  c.size_t,                      /* [PSX] count of paths matched by pattern */
@@ -173,7 +173,7 @@ when ODIN_OS == .Darwin {
 	GLOB_NOMATCH :: -3
 	GLOB_NOSPACE :: -1
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	glob_t :: struct {
 		gl_pathc:  c.size_t,                      /* [PSX] count of paths matched by pattern */

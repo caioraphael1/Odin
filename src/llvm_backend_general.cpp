@@ -59,7 +59,7 @@ gb_internal WORKER_TASK_PROC(lb_init_module_worker_proc) {
     m->ctx = LLVMContextCreate();
     m->mod = LLVMModuleCreateWithNameInContext(m->module_name, m->ctx);
     // m->debug_builder = nullptr;
-    if (build_context.ODIN_DEBUG) {
+    if (build_context.DUSK_DEBUG) {
         enum {DEBUG_METADATA_VERSION = 3};
 
         LLVMMetadataRef debug_ref = LLVMValueAsMetadata(LLVMConstInt(LLVMInt32TypeInContext(m->ctx), DEBUG_METADATA_VERSION, true));
@@ -851,13 +851,13 @@ gb_internal LLVMValueRef OdinLLVMBuildLoad(lbProcedure *p, LLVMTypeRef type, LLV
     // If it is not an instruction it isn't a GEP, so we don't need to track alignment in the metadata,
     // which is not possible anyway (only LLVM instructions can have metadata).
     if (LLVMIsAInstruction(value)) {
-        u64 is_packed = lb_get_metadata_custom_u64(p->module, value, ODIN_METADATA_IS_PACKED);
+        u64 is_packed = lb_get_metadata_custom_u64(p->module, value, DUSK_METADATA_IS_PACKED);
         if (is_packed != 0) {
             LLVMSetAlignment(result, 1);
         }
         u64 align = LLVMGetAlignment(result);
-        u64 align_min = lb_get_metadata_custom_u64(p->module, value, ODIN_METADATA_MIN_ALIGN);
-        u64 align_max = lb_get_metadata_custom_u64(p->module, value, ODIN_METADATA_MAX_ALIGN);
+        u64 align_min = lb_get_metadata_custom_u64(p->module, value, DUSK_METADATA_MIN_ALIGN);
+        u64 align_max = lb_get_metadata_custom_u64(p->module, value, DUSK_METADATA_MAX_ALIGN);
         if (align_min != 0 && align < align_min) {
             align = align_min;
         }
@@ -877,7 +877,7 @@ gb_internal LLVMValueRef OdinLLVMBuildLoadAligned(lbProcedure *p, LLVMTypeRef ty
     LLVMSetAlignment(result, cast(unsigned)alignment);
 
     if (LLVMIsAInstruction(value)) {
-        u64 is_packed = lb_get_metadata_custom_u64(p->module, value, ODIN_METADATA_IS_PACKED);
+        u64 is_packed = lb_get_metadata_custom_u64(p->module, value, DUSK_METADATA_IS_PACKED);
         if (is_packed != 0) {
             LLVMSetAlignment(result, 1);
         }

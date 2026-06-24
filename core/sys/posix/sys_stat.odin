@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -257,7 +257,7 @@ _S_IFSOCK :: 0o140000
 
 _S_IFMT   :: 0o170000
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LSTAT  :: "__stat50"
 	@(private) LFSTAT :: "__fstat50"
 	@(private) LLSTAT :: "__lstat50"
@@ -269,7 +269,7 @@ when ODIN_OS == .NetBSD {
 	@(private) LMKNOD :: "mknod"
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	dev_t      :: distinct c.int32_t
 	nlink_t    :: distinct c.uint16_t
@@ -302,7 +302,7 @@ when ODIN_OS == .Darwin {
 	UTIME_NOW  :: -1
 	UTIME_OMIT :: -2
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
 	dev_t      :: distinct c.uint64_t
 	nlink_t    :: distinct c.uint64_t
@@ -311,7 +311,7 @@ when ODIN_OS == .Darwin {
 	blksize_t  :: distinct c.int32_t
 	ino_t      :: distinct c.uint64_t
 
-	when ODIN_ARCH == .i386 {
+	when DUSK_ARCH == .i386 {
 		stat_t :: struct {
 			st_dev:           dev_t,        /* [PSX] ID of device containing file */
 			st_ino:           ino_t,        /* [PSX] file serial number */
@@ -363,7 +363,7 @@ when ODIN_OS == .Darwin {
 	UTIME_NOW  :: -1
 	UTIME_OMIT :: -2
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
 	dev_t      :: distinct c.uint64_t
 	nlink_t    :: distinct c.uint32_t
@@ -395,7 +395,7 @@ when ODIN_OS == .Darwin {
 	UTIME_NOW  :: (1 << 30) - 1
 	UTIME_OMIT :: (1 << 30) - 2
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
 	dev_t      :: distinct c.int32_t
 	nlink_t    :: distinct c.uint32_t
@@ -426,7 +426,7 @@ when ODIN_OS == .Darwin {
 	UTIME_NOW  :: -2
 	UTIME_OMIT :: -1
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	dev_t      :: distinct c.int32_t
 	nlink_t    :: distinct c.int32_t
@@ -456,13 +456,13 @@ when ODIN_OS == .Darwin {
 	UTIME_NOW  :: 1000000000
 	UTIME_OMIT :: 1000000001
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	dev_t     :: distinct u64
 	_mode_t   :: distinct c.uint 
 	blkcnt_t  :: distinct i64
 
-	when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+	when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
 		nlink_t   :: distinct c.uint
 		blksize_t :: distinct c.int
 	} else {
@@ -472,7 +472,7 @@ when ODIN_OS == .Darwin {
 
 	ino_t :: distinct u64
 
-	when ODIN_ARCH == .amd64 {
+	when DUSK_ARCH == .amd64 {
 		stat_t :: struct {
 			st_dev:           dev_t,        /* [PSX] ID of device containing file */
 			st_ino:           ino_t,        /* [PSX] file serial number */

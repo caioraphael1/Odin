@@ -1,4 +1,4 @@
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import lib {
         "lib/kb_text_shape.lib",
     }

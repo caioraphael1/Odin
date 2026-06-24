@@ -104,7 +104,7 @@ FD_Flags :: bit_set[FD_Flags_Bits; i32]
 */
 Mode :: bit_set[Mode_Bits; u32]
 
-when ODIN_ARCH == .amd64 {
+when DUSK_ARCH == .amd64 {
     // x86-64 has mode and nlink swapped for some reason
     _Arch_Stat :: struct {
         dev:       Dev,
@@ -123,7 +123,7 @@ when ODIN_ARCH == .amd64 {
         ctime:     Time_Spec,
         _:         [3]uint,
     }
-} else when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+} else when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
     _Arch_Stat :: struct {
         dev:        Dev,
         ino:        Inode,
@@ -368,7 +368,7 @@ Mem_Protection :: bit_set[Mem_Protection_Bits; i32]
 /*
     Flags for mmap.
 
-    See `constants.odin` for `MAP_SHARED_VALIDATE` and `MAP_HUGE_16KB`, et al.
+    See `constants.dusk` for `MAP_SHARED_VALIDATE` and `MAP_HUGE_16KB`, et al.
 */
 Map_Flags :: bit_set[Map_Flags_Bits; i32]
 
@@ -511,7 +511,7 @@ Pid_FD_Flags :: bit_set[Pid_FD_Flags_Bits; i32]
 // Note(flysand): these could, in principle be implemented with bitfields,
 // however there are ABI differences between odin's bitfields and linux sigsets.
 // Mainly:
-//  1. Odin's bitfields start from 0, whereas signals start from 1
+//  1. Dusk's bitfields start from 0, whereas signals start from 1
 //  2. It's unclear how bitfields act in terms of ABI (are they an array of ints or an array of longs?).
 //     it makes a difference because ARM is big endian.
 @(private) _SIGSET_NWORDS :: (8 / size_of(uint))
@@ -954,7 +954,7 @@ IPC_Perm :: struct {
     _:    [2 + 2*size_of(int)]u8,
 }
 
-when size_of(int) == 8 || ODIN_ARCH == .i386 {
+when size_of(int) == 8 || DUSK_ARCH == .i386 {
     // 32-bit and 64-bit x86, 64-bit arm
     _Arch_Shmid_DS :: struct {
         perm:   IPC_Perm,
@@ -1012,7 +1012,7 @@ Sem_Buf :: struct {
     flg: IPC_Flags,
 }
 
-when ODIN_ARCH == .i386 {
+when DUSK_ARCH == .i386 {
     _Arch_Semid_DS :: struct {
         perm:       IPC_Perm,
         otime:      uint,
@@ -1022,7 +1022,7 @@ when ODIN_ARCH == .i386 {
         nsems:      uint,
         _:          [2]uint,
     }
-} else when ODIN_ARCH == .amd64 {
+} else when DUSK_ARCH == .amd64 {
     _Arch_Semid_DS :: struct {
         perm:       IPC_Perm,
         otime:      int,
@@ -1030,7 +1030,7 @@ when ODIN_ARCH == .i386 {
         nsems:      uint,
         _:          [2]uint,
     }
-} else when ODIN_ARCH == .arm32 {
+} else when DUSK_ARCH == .arm32 {
     _Arch_Semid_DS :: struct {
         perm:       IPC_Perm,
         otime:      uint,
@@ -1040,7 +1040,7 @@ when ODIN_ARCH == .i386 {
         nsems:      uint,
         _:          [2]uint,
     }
-} else when ODIN_ARCH == .arm64 || ODIN_ARCH == .riscv64 {
+} else when DUSK_ARCH == .arm64 || DUSK_ARCH == .riscv64 {
     _Arch_Semid_DS :: struct {
         perm:       IPC_Perm,
         otime:      int,
@@ -1134,7 +1134,7 @@ ITimer_Spec :: struct {
 */
 ITimer_Flags :: bit_set[ITimer_Flags_Bits; u32]
 
-when ODIN_ARCH == .arm32 {
+when DUSK_ARCH == .arm32 {
     _Arch_User_Regs :: struct {
         cpsr:             uint,
         pc:               uint,
@@ -1159,7 +1159,7 @@ when ODIN_ARCH == .arm32 {
     // definitions
     _Arch_User_FP_Regs :: struct {}
     _Arch_User_FPX_Regs :: struct {}
-} else when ODIN_ARCH == .arm64 {
+} else when DUSK_ARCH == .arm64 {
     _Arch_User_Regs :: struct {
         regs:             [31]uint,
         sp:               uint,
@@ -1173,7 +1173,7 @@ when ODIN_ARCH == .arm32 {
         _:                [2]u32,
     }
     _Arch_User_FPX_Regs :: struct {}
-} else when ODIN_ARCH == .i386 {
+} else when DUSK_ARCH == .i386 {
     _Arch_User_Regs :: struct {
         ebx:              uint,
         ecx:              uint,
@@ -1220,7 +1220,7 @@ when ODIN_ARCH == .arm32 {
         xmm_space:        [32]uint,
         padding:          [56]uint,
     }
-} else when ODIN_ARCH == .amd64 {
+} else when DUSK_ARCH == .amd64 {
     _Arch_User_Regs :: struct {
         // Callee-preserved, may not be correct if the syscall doesn't need
         // these registers
@@ -1286,7 +1286,7 @@ when ODIN_ARCH == .arm32 {
         xmm_space:        [32]uint,
         padding:          [56]uint,
     }
-} else when ODIN_ARCH == .riscv64 {
+} else when DUSK_ARCH == .riscv64 {
     _Arch_User_Regs :: struct {
         pc, ra, sp, gp, tp,
         t0, t1, t2,
@@ -1454,7 +1454,7 @@ EPoll_Data :: struct #raw_union {
         #define EPOLL_PACKED
         #endif
 */
-when ODIN_ARCH == .amd64 {
+when DUSK_ARCH == .amd64 {
     EPoll_Event :: struct #packed {
         events: EPoll_Event_Set,
         data:   EPoll_Data,

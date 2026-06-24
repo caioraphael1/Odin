@@ -606,7 +606,7 @@ gb_internal lbValue lb_map_get_proc_for_type(lbModule *m, Type *type) {
 
     LLVMSetLinkage(p->value, LLVMInternalLinkage);
     lb_add_attribute_to_proc(m, p->value, "nounwind");
-    if (build_context.ODIN_DEBUG) {
+    if (build_context.DUSK_DEBUG) {
         lb_add_attribute_to_proc(m, p->value, "noinline");
     }
 
@@ -776,7 +776,7 @@ gb_internal lbValue lb_map_set_proc_for_type(lbModule *m, Type *type) {
 
     LLVMSetLinkage(p->value, LLVMInternalLinkage);
     lb_add_attribute_to_proc(m, p->value, "nounwind");
-    if (build_context.ODIN_DEBUG) {
+    if (build_context.DUSK_DEBUG) {
         lb_add_attribute_to_proc(m, p->value, "noinline");
     }
 
@@ -2145,7 +2145,7 @@ gb_internal void lb_create_global_procedures_and_types(lbGenerator *gen, Checker
         case Entity_Procedure:
             break;
         case Entity_Constant:
-            if (build_context.ODIN_DEBUG) {
+            if (build_context.DUSK_DEBUG) {
                 lb_add_debug_info_for_global_constant_from_entity(gen, e);
             }
             break;
@@ -3117,7 +3117,7 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
             TEMPORARY_ALLOCATOR_GUARD();
 
             gbString producer = gb_string_make(temporary_allocator(), "odin");
-            // producer = gb_string_append_fmt(producer, " version %.*s", LIT(ODIN_VERSION));
+            // producer = gb_string_append_fmt(producer, " version %.*s", LIT(DUSK_VERSION));
             // #ifdef NIGHTLY
             // producer = gb_string_appendc(producer, "-nightly");
             // #endif
@@ -3426,7 +3426,7 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
         lb_add_member(m, name, g);
     }
 
-    if (build_context.ODIN_DEBUG) {
+    if (build_context.DUSK_DEBUG) {
         // Custom `.raddbg` section for its debugger
         if (build_context.metrics.os == TargetOs_windows) {
             lbModule *m = default_module;
@@ -3458,7 +3458,7 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
     gen->cleanup_runtime = lb_create_cleanup_runtime(default_module);
 
 
-    if (build_context.ODIN_DEBUG) {
+    if (build_context.DUSK_DEBUG) {
         for (auto const &entry : builtin_pkg->scope->elements) {
             Entity *e = entry.value;
             lb_add_debug_info_for_global_constant_from_entity(gen, e);
@@ -3488,7 +3488,7 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
         lb_finalize_objc_names(gen, gen->objc_names);
     }
 
-    if (build_context.ODIN_DEBUG) {
+    if (build_context.DUSK_DEBUG) {
         TIME_SECTION("LLVM Debug Info Complete Types and Finalize");
         lb_debug_info_complete_types_and_finalize(gen);
 
@@ -3598,7 +3598,7 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
     lb_add_foreign_library_paths(gen);
 
     TIME_SECTION("LLVM Function Pass");
-    lb_llvm_function_passes(gen, do_threading && !build_context.ODIN_DEBUG);
+    lb_llvm_function_passes(gen, do_threading && !build_context.DUSK_DEBUG);
 
     TIME_SECTION("LLVM Remove Unused Functions and Globals");
     lb_remove_unused_functions_and_globals(gen);
@@ -3667,7 +3667,7 @@ gb_internal bool lb_generate_code(lbGenerator *gen) {
         switch (build_context.metrics.os) {
         case TargetOs_windows: {
             auto paths = array_make<String>(heap_allocator(), 0, 1);
-            String path = concatenate_strings(permanent_allocator(), build_context.ODIN_ROOT, str_lit("\\bin\\llvm\\windows\\clang_rt.asan-x86_64.lib"));
+            String path = concatenate_strings(permanent_allocator(), build_context.DUSK_ROOT, str_lit("\\bin\\llvm\\windows\\clang_rt.asan-x86_64.lib"));
             array_add(&paths, path);
             Entity *lib = alloc_entity_library_name(nullptr, make_token_ident("asan_lib"), nullptr, slice_from_array(paths), str_lit("asan_lib"));
             array_add(&gen->foreign_libraries, lib);

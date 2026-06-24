@@ -3,7 +3,7 @@ import "core:c"
 @(require) import win32 "core:sys/windows"
 @(require) import "vendor:x11/xlib"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     HINSTANCE           :: win32.HINSTANCE
     HWND                :: win32.HWND
     HMONITOR            :: win32.HMONITOR

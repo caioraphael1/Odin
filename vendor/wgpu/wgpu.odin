@@ -5,8 +5,8 @@ WGPU_DEBUG  :: #config(WGPU_DEBUG,  false)
 
 @(private) TYPE :: "debug" when WGPU_DEBUG else "release"
 
-when ODIN_OS == .Windows {
-    @(private) ARCH :: "x86_64"   when ODIN_ARCH == .amd64 else "x86_64" when ODIN_ARCH == .i386 else #panic("unsupported WGPU Native architecture")
+when DUSK_OS == .Windows {
+    @(private) ARCH :: "x86_64"   when DUSK_ARCH == .amd64 else "x86_64" when DUSK_ARCH == .i386 else #panic("unsupported WGPU Native architecture")
     @(private) EXT  :: ".dll.lib" when WGPU_SHARED else ".lib"
     @(private) LIB  :: "lib/wgpu-windows-" + ARCH + "-msvc-" + TYPE + "/lib/wgpu_native" + EXT
 
@@ -31,8 +31,8 @@ when ODIN_OS == .Windows {
         "system:propsys.lib",
         "system:runtimeobject.lib",
     }
-} else when ODIN_OS == .Darwin {
-    @(private) ARCH :: "x86_64" when ODIN_ARCH == .amd64 else "aarch64" when ODIN_ARCH == .arm64 else #panic("unsupported WGPU Native architecture")
+} else when DUSK_OS == .Darwin {
+    @(private) ARCH :: "x86_64" when DUSK_ARCH == .amd64 else "aarch64" when DUSK_ARCH == .arm64 else #panic("unsupported WGPU Native architecture")
     @(private) EXT  :: ".dylib" when WGPU_SHARED else ".a"
     @(private) LIB  :: "lib/wgpu-macos-" + ARCH + "-" + TYPE + "/lib/libwgpu_native" + EXT
 
@@ -48,8 +48,8 @@ when ODIN_OS == .Windows {
         "system:QuartzCore.framework",
         "system:Metal.framework",
     }
-} else when ODIN_OS == .Linux {
-    @(private) ARCH :: "x86_64" when ODIN_ARCH == .amd64 else "aarch64" when ODIN_ARCH == .arm64 else #panic("unsupported WGPU Native architecture")
+} else when DUSK_OS == .Linux {
+    @(private) ARCH :: "x86_64" when DUSK_ARCH == .amd64 else "aarch64" when DUSK_ARCH == .arm64 else #panic("unsupported WGPU Native architecture")
     @(private) EXT  :: ".so"    when WGPU_SHARED else ".a"
     @(private) LIB  :: "lib/wgpu-linux-" + ARCH + "-" + TYPE + "/lib/libwgpu_native" + EXT
 
@@ -63,7 +63,7 @@ when ODIN_OS == .Windows {
         "system:dl",
         "system:m",
     }
-} else when ODIN_OS == .JS {
+} else when DUSK_OS == .JS {
     @(export)
     foreign import libwgpu "wgpu"
 }
@@ -1691,7 +1691,7 @@ foreign libwgpu {
 // Wrappers of Instance
 
 CreateInstance :: proc "c" (/* NULLABLE */ descriptor: /* const */ ^InstanceDescriptor = nil) -> Instance {
-    when ODIN_OS != .JS {
+    when DUSK_OS != .JS {
         v := (transmute([4]u8)GetVersion()).wzyx
 
         if v.xyz != BINDINGS_VERSION.xyz {

@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -62,13 +62,13 @@ semun :: struct #raw_union {
 	array: [^]c.ushort,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LSEMCTL :: "__semctl50"
 } else {
 	@(private) LSEMCTL :: "semctl"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
 
 	SEM_UNDO :: 0o10000
 
@@ -80,7 +80,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 	SETVAL  :: 8
 	SETALL  :: 9
 
-	when ODIN_OS == .Darwin {
+	when DUSK_OS == .Darwin {
 		semid_ds :: struct #max_field_align(4) {
 			sem_perm:  ipc_perm,     /* [PSX] operation permission structure */
 			sem_base:  c.int32_t,    /* 32 bit base ptr for semaphore set */
@@ -91,7 +91,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 			sem_pad2:  c.int32_t,
 			sem_pad3:  [4]c.int32_t,
 		}
-	} else when ODIN_OS == .FreeBSD {
+	} else when DUSK_OS == .FreeBSD {
 		semid_ds :: struct {
 			sem_perm:  ipc_perm, /* [PSX] operation permission structure */
 			sem_base:  rawptr,   /* 32 bit base ptr for semaphore set */
@@ -99,7 +99,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 			sem_otime: time_t,   /* [PSX] last semop() */
 			sem_ctime: time_t,   /* [PSX] last time changed by semctl() */
 		}
-	} else when ODIN_OS == .NetBSD {
+	} else when DUSK_OS == .NetBSD {
 		semid_ds :: struct {
 			sem_perm:  ipc_perm, /* [PSX] operation permission structure */
 			sem_nsems: c.ushort, /* [PSX] number of semaphores in set */
@@ -107,7 +107,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 			sem_ctime: time_t,   /* [PSX] last time changed by semctl() */
 			_sem_base: rawptr,   /* 32 bit base ptr for semaphore set */
 		}
-	} else when ODIN_OS == .OpenBSD {
+	} else when DUSK_OS == .OpenBSD {
 		semid_ds :: struct {
 			sem_perm:  ipc_perm, /* [PSX] operation permission structure */
 			sem_nsems: c.ushort, /* [PSX] number of semaphores in set */
@@ -125,7 +125,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 		sem_flg: c.short,  /* [PSX] operation flags */
 	}
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	SEM_UNDO :: 0x1000 // undo the operation on exit
 
@@ -138,7 +138,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 	SETVAL  :: 16
 	SETALL  :: 17
 
-	when ODIN_ARCH == .arm64 {
+	when DUSK_ARCH == .arm64 {
 		semid_ds :: struct {
 			sem_perm:  ipc_perm,  // [PSX] operation permission structure
 			sem_otime: time_t,    // [PSX] last semop()
@@ -166,7 +166,7 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
 		sem_flg: c.short,  /* [PSX] operation flags */
 	}
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	SEM_UNDO :: 10 // undo the operation on exit
 

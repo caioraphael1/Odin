@@ -2675,7 +2675,7 @@ gb_internal Type *make_optional_ok_type(Type *value, bool typed) {
 }
 
 
-// IMPORTANT NOTE(bill): This must match the definition in dynamic_map_internal.odin
+// IMPORTANT NOTE(bill): This must match the definition in dynamic_map_internal.dusk
 enum : i64 {
     MAP_CELL_CACHE_LINE_LOG2 = 6,
     MAP_CELL_CACHE_LINE_SIZE = 1 << MAP_CELL_CACHE_LINE_LOG2,

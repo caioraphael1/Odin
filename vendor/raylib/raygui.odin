@@ -3,16 +3,16 @@ import "core:c"
 RAYGUI_SHARED :: #config(RAYGUI_SHARED, false)
 RAYGUI_WASM_LIB :: #config(RAYGUI_WASM_LIB, "wasm/libraygui.a")
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     foreign import lib {
         "windows/rayguidll.lib" when RAYGUI_SHARED else "windows/raygui.lib",
     }
-} else when ODIN_OS == .Linux  {
+} else when DUSK_OS == .Linux  {
     foreign import lib {
         "linux/libraygui.so" when RAYGUI_SHARED else "linux/libraygui.a",
     }
-} else when ODIN_OS == .Darwin {
-    when ODIN_ARCH == .arm64 {
+} else when DUSK_OS == .Darwin {
+    when DUSK_ARCH == .arm64 {
         foreign import lib {
             "macos-arm64/libraygui.dylib" when RAYGUI_SHARED else "macos-arm64/libraygui.a",
         }
@@ -21,7 +21,7 @@ when ODIN_OS == .Windows {
             "macos/libraygui.dylib" when RAYGUI_SHARED else "macos/libraygui.a",
         }
     }
-} else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
+} else when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32 {
     foreign import lib {
         RAYGUI_WASM_LIB,
     }
@@ -209,7 +209,7 @@ SCROLLBAR_RIGHT_SIDE :: 1
 @(default_calling_convention="c")
 foreign lib {
     // WASM does not have foreign variable declarations.
-    when ODIN_ARCH != .wasm32 && ODIN_ARCH != .wasm64p32 {
+    when DUSK_ARCH != .wasm32 && DUSK_ARCH != .wasm64p32 {
         @(link_name="raylib_version") version: cstring
     }
     // Global gui state control functions

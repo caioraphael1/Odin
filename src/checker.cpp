@@ -1125,10 +1125,10 @@ gb_internal void init_universal(void) {
     add_global_bool_constant("true",  true);
     add_global_bool_constant("false", false);
 
-    add_global_string_constant("ODIN_VENDOR",                   bc->ODIN_VENDOR);
-    add_global_string_constant("ODIN_VERSION",                  bc->ODIN_VERSION);
-    add_global_string_constant("ODIN_ROOT",                     bc->ODIN_ROOT);
-    add_global_string_constant("ODIN_BUILD_PROJECT_NAME",       bc->ODIN_BUILD_PROJECT_NAME);
+    add_global_string_constant("DUSK_VENDOR",                   bc->DUSK_VENDOR);
+    add_global_string_constant("DUSK_VERSION",                  bc->DUSK_VERSION);
+    add_global_string_constant("DUSK_ROOT",                     bc->DUSK_ROOT);
+    add_global_string_constant("DUSK_BUILD_PROJECT_NAME",       bc->DUSK_BUILD_PROJECT_NAME);
 
     {
         GlobalEnumValue values[Windows_Subsystem_COUNT] = {
@@ -1146,8 +1146,8 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_Windows_Subsystem_Type"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_WINDOWS_SUBSYSTEM",  bc->ODIN_WINDOWS_SUBSYSTEM);
-        add_global_string_constant("ODIN_WINDOWS_SUBSYSTEM_STRING", windows_subsystem_names[bc->ODIN_WINDOWS_SUBSYSTEM]);
+        add_global_enum_constant(fields, "DUSK_WINDOWS_SUBSYSTEM",  bc->DUSK_WINDOWS_SUBSYSTEM);
+        add_global_string_constant("DUSK_WINDOWS_SUBSYSTEM_STRING", windows_subsystem_names[bc->DUSK_WINDOWS_SUBSYSTEM]);
     }
 
     {
@@ -1168,8 +1168,8 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_OS_Type"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_OS",  bc->metrics.os);
-        add_global_string_constant("ODIN_OS_STRING", target_os_names[bc->metrics.os]);
+        add_global_enum_constant(fields, "DUSK_OS",  bc->metrics.os);
+        add_global_string_constant("DUSK_OS_STRING", target_os_names[bc->metrics.os]);
     }
 
     {
@@ -1185,11 +1185,11 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_Arch_Type"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_ARCH", bc->metrics.arch);
-        add_global_string_constant("ODIN_ARCH_STRING", target_arch_names[bc->metrics.arch]);
+        add_global_enum_constant(fields, "DUSK_ARCH", bc->metrics.arch);
+        add_global_string_constant("DUSK_ARCH_STRING", target_arch_names[bc->metrics.arch]);
     }
 
-    add_global_string_constant("ODIN_MICROARCH_STRING", get_final_microarchitecture());
+    add_global_string_constant("DUSK_MICROARCH_STRING", get_final_microarchitecture());
     
     {
         GlobalEnumValue values[BuildMode_COUNT] = {
@@ -1202,7 +1202,7 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_Build_Mode_Type"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_BUILD_MODE", bc->build_mode);
+        add_global_enum_constant(fields, "DUSK_BUILD_MODE", bc->build_mode);
     }
 
     {
@@ -1212,8 +1212,8 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_Endian_Type"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_ENDIAN", target_endians[bc->metrics.arch]);
-        add_global_string_constant("ODIN_ENDIAN_STRING", target_endian_names[target_endians[bc->metrics.arch]]);
+        add_global_enum_constant(fields, "DUSK_ENDIAN", target_endians[bc->metrics.arch]);
+        add_global_string_constant("DUSK_ENDIAN_STRING", target_endian_names[target_endians[bc->metrics.arch]]);
     }
 
     {
@@ -1225,7 +1225,7 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_Platform_Subtarget_Type"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_PLATFORM_SUBTARGET", selected_subtarget);
+        add_global_enum_constant(fields, "DUSK_PLATFORM_SUBTARGET", selected_subtarget);
     }
 
     {
@@ -1235,7 +1235,7 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_Error_Pos_Style_Type"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_ERROR_POS_STYLE", build_context.ODIN_ERROR_POS_STYLE);
+        add_global_enum_constant(fields, "DUSK_ERROR_POS_STYLE", build_context.DUSK_ERROR_POS_STYLE);
     }
 
     {
@@ -1264,26 +1264,26 @@ gb_internal void init_universal(void) {
         #endif
             minimum_os_version = (major*10000)+(minor*100)+revision;
         }
-        add_global_constant("ODIN_MINIMUM_OS_VERSION", t_untyped_integer, exact_value_i64(minimum_os_version));
+        add_global_constant("DUSK_MINIMUM_OS_VERSION", t_untyped_integer, exact_value_i64(minimum_os_version));
     }
 
-    add_global_bool_constant("ODIN_DEBUG",                      bc->ODIN_DEBUG);
-    add_global_bool_constant("ODIN_DISABLE_ASSERT",             bc->ODIN_DISABLE_ASSERT);
-    add_global_bool_constant("ODIN_DEFAULT_TO_NIL_ALLOCATOR",   bc->ODIN_DEFAULT_TO_NIL_ALLOCATOR);
-    add_global_bool_constant("ODIN_NO_BOUNDS_CHECK",            build_context.no_bounds_check);
-    add_global_bool_constant("ODIN_NO_TYPE_ASSERT",             build_context.no_type_assert);
-    add_global_bool_constant("ODIN_DEFAULT_TO_PANIC_ALLOCATOR", bc->ODIN_DEFAULT_TO_PANIC_ALLOCATOR);
-    add_global_bool_constant("ODIN_NO_CRT",                     bc->no_crt);
-    add_global_bool_constant("ODIN_USE_SEPARATE_MODULES",       bc->use_separate_modules);
-    add_global_bool_constant("ODIN_TEST",                       bc->command_kind == Command_test);
-    add_global_bool_constant("ODIN_NO_ENTRY_POINT",             bc->no_entry_point);
-    add_global_bool_constant("ODIN_FOREIGN_ERROR_PROCEDURES",   bc->ODIN_FOREIGN_ERROR_PROCEDURES);
-    add_global_bool_constant("ODIN_NO_RTTI",                    bc->no_rtti);
+    add_global_bool_constant("DUSK_DEBUG",                      bc->DUSK_DEBUG);
+    add_global_bool_constant("DUSK_DISABLE_ASSERT",             bc->DUSK_DISABLE_ASSERT);
+    add_global_bool_constant("DUSK_DEFAULT_TO_NIL_ALLOCATOR",   bc->DUSK_DEFAULT_TO_NIL_ALLOCATOR);
+    add_global_bool_constant("DUSK_NO_BOUNDS_CHECK",            build_context.no_bounds_check);
+    add_global_bool_constant("DUSK_NO_TYPE_ASSERT",             build_context.no_type_assert);
+    add_global_bool_constant("DUSK_DEFAULT_TO_PANIC_ALLOCATOR", bc->DUSK_DEFAULT_TO_PANIC_ALLOCATOR);
+    add_global_bool_constant("DUSK_NO_CRT",                     bc->no_crt);
+    add_global_bool_constant("DUSK_USE_SEPARATE_MODULES",       bc->use_separate_modules);
+    add_global_bool_constant("DUSK_TEST",                       bc->command_kind == Command_test);
+    add_global_bool_constant("DUSK_NO_ENTRY_POINT",             bc->no_entry_point);
+    add_global_bool_constant("DUSK_FOREIGN_ERROR_PROCEDURES",   bc->DUSK_FOREIGN_ERROR_PROCEDURES);
+    add_global_bool_constant("DUSK_NO_RTTI",                    bc->no_rtti);
 
-    add_global_bool_constant("ODIN_VALGRIND_SUPPORT",           bc->ODIN_VALGRIND_SUPPORT);
-    add_global_bool_constant("ODIN_TILDE",                      bc->tilde_backend);
+    add_global_bool_constant("DUSK_VALGRIND_SUPPORT",           bc->DUSK_VALGRIND_SUPPORT);
+    add_global_bool_constant("DUSK_TILDE",                      bc->tilde_backend);
 
-    add_global_constant("ODIN_COMPILE_TIMESTAMP", t_untyped_integer, exact_value_i64(odin_compile_timestamp()));
+    add_global_constant("DUSK_COMPILE_TIMESTAMP", t_untyped_integer, exact_value_i64(odin_compile_timestamp()));
 
     {
         String version = {};
@@ -1293,7 +1293,7 @@ gb_internal void init_universal(void) {
         version.len = gb_strlen(GIT_SHA);
         #endif
 
-        add_global_string_constant("ODIN_VERSION_HASH", version);
+        add_global_string_constant("DUSK_VERSION_HASH", version);
     }
 
     {
@@ -1304,7 +1304,7 @@ gb_internal void init_universal(void) {
             // NOTE(laytan): See #3222 for my ramblings on this.
             f16_supported = false;
         }
-        add_global_bool_constant("__ODIN_LLVM_F16_SUPPORTED", f16_supported);
+        add_global_bool_constant("__DUSK_LLVM_F16_SUPPORTED", f16_supported);
     }
 
     {
@@ -1330,7 +1330,7 @@ gb_internal void init_universal(void) {
         Type *named_type = alloc_type_named(type_name, bit_set_type, entity);
         set_base_type(named_type, bit_set_type);
 
-        add_global_constant("ODIN_SANITIZER_FLAGS", named_type, exact_value_u64(bc->sanitizer_flags));
+        add_global_constant("DUSK_SANITIZER_FLAGS", named_type, exact_value_u64(bc->sanitizer_flags));
     }
 
     {
@@ -1343,7 +1343,7 @@ gb_internal void init_universal(void) {
         };
 
         auto fields = add_global_enum_type(str_lit("Odin_Optimization_Mode"), values, gb_count_of(values));
-        add_global_enum_constant(fields, "ODIN_OPTIMIZATION_MODE", bc->optimization_level);
+        add_global_enum_constant(fields, "DUSK_OPTIMIZATION_MODE", bc->optimization_level);
     }
 
 

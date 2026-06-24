@@ -69,7 +69,7 @@ replace_environment_placeholders :: proc(path: string, res: string) {
     for len(path) > 0 {
         switch path[0] {
         case '%': // Windows
-            when ODIN_OS == .Windows {
+            when DUSK_OS == .Windows {
                 for r, i in path[1:] {
                     if r == '%' {
                         env_key := path[1:i+1]
@@ -83,7 +83,7 @@ replace_environment_placeholders :: proc(path: string, res: string) {
             }
 
         case '$': // Posix
-            when ODIN_OS != .Windows {
+            when DUSK_OS != .Windows {
                 env_key := ""
                 dollar_loop: for r, i in path[1:] {
                     switch r {

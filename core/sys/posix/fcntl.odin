@@ -2,7 +2,7 @@
 
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -147,7 +147,7 @@ AT_Flag_Bits :: enum c.int {
 }
 AT_Flags :: bit_set[AT_Flag_Bits; c.int]
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	off_t :: distinct c.int64_t
 	pid_t :: distinct c.int32_t
@@ -212,7 +212,7 @@ when ODIN_OS == .Darwin {
 		l_whence: c.short,   /* [PSX] flag (Whence) of starting offset */
 	}
 
-} else when ODIN_OS == .FreeBSD {
+} else when DUSK_OS == .FreeBSD {
 
 	off_t :: distinct c.int64_t
 	pid_t :: distinct c.int32_t
@@ -277,7 +277,7 @@ when ODIN_OS == .Darwin {
 		l_sysid:  c.int,
 	}
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
 	off_t :: distinct c.int64_t
 	pid_t :: distinct c.int32_t
@@ -343,7 +343,7 @@ when ODIN_OS == .Darwin {
 		l_whence: c.short,   /* [PSX] flag (Whence) of starting offset */
 	}
 
-} else when ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .OpenBSD {
 
 	off_t :: distinct c.int64_t
 	pid_t :: distinct c.int32_t
@@ -408,7 +408,7 @@ when ODIN_OS == .Darwin {
 		l_whence: c.short,   /* [PSX] flag (Whence) of starting offset */
 	}
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	off_t :: distinct c.int64_t
 	pid_t :: distinct c.int32_t
@@ -474,7 +474,7 @@ when ODIN_OS == .Darwin {
 		l_pid:    pid_t,     /* [PSX] process ID of the process holding the lock */
 	}
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	off_t :: distinct c.int64_t
 	pid_t :: distinct c.int

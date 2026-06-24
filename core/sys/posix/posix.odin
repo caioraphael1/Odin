@@ -65,7 +65,7 @@ FD :: distinct c.int
 @(private)
 log2 :: intrinsics.constant_log2
 
-when ODIN_OS == .Darwin && ODIN_ARCH == .amd64 {
+when DUSK_OS == .Darwin && DUSK_ARCH == .amd64 {
 	@(private)
 	INODE_SUFFIX :: "$INODE64"
 } else {

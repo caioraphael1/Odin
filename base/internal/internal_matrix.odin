@@ -3,7 +3,7 @@
 // Error Checks
 //--------------------------------------------------------------------------------------------------
 
-@(disabled=ODIN_NO_BOUNDS_CHECK)
+@(disabled=DUSK_NO_BOUNDS_CHECK)
 __matrix_bounds_check_error :: proc(file: string, line, column: i32, row_index, column_index, row_count, column_count: int) {
     if uint(row_index) < uint(row_count) &&
        uint(column_index) < uint(column_count) {

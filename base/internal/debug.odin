@@ -11,8 +11,8 @@ assertion_failure_proc: Assertion_Failure_Proc = default_assertion_failure_proc
 // Evaluates the condition and panics the program iff the condition is false.
 // This uses the `assertion_failure_proc` to assert.
 //
-// This routine will be ignored when `ODIN_DISABLE_ASSERT` is true.
-@(disabled=ODIN_DISABLE_ASSERT)
+// This routine will be ignored when `DUSK_DISABLE_ASSERT` is true.
+@(disabled=DUSK_DISABLE_ASSERT)
 assert :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         // NOTE(bill): This is wrapped in a procedure call
@@ -29,7 +29,7 @@ assert :: proc(condition: bool, message := #caller_expression(condition), loc :=
 
 // Evaluates the condition and panics the program iff the condition is false.
 // This uses the `assertion_failure_proc` to assert.
-// This routine ignores `ODIN_DISABLE_ASSERT`, and will always execute.
+// This routine ignores `DUSK_DISABLE_ASSERT`, and will always execute.
 ensure :: proc(condition: bool, message := #caller_expression(condition), loc := #caller_location) {
     if !condition {
         @(cold)
@@ -54,10 +54,10 @@ unimplemented :: proc(message := "", loc := #caller_location) -> ! {
 
 
 default_assertion_failure_proc :: proc(prefix, message: string, loc: Source_Code_Location) -> ! {
-    when ODIN_OS == .Freestanding {
+    when DUSK_OS == .Freestanding {
         // Do nothing
     } else {
-        when ODIN_OS != .Orca && !ODIN_DISABLE_ASSERT {
+        when DUSK_OS != .Orca && !DUSK_DISABLE_ASSERT {
             print_caller_location(loc)
             print_string(" ")
         }
@@ -67,7 +67,7 @@ default_assertion_failure_proc :: proc(prefix, message: string, loc: Source_Code
             print_string(message)
         }
 
-        when ODIN_OS == .Orca {
+        when DUSK_OS == .Orca {
             assert_fail(
                 cstring(raw_data(loc.file_path)),
                 cstring(raw_data(loc.procedure)),
@@ -85,16 +85,16 @@ default_assertion_failure_proc :: proc(prefix, message: string, loc: Source_Code
 
 @(no_instrumentation)
 bounds_trap :: proc() -> ! {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         windows_trap_array_bounds()
-    } else when ODIN_OS == .Orca {
+    } else when DUSK_OS == .Orca {
         abort_ext("", "", 0, "bounds trap")
     } else {
         trap()
     }
 }
 
-@(disabled=ODIN_NO_BOUNDS_CHECK)
+@(disabled=DUSK_NO_BOUNDS_CHECK)
 __bounds_check_error :: proc(file: string, line, column: i32, index, count: int) {
     if uint(index) < uint(count) {
         return
@@ -112,7 +112,7 @@ __bounds_check_error :: proc(file: string, line, column: i32, index, count: int)
     handle_error(file, line, column, index, count)
 }
 
-@(disabled=ODIN_NO_BOUNDS_CHECK)
+@(disabled=DUSK_NO_BOUNDS_CHECK)
 bounds_check_error_loc :: #force_inline proc(loc := #caller_location, #any_int index, count: int) {
     __bounds_check_error(loc.file_path, loc.line, loc.column, index, count)
 }
@@ -120,9 +120,9 @@ bounds_check_error_loc :: #force_inline proc(loc := #caller_location, #any_int i
 
 @(no_instrumentation)
 type_assertion_trap :: proc() -> ! {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         windows_trap_type_assertion()
-    } else when ODIN_OS == .Orca {
+    } else when DUSK_OS == .Orca {
         abort_ext("", "", 0, "type assertion trap")
     } else {
         trap()

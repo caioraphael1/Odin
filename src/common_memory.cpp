@@ -495,7 +495,7 @@ gb_internal gbAllocator temporary_allocator() {
 
 
 
-gb_internal bool IS_ODIN_DEBUG(void);
+gb_internal bool IS_DUSK_DEBUG(void);
 
 gb_internal GB_ALLOCATOR_PROC(heap_allocator_proc);
 

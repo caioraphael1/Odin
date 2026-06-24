@@ -1,7 +1,7 @@
 #+vet !using-stmt
 /*
     Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.
@@ -19,7 +19,7 @@ import "core:io"
 
 // Limit chunk sizes.
 // By default: IDAT = 8k x 8k x 16-bits + 8k filter bytes.
-// The total number of pixels defaults to 64 Megapixel and can be tuned in image/common.odin.
+// The total number of pixels defaults to 64 Megapixel and can be tuned in image/common.dusk.
 
 _MAX_IDAT_DEFAULT :: ( 8192 /* Width */ *  8192 /* Height */ * 2 /* 16-bit */) +  8192 /* Filter bytes */
 _MAX_IDAT         :: (65535 /* Width */ * 65535 /* Height */ * 2 /* 16-bit */) + 65535 /* Filter bytes */
@@ -1587,7 +1587,7 @@ defilter :: proc(img: ^Image, filter_bytes: ^bytes.Buffer, header: ^image.PNG_IH
             }
         }
     }
-    when ODIN_ENDIAN == .Little {
+    when DUSK_ENDIAN == .Little {
         if img.depth == 16 {
             // The pixel components are in Big Endian. Let's byteswap.
             input  := slice.data_cast([]u16be, img.pixels.buf[:])

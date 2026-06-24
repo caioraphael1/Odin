@@ -29,7 +29,7 @@ _sleep :: proc(d: Duration) {
     }
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     TICK_CLOCK :: posix.Clock(4) // CLOCK_MONOTONIC_RAW
 } else {
     // It looks like the BSDs don't have a CLOCK_MONOTONIC_RAW equivalent.

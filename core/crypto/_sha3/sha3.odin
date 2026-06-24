@@ -2,7 +2,7 @@
 
 /*
     Copyright 2021 zhibog
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         zhibog, dotbmp:  Initial implementation.
@@ -74,7 +74,7 @@ keccakf :: proc(st: ^[25]u64) {
 	t: u64 = ---
 	bc: [5]u64 = ---
 
-	when ODIN_ENDIAN != .Little {
+	when DUSK_ENDIAN != .Little {
 		for i = 0; i < 25; i += 1 {
 			st[i] = bits.byte_swap(st[i])
 		}
@@ -115,7 +115,7 @@ keccakf :: proc(st: ^[25]u64) {
 		st[0] ~= keccakf_rndc[r]
 	}
 
-	when ODIN_ENDIAN != .Little {
+	when DUSK_ENDIAN != .Little {
 		for i = 0; i < 25; i += 1 {
 			st[i] = bits.byte_swap(st[i])
 		}

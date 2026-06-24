@@ -133,7 +133,7 @@ type_info_core :: internal.type_info_core
 type_info_base_without_enum :: internal.type_info_core
 
 
-when !ODIN_NO_RTTI {
+when !DUSK_NO_RTTI {
     // typeid_base returns the base-type of a `typeid` stripping the `distinct`ness from the first level
     typeid_base :: internal.typeid_base
 
@@ -1135,22 +1135,22 @@ set_union_value :: proc(dst: any, value: any) -> bool {
 // UNSAFE: Checks to see if the data stored is a `bit_set` and is big endian. Panics if a `bit_set` was not passed.
 
 bit_set_is_big_endian :: proc(value: any, loc := #caller_location) -> bool {
-    if value == nil { return ODIN_ENDIAN == .Big }
+    if value == nil { return DUSK_ENDIAN == .Big }
     
     ti := type_info_base(type_info_of(value.id))
     if info, ok := ti.variant.(Type_Info_Bit_Set); ok {
-        if info.underlying == nil { return ODIN_ENDIAN == .Big }
+        if info.underlying == nil { return DUSK_ENDIAN == .Big }
 
         underlying_ti := type_info_base(info.underlying)
         if underlying_info, uok := underlying_ti.variant.(Type_Info_Integer); uok {
             switch underlying_info.endianness {
-            case .Platform: return ODIN_ENDIAN == .Big
+            case .Platform: return DUSK_ENDIAN == .Big
             case .Little:   return false
             case .Big:      return true
             }
         }
 
-        return ODIN_ENDIAN == .Big
+        return DUSK_ENDIAN == .Big
     }
     internal.panic("expected a bit_set to reflect.bit_set_is_big_endian", loc)
 }

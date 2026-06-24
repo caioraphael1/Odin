@@ -114,7 +114,7 @@ gb_internal i32 linker_stage(LinkerData *gen) {
     #if defined(GB_SYSTEM_WINDOWS)
         result = system_exec_command_line_app("wasm-ld",
             "\"%.*s\\bin\\wasm-ld\" %s -o \"%.*s\" %.*s %.*s %s %s",
-            LIT(build_context.ODIN_ROOT),
+            LIT(build_context.DUSK_ROOT),
             inputs, LIT(output_filename), LIT(build_context.link_flags), LIT(build_context.extra_linker_flags),
             lib_str,
             extra_orca_flags);
@@ -265,7 +265,7 @@ try_cross_linking:;
                                 "-o \"%.*s\" "
                                 "%.*s "
                                 "",
-                                LIT(build_context.ODIN_ROOT), LIT(asm_file),
+                                LIT(build_context.DUSK_ROOT), LIT(asm_file),
                                 LIT(obj_format),
                                 LIT(obj_file),
                                 LIT(build_context.extra_assembler_flags)
@@ -312,7 +312,7 @@ try_cross_linking:;
                 }
             }
 
-            if (build_context.ODIN_DEBUG) {
+            if (build_context.DUSK_DEBUG) {
                 link_settings = gb_string_append_fmt(link_settings, " /DEBUG");
             }
 
@@ -344,9 +344,9 @@ try_cross_linking:;
                     "%s "
                     "%s "
                     "",
-                    LIT(build_context.ODIN_ROOT), object_files, LIT(output_filename),
+                    LIT(build_context.DUSK_ROOT), object_files, LIT(output_filename),
                     link_settings,
-                    LIT(windows_subsystem_names[build_context.ODIN_WINDOWS_SUBSYSTEM]),
+                    LIT(windows_subsystem_names[build_context.DUSK_WINDOWS_SUBSYSTEM]),
                     LIT(build_context.link_flags),
                     LIT(build_context.extra_linker_flags),
                     lib_str,
@@ -365,9 +365,9 @@ try_cross_linking:;
                     "%.*s "
                     "%s "
                     "",
-                    LIT(build_context.ODIN_ROOT), object_files, LIT(output_filename),
+                    LIT(build_context.DUSK_ROOT), object_files, LIT(output_filename),
                     link_settings,
-                    LIT(windows_subsystem_names[build_context.ODIN_WINDOWS_SUBSYSTEM]),
+                    LIT(windows_subsystem_names[build_context.DUSK_WINDOWS_SUBSYSTEM]),
                     LIT(build_context.link_flags),
                     LIT(build_context.extra_linker_flags),
                     lib_str
@@ -430,7 +430,7 @@ try_cross_linking:;
                     "",
                     LIT(vs_exe_path), LIT(linker_name), object_files, LIT(res_path), LIT(output_filename),
                     link_settings,
-                    LIT(windows_subsystem_names[build_context.ODIN_WINDOWS_SUBSYSTEM]),
+                    LIT(windows_subsystem_names[build_context.DUSK_WINDOWS_SUBSYSTEM]),
                     LIT(build_context.link_flags),
                     LIT(build_context.extra_linker_flags),
                     lib_str
@@ -445,16 +445,16 @@ try_cross_linking:;
 
             timings_start_section(timings, section_name);
 
-            int const ODIN_ANDROID_API_LEVEL = build_context.ODIN_ANDROID_API_LEVEL;
+            int const DUSK_ANDROID_API_LEVEL = build_context.DUSK_ANDROID_API_LEVEL;
 
-            String ODIN_ANDROID_NDK                     = build_context.ODIN_ANDROID_NDK;
-            String ODIN_ANDROID_NDK_TOOLCHAIN           = build_context.ODIN_ANDROID_NDK_TOOLCHAIN;
-            String ODIN_ANDROID_NDK_TOOLCHAIN_LIB       = build_context.ODIN_ANDROID_NDK_TOOLCHAIN_LIB;
-            String ODIN_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL = build_context.ODIN_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL;
-            String ODIN_ANDROID_NDK_TOOLCHAIN_SYSROOT   = build_context.ODIN_ANDROID_NDK_TOOLCHAIN_SYSROOT;
+            String DUSK_ANDROID_NDK                     = build_context.DUSK_ANDROID_NDK;
+            String DUSK_ANDROID_NDK_TOOLCHAIN           = build_context.DUSK_ANDROID_NDK_TOOLCHAIN;
+            String DUSK_ANDROID_NDK_TOOLCHAIN_LIB       = build_context.DUSK_ANDROID_NDK_TOOLCHAIN_LIB;
+            String DUSK_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL = build_context.DUSK_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL;
+            String DUSK_ANDROID_NDK_TOOLCHAIN_SYSROOT   = build_context.DUSK_ANDROID_NDK_TOOLCHAIN_SYSROOT;
 
-            // Link using `clang`, unless overridden by `ODIN_CLANG_PATH` environment variable.
-            const char* clang_path = gb_get_env("ODIN_CLANG_PATH", permanent_allocator());
+            // Link using `clang`, unless overridden by `DUSK_CLANG_PATH` environment variable.
+            const char* clang_path = gb_get_env("DUSK_CLANG_PATH", permanent_allocator());
             bool has_odin_clang_path_env = true;
             if (clang_path == NULL) {
                 clang_path = "clang";
@@ -672,13 +672,13 @@ try_cross_linking:;
                 android_glue_object = concatenate4_strings(temporary_allocator(), temp_dir, str_lit("android_native_app_glue-"), hash, str_lit(".o"));
                 android_glue_static_lib = concatenate4_strings(permanent_allocator(), temp_dir, str_lit("libandroid_native_app_glue-"), hash, str_lit(".a"));
 
-                gbString glue = gb_string_make_length(heap_allocator(), ODIN_ANDROID_NDK_TOOLCHAIN.text, ODIN_ANDROID_NDK_TOOLCHAIN.len);
+                gbString glue = gb_string_make_length(heap_allocator(), DUSK_ANDROID_NDK_TOOLCHAIN.text, DUSK_ANDROID_NDK_TOOLCHAIN.len);
                 defer (gb_string_free(glue));
 
                 glue = gb_string_append_fmt(glue, "bin/clang");
-                glue = gb_string_append_fmt(glue, " --target=aarch64-linux-android%d ", ODIN_ANDROID_API_LEVEL);
+                glue = gb_string_append_fmt(glue, " --target=aarch64-linux-android%d ", DUSK_ANDROID_API_LEVEL);
                 glue = gb_string_appendc(glue, "-c \"");
-                glue = gb_string_append_length(glue, ODIN_ANDROID_NDK.text, ODIN_ANDROID_NDK.len);
+                glue = gb_string_append_length(glue, DUSK_ANDROID_NDK.text, DUSK_ANDROID_NDK.len);
                 glue = gb_string_appendc(glue, "sources/android/native_app_glue/android_native_app_glue.c");
                 glue = gb_string_appendc(glue, "\" ");
                 glue = gb_string_appendc(glue, "-o \"");
@@ -686,17 +686,17 @@ try_cross_linking:;
                 glue = gb_string_appendc(glue, "\" ");
 
                 glue = gb_string_appendc(glue, "--sysroot \"");
-                glue = gb_string_append_length(glue, ODIN_ANDROID_NDK_TOOLCHAIN.text, ODIN_ANDROID_NDK_TOOLCHAIN.len);
+                glue = gb_string_append_length(glue, DUSK_ANDROID_NDK_TOOLCHAIN.text, DUSK_ANDROID_NDK_TOOLCHAIN.len);
                 glue = gb_string_appendc(glue, "sysroot");
                 glue = gb_string_appendc(glue, "\" ");
 
                 glue = gb_string_appendc(glue, "\"-I");
-                glue = gb_string_append_length(glue, ODIN_ANDROID_NDK_TOOLCHAIN.text, ODIN_ANDROID_NDK_TOOLCHAIN.len);
+                glue = gb_string_append_length(glue, DUSK_ANDROID_NDK_TOOLCHAIN.text, DUSK_ANDROID_NDK_TOOLCHAIN.len);
                 glue = gb_string_appendc(glue, "sysroot/usr/include/");
                 glue = gb_string_appendc(glue, "\" ");
 
                 glue = gb_string_appendc(glue, "\"-I");
-                glue = gb_string_append_length(glue, ODIN_ANDROID_NDK_TOOLCHAIN.text, ODIN_ANDROID_NDK_TOOLCHAIN.len);
+                glue = gb_string_append_length(glue, DUSK_ANDROID_NDK_TOOLCHAIN.text, DUSK_ANDROID_NDK_TOOLCHAIN.len);
                 glue = gb_string_appendc(glue, "sysroot/usr/include/aarch64-linux-android/");
                 glue = gb_string_appendc(glue, "\" ");
 
@@ -710,7 +710,7 @@ try_cross_linking:;
 
                 TIME_SECTION("Android Native App Glue ar");
 
-                gbString ar = gb_string_make_length(heap_allocator(), ODIN_ANDROID_NDK_TOOLCHAIN.text, ODIN_ANDROID_NDK_TOOLCHAIN.len);
+                gbString ar = gb_string_make_length(heap_allocator(), DUSK_ANDROID_NDK_TOOLCHAIN.text, DUSK_ANDROID_NDK_TOOLCHAIN.len);
                 defer (gb_string_free(ar));
 
                 ar = gb_string_appendc(ar, "bin/llvm-ar");
@@ -919,19 +919,19 @@ try_cross_linking:;
             }
 
             if (is_android) {
-                GB_ASSERT(ODIN_ANDROID_NDK_TOOLCHAIN_LIB.len != 0);
-                GB_ASSERT(ODIN_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL.len != 0);
-                GB_ASSERT(ODIN_ANDROID_NDK_TOOLCHAIN_SYSROOT.len != 0);
+                GB_ASSERT(DUSK_ANDROID_NDK_TOOLCHAIN_LIB.len != 0);
+                GB_ASSERT(DUSK_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL.len != 0);
+                GB_ASSERT(DUSK_ANDROID_NDK_TOOLCHAIN_SYSROOT.len != 0);
 
                 platform_lib_str = gb_string_appendc(platform_lib_str, "\"-L");
-                platform_lib_str = gb_string_append_length(platform_lib_str, ODIN_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL.text, ODIN_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL.len);
+                platform_lib_str = gb_string_append_length(platform_lib_str, DUSK_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL.text, DUSK_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL.len);
                 platform_lib_str = gb_string_appendc(platform_lib_str, "\" ");
 
                 platform_lib_str = gb_string_appendc(platform_lib_str, "-landroid ");
                 platform_lib_str = gb_string_appendc(platform_lib_str, "-llog ");
 
                 platform_lib_str = gb_string_appendc(platform_lib_str, "\"--sysroot=");
-                platform_lib_str = gb_string_append_length(platform_lib_str, ODIN_ANDROID_NDK_TOOLCHAIN_SYSROOT.text, ODIN_ANDROID_NDK_TOOLCHAIN_SYSROOT.len);
+                platform_lib_str = gb_string_append_length(platform_lib_str, DUSK_ANDROID_NDK_TOOLCHAIN_SYSROOT.text, DUSK_ANDROID_NDK_TOOLCHAIN_SYSROOT.len);
                 platform_lib_str = gb_string_appendc(platform_lib_str, "\" ");
 
                 link_settings = gb_string_appendc(link_settings, "-u ANativeActivity_onCreate ");
@@ -966,10 +966,10 @@ try_cross_linking:;
             defer (gb_string_free(link_command_line));
 
             if (is_android) {
-                gbString ndk_bin_directory = gb_string_make_length(temporary_allocator(), ODIN_ANDROID_NDK_TOOLCHAIN.text, ODIN_ANDROID_NDK_TOOLCHAIN.len);
+                gbString ndk_bin_directory = gb_string_make_length(temporary_allocator(), DUSK_ANDROID_NDK_TOOLCHAIN.text, DUSK_ANDROID_NDK_TOOLCHAIN.len);
                 link_command_line = gb_string_appendc(link_command_line, ndk_bin_directory);
                 link_command_line = gb_string_appendc(link_command_line, "bin/clang");
-                link_command_line = gb_string_append_fmt(link_command_line, " --target=aarch64-linux-android%d ", ODIN_ANDROID_API_LEVEL);
+                link_command_line = gb_string_append_fmt(link_command_line, " --target=aarch64-linux-android%d ", DUSK_ANDROID_API_LEVEL);
             } else {
                 link_command_line = gb_string_appendc(link_command_line, clang_path);
             }
@@ -1011,7 +1011,7 @@ try_cross_linking:;
                 return result;
             }
 
-            if (is_osx && build_context.ODIN_DEBUG) {
+            if (is_osx && build_context.DUSK_DEBUG) {
                 // NOTE: macOS links DWARF symbols dynamically. Dsymutil will map the stubs in the exe
                 // to the symbols in the object file
                 result = system_exec_command_line_app("dsymutil", "dsymutil \"%.*s\"", LIT(output_filename));

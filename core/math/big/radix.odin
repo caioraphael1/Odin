@@ -1,7 +1,7 @@
 
 /*
 	Copyright 2021 Jeroen van Rijn <nom@duclavier.com>.
-	Made available under Odin's license.
+	Made available under Dusk's license.
 
 	An arbitrary precision mathematics implementation in Odin.
 	For the theoretical underpinnings, see Knuth's The Art of Computer Programming, Volume 2, section 4.3.
@@ -225,7 +225,7 @@ int_itoa_raw :: proc(a: ^Int, radix: i8, buffer: []u8, size := int(-1), zero_ter
 	//               If we optimize `itoa` further, this needs to be evaluated.
 	itoa_method := _itoa_raw_full
 
-	when ODIN_OPTIMIZATION_MODE >= .Size {
+	when DUSK_OPTIMIZATION_MODE >= .Size {
 		if count >= 32768 {
 			itoa_method = _itoa_raw_old
 		}

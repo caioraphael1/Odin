@@ -15,7 +15,7 @@ Example:
     import si "core:sys/info"
 
     main :: proc() {
-        fmt.printfln("Odin:      %v",  ODIN_VERSION)
+        fmt.printfln("Odin:      %v",  DUSK_VERSION)
         if version, version_ok := si.os_version(context.allocator); version_ok {
             defer si.destroy_os_version(version, context.allocator)
             fmt.printfln("OS (full): %v", version.full)
@@ -105,7 +105,7 @@ Example:
 */
 /*
 Copyright 2022 Jeroen van Rijn <nom@duclavier.com>.
-Made available under Odin's license.
+Made available under Dusk's license.
 
 List of contributors:
     Jeroen van Rijn: Initial implementation.

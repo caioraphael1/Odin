@@ -277,7 +277,7 @@ __type_info_of :: proc(id: typeid) -> ^Type_Info #no_bounds_check {
     return type_table[0]
 }
 
-when !ODIN_NO_RTTI {
+when !DUSK_NO_RTTI {
     // typeid_base returns the base-type of a `typeid` stripping the `distinct`ness from the first level
     typeid_base :: proc(id: typeid) -> typeid {
         ti := type_info_of(id)

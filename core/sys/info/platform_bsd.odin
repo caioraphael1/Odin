@@ -4,7 +4,7 @@ import "base:container/strings"
 import sys "core:sys/unix"
 
 _os_version :: proc (allocator: mem.Allocator, loc := #caller_location) -> (res: OS_Version, ok: bool) {
-    when ODIN_OS == .NetBSD {
+    when DUSK_OS == .NetBSD {
         res.platform = .NetBSD
     } else {
         res.platform = .OpenBSD

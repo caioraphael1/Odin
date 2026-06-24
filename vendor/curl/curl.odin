@@ -1,6 +1,6 @@
 import c "core:c/libc"
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     @(export, extra_linker_flags="/NODEFAULTLIB:msvcrt")
     foreign import lib {
         "lib/libcurl.lib",
@@ -12,7 +12,7 @@ when ODIN_OS == .Windows {
         "system:Ws2_32.lib",
         "system:iphlpapi.lib",
     }
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
     @(export)
     foreign import lib {
         "system:curl",

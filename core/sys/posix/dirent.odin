@@ -1,7 +1,7 @@
 #+build darwin, linux, freebsd, openbsd, netbsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -145,7 +145,7 @@ D_Type :: enum c.uint8_t {
 	WHT     = 14,
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LALPHASORT :: "__alphasort30"
 	@(private) LSCANDIR   :: "__scandir30"
 	@(private) LOPENDIR   :: "__opendir30"
@@ -182,7 +182,7 @@ when ODIN_OS == .NetBSD {
 	}
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	dirent :: struct {
 		d_ino:     ino_t,                    /* [PSX] file number of entry */
@@ -193,7 +193,7 @@ when ODIN_OS == .Darwin {
 		d_name:    [1024]c.char `fmt:"s,0"`, /* [PSX] entry name */
 	}
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .OpenBSD {
 
 	dirent :: struct {
 		d_ino:     ino_t,                   /* [PSX] file number of entry */
@@ -205,7 +205,7 @@ when ODIN_OS == .Darwin {
 		d_name:    [256]c.char `fmt:"s,0"`, /* [PSX] entry name */
 	}
 
-} else when ODIN_OS == .NetBSD {
+} else when DUSK_OS == .NetBSD {
 
 	dirent :: struct {
 		d_ino:     ino_t,                   /* [PSX] file number of entry */
@@ -215,7 +215,7 @@ when ODIN_OS == .Darwin {
 		d_name:    [512]c.char `fmt:"s,0"`, /* [PSX] entry name */
 	}
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 
 	dirent :: struct {
 		d_ino:    u64,                     /* [PSX] file number of entry */
@@ -225,7 +225,7 @@ when ODIN_OS == .Darwin {
 		d_name:   [256]c.char `fmt:"s,0"`, /* [PSX] entry name */
 	}
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	dirent :: struct {
 		d_dev:    dev_t,                 /* device */

@@ -3,15 +3,15 @@ import c "core:c/libc"
 
 @(private)
 LIB :: (
-         "../lib/stb_vorbis.lib"      when ODIN_OS == .Windows
-    else "../lib/stb_vorbis.a"        when ODIN_OS == .Linux
-    else "../lib/darwin/stb_vorbis.a" when ODIN_OS == .Darwin
+         "../lib/stb_vorbis.lib"      when DUSK_OS == .Windows
+    else "../lib/stb_vorbis.a"        when DUSK_OS == .Linux
+    else "../lib/darwin/stb_vorbis.a" when DUSK_OS == .Darwin
     else ""
 )
 
 when LIB != "" {
     when !#exists(LIB) {
-        #panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + ODIN_ROOT + "vendor/stb/src\"`")
+        #panic("Could not find the compiled STB libraries, they can be compiled by running `make -C \"" + DUSK_ROOT + "vendor/stb/src\"`")
     }
 
     foreign import lib { LIB }

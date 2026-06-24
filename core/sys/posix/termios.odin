@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -136,7 +136,7 @@ CLocal_Flag_Bits :: enum tcflag_t {
 }
 CLocal_Flags :: bit_set[CLocal_Flag_Bits; tcflag_t]
 
-when ODIN_OS == .Haiku {
+when DUSK_OS == .Haiku {
 	CControl_Flag_Bits :: enum tcflag_t {
 		// CS7    = log2(CS7),    /* 7 bits (default) */
 		CS8    = log2(CS8),    /* 8 bits */
@@ -243,7 +243,7 @@ TC_Queue :: enum c.int {
 	TCIOFLUSH = TCIOFLUSH,
 }
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 
 	cc_t      :: distinct c.uchar
 	_speed_t  :: distinct c.ulong
@@ -363,7 +363,7 @@ when ODIN_OS == .Darwin {
 	TCOOFF :: 1
 	TCOON  :: 2
 
-} else when ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD {
+} else when DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD {
 
 	cc_t      :: distinct c.uchar
 	_speed_t  :: distinct c.uint
@@ -409,7 +409,7 @@ when ODIN_OS == .Darwin {
 	OPOST    :: 0x00000001
 	ONLCR    :: 0x00000002
 	OCRNL    :: 0x00000010
-	when ODIN_OS == .OpenBSD {
+	when DUSK_OS == .OpenBSD {
 		ONOCR  :: 0x00000040
 		ONLRET :: 0x00000080
 	} else {
@@ -488,7 +488,7 @@ when ODIN_OS == .Darwin {
 	TCOOFF :: 1
 	TCOON  :: 2
 
-} else when ODIN_OS == .Linux {
+} else when DUSK_OS == .Linux {
 	cc_t      :: distinct c.uchar
 	_speed_t  :: distinct c.uint
 	tcflag_t  :: distinct c.uint
@@ -608,7 +608,7 @@ when ODIN_OS == .Darwin {
 	TCOOFF :: 0
 	TCOON  :: 1
 
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 
 	cc_t      :: distinct c.uchar
 	_speed_t  :: distinct c.uint32_t

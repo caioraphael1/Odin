@@ -3,22 +3,22 @@
 import "base:intrinsics"
 
 @(private="file")
-IS_WASM :: ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
+IS_WASM :: DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32
 
 @(private)
-RUNTIME_LINKAGE :: "strong"   when ODIN_USE_SEPARATE_MODULES else
-                   "internal" when ODIN_NO_ENTRY_POINT && (ODIN_BUILD_MODE == .Static || ODIN_BUILD_MODE == .Dynamic || ODIN_BUILD_MODE == .Object) else
-                   "strong"   when ODIN_BUILD_MODE == .Dynamic else
-                   "strong"   when !ODIN_NO_CRT else
+RUNTIME_LINKAGE :: "strong"   when DUSK_USE_SEPARATE_MODULES else
+                   "internal" when DUSK_NO_ENTRY_POINT && (DUSK_BUILD_MODE == .Static || DUSK_BUILD_MODE == .Dynamic || DUSK_BUILD_MODE == .Object) else
+                   "strong"   when DUSK_BUILD_MODE == .Dynamic else
+                   "strong"   when !DUSK_NO_CRT else
                    "internal"
-RUNTIME_REQUIRE :: false // !ODIN_TILDE
+RUNTIME_REQUIRE :: false // !DUSK_TILDE
 
-@(private="file") _f16 :: f16 when __ODIN_LLVM_F16_SUPPORTED else u16
+@(private="file") _f16 :: f16 when __DUSK_LLVM_F16_SUPPORTED else u16
 
-HAS_HARDWARE_SIMD :: false when (ODIN_ARCH == .amd64 || ODIN_ARCH == .i386) && !intrinsics.has_target_feature("sse2") else
-    false when (ODIN_ARCH == .arm64 || ODIN_ARCH == .arm32) && !intrinsics.has_target_feature("neon") else
-    false when (ODIN_ARCH == .wasm64p32 || ODIN_ARCH == .wasm32) && !intrinsics.has_target_feature("simd128") else
-    false when (ODIN_ARCH == .riscv64) && !intrinsics.has_target_feature("v") else
+HAS_HARDWARE_SIMD :: false when (DUSK_ARCH == .amd64 || DUSK_ARCH == .i386) && !intrinsics.has_target_feature("sse2") else
+    false when (DUSK_ARCH == .arm64 || DUSK_ARCH == .arm32) && !intrinsics.has_target_feature("neon") else
+    false when (DUSK_ARCH == .wasm64p32 || DUSK_ARCH == .wasm32) && !intrinsics.has_target_feature("simd128") else
+    false when (DUSK_ARCH == .riscv64) && !intrinsics.has_target_feature("v") else
     true
 
 
@@ -40,7 +40,7 @@ HAS_HARDWARE_SIMD :: false when (ODIN_ARCH == .amd64 || ODIN_ARCH == .i386) && !
         Freestanding,
     }
 */
-Odin_OS_Type :: type_of(ODIN_OS)
+Odin_OS_Type :: type_of(DUSK_OS)
 
 /*
     // Defined internally by the compiler
@@ -55,11 +55,11 @@ Odin_OS_Type :: type_of(ODIN_OS)
         riscv64,
     }
 */
-Odin_Arch_Type :: type_of(ODIN_ARCH)
+Odin_Arch_Type :: type_of(DUSK_ARCH)
 
 Odin_Arch_Types :: bit_set[Odin_Arch_Type]
 
-ALL_ODIN_ARCH_TYPES :: Odin_Arch_Types{
+ALL_DUSK_ARCH_TYPES :: Odin_Arch_Types{
     .amd64,
     .i386,
     .arm32,
@@ -80,7 +80,7 @@ ALL_ODIN_ARCH_TYPES :: Odin_Arch_Types{
         LLVM_IR,
     }
 */
-Odin_Build_Mode_Type :: type_of(ODIN_BUILD_MODE)
+Odin_Build_Mode_Type :: type_of(DUSK_BUILD_MODE)
 
 /*
     // Defined internally by the compiler
@@ -90,11 +90,11 @@ Odin_Build_Mode_Type :: type_of(ODIN_BUILD_MODE)
         Big,
     }
 */
-Odin_Endian_Type :: type_of(ODIN_ENDIAN)
+Odin_Endian_Type :: type_of(DUSK_ENDIAN)
 
 Odin_OS_Types :: bit_set[Odin_OS_Type]
 
-ALL_ODIN_OS_TYPES :: Odin_OS_Types{
+ALL_DUSK_OS_TYPES :: Odin_OS_Types{
     .Windows,
     .Darwin,
     .Linux,
@@ -118,12 +118,12 @@ ALL_ODIN_OS_TYPES :: Odin_OS_Types{
         Android,
     }
 */
-Odin_Platform_Subtarget_Type :: type_of(ODIN_PLATFORM_SUBTARGET)
+Odin_Platform_Subtarget_Type :: type_of(DUSK_PLATFORM_SUBTARGET)
 
 Odin_Platform_Subtarget_Types :: bit_set[Odin_Platform_Subtarget_Type]
 
 
-ODIN_PLATFORM_SUBTARGET_IOS :: ODIN_PLATFORM_SUBTARGET == .iPhone || ODIN_PLATFORM_SUBTARGET == .iPhoneSimulator
+DUSK_PLATFORM_SUBTARGET_IOS :: DUSK_PLATFORM_SUBTARGET == .iPhone || DUSK_PLATFORM_SUBTARGET == .iPhoneSimulator
 
 /*
     // Defined internally by the compiler
@@ -134,9 +134,9 @@ ODIN_PLATFORM_SUBTARGET_IOS :: ODIN_PLATFORM_SUBTARGET == .iPhone || ODIN_PLATFO
     }
     Odin_Sanitizer_Flags :: distinct bit_set[Odin_Sanitizer_Flag; u32]
 
-    ODIN_SANITIZER_FLAGS // is a constant
+    DUSK_SANITIZER_FLAGS // is a constant
 */
-Odin_Sanitizer_Flags :: type_of(ODIN_SANITIZER_FLAGS)
+Odin_Sanitizer_Flags :: type_of(DUSK_SANITIZER_FLAGS)
 
 /*
     // Defined internally by the compiler
@@ -148,13 +148,13 @@ Odin_Sanitizer_Flags :: type_of(ODIN_SANITIZER_FLAGS)
         Aggressive =  3,
     }
 
-    ODIN_OPTIMIZATION_MODE // is a constant
+    DUSK_OPTIMIZATION_MODE // is a constant
 */
-Odin_Optimization_Mode :: type_of(ODIN_OPTIMIZATION_MODE)
+Odin_Optimization_Mode :: type_of(DUSK_OPTIMIZATION_MODE)
 
 
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     // NOTE(Jeroen): If we're a Windows DLL, fwdReason will be populated.
     // This tells a DLL if it's first loaded, about to be unloaded, or a thread is joining/exiting.
 
@@ -522,7 +522,7 @@ __read_bits :: proc(dst, src: [^]u8, offset: uintptr, size: uintptr) {
     }
 }
 
-when .Address in ODIN_SANITIZER_FLAGS {
+when .Address in DUSK_SANITIZER_FLAGS {
     foreign {
         @(require)
         __asan_unpoison_memory_region :: proc "system" (address: rawptr, size: uint) ---

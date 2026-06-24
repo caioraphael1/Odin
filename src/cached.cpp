@@ -81,7 +81,7 @@ gb_internal bool recursively_delete_directory(String const &path) {
 }
 
 gb_internal bool try_clear_cache(void) {
-    return recursively_delete_directory(str_lit(".odin-cache"));
+    return recursively_delete_directory(str_lit(".dusk-cache"));
 }
 
 
@@ -271,7 +271,7 @@ gb_internal bool try_cached_build(Checker *c, Array<String> const &args) {
     }
 
     String base_cache_dir = build_context.build_paths[BuildPath_Output].basename;
-    base_cache_dir = concatenate_strings(permanent_allocator(), base_cache_dir, str_lit("/.odin-cache"));
+    base_cache_dir = concatenate_strings(permanent_allocator(), base_cache_dir, str_lit("/.dusk-cache"));
     (void)check_if_exists_directory_otherwise_create(base_cache_dir);
 
     gbString crc_str = gb_string_make_reserve(permanent_allocator(), 16);

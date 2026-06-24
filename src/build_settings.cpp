@@ -153,11 +153,11 @@ gb_global TargetEndianKind target_endians[TargetArch_COUNT] = {
     TargetEndian_Little,
 };
 
-#ifndef ODIN_VERSION_RAW
-#define ODIN_VERSION_RAW "dev-unknown-unknown"
+#ifndef DUSK_VERSION_RAW
+#define DUSK_VERSION_RAW "dev-unknown-unknown"
 #endif
 
-gb_global String const ODIN_VERSION = str_lit(ODIN_VERSION_RAW);
+gb_global String const DUSK_VERSION = str_lit(DUSK_VERSION_RAW);
 
 struct TargetMetrics {
     TargetOsKind   os;
@@ -449,21 +449,21 @@ enum IntegerDivisionByZeroKind : u8 {
 // This stores the information for the specify architecture of this build
 struct BuildContext {
     // Constants
-    String ODIN_OS;                           // Target operating system
-    String ODIN_ARCH;                         // Target architecture
-    String ODIN_VENDOR;                       // Compiler vendor
-    String ODIN_VERSION;                      // Compiler version
-    String ODIN_ROOT;                         // Odin ROOT
-    String ODIN_BUILD_PROJECT_NAME;           // Odin main/initial package's directory name
-    Windows_Subsystem ODIN_WINDOWS_SUBSYSTEM; // .Console, .Windows
-    bool   ODIN_DEBUG;                        // Odin in debug mode
-    bool   ODIN_DISABLE_ASSERT;               // Whether the default 'assert' et al is disabled in code or not
-    bool   ODIN_DEFAULT_TO_NIL_ALLOCATOR;     // Whether the default allocator is a "nil" allocator or not (i.e. it does nothing)
-    bool   ODIN_DEFAULT_TO_PANIC_ALLOCATOR;   // Whether the default allocator is a "panic" allocator or not (i.e. panics on any call to it)
-    bool   ODIN_FOREIGN_ERROR_PROCEDURES;
-    bool   ODIN_VALGRIND_SUPPORT;
+    String DUSK_OS;                           // Target operating system
+    String DUSK_ARCH;                         // Target architecture
+    String DUSK_VENDOR;                       // Compiler vendor
+    String DUSK_VERSION;                      // Compiler version
+    String DUSK_ROOT;                         // Odin ROOT
+    String DUSK_BUILD_PROJECT_NAME;           // Odin main/initial package's directory name
+    Windows_Subsystem DUSK_WINDOWS_SUBSYSTEM; // .Console, .Windows
+    bool   DUSK_DEBUG;                        // Odin in debug mode
+    bool   DUSK_DISABLE_ASSERT;               // Whether the default 'assert' et al is disabled in code or not
+    bool   DUSK_DEFAULT_TO_NIL_ALLOCATOR;     // Whether the default allocator is a "nil" allocator or not (i.e. it does nothing)
+    bool   DUSK_DEFAULT_TO_PANIC_ALLOCATOR;   // Whether the default allocator is a "panic" allocator or not (i.e. panics on any call to it)
+    bool   DUSK_FOREIGN_ERROR_PROCEDURES;
+    bool   DUSK_VALGRIND_SUPPORT;
 
-    ErrorPosStyle ODIN_ERROR_POS_STYLE;
+    ErrorPosStyle DUSK_ERROR_POS_STYLE;
 
     TargetEndianKind endian_kind;
 
@@ -611,15 +611,15 @@ struct BuildContext {
     bool   minimum_os_version_string_given;
 
 
-    int    ODIN_ANDROID_API_LEVEL;
+    int    DUSK_ANDROID_API_LEVEL;
 
-    String ODIN_ANDROID_SDK;
+    String DUSK_ANDROID_SDK;
 
-    String ODIN_ANDROID_NDK;
-    String ODIN_ANDROID_NDK_TOOLCHAIN;
-    String ODIN_ANDROID_NDK_TOOLCHAIN_LIB;
-    String ODIN_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL;
-    String ODIN_ANDROID_NDK_TOOLCHAIN_SYSROOT;
+    String DUSK_ANDROID_NDK;
+    String DUSK_ANDROID_NDK_TOOLCHAIN;
+    String DUSK_ANDROID_NDK_TOOLCHAIN_LIB;
+    String DUSK_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL;
+    String DUSK_ANDROID_NDK_TOOLCHAIN_SYSROOT;
 
     String android_keystore;
     String android_keystore_alias;
@@ -628,8 +628,8 @@ struct BuildContext {
 
 gb_global BuildContext build_context = {0};
 
-gb_internal bool IS_ODIN_DEBUG(void) {
-    return build_context.ODIN_DEBUG;
+gb_internal bool IS_DUSK_DEBUG(void) {
+    return build_context.DUSK_DEBUG;
 }
 
 
@@ -984,7 +984,7 @@ gb_internal bool is_excluded_target_filename(String name) {
     name = remove_extension_from_path(name);
 
     if (string_starts_with(name, str_lit("."))) {
-        // Ignore .*.odin files
+        // Ignore .*.dusk files
         return true;
     }
 
@@ -1097,7 +1097,7 @@ gb_internal String odin_root_dir(void) {
     }
 
     gbAllocator a = permanent_allocator();
-    char const *found = gb_get_env("ODIN_ROOT", a);
+    char const *found = gb_get_env("DUSK_ROOT", a);
     if (found) {
         String path = path_to_full_path(a, make_string_c(found));
         #if defined(GB_SYSTEM_WINDOWS)
@@ -1332,7 +1332,7 @@ gb_internal String internal_odin_root_dir(void) {
         // NOTE(Jeroen):
         // On OpenBSD, if `odin` is on the path, `argv[0]` will contain just `odin`,
         // even though that isn't then the relative path.
-        // When run from Odin's directory, it returns `./odin`.
+        // When run from Dusk's directory, it returns `./odin`.
         // Check argv[0] for lack of / to see if it's a reference to PATH.
         // If so, walk PATH to find the executable.
 
@@ -1393,7 +1393,7 @@ gb_internal String internal_odin_root_dir(void) {
             }
 
             if (!odin_found) {
-                gb_printf_err("Odin could not locate itself in PATH, and ODIN_ROOT wasn't set either.\n");
+                gb_printf_err("Odin could not locate itself in PATH, and DUSK_ROOT wasn't set either.\n");
             }
         }
         gb_mfree(argv);
@@ -1622,65 +1622,65 @@ gb_internal void init_android_values(bool with_sdk) {
         i64 new_level = big_int_to_i64(&level);
 
         if (new_level >= 21) {
-            bc->ODIN_ANDROID_API_LEVEL = cast(int)new_level;
+            bc->DUSK_ANDROID_API_LEVEL = cast(int)new_level;
         } else {
             gb_printf_err("Warning: Invalid -minimum-os-version:%.*s for -subtarget:Android, defaulting to %.*s\n", LIT(bc->minimum_os_version_string), LIT(default_level));
-            bc->ODIN_ANDROID_API_LEVEL = atoi(cast(char const *)default_level.text);
+            bc->DUSK_ANDROID_API_LEVEL = atoi(cast(char const *)default_level.text);
         }
     }
-    bc->ODIN_ANDROID_NDK           = normalize_path(permanent_allocator(), make_string_c(gb_get_env("ODIN_ANDROID_NDK", permanent_allocator())), NIX_SEPARATOR_STRING);
-    bc->ODIN_ANDROID_NDK_TOOLCHAIN = normalize_path(permanent_allocator(), make_string_c(gb_get_env("ODIN_ANDROID_NDK_TOOLCHAIN", permanent_allocator())), NIX_SEPARATOR_STRING);
-    bc->ODIN_ANDROID_SDK           = normalize_path(permanent_allocator(), make_string_c(gb_get_env("ODIN_ANDROID_SDK", permanent_allocator())), NIX_SEPARATOR_STRING);
+    bc->DUSK_ANDROID_NDK           = normalize_path(permanent_allocator(), make_string_c(gb_get_env("DUSK_ANDROID_NDK", permanent_allocator())), NIX_SEPARATOR_STRING);
+    bc->DUSK_ANDROID_NDK_TOOLCHAIN = normalize_path(permanent_allocator(), make_string_c(gb_get_env("DUSK_ANDROID_NDK_TOOLCHAIN", permanent_allocator())), NIX_SEPARATOR_STRING);
+    bc->DUSK_ANDROID_SDK           = normalize_path(permanent_allocator(), make_string_c(gb_get_env("DUSK_ANDROID_SDK", permanent_allocator())), NIX_SEPARATOR_STRING);
 
     #if defined(GB_SYSTEM_WINDOWS)
-        if (bc->ODIN_ANDROID_SDK.len == 0) {
-            bc->ODIN_ANDROID_SDK = normalize_path(permanent_allocator(),
+        if (bc->DUSK_ANDROID_SDK.len == 0) {
+            bc->DUSK_ANDROID_SDK = normalize_path(permanent_allocator(),
                 path_to_fullpath(permanent_allocator(), str_lit("%LocalAppData%/Android/Sdk"), nullptr),
                 NIX_SEPARATOR_STRING);
         }
     #endif
 
-    if (bc->ODIN_ANDROID_NDK.len != 0 && bc->ODIN_ANDROID_NDK_TOOLCHAIN.len == 0) {
+    if (bc->DUSK_ANDROID_NDK.len != 0 && bc->DUSK_ANDROID_NDK_TOOLCHAIN.len == 0) {
         String arch = str_lit("x86_64");
         #if defined (GB_CPU_ARM)
             // TODO(bill): this is a complete guess
             arch = str_lit("aarch64");
         #endif
         #if defined(GB_SYSTEM_WINDOWS)
-            bc->ODIN_ANDROID_NDK_TOOLCHAIN = concatenate4_strings(temporary_allocator(), bc->ODIN_ANDROID_NDK, str_lit("toolchains/llvm/prebuilt/"), str_lit("windows-"), arch);
+            bc->DUSK_ANDROID_NDK_TOOLCHAIN = concatenate4_strings(temporary_allocator(), bc->DUSK_ANDROID_NDK, str_lit("toolchains/llvm/prebuilt/"), str_lit("windows-"), arch);
         #elif defined(GB_SYSTEM_OSX)
             // TODO(bill): is this name even correct?
-            bc->ODIN_ANDROID_NDK_TOOLCHAIN = concatenate4_strings(temporary_allocator(), bc->ODIN_ANDROID_NDK, str_lit("toolchains/llvm/prebuilt/"), str_lit("darwin-"), arch);
+            bc->DUSK_ANDROID_NDK_TOOLCHAIN = concatenate4_strings(temporary_allocator(), bc->DUSK_ANDROID_NDK, str_lit("toolchains/llvm/prebuilt/"), str_lit("darwin-"), arch);
         #elif defined(GB_SYSTEM_LINUX)
-            bc->ODIN_ANDROID_NDK_TOOLCHAIN = concatenate4_strings(temporary_allocator(), bc->ODIN_ANDROID_NDK, str_lit("toolchains/llvm/prebuilt/"), str_lit("linux-"), arch);
+            bc->DUSK_ANDROID_NDK_TOOLCHAIN = concatenate4_strings(temporary_allocator(), bc->DUSK_ANDROID_NDK, str_lit("toolchains/llvm/prebuilt/"), str_lit("linux-"), arch);
         #endif
 
-        bc->ODIN_ANDROID_NDK_TOOLCHAIN = normalize_path(permanent_allocator(), bc->ODIN_ANDROID_NDK_TOOLCHAIN, NIX_SEPARATOR_STRING);
+        bc->DUSK_ANDROID_NDK_TOOLCHAIN = normalize_path(permanent_allocator(), bc->DUSK_ANDROID_NDK_TOOLCHAIN, NIX_SEPARATOR_STRING);
     }
 
-    if (bc->ODIN_ANDROID_NDK.len == 0 && !with_sdk)  {
-        gb_printf_err("Error: ODIN_ANDROID_NDK not set");
+    if (bc->DUSK_ANDROID_NDK.len == 0 && !with_sdk)  {
+        gb_printf_err("Error: DUSK_ANDROID_NDK not set");
         gb_exit(1);
 
     }
 
-    if (bc->ODIN_ANDROID_NDK_TOOLCHAIN.len == 0 && !with_sdk)  {
-        gb_printf_err("Error: ODIN_ANDROID_NDK not set");
+    if (bc->DUSK_ANDROID_NDK_TOOLCHAIN.len == 0 && !with_sdk)  {
+        gb_printf_err("Error: DUSK_ANDROID_NDK not set");
         gb_exit(1);
     }
 
-    bc->ODIN_ANDROID_NDK_TOOLCHAIN_LIB = concatenate_strings(permanent_allocator(), bc->ODIN_ANDROID_NDK_TOOLCHAIN, str_lit("sysroot/usr/lib/aarch64-linux-android/"));
+    bc->DUSK_ANDROID_NDK_TOOLCHAIN_LIB = concatenate_strings(permanent_allocator(), bc->DUSK_ANDROID_NDK_TOOLCHAIN, str_lit("sysroot/usr/lib/aarch64-linux-android/"));
 
     char buf[32] = {};
-    gb_snprintf(buf, gb_size_of(buf), "%d/", bc->ODIN_ANDROID_API_LEVEL);
-    bc->ODIN_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL = concatenate_strings(permanent_allocator(), bc->ODIN_ANDROID_NDK_TOOLCHAIN_LIB, make_string_c(buf));
+    gb_snprintf(buf, gb_size_of(buf), "%d/", bc->DUSK_ANDROID_API_LEVEL);
+    bc->DUSK_ANDROID_NDK_TOOLCHAIN_LIB_LEVEL = concatenate_strings(permanent_allocator(), bc->DUSK_ANDROID_NDK_TOOLCHAIN_LIB, make_string_c(buf));
 
-    bc->ODIN_ANDROID_NDK_TOOLCHAIN_SYSROOT = concatenate_strings(permanent_allocator(), bc->ODIN_ANDROID_NDK_TOOLCHAIN, str_lit("sysroot/"));
+    bc->DUSK_ANDROID_NDK_TOOLCHAIN_SYSROOT = concatenate_strings(permanent_allocator(), bc->DUSK_ANDROID_NDK_TOOLCHAIN, str_lit("sysroot/"));
 
 
     if (with_sdk) {
-        if (bc->ODIN_ANDROID_SDK.len == 0)  {
-            gb_printf_err("Error: ODIN_ANDROID_SDK not set, which is required for -build-mode:executable for -subtarget:android");
+        if (bc->DUSK_ANDROID_SDK.len == 0)  {
+            gb_printf_err("Error: DUSK_ANDROID_SDK not set, which is required for -build-mode:executable for -subtarget:android");
             gb_exit(1);
         }
         if (bc->android_keystore.len == 0) {
@@ -1706,7 +1706,7 @@ gb_internal bool has_asm_extension(String const &path) {
 gb_internal char *token_pos_to_string(TokenPos const &pos) {
     gbString s = gb_string_make_reserve(temporary_allocator(), 128);
     String file = get_file_path_string(pos.file_id);
-    switch (build_context.ODIN_ERROR_POS_STYLE) {
+    switch (build_context.DUSK_ERROR_POS_STYLE) {
     default: /*fallthrough*/
     case ErrorPosStyle_Default:
         s = gb_string_append_fmt(s, "%.*s(%d:%d)", LIT(file), pos.line, pos.column);
@@ -1749,16 +1749,16 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
         bc->thread_count = gb_max(bc->affinity.thread_count, 1);
     }
 
-    bc->ODIN_VENDOR  = str_lit("odin");
-    bc->ODIN_VERSION = ODIN_VERSION;
-    bc->ODIN_ROOT    = odin_root_dir();
+    bc->DUSK_VENDOR  = str_lit("odin");
+    bc->DUSK_VERSION = DUSK_VERSION;
+    bc->DUSK_ROOT    = odin_root_dir();
 
     if (bc->max_error_count <= 0) {
         bc->max_error_count = DEFAULT_MAX_ERROR_COLLECTOR_COUNT;
     }
 
     {
-        char const *found = gb_get_env("ODIN_ERROR_POS_STYLE", permanent_allocator());
+        char const *found = gb_get_env("DUSK_ERROR_POS_STYLE", permanent_allocator());
         if (found) {
             ErrorPosStyle kind = ErrorPosStyle_Default;
             String style = make_string_c(found);
@@ -1768,7 +1768,7 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
             } else if (style == "unix" || style == "gcc" || style == "clang" || style == "llvm") {
                 kind = ErrorPosStyle_Unix;
             } else {
-                gb_printf_err("Invalid ODIN_ERROR_POS_STYLE: got %.*s\n", LIT(style));
+                gb_printf_err("Invalid DUSK_ERROR_POS_STYLE: got %.*s\n", LIT(style));
                 gb_printf_err("Valid formats:\n");
                 gb_printf_err("\t\"default\" or \"odin\"\n");
                 gb_printf_err("\t\tpath(line:column) message\n");
@@ -1777,7 +1777,7 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
                 gb_exit(1);
             }
 
-            build_context.ODIN_ERROR_POS_STYLE = kind;
+            build_context.DUSK_ERROR_POS_STYLE = kind;
         }
     }
 
@@ -1859,8 +1859,8 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
 
     bc->metrics = *metrics;
 
-    bc->ODIN_OS        = target_os_names[metrics->os];
-    bc->ODIN_ARCH      = target_arch_names[metrics->arch];
+    bc->DUSK_OS        = target_os_names[metrics->os];
+    bc->DUSK_ARCH      = target_arch_names[metrics->arch];
     bc->endian_kind    = target_endians[metrics->arch];
     bc->ptr_size       = metrics->ptr_size;
     bc->int_size       = metrics->int_size;
@@ -1890,8 +1890,8 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
     // }
 
     // Default to subsystem:CONSOLE on Windows targets
-    if (bc->ODIN_WINDOWS_SUBSYSTEM == Windows_Subsystem_UNKNOWN && bc->metrics.os == TargetOs_windows) {
-        bc->ODIN_WINDOWS_SUBSYSTEM = Windows_Subsystem_CONSOLE;
+    if (bc->DUSK_WINDOWS_SUBSYSTEM == Windows_Subsystem_UNKNOWN && bc->metrics.os == TargetOs_windows) {
+        bc->DUSK_WINDOWS_SUBSYSTEM = Windows_Subsystem_CONSOLE;
     }
 
     if (subtarget == Subtarget_Android) {
@@ -2034,7 +2034,7 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
     if (!bc->custom_optimization_level) {
         // NOTE(bill): when building with `-debug` but not specifying an optimization level
         // default to `-o:none` to improve the debug symbol generation by default
-        if (bc->ODIN_DEBUG) {
+        if (bc->DUSK_DEBUG) {
             bc->optimization_level = -1; // -o:none
         } else {
             bc->optimization_level = 0; // -o:minimal
@@ -2077,17 +2077,17 @@ gb_internal void init_build_context(TargetMetrics *cross_target, Subtarget subta
         }
     }
 
-    bc->ODIN_VALGRIND_SUPPORT = false;
+    bc->DUSK_VALGRIND_SUPPORT = false;
     if (build_context.metrics.os != TargetOs_windows) {
         switch (bc->metrics.arch) {
         case TargetArch_amd64:
-            bc->ODIN_VALGRIND_SUPPORT = true;
+            bc->DUSK_VALGRIND_SUPPORT = true;
             break;
         }
     }
 
     if (bc->metrics.os == TargetOs_freestanding) {
-        bc->ODIN_DEFAULT_TO_NIL_ALLOCATOR = !bc->ODIN_DEFAULT_TO_PANIC_ALLOCATOR;
+        bc->DUSK_DEFAULT_TO_NIL_ALLOCATOR = !bc->DUSK_DEFAULT_TO_PANIC_ALLOCATOR;
     }
 }
 
@@ -2244,7 +2244,7 @@ gb_internal bool init_build_paths(String init_filename) {
     {
         String build_project_name  = last_path_element(bc->build_paths[BuildPath_Main_Package].basename);
         GB_ASSERT(build_project_name.len > 0);
-        bc->ODIN_BUILD_PROJECT_NAME = build_project_name;
+        bc->DUSK_BUILD_PROJECT_NAME = build_project_name;
     }
 
     bool produces_output_file = false;
@@ -2326,7 +2326,7 @@ gb_internal bool init_build_paths(String init_filename) {
     } else if (build_context.build_mode == BuildMode_Executable) {
         // By default use no executable extension.
         output_extension = make_string(nullptr, 0);
-        String const single_file_extension = str_lit(".odin");
+        String const single_file_extension = str_lit(".dusk");
 
         if (selected_subtarget == Subtarget_Android) {
             // NOTE(bill): It's always shared!
@@ -2408,7 +2408,7 @@ gb_internal bool init_build_paths(String init_filename) {
             }
             // Only trim the extension if it's an Odin source file.
             // This lets people build folders with extensions or files beginning with dots.
-            if (path_extension(output_name) == ".odin" && !path_is_directory(output_name)) {
+            if (path_extension(output_name) == ".dusk" && !path_is_directory(output_name)) {
                 output_name = remove_extension_from_path(output_name);
             }
             output_name = remove_directory_from_path(output_name);
@@ -2463,7 +2463,7 @@ gb_internal bool init_build_paths(String init_filename) {
         bc->build_paths[BuildPath_Output] = output_path;
     }
 
-    if (build_context.ODIN_DEBUG) {
+    if (build_context.DUSK_DEBUG) {
         if (build_context.metrics.os == TargetOs_windows) {
             if (bc->pdb_filepath.len > 0) {
                 bc->build_paths[BuildPath_Symbols] = path_from_string(ha, bc->pdb_filepath);
@@ -2550,7 +2550,7 @@ gb_internal bool init_build_paths(String init_filename) {
     }
 
     bool no_crt_checks_failed = false;
-    if (build_context.no_crt && !build_context.ODIN_DEFAULT_TO_NIL_ALLOCATOR && !build_context.ODIN_DEFAULT_TO_PANIC_ALLOCATOR) {
+    if (build_context.no_crt && !build_context.DUSK_DEFAULT_TO_NIL_ALLOCATOR && !build_context.DUSK_DEFAULT_TO_PANIC_ALLOCATOR) {
         switch (build_context.metrics.os) {
         case TargetOs_linux:
         case TargetOs_darwin:

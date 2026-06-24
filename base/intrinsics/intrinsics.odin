@@ -303,7 +303,7 @@ simd_div  :: proc(a, b: #simd[N]T) -> #simd[N]T where type_is_float(T) ---
 simd_saturating_add  :: proc(a, b: #simd[N]T) -> #simd[N]T where type_is_integer(T) ---
 simd_saturating_sub  :: proc(a, b: #simd[N]T) -> #simd[N]T where type_is_integer(T) ---
 
-// Keeps Odin's Behaviour
+// Keeps Dusk's Behaviour
 // (x << y) if y <= mask else 0
 simd_shl :: proc(a: #simd[N]T, b: #simd[N]Unsigned_Integer) -> #simd[N]T ---
 simd_shr :: proc(a: #simd[N]T, b: #simd[N]Unsigned_Integer) -> #simd[N]T ---

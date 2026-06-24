@@ -7,7 +7,7 @@ along with some higher-level helpers.
 ## Notes
 
 fiat-crypto gives the choice of 3 licenses for derived works.  The 1-Clause
-BSD license is chosen as it is compatible with Odin's existing licensing.
+BSD license is chosen as it is compatible with Dusk's existing licensing.
 
 The routines are intended to be timing-safe, as long as the underlying
 integer arithmetic is constant time.  This is true on most systems commonly

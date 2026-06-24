@@ -6,20 +6,20 @@ char           :: builtin.u8  // assuming -funsigned-char
 schar          :: builtin.i8
 short          :: builtin.i16
 int            :: builtin.i32
-long           :: builtin.i32 when (ODIN_OS == .Windows || size_of(builtin.rawptr) == 4) else builtin.i64
+long           :: builtin.i32 when (DUSK_OS == .Windows || size_of(builtin.rawptr) == 4) else builtin.i64
 longlong       :: builtin.i64
 
 uchar          :: builtin.u8
 ushort         :: builtin.u16
 uint           :: builtin.u32
-ulong          :: builtin.u32 when (ODIN_OS == .Windows || size_of(builtin.rawptr) == 4) else builtin.u64
+ulong          :: builtin.u32 when (DUSK_OS == .Windows || size_of(builtin.rawptr) == 4) else builtin.u64
 ulonglong      :: builtin.u64
 
 bool           :: builtin.bool
 
 size_t         :: builtin.uint
 ssize_t        :: builtin.int
-wchar_t        :: builtin.u16 when (ODIN_OS == .Windows) else builtin.u32
+wchar_t        :: builtin.u16 when (DUSK_OS == .Windows) else builtin.u32
 
 float          :: builtin.f32
 double         :: builtin.f64
@@ -47,7 +47,7 @@ int_least64_t  :: builtin.i64
 uint_least64_t :: builtin.u64
 
 // Same on Windows, Linux, and FreeBSD
-when ODIN_ARCH == .i386 {
+when DUSK_ARCH == .i386 {
     int_fast8_t    :: builtin.i8
     uint_fast8_t   :: builtin.u8
     int_fast16_t   :: builtin.i32
@@ -56,7 +56,7 @@ when ODIN_ARCH == .i386 {
     uint_fast32_t  :: builtin.u32
     int_fast64_t   :: builtin.i64
     uint_fast64_t  :: builtin.u64
-} else when ODIN_ARCH == .amd64 {
+} else when DUSK_ARCH == .amd64 {
     int_fast8_t    :: builtin.i8
     uint_fast8_t   :: builtin.u8
     int_fast16_t   :: long
@@ -109,7 +109,7 @@ WCHAR_MAX      :: max(wchar_t)
 
 NULL           :: rawptr(uintptr(0))
 
-NDEBUG         :: !ODIN_DEBUG
+NDEBUG         :: !DUSK_DEBUG
 
 CHAR_BIT :: 8
 

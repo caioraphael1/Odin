@@ -13,7 +13,7 @@ where /Q cl.exe || (
 )
 
 if "%VSCMD_ARG_TGT_ARCH%" neq "x64" (
-    if "%ODIN_IGNORE_MSVC_CHECK%" == "" (
+    if "%DUSK_IGNORE_MSVC_CHECK%" == "" (
         echo ERROR: please run this from MSVC x64 native tools command prompt, 32-bit target is not supported!
         exit /b 1
     )
@@ -76,7 +76,7 @@ set compiler_flags= -nologo -Oi -TP -fp:precise -Gm- -MP -FC -EHsc- -GR- -GF
 rem Parse source code as utf-8 even on shift-jis and other codepages
 rem See https://learn.microsoft.com/en-us/cpp/build/reference/utf-8-set-source-and-executable-character-sets-to-utf-8?view=msvc-170
 set compiler_flags= %compiler_flags% /utf-8
-set compiler_defines= -DODIN_VERSION_RAW=\"%odin_version_raw%\" -DGIT_SHA=\"%GIT_SHA%\"
+set compiler_defines= -DDUSK_VERSION_RAW=\"%odin_version_raw%\" -DGIT_SHA=\"%GIT_SHA%\"
 
 rem fileversion is defined as {Major,Minor,Build,Private: u16} so a bit limited
 set rc_flags=-nologo "-DGIT_SHA=%GIT_SHA% -DVP=dev-%V1%-%V2%:%GIT_SHA% nologo -DV1=%V1% -DV2=%V2% -DV3=%V3% -DV4=%V4% -DVF=%odin_version_full% -DNIGHTLY=%nightly%"
@@ -111,7 +111,7 @@ rem THIS TILDE STUFF IS FOR DEVELOPMENT ONLY!
 set tilde_backend=0
 if %tilde_backend% EQU 1 (
     set libs=%libs% src\tilde\tb.lib
-    set compiler_defines=%compiler_defines% -DODIN_TILDE_BACKEND
+    set compiler_defines=%compiler_defines% -DDUSK_TILDE_BACKEND
 )
 rem DO NOT TOUCH!
 

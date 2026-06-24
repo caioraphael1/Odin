@@ -64,8 +64,8 @@ gen_tables :: proc($CURVE: string) {
         }
     }
 
-    fn_ := "sec" + CURVE + "_table.odin"
-    fn, err := path.join({ODIN_ROOT, "core", "crypto", "_weierstrass", fn_}, context.allocator)
+    fn_ := "sec" + CURVE + "_table.dusk"
+    fn, err := path.join({DUSK_ROOT, "core", "crypto", "_weierstrass", fn_}, context.allocator)
     if err != .None {
         fmt.eprintfln("Join path error for %s: %v", fn_, err);
         os.exit(1);

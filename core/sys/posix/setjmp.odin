@@ -1,7 +1,7 @@
 #+build linux, darwin, netbsd, openbsd, freebsd
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
 } else {
 	foreign import lib "system:c"
@@ -43,7 +43,7 @@ foreign lib {
 
 sigjmp_buf :: distinct jmp_buf
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
 	@(private) LSIGSETJMP  :: "__sigsetjmp14"
 	@(private) LSIGLONGJMP :: "__siglongjmp14"
 } else {

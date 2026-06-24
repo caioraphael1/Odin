@@ -8,7 +8,7 @@ rem call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxil
 call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64 1> NUL
 set _NO_DEBUG_HEAP=1
 
-set ODIN_IGNORE_MSVC_CHECK=1
+set DUSK_IGNORE_MSVC_CHECK=1
 
 rem set path=w:\Odin\misc;%path%
 cls

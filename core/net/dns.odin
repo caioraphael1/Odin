@@ -10,7 +10,7 @@
     Copyright 2022 Jeroen van Rijn      <nom@duclavier.com>.
     Copyright 2024 Feoramund            <rune@swevencraft.org>.
     Copyright 2025 Christiano Haesbaert <haesbaert@haesbaert.org>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Tetralux:        Initial implementation
@@ -36,12 +36,12 @@ import "core:time"
 import "core:strings_tools"
 
 dns_config_initialized: sync.Once
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
     dns_configuration := DNS_Configuration{
         resolv_conf = "",
         hosts_file  = "%WINDIR%\\system32\\drivers\\etc\\hosts",
     }
-} else when ODIN_OS == .Linux || ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD || ODIN_OS == .NetBSD {
+} else when DUSK_OS == .Linux || DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .OpenBSD || DUSK_OS == .NetBSD {
     dns_configuration := DNS_Configuration{
         resolv_conf = "/etc/resolv.conf",
         hosts_file  = "/etc/hosts",
@@ -51,7 +51,7 @@ when ODIN_OS == .Windows {
 }
 
 init_dns_configuration :: proc() {
-    when ODIN_OS == .Windows {
+    when DUSK_OS == .Windows {
         _init_dns_configuration()
     }
 }
@@ -111,7 +111,7 @@ resolve_ip4 :: proc(hostname_and_maybe_port: string) -> (ep4: Endpoint, err: Net
     case Host:
         recs: []DNS_Record
 
-        if ODIN_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
+        if DUSK_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
             recs, _ = get_dns_records_from_nameservers(t.hostname, .IP4, {IP4_mDNS_Broadcast}, nil, allocators.temp_allocator)
         } else {
             recs, _ = get_dns_records_from_os(t.hostname, .IP4, allocators.temp_allocator)
@@ -145,7 +145,7 @@ resolve_ip6 :: proc(hostname_and_maybe_port: string) -> (ep6: Endpoint, err: Net
     case Host:
         recs: []DNS_Record
 
-        if ODIN_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
+        if DUSK_OS != .Windows && strings.string_has_suffix(t.hostname, ".local") {
             recs, _ = get_dns_records_from_nameservers(t.hostname, .IP6, {IP6_mDNS_Broadcast}, nil, allocators.temp_allocator)
         } else {
             recs, _ = get_dns_records_from_os(t.hostname, .IP6, allocators.temp_allocator)

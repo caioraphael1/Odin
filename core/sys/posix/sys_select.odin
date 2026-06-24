@@ -3,7 +3,7 @@ import "base:intrinsics"
 
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
     foreign import lib "system:System"
 } else {
     foreign import lib "system:c"
@@ -46,7 +46,7 @@ foreign lib {
     ) -> c.int ---
 }
 
-when ODIN_OS == .NetBSD {
+when DUSK_OS == .NetBSD {
     LPSELECT :: "__pselect50"
     LSELECT  :: "__select50"
 } else {
@@ -54,9 +54,9 @@ when ODIN_OS == .NetBSD {
     LSELECT  :: "select"
 }
 
-when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS == .OpenBSD || ODIN_OS == .Linux || ODIN_OS == .Haiku {
+when DUSK_OS == .Darwin || DUSK_OS == .FreeBSD || DUSK_OS == .NetBSD || DUSK_OS == .OpenBSD || DUSK_OS == .Linux || DUSK_OS == .Haiku {
 
-    suseconds_t :: distinct (c.int32_t when ODIN_OS == .Darwin || ODIN_OS == .NetBSD || ODIN_OS == .Haiku else c.long)
+    suseconds_t :: distinct (c.int32_t when DUSK_OS == .Darwin || DUSK_OS == .NetBSD || DUSK_OS == .Haiku else c.long)
 
     timeval :: struct {
         tv_sec:  time_t,      /* [PSX] seconds */
@@ -64,16 +64,16 @@ when ODIN_OS == .Darwin || ODIN_OS == .FreeBSD || ODIN_OS == .NetBSD || ODIN_OS 
     }
 
     // Maximum number of file descriptors in the fd_set structure.
-    FD_SETSIZE :: #config(POSIX_FD_SETSIZE, 256 when ODIN_OS == .NetBSD else 1024)
+    FD_SETSIZE :: #config(POSIX_FD_SETSIZE, 256 when DUSK_OS == .NetBSD else 1024)
 
     @(private)
     __NFDBITS :: size_of(c.int32_t) * 8
 
     // NOTE: this seems correct for FreeBSD but they do use a set backed by the long type themselves (thus the align change).
     @(private)
-    ALIGN ::  align_of(c.long) when ODIN_OS == .FreeBSD || ODIN_OS == .Linux else align_of(c.int32_t)
+    ALIGN ::  align_of(c.long) when DUSK_OS == .FreeBSD || DUSK_OS == .Linux else align_of(c.int32_t)
 
-    when ODIN_OS == .Haiku {
+    when DUSK_OS == .Haiku {
         fd_set :: struct #align(ALIGN) {
             fds_bits: [(FD_SETSIZE + (__NFDBITS - 1)) / __NFDBITS]c.int32_t,
         }

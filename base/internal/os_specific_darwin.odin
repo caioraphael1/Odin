@@ -7,7 +7,7 @@ foreign import libc "system:System"
 
 _stderr_write :: proc(data: []u8) -> (int, _OS_Errno) {
     STDERR :: 2
-    when ODIN_NO_CRT {
+    when DUSK_NO_CRT {
         WRITE  :: 0x2000004
         ret := intrinsics.syscall(WRITE, STDERR, uintptr(raw_data(data)), uintptr(len(data)))
         if ret < 0 {

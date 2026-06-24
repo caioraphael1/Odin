@@ -1,4 +1,4 @@
-GL_DEBUG :: #config(GL_DEBUG, ODIN_DEBUG)
+GL_DEBUG :: #config(GL_DEBUG, DUSK_DEBUG)
 FALSE :: false
 TRUE :: true
 

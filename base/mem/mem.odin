@@ -402,7 +402,7 @@ memory_prefix_length :: proc(x, y: rawptr, n: uint) -> (idx: uint) #no_bounds_ch
     m := uint(0)
 
     when internal.HAS_HARDWARE_SIMD {
-        when ODIN_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
+        when DUSK_ARCH == .amd64 && intrinsics.has_target_feature("avx2") {
             m = n / 32 * 32
             for ; i < m; i += 32 {
                 load_a := intrinsics.unaligned_load(cast(^#simd[32]u8)&a[i])

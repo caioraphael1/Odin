@@ -5,7 +5,7 @@
     Internationalization helpers.
 
     Copyright 2021-2022 Jeroen van Rijn <nom@duclavier.com>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Jeroen van Rijn: Initial implementation.

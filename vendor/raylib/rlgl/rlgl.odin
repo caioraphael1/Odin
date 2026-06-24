@@ -118,7 +118,7 @@ RAYLIB_WASM_LIB :: #config(RAYLIB_WASM_LIB, "../wasm/libraylib.a")
 // - Remove the `import rl "../."` line
 // - Copy the code from raylib.odin for any types we alias from that package (see PixelFormat etc)
 
-when ODIN_OS == .Windows {
+when DUSK_OS == .Windows {
 	@(extra_linker_flags="/NODEFAULTLIB:" + ("msvcrt" when RAYLIB_SHARED else "libcmt"))
 	foreign import lib {
 		"../windows/raylibdll.lib" when RAYLIB_SHARED else "../windows/raylib.lib" ,
@@ -127,7 +127,7 @@ when ODIN_OS == .Windows {
 		"system:User32.lib",
 		"system:Shell32.lib",
 	}
-} else when ODIN_OS == .Linux  {
+} else when DUSK_OS == .Linux  {
 	foreign import lib {
 		// Note(bumbread): I'm not sure why in `linux/` folder there are
 		// multiple copies of raylib.so, but since these bindings are for
@@ -137,14 +137,14 @@ when ODIN_OS == .Windows {
 		"system:dl",
 		"system:pthread",
 	}
-} else when ODIN_OS == .Darwin {
+} else when DUSK_OS == .Darwin {
 	foreign import lib {
 		"../macos/libraylib.550.dylib" when RAYLIB_SHARED else "../macos/libraylib.a",
 		"system:Cocoa.framework",
 		"system:OpenGL.framework",
 		"system:IOKit.framework",
 	} 
-} else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
+} else when DUSK_ARCH == .wasm32 || DUSK_ARCH == .wasm64p32 {
 	foreign import lib {
 		RAYLIB_WASM_LIB,
 	}

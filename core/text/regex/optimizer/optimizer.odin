@@ -1,6 +1,6 @@
 /*
     (c) Copyright 2024 Feoramund <rune@swevencraft.org>.
-    Made available under Odin's license.
+    Made available under Dusk's license.
 
     List of contributors:
         Feoramund: Initial implementation.
@@ -512,7 +512,7 @@ optimize :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (
     result = tree
     new_changes := 0
 
-    when common.ODIN_DEBUG_REGEX {
+    when common.DUSK_DEBUG_REGEX {
         io.write_string(common.debug_stream, "AST before Optimizer: ")
         parser.write_node(common.debug_stream, tree)
         io.write_byte(common.debug_stream, '\n')
@@ -527,7 +527,7 @@ optimize :: proc(tree: Node, flags: common.Flags, allocator: mem.Allocator) -> (
         }
     }
 
-    when common.ODIN_DEBUG_REGEX {
+    when common.DUSK_DEBUG_REGEX {
         io.write_string(common.debug_stream, "AST after Optimizer: ")
         parser.write_node(common.debug_stream, result)
         io.write_byte(common.debug_stream, '\n')

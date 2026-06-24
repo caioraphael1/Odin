@@ -7,7 +7,7 @@ import "base:mem"
 import subtle "core:crypto/_subtle"
 
 // Omit large precomputed tables, trading off performance for size.
-COMPACT_IMPLS: bool : #config(ODIN_CRYPTO_COMPACT, false)
+COMPACT_IMPLS: bool : #config(DUSK_CRYPTO_COMPACT, false)
 
 HAS_RAND_BYTES :: rand.HAS_RAND_BYTES
 

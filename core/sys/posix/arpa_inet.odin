@@ -1,9 +1,9 @@
 #+build darwin, linux, freebsd, openbsd, netbsd, haiku
 import "core:c"
 
-when ODIN_OS == .Darwin {
+when DUSK_OS == .Darwin {
 	foreign import lib "system:System"
-} else when ODIN_OS == .Haiku {
+} else when DUSK_OS == .Haiku {
 	foreign import lib "system:network"
 } else {
 	foreign import lib "system:c"
@@ -12,7 +12,7 @@ when ODIN_OS == .Darwin {
 // arpa/inet.h - definitions for internet operations
 
 foreign lib {
-	// Use Odin's native big endian types `u32be` and `u16be` instead.
+	// Use Dusk's native big endian types `u32be` and `u16be` instead.
 	// htonl :: proc(c.uint32_t) -> c.uint32_t ---
 	// htons :: proc(c.uint16_t) -> c.uint16_t ---
 	// ntohl :: proc(c.uint32_t) -> c.uint32_t ---
